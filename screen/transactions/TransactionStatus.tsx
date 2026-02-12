@@ -1,36 +1,37 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { sha256 } from '@noble/hashes/sha256';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@rneui/themed';
-import { sha256 } from '@noble/hashes/sha256';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueText } from '../../BlueComponents';
-import presentAlert from '../../components/Alert';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Transaction, TWallet } from '../../class/wallets/types';
+import presentAlert from '../../components/Alert';
+import { BlueLoading } from '../../components/BlueLoading';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import loc, { formatBalanceWithoutSuffix } from '../../loc';
-import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { useStorage } from '../../hooks/context/useStorage';
-import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueLoading } from '../../components/BlueLoading';
-import useWalletSubscribe from '../../hooks/useWalletSubscribe';
-import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import prompt from '../../helpers/prompt';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import useWalletSubscribe from '../../hooks/useWalletSubscribe';
+import loc, { formatBalanceWithoutSuffix } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 dayjs.extend(relativeTime);
 
@@ -121,7 +122,7 @@ const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> 
   </View>
 );
 
-const TransactionDetails: React.FC = () => {
+const TransactionStatus: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
@@ -212,10 +213,6 @@ const TransactionDetails: React.FC = () => {
     },
     stateCard: {
       backgroundColor: colors.lightButton || colors.elevated,
-      borderRadius: 12,
-      marginHorizontal: 24,
-      marginBottom: 42,
-      overflow: 'hidden',
     },
     stateCardPending: {
       backgroundColor: colors.transactionPendingBackgroundColor,
@@ -228,16 +225,6 @@ const TransactionDetails: React.FC = () => {
     },
     card: {
       backgroundColor: colors.elevated || colors.background,
-      borderRadius: 12,
-      marginHorizontal: 24,
-      marginBottom: 42,
-      padding: 20,
-    },
-    valueCardContainer: {
-      backgroundColor: 'transparent',
-      marginHorizontal: 24,
-      marginBottom: 42,
-      padding: 0,
     },
     sectionTitle: {
       backgroundColor: colors.cardSectionHeaderBackground,
@@ -535,9 +522,7 @@ const TransactionDetails: React.FC = () => {
           setTxFromElectrum(fetchedTx);
 
           if (tx) {
-            setTX((prevState: any) => {
-              return Object.assign({}, prevState, { confirmations: fetchedTx.confirmations });
-            });
+            setTX({ ...tx, confirmations: fetchedTx.confirmations } as Transaction);
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
           }
@@ -741,15 +726,7 @@ const TransactionDetails: React.FC = () => {
   const handleNotePress = useCallback(async () => {
     const currentMemo = txMetadata[tx.hash]?.memo || '';
     try {
-      const newMemo = await prompt(
-        loc.send.details_note_placeholder,
-        '',
-        true,
-        'plain-text',
-        false,
-        undefined,
-        currentMemo,
-      );
+      const newMemo = await prompt(loc.send.details_note_placeholder, '', true, 'plain-text', false, undefined, currentMemo);
       if (newMemo !== undefined) {
         txMetadata[tx.hash] = { memo: newMemo };
         await saveToDisk();
@@ -909,7 +886,11 @@ const TransactionDetails: React.FC = () => {
 
     try {
       const maybeWallet: any = wallet;
-      if (typeof maybeWallet.allowBIP47 === 'function' && typeof maybeWallet.isBIP47Enabled === 'function' && 'getBip47CounterpartyByTxid' in maybeWallet) {
+      if (
+        typeof maybeWallet.allowBIP47 === 'function' &&
+        typeof maybeWallet.isBIP47Enabled === 'function' &&
+        'getBip47CounterpartyByTxid' in maybeWallet
+      ) {
         if (!maybeWallet.allowBIP47() || !maybeWallet.isBIP47Enabled()) {
           setCounterpartyLabel(null);
           setPaymentCode(null);
@@ -944,8 +925,8 @@ const TransactionDetails: React.FC = () => {
   const counterpartyColor = useMemo(() => {
     if (!paymentCode) return null;
     try {
-      const hash = sha256(paymentCode);
-      return '#' + uint8ArrayToHex(hash).substring(0, 6);
+      const digest = sha256(paymentCode);
+      return '#' + uint8ArrayToHex(digest).substring(0, 6);
     } catch {
       return null;
     }
@@ -973,7 +954,7 @@ const TransactionDetails: React.FC = () => {
   if (loadingError) {
     return (
       <SafeAreaScrollView>
-        <View style={stylesHook.card}>
+        <View style={[styles.card, stylesHook.card]}>
           <BlueText>{loc.transactions.transaction_loading_error}</BlueText>
         </View>
       </SafeAreaScrollView>
@@ -999,7 +980,7 @@ const TransactionDetails: React.FC = () => {
   return (
     <SafeAreaScrollView contentContainerStyle={styles.scrollContent}>
       {/* Value Section */}
-      <View style={[styles.valueCard, stylesHook.valueCardContainer]}>
+      <View style={styles.valueCard}>
         <View style={styles.valueContent}>
           <Text style={[styles.value, stylesHook.value]} selectable>
             {formatBalanceWithoutSuffix(tx.value, wallet.preferredBalanceUnit, true)}
@@ -1042,9 +1023,7 @@ const TransactionDetails: React.FC = () => {
                       style={[styles.speedUpButton, stylesHook.speedUpButton]}
                       accessibilityRole="button"
                     >
-                      <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>
-                        {loc.transactions.status_bump}
-                      </BlueText>
+                      <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
                     </TouchableOpacity>
                   )}
                   {isRBFCancelPossible === ButtonStatus.Possible && (
@@ -1314,7 +1293,7 @@ const TransactionDetails: React.FC = () => {
   );
 };
 
-export default TransactionDetails;
+export default TransactionStatus;
 
 const styles = StyleSheet.create({
   scrollContent: {
@@ -1340,6 +1319,10 @@ const styles = StyleSheet.create({
   },
   valueCard: {
     marginTop: 0,
+    backgroundColor: 'transparent',
+    marginHorizontal: 24,
+    marginBottom: 42,
+    padding: 0,
   },
   counterpartyContainer: {
     flexDirection: 'row',
@@ -1393,6 +1376,10 @@ const styles = StyleSheet.create({
   },
   stateCard: {
     marginTop: 0,
+    borderRadius: 12,
+    marginHorizontal: 24,
+    marginBottom: 42,
+    overflow: 'hidden',
   },
   stateSection: {
     alignItems: 'flex-start',
@@ -1463,6 +1450,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: 'rgba(0, 0, 0, 0.6)',
     textAlign: 'center',
+  },
+  card: {
+    borderRadius: 12,
+    marginHorizontal: 24,
+    marginBottom: 42,
+    padding: 20,
   },
   memoContainer: {
     flex: 1,

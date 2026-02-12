@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { forwardRef, useEffect, useState } from 'react';
-import { StyleSheet, TextProps, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TextProps, TouchableOpacity } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueText } from '../BlueComponents';
@@ -20,28 +20,10 @@ const styles = StyleSheet.create({
     color: '#9aa0aa',
     textAlign: 'center',
   },
-  defaultContainerStyle: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
 });
 
 const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(
-  (
-    {
-      text,
-      displayText: displayTextProp,
-      truncated,
-      style,
-      numberOfLines,
-      ellipsizeMode,
-      selectable,
-      textAlign,
-      ...textProps
-    },
-    ref,
-  ) => {
+  ({ text, displayText: displayTextProp, truncated, style, numberOfLines, ellipsizeMode, selectable, textAlign, ...textProps }, ref) => {
     const [hasTappedText, setHasTappedText] = useState(false);
     const initialDisplayText = displayTextProp || text;
     const [displayText, setDisplayText] = useState(initialDisplayText);
@@ -68,12 +50,11 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       }, 1000);
     };
 
-    const useDefaultStyles = !style;
-    const mergedTextStyle = useDefaultStyles ? styles.defaultTextStyle : style;
+    const mergedTextStyle = style || styles.defaultTextStyle;
     const finalNumberOfLines = numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
     const finalEllipsizeMode = ellipsizeMode || (truncated ? 'middle' : undefined);
 
-    const content = (
+    return (
       <TouchableOpacity
         ref={ref}
         accessibilityRole="button"
@@ -95,11 +76,6 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
         </BlueText>
       </TouchableOpacity>
     );
-
-    if (useDefaultStyles) {
-      return <View style={styles.defaultContainerStyle}>{content}</View>;
-    }
-    return content;
   },
 );
 

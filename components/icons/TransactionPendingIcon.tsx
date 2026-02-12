@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import LottieView from 'lottie-react-native';
 
 import { useTheme } from '../themes';
@@ -7,19 +7,19 @@ import { useTheme } from '../themes';
 const styles = StyleSheet.create({
   boxIncoming: {
     position: 'relative',
-  } as ViewStyle,
+  },
   ball: {
     width: 32,
     height: 32,
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-  } as ViewStyle,
+  },
   lottie: {
     width: 20,
     height: 20,
     alignSelf: 'center',
-  } as ViewStyle,
+  },
 });
 
 const TransactionPendingIcon: React.FC = () => {

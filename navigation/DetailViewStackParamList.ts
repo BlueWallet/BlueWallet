@@ -24,6 +24,7 @@ export type DetailViewStackParamList = {
   WalletsList: { onBarScanned?: string };
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
   WalletDetails: { walletID: string };
+  // TODO: type tx properly once Transaction and ElectrumTransaction are unified
   TransactionStatus: { hash: string; walletID: string; tx?: any };
   CPFP: {
     wallet: TWallet | null;
