@@ -219,8 +219,9 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 36
+        profile: pixel_7_pro
         avd-name: Pixel_API_29_AOSP
-        force-avd-creation: false
+        force-avd-creation: true
         enable-hw-keyboard: true
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
