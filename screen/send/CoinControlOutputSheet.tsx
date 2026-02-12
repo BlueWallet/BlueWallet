@@ -4,7 +4,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import ListItem from '../../components/ListItem';
-import SafeArea from '../../components/SafeArea';
 import { BlueSpacing10 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -17,28 +16,6 @@ import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import * as RNLocalize from 'react-native-localize';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import HeaderRightButton from '../../components/HeaderRightButton';
-
-const mStyles = StyleSheet.create({
-  memoTextInput: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    color: '#81868e',
-  },
-  buttonContainer: {
-    height: 45,
-    marginBottom: 36,
-    marginHorizontal: 24,
-  },
-});
-
-const transparentBackground = { backgroundColor: 'transparent' };
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControlOutput'>;
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControlOutput'>;
@@ -135,14 +112,14 @@ const CoinControlOutputSheet: React.FC = () => {
 
   if (!wallet) {
     return (
-      <SafeArea style={[styles.center, { backgroundColor: colors.elevated }]}>
+      <View style={[styles.center, { backgroundColor: colors.elevated }]}>
         <Text style={{ color: colors.foregroundColor }}>{loc.wallets.import_discovery_no_wallets}</Text>
-      </SafeArea>
+      </View>
     );
   }
 
   return (
-    <SafeArea style={[styles.root, { backgroundColor: colors.elevated }]}>
+    <View style={[styles.root, { backgroundColor: colors.elevated }]}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={12}>
         <RNElementsListItem bottomDivider containerStyle={styles.headerContainer}>
           <Avatar rounded size={40} containerStyle={[styles.avatar, { backgroundColor: color }]} />
@@ -181,7 +158,7 @@ const CoinControlOutputSheet: React.FC = () => {
             placeholderTextColor="#81868e"
             editable={!loading}
             style={[
-              mStyles.memoTextInput,
+              styles.memoTextInput,
               {
                 borderColor: colors.formBorder,
                 borderBottomColor: colors.formBorder,
@@ -193,24 +170,24 @@ const CoinControlOutputSheet: React.FC = () => {
           />
           <ListItem
             title={loc.cc.freezeLabel}
-            containerStyle={transparentBackground}
+            containerStyle={styles.transparentBackground}
             Component={TouchableWithoutFeedback}
             switch={switchValue}
           />
         </View>
 
-        <View style={mStyles.buttonContainer}>
+        <View style={styles.buttonContainer}>
           {!isVisible && <Button testID="UseCoin" title={loc.cc.use_coin} onPress={handleUseCoin} disabled={loading} />}
         </View>
       </KeyboardAvoidingView>
-    </SafeArea>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
   },
   flex: {
     flex: 1,
@@ -231,9 +208,26 @@ const styles = StyleSheet.create({
   tranText: { fontWeight: 'normal', fontSize: 13 },
   memo: { fontSize: 13, marginTop: 3 },
   content: {
-    paddingHorizontal: 4,
     paddingTop: 12,
     flex: 1,
+  },
+  memoTextInput: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+  },
+  transparentBackground: {
+    backgroundColor: 'transparent',
+  },
+  buttonContainer: {
+    height: 45,
+    marginBottom: 36,
   },
 });
 
