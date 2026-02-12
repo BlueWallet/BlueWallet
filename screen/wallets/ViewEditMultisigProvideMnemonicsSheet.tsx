@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Switch, View } from 'react-native';
+import { Platform, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -47,7 +47,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
+      <View style={styles.flex}>
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
@@ -89,7 +89,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
             handleImport(text);
           }}
         />
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 };

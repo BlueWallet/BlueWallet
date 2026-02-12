@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import ListItem from '../../components/ListItem';
 import { BlueSpacing10 } from '../../components/BlueSpacing';
@@ -105,7 +105,7 @@ const CoinControlOutputSheet: React.FC = () => {
       <View style={styles.floatingDoneButtonContainer}>
         <HeaderRightButton testID="CoinControlOutputDone" title={loc.send.input_done} onPress={applyChangesAndClose} disabled={loading} />
       </View>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={12}>
+      <View style={styles.flex}>
         <RNElementsListItem bottomDivider containerStyle={styles.headerContainer}>
           <View style={styles.rowContent}>
             <Avatar rounded size={40} containerStyle={[styles.avatar, { backgroundColor: color }]} />
@@ -166,7 +166,7 @@ const CoinControlOutputSheet: React.FC = () => {
         <View style={styles.buttonContainer}>
           {!isVisible && <Button testID="UseCoin" title={loc.cc.use_coin} onPress={handleUseCoin} disabled={loading} />}
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 };

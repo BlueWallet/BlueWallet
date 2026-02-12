@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { TextInput, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { TextInput, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
@@ -126,7 +126,7 @@ const ReceiveCustomAmountSheet = () => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex} keyboardVerticalOffset={12}>
+      <View style={styles.flex}>
         <AmountInput.AmountInput unit={unit} amount={amount || ''} onChangeText={setAmount} onAmountUnitChange={setUnit} />
         <View style={[styles.customAmount, stylesHook.customAmount]}>
           <TextInput
@@ -157,7 +157,7 @@ const ReceiveCustomAmountSheet = () => {
             onPress={handleSave}
           />
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 };

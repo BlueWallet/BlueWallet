@@ -1,24 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  Animated,
-  Easing,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  TextStyle,
-  ViewStyle,
-} from 'react-native';
+import { Animated, Easing, Keyboard, StyleSheet, Text, TextInput, View, TextStyle, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SecondButton } from '../components/SecondButton';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { useKeyboard } from '../hooks/useKeyboard';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
@@ -47,7 +34,6 @@ const PromptPasswordConfirmationSheet = () => {
   const explanationOpacity = useRef(new Animated.Value(1)).current;
 
   const { colors } = useTheme();
-  useKeyboard();
   const { encryptStorage, decryptStorage, saveToDisk, cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
 
   const stylesHook = useMemo<DynamicStyles>(
@@ -207,7 +193,7 @@ const PromptPasswordConfirmationSheet = () => {
 
   return (
     <SafeAreaView style={[styles.modalContent, stylesHook.modalContent]} edges={['bottom', 'left', 'right']}>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={12}>
+      <View style={styles.flex}>
         <View style={styles.padding} />
         <Animated.View style={[animatedViewStyle, styles.minHeight]}>
           {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
@@ -295,7 +281,7 @@ const PromptPasswordConfirmationSheet = () => {
             </View>
           )}
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 };

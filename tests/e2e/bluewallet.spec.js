@@ -364,9 +364,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('PasswordInput');
 
     // trying MAIN password: should fail, obviously
+    await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('qqq');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
+    await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
@@ -466,6 +468,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
+    await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('pass');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
@@ -479,6 +482,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
+    await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
@@ -518,7 +522,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
     await sleep(1000); // propagate
-    await element(by.text('OK')).tap(); // INCORRECT PASSWORD alert
+    await element(by.text('OK')).atIndex(0).tap(); // INCORRECT PASSWORD alert
     // correct password
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('pass');
