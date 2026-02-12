@@ -219,7 +219,7 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 36
-        profile: pixel_7_pro
+        profile: pixel
         avd-name: Pixel_API_29_AOSP
         force-avd-creation: true
         enable-hw-keyboard: true
