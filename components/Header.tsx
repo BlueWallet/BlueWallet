@@ -24,7 +24,9 @@ export const Header: React.FC<HeaderProps> = ({ leftText, isDrawerList, onNewWal
 
   return (
     <View style={[styles.root, styleWithProps.root]}>
-      <Text style={[styles.text, styleWithProps.text]}>{leftText}</Text>
+      <Text accessibilityRole="header" style={[styles.text, styleWithProps.text]}>
+        {leftText}
+      </Text>
       {onNewWalletPress && <AddWalletButton onPress={onNewWalletPress} />}
     </View>
   );

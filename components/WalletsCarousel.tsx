@@ -1,5 +1,6 @@
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef, useEffect, createRef } from 'react';
 import {
+  AccessibilityRole,
   Animated,
   FlatList,
   ImageBackground,
@@ -352,6 +353,14 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
           onPress={handlePress}
           delayHoverIn={0}
           delayHoverOut={0}
+          accessibilityLabel={item.getLabel()}
+          accessibilityState={
+            typeof isSelectedWallet === 'boolean'
+              ? {
+                  selected: isSelectedWallet,
+                }
+              : undefined
+          }
         >
           <View style={[iStyles.shadowContainer, { backgroundColor: colors.background, shadowColor: colors.shadowColor }]}>
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={iStyles.grad}>
@@ -419,6 +428,8 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   searchQuery?: string;
   renderHighlightedText?: (text: string, query: string) => JSX.Element;
   animateChanges?: boolean;
+  accessibilityRole?: AccessibilityRole;
+  accessibilityLabel?: string;
 }
 
 type FlatListRefType = FlatList<any> & {
@@ -453,6 +464,8 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     renderHighlightedText,
     isFlatList = true,
     animateChanges = false,
+    accessibilityRole,
+    accessibilityLabel,
   } = props;
 
   const { width } = useWindowDimensions();
@@ -754,7 +767,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       {...props}
     />
   ) : (
-    <View style={cStyles.contentLargeScreen}>
+    <View style={cStyles.contentLargeScreen} accessibilityRole={accessibilityRole} accessibilityLabel={accessibilityLabel}>
       {renderNonFlatListWallets()}
       {onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
     </View>
