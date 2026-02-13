@@ -10,6 +10,9 @@ const MAX_COMBINED_WEIGHT = 100;
 const ZERO_VALUE_WIDTH = 60;
 const ZERO_VALUE_THICKNESS = 20;
 
+/** Minimum drawn strand thickness (px) so thin strands remain visible. */
+const MIN_STRAND_THICKNESS = 5;
+
 /** Light blue accent for inputs when not using per-strand colors */
 const FALLBACK_INPUT_COLOR = '#DBEFFD';
 
@@ -28,6 +31,10 @@ export interface SvgLine {
   strokeWidth: number;
   zeroValue?: boolean;
   stroke?: string;
+  /** Vertical center of strand at outer edge (for overlay alignment) */
+  outerY: number;
+  /** Visual thickness of strand (for overlay bar height) */
+  thickness: number;
 }
 
 export interface BuildInputOutputResult {
@@ -36,8 +43,15 @@ export interface BuildInputOutputResult {
   totalValue: number;
 }
 
+/**
+ * Normalize value to sats. Handles both BTC (from Electrum/wallet) and sats.
+ * - v < 1 or v has fractional part -> treat as BTC, convert to sats.
+ * - v >= 1 and integer -> treat as sats (e.g. from APIs that return sats).
+ */
 function toSats(v: number): number {
-  return v < 1 ? Math.round(v * 100_000_000) : Math.round(v);
+  if (v < 1) return Math.round(v * 100_000_000);
+  if (v !== Math.floor(v)) return Math.round(v * 100_000_000);
+  return Math.round(v);
 }
 
 /**
@@ -83,6 +97,55 @@ export function buildInputOutputData(
 
   const totalValue = calcTotalValueFromXputs(inputData, outputData);
   return { inputData, outputData, totalValue };
+}
+
+export type FlowAggregatedOutputMeta = {
+  types: ('fee' | 'change' | 'other')[];
+};
+
+/**
+ * Aggregate raw chart outputData into fee + wallet branches + one "other" branch.
+ * Used for batch transactions so the chart shows only relevant strands.
+ */
+export function aggregateFlowOutputs(
+  rawOutputData: Xput[],
+  voutLength: number,
+  getValue: (voutIndex: number) => number,
+  isOurs: (voutIndex: number) => boolean,
+): { outputData: Xput[]; meta: FlowAggregatedOutputMeta } {
+  const types: FlowAggregatedOutputMeta['types'] = [];
+  const outputData: Xput[] = [];
+  const feeOffset = rawOutputData.length > 0 && rawOutputData[0].type === 'fee' ? 1 : 0;
+  if (feeOffset > 0) {
+    outputData.push(rawOutputData[0]);
+    types.push('fee');
+  }
+  let otherValue = 0;
+  let otherCount = 0;
+  for (let voutIndex = 0; voutIndex < voutLength; voutIndex++) {
+    const rawIndex = feeOffset + voutIndex;
+    const xput = rawOutputData[rawIndex];
+    const val =
+      xput && !xput.rest
+        ? (xput.value ?? getValue(voutIndex))
+        : getValue(voutIndex);
+    if (isOurs(voutIndex)) {
+      outputData.push({ type: 'output', value: val, index: voutIndex });
+      types.push('change');
+    } else {
+      otherValue += val;
+      otherCount += 1;
+    }
+  }
+  if (otherCount > 0 && otherValue > 0) {
+    outputData.push({
+      type: 'output',
+      value: otherValue,
+      rest: otherCount,
+    });
+    types.push('other');
+  }
+  return { outputData, meta: { types } };
 }
 
 function calcTotalValueFromXputs(inputData: Xput[], outputData: Xput[]): number {
@@ -172,6 +235,8 @@ export function computeBowtieLayout(
   const middle: SvgLine = {
     path: `M ${width / 2 - midWidth} ${height / 2 + 0.25} L ${width / 2 + midWidth} ${height / 2 + 0.25}`,
     strokeWidth: combinedWeight + 0.5,
+    outerY: height / 2,
+    thickness: combinedWeight + 0.5,
   };
 
   const hasLine =
@@ -217,6 +282,12 @@ function initLines(
     );
   }
 
+  const sumWeights = weights.reduce((a, w) => a + w, 0);
+  if (sumWeights > 0 && sumWeights < combinedWeight) {
+    const scale = combinedWeight / sumWeights;
+    weights = weights.map(w => w * scale);
+  }
+
   return linesFromWeights(side, xputs, weights, maxVisibleStrands, params, assignInputColors);
 }
 
@@ -239,16 +310,20 @@ function linesFromWeights(
     minWeight,
   } = params;
 
-  const lineParams = weights.map((w, i) => ({
-    weight: w,
-    thickness:
+  const lineParams = weights.map((w, i) => {
+    const baseThickness =
       xputs[i].value === 0
         ? ZERO_VALUE_THICKNESS
-        : Math.min(combinedWeight + 0.5, Math.max(minWeight - 1, w) + 1),
-    offset: 0,
-    innerY: 0,
-    outerY: 0,
-  }));
+        : Math.min(combinedWeight + 0.5, Math.max(minWeight - 1, w) + 1);
+    const thickness = Math.max(MIN_STRAND_THICKNESS, baseThickness);
+    return {
+      weight: w,
+      thickness,
+      offset: 0,
+      innerY: 0,
+      outerY: 0,
+    };
+  });
 
   const visibleStrands = Math.min(maxVisibleStrands, xputs.length);
   const gaps = visibleStrands - 1;
@@ -307,12 +382,15 @@ function linesFromWeights(
 
   return lineParams.map((line, i) => {
     const stroke = assignInputColors && xputs[i].type === 'input' ? inputColorFromTxid(xputs[i].txid) : undefined;
+    const thickness = xputs[i].value === 0 ? ZERO_VALUE_THICKNESS : line.thickness;
     if (xputs[i].value === 0) {
       return {
         path: makeZeroValuePath(side, line.outerY, width, connectorWidth, zeroValueWidth),
         strokeWidth: ZERO_VALUE_THICKNESS,
         zeroValue: true,
         stroke,
+        outerY: line.outerY,
+        thickness,
       };
     }
     return {
@@ -323,6 +401,8 @@ function linesFromWeights(
       }),
       strokeWidth: line.thickness,
       stroke,
+      outerY: line.outerY,
+      thickness,
     };
   });
 }

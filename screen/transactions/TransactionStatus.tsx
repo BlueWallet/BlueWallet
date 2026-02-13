@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Linking, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,7 +23,9 @@ import TransactionIncomingIcon from '../../components/icons/TransactionIncomingI
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import TxBowtieGraph, { buildInputOutputData } from '../../components/TxBowtieGraph';
+import FlowStrandTooltip from '../../components/FlowStrandTooltip';
+import TxBowtieGraph, { buildInputOutputData, type StrandPressBounds } from '../../components/TxBowtieGraph';
+import { aggregateFlowOutputs } from '../../components/txBowtieGraphUtils';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -145,6 +147,20 @@ const TransactionStatus: React.FC = () => {
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
   const [flowChartWidth, setFlowChartWidth] = useState(0);
+  const [inputGroupExpanded, setInputGroupExpanded] = useState(false);
+  const [flowTooltip, setFlowTooltip] = useState<{
+    type: 'input' | 'output';
+    index: number;
+    bounds: StrandPressBounds;
+  } | null>(null);
+
+  const INPUT_GROUP_THRESHOLD = 20;
+
+  useEffect(() => {
+    if (!flowTooltip) return;
+    const t = setTimeout(() => setFlowTooltip(null), 3000);
+    return () => clearTimeout(t);
+  }, [flowTooltip]);
 
   const stylesHook = StyleSheet.create({
     value: {
@@ -236,6 +252,9 @@ const TransactionStatus: React.FC = () => {
     },
     detailsCard: {
       borderColor: colors.cardBorderColor,
+    },
+    flowChartContainer: {
+      backgroundColor: colors.cardSectionBackground,
     },
     detailRow: {
       backgroundColor: colors.cardSectionBackground,
@@ -847,11 +866,16 @@ const TransactionStatus: React.FC = () => {
     const outputs = txFromElectrum?.vout ?? tx.outputs;
     if (!inputs?.length || !outputs?.length) return null;
 
-    const toSats = (v: number) => (v < 1 ? Math.round(v * 100000000) : v);
+    const toSats = (v: number) => {
+      if (v < 1) return Math.round(v * 100_000_000);
+      if (v !== Math.floor(v)) return Math.round(v * 100_000_000);
+      return Math.round(v);
+    };
     let totalInputs = 0;
     let totalOutputs = 0;
     for (const vin of inputs) {
-      if (vin.value != null) totalInputs += toSats(vin.value);
+      const val = vin.value ?? (vin as { prevout?: { value?: number } }).prevout?.value;
+      if (val != null) totalInputs += toSats(val);
     }
     for (const vout of outputs) {
       if (vout.value != null) totalOutputs += toSats(vout.value);
@@ -860,13 +884,124 @@ const TransactionStatus: React.FC = () => {
       const fee = totalInputs - totalOutputs;
       if (fee >= 0) return fee;
     }
+    const serverFee = (txFromElectrum as { fee?: number })?.fee;
+    if (typeof serverFee === 'number' && serverFee >= 0) return serverFee;
     return null;
   }, [tx, txFromElectrum, mempoolFee]);
 
   const flowChartData = useMemo(() => {
     if (!tx || !txFromElectrum?.vin?.length || !txFromElectrum?.vout?.length) return null;
-    return buildInputOutputData(tx, txFromElectrum, calculatedFee);
+    const result = buildInputOutputData(tx, txFromElectrum, calculatedFee);
+    if (!result) return null;
+    const sortedInputs = [...result.inputData].sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+    return { ...result, inputData: sortedInputs };
   }, [tx, txFromElectrum, calculatedFee]);
+
+  const flowTotals = useMemo(() => {
+    if (!flowChartData) return null;
+    const inputTotal = flowChartData.inputData.reduce((a, x) => a + (x.value ?? 0), 0);
+    const outputTotal = flowChartData.outputData.filter(x => x.type !== 'fee').reduce((a, x) => a + (x.value ?? 0), 0);
+    return { inputTotal, outputTotal };
+  }, [flowChartData]);
+
+  const flowOutputSummary = useMemo(() => {
+    if (!flowChartData || !txFromElectrum?.vout) return null;
+    let paymentTotal = 0;
+    let changeTotal = 0;
+    const feeTotal = calculatedFee ?? 0;
+    const outputTypes: ('fee' | 'payment' | 'change')[] = [];
+    if (feeTotal > 0) outputTypes.push('fee');
+    const toSats = (v: number) => (v < 1 ? Math.round(v * 100_000_000) : v);
+    for (let i = 0; i < txFromElectrum.vout.length; i++) {
+      const o = txFromElectrum.vout[i];
+      const addr = o.scriptPubKey?.addresses?.[0] ?? (o.scriptPubKey as { address?: string })?.address;
+      const val = o.value != null ? toSats(o.value) : 0;
+      const isOurs = !!addr && wallets.some(w => w.weOwnAddress(addr));
+      if (isOurs) {
+        changeTotal += val;
+        outputTypes.push('change');
+      } else {
+        paymentTotal += val;
+        outputTypes.push('payment');
+      }
+    }
+    return { paymentTotal, changeTotal, fee: feeTotal, outputTypes };
+  }, [flowChartData, txFromElectrum, calculatedFee, wallets]);
+
+  /** Aggregated outputs for chart: fee + wallet branches + one "other" branch. */
+  const flowAggregatedOutput = useMemo(() => {
+    if (!flowChartData || !txFromElectrum?.vout) return null;
+    const toSats = (v: number) => (v < 1 ? Math.round(v * 100_000_000) : v);
+    return aggregateFlowOutputs(
+      flowChartData.outputData,
+      txFromElectrum.vout.length,
+      voutIndex => {
+        const o = txFromElectrum.vout[voutIndex];
+        return o.value != null ? toSats(o.value) : 0;
+      },
+      voutIndex => {
+        const o = txFromElectrum.vout[voutIndex];
+        const addr = o.scriptPubKey?.addresses?.[0] ?? (o.scriptPubKey as { address?: string })?.address;
+        return !!addr && wallets.some(w => w.weOwnAddress(addr));
+      },
+    );
+  }, [flowChartData, txFromElectrum, wallets]);
+
+  const flowInputLabels = useMemo(() => {
+    if (!flowChartData?.inputData.length) return [];
+    const n = flowChartData.inputData.length;
+    const labels: string[] = [];
+    for (let i = 0; i < n; i++) {
+      if (i === 0) labels.push(loc.transactions.details_flow_largest_coin);
+      else if (i === n - 1) labels.push(loc.transactions.details_flow_small_coin);
+      else {
+        const rank = i + 1;
+        if (rank === 2) labels.push(loc.transactions.details_flow_2nd);
+        else if (rank === 3) labels.push(loc.transactions.details_flow_3rd);
+        else labels.push(loc.formatString(loc.transactions.details_flow_nth, { n: String(rank) }));
+      }
+    }
+    return labels;
+  }, [flowChartData]);
+
+  const flowGrouped = useMemo(() => {
+    if (!flowChartData || flowChartData.inputData.length < INPUT_GROUP_THRESHOLD) return null;
+    const arr = flowChartData.inputData;
+    const b1 = arr[0];
+    const midCount = Math.min(4, arr.length - 2);
+    const b2Value = arr.slice(1, 1 + midCount).reduce((s, x) => s + (x.value ?? 0), 0);
+    const restSlice = arr.slice(1 + midCount);
+    const b3Value = restSlice.reduce((s, x) => s + (x.value ?? 0), 0);
+    const b3Rest = restSlice.length;
+    const smallCoinsBreakdown = restSlice.map(x => x.value ?? 0);
+    const groupedInputData: typeof flowChartData.inputData = [
+      { type: 'input', value: b1.value },
+      { type: 'input', value: b2Value },
+      { type: 'input', value: b3Value, ...(b3Rest > 0 ? { rest: b3Rest } : {}) },
+    ];
+    const groupedLabels = [
+      loc.transactions.details_flow_largest_coin,
+      loc.transactions.details_flow_medium_coins,
+      loc.formatString(loc.transactions.details_flow_small_coins_count, { count: String(b3Rest) }),
+    ];
+    return {
+      chartData: { ...flowChartData, inputData: groupedInputData },
+      labels: groupedLabels,
+      smallCoinsBreakdown,
+    };
+  }, [flowChartData]);
+
+  const flowChartDataForChart = useMemo(() => {
+    const base = flowGrouped ? flowGrouped.chartData : flowChartData;
+    if (!base || !flowAggregatedOutput) return null;
+    const inputData = base.inputData;
+    const outputData = flowAggregatedOutput.outputData;
+    const sumInputs = inputData.reduce((a, x) => a + (x.value ?? 0), 0);
+    const sumOutputs = outputData.reduce((a, x) => a + (x.value ?? 0), 0);
+    const totalValue = Math.max(sumInputs, sumOutputs, 1);
+    return { ...base, inputData, outputData, totalValue };
+  }, [flowGrouped, flowChartData, flowAggregatedOutput]);
+  const flowInputLabelsForChart = flowGrouped ? flowGrouped.labels : flowInputLabels;
 
   // Calculate fee rate
   const feeRate = calculatedFee && tx?.vsize ? Math.round(calculatedFee / tx.vsize) : null;
@@ -1190,22 +1325,77 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* Transaction Flow */}
-      {flowChartData && flowChartData.totalValue > 0 && (
+      {flowChartDataForChart && flowChartDataForChart.totalValue > 0 && (
         <View style={[styles.detailsCard, stylesHook.detailsCard]}>
           <View style={[styles.sectionTitle, stylesHook.sectionTitle]}>
             <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_flow}</BlueText>
           </View>
           <View
-            style={styles.flowChartContainer}
+            style={[styles.flowChartContainer, stylesHook.flowChartContainer]}
             onLayout={e => setFlowChartWidth(e.nativeEvent.layout.width)}
           >
             {flowChartWidth > 0 && (
-              <TxBowtieGraph
-                inputData={flowChartData.inputData}
-                outputData={flowChartData.outputData}
-                totalValue={flowChartData.totalValue}
-                width={flowChartWidth}
-              />
+              <View style={[styles.flowChartInner, { width: flowChartWidth, height: 180 }]}>
+                <TxBowtieGraph
+                  inputData={flowChartDataForChart!.inputData}
+                  outputData={flowChartDataForChart!.outputData}
+                  totalValue={flowChartDataForChart!.totalValue}
+                  width={flowChartWidth}
+                  isSent={tx?.value != null && tx.value < 0}
+                  outputTypes={flowAggregatedOutput?.meta.types}
+                  onStrandPress={(type, index, bounds) => setFlowTooltip({ type, index, bounds })}
+                />
+                {flowTooltip && (
+                  <Pressable
+                    style={StyleSheet.absoluteFill}
+                    onPress={() => setFlowTooltip(null)}
+                  />
+                )}
+                {flowTooltip && flowChartDataForChart && flowAggregatedOutput && (() => {
+                  const unit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
+                  const fmt = (v: number) =>
+                    unit === BitcoinUnit.LOCAL_CURRENCY
+                      ? String(formatBalanceWithoutSuffix(v, unit, true))
+                      : `${formatBalanceWithoutSuffix(v, unit, true)} ${unit}`;
+                  const outputType = flowAggregatedOutput.meta.types[flowTooltip.index];
+                  const outputXput = flowChartDataForChart.outputData[flowTooltip.index];
+                  const isSent = tx?.value != null && tx.value < 0;
+                  const label =
+                    flowTooltip.type === 'input'
+                      ? flowInputLabelsForChart[flowTooltip.index] ?? ''
+                      : flowTooltip.type === 'output'
+                        ? outputType === 'fee'
+                          ? loc.transactions.details_flow_fee
+                          : outputType === 'change'
+                            ? isSent
+                              ? loc.transactions.details_flow_change
+                              : loc.transactions.details_received
+                            : outputType === 'other'
+                              ? isSent
+                                ? loc.transactions.details_sent
+                                : (outputXput?.rest != null
+                                  ? loc.formatString(loc.transactions.details_flow_others_plus_count, {
+                                      count: String(outputXput.rest),
+                                    })
+                                  : loc.transactions.details_flow_others)
+                              : ''
+                        : '';
+                  const amount =
+                    flowTooltip.type === 'input'
+                      ? fmt(flowChartDataForChart.inputData[flowTooltip.index]?.value ?? 0)
+                      : fmt(flowChartDataForChart.outputData[flowTooltip.index]?.value ?? 0);
+                  return (
+                    <FlowStrandTooltip
+                      label={label}
+                      amount={amount}
+                      bounds={flowTooltip.bounds}
+                      chartWidth={flowChartWidth}
+                      chartHeight={180}
+                      onDismiss={() => setFlowTooltip(null)}
+                    />
+                  );
+                })()}
+              </View>
             )}
           </View>
         </View>
@@ -1503,7 +1693,9 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 180,
     paddingVertical: 12,
-    backgroundColor: '#F2F2F2',
+  },
+  flowChartInner: {
+    position: 'relative',
   },
   sectionTitle: {
     backgroundColor: '#F2F2F2',
