@@ -28,8 +28,12 @@ if [[ "$USE_FASTLANE" == "1" ]]; then
 	RELEASE_APK=$(find android/app/build/outputs/apk/release -name "*.apk" -print0 | xargs -0 ls -t | head -n 1)
 	TEST_APK=android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 else
-	# Build release and androidTest APKs using Gradle (x86_64 only for GitHub Actions emulator)
-	(cd android && ./gradlew assembleRelease assembleReleaseAndroidTest -DtestBuildType=release -PreactNativeArchitectures=x86_64)
+	# Build release and androidTest APKs using Gradle (x86_64 by default for emulator speed).
+	# Override with E2E_ANDROID_ARCHS when building for real devices.
+	GRADLE_ARCH_ARGS=()
+	ARCHITECTURES=${E2E_ANDROID_ARCHS:-x86_64}
+	GRADLE_ARCH_ARGS+=("-PreactNativeArchitectures=${ARCHITECTURES}")
+	(cd android && ./gradlew assembleRelease assembleReleaseAndroidTest -DtestBuildType=release "${GRADLE_ARCH_ARGS[@]}")
 	RELEASE_APK=./android/app/build/outputs/apk/release/app-release.apk
 	TEST_APK=./android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 fi
