@@ -679,7 +679,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('0.00069909')).atIndex(0).tap();
     await element(by.text('Details')).tap();
     await expect(element(by.text('8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20'))).toBeVisible();
-    await element(by.id('TransactionDetailsMemoInput')).typeText('test1');
+    await element(by.id('TransactionDetailsMemoInput')).typeText('Test1');
     await element(by.id('TransactionDetailsMemoInput')).tapReturnKey();
     await waitForKeyboardToClose();
 
@@ -696,20 +696,20 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       .withTimeout(300 * 1000);
     if (device.getPlatform() === 'ios') {
       // FIXME. For ios and android we need to ckeck if text present on the CC screen
-      await expect(element(by.text('test1')).atIndex(1)).toExist();
+      await expect(element(by.text('Test1')).atIndex(1)).toExist();
     } else {
-      await expect(element(by.text('test1')).atIndex(0)).toBeVisible();
+      await expect(element(by.text('Test1')).atIndex(0)).toBeVisible();
     }
 
     // change output note and freeze it
     if (device.getPlatform() === 'ios') {
       // FIXME. For ios and android we need to ckeck if text present on the CC screen
-      await element(by.text('test1')).atIndex(1).tap();
+      await element(by.text('Test1')).atIndex(1).tap();
     } else {
-      await element(by.text('test1')).atIndex(0).tap();
+      await element(by.text('Test1')).atIndex(0).tap();
     }
     await element(by.id('OutputMemo')).clearText();
-    await element(by.id('OutputMemo')).typeText('test2');
+    await element(by.id('OutputMemo')).typeText('Test2');
     await element(by.id('OutputMemo')).tapReturnKey();
     await waitForKeyboardToClose();
     if (device.getPlatform() === 'ios') {
@@ -719,11 +719,11 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
     }
     await element(by.id('CoinControlOutputDone')).tap();
-    await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
+    await expect(element(by.text('Test2')).atIndex(0)).toBeVisible();
     await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
 
     // use frozen output to create tx using "Use coin" feature
-    await element(by.text('test2')).atIndex(0).tap();
+    await element(by.text('Test2')).atIndex(0).tap();
     await element(by.id('UseCoin')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('HeaderMenuButton')).tap();
