@@ -160,7 +160,7 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="ProvideEntropy"
         component={ProvideEntropyComponent}
-        options={navigationStyle({ title: loc.entropy.title })(theme)}
+        options={navigationStyle({ title: loc.entropy.title, headerStyle: { backgroundColor: theme.colors.background } })(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisig"
