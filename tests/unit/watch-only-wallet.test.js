@@ -205,6 +205,21 @@ describe('Watch only wallet', () => {
     assert.ok(w.useWithHardwareWalletEnabled());
   });
 
+  it('can import Unchained Capital json', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      '{"p2sh": "xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps", "p2sh_deriv": "m/45h/0h/0h", "p2sh_p2wsh": "ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy", "p2sh_p2wsh_deriv": "m/48h/0h/0h/1h", "p2wsh": "zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP", "p2wsh_deriv": "m/48h/0h/0h/2h", "xfp": "73C5DA0A"}',
+    );
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
+    );
+    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(w.getDerivationPath(), "m/48'/0'/0'/2'");
+  });
+
   it('can import Electrum compatible backup wallet, and create a tx with master fingerprint', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret(require('fs').readFileSync('./tests/unit/fixtures/skeleton-electrum.txt', 'ascii'));
