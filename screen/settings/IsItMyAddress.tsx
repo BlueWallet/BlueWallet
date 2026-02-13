@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
-import { BlueButtonLink } from '../../BlueComponents';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -13,7 +12,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { SettingsCard, SettingsScrollView } from '../../components/platform';
+import { SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const IsItMyAddress: React.FC = () => {
@@ -111,7 +110,6 @@ const IsItMyAddress: React.FC = () => {
       }
       const value = values[match[1]];
       if (value) {
-        // Bold the wallet name (label), regular weight for address
         const isLabel = match[1] === 'label';
         parts.push(
           <Text key={`bold-${index++}`} selectable style={isLabel ? styles.boldText : undefined}>
@@ -134,7 +132,7 @@ const IsItMyAddress: React.FC = () => {
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
     >
-      <SettingsCard>
+      <View style={styles.container}>
         <View
           style={[
             styles.textInputContainer,
@@ -158,20 +156,22 @@ const IsItMyAddress: React.FC = () => {
           )}
         </View>
 
-        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
-
-        <View style={styles.buttonSpacing} />
-
-        {resultCleanAddress && (
-          <>
-            <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
-            <View style={styles.buttonSpacingSmall} />
-          </>
-        )}
+        <BlueSpacing20 />
 
         <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
 
-        <View style={styles.buttonSpacing} />
+        <BlueSpacing10 />
+
+        <Button title={loc.wallets.import_scan_qr} onPress={importScan} />
+
+        {resultCleanAddress && (
+          <>
+            <BlueSpacing10 />
+            <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
+          </>
+        )}
+
+        <BlueSpacing20 />
 
         {matchingWallets !== undefined && matchingWallets.length > 0 && (
           <>
@@ -206,7 +206,7 @@ const IsItMyAddress: React.FC = () => {
               <BlueSpacing20 />
             </View>
           ))}
-      </SettingsCard>
+      </View>
     </SettingsScrollView>
   );
 };
@@ -214,6 +214,10 @@ const IsItMyAddress: React.FC = () => {
 export default IsItMyAddress;
 
 const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
   textInputContainer: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -230,12 +234,6 @@ const styles = StyleSheet.create({
     padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  buttonSpacing: {
-    height: 16,
-  },
-  buttonSpacingSmall: {
-    height: 8,
   },
   spacingLarge: {
     height: 32,

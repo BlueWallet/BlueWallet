@@ -15,7 +15,6 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import * as RNLocalize from 'react-native-localize';
 import { useKeyboard } from '../../hooks/useKeyboard';
-import HeaderRightButton from '../../components/HeaderRightButton';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControlOutput'>;
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControlOutput'>;
@@ -84,14 +83,6 @@ const CoinControlOutputSheet: React.FC = () => {
     navigation.dispatch(popToAction);
   }, [memo, navigation, saveToDisk, utxo, wallet, walletID]);
 
-  const applyChangesAndClose = useCallback(async () => {
-    if (!wallet) return;
-    debouncedSaveMemo.current.cancel();
-    wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo });
-    await saveToDisk();
-    navigation.goBack();
-  }, [memo, navigation, saveToDisk, utxo.txid, utxo.vout, wallet]);
-
   if (!wallet) {
     return (
       <View style={[styles.center, { backgroundColor: colors.elevated }]}>
@@ -102,9 +93,6 @@ const CoinControlOutputSheet: React.FC = () => {
 
   return (
     <View style={[styles.root, { backgroundColor: colors.elevated }]}>
-      <View style={styles.floatingDoneButtonContainer}>
-        <HeaderRightButton testID="CoinControlOutputDone" title={loc.send.input_done} onPress={applyChangesAndClose} disabled={loading} />
-      </View>
       <View style={styles.flex}>
         <RNElementsListItem bottomDivider containerStyle={styles.headerContainer}>
           <View style={styles.rowContent}>
@@ -155,12 +143,7 @@ const CoinControlOutputSheet: React.FC = () => {
             ]}
             onChangeText={onMemoChange}
           />
-          <ListItem
-            title={loc.cc.freezeLabel}
-            containerStyle={styles.transparentBackground}
-            Component={TouchableWithoutFeedback}
-            switch={switchValue}
-          />
+          <ListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} bottomDivider={false} />
         </View>
 
         <View style={styles.buttonContainer}>
@@ -215,19 +198,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 8,
   },
-  transparentBackground: {
-    backgroundColor: 'transparent',
-  },
   buttonContainer: {
     height: 45,
     marginBottom: 36,
-  },
-  floatingDoneButtonContainer: {
-    position: 'absolute',
-    top: 8,
-    right: 0,
-    zIndex: 10,
-    elevation: 10,
   },
 });
 
