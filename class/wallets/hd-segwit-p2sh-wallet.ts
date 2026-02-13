@@ -107,7 +107,7 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
       ],
       witnessUtxo: {
         script: p2sh.output,
-        value: BigInt(input.value),
+        value: BigInt(Math.round(Number(input.value))),
       },
       redeemScript: p2wpkh.output,
     });

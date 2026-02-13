@@ -105,7 +105,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
         sequence,
         witnessUtxo: {
           script: p2tr.output!,
-          value: BigInt(input.value),
+          value: BigInt(Math.round(Number(input.value))),
         },
         // tell PSBT it’s a key-path Taproot spend
         tapInternalKey: xOnlyPub,
@@ -118,7 +118,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
       if (!output.address) output.address = changeAddress;
       psbt.addOutput({
         address: output.address!,
-        value: BigInt(output.value),
+        value: BigInt(Math.round(Number(output.value))),
       });
     });
 
