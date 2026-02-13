@@ -1,14 +1,8 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Platform, Pressable, ViewStyle } from 'react-native';
+import { Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
-
-const styles = {
-  menuViewFlex: { flex: 1 } as const,
-  pressable: { alignSelf: 'center' } as const,
-  pressed: { opacity: 0.6 } as const,
-};
 
 const ToolTipMenu = (props: ToolTipMenuProps) => {
   const {
@@ -65,7 +59,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
       const mappedSubactions = (action.subactions || [])
         .map(subaction => mapMenuItemForMenuView(subaction))
-        .filter(Boolean) as MenuAction[];
+        .filter((item): item is MenuAction => item !== null);
 
       const menuItem: MenuAction = {
         id: action.id.toString(),
@@ -95,14 +89,15 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     return actions
       .map(actionGroup => {
         if (Array.isArray(actionGroup) && actionGroup.length > 0) {
-          const inlineActions = actionGroup.map(mapMenuItemForMenuView).filter(Boolean) as MenuAction[];
+          const inlineActions = actionGroup.map(mapMenuItemForMenuView).filter((item): item is MenuAction => item !== null);
           if (inlineActions.length === 0) return null;
-          return {
+          const group: MenuAction = {
             id: inlineActions[0].id,
             title: '',
             subactions: inlineActions,
             displayInline: true,
-          } as MenuAction;
+          };
+          return group;
         }
 
         if (!Array.isArray(actionGroup)) {
@@ -111,12 +106,12 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
         return null;
       })
-      .filter(Boolean) as MenuAction[];
+      .filter((item): item is MenuAction => item !== null);
   }, [actions, mapMenuItemForMenuView]);
 
   const menuViewItemsAndroid = useMemo(() => {
     const mergedActions = actions.flat().filter(action => action.id);
-    return mergedActions.map(mapMenuItemForMenuView).filter(Boolean) as MenuAction[];
+    return mergedActions.map(mapMenuItemForMenuView).filter((item): item is MenuAction => item !== null);
   }, [actions, mapMenuItemForMenuView]);
 
   const handlePressMenuItemForMenuView = ({ nativeEvent }: NativeActionEvent) => {
@@ -186,3 +181,9 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 };
 
 export default ToolTipMenu;
+
+const styles = StyleSheet.create({
+  menuViewFlex: { flex: 1 },
+  pressable: { alignSelf: 'center' },
+  pressed: { opacity: 0.6 },
+});
