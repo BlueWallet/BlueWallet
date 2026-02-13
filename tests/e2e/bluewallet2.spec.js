@@ -719,11 +719,11 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
     }
     await element(by.id('CoinControlOutputDone')).tap();
-    await expect(element(by.text('Test2')).atIndex(0)).toBeVisible();
+    await expect(element(by.text('test2')).atIndex(0)).toBeVisible();
     await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
 
     // use frozen output to create tx using "Use coin" feature
-    await element(by.text('Test2')).atIndex(0).tap();
+    await element(by.text('test2')).atIndex(0).tap();
     await element(by.id('UseCoin')).tap();
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('HeaderMenuButton')).tap();

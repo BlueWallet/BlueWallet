@@ -5,7 +5,7 @@ import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
 const styles = {
-  menuView: { alignSelf: 'flex-start' } as const,
+  menuViewFlex: { flex: 1 } as const,
   pressable: { alignSelf: 'center' } as const,
   pressed: { opacity: 0.6 } as const,
 };
@@ -174,7 +174,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
           onPressAction={handlePressMenuItemForMenuView}
           actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
           shouldOpenOnLongPress={shouldOpenOnLongPress}
-          style={buttonStyle ? styles.menuView : undefined}
+          style={buttonStyle ? styles.menuViewFlex : undefined}
         >
           {children}
         </MenuView>
