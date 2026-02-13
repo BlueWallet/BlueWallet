@@ -1,14 +1,8 @@
 import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
-import {
-  buildInputOutputData,
-  computeBowtieLayout,
-  type BuildInputOutputResult,
-  type SvgLine,
-  type Xput,
-} from './txBowtieGraphUtils';
+import { buildInputOutputData, computeBowtieLayout, type BuildInputOutputResult, type SvgLine, type Xput } from './txBowtieGraphUtils';
 import { useTheme } from './themes';
 
 const CHART_HEIGHT = 180;
@@ -69,10 +63,7 @@ export type TxBowtieGraphProps = {
   };
 };
 
-function findStrandAt(
-  lines: SvgLine[],
-  locationY: number,
-): { index: number; line: SvgLine; tapThickness: number } | null {
+function findStrandAt(lines: SvgLine[], locationY: number): { index: number; line: SvgLine; tapThickness: number } | null {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const tapThickness = Math.max(MIN_TAP_THICKNESS, line.thickness);
@@ -97,14 +88,8 @@ const TxBowtieGraph: React.FC<TxBowtieGraphProps> = ({
   colors: colorsProp,
 }) => {
   const theme = useTheme();
-  const strandEnd =
-    theme.colors.background === '#000000' ? STRAND_END_DARK : STRAND_END_LIGHT;
-  const { inputs, outputs, middle, hasLine } = computeBowtieLayout(
-    inputData,
-    outputData,
-    totalValue,
-    { width, height },
-  );
+  const strandEnd = theme.colors.background === '#000000' ? STRAND_END_DARK : STRAND_END_LIGHT;
+  const { inputs, outputs, middle, hasLine } = computeBowtieLayout(inputData, outputData, totalValue, { width, height });
 
   const handlePress = (event: { nativeEvent: { locationX: number; locationY: number } }) => {
     if (!onStrandPress) return;
@@ -136,15 +121,8 @@ const TxBowtieGraph: React.FC<TxBowtieGraphProps> = ({
   }
 
   return (
-    <Pressable
-      style={[styles.chartWrap, { width, height }]}
-      onPress={handlePress}
-    >
-      <Svg
-        viewBox={`0 0 ${width} ${height}`}
-        preserveAspectRatio="xMidYMid meet"
-        style={{ width, height }}
-      >
+    <Pressable style={[styles.chartWrap, { width, height }]} onPress={handlePress}>
+      <Svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet" style={{ width, height }}>
         <Defs>
           <LinearGradient id={GRADIENT_IDS.input} x1="0%" y1="0%" x2="100%" y2="0%">
             <Stop offset="0%" stopColor={strandEnd} />
@@ -171,12 +149,7 @@ const TxBowtieGraph: React.FC<TxBowtieGraphProps> = ({
             <Stop offset="100%" stopColor={MEMPOOL_COLORS.primary} />
           </LinearGradient>
         </Defs>
-        <Path
-          d={middle.path}
-          stroke={`url(#${GRADIENT_IDS.middle})`}
-          strokeWidth={middle.strokeWidth}
-          fill="none"
-        />
+        <Path d={middle.path} stroke={`url(#${GRADIENT_IDS.middle})`} strokeWidth={middle.strokeWidth} fill="none" />
         {inputs.map((line, i) => (
           <Path
             key={`in-${i}`}
@@ -193,30 +166,21 @@ const TxBowtieGraph: React.FC<TxBowtieGraphProps> = ({
             const isFee = outputData[i]?.type === 'fee';
             const isChange = outputTypes?.[i] === 'change';
             const isOther = outputTypes?.[i] === 'other';
-            const outputGradientId =
-              isFee
-                ? GRADIENT_IDS.fee
-                : isChange && !isSent
-                  ? GRADIENT_IDS.outputReceived
-                  : isChange && isSent
-                    ? GRADIENT_IDS.output
-                    : isOther && isSent
-                      ? GRADIENT_IDS.outputSent
-                      : isOther && !isSent
-                        ? GRADIENT_IDS.output
-                        : !isSent
-                          ? GRADIENT_IDS.outputReceived
-                          : GRADIENT_IDS.outputSent;
+            const outputGradientId = isFee
+              ? GRADIENT_IDS.fee
+              : isChange && !isSent
+                ? GRADIENT_IDS.outputReceived
+                : isChange && isSent
+                  ? GRADIENT_IDS.output
+                  : isOther && isSent
+                    ? GRADIENT_IDS.outputSent
+                    : isOther && !isSent
+                      ? GRADIENT_IDS.output
+                      : !isSent
+                        ? GRADIENT_IDS.outputReceived
+                        : GRADIENT_IDS.outputSent;
             const stroke = `url(#${outputGradientId})`;
-            return (
-              <Path
-                key={`out-${i}`}
-                d={line.path}
-                stroke={stroke}
-                strokeWidth={line.strokeWidth}
-                fill="none"
-              />
-            );
+            return <Path key={`out-${i}`} d={line.path} stroke={stroke} strokeWidth={line.strokeWidth} fill="none" />;
           })}
       </Svg>
     </Pressable>

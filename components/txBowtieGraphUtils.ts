@@ -54,6 +54,12 @@ function toSats(v: number): number {
   return Math.round(v);
 }
 
+function calcTotalValueFromXputs(inputData: Xput[], outputData: Xput[]): number {
+  const sumInputs = inputData.reduce((a, x) => a + (x.value ?? 0), 0);
+  const sumOutputs = outputData.reduce((a, x) => a + (x.value ?? 0), 0);
+  return Math.max(sumInputs, sumOutputs, 1);
+}
+
 /**
  * Build input/output arrays and total from tx data. Prefer txFromElectrum (vin/vout with value).
  * All values normalized to sats.
@@ -125,10 +131,7 @@ export function aggregateFlowOutputs(
   for (let voutIndex = 0; voutIndex < voutLength; voutIndex++) {
     const rawIndex = feeOffset + voutIndex;
     const xput = rawOutputData[rawIndex];
-    const val =
-      xput && !xput.rest
-        ? (xput.value ?? getValue(voutIndex))
-        : getValue(voutIndex);
+    const val = xput && !xput.rest ? (xput.value ?? getValue(voutIndex)) : getValue(voutIndex);
     if (isOurs(voutIndex)) {
       outputData.push({ type: 'output', value: val, index: voutIndex });
       types.push('change');
@@ -146,12 +149,6 @@ export function aggregateFlowOutputs(
     types.push('other');
   }
   return { outputData, meta: { types } };
-}
-
-function calcTotalValueFromXputs(inputData: Xput[], outputData: Xput[]): number {
-  const sumInputs = inputData.reduce((a, x) => a + (x.value ?? 0), 0);
-  const sumOutputs = outputData.reduce((a, x) => a + (x.value ?? 0), 0);
-  return Math.max(sumInputs, sumOutputs, 1);
 }
 
 function inputColorFromTxid(txid: string | undefined): string {
@@ -177,72 +174,38 @@ export interface LayoutResult {
   hasLine: boolean;
 }
 
-export function computeBowtieLayout(
-  inputData: Xput[],
-  outputData: Xput[],
-  totalValue: number,
-  opts: LayoutOptions,
-): LayoutResult {
-  const {
-    width,
-    height,
-    maxStrands = MAX_STRANDS,
-    minWeight = MIN_WEIGHT,
-    maxCombinedWeight = MAX_COMBINED_WEIGHT,
-  } = opts;
+function makePath(
+  side: 'in' | 'out',
+  outer: number,
+  inner: number,
+  weight: number,
+  offset: number,
+  pad: number,
+  p: { width: number; midWidth: number; connectorWidth: number },
+): string {
+  const { width, midWidth, connectorWidth } = p;
+  const start = weight * 0.5 + connectorWidth;
+  const curveStart = Math.max(start + 5, pad + connectorWidth - offset);
+  const end = width / 2 - midWidth * 0.9 + 1;
+  const curveEnd = end - offset - 10;
+  const midpoint = (curveStart + curveEnd) / 2;
 
-  const midWidth = Math.min(10, Math.ceil(width / 100));
-  const txWidth = width - 20;
-  const combinedWeight = Math.min(maxCombinedWeight, Math.floor((txWidth - 2 * midWidth) / 6));
-  const connectorWidth = (width - txWidth) / 2;
-  const zeroValueWidth = Math.max(20, Math.min(txWidth / 2 - midWidth - 110, ZERO_VALUE_WIDTH));
+  let o = outer;
+  if (Math.round(outer) === Math.round(inner)) o -= 1;
 
-  const inputs = initLines(
-    'in',
-    inputData,
-    totalValue,
-    maxStrands,
-    {
-      width,
-      height,
-      midWidth,
-      txWidth,
-      connectorWidth,
-      combinedWeight,
-      zeroValueWidth,
-      minWeight,
-    },
-    false,
-  );
-  const outputs = initLines(
-    'out',
-    outputData,
-    totalValue,
-    maxStrands,
-    {
-      width,
-      height,
-      midWidth,
-      txWidth,
-      connectorWidth,
-      combinedWeight,
-      zeroValueWidth,
-      minWeight,
-    },
-    false,
-  );
+  if (side === 'in') {
+    return `M ${start} ${o} L ${curveStart} ${o} C ${midpoint} ${o}, ${midpoint} ${inner}, ${curveEnd} ${inner} L ${end} ${inner}`;
+  }
+  return `M ${width - start} ${o} L ${width - curveStart} ${o} C ${width - midpoint} ${o}, ${width - midpoint} ${inner}, ${width - curveEnd} ${inner} L ${width - end} ${inner}`;
+}
 
-  const middle: SvgLine = {
-    path: `M ${width / 2 - midWidth} ${height / 2 + 0.25} L ${width / 2 + midWidth} ${height / 2 + 0.25}`,
-    strokeWidth: combinedWeight + 0.5,
-    outerY: height / 2,
-    thickness: combinedWeight + 0.5,
-  };
-
-  const hasLine =
-    inputs.some(l => !l.zeroValue) && outputs.some(l => !l.zeroValue);
-
-  return { inputs, outputs, middle, hasLine };
+function makeZeroValuePath(side: 'in' | 'out', y: number, width: number, connectorWidth: number, zeroValueWidth: number): string {
+  const offset = ZERO_VALUE_THICKNESS / 2;
+  const start = connectorWidth / 2 + 10;
+  if (side === 'in') {
+    return `M ${start + offset} ${y} L ${start + zeroValueWidth + offset} ${y}`;
+  }
+  return `M ${width - start - offset} ${y} L ${width - start - zeroValueWidth - offset} ${y}`;
 }
 
 interface LineParams {
@@ -256,41 +219,6 @@ interface LineParams {
   minWeight: number;
 }
 
-function initLines(
-  side: 'in' | 'out',
-  xputs: Xput[],
-  total: number,
-  maxVisibleStrands: number,
-  params: LineParams,
-  assignInputColors: boolean,
-): SvgLine[] {
-  const { combinedWeight, minWeight, zeroValueWidth } = params;
-
-  let weights: number[];
-  if (!total) {
-    weights = xputs.map(() => combinedWeight / xputs.length);
-  } else {
-    let unknownCount = 0;
-    let unknownTotal = total;
-    xputs.forEach(put => {
-      if (put.value == null) unknownCount++;
-      else unknownTotal -= put.value;
-    });
-    const unknownShare = unknownCount > 0 ? unknownTotal / unknownCount : 0;
-    weights = xputs.map(
-      put => (combinedWeight * (put.value == null ? unknownShare : put.value)) / total,
-    );
-  }
-
-  const sumWeights = weights.reduce((a, w) => a + w, 0);
-  if (sumWeights > 0 && sumWeights < combinedWeight) {
-    const scale = combinedWeight / sumWeights;
-    weights = weights.map(w => w * scale);
-  }
-
-  return linesFromWeights(side, xputs, weights, maxVisibleStrands, params, assignInputColors);
-}
-
 function linesFromWeights(
   side: 'in' | 'out',
   xputs: Xput[],
@@ -299,22 +227,10 @@ function linesFromWeights(
   params: LineParams,
   assignInputColors: boolean,
 ): SvgLine[] {
-  const {
-    width,
-    height,
-    midWidth,
-    txWidth,
-    connectorWidth,
-    combinedWeight,
-    zeroValueWidth,
-    minWeight,
-  } = params;
+  const { width, height, midWidth, txWidth, connectorWidth, combinedWeight, zeroValueWidth, minWeight } = params;
 
   const lineParams = weights.map((w, i) => {
-    const baseThickness =
-      xputs[i].value === 0
-        ? ZERO_VALUE_THICKNESS
-        : Math.min(combinedWeight + 0.5, Math.max(minWeight - 1, w) + 1);
+    const baseThickness = xputs[i].value === 0 ? ZERO_VALUE_THICKNESS : Math.min(combinedWeight + 0.5, Math.max(minWeight - 1, w) + 1);
     const thickness = Math.max(MIN_STRAND_THICKNESS, baseThickness);
     return {
       weight: w,
@@ -347,10 +263,7 @@ function linesFromWeights(
     }
 
     line.outerY = lastOuter + line.thickness / 2;
-    line.innerY = Math.min(
-      innerBottom - line.thickness / 2,
-      Math.max(innerTop + line.thickness / 2, lastInner + line.weight / 2),
-    );
+    line.innerY = Math.min(innerBottom - line.thickness / 2, Math.max(innerTop + line.thickness / 2, lastInner + line.weight / 2));
     if (xputs.length === 1) line.outerY = height / 2;
 
     lastOuter += line.thickness + spacing;
@@ -407,42 +320,91 @@ function linesFromWeights(
   });
 }
 
-function makePath(
+function initLines(
   side: 'in' | 'out',
-  outer: number,
-  inner: number,
-  weight: number,
-  offset: number,
-  pad: number,
-  p: { width: number; midWidth: number; connectorWidth: number },
-): string {
-  const { width, midWidth, connectorWidth } = p;
-  const start = weight * 0.5 + connectorWidth;
-  const curveStart = Math.max(start + 5, pad + connectorWidth - offset);
-  const end = width / 2 - midWidth * 0.9 + 1;
-  const curveEnd = end - offset - 10;
-  const midpoint = (curveStart + curveEnd) / 2;
+  xputs: Xput[],
+  total: number,
+  maxVisibleStrands: number,
+  params: LineParams,
+  assignInputColors: boolean,
+): SvgLine[] {
+  const { combinedWeight } = params;
 
-  let o = outer;
-  if (Math.round(outer) === Math.round(inner)) o -= 1;
-
-  if (side === 'in') {
-    return `M ${start} ${o} L ${curveStart} ${o} C ${midpoint} ${o}, ${midpoint} ${inner}, ${curveEnd} ${inner} L ${end} ${inner}`;
+  let weights: number[];
+  if (!total) {
+    weights = xputs.map(() => combinedWeight / xputs.length);
+  } else {
+    let unknownCount = 0;
+    let unknownTotal = total;
+    xputs.forEach(put => {
+      if (put.value == null) unknownCount++;
+      else unknownTotal -= put.value;
+    });
+    const unknownShare = unknownCount > 0 ? unknownTotal / unknownCount : 0;
+    weights = xputs.map(put => (combinedWeight * (put.value == null ? unknownShare : put.value)) / total);
   }
-  return `M ${width - start} ${o} L ${width - curveStart} ${o} C ${width - midpoint} ${o}, ${width - midpoint} ${inner}, ${width - curveEnd} ${inner} L ${width - end} ${inner}`;
+
+  const sumWeights = weights.reduce((a, w) => a + w, 0);
+  if (sumWeights > 0 && sumWeights < combinedWeight) {
+    const scale = combinedWeight / sumWeights;
+    weights = weights.map(w => w * scale);
+  }
+
+  return linesFromWeights(side, xputs, weights, maxVisibleStrands, params, assignInputColors);
 }
 
-function makeZeroValuePath(
-  side: 'in' | 'out',
-  y: number,
-  width: number,
-  connectorWidth: number,
-  zeroValueWidth: number,
-): string {
-  const offset = ZERO_VALUE_THICKNESS / 2;
-  const start = connectorWidth / 2 + 10;
-  if (side === 'in') {
-    return `M ${start + offset} ${y} L ${start + zeroValueWidth + offset} ${y}`;
-  }
-  return `M ${width - start - offset} ${y} L ${width - start - zeroValueWidth - offset} ${y}`;
+export function computeBowtieLayout(inputData: Xput[], outputData: Xput[], totalValue: number, opts: LayoutOptions): LayoutResult {
+  const { width, height, maxStrands = MAX_STRANDS, minWeight = MIN_WEIGHT, maxCombinedWeight = MAX_COMBINED_WEIGHT } = opts;
+
+  const midWidth = Math.min(10, Math.ceil(width / 100));
+  const txWidth = width - 20;
+  const combinedWeight = Math.min(maxCombinedWeight, Math.floor((txWidth - 2 * midWidth) / 6));
+  const connectorWidth = (width - txWidth) / 2;
+  const zeroValueWidth = Math.max(20, Math.min(txWidth / 2 - midWidth - 110, ZERO_VALUE_WIDTH));
+
+  const inputs = initLines(
+    'in',
+    inputData,
+    totalValue,
+    maxStrands,
+    {
+      width,
+      height,
+      midWidth,
+      txWidth,
+      connectorWidth,
+      combinedWeight,
+      zeroValueWidth,
+      minWeight,
+    },
+    false,
+  );
+  const outputs = initLines(
+    'out',
+    outputData,
+    totalValue,
+    maxStrands,
+    {
+      width,
+      height,
+      midWidth,
+      txWidth,
+      connectorWidth,
+      combinedWeight,
+      zeroValueWidth,
+      minWeight,
+    },
+    false,
+  );
+
+  const middle: SvgLine = {
+    path: `M ${width / 2 - midWidth} ${height / 2 + 0.25} L ${width / 2 + midWidth} ${height / 2 + 0.25}`,
+    strokeWidth: combinedWeight + 0.5,
+    outerY: height / 2,
+    thickness: combinedWeight + 0.5,
+  };
+
+  const hasLine = inputs.some(l => !l.zeroValue) && outputs.some(l => !l.zeroValue);
+
+  return { inputs, outputs, middle, hasLine };
 }

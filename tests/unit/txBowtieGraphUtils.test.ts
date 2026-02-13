@@ -1,10 +1,6 @@
 import assert from 'assert';
 
-import {
-  aggregateFlowOutputs,
-  buildInputOutputData,
-  computeBowtieLayout,
-} from '../../components/txBowtieGraphUtils';
+import { aggregateFlowOutputs, buildInputOutputData, computeBowtieLayout } from '../../components/txBowtieGraphUtils';
 
 describe('txBowtieGraphUtils', () => {
   describe('buildInputOutputData', () => {
@@ -59,9 +55,7 @@ describe('txBowtieGraphUtils', () => {
 
     it('converts vin value in BTC (>= 1) to sats so largest coin shows correct amount', () => {
       const txFromElectrum = {
-        vin: [
-          { value: 2.27707956, txid: 'ad57d3d993a34b25366b815ede424f744493684b51f0214a47608ba6e2d4300d' },
-        ],
+        vin: [{ value: 2.27707956, txid: 'ad57d3d993a34b25366b815ede424f744493684b51f0214a47608ba6e2d4300d' }],
         vout: [{ value: 0.00018 }, { value: 2.27689956 }],
       };
       const result = buildInputOutputData(null, txFromElectrum, 291734);
@@ -183,7 +177,12 @@ describe('txBowtieGraphUtils', () => {
         { type: 'fee' as const, value: 100 },
         { type: 'output' as const, value: 900, index: 0 },
       ];
-      const result = aggregateFlowOutputs(rawOutputData, 1, () => 900, () => true);
+      const result = aggregateFlowOutputs(
+        rawOutputData,
+        1,
+        () => 900,
+        () => true,
+      );
       assert.strictEqual(result.outputData.length, 2);
       assert.deepStrictEqual(result.meta.types, ['fee', 'change']);
     });

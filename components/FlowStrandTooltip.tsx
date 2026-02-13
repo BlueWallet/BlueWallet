@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { useTheme } from './themes';
 
@@ -17,22 +17,13 @@ export type FlowStrandTooltipProps = {
   onDismiss: () => void;
 };
 
-const FlowStrandTooltip: React.FC<FlowStrandTooltipProps> = ({
-  label,
-  amount,
-  bounds,
-  chartWidth,
-  chartHeight,
-  onDismiss,
-}) => {
+const FlowStrandTooltip: React.FC<FlowStrandTooltipProps> = ({ label, amount, bounds, chartWidth, chartHeight, onDismiss }) => {
   const { colors } = useTheme();
   const preferAbove = bounds.outerY > chartHeight / 2;
   const tooltipHeight = TOOLTIP_MIN_HEIGHT;
   const aboveTop = bounds.outerY - bounds.thickness / 2 - tooltipHeight - GAP;
   const belowTop = bounds.outerY + bounds.thickness / 2 + GAP;
-  const top = preferAbove
-    ? Math.max(0, aboveTop)
-    : Math.min(chartHeight - tooltipHeight, belowTop);
+  const top = preferAbove ? Math.max(0, aboveTop) : Math.min(chartHeight - tooltipHeight, belowTop);
   const left = bounds.side === 'left' ? GAP : chartWidth - 120 - GAP;
   const clampedLeft = Math.max(GAP, Math.min(left, chartWidth - 124));
 
@@ -42,11 +33,7 @@ const FlowStrandTooltip: React.FC<FlowStrandTooltipProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      style={[styles.tooltip, { top, left: clampedLeft, ...cardStyle }]}
-      onPress={onDismiss}
-      activeOpacity={1}
-    >
+    <TouchableOpacity style={[styles.tooltip, { top, left: clampedLeft, ...cardStyle }]} onPress={onDismiss} activeOpacity={1}>
       <Text style={[styles.label, { color: colors.foregroundColor }]} numberOfLines={1}>
         {label}
       </Text>

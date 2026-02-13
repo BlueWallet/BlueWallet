@@ -147,7 +147,6 @@ const TransactionStatus: React.FC = () => {
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
   const [flowChartWidth, setFlowChartWidth] = useState(0);
-  const [inputGroupExpanded, setInputGroupExpanded] = useState(false);
   const [flowTooltip, setFlowTooltip] = useState<{
     type: 'input' | 'output';
     index: number;
@@ -897,37 +896,6 @@ const TransactionStatus: React.FC = () => {
     return { ...result, inputData: sortedInputs };
   }, [tx, txFromElectrum, calculatedFee]);
 
-  const flowTotals = useMemo(() => {
-    if (!flowChartData) return null;
-    const inputTotal = flowChartData.inputData.reduce((a, x) => a + (x.value ?? 0), 0);
-    const outputTotal = flowChartData.outputData.filter(x => x.type !== 'fee').reduce((a, x) => a + (x.value ?? 0), 0);
-    return { inputTotal, outputTotal };
-  }, [flowChartData]);
-
-  const flowOutputSummary = useMemo(() => {
-    if (!flowChartData || !txFromElectrum?.vout) return null;
-    let paymentTotal = 0;
-    let changeTotal = 0;
-    const feeTotal = calculatedFee ?? 0;
-    const outputTypes: ('fee' | 'payment' | 'change')[] = [];
-    if (feeTotal > 0) outputTypes.push('fee');
-    const toSats = (v: number) => (v < 1 ? Math.round(v * 100_000_000) : v);
-    for (let i = 0; i < txFromElectrum.vout.length; i++) {
-      const o = txFromElectrum.vout[i];
-      const addr = o.scriptPubKey?.addresses?.[0] ?? (o.scriptPubKey as { address?: string })?.address;
-      const val = o.value != null ? toSats(o.value) : 0;
-      const isOurs = !!addr && wallets.some(w => w.weOwnAddress(addr));
-      if (isOurs) {
-        changeTotal += val;
-        outputTypes.push('change');
-      } else {
-        paymentTotal += val;
-        outputTypes.push('payment');
-      }
-    }
-    return { paymentTotal, changeTotal, fee: feeTotal, outputTypes };
-  }, [flowChartData, txFromElectrum, calculatedFee, wallets]);
-
   /** Aggregated outputs for chart: fee + wallet branches + one "other" branch. */
   const flowAggregatedOutput = useMemo(() => {
     if (!flowChartData || !txFromElectrum?.vout) return null;
@@ -1335,7 +1303,7 @@ const TransactionStatus: React.FC = () => {
             onLayout={e => setFlowChartWidth(e.nativeEvent.layout.width)}
           >
             {flowChartWidth > 0 && (
-              <View style={[styles.flowChartInner, { width: flowChartWidth, height: 180 }]}>
+              <View style={[styles.flowChartInner, { width: flowChartWidth }]}>
                 <TxBowtieGraph
                   inputData={flowChartDataForChart!.inputData}
                   outputData={flowChartDataForChart!.outputData}
@@ -1345,56 +1313,54 @@ const TransactionStatus: React.FC = () => {
                   outputTypes={flowAggregatedOutput?.meta.types}
                   onStrandPress={(type, index, bounds) => setFlowTooltip({ type, index, bounds })}
                 />
-                {flowTooltip && (
-                  <Pressable
-                    style={StyleSheet.absoluteFill}
-                    onPress={() => setFlowTooltip(null)}
-                  />
-                )}
-                {flowTooltip && flowChartDataForChart && flowAggregatedOutput && (() => {
-                  const unit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
-                  const fmt = (v: number) =>
-                    unit === BitcoinUnit.LOCAL_CURRENCY
-                      ? String(formatBalanceWithoutSuffix(v, unit, true))
-                      : `${formatBalanceWithoutSuffix(v, unit, true)} ${unit}`;
-                  const outputType = flowAggregatedOutput.meta.types[flowTooltip.index];
-                  const outputXput = flowChartDataForChart.outputData[flowTooltip.index];
-                  const isSent = tx?.value != null && tx.value < 0;
-                  const label =
-                    flowTooltip.type === 'input'
-                      ? flowInputLabelsForChart[flowTooltip.index] ?? ''
-                      : flowTooltip.type === 'output'
-                        ? outputType === 'fee'
-                          ? loc.transactions.details_flow_fee
-                          : outputType === 'change'
-                            ? isSent
-                              ? loc.transactions.details_flow_change
-                              : loc.transactions.details_received
-                            : outputType === 'other'
+                {flowTooltip && <Pressable style={StyleSheet.absoluteFill} onPress={() => setFlowTooltip(null)} />}
+                {flowTooltip &&
+                  flowChartDataForChart &&
+                  flowAggregatedOutput &&
+                  (() => {
+                    const unit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
+                    const fmt = (v: number) =>
+                      unit === BitcoinUnit.LOCAL_CURRENCY
+                        ? String(formatBalanceWithoutSuffix(v, unit, true))
+                        : `${formatBalanceWithoutSuffix(v, unit, true)} ${unit}`;
+                    const outputType = flowAggregatedOutput.meta.types[flowTooltip.index];
+                    const outputXput = flowChartDataForChart.outputData[flowTooltip.index];
+                    const isSent = tx?.value != null && tx.value < 0;
+                    const label =
+                      flowTooltip.type === 'input'
+                        ? (flowInputLabelsForChart[flowTooltip.index] ?? '')
+                        : flowTooltip.type === 'output'
+                          ? outputType === 'fee'
+                            ? loc.transactions.details_flow_fee
+                            : outputType === 'change'
                               ? isSent
-                                ? loc.transactions.details_sent
-                                : (outputXput?.rest != null
-                                  ? loc.formatString(loc.transactions.details_flow_others_plus_count, {
-                                      count: String(outputXput.rest),
-                                    })
-                                  : loc.transactions.details_flow_others)
-                              : ''
-                        : '';
-                  const amount =
-                    flowTooltip.type === 'input'
-                      ? fmt(flowChartDataForChart.inputData[flowTooltip.index]?.value ?? 0)
-                      : fmt(flowChartDataForChart.outputData[flowTooltip.index]?.value ?? 0);
-                  return (
-                    <FlowStrandTooltip
-                      label={label}
-                      amount={amount}
-                      bounds={flowTooltip.bounds}
-                      chartWidth={flowChartWidth}
-                      chartHeight={180}
-                      onDismiss={() => setFlowTooltip(null)}
-                    />
-                  );
-                })()}
+                                ? loc.transactions.details_flow_change
+                                : loc.transactions.details_received
+                              : outputType === 'other'
+                                ? isSent
+                                  ? loc.transactions.details_sent
+                                  : outputXput?.rest != null
+                                    ? loc.formatString(loc.transactions.details_flow_others_plus_count, {
+                                        count: String(outputXput.rest),
+                                      })
+                                    : loc.transactions.details_flow_others
+                                : ''
+                          : '';
+                    const amount =
+                      flowTooltip.type === 'input'
+                        ? fmt(flowChartDataForChart.inputData[flowTooltip.index]?.value ?? 0)
+                        : fmt(flowChartDataForChart.outputData[flowTooltip.index]?.value ?? 0);
+                    return (
+                      <FlowStrandTooltip
+                        label={label}
+                        amount={amount}
+                        bounds={flowTooltip.bounds}
+                        chartWidth={flowChartWidth}
+                        chartHeight={180}
+                        onDismiss={() => setFlowTooltip(null)}
+                      />
+                    );
+                  })()}
               </View>
             )}
           </View>
@@ -1696,6 +1662,7 @@ const styles = StyleSheet.create({
   },
   flowChartInner: {
     position: 'relative',
+    height: 180,
   },
   sectionTitle: {
     backgroundColor: '#F2F2F2',
