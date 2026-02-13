@@ -767,7 +767,12 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       {...props}
     />
   ) : (
-    <View style={cStyles.contentLargeScreen} accessibilityRole={accessibilityRole} accessibilityLabel={accessibilityLabel}>
+    <View
+      style={cStyles.contentLargeScreen}
+      accessibilityRole={accessibilityRole}
+      accessibilityLabel={accessibilityLabel}
+      testID={props.testID}
+    >
       {renderNonFlatListWallets()}
       {onNewWalletPress && <NewWalletPanel onPress={onNewWalletPress} />}
     </View>
