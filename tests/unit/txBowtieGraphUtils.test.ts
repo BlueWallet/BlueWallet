@@ -42,8 +42,8 @@ describe('txBowtieGraphUtils', () => {
         outputs: [{ value: 1 }],
       };
       const txFromElectrum = {
-        vin: [{ value: 1000, txid: 'abcdef0123456789' }],
-        vout: [{ value: 900 }],
+        vin: [{ value: 0.00001, txid: 'abcdef0123456789' }],
+        vout: [{ value: 0.000009 }],
       };
       const result = buildInputOutputData(tx, txFromElectrum, 100);
       assert.ok(result);
