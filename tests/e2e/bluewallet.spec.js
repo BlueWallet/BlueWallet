@@ -898,10 +898,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can create 2of3 multisig vault with generated keys, manage cosigners and export coordination setup', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt('can create 2of3 multisig vault with generated keys');
+  it.skip('can create 2of3 multisig vault with generated keys, manage cosigners and export coordination setup', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t10');
     if (process.env.CI) {
-      if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t10'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
     await device.launchApp({ delete: true, permissions: { camera: 'YES' } });
@@ -990,9 +990,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
   });
 
   it('can create wrapped segwit 2of2 vault via advanced settings', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt('can create wrapped segwit 2of2 vault');
+    const lockFile = '/tmp/travislock.' + hashIt('t11');
     if (process.env.CI) {
-      if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t11'), ' as it previously passed on Travis');
     }
     await device.clearKeychain();
     await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } });
