@@ -11,7 +11,7 @@ const ZERO_VALUE_WIDTH = 60;
 const ZERO_VALUE_THICKNESS = 20;
 
 /** Minimum drawn strand thickness (px) so thin strands remain visible. */
-const MIN_STRAND_THICKNESS = 5;
+const MIN_STRAND_THICKNESS = 10;
 
 /** Light blue accent for inputs when not using per-strand colors */
 const FALLBACK_INPUT_COLOR = '#DBEFFD';
@@ -46,11 +46,13 @@ export interface BuildInputOutputResult {
 /**
  * Normalize value to sats. Handles both BTC (from Electrum/wallet) and sats.
  * - v < 1 or v has fractional part -> treat as BTC, convert to sats.
- * - v >= 1 and integer -> treat as sats (e.g. from APIs that return sats).
+ * - v in [1, 9999] and integer -> treat as whole BTC (e.g. 1 = 1 BTC from Electrum decoding).
+ * - v >= 10000 and integer -> treat as sats (e.g. from APIs that return sats).
  */
 function toSats(v: number): number {
   if (v < 1) return Math.round(v * 100_000_000);
   if (v !== Math.floor(v)) return Math.round(v * 100_000_000);
+  if (v >= 1 && v < 10_000) return Math.round(v * 100_000_000); // whole BTC (1, 2, ... 9999)
   return Math.round(v);
 }
 

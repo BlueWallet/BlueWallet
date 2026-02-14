@@ -153,7 +153,7 @@ const TransactionStatus: React.FC = () => {
     bounds: StrandPressBounds;
   } | null>(null);
 
-  const INPUT_GROUP_THRESHOLD = 20;
+  const INPUT_GROUP_THRESHOLD = 10;
 
   useEffect(() => {
     if (!flowTooltip) return;
