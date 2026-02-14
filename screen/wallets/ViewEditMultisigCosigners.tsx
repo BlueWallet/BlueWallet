@@ -211,6 +211,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             {!vaultKeyData.isLoading && (
               <MultipleStepsListItem
                 button={{
+                  testID: 'VaultCosignerView' + String(el.index + 1),
                   buttonType: MultipleStepsListItemButtonType.Partial,
                   leftText,
                   text: loc.multisig.view,
@@ -263,6 +264,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               button={{
+                testID: 'VaultCosignerImportMnemonics' + String(el.index + 1),
                 text: loc.multisig.i_have_mnemonics,
                 buttonType: MultipleStepsListItemButtonType.Full,
                 disabled: vaultKeyData.isLoading,
@@ -285,6 +287,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
               <MultipleStepsListItem
                 showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
                 button={{
+                  testID: 'VaultCosignerView' + String(el.index + 1),
                   leftText,
                   text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
@@ -349,6 +352,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
               button={{
+                testID: 'VaultCosignerForgetSeed' + String(el.index + 1),
                 text: loc.multisig.forget_this_seed,
                 disabled: vaultKeyData.isLoading,
                 buttonType: MultipleStepsListItemButtonType.Full,
@@ -502,7 +506,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
-  const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
+  const footer = (
+    <Button testID="VaultCosignersSave" disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />
+  );
 
   return (
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>

@@ -4,8 +4,8 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import { BlueText } from '../../BlueComponents';
 import { TWallet } from '../../class/wallets/types';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
+import Button from '../../components/Button';
 import SaveFileButton from '../../components/SaveFileButton';
-import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -89,9 +89,6 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
     },
     type: { color: colors.foregroundColor },
     secret: { color: colors.foregroundColor },
-    exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
   });
 
   const label = useMemo(() => wallet?.getLabel(), [wallet]);
@@ -184,13 +181,13 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         label &&
         xpub && (
           <SaveFileButton
-            style={[styles.exportButton, stylesHook.exportButton]}
+            style={styles.exportButton}
             fileName={`${label}.txt`}
             fileContent={xpub}
             beforeOnPress={exportTxtFileBeforeOnPress}
             afterOnPress={exportTxtFileAfterOnPress}
           >
-            <SquareButton title={loc.multisig.share} />
+            <Button title={loc.multisig.share} />
           </SaveFileButton>
         )
       )}
@@ -204,8 +201,9 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
   return (
     <ScrollView
+      testID="ExportMultisigCoordinationSetupView"
       style={stylesHook.scrollViewContent}
-      centerContent
+      contentContainerStyle={isLoading ? styles.loadingContainer : styles.contentContainer}
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       automaticallyAdjustsScrollIndicatorInsets
@@ -218,8 +216,15 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
 const styles = StyleSheet.create({
   scrollViewContent: {
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  contentContainer: {
+    paddingVertical: 16,
   },
   type: {
     fontSize: 17,
@@ -232,10 +237,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   exportButton: {
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
     width: '80%',
     maxWidth: 300,
   },

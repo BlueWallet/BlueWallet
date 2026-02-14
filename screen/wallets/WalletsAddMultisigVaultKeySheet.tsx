@@ -42,7 +42,7 @@ const WalletsAddMultisigVaultKeySheet = () => {
         </View>
       </ScrollView>
       <View style={styles.footer}>
-        <Button title={loc.send.success_done} onPress={() => navigation.goBack()} />
+        <Button testID="VaultKeyDone" title={loc.send.success_done} onPress={() => navigation.goBack()} />
       </View>
     </SafeAreaView>
   );

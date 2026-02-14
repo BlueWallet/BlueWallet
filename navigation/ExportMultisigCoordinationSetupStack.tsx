@@ -1,6 +1,6 @@
 import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import navigationStyle from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
@@ -26,6 +26,7 @@ const ExportMultisigCoordinationSetupStack = () => {
         component={ExportMultisigCoordinationSetupComponent}
         options={navigationStyle({
           headerBackVisible: false,
+          closeButtonPosition: CloseButtonPosition.Right,
           statusBarStyle: 'light',
           title: loc.multisig.export_coordination_setup,
         })(theme)}

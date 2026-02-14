@@ -552,6 +552,7 @@ const WalletsAddMultisigStep2 = () => {
               <MultipleStepsListItem
                 showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
                 button={{
+                  testID: 'VaultKeyGenerate',
                   buttonType: MultipleStepsListItemButtonType.Full,
                   onPress: () => {
                     setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });

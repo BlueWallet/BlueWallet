@@ -69,9 +69,9 @@ const ViewEditMultisigCosignerViewSheet = () => {
       </View>
       <View style={styles.footer}>
         {vaultKeyData.xpub && vaultKeyData.cosignerXpubURv2 && vaultKeyData.exportFilename ? (
-          <Button title={loc.multisig.share} onPress={handleShare} />
+          <Button testID="VaultCosignerViewShare" title={loc.multisig.share} onPress={handleShare} />
         ) : (
-          <Button title={loc.send.success_done} onPress={() => navigation.goBack()} />
+          <Button testID="VaultCosignerViewDone" title={loc.send.success_done} onPress={() => navigation.goBack()} />
         )}
       </View>
     </SafeAreaView>
