@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
+import { Platform } from 'react-native';
 
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -108,6 +109,7 @@ const WalletsAddMultisigVaultKeySheetComponent = withLazySuspense(WalletsAddMult
 const WalletsAddMultisigProvideMnemonicsSheetComponent = withLazySuspense(WalletsAddMultisigProvideMnemonicsSheet);
 const WalletsAddMultisigCosignerXpubSheetComponent = withLazySuspense(WalletsAddMultisigCosignerXpubSheet);
 const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
+const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
 const AddWalletStack = () => {
   const theme = useTheme();
@@ -174,7 +176,7 @@ const AddWalletStack = () => {
         options={navigationStyle({
           title: loc.multisig.vault_advanced_customize,
           presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
+          sheetAllowedDetents: multisigSheetAllowedDetents,
           sheetGrabberVisible: true,
           headerShown: true,
           headerTitle: loc.multisig.vault_advanced_customize,
@@ -190,7 +192,7 @@ const AddWalletStack = () => {
         component={WalletsAddMultisigVaultKeySheetComponent}
         options={navigationStyle({
           presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
+          sheetAllowedDetents: multisigSheetAllowedDetents,
           sheetGrabberVisible: true,
           headerShown: true,
           headerTitle: '',
@@ -202,7 +204,7 @@ const AddWalletStack = () => {
         component={WalletsAddMultisigProvideMnemonicsSheetComponent}
         options={navigationStyle({
           presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
+          sheetAllowedDetents: multisigSheetAllowedDetents,
           sheetGrabberVisible: true,
           headerShown: true,
           headerTitle: '',
@@ -214,7 +216,7 @@ const AddWalletStack = () => {
         component={WalletsAddMultisigCosignerXpubSheetComponent}
         options={navigationStyle({
           presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
+          sheetAllowedDetents: multisigSheetAllowedDetents,
           sheetGrabberVisible: true,
           headerShown: true,
           headerTitle: '',

@@ -7,6 +7,27 @@ set -euo pipefail
 # ensure patched node_modules before building
 npm run patches
 
+# Work around react-native-capture-protection codegen naming mismatch on RN 0.83.
+CAPTURE_PROTECTION_PACKAGE_JSON="node_modules/react-native-capture-protection/package.json"
+if [[ -f "$CAPTURE_PROTECTION_PACKAGE_JSON" ]]; then
+	node - "$CAPTURE_PROTECTION_PACKAGE_JSON" <<'NODE'
+const fs = require('fs');
+const path = process.argv[2];
+const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
+if (pkg?.codegenConfig?.name === 'CaptureProtectionSpec') {
+  pkg.codegenConfig.name = 'CaptureProtection';
+  fs.writeFileSync(path, `${JSON.stringify(pkg, null, 2)}\n`);
+  console.log('Patched react-native-capture-protection codegenConfig.name -> CaptureProtection');
+}
+NODE
+fi
+
+# Remove stale generated codegen outputs to avoid mixed incremental outputs.
+rm -rf node_modules/react-native-capture-protection/android/build/generated/source/codegen
+rm -rf android/app/build/generated/autolinking
+# Work around incompatible generated file from react-native-camera-kit-no-google on RN 0.83.
+rm -f node_modules/react-native-camera-kit-no-google/android/build/generated/source/codegen/jni/react/renderer/components/NativeCameraKitSpec/NativeCameraKitSpecJSI-generated.cpp
+
 USE_FASTLANE=${USE_FASTLANE:-0}
 if [[ "${1:-}" == "--fastlane" ]]; then
 	USE_FASTLANE=1

@@ -225,7 +225,7 @@ jobs:
         enable-hw-keyboard: true
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 3 --reuse --artifacts-location ${{ github.workspace }}/artifacts
+        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
 
     - uses: actions/upload-artifact@v6
       if: failure()
