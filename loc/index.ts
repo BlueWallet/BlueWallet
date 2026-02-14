@@ -333,6 +333,20 @@ export const transactionTimeToReadable = (time: number | string) => {
   return ret;
 };
 
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+/** Formats a timestamp (milliseconds) for the transaction list. Uses relative time (e.g. "2 hours ago") for the past 24 hours, otherwise absolute date. */
+export const formatTransactionListDate = (timestampMs: number): string => {
+  const d = dayjs(timestampMs);
+  const now = dayjs();
+  const diff = now.valueOf() - timestampMs;
+  if (diff >= 0 && diff < ONE_DAY_MS) {
+    return d.fromNow();
+  }
+  const format = d.year() === now.year() ? 'MMM D, h:mm a' : 'MMM D, YYYY h:mm a';
+  return d.format(format);
+};
+
 export const removeTrailingZeros = (value: number | string): string => {
   let ret = value.toString();
 

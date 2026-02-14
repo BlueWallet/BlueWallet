@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { Platform, TouchableOpacity } from 'react-native';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { Animated, Platform, TouchableOpacity } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -18,6 +18,21 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   } = props;
 
   const { language } = useSettings();
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = useCallback(() => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.98,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
 
   // Map Menu Items for RN Menu (supports subactions and displayInline)
   const mapMenuItemForMenuView = useCallback((action: Action): MenuAction | null => {
@@ -120,8 +135,16 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         accessibilityLanguage={language}
       >
         {isMenuPrimaryAction || isButton ? (
-          <TouchableOpacity style={buttonStyle} disabled={disabled} onPress={onPress} {...restProps}>
-            {children}
+          <TouchableOpacity
+            style={buttonStyle}
+            disabled={disabled}
+            onPress={onPress}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            activeOpacity={1}
+            {...restProps}
+          >
+            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>{children}</Animated.View>
           </TouchableOpacity>
         ) : (
           children

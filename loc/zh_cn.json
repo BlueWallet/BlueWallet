@@ -374,6 +374,8 @@
     "eta_1d": "预计到达时间：大约 1 天",
     "view_wallet": "查看 {walletLabel}",
     "list_title": "交易",
+    "list_title_sent": "已发送",
+    "list_title_received": "已接收",
     "transaction": "交易",
     "open_url_error": "无法使用默认浏览器打开链接。请更换默认浏览器并重试。",
     "rbf_explain": "我们将使用一笔矿工费更高的交易替换当前交易，以便其能更快被矿工打包确认。这称为 RBF（费用替换）。",

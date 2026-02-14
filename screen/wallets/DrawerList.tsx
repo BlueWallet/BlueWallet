@@ -213,7 +213,6 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
             screen: 'WalletTransactions',
             params: { walletID, walletType },
           });
-          drawerNavigation.closeDrawer();
         });
       }
     },
@@ -231,10 +230,8 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
   }, [navigation, drawerNavigation]);
 
   const onNewWalletPress = useCallback(() => {
-    drawerNavigation.closeDrawer();
-
     navigation.navigate('AddWalletRoot');
-  }, [navigation, drawerNavigation]);
+  }, [navigation]);
 
   return (
     <DrawerContentScrollView
