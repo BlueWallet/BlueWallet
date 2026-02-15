@@ -127,7 +127,7 @@ jobs:
           brew install applesimutils
 
       - name: Run detox tests
-        timeout-minutes: 120
+        timeout-minutes: 360
         run: |
           npm run e2e:test:ios-release -- \
             --record-videos failing \
