@@ -81,7 +81,7 @@ export const BlueDefaultTheme = {
     transactionReceivedColor: '#63BDA2',
     cardSectionBackground: '#F9F9F9',
     cardSectionHeaderBackground: '#F2F2F2',
-    cardBorderColor: 'rgba(0, 0, 0, 0.05)',
+    cardBorderColor: 'rgba(0, 0, 0, 0.15)',
   },
 };
 
@@ -154,7 +154,7 @@ export const BlueDarkTheme: Theme = {
     transactionReceivedColor: '#37C0A1',
     cardSectionBackground: '#1C1C1E',
     cardSectionHeaderBackground: '#2C2C2E',
-    cardBorderColor: 'rgba(255, 255, 255, 0.08)',
+    cardBorderColor: 'rgba(255, 255, 255, 0.15)',
   },
 };
 
