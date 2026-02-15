@@ -403,10 +403,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // switch on BIP47 slider if its not switched
     if (!(await getSwitchValue('BIP47Switch'))) {
       await expect(element(by.text('Contacts'))).not.toBeVisible();
+      // Scroll down so Options section (BIP47 switch) is on screen
+      await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+      await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
       await waitFor(element(by.id('BIP47Switch')))
-        .toBeVisible()
-        .whileElement(by.id('WalletDetailsScroll'))
-        .scroll(500, 'down');
+        .toExist()
+        .withTimeout(5000);
       await element(by.id('BIP47Switch')).tap();
       await waitFor(element(by.text('Contacts')))
         .toBeVisible()
