@@ -461,6 +461,7 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
   const { fontScale } = useWindowDimensions();
 
   const themeStyles = usePlatformStyles();
+  const cardColor = themeColors.lightButton ?? themeColors.modal ?? themeColors.elevated ?? themeColors.background;
   const resolvedIcon = leftIcon ?? (iconName ? getIconConfig(iconName, dark) : undefined);
   const isSingle = position === 'single';
   const isFirst = position === 'first' || isSingle;
@@ -474,7 +475,7 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
     () =>
       ({
         title: {
-          color: platformColors.text,
+          color: themeColors.foregroundColor,
           fontSize: platformSizing.titleFontSize,
           fontWeight: platformSizing.titleFontWeight,
           writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
@@ -482,28 +483,29 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
         subtitle: {
           flexWrap: 'wrap',
           writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-          color: platformColors.secondaryText,
+          color: themeColors.alternativeTextColor ?? themeColors.darkGray,
           fontWeight: platformSizing.subtitleFontWeight,
           paddingVertical: platformSizing.subtitlePaddingVertical,
           lineHeight: platformSizing.subtitleLineHeight * fontScale,
           fontSize: platformSizing.subtitleFontSize,
         },
         container: {
-          backgroundColor: platformColors.card,
+          backgroundColor: cardColor,
           paddingVertical: isAndroid ? 8 : platformSizing.containerPaddingVertical,
           paddingHorizontal: platformSizing.horizontalPadding,
           minHeight,
           borderBottomWidth: platformLayout.showBorderBottom && !isLast ? StyleSheet.hairlineWidth : 0,
-          borderBottomColor: platformLayout.showBorderBottom && !isLast ? platformColors.separator : 'transparent',
+          borderBottomColor:
+            platformLayout.showBorderBottom && !isLast ? (themeColors.lightBorder ?? themeColors.borderTopColor) : 'transparent',
           elevation: platformLayout.showElevation ? platformSizing.containerElevation : 0,
           marginVertical: isAndroid ? 0 : platformSizing.containerMarginVertical,
         },
         chevron: {
-          color: platformColors.chevron,
+          color: themeColors.alternativeTextColor ?? themeColors.darkGray,
           opacity: 0.7,
         },
       }) as const,
-    [fontScale, minHeight, isLast],
+    [fontScale, minHeight, isLast, cardColor, themeColors],
   );
 
   const containerStyle = [
@@ -529,7 +531,7 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
         borderRadius: 0,
         elevation: platformLayout.showElevation ? platformSizing.containerElevation : 0,
         marginVertical: isAndroid ? 0 : 1,
-        backgroundColor: platformColors.card,
+        backgroundColor: cardColor,
       };
 
   const outerContainerStyle = [
