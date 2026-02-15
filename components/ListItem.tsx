@@ -11,6 +11,7 @@ interface ListItemProps {
   Component?: typeof React.Component | typeof PressableWrapper;
   bottomDivider?: boolean;
   testID?: string;
+  switchTestID?: string;
   onPress?: () => void;
   disabled?: boolean;
   switch?: object;
@@ -45,6 +46,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     containerStyle,
     bottomDivider = true,
     testID,
+    switchTestID,
     onPress,
     disabled,
     switch: switchProps,
@@ -143,7 +145,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         {switchProps && (
           <>
             {!(rightTitle || rightSubtitle) && <View style={styles.chevronSpacer} />}
-            <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+            <Switch {...memoizedSwitchProps} testID={switchTestID} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
           </>
         )}
         {checkmark && (
