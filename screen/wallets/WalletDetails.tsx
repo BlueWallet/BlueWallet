@@ -690,7 +690,7 @@ const WalletDetails: React.FC = () => {
                           }
                         },
                       }}
-                      testID="BIP47Switch"
+                      switchTestID="BIP47Switch"
                       bottomDivider
                     />
                   </>
