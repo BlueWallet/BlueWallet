@@ -171,7 +171,6 @@
     "react-native-push-notification": "8.1.1",
     "react-native-qrcode-svg": "6.3.21",
     "react-native-quick-actions": "0.3.13",
-    "react-native-rate-app": "github:BlueWallet/react-native-rate-app#160a0b8",
     "react-native-reanimated": "4.2.1",
     "react-native-safe-area-context": "5.6.2",
     "react-native-screens": "4.23.0",
