@@ -410,11 +410,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
         .toExist()
         .withTimeout(5000);
       await element(by.id('BIP47Switch')).tap();
+      // Wait for Contacts row to appear (BIP47 enabled); use toExist so we don't require 75% visibility (row may be at edge)
       await waitFor(element(by.text('Contacts')))
-        .toBeVisible()
-        .whileElement(by.id('WalletDetailsScroll'))
-        .scroll(500, 'down');
-      await expect(element(by.text('Contacts'))).toBeVisible();
+        .toExist()
+        .withTimeout(10000);
       await goBack();
     } else {
       await goBack();

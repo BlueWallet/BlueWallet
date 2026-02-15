@@ -788,7 +788,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.id('WalletDetails')).tap();
       await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
       await element(by.text('Advanced')).tap();
-      await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
+      // DerivationPath testID is on the ListItem container (ViewGroup); the path text is in a child - assert text is visible
+      await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
     }
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
