@@ -537,9 +537,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // let's test wallet details screens
     await element(by.id('WalletDetails')).tap();
 
-    // rename test
-    await element(by.id('WalletNameInput')).replaceText('testname');
-    await element(by.id('WalletNameInput')).typeText('\n'); // newline is what triggers saving the wallet
+    // rename test: tap edit, enter new name in prompt, tap OK
+    await element(by.id('WalletNameEditButton')).tap();
+    await typeTextIntoAlertInput('testname');
+    await element(by.text('OK')).tap();
     await waitForKeyboardToClose();
     await goBack();
     await waitForText('testname');
@@ -547,8 +548,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('WalletDetails')).tap();
 
     // rename back
-    await element(by.id('WalletNameInput')).replaceText('Imported HD SegWit (BIP84 Bech32 Native)');
-    await element(by.id('WalletNameInput')).typeText('\n'); // newline is what triggers saving the wallet
+    await element(by.id('WalletNameEditButton')).tap();
+    await typeTextIntoAlertInput('Imported HD SegWit (BIP84 Bech32 Native)');
+    await element(by.text('OK')).tap();
     await waitForKeyboardToClose();
     await goBack();
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
