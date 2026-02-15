@@ -235,6 +235,12 @@ const TransactionStatus: React.FC = () => {
     detailsCard: {
       borderColor: colors.cardBorderColor,
     },
+    optionsContent: {
+      backgroundColor: colors.cardSectionBackground,
+      borderBottomLeftRadius: 12,
+      borderBottomRightRadius: 12,
+      overflow: 'hidden',
+    },
     detailRow: {
       backgroundColor: colors.cardSectionBackground,
       borderBottomColor: colors.cardBorderColor,
@@ -259,7 +265,10 @@ const TransactionStatus: React.FC = () => {
       borderColor: colors.cardBorderColor,
     },
     advancedContent: {
-      borderTopColor: colors.cardBorderColor,
+      backgroundColor: colors.cardSectionBackground,
+      borderBottomLeftRadius: 12,
+      borderBottomRightRadius: 12,
+      overflow: 'hidden',
     },
     rowValue: {
       color: colors.alternativeTextColor,
@@ -1101,8 +1110,9 @@ const TransactionStatus: React.FC = () => {
             </TouchableOpacity>
           )}
         </View>
-        {/* Network Fee */}
-        <View style={[styles.detailRow, stylesHook.detailRow]}>
+        <View style={stylesHook.optionsContent}>
+          {/* Network Fee */}
+          <View style={[styles.detailRow, stylesHook.detailRow]}>
           <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_network_fee}</BlueText>
           <View style={styles.detailValueContainer}>
             <CopyTextToClipboard
@@ -1179,6 +1189,7 @@ const TransactionStatus: React.FC = () => {
               </TouchableOpacity>
             )}
           </View>
+        </View>
         </View>
       </View>
 
@@ -1471,7 +1482,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   sectionTitle: {
-    backgroundColor: '#F2F2F2',
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderTopLeftRadius: 12,
@@ -1512,11 +1522,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 0,
     minHeight: 24,
-    backgroundColor: '#F9F9F9',
     paddingVertical: 12,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   detailRowLast: {
     borderBottomWidth: 0,
@@ -1527,11 +1535,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     marginBottom: 0,
     minHeight: 24,
-    backgroundColor: '#F9F9F9',
     paddingVertical: 12,
     paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   detailLabel: {
     fontSize: 16,
@@ -1609,8 +1615,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 0,
     minHeight: 44,
-    borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     overflow: 'hidden',
@@ -1619,8 +1623,6 @@ const styles = StyleSheet.create({
     marginTop: 0,
     paddingTop: 0,
     paddingBottom: 0,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
   actions: {
     alignSelf: 'center',

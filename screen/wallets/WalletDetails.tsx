@@ -1,12 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  InteractionManager,
-  LayoutAnimation,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { InteractionManager, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -338,6 +331,10 @@ const WalletDetails: React.FC = () => {
     statsBox: {
       backgroundColor: colors.cardSectionHeaderBackground,
     },
+    listItemContainerBorder: {
+      backgroundColor: 'transparent',
+      borderBottomColor: colors.cardBorderColor,
+    },
   });
 
   const navigateToWalletExport = () => {
@@ -447,15 +444,7 @@ const WalletDetails: React.FC = () => {
 
   const handleEditWalletName = useCallback(async () => {
     try {
-      const newName = await prompt(
-        loc.wallets.add_wallet_name,
-        '',
-        true,
-        'plain-text',
-        false,
-        undefined,
-        wallet.getLabel(),
-      );
+      const newName = await prompt(loc.wallets.add_wallet_name, '', true, 'plain-text', false, undefined, wallet.getLabel());
       const trimmed = newName.trim();
       if (trimmed.length === 0) return;
       if (wallet.getLabel() === trimmed) return;
@@ -521,9 +510,7 @@ const WalletDetails: React.FC = () => {
               (wallet.type === WatchOnlyWallet.type && !wallet.isHd())) && (
               <View style={[styles.detailsCard, stylesHook.detailsCard]}>
                 <View style={stylesHook.optionsContent}>
-                  <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
-                    {loc.wallets.details_address}
-                  </Text>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.wallets.details_address}</Text>
                   <Text style={[styles.textValue, stylesHook.textValue, styles.addressSectionContent]} selectable>
                     {(() => {
                       try {
@@ -542,11 +529,7 @@ const WalletDetails: React.FC = () => {
               <View style={styles.statsRow}>
                 <View style={[styles.statsBox, stylesHook.statsBox]}>
                   <View style={styles.statsBoxTitleRow}>
-                    <Text
-                      onPress={purgeTransactions}
-                      style={[styles.textLabel2, stylesHook.textLabel2]}
-                      testID="PurgeBackdoorButton"
-                    >
+                    <Text onPress={purgeTransactions} style={[styles.textLabel2, stylesHook.textLabel2]} testID="PurgeBackdoorButton">
                       {loc.transactions.list_title}
                     </Text>
                     {walletTransactionsLength > 0 && (
@@ -575,9 +558,7 @@ const WalletDetails: React.FC = () => {
                 ) : (
                   <View style={[styles.statsBox, stylesHook.statsBox]} testID="CoinsStatsBox">
                     <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_stats_coins}</Text>
-                    <BlueText style={styles.statsBoxNumber}>
-                      {hasCoinControl && utxoCount !== null ? utxoCount : '—'}
-                    </BlueText>
+                    <BlueText style={styles.statsBoxNumber}>{hasCoinControl && utxoCount !== null ? utxoCount : '—'}</BlueText>
                   </View>
                 )}
               </View>
@@ -600,15 +581,15 @@ const WalletDetails: React.FC = () => {
             )}
 
             {/* Show addresses & Contacts */}
-            {((wallet instanceof AbstractHDElectrumWallet ||
-              (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd())) ||
+            {(wallet instanceof AbstractHDElectrumWallet ||
+              (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd()) ||
               isContactsVisible) && (
               <View style={[styles.detailsCard, stylesHook.detailsCard]}>
                 <View style={stylesHook.optionsContent}>
                   {(wallet instanceof AbstractHDElectrumWallet ||
                     (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd())) && (
                     <ListItem
-                      containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                      containerStyle={stylesHook.listItemContainerBorder}
                       onPress={navigateToAddresses}
                       title={loc.wallets.details_show_addresses}
                       chevron
@@ -617,7 +598,7 @@ const WalletDetails: React.FC = () => {
                   )}
                   {isContactsVisible ? (
                     <ListItem
-                      containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                      containerStyle={stylesHook.listItemContainerBorder}
                       onPress={navigateToContacts}
                       title={loc.bip47.contacts}
                       chevron
@@ -636,12 +617,10 @@ const WalletDetails: React.FC = () => {
               <View style={stylesHook.optionsContent}>
                 {wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd() && (
                   <>
-                    <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
-                      {loc.wallets.details_advanced}
-                    </Text>
+                    <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.wallets.details_advanced}</Text>
                     <ListItem
                       Component={View}
-                      containerStyle={{ backgroundColor: 'transparent', borderBottomColor: 'rgba(255, 255, 255, 0.1)' }}
+                      containerStyle={styles.listItemContainerBorderLight}
                       title={loc.wallets.details_use_with_hardware_wallet}
                       switch={{
                         value: walletUseWithHardwareWallet,
@@ -663,15 +642,12 @@ const WalletDetails: React.FC = () => {
                     />
                   </>
                 )}
-                <Text
-                  onPress={exportInternals}
-                  style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}
-                >
+                <Text onPress={exportInternals} style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
                   {loc.transactions.list_title}
                 </Text>
                 <ListItem
                   Component={View}
-                  containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                  containerStyle={stylesHook.listItemContainerBorder}
                   title={loc.wallets.details_display}
                   switch={{
                     value: hideTransactionsInWalletsList,
@@ -696,7 +672,7 @@ const WalletDetails: React.FC = () => {
                     <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.bip47.payment_code}</Text>
                     <ListItem
                       Component={View}
-                      containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                      containerStyle={stylesHook.listItemContainerBorder}
                       title={loc.bip47.purpose}
                       switch={{
                         value: isBIP47Enabled,
@@ -721,7 +697,7 @@ const WalletDetails: React.FC = () => {
                 )}
                 {wallet.allowXpub && wallet.allowXpub() && (
                   <ListItem
-                    containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                    containerStyle={stylesHook.listItemContainerBorder}
                     onPress={navigateToXPub}
                     title={loc.wallets.details_show_xpub}
                     chevron
@@ -731,7 +707,7 @@ const WalletDetails: React.FC = () => {
                 )}
                 {wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() && (
                   <ListItem
-                    containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                    containerStyle={stylesHook.listItemContainerBorder}
                     onPress={navigateToSignVerify}
                     title={loc.addresses.sign_title}
                     chevron
@@ -742,7 +718,7 @@ const WalletDetails: React.FC = () => {
                 {wallet.type === MultisigHDWallet.type && (
                   <>
                     <ListItem
-                      containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                      containerStyle={stylesHook.listItemContainerBorder}
                       onPress={navigateToMultisigCoordinationSetup}
                       title={loc.multisig.export_coordination_setup.replace(/^\w/, (c: string) => c.toUpperCase())}
                       chevron
@@ -750,7 +726,7 @@ const WalletDetails: React.FC = () => {
                       bottomDivider
                     />
                     <ListItem
-                      containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                      containerStyle={stylesHook.listItemContainerBorder}
                       onPress={navigateToViewEditCosigners}
                       title={loc.multisig.view_edit_cosigners}
                       chevron
@@ -776,7 +752,7 @@ const WalletDetails: React.FC = () => {
                 <View style={[styles.advancedContent, stylesHook.advancedContent]}>
                   <ListItem
                     Component={View}
-                    containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                    containerStyle={stylesHook.listItemContainerBorder}
                     title={loc.wallets.details_type}
                     titleStyle={stylesHook.advancedListItemTitle}
                     rightTitle={wallet.typeReadable}
@@ -793,20 +769,18 @@ const WalletDetails: React.FC = () => {
                     <>
                       <ListItem
                         Component={View}
-                        containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                        containerStyle={stylesHook.listItemContainerBorder}
                         title={loc.wallets.details_multisig_type}
                         titleStyle={stylesHook.advancedListItemTitle}
                         rightTitle={`${wallet.getM()} / ${wallet.getN()} (${
                           wallet.isNativeSegwit() ? 'native segwit' : wallet.isWrappedSegwit() ? 'wrapped segwit' : 'legacy'
                         })`}
                         rightTitleStyle={stylesHook.advancedListItemRightTitle}
-                        bottomDivider={
-                          !!(derivationPath || (wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()))
-                        }
+                        bottomDivider={!!(derivationPath || (wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()))}
                       />
                       <ListItem
                         Component={View}
-                        containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                        containerStyle={stylesHook.listItemContainerBorder}
                         title={loc.multisig.how_many_signatures_can_bluewallet_make}
                         titleStyle={stylesHook.advancedListItemTitle}
                         rightTitle={String(wallet.howManySignaturesCanWeMake())}
@@ -817,15 +791,13 @@ const WalletDetails: React.FC = () => {
                   )}
                   {wallet.allowMasterFingerprint && wallet.allowMasterFingerprint() && (
                     <ListItem
-                      containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                      containerStyle={stylesHook.listItemContainerBorder}
                       onPress={isMasterFingerPrintVisible ? undefined : onViewMasterFingerPrintPress}
                       Component={isMasterFingerPrintVisible ? View : undefined}
                       title={loc.wallets.details_master_fingerprint}
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={
-                        isMasterFingerPrintVisible
-                          ? (masterFingerprint ?? loc.wallets.import_derivation_loading)
-                          : loc.multisig.view
+                        isMasterFingerPrintVisible ? (masterFingerprint ?? loc.wallets.import_derivation_loading) : loc.multisig.view
                       }
                       rightTitleStyle={stylesHook.advancedListItemRightTitle}
                       bottomDivider={!!derivationPath}
@@ -834,7 +806,7 @@ const WalletDetails: React.FC = () => {
                   {derivationPath && (
                     <ListItem
                       Component={View}
-                      containerStyle={{ backgroundColor: 'transparent', borderBottomColor: colors.cardBorderColor }}
+                      containerStyle={stylesHook.listItemContainerBorder}
                       title={loc.wallets.details_derivation_path}
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={derivationPath}
@@ -848,7 +820,7 @@ const WalletDetails: React.FC = () => {
             </View>
 
             <BlueCard style={styles.address}>
-              <View>      
+              <View>
                 <SecondButton
                   onPress={navigateToWalletExport}
                   testID="WalletExport"
@@ -966,6 +938,10 @@ const styles = StyleSheet.create({
     marginTop: 0,
     paddingTop: 0,
     paddingBottom: 0,
+  },
+  listItemContainerBorderLight: {
+    backgroundColor: 'transparent',
+    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
 });
 
