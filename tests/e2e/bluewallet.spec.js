@@ -898,8 +898,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // eslint-disable-next-line jest/no-disabled-tests
-  it.skip('can create 2of3 multisig vault with generated keys, manage cosigners and export coordination setup', async () => {
+  it('can create 2of3 multisig vault with generated keys, manage cosigners and export coordination setup', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t10');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t10'), 'as it previously passed on Travis');
@@ -974,16 +973,27 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ViewEditCosigners')).tap();
     await waitForText('Vault Key 1');
     await expect(element(by.text('Vault Key 2'))).toBeVisible();
-    await expect(element(by.text('Vault Key 3'))).toBeVisible();
+    await waitFor(element(by.text('Vault Key 3')))
+      .toBeVisible()
+      .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
+      .scroll(100, 'down');
 
     // forget seed for cosigner 3 (replaces seed with xpub)
-    await waitForId('VaultCosignerForgetSeed3');
+    await waitFor(element(by.id('VaultCosignerForgetSeed3')))
+      .toBeVisible()
+      .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
+      .scroll(100, 'down');
     await element(by.id('VaultCosignerForgetSeed3')).tap();
     // after forget, "I have mnemonics" button should appear for this cosigner
-    await waitForId('VaultCosignerImportMnemonics3');
+    await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
+      .toBeVisible()
+      .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
+      .scroll(100, 'down');
 
     // save changes
-    await waitForId('VaultCosignersSave');
+    await waitFor(element(by.id('VaultCosignersSave')))
+      .toBeVisible()
+      .withTimeout(33000);
     await element(by.id('VaultCosignersSave')).tap();
     await waitForId('WalletsList');
 

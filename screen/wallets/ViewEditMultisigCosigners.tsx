@@ -513,6 +513,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   return (
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
       <FlatList
+        testID="ViewEditMultisigCosignersFlatList"
         ListHeaderComponent={tipKeys}
         data={walletData}
         extraData={vaultKeyData}
