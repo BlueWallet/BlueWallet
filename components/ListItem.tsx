@@ -132,12 +132,23 @@ const ListItem: React.FC<ListItemProps> = React.memo(
       </View>
     );
 
+    if (!onPress) {
+      return (
+        <View
+          testID={testID}
+          style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}
+        >
+          {renderContent()}
+        </View>
+      );
+    }
+
     return (
       <Pressable
         testID={testID}
         onPress={onPress}
         disabled={disabled}
-        accessibilityRole={onPress ? 'button' : undefined}
+        accessibilityRole="button"
         android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}
         style={({ pressed }) => [
           stylesHook.containerStyle,

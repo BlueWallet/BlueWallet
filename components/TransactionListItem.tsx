@@ -385,6 +385,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     return (
       <ToolTipMenu
+        isButton
         actions={toolTipActions}
         onPressMenuItem={onToolTipPress}
         onPress={onPress}
