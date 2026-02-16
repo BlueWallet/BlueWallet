@@ -23,12 +23,12 @@ type IconNameFor<T extends IconType> = T extends 'font-awesome'
     : T extends 'ionicons'
       ? IonIconName
       : T extends 'material'
-      ? MaterialIconName
-      : T extends 'material-community'
-        ? MaterialDesignIconName
-        : T extends 'entypo'
-          ? EntypoIconName
-          : never;
+        ? MaterialIconName
+        : T extends 'material-community'
+          ? MaterialDesignIconName
+          : T extends 'entypo'
+            ? EntypoIconName
+            : never;
 
 export interface IconProps<T extends IconType = IconType> {
   name: IconNameFor<T>;

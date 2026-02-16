@@ -1,8 +1,7 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback } from 'react';
-import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
-import RateApp, { AndroidMarket } from 'react-native-rate-app';
 import Icon from '@react-native-vector-icons/fontawesome6';
 
 import A from '../../blue_modules/analytics';
@@ -34,7 +33,6 @@ interface AboutItem extends SettingsListItemProps {
 
 const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
-  const { width, height } = useWindowDimensions();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
 
@@ -67,23 +65,14 @@ const About: React.FC = () => {
   }, []);
 
   const handleOnRatePress = useCallback(async () => {
-    const storeOptions = {
-      iOSAppId: '1376878040',
-      androidPackageName: 'io.bluewallet.bluewallet',
-      androidMarket: AndroidMarket.GOOGLE,
-    };
-
     try {
-      const inAppSuccess = await RateApp.requestReview({ androidMarket: AndroidMarket.GOOGLE });
-      if (!inAppSuccess) {
-        await RateApp.openStoreForReview(storeOptions);
+      if (Platform.OS === 'ios') {
+        await Linking.openURL('https://itunes.apple.com/app/bluewallet-bitcoin-wallet/id1376878040');
+      } else {
+        await Linking.openURL('https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet');
       }
-    } catch (error) {
-      try {
-        await RateApp.openStoreForReview(storeOptions);
-      } catch (openError) {
-        console.error('Rate app failed.', openError);
-      }
+    } catch (error: any) {
+      console.error('Rate app failed:', error.message);
     }
   }, []);
 
@@ -94,7 +83,7 @@ const About: React.FC = () => {
 
     const start = Date.now();
     let num;
-    for (num = 0; num < 1000; num++) {
+    for (num = 0; num < 10000; num++) {
       w._getExternalAddressByIndex(num);
       if (Date.now() - start > 10 * 1000) {
         break;
@@ -160,7 +149,6 @@ const About: React.FC = () => {
               <BlueSpacing20 />
               <BlueTextCentered>React Native</BlueTextCentered>
               <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
-              <BlueTextCentered>Nodejs</BlueTextCentered>
               <BlueTextCentered>Electrum server</BlueTextCentered>
             </SettingsCard>
           </SettingsSection>
@@ -219,9 +207,6 @@ const About: React.FC = () => {
               {new Date(Number(getBuildNumber()) * 1000).toUTCString()}
             </Text>
             <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>{getBundleId()}</Text>
-            <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>
-              w, h = {width}, {height}
-            </Text>
             <Text style={[styles.footerText, { color: colors.alternativeTextColor }]}>Unique ID: {getUniqueIdSync()}</Text>
             <View style={styles.copyToClipboard}>
               <TouchableOpacity
@@ -253,8 +238,6 @@ const About: React.FC = () => {
     handleOnLicensingPress,
     handleOnSelfTestPress,
     handlePerformanceTest,
-    width,
-    height,
   ]);
 
   const renderItem = useCallback(

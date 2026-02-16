@@ -19,6 +19,8 @@ interface ListItemProps {
   subtitleNumberOfLines?: number;
   rightTitle?: string;
   rightTitleStyle?: StyleProp<TextStyle>;
+  rightSubtitle?: string | React.ReactNode;
+  rightSubtitleStyle?: StyleProp<TextStyle>;
   chevron?: boolean;
   checkmark?: boolean;
 }
@@ -38,6 +40,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     subtitleNumberOfLines,
     rightTitle,
     rightTitleStyle,
+    rightSubtitle,
+    rightSubtitleStyle,
     chevron,
     checkmark,
   }: ListItemProps) => {
@@ -51,6 +55,9 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         fontWeight: '500',
         writingDirection: direction,
       },
+      rightMemoText: {
+        textAlign: direction === 'rtl' ? 'left' : 'right',
+      },
       subtitle: {
         flexWrap: 'wrap',
         writingDirection: direction,
@@ -59,6 +66,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         paddingVertical: switchProps ? 8 : 0,
         lineHeight: 20,
         fontSize: 14,
+        marginTop: 2,
       },
 
       containerStyle: {
@@ -94,11 +102,20 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           ) : null}
         </View>
 
-        {rightTitle ? (
-          <View style={styles.margin8}>
-            <Text style={rightTitleStyle} numberOfLines={0} accessibilityRole="text">
-              {rightTitle}
-            </Text>
+        {rightTitle || rightSubtitle ? (
+          <View style={styles.rightColumn}>
+            {rightTitle ? (
+              <Text style={rightTitleStyle} numberOfLines={1} accessibilityRole="text">
+                {rightTitle}
+              </Text>
+            ) : null}
+            {rightSubtitle != null && rightSubtitle !== '' ? (
+              <View style={styles.rightMemoWrapper}>
+                <Text style={[stylesHook.subtitle, rightSubtitleStyle, stylesHook.rightMemoText]} numberOfLines={1} ellipsizeMode="tail">
+                  {rightSubtitle}
+                </Text>
+              </View>
+            ) : null}
           </View>
         ) : null}
         {chevron ? (
@@ -139,9 +156,6 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 export default ListItem;
 
 const styles = StyleSheet.create({
-  margin8: {
-    margin: 8,
-  },
   margin16: {
     marginLeft: 16,
   },
@@ -159,6 +173,15 @@ const styles = StyleSheet.create({
   leftAvatarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  rightColumn: {
+    marginStart: 8,
+    minWidth: 0,
+    alignItems: 'flex-end',
+  },
+  rightMemoWrapper: {
+    flexShrink: 1,
+    minWidth: 0,
   },
   checkmarkContainer: {
     marginLeft: 8,
