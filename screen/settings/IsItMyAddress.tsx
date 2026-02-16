@@ -1,12 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { Keyboard, View, ScrollView, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Divider } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
@@ -19,14 +18,11 @@ const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
   const { colors } = useTheme();
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
   const [address, setAddress] = useState<string>('');
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
   const [resultCleanAddress, setResultCleanAddress] = useState<string | undefined>();
-
-  const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 
   const clearAddressInput = () => {
     setAddress('');
@@ -190,23 +186,6 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: 16,
-  },
-  textInputContainer: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  textInput: {
-    flex: 1,
-    padding: 8,
-    minHeight: 100,
-  },
-  clearButton: {
-    padding: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   spacingLarge: {
     height: 32,

@@ -898,6 +898,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
+  // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can create 2of3 multisig vault with generated keys, manage cosigners and export coordination setup', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t10');
     if (process.env.CI) {
