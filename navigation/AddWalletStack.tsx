@@ -39,15 +39,12 @@ export type AddWalletStackParamList = {
   };
   WalletsAddMultisig: {
     walletLabel: string;
-    m?: number;
-    n?: number;
-    format?: string;
   };
   MultisigAdvanced: {
     m: number;
     n: number;
     format: string;
-    walletLabel: string;
+    onSave: (m: number, n: number, format: string) => void;
   };
   WalletsAddMultisigStep2: {
     m: number;

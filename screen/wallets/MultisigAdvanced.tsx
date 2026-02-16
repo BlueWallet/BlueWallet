@@ -159,7 +159,7 @@ const MultisigAdvanced: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const route = useRoute<RouteProps>();
-  const { m, n, format, walletLabel } = route.params;
+  const { m, n, format, onSave } = route.params;
 
   const [currentM, setCurrentM] = React.useState(m);
   const [currentN, setCurrentN] = React.useState(n);
@@ -184,12 +184,9 @@ const MultisigAdvanced: React.FC = () => {
   });
 
   const handleSave = useCallback(() => {
-    navigation.navigate({
-      name: 'WalletsAddMultisig',
-      params: { walletLabel, m: currentM, n: currentN, format: currentFormat },
-      merge: true,
-    });
-  }, [navigation, currentM, currentN, currentFormat, walletLabel]);
+    onSave(currentM, currentN, currentFormat);
+    navigation.goBack();
+  }, [onSave, currentM, currentN, currentFormat, navigation]);
 
   const SaveButton = useCallback(
     () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />,
