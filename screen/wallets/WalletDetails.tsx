@@ -19,6 +19,7 @@ import {
   HDSegwitBech32Wallet,
   LegacyWallet,
   LightningArkWallet,
+  LightningSparkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -75,6 +76,8 @@ const WalletDetails: React.FC = () => {
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
+  const [sparkAddress, setSparkAddress] = useState<string>('');
+  const [sparkIdentityPubkey, setSparkIdentityPubkey] = useState<string>('');
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo<string | null>(() => {
     try {
@@ -106,6 +109,40 @@ const WalletDetails: React.FC = () => {
     };
 
     fetchArkAddress();
+  }, [wallet]);
+
+  // Fetch spark address when wallet is a LightningSparkWallet
+  useEffect(() => {
+    const fetchSparkAddress = async () => {
+      if (wallet.type === LightningSparkWallet.type && wallet.getSparkAddress) {
+        try {
+          const address = await wallet.getSparkAddress();
+          console.log('spark address:', address);
+          setSparkAddress(address);
+        } catch (error: any) {
+          setSparkAddress(error.message);
+        }
+      }
+    };
+
+    fetchSparkAddress();
+  }, [wallet]);
+
+  // Fetch spark identity pubkey when wallet is a LightningSparkWallet
+  useEffect(() => {
+    const fetchSparkIdentityPubkey = async () => {
+      if (wallet.type === LightningSparkWallet.type && wallet.getSparkIdentityPubkey) {
+        try {
+          const pubkey = await wallet.getSparkIdentityPubkey();
+          console.log('spark identity pubkey:', pubkey);
+          setSparkIdentityPubkey(pubkey);
+        } catch (error: any) {
+          setSparkIdentityPubkey(error.message);
+        }
+      }
+    };
+
+    fetchSparkIdentityPubkey();
   }, [wallet]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {

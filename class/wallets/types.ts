@@ -19,6 +19,7 @@ import { WatchOnlyWallet } from './watch-only-wallet';
 import { TaprootWallet } from './taproot-wallet.ts';
 import { HDTaprootWallet } from './hd-taproot-wallet.ts';
 import { LightningArkWallet } from './lightning-ark-wallet.ts';
+import { LightningSparkWallet } from './lightning-spark-wallet.ts';
 
 export type Utxo = {
   // Returned by BlueElectrum
@@ -156,6 +157,7 @@ export type TWallet =
   | HDTaprootWallet
   | LegacyWallet
   | LightningArkWallet
+  | LightningSparkWallet
   | LightningCustodianWallet
   | MultisigHDWallet
   | SLIP39LegacyP2PKHWallet

@@ -28,6 +28,7 @@ import { getLNDHub } from '../helpers/lndHub';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
+import { LightningSparkWallet } from './wallets/lightning-spark-wallet.ts';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -444,6 +445,9 @@ export class BlueApp {
             break;
           case LightningArkWallet.type:
             unserializedWallet = LightningArkWallet.fromJson(key) as unknown as LightningArkWallet;
+            break;
+          case LightningSparkWallet.type:
+            unserializedWallet = LightningSparkWallet.fromJson(key) as unknown as LightningSparkWallet;
             break;
           case LightningCustodianWallet.type: {
             unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;

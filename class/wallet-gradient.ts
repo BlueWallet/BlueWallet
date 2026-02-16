@@ -14,6 +14,7 @@ import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWall
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import { TaprootWallet } from './wallets/taproot-wallet.ts';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
+import { LightningSparkWallet } from './wallets/lightning-spark-wallet.ts';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet: string[] = ['#007AFF', '#0040FF'];
@@ -73,6 +74,7 @@ export default class WalletGradient {
         gradient = WalletGradient.aezeedWallet;
         break;
       case LightningArkWallet.type:
+      case LightningSparkWallet.type:
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;
         break;
