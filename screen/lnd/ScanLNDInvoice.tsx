@@ -26,7 +26,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
-import { LightningArkWallet } from '../../class';
+import { LightningArkWallet, LightningSparkWallet } from '../../class';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
@@ -97,6 +97,25 @@ const ScanLNDInvoice = () => {
     }, [wallet]),
   );
 
+  const setDirectAddressDestination = (address: string) => {
+    Keyboard.dismiss();
+    setParams({ uri: undefined, invoice: address });
+    setDecoded({} as DecodedInvoice);
+    setIsAmountInitiallyEmpty(true);
+    setAmount(undefined);
+    setDestination(address);
+    setExpiresIn(undefined);
+    setIsLoading(false);
+  };
+
+  const isSparkAddressForCurrentWallet = (address: string): boolean => {
+    if (!wallet || !wallet.getSecret().startsWith('spark://')) {
+      return false;
+    }
+
+    return (wallet as unknown as LightningSparkWallet).isAddressValid(address);
+  };
+
   useEffect(() => {
     if (wallet && uri) {
       if (Lnurl.isLnurl(uri)) return processLnurlPay(uri);
@@ -109,20 +128,20 @@ const ScanLNDInvoice = () => {
         data = data.substring(ind + 10).split('&')[0];
       }
 
-      data = data.replace('LIGHTNING:', '').replace('lightning:', '');
+      data = data.replace('LIGHTNING:', '').replace('lightning:', '').trim();
       console.log(data);
 
       if (data.toLowerCase().startsWith('ark1')) {
         const arkw = new LightningArkWallet();
         if (arkw.isAddressValid(data)) {
-          setParams({ uri: undefined, invoice: data });
-          // @ts-ignore we need it to be set to something
-          setDecoded({});
-          setIsAmountInitiallyEmpty(true);
-          setDestination(data);
-          setIsLoading(false);
+          setDirectAddressDestination(data);
           return;
         }
+      }
+
+      if (isSparkAddressForCurrentWallet(data)) {
+        setDirectAddressDestination(data);
+        return;
       }
 
       let newDecoded: DecodedInvoice;
@@ -160,7 +179,34 @@ const ScanLNDInvoice = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uri]);
+  }, [uri, wallet]);
+
+  const parseAmountToSats = (value: string): number => {
+    if (!value) {
+      return 0;
+    }
+
+    let amountSats: number;
+    switch (unit) {
+      case BitcoinUnit.SATS:
+        amountSats = parseInt(value, 10);
+        break;
+      case BitcoinUnit.BTC:
+        amountSats = btcToSatoshi(value);
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        amountSats = btcToSatoshi(fiatToBTC(Number(value)));
+        break;
+      default:
+        amountSats = 0;
+    }
+
+    if (!Number.isFinite(amountSats) || amountSats <= 0) {
+      return 0;
+    }
+
+    return Math.floor(amountSats);
+  };
 
   const _keyboardDidShow = (): void => {
     setRenderWalletSelectionButtonHidden(true);
@@ -190,6 +236,11 @@ const ScanLNDInvoice = () => {
       return null;
     }
 
+    const amountSats = parseAmountToSats(amount);
+    if (amountSats <= 0) {
+      return null;
+    }
+
     const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
 
     if (isBiometricsEnabled) {
@@ -198,32 +249,24 @@ const ScanLNDInvoice = () => {
       }
     }
 
-    let amountSats: number = parseInt(amount, 10);
-    switch (unit) {
-      case BitcoinUnit.SATS:
-        // amount is already in sats
-        break;
-      case BitcoinUnit.BTC:
-        amountSats = btcToSatoshi(amount);
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        amountSats = btcToSatoshi(fiatToBTC(Number(amount)));
-        break;
-    }
     setIsLoading(true);
 
-    const expiryTimeMs = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
-    if (+new Date() > expiryTimeMs) {
-      setIsLoading(false);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      return presentAlert({ message: loc.lnd.errorInvoiceExpired });
+    if (typeof decoded.timestamp === 'number' && decoded.timestamp > 0 && typeof decoded.expiry === 'number' && decoded.expiry > 0) {
+      const expiryTimeMs = (decoded.timestamp + decoded.expiry) * 1000; // ms
+      if (+new Date() > expiryTimeMs) {
+        setIsLoading(false);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        return presentAlert({ message: loc.lnd.errorInvoiceExpired });
+      }
     }
 
-    const currentUserInvoices = wallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
-    if (currentUserInvoices.some(i => i.payment_hash === decoded.payment_hash)) {
-      setIsLoading(false);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      return presentAlert({ message: loc.lnd.sameWalletAsInvoiceError });
+    if (decoded.payment_hash) {
+      const currentUserInvoices = wallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
+      if (currentUserInvoices.some(i => i.payment_hash === decoded.payment_hash)) {
+        setIsLoading(false);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        return presentAlert({ message: loc.lnd.sameWalletAsInvoiceError });
+      }
     }
 
     try {
@@ -244,10 +287,12 @@ const ScanLNDInvoice = () => {
   };
 
   const processTextForInvoice = (text: string): void => {
+    const lowerText = text.toLowerCase();
     if (
-      (text && text.toLowerCase().startsWith('lnb')) ||
-      text.toLowerCase().startsWith('lightning:lnb') ||
-      text.toLowerCase().startsWith('ark1') ||
+      (text && lowerText.startsWith('lnb')) ||
+      lowerText.startsWith('lightning:lnb') ||
+      lowerText.startsWith('ark1') ||
+      isSparkAddressForCurrentWallet(text) ||
       Lnurl.isLnurl(text) ||
       Lnurl.isLightningAddress(text)
     ) {
@@ -260,14 +305,11 @@ const ScanLNDInvoice = () => {
   };
 
   const shouldDisablePayButton = (): boolean => {
-    if (!decoded) {
+    if (!decoded || !amount) {
       return true;
-    } else {
-      if (!amount) {
-        return true;
-      }
     }
-    return !(parseInt(amount, 10) > 0);
+
+    return parseAmountToSats(amount) <= 0;
   };
 
   const naviageToSelectWallet = (): void => {

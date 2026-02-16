@@ -1,4 +1,4 @@
-import { SparkWallet as NativeSDK } from '@buildonspark/spark-sdk';
+import { SparkWallet as NativeSDK, isValidSparkAddress } from '@buildonspark/spark-sdk';
 import * as bip39 from 'bip39';
 
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
@@ -228,10 +228,40 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     return this.balance;
   }
 
+  isAddressValid(address: string): boolean {
+    const trimmedAddress = address.trim();
+    if (!trimmedAddress.toLowerCase().startsWith('spark1')) {
+      return false;
+    }
+
+    try {
+      return isValidSparkAddress(trimmedAddress);
+    } catch (_) {
+      return false;
+    }
+  }
+
   async payInvoice(invoice: string, freeAmount: number = 0) {
     const sdk = await this.ensureSdk();
+    const destination = invoice.trim();
 
-    const decoded = this.decodeInvoice(invoice);
+    if (this.isAddressValid(destination)) {
+      if (freeAmount <= 0) {
+        throw new Error('Amount must be provided for Spark address transfers');
+      }
+
+      const transferResponse = await sdk.transfer({
+        receiverSparkAddress: destination,
+        amountSats: freeAmount,
+      });
+
+      this.last_paid_invoice_result = {
+        response: transferResponse,
+      };
+      return;
+    }
+
+    const decoded = this.decodeInvoice(destination);
     const amountSatsToSend = decoded.num_satoshis > 0 ? decoded.num_satoshis : freeAmount;
     if (amountSatsToSend <= 0) {
       throw new Error('Amount must be provided for zero-amount invoices');
@@ -240,8 +270,8 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     const maxFeeSats = Math.max(1, Math.ceil(amountSatsToSend * 0.01));
 
     const paymentResponse = await sdk.payLightningInvoice({
-      invoice,
-      amountSatsToSend: decoded.num_satoshis > 0 ? undefined : freeAmount,
+      invoice: destination,
+      amountSatsToSend: decoded.num_satoshis > 0 ? undefined : amountSatsToSend,
       maxFeeSats,
     });
 
