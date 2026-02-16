@@ -541,7 +541,7 @@ const WalletDetails: React.FC = () => {
                 <Text style={[styles.textValue, stylesHook.textValue]} selectable>
                   {sparkAddress}
                 </Text>
-                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark Identity Public Key</Text>
+                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark {loc.wallets.identity_pubkey.toLowerCase()}</Text>
                 <Text style={[styles.textValue, stylesHook.textValue]} selectable>
                   {sparkIdentityPubkey}
                 </Text>
