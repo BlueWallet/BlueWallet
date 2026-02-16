@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Keyboard, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { randomBytes } from '../../class/rng';
