@@ -13,13 +13,15 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { SettingsCard, SettingsScrollView } from '../../components/platform';
+import { platformSizing, platformLayout } from '../../components/platform';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
   const { colors } = useTheme();
+  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
   const [address, setAddress] = useState<string>('');
@@ -128,13 +130,29 @@ const IsItMyAddress: React.FC = () => {
   };
 
   return (
-    <SettingsScrollView
+    <SafeAreaScrollView
       ref={scrollViewRef}
+      style={{ flex: 1, backgroundColor: colors.background }}
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
     >
-      <SettingsCard>
+      <View
+        style={{
+          paddingTop: platformSizing.firstSectionContainerPaddingTop,
+          marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
+          marginBottom: platformSizing.sectionContainerMarginBottom,
+          backgroundColor: colors.background,
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: cardColor,
+            borderRadius: platformSizing.containerBorderRadius,
+            padding: platformSizing.basePadding,
+            ...platformLayout.cardShadow,
+          }}
+        >
         <View
           style={[
             styles.textInputContainer,
@@ -206,8 +224,9 @@ const IsItMyAddress: React.FC = () => {
               <BlueSpacing20 />
             </View>
           ))}
-      </SettingsCard>
-    </SettingsScrollView>
+        </View>
+      </View>
+    </SafeAreaScrollView>
   );
 };
 

@@ -7,11 +7,15 @@ import Button from '../../components/Button';
 import loc from '../../loc';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
-import { SettingsCard, SettingsScrollView } from '../../components/platform';
+import { platformSizing, platformLayout } from '../../components/platform';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { useTheme } from '../../components/themes';
 
 const GenerateWord = () => {
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
+  const { colors } = useTheme();
+  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
 
   const handleUpdateMnemonic = (nextValue: string) => {
     setMnemonic(nextValue);
@@ -43,8 +47,23 @@ const GenerateWord = () => {
   };
 
   return (
-    <SettingsScrollView keyboardShouldPersistTaps="handled">
-      <SettingsCard>
+    <SafeAreaScrollView style={{ flex: 1, backgroundColor: colors.background }} keyboardShouldPersistTaps="handled">
+      <View
+        style={{
+          paddingTop: platformSizing.firstSectionContainerPaddingTop,
+          marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
+          marginBottom: platformSizing.sectionContainerMarginBottom,
+          backgroundColor: colors.background,
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: cardColor,
+            borderRadius: platformSizing.containerBorderRadius,
+            padding: platformSizing.basePadding,
+            ...platformLayout.cardShadow,
+          }}
+        >
         <BlueFormMultiInput
           editable
           placeholder={loc.autofill_word.enter}
@@ -67,8 +86,9 @@ const GenerateWord = () => {
           />
         </View>
         <BlueSpacing20 />
-      </SettingsCard>
-    </SettingsScrollView>
+        </View>
+      </View>
+    </SafeAreaScrollView>
   );
 };
 
