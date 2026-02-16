@@ -640,7 +640,7 @@ const WalletsAddMultisigStep2 = () => {
       >
         <View style={styles.itemKeyUnprovidedWrapper}>
           <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+            <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
           </View>
           <View style={styles.vaultKeyTextWrapper}>
             <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
@@ -786,7 +786,7 @@ const WalletsAddMultisigStep2 = () => {
           onPress={handleOnHelpPress}
           disabled={isLoading}
         >
-          <Icon size={20} name="help" type="octicons" color={colors.foregroundColor} />
+          <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
       </View>

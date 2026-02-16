@@ -50,7 +50,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
           styles.wrapperCustom,
         ]}
       >
-        <Icon size={24} name="chevron-left" type="ionicons" />
+        <Icon size={24} name="chevron-back" type="ionicons" />
       </Pressable>
       <View style={{ width: 200 }}>
         <Text style={[styles.text, stylesHook.text]}>{props.isItemUnknown ? loc.send.fee_custom : keys[keyIndex]}</Text>
@@ -76,7 +76,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
           styles.wrapperCustom,
         ]}
       >
-        <Icon size={24} name="chevron-right" type="ionicons" />
+        <Icon size={24} name="chevron-forward" type="ionicons" />
       </Pressable>
     </View>
   );

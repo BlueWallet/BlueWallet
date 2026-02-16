@@ -109,7 +109,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         ) : null}
         {checkmark ? (
           <View style={styles.checkmarkContainer}>
-            <Icon name="check" type="octicons" color={colors.foregroundColor} size={18} />
+            <Icon name="check" type="material-community" color={colors.foregroundColor} size={18} />
           </View>
         ) : null}
       </View>

@@ -107,7 +107,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               key="ModalShareButton"
             >
               <Icon
-                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
+                name={Platform.OS === 'android' ? 'share' : 'file-arrow-up'}
                 type="font-awesome-6"
                 size={20}
                 color={colors.buttonTextColor}
@@ -123,7 +123,7 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               onPress={shareButtonOnPress}
             >
               <Icon
-                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
+                name={Platform.OS === 'android' ? 'share' : 'file-arrow-up'}
                 type="font-awesome-6"
                 size={20}
                 color={colors.buttonTextColor}

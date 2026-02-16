@@ -322,7 +322,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
             disabled={isRateBeingUpdatedLocal}
             style={isRateBeingUpdatedLocal ? styles.disabledButton : styles.enabledButon}
           >
-            <Icon name="sync" type="font-awesome-6" size={16} color={colors.buttonAlternativeTextColor} />
+            <Icon name="arrows-rotate" type="font-awesome-6" size={16} color={colors.buttonAlternativeTextColor} />
           </TouchableOpacity>
         </View>
       )}

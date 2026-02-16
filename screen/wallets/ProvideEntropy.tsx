@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import Icon from '../../components/Icon';
+import Icon, { type FontAwesome6IconName } from '../../components/Icon';
 import BN from 'bignumber.js';
 import {
   Alert,
@@ -163,7 +163,7 @@ const Coin = ({ push }: { push: TPush }) => (
   </View>
 );
 
-const diceIcon = (i: number): string => {
+const diceIcon = (i: number): FontAwesome6IconName => {
   switch (i) {
     case 1:
       return 'dice-one';

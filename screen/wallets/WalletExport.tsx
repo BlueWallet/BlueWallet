@@ -49,7 +49,7 @@ const DoNotDisclose: React.FC = () => {
 
   return (
     <View style={[styles.warningBox, { backgroundColor: colors.changeText }]}>
-      <Icon type="font-awesome-6" name="exclamation-circle" color="white" />
+      <Icon type="font-awesome-6" name="circle-exclamation" size={24} color="white" />
       <BlueText style={styles.warning}>{loc.wallets.warning_do_not_disclose}</BlueText>
     </View>
   );

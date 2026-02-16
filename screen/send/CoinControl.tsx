@@ -538,7 +538,7 @@ const CoinControl: React.FC = () => {
         data={utxos}
         renderItem={renderItem}
         keyExtractor={item => `${item.txid}:${item.vout}`}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={styles.listContainerContent}
       />
 
       {selectionStarted && (
@@ -594,6 +594,9 @@ const styles = StyleSheet.create({
   listContent: {
     flex: 1,
     marginLeft: 12,
+  },
+  listContainerContent: {
+    paddingBottom: 16,
   },
 });
 

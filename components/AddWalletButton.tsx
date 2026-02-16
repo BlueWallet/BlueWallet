@@ -51,7 +51,7 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   return (
     <ToolTipMenu accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPressMenuItem={onPressMenuItem} actions={actions}>
       <Pressable style={({ pressed }) => [pressed ? styles.pressed : null, styles.ball, stylesHook.ball]} onPress={onPress}>
-        <Icon name="add" size={22} type="ionicons" color={colors.foregroundColor} />
+        <Icon name="add" size={22} type="material" color={colors.foregroundColor} />
       </Pressable>
     </ToolTipMenu>
   );

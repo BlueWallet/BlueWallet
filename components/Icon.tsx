@@ -6,27 +6,48 @@ import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import Ionicons from '@react-native-vector-icons/ionicons';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import MaterialIcons from '@react-native-vector-icons/material-icons';
-import Octicons from '@react-native-vector-icons/octicons';
 
-type IconComponentType = React.ComponentType<any> | undefined;
+export type FontAwesomeIconName = React.ComponentProps<typeof FontAwesome>['name'];
+export type FontAwesome6IconName = React.ComponentProps<typeof FontAwesome6>['name'];
+export type IonIconName = React.ComponentProps<typeof Ionicons>['name'];
+export type MaterialIconName = React.ComponentProps<typeof MaterialIcons>['name'];
+export type MaterialDesignIconName = React.ComponentProps<typeof MaterialDesignIcons>['name'];
+export type EntypoIconName = React.ComponentProps<typeof Entypo>['name'];
 
-type IconType = 'font-awesome' | 'font-awesome-6' | 'ionicons' | 'material' | 'material-community' | 'entypo' | 'octicons';
+type IconType = 'font-awesome' | 'font-awesome-6' | 'ionicons' | 'material' | 'material-community' | 'entypo';
 
-export interface IconProps {
-  name: string;
-  type?: IconType | string;
+type IconNameFor<T extends IconType> = T extends 'font-awesome'
+  ? FontAwesomeIconName
+  : T extends 'font-awesome-6'
+    ? FontAwesome6IconName
+    : T extends 'ionicons'
+      ? IonIconName
+      : T extends 'material'
+      ? MaterialIconName
+      : T extends 'material-community'
+        ? MaterialDesignIconName
+        : T extends 'entypo'
+          ? EntypoIconName
+          : never;
+
+export interface IconProps<T extends IconType = IconType> {
+  name: IconNameFor<T>;
+  type?: T;
+  /**
+   * @default 24
+   */
   size?: number;
   color?: string;
   style?: StyleProp<TextStyle>;
-  iconStyle?: StyleProp<TextStyle>;
+  iconStyle?: T extends 'font-awesome-6' ? 'solid' | 'brand' | 'regular' : StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;
   onPress?: () => void;
   accessibilityLabel?: string;
   testID?: string;
 }
 
-const resolveIconComponent = (type?: IconType | string): IconComponentType => {
-  switch ((type ?? '').toLowerCase()) {
+const resolveIconComponent = (type?: IconType): React.ComponentType<any> => {
+  switch (type) {
     case 'font-awesome-6':
       return FontAwesome6;
     case 'ionicons':
@@ -37,27 +58,36 @@ const resolveIconComponent = (type?: IconType | string): IconComponentType => {
       return MaterialDesignIcons;
     case 'entypo':
       return Entypo;
-    case 'octicons':
-      return Octicons;
     case 'font-awesome':
     default:
       return FontAwesome;
   }
 };
 
-const Icon: React.FC<IconProps> = ({ name, type, size, color, style, iconStyle, containerStyle, onPress, accessibilityLabel, testID }) => {
+const Icon = <T extends IconType = 'font-awesome'>({
+  name,
+  type,
+  size = 24,
+  color,
+  style,
+  iconStyle,
+  containerStyle,
+  onPress,
+  accessibilityLabel,
+  testID,
+}: IconProps<T>): React.ReactElement | null => {
   const IconComponent = resolveIconComponent(type);
-  const mergedStyle = [style, iconStyle];
-  if (!IconComponent) {
-    return null;
-  }
+  const isFa6 = type === 'font-awesome-6';
+  const fa6IconStyle = isFa6 ? (typeof iconStyle === 'string' ? iconStyle : 'solid') : undefined;
+  const mergedStyle = isFa6 ? style : [style, iconStyle];
 
   const content = (
     <IconComponent
-      name={name as never}
+      name={name}
       size={size}
       color={color}
       style={mergedStyle}
+      iconStyle={fa6IconStyle}
       accessibilityLabel={accessibilityLabel}
       testID={testID}
     />

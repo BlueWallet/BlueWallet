@@ -225,19 +225,22 @@ interface IconProps {
   backgroundColor?: string;
 }
 
-const renderVectorIcon = (icon: IconProps) => {
-  const size = platformSizing.iconInnerSize;
-  const color = icon.color ?? 'black';
-  switch (icon.type) {
+const resolveSettingsIconComponent = (type?: string): React.ComponentType<any> => {
+  switch (type) {
     case 'ionicon':
-      return <Ionicons name={icon.name as never} size={size} color={color} />;
+      return Ionicons;
     case 'material':
-      return <MaterialIcon name={icon.name as never} size={size} color={color} />;
+      return MaterialIcon;
     case 'material-community':
-      return <MaterialDesignIcons name={icon.name as never} size={size} color={color} />;
+      return MaterialDesignIcons;
     default:
-      return <FontAwesome6 name={icon.name as never} size={size} color={color} />;
+      return FontAwesome6;
   }
+};
+
+const renderVectorIcon = (icon: IconProps) => {
+  const IconComponent = resolveSettingsIconComponent(icon.type);
+  return <IconComponent name={icon.name} size={platformSizing.iconInnerSize} color={icon.color ?? 'black'} />;
 };
 
 export interface SettingsListItemProps {

@@ -209,7 +209,7 @@ const PsbtMultisig = () => {
     return (
       <View style={styles.flexDirectionRow} testID="ItemSigned">
         <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-          <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+          <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
         </View>
         <View style={styles.vaultKeyTextSignedWrapper}>
           <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>

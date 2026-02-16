@@ -219,7 +219,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         header={
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+              <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
             </View>
             <View style={styles.vaultKeyTextWrapper}>
               <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
