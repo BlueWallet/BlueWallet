@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import { platformSizing, platformLayout } from '../../components/platform';
+import { platformColors, platformSizing, platformLayout } from '../../components/platform';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -47,12 +47,10 @@ const Broadcast: React.FC = () => {
     return 0;
   }, [insets.top]);
 
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
-
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.background,
+      backgroundColor: platformColors.background,
     },
     contentContainer: {
       paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
@@ -61,10 +59,9 @@ const Broadcast: React.FC = () => {
       paddingTop: sizing.firstSectionContainerPaddingTop,
       marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
       marginBottom: sizing.sectionContainerMarginBottom,
-      backgroundColor: colors.background,
     },
     card: {
-      backgroundColor: cardColor,
+      backgroundColor: platformColors.card,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -78,7 +75,7 @@ const Broadcast: React.FC = () => {
       marginBottom: 10,
     },
     labelText: {
-      color: colors.foregroundColor,
+      color: platformColors.text,
       fontSize: sizing.subtitleFontSize,
       fontWeight: '500',
     },
@@ -217,7 +214,6 @@ const Broadcast: React.FC = () => {
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
-  const { colors } = useTheme();
   const sizing = platformSizing;
   const layout = platformLayout;
 
@@ -225,11 +221,9 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
     return null;
   }
 
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
-
   const successStyles = StyleSheet.create({
     card: {
-      backgroundColor: cardColor,
+      backgroundColor: platformColors.card,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -241,7 +235,7 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
       paddingVertical: sizing.basePadding,
     },
     successText: {
-      color: colors.foregroundColor,
+      color: platformColors.text,
       fontSize: sizing.subtitleFontSize,
       textAlign: 'center',
     },
