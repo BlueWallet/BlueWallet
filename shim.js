@@ -1,5 +1,6 @@
 /* global __DEV__, localStorage */
 import 'text-encoding';
+import '@azure/core-asynciterator-polyfill';
 if (typeof Buffer === 'undefined') global.Buffer = require('buffer').Buffer;
 if (typeof __dirname === 'undefined') global.__dirname = '/';
 if (typeof __filename === 'undefined') global.__filename = '';
