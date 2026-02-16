@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Keyboard, View, ScrollView, Text, StyleSheet } from 'react-native';
+import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
@@ -125,6 +126,29 @@ const IsItMyAddress: React.FC = () => {
   return (
     <SettingsScrollView>
       <View style={styles.container}>
+        <View
+          style={[
+            styles.textInputContainer,
+            { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
+          ]}
+        >
+          <TextInput
+            style={[styles.textInput, { color: colors.foregroundColor }]}
+            multiline
+            editable
+            placeholder={loc.is_it_my_address.enter_address}
+            placeholderTextColor={colors.placeholderTextColor}
+            value={address}
+            onChangeText={setAddress}
+            testID="AddressInput"
+          />
+          {address.length > 0 && (
+            <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
+              <Icon name="close" size={20} color={colors.alternativeTextColor} />
+            </TouchableOpacity>
+          )}
+        </View>
+
         <BlueSpacing20 />
 
         <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
@@ -186,6 +210,23 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: 16,
+  },
+  textInputContainer: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    alignItems: 'center',
+    borderRadius: 4,
+  },
+  textInput: {
+    flex: 1,
+    padding: 8,
+    minHeight: 100,
+  },
+  clearButton: {
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   spacingLarge: {
     height: 32,
