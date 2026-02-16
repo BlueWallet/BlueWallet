@@ -1,4 +1,4 @@
-import { SparkWallet as NativeSDK } from '@buildonspark/spark-sdk/native';
+import { SparkWallet as NativeSDK } from '@buildonspark/spark-sdk';
 import * as bip39 from 'bip39';
 
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
