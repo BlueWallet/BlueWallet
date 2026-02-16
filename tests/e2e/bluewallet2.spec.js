@@ -704,7 +704,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // change output note and freeze it
     if (device.getPlatform() === 'ios') {
       // FIXME. For ios and android we need to ckeck if text present on the CC screen
-      await element(by.text('Test1')).atIndex(1).tap();
+      await element(by.text('Test1')).atIndex(0).tap();
     } else {
       await element(by.text('Test1')).atIndex(0).tap();
     }
