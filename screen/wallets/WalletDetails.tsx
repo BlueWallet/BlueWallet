@@ -535,6 +535,18 @@ const WalletDetails: React.FC = () => {
                   </Text>
                 </>
               )}
+              {wallet.type === LightningSparkWallet.type && (
+                <>
+                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark {loc.wallets.details_address.toLowerCase()}</Text>
+                <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+                  {sparkAddress}
+                </Text>
+                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark Identity Public Key</Text>
+                <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+                  {sparkIdentityPubkey}
+                </Text>
+              </>
+              )}
 
               {wallet.type === MultisigHDWallet.type && (
                 <>
