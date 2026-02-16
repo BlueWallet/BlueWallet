@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Keyboard, View } from 'react-native';
+import { Keyboard, StyleSheet, View } from 'react-native';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { randomBytes } from '../../class/rng';
@@ -47,7 +47,7 @@ const GenerateWord = () => {
   };
 
   return (
-    <SafeAreaScrollView style={{ flex: 1, backgroundColor: colors.background }} keyboardShouldPersistTaps="handled">
+    <SafeAreaScrollView style={[styles.flex1, { backgroundColor: colors.background }]} keyboardShouldPersistTaps="handled">
       <View
         style={{
           paddingTop: platformSizing.firstSectionContainerPaddingTop,
@@ -64,32 +64,38 @@ const GenerateWord = () => {
             ...platformLayout.cardShadow,
           }}
         >
-        <BlueFormMultiInput
-          editable
-          placeholder={loc.autofill_word.enter}
-          value={mnemonic}
-          onChangeText={handleUpdateMnemonic}
-          testID="MnemonicInput"
-        />
-
-        <BlueSpacing10 />
-        <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
-        <BlueSpacing20 />
-        <BlueTextCentered testID="Result">{result}</BlueTextCentered>
-        <BlueSpacing20 />
-        <View>
-          <Button
-            disabled={mnemonic.trim().length === 0}
-            title={loc.autofill_word.generate_word}
-            onPress={checkMnemonic}
-            testID="GenerateWord"
+          <BlueFormMultiInput
+            editable
+            placeholder={loc.autofill_word.enter}
+            value={mnemonic}
+            onChangeText={handleUpdateMnemonic}
+            testID="MnemonicInput"
           />
-        </View>
-        <BlueSpacing20 />
+
+          <BlueSpacing10 />
+          <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
+          <BlueSpacing20 />
+          <BlueTextCentered testID="Result">{result}</BlueTextCentered>
+          <BlueSpacing20 />
+          <View>
+            <Button
+              disabled={mnemonic.trim().length === 0}
+              title={loc.autofill_word.generate_word}
+              onPress={checkMnemonic}
+              testID="GenerateWord"
+            />
+          </View>
+          <BlueSpacing20 />
         </View>
       </View>
     </SafeAreaScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+  },
+});
 
 export default GenerateWord;
