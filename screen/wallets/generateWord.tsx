@@ -47,7 +47,7 @@ const GenerateWord = () => {
   };
 
   return (
-    <SafeAreaScrollView style={[styles.flex1, { backgroundColor: colors.background }]} keyboardShouldPersistTaps="handled">
+    <SafeAreaScrollView style={[styles.container, { backgroundColor: colors.background }]} keyboardShouldPersistTaps="handled">
       <View
         style={{
           paddingTop: platformSizing.firstSectionContainerPaddingTop,
@@ -92,10 +92,10 @@ const GenerateWord = () => {
   );
 };
 
+export default GenerateWord;
+
 const styles = StyleSheet.create({
-  flex1: {
+  container: {
     flex: 1,
   },
 });
-
-export default GenerateWord;

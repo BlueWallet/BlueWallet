@@ -7,8 +7,8 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
-import Icon from '@react-native-vector-icons/material-icons';
-import Divider from '../../components/Divider';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Divider } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
@@ -132,7 +132,7 @@ const IsItMyAddress: React.FC = () => {
   return (
     <SafeAreaScrollView
       ref={scrollViewRef}
-      style={[styles.flex1, { backgroundColor: colors.background }]}
+      style={[styles.container, { backgroundColor: colors.background }]}
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
@@ -238,6 +238,9 @@ const IsItMyAddress: React.FC = () => {
 export default IsItMyAddress;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   textInputContainer: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -282,8 +285,5 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: 'bold',
-  },
-  flex1: {
-    flex: 1,
   },
 });
