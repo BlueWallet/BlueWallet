@@ -19,6 +19,7 @@ const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
   const { colors } = useTheme();
+  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
   const [address, setAddress] = useState<string>('');
@@ -126,36 +127,8 @@ const IsItMyAddress: React.FC = () => {
   };
 
   return (
-    <SettingsScrollView
-      ref={scrollViewRef}
-      automaticallyAdjustContentInsets
-      automaticallyAdjustKeyboardInsets
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <SettingsScrollView>
       <View style={styles.container}>
-        <View
-          style={[
-            styles.textInputContainer,
-            { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
-          ]}
-        >
-          <TextInput
-            style={[styles.textInput, { color: colors.foregroundColor }]}
-            multiline
-            editable
-            placeholder={loc.is_it_my_address.enter_address}
-            placeholderTextColor={colors.placeholderTextColor}
-            value={address}
-            onChangeText={handleUpdateAddress}
-            testID="AddressInput"
-          />
-          {address.length > 0 && (
-            <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
-              <Icon name="close" size={20} color={colors.alternativeTextColor} />
-            </TouchableOpacity>
-          )}
-        </View>
-
         <BlueSpacing20 />
 
         <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
