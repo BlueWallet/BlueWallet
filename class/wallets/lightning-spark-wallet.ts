@@ -68,10 +68,25 @@ export class LightningSparkWallet extends LightningCustodianWallet {
 
   private mapReceiveRequestToInvoice(request: SparkReceiveRequest, existing?: SparkInvoiceRecord): SparkInvoiceRecord {
     const encodedInvoice = request.invoice.encodedInvoice;
-    const decoded = this.decodeInvoice(encodedInvoice);
     const isPaid = INCOMING_TRANSFER_STATUSES_PAID.has(request.status);
+
+    let decoded:
+      | {
+          num_satoshis: number;
+          payment_hash: string;
+          description: string;
+          expiry: number;
+        }
+      | undefined;
+
+    try {
+      decoded = this.decodeInvoice(encodedInvoice);
+    } catch (error: any) {
+      console.log(`Spark could not decode receive invoice ${request.id}:`, error?.message ?? error);
+    }
+
     const amountFromTransfer = request.transfer?.totalAmount?.originalValue;
-    const amount = amountFromTransfer ?? decoded.num_satoshis;
+    const amount = amountFromTransfer ?? decoded?.num_satoshis ?? existing?.value ?? 0;
 
     return {
       ...(existing ?? {}),
@@ -79,12 +94,12 @@ export class LightningSparkWallet extends LightningCustodianWallet {
       id: request.transfer?.sparkId ?? existing?.id,
       walletID: this.getID(),
       type: 'user_invoice',
-      payment_hash: request.invoice.paymentHash || decoded.payment_hash,
+      payment_hash: request.invoice.paymentHash || decoded?.payment_hash || existing?.payment_hash || '',
       payment_request: encodedInvoice,
-      payment_preimage: request.paymentPreimage,
-      memo: request.invoice.memo || decoded.description,
+      payment_preimage: request.paymentPreimage ?? existing?.payment_preimage,
+      memo: request.invoice.memo || decoded?.description || existing?.memo || '',
       timestamp: this.toUnixTimestamp(isPaid ? request.updatedAt : request.createdAt),
-      expire_time: decoded.expiry,
+      expire_time: decoded?.expiry ?? existing?.expire_time,
       ispaid: isPaid,
       value: amount,
       amt: amount,
@@ -172,11 +187,17 @@ export class LightningSparkWallet extends LightningCustodianWallet {
           tx.expire_time = invoiceTx.expire_time;
           tx.ispaid = invoiceTx.ispaid;
         } else if ('encodedInvoice' in request) {
-          const decoded = this.decodeInvoice(request.encodedInvoice);
           tx.payment_request = request.encodedInvoice;
-          tx.payment_hash = decoded.payment_hash;
-          tx.memo = decoded.description || tx.memo;
-          tx.expire_time = decoded.expiry;
+
+          try {
+            const decoded = this.decodeInvoice(request.encodedInvoice);
+            tx.payment_hash = decoded.payment_hash;
+            tx.memo = decoded.description || tx.memo;
+            tx.expire_time = decoded.expiry;
+          } catch (error: any) {
+            console.log(`Spark could not decode outgoing invoice ${sparkTransfer.id}:`, error?.message ?? error);
+          }
+
           tx.ispaid = OUTGOING_TRANSFER_STATUSES_PAID.has(request.status);
           tx.payment_preimage = request.paymentPreimage;
         }
