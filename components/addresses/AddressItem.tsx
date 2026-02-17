@@ -15,7 +15,7 @@ import { AddressTypeBadge } from './AddressTypeBadge';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useStorage } from '../../hooks/context/useStorage';
-import ToolTipMenu from '../TooltipMenu';
+import MenuView from '../MenuView';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import HighlightedText from '../HighlightedText';
@@ -182,7 +182,7 @@ const AddressItem = ({
   };
 
   return (
-    <ToolTipMenu
+    <MenuView
       title={item.address}
       actions={menuActions}
       onPressMenuItem={onToolTipPress}
@@ -210,7 +210,7 @@ const AddressItem = ({
           </Text>
         </View>
       </ListItem>
-    </ToolTipMenu>
+    </MenuView>
   );
 };
 

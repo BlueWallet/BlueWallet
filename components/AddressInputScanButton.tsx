@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, Text } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import ToolTipMenu from './TooltipMenu';
+import MenuView from './MenuView';
 import loc from '../loc';
 import { showFilePickerAndReadFile, showImagePickerAndReadImage } from '../blue_modules/fs';
 import presentAlert from './Alert';
@@ -130,7 +130,7 @@ export const AddressInputScanButton = ({
   const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
 
   return (
-    <ToolTipMenu
+    <MenuView
       actions={actions}
       isButton
       onPressMenuItem={onMenuItemPressed}
@@ -151,7 +151,7 @@ export const AddressInputScanButton = ({
       ) : (
         <Text style={[styles.linkText, { color: colors.foregroundColor }]}>{loc.wallets.import_scan_qr}</Text>
       )}
-    </ToolTipMenu>
+    </MenuView>
   );
 };
 
@@ -162,14 +162,17 @@ const styles = StyleSheet.create({
     height: 36,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    maxWidth: '40%',
     borderRadius: 4,
     paddingVertical: 4,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     marginHorizontal: 4,
   },
   scanText: {
     marginLeft: 4,
+    flexShrink: 1,
   },
   linkText: {
     textAlign: 'center',

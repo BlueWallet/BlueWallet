@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import loc from '../loc';
+import { ToolTipAction } from '../components/types';
 
 const keys = {
   CopyTXID: 'copyTX_ID',
@@ -97,16 +98,6 @@ const icons = {
   Delete: { iconValue: Platform.OS === 'ios' ? 'trash' : 'ic_menu_delete' },
   Details: { iconValue: Platform.OS === 'ios' ? 'info.circle' : 'ic_menu_info_details' },
 } as const;
-
-export type ToolTipAction = {
-  id: string;
-  text: string;
-  subtitle?: string;
-  icon?: { iconValue: string };
-  hidden?: boolean;
-  menuState?: boolean;
-  destructive?: boolean;
-};
 
 export const CommonToolTipActions: Record<string, ToolTipAction> = {
   CopyTXID: {

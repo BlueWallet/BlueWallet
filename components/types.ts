@@ -18,6 +18,16 @@ export interface Action {
   subactions?: Action[]; // Nested/Inline actions (subactions) within an action
 }
 
+export type ToolTipAction = {
+  id: string;
+  text: string;
+  subtitle?: string;
+  icon?: { iconValue: string };
+  hidden?: boolean;
+  menuState?: boolean;
+  destructive?: boolean;
+};
+
 export interface ToolTipMenuProps {
   actions: Action[] | Action[][];
   children: React.ReactNode;

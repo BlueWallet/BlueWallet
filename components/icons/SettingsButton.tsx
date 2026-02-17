@@ -4,7 +4,7 @@ import { Icon } from '@rneui/themed';
 import { useTheme } from '../themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
-import ToolTipMenu from '../TooltipMenu';
+import MenuView from '../MenuView';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 const SettingsButton = () => {
@@ -29,7 +29,7 @@ const SettingsButton = () => {
 
   const actions = useMemo(() => [CommonToolTipActions.ManageWallet], []);
   return (
-    <ToolTipMenu onPressMenuItem={onPressMenuItem} actions={actions}>
+    <MenuView onPressMenuItem={onPressMenuItem} actions={actions}>
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={loc.settings.default_title}
@@ -39,7 +39,7 @@ const SettingsButton = () => {
       >
         <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
       </TouchableOpacity>
-    </ToolTipMenu>
+    </MenuView>
   );
 };
 

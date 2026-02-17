@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, GestureResponderEvent, Pressable } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useTheme } from './themes';
-import ToolTipMenu from './TooltipMenu';
+import MenuView from './MenuView';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import loc from '../loc';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
@@ -49,11 +49,11 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   const actions = useMemo(() => [CommonToolTipActions.ImportWallet], []);
 
   return (
-    <ToolTipMenu accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPressMenuItem={onPressMenuItem} actions={actions}>
+    <MenuView accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPressMenuItem={onPressMenuItem} actions={actions}>
       <Pressable style={({ pressed }) => [pressed ? styles.pressed : null, styles.ball, stylesHook.ball]} onPress={onPress}>
         <Icon name="add" size={22} type="ionicons" color={colors.foregroundColor} />
       </Pressable>
-    </ToolTipMenu>
+    </MenuView>
   );
 };
 

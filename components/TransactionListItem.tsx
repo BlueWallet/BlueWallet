@@ -22,7 +22,7 @@ import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
-import ToolTipMenu from './TooltipMenu';
+import MenuView from './MenuView';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -382,7 +382,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     }, [rowTitle, noteForCopy, item.hash]);
 
     return (
-      <ToolTipMenu
+      <MenuView
         isButton
         actions={toolTipActions}
         onPressMenuItem={onToolTipPress}
@@ -403,7 +403,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
           containerStyle={combinedStyle}
           testID="TransactionListItem"
         />
-      </ToolTipMenu>
+      </MenuView>
     );
   },
   (prevProps, nextProps) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, Platform } from 'react-native';
-import ToolTipMenu from './TooltipMenu';
+import MenuView from './MenuView';
 import { useTheme } from './themes';
 import { Icon } from '@rneui/themed';
 import { Action } from './types';
@@ -32,7 +32,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
   const menuActions = Array.isArray(actions[0]) ? (actions as Action[][]) : (actions as Action[]);
 
   return (
-    <ToolTipMenu
+    <MenuView
       testID="HeaderMenuButton"
       disabled={disabled}
       isButton
@@ -42,7 +42,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       title={title}
     >
       <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
-    </ToolTipMenu>
+    </MenuView>
   );
 };
 

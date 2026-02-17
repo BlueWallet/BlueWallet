@@ -7,7 +7,7 @@ import Share from 'react-native-share';
 import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
 import { useTheme } from './themes';
-import ToolTipMenu from './TooltipMenu';
+import MenuView from './MenuView';
 import { Action } from './types';
 
 interface QRCodeComponentProps {
@@ -115,9 +115,9 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       accessibilityLabel={loc.receive.qrcode_for_the_address}
     >
       {isMenuAvailable ? (
-        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem}>
+        <MenuView actions={menuActions} onPressMenuItem={onPressMenuItem}>
           {renderQRCode}
-        </ToolTipMenu>
+        </MenuView>
       ) : (
         renderQRCode
       )}

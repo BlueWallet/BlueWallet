@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, StyleSheet, LayoutAnimation, View } from 'react
 import { useStorage } from '../hooks/context/useStorage';
 import loc, { formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import ToolTipMenu from './TooltipMenu';
+import MenuView from './MenuView';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -93,7 +93,7 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
   if (wallets.length <= 1 || !isTotalBalanceEnabled) return null;
 
   return (
-    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
+    <MenuView actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
       <View style={styles.container}>
         <Text style={styles.label}>{loc.wallets.total_balance}</Text>
         <TouchableOpacity onPress={handleBalanceOnPress}>
@@ -105,7 +105,7 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
           </Text>
         </TouchableOpacity>
       </View>
-    </ToolTipMenu>
+    </MenuView>
   );
 });
 

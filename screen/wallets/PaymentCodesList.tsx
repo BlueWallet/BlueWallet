@@ -13,7 +13,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import ToolTipMenu from '../../components/TooltipMenu';
+import MenuView from '../../components/MenuView';
 import { Action } from '../../components/types';
 import confirm from '../../helpers/confirm';
 import prompt from '../../helpers/prompt';
@@ -223,7 +223,7 @@ export default function PaymentCodesList() {
     }
 
     return (
-      <ToolTipMenu
+      <MenuView
         actions={toolTipActions}
         onPressMenuItem={(item: any) => onToolTipPress(item, pc)}
         isButton={true}
@@ -238,7 +238,7 @@ export default function PaymentCodesList() {
           </View>
         </View>
         <View style={styles.stick} />
-      </ToolTipMenu>
+      </MenuView>
     );
   };
 

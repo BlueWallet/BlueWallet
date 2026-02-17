@@ -37,7 +37,7 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
-import ToolTipMenu from '../../components/TooltipMenu';
+import MenuView from '../../components/MenuView';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -538,7 +538,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         backgroundColor={colors.elevated}
         footerDefaultMargins
         header={
-          <ToolTipMenu
+          <MenuView
             isButton
             isMenuPrimaryAction
             onPressMenuItem={(id: string) => {
@@ -549,7 +549,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             style={[styles.askPassprase, stylesHook.askPassphrase]}
           >
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </ToolTipMenu>
+          </MenuView>
         }
         footer={
           <>

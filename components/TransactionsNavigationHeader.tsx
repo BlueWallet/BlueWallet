@@ -10,7 +10,7 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from '../hooks/context/useSettings';
-import ToolTipMenu from './TooltipMenu';
+import MenuView from './MenuView';
 import useAnimateOnChange from '../hooks/useAnimateOnChange';
 import { useLocale } from '@react-navigation/native';
 
@@ -173,7 +173,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         {wallet.getLabel()}
       </Text>
       <View style={styles.walletBalanceAndUnitContainer}>
-        <ToolTipMenu
+        <MenuView
           isMenuPrimaryAction
           isButton
           enableAndroidRipple={false}
@@ -199,7 +199,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
               </View>
             )}
           </View>
-        </ToolTipMenu>
+        </MenuView>
         <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit}>
           <Text style={styles.walletPreferredUnitText}>
             {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
@@ -207,7 +207,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         </TouchableOpacity>
       </View>
       {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
-        <ToolTipMenu
+        <MenuView
           isMenuPrimaryAction
           isButton
           onPressMenuItem={handleManageFundsPressed}
@@ -215,7 +215,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           buttonStyle={styles.manageFundsButton}
         >
           <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-        </ToolTipMenu>
+        </MenuView>
       )}
       {wallet.type === MultisigHDWallet.type && (
         <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>

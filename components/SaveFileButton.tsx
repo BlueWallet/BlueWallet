@@ -4,7 +4,7 @@ import { StyleProp, TouchableOpacityProps, ViewStyle } from 'react-native';
 import * as fs from '../blue_modules/fs';
 import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
-import ToolTipMenu from './TooltipMenu';
+import MenuView from './MenuView';
 import { Action } from './types';
 
 interface SaveFileButtonProps extends TouchableOpacityProps {
@@ -49,7 +49,7 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
   );
 
   return (
-    <ToolTipMenu
+    <MenuView
       onMenuWillHide={onMenuWillHide}
       onMenuWillShow={onMenuWillShow}
       isButton
@@ -60,7 +60,7 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
       {...{ children }}
     >
       {children}
-    </ToolTipMenu>
+    </MenuView>
   );
 };
 

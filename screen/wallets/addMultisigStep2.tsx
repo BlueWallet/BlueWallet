@@ -27,7 +27,7 @@ import prompt from '../../helpers/prompt';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import ToolTipMenu from '../../components/TooltipMenu';
+import MenuView from '../../components/MenuView';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -708,7 +708,7 @@ const WalletsAddMultisigStep2 = () => {
           setAskPassphrase(false);
         }}
         header={
-          <ToolTipMenu
+          <MenuView
             isButton
             isMenuPrimaryAction
             onPressMenuItem={_id => {
@@ -719,7 +719,7 @@ const WalletsAddMultisigStep2 = () => {
             style={[styles.askPassprase, stylesHook.askPassphrase]}
           >
             <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </ToolTipMenu>
+          </MenuView>
         }
       >
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>

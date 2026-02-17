@@ -12,7 +12,7 @@ import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import HandOffComponent from '../../components/HandOffComponent';
 import { useTheme } from '../../components/themes';
-import ToolTipMenu from '../../components/TooltipMenu';
+import MenuView from '../../components/MenuView';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -236,12 +236,12 @@ const TransactionDetails = () => {
       }
 
       fromArray.push(
-        <ToolTipMenu key={address} isButton title={address} isMenuPrimaryAction actions={actions} onPressMenuItem={onPressMenuItem}>
+        <MenuView key={address} isButton title={address} isMenuPrimaryAction actions={actions} onPressMenuItem={onPressMenuItem}>
           <BlueText style={isWeOwnAddress ? [styles.rowValue, styles.weOwnAddress] : styles.rowValue}>
             {address}
             {index === array.length - 1 ? null : ','}
           </BlueText>
-        </ToolTipMenu>,
+        </MenuView>,
       );
     }
 
@@ -339,7 +339,7 @@ const TransactionDetails = () => {
             <View style={styles.marginBottom18} />
           </>
         )}
-        <ToolTipMenu
+        <MenuView
           isButton
           actions={toolTipMenuActions}
           onPressMenuItem={handleCopyPress}
@@ -347,7 +347,7 @@ const TransactionDetails = () => {
           buttonStyle={StyleSheet.flatten([styles.greyButton, stylesHooks.greyButton])}
         >
           <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_view_in_browser}</Text>
-        </ToolTipMenu>
+        </MenuView>
       </BlueCard>
     </SafeAreaScrollView>
   );
