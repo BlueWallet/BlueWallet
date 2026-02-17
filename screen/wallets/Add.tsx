@@ -457,7 +457,7 @@ const WalletsAdd: React.FC = () => {
       await wallet.generate();
     } catch (Err: any) {
       setIsLoading(false);
-      console.warn('lightning ark create failure', Err);
+      console.warn('lightning spark create failure', Err);
       return presentAlert({ message: Err.message ?? '' });
     }
 
