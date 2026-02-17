@@ -63,14 +63,14 @@ def enableProguardInReleaseBuilds = false
  * The preferred build flavor of JavaScriptCore (JSC)
  *
  * For example, to use the international variant, you can use:
- * `def jscFlavor = io.github.react-native-community:jsc-android-intl:2026004.+`
+ * `def jscFlavor = io.github.react-native-community:jsc-android-intl:2026004.0.1`
  *
  * The international variant includes ICU i18n library and necessary data
  * allowing to use e.g. `Date.toLocaleString` and `String.localeCompare` that
  * give correct results when using with locales other than en-US. Note that
  * this variant is about 6MiB larger per architecture than default.
  */
-def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.0.1'
 
 android {
     androidResources {
@@ -113,6 +113,11 @@ android {
         }
     }
 
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
 }
 
 task copyFiatUnits(type: Copy) {
@@ -123,7 +128,6 @@ task copyFiatUnits(type: Copy) {
 preBuild.dependsOn(copyFiatUnits)
 
 dependencies {
-		androidTestImplementation('com.wix:detox:+')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation 'androidx.core:core-ktx:1.16.0'
@@ -145,3 +149,11 @@ dependencies {
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
 apply plugin: "com.bugsnag.android.gradle"
+bugsnag {
+    reportBuilds = false
+    variantFilter { variant ->
+        if (variant.name.contains("release")) {
+            enabled = false
+        }
+    }
+}
