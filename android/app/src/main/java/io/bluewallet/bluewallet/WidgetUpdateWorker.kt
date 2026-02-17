@@ -205,16 +205,23 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         preferredCurrency: String?,
         preferredCurrencyLocale: String?
     ) {
+        val parsedPrevious = previousPrice?.toDoubleOrNull()
         val currencyFormat = getCurrencyFormat(preferredCurrency, preferredCurrencyLocale)
 
         views.apply {
             setViewVisibility(R.id.loading_indicator, View.GONE)
-            setTextViewText(R.id.price_value, currencyFormat.format(previousPrice?.toDouble()?.toInt()))
-            setTextViewText(R.id.last_updated_time, currentTime)
-            setViewVisibility(R.id.price_value, View.VISIBLE)
-            setViewVisibility(R.id.last_updated_label, View.VISIBLE)
-            setViewVisibility(R.id.last_updated_time, View.VISIBLE)
             setViewVisibility(R.id.price_arrow_container, View.GONE)
+            if (parsedPrevious != null) {
+                setTextViewText(R.id.price_value, currencyFormat.format(parsedPrevious.toInt()))
+                setViewVisibility(R.id.price_value, View.VISIBLE)
+                setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+                setViewVisibility(R.id.last_updated_time, View.VISIBLE)
+            } else {
+                setViewVisibility(R.id.price_value, View.GONE)
+                setViewVisibility(R.id.last_updated_label, View.GONE)
+                setViewVisibility(R.id.last_updated_time, View.GONE)
+            }
+            setTextViewText(R.id.last_updated_time, currentTime)
         }
     }
 
@@ -226,37 +233,45 @@ class WidgetUpdateWorker(context: Context, workerParams: WorkerParameters) : Cor
         preferredCurrency: String?,
         preferredCurrencyLocale: String?
     ) {
-        val currentPrice = fetchedPrice.toDouble().toInt()
+        val currentPrice = fetchedPrice.toDoubleOrNull()?.toInt()
         val currencyFormat = getCurrencyFormat(preferredCurrency, preferredCurrencyLocale)
 
         views.apply {
             setViewVisibility(R.id.loading_indicator, View.GONE)
-            setTextViewText(R.id.price_value, currencyFormat.format(currentPrice))
-            setTextViewText(R.id.last_updated_time, currentTime)
-            setViewVisibility(R.id.price_value, View.VISIBLE)
-            setViewVisibility(R.id.last_updated_label, View.VISIBLE)
-            setViewVisibility(R.id.last_updated_time, View.VISIBLE)
+            if (currentPrice != null) {
+                setTextViewText(R.id.price_value, currencyFormat.format(currentPrice))
+                setTextViewText(R.id.last_updated_time, currentTime)
+                setViewVisibility(R.id.price_value, View.VISIBLE)
+                setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+                setViewVisibility(R.id.last_updated_time, View.VISIBLE)
 
-            if (previousPrice != null) {
-                setViewVisibility(R.id.price_arrow_container, View.VISIBLE)
-                setTextViewText(R.id.previous_price, currencyFormat.format(previousPrice.toDouble().toInt()))
-                setImageViewResource(
-                    R.id.price_arrow,
-                    if (currentPrice > previousPrice.toDouble().toInt()) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
-                )
+                val previousParsed = previousPrice?.toDoubleOrNull()?.toInt()
+                if (previousParsed != null) {
+                    setViewVisibility(R.id.price_arrow_container, View.VISIBLE)
+                    setTextViewText(R.id.previous_price, currencyFormat.format(previousParsed))
+                    setImageViewResource(
+                        R.id.price_arrow,
+                        if (currentPrice > previousParsed) android.R.drawable.arrow_up_float else android.R.drawable.arrow_down_float
+                    )
+                } else {
+                    setViewVisibility(R.id.price_arrow_container, View.GONE)
+                }
             } else {
+                // Fallback to loading state if parsing failed
+                setViewVisibility(R.id.price_value, View.GONE)
+                setViewVisibility(R.id.last_updated_label, View.GONE)
+                setViewVisibility(R.id.last_updated_time, View.GONE)
                 setViewVisibility(R.id.price_arrow_container, View.GONE)
+                setViewVisibility(R.id.loading_indicator, View.VISIBLE)
             }
         }
     }
 
     private fun getCurrencyFormat(currencyCode: String?, localeString: String?): NumberFormat {
-        val localeParts = localeString?.split("-") ?: listOf("en", "US")
-        val locale = if (localeParts.size == 2) {
-            Locale(localeParts[0], localeParts[1])
-        } else {
-            Locale.getDefault()
-        }
+        val locale = localeString
+            ?.let { runCatching { Locale.forLanguageTag(it) }.getOrNull() }
+            ?.takeIf { it.language.isNotBlank() }
+            ?: Locale.getDefault()
         val currencyFormat = NumberFormat.getCurrencyInstance(locale)
         val currency = try {
             Currency.getInstance(currencyCode ?: "USD")

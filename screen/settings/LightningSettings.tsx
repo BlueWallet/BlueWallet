@@ -14,7 +14,8 @@ import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
-import { SettingsScrollView, SettingsCard, SettingsListItem, SettingsSubtitle, isAndroid } from '../../components/platform';
+import { SettingsScrollView, SettingsCard, SettingsListItem, SettingsSubtitle } from '../../components/platform';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 type LightingSettingsRouteProps = RouteProp<DetailViewStackParamList, 'LightningSettings'>;
 
@@ -105,13 +106,13 @@ const LightningSettings: React.FC = () => {
 
   return (
     <SettingsScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <SettingsCard>
-        <View style={styles.cardContent}>
-          <SettingsSubtitle>{loc.settings.lightning_settings_explain}</SettingsSubtitle>
-        </View>
-      </SettingsCard>
+      <View style={styles.container}>
+        <SettingsCard>
+          <SettingsSubtitle style={styles.explanation}>{loc.settings.lightning_settings_explain}</SettingsSubtitle>
+        </SettingsCard>
 
-      <View style={[styles.rowPadding, styles.githubContainer]}>
+        <BlueSpacing20 />
+
         <SettingsListItem
           title={loc.settings.lndhub_github}
           subtitle="github.com/BlueWallet/LndHub"
@@ -119,52 +120,38 @@ const LightningSettings: React.FC = () => {
           iconName="github"
           position="single"
         />
+
+        <BlueSpacing20 />
+
+        <AddressInput
+          isLoading={isLoading}
+          address={URI}
+          placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
+          onChangeText={setLndhubURI}
+          testID="URIInput"
+          editable={!isLoading}
+          style={styles.addressInput}
+        />
+
+        <BlueSpacing20 />
+
+        {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
+
+        <BlueSpacing10 />
       </View>
-
-      <SettingsCard>
-        <View style={styles.cardContent}>
-          <View style={styles.inputContainer}>
-            <AddressInput
-              isLoading={isLoading}
-              address={URI}
-              placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
-              onChangeText={setLndhubURI}
-              testID="URIInput"
-              editable={!isLoading}
-              style={styles.addressInput}
-            />
-          </View>
-
-          <View style={styles.buttonContainer}>
-            {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
-          </View>
-        </View>
-      </SettingsCard>
     </SettingsScrollView>
   );
 };
 
 export default LightningSettings;
 
-const horizontalPadding = isAndroid ? 20 : 16;
-
 const styles = StyleSheet.create({
-  rowPadding: {
-    paddingHorizontal: horizontalPadding,
+  container: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
-  cardContent: {
-    paddingHorizontal: horizontalPadding,
-    paddingVertical: 12,
-  },
-  inputContainer: {
-    marginTop: isAndroid ? 16 : 12,
-    marginBottom: isAndroid ? 16 : 12,
-  },
-  buttonContainer: {
-    marginTop: isAndroid ? 16 : 12,
-  },
-  githubContainer: {
-    marginTop: isAndroid ? 16 : 12,
+  explanation: {
+    padding: 16,
   },
   addressInput: {
     minHeight: 44,

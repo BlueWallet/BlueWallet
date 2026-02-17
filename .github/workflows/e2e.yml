@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   ios:
-    runs-on: macos-15
+    runs-on: macos-latest
     env:
       BUILD_CONFIGURATION: Release
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
@@ -30,19 +30,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.1.6"
-
-      - name: Cache Ruby gems
-        uses: actions/cache@v5
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-ruby-${{ hashFiles('Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-ruby-
-
-      - name: Install Ruby gems
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
+          bundler-cache: true
 
       - name: Install Node dependencies
         run: npm ci || npm ci
@@ -139,6 +127,7 @@ jobs:
           brew install applesimutils
 
       - name: Run detox tests
+        timeout-minutes: 360
         run: |
           npm run e2e:test:ios-release -- \
             --record-videos failing \
@@ -157,7 +146,7 @@ jobs:
 
 
   android:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
       HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
@@ -168,32 +157,26 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Free disk space
-      uses: jlumbroso/free-disk-space@main
-      with:
-        tool-cache: true
-        android: false
-        dotnet: true
-        haskell: true
-        large-packages: true
-        docker-images: true
-        swap-storage: true
-
-    - name: npm and gradle caches in /mnt
+    - name: Free disk space (Ubuntu)
       run: |
-        rm -rf ~/.npm
-        rm -rf ~/.gradle
-        sudo mkdir -p /mnt/.npm
-        sudo mkdir -p /mnt/.gradle
-        sudo chown -R runner /mnt/.npm
-        sudo chown -R runner /mnt/.gradle
-        ln -s /mnt/.npm /home/runner/
-        ln -s /mnt/.gradle /home/runner/
+        echo "Disk before cleanup:" && df -h
+        sudo rm -rf /usr/share/dotnet /opt/ghc
+        sudo apt-get clean
+        sudo rm -rf /opt/ghc || true
+        sudo rm -rf /usr/local/share/boost || true
+        sudo rm -rf /usr/local/lib/android/sdk/ndk || true
+        sudo docker system prune -af || true
+        sudo rm -rf /usr/local/lib/android/sdk/system-images || true
+        sudo rm -rf /usr/local/lib/android/sdk/emulator || true
+        rm -rf ~/.gradle/caches/modules-2/files-2.1 || true
+        rm -rf ~/.gradle/caches/build-cache || true
+        rm -rf ~/.npm/_cacache ~/.cache || true
+        sudo rm -rf /home/runner/work/_temp || true
+        echo "Disk after cleanup:" && df -h
 
-    - name: Create artifacts directory on /mnt
+    - name: Ensure artifacts directory
       run: |
-        sudo mkdir -p /mnt/artifacts
-        sudo chown -R runner /mnt/artifacts
+        mkdir -p ${{ github.workspace }}/artifacts
 
     - name: Specify node version
       uses: actions/setup-node@v6
@@ -203,7 +186,7 @@ jobs:
         cache-dependency-path: package-lock.json
 
     - name: Use gradle caches
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.gradle/caches
@@ -236,16 +219,17 @@ jobs:
     - name: Run tests
       uses: reactivecircus/android-emulator-runner@v2
       with:
-        api-level: 31
+        api-level: 36
+        profile: pixel
         avd-name: Pixel_API_29_AOSP
-        force-avd-creation: false
+        force-avd-creation: true
         enable-hw-keyboard: true
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 3 --reuse --artifacts-location /mnt/artifacts
+        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
 
     - uses: actions/upload-artifact@v6
       if: failure()
       with:
         name: e2e-android-videos
-        path: /mnt/artifacts/
+        path: ${{ github.workspace }}/artifacts

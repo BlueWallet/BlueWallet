@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 180
     outputs:
       new_build_number: ${{ steps.generate_build_number.outputs.build_number }}
@@ -208,6 +208,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
+          bundler-cache: true
 
       - name: System Debug Information
         run: |
@@ -235,11 +236,6 @@ jobs:
           env | grep -E "(GITHUB_|CI|RUNNER_|PROJECT_|NEW_BUILD)" | sort | head -10
           
           echo -e "\033[1;34m========================================================\033[0m"
-
-      - name: Install Dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
 
       - name: Install Node Modules
         run: npm ci --omit=dev --yes
@@ -463,7 +459,7 @@ jobs:
 
   testflight-upload:
     needs: build
-    runs-on: macos-15
+    runs-on: macos-26
     if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'testflight')
     env:
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -479,11 +475,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 3.1.6
-          
-      - name: Install Dependencies with Bundler
-        run: |
-          bundle config path vendor/bundle
-          bundle install --jobs 4 --retry 3 --quiet
+          bundler-cache: true
 
       - name: Download IPA from Artifact
         uses: actions/download-artifact@v5

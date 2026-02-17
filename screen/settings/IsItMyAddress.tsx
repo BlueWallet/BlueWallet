@@ -1,34 +1,29 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
-import { BlueButtonLink } from '../../BlueComponents';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Divider } from '@rneui/themed';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { platformSizing, platformLayout } from '../../components/platform';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
   const { colors } = useTheme();
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
   const [address, setAddress] = useState<string>('');
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
   const [resultCleanAddress, setResultCleanAddress] = useState<string | undefined>();
-
-  const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 
   const clearAddressInput = () => {
     setAddress('');
@@ -113,7 +108,6 @@ const IsItMyAddress: React.FC = () => {
       }
       const value = values[match[1]];
       if (value) {
-        // Bold the wallet name (label), regular weight for address
         const isLabel = match[1] === 'label';
         parts.push(
           <Text key={`bold-${index++}`} selectable style={isLabel ? styles.boldText : undefined}>
@@ -130,108 +124,83 @@ const IsItMyAddress: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView
-      ref={scrollViewRef}
-      style={[styles.container, { backgroundColor: colors.background }]}
-      automaticallyAdjustContentInsets
-      automaticallyAdjustKeyboardInsets
-      contentInsetAdjustmentBehavior="automatic"
-    >
-      <View
-        style={{
-          paddingTop: platformSizing.firstSectionContainerPaddingTop,
-          marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
-          marginBottom: platformSizing.sectionContainerMarginBottom,
-          backgroundColor: colors.background,
-        }}
-      >
+    <SettingsScrollView>
+      <View style={styles.container}>
         <View
-          style={{
-            backgroundColor: cardColor,
-            borderRadius: platformSizing.containerBorderRadius,
-            padding: platformSizing.basePadding,
-            ...platformLayout.cardShadow,
-          }}
+          style={[
+            styles.textInputContainer,
+            { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
+          ]}
         >
-          <View
-            style={[
-              styles.textInputContainer,
-              { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
-            ]}
-          >
-            <TextInput
-              style={[styles.textInput, { color: colors.foregroundColor }]}
-              multiline
-              editable
-              placeholder={loc.is_it_my_address.enter_address}
-              placeholderTextColor={colors.placeholderTextColor}
-              value={address}
-              onChangeText={handleUpdateAddress}
-              testID="AddressInput"
-            />
-            {address.length > 0 && (
-              <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
-                <Icon name="close" size={20} color={colors.alternativeTextColor} />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
-
-          <View style={styles.buttonSpacing} />
-
-          {resultCleanAddress && (
-            <>
-              <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
-              <View style={styles.buttonSpacingSmall} />
-            </>
-          )}
-
-          <Button
-            disabled={isCheckAddressDisabled}
-            title={loc.is_it_my_address.check_address}
-            onPress={checkAddress}
-            testID="CheckAddress"
+          <TextInput
+            style={[styles.textInput, { color: colors.foregroundColor }]}
+            multiline
+            editable
+            placeholder={loc.is_it_my_address.enter_address}
+            placeholderTextColor={colors.placeholderTextColor}
+            value={address}
+            onChangeText={setAddress}
+            testID="AddressInput"
           />
-
-          <View style={styles.buttonSpacing} />
-
-          {matchingWallets !== undefined && matchingWallets.length > 0 && (
-            <>
-              <Divider />
-              <View style={styles.spacingLarge} />
-            </>
+          {address.length > 0 && (
+            <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
+              <Icon name="close" size={20} color={colors.alternativeTextColor} />
+            </TouchableOpacity>
           )}
-          {matchingWallets !== undefined &&
-            matchingWallets.length > 0 &&
-            matchingWallets.map((wallet, index) => (
-              <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={styles.addressCheckContainer}>
-                <Text selectable style={[styles.addressOwnershipText, { color: colors.foregroundColor }]}>
-                  {resultCleanAddress &&
-                    renderFormattedText(loc.is_it_my_address.owns, {
-                      label: wallet.getLabel(),
-                      address: resultCleanAddress,
-                    })}
-                </Text>
-                <BlueSpacing10 />
-                <View style={styles.walletCardContainer}>
-                  <WalletCarouselItem
-                    item={wallet}
-                    onPress={item => {
-                      navigate('WalletTransactions', {
-                        walletID: item.getID(),
-                        walletType: item.type,
-                      });
-                    }}
-                    customStyle={styles.walletCardStyle}
-                  />
-                </View>
-                <BlueSpacing20 />
-              </View>
-            ))}
         </View>
+
+        <BlueSpacing20 />
+
+        <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
+
+        <BlueSpacing10 />
+
+        <Button title={loc.wallets.import_scan_qr} onPress={importScan} />
+
+        {resultCleanAddress && (
+          <>
+            <BlueSpacing10 />
+            <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
+          </>
+        )}
+
+        <BlueSpacing20 />
+
+        {matchingWallets !== undefined && matchingWallets.length > 0 && (
+          <>
+            <Divider />
+            <View style={styles.spacingLarge} />
+          </>
+        )}
+        {matchingWallets !== undefined &&
+          matchingWallets.length > 0 &&
+          matchingWallets.map((wallet, index) => (
+            <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={styles.addressCheckContainer}>
+              <Text selectable style={[styles.addressOwnershipText, { color: colors.foregroundColor }]}>
+                {resultCleanAddress &&
+                  renderFormattedText(loc.is_it_my_address.owns, {
+                    label: wallet.getLabel(),
+                    address: resultCleanAddress,
+                  })}
+              </Text>
+              <BlueSpacing10 />
+              <View style={styles.walletCardContainer}>
+                <WalletCarouselItem
+                  item={wallet}
+                  onPress={item => {
+                    navigate('WalletTransactions', {
+                      walletID: item.getID(),
+                      walletType: item.type,
+                    });
+                  }}
+                  customStyle={styles.walletCardStyle}
+                />
+              </View>
+              <BlueSpacing20 />
+            </View>
+          ))}
       </View>
-    </SafeAreaScrollView>
+    </SettingsScrollView>
   );
 };
 
@@ -239,7 +208,8 @@ export default IsItMyAddress;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   textInputContainer: {
     flexDirection: 'row',
@@ -257,12 +227,6 @@ const styles = StyleSheet.create({
     padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  buttonSpacing: {
-    height: 16,
-  },
-  buttonSpacingSmall: {
-    height: 8,
   },
   spacingLarge: {
     height: 32,

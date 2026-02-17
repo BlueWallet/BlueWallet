@@ -90,10 +90,10 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
     await setTotalBalancePreferredUnitStorage(nextUnit);
   }, [totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage]);
 
-  if (wallets.length <= 1 || !isTotalBalanceEnabled) return null;
+  if (!isTotalBalanceEnabled) return null;
 
   return (
-    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem}>
+    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress>
       <View style={styles.container}>
         <Text style={styles.label}>{loc.wallets.total_balance}</Text>
         <TouchableOpacity onPress={handleBalanceOnPress}>

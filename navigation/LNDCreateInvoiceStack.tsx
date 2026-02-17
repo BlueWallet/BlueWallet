@@ -43,7 +43,6 @@ const LNDCreateInvoiceRoot = () => {
         name="LNDViewInvoice"
         component={LNDViewInvoiceComponent}
         options={navigationStyle({
-          statusBarStyle: 'auto',
           headerTitle: loc.lndViewInvoice.lightning_invoice,
           headerStyle: {
             backgroundColor: theme.colors.customHeader,

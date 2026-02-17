@@ -1,18 +1,18 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
+import { NativeEventEmitter, Platform } from 'react-native';
+import MenuElementsEmitter from '../blue_modules/NativeMenuElementsEmitter';
 import { navigationRef } from '../NavigationService';
 
 type MenuActionHandler = () => void;
 
-const { MenuElementsEmitter } = NativeModules;
 let eventEmitter: NativeEventEmitter | null = null;
 const handlerRegistry = new Map<string, MenuActionHandler>();
 
 try {
   if (Platform.OS === 'ios' && MenuElementsEmitter) {
-    eventEmitter = new NativeEventEmitter(MenuElementsEmitter);
-    if (typeof MenuElementsEmitter.sharedInstance === 'function') {
-      MenuElementsEmitter.sharedInstance();
+    eventEmitter = new NativeEventEmitter(MenuElementsEmitter as any);
+    if (typeof (MenuElementsEmitter as any).sharedInstance === 'function') {
+      (MenuElementsEmitter as any).sharedInstance();
     }
   }
 } catch (error) {

@@ -376,6 +376,7 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
   } else if (toUnit === BitcoinUnit.SATS) {
     return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
   } else {
+    console.debug('[UnitSwitch/Fiat] formatBalance to fiat', { balance, unit: toUnit, withFormatting });
     return satoshiToLocalCurrency(balance);
   }
 }
@@ -397,6 +398,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
   } else if (toUnit === BitcoinUnit.SATS) {
     return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
   } else {
+    console.debug('[UnitSwitch/Fiat] formatBalanceWithoutSuffix to fiat', { balance, unit: toUnit, withFormatting });
     return satoshiToLocalCurrency(balance);
   }
 }
@@ -410,6 +412,7 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
  * @returns {string}
  */
 export function formatBalancePlain(balance = 0, toUnit: string, withFormatting = false) {
+  console.debug('[UnitSwitch/Fiat] formatBalancePlain', { balance, unit: toUnit, withFormatting });
   const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return _leaveNumbersAndDots(newInputValue.toString());

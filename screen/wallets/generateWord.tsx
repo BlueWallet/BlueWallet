@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { randomBytes } from '../../class/rng';
 import Button from '../../components/Button';
 import loc from '../../loc';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
-import { platformSizing, platformLayout } from '../../components/platform';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { BlueTextCentered } from '../../BlueComponents';
+import { SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const GenerateWord = () => {
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
   const { colors } = useTheme();
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
 
   const handleUpdateMnemonic = (nextValue: string) => {
     setMnemonic(nextValue);
@@ -30,7 +28,6 @@ const GenerateWord = () => {
     const possibleWords = generateChecksumWords(seedPhrase);
 
     if (!possibleWords) {
-      // likely because of an invalid mnemonic
       setResult(loc.autofill_word.error);
       return;
     }
@@ -47,48 +44,55 @@ const GenerateWord = () => {
   };
 
   return (
-    <SafeAreaScrollView style={[styles.container, { backgroundColor: colors.background }]} keyboardShouldPersistTaps="handled">
-      <View
-        style={{
-          paddingTop: platformSizing.firstSectionContainerPaddingTop,
-          marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
-          marginBottom: platformSizing.sectionContainerMarginBottom,
-          backgroundColor: colors.background,
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: cardColor,
-            borderRadius: platformSizing.containerBorderRadius,
-            padding: platformSizing.basePadding,
-            ...platformLayout.cardShadow,
-          }}
-        >
-          <BlueFormMultiInput
-            editable
-            placeholder={loc.autofill_word.enter}
-            value={mnemonic}
-            onChangeText={handleUpdateMnemonic}
-            testID="MnemonicInput"
-          />
+    <SettingsScrollView keyboardShouldPersistTaps="handled">
+      <View style={styles.container}>
+        <TextInput
+          multiline
+          underlineColorAndroid="transparent"
+          numberOfLines={4}
+          editable
+          placeholder={loc.autofill_word.enter}
+          value={mnemonic}
+          onChangeText={handleUpdateMnemonic}
+          testID="MnemonicInput"
+          autoCorrect={false}
+          autoCapitalize="none"
+          spellCheck={false}
+          placeholderTextColor={colors.placeholderTextColor}
+          style={[
+            styles.textInput,
+            {
+              borderColor: colors.formBorder,
+              borderBottomColor: colors.formBorder,
+              backgroundColor: colors.inputBackgroundColor,
+              color: colors.foregroundColor,
+            },
+          ]}
+        />
 
-          <BlueSpacing10 />
-          <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
-          <BlueSpacing20 />
-          <BlueTextCentered testID="Result">{result}</BlueTextCentered>
-          <BlueSpacing20 />
-          <View>
-            <Button
-              disabled={mnemonic.trim().length === 0}
-              title={loc.autofill_word.generate_word}
-              onPress={checkMnemonic}
-              testID="GenerateWord"
-            />
-          </View>
-          <BlueSpacing20 />
-        </View>
+        <BlueSpacing20 />
+
+        <Button
+          disabled={mnemonic.trim().length === 0}
+          title={loc.autofill_word.generate_word}
+          onPress={checkMnemonic}
+          testID="GenerateWord"
+        />
+
+        <BlueSpacing10 />
+
+        <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
+
+        {result.length > 0 && (
+          <>
+            <BlueSpacing20 />
+            <BlueTextCentered testID="Result">{result}</BlueTextCentered>
+          </>
+        )}
+
+        <BlueSpacing20 />
       </View>
-    </SafeAreaScrollView>
+    </SettingsScrollView>
   );
 };
 
@@ -96,6 +100,16 @@ export default GenerateWord;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  textInput: {
+    paddingHorizontal: 8,
+    paddingVertical: 16,
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    borderRadius: 4,
+    textAlignVertical: 'top',
+    minHeight: 100,
   },
 });

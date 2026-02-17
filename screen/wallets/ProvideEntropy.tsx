@@ -1,8 +1,8 @@
-import React, { useEffect, useReducer, useState } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Icon } from '@rneui/themed';
 import BN from 'bignumber.js';
+import React, { useEffect, useReducer, useState } from 'react';
 import {
   Alert,
   Dimensions,
@@ -16,6 +16,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 
+import { concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { randomBytes } from '../../class/rng';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import SafeArea from '../../components/SafeArea';
@@ -23,8 +24,6 @@ import { Tabs } from '../../components/Tabs';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ProvideEntropy'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'ProvideEntropy'>;
@@ -192,7 +191,7 @@ const Dice = ({ push, sides }: { push: TPush; sides: number }) => {
       color: colors.foregroundColor,
     },
     diceContainer: {
-      backgroundColor: colors.elevated,
+      backgroundColor: colors.background,
     },
   });
 
@@ -345,7 +344,6 @@ const ProvideEntropy = () => {
 
   return (
     <SafeArea>
-      <BlueSpacing20 />
       <TouchableOpacity accessibilityRole="button" onPress={() => setShow(!show)}>
         <View style={[styles.entropy, stylesHook.entropy]}>
           <Text style={[styles.entropyText, stylesHook.entropyText]}>

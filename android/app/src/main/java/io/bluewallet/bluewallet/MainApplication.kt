@@ -11,12 +11,9 @@ import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
 import com.facebook.react.ReactHost
 import com.facebook.react.ReactNativeHost
-import com.facebook.react.ReactPackage
-import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
+import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
-import com.facebook.react.soloader.OpenSourceMergedSoMapping
-import com.facebook.soloader.SoLoader
 import com.facebook.react.modules.i18nmanager.I18nUtil
 import io.bluewallet.bluewallet.components.segmentedcontrol.CustomSegmentedControlPackage
 
@@ -66,26 +63,25 @@ class MainApplication : Application(), ReactApplication {
         }
     }
 
-    override val reactNativeHost: ReactNativeHost =
+    override val reactNativeHost: ReactNativeHost by lazy {
         object : DefaultReactNativeHost(this) {
-            override fun getPackages(): List<ReactPackage> =
-                PackageList(this).packages.apply {
+            override fun getPackages() =
+                PackageList(this@MainApplication).packages.apply {
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // add(MyReactNativePackage())
                     add(CustomSegmentedControlPackage())
                     add(SettingsPackage())
                 }
 
-            override fun getJSMainModuleName(): String = "index"
+            override fun getUseDeveloperSupport() = BuildConfig.DEBUG
 
-            override fun getUseDeveloperSupport(): Boolean = BuildConfig.DEBUG
-
-            override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
-            override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
+            override fun getJSMainModuleName() = "index"
         }
+    }
 
-    override val reactHost: ReactHost
-        get() = getDefaultReactHost(applicationContext, reactNativeHost)
+    override val reactHost: ReactHost by lazy {
+        getDefaultReactHost(applicationContext, reactNativeHost)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -101,11 +97,7 @@ class MainApplication : Application(), ReactApplication {
         
         val sharedI18nUtilInstance = I18nUtil.getInstance()
         sharedI18nUtilInstance.allowRTL(applicationContext, true)
-        SoLoader.init(this, OpenSourceMergedSoMapping)
-        if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            // If you opted-in for the New Architecture, we load the native entry point for this app.
-            load()
-        }
+        loadReactNative(this)
 
         initializeDeviceUID()
         initializeBugsnag()

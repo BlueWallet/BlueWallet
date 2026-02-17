@@ -10,7 +10,7 @@ interface SettingsBlockExplorerCustomUrlItemProps {
   customUrl: string;
   onCustomUrlChange: (url: string) => void;
   onSubmitCustomUrl: () => void;
-  inputRef?: React.RefObject<TextInput>;
+  inputRef?: React.RefObject<TextInput | null>;
 }
 
 const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUrlItemProps> = ({
@@ -26,22 +26,28 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
   return (
     <View>
       <ListItem containerStyle={[styles.container, { backgroundColor: colors.background }]} bottomDivider>
-        <ListItem.Content>
-          <ListItem.Title style={[styles.title, { color: colors.text }]}>{loc.settings.block_explorer_preferred}</ListItem.Title>
-        </ListItem.Content>
-        <Switch
-          accessible
-          accessibilityRole="switch"
-          accessibilityState={{ checked: isCustomEnabled }}
-          onValueChange={onSwitchToggle}
-          value={isCustomEnabled}
-        />
+        <View style={styles.switchRow}>
+          <ListItem.Content>
+            <ListItem.Title style={[styles.title, { color: colors.text }]}>{loc.settings.block_explorer_preferred}</ListItem.Title>
+          </ListItem.Content>
+          <Switch
+            accessible
+            accessibilityRole="switch"
+            accessibilityState={{ checked: isCustomEnabled }}
+            onValueChange={onSwitchToggle}
+            value={isCustomEnabled}
+          />
+        </View>
       </ListItem>
 
       {isCustomEnabled && (
         <View style={[styles.uriContainer, { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor }]}>
           <TextInput
-            ref={inputRef}
+            ref={node => {
+              if (inputRef) {
+                (inputRef as React.MutableRefObject<TextInput | null>).current = node;
+              }
+            }}
             value={customUrl}
             placeholder={loc._.enter_url}
             onChangeText={onCustomUrlChange}
@@ -68,6 +74,11 @@ const styles = StyleSheet.create({
   container: {
     minHeight: 60,
     paddingVertical: 10,
+  },
+  switchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   title: {
     fontSize: 16,

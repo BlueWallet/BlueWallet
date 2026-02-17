@@ -12,6 +12,14 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     private var userDefaultsGroup: UserDefaults?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        #if RCT_NEW_ARCH_ENABLED
+        let turboModuleEnabled = true
+        #else
+        let turboModuleEnabled = false
+        #endif
+
+        RCTAppSetupPrepareApp(application, turboModuleEnabled)
+
         clearFilesIfNeeded()
         
         // Fix app group UserDefaults initialization
@@ -60,7 +68,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         _ = MenuElementsEmitter.sharedInstance()
         NSLog("[MenuElements] AppDelegate: Initialized emitter singleton")
         
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+        let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+
+        return result
     }
 
     override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -286,7 +296,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         ]
 
         if keys.contains(keyPath) {
-            WidgetHelper.reloadAllWidgets()
+            WidgetHelper().reloadAllWidgets()
         }
     }
 

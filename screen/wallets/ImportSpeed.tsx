@@ -95,8 +95,7 @@ const ImportSpeed = () => {
       <TextInput testID="SpeedPassphraseInput" value={passphrase} style={styles.pathInput} onChangeText={setPassphrase} />
       <BlueSpacing20 />
       <View style={styles.center}>
-        <Button testID="SpeedDoImport" title="Import" onPress={importMnemonic} />
-        {loading && <ActivityIndicator />}
+        {loading ? <ActivityIndicator /> : <Button testID="SpeedDoImport" title="Import" onPress={importMnemonic} />}
       </View>
     </SafeArea>
   );

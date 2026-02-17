@@ -1,7 +1,7 @@
 import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useIsFocused, useNavigationState } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
-import { InteractionManager, StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native';
+import { StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
@@ -208,12 +208,11 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
         const walletID = item.getID();
         const walletType = item.type;
         dispatch({ type: WalletActionType.SelectWallet, walletID, walletType });
-        InteractionManager.runAfterInteractions(() => {
-          drawerNavigation.navigate('DetailViewStackScreensStack', {
-            screen: 'WalletTransactions',
-            params: { walletID, walletType },
-          });
+        drawerNavigation.navigate('DetailViewStackScreensStack', {
+          screen: 'WalletTransactions',
+          params: { walletID, walletType },
         });
+        drawerNavigation.closeDrawer();
       }
     },
     [drawerNavigation],

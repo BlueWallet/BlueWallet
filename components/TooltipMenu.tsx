@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Animated, Platform, TouchableOpacity } from 'react-native';
+import { Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -7,153 +7,183 @@ import { useSettings } from '../hooks/context/useSettings';
 const ToolTipMenu = (props: ToolTipMenuProps) => {
   const {
     title = '',
-    isMenuPrimaryAction = false,
+    shouldOpenOnLongPress = true,
     disabled = false,
     onPress,
     buttonStyle,
     onPressMenuItem,
     children,
     isButton = false,
-    ...restProps
+    actions,
+    accessibilityLabel,
+    accessibilityHint,
+    accessibilityRole,
+    accessibilityState,
+    testID,
+    onMenuWillShow,
+    onMenuWillHide,
+    enableAndroidRipple = true,
   } = props;
 
   const { language } = useSettings();
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const openedRef = useRef(false);
+  const menuRef = useRef<any>(null);
 
-  const handlePressIn = useCallback(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.98,
-      useNativeDriver: true,
-    }).start();
-  }, [scaleAnim]);
-
-  const handlePressOut = useCallback(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
-  }, [scaleAnim]);
-
-  // Map Menu Items for RN Menu (supports subactions and displayInline)
-  const mapMenuItemForMenuView = useCallback((action: Action): MenuAction | null => {
-    if (!action.id) return null;
-
-    // Check for subactions
-    const subactions =
-      action.subactions?.map(subaction => {
-        const subMenuItem: MenuAction = {
-          id: subaction.id.toString(),
-          title: subaction.text,
-          subtitle: subaction.subtitle,
-          image: subaction.icon?.iconValue ? subaction.icon.iconValue : undefined,
-          attributes: { disabled: subaction.disabled, destructive: subaction.destructive, hidden: subaction.hidden },
-        };
-        if ('menuState' in subaction) {
-          subMenuItem.state = subaction.menuState ? 'on' : 'off';
-        }
-        if (subaction.subactions && subaction.subactions.length > 0) {
-          const deepSubactions = subaction.subactions.map(deepSub => {
-            const deepMenuItem: MenuAction = {
-              id: deepSub.id.toString(),
-              title: deepSub.text,
-              subtitle: deepSub.subtitle,
-              image: deepSub.icon?.iconValue ? deepSub.icon.iconValue : undefined,
-              attributes: { disabled: deepSub.disabled, destructive: deepSub.destructive, hidden: deepSub.hidden },
-            };
-            if ('menuState' in deepSub) {
-              deepMenuItem.state = deepSub.menuState ? 'on' : 'off';
-            }
-            return deepMenuItem;
-          });
-          subMenuItem.subactions = deepSubactions;
-        }
-        return subMenuItem;
-      }) || [];
-
-    const menuItem: MenuAction = {
-      id: action.id.toString(),
-      title: action.text,
-      subtitle: action.subtitle,
-      image: action.icon?.iconValue ? action.icon.iconValue : undefined,
-      attributes: { disabled: action.disabled, destructive: action.destructive, hidden: action.hidden },
-      displayInline: action.displayInline || false,
-    };
-    if ('menuState' in action) {
-      menuItem.state = action.menuState ? 'on' : 'off';
+  const normalizeMenuState = useCallback((menuState?: Action['menuState']): MenuAction['state'] | undefined => {
+    if (menuState === undefined) {
+      return undefined;
     }
-    if (subactions.length > 0) {
-      menuItem.subactions = subactions;
+    if (menuState === 'mixed') {
+      return 'mixed';
     }
-    return menuItem;
+    return menuState ? 'on' : 'off';
   }, []);
 
-  const menuViewItemsIOS = useMemo(() => {
-    return props.actions
-      .map(actionGroup => {
-        if (Array.isArray(actionGroup) && actionGroup.length > 0) {
-          return {
-            id: actionGroup[0].id.toString(),
-            title: '',
-            subactions: actionGroup
-              .filter(action => action.id)
-              .map(mapMenuItemForMenuView)
-              .filter(item => item !== null) as MenuAction[],
-            displayInline: true,
-          };
-        } else if (!Array.isArray(actionGroup) && actionGroup.id) {
-          return mapMenuItemForMenuView(actionGroup);
-        }
-        return null;
-      })
-      .filter(item => item !== null) as MenuAction[];
-  }, [props.actions, mapMenuItemForMenuView]);
+  const buildAttributes = useCallback((action: Action): MenuAction['attributes'] | undefined => {
+    const attributes = {
+      destructive: Boolean(action.destructive),
+      disabled: Boolean(action.disabled),
+      hidden: Boolean(action.hidden),
+    };
 
-  const menuViewItemsAndroid = useMemo(() => {
-    const mergedActions = props.actions.flat().filter(action => action.id);
-    return mergedActions.map(mapMenuItemForMenuView).filter(item => item !== null) as MenuAction[];
-  }, [props.actions, mapMenuItemForMenuView]);
+    if (!attributes.destructive && !attributes.disabled && !attributes.hidden) {
+      return undefined;
+    }
 
-  const handlePressMenuItemForMenuView = useCallback(
-    ({ nativeEvent }: NativeActionEvent) => {
-      onPressMenuItem(nativeEvent.event);
+    return attributes;
+  }, []);
+
+  const mapMenuItemForMenuView = useCallback(
+    (action: Action): MenuAction | null => {
+      if (!action?.id) return null;
+
+      const mappedSubactions = (action.subactions || [])
+        .map(subaction => mapMenuItemForMenuView(subaction))
+        .filter((item): item is MenuAction => item !== null);
+
+      const menuItem: MenuAction = {
+        id: action.id.toString(),
+        title: action.text,
+        subtitle: action.subtitle,
+        image: action.icon?.iconValue ?? action.image,
+        imageColor: action.imageColor,
+        attributes: buildAttributes(action),
+        displayInline: Platform.OS === 'ios' ? action.displayInline : undefined,
+      };
+
+      const state = normalizeMenuState(action.menuState);
+      if (state) {
+        menuItem.state = state;
+      }
+
+      if (mappedSubactions.length > 0) {
+        menuItem.subactions = mappedSubactions;
+      }
+
+      return menuItem;
     },
-    [onPressMenuItem],
+    [buildAttributes, normalizeMenuState],
   );
 
+  const menuViewItemsIOS = useMemo(() => {
+    return actions
+      .map(actionGroup => {
+        if (Array.isArray(actionGroup) && actionGroup.length > 0) {
+          const inlineActions = actionGroup.map(mapMenuItemForMenuView).filter((item): item is MenuAction => item !== null);
+          if (inlineActions.length === 0) return null;
+          const group: MenuAction = {
+            id: inlineActions[0].id,
+            title: '',
+            subactions: inlineActions,
+            displayInline: true,
+          };
+          return group;
+        }
+
+        if (!Array.isArray(actionGroup)) {
+          return mapMenuItemForMenuView(actionGroup);
+        }
+
+        return null;
+      })
+      .filter((item): item is MenuAction => item !== null);
+  }, [actions, mapMenuItemForMenuView]);
+
+  const menuViewItemsAndroid = useMemo(() => {
+    const mergedActions = actions.flat().filter(action => action.id);
+    return mergedActions.map(mapMenuItemForMenuView).filter((item): item is MenuAction => item !== null);
+  }, [actions, mapMenuItemForMenuView]);
+
+  const handlePressMenuItemForMenuView = ({ nativeEvent }: NativeActionEvent) => {
+    if (nativeEvent?.event) {
+      onPressMenuItem(nativeEvent.event);
+    }
+  };
+
   const renderMenuView = () => {
+    if (disabled || (!isButton && !onPress)) {
+      return null;
+    }
+
     return (
-      <MenuView
-        title={title}
-        isAnchoredToRight
-        onPressAction={handlePressMenuItemForMenuView}
-        actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
-        shouldOpenOnLongPress={!isMenuPrimaryAction}
-        // @ts-ignore: Not exposed in types
-        accessibilityLabel={props.accessibilityLabel}
-        accessibilityHint={props.accessibilityHint}
-        accessibilityRole={props.accessibilityRole}
+      <Pressable
+        android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}
+        style={({ pressed }) => {
+          const base: ViewStyle[] = [styles.pressable];
+          if (buttonStyle) {
+            if (Array.isArray(buttonStyle)) {
+              base.push(...buttonStyle);
+            } else {
+              base.push(buttonStyle);
+            }
+          }
+          if (pressed && enableAndroidRipple) base.push(styles.pressed);
+          return base;
+        }}
+        disabled={disabled}
+        onPress={onPress}
+        onLongPress={shouldOpenOnLongPress ? () => {} : undefined}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityRole={accessibilityRole}
+        accessibilityState={accessibilityState}
         accessibilityLanguage={language}
+        testID={testID}
+        hitSlop={8}
       >
-        {isMenuPrimaryAction || isButton ? (
-          <TouchableOpacity
-            style={buttonStyle}
-            disabled={disabled}
-            onPress={onPress}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            activeOpacity={1}
-            {...restProps}
-          >
-            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>{children}</Animated.View>
-          </TouchableOpacity>
-        ) : (
-          children
-        )}
-      </MenuView>
+        <MenuView
+          ref={menuRef}
+          title={title}
+          isAnchoredToRight
+          onOpenMenu={() => {
+            openedRef.current = true;
+            onMenuWillShow?.();
+          }}
+          onCloseMenu={() => {
+            if (!openedRef.current) {
+              return;
+            }
+            openedRef.current = false;
+            onMenuWillHide?.();
+          }}
+          onPressAction={handlePressMenuItemForMenuView}
+          actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
+          shouldOpenOnLongPress={shouldOpenOnLongPress}
+          style={buttonStyle ? styles.menuViewFlex : undefined}
+        >
+          {children}
+        </MenuView>
+      </Pressable>
     );
   };
 
-  return props.actions.length > 0 ? renderMenuView() : null;
+  return actions.length > 0 ? renderMenuView() : null;
 };
 
 export default ToolTipMenu;
+
+const styles = StyleSheet.create({
+  menuViewFlex: { flex: 1 },
+  pressable: { alignSelf: 'center' },
+  pressed: { opacity: 0.6 },
+});

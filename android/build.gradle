@@ -3,27 +3,54 @@
 buildscript {
     ext {
         minSdkVersion = 24
-        buildToolsVersion = "35.0.0"
-        compileSdkVersion = 35
-        targetSdkVersion = 35
+        buildToolsVersion = "36.0.0"
+        compileSdkVersion = 36
+        targetSdkVersion = 36
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "17.3.4"
         firebaseMessagingVersion = "21.1.0"
         ndkVersion = "27.1.12297006"
-        kotlin_version = '2.0.21'
-        kotlinVersion = '2.0.21'
+        kotlin_version = '2.1.20'
+        kotlinVersion = '2.1.20'
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        classpath("com.android.tools.build:gradle:8.7.2")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
 	    classpath 'com.google.gms:google-services:4.4.4'  // Google Services plugin
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:8.2.0")
+    }
+}
+
+// Gradle 9 removes jcenter(); add a shim that redirects any jcenter() call to mavenCentral()
+def addJcenterShim = { repoContainer, logger ->
+    def mc = repoContainer.metaClass
+    if (!mc.respondsTo(repoContainer, 'jcenter')) {
+        mc.jcenter << { Closure config = null ->
+            def repo = repoContainer.mavenCentral()
+            if (config != null) {
+                config.delegate = repo
+                config.resolveStrategy = Closure.DELEGATE_FIRST
+                config.call(repo)
+            }
+            logger.lifecycle("Redirected jcenter() to mavenCentral()")
+            return repo
+        }
+    }
+    if (!mc.respondsTo(repoContainer, 'methodMissing')) {
+        mc.methodMissing = { String name, args ->
+            if (name == 'jcenter') {
+                def repo = repoContainer.mavenCentral()
+                logger.lifecycle("Redirected jcenter() (methodMissing) to mavenCentral()")
+                return repo
+            }
+            throw new MissingMethodException(name, repoContainer.class, args)
+        }
     }
 }
 
@@ -54,12 +81,50 @@ allprojects {
     }
 }
 
-subprojects {
-    afterEvaluate {project ->
-        if (project.hasProperty("android")) {
+// Apply jcenter shim very early for every project before its build.gradle is evaluated
+gradle.beforeProject { project ->
+    addJcenterShim(project.repositories, project.logger)
+    if (project.buildscript != null) {
+        addJcenterShim(project.buildscript.repositories, project.logger)
+    }
+}
+
+// Apply to root as well
+addJcenterShim(repositories, logger)
+if (buildscript != null) {
+    addJcenterShim(buildscript.repositories, logger)
+}
+
+subprojects { project ->
+    // Remove and block any jcenter() repositories at both project and buildscript levels
+    def scrub = { repoContainer ->
+        repoContainer.all { repo ->
+            if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                    repo.url?.toString()?.contains('jcenter')) {
+                project.logger.lifecycle("Removing jcenter() from ${project.path}")
+                repoContainer.remove(repo)
+            }
+        }
+        repoContainer.whenObjectAdded { repo ->
+            if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                    repo.url?.toString()?.contains('jcenter')) {
+                project.logger.lifecycle("Blocking jcenter() from ${project.path}")
+                repoContainer.remove(repo)
+                repoContainer.mavenCentral()
+            }
+        }
+    }
+
+    scrub(project.repositories)
+    if (project.buildscript != null) {
+        scrub(project.buildscript.repositories)
+    }
+
+    afterEvaluate {proj ->
+        if (proj.hasProperty("android")) {
             android {
-                buildToolsVersion "35.0.0"
-                compileSdkVersion 35
+                buildToolsVersion "36.0.0"
+                compileSdkVersion 36
                  defaultConfig {
                     minSdkVersion 24
                 }
@@ -68,12 +133,30 @@ subprojects {
         tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
             // FIXME: next line should be removed when https://github.com/wix/Detox/issues/4678 is fixed
             kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlin.ExperimentalStdlibApi"]
-            if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
+            if (proj.plugins.hasPlugin("com.android.application") || proj.plugins.hasPlugin("com.android.library")) {
                 kotlinOptions.jvmTarget = android.compileOptions.sourceCompatibility
             } else {
                 kotlinOptions.jvmTarget = sourceCompatibility
             }
         }
 
+        if (proj.name == "react-native-reanimated" && proj.hasProperty("android")) {
+            // Wire Reanimated's generated codegen sources so WorkletsModule spec is visible under new architecture
+            proj.android.sourceSets.main.java.srcDir("${proj.buildDir}/generated/source/codegen/java")
+        }
+
+    }
+}
+
+// Final guard: fail fast if any jcenter repository slips through
+gradle.projectsEvaluated {
+    allprojects { proj ->
+        def offenders = proj.repositories.findAll { repo ->
+            repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                    repo.url?.toString()?.contains('jcenter')
+        }
+        if (!offenders.isEmpty()) {
+            throw new GradleException("jcenter() detected in ${proj.path}; remove or replace with mavenCentral()");
+        }
     }
 }

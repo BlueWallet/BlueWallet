@@ -42,6 +42,10 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
 
   fragments: string[] = [];
 
+  componentWillUnmount() {
+    this.stopAutoMove();
+  }
+
   componentDidMount() {
     const { value, capacity = 175, hideControls = true, walletID } = this.props;
     try {

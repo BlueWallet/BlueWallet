@@ -88,9 +88,11 @@ artifacts/
 *.realm
 *.realm.lock
 android/app/.project
+android/.settings/org.eclipse.buildship.core.prefs
 android/app/.classpath
 android/.settings/org.eclipse.buildship.core.prefs
 android/.project
+android/app/.settings/org.eclipse.jdt.core.prefs
 android/.settings/org.eclipse.buildship.core.prefs
 android/app/.classpath
 android/app/.project

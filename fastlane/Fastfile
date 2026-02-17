@@ -24,8 +24,125 @@ def app_store_state_readable(state)
   states[state] || state
 end
 
+require 'securerandom'
+
 default_platform(:android)
-project_root = File.expand_path("..", __dir__)
+PROJECT_ROOT = File.expand_path("..", __dir__)
+project_root = PROJECT_ROOT
+
+module AndroidHelpers
+  module_function
+
+  def require_env!(keys)
+    missing = Array(keys).select { |key| ENV[key].nil? || ENV[key].empty? }
+    UI.user_error!("Missing required env vars: #{missing.join(', ')}") unless missing.empty?
+  end
+
+  def project_root
+    PROJECT_ROOT
+  end
+
+  def keystore_paths
+    {
+      hex: File.join(project_root, 'bluewallet-release-key.keystore.hex'),
+      file: File.join(project_root, 'android', 'bluewallet-release-key.keystore'),
+    }
+  end
+
+  def write_keystore_from_hex!(hex_value, paths)
+    UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if hex_value.nil? || hex_value.empty?
+    File.write(paths[:hex], hex_value)
+    Actions.sh("xxd -plain -revert #{paths[:hex]} > #{paths[:file]}") do |status|
+      UI.user_error!("Error reverting hex to keystore") unless status.success?
+    end
+    File.delete(paths[:hex])
+  end
+
+  def version_name_and_update_code!(build_gradle_path, build_number)
+    gradle_contents = File.read(build_gradle_path)
+    File.write(build_gradle_path, gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}"))
+    version_name = File.read(build_gradle_path)[/versionName\s+"([^"]+)"/, 1]
+    UI.user_error!("Failed to extract versionName from #{build_gradle_path}") if version_name.nil? || version_name.empty?
+    version_name
+  end
+
+  def branch_name
+    raw = ENV['GITHUB_HEAD_REF'] || ENV['GITHUB_REF_NAME'] || `git rev-parse --abbrev-ref HEAD`.strip
+    sanitized = raw.to_s.gsub(/[^a-zA-Z0-9_-]/, '_')
+    sanitized.empty? ? 'master' : sanitized
+  end
+
+  def apk_name(version_name, build_number, branch)
+    branch != 'master' ? "BlueWallet-#{version_name}-#{build_number}-#{branch}.apk" : "BlueWallet-#{version_name}-#{build_number}.apk"
+  end
+
+  def apksigner_path
+    sdk_root = ENV['ANDROID_HOME'] || ENV['ANDROID_SDK_ROOT']
+    Dir.glob(File.join(sdk_root.to_s, 'build-tools', '*', 'apksigner')).sort.last
+  end
+
+  def gradle_log_path
+    path = File.join(project_root, 'fastlane', 'logs', 'gradle-build.log')
+    FileUtils.mkdir_p(File.dirname(path))
+    path
+  end
+
+  def assemble_release!(log_path:)
+    Actions.sh("cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee #{log_path}") do |status|
+      UI.user_error!("Gradle assembleRelease failed") unless status.success?
+    end
+  end
+
+  def resolve_apk_paths(version_name:, build_number:, branch_name:)
+    apk_dir = File.join(project_root, 'android', 'app', 'build', 'outputs', 'apk', 'release')
+    unsigned = File.join(apk_dir, 'app-release-unsigned.apk')
+    fallback = File.join(apk_dir, 'app-release.apk')
+    signed = File.join(apk_dir, apk_name(version_name, build_number, branch_name))
+    { unsigned: unsigned, fallback: fallback, signed: signed }
+  end
+
+  def finalize_apk!(paths)
+    candidate = File.exist?(paths[:unsigned]) ? paths[:unsigned] : paths[:fallback]
+    UI.user_error!("Unsigned APK not found at path: #{paths[:unsigned]} or #{paths[:fallback]}") unless File.exist?(candidate)
+    FileUtils.mv(candidate, paths[:signed])
+    paths[:signed]
+  end
+
+  def sign_apk!(apk_path, keystore_path, keystore_password)
+    signer = apksigner_path
+    UI.user_error!("apksigner not found in Android build-tools") if signer.nil? || signer.empty?
+    Actions.sh("#{signer} sign --ks #{keystore_path} --ks-pass=pass:#{keystore_password} #{apk_path}")
+  end
+
+  def write_github_output(hash)
+    return unless ENV['GITHUB_OUTPUT'] && !ENV['GITHUB_OUTPUT'].empty?
+
+    File.open(ENV['GITHUB_OUTPUT'], 'a') do |f|
+      hash.each { |key, value| f.puts("#{key}=#{value}") }
+    end
+  end
+
+  def ensure_temp_credentials!(auto: false)
+    return unless auto
+
+    temp_dir = Dir.mktmpdir('bw-temp-keystore')
+    keystore_path = File.join(temp_dir, 'temp.keystore')
+    password = "temp#{SecureRandom.hex(6)}"
+    alias_name = "bluewallet-temp"
+
+    Actions.sh(
+      "keytool -genkeypair -v -keystore #{keystore_path} -storepass #{password} -keypass #{password} " \
+      "-alias #{alias_name} -keyalg RSA -keysize 2048 -validity 10000 " \
+      "-dname \"CN=Temp,O=BlueWallet,OU=CI,L=NY,ST=NY,C=US\""
+    ) do |status|
+      UI.user_error!("Failed to create temporary keystore with keytool") unless status.success?
+    end
+
+    keystore_hex = File.binread(keystore_path).unpack1('H*')
+    ENV['KEYSTORE_FILE_HEX'] = keystore_hex
+    ENV['KEYSTORE_PASSWORD'] = password
+  end
+end
 
 # Add session caching for App Store Connect
 def cached_app_store_connect_login
@@ -82,6 +199,9 @@ def cached_app_store_connect_login
 end
 
 before_all do |lane, options|
+  # Skip Apple auth entirely for Android lanes
+  next if lane_context[:PLATFORM_NAME] == :android
+
   skip_auth_lanes = ['register_devices_from_txt']
   
   # Check if we need App Store Connect for this lane
@@ -105,82 +225,87 @@ platform :android do
 
   desc "Prepare the keystore file"
   lane :prepare_keystore do
-    Dir.chdir(project_root) do
-      keystore_file_hex = ENV['KEYSTORE_FILE_HEX']
-      UI.user_error!("KEYSTORE_FILE_HEX environment variable is missing") if keystore_file_hex.nil?
-
-      UI.message("Creating keystore from HEX...")
-      File.write("bluewallet-release-key.keystore.hex", keystore_file_hex)
-
-      sh("xxd -plain -revert bluewallet-release-key.keystore.hex > bluewallet-release-key.keystore") do |status|
-        UI.user_error!("Error reverting hex to keystore") unless status.success?
-      end
+    Dir.chdir(PROJECT_ROOT) do
+      paths = AndroidHelpers.keystore_paths
+      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], paths)
       UI.message("Keystore created successfully.")
-
-      File.delete("bluewallet-release-key.keystore.hex")
     end
   end
 
   desc "Update version, build number, and sign APK"
-  lane :update_version_build_and_sign_apk do
-    Dir.chdir(project_root) do
-      build_number = ENV['BUILD_NUMBER']
-      UI.user_error!("BUILD_NUMBER environment variable is missing") if build_number.nil?
- 
-      # Extract versionName from build.gradle
-      version_name = sh("grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '\"'").strip
-      UI.user_error!("Failed to extract versionName from build.gradle") if version_name.nil? || version_name.empty?
- 
-      # Update versionCode in build.gradle
-      UI.message("Updating versionCode in build.gradle to #{build_number}...")
-      build_gradle_path = "android/app/build.gradle"
-      build_gradle_contents = File.read(build_gradle_path)
-      new_build_gradle_contents = build_gradle_contents.gsub(/versionCode\s+\d+/, "versionCode #{build_number}")
-      File.write(build_gradle_path, new_build_gradle_contents)
- 
-      # Determine branch name and sanitize it
-      branch_name = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.strip
-      branch_name = branch_name.gsub(/[^a-zA-Z0-9_-]/, '_') # Replace non-alphanumeric characters with underscore
-      branch_name = 'master' if branch_name.nil? || branch_name.empty?
- 
-      # Define APK name based on branch
-      signed_apk_name = branch_name != 'master' ? 
-        "BlueWallet-#{version_name}-#{build_number}-#{branch_name}.apk" : 
-        "BlueWallet-#{version_name}-#{build_number}.apk"
- 
-      # Define paths
-      unsigned_apk_path = "android/app/build/outputs/apk/release/app-release-unsigned.apk"
-      signed_apk_path = "android/app/build/outputs/apk/release/#{signed_apk_name}"
- 
-      # Build APK
+  lane :update_version_build_and_sign_apk do |options|
+    Dir.chdir(PROJECT_ROOT) do
+      AndroidHelpers.ensure_temp_credentials!(auto: options[:auto_credentials])
+      AndroidHelpers.require_env!(%w[BUILD_NUMBER KEYSTORE_PASSWORD KEYSTORE_FILE_HEX])
+
+      keystore_paths = AndroidHelpers.keystore_paths
+      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_paths)
+
+      build_gradle_path = File.join('android', 'app', 'build.gradle')
+      version_name = AndroidHelpers.version_name_and_update_code!(build_gradle_path, ENV['BUILD_NUMBER'])
+      branch = AndroidHelpers.branch_name
+      apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: ENV['BUILD_NUMBER'], branch_name: branch)
+
       UI.message("Building APK...")
-      sh("cd android && ./gradlew assembleRelease --no-daemon")
+      AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
       UI.message("APK build completed.")
- 
-      # Rename APK
-      if File.exist?(unsigned_apk_path)
-        UI.message("Renaming APK to #{signed_apk_name}...")
-        FileUtils.mv(unsigned_apk_path, signed_apk_path)
-        ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
-      else
-        UI.error("Unsigned APK not found at path: #{unsigned_apk_path}")
-        next
-      end
- 
-      # Sign APK
+
+      signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
+      ENV['APK_OUTPUT_PATH'] = File.expand_path(signed_apk_path)
+
       UI.message("Signing APK with apksigner...")
-      apksigner_path = Dir.glob("#{ENV['ANDROID_HOME']}/build-tools/*/apksigner").sort.last
-      UI.user_error!("apksigner not found in Android build-tools") if apksigner_path.nil? || apksigner_path.empty?
-      sh("#{apksigner_path} sign --ks #{project_root}/bluewallet-release-key.keystore --ks-pass=pass:#{ENV['KEYSTORE_PASSWORD']} #{signed_apk_path}")
+      AndroidHelpers.sign_apk!(signed_apk_path, keystore_paths[:file], ENV['KEYSTORE_PASSWORD'])
       UI.message("APK signed successfully: #{signed_apk_path}")
+
+      FileUtils.rm_f(keystore_paths[:file])
     end
   end
-end
+
+  desc "Build and sign release APK"
+  lane :build_release_apk do |options|
+    Dir.chdir(PROJECT_ROOT) do
+      # Allow caller to pass a build_number; otherwise fall back to env or timestamp
+      build_number = options[:build_number] || ENV['BUILD_NUMBER'] || Time.now.to_i.to_s
+      ENV['BUILD_NUMBER'] = build_number
+
+      AndroidHelpers.ensure_temp_credentials!(auto: options[:auto_credentials])
+      AndroidHelpers.require_env!(%w[KEYSTORE_FILE_HEX KEYSTORE_PASSWORD])
+
+      keystore_paths = AndroidHelpers.keystore_paths
+      AndroidHelpers.write_keystore_from_hex!(ENV['KEYSTORE_FILE_HEX'], keystore_paths)
+
+      build_gradle_path = File.join('android', 'app', 'build.gradle')
+      version_name = AndroidHelpers.version_name_and_update_code!(build_gradle_path, build_number)
+      branch = AndroidHelpers.branch_name
+
+      UI.message("Building release APK...")
+      AndroidHelpers.assemble_release!(log_path: AndroidHelpers.gradle_log_path)
+
+      apk_paths = AndroidHelpers.resolve_apk_paths(version_name: version_name, build_number: build_number, branch_name: branch)
+      signed_apk_path = AndroidHelpers.finalize_apk!(apk_paths)
+
+      UI.message("Signing APK with apksigner...")
+      AndroidHelpers.sign_apk!(signed_apk_path, keystore_paths[:file], ENV['KEYSTORE_PASSWORD'])
+      UI.success("APK signed successfully: #{signed_apk_path}")
+
+      FileUtils.rm_f(keystore_paths[:file])
+
+      apk_absolute_path = File.expand_path(signed_apk_path)
+      ENV['APK_OUTPUT_PATH'] = apk_absolute_path
+      ENV['APK_VERSION_NAME'] = version_name
+      ENV['APK_VERSION_CODE'] = build_number
+
+      AndroidHelpers.write_github_output(
+        apk_output_path: apk_absolute_path,
+        apk_version_name: version_name,
+        apk_version_code: build_number,
+      )
+    end
+  end
 
   desc "Upload APK to BrowserStack and post result as PR comment"
   lane :upload_to_browserstack_and_comment do
-    Dir.chdir(project_root) do
-      # Determine APK path
+    Dir.chdir(PROJECT_ROOT) do
       apk_path = ENV['APK_PATH']
       if apk_path.nil? || apk_path.empty?
         UI.message("No APK path provided, searching for APK...")
@@ -188,7 +313,6 @@ end
         UI.user_error!("No APK file found") if apk_path.nil? || apk_path.empty?
       end
 
-      # Upload to BrowserStack
       UI.message("Uploading APK to BrowserStack: #{apk_path}...")
       upload_to_browserstack_app_live(
         file_path: apk_path,
@@ -196,13 +320,11 @@ end
         browserstack_access_key: ENV['BROWSERSTACK_ACCESS_KEY']
       )
 
-      # Extract BrowserStack URL
       app_url = ENV['BROWSERSTACK_LIVE_APP_ID']
       UI.user_error!("BrowserStack upload failed, no app URL returned") if app_url.nil? || app_url.empty?
 
-      # Prepare PR comment
       apk_filename = File.basename(apk_path)
-      apk_download_url = ENV['APK_OUTPUT_PATH'] # Ensure this path is accessible
+      apk_download_url = ENV['APK_OUTPUT_PATH']
       browserstack_hashed_id = app_url.gsub('bs://', '')
       pr_number = ENV['GITHUB_PR_NUMBER']
 
@@ -229,10 +351,9 @@ end
         **BrowserStack App URL**: #{app_url}
       COMMENT
 
-      # Delete Previous BrowserStack Comments
       if pr_number
         begin
-          repo = ENV['GITHUB_REPOSITORY'] # Format: "owner/repo"
+          repo = ENV['GITHUB_REPOSITORY']
           repo_owner, repo_name = repo.split('/')
 
           UI.message("Fetching existing comments for PR ##{pr_number}...")
@@ -256,7 +377,6 @@ end
         UI.important("No PR number found. Skipping deletion of previous comments.")
       end
 
-      # Post New Comment to PR
       if pr_number
         begin
           escaped_comment = comment.gsub("'", "'\\''")
@@ -269,6 +389,7 @@ end
         UI.important("No PR number found. Skipping PR comment.")
       end
     end
+  end
 end
 
 

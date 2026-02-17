@@ -7,3 +7,29 @@ includeBuild('../node_modules/@react-native/gradle-plugin')
 include ':detox'
 project(':detox').projectDir = new File(rootProject.projectDir, '../node_modules/detox/android/detox')
 
+// Ensure any jcenter() repos declared by subprojects are removed before their build.gradle is evaluated
+gradle.beforeProject { proj ->
+	def stripJcenter = { repoContainer ->
+		repoContainer.all { repo ->
+			if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+					repo.url?.toString()?.contains('jcenter')) {
+				proj.logger.lifecycle("Settings.gradle: removing jcenter() from ${proj.path}")
+				repoContainer.remove(repo)
+			}
+		}
+		repoContainer.whenObjectAdded { repo ->
+			if (repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+					repo.url?.toString()?.contains('jcenter')) {
+				proj.logger.lifecycle("Settings.gradle: blocking jcenter() from ${proj.path}")
+				repoContainer.remove(repo)
+				repoContainer.mavenCentral()
+			}
+		}
+	}
+
+	stripJcenter(proj.repositories)
+	if (proj.buildscript != null) {
+		stripJcenter(proj.buildscript.repositories)
+	}
+}
+

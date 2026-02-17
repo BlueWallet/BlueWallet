@@ -94,10 +94,10 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Wall
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
-  const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading } = state;
   const { sizeClass, isLarge } = useSizeClass();
-  const walletsCarousel = useRef<any>();
+  const walletsCarousel = useRef<any>(null);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
@@ -109,7 +109,7 @@ const WalletsList: React.FC = () => {
   const route = useRoute<RouteProps>();
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
-  const walletActionButtonsRef = useRef<any>();
+  const walletActionButtonsRef = useRef<any>(null);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
