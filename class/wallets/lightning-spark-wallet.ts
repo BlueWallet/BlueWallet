@@ -17,6 +17,8 @@ type SparkReceiveRequest = NonNullable<Awaited<ReturnType<NativeSDK['getLightnin
 const INCOMING_TRANSFER_STATUSES_PAID = new Set(['LIGHTNING_PAYMENT_RECEIVED', 'TRANSFER_COMPLETED']);
 const OUTGOING_TRANSFER_STATUSES_PAID = new Set(['LIGHTNING_PAYMENT_SUCCEEDED', 'TRANSFER_COMPLETED']);
 const SPARK_TRANSFER_STATUS_COMPLETED = 'TRANSFER_STATUS_COMPLETED';
+const SPARK_TRANSFERS_PAGE_SIZE = 100;
+const SPARK_TRANSFERS_MAX_TO_LOAD = 500;
 
 export class LightningSparkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningSparkWallet';
@@ -224,9 +226,43 @@ export class LightningSparkWallet extends LightningCustodianWallet {
 
   async fetchTransactions() {
     const sdk = await this.ensureSdk();
-    const transfers = await sdk.getTransfers(999, 0);
+    const transfers: SparkTransfer[] = [];
+    const seenTransferIds = new Set<string>();
+    const seenOffsets = new Set<number>();
+    let offset = 0;
 
-    this._transfers = transfers?.transfers ?? [];
+    while (offset >= 0 && transfers.length < SPARK_TRANSFERS_MAX_TO_LOAD) {
+      if (seenOffsets.has(offset)) {
+        console.warn(`Spark returned a repeated transfer offset (${offset}), stopping pagination.`);
+        break;
+      }
+      seenOffsets.add(offset);
+
+      const remaining = SPARK_TRANSFERS_MAX_TO_LOAD - transfers.length;
+      const pageSize = Math.min(SPARK_TRANSFERS_PAGE_SIZE, remaining);
+      const page = await sdk.getTransfers(pageSize, offset);
+      const pageTransfers = page?.transfers ?? [];
+
+      for (const transfer of pageTransfers) {
+        if (seenTransferIds.has(transfer.id)) continue;
+        seenTransferIds.add(transfer.id);
+        transfers.push(transfer);
+        if (transfers.length >= SPARK_TRANSFERS_MAX_TO_LOAD) break;
+      }
+
+      if (pageTransfers.length === 0) {
+        break;
+      }
+
+      const nextOffset = page?.offset;
+      if (typeof nextOffset !== 'number' || nextOffset < 0 || nextOffset === offset) {
+        break;
+      }
+
+      offset = nextOffset;
+    }
+
+    this._transfers = transfers;
     this._lastTxFetch = +new Date();
   }
 

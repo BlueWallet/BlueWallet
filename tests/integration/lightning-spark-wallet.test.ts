@@ -261,6 +261,35 @@ describe('LightningSparkWallet', () => {
     );
   });
 
+  it('fetches spark transfers in pages of 100', async () => {
+    const wallet = await createWallet();
+    const sdk = (wallet as any)._sdk;
+
+    const makeTransfer = (id: string, value: number, ts: string) => ({
+      id,
+      transferDirection: 'INCOMING',
+      status: 'TRANSFER_STATUS_COMPLETED',
+      totalValue: value,
+      createdTime: new Date(ts),
+      updatedTime: new Date(ts),
+    });
+
+    const pages: Record<number, { transfers: any[]; offset: number }> = {
+      0: { transfers: [makeTransfer('paged-1', 1, '2025-10-23T12:10:00.000Z')], offset: 100 },
+      100: { transfers: [makeTransfer('paged-2', 2, '2025-10-23T12:11:00.000Z')], offset: 200 },
+      200: { transfers: [makeTransfer('paged-3', 3, '2025-10-23T12:12:00.000Z')], offset: -1 },
+    };
+
+    sdk.getTransfers = jest.fn(async (_limit: number, offset: number) => pages[offset] ?? { transfers: [], offset: -1 });
+
+    await wallet.fetchTransactions();
+
+    expect(sdk.getTransfers).toHaveBeenNthCalledWith(1, 100, 0);
+    expect(sdk.getTransfers).toHaveBeenNthCalledWith(2, 100, 100);
+    expect(sdk.getTransfers).toHaveBeenNthCalledWith(3, 100, 200);
+    assert.strictEqual(wallet.getTransactions().length, 3);
+  });
+
   it('can create invoice', async () => {
     const wallet = await createWallet();
 
