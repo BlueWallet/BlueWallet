@@ -290,6 +290,53 @@ describe('LightningSparkWallet', () => {
     assert.strictEqual(wallet.getTransactions().length, 3);
   });
 
+  it('stops paging once cached transfer history is reached', async () => {
+    const wallet = await createWallet();
+    const sdk = (wallet as any)._sdk;
+
+    const makeTransfer = (id: string, value: number, ts: string) => ({
+      id,
+      transferDirection: 'INCOMING',
+      status: 'TRANSFER_STATUS_COMPLETED',
+      totalValue: value,
+      createdTime: new Date(ts),
+      updatedTime: new Date(ts),
+    });
+
+    (wallet as any)._transfers = [
+      makeTransfer('known-1', 11, '2025-10-23T12:11:00.000Z'),
+      makeTransfer('known-2', 22, '2025-10-23T12:10:00.000Z'),
+    ];
+
+    sdk.getTransfers = jest.fn(async (_limit: number, offset: number) => {
+      if (offset === 0) {
+        return {
+          transfers: [
+            makeTransfer('new-1', 33, '2025-10-23T12:12:00.000Z'),
+            makeTransfer('known-1', 11, '2025-10-23T12:11:00.000Z'),
+          ],
+          offset: 100,
+        };
+      }
+
+      return {
+        transfers: [makeTransfer('should-not-fetch', 44, '2025-10-23T12:13:00.000Z')],
+        offset: -1,
+      };
+    });
+
+    await wallet.fetchTransactions();
+
+    expect(sdk.getTransfers).toHaveBeenCalledTimes(1);
+    expect(sdk.getTransfers).toHaveBeenCalledWith(100, 0);
+
+    const transfers = (wallet as any)._transfers;
+    assert.strictEqual(transfers[0].id, 'new-1');
+    assert.strictEqual(transfers[1].id, 'known-1');
+    assert.strictEqual(transfers[2].id, 'known-2');
+    assert.ok(!transfers.some((transfer: any) => transfer.id === 'should-not-fetch'));
+  });
+
   it('can create invoice', async () => {
     const wallet = await createWallet();
 

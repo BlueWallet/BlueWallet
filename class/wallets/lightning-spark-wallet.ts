@@ -226,9 +226,11 @@ export class LightningSparkWallet extends LightningCustodianWallet {
 
   async fetchTransactions() {
     const sdk = await this.ensureSdk();
+    const knownTransferIds = new Set(this._transfers.map(transfer => transfer.id));
     const transfers: SparkTransfer[] = [];
     const seenTransferIds = new Set<string>();
     const seenOffsets = new Set<number>();
+    let reachedCachedHistory = false;
     let offset = 0;
 
     while (offset >= 0 && transfers.length < SPARK_TRANSFERS_MAX_TO_LOAD) {
@@ -244,13 +246,17 @@ export class LightningSparkWallet extends LightningCustodianWallet {
       const pageTransfers = page?.transfers ?? [];
 
       for (const transfer of pageTransfers) {
+        if (knownTransferIds.has(transfer.id)) {
+          reachedCachedHistory = true;
+        }
+
         if (seenTransferIds.has(transfer.id)) continue;
         seenTransferIds.add(transfer.id);
         transfers.push(transfer);
         if (transfers.length >= SPARK_TRANSFERS_MAX_TO_LOAD) break;
       }
 
-      if (pageTransfers.length === 0) {
+      if (pageTransfers.length === 0 || reachedCachedHistory) {
         break;
       }
 
@@ -260,6 +266,16 @@ export class LightningSparkWallet extends LightningCustodianWallet {
       }
 
       offset = nextOffset;
+    }
+
+    if (reachedCachedHistory && this._transfers.length > 0) {
+      for (const cachedTransfer of this._transfers) {
+        if (transfers.length >= SPARK_TRANSFERS_MAX_TO_LOAD) break;
+        if (seenTransferIds.has(cachedTransfer.id)) continue;
+
+        seenTransferIds.add(cachedTransfer.id);
+        transfers.push(cachedTransfer);
+      }
     }
 
     this._transfers = transfers;
