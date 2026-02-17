@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { Image, Keyboard, Platform, StyleSheet, Text } from 'react-native';
+import { Image, Keyboard, Platform, StyleSheet, Text, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import ToolTipMenu from './TooltipMenu';
 import loc from '../loc';
@@ -142,12 +142,12 @@ export const AddressInputScanButton = ({
       accessibilityHint={loc.send.details_scan_hint}
     >
       {type === 'default' ? (
-        <>
+        <View style={styles.scanContent}>
           <Image source={require('../img/scan-white.png')} accessible={false} />
-          <Text style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+          <Text numberOfLines={1} style={[styles.scanText, stylesHook.scanText]} accessible={false}>
             {loc.send.details_scan}
           </Text>
-        </>
+        </View>
       ) : (
         <Text style={[styles.linkText, { color: colors.foregroundColor }]}>{loc.wallets.import_scan_qr}</Text>
       )}
@@ -162,7 +162,8 @@ const styles = StyleSheet.create({
     height: 36,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    gap: 6,
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -170,6 +171,12 @@ const styles = StyleSheet.create({
   },
   scanText: {
     marginLeft: 4,
+  },
+  scanContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 1,
   },
   linkText: {
     textAlign: 'center',
