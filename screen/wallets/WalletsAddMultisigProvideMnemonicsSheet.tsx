@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Platform, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
@@ -24,9 +24,11 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
 
   const [importText, setImportText] = useState(initialImportText);
   const [askPassphrase, setAskPassphrase] = useState(initialAskPassphrase);
+  const scanTimeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const handleImport = useCallback(
     (text?: string) => {
+      clearTimeout(scanTimeoutRef.current);
       const textToUse = (text ?? importText).trim();
       if (!textToUse) return;
       navigation.dispatch(
@@ -46,15 +48,20 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
 
   const handleScanResult = useCallback(
     (text: string) => {
-      navigation.dispatch(
-        StackActions.popTo(
-          'WalletsAddMultisigStep2',
-          {
-            onBarScanned: { data: text },
-          },
-          { merge: true },
-        ),
-      );
+      // Delay navigation to let the ScanQRCode → Sheet transition animation finish.
+      // On Android, two rapid popTo actions cause react-native-screens to get stuck
+      // when the first Fragment transition hasn't completed.
+      scanTimeoutRef.current = setTimeout(() => {
+        navigation.dispatch(
+          StackActions.popTo(
+            'WalletsAddMultisigStep2',
+            {
+              onBarScanned: { data: text },
+            },
+            { merge: true },
+          ),
+        );
+      }, 500);
     },
     [navigation],
   );

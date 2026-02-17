@@ -104,14 +104,11 @@ const ScanQRCode = () => {
       if (decoder.isComplete()) {
         const data = decoder.toString();
         decoder = undefined; // nullify for future use (?)
-        if (launchedBy) {
-          const merge = true;
-          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
-          if (onBarScanned) {
-            onBarScanned(data, useBBQRRef.current);
-          }
-
-          navigation.dispatch(popToAction);
+        if (onBarScanned) {
+          onBarScanned(data, useBBQRRef.current);
+          navigation.goBack();
+        } else if (launchedBy) {
+          navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: data }, { merge: true }));
         }
       } else {
         setUrTotal(100);
@@ -143,14 +140,11 @@ const ScanQRCode = () => {
           // its something else. probably plain text is expected
           data = uint8ArrayToString(hexToUint8Array(String(payload)));
         }
-        if (launchedBy) {
-          const merge = true;
-          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
-          if (onBarScanned) {
-            onBarScanned(data, useBBQRRef.current);
-          }
-
-          navigation.dispatch(popToAction);
+        if (onBarScanned) {
+          onBarScanned(data, useBBQRRef.current);
+          navigation.goBack();
+        } else if (launchedBy) {
+          navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: data }, { merge: true }));
         }
       } else {
         setAnimatedQRCodeData(animatedQRCodeData);
@@ -202,27 +196,23 @@ const ScanQRCode = () => {
       bitcoin.Psbt.fromHex(hex); // if it doesnt throw - all good
       const data = uint8ArrayToBase64(hexToUint8Array(hex));
 
-      if (launchedBy) {
-        const merge = true;
-        const popToAction = StackActions.popTo(launchedBy, { onBarScanned: data }, { merge });
-        if (onBarScanned) {
-          onBarScanned(data, useBBQRRef.current);
-        }
-        navigation.dispatch(popToAction);
+      if (onBarScanned) {
+        onBarScanned(data, useBBQRRef.current);
+        navigation.goBack();
+      } else if (launchedBy) {
+        navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: data }, { merge: true }));
       }
       return;
     } catch (_) {
-      if (!isLoading && launchedBy) {
+      if (!isLoading) {
         setIsLoading(true);
         try {
-          const merge = true;
-
-          const popToAction = StackActions.popTo(launchedBy, { onBarScanned: ret.data }, { merge });
           if (onBarScanned) {
             onBarScanned(ret.data, useBBQRRef.current);
+            navigation.goBack();
+          } else if (launchedBy) {
+            navigation.dispatch(StackActions.popTo(launchedBy, { onBarScanned: ret.data }, { merge: true }));
           }
-
-          navigation.dispatch(popToAction);
         } catch (e) {
           console.log(e);
         }
