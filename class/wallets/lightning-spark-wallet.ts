@@ -41,6 +41,26 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     this._initPromise = undefined;
   }
 
+  async cleanupConnections(): Promise<void> {
+    if (!this.secret) return;
+
+    const namespace = this.getNamespace();
+    const sdk = this._sdk ?? staticSparkSdkCache[namespace];
+
+    if (sdk) {
+      try {
+        await sdk.cleanupConnections();
+      } catch (error: any) {
+        console.warn('Spark cleanupConnections failed:', error?.message ?? error);
+      }
+    }
+
+    this._sdk = undefined;
+    this._initPromise = undefined;
+    delete staticSparkSdkCache[namespace];
+    delete staticSparkInitPromises[namespace];
+  }
+
   private toUnixTimestamp(date: Date | string | undefined): number {
     if (!date) return Math.floor(Date.now() / 1000);
     const ms = date instanceof Date ? date.getTime() : Date.parse(date);

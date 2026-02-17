@@ -132,6 +132,7 @@ jest.mock('@buildonspark/spark-sdk', () => {
       validateMessageWithIdentityKey: jest.fn(async (message: string, signature: string) => signature === `sig:${message}`),
       getSparkAddress: jest.fn(async () => VALID_SPARK_ADDRESS),
       getIdentityPublicKey: jest.fn(async () => '03fbb3ebf890f1f259e49495a0f8ef4d6ded2607b9082e654e0f1ac1d8f0ac7f77'),
+      cleanupConnections: jest.fn(async () => undefined),
     };
   };
 
@@ -214,6 +215,18 @@ describe('LightningSparkWallet', () => {
     await wallet.getSparkAddress();
 
     assert.strictEqual(SparkWallet.initialize.mock.calls.length, initCallsBeforeReset);
+  });
+
+  it('cleanupConnections tears down sdk and evicts static cache', async () => {
+    const wallet = await createWallet();
+    const currentSdk = (wallet as any)._sdk;
+    const initCallsBeforeCleanup = SparkWallet.initialize.mock.calls.length;
+
+    await wallet.cleanupConnections();
+    expect(currentSdk.cleanupConnections).toHaveBeenCalledTimes(1);
+
+    await wallet.getSparkAddress();
+    assert.strictEqual(SparkWallet.initialize.mock.calls.length, initCallsBeforeCleanup + 1);
   });
 
   it('can decode invoice', async () => {

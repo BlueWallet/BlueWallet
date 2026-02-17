@@ -515,7 +515,11 @@ export class BlueApp {
     for (const value of this.wallets) {
       if (value.getID() === ID) {
         // the one we should delete
-        // nop
+        if (value.type === LightningSparkWallet.type && 'cleanupConnections' in value) {
+          (value as LightningSparkWallet).cleanupConnections().catch((error: any) => {
+            console.warn('Spark cleanup during wallet deletion failed:', error?.message ?? error);
+          });
+        }
       } else {
         // the one we must keep
         tempWallets.push(value);
