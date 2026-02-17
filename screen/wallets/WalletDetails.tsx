@@ -111,38 +111,38 @@ const WalletDetails: React.FC = () => {
     fetchArkAddress();
   }, [wallet]);
 
-  // Fetch spark address when wallet is a LightningSparkWallet
+  // Fetch spark details in one flow to avoid duplicate initialization paths.
   useEffect(() => {
-    const fetchSparkAddress = async () => {
-      if (wallet.type === LightningSparkWallet.type && wallet.getSparkAddress) {
-        try {
-          const address = await wallet.getSparkAddress();
-          console.log('spark address:', address);
-          setSparkAddress(address);
-        } catch (error: any) {
-          setSparkAddress(error.message);
+    const fetchSparkInfo = async () => {
+      if (wallet.type !== LightningSparkWallet.type) return;
+
+      try {
+        if (wallet.fetchInfo) {
+          const info = await wallet.fetchInfo();
+          console.log('spark address:', info.sparkAddress);
+          console.log('spark identity pubkey:', info.identityPubkey);
+          setSparkAddress(info.sparkAddress);
+          setSparkIdentityPubkey(info.identityPubkey);
+          return;
         }
+
+        const [address, pubkey] = await Promise.all([
+          wallet.getSparkAddress ? wallet.getSparkAddress() : Promise.resolve(''),
+          wallet.getSparkIdentityPubkey ? wallet.getSparkIdentityPubkey() : Promise.resolve(''),
+        ]);
+
+        console.log('spark address:', address);
+        console.log('spark identity pubkey:', pubkey);
+        setSparkAddress(address);
+        setSparkIdentityPubkey(pubkey);
+      } catch (error: any) {
+        const message = error?.message || String(error);
+        setSparkAddress(message);
+        setSparkIdentityPubkey(message);
       }
     };
 
-    fetchSparkAddress();
-  }, [wallet]);
-
-  // Fetch spark identity pubkey when wallet is a LightningSparkWallet
-  useEffect(() => {
-    const fetchSparkIdentityPubkey = async () => {
-      if (wallet.type === LightningSparkWallet.type && wallet.getSparkIdentityPubkey) {
-        try {
-          const pubkey = await wallet.getSparkIdentityPubkey();
-          console.log('spark identity pubkey:', pubkey);
-          setSparkIdentityPubkey(pubkey);
-        } catch (error: any) {
-          setSparkIdentityPubkey(error.message);
-        }
-      }
-    };
-
-    fetchSparkIdentityPubkey();
+    fetchSparkInfo();
   }, [wallet]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
@@ -537,15 +537,15 @@ const WalletDetails: React.FC = () => {
               )}
               {wallet.type === LightningSparkWallet.type && (
                 <>
-                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark {loc.wallets.details_address.toLowerCase()}</Text>
-                <Text style={[styles.textValue, stylesHook.textValue]} selectable>
-                  {sparkAddress}
-                </Text>
-                <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark {loc.wallets.identity_pubkey.toLowerCase()}</Text>
-                <Text style={[styles.textValue, stylesHook.textValue]} selectable>
-                  {sparkIdentityPubkey}
-                </Text>
-              </>
+                  <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark {loc.wallets.details_address.toLowerCase()}</Text>
+                  <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+                    {sparkAddress}
+                  </Text>
+                  <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark {loc.wallets.identity_pubkey.toLowerCase()}</Text>
+                  <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+                    {sparkIdentityPubkey}
+                  </Text>
+                </>
               )}
 
               {wallet.type === MultisigHDWallet.type && (

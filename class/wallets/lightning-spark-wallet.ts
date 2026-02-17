@@ -19,6 +19,8 @@ const OUTGOING_TRANSFER_STATUSES_PAID = new Set(['LIGHTNING_PAYMENT_SUCCEEDED', 
 const SPARK_TRANSFER_STATUS_COMPLETED = 'TRANSFER_STATUS_COMPLETED';
 const SPARK_TRANSFERS_PAGE_SIZE = 100;
 const SPARK_TRANSFERS_MAX_TO_LOAD = 500;
+const staticSparkSdkCache: Record<string, NativeSDK> = {};
+const staticSparkInitPromises: Record<string, Promise<NativeSDK> | undefined> = {};
 
 export class LightningSparkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningSparkWallet';
@@ -48,6 +50,10 @@ export class LightningSparkWallet extends LightningCustodianWallet {
   private normalizeSecret(): string {
     if (!this.secret) throw new Error('secret is not set');
     return this.secret.replace('spark://', '').trim();
+  }
+
+  private getNamespace(): string {
+    return this.normalizeSecret();
   }
 
   private async ensureSdk(): Promise<NativeSDK> {
@@ -112,20 +118,36 @@ export class LightningSparkWallet extends LightningCustodianWallet {
     if (this._sdk) return;
     if (this._initPromise) return this._initPromise;
 
-    this._initPromise = NativeSDK.initialize({
-      mnemonicOrSeed: this.normalizeSecret(),
-      options: {
-        network: 'MAINNET',
-      },
-    })
-      .then(({ wallet }) => {
-        this._sdk = wallet;
-      })
-      .finally(() => {
-        this._initPromise = undefined;
-      });
+    this._initPromise = (async () => {
+      const namespace = this.getNamespace();
 
-    await this._initPromise;
+      if (staticSparkSdkCache[namespace]) {
+        this._sdk = staticSparkSdkCache[namespace];
+        return;
+      }
+
+      if (!staticSparkInitPromises[namespace]) {
+        staticSparkInitPromises[namespace] = NativeSDK.initialize({
+          mnemonicOrSeed: this.normalizeSecret(),
+          options: {
+            network: 'MAINNET',
+          },
+        })
+          .then(({ wallet }) => {
+            staticSparkSdkCache[namespace] = wallet;
+            return wallet;
+          })
+          .finally(() => {
+            delete staticSparkInitPromises[namespace];
+          });
+      }
+
+      this._sdk = await staticSparkInitPromises[namespace];
+    })().finally(() => {
+      this._initPromise = undefined;
+    });
+
+    return this._initPromise;
   }
 
   async generate(): Promise<void> {
@@ -438,9 +460,10 @@ export class LightningSparkWallet extends LightningCustodianWallet {
 
   async fetchInfo() {
     const sdk = await this.ensureSdk();
+    const [identityPubkey, sparkAddress] = await Promise.all([sdk.getIdentityPublicKey(), sdk.getSparkAddress()]);
     return {
-      identityPubkey: await sdk.getIdentityPublicKey(),
-      sparkAddress: await sdk.getSparkAddress(),
+      identityPubkey,
+      sparkAddress,
     };
   }
 

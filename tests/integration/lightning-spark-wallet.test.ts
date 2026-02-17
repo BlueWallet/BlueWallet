@@ -158,8 +158,12 @@ jest.mock('@buildonspark/spark-sdk', () => {
 });
 
 const {
+  SparkWallet,
   __fixtures: { LIGHTNING_INVOICE, VALID_SPARK_ADDRESS, VALID_SPARK_ADDRESS_ALT, PAYMENT_HASH },
 } = jest.requireMock('@buildonspark/spark-sdk') as {
+  SparkWallet: {
+    initialize: jest.Mock;
+  };
   __fixtures: {
     LIGHTNING_INVOICE: string;
     VALID_SPARK_ADDRESS: string;
@@ -200,6 +204,16 @@ describe('LightningSparkWallet', () => {
 
     await wallet.fetchBalance();
     assert.strictEqual(wallet.getBalance(), 12345);
+  });
+
+  it('reuses cached sdk after serialization reset', async () => {
+    const wallet = await createWallet();
+    const initCallsBeforeReset = SparkWallet.initialize.mock.calls.length;
+
+    wallet.prepareForSerialization();
+    await wallet.getSparkAddress();
+
+    assert.strictEqual(SparkWallet.initialize.mock.calls.length, initCallsBeforeReset);
   });
 
   it('can decode invoice', async () => {
@@ -311,10 +325,7 @@ describe('LightningSparkWallet', () => {
     sdk.getTransfers = jest.fn(async (_limit: number, offset: number) => {
       if (offset === 0) {
         return {
-          transfers: [
-            makeTransfer('new-1', 33, '2025-10-23T12:12:00.000Z'),
-            makeTransfer('known-1', 11, '2025-10-23T12:11:00.000Z'),
-          ],
+          transfers: [makeTransfer('new-1', 33, '2025-10-23T12:12:00.000Z'), makeTransfer('known-1', 11, '2025-10-23T12:11:00.000Z')],
           offset: 100,
         };
       }
