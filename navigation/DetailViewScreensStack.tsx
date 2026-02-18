@@ -99,6 +99,9 @@ const DetailViewStackScreensStack = () => {
   }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
+  const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
+  const settingsCardColor = theme.colors.lightButton ?? theme.colors.modal ?? theme.colors.elevated ?? theme.colors.background;
+  const settingsHeaderBackgroundColor = isIOSLightMode ? settingsCardColor : theme.colors.customHeader;
 
   // Consistent header configuration for all settings screens
   const getSettingsHeaderOptions = (title: string) => {
@@ -120,7 +123,7 @@ const DetailViewStackScreensStack = () => {
       headerTransparent: false,
       headerBlurEffect: undefined,
       headerStyle: {
-        backgroundColor: theme.colors.customHeader,
+        backgroundColor: settingsHeaderBackgroundColor,
       },
     };
   };
@@ -280,7 +283,7 @@ const DetailViewStackScreensStack = () => {
           headerTransparent: false,
           headerBlurEffect: undefined,
           headerStyle: {
-            backgroundColor: theme.colors.customHeader,
+            backgroundColor: settingsHeaderBackgroundColor,
           },
           animationTypeForReplace: 'push',
         })(theme)}

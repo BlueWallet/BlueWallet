@@ -79,10 +79,19 @@ export const platformLayout = {
 
 export const getSettingsHeaderOptions = (
   title: string,
-  colors: { text?: string; foregroundColor?: string; background?: string } = platformColors,
+  colors: {
+    text?: string;
+    foregroundColor?: string;
+    background?: string;
+    lightButton?: string;
+    modal?: string;
+    elevated?: string;
+  } = platformColors,
 ) => {
   const headerTextColor = 'text' in colors ? colors.text : colors.foregroundColor;
-  const headerBackgroundColor = 'background' in colors ? colors.background : platformColors.background;
+  const defaultBackgroundColor = 'background' in colors ? colors.background : platformColors.background;
+  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? defaultBackgroundColor;
+  const headerBackgroundColor = isIOS ? cardColor : defaultBackgroundColor;
 
   return {
     title,
@@ -157,13 +166,17 @@ interface SettingsScrollViewProps extends Omit<ScrollViewProps, 'contentContaine
 }
 
 export const SettingsScrollView = forwardRef<ScrollView, SettingsScrollViewProps>((props, ref) => {
-  const { contentContainerStyle, headerHeight, floatingButtonHeight, ...rest } = props;
+  const { contentContainerStyle, headerHeight, floatingButtonHeight, style, ...rest } = props;
+  const { colors, dark } = useTheme();
   const insets = useSafeAreaInsets();
   const resolvedHeaderHeight = useMemo(() => headerHeight ?? getSettingsHeaderHeight(insets.top), [headerHeight, insets.top]);
+  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
+  const screenBackgroundColor = isIOS && !dark ? cardColor : colors.background;
 
   return (
     <SafeAreaScrollView
       ref={ref}
+      style={[style, { backgroundColor: screenBackgroundColor }]}
       headerHeight={resolvedHeaderHeight}
       floatingButtonHeight={floatingButtonHeight}
       contentContainerStyle={[staticStyles.contentContainer, contentContainerStyle]}
@@ -181,12 +194,16 @@ interface SettingsFlatListProps<ItemT> extends Omit<FlatListProps<ItemT>, 'conte
 }
 
 export const SettingsFlatList = <ItemT,>(props: SettingsFlatListProps<ItemT>) => {
-  const { contentContainerStyle, headerHeight, floatingButtonHeight, ...rest } = props;
+  const { contentContainerStyle, headerHeight, floatingButtonHeight, style, ...rest } = props;
+  const { colors, dark } = useTheme();
   const insets = useSafeAreaInsets();
   const resolvedHeaderHeight = useMemo(() => headerHeight ?? getSettingsHeaderHeight(insets.top), [headerHeight, insets.top]);
+  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
+  const screenBackgroundColor = isIOS && !dark ? cardColor : colors.background;
 
   return (
     <SafeAreaFlatList
+      style={[style, { backgroundColor: screenBackgroundColor }]}
       headerHeight={resolvedHeaderHeight}
       floatingButtonHeight={floatingButtonHeight}
       contentContainerStyle={[staticStyles.contentContainer, contentContainerStyle]}
@@ -258,14 +275,16 @@ export interface SettingsListItemProps {
   leftIcon?: IconProps | React.ReactElement;
   position?: SettingsListItemPosition;
   spacingTop?: boolean;
+  itemBackgroundColor?: string;
 }
 
 const isIconProps = (icon: IconProps | React.ReactElement): icon is IconProps => 'name' in icon;
 
 const usePlatformStyles = () => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   return useMemo(() => {
     const card = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
+    const itemSurface = isIOS && !dark ? colors.background : card;
     const secondaryText = colors.alternativeTextColor ?? colors.darkGray;
 
     return {
@@ -285,7 +304,7 @@ const usePlatformStyles = () => {
         color: secondaryText,
       },
       card: {
-        backgroundColor: isAndroid ? colors.background : card,
+        backgroundColor: isAndroid ? colors.background : itemSurface,
         borderRadius: isAndroid ? 0 : platformSizing.containerBorderRadius,
         paddingHorizontal: isAndroid ? platformSizing.horizontalPadding : 0,
         paddingVertical: isAndroid ? platformSizing.verticalPadding : 0,
@@ -296,7 +315,7 @@ const usePlatformStyles = () => {
         paddingVertical: isAndroid ? platformSizing.verticalPadding : 0,
         paddingHorizontal: isAndroid ? platformSizing.horizontalPadding : 0,
       },
-      listItemContainer: { backgroundColor: isAndroid ? colors.background : card },
+      listItemContainer: { backgroundColor: isAndroid ? colors.background : itemSurface },
       listItemContainerIOS: { marginHorizontal: platformSizing.horizontalPadding },
       listItemNoGap: { marginVertical: 0 },
       listItemContainerAndroid: { minHeight: 56 },
@@ -310,7 +329,7 @@ const usePlatformStyles = () => {
       },
       listItemSpacingTop: { marginTop: isAndroid ? platformSizing.sectionSpacing : 12 },
     } as const;
-  }, [colors]);
+  }, [colors, dark]);
 };
 
 const getIconConfig = (name: SettingsIconName, dark: boolean): IconProps => {
@@ -455,6 +474,7 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
   leftIcon,
   position = 'middle',
   spacingTop,
+  itemBackgroundColor,
 }) => {
   const theme = useTheme();
   const { colors: themeColors, dark } = theme;
@@ -462,6 +482,8 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
 
   const themeStyles = usePlatformStyles();
   const cardColor = themeColors.lightButton ?? themeColors.modal ?? themeColors.elevated ?? themeColors.background;
+  const defaultItemBackgroundColor = isIOS && !dark ? themeColors.background : cardColor;
+  const resolvedItemBackgroundColor = itemBackgroundColor ?? defaultItemBackgroundColor;
   const resolvedIcon = leftIcon ?? (iconName ? getIconConfig(iconName, dark) : undefined);
   const isSingle = position === 'single';
   const isFirst = position === 'first' || isSingle;
@@ -490,7 +512,7 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
           fontSize: platformSizing.subtitleFontSize,
         },
         container: {
-          backgroundColor: cardColor,
+          backgroundColor: resolvedItemBackgroundColor,
           paddingVertical: isAndroid ? 8 : platformSizing.containerPaddingVertical,
           paddingHorizontal: platformSizing.horizontalPadding,
           minHeight,
@@ -505,7 +527,7 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
           opacity: 0.7,
         },
       }) as const,
-    [fontScale, minHeight, isLast, cardColor, themeColors],
+    [fontScale, minHeight, isLast, resolvedItemBackgroundColor, themeColors],
   );
 
   const containerStyle = [

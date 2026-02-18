@@ -1,8 +1,7 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
-import { TextInput, SectionListRenderItemInfo, SectionListData, LayoutAnimation, View } from 'react-native';
+import { TextInput, LayoutAnimation } from 'react-native';
 import loc from '../../loc';
-import { SettingsListItem, SettingsSectionHeader, isAndroid } from '../../components/platform';
-import SafeAreaSectionList from '../../components/SafeAreaSectionList';
+import { SettingsScrollView, SettingsSection, SettingsListItem, SettingsSectionHeader } from '../../components/platform';
 import {
   getBlockExplorersList,
   BlockExplorer,
@@ -16,34 +15,13 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { useSettings } from '../../hooks/context/useSettings';
 import SettingsBlockExplorerCustomUrlItem from '../../components/SettingsBlockExplorerCustomUrlListItem';
 
-type BlockExplorerItem = BlockExplorer | string;
-
-interface SectionData extends SectionListData<BlockExplorerItem> {
-  title?: string;
-  data: BlockExplorerItem[];
-}
-
 const SettingsBlockExplorer: React.FC = () => {
   const { selectedBlockExplorer, setBlockExplorerStorage } = useSettings();
   const customUrlInputRef = useRef<TextInput>(null);
   const [customUrl, setCustomUrl] = useState<string>(selectedBlockExplorer.key === 'custom' ? selectedBlockExplorer.url : '');
   const [isCustomEnabled, setIsCustomEnabled] = useState<boolean>(selectedBlockExplorer.key === 'custom');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const horizontalPadding = isAndroid ? 20 : 16;
   const predefinedExplorers = getBlockExplorersList().filter(explorer => explorer.key !== 'custom');
-
-  const sections: SectionData[] = [
-    {
-      key: 'suggested',
-      title: loc._.suggested,
-      data: predefinedExplorers,
-    },
-    {
-      key: 'advanced',
-      title: loc.wallets.details_advanced,
-      data: ['custom'],
-    },
-  ];
 
   const handleExplorerPress = useCallback(
     async (explorer: BlockExplorer) => {
@@ -140,28 +118,30 @@ const SettingsBlockExplorer: React.FC = () => {
     };
   }, [customUrl, isCustomEnabled, setBlockExplorerStorage]);
 
-  const renderItem = useCallback(
-    ({ item, section, index }: SectionListRenderItemInfo<BlockExplorerItem, SectionData>) => {
-      if (section.title === loc._.suggested) {
-        const explorer = item as BlockExplorer;
-        const isSelected = !isCustomEnabled && normalizeUrl(selectedBlockExplorer.url || '') === normalizeUrl(explorer.url || '');
-        const isFirst = index === 0;
-        const isLast = index === section.data.length - 1;
-        const rowPadding = !isAndroid ? { paddingHorizontal: horizontalPadding } : undefined;
-        return (
-          <View style={rowPadding}>
+  return (
+    <SettingsScrollView>
+      <SettingsSectionHeader title={loc._.suggested} />
+      <SettingsSection horizontalInset={false}>
+        {predefinedExplorers.map((explorer, index) => {
+          const isSelected = !isCustomEnabled && normalizeUrl(selectedBlockExplorer.url || '') === normalizeUrl(explorer.url || '');
+          const isFirst = index === 0;
+          const isLast = index === predefinedExplorers.length - 1;
+
+          return (
             <SettingsListItem
+              key={explorer.key}
               title={explorer.name}
               onPress={() => handleExplorerPress(explorer)}
               checkmark={isSelected}
               disabled={isCustomEnabled}
               position={isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle'}
             />
-          </View>
-        );
-      }
+          );
+        })}
+      </SettingsSection>
 
-      return (
+      <SettingsSectionHeader title={loc.wallets.details_advanced} />
+      <SettingsSection compact horizontalInset={false}>
         <SettingsBlockExplorerCustomUrlItem
           isCustomEnabled={isCustomEnabled}
           onSwitchToggle={handleCustomSwitchToggle}
@@ -170,34 +150,8 @@ const SettingsBlockExplorer: React.FC = () => {
           onSubmitCustomUrl={handleSubmitCustomUrl}
           inputRef={customUrlInputRef}
         />
-      );
-    },
-    [
-      selectedBlockExplorer,
-      isCustomEnabled,
-      handleExplorerPress,
-      handleCustomSwitchToggle,
-      customUrl,
-      handleCustomUrlChange,
-      handleSubmitCustomUrl,
-      horizontalPadding,
-    ],
-  );
-
-  const renderSectionHeader = useCallback((info: { section: SectionData }) => {
-    if (info.section.title) {
-      return <SettingsSectionHeader title={info.section.title} />;
-    }
-    return null;
-  }, []);
-
-  return (
-    <SafeAreaSectionList<BlockExplorerItem, SectionData>
-      sections={sections}
-      keyExtractor={(item: BlockExplorerItem, index: number) => (typeof item === 'string' ? `custom-${index}` : `explorer-${item.key}`)}
-      renderItem={renderItem}
-      renderSectionHeader={renderSectionHeader}
-    />
+      </SettingsSection>
+    </SettingsScrollView>
   );
 };
 
