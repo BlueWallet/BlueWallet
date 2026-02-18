@@ -15,8 +15,8 @@ const Settings = () => {
   const settingsScreenBackgroundColor = isIOSLightMode ? settingsCardColor : colors.background;
   const settingsListItemBackgroundColor = isIOSLightMode ? colors.background : undefined;
   useLayoutEffect(() => {
-    setOptions(getSettingsHeaderOptions(loc.settings.header, { ...colors, background: settingsScreenBackgroundColor }));
-  }, [setOptions, language, colors, settingsScreenBackgroundColor]); // Include language to trigger re-render when language changes
+    setOptions(getSettingsHeaderOptions(loc.settings.header, { ...colors, background: settingsScreenBackgroundColor }, dark));
+  }, [setOptions, language, colors, settingsScreenBackgroundColor, dark]); // Include language to trigger re-render when language changes
 
   const handleDonatePress = useCallback(() => {
     Linking.openURL('https://donate.bluewallet.io/');

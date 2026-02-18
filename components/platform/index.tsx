@@ -77,6 +77,17 @@ export const platformLayout = {
       },
 };
 
+export const getSettingsCardColor = (
+  colors: { lightButton?: string; modal?: string; elevated?: string; background?: string },
+  dark?: boolean,
+): string =>
+  dark ? (colors.modal ?? colors.elevated ?? colors.background ?? '#000000') : (colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background ?? '#ffffff');
+
+export const getSettingsRowBackgroundColor = (
+  colors: { lightButton?: string; modal?: string; elevated?: string; background?: string },
+  dark?: boolean,
+): string => (isIOS && !dark ? (colors.background ?? '#ffffff') : getSettingsCardColor(colors, dark));
+
 export const getSettingsHeaderOptions = (
   title: string,
   colors: {
@@ -87,11 +98,12 @@ export const getSettingsHeaderOptions = (
     modal?: string;
     elevated?: string;
   } = platformColors,
+  dark?: boolean,
 ) => {
   const headerTextColor = 'text' in colors ? colors.text : colors.foregroundColor;
   const defaultBackgroundColor = 'background' in colors ? colors.background : platformColors.background;
   const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? defaultBackgroundColor;
-  const headerBackgroundColor = isIOS ? cardColor : defaultBackgroundColor;
+  const headerBackgroundColor = isIOS ? (dark ? defaultBackgroundColor : cardColor) : defaultBackgroundColor;
 
   return {
     title,
@@ -283,7 +295,7 @@ const isIconProps = (icon: IconProps | React.ReactElement): icon is IconProps =>
 const usePlatformStyles = () => {
   const { colors, dark } = useTheme();
   return useMemo(() => {
-    const card = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
+    const card = dark ? (colors.modal ?? colors.elevated ?? colors.background) : (colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background);
     const itemSurface = isIOS && !dark ? colors.background : card;
     const secondaryText = colors.alternativeTextColor ?? colors.darkGray;
 
@@ -481,7 +493,9 @@ export const SettingsListItem: React.FC<SettingsListItemProps> = ({
   const { fontScale } = useWindowDimensions();
 
   const themeStyles = usePlatformStyles();
-  const cardColor = themeColors.lightButton ?? themeColors.modal ?? themeColors.elevated ?? themeColors.background;
+  const cardColor = dark
+    ? (themeColors.modal ?? themeColors.elevated ?? themeColors.background)
+    : (themeColors.lightButton ?? themeColors.modal ?? themeColors.elevated ?? themeColors.background);
   const defaultItemBackgroundColor = isIOS && !dark ? themeColors.background : cardColor;
   const resolvedItemBackgroundColor = itemBackgroundColor ?? defaultItemBackgroundColor;
   const resolvedIcon = leftIcon ?? (iconName ? getIconConfig(iconName, dark) : undefined);

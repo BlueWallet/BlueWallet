@@ -13,15 +13,19 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { platformSizing, platformLayout } from '../../components/platform';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import {
+  platformSizing,
+  platformLayout,
+  getSettingsRowBackgroundColor,
+  SettingsScrollView,
+} from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
-  const { colors } = useTheme();
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
+  const { colors, dark } = useTheme();
+  const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
   const [address, setAddress] = useState<string>('');
@@ -130,9 +134,8 @@ const IsItMyAddress: React.FC = () => {
   };
 
   return (
-    <SafeAreaScrollView
+    <SettingsScrollView
       ref={scrollViewRef}
-      style={[styles.container, { backgroundColor: colors.background }]}
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
@@ -142,18 +145,13 @@ const IsItMyAddress: React.FC = () => {
           paddingTop: platformSizing.firstSectionContainerPaddingTop,
           marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
           marginBottom: platformSizing.sectionContainerMarginBottom,
-          backgroundColor: colors.background,
+          backgroundColor: rowBackgroundColor,
+          borderRadius: platformSizing.containerBorderRadius,
+          padding: platformSizing.basePadding,
+          ...platformLayout.cardShadow,
         }}
       >
         <View
-          style={{
-            backgroundColor: cardColor,
-            borderRadius: platformSizing.containerBorderRadius,
-            padding: platformSizing.basePadding,
-            ...platformLayout.cardShadow,
-          }}
-        >
-          <View
             style={[
               styles.textInputContainer,
               { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
@@ -228,10 +226,9 @@ const IsItMyAddress: React.FC = () => {
                 </View>
                 <BlueSpacing20 />
               </View>
-            ))}
-        </View>
+              ))}
       </View>
-    </SafeAreaScrollView>
+    </SettingsScrollView>
   );
 };
 

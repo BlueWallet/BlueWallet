@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Keyboard, StyleSheet, View } from 'react-native';
+import { Keyboard, View } from 'react-native';
 
 import { generateChecksumWords } from '../../blue_modules/checksumWords';
 import { randomBytes } from '../../class/rng';
@@ -7,15 +7,19 @@ import Button from '../../components/Button';
 import loc from '../../loc';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
-import { platformSizing, platformLayout } from '../../components/platform';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import {
+  platformSizing,
+  platformLayout,
+  getSettingsRowBackgroundColor,
+  SettingsScrollView,
+} from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const GenerateWord = () => {
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
-  const { colors } = useTheme();
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
+  const { colors, dark } = useTheme();
+  const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
 
   const handleUpdateMnemonic = (nextValue: string) => {
     setMnemonic(nextValue);
@@ -47,24 +51,19 @@ const GenerateWord = () => {
   };
 
   return (
-    <SafeAreaScrollView style={[styles.container, { backgroundColor: colors.background }]} keyboardShouldPersistTaps="handled">
+    <SettingsScrollView keyboardShouldPersistTaps="handled">
       <View
         style={{
           paddingTop: platformSizing.firstSectionContainerPaddingTop,
           marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
           marginBottom: platformSizing.sectionContainerMarginBottom,
-          backgroundColor: colors.background,
+          backgroundColor: rowBackgroundColor,
+          borderRadius: platformSizing.containerBorderRadius,
+          padding: platformSizing.basePadding,
+          ...platformLayout.cardShadow,
         }}
       >
-        <View
-          style={{
-            backgroundColor: cardColor,
-            borderRadius: platformSizing.containerBorderRadius,
-            padding: platformSizing.basePadding,
-            ...platformLayout.cardShadow,
-          }}
-        >
-          <BlueFormMultiInput
+        <BlueFormMultiInput
             editable
             placeholder={loc.autofill_word.enter}
             value={mnemonic}
@@ -86,16 +85,9 @@ const GenerateWord = () => {
             />
           </View>
           <BlueSpacing20 />
-        </View>
       </View>
-    </SafeAreaScrollView>
+    </SettingsScrollView>
   );
 };
 
 export default GenerateWord;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
