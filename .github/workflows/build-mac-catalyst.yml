@@ -1,0 +1,54 @@
+name: Build Mac Catalyst
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build-mac-catalyst:
+    runs-on: macos-15
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Install Node modules
+        run: npm ci --omit=dev --yes
+
+      - name: Install CocoaPods dependencies
+        run: bundle exec fastlane ios install_pods
+
+      - name: Build Mac Catalyst app with Fastlane
+        id: build_catalyst
+        run: bundle exec fastlane ios build_catalyst_app_lane
+
+      - name: Upload Mac Catalyst artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bluewallet-mac-catalyst-app
+          path: ${{ steps.build_catalyst.outputs.catalyst_app_path }}
+          if-no-files-found: error

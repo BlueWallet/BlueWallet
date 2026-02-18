@@ -459,6 +459,39 @@ platform :ios do
       clean_install: true)
   end
 
+  desc "Build Mac Catalyst app"
+  lane :build_catalyst_app_lane do
+    Dir.chdir(project_root) do
+      UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
+
+      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+      derived_data_path = File.join(project_root, "ios", "build", "catalyst-derived-data")
+
+      clear_derived_data_lane
+      FileUtils.mkdir_p(derived_data_path)
+
+      build_app(
+        scheme: "BlueWallet",
+        workspace: workspace_path,
+        configuration: "Release",
+        destination: "generic/platform=macOS,variant=Mac Catalyst",
+        clean: true,
+        skip_codesigning: true,
+        skip_package_ipa: true,
+        derived_data_path: derived_data_path,
+        buildlog_path: File.join(project_root, "ios", "build_logs")
+      )
+
+      catalyst_app_path = Dir.glob(File.join(derived_data_path, "Build/Products/Release-maccatalyst/*.app")).first
+      UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
+
+      ENV['CATALYST_APP_PATH'] = catalyst_app_path
+      sh("echo 'catalyst_app_path=#{catalyst_app_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
+
+      UI.success("Mac Catalyst app built at: #{catalyst_app_path}")
+    end
+  end
+
 
   desc "Upload IPA to TestFlight"
   lane :upload_to_testflight_lane do
