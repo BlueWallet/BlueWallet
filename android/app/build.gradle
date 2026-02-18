@@ -90,6 +90,7 @@ android {
         versionName "7.2.4"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        missingDimensionStrategy "react-native-capture-protection", "fullMediaCapture"
     }
 
     lintOptions {
