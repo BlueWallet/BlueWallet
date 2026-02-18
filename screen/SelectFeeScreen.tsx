@@ -1,15 +1,5 @@
 import React, { useRef, useCallback, useReducer, useEffect, FC } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useTheme } from '../components/themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -268,10 +258,7 @@ const SelectFeeScreen = () => {
   );
 
   return (
-    <KeyboardAvoidingView
-      style={styles.keyboardAvoidingRoot}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <KeyboardAvoidingView style={styles.keyboardAvoidingRoot} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[stylesHook.container, styles.screenContainer]}
