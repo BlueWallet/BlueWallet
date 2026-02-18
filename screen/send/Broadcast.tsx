@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
 import * as bitcoin from 'bitcoinjs-lib';
 import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text } from 'react-native';
 

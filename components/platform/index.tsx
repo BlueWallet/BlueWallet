@@ -81,7 +81,9 @@ export const getSettingsCardColor = (
   colors: { lightButton?: string; modal?: string; elevated?: string; background?: string },
   dark?: boolean,
 ): string =>
-  dark ? (colors.modal ?? colors.elevated ?? colors.background ?? '#000000') : (colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background ?? '#ffffff');
+  dark
+    ? (colors.modal ?? colors.elevated ?? colors.background ?? '#000000')
+    : (colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background ?? '#ffffff');
 
 export const getSettingsRowBackgroundColor = (
   colors: { lightButton?: string; modal?: string; elevated?: string; background?: string },
@@ -295,7 +297,9 @@ const isIconProps = (icon: IconProps | React.ReactElement): icon is IconProps =>
 const usePlatformStyles = () => {
   const { colors, dark } = useTheme();
   return useMemo(() => {
-    const card = dark ? (colors.modal ?? colors.elevated ?? colors.background) : (colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background);
+    const card = dark
+      ? (colors.modal ?? colors.elevated ?? colors.background)
+      : (colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background);
     const itemSurface = isIOS && !dark ? colors.background : card;
     const secondaryText = colors.alternativeTextColor ?? colors.darkGray;
 

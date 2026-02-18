@@ -7,12 +7,7 @@ import Button from '../../components/Button';
 import loc from '../../loc';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
-import {
-  platformSizing,
-  platformLayout,
-  getSettingsRowBackgroundColor,
-  SettingsScrollView,
-} from '../../components/platform';
+import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const GenerateWord = () => {
@@ -64,27 +59,27 @@ const GenerateWord = () => {
         }}
       >
         <BlueFormMultiInput
-            editable
-            placeholder={loc.autofill_word.enter}
-            value={mnemonic}
-            onChangeText={handleUpdateMnemonic}
-            testID="MnemonicInput"
-          />
+          editable
+          placeholder={loc.autofill_word.enter}
+          value={mnemonic}
+          onChangeText={handleUpdateMnemonic}
+          testID="MnemonicInput"
+        />
 
-          <BlueSpacing10 />
-          <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
-          <BlueSpacing20 />
-          <BlueTextCentered testID="Result">{result}</BlueTextCentered>
-          <BlueSpacing20 />
-          <View>
-            <Button
-              disabled={mnemonic.trim().length === 0}
-              title={loc.autofill_word.generate_word}
-              onPress={checkMnemonic}
-              testID="GenerateWord"
-            />
-          </View>
-          <BlueSpacing20 />
+        <BlueSpacing10 />
+        <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
+        <BlueSpacing20 />
+        <BlueTextCentered testID="Result">{result}</BlueTextCentered>
+        <BlueSpacing20 />
+        <View>
+          <Button
+            disabled={mnemonic.trim().length === 0}
+            title={loc.autofill_word.generate_word}
+            onPress={checkMnemonic}
+            testID="GenerateWord"
+          />
+        </View>
+        <BlueSpacing20 />
       </View>
     </SettingsScrollView>
   );

@@ -13,12 +13,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import {
-  platformSizing,
-  platformLayout,
-  getSettingsRowBackgroundColor,
-  SettingsScrollView,
-} from '../../components/platform';
+import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const IsItMyAddress: React.FC = () => {
@@ -152,81 +147,76 @@ const IsItMyAddress: React.FC = () => {
         }}
       >
         <View
-            style={[
-              styles.textInputContainer,
-              { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
-            ]}
-          >
-            <TextInput
-              style={[styles.textInput, { color: colors.foregroundColor }]}
-              multiline
-              editable
-              placeholder={loc.is_it_my_address.enter_address}
-              placeholderTextColor={colors.placeholderTextColor}
-              value={address}
-              onChangeText={handleUpdateAddress}
-              testID="AddressInput"
-            />
-            {address.length > 0 && (
-              <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
-                <Icon name="close" size={20} color={colors.alternativeTextColor} />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
-
-          <View style={styles.buttonSpacing} />
-
-          {resultCleanAddress && (
-            <>
-              <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
-              <View style={styles.buttonSpacingSmall} />
-            </>
-          )}
-
-          <Button
-            disabled={isCheckAddressDisabled}
-            title={loc.is_it_my_address.check_address}
-            onPress={checkAddress}
-            testID="CheckAddress"
+          style={[
+            styles.textInputContainer,
+            { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
+          ]}
+        >
+          <TextInput
+            style={[styles.textInput, { color: colors.foregroundColor }]}
+            multiline
+            editable
+            placeholder={loc.is_it_my_address.enter_address}
+            placeholderTextColor={colors.placeholderTextColor}
+            value={address}
+            onChangeText={handleUpdateAddress}
+            testID="AddressInput"
           />
-
-          <View style={styles.buttonSpacing} />
-
-          {matchingWallets !== undefined && matchingWallets.length > 0 && (
-            <>
-              <Divider />
-              <View style={styles.spacingLarge} />
-            </>
+          {address.length > 0 && (
+            <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
+              <Icon name="close" size={20} color={colors.alternativeTextColor} />
+            </TouchableOpacity>
           )}
-          {matchingWallets !== undefined &&
-            matchingWallets.length > 0 &&
-            matchingWallets.map((wallet, index) => (
-              <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={styles.addressCheckContainer}>
-                <Text selectable style={[styles.addressOwnershipText, { color: colors.foregroundColor }]}>
-                  {resultCleanAddress &&
-                    renderFormattedText(loc.is_it_my_address.owns, {
-                      label: wallet.getLabel(),
-                      address: resultCleanAddress,
-                    })}
-                </Text>
-                <BlueSpacing10 />
-                <View style={styles.walletCardContainer}>
-                  <WalletCarouselItem
-                    item={wallet}
-                    onPress={item => {
-                      navigate('WalletTransactions', {
-                        walletID: item.getID(),
-                        walletType: item.type,
-                      });
-                    }}
-                    customStyle={styles.walletCardStyle}
-                  />
-                </View>
-                <BlueSpacing20 />
+        </View>
+
+        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
+
+        <View style={styles.buttonSpacing} />
+
+        {resultCleanAddress && (
+          <>
+            <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
+            <View style={styles.buttonSpacingSmall} />
+          </>
+        )}
+
+        <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
+
+        <View style={styles.buttonSpacing} />
+
+        {matchingWallets !== undefined && matchingWallets.length > 0 && (
+          <>
+            <Divider />
+            <View style={styles.spacingLarge} />
+          </>
+        )}
+        {matchingWallets !== undefined &&
+          matchingWallets.length > 0 &&
+          matchingWallets.map((wallet, index) => (
+            <View key={wallet.getID()} ref={index === 0 ? firstWalletRef : undefined} style={styles.addressCheckContainer}>
+              <Text selectable style={[styles.addressOwnershipText, { color: colors.foregroundColor }]}>
+                {resultCleanAddress &&
+                  renderFormattedText(loc.is_it_my_address.owns, {
+                    label: wallet.getLabel(),
+                    address: resultCleanAddress,
+                  })}
+              </Text>
+              <BlueSpacing10 />
+              <View style={styles.walletCardContainer}>
+                <WalletCarouselItem
+                  item={wallet}
+                  onPress={item => {
+                    navigate('WalletTransactions', {
+                      walletID: item.getID(),
+                      walletType: item.type,
+                    });
+                  }}
+                  customStyle={styles.walletCardStyle}
+                />
               </View>
-              ))}
+              <BlueSpacing20 />
+            </View>
+          ))}
       </View>
     </SettingsScrollView>
   );
@@ -235,9 +225,6 @@ const IsItMyAddress: React.FC = () => {
 export default IsItMyAddress;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   textInputContainer: {
     flexDirection: 'row',
     borderWidth: 1,
