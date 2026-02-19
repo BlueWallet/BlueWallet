@@ -466,13 +466,14 @@ platform :ios do
       clean_install: true)
   end
 
-  desc "Build Mac Catalyst app"
+  desc "Build Mac Catalyst app, create DMG, and notarize"
   lane :build_catalyst_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
 
       workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
       derived_data_path = File.join(project_root, "ios", "build", "catalyst-derived-data")
+      output_dir = File.join(project_root, "ios", "build", "catalyst-output")
 
       if ENV['SKIP_CLEAR_DERIVED_DATA'] == '1'
         UI.message('Skipping clear_derived_data_lane (SKIP_CLEAR_DERIVED_DATA=1)')
@@ -480,20 +481,33 @@ platform :ios do
         clear_derived_data_lane
       end
       FileUtils.mkdir_p(derived_data_path)
+      FileUtils.mkdir_p(output_dir)
+
+      # Determine if we should code-sign
+      signing_identity = ENV['CATALYST_SIGNING_IDENTITY'] || "Developer ID Application"
+      should_sign = ENV['CATALYST_SKIP_CODESIGNING'] != '1'
+
+      xcargs_str = "ARCHS=arm64 ONLY_ACTIVE_ARCH=YES"
+      if should_sign && ENV['CATALYST_TEAM_ID']
+        xcargs_str += " DEVELOPMENT_TEAM=#{ENV['CATALYST_TEAM_ID']}"
+        xcargs_str += " CODE_SIGN_IDENTITY=\"#{signing_identity}\""
+        xcargs_str += " CODE_SIGN_STYLE=Manual"
+      end
 
       build_app(
         scheme: "BlueWallet",
         workspace: workspace_path,
         configuration: "Release",
         destination: "generic/platform=macOS,variant=Mac Catalyst",
-        xcargs: "ARCHS=arm64 ONLY_ACTIVE_ARCH=YES",
+        xcargs: xcargs_str,
         clean: true,
-        skip_codesigning: true,
+        skip_codesigning: !should_sign,
         skip_package_ipa: true,
         derived_data_path: derived_data_path,
         buildlog_path: File.join(project_root, "ios", "build_logs")
       )
 
+      # Locate the .app
       archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE]
       if archive_path.nil? || archive_path.empty?
         archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
@@ -506,23 +520,81 @@ platform :ios do
 
       catalyst_app_path = candidate_paths.compact.find { |path| File.exist?(path) }
       UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
+      UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
-      # Zip the .app bundle so it stays a proper macOS app bundle
-      app_dir = File.dirname(catalyst_app_path)
-      app_name = File.basename(catalyst_app_path)
-      zip_path = File.join(app_dir, "BlueWallet-Mac-Catalyst.zip")
-      sh("cd '#{app_dir}' && zip -r -y '#{zip_path}' '#{app_name}'")
-      UI.user_error!("Failed to create zip at #{zip_path}") unless File.exist?(zip_path)
+      # --- Code-sign with Developer ID if credentials are available ---
+      if should_sign && ENV['CATALYST_SIGNING_IDENTITY']
+        UI.message("Re-signing app with: #{signing_identity}")
+        sh("codesign --deep --force --options runtime --sign \"#{signing_identity}\" '#{catalyst_app_path}'")
+        sh("codesign --verify --deep --strict '#{catalyst_app_path}'")
+        UI.success("App signed and verified")
+      end
 
+      # --- Create DMG ---
+      dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
+      UI.message("Creating DMG at: #{dmg_path}")
+
+      # Create a temporary folder for DMG contents
+      dmg_staging = File.join(output_dir, "dmg-staging")
+      FileUtils.rm_rf(dmg_staging)
+      FileUtils.mkdir_p(dmg_staging)
+      FileUtils.cp_r(catalyst_app_path, dmg_staging)
+
+      # Create Applications symlink for drag-to-install
+      sh("ln -s /Applications '#{dmg_staging}/Applications'")
+
+      # Build DMG
+      FileUtils.rm_f(dmg_path)
+      sh("hdiutil create -volname 'BlueWallet' -srcfolder '#{dmg_staging}' -ov -format UDZO '#{dmg_path}'")
+      UI.user_error!("DMG was not created at #{dmg_path}") unless File.exist?(dmg_path)
+      UI.success("DMG created at: #{dmg_path}")
+
+      # Clean up staging
+      FileUtils.rm_rf(dmg_staging)
+
+      # --- Notarize if credentials are available ---
+      if ENV['APPLE_API_KEY_ID'] && ENV['APPLE_API_ISSUER_ID'] && ENV['APPLE_API_KEY_PATH']
+        UI.message("Notarizing DMG with Apple...")
+
+        api_key_path = ENV['APPLE_API_KEY_PATH']
+
+        # Submit for notarization
+        sh("xcrun notarytool submit '#{dmg_path}' " \
+           "--key '#{api_key_path}' " \
+           "--key-id '#{ENV['APPLE_API_KEY_ID']}' " \
+           "--issuer '#{ENV['APPLE_API_ISSUER_ID']}' " \
+           "--wait")
+        UI.success("Notarization complete")
+
+        # Staple the ticket to the DMG
+        sh("xcrun stapler staple '#{dmg_path}'")
+        UI.success("Staple complete")
+      elsif ENV['NOTARIZE_APPLE_ID'] && ENV['NOTARIZE_PASSWORD'] && ENV['CATALYST_TEAM_ID']
+        UI.message("Notarizing DMG with Apple ID...")
+
+        sh("xcrun notarytool submit '#{dmg_path}' " \
+           "--apple-id '#{ENV['NOTARIZE_APPLE_ID']}' " \
+           "--password '#{ENV['NOTARIZE_PASSWORD']}' " \
+           "--team-id '#{ENV['CATALYST_TEAM_ID']}' " \
+           "--wait")
+        UI.success("Notarization complete")
+
+        sh("xcrun stapler staple '#{dmg_path}'")
+        UI.success("Staple complete")
+      else
+        UI.important("Skipping notarization — no Apple credentials found (set APPLE_API_KEY_ID/APPLE_API_ISSUER_ID/APPLE_API_KEY_PATH or NOTARIZE_APPLE_ID/NOTARIZE_PASSWORD/CATALYST_TEAM_ID)")
+      end
+
+      # --- Set outputs ---
       ENV['CATALYST_APP_PATH'] = catalyst_app_path
-      ENV['CATALYST_ZIP_PATH'] = zip_path
+      ENV['CATALYST_DMG_PATH'] = dmg_path
       if ENV['GITHUB_OUTPUT']
         sh("echo 'catalyst_app_path=#{catalyst_app_path}' >> $GITHUB_OUTPUT")
-        sh("echo 'catalyst_zip_path=#{zip_path}' >> $GITHUB_OUTPUT")
+        sh("echo 'catalyst_dmg_path=#{dmg_path}' >> $GITHUB_OUTPUT")
       end
 
       UI.success("Mac Catalyst app built at: #{catalyst_app_path}")
-      UI.success("Mac Catalyst zip created at: #{zip_path}")
+      UI.success("Mac Catalyst DMG at: #{dmg_path}")
     end
   end
 
