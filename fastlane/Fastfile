@@ -82,10 +82,17 @@ def cached_app_store_connect_login
 end
 
 before_all do |lane, options|
-  skip_auth_lanes = ['register_devices_from_txt']
+  if ENV['SKIP_APP_STORE_CONNECT_AUTH'] == '1'
+    UI.message('Skipping App Store Connect authentication (SKIP_APP_STORE_CONNECT_AUTH=1)')
+    next
+  end
+
+  skip_auth_lanes = ['register_devices_from_txt', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
+  lane_name = lane.to_s
+  should_skip_auth = skip_auth_lanes.any? { |skip_lane| lane_name == skip_lane || lane_name.end_with?(" #{skip_lane}") }
   
   # Check if we need App Store Connect for this lane
-  unless skip_auth_lanes.include?(lane)
+  unless should_skip_auth
     begin
       # Try to authenticate once at the beginning
       require 'spaceship'
@@ -467,7 +474,11 @@ platform :ios do
       workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
       derived_data_path = File.join(project_root, "ios", "build", "catalyst-derived-data")
 
-      clear_derived_data_lane
+      if ENV['SKIP_CLEAR_DERIVED_DATA'] == '1'
+        UI.message('Skipping clear_derived_data_lane (SKIP_CLEAR_DERIVED_DATA=1)')
+      else
+        clear_derived_data_lane
+      end
       FileUtils.mkdir_p(derived_data_path)
 
       build_app(
@@ -475,6 +486,7 @@ platform :ios do
         workspace: workspace_path,
         configuration: "Release",
         destination: "generic/platform=macOS,variant=Mac Catalyst",
+        xcargs: "ARCHS=arm64 ONLY_ACTIVE_ARCH=YES",
         clean: true,
         skip_codesigning: true,
         skip_package_ipa: true,
@@ -482,13 +494,35 @@ platform :ios do
         buildlog_path: File.join(project_root, "ios", "build_logs")
       )
 
-      catalyst_app_path = Dir.glob(File.join(derived_data_path, "Build/Products/Release-maccatalyst/*.app")).first
+      archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE]
+      if archive_path.nil? || archive_path.empty?
+        archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
+      end
+
+      candidate_paths = []
+      candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path
+      candidate_paths << Dir.glob(File.join(derived_data_path, "Build/Products/Release-maccatalyst/*.app")).first
+      candidate_paths << Dir.glob(File.join(derived_data_path, "Build/Intermediates.noindex/ArchiveIntermediates/BlueWallet/BuildProductsPath/Release-maccatalyst/*.app")).first
+
+      catalyst_app_path = candidate_paths.compact.find { |path| File.exist?(path) }
       UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
 
+      # Zip the .app bundle so it stays a proper macOS app bundle
+      app_dir = File.dirname(catalyst_app_path)
+      app_name = File.basename(catalyst_app_path)
+      zip_path = File.join(app_dir, "BlueWallet-Mac-Catalyst.zip")
+      sh("cd '#{app_dir}' && zip -r -y '#{zip_path}' '#{app_name}'")
+      UI.user_error!("Failed to create zip at #{zip_path}") unless File.exist?(zip_path)
+
       ENV['CATALYST_APP_PATH'] = catalyst_app_path
-      sh("echo 'catalyst_app_path=#{catalyst_app_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
+      ENV['CATALYST_ZIP_PATH'] = zip_path
+      if ENV['GITHUB_OUTPUT']
+        sh("echo 'catalyst_app_path=#{catalyst_app_path}' >> $GITHUB_OUTPUT")
+        sh("echo 'catalyst_zip_path=#{zip_path}' >> $GITHUB_OUTPUT")
+      end
 
       UI.success("Mac Catalyst app built at: #{catalyst_app_path}")
+      UI.success("Mac Catalyst zip created at: #{zip_path}")
     end
   end
 
