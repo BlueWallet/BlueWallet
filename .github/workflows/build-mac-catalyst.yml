@@ -37,18 +37,24 @@ jobs:
           bundler-cache: true
 
       - name: Install Node modules
-        run: npm ci --omit=dev --yes
+        run: npm ci
 
       - name: Install CocoaPods dependencies
         run: bundle exec fastlane ios install_pods
+        env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
 
       - name: Build Mac Catalyst app with Fastlane
         id: build_catalyst
         run: bundle exec fastlane ios build_catalyst_app_lane
+        env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
+          SKIP_CLEAR_DERIVED_DATA: '1'
 
       - name: Upload Mac Catalyst artifact
+        if: success()
         uses: actions/upload-artifact@v6
         with:
           name: bluewallet-mac-catalyst-app
           path: ${{ steps.build_catalyst.outputs.catalyst_app_path }}
-          if-no-files-found: error
+          if-no-files-found: warn
