@@ -13,13 +13,14 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { SettingsCard, SettingsScrollView } from '../../components/platform';
+import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
+  const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
   const [address, setAddress] = useState<string>('');
@@ -134,7 +135,17 @@ const IsItMyAddress: React.FC = () => {
       automaticallyAdjustKeyboardInsets
       contentInsetAdjustmentBehavior="automatic"
     >
-      <SettingsCard>
+      <View
+        style={{
+          paddingTop: platformSizing.firstSectionContainerPaddingTop,
+          marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
+          marginBottom: platformSizing.sectionContainerMarginBottom,
+          backgroundColor: rowBackgroundColor,
+          borderRadius: platformSizing.containerBorderRadius,
+          padding: platformSizing.basePadding,
+          ...platformLayout.cardShadow,
+        }}
+      >
         <View
           style={[
             styles.textInputContainer,
@@ -206,7 +217,7 @@ const IsItMyAddress: React.FC = () => {
               <BlueSpacing20 />
             </View>
           ))}
-      </SettingsCard>
+      </View>
     </SettingsScrollView>
   );
 };

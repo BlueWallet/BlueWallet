@@ -36,6 +36,7 @@ type RouteParams = {
     psbtBase64: string;
     memo: string;
     receivedPSBTBase64: string;
+    txhex: string;
     launchedBy: string;
   };
 };
@@ -45,7 +46,7 @@ const PsbtMultisig = () => {
   const { navigate, setParams } = useExtendedNavigation();
   const { colors } = useTheme();
   const [flatListHeight, setFlatListHeight] = useState(0);
-  const { walletID, psbtBase64, memo, receivedPSBTBase64, launchedBy } = useRoute<RouteProp<RouteParams>>().params;
+  const { walletID, psbtBase64, memo, receivedPSBTBase64, txhex, launchedBy } = useRoute<RouteProp<RouteParams>>().params;
   const wallet = wallets.find(w => w.getID() === walletID) as MultisigHDWallet;
   assert(wallet, 'Internal error: MultisigHDWallet not found');
 
@@ -66,6 +67,28 @@ const PsbtMultisig = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedPSBTBase64]);
+
+  useEffect(() => {
+    if (txhex) {
+      // we have finalized txhex, lets  calculate some stuff and navigate to Confirm scren
+      const tx = bitcoin.Transaction.fromHex(txhex);
+
+      try {
+        const satoshiPerByte = Math.round(getFee() / tx.virtualSize());
+        navigate('Confirm', {
+          fee: new BigNumber(getFee()).dividedBy(100000000).toNumber(),
+          memo,
+          walletID,
+          tx: txhex,
+          recipients: targets,
+          satoshiPerByte,
+        });
+      } catch (error: any) {
+        presentAlert({ message: error });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [txhex]);
 
   const data = new Array(wallet.getM());
   const stylesHook = StyleSheet.create({

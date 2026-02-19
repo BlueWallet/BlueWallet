@@ -215,10 +215,25 @@ const ImportWalletDiscovery: React.FC = () => {
     [loading, progress],
   );
 
+  const ListFooterComponent = useMemo(
+    () =>
+      loading && wallets.length > 0 ? (
+        <View style={styles.noWallets}>
+          <BlueSpacing20 />
+          <ActivityIndicator />
+          <BlueSpacing10 />
+          <BlueFormLabel>{progress}</BlueFormLabel>
+          <BlueSpacing20 />
+        </View>
+      ) : null,
+    [loading, wallets.length, progress],
+  );
+
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>
       <FlatList
         ListHeaderComponent={ListHeaderComponent}
+        ListFooterComponent={ListFooterComponent}
         contentContainerStyle={styles.flatListContainer}
         data={wallets}
         ListEmptyComponent={ListEmptyComponent}

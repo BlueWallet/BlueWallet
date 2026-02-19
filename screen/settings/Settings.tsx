@@ -1,5 +1,5 @@
 import React, { useMemo, useLayoutEffect, useCallback } from 'react';
-import { View, StyleSheet, Linking, Image } from 'react-native';
+import { View, StyleSheet, Linking, Image, Platform } from 'react-native';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { SettingsScrollView, SettingsSection, SettingsListItem, getSettingsHeaderOptions } from '../../components/platform';
@@ -9,10 +9,14 @@ import { useTheme } from '../../components/themes';
 const Settings = () => {
   const { navigate, setOptions } = useExtendedNavigation();
   const { language } = useSettings(); // Subscribe to language changes to trigger re-render
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
+  const isIOSLightMode = Platform.OS === 'ios' && !dark;
+  const settingsCardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
+  const settingsScreenBackgroundColor = isIOSLightMode ? settingsCardColor : colors.background;
+  const settingsListItemBackgroundColor = isIOSLightMode ? colors.background : undefined;
   useLayoutEffect(() => {
-    setOptions(getSettingsHeaderOptions(loc.settings.header, colors));
-  }, [setOptions, language, colors]); // Include language to trigger re-render when language changes
+    setOptions(getSettingsHeaderOptions(loc.settings.header, { ...colors, background: settingsScreenBackgroundColor }, dark));
+  }, [setOptions, language, colors, settingsScreenBackgroundColor, dark]); // Include language to trigger re-render when language changes
 
   const handleDonatePress = useCallback(() => {
     Linking.openURL('https://donate.bluewallet.io/');
@@ -28,7 +32,7 @@ const Settings = () => {
   );
 
   return (
-    <SettingsScrollView testID="SettingsRoot">
+    <SettingsScrollView testID="SettingsRoot" style={{ backgroundColor: settingsScreenBackgroundColor }}>
       <SettingsSection compact horizontalInset={false}>
         <SettingsListItem
           title={loc.settings.donate}
@@ -37,6 +41,7 @@ const Settings = () => {
           onPress={handleDonatePress}
           testID="Donate"
           position="single"
+          itemBackgroundColor={settingsListItemBackgroundColor}
         />
       </SettingsSection>
 
@@ -48,6 +53,7 @@ const Settings = () => {
           testID="GeneralSettings"
           chevron
           position="first"
+          itemBackgroundColor={settingsListItemBackgroundColor}
         />
 
         <SettingsListItem
@@ -57,6 +63,7 @@ const Settings = () => {
           testID="Currency"
           chevron
           position="middle"
+          itemBackgroundColor={settingsListItemBackgroundColor}
         />
 
         <SettingsListItem
@@ -66,6 +73,7 @@ const Settings = () => {
           testID="Language"
           chevron
           position="middle"
+          itemBackgroundColor={settingsListItemBackgroundColor}
         />
 
         <SettingsListItem
@@ -75,6 +83,7 @@ const Settings = () => {
           testID="SecurityButton"
           chevron
           position="middle"
+          itemBackgroundColor={settingsListItemBackgroundColor}
         />
 
         <SettingsListItem
@@ -84,6 +93,7 @@ const Settings = () => {
           testID="NetworkSettings"
           chevron
           position="last"
+          itemBackgroundColor={settingsListItemBackgroundColor}
         />
       </SettingsSection>
 
@@ -95,6 +105,7 @@ const Settings = () => {
           testID="Tools"
           chevron
           position="single"
+          itemBackgroundColor={settingsListItemBackgroundColor}
         />
       </SettingsSection>
 
@@ -106,6 +117,7 @@ const Settings = () => {
           testID="AboutButton"
           chevron
           position="single"
+          itemBackgroundColor={settingsListItemBackgroundColor}
         />
       </SettingsSection>
     </SettingsScrollView>

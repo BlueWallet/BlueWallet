@@ -7,11 +7,14 @@ import Button from '../../components/Button';
 import loc from '../../loc';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
-import { SettingsCard, SettingsScrollView } from '../../components/platform';
+import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
+import { useTheme } from '../../components/themes';
 
 const GenerateWord = () => {
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
+  const { colors, dark } = useTheme();
+  const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
 
   const handleUpdateMnemonic = (nextValue: string) => {
     setMnemonic(nextValue);
@@ -44,7 +47,17 @@ const GenerateWord = () => {
 
   return (
     <SettingsScrollView keyboardShouldPersistTaps="handled">
-      <SettingsCard>
+      <View
+        style={{
+          paddingTop: platformSizing.firstSectionContainerPaddingTop,
+          marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
+          marginBottom: platformSizing.sectionContainerMarginBottom,
+          backgroundColor: rowBackgroundColor,
+          borderRadius: platformSizing.containerBorderRadius,
+          padding: platformSizing.basePadding,
+          ...platformLayout.cardShadow,
+        }}
+      >
         <BlueFormMultiInput
           editable
           placeholder={loc.autofill_word.enter}
@@ -67,7 +80,7 @@ const GenerateWord = () => {
           />
         </View>
         <BlueSpacing20 />
-      </SettingsCard>
+      </View>
     </SettingsScrollView>
   );
 };

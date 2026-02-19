@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, TextInput, View, Switch } from 'react-native';
-import { ListItem } from '@rneui/themed';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { useTheme } from './themes';
 import loc from '../loc';
+import { SettingsCard, SettingsListItem, isAndroid } from './platform';
 
 interface SettingsBlockExplorerCustomUrlItemProps {
   isCustomEnabled: boolean;
@@ -22,40 +22,42 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
   inputRef,
 }) => {
   const { colors } = useTheme();
+  const horizontalPadding = isAndroid ? 20 : 16;
 
   return (
     <View>
-      <ListItem containerStyle={[styles.container, { backgroundColor: colors.background }]} bottomDivider>
-        <ListItem.Content>
-          <ListItem.Title style={[styles.title, { color: colors.text }]}>{loc.settings.block_explorer_preferred}</ListItem.Title>
-        </ListItem.Content>
-        <Switch
-          accessible
-          accessibilityRole="switch"
-          accessibilityState={{ checked: isCustomEnabled }}
-          onValueChange={onSwitchToggle}
-          value={isCustomEnabled}
-        />
-      </ListItem>
+      <SettingsListItem
+        title={loc.settings.block_explorer_preferred}
+        switch={{
+          value: isCustomEnabled,
+          onValueChange: onSwitchToggle,
+        }}
+        position="single"
+        spacingTop
+      />
 
       {isCustomEnabled && (
-        <View style={[styles.uriContainer, { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor }]}>
-          <TextInput
-            ref={inputRef}
-            value={customUrl}
-            placeholder={loc._.enter_url}
-            onChangeText={onCustomUrlChange}
-            numberOfLines={1}
-            style={[styles.uriText, { color: colors.text }]}
-            placeholderTextColor={colors.placeholderTextColor}
-            textContentType="URL"
-            clearButtonMode="while-editing"
-            autoCapitalize="none"
-            autoCorrect={false}
-            underlineColorAndroid="transparent"
-            onSubmitEditing={onSubmitCustomUrl}
-            editable={isCustomEnabled}
-          />
+        <View style={[styles.inputCardWrapper, { paddingHorizontal: horizontalPadding }]}>
+          <SettingsCard compact>
+            <View style={[styles.uriContainer, { borderColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor }]}>
+              <TextInput
+                ref={inputRef}
+                value={customUrl}
+                placeholder={loc._.enter_url}
+                onChangeText={onCustomUrlChange}
+                numberOfLines={1}
+                style={[styles.uriText, { color: colors.foregroundColor }]}
+                placeholderTextColor={colors.placeholderTextColor}
+                textContentType="URL"
+                clearButtonMode="while-editing"
+                autoCapitalize="none"
+                autoCorrect={false}
+                underlineColorAndroid="transparent"
+                onSubmitEditing={onSubmitCustomUrl}
+                editable={isCustomEnabled}
+              />
+            </View>
+          </SettingsCard>
         </View>
       )}
     </View>
@@ -65,22 +67,18 @@ const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUr
 export default SettingsBlockExplorerCustomUrlItem;
 
 const styles = StyleSheet.create({
-  container: {
-    minHeight: 60,
-    paddingVertical: 10,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '500',
+  inputCardWrapper: {
+    marginTop: isAndroid ? 12 : 10,
   },
   uriContainer: {
     flexDirection: 'row',
     borderWidth: 1,
-    borderRadius: 4,
-    marginHorizontal: 15,
-    marginVertical: 10,
-    paddingHorizontal: 10,
+    borderRadius: isAndroid ? 4 : 8,
+    marginVertical: isAndroid ? 12 : 10,
+    marginHorizontal: isAndroid ? 12 : 10,
+    paddingHorizontal: isAndroid ? 10 : 12,
     alignItems: 'center',
+    minHeight: 44,
   },
   uriText: {
     flex: 1,

@@ -73,15 +73,40 @@ async function clearUseURv1() {
   return AsyncStorage.removeItem(USE_UR_V1);
 }
 
-function encodeUR(arg1, arg2, walletID) {
-  if (walletID && useBBQRWalletIDs.includes(walletID)) {
-    // assume arg1 is hex of a PSBT, arg2 is capacity per frame
-    const minSplit = Math.max(1, Math.ceil(arg1.length / 2 / arg2));
-    const ret = splitQRs(hexToUint8Array(arg1), 'P', { minSplit });
-    return ret.parts;
+/**
+ *
+ * @param value {string} payload to render in QR
+ * @param capacity {number?} Bytes per QR fragment
+ * @param walletID {string?} Optional, if we previously saved preferences for that wallet (which protocol to use)
+ * @param forceProtocol {'auto' | 'BBQR' | 'URv2' = 'auto'}
+ * @returns {string[]}
+ */
+function encodeUR(value, capacity = 175, walletID, forceProtocol = 'auto') {
+  if (forceProtocol === 'URv2') {
+    return useURv1 ? encodeURv1(value, capacity) : encodeURv2(value, capacity);
   }
 
-  return useURv1 ? encodeURv1(arg1, arg2) : encodeURv2(arg1, arg2);
+  if (forceProtocol === 'BBQR' || (walletID && useBBQRWalletIDs.includes(walletID))) {
+    // payload should be hex
+    if (!isHexString(value)) {
+      value = uint8ArrayToHex(stringToUint8Array(value));
+    }
+
+    const minSplit = Math.max(1, Math.ceil(value.length / 2 / capacity));
+
+    if (uint8ArrayToString(hexToUint8Array(value)).startsWith('psbt')) {
+      // its a PSBT!
+      const ret = splitQRs(hexToUint8Array(value), 'P', { minSplit });
+      return ret.parts;
+    }
+
+    // its a random utf8 text!
+    const ret = splitQRs(hexToUint8Array(value), 'U', { minSplit });
+    return ret.parts;
+  } // end BBQR
+
+  // auto (aka default):
+  return useURv1 ? encodeURv1(value, capacity) : encodeURv2(value, capacity);
 }
 
 function encodeURv1(arg1, arg2) {
@@ -92,6 +117,10 @@ function encodeURv1(arg1, arg2) {
   } catch (_) {}
 
   return origEncodeUR(arg1, arg2);
+}
+
+function isHexString(s) {
+  return /^[0-9a-fA-F]*$/.test(s) && s.length % 2 === 0;
 }
 
 /**
@@ -385,4 +414,14 @@ class BlueURDecoder extends URDecoder {
   }
 }
 
-export { decodeUR, encodeUR, extractSingleWorkload, BlueURDecoder, isURv1Enabled, setUseURv1, clearUseURv1, setWalletIdMustUseBBQR };
+export {
+  decodeUR,
+  encodeUR,
+  extractSingleWorkload,
+  BlueURDecoder,
+  isURv1Enabled,
+  setUseURv1,
+  clearUseURv1,
+  setWalletIdMustUseBBQR,
+  isHexString,
+};

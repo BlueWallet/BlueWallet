@@ -1,7 +1,6 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
 import * as bitcoin from 'bitcoinjs-lib';
-import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text, Platform, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text } from 'react-native';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -9,9 +8,14 @@ import { BlueButtonLink } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import { platformColors, platformSizing, platformLayout } from '../../components/platform';
+import {
+  platformSizing,
+  platformLayout,
+  getSettingsCardColor,
+  getSettingsRowBackgroundColor,
+  SettingsScrollView,
+} from '../../components/platform';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -29,39 +33,23 @@ const BROADCAST_RESULT = Object.freeze({
 const Broadcast: React.FC = () => {
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const sizing = platformSizing;
   const layout = platformLayout;
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
-  const insets = useSafeAreaInsets();
-
-  // Calculate header height for Android with transparent header
-  // Standard Android header is 56dp + status bar height
-  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
+  const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: platformColors.background,
-    },
     contentContainer: {
+      flex: 1,
       paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
-    firstSectionContainer: {
+    contentWrapper: {
       paddingTop: sizing.firstSectionContainerPaddingTop,
       marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
       marginBottom: sizing.sectionContainerMarginBottom,
-    },
-    card: {
-      backgroundColor: platformColors.card,
+      backgroundColor: rowBackgroundColor,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -75,7 +63,7 @@ const Broadcast: React.FC = () => {
       marginBottom: 10,
     },
     labelText: {
-      color: platformColors.text,
+      color: colors.foregroundColor,
       fontSize: sizing.subtitleFontSize,
       fontWeight: '500',
     },
@@ -167,15 +155,10 @@ const Broadcast: React.FC = () => {
   }
 
   return (
-    <SafeAreaScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      testID="BroadcastView"
-      headerHeight={headerHeight}
-    >
-      <View style={styles.firstSectionContainer}>
+    <SettingsScrollView style={styles.contentContainer} testID="BroadcastView">
+      <View style={styles.contentWrapper}>
         {BROADCAST_RESULT.success !== broadcastResult && (
-          <View style={styles.card}>
+          <>
             <View style={styles.topFormRow}>
               <Text style={styles.labelText}>{status}</Text>
               {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
@@ -205,15 +188,16 @@ const Broadcast: React.FC = () => {
               testID="BroadcastButton"
             />
             <BlueSpacing20 />
-          </View>
+          </>
         )}
         {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
       </View>
-    </SafeAreaScrollView>
+    </SettingsScrollView>
   );
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
+  const { colors, dark } = useTheme();
   const sizing = platformSizing;
   const layout = platformLayout;
 
@@ -221,9 +205,11 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
     return null;
   }
 
+  const cardColor = getSettingsCardColor(colors, dark);
+
   const successStyles = StyleSheet.create({
     card: {
-      backgroundColor: platformColors.card,
+      backgroundColor: cardColor,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -235,7 +221,7 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
       paddingVertical: sizing.basePadding,
     },
     successText: {
-      color: platformColors.text,
+      color: colors.foregroundColor,
       fontSize: sizing.subtitleFontSize,
       textAlign: 'center',
     },

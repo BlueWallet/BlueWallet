@@ -129,6 +129,42 @@ export class MultisigCosigner {
     } catch (_) {
       this._valid = false;
     }
+
+    // is it coldcardQ json?
+    try {
+      const json = JSON.parse(data);
+      if (json && json.chain === 'BTC' && json.xfp && (json.bip48_1 || json.bip48_2 || json.bip45)) {
+        if (json.bip48_1) {
+          const path = json.bip48_1.deriv.replace(/h/g, "'");
+          const xpub = json.bip48_1._pub || json.bip48_1.xpub; // ColdcardQ provides SLIP-0132 encoded _pub (Ypub/Zpub). Prefer it when present, fallback to xpub for legacy.
+          const xfp = json.xfp;
+
+          const cc = new MultisigCosigner(MultisigCosigner.exportToJson(xfp, xpub, path));
+          this._valid = true;
+          this._cosigners.push(cc);
+        }
+        if (json.bip48_2) {
+          const path = json.bip48_2.deriv.replace(/h/g, "'");
+          const xpub = json.bip48_2._pub || json.bip48_2.xpub; // ColdcardQ provides SLIP-0132 encoded _pub (Ypub/Zpub). Prefer it when present, fallback to xpub for legacy.
+          const xfp = json.xfp;
+
+          const cc = new MultisigCosigner(MultisigCosigner.exportToJson(xfp, xpub, path));
+          this._valid = true;
+          this._cosigners.push(cc);
+        }
+        if (json.bip45) {
+          const path = json.bip45.deriv.replace(/h/g, "'");
+          const xpub = json.bip45._pub || json.bip45.xpub; // ColdcardQ provides SLIP-0132 encoded _pub (Ypub/Zpub). Prefer it when present, fallback to xpub for legacy.
+          const xfp = json.xfp;
+
+          const cc = new MultisigCosigner(MultisigCosigner.exportToJson(xfp, xpub, path));
+          this._valid = true;
+          this._cosigners.push(cc);
+        }
+      }
+    } catch (_) {
+      this._valid = false;
+    }
   }
 
   static isXpubValid(key: string) {

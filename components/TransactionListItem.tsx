@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, memo } from 'react';
+import React, { useCallback, useMemo, useRef, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
-import { Linking, View, ViewStyle, StyleSheet } from 'react-native';
+import { Linking, Text, View, ViewStyle, StyleSheet } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -12,7 +12,7 @@ import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffc
 import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
 import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
-import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
+import loc, { formatBalanceWithoutSuffix, formatTransactionListDate, transactionTimeToReadable } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useSettings } from '../hooks/context/useSettings';
 import ListItem from './ListItem';
@@ -26,11 +26,9 @@ import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import HighlightedText from './HighlightedText';
 
 const styles = StyleSheet.create({
-  subtitle: {
-    color: 'colors.foregroundColor',
+  dateLine: {
     fontSize: 13,
   },
   highlight: {
@@ -63,7 +61,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     renderHighlightedText,
     onPress: customOnPress,
   }: TransactionListItemProps) => {
-    const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
     const menuRef = useRef<ToolTipMenuProps>();
@@ -88,27 +85,41 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       return name.substr(0, 7) + '...' + name.substr(name.length - 7, 7);
     };
 
-    const title = useMemo(() => {
-      if (item.confirmations === 0) {
-        return loc.transactions.pending;
-      } else {
-        return transactionTimeToReadable(item.timestamp);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [item.confirmations, item.timestamp, language]);
-
     let counterparty;
     if (item.counterparty) {
       counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
     }
     const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
-    const subtitle = useMemo(() => {
-      let sub = Number(item.confirmations) < 7 ? loc.formatString(loc.transactions.list_conf, { number: item.confirmations }) : '';
-      if (sub !== '') sub += ' ';
-      sub += txMemo;
-      if (item.memo) sub += item.memo;
-      return sub || undefined;
-    }, [txMemo, item.confirmations, item.memo]);
+    const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
+
+    const listTitleKey = useMemo((): 'pending' | 'sent' | 'received' => {
+      if (item.category === 'receive' && item.confirmations! < 3) return 'pending';
+      if (item.type === 'bitcoind_tx') return item.value! < 0 ? 'sent' : 'received';
+      if (item.type === 'paid_invoice') return 'sent';
+      if (item.type === 'user_invoice' || item.type === 'payment_request') {
+        if (!item.ispaid) return 'pending';
+        return 'received';
+      }
+      if (!item.confirmations) return 'pending';
+      return item.value! < 0 ? 'sent' : 'received';
+    }, [item.category, item.confirmations, item.type, item.value, item.ispaid]);
+
+    const listTitle = useMemo(() => {
+      if (listTitleKey === 'pending') return loc.transactions.pending;
+      if (listTitleKey === 'sent') return loc.transactions.list_title_sent;
+      return loc.transactions.list_title_received;
+    }, [listTitleKey]);
+
+    const isPending = listTitleKey === 'pending';
+
+    const dateLine = useMemo(() => {
+      if (isPending) return transactionTimeToReadable(item.timestamp);
+      return formatTransactionListDate(item.timestamp * 1000);
+      // language in deps so date format updates when locale changes (formatters use global locale)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isPending, item.timestamp, language]);
+
+    const dateLineStyle = useMemo(() => [styles.dateLine, { color: colors.alternativeTextColor }], [colors.alternativeTextColor]);
 
     const formattedAmount = useMemo(() => {
       return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
@@ -127,6 +138,11 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       }
       return formattedAmount;
     }, [item, formattedAmount]);
+
+    const rightMemoStyle = useMemo(
+      () => [styles.dateLine, { color: colors.alternativeTextColor, textAlign: 'right' as const }],
+      [colors.alternativeTextColor],
+    );
 
     const rowTitleStyle = useMemo(() => {
       let color = colors.successColor;
@@ -238,10 +254,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       return `${formattedAmount}${unitSuffix}`;
     }, [formattedAmount, itemPriceUnit]);
 
-    useEffect(() => {
-      setSubtitleNumberOfLines(1);
-    }, [subtitle]);
-
     const onPress = useCallback(async () => {
       menuRef?.current?.dismissMenu?.();
       // If a custom onPress handler was provided, use it and return
@@ -291,10 +303,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       }
     }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress]);
 
-    const handleOnExpandNote = useCallback(() => {
-      setSubtitleNumberOfLines(0);
-    }, []);
-
     const handleOnDetailsPress = useCallback(() => {
       if (walletID && item && item.hash) {
         navigate('TransactionDetails', { tx: item, hash: item.hash, walletID });
@@ -311,7 +319,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
     const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
-    const handleOnCopyNote = useCallback(() => Clipboard.setString(subtitle ?? ''), [subtitle]);
+    const handleOnCopyNote = useCallback(() => Clipboard.setString(noteForCopy ?? ''), [noteForCopy]);
     const handleOnViewOnBlockExplorer = useCallback(() => {
       const url = `${selectedBlockExplorer.url}/tx/${item.hash}`;
       Linking.canOpenURL(url).then(supported => {
@@ -332,8 +340,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
           handleOnCopyNote();
         } else if (id === CommonToolTipActions.OpenInBlockExplorer.id) {
           handleOnViewOnBlockExplorer();
-        } else if (id === CommonToolTipActions.ExpandNote.id) {
-          handleOnExpandNote();
         } else if (id === CommonToolTipActions.CopyBlockExplorerLink.id) {
           handleCopyOpenInBlockExplorerPress();
         } else if (id === CommonToolTipActions.CopyTXID.id) {
@@ -348,7 +354,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         handleOnCopyNote,
         handleOnCopyTransactionID,
         handleOnDetailsPress,
-        handleOnExpandNote,
         handleOnViewOnBlockExplorer,
       ],
     );
@@ -360,7 +365,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         },
         {
           ...CommonToolTipActions.CopyNote,
-          hidden: !subtitle,
+          hidden: !noteForCopy,
         },
         {
           ...CommonToolTipActions.CopyTXID,
@@ -371,22 +376,10 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
           hidden: !item.hash,
         },
         [{ ...CommonToolTipActions.OpenInBlockExplorer, hidden: !item.hash }, CommonToolTipActions.Details],
-        [
-          {
-            ...CommonToolTipActions.ExpandNote,
-            hidden: subtitleNumberOfLines !== 1,
-          },
-        ],
       ];
 
       return actions as Action[];
-    }, [rowTitle, subtitle, item.hash, subtitleNumberOfLines]);
-
-    const accessibilityState = useMemo(() => {
-      return {
-        expanded: subtitleNumberOfLines === 0,
-      };
-    }, [subtitleNumberOfLines]);
+    }, [rowTitle, noteForCopy, item.hash]);
 
     return (
       <ToolTipMenu
@@ -394,33 +387,19 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         actions={toolTipActions}
         onPressMenuItem={onToolTipPress}
         onPress={onPress}
-        accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+        accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${dateLine}`}
         accessibilityRole="button"
-        accessibilityState={accessibilityState}
       >
         <ListItem
           leftAvatar={avatar}
-          title={title}
-          subtitleNumberOfLines={subtitleNumberOfLines}
-          subtitle={
-            subtitle ? (
-              renderHighlightedText ? (
-                renderHighlightedText(subtitle, searchQuery ?? '')
-              ) : (
-                <HighlightedText
-                  text={subtitle}
-                  query={searchQuery ?? ''}
-                  caseSensitive={false}
-                  highlightOnlyFirstMatch={searchQuery ? searchQuery.length === 1 : false}
-                  style={styles.subtitle}
-                />
-              )
-            ) : undefined
-          }
+          title={listTitle}
+          subtitle={<Text style={dateLineStyle}>{dateLine}</Text>}
           Component={View}
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
+          rightSubtitle={noteForCopy}
+          rightSubtitleStyle={rightMemoStyle}
           containerStyle={combinedStyle}
           testID="TransactionListItem"
         />
