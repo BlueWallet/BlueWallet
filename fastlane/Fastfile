@@ -483,15 +483,22 @@ platform :ios do
       FileUtils.mkdir_p(derived_data_path)
       FileUtils.mkdir_p(output_dir)
 
-      # Determine if we should code-sign
+      # Determine if we should code-sign during xcodebuild
+      # Requires both CATALYST_SIGNING_IDENTITY and CATALYST_TEAM_ID to be set
+      has_signing_creds = ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty? &&
+                          ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
+      should_sign = has_signing_creds && ENV['CATALYST_SKIP_CODESIGNING'] != '1'
       signing_identity = ENV['CATALYST_SIGNING_IDENTITY'] || "Developer ID Application"
-      should_sign = ENV['CATALYST_SKIP_CODESIGNING'] != '1'
 
       xcargs_str = "ARCHS=arm64 ONLY_ACTIVE_ARCH=YES"
-      if should_sign && ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
+      if should_sign
         xcargs_str += " DEVELOPMENT_TEAM=#{ENV['CATALYST_TEAM_ID']}"
         xcargs_str += " CODE_SIGN_IDENTITY=\"#{signing_identity}\""
         xcargs_str += " CODE_SIGN_STYLE=Manual"
+      else
+        # Disable code signing entirely so xcodebuild doesn't look for provisioning profiles
+        xcargs_str += " CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
+        UI.message("No signing credentials provided — building without code signing")
       end
 
       build_app(
