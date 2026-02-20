@@ -466,7 +466,7 @@ platform :ios do
       clean_install: true)
   end
 
-  desc "Build Mac Catalyst app, create DMG, and notarize"
+  desc "Build Mac Catalyst app and create DMG"
   lane :build_catalyst_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
@@ -522,12 +522,17 @@ platform :ios do
       UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
       UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
-      # --- Code-sign with Developer ID if credentials are available ---
+      # --- Code-sign ---
       if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
         UI.message("Re-signing app with: #{signing_identity}")
         sh("codesign --deep --force --options runtime --sign \"#{signing_identity}\" '#{catalyst_app_path}'")
         sh("codesign --verify --deep --strict '#{catalyst_app_path}'")
         UI.success("App signed and verified")
+      else
+        # Ad-hoc sign so macOS doesn't treat the app as "damaged"
+        UI.message("Ad-hoc signing app to avoid Gatekeeper quarantine issues...")
+        sh("codesign --deep --force --sign - '#{catalyst_app_path}'")
+        UI.success("App ad-hoc signed")
       end
 
       # --- Create DMG ---
@@ -551,42 +556,6 @@ platform :ios do
 
       # Clean up staging
       FileUtils.rm_rf(dmg_staging)
-
-      # --- Notarize if credentials are available ---
-      has_api_key = ['APPLE_API_KEY_ID', 'APPLE_API_ISSUER_ID', 'APPLE_API_KEY_PATH'].all? { |k| ENV[k] && !ENV[k].empty? }
-      has_apple_id = ['NOTARIZE_APPLE_ID', 'NOTARIZE_PASSWORD', 'CATALYST_TEAM_ID'].all? { |k| ENV[k] && !ENV[k].empty? }
-
-      if has_api_key
-        UI.message("Notarizing DMG with Apple...")
-
-        api_key_path = ENV['APPLE_API_KEY_PATH']
-
-        # Submit for notarization
-        sh("xcrun notarytool submit '#{dmg_path}' " \
-           "--key '#{api_key_path}' " \
-           "--key-id '#{ENV['APPLE_API_KEY_ID']}' " \
-           "--issuer '#{ENV['APPLE_API_ISSUER_ID']}' " \
-           "--wait")
-        UI.success("Notarization complete")
-
-        # Staple the ticket to the DMG
-        sh("xcrun stapler staple '#{dmg_path}'")
-        UI.success("Staple complete")
-      elsif has_apple_id
-        UI.message("Notarizing DMG with Apple ID...")
-
-        sh("xcrun notarytool submit '#{dmg_path}' " \
-           "--apple-id '#{ENV['NOTARIZE_APPLE_ID']}' " \
-           "--password '#{ENV['NOTARIZE_PASSWORD']}' " \
-           "--team-id '#{ENV['CATALYST_TEAM_ID']}' " \
-           "--wait")
-        UI.success("Notarization complete")
-
-        sh("xcrun stapler staple '#{dmg_path}'")
-        UI.success("Staple complete")
-      else
-        UI.important("Skipping notarization — no Apple credentials found (set APPLE_API_KEY_ID/APPLE_API_ISSUER_ID/APPLE_API_KEY_PATH or NOTARIZE_APPLE_ID/NOTARIZE_PASSWORD/CATALYST_TEAM_ID)")
-      end
 
       # --- Set outputs ---
       ENV['CATALYST_APP_PATH'] = catalyst_app_path
