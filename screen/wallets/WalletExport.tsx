@@ -61,7 +61,7 @@ const WalletExport: React.FC = () => {
   const navigation = useNavigation();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
-  const wallet = wallets.find(w => w.getID() === walletID)!;
+  const wallet = wallets.find(w => w.getID() === walletID);
   const [qrCodeSize, setQRCodeSize] = useState(90);
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { currentAppState, previousAppState } = useAppState();
@@ -70,6 +70,7 @@ const WalletExport: React.FC = () => {
   });
 
   const secrets: string[] = useMemo(() => {
+    if (!wallet) return [];
     try {
       let secret = wallet.getSecret();
       if (wallet instanceof WatchOnlyWallet) {
@@ -92,8 +93,15 @@ const WalletExport: React.FC = () => {
   }, [wallet]);
 
   const secretIsMnemonic: boolean = useMemo(() => {
+    if (!wallet) return false;
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
+
+  useEffect(() => {
+    if (!wallet) {
+      navigation.goBack();
+    }
+  }, [wallet, navigation]);
 
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
@@ -152,6 +160,10 @@ const WalletExport: React.FC = () => {
     ),
     [onLayout, stylesHook.root],
   );
+
+  if (!wallet) {
+    return null;
+  }
 
   // for SLIP39
   if (secrets.length !== 1) {
