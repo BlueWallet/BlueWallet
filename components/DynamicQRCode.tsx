@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, LayoutAnimation, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Text } from '@rneui/themed';
+import { Dimensions, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { encodeUR } from '../blue_modules/ur';
 import { BlueCurrentTheme } from '../components/themes';

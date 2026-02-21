@@ -1,17 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
+import Avatar from '../../components/Avatar';
+import Badge from '../../components/Badge';
+import Icon from '../../components/Icon';
 import {
   ActivityIndicator,
   Keyboard,
   LayoutAnimation,
   PixelRatio,
+  Pressable,
   Platform,
   StyleSheet,
   Text,
   TextInput,
-  TouchableWithoutFeedback,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -106,7 +108,7 @@ const OutputList: React.FC<TOutputListProps> = ({
   }
 
   return (
-    <RNElementsListItem bottomDivider onPress={onPress} containerStyle={selected ? oStyles.containerSelected : oStyles.container}>
+    <Pressable onPress={onPress} style={[styles.listRow, selected ? oStyles.containerSelected : oStyles.container]}>
       <Avatar
         rounded
         size={40}
@@ -114,17 +116,17 @@ const OutputList: React.FC<TOutputListProps> = ({
         onPress={selected ? onDeSelect : onSelect}
         icon={selected ? { name: 'check', type: 'font-awesome-6' } : undefined}
       />
-      <RNElementsListItem.Content>
-        <RNElementsListItem.Title style={oStyles.amount}>{amount}</RNElementsListItem.Title>
-        <RNElementsListItem.Subtitle style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
+      <View style={styles.listContent}>
+        <Text style={oStyles.amount}>{amount}</Text>
+        <Text style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
           {memo || address}
-        </RNElementsListItem.Subtitle>
-      </RNElementsListItem.Content>
+        </Text>
+      </View>
       <View style={styles.badges}>
         {frozen && <FrozenBadge />}
         {change && <ChangeBadge />}
       </View>
-    </RNElementsListItem>
+    </Pressable>
   );
 };
 
@@ -159,26 +161,26 @@ const OutputModal: React.FC<TOutputModalProps> = ({
   );
 
   return (
-    <RNElementsListItem bottomDivider containerStyle={oStyles.container}>
+    <View style={[styles.listRow, oStyles.container]}>
       <Avatar rounded size={40} containerStyle={oStyles.avatar} />
-      <RNElementsListItem.Content>
-        <RNElementsListItem.Title numberOfLines={1} adjustsFontSizeToFit style={oStyles.amount}>
+      <View style={styles.listContent}>
+        <Text numberOfLines={1} style={oStyles.amount}>
           {amount}
-          <View style={oStyles.tranContainer}>
-            <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
-          </View>
-        </RNElementsListItem.Title>
+        </Text>
+        <View style={oStyles.tranContainer}>
+          <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
+        </View>
         {memo ? (
           <>
-            <RNElementsListItem.Subtitle style={oStyles.memo}>{memo}</RNElementsListItem.Subtitle>
+            <Text style={oStyles.memo}>{memo}</Text>
             <BlueSpacing10 />
           </>
         ) : null}
-        <RNElementsListItem.Subtitle style={oStyles.memo}>{address}</RNElementsListItem.Subtitle>
+        <Text style={oStyles.memo}>{address}</Text>
         <BlueSpacing10 />
-        <RNElementsListItem.Subtitle style={oStyles.memo}>{fullId}</RNElementsListItem.Subtitle>
-      </RNElementsListItem.Content>
-    </RNElementsListItem>
+        <Text style={oStyles.memo}>{fullId}</Text>
+      </View>
+    </View>
   );
 };
 
@@ -249,12 +251,7 @@ const OutputModalContent: React.FC<TOutputModalContentProps> = ({ output, wallet
         ]}
         onChangeText={onMemoChange}
       />
-      <ListItem
-        title={loc.cc.freezeLabel}
-        containerStyle={transparentBackground}
-        Component={TouchableWithoutFeedback}
-        switch={switchValue}
-      />
+      <ListItem title={loc.cc.freezeLabel} containerStyle={transparentBackground} noFeedback switch={switchValue} />
       <BlueSpacing20 />
     </View>
   );
@@ -541,7 +538,7 @@ const CoinControl: React.FC = () => {
         data={utxos}
         renderItem={renderItem}
         keyExtractor={item => `${item.txid}:${item.vout}`}
-        contentInset={styles.listContent}
+        contentContainerStyle={styles.listContainerContent}
       />
 
       {selectionStarted && (
@@ -549,7 +546,7 @@ const CoinControl: React.FC = () => {
           <FButton
             onPress={handleMassFreeze}
             text={allFrozen ? loc.cc.freezeLabel_un : loc.cc.freezeLabel}
-            icon={<Icon name="snowflake" size={buttonFontSize} type="font-awesome-5" color={colors.buttonAlternativeTextColor} />}
+            icon={<Icon name="snowflake" size={buttonFontSize} type="font-awesome-6" color={colors.buttonAlternativeTextColor} />}
           />
           <FButton
             onPress={handleMassUse}
@@ -587,11 +584,19 @@ const styles = StyleSheet.create({
   badges: {
     flexDirection: 'row',
   },
+  listRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
   listContent: {
-    top: 0,
-    left: 0,
-    bottom: 70,
-    right: 0,
+    flex: 1,
+    marginLeft: 12,
+  },
+  listContainerContent: {
+    paddingBottom: 16,
   },
 });
 

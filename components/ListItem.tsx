@@ -1,47 +1,35 @@
 import React, { useMemo } from 'react';
-import { Pressable, PressableProps, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
-import { ListItem as RNElementsListItem } from '@rneui/themed';
+import { Pressable, StyleProp, StyleSheet, Switch, SwitchProps, Text, TextStyle, View, ViewStyle } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 
+import Icon from './Icon';
 import { useTheme } from './themes';
 
 interface ListItemProps {
   leftAvatar?: React.JSX.Element;
-  containerStyle?: object;
-  Component?: typeof React.Component | typeof PressableWrapper;
+  containerStyle?: StyleProp<ViewStyle>;
+  noFeedback?: boolean;
   bottomDivider?: boolean;
   testID?: string;
   onPress?: () => void;
   disabled?: boolean;
-  switch?: object;
+  switch?: SwitchProps;
   title: string;
   subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
   rightTitle?: string;
-  rightTitleStyle?: object;
+  rightTitleStyle?: StyleProp<TextStyle>;
   rightSubtitle?: string | React.ReactNode;
-  rightSubtitleStyle?: object;
+  rightSubtitleStyle?: StyleProp<TextStyle>;
   chevron?: boolean;
   checkmark?: boolean;
 }
 
-export class PressableWrapper extends React.Component<PressableProps> {
-  render() {
-    return <Pressable {...this.props} />;
-  }
-}
-
-export class TouchableOpacityWrapper extends React.Component {
-  render() {
-    return <TouchableOpacity {...this.props} />;
-  }
-}
-
 const ListItem: React.FC<ListItemProps> = React.memo(
   ({
-    Component = TouchableOpacityWrapper,
     leftAvatar,
     containerStyle,
+    noFeedback = false,
     bottomDivider = true,
     testID,
     onPress,
@@ -59,6 +47,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
   }: ListItemProps) => {
     const { colors } = useTheme();
     const { direction } = useLocale();
+    const isRtl = direction === 'rtl';
     const stylesHook = StyleSheet.create({
       title: {
         color: disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
@@ -83,83 +72,94 @@ const ListItem: React.FC<ListItemProps> = React.memo(
       containerStyle: {
         backgroundColor: colors.background,
       },
+      divider: {
+        borderBottomWidth: bottomDivider ? StyleSheet.hairlineWidth : 0,
+        borderBottomColor: colors.formBorder,
+      },
     });
 
     const memoizedSwitchProps = useMemo(() => {
       return switchProps ? { ...switchProps } : undefined;
     }, [switchProps]);
+    const enableFeedback = !noFeedback && !!onPress && !disabled;
 
     const renderContent = () => (
-      <>
+      <View style={styles.contentRow}>
         {leftAvatar && (
-          <>
+          <View style={styles.leftAvatarContainer}>
             {leftAvatar}
             <View style={styles.width16} />
-          </>
-        )}
-        <View style={styles.leftContentWrapper}>
-          <RNElementsListItem.Content style={styles.leftContent}>
-            <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessible={switchProps === undefined}>
-              {title}
-            </RNElementsListItem.Title>
-            {subtitle && (
-              <RNElementsListItem.Subtitle
-                numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 1)}
-                accessible={switchProps === undefined}
-                style={stylesHook.subtitle}
-              >
-                {subtitle}
-              </RNElementsListItem.Subtitle>
-            )}
-          </RNElementsListItem.Content>
-        </View>
-
-        {(rightTitle || rightSubtitle) && (
-          <View style={[styles.rightColumnMargin, styles.rightColumn]}>
-            <View style={styles.rightColumnStack}>
-              {rightTitle && (
-                <RNElementsListItem.Title style={rightTitleStyle} numberOfLines={1}>
-                  {rightTitle}
-                </RNElementsListItem.Title>
-              )}
-              {rightSubtitle != null && rightSubtitle !== '' && (
-                <View style={styles.rightMemoWrapper}>
-                  <Text style={[stylesHook.subtitle, rightSubtitleStyle, stylesHook.rightMemoText]} numberOfLines={1} ellipsizeMode="tail">
-                    {rightSubtitle}
-                  </Text>
-                </View>
-              )}
-            </View>
           </View>
         )}
-        {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />}
-        {switchProps && (
+        <View style={styles.content}>
+          <Text style={stylesHook.title} numberOfLines={0} accessibilityRole="text">
+            {title}
+          </Text>
+          {subtitle ? (
+            <Text numberOfLines={switchProps ? 0 : (subtitleNumberOfLines ?? 1)} accessibilityRole="text" style={stylesHook.subtitle}>
+              {subtitle}
+            </Text>
+          ) : null}
+        </View>
+
+        {rightTitle || rightSubtitle ? (
+          <View style={styles.rightColumn}>
+            {rightTitle ? (
+              <Text style={rightTitleStyle} numberOfLines={1} accessibilityRole="text">
+                {rightTitle}
+              </Text>
+            ) : null}
+            {rightSubtitle != null && rightSubtitle !== '' ? (
+              <View style={styles.rightMemoWrapper}>
+                <Text style={[stylesHook.subtitle, rightSubtitleStyle, stylesHook.rightMemoText]} numberOfLines={1} ellipsizeMode="tail">
+                  {rightSubtitle}
+                </Text>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+        {chevron ? (
+          <Icon name={isRtl ? 'angle-left' : 'angle-right'} type="font-awesome" color={colors.alternativeTextColor} size={18} />
+        ) : null}
+        {switchProps ? (
           <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
-        )}
-        {checkmark && (
-          <RNElementsListItem.CheckBox
-            iconRight
-            containerStyle={stylesHook.containerStyle}
-            iconType="octaicon"
-            checkedIcon="check"
-            checked
-          />
-        )}
-      </>
+        ) : null}
+        {checkmark ? (
+          <View style={styles.checkmarkContainer}>
+            <Icon name="check" type="material-community" color={colors.foregroundColor} size={18} />
+          </View>
+        ) : null}
+      </View>
     );
 
+    if (!onPress) {
+      return (
+        <View
+          testID={testID}
+          style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}
+        >
+          {renderContent()}
+        </View>
+      );
+    }
+
     return (
-      <RNElementsListItem
-        containerStyle={containerStyle ?? stylesHook.containerStyle}
-        Component={Component}
-        bottomDivider={bottomDivider}
+      <Pressable
         testID={testID}
         onPress={onPress}
         disabled={disabled}
-        accessible={switchProps === undefined}
+        accessibilityRole="button"
+        android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}
+        style={({ pressed }) => [
+          stylesHook.containerStyle,
+          stylesHook.divider,
+          containerStyle,
+          disabled && styles.disabled,
+          enableFeedback && pressed && styles.pressed,
+        ]}
       >
         {renderContent()}
-      </RNElementsListItem>
+      </Pressable>
     );
   },
 );
@@ -171,31 +171,36 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   width16: { width: 16 },
-  leftContentWrapper: {
-    flexGrow: 0,
-    flexShrink: 0,
-    alignSelf: 'stretch',
-    justifyContent: 'flex-end',
+  contentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
-  leftContent: {
-    flex: 0,
+  content: {
+    flex: 1,
+    justifyContent: 'center',
   },
-  rightColumnMargin: {
-    marginStart: 8,
+  leftAvatarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   rightColumn: {
-    flex: 1,
+    marginStart: 8,
     minWidth: 0,
-    justifyContent: 'flex-end',
-  },
-  rightColumnStack: {
-    flexDirection: 'column',
     alignItems: 'flex-end',
-    minWidth: 0,
   },
   rightMemoWrapper: {
     flexShrink: 1,
     minWidth: 0,
-    alignSelf: 'stretch',
+  },
+  checkmarkContainer: {
+    marginLeft: 8,
+  },
+  disabled: {
+    opacity: 0.6,
+  },
+  pressed: {
+    opacity: 0.6,
   },
 });

@@ -2,7 +2,7 @@ import React, { useCallback, FC } from 'react';
 import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import { MultisigHDWallet } from '../../class';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
@@ -55,7 +55,12 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           disabled={n === m || m === 7}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon
+            name="keyboard-arrow-up"
+            size={22}
+            type="material"
+            color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
+          />
         </Pressable>
         <Text style={[styles.textM, { color: colors.outputValue }]}>{m}</Text>
         <Pressable
@@ -64,7 +69,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           disabled={m === 2}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-down" size={22} type="font-awesome-5" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-down" size={22} type="material" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
       </View>
 
@@ -79,7 +84,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           onPress={increaseN}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-up" size={22} type="material" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
         <Text style={[styles.textM, { color: colors.outputValue }]}>{n}</Text>
         <Pressable
@@ -89,7 +94,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
           testID="DecreaseN"
         >
-          <Icon name="chevron-down" size={22} type="font-awesome-5" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-down" size={22} type="material" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
       </View>
     </View>

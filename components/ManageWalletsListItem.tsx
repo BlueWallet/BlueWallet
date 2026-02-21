@@ -1,6 +1,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
-import { Icon, ListItem } from '@rneui/base';
+import { Swipeable } from 'react-native-gesture-handler';
+import Icon from './Icon';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
 import { TransactionListItem } from './TransactionListItem';
@@ -59,7 +60,10 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, c
     accessibilityRole="button"
     accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
   >
-    <Icon name={hideBalance ? 'eye' : 'eye-slash'} color={colors.brandingColor} type="font-awesome-5" />
+    <Icon name={hideBalance ? 'visibility' : 'visibility-off'} color={colors.brandingColor} type="material" />
+    <Text style={[styles.leftButtonText, { color: colors.brandingColor }]}>
+      {hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
+    </Text>
   </TouchableOpacity>
 );
 
@@ -83,6 +87,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSwipeActive, setIsSwipeActive] = useState(false);
   const resetFunctionRef = useRef<(() => void) | null>(null);
+  const swipeableRef = useRef<Swipeable | null>(null);
 
   const CARD_SORT_ACTIVE = 1.06;
   const INACTIVE_SCALE_WHEN_ACTIVE = 0.9;
@@ -170,44 +175,38 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     // Disable swiping only when search bar is focused or during active dragging
     const swipeDisabled = isActive || globalDragActive || state.isSearchFocused === true;
 
+    const content = (
+      <View style={[style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}>
+        <WalletCarouselItem
+          item={item.data}
+          handleLongPress={isDraggingDisabled || isSwipeActive ? undefined : startDrag}
+          onPress={onPress}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          animationsEnabled={false}
+          searchQuery={state.searchQuery}
+          isPlaceHolder={isPlaceHolder}
+          renderHighlightedText={renderHighlightedText}
+          customStyle={styles.carouselItem}
+        />
+      </View>
+    );
+
     return (
       <Animated.View style={animatedStyle}>
-        <ListItem.Swipeable
-          leftWidth={swipeDisabled ? 0 : 80}
-          containerStyle={[style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}
-          leftContent={swipeDisabled ? null : leftContent}
-          onPressOut={onPressOut}
-          minSlideWidth={swipeDisabled ? 0 : 80}
-          onPressIn={onPressIn}
-          style={swipeDisabled ? styles.transparentBackground : {}}
-          onSwipeBegin={direction => {
-            if (!swipeDisabled) {
-              console.debug(`Swipe began: ${direction}`);
-              setIsSwipeActive(true);
-            }
-          }}
-          onSwipeEnd={() => {
-            if (!swipeDisabled) {
-              console.debug('Swipe ended');
-              setIsSwipeActive(false);
-            }
-          }}
-        >
-          <ListItem.Content>
-            <WalletCarouselItem
-              item={item.data}
-              handleLongPress={isDraggingDisabled || isSwipeActive ? undefined : startDrag}
-              onPress={onPress}
-              onPressIn={onPressIn}
-              onPressOut={onPressOut}
-              animationsEnabled={false}
-              searchQuery={state.searchQuery}
-              isPlaceHolder={isPlaceHolder}
-              renderHighlightedText={renderHighlightedText}
-              customStyle={styles.carouselItem}
-            />
-          </ListItem.Content>
-        </ListItem.Swipeable>
+        {swipeDisabled ? (
+          content
+        ) : (
+          <Swipeable
+            ref={swipeableRef}
+            renderLeftActions={() => leftContent(() => swipeableRef.current?.close())}
+            leftThreshold={40}
+            onSwipeableWillOpen={() => setIsSwipeActive(true)}
+            onSwipeableWillClose={() => setIsSwipeActive(false)}
+          >
+            {content}
+          </Swipeable>
+        )}
       </Animated.View>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
@@ -481,8 +480,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  leftButtonText: {
+    marginTop: 6,
+    fontSize: 12,
+    fontWeight: '600',
+  },
   carouselItem: {
     width: '100%',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   transparentBackground: {
     backgroundColor: 'transparent',

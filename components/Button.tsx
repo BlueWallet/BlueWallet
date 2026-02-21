@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import { ActivityIndicator, StyleProp, StyleSheet, Text, Pressable, PressableProps, View, ViewStyle, Platform } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon, { type IconProps } from './Icon';
 
 import { useTheme } from './themes';
 
@@ -9,11 +9,7 @@ interface ButtonProps extends PressableProps {
   buttonTextColor?: string;
   disabled?: boolean;
   testID?: string;
-  icon?: {
-    name: string;
-    type: string;
-    color: string;
-  };
+  icon?: Pick<IconProps, 'name' | 'type'> & { color: string };
   title?: string;
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
@@ -45,7 +41,7 @@ export const Button = forwardRef<React.ElementRef<typeof Pressable>, ButtonProps
     <ActivityIndicator size="small" color={textStyle.color} />
   ) : (
     <>
-      {props.icon && <Icon name={props.icon.name} type={props.icon.type} color={props.icon.color} />}
+      {props.icon && <Icon {...props.icon} />}
       {props.title && <Text style={textStyle}>{props.title}</Text>}
     </>
   );

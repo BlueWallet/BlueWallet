@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Avatar } from '@rneui/themed';
+import Avatar from './Avatar';
 
 import loc from '../loc';
 
@@ -45,7 +45,7 @@ const CoinsSelected: React.FC<CoinsSelectedProps> = ({ number, onContainerPress,
       <Text style={styles.labelText}>{loc.formatString(loc.cc.coins_selected, { number })}</Text>
     </View>
     <TouchableOpacity accessibilityRole="button" style={styles.buttonContainer} onPress={onClose}>
-      <Avatar rounded containerStyle={[styles.ball]} icon={{ name: 'close', size: 22, type: 'ionicons', color: 'white' }} />
+      <Avatar rounded size={26} containerStyle={[styles.ball]} icon={{ name: 'close', size: 22, type: 'ionicons', color: 'white' }} />
     </TouchableOpacity>
   </TouchableOpacity>
 );
