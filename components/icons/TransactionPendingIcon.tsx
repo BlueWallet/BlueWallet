@@ -1,35 +1,51 @@
-import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Icon } from '@rneui/themed';
+import React, { useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
+import LottieView from 'lottie-react-native';
 
 import { useTheme } from '../themes';
 
 const styles = StyleSheet.create({
   boxIncoming: {
     position: 'relative',
-  } as ViewStyle,
+  },
   ball: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-  } as ViewStyle,
+  },
+  lottie: {
+    width: 20,
+    height: 20,
+    alignSelf: 'center',
+  },
 });
 
 const TransactionPendingIcon: React.FC = () => {
   const { colors } = useTheme();
+  const lottieRef = useRef<LottieView>(null);
 
   const stylesHook = StyleSheet.create({
     ball: {
-      backgroundColor: colors.buttonBackgroundColor,
+      backgroundColor: colors.transactionPendingIconBackground,
     },
   });
+
+  const pendingAnimation = require('../../img/pending.json');
 
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ball, stylesHook.ball]}>
-        <Icon name="more-horiz" type="material" size={16} color={colors.foregroundColor} />
+        <LottieView
+          ref={lottieRef}
+          style={styles.lottie}
+          source={pendingAnimation}
+          autoPlay={true}
+          loop={true}
+          resizeMode="cover"
+          colorFilters={[{ keypath: '**', color: colors.transactionPendingAnimationColor }]}
+        />
       </View>
     </View>
   );
