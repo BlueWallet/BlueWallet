@@ -1,17 +1,20 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { forwardRef, useEffect, useState } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TextProps, TouchableOpacity } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import loc from '../loc';
+import { BlueText } from '../BlueComponents';
 
-type CopyTextToClipboardProps = {
+type CopyTextToClipboardProps = TextProps & {
   text: string;
+  displayText?: string; // Optional text to display instead of the actual text (but still copies the actual text)
   truncated?: boolean;
+  selectable?: boolean;
+  textAlign?: 'left' | 'center' | 'right' | 'auto' | 'justify';
 };
 
-const styleCopyTextToClipboard = StyleSheet.create({
-  address: {
+const styles = StyleSheet.create({
+  defaultTextStyle: {
     marginVertical: 32,
     fontSize: 15,
     color: '#9aa0aa',
@@ -19,50 +22,61 @@ const styleCopyTextToClipboard = StyleSheet.create({
   },
 });
 
-const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(({ text, truncated }, ref) => {
-  const [hasTappedText, setHasTappedText] = useState(false);
-  const [address, setAddress] = useState(text);
+const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(
+  ({ text, displayText: displayTextProp, truncated, style, numberOfLines, ellipsizeMode, selectable, textAlign, ...textProps }, ref) => {
+    const [hasTappedText, setHasTappedText] = useState(false);
+    const initialDisplayText = displayTextProp || text;
+    const [displayText, setDisplayText] = useState(initialDisplayText);
 
-  useEffect(() => {
-    if (!hasTappedText) {
-      setAddress(text);
-    }
-  }, [text, hasTappedText]);
+    useEffect(() => {
+      if (!hasTappedText) {
+        setDisplayText(displayTextProp || text);
+      }
+    }, [text, displayTextProp, hasTappedText]);
 
-  const copyToClipboard = () => {
-    setHasTappedText(true);
-    Clipboard.setString(text);
-    triggerHapticFeedback(HapticFeedbackTypes.Selection);
-    setAddress(loc.wallets.xpub_copiedToClipboard); // Adjust according to your localization logic
-    setTimeout(() => {
-      setHasTappedText(false);
-      setAddress(text);
-    }, 1000);
-  };
+    const copyToClipboard = () => {
+      // Don't copy if text is empty or just "-"
+      if (!text || text === '-') {
+        return;
+      }
 
-  return (
-    <View style={styles.container}>
+      setHasTappedText(true);
+      Clipboard.setString(text);
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
+      setDisplayText('copied!');
+      setTimeout(() => {
+        setHasTappedText(false);
+        setDisplayText(displayTextProp || text);
+      }, 1000);
+    };
+
+    const mergedTextStyle = style || styles.defaultTextStyle;
+    const finalNumberOfLines = numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
+    const finalEllipsizeMode = ellipsizeMode || (truncated ? 'middle' : undefined);
+
+    return (
       <TouchableOpacity
         ref={ref}
         accessibilityRole="button"
         onPress={copyToClipboard}
-        disabled={hasTappedText}
+        disabled={hasTappedText || !text || text === '-'}
         testID="CopyTextToClipboard"
+        activeOpacity={0.7}
       >
-        <Animated.Text
-          style={styleCopyTextToClipboard.address}
-          {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
+        <BlueText
+          style={mergedTextStyle}
+          numberOfLines={finalNumberOfLines}
+          ellipsizeMode={finalEllipsizeMode}
+          selectable={selectable}
+          textAlign={textAlign}
+          {...textProps}
           testID="AddressValue"
         >
-          {address}
-        </Animated.Text>
+          {displayText}
+        </BlueText>
       </TouchableOpacity>
-    </View>
-  );
-});
+    );
+  },
+);
 
 export default CopyTextToClipboard;
-
-const styles = StyleSheet.create({
-  container: { justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 },
-});
