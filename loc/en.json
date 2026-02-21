@@ -390,7 +390,9 @@
     "watchOnlyWarningTitle": "Security warning",
     "watchOnlyWarningDescription": "Be cautious of scammers who often use “watch-only” wallets to deceive users. These wallets do not allow you to control or send funds; they only let you view the balance.",
     "custom_fee_warning_title": "Warning",
-    "custom_fee_warning_description": "Fees below 1 sat/vB are valid, but may not be relayed due to node policies."
+    "custom_fee_warning_description": "Fees below 1 sat/vB are valid, but may not be relayed due to node policies.",
+    "poison_warning_title": "Security warning",
+    "poison_warning_description": "An address in this transaction is very similar but not identical to your own address. This could be an address poisoning attack. Please double-check the address before using it again."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -686,7 +688,7 @@
     "notification_tx_unconfirmed": "Notification transaction is not confirmed yet, please wait",
     "failed_create_notif_tx": "Failed to create on-chain transaction",
     "onchain_tx_needed": "On-chain transaction needed",
-    "notif_tx_sent" : "Notification transaction sent. Please wait for it to confirm",
+    "notif_tx_sent": "Notification transaction sent. Please wait for it to confirm",
     "notif_tx": "Notification transaction",
     "not_found": "Payment code not found"
   }

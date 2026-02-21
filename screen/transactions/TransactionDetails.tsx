@@ -59,6 +59,17 @@ const toolTipMenuActions = [
   },
 ];
 
+const isSimilar = (addr1: string, addr2: string): boolean => {
+  if (!addr1 || !addr2 || addr1 === addr2) return false;
+  const len = 4;
+  return (
+    addr1.length > len * 2 &&
+    addr2.length > len * 2 &&
+    addr1.substring(0, len) === addr2.substring(0, len) &&
+    addr1.substring(addr1.length - len) === addr2.substring(addr2.length - len)
+  );
+};
+
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'TransactionDetails'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionDetails'>;
 
@@ -75,6 +86,7 @@ const TransactionDetails = () => {
   const [counterpartyLabel, setCounterpartyLabel] = useState<string>('');
   const [paymentCode, setPaymentCode] = useState<string>('');
   const [isCounterpartyLabelVisible, setIsCounterpartyLabelVisible] = useState<boolean>(false);
+  const [isPoisoning, setIsPoisoning] = useState<boolean>(false);
   const { colors } = useTheme();
   const stylesHooks = StyleSheet.create({
     memoTextInput: {
@@ -143,6 +155,27 @@ const TransactionDetails = () => {
         setTX(foundTx);
         setFrom(newFrom);
         setTo(newTo);
+
+        let poisoningDetected = false;
+        const allOurAddresses: string[] = [];
+        for (const w of wallets) {
+          allOurAddresses.push(...w.getAllExternalAddresses());
+          allOurAddresses.push(...w.getAllInternalAddresses());
+        }
+
+        const involvedAddresses = [...newFrom, ...newTo].filter(onlyUnique);
+        for (const addr of involvedAddresses) {
+          if (wallets.some(w => w.weOwnAddress(addr))) continue;
+          for (const ourAddr of allOurAddresses) {
+            if (isSimilar(ourAddr, addr)) {
+              poisoningDetected = true;
+              break;
+            }
+          }
+          if (poisoningDetected) break;
+        }
+        setIsPoisoning(poisoningDetected);
+
         setIsLoading(false);
       });
       return () => {
@@ -256,6 +289,13 @@ const TransactionDetails = () => {
         url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
       />
       <BlueCard>
+        {isPoisoning && (
+          <View style={styles.poisoningWarning}>
+            <BlueText style={styles.poisoningWarningTitle}>{loc.transactions.poison_warning_title}</BlueText>
+            <BlueText style={styles.poisoningWarningText}>{loc.transactions.poison_warning_description}</BlueText>
+            <BlueSpacing20 />
+          </View>
+        )}
         <View>
           <TextInput
             placeholder={loc.send.details_note_placeholder}
@@ -404,6 +444,22 @@ const styles = StyleSheet.create({
     alignSelf: 'auto',
     flexGrow: 1,
     marginHorizontal: 4,
+  },
+  poisoningWarning: {
+    backgroundColor: '#fee2e2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  poisoningWarningTitle: {
+    color: '#991b1b',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  poisoningWarningText: {
+    color: '#991b1b',
+    fontSize: 14,
   },
 });
 
