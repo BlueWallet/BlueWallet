@@ -262,7 +262,7 @@
     "electrum_reset_to_default_and_clear_history": "重置为默认并清除历史记录",
     "encrypt_decrypt": "解密存储",
     "encrypt_decrypt_q": "您确定要解密存储吗？这将允许在无需密码的情况下访问您的钱包。",
-    "encrypt_enc_and_pass": "受密码保护",
+    "encrypt_enc_and_pass": "密码保护",
     "encrypt_enc_and_pass_description": "使用密码来加密存储。生物识别认证将不会用于解锁加密存储。",
     "encrypt_storage_explanation_headline": "启用存储加密",
     "encrypt_storage_explanation_description_line1": "启用“存储加密”可通过保护数据在设备上的存储方式，为应用增加额外的安全防护层。这使得未经许可的人员更难访问您的信息。",
@@ -603,9 +603,9 @@
     "view_qrcode": "查看二维码"
   },
   "autofill_word": {
-    "title": "生成最终助记单词",
+    "title": "最终助记单词",
     "enter": "输入您的部分助记词",
-    "generate_word": "生成最后一个助记词",
+    "generate_word": "生成最终助记单词",
     "error": "输入的内容不是 11 或 23 个助记词的部分助记词，请重试。"
   },
   "cc": {
