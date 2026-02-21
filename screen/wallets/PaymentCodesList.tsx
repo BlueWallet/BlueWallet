@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -25,6 +25,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueLoading } from '../../components/BlueLoading';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { getPaymentCodesSampleDataEnabled, onPaymentCodesSampleDataChange } from '../../blue_modules/devMenuSampleData';
 
 interface DataSection {
   title: string;
@@ -83,6 +84,7 @@ export default function PaymentCodesList() {
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
+  const [samplePaymentCodes, setSamplePaymentCodes] = useState<string[]>([]);
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading...');
@@ -103,11 +105,39 @@ export default function PaymentCodesList() {
     const newData: DataSection[] = [
       {
         title: '',
-        data: foundWallet.getBIP47SenderPaymentCodes().concat(foundWallet.getBIP47ReceiverPaymentCodes()).filter(onlyUnique),
+        data: foundWallet
+          .getBIP47SenderPaymentCodes()
+          .concat(foundWallet.getBIP47ReceiverPaymentCodes())
+          .concat(samplePaymentCodes)
+          .filter(onlyUnique),
       },
     ];
     setData(newData);
-  }, [walletID, wallets, reload]);
+  }, [walletID, wallets, reload, samplePaymentCodes]);
+
+  const buildSamplePaymentCodes = useCallback((): string[] => {
+    return [
+      'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+      'bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080',
+    ];
+  }, []);
+
+  const applySamplePaymentCodes = useCallback(
+    (enabled: boolean) => {
+      if (enabled) {
+        setSamplePaymentCodes(buildSamplePaymentCodes());
+      } else {
+        setSamplePaymentCodes([]);
+      }
+    },
+    [buildSamplePaymentCodes],
+  );
+
+  useEffect(() => {
+    if (!__DEV__) return;
+    applySamplePaymentCodes(getPaymentCodesSampleDataEnabled());
+    return onPaymentCodesSampleDataChange(applySamplePaymentCodes);
+  }, [applySamplePaymentCodes]);
 
   const toolTipActions = useMemo(() => actionKeys, []);
 

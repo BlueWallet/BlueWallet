@@ -46,6 +46,7 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
+import { getWalletTransactionsSampleDataEnabled, onWalletTransactionsSampleDataChange } from '../../blue_modules/devMenuSampleData';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -80,6 +81,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const [sampleTransactions, setSampleTransactions] = useState<Transaction[]>([]);
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -137,10 +139,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [navigation, onBarCodeRead, route.params]);
 
   const sortedTransactions = useMemo(() => {
-    const txs = wallet.getTransactions();
+    const txs = [...wallet.getTransactions(), ...sampleTransactions];
     txs.sort((a, b) => b.timestamp - a.timestamp);
     return txs;
-  }, [wallet]);
+  }, [wallet, sampleTransactions]);
 
   const getTransactions = useCallback((lmt = Infinity): Transaction[] => sortedTransactions.slice(0, lmt), [sortedTransactions]);
 
@@ -225,12 +227,99 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const isLightning = useCallback((): boolean => wallet.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
-    return wallet.getTransactions().length > limit ? (
+    return sortedTransactions.length > limit ? (
       <ActivityIndicator style={[styles.activityIndicator, stylesHook.activityIndicatorStyle]} />
     ) : (
       <View style={stylesHook.listFooterStyle} />
     );
   };
+
+  const buildSampleTransactions = useCallback((): (Transaction & { isSample?: boolean })[] => {
+    const now = Math.floor(Date.now() / 1000);
+    const baseTx = {
+      version: 1,
+      size: 220,
+      vsize: 140,
+      weight: 560,
+      locktime: 0,
+      inputs: [
+        {
+          txid: '3333333333333333333333333333333333333333333333333333333333333333',
+          vout: 0,
+          scriptSig: { asm: '', hex: '' },
+          txinwitness: [],
+          sequence: 0xfffffffe,
+        },
+      ],
+      outputs: [
+        {
+          value: 12000,
+          n: 0,
+          scriptPubKey: {
+            asm: '',
+            hex: '',
+            reqSigs: 1,
+            type: 'witness_v0_keyhash',
+            addresses: ['bc1qsampleaddress0000000000000000000000000000000'],
+          },
+        },
+      ],
+      blockhash: '0000000000000000000000000000000000000000000000000000000000000000',
+    };
+
+    return [
+      {
+        ...baseTx,
+        txid: '4444444444444444444444444444444444444444444444444444444444444444',
+        hash: '4444444444444444444444444444444444444444444444444444444444444444',
+        confirmations: 6,
+        time: now - 7200,
+        blocktime: now - 7200,
+        timestamp: now - 7200,
+        value: 45000,
+        isSample: true,
+      },
+      {
+        ...baseTx,
+        txid: '5555555555555555555555555555555555555555555555555555555555555555',
+        hash: '5555555555555555555555555555555555555555555555555555555555555555',
+        confirmations: 0,
+        time: now - 600,
+        blocktime: now - 600,
+        timestamp: now - 600,
+        value: -22000,
+        isSample: true,
+      },
+      {
+        ...baseTx,
+        txid: '6666666666666666666666666666666666666666666666666666666666666666',
+        hash: '6666666666666666666666666666666666666666666666666666666666666666',
+        confirmations: 2,
+        time: now - 1200,
+        blocktime: now - 1200,
+        timestamp: now - 1200,
+        value: -8000,
+        isSample: true,
+      },
+    ];
+  }, []);
+
+  const applySampleTransactions = useCallback(
+    (enabled: boolean) => {
+      if (enabled) {
+        setSampleTransactions(buildSampleTransactions());
+      } else {
+        setSampleTransactions([]);
+      }
+    },
+    [buildSampleTransactions],
+  );
+
+  useEffect(() => {
+    if (!__DEV__) return;
+    applySampleTransactions(getWalletTransactionsSampleDataEnabled());
+    return onWalletTransactionsSampleDataChange(applySampleTransactions);
+  }, [applySampleTransactions]);
 
   const navigateToSendScreen = () => {
     navigate('SendDetailsRoot', {
@@ -304,8 +393,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: Transaction }) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={wallet.preferredBalanceUnit} walletID={walletID} />
+    ({ item }: { item: Transaction & { isSample?: boolean } }) => (
+      <TransactionListItem
+        key={item.hash}
+        item={item}
+        itemPriceUnit={wallet.preferredBalanceUnit}
+        walletID={walletID}
+        onPress={item.isSample ? () => Alert.alert('Sample data', 'This is temporary sample data.') : undefined}
+      />
     ),
     [wallet.preferredBalanceUnit, walletID],
   );

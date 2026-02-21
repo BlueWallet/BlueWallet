@@ -73,7 +73,7 @@ const Confirm: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
-  const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
+  const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl, isSample } = route.params; // Destructure params
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const { navigate, setOptions, goBack } = navigation;
@@ -172,6 +172,23 @@ const Confirm: React.FC = () => {
   };
 
   const handleSendTransaction = async () => {
+    if (isSample) {
+      const txid = bitcoin.Transaction.fromHex(tx).getId();
+      let amount = 0;
+      for (const recipient of recipients) {
+        if (recipient.value) {
+          amount += recipient.value;
+        }
+      }
+      amount = Number(formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false));
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      navigate('Success', {
+        fee: Number(fee),
+        amount,
+        txid,
+      });
+      return;
+    }
     dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: true });
     dispatch({ type: ActionType.SET_LOADING, payload: true });
     try {
@@ -195,6 +212,9 @@ const Confirm: React.FC = () => {
           return;
         }
       } else {
+        if (!psbt) {
+          throw new Error('Missing PSBT for Payjoin');
+        }
         const payJoinWallet = new PayjoinTransaction(psbt, (txHex: string) => broadcastTransaction(txHex), wallet as HDSegwitBech32Wallet);
         const paymentScript = getPaymentScript();
         if (!paymentScript) {
@@ -317,7 +337,7 @@ const Confirm: React.FC = () => {
           keyExtractor={(_item, index) => `${index}`}
           ItemSeparatorComponent={renderSeparator}
         />
-        {!!payjoinUrl && (
+        {!!payjoinUrl && !isSample && (
           <View style={styles.cardContainer}>
             <BlueCard>
               <View style={[styles.payjoinWrapper, stylesHook.payjoinWrapper]}>
@@ -341,7 +361,7 @@ const Confirm: React.FC = () => {
             <ActivityIndicator />
           ) : (
             <Button
-              disabled={isElectrumDisabled || state.isButtonDisabled}
+              disabled={(!isSample && isElectrumDisabled) || state.isButtonDisabled}
               onPress={handleSendTransaction}
               title={loc.send.confirm_sendNow}
             />
