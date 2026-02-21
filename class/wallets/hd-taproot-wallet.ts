@@ -113,7 +113,7 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
       sequence,
       witnessUtxo: {
         script: p2tr.output!,
-        value: BigInt(input.value),
+        value: BigInt(Math.round(Number(input.value))),
       },
       tapBip32Derivation: [
         {

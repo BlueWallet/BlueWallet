@@ -37,18 +37,18 @@ type TBip32Derivation = {
 
 type TOutputData =
   | {
-      bip32Derivation: TBip32Derivation;
-      redeemScript: Uint8Array;
-    }
+    bip32Derivation: TBip32Derivation;
+    redeemScript: Uint8Array;
+  }
   | {
-      bip32Derivation: TBip32Derivation;
-      witnessScript: Uint8Array;
-    }
+    bip32Derivation: TBip32Derivation;
+    witnessScript: Uint8Array;
+  }
   | {
-      bip32Derivation: TBip32Derivation;
-      redeemScript: Uint8Array;
-      witnessScript: Uint8Array;
-    };
+    bip32Derivation: TBip32Derivation;
+    redeemScript: Uint8Array;
+    witnessScript: Uint8Array;
+  };
 
 const electrumSegwit = (passphrase?: string): SeedOpts => ({
   prefix: mn.PREFIXES.segwit,
@@ -185,7 +185,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       xpub = tempWallet._zpubToXpub(key);
       bip32.fromBase58(xpub);
       return true;
-    } catch (_) {}
+    } catch (_) { }
 
     return false;
   }
@@ -530,7 +530,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     let json;
     try {
       json = JSON.parse(secret);
-    } catch (_) {}
+    } catch (_) { }
     if (json && json.xfp && json.p2wsh_deriv && json.p2wsh) {
       this.addCosigner(json.p2wsh, json.xfp); // technically we dont need deriv (json.p2wsh_deriv), since cosigner is already an xpub
       return this;
@@ -789,7 +789,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         bip32Derivation,
         witnessUtxo: {
           script: p2wsh.output,
-          value: BigInt(input.value),
+          value: BigInt(Math.round(Number(input.value))),
         },
         witnessScript,
         // hw wallets now require passing the whole previous tx as Buffer, as if it was non-segwit input, to mitigate
@@ -816,7 +816,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         bip32Derivation,
         witnessUtxo: {
           script: p2shP2wsh.output,
-          value: BigInt(input.value),
+          value: BigInt(Math.round(Number(input.value))),
         },
         witnessScript,
         redeemScript,
@@ -1003,7 +1003,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
       let outputData: Parameters<typeof psbt.addOutput>[0] = {
         address,
-        value: BigInt(output.value),
+        value: BigInt(Math.round(Number(output.value))),
       };
 
       if (change) {
@@ -1078,7 +1078,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     try {
       root.derivePath(path);
       return true;
-    } catch (_) {}
+    } catch (_) { }
     return false;
   }
 
@@ -1182,7 +1182,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
         try {
           psbt.signInputHD(cc, hdRoot);
-        } catch (_) {} // protects agains duplicate cosignings
+        } catch (_) { } // protects agains duplicate cosignings
 
         if (!psbt.inputHasHDKey(cc, hdRoot)) {
           // failed signing as HD. probably bitcoinjs-lib could not match provided hdRoot's
@@ -1209,7 +1209,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               const keyPair = ECPair.fromPrivateKey(child.privateKey);
               try {
                 psbt.signInput(cc, keyPair);
-              } catch (_) {}
+              } catch (_) { }
             }
           }
         }

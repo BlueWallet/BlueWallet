@@ -1283,27 +1283,27 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         address: output.address,
         // @ts-ignore types from bitcoinjs are not exported so we cant define outputData separately and add fields conditionally (either address or script should be present)
         script: output.script?.hex ? hexToUint8Array(output.script.hex) : undefined,
-        value: BigInt(output.value),
+        value: BigInt(Math.round(Number(output.value))),
         bip32Derivation:
           change && path && pubkey && this.segwitType !== 'p2tr'
             ? [
-                {
-                  masterFingerprint: masterFingerprintBuffer,
-                  path,
-                  pubkey,
-                },
-              ]
+              {
+                masterFingerprint: masterFingerprintBuffer,
+                path,
+                pubkey,
+              },
+            ]
             : [],
         tapBip32Derivation:
           this.segwitType === 'p2tr' && pubkey && path && change
             ? [
-                {
-                  pubkey: new Uint8Array(pubkey),
-                  masterFingerprint: new Uint8Array(masterFingerprintBuffer),
-                  path,
-                  leafHashes: [],
-                },
-              ]
+              {
+                pubkey: new Uint8Array(pubkey),
+                masterFingerprint: new Uint8Array(masterFingerprintBuffer),
+                path,
+                leafHashes: [],
+              },
+            ]
             : [],
         ...(this.segwitType === 'p2tr' && pubkey ? { tapInternalKey: new Uint8Array(pubkey) } : {}),
       });
@@ -1358,7 +1358,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       ],
       witnessUtxo: {
         script: p2wpkh.output,
-        value: BigInt(input.value),
+        value: BigInt(Math.round(Number(input.value))),
       },
     });
 
@@ -1533,7 +1533,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (let cc = 0; cc < psbt.inputCount; cc++) {
       try {
         psbt.signInputHD(cc, hdRoot);
-      } catch (e) {} // protects agains duplicate cosignings
+      } catch (e) { } // protects agains duplicate cosignings
 
       if (!psbt.inputHasHDKey(cc, hdRoot)) {
         for (const derivation of psbt.data.inputs[cc].bip32Derivation || []) {
@@ -1547,7 +1547,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           const keyPair = ECPair.fromWIF(wif);
           try {
             psbt.signInput(cc, keyPair);
-          } catch (e) {} // protects agains duplicate cosignings or if this output can't be signed with current wallet
+          } catch (e) { } // protects agains duplicate cosignings or if this output can't be signed with current wallet
         }
       }
     }
