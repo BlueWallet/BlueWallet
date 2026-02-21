@@ -15,7 +15,7 @@ import assert from 'assert';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Wallet, HDTaprootWallet, LightningCustodianWallet, HDLegacyP2PKHWallet } from '../../class';
+import { HDSegwitBech32Wallet, HDTaprootWallet, LightningCustodianWallet, HDLegacyP2PKHWallet, LightningSparkWallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -44,6 +44,7 @@ enum ButtonSelected {
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
   ARK = 'ARK',
+  SPARK = 'SPARK',
 }
 
 interface State {
@@ -251,6 +252,10 @@ const WalletsAdd: React.FC = () => {
     confirmResetEntropy(ButtonSelected.ARK);
   }, [confirmResetEntropy]);
 
+  const handleOnLightningSparkButtonPressed = useCallback(() => {
+    confirmResetEntropy(ButtonSelected.SPARK);
+  }, [confirmResetEntropy]);
+
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
   }, [confirmResetEntropy]);
@@ -330,6 +335,8 @@ const WalletsAdd: React.FC = () => {
       createLightningWallet();
     } else if (selectedWalletType === ButtonSelected.ARK) {
       createLightningArkWallet();
+    } else if (selectedWalletType === ButtonSelected.SPARK) {
+      createLightningSparkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
 
@@ -442,6 +449,27 @@ const WalletsAdd: React.FC = () => {
     });
   };
 
+
+  const createLightningSparkWallet = async () => {
+    const wallet = new LightningSparkWallet();
+    wallet.setLabel(label || loc.wallets.details_title);
+    try {
+      await wallet.generate();
+    } catch (Err: any) {
+      setIsLoading(false);
+      console.warn('lightning spark create failure', Err);
+      return presentAlert({ message: Err.message ?? '' });
+    }
+
+    addWallet(wallet);
+    await saveToDisk();
+
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    navigate('PleaseBackupLNDHub', {
+      walletID: wallet.getID(),
+    });
+  };
+
   const navigateToImportWallet = () => {
     navigate('ImportWallet');
   };
@@ -520,6 +548,15 @@ const WalletsAdd: React.FC = () => {
             testID="ActivateLightningArkButton"
             active={selectedWalletType === ButtonSelected.ARK}
             onPress={handleOnLightningArkButtonPressed}
+            size={styles.button}
+          />
+        ) : null}
+        {backdoorPressed >= 20 ? (
+          <WalletButton
+            buttonType="LightningSpark"
+            testID="ActivateLightningSparkButton"
+            active={selectedWalletType === ButtonSelected.SPARK}
+            onPress={handleOnLightningSparkButtonPressed}
             size={styles.button}
           />
         ) : null}

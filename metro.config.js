@@ -14,6 +14,7 @@ const resolveAliases = {
  */
 const config = {
   resolver: {
+    unstable_enablePackageExports: true,
     extraNodeModules: {
       stream: require.resolve('stream-browserify'),
       crypto: require.resolve('crypto-browserify'),

@@ -14,6 +14,7 @@ import {
   LegacyWallet,
   LightningCustodianWallet,
   LightningArkWallet,
+  LightningSparkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -213,6 +214,20 @@ const startImport = (
         await lnd.fetchBalance();
       }
       yield { wallet: lnd };
+    }
+
+    // is it lightning spark wallet?
+    yield { progress: 'lightning spark' };
+    if (text.startsWith('spark://')) {
+      const spark = new LightningSparkWallet();
+      spark.setSecret(text);
+      await spark.init();
+      if (!offline) {
+        await spark.fetchTransactions();
+        await spark.fetchUserInvoices();
+        await spark.fetchBalance();
+      }
+      yield { wallet: spark };
     }
 
     // is it lightning ark wallet?

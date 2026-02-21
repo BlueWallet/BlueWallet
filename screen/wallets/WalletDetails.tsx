@@ -19,6 +19,7 @@ import {
   HDSegwitBech32Wallet,
   LegacyWallet,
   LightningArkWallet,
+  LightningSparkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
   SegwitP2SHWallet,
@@ -75,6 +76,8 @@ const WalletDetails: React.FC = () => {
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
+  const [sparkAddress, setSparkAddress] = useState<string>('');
+  const [sparkIdentityPubkey, setSparkIdentityPubkey] = useState<string>('');
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo<string | null>(() => {
     try {
@@ -106,6 +109,40 @@ const WalletDetails: React.FC = () => {
     };
 
     fetchArkAddress();
+  }, [wallet]);
+
+  // Fetch spark details in one flow to avoid duplicate initialization paths.
+  useEffect(() => {
+    const fetchSparkInfo = async () => {
+      if (wallet.type !== LightningSparkWallet.type) return;
+
+      try {
+        if (wallet.fetchInfo) {
+          const info = await wallet.fetchInfo();
+          console.log('spark address:', info.sparkAddress);
+          console.log('spark identity pubkey:', info.identityPubkey);
+          setSparkAddress(info.sparkAddress);
+          setSparkIdentityPubkey(info.identityPubkey);
+          return;
+        }
+
+        const [address, pubkey] = await Promise.all([
+          wallet.getSparkAddress ? wallet.getSparkAddress() : Promise.resolve(''),
+          wallet.getSparkIdentityPubkey ? wallet.getSparkIdentityPubkey() : Promise.resolve(''),
+        ]);
+
+        console.log('spark address:', address);
+        console.log('spark identity pubkey:', pubkey);
+        setSparkAddress(address);
+        setSparkIdentityPubkey(pubkey);
+      } catch (error: any) {
+        const message = error?.message || String(error);
+        setSparkAddress(message);
+        setSparkIdentityPubkey(message);
+      }
+    };
+
+    fetchSparkInfo();
   }, [wallet]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
@@ -495,6 +532,18 @@ const WalletDetails: React.FC = () => {
                   <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Ark {loc.wallets.details_address.toLowerCase()}</Text>
                   <Text style={[styles.textValue, stylesHook.textValue]} selectable>
                     {arkAddress}
+                  </Text>
+                </>
+              )}
+              {wallet.type === LightningSparkWallet.type && (
+                <>
+                  <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark {loc.wallets.details_address.toLowerCase()}</Text>
+                  <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+                    {sparkAddress}
+                  </Text>
+                  <Text style={[styles.textLabel1, stylesHook.textLabel1]}>Spark {loc.wallets.identity_pubkey.toLowerCase()}</Text>
+                  <Text style={[styles.textValue, stylesHook.textValue]} selectable>
+                    {sparkIdentityPubkey}
                   </Text>
                 </>
               )}
