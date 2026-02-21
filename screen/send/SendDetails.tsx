@@ -110,7 +110,8 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
-
+  // estimated sendable amount when MAX is selected (null if not applicable)
+  const [maxSendableAmount, setMaxSendableAmount] = useState<number | null>(null);
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
   const feeRate = useMemo(() => {
@@ -316,8 +317,12 @@ const SendDetails = () => {
     let targets = [];
     for (const transaction of addresses) {
       if (transaction.amount === BitcoinUnit.MAX) {
-        // single output with MAX
-        targets = [{ address: transaction.address }];
+        // single output with MAX — use P2TR dummy (43-byte output) for conservative estimate
+        const addr =
+          transaction.address && wallet.isAddressValid(transaction.address)
+            ? transaction.address
+            : 'bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0';
+        targets = [{ address: addr }];
         break;
       }
       const value = transaction.amountSats;
@@ -364,6 +369,17 @@ const SendDetails = () => {
     }
 
     setFeePrecalc(newFeePrecalc);
+
+    // Calculate maxSendableAmount (only for single recipient with MAX)
+    if (addresses.length === 1 && addresses[0].amount === BitcoinUnit.MAX && newFeePrecalc.current !== null) {
+      // use lutxo to match what coinSelectSplit actually receives
+      const spendableBalance = lutxo.reduce((prev: number, curr: { value: number }) => prev + curr.value, 0);
+      const sendable = spendableBalance - newFeePrecalc.current;
+      setMaxSendableAmount(sendable > 0 ? sendable : null);
+    } else {
+      setMaxSendableAmount(null);
+    }
+
     setParams({ frozenBalance: frozen });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, networkTransactionFees, utxos, addresses, feeRate, dumb]);
@@ -1399,6 +1415,8 @@ const SendDetails = () => {
             editable={isEditable}
             disabled={!isEditable}
             inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
+            maxSendableAmount={index === scrollIndex.current ? maxSendableAmount : null}
+            isMaxAmountEstimate={!(item.address && wallet?.isAddressValid(item.address))}
           />
         </View>
 
