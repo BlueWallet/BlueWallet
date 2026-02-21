@@ -89,7 +89,7 @@ const SendDetails = () => {
   const payjoinUrl = route.params?.payjoinUrl;
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
-  const scrollView = useRef<FlatList<any>>(null);
+  const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
   const scrollIndex = useRef(0);
   const { colors } = useTheme();
 
@@ -217,8 +217,7 @@ const SendDetails = () => {
         return updatedAddresses;
       });
 
-      // @ts-ignore: Fix later
-      setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
+      setParams({ addRecipientParams: undefined });
     } else {
       setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]); // key is for the FlatList
     }

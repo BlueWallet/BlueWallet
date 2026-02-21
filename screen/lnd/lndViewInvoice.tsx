@@ -39,7 +39,7 @@ const LNDViewInvoice = () => {
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
-  const fetchInvoiceInterval = useRef<any>();
+  const fetchInvoiceInterval = useRef<ReturnType<typeof setInterval>>();
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
   const stylesHook = StyleSheet.create({
@@ -111,7 +111,6 @@ const LNDViewInvoice = () => {
       fetchInvoiceInterval.current = setInterval(async () => {
         if (isFetchingInvoices) {
           try {
-            // @ts-ignore - getUserInvoices is not set on TWallet
             const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
             // fetching only last 20 invoices
             // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)

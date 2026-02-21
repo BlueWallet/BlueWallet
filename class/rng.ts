@@ -11,7 +11,7 @@
  * @return {Promise.<Uint8Array>}   The random bytes
  */
 export async function randomBytes(size: number): Promise<Uint8Array> {
-  const g: any = globalThis as any;
+  const g = globalThis as any;
   const rnCrypto = g && g.crypto;
   if (!rnCrypto || typeof rnCrypto.getRandomValues !== 'function') {
     throw new Error('crypto.getRandomValues is not available');
