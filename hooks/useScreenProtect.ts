@@ -1,29 +1,26 @@
-import { CaptureProtection, useCaptureProtection } from 'react-native-capture-protection';
+import { CaptureProtection } from 'react-native-capture-protection';
 import { isDesktop } from '../blue_modules/environment';
+import { useCallback } from 'react';
 
 export const useScreenProtect = () => {
-  const { protectionStatus, status } = useCaptureProtection();
-
-  const enableScreenProtect = () => {
+  const enableScreenProtect = useCallback(async () => {
     if (isDesktop) return;
-    CaptureProtection.prevent();
-  };
+    await CaptureProtection.prevent();
+  }, []);
 
-  const disableScreenProtect = async () => {
+  const disableScreenProtect = useCallback(async () => {
     if (isDesktop) return;
     await CaptureProtection.allow();
-  };
+  }, []);
 
-  const isScreenBeingRecorded = async () => {
+  const isScreenBeingRecorded = useCallback(async () => {
     if (isDesktop) return false;
     return await CaptureProtection.isScreenRecording();
-  };
+  }, []);
 
   return {
     enableScreenProtect,
     disableScreenProtect,
     isScreenBeingRecorded,
-    protectionStatus,
-    status,
   };
 };
