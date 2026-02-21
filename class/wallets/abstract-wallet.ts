@@ -339,6 +339,23 @@ export class AbstractWallet {
         if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
         return this;
       }
+      // It is an Unchained Capital JSON
+      if (parsedSecret && parsedSecret.xfp && (parsedSecret.p2wsh || parsedSecret.p2sh_p2wsh || parsedSecret.p2sh)) {
+        if (parsedSecret.p2wsh) {
+          this.secret = parsedSecret.p2wsh;
+          this._derivationPath = parsedSecret.p2wsh_deriv;
+        } else if (parsedSecret.p2sh_p2wsh) {
+          this.secret = parsedSecret.p2sh_p2wsh;
+          this._derivationPath = parsedSecret.p2sh_p2wsh_deriv;
+        } else {
+          this.secret = parsedSecret.p2sh;
+          this._derivationPath = parsedSecret.p2sh_deriv;
+        }
+
+        this.masterFingerprint = this.getMasterFingerprintFromHex(parsedSecret.xfp);
+        this._derivationPath = this._derivationPath?.replace(/h/g, "'");
+        return this;
+      }
     } catch (_) {}
 
     if (!this._derivationPath) {
