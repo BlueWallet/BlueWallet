@@ -597,6 +597,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
 
     await element(by.id('WalletDetails')).tap();
+    // Multisig type "2 / 2 (native segwit)" is inside the Advanced section (collapsed by default)
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.text('Advanced')).tap();
     await waitForText('2 / 2 (native segwit)');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
@@ -780,10 +783,13 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.id('ImportButton')).tap();
       await element(by.text('OK')).tap();
 
-      // go to wallet and check derivation path
+      // go to wallet and check derivation path (Derivation path is in Advanced section, collapsed by default)
       await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
       await element(by.id('WalletDetails')).tap();
-      await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
+      await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+      await element(by.text('Advanced')).tap();
+      // DerivationPath testID is on the ListItem container (ViewGroup); the path text is in a child - assert text is visible
+      await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
     }
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');

@@ -11,10 +11,12 @@ interface ListItemProps {
   Component?: typeof React.Component | typeof PressableWrapper;
   bottomDivider?: boolean;
   testID?: string;
+  switchTestID?: string;
   onPress?: () => void;
   disabled?: boolean;
   switch?: object;
   title: string;
+  titleStyle?: object;
   subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
   rightTitle?: string;
@@ -44,10 +46,12 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     containerStyle,
     bottomDivider = true,
     testID,
+    switchTestID,
     onPress,
     disabled,
     switch: switchProps,
     title,
+    titleStyle,
     subtitle,
     subtitleNumberOfLines,
     rightTitle,
@@ -99,7 +103,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         )}
         <View style={styles.leftContentWrapper}>
           <RNElementsListItem.Content style={styles.leftContent}>
-            <RNElementsListItem.Title style={stylesHook.title} numberOfLines={0} accessible={switchProps === undefined}>
+            <RNElementsListItem.Title style={[stylesHook.title, titleStyle]} numberOfLines={0} accessible={switchProps === undefined}>
               {title}
             </RNElementsListItem.Title>
             {subtitle && (
@@ -132,9 +136,17 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             </View>
           </View>
         )}
-        {chevron && <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />}
+        {chevron && (
+          <>
+            {!(rightTitle || rightSubtitle) && <View style={styles.chevronSpacer} />}
+            <RNElementsListItem.Chevron iconStyle={{ transform: [{ scaleX: direction === 'rtl' ? -1 : 1 }] }} />
+          </>
+        )}
         {switchProps && (
-          <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+          <>
+            {!(rightTitle || rightSubtitle) && <View style={styles.chevronSpacer} />}
+            <Switch {...memoizedSwitchProps} testID={switchTestID} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+          </>
         )}
         {checkmark && (
           <RNElementsListItem.CheckBox
@@ -175,7 +187,7 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     flexShrink: 0,
     alignSelf: 'stretch',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
   },
   leftContent: {
     flex: 0,
@@ -186,7 +198,7 @@ const styles = StyleSheet.create({
   rightColumn: {
     flex: 1,
     minWidth: 0,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
   },
   rightColumnStack: {
     flexDirection: 'column',
@@ -197,5 +209,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     minWidth: 0,
     alignSelf: 'stretch',
+  },
+  chevronSpacer: {
+    flex: 1,
+    minWidth: 0,
   },
 });
