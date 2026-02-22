@@ -555,6 +555,48 @@ platform :ios do
       # Create Applications symlink for drag-to-install
       sh("ln -s /Applications '#{dmg_staging}/Applications'")
 
+      # Add README with first-launch instructions
+      readme_path = File.join(dmg_staging, "README - Read Before Opening.txt")
+      File.write(readme_path, <<~README)
+        ╔══════════════════════════════════════════════════════════════╗
+        ║               BlueWallet for Mac (Catalyst)                ║
+        ╚══════════════════════════════════════════════════════════════╝
+
+        INSTALLATION
+        ────────────
+        1. Drag "BlueWallet.app" into the "Applications" folder.
+
+        FIRST LAUNCH
+        ────────────
+        Because this app is not distributed through the Mac App Store,
+        macOS may show a warning the first time you open it.
+
+        To open the app:
+
+          Option A — Right-click method (easiest)
+            1. Right-click (or Control-click) BlueWallet in Applications.
+            2. Choose "Open" from the menu.
+            3. Click "Open" in the dialog that appears.
+               You only need to do this once.
+
+          Option B — System Settings
+            1. Try opening the app normally (double-click).
+            2. Go to System Settings → Privacy & Security.
+            3. Scroll down — you will see a message about BlueWallet.
+            4. Click "Open Anyway" and confirm.
+
+          Option C — Terminal (advanced)
+            Run: xattr -cr /Applications/BlueWallet.app
+            Then open the app normally.
+
+        After the first launch macOS will remember your choice and
+        the app will open normally from then on.
+
+        ────────────
+        More info: https://bluewallet.io
+      README
+      UI.message("Added README with first-launch instructions to DMG")
+
       # Build DMG
       FileUtils.rm_f(dmg_path)
       sh("hdiutil create -volname 'BlueWallet' -srcfolder '#{dmg_staging}' -ov -format UDZO '#{dmg_path}'")
