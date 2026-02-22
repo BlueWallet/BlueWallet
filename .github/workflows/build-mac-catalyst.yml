@@ -7,7 +7,6 @@ on:
       - master
     types: [labeled, unlabeled]
 
-# Cancel in-progress runs when the label is removed (or re-added for a fresh build)
 concurrency:
   group: catalyst-build-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
@@ -142,12 +141,10 @@ jobs:
 
           <sub>Built from \`${{ github.sha }}\` | [View workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})</sub>"
 
-          # Delete previous catalyst DMG comments to avoid clutter
           gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
             --paginate --jq '.[] | select(.body | contains("<!-- catalyst-dmg-link -->")) | .id' | \
             while read -r comment_id; do
               gh api -X DELETE "repos/${{ github.repository }}/issues/comments/${comment_id}" || true
             done
 
-          # Post new comment
           gh pr comment "${{ github.event.pull_request.number }}" --body "${COMMENT_BODY}"
