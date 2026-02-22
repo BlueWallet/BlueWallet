@@ -703,7 +703,11 @@ platform :ios do
       PLIST
 
       pkg_path = File.join(output_dir, "BlueWallet.pkg")
-      sh("xcodebuild -exportArchive -archivePath '#{archive_path}' -exportOptionsPlist '#{export_plist_path}' -exportPath '#{output_dir}'")
+      sh("xcodebuild",
+         "-exportArchive",
+         "-archivePath", archive_path,
+         "-exportOptionsPlist", export_plist_path,
+         "-exportPath", output_dir)
 
       # Find the exported pkg
       exported_pkg = Dir.glob(File.join(output_dir, "*.pkg")).first
