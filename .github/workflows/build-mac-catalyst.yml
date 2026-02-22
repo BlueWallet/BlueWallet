@@ -144,8 +144,7 @@ jobs:
             if [[ -n "$TF_LINE" ]]; then
               printf '%s\n' "${TF_LINE}"
             fi
-            printf '\n> **First launch:** Right-click the app → Open → click Open in the dialog. You only need to do this once.\n\n'
-            printf '<sub>Built from `%s` | [View workflow run](https://github.com/%s/actions/runs/%s)</sub>\n' "${{ github.sha }}" "${{ github.repository }}" "${{ github.run_id }}"
+            printf '<sub>Built from `%s`"
           } >"${COMMENT_FILE}"
 
           gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
