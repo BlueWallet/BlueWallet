@@ -676,6 +676,66 @@ platform :ios do
     end
   end
 
+  desc "Upload Mac Catalyst app to TestFlight"
+  lane :upload_catalyst_to_testflight do
+    Dir.chdir(project_root) do
+      # Locate the xcarchive
+      archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE]
+      if archive_path.nil? || archive_path.empty?
+        archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
+      end
+      UI.user_error!("No xcarchive found for TestFlight upload") if archive_path.nil? || !File.exist?(archive_path)
+      UI.message("Using archive: #{archive_path}")
+
+      output_dir = File.join(project_root, "ios", "build", "catalyst-output")
+      FileUtils.mkdir_p(output_dir)
+
+      # Export the archive as a .pkg for Mac Catalyst
+      export_plist_path = File.join(output_dir, "ExportOptions.plist")
+      File.write(export_plist_path, <<~PLIST)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+          <key>method</key>
+          <string>app-store</string>
+          <key>destination</key>
+          <string>upload</string>
+          <key>teamID</key>
+          <string>#{ENV['CATALYST_TEAM_ID'] || ENV['TEAM_ID']}</string>
+          <key>signingStyle</key>
+          <string>automatic</string>
+        </dict>
+        </plist>
+      PLIST
+
+      pkg_path = File.join(output_dir, "BlueWallet.pkg")
+      sh("xcodebuild -exportArchive -archivePath '#{archive_path}' -exportOptionsPlist '#{export_plist_path}' -exportPath '#{output_dir}'")
+
+      # Find the exported pkg
+      exported_pkg = Dir.glob(File.join(output_dir, "*.pkg")).first
+      UI.user_error!("No .pkg found after export") if exported_pkg.nil? || !File.exist?(exported_pkg)
+      UI.success("Exported pkg: #{exported_pkg}")
+
+      # Build changelog
+      branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+      last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+      changelog = "Build Information:\n"
+      changelog += "- Branch: #{branch_name}\n" if branch_name != 'master'
+      changelog += "- Commit: #{last_commit_message}\n"
+
+      # Upload to TestFlight
+      upload_to_testflight(
+        api_key_path: "./appstore_api_key.json",
+        pkg: exported_pkg,
+        skip_waiting_for_build_processing: true,
+        changelog: changelog
+      )
+
+      UI.success("Successfully uploaded Mac Catalyst app to TestFlight!")
+    end
+  end
+
 
   desc "Upload IPA to TestFlight"
   lane :upload_to_testflight_lane do
