@@ -1272,8 +1272,27 @@ PODS:
     - React
   - react-native-bw-file-access (1.0.0):
     - React-Core
-  - react-native-capture-protection (2.0.7):
+  - react-native-capture-protection (2.3.3):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-document-picker (10.1.7):
     - DoubleConversion
     - glog
@@ -2306,7 +2325,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: 43ed5b828646a7862dbc7945556446be00798e7d
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
-  react-native-capture-protection: d2d5ced5fead227abb1304518d55774de19c3021
+  react-native-capture-protection: b3aa307a294a5305133ead87819845c6618bf1f7
   react-native-document-picker: e1dc1c14b246540c048afc6dadfce2efe9f21f95
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 1b6097f71e3cf785a40d22be7904f17e924965bb

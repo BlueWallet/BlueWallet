@@ -179,27 +179,32 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
-      if (hasLoaded.current) return;
-      setIsLoading(true);
       if (isPrivacyBlurEnabled) enableScreenProtect();
 
-      const task = InteractionManager.runAfterInteractions(async () => {
-        if (!w.current) {
-          // lets create fake wallet so renderer wont throw any errors
-          w.current = new MultisigHDWallet();
-          w.current.setNativeSegwit();
-        } else {
-          tempWallet.current.setSecret(w.current.getSecret());
-          setWalletData(new Array(tempWallet.current.getN()));
-          setWallet(tempWallet.current);
-        }
-        hasLoaded.current = true;
-        setIsLoading(false);
-      });
+      // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
+      if (!hasLoaded.current) {
+        setIsLoading(true);
+
+        const task = InteractionManager.runAfterInteractions(async () => {
+          if (!w.current) {
+            // lets create fake wallet so renderer wont throw any errors
+            w.current = new MultisigHDWallet();
+            w.current.setNativeSegwit();
+          } else {
+            tempWallet.current.setSecret(w.current.getSecret());
+            setWalletData(new Array(tempWallet.current.getN()));
+            setWallet(tempWallet.current);
+          }
+          hasLoaded.current = true;
+          setIsLoading(false);
+        });
+        return () => {
+          disableScreenProtect();
+          task.cancel();
+        };
+      }
       return () => {
         disableScreenProtect();
-        task.cancel();
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),
