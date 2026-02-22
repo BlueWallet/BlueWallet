@@ -83,7 +83,7 @@
   },
   "dependencies": {
     "@arkade-os/boltz-swap": "0.2.19",
-    "@arkade-os/sdk": "0.3.12",
+    "@arkade-os/sdk": "0.3.13",
     "@babel/preset-env": "7.27.2",
     "@bugsnag/react-native": "8.4.0",
     "@bugsnag/source-maps": "2.3.3",
