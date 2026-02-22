@@ -1,0 +1,153 @@
+name: Build Mac Catalyst
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+    types: [labeled, unlabeled]
+
+# Cancel in-progress runs when the label is removed (or re-added for a fresh build)
+concurrency:
+  group: catalyst-build-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-mac-catalyst:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.action == 'labeled' && (github.event.label.name == 'mac-dmg' || github.event.label.name == 'testflight'))
+    runs-on: macos-15
+    timeout-minutes: 120
+
+    steps:
+      - name: Check PR labels
+        if: github.event_name == 'pull_request'
+        id: labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LABELS=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels" --jq '.[].name' | tr '\n' ',')
+          echo "all=${LABELS}" >> $GITHUB_OUTPUT
+          if [[ "$LABELS" == *"mac-dmg"* ]]; then
+            echo "has_mac_dmg=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_mac_dmg=false" >> $GITHUB_OUTPUT
+          fi
+          if [[ "$LABELS" == *"testflight"* ]] && [[ "$LABELS" == *"mac-dmg"* ]]; then
+            echo "upload_testflight=true" >> $GITHUB_OUTPUT
+          else
+            echo "upload_testflight=false" >> $GITHUB_OUTPUT
+          fi
+          echo "Labels on PR: ${LABELS}"
+
+      - name: Skip if mac-dmg label not present
+        if: github.event_name == 'pull_request' && steps.labels.outputs.has_mac_dmg != 'true'
+        run: |
+          echo "mac-dmg label not found on PR — skipping build."
+          exit 0
+
+      - name: Checkout project
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Setup Xcode
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest
+
+      - name: Set up Ruby
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.6
+          bundler-cache: true
+
+      - name: Install Node modules
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        run: npm ci
+
+      - name: Install CocoaPods dependencies
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        run: bundle exec fastlane ios install_pods
+        env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
+
+      - name: Build Mac Catalyst app with Fastlane
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        id: build_catalyst
+        run: bundle exec fastlane ios build_catalyst_app_lane
+        env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
+          SKIP_CLEAR_DERIVED_DATA: '1'
+          CATALYST_SIGNING_IDENTITY: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.CATALYST_SIGNING_IDENTITY || '' }}
+          CATALYST_TEAM_ID: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.CATALYST_TEAM_ID || '' }}
+
+      - name: Upload Mac Catalyst DMG
+        id: upload_dmg
+        if: success() && (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true')
+        uses: actions/upload-artifact@v6
+        with:
+          name: BlueWallet-Mac-Catalyst
+          path: ${{ steps.build_catalyst.outputs.catalyst_dmg_path }}
+          if-no-files-found: warn
+
+      - name: Upload to TestFlight
+        if: success() && steps.labels.outputs.upload_testflight == 'true'
+        run: bundle exec fastlane ios upload_catalyst_to_testflight
+        env:
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          APPLE_API_KEY_PATH: ${{ secrets.APPLE_API_KEY_PATH }}
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
+          CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          LATEST_COMMIT_MESSAGE: ${{ github.event.pull_request.title || 'Manual build' }}
+
+      - name: Comment on PR with DMG link
+        if: success() && github.event_name == 'pull_request' && steps.labels.outputs.has_mac_dmg == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPLOADED_TO_TF: ${{ steps.labels.outputs.upload_testflight }}
+        run: |
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.upload_dmg.outputs.artifact-id }}"
+          COMMENT_TAG="<!-- catalyst-dmg-link -->"
+
+          TF_LINE=""
+          if [[ "$UPLOADED_TO_TF" == "true" ]]; then
+            TF_LINE=$'\n\n**Also uploaded to TestFlight.** Check [App Store Connect](https://appstoreconnect.apple.com) for the build.'
+          fi
+
+          COMMENT_BODY="${COMMENT_TAG}
+          ### Mac Catalyst Build
+
+          The Mac Catalyst DMG is ready for download:
+
+          [Download BlueWallet-Mac-Catalyst.dmg](${ARTIFACT_URL})
+          ${TF_LINE}
+
+          > **First launch:** Right-click the app → Open → click Open in the dialog. You only need to do this once.
+
+          <sub>Built from \`${{ github.sha }}\` | [View workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})</sub>"
+
+          # Delete previous catalyst DMG comments to avoid clutter
+          gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --paginate --jq '.[] | select(.body | contains("<!-- catalyst-dmg-link -->")) | .id' | \
+            while read -r comment_id; do
+              gh api -X DELETE "repos/${{ github.repository }}/issues/comments/${comment_id}" || true
+            done
+
+          # Post new comment
+          gh pr comment "${{ github.event.pull_request.number }}" --body "${COMMENT_BODY}"

@@ -82,10 +82,17 @@ def cached_app_store_connect_login
 end
 
 before_all do |lane, options|
-  skip_auth_lanes = ['register_devices_from_txt']
+  if ENV['SKIP_APP_STORE_CONNECT_AUTH'] == '1'
+    UI.message('Skipping App Store Connect authentication (SKIP_APP_STORE_CONNECT_AUTH=1)')
+    next
+  end
+
+  skip_auth_lanes = ['register_devices_from_txt', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
+  lane_name = lane.to_s
+  should_skip_auth = skip_auth_lanes.any? { |skip_lane| lane_name == skip_lane || lane_name.end_with?(" #{skip_lane}") }
   
   # Check if we need App Store Connect for this lane
-  unless skip_auth_lanes.include?(lane)
+  unless should_skip_auth
     begin
       # Try to authenticate once at the beginning
       require 'spaceship'
@@ -457,6 +464,276 @@ platform :ios do
       repo_update: true,
       
       clean_install: true)
+  end
+
+  desc "Build Mac Catalyst app and create DMG"
+  lane :build_catalyst_app_lane do
+    Dir.chdir(project_root) do
+      UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
+
+      workspace_path = File.join(project_root, "ios", "BlueWallet.xcworkspace")
+      derived_data_path = File.join(project_root, "ios", "build", "catalyst-derived-data")
+      output_dir = File.join(project_root, "ios", "build", "catalyst-output")
+
+      if ENV['SKIP_CLEAR_DERIVED_DATA'] == '1'
+        UI.message('Skipping clear_derived_data_lane (SKIP_CLEAR_DERIVED_DATA=1)')
+      else
+        clear_derived_data_lane
+      end
+      FileUtils.mkdir_p(derived_data_path)
+      FileUtils.mkdir_p(output_dir)
+
+      # Determine if we should code-sign during xcodebuild
+      # Requires both CATALYST_SIGNING_IDENTITY and CATALYST_TEAM_ID to be set
+      has_signing_creds = ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty? &&
+                          ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
+      should_sign = has_signing_creds && ENV['CATALYST_SKIP_CODESIGNING'] != '1'
+      signing_identity = ENV['CATALYST_SIGNING_IDENTITY'] || "Developer ID Application"
+
+      xcargs_str = "ARCHS=arm64 ONLY_ACTIVE_ARCH=YES"
+      if should_sign
+        xcargs_str += " DEVELOPMENT_TEAM=#{ENV['CATALYST_TEAM_ID']}"
+        xcargs_str += " CODE_SIGN_IDENTITY=\"#{signing_identity}\""
+        xcargs_str += " CODE_SIGN_STYLE=Manual"
+      else
+        # Disable code signing entirely so xcodebuild doesn't look for provisioning profiles
+        xcargs_str += " CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
+        UI.message("No signing credentials provided — building without code signing")
+      end
+
+      build_app(
+        scheme: "BlueWallet",
+        workspace: workspace_path,
+        configuration: "Release",
+        destination: "generic/platform=macOS,variant=Mac Catalyst",
+        xcargs: xcargs_str,
+        clean: true,
+        skip_codesigning: !should_sign,
+        skip_package_ipa: true,
+        derived_data_path: derived_data_path,
+        buildlog_path: File.join(project_root, "ios", "build_logs")
+      )
+
+      # Locate the .app
+      archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE]
+      if archive_path.nil? || archive_path.empty?
+        archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
+      end
+
+      candidate_paths = []
+      candidate_paths << File.join(archive_path, "Products/Applications/BlueWallet.app") if archive_path
+      candidate_paths << Dir.glob(File.join(derived_data_path, "Build/Products/Release-maccatalyst/*.app")).first
+      candidate_paths << Dir.glob(File.join(derived_data_path, "Build/Intermediates.noindex/ArchiveIntermediates/BlueWallet/BuildProductsPath/Release-maccatalyst/*.app")).first
+
+      catalyst_app_path = candidate_paths.compact.find { |path| File.exist?(path) }
+      UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
+      UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
+
+      # --- Code-sign ---
+      if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
+        UI.message("Re-signing app with: #{signing_identity}")
+        sh("codesign --deep --force --options runtime --sign \"#{signing_identity}\" '#{catalyst_app_path}'")
+        sh("codesign --verify --deep --strict '#{catalyst_app_path}'")
+        UI.success("App signed and verified")
+      else
+        # Ad-hoc sign so macOS doesn't treat the app as "damaged"
+        UI.message("Ad-hoc signing app to avoid Gatekeeper quarantine issues...")
+        sh("codesign --deep --force --sign - '#{catalyst_app_path}'")
+        UI.success("App ad-hoc signed")
+      end
+
+      # --- Create DMG ---
+      dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
+      UI.message("Creating DMG at: #{dmg_path}")
+
+      # Create a temporary folder for DMG contents
+      dmg_staging = File.join(output_dir, "dmg-staging")
+      FileUtils.rm_rf(dmg_staging)
+      FileUtils.mkdir_p(dmg_staging)
+      FileUtils.cp_r(catalyst_app_path, dmg_staging)
+
+      # Create Applications symlink for drag-to-install
+      sh("ln -s /Applications '#{dmg_staging}/Applications'")
+
+      # Add README with first-launch instructions
+      readme_path = File.join(dmg_staging, "README - Read Before Opening.txt")
+      File.write(readme_path, <<~README)
+        ╔══════════════════════════════════════════════════════════════╗
+        ║                     BlueWallet for macOS                     ║
+        ╚══════════════════════════════════════════════════════════════╝
+
+        ═══ ENGLISH ═══════════════════════════════════════════════════
+
+        INSTALLATION: Drag "BlueWallet.app" into "Applications".
+
+        FIRST LAUNCH — macOS may show a warning. To open:
+          • Right-click the app → Open → click "Open" in the dialog.
+          • Or: System Settings → Privacy & Security → Open Anyway.
+          • Or (Terminal): xattr -cr /Applications/BlueWallet.app
+        You only need to do this once.
+
+        ═══ ESPAÑOL ════════════════════════════════════════════════════
+
+        INSTALACIÓN: Arrastra "BlueWallet.app" a "Aplicaciones".
+
+        PRIMER INICIO — macOS puede mostrar una advertencia. Para abrir:
+          • Haz clic derecho en la app → Abrir → clic en "Abrir".
+          • O: Ajustes del Sistema → Privacidad y Seguridad → Abrir igualmente.
+          • O (Terminal): xattr -cr /Applications/BlueWallet.app
+        Solo necesitas hacerlo una vez.
+
+        ═══ 中文 ═══════════════════════════════════════════════════════
+
+        安装：将 "BlueWallet.app" 拖入 "应用程序" 文件夹。
+
+        首次启动 — macOS 可能会显示警告。打开方法：
+          • 右键点击应用 → 打开 → 在对话框中点击"打开"。
+          • 或：系统设置 → 隐私与安全性 → 仍要打开。
+          • 或（终端）：xattr -cr /Applications/BlueWallet.app
+        只需操作一次。
+
+        ═══ PORTUGUÊS ══════════════════════════════════════════════════
+
+        INSTALAÇÃO: Arraste "BlueWallet.app" para "Aplicativos".
+
+        PRIMEIRA ABERTURA — o macOS pode exibir um aviso. Para abrir:
+          • Clique com o botão direito → Abrir → clique em "Abrir".
+          • Ou: Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim.
+          • Ou (Terminal): xattr -cr /Applications/BlueWallet.app
+        Você só precisa fazer isso uma vez.
+
+        ═══ РУССКИЙ ════════════════════════════════════════════════════
+
+        УСТАНОВКА: Перетащите "BlueWallet.app" в "Программы".
+
+        ПЕРВЫЙ ЗАПУСК — macOS может показать предупреждение. Чтобы открыть:
+          • Нажмите правой кнопкой → Открыть → нажмите «Открыть».
+          • Или: Системные настройки → Конфиденциальность → Подтвердить открытие.
+          • Или (Терминал): xattr -cr /Applications/BlueWallet.app
+        Это нужно сделать только один раз.
+
+        ═══ 日本語 ═════════════════════════════════════════════════════
+
+        インストール：「BlueWallet.app」を「アプリケーション」にドラッグ。
+
+        初回起動 — macOS が警告を表示する場合があります。開くには：
+          • アプリを右クリック →「開く」→ ダイアログで「開く」をクリック。
+          • または：システム設定 → プライバシーとセキュリティ →「このまま開く」。
+          • または（ターミナル）：xattr -cr /Applications/BlueWallet.app
+        この操作は一度だけ必要です。
+
+        ═══ DEUTSCH ════════════════════════════════════════════════════
+
+        INSTALLATION: Ziehe „BlueWallet.app" in den Ordner „Programme".
+
+        ERSTER START — macOS zeigt möglicherweise eine Warnung. Zum Öffnen:
+          • Rechtsklick auf die App → Öffnen → „Öffnen" klicken.
+          • Oder: Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen.
+          • Oder (Terminal): xattr -cr /Applications/BlueWallet.app
+        Dies ist nur beim ersten Mal nötig.
+
+        ═══ FRANÇAIS ═══════════════════════════════════════════════════
+
+        INSTALLATION : Glissez « BlueWallet.app » dans « Applications ».
+
+        PREMIER LANCEMENT — macOS peut afficher un avertissement. Pour ouvrir :
+          • Clic droit sur l'app → Ouvrir → cliquez sur « Ouvrir ».
+          • Ou : Réglages Système → Confidentialité et sécurité → Ouvrir quand même.
+          • Ou (Terminal) : xattr -cr /Applications/BlueWallet.app
+        Cette opération n'est nécessaire qu'une seule fois.
+
+        ═══ العربية ════════════════════════════════════════════════════
+
+        التثبيت: اسحب "BlueWallet.app" إلى مجلد "التطبيقات".
+
+        التشغيل الأول — قد يعرض macOS تحذيرًا. لفتح التطبيق:
+          • انقر بزر الماوس الأيمن → افتح → انقر "فتح" في مربع الحوار.
+          • أو: إعدادات النظام → الخصوصية والأمان → فتح على أي حال.
+          • أو (الطرفية): xattr -cr /Applications/BlueWallet.app
+        تحتاج للقيام بذلك مرة واحدة فقط.
+
+        ────────────────────────────────────────────────────────────────
+        https://bluewallet.io
+      README
+      UI.message("Added multilingual README with first-launch instructions to DMG")
+
+      FileUtils.rm_f(dmg_path)
+      sh("hdiutil create -volname 'BlueWallet' -srcfolder '#{dmg_staging}' -ov -format UDZO '#{dmg_path}'")
+      UI.user_error!("DMG was not created at #{dmg_path}") unless File.exist?(dmg_path)
+      UI.success("DMG created at: #{dmg_path}")
+
+      FileUtils.rm_rf(dmg_staging)
+
+      ENV['CATALYST_APP_PATH'] = catalyst_app_path
+      ENV['CATALYST_DMG_PATH'] = dmg_path
+      if ENV['GITHUB_OUTPUT']
+        sh("echo 'catalyst_app_path=#{catalyst_app_path}' >> $GITHUB_OUTPUT")
+        sh("echo 'catalyst_dmg_path=#{dmg_path}' >> $GITHUB_OUTPUT")
+      end
+
+      UI.success("macOS app built at: #{catalyst_app_path}")
+      UI.success("macOS DMG at: #{dmg_path}")
+    end
+  end
+
+  desc "Upload Mac Catalyst app to TestFlight"
+  lane :upload_catalyst_to_testflight do
+    Dir.chdir(project_root) do
+      # Locate the xcarchive
+      archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE]
+      if archive_path.nil? || archive_path.empty?
+        archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
+      end
+      UI.user_error!("No xcarchive found for TestFlight upload") if archive_path.nil? || !File.exist?(archive_path)
+      UI.message("Using archive: #{archive_path}")
+
+      output_dir = File.join(project_root, "ios", "build", "catalyst-output")
+      FileUtils.mkdir_p(output_dir)
+
+      # Export the archive as a .pkg for Mac Catalyst
+      export_plist_path = File.join(output_dir, "ExportOptions.plist")
+      File.write(export_plist_path, <<~PLIST)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+          <key>method</key>
+          <string>app-store</string>
+          <key>destination</key>
+          <string>upload</string>
+          <key>teamID</key>
+          <string>#{ENV['CATALYST_TEAM_ID'] || ENV['TEAM_ID']}</string>
+          <key>signingStyle</key>
+          <string>automatic</string>
+        </dict>
+        </plist>
+      PLIST
+
+      pkg_path = File.join(output_dir, "BlueWallet.pkg")
+      sh("xcodebuild -exportArchive -archivePath '#{archive_path}' -exportOptionsPlist '#{export_plist_path}' -exportPath '#{output_dir}'")
+
+      # Find the exported pkg
+      exported_pkg = Dir.glob(File.join(output_dir, "*.pkg")).first
+      UI.user_error!("No .pkg found after export") if exported_pkg.nil? || !File.exist?(exported_pkg)
+      UI.success("Exported pkg: #{exported_pkg}")
+
+      # Build changelog
+      branch_name = ENV['BRANCH_NAME'] || "unknown-branch"
+      last_commit_message = ENV['LATEST_COMMIT_MESSAGE'] || "No commit message found"
+      changelog = "Build Information:\n"
+      changelog += "- Branch: #{branch_name}\n" if branch_name != 'master'
+      changelog += "- Commit: #{last_commit_message}\n"
+
+      # Upload to TestFlight
+      upload_to_testflight(
+        api_key_path: "./appstore_api_key.json",
+        pkg: exported_pkg,
+        skip_waiting_for_build_processing: true,
+        changelog: changelog
+      )
+
+      UI.success("Successfully uploaded Mac Catalyst app to TestFlight!")
+    end
   end
 
 
