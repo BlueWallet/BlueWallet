@@ -466,7 +466,7 @@ platform :ios do
       clean_install: true)
   end
 
-  desc "Build Mac Catalyst app and create DMG"
+  desc "Build Mac Catalyst app, handle code signing, create DMG with multilingual README, and set GitHub outputs"
   lane :build_catalyst_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
@@ -559,7 +559,7 @@ platform :ios do
       FileUtils.mkdir_p(dmg_staging)
       FileUtils.cp_r(catalyst_app_path, dmg_staging)
 
-      sh("ln -s /Applications '#{dmg_staging}/Applications'")
+      sh("ln", "-s", "/Applications", "#{dmg_staging}/Applications")
 
       # Add README with first-launch instructions
       readme_path = File.join(dmg_staging, "README - Read Before Opening.txt")
