@@ -5,10 +5,18 @@ on:
   pull_request:
     branches:
       - master
-    types: [opened, synchronize, reopened]
+    types: [labeled, unlabeled]
+
+# Cancel in-progress runs when the label is removed (or re-added for a fresh build)
+concurrency:
+  group: catalyst-build-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   build-mac-catalyst:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.action == 'labeled' && github.event.label.name == 'mac-dmg')
     runs-on: macos-15
     timeout-minutes: 120
 
