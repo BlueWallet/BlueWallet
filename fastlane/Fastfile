@@ -528,13 +528,26 @@ platform :ios do
 
       if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
         UI.message("Re-signing app with: #{signing_identity}")
-        sh("codesign --deep --force --options runtime --sign \"#{signing_identity}\" '#{catalyst_app_path}'")
-        sh("codesign --verify --deep --strict '#{catalyst_app_path}'")
+        sh("codesign",
+           "--deep",
+           "--force",
+           "--options", "runtime",
+           "--sign", signing_identity,
+           catalyst_app_path)
+        sh("codesign",
+           "--verify",
+           "--deep",
+           "--strict",
+           catalyst_app_path)
         UI.success("App signed and verified")
       else
         # Ad-hoc sign so macOS doesn't treat the app as "damaged"
         UI.message("Ad-hoc signing app to avoid Gatekeeper quarantine issues...")
-        sh("codesign --deep --force --sign - '#{catalyst_app_path}'")
+        sh("codesign",
+           "--deep",
+           "--force",
+           "--sign", "-",
+           catalyst_app_path)
         UI.success("App ad-hoc signed")
       end
 
