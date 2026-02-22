@@ -51,7 +51,11 @@ const useDeviceQuickActions = () => {
   useEffect(() => {
     if (walletsInitialized) {
       DeviceEventEmitter.addListener('quickActionShortcut', walletQuickActions);
-      popInitialShortcutAction().then(popInitialAction);
+      popInitialShortcutAction()
+        .then(popInitialAction)
+        .catch(error => {
+          console.error('Failed to process initial quick action:', error);
+        });
       return () => DeviceEventEmitter.removeAllListeners('quickActionShortcut');
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -74,26 +78,28 @@ const useDeviceQuickActions = () => {
   };
 
   const popInitialAction = async (data: any): Promise<void> => {
-    if (data) {
-      const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
-      if (wallet) {
-        NavigationService.dispatch(
-          CommonActions.navigate({
-            name: 'WalletTransactions',
-            params: {
-              walletID: wallet.getID(),
-              walletType: wallet.type,
-            },
-          }),
-        );
-      }
-    } else {
-      const url = await Linking.getInitialURL();
-      if (url) {
-        if (DeeplinkSchemaMatch.hasSchema(url)) {
+    try {
+      if (data) {
+        const wallet = wallets.find(w => w.getID() === data.userInfo.url.split('wallet/')[1]);
+        if (wallet) {
+          NavigationService.dispatch(
+            CommonActions.navigate({
+              name: 'WalletTransactions',
+              params: {
+                walletID: wallet.getID(),
+                walletType: wallet.type,
+              },
+            }),
+          );
+        }
+      } else {
+        const url = await Linking.getInitialURL();
+        if (url && DeeplinkSchemaMatch.hasSchema(url)) {
           handleOpenURL({ url });
         }
       }
+    } catch (error) {
+      console.error('Failed to handle initial quick action/deeplink:', error);
     }
   };
 
