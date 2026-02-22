@@ -555,11 +555,11 @@ platform :ios do
       # Create Applications symlink for drag-to-install
       sh("ln -s /Applications '#{dmg_staging}/Applications'")
 
-      # Add README with first-launch instructions in top languages
+      # Add README with first-launch instructions
       readme_path = File.join(dmg_staging, "README - Read Before Opening.txt")
       File.write(readme_path, <<~README)
         ╔══════════════════════════════════════════════════════════════╗
-        ║               BlueWallet for Mac (Catalyst)                ║
+        ║                     BlueWallet for macOS                     ║
         ╚══════════════════════════════════════════════════════════════╝
 
         ═══ ENGLISH ═══════════════════════════════════════════════════
@@ -657,16 +657,13 @@ platform :ios do
       README
       UI.message("Added multilingual README with first-launch instructions to DMG")
 
-      # Build DMG
       FileUtils.rm_f(dmg_path)
       sh("hdiutil create -volname 'BlueWallet' -srcfolder '#{dmg_staging}' -ov -format UDZO '#{dmg_path}'")
       UI.user_error!("DMG was not created at #{dmg_path}") unless File.exist?(dmg_path)
       UI.success("DMG created at: #{dmg_path}")
 
-      # Clean up staging
       FileUtils.rm_rf(dmg_staging)
 
-      # --- Set outputs ---
       ENV['CATALYST_APP_PATH'] = catalyst_app_path
       ENV['CATALYST_DMG_PATH'] = dmg_path
       if ENV['GITHUB_OUTPUT']
@@ -674,8 +671,8 @@ platform :ios do
         sh("echo 'catalyst_dmg_path=#{dmg_path}' >> $GITHUB_OUTPUT")
       end
 
-      UI.success("Mac Catalyst app built at: #{catalyst_app_path}")
-      UI.success("Mac Catalyst DMG at: #{dmg_path}")
+      UI.success("macOS app built at: #{catalyst_app_path}")
+      UI.success("macOS DMG at: #{dmg_path}")
     end
   end
 
