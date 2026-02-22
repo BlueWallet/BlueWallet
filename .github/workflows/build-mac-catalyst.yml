@@ -5,7 +5,7 @@ on:
   pull_request:
     branches:
       - master
-    types: [labeled, unlabeled]
+    types: [labeled]
 
 concurrency:
   group: catalyst-build-${{ github.event.pull_request.number || github.run_id }}
