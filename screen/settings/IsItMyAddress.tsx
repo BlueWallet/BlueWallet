@@ -270,8 +270,4 @@ const styles = StyleSheet.create({
   boldText: {
     fontWeight: 'bold',
   },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-    width: '100%',
-  },
 });

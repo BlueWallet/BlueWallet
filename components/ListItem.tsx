@@ -134,10 +134,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 
     if (!onPress) {
       return (
-        <View
-          testID={testID}
-          style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}
-        >
+        <View testID={testID} style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}>
           {renderContent()}
         </View>
       );
