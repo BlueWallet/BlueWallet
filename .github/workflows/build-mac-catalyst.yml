@@ -5,7 +5,7 @@ on:
   pull_request:
     branches:
       - master
-    types: [labeled]
+    types: [labeled, synchronize]
 
 concurrency:
   group: catalyst-build-${{ github.event.pull_request.number || github.run_id }}
@@ -15,7 +15,8 @@ jobs:
   build:
     if: >
       github.event_name == 'workflow_dispatch' ||
-      (github.event.action == 'labeled' && (github.event.label.name == 'mac-dmg' || github.event.label.name == 'testflight'))
+      (github.event.action == 'labeled' && (github.event.label.name == 'mac-dmg' || github.event.label.name == 'testflight')) ||
+      github.event.action == 'synchronize'
     runs-on: macos-15
     timeout-minutes: 120
 
