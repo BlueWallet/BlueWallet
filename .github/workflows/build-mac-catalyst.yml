@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-mac-catalyst:
+  build:
     if: >
       github.event_name == 'workflow_dispatch' ||
       (github.event.action == 'labeled' && (github.event.label.name == 'mac-dmg' || github.event.label.name == 'testflight'))
