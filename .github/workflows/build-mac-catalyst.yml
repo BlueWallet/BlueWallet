@@ -102,6 +102,10 @@ jobs:
           path: ${{ steps.build_catalyst.outputs.catalyst_dmg_path }}
           if-no-files-found: warn
 
+      - name: Create App Store Connect API Key JSON
+        if: success() && steps.labels.outputs.upload_testflight == 'true'
+        run: echo '${{ secrets.APPLE_API_KEY_CONTENT }}' > ./appstore_api_key.json
+
       - name: Upload to TestFlight
         if: success() && steps.labels.outputs.upload_testflight == 'true'
         run: bundle exec fastlane ios upload_catalyst_to_testflight
@@ -114,6 +118,10 @@ jobs:
           TEAM_ID: ${{ secrets.TEAM_ID }}
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
           LATEST_COMMIT_MESSAGE: ${{ github.event.pull_request.title || 'Manual build' }}
+
+      - name: Cleanup App Store Connect API Key JSON
+        if: always() && steps.labels.outputs.upload_testflight == 'true'
+        run: rm -f ./appstore_api_key.json
 
       - name: Comment on PR with DMG link
         if: success() && github.event_name == 'pull_request' && steps.labels.outputs.has_mac_dmg == 'true'
