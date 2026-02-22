@@ -483,8 +483,6 @@ platform :ios do
       FileUtils.mkdir_p(derived_data_path)
       FileUtils.mkdir_p(output_dir)
 
-      # Determine if we should code-sign during xcodebuild
-      # Requires both CATALYST_SIGNING_IDENTITY and CATALYST_TEAM_ID to be set
       has_signing_creds = ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty? &&
                           ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
       should_sign = has_signing_creds && ENV['CATALYST_SKIP_CODESIGNING'] != '1'
@@ -514,7 +512,6 @@ platform :ios do
         buildlog_path: File.join(project_root, "ios", "build_logs")
       )
 
-      # Locate the .app
       archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE]
       if archive_path.nil? || archive_path.empty?
         archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
@@ -529,7 +526,6 @@ platform :ios do
       UI.user_error!("Mac Catalyst app was not found after build") if catalyst_app_path.nil?
       UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
-      # --- Code-sign ---
       if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
         UI.message("Re-signing app with: #{signing_identity}")
         sh("codesign --deep --force --options runtime --sign \"#{signing_identity}\" '#{catalyst_app_path}'")
@@ -542,17 +538,14 @@ platform :ios do
         UI.success("App ad-hoc signed")
       end
 
-      # --- Create DMG ---
       dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
       UI.message("Creating DMG at: #{dmg_path}")
 
-      # Create a temporary folder for DMG contents
       dmg_staging = File.join(output_dir, "dmg-staging")
       FileUtils.rm_rf(dmg_staging)
       FileUtils.mkdir_p(dmg_staging)
       FileUtils.cp_r(catalyst_app_path, dmg_staging)
 
-      # Create Applications symlink for drag-to-install
       sh("ln -s /Applications '#{dmg_staging}/Applications'")
 
       # Add README with first-launch instructions
