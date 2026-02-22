@@ -555,47 +555,107 @@ platform :ios do
       # Create Applications symlink for drag-to-install
       sh("ln -s /Applications '#{dmg_staging}/Applications'")
 
-      # Add README with first-launch instructions
+      # Add README with first-launch instructions in top languages
       readme_path = File.join(dmg_staging, "README - Read Before Opening.txt")
       File.write(readme_path, <<~README)
         ╔══════════════════════════════════════════════════════════════╗
         ║               BlueWallet for Mac (Catalyst)                ║
         ╚══════════════════════════════════════════════════════════════╝
 
-        INSTALLATION
-        ────────────
-        1. Drag "BlueWallet.app" into the "Applications" folder.
+        ═══ ENGLISH ═══════════════════════════════════════════════════
 
-        FIRST LAUNCH
-        ────────────
-        Because this app is not distributed through the Mac App Store,
-        macOS may show a warning the first time you open it.
+        INSTALLATION: Drag "BlueWallet.app" into "Applications".
 
-        To open the app:
+        FIRST LAUNCH — macOS may show a warning. To open:
+          • Right-click the app → Open → click "Open" in the dialog.
+          • Or: System Settings → Privacy & Security → Open Anyway.
+          • Or (Terminal): xattr -cr /Applications/BlueWallet.app
+        You only need to do this once.
 
-          Option A — Right-click method (easiest)
-            1. Right-click (or Control-click) BlueWallet in Applications.
-            2. Choose "Open" from the menu.
-            3. Click "Open" in the dialog that appears.
-               You only need to do this once.
+        ═══ ESPAÑOL ════════════════════════════════════════════════════
 
-          Option B — System Settings
-            1. Try opening the app normally (double-click).
-            2. Go to System Settings → Privacy & Security.
-            3. Scroll down — you will see a message about BlueWallet.
-            4. Click "Open Anyway" and confirm.
+        INSTALACIÓN: Arrastra "BlueWallet.app" a "Aplicaciones".
 
-          Option C — Terminal (advanced)
-            Run: xattr -cr /Applications/BlueWallet.app
-            Then open the app normally.
+        PRIMER INICIO — macOS puede mostrar una advertencia. Para abrir:
+          • Haz clic derecho en la app → Abrir → clic en "Abrir".
+          • O: Ajustes del Sistema → Privacidad y Seguridad → Abrir igualmente.
+          • O (Terminal): xattr -cr /Applications/BlueWallet.app
+        Solo necesitas hacerlo una vez.
 
-        After the first launch macOS will remember your choice and
-        the app will open normally from then on.
+        ═══ 中文 ═══════════════════════════════════════════════════════
 
-        ────────────
-        More info: https://bluewallet.io
+        安装：将 "BlueWallet.app" 拖入 "应用程序" 文件夹。
+
+        首次启动 — macOS 可能会显示警告。打开方法：
+          • 右键点击应用 → 打开 → 在对话框中点击"打开"。
+          • 或：系统设置 → 隐私与安全性 → 仍要打开。
+          • 或（终端）：xattr -cr /Applications/BlueWallet.app
+        只需操作一次。
+
+        ═══ PORTUGUÊS ══════════════════════════════════════════════════
+
+        INSTALAÇÃO: Arraste "BlueWallet.app" para "Aplicativos".
+
+        PRIMEIRA ABERTURA — o macOS pode exibir um aviso. Para abrir:
+          • Clique com o botão direito → Abrir → clique em "Abrir".
+          • Ou: Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim.
+          • Ou (Terminal): xattr -cr /Applications/BlueWallet.app
+        Você só precisa fazer isso uma vez.
+
+        ═══ РУССКИЙ ════════════════════════════════════════════════════
+
+        УСТАНОВКА: Перетащите "BlueWallet.app" в "Программы".
+
+        ПЕРВЫЙ ЗАПУСК — macOS может показать предупреждение. Чтобы открыть:
+          • Нажмите правой кнопкой → Открыть → нажмите «Открыть».
+          • Или: Системные настройки → Конфиденциальность → Подтвердить открытие.
+          • Или (Терминал): xattr -cr /Applications/BlueWallet.app
+        Это нужно сделать только один раз.
+
+        ═══ 日本語 ═════════════════════════════════════════════════════
+
+        インストール：「BlueWallet.app」を「アプリケーション」にドラッグ。
+
+        初回起動 — macOS が警告を表示する場合があります。開くには：
+          • アプリを右クリック →「開く」→ ダイアログで「開く」をクリック。
+          • または：システム設定 → プライバシーとセキュリティ →「このまま開く」。
+          • または（ターミナル）：xattr -cr /Applications/BlueWallet.app
+        この操作は一度だけ必要です。
+
+        ═══ DEUTSCH ════════════════════════════════════════════════════
+
+        INSTALLATION: Ziehe „BlueWallet.app" in den Ordner „Programme".
+
+        ERSTER START — macOS zeigt möglicherweise eine Warnung. Zum Öffnen:
+          • Rechtsklick auf die App → Öffnen → „Öffnen" klicken.
+          • Oder: Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen.
+          • Oder (Terminal): xattr -cr /Applications/BlueWallet.app
+        Dies ist nur beim ersten Mal nötig.
+
+        ═══ FRANÇAIS ═══════════════════════════════════════════════════
+
+        INSTALLATION : Glissez « BlueWallet.app » dans « Applications ».
+
+        PREMIER LANCEMENT — macOS peut afficher un avertissement. Pour ouvrir :
+          • Clic droit sur l'app → Ouvrir → cliquez sur « Ouvrir ».
+          • Ou : Réglages Système → Confidentialité et sécurité → Ouvrir quand même.
+          • Ou (Terminal) : xattr -cr /Applications/BlueWallet.app
+        Cette opération n'est nécessaire qu'une seule fois.
+
+        ═══ العربية ════════════════════════════════════════════════════
+
+        التثبيت: اسحب "BlueWallet.app" إلى مجلد "التطبيقات".
+
+        التشغيل الأول — قد يعرض macOS تحذيرًا. لفتح التطبيق:
+          • انقر بزر الماوس الأيمن → افتح → انقر "فتح" في مربع الحوار.
+          • أو: إعدادات النظام → الخصوصية والأمان → فتح على أي حال.
+          • أو (الطرفية): xattr -cr /Applications/BlueWallet.app
+        تحتاج للقيام بذلك مرة واحدة فقط.
+
+        ────────────────────────────────────────────────────────────────
+        https://bluewallet.io
       README
-      UI.message("Added README with first-launch instructions to DMG")
+      UI.message("Added multilingual README with first-launch instructions to DMG")
 
       # Build DMG
       FileUtils.rm_f(dmg_path)
