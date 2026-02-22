@@ -52,9 +52,38 @@ jobs:
           SKIP_CLEAR_DERIVED_DATA: '1'
 
       - name: Upload Mac Catalyst DMG
+        id: upload_dmg
         if: success()
         uses: actions/upload-artifact@v6
         with:
           name: BlueWallet-Mac-Catalyst
           path: ${{ steps.build_catalyst.outputs.catalyst_dmg_path }}
           if-no-files-found: warn
+
+      - name: Comment on PR with DMG link
+        if: success() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ steps.upload_dmg.outputs.artifact-id }}"
+          COMMENT_TAG="<!-- catalyst-dmg-link -->"
+          COMMENT_BODY="${COMMENT_TAG}
+          ### Mac Catalyst Build
+
+          The Mac Catalyst DMG is ready for download:
+
+          [Download BlueWallet-Mac-Catalyst.dmg](${ARTIFACT_URL})
+
+          > **First launch:** Right-click the app → Open → click Open in the dialog. You only need to do this once.
+
+          <sub>Built from \`${{ github.sha }}\` | [View workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})</sub>"
+
+          # Delete previous catalyst DMG comments to avoid clutter
+          gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --paginate --jq '.[] | select(.body | contains("<!-- catalyst-dmg-link -->")) | .id' | \
+            while read -r comment_id; do
+              gh api -X DELETE "repos/${{ github.repository }}/issues/comments/${comment_id}" || true
+            done
+
+          # Post new comment
+          gh pr comment "${{ github.event.pull_request.number }}" --body "${COMMENT_BODY}"
