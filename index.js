@@ -23,7 +23,9 @@ LogBox.ignoreLogs([
 
 const BlueAppComponent = () => {
   useEffect(() => {
-    restoreSavedPreferredFiatCurrencyAndExchangeFromStorage();
+    restoreSavedPreferredFiatCurrencyAndExchangeFromStorage().catch(error => {
+      console.error('Failed to restore preferred currency and exchange rates on startup:', error);
+    });
   }, []);
 
   return <App />;
