@@ -102,14 +102,16 @@ jobs:
           path: ${{ steps.build_catalyst.outputs.catalyst_dmg_path }}
           if-no-files-found: warn
 
+      - name: Create App Store Connect API Key JSON
+        if: success() && steps.labels.outputs.upload_testflight == 'true'
+        run: echo '${{ secrets.APPLE_API_KEY_CONTENT }}' > ./appstore_api_key.json
+
       - name: Upload to TestFlight
         if: success() && steps.labels.outputs.upload_testflight == 'true'
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         env:
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
-          APPLE_API_KEY_PATH: ${{ secrets.APPLE_API_KEY_PATH }}
-          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
           CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID }}
           TEAM_ID: ${{ secrets.TEAM_ID }}
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}

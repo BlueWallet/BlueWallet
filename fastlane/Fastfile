@@ -466,7 +466,7 @@ platform :ios do
       clean_install: true)
   end
 
-  desc "Build Mac Catalyst app and create DMG"
+  desc "Build Mac Catalyst app, handle code signing, create DMG with multilingual README, and set GitHub outputs"
   lane :build_catalyst_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
@@ -559,7 +559,7 @@ platform :ios do
       FileUtils.mkdir_p(dmg_staging)
       FileUtils.cp_r(catalyst_app_path, dmg_staging)
 
-      sh("ln -s /Applications '#{dmg_staging}/Applications'")
+      sh("ln", "-s", "/Applications", "#{dmg_staging}/Applications")
 
       # Add README with first-launch instructions
       readme_path = File.join(dmg_staging, "README - Read Before Opening.txt")
@@ -664,7 +664,7 @@ platform :ios do
       UI.message("Added multilingual README with first-launch instructions to DMG")
 
       FileUtils.rm_f(dmg_path)
-      sh("hdiutil create -volname 'BlueWallet' -srcfolder '#{dmg_staging}' -ov -format UDZO '#{dmg_path}'")
+      sh("hdiutil", "create", "-volname", "BlueWallet", "-srcfolder", dmg_staging, "-ov", "-format", "UDZO", dmg_path)
       UI.user_error!("DMG was not created at #{dmg_path}") unless File.exist?(dmg_path)
       UI.success("DMG created at: #{dmg_path}")
 
@@ -673,8 +673,10 @@ platform :ios do
       ENV['CATALYST_APP_PATH'] = catalyst_app_path
       ENV['CATALYST_DMG_PATH'] = dmg_path
       if ENV['GITHUB_OUTPUT']
-        sh("echo 'catalyst_app_path=#{catalyst_app_path}' >> $GITHUB_OUTPUT")
-        sh("echo 'catalyst_dmg_path=#{dmg_path}' >> $GITHUB_OUTPUT")
+        File.open(ENV['GITHUB_OUTPUT'], 'a') do |f|
+          f.puts "catalyst_app_path=#{catalyst_app_path}"
+          f.puts "catalyst_dmg_path=#{dmg_path}"
+        end
       end
 
       UI.success("macOS app built at: #{catalyst_app_path}")
