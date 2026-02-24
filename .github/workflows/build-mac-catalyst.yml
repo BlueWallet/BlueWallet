@@ -84,6 +84,14 @@ jobs:
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
 
+      - name: Create temporary keychain for signing
+        if: (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true') && steps.labels.outputs.upload_testflight == 'true'
+        run: |
+          security create-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "${{ secrets.KEYCHAIN_PASSWORD }}" build.keychain
+          security set-keychain-settings -t 3600 -u build.keychain
+
       - name: Build Mac Catalyst app with Fastlane
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         id: build_catalyst
@@ -93,6 +101,11 @@ jobs:
           SKIP_CLEAR_DERIVED_DATA: '1'
           CATALYST_SIGNING_IDENTITY: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.CATALYST_SIGNING_IDENTITY || '' }}
           CATALYST_TEAM_ID: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.CATALYST_TEAM_ID || '' }}
+          GIT_URL: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.GIT_URL || '' }}
+          GIT_ACCESS_TOKEN: ${{ steps.labels.outputs.upload_testflight == 'true' && secrets.GIT_ACCESS_TOKEN || '' }}
+          MATCH_READONLY: ${{ steps.labels.outputs.upload_testflight == 'true' && 'false' || 'true' }}
+          KEYCHAIN_NAME: ${{ steps.labels.outputs.upload_testflight == 'true' && 'build' || '' }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
 
       - name: Upload Mac Catalyst DMG
         id: upload_dmg
@@ -121,6 +134,10 @@ jobs:
       - name: Cleanup App Store Connect API Key JSON
         if: always() && steps.labels.outputs.upload_testflight == 'true'
         run: rm -f ./appstore_api_key.json
+
+      - name: Cleanup temporary keychain
+        if: always() && steps.labels.outputs.upload_testflight == 'true'
+        run: security delete-keychain build.keychain || true
 
       - name: Comment on PR with DMG link
         if: success() && github.event_name == 'pull_request' && steps.labels.outputs.has_mac_dmg == 'true'

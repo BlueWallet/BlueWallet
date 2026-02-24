@@ -393,12 +393,20 @@ platform :ios do
     log_success("All provisioning profiles set up")
   end
 
+  # Only these targets support Mac Catalyst (watch/stickers do not)
+  def catalyst_app_identifiers
+    [
+      "io.bluewallet.bluewallet",
+      "io.bluewallet.bluewallet.MarketWidget"
+    ]
+  end
+
   desc "Fetch development certificates and provisioning profiles for Mac Catalyst"
   lane :fetch_dev_profiles_catalyst do
     match(
       type: "development",
       platform: "catalyst",
-      app_identifier: app_identifiers,
+      app_identifier: catalyst_app_identifiers,
       readonly: true,
       clone_branch_directly: true
     )
@@ -409,15 +417,15 @@ platform :ios do
     match(
       type: "appstore",
       platform: "catalyst",
-      app_identifier: app_identifiers,
+      app_identifier: catalyst_app_identifiers,
       readonly: true,
       clone_branch_directly: true
     )
   end
 
-  desc "Setup provisioning profiles for Mac Catalyst"
+  desc "Create provisioning profiles for Mac Catalyst (first-time setup)"
   lane :setup_catalyst_provisioning_profiles do
-    app_identifiers.each do |app_identifier|
+    catalyst_app_identifiers.each do |app_identifier|
       match(
         type: "development",
         platform: "catalyst",
@@ -483,16 +491,54 @@ platform :ios do
       FileUtils.mkdir_p(derived_data_path)
       FileUtils.mkdir_p(output_dir)
 
+      # Only these targets support Mac Catalyst
+      catalyst_identifiers = [
+        "io.bluewallet.bluewallet",
+        "io.bluewallet.bluewallet.MarketWidget"
+      ]
+
       has_signing_creds = ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty? &&
                           ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
-      should_sign = has_signing_creds && ENV['CATALYST_SKIP_CODESIGNING'] != '1'
-      signing_identity = ENV['CATALYST_SIGNING_IDENTITY'] || "Developer ID Application"
+      has_match_creds = ENV['GIT_URL'] && !ENV['GIT_URL'].empty? &&
+                        ENV['GIT_ACCESS_TOKEN'] && !ENV['GIT_ACCESS_TOKEN'].empty?
+      should_sign = has_signing_creds && has_match_creds && ENV['CATALYST_SKIP_CODESIGNING'] != '1'
+      signing_identity = ENV['CATALYST_SIGNING_IDENTITY'] || "Apple Distribution"
 
       xcargs_str = "ARCHS=arm64 ONLY_ACTIVE_ARCH=YES"
       if should_sign
-        xcargs_str += " DEVELOPMENT_TEAM=#{ENV['CATALYST_TEAM_ID']}"
+        UI.message("Setting up Mac Catalyst provisioning profiles via match...")
+        team_id = ENV['CATALYST_TEAM_ID']
+        match_readonly = ENV['MATCH_READONLY'] != 'false'
+
+        # Create/fetch provisioning profiles for catalyst targets
+        catalyst_identifiers.each do |app_id|
+          match(
+            type: "appstore",
+            platform: "catalyst",
+            app_identifier: app_id,
+            team_id: team_id,
+            git_url: ENV['GIT_URL'],
+            git_basic_authorization: ENV['GIT_ACCESS_TOKEN'],
+            readonly: match_readonly,
+            clone_branch_directly: true,
+            keychain_name: ENV['KEYCHAIN_NAME'] || "login",
+            keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
+          )
+        end
+
+        xcargs_str += " DEVELOPMENT_TEAM=#{team_id}"
         xcargs_str += " CODE_SIGN_IDENTITY=\"#{signing_identity}\""
         xcargs_str += " CODE_SIGN_STYLE=Manual"
+
+        # Set provisioning profile specifiers per catalyst target
+        catalyst_identifiers.each do |app_id|
+          profile_name = "match AppStore #{app_id} catalyst"
+          # Convert bundle ID to xcodebuild target setting key
+          # e.g., io.bluewallet.bluewallet -> PROVISIONING_PROFILE_SPECIFIER for that target
+          xcargs_str += " PROVISIONING_PROFILE_SPECIFIER_#{app_id.gsub('.', '_')}=\"#{profile_name}\""
+        end
+
+        UI.success("Provisioning profiles configured for Mac Catalyst")
       else
         # Disable code signing entirely so xcodebuild doesn't look for provisioning profiles
         xcargs_str += " CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
@@ -699,7 +745,15 @@ platform :ios do
       FileUtils.mkdir_p(output_dir)
 
       # Export the archive as a .pkg for Mac Catalyst
+      team_id = ENV['CATALYST_TEAM_ID'] || ENV['TEAM_ID']
       export_plist_path = File.join(output_dir, "ExportOptions.plist")
+
+      # Build provisioning profiles mapping for manual signing
+      profiles_xml = catalyst_app_identifiers.map do |app_id|
+        profile_name = "match AppStore #{app_id} catalyst"
+        "\t\t\t<key>#{app_id}</key>\n\t\t\t<string>#{profile_name}</string>"
+      end.join("\n")
+
       File.write(export_plist_path, <<~PLIST)
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -710,9 +764,13 @@ platform :ios do
           <key>destination</key>
           <string>upload</string>
           <key>teamID</key>
-          <string>#{ENV['CATALYST_TEAM_ID'] || ENV['TEAM_ID']}</string>
+          <string>#{team_id}</string>
           <key>signingStyle</key>
-          <string>automatic</string>
+          <string>manual</string>
+          <key>provisioningProfiles</key>
+          <dict>
+#{profiles_xml}
+          </dict>
         </dict>
         </plist>
       PLIST
