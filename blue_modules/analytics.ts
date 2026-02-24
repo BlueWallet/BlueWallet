@@ -13,23 +13,24 @@ const BlueApp = BlueAppClass.getInstance();
 let userHasOptedOut: boolean = false;
 
 (async () => {
-  // Don't try to start Bugsnag again as it's already initialized in native code
-  // Just configure the existing instance if tracking is allowed
-  const uniqueID = await getUniqueId();
-  const doNotTrack = await BlueApp.isDoNotTrackEnabled();
+  try {
+    // Don't try to start Bugsnag again as it's already initialized in native code.
+    // Configure it only when tracking is allowed.
+    const doNotTrack = await BlueApp.isDoNotTrackEnabled();
+    if (doNotTrack) {
+      userHasOptedOut = true;
+      return;
+    }
 
-  if (doNotTrack) {
-    userHasOptedOut = true;
-    return;
+    const uniqueID = await getUniqueId();
+    Bugsnag.setUser(uniqueID);
+    Bugsnag.addOnError(function () {
+      return !userHasOptedOut;
+    });
+  } catch (error) {
+    // Never let analytics setup crash the app.
+    console.error('Failed to initialize analytics:', error);
   }
-
-  // Configure the existing Bugsnag instance instead of starting a new one
-  Bugsnag.setUser(uniqueID);
-
-  // Add additional configuration if needed
-  Bugsnag.addOnError(function (event) {
-    return !userHasOptedOut;
-  });
 })();
 
 const A = async (event: string) => {};
@@ -40,7 +41,13 @@ A.setOptOut = (value: boolean) => {
 
 A.logError = (errorString: string) => {
   console.error(errorString);
-  Bugsnag.notify(new Error(String(errorString)));
+  if (!userHasOptedOut) {
+    try {
+      Bugsnag.notify(new Error(String(errorString)));
+    } catch (error) {
+      console.error('Failed to report error to Bugsnag:', error);
+    }
+  }
 };
 
 export default A;
