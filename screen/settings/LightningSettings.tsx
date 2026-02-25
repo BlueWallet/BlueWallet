@@ -14,7 +14,14 @@ import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
-import { SettingsScrollView, SettingsCard, SettingsListItem, SettingsSubtitle, isAndroid } from '../../components/platform';
+import {
+  SettingsScrollView,
+  SettingsCard,
+  SettingsListItem,
+  SettingsSection,
+  SettingsSubtitle,
+  isAndroid,
+} from '../../components/platform';
 
 type LightingSettingsRouteProps = RouteProp<DetailViewStackParamList, 'LightningSettings'>;
 
@@ -104,42 +111,47 @@ const LightningSettings: React.FC = () => {
   };
 
   return (
-    <SettingsScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <SettingsCard>
-        <View style={styles.cardContent}>
-          <SettingsSubtitle>{loc.settings.lightning_settings_explain}</SettingsSubtitle>
-        </View>
-      </SettingsCard>
+    <SettingsScrollView>
+      <SettingsSection compact>
+        <SettingsCard compact>
+          <View style={styles.cardContent}>
+            <SettingsSubtitle>{loc.settings.lightning_settings_explain}</SettingsSubtitle>
+          </View>
+        </SettingsCard>
+      </SettingsSection>
 
-      <View style={[styles.rowPadding, styles.githubContainer]}>
+      <SettingsSection compact horizontalInset={false}>
         <SettingsListItem
           title={loc.settings.lndhub_github}
           subtitle="github.com/BlueWallet/LndHub"
           onPress={handleOpenGithub}
           iconName="github"
           position="single"
+          spacingTop
         />
-      </View>
+      </SettingsSection>
 
-      <SettingsCard>
-        <View style={styles.cardContent}>
-          <View style={styles.inputContainer}>
-            <AddressInput
-              isLoading={isLoading}
-              address={URI}
-              placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
-              onChangeText={setLndhubURI}
-              testID="URIInput"
-              editable={!isLoading}
-              style={styles.addressInput}
-            />
-          </View>
+      <SettingsSection compact>
+        <SettingsCard>
+          <View style={styles.cardContent}>
+            <View style={styles.inputContainer}>
+              <AddressInput
+                isLoading={isLoading}
+                address={URI}
+                placeholder={loc.formatString(loc.settings.lndhub_uri, { example: 'https://10.20.30.40:3000' })}
+                onChangeText={setLndhubURI}
+                testID="URIInput"
+                editable={!isLoading}
+                style={styles.addressInput}
+              />
+            </View>
 
-          <View style={styles.buttonContainer}>
-            {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
+            <View style={styles.buttonContainer}>
+              {isLoading ? <BlueLoading /> : <Button testID="Save" onPress={save} title={loc.settings.save} />}
+            </View>
           </View>
-        </View>
-      </SettingsCard>
+        </SettingsCard>
+      </SettingsSection>
     </SettingsScrollView>
   );
 };
@@ -149,22 +161,16 @@ export default LightningSettings;
 const horizontalPadding = isAndroid ? 20 : 16;
 
 const styles = StyleSheet.create({
-  rowPadding: {
-    paddingHorizontal: horizontalPadding,
-  },
   cardContent: {
     paddingHorizontal: horizontalPadding,
-    paddingVertical: 12,
+    paddingVertical: isAndroid ? 12 : 10,
   },
   inputContainer: {
-    marginTop: isAndroid ? 16 : 12,
-    marginBottom: isAndroid ? 16 : 12,
+    marginTop: isAndroid ? 12 : 10,
+    marginBottom: isAndroid ? 12 : 10,
   },
   buttonContainer: {
-    marginTop: isAndroid ? 16 : 12,
-  },
-  githubContainer: {
-    marginTop: isAndroid ? 16 : 12,
+    marginTop: isAndroid ? 12 : 10,
   },
   addressInput: {
     minHeight: 44,
