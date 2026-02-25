@@ -62,17 +62,21 @@ export const checkNotificationPermissionStatus = async () => {
 // Listener to monitor notification permission status changes while app is running
 let currentPermissionStatus = 'unavailable';
 const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-  if (nextAppState === 'active') {
-    const isDisabledByUser = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
-    if (!isDisabledByUser) {
-      const newPermissionStatus = await checkNotificationPermissionStatus();
-      if (newPermissionStatus !== currentPermissionStatus) {
-        currentPermissionStatus = newPermissionStatus;
-        if (newPermissionStatus === 'granted') {
-          await initializeNotifications();
+  try {
+    if (nextAppState === 'active') {
+      const isDisabledByUser = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
+      if (!isDisabledByUser) {
+        const newPermissionStatus = await checkNotificationPermissionStatus();
+        if (newPermissionStatus !== currentPermissionStatus) {
+          currentPermissionStatus = newPermissionStatus;
+          if (newPermissionStatus === 'granted') {
+            await initializeNotifications();
+          }
         }
       }
     }
+  } catch (error) {
+    console.error('Failed handling app state notification refresh:', error);
   }
 };
 
