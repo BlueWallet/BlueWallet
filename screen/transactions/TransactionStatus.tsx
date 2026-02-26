@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -130,8 +130,12 @@ const TransactionStatus: React.FC = () => {
   const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
   const fetchTxInterval = useRef<NodeJS.Timeout>();
+
+  // Explicit width for To/ID text so Android StaticLayout can apply ellipsis (flex alone often fails on Android)
+  const detailValueMaxWidth = useMemo(() => Math.max(0, Math.floor((windowWidth - 48) / 2)), [windowWidth]);
 
   // Advanced section state
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
@@ -876,6 +880,12 @@ const TransactionStatus: React.FC = () => {
     return name.substr(0, 10) + '...' + name.substr(name.length - 10, 10);
   };
 
+  // Shorten tx hash for display so it fits on one line on Android (native ellipsis is unreliable for long IDs)
+  const shortenTxHash = (txHash: string): string => {
+    if (txHash.length <= 24) return txHash;
+    return txHash.slice(0, 10) + '...' + txHash.slice(-10);
+  };
+
   // Derive read-only counterparty info (if any) for BIP47 counterparties
   useEffect(() => {
     if (!tx?.hash || !wallet || !counterpartyMetadata) {
@@ -1117,11 +1127,11 @@ const TransactionStatus: React.FC = () => {
           </View>
         </View>
 
-        {/* To address - sent transactions only */}
+        {/* To address - sent transactions only, when exactly one external output (single recipient or rest is change) */}
         {tx.value < 0 &&
           (() => {
             const externalAddresses = arrDiff(from, to.filter(onlyUnique));
-            if (externalAddresses.length === 0) return null;
+            if (externalAddresses.length !== 1) return null;
             const displayText = externalAddresses.map(shortenCounterpartyName).join(', ');
             const copyText = externalAddresses.join(', ');
             return (
@@ -1130,9 +1140,15 @@ const TransactionStatus: React.FC = () => {
                 <View style={styles.detailValueContainer}>
                   <View style={styles.detailValueCopyContainer}>
                     <CopyTextToClipboard
+                      containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, { width: detailValueMaxWidth }])}
                       text={copyText}
                       displayText={displayText}
-                      style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                      style={StyleSheet.flatten([
+                        styles.detailValue,
+                        stylesHook.detailValue,
+                        styles.detailValueEllipsisText,
+                        { width: detailValueMaxWidth },
+                      ])}
                       numberOfLines={1}
                       ellipsizeMode="middle"
                       selectable
@@ -1144,15 +1160,22 @@ const TransactionStatus: React.FC = () => {
             );
           })()}
 
-        {/* Transaction ID */}
+        {/* Transaction ID - display shortened so it stays on one line on Android; copy still gets full hash */}
         {tx.hash && (
           <View style={[styles.detailRow, stylesHook.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
               <View style={styles.detailValueCopyContainer}>
                 <CopyTextToClipboard
+                  containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, { width: detailValueMaxWidth }])}
                   text={tx.hash}
-                  style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                  displayText={shortenTxHash(tx.hash)}
+                  style={StyleSheet.flatten([
+                    styles.detailValue,
+                    stylesHook.detailValue,
+                    styles.detailValueEllipsisText,
+                    { width: detailValueMaxWidth },
+                  ])}
                   numberOfLines={1}
                   ellipsizeMode="middle"
                   selectable
@@ -1551,17 +1574,28 @@ const styles = StyleSheet.create({
   detailValueContainer: {
     flex: 1,
     minWidth: 0,
+    maxWidth: '100%',
+    flexWrap: 'nowrap',
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 8,
-    flexWrap: 'wrap',
   },
   detailValueCopyContainer: {
     flex: 1,
     minWidth: 0,
     alignItems: 'flex-end',
     justifyContent: 'center',
+  },
+  // Ellipsis container: bounded width so Text with numberOfLines + ellipsizeMode works (Repeato guide)
+  detailValueEllipsisContainer: {
+    flex: 1,
+    minWidth: 0,
+  },
+  // Text style for single-line ellipsis in row layout (flex: 1 so text adjusts to container)
+  detailValueEllipsisText: {
+    flex: 1,
+    minWidth: 0,
   },
   detailValueFullWidth: {
     width: '100%',
