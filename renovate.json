@@ -5,5 +5,5 @@
     ":rebaseStalePrs",
     ":preserveSemverRanges"
   ],
-  "ignoreDeps": ["react-navigation", "react-native"]
+  "ignoreDeps": ["@react-navigation/*", "react-native"]
 }
