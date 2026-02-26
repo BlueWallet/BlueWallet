@@ -8,6 +8,7 @@ import { AppRegistry, LogBox } from 'react-native';
 
 import App from './App';
 import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_modules/currency';
+import { initLocalization } from './loc';
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
@@ -23,6 +24,10 @@ LogBox.ignoreLogs([
 
 const BlueAppComponent = () => {
   useEffect(() => {
+    initLocalization().catch(error => {
+      console.error('Failed to initialize localization on startup:', error);
+    });
+
     restoreSavedPreferredFiatCurrencyAndExchangeFromStorage().catch(error => {
       console.error('Failed to restore preferred currency and exchange rates on startup:', error);
     });

@@ -13,6 +13,14 @@ const resolveAliases = {
  * @type {import('@react-native/metro-config').MetroConfig}
  */
 const config = {
+  transformer: {
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: true,
+      },
+    }),
+  },
   resolver: {
     extraNodeModules: {
       stream: require.resolve('stream-browserify'),
