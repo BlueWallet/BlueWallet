@@ -239,8 +239,9 @@ const ImportWalletDiscovery: React.FC = () => {
         ListEmptyComponent={ListEmptyComponent}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        automaticallyAdjustContentInsets
-        contentInsetAdjustmentBehavior="always"
+        automaticallyAdjustContentInsets={Platform.OS === 'ios'}
+        contentInsetAdjustmentBehavior={Platform.OS === 'ios' ? 'always' : 'never'}
+        removeClippedSubviews={false}
       />
       <View style={[styles.center, stylesHook.center]}>
         {bip39 && (
