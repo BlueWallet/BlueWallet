@@ -1,7 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
-import { ArkadeSwaps, BoltzSwapProvider, decodeInvoice, PendingSwap } from '@arkade-os/boltz-swap';
-import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction, RestArkProvider, RestIndexerProvider } from '@arkade-os/sdk';
+import { ArkadeSwaps, BoltzSwapProvider, decodeInvoice, PendingSwap, migrateToSwapRepository } from '@arkade-os/boltz-swap';
+import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction, RestArkProvider, RestIndexerProvider, migrateWalletRepository, requiresMigration, rollbackMigration } from '@arkade-os/sdk';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RealmWalletRepository, RealmContractRepository, RealmSwapRepository, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm';
 import { fetch } from '../../util/fetch';
 
@@ -107,6 +108,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const realm = await getArkadeRealm();
       const walletRepository = new RealmWalletRepository(realm);
       const contractRepository = new RealmContractRepository(realm);
+      const swapRepository = new RealmSwapRepository(realm);
 
       const mm = new Measure('Wallet.create()');
       if (!staticWalletCache[namespace]) {
@@ -123,7 +125,53 @@ export class LightningArkWallet extends LightningCustodianWallet {
       mm.end();
       this._wallet = staticWalletCache[namespace];
 
-      await this._initLightningSwaps();
+      // Migration from legacy AsyncStorage to Realm
+      const legacyStorage = {
+        getItem: (key: string) => AsyncStorage.getItem(`${namespace}_${key}`),
+        setItem: (key: string, value: string) => AsyncStorage.setItem(`${namespace}_${key}`, value),
+        removeItem: (key: string) => AsyncStorage.removeItem(`${namespace}_${key}`),
+        clear: async () => {
+          const allKeys = await AsyncStorage.getAllKeys();
+          const namespacedKeys = allKeys.filter(k => k.startsWith(`${namespace}_`));
+          if (namespacedKeys.length > 0) {
+            await AsyncStorage.multiRemove(namespacedKeys);
+          }
+        },
+      };
+
+      // Only attempt migration if legacy data actually exists in AsyncStorage
+      const hasLegacyData = await AsyncStorage.getItem(`${namespace}_wallet:state`);
+      if (hasLegacyData) {
+        // Migrate wallet data (vtxos, transactions, etc.)
+        try {
+          const needsWalletMigration = await requiresMigration('wallet', legacyStorage);
+          if (needsWalletMigration) {
+            console.log('[ARK] Migrating wallet data from AsyncStorage to Realm...');
+            const boardingAddress = await this._wallet!.getBoardingAddress();
+            const arkAddress = await this._wallet!.getAddress();
+            await migrateWalletRepository(legacyStorage, walletRepository, {
+              onchain: [boardingAddress],
+              offchain: [arkAddress],
+            });
+            console.log('[ARK] Wallet migration complete');
+          }
+        } catch (error: any) {
+          console.log('[ARK] Wallet migration failed, rolling back:', error.message);
+          await rollbackMigration('wallet', legacyStorage);
+        }
+
+        // Migrate swap data (pending swaps, swap history)
+        try {
+          const swapsMigrated = await migrateToSwapRepository(legacyStorage, swapRepository);
+          if (swapsMigrated) {
+            console.log('[ARK] Swap data migrated to Realm');
+          }
+        } catch (error: any) {
+          console.log('[ARK] Swap migration failed:', error.message);
+        }
+      }
+
+      await this._initLightningSwaps(swapRepository);
 
       // initialize VTXO manager in set timeout so it doesnt block the wallet initialization
       setTimeout(async () => {
@@ -146,7 +194,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
-  async _initLightningSwaps() {
+  async _initLightningSwaps(swapRepository: InstanceType<typeof RealmSwapRepository>) {
     assert(this._wallet, 'Ark wallet must be initialized first');
     assert(this._boltzApiUrl, 'Boltz Api Url is not set');
 
@@ -167,8 +215,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     });
 
     // Create the ArkadeSwaps instance with Realm-backed swap repository
-    const realm = await getArkadeRealm();
-    const swapRepository = new RealmSwapRepository(realm);
     this._arkadeSwaps = new ArkadeSwaps({
       wallet: this._wallet,
       swapProvider,
