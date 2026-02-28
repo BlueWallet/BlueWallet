@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeSwaps, BoltzSwapProvider, decodeInvoice, PendingSwap, migrateToSwapRepository } from '@arkade-os/boltz-swap';
-import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction, RestArkProvider, RestIndexerProvider, migrateWalletRepository, requiresMigration, rollbackMigration } from '@arkade-os/sdk';
+import { SingleKey, Ramps, Wallet, ExtendedCoin, ArkTransaction, RestArkProvider, RestIndexerProvider, migrateWalletRepository, requiresMigration, rollbackMigration } from '@arkade-os/sdk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RealmWalletRepository, RealmContractRepository, RealmSwapRepository, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm';
 import { fetch } from '../../util/fetch';
@@ -41,7 +41,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   private _swapHistory: PendingSwap[] = [];
   private _transactionsHistory: ArkTransaction[] = [];
-  private _claimedSwaps: Record<string, boolean> = {};
   private _privateKeyCache = '';
   private _boardingUtxos: ExtendedCoin[] = [];
 
@@ -172,23 +171,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       }
 
       await this._initLightningSwaps(swapRepository);
-
-      // initialize VTXO manager in set timeout so it doesnt block the wallet initialization
-      setTimeout(async () => {
-        const manager = new VtxoManager(staticWalletCache[namespace], {
-          enabled: true, // Enable expiration monitoring
-        });
-        try {
-          const expiringVtxos = await manager.getExpiringVtxos();
-          if (expiringVtxos.length > 0) {
-            console.log(`ARK renewing ${expiringVtxos.length} expiring VTXOs...`);
-            const renewTxid = await manager.renewVtxos();
-            console.log('ARK VTXO renewed:', renewTxid);
-          }
-        } catch (error: any) {
-          console.log('ARK Error renewing VTXOs:', error.message);
-        }
-      }, 1_000);
     } finally {
       initLock[namespace] = false;
     }
@@ -275,9 +257,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
           continue;
       }
 
-      if (this._claimedSwaps[swap.id]) {
-        ispaid = true;
-      }
       // @ts-ignore properties do exist
       value = swap.response.onchainAmount || swap.response.expectedAmount || value || swap.request.invoiceAmount || 0;
       value = value * direction;
@@ -341,41 +320,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     this._lastTxFetch = +new Date();
   }
 
-  async _attemptToClaimPendingVHTLCs() {
-    assert(this._wallet, 'Ark wallet not initialized');
-    assert(this._arkadeSwaps, 'Ark Swaps not initialized');
-    const arkadeSwaps = this._arkadeSwaps;
-
-    const pendingReverseSwaps = await this._arkadeSwaps.getPendingReverseSwaps();
-    if ((pendingReverseSwaps ?? []).length > 0) console.log('got', pendingReverseSwaps?.length ?? [], 'pending swaps');
-
-    await Promise.all(
-      (pendingReverseSwaps ?? []).map(async swap => {
-        if (this._claimedSwaps[swap.id]) return;
-
-        console.log(`claiming ${swap.id}...`);
-        if (swap?.response?.timeoutBlockHeights?.refund && swap?.response?.timeoutBlockHeights?.refund <= Date.now() / 1000) {
-          console.log(`skipping ${swap.id} (too old)`);
-          return;
-        }
-        try {
-          await arkadeSwaps.claimVHTLC(swap);
-          console.log('claimed!');
-          this._claimedSwaps[swap.id] = true;
-        } catch (error: any) {
-          console.log(`could not claim ${swap.id}:`, error.message);
-        }
-      }),
-    );
-  }
-
   async fetchBalance(noRetry?: boolean): Promise<void> {
     if (!this._wallet) await this.init();
     if (!this._wallet) throw new Error('Ark wallet not initialized');
-
-    if (this._arkadeSwaps) {
-      await this._attemptToClaimPendingVHTLCs();
-    }
 
     await this._attemptBoardUtxos();
 
@@ -421,9 +368,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   async getUserInvoices(limit: number | false = false): Promise<LightningTransaction[]> {
-    if (this._arkadeSwaps) {
-      await this._attemptToClaimPendingVHTLCs();
-    }
     await this.fetchTransactions();
     const txs = this.getTransactions();
     return txs.filter(tx => tx.value! > 0);
