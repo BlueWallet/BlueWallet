@@ -3,6 +3,7 @@ const path = require('path');
 
 const resolveAliases = {
   '@arkade-os/sdk/adapters/expo': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/cjs/adapters/expo.js'),
+  '@arkade-os/sdk/worker/expo': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/cjs/worker/expo/index.js'),
   'expo/fetch': path.join(__dirname, 'util/expo-fetch.js'),
 };
 
