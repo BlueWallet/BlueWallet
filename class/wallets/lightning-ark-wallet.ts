@@ -1,9 +1,8 @@
 import BigNumber from 'bignumber.js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
-import { ArkadeLightning, BoltzSwapProvider, decodeInvoice, PendingReverseSwap, PendingSubmarineSwap } from '@arkade-os/boltz-swap';
-import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
-import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
+import { ArkadeSwaps, BoltzSwapProvider, decodeInvoice, PendingSwap } from '@arkade-os/boltz-swap';
+import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction, RestArkProvider, RestIndexerProvider } from '@arkade-os/sdk';
+import { RealmWalletRepository, RealmContractRepository, RealmSwapRepository, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm';
 import { fetch } from '../../util/fetch';
 
 import BIP32Factory from 'bip32';
@@ -34,12 +33,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
   public readonly typeReadable = LightningArkWallet.typeReadable;
 
   private _wallet: Wallet | undefined;
-  private _arkadeLightning: ArkadeLightning | undefined = undefined;
+  private _arkadeSwaps: ArkadeSwaps | undefined = undefined;
   private _arkServerUrl: string = 'https://arkade.computer';
   private _arkServerPublicKey: string = '022b74c2011af089c849383ee527c72325de52df6a788428b68d49e9174053aaba';
   private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
 
-  private _swapHistory: (PendingReverseSwap | PendingSubmarineSwap)[] = [];
+  private _swapHistory: PendingSwap[] = [];
   private _transactionsHistory: ArkTransaction[] = [];
   private _claimedSwaps: Record<string, boolean> = {};
   private _privateKeyCache = '';
@@ -56,7 +55,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   prepareForSerialization() {
     this._wallet = undefined;
-    this._arkadeLightning = undefined;
+    this._arkadeSwaps = undefined;
   }
 
   _getIdentity() {
@@ -90,7 +89,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     if (initLock[namespace]) {
       let c = 0;
-      while (!this._wallet || !this._arkadeLightning) {
+      while (!this._wallet || !this._arkadeSwaps) {
         await new Promise(resolve => setTimeout(resolve, 500)); // sleep
         if (c++ > 30) {
           throw new Error('Ark wallet initialization timed out');
@@ -105,34 +104,18 @@ export class LightningArkWallet extends LightningCustodianWallet {
     try {
       const identity = this._getIdentity();
 
-      class ArkCustomStorage {
-        async getItem(key: string): Promise<string | null> {
-          return await AsyncStorage.getItem(`${namespace}_${key}`);
-        }
-
-        async setItem(key: string, value: string): Promise<void> {
-          return await AsyncStorage.setItem(`${namespace}_${key}`, value);
-        }
-
-        async removeItem(key: string): Promise<void> {
-          await AsyncStorage.removeItem(`${namespace}_${key}`);
-        }
-
-        async clear(): Promise<void> {
-          // nop
-        }
-      }
-
-      const storage = new ArkCustomStorage();
+      const realm = await getArkadeRealm();
+      const walletRepository = new RealmWalletRepository(realm);
+      const contractRepository = new RealmContractRepository(realm);
 
       const mm = new Measure('Wallet.create()');
       if (!staticWalletCache[namespace]) {
         const wallet = await Wallet.create({
-          storage,
           identity,
-          arkProvider: new ExpoArkProvider(this._arkServerUrl),
-          indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
+          arkProvider: new RestArkProvider(this._arkServerUrl),
+          indexerProvider: new RestIndexerProvider(this._arkServerUrl),
           arkServerPublicKey: this._arkServerPublicKey,
+          storage: { walletRepository, contractRepository },
         });
         staticWalletCache[namespace] = wallet;
       }
@@ -183,10 +166,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
       network: 'bitcoin',
     });
 
-    // Create the ArkadeLightning instance
-    this._arkadeLightning = new ArkadeLightning({
+    // Create the ArkadeSwaps instance with Realm-backed swap repository
+    const realm = await getArkadeRealm();
+    const swapRepository = new RealmSwapRepository(realm);
+    this._arkadeSwaps = new ArkadeSwaps({
       wallet: this._wallet,
       swapProvider,
+      swapRepository,
     });
   }
 
@@ -302,19 +288,19 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async fetchTransactions() {
     if (!this._wallet) await this.init();
     if (!this._wallet) throw new Error('Ark wallet not initialized');
-    if (!this._arkadeLightning) throw new Error('Ark Lightning not initialized');
+    if (!this._arkadeSwaps) throw new Error('Ark Swaps not initialized');
 
-    this._swapHistory = await this._arkadeLightning.getSwapHistory();
+    this._swapHistory = await this._arkadeSwaps.getSwapHistory();
     this._transactionsHistory = await this._wallet.getTransactionHistory();
     this._lastTxFetch = +new Date();
   }
 
   async _attemptToClaimPendingVHTLCs() {
     assert(this._wallet, 'Ark wallet not initialized');
-    assert(this._arkadeLightning, 'Ark Lightning not initialized');
-    const arkadeLightning = this._arkadeLightning;
+    assert(this._arkadeSwaps, 'Ark Swaps not initialized');
+    const arkadeSwaps = this._arkadeSwaps;
 
-    const pendingReverseSwaps = await this._arkadeLightning.getPendingReverseSwaps();
+    const pendingReverseSwaps = await this._arkadeSwaps.getPendingReverseSwaps();
     if ((pendingReverseSwaps ?? []).length > 0) console.log('got', pendingReverseSwaps?.length ?? [], 'pending swaps');
 
     await Promise.all(
@@ -327,7 +313,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
           return;
         }
         try {
-          await arkadeLightning.claimVHTLC(swap);
+          await arkadeSwaps.claimVHTLC(swap);
           console.log('claimed!');
           this._claimedSwaps[swap.id] = true;
         } catch (error: any) {
@@ -341,7 +327,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._wallet) await this.init();
     if (!this._wallet) throw new Error('Ark wallet not initialized');
 
-    if (this._arkadeLightning) {
+    if (this._arkadeSwaps) {
       await this._attemptToClaimPendingVHTLCs();
     }
 
@@ -369,7 +355,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       return;
     }
 
-    assert(this._arkadeLightning, 'Ark Lightning not initialized');
+    assert(this._arkadeSwaps, 'Ark Swaps not initialized');
 
     const invoiceDetails = decodeInvoice(invoice);
 
@@ -380,7 +366,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     assert(invoiceDetails.amountSats > this._limitMin, `Minimum you can send is ${this._limitMin} sat`);
     assert(invoiceDetails.amountSats < this._limitMax, `Maximum you can is ${this._limitMax} sat`);
 
-    const paymentResult = await this._arkadeLightning.sendLightningPayment({ invoice });
+    const paymentResult = await this._arkadeSwaps.sendLightningPayment({ invoice });
 
     console.log('Payment successful!');
     console.log('Amount:', paymentResult.amount);
@@ -389,7 +375,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   async getUserInvoices(limit: number | false = false): Promise<LightningTransaction[]> {
-    if (this._arkadeLightning) {
+    if (this._arkadeSwaps) {
       await this._attemptToClaimPendingVHTLCs();
     }
     await this.fetchTransactions();
@@ -399,14 +385,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async addInvoice(amt: number, memo: string) {
     if (!this._wallet) await this.init();
-    assert(this._arkadeLightning, 'Ark Lightning not initialized');
+    assert(this._arkadeSwaps, 'Ark Swaps not initialized');
     assert(amt > this._limitMin, `Minimum to receive is ${this._limitMin} sat`);
     assert(amt < this._limitMax, `Maximum to receive is ${this._limitMin} sat`);
 
     // fee percentage is smth like `0.01`, but its not 1%, its one-hundredth of a percent, rounded up
     const serviceFee = Math.ceil(new BigNumber(amt).multipliedBy(this._feePercentage).dividedBy(100).toNumber());
 
-    const result = await this._arkadeLightning.createLightningInvoice({
+    const result = await this._arkadeSwaps.createLightningInvoice({
       amount: amt + serviceFee,
       description: memo,
     });
