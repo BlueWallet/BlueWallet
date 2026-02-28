@@ -30,20 +30,20 @@ export function useArkadeBackgroundSync() {
     const hasArkWallet = wallets.some(w => w.type === LightningArkWallet.type);
 
     if (hasArkWallet && !isRegistered.current) {
-      registerArkadeBackgroundTask(taskFactory);
+      registerArkadeBackgroundTask(taskFactory).catch(e => console.log('[ArkadeSync] Registration failed:', e));
       startPolling(taskFactory);
       isRegistered.current = true;
     }
 
     if (!hasArkWallet && isRegistered.current) {
-      unregisterArkadeBackgroundTask();
+      unregisterArkadeBackgroundTask().catch(e => console.log('[ArkadeSync] Unregistration failed:', e));
       stopPolling();
       isRegistered.current = false;
     }
 
     return () => {
       if (isRegistered.current) {
-        unregisterArkadeBackgroundTask();
+        unregisterArkadeBackgroundTask().catch(e => console.log('[ArkadeSync] Cleanup failed:', e));
         stopPolling();
         isRegistered.current = false;
       }
