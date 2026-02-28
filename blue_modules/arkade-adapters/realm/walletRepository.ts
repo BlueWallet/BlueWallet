@@ -2,6 +2,7 @@
 // Vendored from upstream PR arkade-os/ts-sdk#318 (not yet merged).
 
 import type { WalletRepository, ArkTransaction, ExtendedCoin, ExtendedVirtualCoin, TxType } from '@arkade-os/sdk';
+import { serializeVtxo, serializeUtxo, deserializeVtxo, deserializeUtxo, type SerializedTapLeaf } from './serialization';
 
 // WalletState is defined in @arkade-os/sdk's repositories but not re-exported
 // from the public API. We define it locally to match the interface contract.
@@ -9,8 +10,6 @@ interface WalletState {
   lastSyncTime?: number;
   settings?: Record<string, any>;
 }
-
-import { serializeVtxo, serializeUtxo, deserializeVtxo, deserializeUtxo, type SerializedTapLeaf } from './serialization';
 
 // Schema names must match those in schemas.ts
 const VTXO_SCHEMA = 'ArkVtxo';
