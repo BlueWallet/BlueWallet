@@ -84,7 +84,7 @@
   "dependencies": {
     "@arkade-os/boltz-swap": "0.2.19",
     "@arkade-os/sdk": "0.3.12",
-    "@babel/preset-env": "7.27.2",
+    "@babel/preset-env": "7.29.0",
     "@bugsnag/react-native": "8.4.0",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.7.1",
@@ -121,7 +121,7 @@
     "bech32": "2.0.0",
     "bignumber.js": "9.3.1",
     "bip21": "2.0.3",
-    "bip32": "5.0.0",
+    "bip32": "5.0.1",
     "bip38": "github:BlueWallet/bip38",
     "bip39": "3.1.0",
     "bitcoinjs-lib": "7.0.0",
