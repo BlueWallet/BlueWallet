@@ -73,9 +73,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       () => ({
         backgroundColor: colors.background,
         borderBottomColor: colors.lightBorder,
-        paddingLeft: 12,
-
-        paddingRight: 12,
       }),
       [colors.background, colors.lightBorder],
     );
