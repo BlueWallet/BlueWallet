@@ -15,7 +15,8 @@ import {
   Text,
   View,
 } from 'react-native';
-import { Badge, Icon } from '@rneui/themed';
+import Badge from '../../components/Badge';
+import Icon from '../../components/Icon';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import { BlueCard, BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
@@ -223,7 +224,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
         header={
           <View style={styles.itemKeyUnprovidedWrapper}>
             <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+              <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
             </View>
             <View style={styles.vaultKeyTextWrapper}>
               <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>

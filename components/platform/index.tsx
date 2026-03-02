@@ -19,10 +19,10 @@ import {
   ViewProps,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MaterialIcon from '@react-native-vector-icons/material-icons';
+import Ionicons from '@react-native-vector-icons/ionicons';
+import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
+import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 import SafeAreaFlatList from '../SafeAreaFlatList';
 import SafeAreaScrollView from '../SafeAreaScrollView';
@@ -256,19 +256,22 @@ interface IconProps {
   backgroundColor?: string;
 }
 
-const renderVectorIcon = (icon: IconProps) => {
-  const size = platformSizing.iconInnerSize;
-  const color = icon.color ?? 'black';
-  switch (icon.type) {
+const resolveSettingsIconComponent = (type?: string): React.ComponentType<any> => {
+  switch (type) {
     case 'ionicon':
-      return <Ionicons name={icon.name} size={size} color={color} />;
+      return Ionicons;
     case 'material':
-      return <MaterialIcon name={icon.name} size={size} color={color} />;
+      return MaterialIcon;
     case 'material-community':
-      return <MaterialCommunityIcons name={icon.name} size={size} color={color} />;
+      return MaterialDesignIcons;
     default:
-      return <FontAwesome5 name={icon.name} size={size} color={color} />;
+      return FontAwesome6;
   }
+};
+
+const renderVectorIcon = (icon: IconProps) => {
+  const IconComponent = resolveSettingsIconComponent(icon.type);
+  return <IconComponent name={icon.name} size={platformSizing.iconInnerSize} color={icon.color ?? 'black'} />;
 };
 
 export interface SettingsListItemProps {
