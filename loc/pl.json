@@ -37,6 +37,7 @@
     "redeem": "Odbirze do portfela",
     "redeemButton": "Odbierz",
     "success": "Sukces",
+    "successMessage": "Kupon zrealizowany pomyślnie! Twoje środki powinny wkrótce trafić do twojego portfela.",
     "title": "Odbierz voucher Azte.co"
   },
   "entropy": {
@@ -158,6 +159,7 @@
     "counterparty_label_placeholder": "Edytuj nazwę kontaktu",
     "details_scan": "Skanuj",
     "details_scan_hint": "Kliknij dwukrotnie, aby zeskanować lub zaimportować miejsce docelowe",
+    "details_scan_error": "Błąd skanowania",
     "details_total_exceeds_balance": "Wysłanie tej ilości przekracza dostępne saldo.",
     "details_total_exceeds_balance_frozen": "Wysyłana kwota przekracza dostępne saldo. Zwróć uwagę, że zamrożone monety są wyłączone.",
     "details_unrecognized_file_format": "Format nierozpoznany",
@@ -233,10 +235,9 @@
     "currency": "Waluta",
     "currency_source": "Kurs pobrazny z",
     "currency_fetch_error": "Wystąpił błąd podczas pobierania kursu dla wybranej waluty.",
-    "default_desc": "Gdy jest wyłączone, BlueWallet natychmiast otworzy wybrany domyślny portfel.",
-    "default_info": "Domyślny portfel",
     "default_title": "Po uruchomieniu",
-    "default_wallets": "Wyświetl wszystkie portfele",
+    "donate": "Wesprzyj darowizną",
+    "donate_description": "Pomóż nam utrzymać Blue bez opłat!",
     "electrum_connected": "Połączony",
     "electrum_connected_not": "Nie Podłączony",
     "electrum_error_connect": "Nie można połączyć się z podanym serwerem Electrum.",
@@ -261,6 +262,8 @@
     "electrum_reset_to_default_and_clear_history": "Przywróć domyślne ustawienia i wyczyść historię",
     "encrypt_decrypt": "Odszyfruj Magazyn Danych",
     "encrypt_decrypt_q": "Czy jesteś pewien, że chcesz odszyfrować schowek? To pozwoli na dostęp do twoich portfeli bez hasła.",
+    "encrypt_enc_and_pass": "Chroniony hasłem",
+    "encrypt_enc_and_pass_description": "Szyfrowane przechowywanie z hasłem. Dane biometryczne nie będą używane do odblokowania szyfrowanego przechowywania.",
     "encrypt_storage_explanation_headline": "Włącz szyfrowanie danych",
     "encrypt_storage_explanation_description_line1": "Włączenie szyfrowania danych dodaje dodatkową warstwę ochrony do aplikacji, zabezpieczając sposób, w jaki dane są przechowywane na urządzeniu. Utrudnia to dostęp do Twoich informacji bez odpowiedniego upoważnienia.",
     "encrypt_storage_explanation_description_line2": "Jednak warto wiedzieć, że to szyfrowanie chroni jedynie dostęp do portfeli przechowywanych w pęku kluczy urządzenia. Nie zabezpiecza ono samych portfeli hasłem ani żadną dodatkową ochroną.",
@@ -274,6 +277,7 @@
     "set_as_preferred": "Ustaw jako preferowany",
     "set_as_preferred_electrum": "Ustawienie {host}:{port} jako preferowanego serwera wyłączy losowe łączenie się z sugerowanym serwerem.",
     "encrypted_feature_disabled": "Ta funkcja nie może być używana z włączonym szyfrowaniem pamięci.",
+    "encrypt_use_expl": "{type} zostanie użyte do potwierdzenia twojej tożsamości przed wykonaniem transakcji, odblokowaniem, wyeksportowaniem lub usunięciem portfela.",
     "biometrics_fail": "Jeśli {type} nie jest włączony lub nie udaje się odblokować, możesz alternatywnie użyć kodu dostępu swojego urządzenia.",
     "general": "Ogólne",
     "general_continuity": "Funkcja Continuity",
@@ -289,6 +293,7 @@
     "lightning_saved": "Wprowadzone przez ciebie zmiany zostały pomyślnie zachowane.",
     "lightning_settings": "Ustawienia Lightning",
     "lightning_settings_explain": "Aby połączyć się z własnym węzłem LND, zainstaluj LNDhub i wprowadź jego URL tutaj w ustawieniach. Pamiętaj, że tylko portfele utworzone po zapisaniu zmian będą połączone z określonym LNDhubem.",
+    "lndhub_github": "Repozytorium GitHub",
     "network": "Sieć",
     "network_broadcast": "Rozgłoś transakcję",
     "network_electrum": "Serwer Electrum",
@@ -299,6 +304,8 @@
     "password": "Hasło",
     "password_explain": "Podaj hasło, do odblokowania pamięci telefonu.",
     "plausible_deniability": "Wiarygodna zaprzeczalność",
+    "plausible_deniability_description": "Zaawansowana ochrona, zachowaj ostrożność.",
+    "multiple_storages": "Wiele magazynów danych",
     "privacy": "Prywatność",
     "privacy_read_clipboard": "Czytaj Schowek",
     "privacy_system_settings": "Ustawienia Systemowe",
@@ -367,6 +374,8 @@
     "eta_1d": "Szacowany czas: ~1 dzień",
     "view_wallet": "Pokaż {walletLabel}",
     "list_title": "Transakcje",
+    "list_title_sent": "Wysłano",
+    "list_title_received": "Otrzymano",
     "transaction": "Transakcja",
     "open_url_error": "Nie udało się otworzyć linku za pomocą domyślnej przeglądarki. Zmień swoją domyślną przeglądarkę i spróbój ponownie.",
     "rbf_explain": "Zastąpimy tę transakcję taką, która ma wyższą opłatę, aby została wykopana szybciej. To się nazywa RBF—Replace by Fee.",
@@ -379,7 +388,9 @@
     "to": "Do: {counterparty}",
     "updating": "Aktualizuję...",
     "watchOnlyWarningTitle": "Ostrzeżenie bezpieczeństwa",
-    "watchOnlyWarningDescription": "Zachowaj ostrożność wobec oszustów, którzy często używają portfeli „tylko do odczytu” do wprowadzania użytkowników w błąd. Te portfele nie pozwalają na kontrolowanie ani wysyłanie środków; umożliwiają jedynie przeglądanie salda."
+    "watchOnlyWarningDescription": "Zachowaj ostrożność wobec oszustów, którzy często używają portfeli „tylko do odczytu” do wprowadzania użytkowników w błąd. Te portfele nie pozwalają na kontrolowanie ani wysyłanie środków; umożliwiają jedynie przeglądanie salda.",
+    "custom_fee_warning_title": "Ostrzeżenie",
+    "custom_fee_warning_description": "Opłaty poniżej 1 sat/vB są prawidłowe, ale mogą nie zostać przekazane dalej z powodu konfiguracji policy węzłów."
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -592,6 +603,7 @@
     "view_qrcode": "Pokaż kod QR"
   },
   "autofill_word": {
+    "title": "Ostatnie słowo seeda",
     "enter": "Wprowadź swój częściowy mnemonik",
     "generate_word": "Generuj ostatnie słowo",
     "error": "Wprowadzone dane nie są 11- lub 23-wyrazowym częściowym mnemonikiem. Proszę spróbować ponownie."
@@ -674,7 +686,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }
