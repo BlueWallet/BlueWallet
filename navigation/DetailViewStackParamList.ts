@@ -1,5 +1,5 @@
 import { AztecoVoucher } from '../class/azteco';
-import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+import { LightningTransaction, TWallet } from '../class/wallets/types';
 import { Chain } from '../models/bitcoinUnits';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
@@ -24,8 +24,8 @@ export type DetailViewStackParamList = {
   WalletsList: { onBarScanned?: string };
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
   WalletDetails: { walletID: string };
-  TransactionDetails: { tx: Transaction; hash: string; walletID: string };
-  TransactionStatus: { hash: string; walletID?: string };
+  // TODO: type tx properly once Transaction and ElectrumTransaction are unified
+  TransactionStatus: { hash: string; walletID: string; tx?: any };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
