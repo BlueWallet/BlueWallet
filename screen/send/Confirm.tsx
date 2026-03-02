@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useReducer } from 'react';
-import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
-import { Text } from '@rneui/themed';
+import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, Text, View } from 'react-native';
 import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
