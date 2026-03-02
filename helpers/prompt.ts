@@ -9,6 +9,7 @@ export default (
   type: PromptType | PromptTypeIOS | PromptTypeAndroid = 'secure-text',
   isOKDestructive = false,
   continueButtonText = loc._.ok,
+  defaultInputValue?: string,
 ): Promise<string> => {
   const keyboardType = type === 'numeric' ? 'numeric' : 'default';
 
@@ -46,11 +47,13 @@ export default (
           },
         ];
 
-    prompt(title, text, buttons, {
+    const message = defaultInputValue !== undefined ? '' : text;
+    prompt(title, message, buttons, {
       type,
       cancelable: isCancelable,
       // @ts-ignore suppressed because its supported only on ios and is absent from type definitions
       keyboardType,
+      ...(defaultInputValue !== undefined && { defaultValue: defaultInputValue }),
     });
   });
 };

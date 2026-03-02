@@ -1,7 +1,6 @@
 import React, { lazy, useCallback, useMemo } from 'react';
 import { View, Platform, PlatformColor } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
@@ -15,7 +14,6 @@ import Broadcast from '../screen/send/Broadcast';
 import IsItMyAddress from '../screen/settings/IsItMyAddress';
 import Success from '../screen/send/success';
 import CPFP from '../screen/transactions/CPFP';
-import TransactionDetails from '../screen/transactions/TransactionDetails';
 import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
 import TransactionStatus from '../screen/transactions/TransactionStatus';
@@ -63,8 +61,6 @@ const DetailViewStackScreensStack = () => {
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
   const { sizeClass } = useSizeClass();
-
-  const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
   const navigateToAddWallet = useCallback(() => {
     navigation.navigate('AddWalletRoot');
@@ -139,19 +135,11 @@ const DetailViewStackScreensStack = () => {
         name="WalletDetails"
         component={WalletDetails}
         options={navigationStyle({
-          headerTitle: loc.wallets.details_title,
-          statusBarStyle: 'auto',
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="TransactionDetails"
-        component={TransactionDetails}
-        options={navigationStyle({
+          headerTitle: '',
           statusBarStyle: 'auto',
           headerStyle: {
-            backgroundColor: theme.colors.customHeader,
+            backgroundColor: theme.colors.background,
           },
-          headerTitle: loc.transactions.details_title,
         })(theme)}
       />
       <DetailViewStack.Screen
@@ -167,7 +155,6 @@ const DetailViewStackScreensStack = () => {
             backgroundColor: theme.colors.customHeader,
           },
           headerTitle: '',
-          headerRight: () => DetailButton,
           headerBackButtonDisplayMode: 'default',
         })(theme)}
       />
