@@ -107,7 +107,7 @@
     "@react-native-vector-icons/material-design-icons": "12.4.1",
     "@react-native-vector-icons/material-icons": "12.4.1",
     "@react-native/gradle-plugin": "0.78.2",
-    "@react-native/metro-config": "0.78.2",
+    "@react-native/metro-config": "0.84.1",
     "@react-navigation/devtools": "7.0.50",
     "@react-navigation/drawer": "7.9.2",
     "@react-navigation/native": "7.1.31",
