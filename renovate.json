@@ -2,8 +2,7 @@
   "extends": [
     "config:best-practices",
     ":disableMajorUpdates",
-    ":rebaseStalePrs",
     ":preserveSemverRanges"
   ],
-  "ignoreDeps": ["@react-navigation/*", "react-native"]
+  "ignoreDeps": ["react-native"]
 }
