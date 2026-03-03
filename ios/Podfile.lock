@@ -1368,11 +1368,11 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - react-native-vector-icons-entypo (12.4.0)
-  - react-native-vector-icons-fontawesome (12.4.0)
-  - react-native-vector-icons-fontawesome6 (12.3.0)
+  - react-native-vector-icons-fontawesome (12.4.1)
+  - react-native-vector-icons-fontawesome6 (12.3.1)
   - react-native-vector-icons-ionicons (12.3.0)
-  - react-native-vector-icons-material-design-icons (12.4.0)
-  - react-native-vector-icons-material-icons (12.4.0)
+  - react-native-vector-icons-material-design-icons (12.4.1)
+  - react-native-vector-icons-material-icons (12.4.1)
   - React-NativeModulesApple (0.78.2):
     - glog
     - hermes-engine
@@ -1695,7 +1695,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.25.0):
+  - RNGestureHandler (2.30.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -2335,11 +2335,11 @@ SPEC CHECKSUMS:
   react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
   react-native-true-sheet: b593fa693ce5380ffc4a0e895ab2a9435657223e
   react-native-vector-icons-entypo: feb9d28fa1769fd6b1913649f4a56f50510ee9a1
-  react-native-vector-icons-fontawesome: 9b1827fc73ef619ce268bd6f0871f5a82233121f
-  react-native-vector-icons-fontawesome6: 1a73ea16a698f70851ad47e94521a99499e8e974
+  react-native-vector-icons-fontawesome: 3ecb33d69640b08c1800d2893d90eeac4af22e61
+  react-native-vector-icons-fontawesome6: 7464629872b702957385275b62cff2f6c28199cc
   react-native-vector-icons-ionicons: ad07e944a092a5cf71b8b569d8f5ce2bf674c415
-  react-native-vector-icons-material-design-icons: 76cd460b3540b80527b4a80fb7f867f7deedb498
-  react-native-vector-icons-material-icons: d67e485a05560416ff6b5977d5fa7e0eb6af6870
+  react-native-vector-icons-material-design-icons: 06451bebfd9affaecdd541230f23c6cb077e7063
+  react-native-vector-icons-material-icons: 2fe75632937d07937bfe8ca953e1b5d06eef3a1d
   React-NativeModulesApple: fd0545efbb7f936f78edd15a6564a72d2c34bb32
   React-perflogger: 5f8fa36a8e168fb355efe72099efe77213bc2ac6
   React-performancetimeline: 8c0ecfa1ae459cc5678a65f95ac3bf85644d6feb
@@ -2376,7 +2376,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: 92e89a04cd0d1c77f383a55d14c15e7f423f4c00
+  RNGestureHandler: 1bbdb4b4c48ccca85434278e8626b848f37d146d
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: fa7765e6af5a8ec866bea4e86d2a1086f562d69f
   RNLocalize: d7859f87f1083349c73aa089e360af33ef89efc2
