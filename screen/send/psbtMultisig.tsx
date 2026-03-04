@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
-    marginTop: 160,
+    marginTop: 220,
   },
   msright: {
     flex: 90,
