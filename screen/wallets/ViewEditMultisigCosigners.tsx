@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
 import {
   ActivityIndicator,
@@ -46,7 +46,7 @@ import SafeArea from '../../components/SafeArea';
 import { TWallet } from '../../class/wallets/types';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 
 type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
@@ -59,7 +59,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { dispatch, setParams, setOptions, navigateToWalletsList } = useExtendedNavigation<NavigationProp>();
+  const { dispatch, setOptions, navigateToWalletsList } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -482,7 +482,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
     [wallet, currentlyEditingCosignerNum],
   );
 
-  const handleUseMnemonicPhrase = useCallback(async () => {
+  const handleUseMnemonicPhrase = async () => {
     let passphrase;
     if (askPassphrase) {
       try {
@@ -495,8 +495,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
         throw e;
       }
     }
+
     return _handleUseMnemonicPhrase(importText, passphrase);
-  }, [askPassphrase, importText, _handleUseMnemonicPhrase]);
+  };
 
   const xpubInsteadOfSeed = (index: number): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -514,14 +515,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
       });
     });
   };
-
-  useEffect(() => {
-    const scannedData = route.params.onBarScanned;
-    if (scannedData) {
-      setImportText(String(scannedData));
-      handleUseMnemonicPhrase();
-    }
-  }, [route.params.onBarScanned, setParams, handleUseMnemonicPhrase]);
 
   const hideProvideMnemonicsModal = () => {
     Keyboard.dismiss();
@@ -567,16 +560,20 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
             {!isLoading && (
               <>
-                <BlueSpacing40 />
+                <BlueSpacing20 />
                 <AddressInputScanButton
                   beforePress={async () => {
                     await provideMnemonicsModalRef.current?.dismiss();
                   }}
                   isLoading={isLoading}
                   type="link"
-                  onChangeText={setImportText}
+                  onChangeText={async text => {
+                    setImportText(text);
+                    await new Promise(resolve => setTimeout(resolve, 500)); // propagate
+                    await provideMnemonicsModalRef.current?.present(); // showing modal again so user can tap Import button
+                  }}
                 />
-                <BlueSpacing40 />
+                <BlueSpacing20 />
               </>
             )}
           </>
@@ -692,7 +689,7 @@ const styles = StyleSheet.create({
   },
   paddingTop44: { paddingTop: 44 },
   multiLineTextInput: {
-    minHeight: 200,
+    minHeight: 130,
   },
   contentContainerStyle: {
     padding: 16,
@@ -727,7 +724,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  askPassprase: { top: 0, left: 0, justifyContent: 'center', width: 33, height: 33, borderRadius: 33 / 2 },
+  askPassprase: { top: 0, left: 0, alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 32 / 2 },
 });
 
 export default ViewEditMultisigCosigners;
