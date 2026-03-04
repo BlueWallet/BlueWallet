@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef, useMemo, useState } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
@@ -24,6 +24,8 @@ import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
+import { getWalletsListSampleDataEnabled, onWalletsListSampleDataChange } from '../../blue_modules/devMenuSampleData';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -107,9 +109,110 @@ const WalletsList: React.FC = () => {
   const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const route = useRoute<RouteProps>();
-  const dataSource = getTransactions(undefined, 10);
+  const [sampleTransactions, setSampleTransactions] = useState<ExtendedTransaction[]>([]);
+  const dataSource = useMemo(() => {
+    const baseTransactions = getTransactions(undefined, 10) as ExtendedTransaction[];
+    const merged = [...baseTransactions, ...sampleTransactions];
+    return merged.sort((a, b) => b.timestamp - a.timestamp);
+  }, [getTransactions, sampleTransactions]);
   const walletsCount = useRef<number>(wallets.length);
   const walletActionButtonsRef = useRef<any>();
+
+  const buildSampleTransactions = useCallback((): ExtendedTransaction[] => {
+    const sampleWallet = wallets[0];
+    const sampleWalletID = sampleWallet?.getID() ?? 'sample-wallet';
+    const sampleUnit = sampleWallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC;
+    const now = Math.floor(Date.now() / 1000);
+    const baseTx = {
+      version: 1,
+      size: 250,
+      vsize: 140,
+      weight: 560,
+      locktime: 0,
+      inputs: [
+        {
+          txid: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+          vout: 0,
+          scriptSig: { asm: '', hex: '' },
+          txinwitness: [],
+          sequence: 0xfffffffe,
+        },
+      ],
+      outputs: [
+        {
+          value: 15000,
+          n: 0,
+          scriptPubKey: {
+            asm: '',
+            hex: '',
+            reqSigs: 1,
+            type: 'witness_v0_keyhash',
+            addresses: ['bc1qsampleaddress0000000000000000000000000000000'],
+          },
+        },
+      ],
+      blockhash: '0000000000000000000000000000000000000000000000000000000000000000',
+    };
+
+    return [
+      {
+        ...baseTx,
+        txid: '1111111111111111111111111111111111111111111111111111111111111111',
+        hash: '1111111111111111111111111111111111111111111111111111111111111111',
+        confirmations: 12,
+        time: now - 3600,
+        blocktime: now - 3600,
+        timestamp: now - 3600,
+        value: 25000,
+        walletID: sampleWalletID,
+        walletPreferredBalanceUnit: sampleUnit,
+        isSample: true,
+      },
+      {
+        ...baseTx,
+        txid: '2222222222222222222222222222222222222222222222222222222222222222',
+        hash: '2222222222222222222222222222222222222222222222222222222222222222',
+        confirmations: 1,
+        time: now - 1800,
+        blocktime: now - 1800,
+        timestamp: now - 1800,
+        value: -17500,
+        walletID: sampleWalletID,
+        walletPreferredBalanceUnit: sampleUnit,
+        isSample: true,
+      },
+      {
+        ...baseTx,
+        txid: '3333333333333333333333333333333333333333333333333333333333333333',
+        hash: '3333333333333333333333333333333333333333333333333333333333333333',
+        confirmations: 0,
+        time: now - 300,
+        blocktime: now - 300,
+        timestamp: now - 300,
+        value: 9000,
+        walletID: sampleWalletID,
+        walletPreferredBalanceUnit: sampleUnit,
+        isSample: true,
+      },
+    ];
+  }, [wallets]);
+
+  const applySampleTransactions = useCallback(
+    (enabled: boolean) => {
+      if (enabled) {
+        setSampleTransactions(buildSampleTransactions());
+      } else {
+        setSampleTransactions([]);
+      }
+    },
+    [buildSampleTransactions],
+  );
+
+  useEffect(() => {
+    if (!__DEV__) return;
+    applySampleTransactions(getWalletsListSampleDataEnabled());
+    return onWalletsListSampleDataChange(applySampleTransactions);
+  }, [applySampleTransactions]);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -270,8 +373,14 @@ const WalletsList: React.FC = () => {
   }, [navigation]);
 
   const renderTransactionListsRow = useCallback(
-    (item: ExtendedTransaction) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
+    (item: ExtendedTransaction & { isSample?: boolean }) => (
+      <TransactionListItem
+        key={item.hash}
+        item={item}
+        itemPriceUnit={item.walletPreferredBalanceUnit}
+        walletID={item.walletID}
+        onPress={item.isSample ? () => Alert.alert('Sample data', 'This is temporary sample data.') : undefined}
+      />
     ),
     [],
   );
