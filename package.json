@@ -167,7 +167,7 @@
     "react-native-qrcode-svg": "6.3.21",
     "react-native-quick-actions": "0.3.13",
     "react-native-reanimated": "3.19.5",
-    "react-native-safe-area-context": "5.5.2",
+    "react-native-safe-area-context": "5.7.0",
     "react-native-screens": "4.18.0",
     "react-native-secure-key-store": "github:BlueWallet/react-native-secure-key-store#2076b4849e88aa0a78e08bfbb4ce3923e0925cbc",
     "react-native-share": "12.2.5",
