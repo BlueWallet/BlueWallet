@@ -176,7 +176,7 @@
     "react-native-watch-connectivity": "1.1.0",
     "react-test-renderer": "19.0.0",
     "readable-stream": "3.6.2",
-    "realm": "20.1.0",
+    "realm": "20.2.0",
     "rn-qr-generator": "https://github.com/BlueWallet/rn-qr-generator.git#5870927a70f5bf43dd59b332fd221af971b82bfe",
     "silent-payments": "github:BlueWallet/SilentPayments#59a037",
     "slip39": "https://github.com/BlueWallet/slip39-js#d316ee6",
