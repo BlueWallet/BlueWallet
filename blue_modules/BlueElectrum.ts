@@ -214,7 +214,7 @@ function getCurrentPeer() {
 function getNextPeer() {
   const peer = getCurrentPeer();
   currentPeerIndex++;
-  if (currentPeerIndex + 1 >= hardcodedPeers.length) currentPeerIndex = 0;
+  if (currentPeerIndex >= hardcodedPeers.length) currentPeerIndex = 0;
   return peer;
 }
 
