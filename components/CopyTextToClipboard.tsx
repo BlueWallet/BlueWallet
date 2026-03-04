@@ -20,7 +20,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
 
     const stylesHook = StyleSheet.create({
       addressSection: {
-        color: colors.newBlue,
+        color: colors.alternativeTextColor2,
         fontWeight: '500',
       },
     });

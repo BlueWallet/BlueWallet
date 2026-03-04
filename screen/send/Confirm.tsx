@@ -112,7 +112,7 @@ const Confirm: React.FC = () => {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
     addressSection: {
-      color: colors.newBlue,
+      color: colors.alternativeTextColor2,
     },
   });
 
