@@ -90,7 +90,6 @@ export const hardcodedPeers: Peer[] = [
   // { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
   { host: 'electrum1.bluewallet.io', ssl: 443 },
   { host: 'electrum.acinq.co', ssl: 50002 },
-  { host: 'electrum.bitaroo.net', ssl: 50002 },
 ];
 
 export const suggestedServers: Peer[] = hardcodedPeers.map(peer => ({
@@ -103,7 +102,8 @@ let wasConnectedAtLeastOnce: boolean = false;
 let serverName: string | false = false;
 let disableBatching: boolean = false;
 let connectionAttempt: number = 0;
-let currentPeerIndex = Math.floor(Math.random() * hardcodedPeers.length);
+let currentPeerIndex = hardcodedPeers.findIndex(peer => peer.host === defaultPeer.host && peer.ssl === defaultPeer.ssl);
+if (currentPeerIndex < 0) currentPeerIndex = 0;
 let latestBlock: { height: number; time: number } | { height: undefined; time: undefined } = { height: undefined, time: undefined };
 const txhashHeightCache: Record<string, number> = {};
 let _realm: Realm | undefined;
@@ -214,7 +214,7 @@ function getCurrentPeer() {
 function getNextPeer() {
   const peer = getCurrentPeer();
   currentPeerIndex++;
-  if (currentPeerIndex + 1 >= hardcodedPeers.length) currentPeerIndex = 0;
+  if (currentPeerIndex >= hardcodedPeers.length) currentPeerIndex = 0;
   return peer;
 }
 

@@ -7,18 +7,20 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
 import { WalletCarouselItem } from '../../components/WalletsCarousel';
-import { Divider } from '@rneui/themed';
+import Divider from '../../components/Divider';
+import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { SettingsScrollView } from '../../components/platform';
+import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
+  const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
   const [address, setAddress] = useState<string>('');
@@ -124,8 +126,23 @@ const IsItMyAddress: React.FC = () => {
   };
 
   return (
-    <SettingsScrollView>
-      <View style={styles.container}>
+    <SettingsScrollView
+      ref={scrollViewRef}
+      automaticallyAdjustContentInsets
+      automaticallyAdjustKeyboardInsets
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      <View
+        style={{
+          paddingTop: platformSizing.firstSectionContainerPaddingTop,
+          marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
+          marginBottom: platformSizing.sectionContainerMarginBottom,
+          backgroundColor: rowBackgroundColor,
+          borderRadius: platformSizing.containerBorderRadius,
+          padding: platformSizing.basePadding,
+          ...platformLayout.cardShadow,
+        }}
+      >
         <View
           style={[
             styles.textInputContainer,
@@ -139,32 +156,30 @@ const IsItMyAddress: React.FC = () => {
             placeholder={loc.is_it_my_address.enter_address}
             placeholderTextColor={colors.placeholderTextColor}
             value={address}
-            onChangeText={setAddress}
+            onChangeText={handleUpdateAddress}
             testID="AddressInput"
           />
           {address.length > 0 && (
             <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
-              <Icon name="close" size={20} color={colors.alternativeTextColor} />
+              <Icon name="close" type="material" size={20} color={colors.alternativeTextColor} />
             </TouchableOpacity>
           )}
         </View>
 
-        <BlueSpacing20 />
+        <BlueButtonLink title={loc.wallets.import_scan_qr} onPress={importScan} />
 
-        <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
-
-        <BlueSpacing10 />
-
-        <Button title={loc.wallets.import_scan_qr} onPress={importScan} />
+        <View style={styles.buttonSpacing} />
 
         {resultCleanAddress && (
           <>
-            <BlueSpacing10 />
             <Button title={loc.is_it_my_address.view_qrcode} onPress={viewQRCode} />
+            <View style={styles.buttonSpacingSmall} />
           </>
         )}
 
-        <BlueSpacing20 />
+        <Button disabled={isCheckAddressDisabled} title={loc.is_it_my_address.check_address} onPress={checkAddress} testID="CheckAddress" />
+
+        <View style={styles.buttonSpacing} />
 
         {matchingWallets !== undefined && matchingWallets.length > 0 && (
           <>
@@ -207,10 +222,6 @@ const IsItMyAddress: React.FC = () => {
 export default IsItMyAddress;
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
   textInputContainer: {
     flexDirection: 'row',
     borderWidth: 1,

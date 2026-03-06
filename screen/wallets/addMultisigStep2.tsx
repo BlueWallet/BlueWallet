@@ -1,8 +1,18 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
-import { Icon } from '@rneui/themed';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RouteProp, useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
+import {
+  ActivityIndicator,
+  FlatList,
+  InteractionManager,
+  Keyboard,
+  LayoutAnimation,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
@@ -528,23 +538,179 @@ const WalletsAddMultisigStep2 = () => {
     [],
   );
 
-  const _renderKeyItem = useCallback(
-    (el: { index: number }) => {
-      const renderProvideKeyButtons = el.index === cosigners.length;
-      const isChecked = el.index < cosigners.length;
-      return (
-        <Animated.View layout={LinearTransition}>
-          <MultipleStepsListItem
-            circledText={String(el.index + 1)}
-            leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
-            dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
-            checked={isChecked}
-            rightButton={{
-              disabled: vaultKeyData.isLoading,
-              text: loc.multisig.share,
-              onPress: () => {
-                viewKey(cosigners[el.index]);
-              },
+  const _renderKeyItem = (el: { index: number }) => {
+    const renderProvideKeyButtons = el.index === cosigners.length;
+    const isChecked = el.index < cosigners.length;
+    return (
+      <View>
+        <MultipleStepsListItem
+          circledText={String(el.index + 1)}
+          leftText={loc.formatString(loc.multisig.vault_key, { number: el.index + 1 })}
+          dashes={dashType({ index: el.index, lastIndex: data.current.length - 1, isChecked, isFocus: renderProvideKeyButtons })}
+          checked={isChecked}
+          rightButton={{
+            disabled: vaultKeyData.isLoading,
+            text: loc.multisig.share,
+            onPress: () => {
+              viewKey(cosigners[el.index]);
+            },
+          }}
+        />
+        {renderProvideKeyButtons && (
+          <>
+            <MultipleStepsListItem
+              showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
+              button={{
+                buttonType: MultipleStepsListItemButtonType.Full,
+                onPress: () => {
+                  setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });
+                  generateNewKey();
+                },
+                text: loc.multisig.create_new_key,
+                disabled: vaultKeyData.isLoading,
+              }}
+              dashes={MultipleStepsListItemDashType.TopAndBottom}
+              checked={isChecked}
+            />
+            <MultipleStepsListItem
+              button={{
+                testID: 'VaultCosignerImport' + String(el.index + 1),
+                onPress: iHaveMnemonics,
+                buttonType: MultipleStepsListItemButtonType.Full,
+                text: loc.wallets.import_do_import,
+                disabled: vaultKeyData.isLoading,
+              }}
+              dashes={el.index === data.current.length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
+              checked={isChecked}
+            />
+          </>
+        )}
+      </View>
+    );
+  };
+
+  const renderSecret = (entries: string[]) => {
+    const component = [];
+    const entriesObject = entries.entries();
+    for (const [index, secret] of entriesObject) {
+      if (entries.length > 1) {
+        const text = `${index + 1}. ${secret}  `;
+        component.push(
+          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
+            <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
+              {text}
+            </Text>
+          </View>,
+        );
+      } else {
+        const text = `${secret}  `;
+        component.push(
+          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
+            <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
+              {text}
+            </Text>
+          </View>,
+        );
+      }
+    }
+    return component;
+  };
+
+  const dismissMnemonicsModal = async () => {
+    await mnemonicsModalRef.current?.dismiss();
+  };
+
+  const renderMnemonicsModal = () => {
+    return (
+      <BottomModal
+        ref={mnemonicsModalRef}
+        isGrabberVisible={false}
+        dismissible={false}
+        showCloseButton={!isLoading}
+        sizes={[Platform.OS === 'ios' ? 'auto' : '80%']}
+        backgroundColor={colors.modal}
+        footer={
+          <View style={styles.modalFooterBottomPadding}>
+            {isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={dismissMnemonicsModal} />}
+          </View>
+        }
+      >
+        <View style={styles.itemKeyUnprovidedWrapper}>
+          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
+            <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
+          </View>
+          <View style={styles.vaultKeyTextWrapper}>
+            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
+              {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
+            </Text>
+          </View>
+        </View>
+        <BlueSpacing20 />
+        <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.wallet_key_created}</Text>
+        <BlueSpacing20 />
+        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
+        <BlueSpacing10 />
+        <View style={[styles.secretContainer, stylesHook.secretContainer]}>{renderSecret(vaultKeyData.seed.split(' '))}</View>
+        <BlueSpacing20 />
+      </BottomModal>
+    );
+  };
+
+  const toolTipActions = useMemo(() => {
+    const passphrase = CommonToolTipActions.Passphrase;
+    passphrase.menuState = askPassphrase;
+    return [passphrase];
+  }, [askPassphrase]);
+
+  const renderProvideMnemonicsModal = () => {
+    const opacity = isVisible ? 0 : 1;
+    return (
+      <BottomModal
+        footer={
+          <View style={[styles.modalFooterBottomPadding, { opacity }]}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <>
+                <Button
+                  testID="DoImportKeyButton"
+                  disabled={importText.trim().length === 0}
+                  title={loc.wallets.import_do_import}
+                  onPress={utilizeMnemonicPhrase}
+                />
+                <View style={styles.height16} />
+
+                <AddressInputScanButton
+                  beforePress={async () => {
+                    await provideMnemonicsModalRef.current?.dismiss();
+                  }}
+                  testID="ScanOrOpenFile"
+                  type="link"
+                  isLoading={isLoading}
+                  onChangeText={setImportText}
+                />
+              </>
+            )}
+          </View>
+        }
+        ref={provideMnemonicsModalRef}
+        backgroundColor={colors.modal}
+        contentContainerStyle={styles.provideMnemonicsModalStyle}
+        isGrabberVisible={false}
+        showCloseButton={true}
+        sizes={['auto']}
+        onDismiss={() => {
+          Keyboard.dismiss();
+          setImportText('');
+          setAskPassphrase(false);
+        }}
+        header={
+          <ToolTipMenu
+            isButton
+            isMenuPrimaryAction
+            onPressMenuItem={_id => {
+              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+              setAskPassphrase(!askPassphrase);
             }}
           />
           {renderProvideKeyButtons && (
@@ -564,26 +730,59 @@ const WalletsAddMultisigStep2 = () => {
                 dashes={MultipleStepsListItemDashType.TopAndBottom}
                 checked={isChecked}
               />
-              <MultipleStepsListItem
-                button={{
-                  testID: 'VaultCosignerImport' + String(el.index + 1),
-                  onPress: iHaveMnemonics,
-                  buttonType: MultipleStepsListItemButtonType.Full,
-                  text: loc.wallets.import_do_import,
-                  disabled: vaultKeyData.isLoading,
-                }}
-                dashes={
-                  el.index === data.current.length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom
-                }
-                checked={isChecked}
-              />
-            </>
-          )}
-        </Animated.View>
-      );
-    },
-    [cosigners, dashType, generateNewKey, iHaveMnemonics, vaultKeyData, viewKey],
-  );
+            ),
+          })}
+
+          <BlueSpacing20 />
+        </View>
+      </BottomModal>
+    );
+  };
+
+  const hideCosignersXpubModal = () => {
+    Keyboard.dismiss();
+    renderCosignersXpubModalRef.current?.dismiss();
+  };
+
+  const renderCosignersXpubModal = () => {
+    return (
+      <BottomModal
+        onClose={hideCosignersXpubModal}
+        ref={renderCosignersXpubModalRef}
+        backgroundColor={colors.modal}
+        shareContent={{ fileContent: cosignerXpub, fileName: cosignerXpubFilename }}
+        footerDefaultMargins
+        contentContainerStyle={styles.modalContent}
+        footer={<View style={styles.modalFooterBottomPadding}>{isLoading ? <ActivityIndicator /> : null}</View>}
+      >
+        <Text style={[styles.headerText, stylesHook.textDestination]}>
+          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
+        </Text>
+        <BlueSpacing20 />
+        <View style={styles.qrContainer}>
+          <QRCodeComponent value={cosignerXpubURv2} size={260} />
+        </View>
+        <BlueSpacing20 />
+      </BottomModal>
+    );
+  };
+
+  const renderHelp = () => {
+    const opacity = isLoading ? 0.5 : 1;
+    return (
+      <View style={[styles.helpButtonWrapper, stylesHook.helpButtonWrapper]}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          style={[styles.helpButton, stylesHook.helpButton, { opacity }]}
+          onPress={handleOnHelpPress}
+          disabled={isLoading}
+        >
+          <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
+          <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const footer = (
     <View style={styles.buttonBottom}>

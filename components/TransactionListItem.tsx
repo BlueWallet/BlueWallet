@@ -1,7 +1,8 @@
 import React, { useCallback, useMemo, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Linking, View, ViewStyle, StyleSheet, Text, TextStyle } from 'react-native';
+import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import { Linking, Text, TextStyle, ViewStyle, StyleSheet } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -79,6 +80,7 @@ interface TransactionListItemProps {
   style?: ViewStyle;
   renderHighlightedText?: (text: string, query: string) => React.ReactElement;
   onPress?: () => void;
+  disableNavigation?: boolean;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
@@ -92,6 +94,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     style,
     renderHighlightedText,
     onPress: customOnPress,
+    disableNavigation = false,
   }: TransactionListItemProps) => {
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
@@ -102,9 +105,6 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       () => ({
         backgroundColor: colors.background,
         borderBottomColor: colors.lightBorder,
-        paddingLeft: 16,
-
-        paddingRight: 16,
       }),
       [colors.background, colors.lightBorder],
     );
@@ -196,7 +196,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         textAlign: 'right',
         paddingRight: insets.right,
         paddingLeft: insets.left,
-      };
+      } as TextStyle;
     }, [
       colors.successColor,
       colors.foregroundColor,
@@ -282,7 +282,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       // If a custom onPress handler was provided, use it and return
       if (customOnPress) {
         customOnPress();
-        return;
+        if (disableNavigation) return;
       }
 
       if (item.hash) {
@@ -324,7 +324,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       } else {
         console.log('cant handle press');
       }
-    }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress]);
+    }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
 
     const handleOnDetailsPress = useCallback(() => {
       if (walletID && item && item.hash) {
@@ -452,8 +452,17 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
         accessibilityRole="button"
       >
-        <View
-          style={[combinedStyle, styles.pressable]}
+        {/* @ts-ignore - MenuView types can be overly strict about child element props */}
+        <ListItem
+          leftAvatar={avatar}
+          title={listTitle}
+          subtitle={<Text style={dateLineStyle}>{dateLine}</Text>}
+          chevron={false}
+          rightTitle={rowTitle}
+          rightTitleStyle={rowTitleStyle}
+          rightSubtitle={noteForCopy}
+          rightSubtitleStyle={rightMemoStyle}
+          containerStyle={combinedStyle}
           testID="TransactionListItem"
           accessibilityRole="button"
           accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}

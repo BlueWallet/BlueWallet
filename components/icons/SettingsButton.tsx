@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import Icon from '../Icon';
 import { useTheme } from '../themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -55,23 +55,6 @@ const style = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     justifyContent: 'center',
-    alignContent: 'center',
     alignItems: 'center',
-    padding: 0,
-  },
-  iconContainer: {
-    padding: 0,
-    margin: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
-  },
-  icon: {
-    padding: 0,
-    margin: 0,
-    lineHeight: 22,
-    textAlignVertical: 'center',
-    textAlign: 'center',
   },
 });

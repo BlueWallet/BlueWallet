@@ -208,14 +208,9 @@ const WalletAddresses: React.FC = () => {
 
   const renderRow = useCallback(
     ({ item }: { item: Address }) => {
+      const { key, ...rest } = item;
       return (
-        <AddressItem
-          item={item}
-          balanceUnit={balanceUnit}
-          walletID={walletID}
-          allowSignVerifyMessage={allowSignVerifyMessage}
-          searchQuery={search}
-        />
+        <AddressItem key={key} item={item} {...rest} balanceUnit={balanceUnit} walletID={walletID} allowSignVerifyMessage={allowSignVerifyMessage} />
       );
     },
     [balanceUnit, walletID, allowSignVerifyMessage, search],

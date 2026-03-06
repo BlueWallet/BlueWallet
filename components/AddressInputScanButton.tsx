@@ -142,9 +142,9 @@ export const AddressInputScanButton = ({
       accessibilityHint={loc.send.details_scan_hint}
     >
       {type === 'default' ? (
-        <View style={styles.contentRow}>
+        <View style={styles.scanContent}>
           <Image source={require('../img/scan-white.png')} accessible={false} />
-          <Text testID={testID} style={[styles.scanText, stylesHook.scanText]} accessible={false} numberOfLines={1} ellipsizeMode="tail">
+          <Text numberOfLines={1} style={[styles.scanText, stylesHook.scanText]} accessible={false}>
             {loc.send.details_scan}
           </Text>
         </View>
@@ -167,8 +167,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 80,
-    flexWrap: 'nowrap',
+    gap: 6,
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -179,6 +178,12 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     flexShrink: 1,
     textAlignVertical: 'center',
+  },
+  scanContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 1,
   },
   linkText: {
     textAlign: 'center',

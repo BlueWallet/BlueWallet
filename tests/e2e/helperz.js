@@ -1,7 +1,31 @@
 import { sha256 } from '@noble/hashes/sha256';
 import { element } from 'detox';
 
+/**
+ * Captures a stack trace at the call site, excluding the given function from the trace.
+ * Used to make Detox errors point to the spec file line instead of helper internals.
+ */
+function captureCallsite(excludeFn) {
+  const callsite = {};
+  Error.captureStackTrace(callsite, excludeFn);
+  return callsite;
+}
+
+/**
+ * Rethrows err with the stack rewritten to point at the call site.
+ */
+function rethrowWithCallsite(err, callsite) {
+  if (err && typeof err === 'object' && callsite && callsite.stack) {
+    const name = err.name || 'Error';
+    const message = err.message || '';
+    const frames = callsite.stack.split('\n').slice(1).join('\n');
+    err.stack = `${name}: ${message}\n${frames}`;
+  }
+  throw err;
+}
+
 export async function waitForId(id, timeout = 33000) {
+  const callsite = captureCallsite(waitForId);
   try {
     await waitFor(element(by.id(id)))
       .toBeVisible()
@@ -10,12 +34,17 @@ export async function waitForId(id, timeout = 33000) {
     // nop
   }
 
-  await waitFor(element(by.id(id)))
-    .toBeVisible()
-    .withTimeout(timeout / 2);
+  try {
+    await waitFor(element(by.id(id)))
+      .toBeVisible()
+      .withTimeout(timeout / 2);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
 }
 
 export async function waitForText(text, timeout = 33000) {
+  const callsite = captureCallsite(waitForText);
   try {
     await waitFor(element(by.text(text)))
       .toBeVisible()
@@ -25,9 +54,13 @@ export async function waitForText(text, timeout = 33000) {
     // nop
   }
 
-  await waitFor(element(by.text(text)))
-    .toBeVisible()
-    .withTimeout(timeout / 2);
+  try {
+    await waitFor(element(by.text(text)))
+      .toBeVisible()
+      .withTimeout(timeout / 2);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
 }
 
 export async function getSwitchValue(switchId) {
@@ -106,17 +139,6 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await waitForId('NoTransactionsMessage');
 }
 
-/*
-
-module.exports.helperImportWallet = helperImportWallet;
-module.exports.waitForId = waitForId;
-module.exports.waitForText = waitForText;
-module.exports.sleep = sleep;
-module.exports.hashIt = hashIt;
-module.exports.helperDeleteWallet = helperDeleteWallet;
-
-*/
-
 /**
  * Extracts element text or label using getAttributes()
  * @returns {Promise<string>}
@@ -164,6 +186,7 @@ export async function helperCreateWallet(walletName) {
 }
 
 export async function tapAndTapAgainIfElementIsNotVisible(idToTap, idToCheckVisible) {
+  const callsite = captureCallsite(tapAndTapAgainIfElementIsNotVisible);
   // tap
   await element(by.id(idToTap)).tap();
 
@@ -179,12 +202,17 @@ export async function tapAndTapAgainIfElementIsNotVisible(idToTap, idToCheckVisi
   await element(by.id(idToTap)).tap();
 
   // check visibility again, this time no try-catch, if it fails it fails
-  await waitFor(element(by.id(idToCheckVisible)))
-    .toBeVisible()
-    .withTimeout(3_000);
+  try {
+    await waitFor(element(by.id(idToCheckVisible)))
+      .toBeVisible()
+      .withTimeout(3_000);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
 }
 
 export async function tapAndTapAgainIfTextIsNotVisible(textToTap, textToCheckVisible) {
+  const callsite = captureCallsite(tapAndTapAgainIfTextIsNotVisible);
   // tap
   await element(by.text(textToTap)).tap();
 
@@ -200,9 +228,13 @@ export async function tapAndTapAgainIfTextIsNotVisible(textToTap, textToCheckVis
   await element(by.text(textToTap)).tap();
 
   // check visibility again, this time no try-catch, if it fails it fails
-  await waitFor(element(by.text(textToCheckVisible)))
-    .toBeVisible()
-    .withTimeout(3_000);
+  try {
+    await waitFor(element(by.text(textToCheckVisible)))
+      .toBeVisible()
+      .withTimeout(3_000);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
 }
 
 export async function tapIfPresent(id) {

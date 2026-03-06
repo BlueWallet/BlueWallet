@@ -14,7 +14,7 @@ import {
   LayoutRectangle,
   NodeHandle,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { BlueCard, BlueText } from '../../BlueComponents';
@@ -95,9 +95,6 @@ const PsbtMultisig = () => {
     root: {
       backgroundColor: colors.elevated,
     },
-    whitespace: {
-      color: colors.elevated,
-    },
     textBtc: {
       color: colors.buttonAlternativeTextColor,
     },
@@ -127,6 +124,9 @@ const PsbtMultisig = () => {
     },
     vaultKeyTextSigned: {
       color: colors.msSuccessBG,
+    },
+    addressSection: {
+      color: colors.alternativeTextColor2,
     },
   });
 
@@ -209,7 +209,7 @@ const PsbtMultisig = () => {
     return (
       <View style={styles.flexDirectionRow} testID="ItemSigned">
         <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-          <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+          <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
         </View>
         <View style={styles.vaultKeyTextSignedWrapper}>
           <Text style={[styles.vaultKeyTextSigned, stylesHook.vaultKeyTextSigned]}>
@@ -272,33 +272,24 @@ const PsbtMultisig = () => {
     const addrs = useFilter ? filteredData.addresses : unfilteredData.addresses;
     const displayAddrs = useFilter ? addrs : [...new Set(addrs)];
     const destinationAddressView = [];
-    const whitespace = '_';
     const destinations = Object.entries(displayAddrs);
     for (const [index, address] of destinations) {
       if (Number(index) > 1) {
         destinationAddressView.push(
           <View style={styles.destinationTextContainer} key={`end-${index}`}>
-            <Text numberOfLines={0} style={[styles.textDestinationFirstFour, stylesHook.textFiat]}>
+            <Text numberOfLines={0} style={[styles.addressSection, stylesHook.textFiat]}>
               and {destinations.length - 2} more...
             </Text>
           </View>,
         );
         break;
       } else {
-        const currentAddress = address;
-        const firstFour = currentAddress.substring(0, 5);
-        const lastFour = currentAddress.substring(currentAddress.length - 5);
-        const middle = currentAddress.length > 10 ? currentAddress.slice(5, currentAddress.length - 5) : '';
         destinationAddressView.push(
-          <View style={styles.destinationTextContainer} key={`${currentAddress}-${index}`}>
+          <View style={styles.destinationTextContainer} key={`${address}-${index}`}>
             <Text style={styles.textAlignCenter} selectable>
-              <Text numberOfLines={2} style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>
-                {firstFour}
-                <Text style={stylesHook.whitespace}>{whitespace}</Text>
-                <Text style={[styles.textDestination, stylesHook.textFiat]}>{middle}</Text>
-                <Text style={stylesHook.whitespace}>{whitespace}</Text>
-                <Text style={[styles.textDestinationFirstFour, stylesHook.textBtc]}>{lastFour}</Text>
-              </Text>
+              <Text style={[styles.addressSection, stylesHook.addressSection]}>{address.slice(0, 6)}</Text>
+              <Text style={[styles.textDestination, stylesHook.textFiat]}>{address.slice(6, -6)}</Text>
+              <Text style={[styles.addressSection, stylesHook.addressSection]}>{address?.slice(-6)}</Text>
             </Text>
           </View>,
         );
@@ -423,7 +414,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.8,
     borderColor: '#c4c4c4',
     marginLeft: 40,
-    marginTop: 160,
+    marginTop: 220,
   },
   msright: {
     flex: 90,
@@ -457,8 +448,9 @@ const styles = StyleSheet.create({
   textAlignCenter: {
     textAlign: 'center',
   },
-  textDestinationFirstFour: {
+  addressSection: {
     fontSize: 14,
+    fontWeight: '500',
   },
   textDestination: {
     paddingTop: 10,

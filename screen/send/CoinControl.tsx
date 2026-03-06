@@ -1,9 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Avatar, Badge, Icon, ListItem as RNElementsListItem } from '@rneui/themed';
-import { ActivityIndicator, Animated, Keyboard, PixelRatio, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-
+import Avatar from '../../components/Avatar';
+import Badge from '../../components/Badge';
+import Icon from '../../components/Icon';
+import {
+  ActivityIndicator,
+  Keyboard,
+  LayoutAnimation,
+  PixelRatio,
+  Pressable,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import * as RNLocalize from 'react-native-localize';
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
@@ -115,39 +129,152 @@ const OutputList: React.FC<TOutputListProps> = ({
   }
 
   return (
-    <RNElementsListItem
-      bottomDivider
-      onPress={onPress}
-      containerStyle={
-        selected
-          ? [styles.outputContainer, { backgroundColor: colors.ballOutgoingExpired }]
-          : [styles.outputContainer, { borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated }]
-      }
-    >
-      <View style={styles.rowContent}>
-        <Avatar
-          rounded
-          size={40}
-          containerStyle={[styles.outputAvatar, { backgroundColor: color }]}
-          onPress={selected ? onDeSelect : onSelect}
-          icon={selected ? { name: 'check', type: 'font-awesome-6' } : undefined}
-        />
-        <RNElementsListItem.Content>
-          <RNElementsListItem.Title style={[styles.outputAmount, { color: colors.foregroundColor }]}>{amount}</RNElementsListItem.Title>
-          <RNElementsListItem.Subtitle
-            style={[styles.outputMemo, { color: colors.alternativeTextColor }]}
-            numberOfLines={1}
-            ellipsizeMode="middle"
-          >
-            {memo || address}
-          </RNElementsListItem.Subtitle>
-        </RNElementsListItem.Content>
-        <View style={styles.badges}>
-          {frozen && <FrozenBadge />}
-          {change && <ChangeBadge />}
-        </View>
+    <Pressable onPress={onPress} style={[styles.listRow, selected ? oStyles.containerSelected : oStyles.container]}>
+      <Avatar
+        rounded
+        size={40}
+        containerStyle={oStyles.avatar}
+        onPress={selected ? onDeSelect : onSelect}
+        icon={selected ? { name: 'check', type: 'font-awesome-6' } : undefined}
+      />
+      <View style={styles.listContent}>
+        <Text style={oStyles.amount}>{amount}</Text>
+        <Text style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
+          {memo || address}
+        </Text>
       </View>
-    </RNElementsListItem>
+      <View style={styles.badges}>
+        {frozen && <FrozenBadge />}
+        {change && <ChangeBadge />}
+      </View>
+    </Pressable>
+  );
+};
+
+type TOutputModalProps = {
+  item: Utxo;
+  balanceUnit: string;
+  oMemo?: string;
+};
+
+const OutputModal: React.FC<TOutputModalProps> = ({
+  item: { address, txid, value, vout, confirmations = 0 },
+  balanceUnit = BitcoinUnit.BTC,
+  oMemo,
+}) => {
+  const { colors } = useTheme();
+  const { txMetadata } = useStorage();
+  const memo = oMemo || txMetadata[txid]?.memo || '';
+  const fullId = `${txid}:${vout}`;
+  const color = `#${txid.substring(0, 6)}`;
+  const amount = formatBalance(value, balanceUnit, true);
+
+  const oStyles = StyleSheet.create({
+    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
+    avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
+    amount: { fontWeight: 'bold', color: colors.foregroundColor },
+    tranContainer: { paddingLeft: 20 },
+    tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
+    memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
+  });
+  const confirmationsFormatted = new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(
+    confirmations,
+  );
+
+  return (
+    <View style={[styles.listRow, oStyles.container]}>
+      <Avatar rounded size={40} containerStyle={oStyles.avatar} />
+      <View style={styles.listContent}>
+        <Text numberOfLines={1} style={oStyles.amount}>
+          {amount}
+        </Text>
+        <View style={oStyles.tranContainer}>
+          <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
+        </View>
+        {memo ? (
+          <>
+            <Text style={oStyles.memo}>{memo}</Text>
+            <BlueSpacing10 />
+          </>
+        ) : null}
+        <Text style={oStyles.memo}>{address}</Text>
+        <BlueSpacing10 />
+        <Text style={oStyles.memo}>{fullId}</Text>
+      </View>
+    </View>
+  );
+};
+
+const mStyles = StyleSheet.create({
+  memoTextInput: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    color: '#81868e',
+  },
+  buttonContainer: {
+    height: 45,
+    marginBottom: 36,
+    marginHorizontal: 24,
+  },
+});
+
+type TOutputModalContentProps = {
+  output: Utxo;
+  wallet: TWallet;
+  onUseCoin: (u: Utxo[]) => void;
+  frozen: boolean;
+  setFrozen: (value: boolean) => void;
+};
+
+const transparentBackground = { backgroundColor: 'transparent' };
+const OutputModalContent: React.FC<TOutputModalContentProps> = ({ output, wallet, onUseCoin, frozen, setFrozen }) => {
+  const { colors } = useTheme();
+  const { txMetadata, saveToDisk } = useStorage();
+  const [memo, setMemo] = useState<string>(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
+  const switchValue = useMemo(() => ({ value: frozen, onValueChange: (value: boolean) => setFrozen(value) }), [frozen, setFrozen]);
+
+  const onMemoChange = (value: string) => setMemo(value);
+
+  // save on form change. Because effect called on each event, debounce it.
+  const debouncedSaveMemo = useRef(
+    debounce(async m => {
+      wallet.setUTXOMetadata(output.txid, output.vout, { memo: m });
+      await saveToDisk();
+    }, 500),
+  );
+  useEffect(() => {
+    debouncedSaveMemo.current(memo);
+  }, [memo]);
+
+  return (
+    <View>
+      <OutputModal item={output} balanceUnit={wallet.getPreferredBalanceUnit()} />
+      <BlueSpacing20 />
+      <TextInput
+        testID="OutputMemo"
+        placeholder={loc.send.details_note_placeholder}
+        value={memo}
+        placeholderTextColor="#81868e"
+        style={[
+          mStyles.memoTextInput,
+          {
+            borderColor: colors.formBorder,
+            borderBottomColor: colors.formBorder,
+            backgroundColor: colors.inputBackgroundColor,
+          },
+        ]}
+        onChangeText={onMemoChange}
+      />
+      <ListItem title={loc.cc.freezeLabel} containerStyle={transparentBackground} noFeedback switch={switchValue} />
+      <BlueSpacing20 />
+    </View>
   );
 };
 
@@ -368,17 +495,47 @@ const CoinControl: React.FC = () => {
           <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
         </View>
       )}
-      <SafeAreaScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.listContent}>
-        {tipCoins()}
-        {utxos.map(renderItem)}
-      </SafeAreaScrollView>
+
+      <BottomModal
+        ref={bottomModalRef}
+        onClose={() => {
+          Keyboard.dismiss();
+          setOutput(undefined);
+        }}
+        backgroundColor={colors.elevated}
+        contentContainerStyle={styles.modalMinHeight}
+        footer={
+          <View style={mStyles.buttonContainer}>
+            {!isVisible && (
+              <Button
+                testID="UseCoin"
+                title={loc.cc.use_coin}
+                onPress={async () => {
+                  if (!output) throw new Error('output is not set');
+                  await bottomModalRef.current?.dismiss();
+                  handleUseCoin([output]);
+                }}
+              />
+            )}
+          </View>
+        }
+      >
+        {renderOutputModalContent(output)}
+      </BottomModal>
+      <SafeAreaFlatList
+        ListHeaderComponent={tipCoins}
+        data={utxos}
+        renderItem={renderItem}
+        keyExtractor={item => `${item.txid}:${item.vout}`}
+        contentContainerStyle={styles.listContainerContent}
+      />
 
       {selectionStarted && (
         <FContainer>
           <FButton
             onPress={handleMassFreeze}
             text={allFrozen ? loc.cc.freezeLabel_un : loc.cc.freezeLabel}
-            icon={<Icon name="snowflake" size={buttonFontSize} type="font-awesome-5" color={colors.buttonAlternativeTextColor} />}
+            icon={<Icon name="snowflake" size={buttonFontSize} type="font-awesome-6" color={colors.buttonAlternativeTextColor} />}
           />
           <FButton
             onPress={handleMassUse}
@@ -421,46 +578,19 @@ const styles = StyleSheet.create({
   badges: {
     flexDirection: 'row',
   },
+  listRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
   listContent: {
-    paddingBottom: 70,
+    flex: 1,
+    marginLeft: 12,
   },
-  badge: {
-    borderWidth: 0,
-    marginLeft: 4,
-  },
-  badgeText: {
-    marginTop: -1,
-  },
-  tipOuter: {
-    marginVertical: 24,
-    marginHorizontal: 16,
-  },
-  tipOverflow: {
-    overflow: 'hidden',
-  },
-  tipContainer: {
-    borderRadius: 12,
-    padding: 16,
-  },
-  tipAbsolute: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-  },
-  outputContainer: {
-    borderBottomColor: 'rgba(0, 0, 0, 0)',
-  },
-  outputAvatar: {
-    borderColor: 'white',
-    borderWidth: 1,
-  },
-  outputAmount: {
-    fontWeight: 'bold',
-  },
-  outputMemo: {
-    fontSize: 13,
-    marginTop: 3,
+  listContainerContent: {
+    paddingBottom: 16,
   },
 });
 

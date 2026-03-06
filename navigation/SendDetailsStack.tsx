@@ -8,8 +8,6 @@ import { SendDetailsStackParamList } from './SendDetailsStackParamList';
 import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
-import { Platform } from 'react-native';
-import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
@@ -60,10 +58,12 @@ const SendDetailsStack = () => {
         name="SelectFee"
         component={SelectFeeScreen}
         options={navigationStyle({
-          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
           presentation: 'formSheet',
           headerTitle: '',
+          sheetAllowedDetents: [0.45, 0.9],
           sheetGrabberVisible: true,
+          contentStyle: { flex: 1 },
+          keyboardHandlingEnabled: true,
         })(theme)}
       />
       <Stack.Screen

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
-import { StyleSheet, GestureResponderEvent, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import { StyleSheet, GestureResponderEvent, Pressable } from 'react-native';
+import Icon from './Icon';
 import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
   },
   iconContainer: {
     padding: 0,
@@ -61,21 +62,10 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   const actions = useMemo(() => [CommonToolTipActions.ImportWallet], []);
 
   return (
-    <ToolTipMenu
-      isButton
-      onPress={(event: GestureResponderEvent) => {
-        onPress?.(event);
-      }}
-      buttonStyle={[styles.ball, stylesHook.ball]}
-      accessibilityRole="button"
-      accessibilityLabel={loc.wallets.add_title}
-      onPressMenuItem={onPressMenuItem}
-      actions={actions}
-      shouldOpenOnLongPress
-    >
-      <View style={styles.iconContainer}>
-        <Icon name="add" size={22} type="ionicons" color={colors.foregroundColor} iconStyle={styles.icon} />
-      </View>
+    <ToolTipMenu accessibilityRole="button" accessibilityLabel={loc.wallets.add_title} onPressMenuItem={onPressMenuItem} actions={actions}>
+      <Pressable style={({ pressed }) => [pressed ? styles.pressed : null, styles.ball, stylesHook.ball]} onPress={onPress}>
+        <Icon name="add" size={22} type="material" color={colors.foregroundColor} />
+      </Pressable>
     </ToolTipMenu>
   );
 };

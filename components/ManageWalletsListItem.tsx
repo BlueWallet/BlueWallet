@@ -1,17 +1,7 @@
-import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
-import {
-  StyleSheet,
-  ViewStyle,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  Animated,
-  View,
-  Text,
-  TextStyle,
-  Pressable,
-} from 'react-native';
-import { Icon, ListItem } from '@rneui/base';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
+import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
+import Icon from './Icon';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { WalletCarouselItem } from './WalletsCarousel';
 import { TransactionListItem } from './TransactionListItem';
@@ -70,7 +60,10 @@ const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, c
     accessibilityRole="button"
     accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
   >
-    <Icon name={hideBalance ? 'eye' : 'eye-slash'} color={colors.brandingColor} type="font-awesome-5" />
+    <Icon name={hideBalance ? 'visibility' : 'visibility-off'} color={colors.brandingColor} type="material" />
+    <Text style={[styles.leftButtonText, { color: colors.brandingColor }]}>
+      {hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
+    </Text>
   </TouchableOpacity>
 );
 
@@ -94,6 +87,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSwipeActive, setIsSwipeActive] = useState(false);
   const resetFunctionRef = useRef<(() => void) | null>(null);
+  const swipeableRef = useRef<Swipeable | null>(null);
 
   const CARD_SORT_ACTIVE = 1.0;
   const HANDLE_WIDTH = 28;
@@ -189,63 +183,38 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     const dragIconName = Platform.OS === 'ios' ? 'reorder-three' : 'drag-handle';
     const dragIconType = Platform.OS === 'ios' ? 'ionicon' : 'material';
 
-    return (
-      <Animated.View style={[styles.walletRowContainer, animatedStyle]} collapsable={false}>
-        <ListItem.Swipeable
-          leftWidth={swipeDisabled ? 0 : 80}
-          containerStyle={[styles.swipeableContainer, style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}
-          leftContent={swipeDisabled ? null : leftContent}
-          onPressOut={onPressOut}
-          minSlideWidth={swipeDisabled ? 0 : 80}
+    const content = (
+      <View style={[style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}>
+        <WalletCarouselItem
+          item={item.data}
+          handleLongPress={isDraggingDisabled || isSwipeActive ? undefined : startDrag}
+          onPress={onPress}
           onPressIn={onPressIn}
-          style={swipeDisabled ? styles.transparentBackground : {}}
-          onSwipeBegin={direction => {
-            if (!swipeDisabled) {
-              console.debug(`Swipe began: ${direction}`);
-              setIsSwipeActive(true);
-            }
-          }}
-          onSwipeEnd={() => {
-            if (!swipeDisabled) {
-              console.debug('Swipe ended');
-              setIsSwipeActive(false);
-            }
-          }}
-        >
-          <ListItem.Content>
-            <View style={styles.rowInner}>
-              <Animated.View style={[styles.dragHandle, handleAnimatedStyle[0]]} pointerEvents={hideHandle ? 'none' : 'auto'}>
-                <Pressable
-                  accessible
-                  accessibilityRole="button"
-                  accessibilityLabel="Reorder"
-                  style={({ pressed }) => [styles.dragHandlePressable, pressed && { opacity: 0.6 }]}
-                  android_ripple={{ color: colors.buttonDisabledTextColor, borderless: true }}
-                  onPressIn={!hideHandle && !isSwipeActive ? startDrag : undefined}
-                  disabled={hideHandle || isSwipeActive}
-                  hitSlop={6}
-                >
-                  <Icon name={dragIconName} type={dragIconType} color={colors.alternativeTextColor} size={18} />
-                </Pressable>
-              </Animated.View>
-              <WalletCarouselItem
-                item={item.data}
-                handleLongPress={isDraggingDisabled || isSwipeActive ? undefined : startDrag}
-                onPress={onPress}
-                onPressIn={onPressIn}
-                onPressOut={onPressOut}
-                animationsEnabled
-                isDraggingActive={Boolean(isActive)}
-                dragActiveScale={1}
-                searchQuery={state.searchQuery}
-                isPlaceHolder={isPlaceHolder}
-                renderHighlightedText={renderHighlightedText}
-                customStyle={styles.carouselItem}
-                sizeVariant="compact"
-              />
-            </View>
-          </ListItem.Content>
-        </ListItem.Swipeable>
+          onPressOut={onPressOut}
+          animationsEnabled={false}
+          searchQuery={state.searchQuery}
+          isPlaceHolder={isPlaceHolder}
+          renderHighlightedText={renderHighlightedText}
+          customStyle={styles.carouselItem}
+        />
+      </View>
+    );
+
+    return (
+      <Animated.View style={animatedStyle}>
+        {swipeDisabled ? (
+          content
+        ) : (
+          <Swipeable
+            ref={swipeableRef}
+            renderLeftActions={() => leftContent(() => swipeableRef.current?.close())}
+            leftThreshold={40}
+            onSwipeableWillOpen={() => setIsSwipeActive(true)}
+            onSwipeableWillClose={() => setIsSwipeActive(false)}
+          >
+            {content}
+          </Swipeable>
+        )}
       </Animated.View>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
@@ -520,6 +489,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  leftButtonText: {
+    marginTop: 6,
+    fontSize: 12,
+    fontWeight: '600',
+  },
   carouselItem: {
     flex: 1,
     flexBasis: 0,
@@ -530,26 +504,7 @@ const styles = StyleSheet.create({
   },
   walletRowContainer: {
     width: '100%',
-    paddingVertical: 0,
-    marginVertical: -6, // slight overlap for stacked-card look
-  },
-  rowInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    flexShrink: 1,
-    width: '100%',
-    minHeight: 112,
-  },
-  dragHandle: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-  },
-  dragHandlePressable: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 12,
     paddingVertical: 8,
   },
   transparentBackground: {

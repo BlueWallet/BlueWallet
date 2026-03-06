@@ -213,14 +213,14 @@ const AddressItem = ({
       buttonStyle={styles.tooltipButton}
       shouldOpenOnLongPress
     >
-      <View key={item.key} style={[stylesHook.container, styles.itemContainer, styles.itemWrapper]}>
-        <View style={styles.mainSection}>
+      <View key={item.key} style={[styles.container, stylesHook.container]}>
+        <View style={styles.row}>
           <View style={styles.leftSection}>
             <Text style={[styles.index, stylesHook.index]}>{item.index}</Text>
           </View>
           <View style={styles.middleSection}>
             {renderAddressContent()}
-            <Animated.Text style={[stylesHook.balance, styles.balance, animatedBalanceStyle]}>{balance}</Animated.Text>
+            <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
           </View>
         </View>
         <View style={styles.rightContainer}>
@@ -235,6 +235,13 @@ const AddressItem = ({
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
   address: {
     fontWeight: 'bold',
     marginHorizontal: 4,
@@ -262,6 +269,7 @@ const styles = StyleSheet.create({
   mainSection: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   leftSection: {
     marginRight: 10,
