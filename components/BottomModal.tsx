@@ -3,7 +3,7 @@ import { SheetSize, SizeChangeEvent, TrueSheet, TrueSheetProps } from '@lodev09/
 import { Keyboard, Image, StyleSheet, View, Pressable, Platform, GestureResponderEvent, Text } from 'react-native';
 import SaveFileButton from './SaveFileButton';
 import { useTheme } from './themes';
-import { Icon } from '@rneui/base';
+import Icon from './Icon';
 
 interface BottomModalProps extends TrueSheetProps {
   children?: React.ReactNode;
@@ -107,8 +107,8 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               key="ModalShareButton"
             >
               <Icon
-                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
-                type="font-awesome6"
+                name={Platform.OS === 'android' ? 'share' : 'file-arrow-up'}
+                type="font-awesome-6"
                 size={20}
                 color={colors.buttonTextColor}
               />
@@ -123,8 +123,8 @@ const BottomModal = forwardRef<BottomModalHandle, BottomModalProps>(
               onPress={shareButtonOnPress}
             >
               <Icon
-                name={Platform.OS === 'android' ? 'share' : 'file-upload'}
-                type="font-awesome6"
+                name={Platform.OS === 'android' ? 'share' : 'file-arrow-up'}
+                type="font-awesome-6"
                 size={20}
                 color={colors.buttonTextColor}
               />

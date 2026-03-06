@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, Platform } from 'react-native';
 import ToolTipMenu from './TooltipMenu';
 import { useTheme } from './themes';
-import { Icon } from '@rneui/themed';
+import Icon from './Icon';
 import { Action } from './types';
 
 interface HeaderMenuButtonProps {

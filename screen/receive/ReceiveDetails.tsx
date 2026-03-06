@@ -401,7 +401,7 @@ const ReceiveDetails = () => {
               <View style={styles.qrCodeContainer}>
                 <QRCodeComponent value={bip21encoded} size={qrCodeSize} />
               </View>
-              <CopyTextToClipboard text={isCustom ? bip21encoded : address} />
+              <CopyTextToClipboard text={isCustom ? bip21encoded : address} isAddress={true} />
             </View>
           )}
         </View>

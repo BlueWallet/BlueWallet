@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useReducer } from 'react';
-import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
-import { Text } from '@rneui/themed';
+import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, Text, View } from 'react-native';
 import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -111,6 +110,9 @@ const Confirm: React.FC = () => {
     },
     payjoinWrapper: {
       backgroundColor: colors.buttonDisabledBackgroundColor,
+    },
+    addressSection: {
+      color: colors.newBlue,
     },
   });
 
@@ -291,7 +293,9 @@ const Confirm: React.FC = () => {
         <BlueCard>
           <Text style={[styles.transactionDetailsTitle, stylesHook.transactionDetailsTitle]}>{loc.send.create_to}</Text>
           <Text testID="TransactionAddress" style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>
-            {item.address}
+            <Text style={stylesHook.addressSection}>{item?.address?.slice(0, 6)}</Text>
+            <Text>{item?.address?.slice(6, -6)}</Text>
+            <Text style={stylesHook.addressSection}>{item?.address?.slice(-6)}</Text>
           </Text>
           {contact ? <Text style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>[{contact}]</Text> : null}
         </BlueCard>

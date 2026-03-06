@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
 import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
@@ -640,7 +640,7 @@ const WalletsAddMultisigStep2 = () => {
       >
         <View style={styles.itemKeyUnprovidedWrapper}>
           <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+            <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
           </View>
           <View style={styles.vaultKeyTextWrapper}>
             <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
@@ -786,7 +786,7 @@ const WalletsAddMultisigStep2 = () => {
           onPress={handleOnHelpPress}
           disabled={isLoading}
         >
-          <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
+          <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
       </View>
