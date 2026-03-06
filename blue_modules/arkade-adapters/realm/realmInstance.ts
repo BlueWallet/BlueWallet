@@ -9,20 +9,25 @@ import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
 
 const AllArkadeSchemas = [...ArkRealmSchemas, ...BoltzRealmSchemas];
 
-let realmInstance: Realm | null = null;
+const realmInstances: Map<string, Realm> = new Map();
 
 /**
- * Returns a lazy singleton Realm instance for Arkade data, encrypted with
- * a random key stored in the device keychain. The database file lives in
- * CachesDirectoryPath alongside the existing key-value Realm.
+ * Returns a per-wallet Realm instance keyed by `namespace` (a hash of the
+ * wallet secret). Each wallet gets its own encrypted Realm file and its
+ * own keychain entry, so:
+ *
+ * - Multiple wallets never collide on WalletState or contracts.
+ * - Plausible-deniability storage buckets stay isolated — a hidden
+ *   wallet's Ark data lives in a separate file with a separate key.
  */
-export async function getArkadeRealm(): Promise<Realm> {
-  if (realmInstance && !realmInstance.isClosed) {
-    return realmInstance;
+export async function getArkadeRealm(namespace: string): Promise<Realm> {
+  const cached = realmInstances.get(namespace);
+  if (cached && !cached.isClosed) {
+    return cached;
   }
 
   const cacheFolderPath = RNFS.CachesDirectoryPath;
-  const service = 'arkade_realm_encryption_key';
+  const service = `arkade_realm_${namespace}`;
   let password: string;
 
   const credentials = await Keychain.getGenericPassword({ service });
@@ -36,10 +41,10 @@ export async function getArkadeRealm(): Promise<Realm> {
 
   const buf = hexToUint8Array(password);
   const encryptionKey = Int8Array.from(buf);
-  const path = `${cacheFolderPath}/arkade.realm`;
+  const path = `${cacheFolderPath}/arkade-${namespace}.realm`;
 
   // @ts-ignore schema doesn't match Realm's schema type
-  realmInstance = await Realm.open({
+  const realm = await Realm.open({
     // @ts-ignore schema doesn't match Realm's schema type
     schema: AllArkadeSchemas,
     path,
@@ -47,15 +52,18 @@ export async function getArkadeRealm(): Promise<Realm> {
     excludeFromIcloudBackup: true,
   });
 
-  return realmInstance;
+  realmInstances.set(namespace, realm);
+  return realm;
 }
 
 /**
- * Close the cached Arkade Realm instance and release its resources.
+ * Close all cached Arkade Realm instances and release their resources.
  */
 export function closeArkadeRealm(): void {
-  if (realmInstance && !realmInstance.isClosed) {
-    realmInstance.close();
+  for (const [key, realm] of realmInstances) {
+    if (!realm.isClosed) {
+      realm.close();
+    }
+    realmInstances.delete(key);
   }
-  realmInstance = null;
 }

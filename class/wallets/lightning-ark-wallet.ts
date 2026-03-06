@@ -104,10 +104,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
     try {
       const identity = this._getIdentity();
 
-      const realm = await getArkadeRealm();
-      const walletRepository = new RealmWalletRepository(realm);
-      const contractRepository = new RealmContractRepository(realm);
-      const swapRepository = new RealmSwapRepository(realm);
+      const realm = await getArkadeRealm(namespace);
+      const walletRepository = new RealmWalletRepository(realm as any);
+      const contractRepository = new RealmContractRepository(realm as any);
+      const swapRepository = new RealmSwapRepository(realm as any);
 
       const mm = new Measure('Wallet.create()');
       if (!staticWalletCache[namespace]) {
