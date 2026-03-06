@@ -2,9 +2,12 @@ import RNFS from 'react-native-fs';
 import Realm from 'realm';
 import Keychain from 'react-native-keychain';
 
+import { ArkRealmSchemas } from '@arkade-os/sdk/repositories/realm';
+import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
-import { AllArkadeSchemas } from './schemas';
+
+const AllArkadeSchemas = [...ArkRealmSchemas, ...BoltzRealmSchemas];
 
 let realmInstance: Realm | null = null;
 

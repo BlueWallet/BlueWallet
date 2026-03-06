@@ -9,6 +9,8 @@ module.exports = {
   transformIgnorePatterns: ['node_modules/(?!((jest-)?react-native(-.*)?|@react-native(-community)?)|@rneui|silent-payments|@arkade-os)/'],
   moduleNameMapper: {
     '^expo/fetch$': '<rootDir>/util/expo-fetch-nodejs.js',
+    '^@arkade-os/sdk/repositories/realm$': '<rootDir>/node_modules/@arkade-os/sdk/dist/cjs/repositories/realm/index.js',
+    '^@arkade-os/boltz-swap/repositories/realm$': '<rootDir>/node_modules/@arkade-os/boltz-swap/dist/repositories/realm/index.cjs',
   },
   setupFiles: ['./tests/setup.js'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules'],

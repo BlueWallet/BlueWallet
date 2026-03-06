@@ -44,7 +44,7 @@
     "jest-environment-node": "^29.7.0",
     "node-fetch": "^2.6.7",
     "prettier": "^3.2.5",
-    "ts-jest": "^29.1.1",
+    "ts-jest": "^29.4.6",
     "typescript": "^5.9.3"
   },
   "engines": {
@@ -82,8 +82,8 @@
     "unit": "jest -b -w tests/unit/*"
   },
   "dependencies": {
-    "@arkade-os/boltz-swap": "0.3.0-next.0",
-    "@arkade-os/sdk": "0.4.0-next.0",
+    "@arkade-os/boltz-swap": "^0.3.0",
+    "@arkade-os/sdk": "^0.4.0",
     "@babel/preset-env": "7.27.2",
     "@bugsnag/react-native": "8.4.0",
     "@bugsnag/source-maps": "2.3.3",
