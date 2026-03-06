@@ -48,7 +48,7 @@ interface BlueTextProps extends TextProps {
   h4?: boolean;
 }
 
-export const BlueText: React.FC<BlueTextProps> = ({ bold = false, h1, h2, h3, h4, ...props }) => {
+export const BlueText: React.FC<BlueTextProps> = ({ bold = false, h1, h2, h3, h4, style: passedStyle, ...props }) => {
   const { colors } = useTheme();
   const { direction } = useLocale();
 
@@ -71,7 +71,7 @@ export const BlueText: React.FC<BlueTextProps> = ({ bold = false, h1, h2, h3, h4
       fontWeight: hasHeading ? undefined : bold ? 'bold' : 'normal',
       ...headingStyle,
     },
-    props.style,
+    passedStyle,
   );
   return <Text style={style} {...props} />;
 };

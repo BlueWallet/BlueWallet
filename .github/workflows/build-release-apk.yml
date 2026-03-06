@@ -39,7 +39,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1.6
+          ruby-version: 3.4.8
           bundler-cache: true
 
       - name: Cache Ruby Gems
@@ -105,7 +105,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1.6
+          ruby-version: 3.4.8
           bundler-cache: true
 
       - name: Install dependencies with Bundler
