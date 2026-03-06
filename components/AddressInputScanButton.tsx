@@ -127,17 +127,17 @@ export const AddressInputScanButton = ({
     [onChangeText],
   );
 
-  const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
+  const menuButtonStyle = useMemo(() => (type === 'default' ? [styles.scan, stylesHook.scan] : undefined), [stylesHook.scan, type]);
 
   return (
     <ToolTipMenu
       actions={actions}
       isButton
       onPressMenuItem={onMenuItemPressed}
-      testID={testID}
+      shouldOpenOnLongPress
       disabled={isLoading}
       onPress={toolTipOnPress}
-      buttonStyle={type === 'default' ? buttonStyle : undefined}
+      buttonStyle={menuButtonStyle}
       accessibilityLabel={loc.send.details_scan}
       accessibilityHint={loc.send.details_scan_hint}
     >
@@ -149,7 +149,11 @@ export const AddressInputScanButton = ({
           </Text>
         </View>
       ) : (
-        <Text style={[styles.linkText, { color: colors.foregroundColor }]}>{loc.wallets.import_scan_qr}</Text>
+        <View testID={testID} style={styles.contentRow}>
+          <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
+            {loc.wallets.import_scan_qr}
+          </Text>
+        </View>
       )}
     </ToolTipMenu>
   );
@@ -168,9 +172,12 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 8,
     marginHorizontal: 4,
+    alignSelf: 'center',
   },
   scanText: {
     marginLeft: 4,
+    flexShrink: 1,
+    textAlignVertical: 'center',
   },
   scanContent: {
     flexDirection: 'row',
@@ -181,5 +188,13 @@ const styles = StyleSheet.create({
   linkText: {
     textAlign: 'center',
     fontSize: 16,
+    flexShrink: 1,
+    textAlignVertical: 'center',
+  },
+  contentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
 });

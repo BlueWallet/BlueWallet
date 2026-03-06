@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
-import { BlueButtonLink } from '../../BlueComponents';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
@@ -26,8 +26,6 @@ const IsItMyAddress: React.FC = () => {
   const [address, setAddress] = useState<string>('');
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
   const [resultCleanAddress, setResultCleanAddress] = useState<string | undefined>();
-
-  const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 
   const clearAddressInput = () => {
     setAddress('');
@@ -112,7 +110,6 @@ const IsItMyAddress: React.FC = () => {
       }
       const value = values[match[1]];
       if (value) {
-        // Bold the wallet name (label), regular weight for address
         const isLabel = match[1] === 'label';
         parts.push(
           <Text key={`bold-${index++}`} selectable style={isLabel ? styles.boldText : undefined}>
@@ -241,12 +238,6 @@ const styles = StyleSheet.create({
     padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  buttonSpacing: {
-    height: 16,
-  },
-  buttonSpacingSmall: {
-    height: 8,
   },
   spacingLarge: {
     height: 32,

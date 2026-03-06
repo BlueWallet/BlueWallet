@@ -53,11 +53,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('AboutScrollView'))
       .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
     await tapAndTapAgainIfElementIsNotVisible('RunSelfTestButton', 'SelfTestLoading');
-    // Wait for the self-test to complete (loading disappears)
-    await waitFor(element(by.id('SelfTestLoading')))
-      .not.toBeVisible()
-      .withTimeout(300 * 1000);
-    // Then wait for the OK button to appear
+    await element(by.id('SelfTestLoading')).tap(); // tapping START button
+
+    // Wait for the self-test to complete
     await waitFor(element(by.id('SelfTestOk')))
       .toBeVisible()
       .withTimeout(300 * 1000);
@@ -269,7 +267,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.text(`No, and do not ask me again.`)).tap();
       await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
     } catch (_) {}
-    await waitForId('BitcoinAddressQRCodeContainer');
+    await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
@@ -280,7 +278,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('CustomAmountDescriptionText'))).toHaveText('test');
     await expect(element(by.id('BitcoinAmountText'))).toHaveText('1 BTC');
 
-    await waitForId('BitcoinAddressQRCodeContainer');
+    await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
@@ -366,9 +364,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('PasswordInput');
 
     // trying MAIN password: should fail, obviously
+    await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('qqq');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
+    await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
@@ -468,6 +468,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
+    await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('pass');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
@@ -481,6 +482,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
+    await element(by.id('ConfirmPasswordInput')).clearText();
     await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
@@ -520,6 +522,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('OKButton')).tap();
     await tapIfPresent('OKButton'); // might not always work first time
     await sleep(1000); // propagate
+    await element(by.text('OK')).atIndex(0).tap(); // INCORRECT PASSWORD alert
     // correct password
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('pass');
@@ -558,30 +561,31 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ModalDoneButton')).tap();
 
     //
-
     await element(by.id('LetsStart')).tap();
 
     // key1 - seed:
-
     await element(by.id('VaultCosignerImport1')).tap();
+    await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
 
     await scanText('pipe goose bottom run seed curious thought kangaroo example family coral success');
-    await element(by.id('DoImportKeyButton')).tap(); // when seed - need to extra tap the button
+    // scan auto-imports the seed via onBarScanned and navigates back to Step2
 
     // key2 - xpub:
-
+    await waitForId('VaultCosignerImport2');
     await element(by.id('VaultCosignerImport2')).tap();
+    await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
-
     await scanText(
       'ur:crypto-account/oeadcypdlouebgaolytaadmetaaddloxaxhdclaxfdyksnwkuypkfevlfzfroyiyecoeosbakbpdcldawzhtcarkwsndcphphsbsdsayaahdcxfgjyckryosmwtdptlbflonbkimlsmovolslbytonayisprvoieftgeflzcrtvesbamtaaddyotadlocsdyykaeykaeykaoykaocypdlouebgaxaaaycyttatrnolimvetsst',
     );
-    // when xpub - it automatically closes the modal, so no need to tap the button
 
+    // scan auto-imports the xpub via onBarScanned and navigates back to Step2
+    await waitForId('CreateButton');
     await element(by.id('CreateButton')).tap();
     await waitForText('OK');
     await tapIfTextPresent('OK');
+    await scrollUpOnHomeScreen();
     await waitForId('Multisig Vault');
     await element(by.id('Multisig Vault')).tap(); // go inside the wallet
     await waitForId('ReceiveButton');
@@ -633,6 +637,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForText('OK', 3 * 61000); // waiting for wallet import
     await element(by.text('OK')).tap();
+    await scrollUpOnHomeScreen();
     // ok, wallet imported
 
     // lets go inside wallet
@@ -645,7 +650,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SendButton')).tap();
 
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput')).typeText('0.0005');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0005');
     await element(by.id('BitcoinAmountInput')).tapReturnKey();
     await waitForKeyboardToClose();
 
@@ -890,6 +895,165 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperCreateWallet();
     // nop
     await helperDeleteWallet('cr34t3d');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can create 2of3 multisig vault with generated keys, manage cosigners and export coordination setup', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t10');
+    if (process.env.CI) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t10'), 'as it previously passed on Travis');
+    }
+    await device.clearKeychain();
+    await device.launchApp({ delete: true, permissions: { camera: 'YES' } });
+    await waitForId('WalletsList');
+    await waitFor(element(by.id('CreateAWallet')))
+      .toBeVisible()
+      .whileElement(by.id('WalletsList'))
+      .scroll(500, 'right');
+
+    // navigate to vault creation (default 2-of-3 native segwit)
+    await element(by.id('CreateAWallet')).tap();
+    await waitForId('ActivateVaultButton');
+    await element(by.id('ActivateVaultButton')).tap();
+    await element(by.id('Create')).tap();
+    // skip advanced settings, use defaults (2-of-3, native segwit)
+    await element(by.id('LetsStart')).tap();
+
+    // key 1 - generate new
+    await waitForId('VaultKeyGenerate');
+    await element(by.id('VaultKeyGenerate')).tap();
+    await waitForId('VaultKeyDone');
+    await element(by.id('VaultKeyDone')).tap();
+
+    // key 2 - generate new
+    await waitForId('VaultKeyGenerate');
+    await element(by.id('VaultKeyGenerate')).tap();
+    await waitForId('VaultKeyDone');
+    await element(by.id('VaultKeyDone')).tap();
+
+    // key 3 - import seed via scan
+    await waitForId('VaultCosignerImport3');
+    await element(by.id('VaultCosignerImport3')).tap();
+    await waitForId('ScanOrOpenFile');
+    await element(by.id('ScanOrOpenFile')).tap();
+    await scanText('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+
+    // create vault
+    await waitForId('CreateButton');
+    await element(by.id('CreateButton')).tap();
+    await waitForText('OK', 3 * 61000);
+    await tapIfTextPresent('OK');
+
+    // navigate into wallet
+    await scrollUpOnHomeScreen();
+    await waitForId('Multisig Vault');
+    await element(by.id('Multisig Vault')).tap();
+    await waitForId('ReceiveButton');
+
+    // verify wallet details
+    await element(by.id('WalletDetails')).tap();
+    await waitForText('2 / 3 (native segwit)');
+
+    // test Export Coordination Setup, it has animated qrcode, that uses setInterval, so we need to disable synchronization
+    await waitFor(element(by.id('MultisigCoordinationSetup')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
+    await element(by.id('MultisigCoordinationSetup')).tap();
+    await device.disableSynchronization();
+    await waitForId('ExportMultisigCoordinationSetupView');
+    await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+    await device.enableSynchronization();
+
+    // test View/Edit Cosigners
+    await waitFor(element(by.id('ViewEditCosigners')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
+    await element(by.id('ViewEditCosigners')).tap();
+    await waitForText('Vault Key 1');
+    await expect(element(by.text('Vault Key 2'))).toBeVisible();
+    await waitFor(element(by.text('Vault Key 3')))
+      .toBeVisible()
+      .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
+      .scroll(100, 'down');
+
+    // forget seed for cosigner 3 (replaces seed with xpub)
+    await waitFor(element(by.id('VaultCosignerForgetSeed3')))
+      .toBeVisible()
+      .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
+      .scroll(100, 'down');
+    await element(by.id('VaultCosignerForgetSeed3')).tap();
+    // after forget, "I have mnemonics" button should appear for this cosigner
+    await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
+      .toBeVisible()
+      .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
+      .scroll(100, 'down');
+
+    // save changes
+    await waitFor(element(by.id('VaultCosignersSave')))
+      .toBeVisible()
+      .withTimeout(33000);
+    await element(by.id('VaultCosignersSave')).tap();
+    await waitForId('WalletsList');
+
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('can create wrapped segwit 2of2 vault via advanced settings', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t11');
+    if (process.env.CI) {
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t11'), ' as it previously passed on Travis');
+    }
+    await device.clearKeychain();
+    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } });
+    await waitForId('WalletsList');
+    await waitFor(element(by.id('CreateAWallet')))
+      .toBeVisible()
+      .whileElement(by.id('WalletsList'))
+      .scroll(500, 'right');
+
+    // navigate to vault creation
+    await element(by.id('CreateAWallet')).tap();
+    await waitForId('ActivateVaultButton');
+    await element(by.id('ActivateVaultButton')).tap();
+    await element(by.id('Create')).tap();
+
+    // open advanced settings: change to wrapped segwit, 2-of-2
+    await element(by.id('VaultAdvancedCustomize')).tap();
+    await element(by.id('DecreaseN')).tap(); // 3 → 2
+    await element(by.text('Best compatibility (p2sh-p2wsh)')).tap();
+    await element(by.id('ModalDoneButton')).tap();
+
+    await element(by.id('LetsStart')).tap();
+
+    // key 1 - import seed
+    await element(by.id('VaultCosignerImport1')).tap();
+    await waitForId('ScanOrOpenFile');
+    await element(by.id('ScanOrOpenFile')).tap();
+    await scanText('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+
+    // key 2 - import seed
+    await waitForId('VaultCosignerImport2');
+    await element(by.id('VaultCosignerImport2')).tap();
+    await waitForId('ScanOrOpenFile');
+    await element(by.id('ScanOrOpenFile')).tap();
+    await scanText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
+
+    // create vault
+    await waitForId('CreateButton');
+    await element(by.id('CreateButton')).tap();
+    await waitForText('OK', 3 * 61000);
+    await tapIfTextPresent('OK');
+
+    // navigate into wallet and verify format
+    await scrollUpOnHomeScreen();
+    await waitForId('Multisig Vault');
+    await element(by.id('Multisig Vault')).tap();
+    await waitForId('ReceiveButton');
+    await element(by.id('WalletDetails')).tap();
+    await waitForText('2 / 2 (wrapped segwit)');
+
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 });

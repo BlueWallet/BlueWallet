@@ -108,6 +108,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
+            signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
@@ -122,6 +123,13 @@ task copyFiatUnits(type: Copy) {
 }
 
 preBuild.dependsOn(copyFiatUnits)
+
+// Ensure fiat units are available before codegen scans JS sources
+tasks.configureEach { task ->
+    if (task.name == 'generateCodegenSchemaFromJavaScript') {
+        task.dependsOn(copyFiatUnits)
+    }
+}
 
 dependencies {
 		androidTestImplementation('com.wix:detox:+')

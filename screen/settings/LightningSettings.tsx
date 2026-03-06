@@ -158,8 +158,6 @@ const LightningSettings: React.FC = () => {
 
 export default LightningSettings;
 
-const horizontalPadding = isAndroid ? 20 : 16;
-
 const styles = StyleSheet.create({
   cardContent: {
     paddingHorizontal: horizontalPadding,

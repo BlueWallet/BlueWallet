@@ -16,11 +16,24 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
+    alignItems: 'center',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  pressed: {
-    opacity: 0.6,
+  iconContainer: {
+    padding: 0,
+    margin: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  icon: {
+    padding: 0,
+    margin: 0,
+    lineHeight: 22,
+    textAlignVertical: 'center',
+    textAlign: 'center',
   },
 });
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
@@ -20,12 +20,10 @@ import {
 import * as RNLocalize from 'react-native-localize';
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
-import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
-import Button from '../../components/Button';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
-import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -34,30 +32,64 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { useKeyboard } from '../../hooks/useKeyboard';
-import TipBox from '../../components/TipBox';
-import SafeAreaFlatList from '../../components/SafeAreaFlatList';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
 
 const FrozenBadge: React.FC = () => {
   const { colors } = useTheme();
-  const oStyles = StyleSheet.create({
-    freeze: { backgroundColor: colors.redBG, borderWidth: 0, marginLeft: 4 },
-    freezeText: { color: colors.redText, marginTop: -1 },
-  });
-  return <Badge value={loc.cc.freeze} badgeStyle={oStyles.freeze} textStyle={oStyles.freezeText} />;
+  return (
+    <Badge
+      value={loc.cc.freeze}
+      badgeStyle={[styles.badge, { backgroundColor: colors.redBG }]}
+      textStyle={[styles.badgeText, { color: colors.redText }]}
+    />
+  );
 };
 
 const ChangeBadge: React.FC = () => {
   const { colors } = useTheme();
-  const oStyles = StyleSheet.create({
-    change: { backgroundColor: colors.buttonDisabledBackgroundColor, borderWidth: 0, marginLeft: 4 },
-    changeText: { color: colors.alternativeTextColor, marginTop: -1 },
-  });
-  return <Badge value={loc.cc.change} badgeStyle={oStyles.change} textStyle={oStyles.changeText} />;
+  return (
+    <Badge
+      value={loc.cc.change}
+      badgeStyle={[styles.badge, { backgroundColor: colors.buttonDisabledBackgroundColor }]}
+      textStyle={[styles.badgeText, { color: colors.alternativeTextColor }]}
+    />
+  );
+};
+
+const AnimatedTip: React.FC<{ text: string }> = ({ text }) => {
+  const { colors } = useTheme();
+  const heightAnim = useRef(new Animated.Value(0)).current;
+  const currentHeight = useRef(0);
+  const [measured, setMeasured] = useState(false);
+
+  const onContentLayout = useCallback(
+    (e: { nativeEvent: { layout: { height: number } } }) => {
+      const newHeight = e.nativeEvent.layout.height;
+      if (!measured) {
+        currentHeight.current = newHeight;
+        heightAnim.setValue(newHeight);
+        setMeasured(true);
+        return;
+      }
+      if (Math.abs(newHeight - currentHeight.current) < 1) return;
+      currentHeight.current = newHeight;
+      Animated.timing(heightAnim, { toValue: newHeight, duration: 250, useNativeDriver: false }).start();
+    },
+    [heightAnim, measured],
+  );
+
+  return (
+    <Animated.View style={[styles.tipOuter, measured && styles.tipOverflow, measured && { height: heightAnim }]}>
+      <View
+        onLayout={onContentLayout}
+        style={[styles.tipContainer, { backgroundColor: colors.ballOutgoingExpired }, measured && styles.tipAbsolute]}
+      >
+        <Text style={{ color: colors.foregroundColor }}>{text}</Text>
+      </View>
+    </Animated.View>
+  );
 };
 
 type TOutputListProps = {
@@ -90,17 +122,6 @@ const OutputList: React.FC<TOutputListProps> = ({
   const memo = oMemo || txMetadata[txid]?.memo || '';
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
-
-  const oStyles = StyleSheet.create({
-    container: { borderBottomColor: colors.lightBorder, backgroundColor: colors.elevated },
-    containerSelected: {
-      backgroundColor: colors.ballOutgoingExpired,
-      borderBottomColor: 'rgba(0, 0, 0, 0)',
-    },
-    avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
-    amount: { fontWeight: 'bold', color: colors.foregroundColor },
-    memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
-  });
 
   let onPress = onOpen;
   if (selectionStarted) {
@@ -273,7 +294,6 @@ const CoinControl: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const { width } = useWindowDimensions();
-  const bottomModalRef = useRef<BottomModalHandle | null>(null);
   const { walletID } = useRoute<RouteProps>().params;
   const { wallets, saveToDisk, sleep } = useStorage();
   const [sortDirection, setSortDirection] = useState<ESortDirections>(ESortDirections.asc);
@@ -309,10 +329,8 @@ const CoinControl: React.FC = () => {
     // invert if descending
     return sortDirection === ESortDirections.desc ? res.reverse() : res;
   }, [sortDirection, sortType, wallet, frozen]);
-  const [output, setOutput] = useState<Utxo | undefined>();
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
-  const { isVisible } = useKeyboard();
 
   // save frozen status. Because effect called on each event, debounce it.
   const debouncedSaveFronen = useRef(
@@ -340,37 +358,38 @@ const CoinControl: React.FC = () => {
     })();
   }, [wallet, setLoading, sleep]);
 
-  const stylesHook = StyleSheet.create({
-    tip: {
-      backgroundColor: colors.ballOutgoingExpired,
-      borderRadius: 12,
-      padding: 16,
-      marginVertical: 24,
-      marginHorizontal: 16,
-    },
-  });
+  useFocusEffect(
+    useCallback(() => {
+      if (!wallet) return;
+      const refreshedFrozen = wallet
+        .getUtxo(true)
+        .filter(out => wallet.getUTXOMetadata(out.txid, out.vout).frozen)
+        .map(({ txid, vout }) => `${txid}:${vout}`);
+
+      setFrozen(refreshedFrozen);
+      // Clear any stale selection that might reference outdated frozen state.
+      setSelected([]);
+    }, [wallet]),
+  );
+
+  const tipText = useMemo(() => {
+    if (utxos.length === 0) return '';
+    if (selected.length === 0) return loc.cc.tip;
+    const summ = selected.reduce((prev, curr) => {
+      return prev + (utxos.find(({ txid, vout }) => `${txid}:${vout}` === curr) as Utxo).value;
+    }, 0);
+    const value = formatBalance(summ, wallet.getPreferredBalanceUnit(), true);
+    return loc.formatString(loc.cc.selected_summ, { value });
+  }, [selected, utxos, wallet]);
 
   const tipCoins = () => {
     if (utxos.length === 0) return null;
-
-    let text = loc.cc.tip;
-    if (selected.length > 0) {
-      // show summ of coins if any selected
-      const summ = selected.reduce((prev, curr) => {
-        return prev + (utxos.find(({ txid, vout }) => `${txid}:${vout}` === curr) as Utxo).value;
-      }, 0);
-
-      const value = formatBalance(summ, wallet.getPreferredBalanceUnit(), true);
-      text = loc.formatString(loc.cc.selected_summ, { value });
-    }
-
-    return <TipBox description={text} containerStyle={stylesHook.tip} />;
+    return <AnimatedTip text={tipText} />;
   };
 
-  const handleChoose = (item: Utxo) => setOutput(item);
+  const handleChoose = (item: Utxo) => navigation.navigate('CoinControlOutput', { walletID, utxo: item });
 
   const handleUseCoin = async (u: Utxo[]) => {
-    setOutput(undefined);
     const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: u }, { merge: true });
     navigation.dispatch(popToAction);
   };
@@ -394,61 +413,31 @@ const CoinControl: React.FC = () => {
   const allFrozen = selectionStarted && selected.reduce((prev, curr) => (prev ? frozen.includes(curr) : false), true);
   const buttonFontSize = PixelRatio.roundToNearestPixel(width / 26) > 22 ? 22 : PixelRatio.roundToNearestPixel(width / 26);
 
-  const renderItem = (p: { item: Utxo }) => {
-    const { memo } = wallet.getUTXOMetadata(p.item.txid, p.item.vout);
-    const change = wallet.addressIsChange(p.item.address);
-    const oFrozen = frozen.includes(`${p.item.txid}:${p.item.vout}`);
+  const renderItem = (item: Utxo) => {
+    const key = `${item.txid}:${item.vout}`;
+    const { memo } = wallet.getUTXOMetadata(item.txid, item.vout);
+    const isChange = wallet.addressIsChange(item.address);
+    const oFrozen = frozen.includes(key);
     return (
       <OutputList
+        key={key}
         balanceUnit={wallet.getPreferredBalanceUnit()}
-        item={p.item}
+        item={item}
         oMemo={memo}
         frozen={oFrozen}
-        change={change}
-        onOpen={() => handleChoose(p.item)}
-        selected={selected.includes(`${p.item.txid}:${p.item.vout}`)}
+        change={isChange}
+        onOpen={() => handleChoose(item)}
+        selected={selected.includes(key)}
         selectionStarted={selectionStarted}
         onSelect={() => {
-          setSelected(s => {
-            if (s.length === 0) {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
-            }
-            return [...s, `${p.item.txid}:${p.item.vout}`];
-          });
+          setSelected(s => [...s, key]);
         }}
         onDeSelect={() => {
-          setSelected(s => {
-            const newValue = s.filter(i => i !== `${p.item.txid}:${p.item.vout}`);
-            if (newValue.length === 0) {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut); // animate buttons show
-            }
-            return newValue;
-          });
+          setSelected(s => s.filter(i => i !== key));
         }}
       />
     );
   };
-
-  const renderOutputModalContent = (o: Utxo | undefined) => {
-    if (!o) {
-      return null;
-    }
-    const oFrozen = frozen.includes(`${o.txid}:${o.vout}`);
-    const setOFrozen = (value: boolean) => {
-      if (value) {
-        setFrozen(f => [...f, `${o.txid}:${o.vout}`]);
-      } else {
-        setFrozen(f => f.filter(i => i !== `${o.txid}:${o.vout}`));
-      }
-    };
-    return <OutputModalContent output={o} wallet={wallet} onUseCoin={handleUseCoin} frozen={oFrozen} setFrozen={setOFrozen} />;
-  };
-
-  useEffect(() => {
-    if (output) {
-      bottomModalRef.current?.present();
-    }
-  }, [output]);
 
   const toolTipActions = useMemo((): Action[] | Action[][] => {
     return [
@@ -571,7 +560,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalMinHeight: Platform.OS === 'android' ? { minHeight: 530 } : {},
   empty: {
     flex: 1,
     justifyContent: 'center',
@@ -580,6 +568,12 @@ const styles = StyleSheet.create({
   },
   sendIcon: {
     transform: [{ rotate: '225deg' }],
+  },
+  rowContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 16,
   },
   badges: {
     flexDirection: 'row',

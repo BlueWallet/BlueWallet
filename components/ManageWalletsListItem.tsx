@@ -40,7 +40,7 @@ interface ManageWalletsListItemProps {
   state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress?: (address: string, walletID: string) => void;
-  renderHighlightedText: (text: string, query: string) => JSX.Element;
+  renderHighlightedText: (text: string, query: string) => React.ReactElement;
   handleToggleHideBalance: (wallet: TWallet) => void;
   isActive?: boolean;
   style?: ViewStyle;
@@ -89,31 +89,26 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const resetFunctionRef = useRef<(() => void) | null>(null);
   const swipeableRef = useRef<Swipeable | null>(null);
 
-  const CARD_SORT_ACTIVE = 1.06;
-  const INACTIVE_SCALE_WHEN_ACTIVE = 0.9;
-  const SCALE_DURATION = 200;
+  const CARD_SORT_ACTIVE = 1.0;
+  const HANDLE_WIDTH = 28;
+  const HANDLE_MARGIN_RIGHT = 4;
   const scaleValue = useRef(new Animated.Value(1)).current;
+  const handleOpacity = useRef(new Animated.Value(1)).current;
   const prevIsActive = useRef(isActive);
 
-  const DEFAULT_VERTICAL_MARGIN = -10;
-  const REDUCED_VERTICAL_MARGIN = -50;
+  const DEFAULT_VERTICAL_MARGIN = 0;
+  const searchLocked = state.searchQuery.length > 0 || state.isSearchFocused === true;
+  const swipeDisabled = item.type === ItemType.WalletSection ? isActive || globalDragActive || searchLocked : true;
+  const hideHandle = item.type === ItemType.WalletSection ? swipeDisabled || isDraggingDisabled : true;
 
   const animateItemIn = useCallback(() => {
-    if (Platform.OS === 'ios') {
-      Animated.spring(scaleValue, {
-        toValue: isActive ? CARD_SORT_ACTIVE : globalDragActive ? INACTIVE_SCALE_WHEN_ACTIVE : 1,
-        friction: 8,
-        tension: 40,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(scaleValue, {
-        toValue: isActive ? CARD_SORT_ACTIVE : globalDragActive ? INACTIVE_SCALE_WHEN_ACTIVE : 1,
-        duration: SCALE_DURATION,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [isActive, globalDragActive, scaleValue, CARD_SORT_ACTIVE, INACTIVE_SCALE_WHEN_ACTIVE, SCALE_DURATION]);
+    Animated.spring(scaleValue, {
+      toValue: isActive ? CARD_SORT_ACTIVE : 1,
+      friction: 7,
+      tension: 80,
+      useNativeDriver: true,
+    }).start();
+  }, [isActive, scaleValue, CARD_SORT_ACTIVE]);
 
   useEffect(() => {
     if (isActive !== prevIsActive.current) {
@@ -123,6 +118,19 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 
     animateItemIn();
   }, [isActive, globalDragActive, animateItemIn]);
+
+  useEffect(() => {
+    Animated.timing(handleOpacity, {
+      toValue: hideHandle ? 0 : 1,
+      duration: 140,
+      useNativeDriver: true,
+    }).start();
+  }, [hideHandle, handleOpacity]);
+
+  const handleAnimatedStyle = useMemo(
+    () => [{ opacity: handleOpacity, width: hideHandle ? 0 : HANDLE_WIDTH, marginRight: hideHandle ? 0 : HANDLE_MARGIN_RIGHT }],
+    [handleOpacity, hideHandle],
+  );
 
   const onPress = useCallback(() => {
     if (item.type === ItemType.WalletSection) {
@@ -153,12 +161,11 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       resetFunctionRef.current();
     }
 
-    scaleValue.setValue(CARD_SORT_ACTIVE);
     triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     if (drag) {
       drag();
     }
-  }, [CARD_SORT_ACTIVE, drag, scaleValue, isSwipeActive]);
+  }, [drag, isSwipeActive]);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.brandingColor} />;
@@ -166,14 +173,15 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 
   if (item.type === ItemType.WalletSection) {
     const animatedStyle = {
+      marginVertical: DEFAULT_VERTICAL_MARGIN,
+      minHeight: 110,
+      paddingHorizontal: 6,
       transform: [{ scale: scaleValue }],
-      marginVertical: globalDragActive && !isActive ? REDUCED_VERTICAL_MARGIN : DEFAULT_VERTICAL_MARGIN,
     };
 
-    const backgroundColor = isActive || globalDragActive ? colors.brandingColor : colors.background;
-
-    // Disable swiping only when search bar is focused or during active dragging
-    const swipeDisabled = isActive || globalDragActive || state.isSearchFocused === true;
+    const backgroundColor = isActive ? colors.brandingColor : colors.background;
+    const dragIconName = Platform.OS === 'ios' ? 'reorder-three' : 'drag-handle';
+    const dragIconType = Platform.OS === 'ios' ? 'ionicon' : 'material';
 
     const content = (
       <View style={[style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}>
@@ -293,7 +301,7 @@ interface WalletGroupProps {
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress?: (address: string, walletID: string) => void;
-  renderHighlightedText: (text: string, query: string) => JSX.Element;
+  renderHighlightedText: (text: string, query: string) => React.ReactElement;
   isSearching: boolean;
 }
 
@@ -323,8 +331,8 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   const primaryColor = walletGradientColors[0];
 
   const containerStyle: ViewStyle = {
-    marginHorizontal: 10,
-    marginVertical: 16,
+    marginHorizontal: 8,
+    marginVertical: 10,
     borderRadius: 10,
     overflow: 'hidden' as const,
     backgroundColor: colors.elevated,
@@ -398,6 +406,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
             isPlaceHolder={false}
             renderHighlightedText={renderHighlightedText}
             customStyle={styles.carouselItem}
+            sizeVariant="compact"
           />
         </View>
 
@@ -486,12 +495,25 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   carouselItem: {
+    flex: 1,
+    flexBasis: 0,
+    flexShrink: 1,
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+    overflow: 'hidden',
+  },
+  walletRowContainer: {
     width: '100%',
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
   transparentBackground: {
     backgroundColor: 'transparent',
+  },
+  swipeableContainer: {
+    paddingVertical: 6,
+    paddingHorizontal: 0,
+    marginVertical: -6,
   },
   itemDivider: {
     height: 1,

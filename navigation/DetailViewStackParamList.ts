@@ -1,6 +1,7 @@
 import { AztecoVoucher } from '../class/azteco';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
-import { Chain } from '../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
 
@@ -78,13 +79,13 @@ export type DetailViewStackParamList = {
   Settings: undefined;
   Currency: undefined;
   GeneralSettings: undefined;
-  PlausibleDeniability: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
   ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
   SettingsBlockExplorer: undefined;
+  PlausibleDeniability: undefined;
   EncryptStorage: undefined;
   Language: undefined;
   LightningSettings: {
@@ -107,6 +108,13 @@ export type DetailViewStackParamList = {
   ReceiveDetails: {
     walletID?: string;
     address: string;
+  };
+  ReceiveCustomAmount: {
+    address: string;
+    currentLabel?: string;
+    currentAmount?: string;
+    currentUnit?: BitcoinUnit;
+    preferredUnit?: BitcoinUnit;
   };
   ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: {
