@@ -2,7 +2,6 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 const path = require('path');
 
 const resolveAliases = {
-  '@arkade-os/sdk/worker/expo': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/cjs/worker/expo/index.js'),
   '@arkade-os/sdk/repositories/realm': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/cjs/repositories/realm/index.js'),
   '@arkade-os/boltz-swap/repositories/realm': path.join(__dirname, 'node_modules/@arkade-os/boltz-swap/dist/repositories/realm/index.cjs'),
   'expo/fetch': path.join(__dirname, 'util/expo-fetch.js'),

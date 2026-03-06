@@ -1,33 +1,23 @@
-import BackgroundFetch from 'react-native-background-fetch';
-import { runTasks, type TaskQueue, type TaskProcessor } from '@arkade-os/sdk/worker/expo';
+import BackgroundFetch from "react-native-background-fetch";
 
-const TASK_ID = 'io.bluewallet.bluewallet.arkadeSync';
+const TASK_ID = "io.bluewallet.bluewallet.arkadeSync";
 
-/**
- * Everything `runTasks()` needs to execute a processing cycle.
- * A factory function produces this at call-time so that background
- * invocations (headless JS context, no React tree) can reconstruct
- * the dependency graph on the fly.
- */
-export interface TaskRunConfig {
-  queue: TaskQueue;
-  processors: TaskProcessor[];
-  deps: Parameters<typeof runTasks>[2]; // infer the deps type from runTasks
-}
+/** Async callback executed each time the background fetch or foreground poll fires. */
+export type SyncCallback = () => Promise<void>;
 
-// Store a factory that can reconstruct task dependencies at runtime.
-// Background tasks may run in a headless context with no React tree.
-let _taskFactory: (() => Promise<TaskRunConfig>) | null = null;
+let _syncCallback: SyncCallback | null = null;
 
 /**
- * Register a recurring background fetch that calls `runTasks()`.
+ * Register a recurring background fetch that calls `syncCallback`.
  *
  * On iOS the minimum interval is 15 minutes and the OS decides
  * the actual cadence.  On Android `startOnBoot` keeps the task
  * alive across reboots.
  */
-export async function registerArkadeBackgroundTask(factory: () => Promise<TaskRunConfig>): Promise<void> {
-  _taskFactory = factory;
+export async function registerArkadeBackgroundTask(
+  syncCallback: SyncCallback,
+): Promise<void> {
+  _syncCallback = syncCallback;
 
   await BackgroundFetch.configure(
     {
@@ -37,29 +27,26 @@ export async function registerArkadeBackgroundTask(factory: () => Promise<TaskRu
       enableHeadless: true,
     },
     async (taskId: string) => {
-      // Called when background fetch fires
       try {
-        if (_taskFactory) {
-          const config = await _taskFactory();
-          await runTasks(config.queue, config.processors, config.deps);
+        if (_syncCallback) {
+          await _syncCallback();
         }
       } catch (error) {
-        console.log('[ArkadeSync] Background task error:', error);
+        console.log("[ArkadeSync] Background task error:", error);
       }
       BackgroundFetch.finish(taskId);
     },
     (taskId: string) => {
-      // Called when task times out
-      console.log('[ArkadeSync] Task timed out:', taskId);
+      console.log("[ArkadeSync] Task timed out:", taskId);
       BackgroundFetch.finish(taskId);
     },
   );
 }
 
 /**
- * Stop the background fetch and clear the factory reference.
+ * Stop the background fetch and clear the callback reference.
  */
 export async function unregisterArkadeBackgroundTask(): Promise<void> {
-  _taskFactory = null;
+  _syncCallback = null;
   await BackgroundFetch.stop(TASK_ID);
 }

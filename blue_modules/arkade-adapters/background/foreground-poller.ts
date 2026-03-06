@@ -1,23 +1,22 @@
-import { AppState, type AppStateStatus } from 'react-native';
-import { runTasks } from '@arkade-os/sdk/worker/expo';
+import { AppState, type AppStateStatus } from "react-native";
 
-import type { TaskRunConfig } from './task-scheduler';
+import type { SyncCallback } from "./task-scheduler";
 
 let _intervalId: ReturnType<typeof setInterval> | null = null;
-let _appStateSubscription: ReturnType<typeof AppState.addEventListener> | null = null;
-let _taskFactory: (() => Promise<TaskRunConfig>) | null = null;
+let _appStateSubscription: ReturnType<typeof AppState.addEventListener> | null =
+  null;
+let _syncCallback: SyncCallback | null = null;
 let _intervalMs = 30_000;
 
 function _startInterval(): void {
   if (_intervalId) return;
   _intervalId = setInterval(async () => {
     try {
-      if (_taskFactory) {
-        const config = await _taskFactory();
-        await runTasks(config.queue, config.processors, config.deps);
+      if (_syncCallback) {
+        await _syncCallback();
       }
     } catch (error) {
-      console.log('[ArkadeSync] Foreground poll error:', error);
+      console.log("[ArkadeSync] Foreground poll error:", error);
     }
   }, _intervalMs);
 }
@@ -30,7 +29,7 @@ function _stopInterval(): void {
 }
 
 function _handleAppStateChange(state: AppStateStatus): void {
-  if (state === 'active') {
+  if (state === "active") {
     _startInterval();
   } else {
     _stopInterval();
@@ -38,21 +37,25 @@ function _handleAppStateChange(state: AppStateStatus): void {
 }
 
 /**
- * Start a `setInterval`-based polling loop that calls `runTasks()`
+ * Start a `setInterval`-based polling loop that calls `syncCallback`
  * every `intervalMs` milliseconds while the app is in the foreground.
  *
  * Automatically pauses when the app backgrounds and resumes when it
  * comes back to the foreground, avoiding unnecessary battery drain.
  */
-export function startPolling(factory: () => Promise<TaskRunConfig>, intervalMs = 30_000): void {
-  _taskFactory = factory;
+export function startPolling(
+  syncCallback: SyncCallback,
+  intervalMs = 30_000,
+): void {
+  _syncCallback = syncCallback;
   _intervalMs = intervalMs;
 
-  // Start polling immediately
   _startInterval();
 
-  // Listen for app state changes to pause/resume
-  _appStateSubscription = AppState.addEventListener('change', _handleAppStateChange);
+  _appStateSubscription = AppState.addEventListener(
+    "change",
+    _handleAppStateChange,
+  );
 }
 
 /**
@@ -62,5 +65,5 @@ export function stopPolling(): void {
   _stopInterval();
   _appStateSubscription?.remove();
   _appStateSubscription = null;
-  _taskFactory = null;
+  _syncCallback = null;
 }
