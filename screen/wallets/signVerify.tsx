@@ -47,7 +47,7 @@ const SignVerify = () => {
     url: signature
       ? `https://bluewallet.github.io/VerifySignature?a=${address}&m=${encodeURIComponent(message)}&s=${encodeURIComponent(signature)}`
       : undefined,
-    userInfo: address ? { address, message } : undefined,
+    userInfo: address ? { address, message, walletID } : undefined,
   });
 
   useEffect(() => {
