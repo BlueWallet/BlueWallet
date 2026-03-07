@@ -76,7 +76,7 @@ class BWHandoffModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
         currentWebUri = entry.webUri
         currentStructuredData = entry.structuredData
 
-        Log.d(TAG, "becomeCurrent id=$activityId type=$type url=${entry.webUri}")
+        Log.d(TAG, "becomeCurrent id=$activityId type=$type")
     }
 
     /**
