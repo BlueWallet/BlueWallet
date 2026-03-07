@@ -39,17 +39,17 @@ const useHandoffListener = () => {
         if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
           navigate( 'ReceiveDetails', { address: modifiedUserInfo.address, type: activityType },
           );
-        } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub && userInfo.walletID) {
-          navigate('WalletXpub', { walletID: userInfo.walletID, xpub: modifiedUserInfo.xpub });
-        } else if (activityType === HandOffActivityType.SendOnchain && userInfo.walletID) {
+        } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub && modifiedUserInfo.walletID) {
+          navigate('WalletXpub', { walletID: modifiedUserInfo.walletID, xpub: modifiedUserInfo.xpub });
+        } else if (activityType === HandOffActivityType.SendOnchain && modifiedUserInfo.walletID) {
           navigate('SendDetailsRoot', {
             screen: 'SendDetails',
             params: {
-              walletID: userInfo.walletID,
-              address: userInfo.address,
-              amount: userInfo.amount ? Number(userInfo.amount) : undefined,
-              amountSats: userInfo.amountSats ? Number(userInfo.amountSats) : undefined,
-              transactionMemo: userInfo.memo,
+              walletID: modifiedUserInfo.walletID,
+              address: modifiedUserInfo.address,
+              amount: modifiedUserInfo.amount ? Number(modifiedUserInfo.amount) : undefined,
+              amountSats: modifiedUserInfo.amountSats ? Number(modifiedUserInfo.amountSats) : undefined,
+              transactionMemo: modifiedUserInfo.memo,
             },
           });
         } else {
