@@ -3,7 +3,6 @@ import { NativeModules } from 'react-native';
 import { useSettings } from './context/useSettings';
 import { HandOffActivityType } from '../components/types';
 
-const { BWHandoff } = NativeModules;
 let nextActivityId = 0;
 
 interface UseHandoffParams {
@@ -21,7 +20,7 @@ const useHandoff = ({ title, type, url, userInfo }: UseHandoffParams): void => {
   useEffect(() => {
     // Invalidate previous activity when deps change
     if (activityIdRef.current !== null) {
-      BWHandoff.invalidate(activityIdRef.current);
+      NativeModules.BWHandoff.invalidate(activityIdRef.current);
       activityIdRef.current = null;
     }
 
@@ -39,11 +38,11 @@ const useHandoff = ({ title, type, url, userInfo }: UseHandoffParams): void => {
 
     const id = ++nextActivityId;
     activityIdRef.current = id;
-    BWHandoff.becomeCurrent(id, type, title ?? '', parsedUserInfo ?? null, url ?? null);
+    NativeModules.BWHandoff.becomeCurrent(id, type, title ?? '', parsedUserInfo ?? null, url ?? null);
 
     return () => {
       if (activityIdRef.current !== null) {
-        BWHandoff.invalidate(activityIdRef.current);
+        NativeModules.BWHandoff.invalidate(activityIdRef.current);
         activityIdRef.current = null;
       }
     };

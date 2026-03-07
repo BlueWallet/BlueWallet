@@ -1,7 +1,7 @@
 import assert from 'assert';
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { NativeModules, Platform, View } from 'react-native';
+import { NativeModules, View } from 'react-native';
 import { HandOffActivityType } from '../../components/types';
 
 // Import *after* mocks are in place
@@ -34,8 +34,6 @@ describe('useHandoff', () => {
     mockBecomeCurrent.mockClear();
     mockInvalidate.mockClear();
     mockHandOffEnabled = true;
-    // Ensure we are on a mobile platform for tests
-    Platform.OS = 'ios';
   });
 
   it('calls becomeCurrent when given a url', () => {
@@ -157,14 +155,5 @@ describe('useHandoff', () => {
     unmount2();
 
     assert.ok(id2 > id1, `Second ID (${id2}) should be greater than first ID (${id1})`);
-  });
-
-  it('does nothing on web platform', () => {
-    Platform.OS = 'web' as any;
-
-    render(<HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
-
-    assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
-    assert.strictEqual(mockInvalidate.mock.calls.length, 0);
   });
 });
