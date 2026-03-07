@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Linking, NativeModules, Platform, View, ListRenderItem } from 'react-native';
+import presentAlert from '../../components/Alert';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
@@ -280,10 +281,14 @@ const GeneralSettings: React.FC = () => {
         id: 'continuityLearnMore',
         title: loc.wallets.learn_more,
         subtitle: '',
-        onPress: () => {
+        onPress: async () => {
           const url =
             Platform.OS === 'ios' ? 'https://support.apple.com/en-us/102426' : 'https://developer.android.com/guide/topics/assist';
-          Linking.openURL(url);
+          try {
+            await Linking.openURL(url);
+          } catch (e: any) {
+            presentAlert({ message: e instanceof Error ? e.message : loc.transactions.open_url_error });
+          }
         },
         showItem: true,
       });
