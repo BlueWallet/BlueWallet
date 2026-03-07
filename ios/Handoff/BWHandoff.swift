@@ -19,7 +19,8 @@ class BWHandoff: NSObject {
     if let urlString = url, !urlString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
        let webpageURL = URL(string: urlString) {
       activity.webpageURL = webpageURL
-    } else if let userInfo = userInfo {
+    }
+    if let userInfo = userInfo {
       activity.userInfo = userInfo
     }
 
