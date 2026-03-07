@@ -98,7 +98,7 @@ const WalletExport: React.FC = () => {
   useHandoff({
     title: loc.wallets.xpub_title,
     type: HandOffActivityType.Xpub,
-    userInfo: wallet.type === WatchOnlyWallet.type && secrets.length === 1 ? { xpub: secrets[0] } : undefined,
+    userInfo: wallet.type === WatchOnlyWallet.type && secrets.length === 1 ? { xpub: secrets[0], walletID } : undefined,
   });
 
   useEffect(() => {

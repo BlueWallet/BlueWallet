@@ -84,6 +84,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   useHandoff({
     title: wallet.getLabel(),
     type: HandOffActivityType.Xpub,
+    userInfo:
+      wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub()
+        ? { xpub: wallet.getXpub()!, walletID }
+        : undefined,
     url:
       wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub()
         ? `https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`

@@ -43,7 +43,7 @@ const WalletXpub: React.FC = () => {
   useHandoff({
     title: loc.wallets.xpub_title,
     type: HandOffActivityType.Xpub,
-    userInfo: xPubText ? { xpub: xPubText } : undefined,
+    userInfo: xPubText ? { xpub: xPubText, walletID } : undefined,
   });
 
   useFocusEffect(

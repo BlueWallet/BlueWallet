@@ -39,8 +39,8 @@ const useHandoffListener = () => {
         if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
           navigate( 'ReceiveDetails', { address: modifiedUserInfo.address, type: activityType },
           );
-        } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
-          navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
+        } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub && userInfo.walletID) {
+          navigate('WalletXpub', { walletID: userInfo.walletID, xpub: modifiedUserInfo.xpub });
         } else if (activityType === HandOffActivityType.SendOnchain && userInfo.walletID) {
           navigate('SendDetailsRoot', {
             screen: 'SendDetails',
