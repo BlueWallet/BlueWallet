@@ -62,10 +62,16 @@ const handleIsItMyAddress: ActivityHandler = (userInfo, navigate) => {
 };
 
 const handleSendOnchain: ActivityHandler = (userInfo, navigate) => {
+  if (!userInfo.walletID) {
+    console.warn('useHandoffListener: SendOnchain activity missing walletID');
+    return;
+  }
+
   const navigateToSendDetails = () => {
     navigate('SendDetailsRoot', {
       screen: 'SendDetails',
       params: {
+        walletID: userInfo.walletID,
         address: userInfo.address,
         amount: userInfo.amount ? Number(userInfo.amount) : undefined,
         amountSats: userInfo.amountSats ? Number(userInfo.amountSats) : undefined,
@@ -81,6 +87,8 @@ const handleSendOnchain: ActivityHandler = (userInfo, navigate) => {
     return;
   }
 
+  const currentWalletID = (currentRoute.params as { walletID?: string } | undefined)?.walletID ?? '';
+
   Alert.alert(loc.send.handoff_draft_conflict_title, loc.send.handoff_draft_conflict_message, [
     { text: loc._.cancel, style: 'cancel' },
     {
@@ -94,6 +102,7 @@ const handleSendOnchain: ActivityHandler = (userInfo, navigate) => {
         navigate('SendDetailsRoot', {
           screen: 'SendDetails',
           params: {
+            walletID: currentWalletID,
             addRecipientParams: {
               address: userInfo.address ?? '',
               amount: userInfo.amount ? Number(userInfo.amount) : undefined,
