@@ -37,8 +37,8 @@ const handleReceiveOnchain: ActivityHandler = (userInfo, navigate) => {
 };
 
 const handleXpub: ActivityHandler = (userInfo, navigate) => {
-  if (!userInfo.xpub) return;
-  navigate('WalletXpub', { xpub: userInfo.xpub });
+  if (!userInfo.xpub || !userInfo.walletID) return;
+  navigate('WalletXpub', { walletID: userInfo.walletID, xpub: userInfo.xpub });
 };
 
 const handleSendOnchain: ActivityHandler = (userInfo, navigate) => {
