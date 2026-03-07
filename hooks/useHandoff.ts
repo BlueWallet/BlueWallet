@@ -18,9 +18,13 @@ const useHandoff = ({ title, type, url, userInfo }: UseHandoffParams): void => {
   const serializedUserInfo = userInfo ? JSON.stringify(userInfo) : undefined;
 
   useEffect(() => {
+    if (!NativeModules.BWHandoff) {
+      return;
+    }
+
     // Invalidate previous activity when deps change
     if (activityIdRef.current !== null) {
-      NativeModules.BWHandoff.invalidate(activityIdRef.current);
+      NativeModules.BWHandoff?.invalidate(activityIdRef.current);
       activityIdRef.current = null;
     }
 
@@ -38,11 +42,11 @@ const useHandoff = ({ title, type, url, userInfo }: UseHandoffParams): void => {
 
     const id = ++nextActivityId;
     activityIdRef.current = id;
-    NativeModules.BWHandoff.becomeCurrent(id, type, title ?? '', parsedUserInfo ?? null, url ?? null);
+    NativeModules.BWHandoff?.becomeCurrent(id, type, title ?? '', parsedUserInfo ?? null, url ?? null);
 
     return () => {
       if (activityIdRef.current !== null) {
-        NativeModules.BWHandoff.invalidate(activityIdRef.current);
+        NativeModules.BWHandoff?.invalidate(activityIdRef.current);
         activityIdRef.current = null;
       }
     };
