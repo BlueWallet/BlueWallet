@@ -1,11 +1,6 @@
 package io.bluewallet.bluewallet
 
-import android.app.Activity
-import android.app.assist.AssistContent
-import android.net.Uri
 import android.os.Build
-import android.os.Bundle
-import android.util.Log
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
