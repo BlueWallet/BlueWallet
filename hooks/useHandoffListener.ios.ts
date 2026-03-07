@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { NativeEventEmitter, NativeModules } from 'react-native';
+import { Linking, NativeEventEmitter, NativeModules } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { HandOffActivityType } from '../components/types';
@@ -17,6 +17,8 @@ interface UserActivityData {
     feeRate?: string;
     recipients?: Array<{ address: string; amount?: number | string; amountSats?: number | string }>;
   };
+  webpageURL?: string;
+  title?: string;
 }
 
 const EventEmitter = NativeModules.EventEmitter;
@@ -33,7 +35,7 @@ const useHandoffListener = () => {
         console.debug(`Invalid handoff data received: ${data ? JSON.stringify(data) : 'No data provided'}`);
         return;
       }
-      const { activityType, userInfo } = data;
+      const { activityType, userInfo, webpageURL } = data;
       const modifiedUserInfo = { ...(userInfo || {}), type: activityType };
       try {
         if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
@@ -52,6 +54,8 @@ const useHandoffListener = () => {
               transactionMemo: modifiedUserInfo.memo,
             },
           });
+        } else if (activityType === HandOffActivityType.ViewInBlockExplorer && webpageURL) {
+          Linking.openURL(webpageURL).catch(err => console.error('useHandoffListener: could not open URL', err));
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }
