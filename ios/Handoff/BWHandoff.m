@@ -4,9 +4,9 @@
 
 RCT_EXTERN_METHOD(becomeCurrent:(nonnull NSNumber *)activityId
                   type:(NSString *)type
-                  title:(NSString *)title
-                  userInfo:(NSDictionary *)userInfo
-                  url:(NSString *)url)
+                  title:(nullable NSString *)title
+                  userInfo:(nullable NSDictionary *)userInfo
+                  url:(nullable NSString *)url)
 
 RCT_EXTERN_METHOD(invalidate:(nonnull NSNumber *)activityId)
 
