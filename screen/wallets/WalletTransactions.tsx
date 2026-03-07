@@ -88,10 +88,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub()
         ? { xpub: wallet.getXpub()!, walletID }
         : undefined,
-    url:
-      wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub()
-        ? `https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`
-        : undefined,
   });
 
   const stylesHook = StyleSheet.create({
