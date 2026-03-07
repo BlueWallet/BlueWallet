@@ -207,6 +207,8 @@ const SendDetails = () => {
       // used to add a recipient, mainly from contacts aka paymentcodes screen
       const { address, amount } = routeParams.addRecipientParams;
 
+      let appendedIndex = -1;
+
       setAddresses(prevAddresses => {
         if (!address) return prevAddresses;
 
@@ -227,6 +229,7 @@ const SendDetails = () => {
         }
 
         // Append a new recipient
+        appendedIndex = prevAddresses.length;
         return [
           ...prevAddresses,
           {
@@ -239,12 +242,13 @@ const SendDetails = () => {
         ];
       });
 
-      // Scroll to the new/updated entry
-      setTimeout(() => {
-        const targetIndex = addresses.length;
-        scrollIndex.current = targetIndex;
-        scrollView.current?.scrollToIndex({ index: targetIndex, animated: true });
-      }, 0);
+      // Scroll to the newly appended entry (only when a new slot was added)
+      if (appendedIndex >= 0) {
+        setTimeout(() => {
+          scrollIndex.current = appendedIndex;
+          scrollView.current?.scrollToIndex({ index: appendedIndex, animated: true });
+        }, 0);
+      }
 
       // @ts-ignore: Fix later
       setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
