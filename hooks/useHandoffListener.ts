@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Alert, NativeEventEmitter, NativeModules } from 'react-native';
+import { Alert, Linking, NativeEventEmitter, NativeModules } from 'react-native';
 import { useStorage } from './context/useStorage';
 import { useExtendedNavigation } from './useExtendedNavigation';
 import { HandOffActivityType } from '../components/types';
@@ -21,10 +21,12 @@ interface UserActivityUserInfo {
 interface UserActivityData {
   activityType: HandOffActivityType;
   userInfo: UserActivityUserInfo;
+  webpageURL?: string;
+  title?: string;
 }
 
 type NavigateFn = ReturnType<typeof useExtendedNavigation>['navigate'];
-type ActivityHandler = (userInfo: UserActivityUserInfo, navigate: NavigateFn) => void;
+type ActivityHandler = (userInfo: UserActivityUserInfo, navigate: NavigateFn, webpageURL?: string) => void;
 
 const EventEmitter = NativeModules.EventEmitter;
 const eventEmitter = EventEmitter ? new NativeEventEmitter(EventEmitter) : null;
@@ -39,6 +41,11 @@ const handleReceiveOnchain: ActivityHandler = (userInfo, navigate) => {
 const handleXpub: ActivityHandler = (userInfo, navigate) => {
   if (!userInfo.xpub || !userInfo.walletID) return;
   navigate('WalletXpub', { walletID: userInfo.walletID, xpub: userInfo.xpub });
+};
+
+const handleViewInBlockExplorer: ActivityHandler = (_userInfo, _navigate, webpageURL) => {
+  if (!webpageURL) return;
+  Linking.openURL(webpageURL).catch(err => console.error('useHandoffListener: could not open URL', err));
 };
 
 const handleSendOnchain: ActivityHandler = (userInfo, navigate) => {
@@ -92,6 +99,7 @@ const activityHandlers: Partial<Record<HandOffActivityType, ActivityHandler>> = 
   [HandOffActivityType.ReceiveOnchain]: handleReceiveOnchain,
   [HandOffActivityType.Xpub]: handleXpub,
   [HandOffActivityType.SendOnchain]: handleSendOnchain,
+  [HandOffActivityType.ViewInBlockExplorer]: handleViewInBlockExplorer,
 };
 
 // ── Hook ──────────────────────────────────────────────────
@@ -111,7 +119,7 @@ const useHandoffListener = () => {
       const handler = activityHandlers[data.activityType];
       if (handler) {
         try {
-          handler(data.userInfo ?? {}, navigate);
+          handler(data.userInfo ?? {}, navigate, data.webpageURL);
         } catch (error) {
           console.error('useHandoffListener: handler error', error);
         }

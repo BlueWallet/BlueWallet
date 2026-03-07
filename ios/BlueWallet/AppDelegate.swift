@@ -297,10 +297,16 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             return false
         }
 
-        let userActivityData: [String: Any] = [
+        var userActivityData: [String: Any] = [
             "activityType": activityType,
             "userInfo": userActivity.userInfo ?? [:]
         ]
+        if let url = userActivity.webpageURL?.absoluteString {
+            userActivityData["webpageURL"] = url
+        }
+        if let title = userActivity.title, !title.isEmpty {
+            userActivityData["title"] = title
+        }
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
