@@ -12,6 +12,7 @@ interface UserActivityUserInfo {
   xpub?: string;
   walletID?: string;
   memo?: string;
+  message?: string;
   amount?: number | string;
   amountSats?: number | string;
   feeRate?: string;
@@ -46,6 +47,18 @@ const handleXpub: ActivityHandler = (userInfo, navigate) => {
 const handleViewInBlockExplorer: ActivityHandler = (_userInfo, _navigate, webpageURL) => {
   if (!webpageURL) return;
   Linking.openURL(webpageURL).catch(err => console.error('useHandoffListener: could not open URL', err));
+};
+
+const handleSignVerify: ActivityHandler = (userInfo, navigate) => {
+  if (!userInfo.walletID || !userInfo.address) return;
+  navigate('SignVerifyRoot', {
+    screen: 'SignVerify',
+    params: { walletID: userInfo.walletID, address: userInfo.address },
+  });
+};
+
+const handleIsItMyAddress: ActivityHandler = (userInfo, navigate) => {
+  navigate('IsItMyAddress', { address: userInfo.address });
 };
 
 const handleSendOnchain: ActivityHandler = (userInfo, navigate) => {
@@ -100,6 +113,8 @@ const activityHandlers: Partial<Record<HandOffActivityType, ActivityHandler>> = 
   [HandOffActivityType.Xpub]: handleXpub,
   [HandOffActivityType.SendOnchain]: handleSendOnchain,
   [HandOffActivityType.ViewInBlockExplorer]: handleViewInBlockExplorer,
+  [HandOffActivityType.SignVerify]: handleSignVerify,
+  [HandOffActivityType.IsItMyAddress]: handleIsItMyAddress,
 };
 
 // ── Hook ──────────────────────────────────────────────────

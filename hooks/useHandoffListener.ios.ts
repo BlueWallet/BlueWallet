@@ -12,6 +12,7 @@ interface UserActivityData {
     xpub?: string;
     walletID?: string;
     memo?: string;
+    message?: string;
     amount?: number | string;
     amountSats?: number | string;
     feeRate?: string;
@@ -56,6 +57,13 @@ const useHandoffListener = () => {
           });
         } else if (activityType === HandOffActivityType.ViewInBlockExplorer && webpageURL) {
           Linking.openURL(webpageURL).catch(err => console.error('useHandoffListener: could not open URL', err));
+        } else if (activityType === HandOffActivityType.SignVerify && modifiedUserInfo.walletID && modifiedUserInfo.address) {
+          navigate('SignVerifyRoot', {
+            screen: 'SignVerify',
+            params: { walletID: modifiedUserInfo.walletID, address: modifiedUserInfo.address },
+          });
+        } else if (activityType === HandOffActivityType.IsItMyAddress) {
+          navigate('IsItMyAddress', { address: modifiedUserInfo.address });
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }

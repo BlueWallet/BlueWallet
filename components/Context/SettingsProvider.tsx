@@ -20,7 +20,7 @@ import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/u
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const getIsHandOffUseEnabled = async (): Promise<boolean> => {
-  if (Platform.OS !== 'ios') return false;
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return false;
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     const value = await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY);
@@ -31,7 +31,7 @@ const getIsHandOffUseEnabled = async (): Promise<boolean> => {
 };
 
 const setIsHandOffUseEnabled = async (value: boolean): Promise<void> => {
-  if (Platform.OS !== 'ios') return;
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   await DefaultPreference.set(BlueApp.HANDOFF_STORAGE_KEY, value.toString());
 };

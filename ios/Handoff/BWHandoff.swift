@@ -21,7 +21,6 @@ class BWHandoff: NSObject {
        let webpageURL = URL(string: urlString) {
       activity.webpageURL = webpageURL
     }
-
     if let userInfo = userInfo {
       activity.userInfo = userInfo
     }
