@@ -44,7 +44,7 @@ export type DetailViewStackParamList = {
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
   Broadcast: object;
-  IsItMyAddress: object;
+  IsItMyAddress: { address?: string };
   GenerateWord: undefined;
   LnurlPay: undefined;
   LnurlPaySuccess: {

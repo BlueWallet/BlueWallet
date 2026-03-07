@@ -297,14 +297,20 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             return false
         }
 
-        let userActivityData: [String: Any] = [
+        var userActivityData: [String: Any] = [
             "activityType": activityType,
             "userInfo": userActivity.userInfo ?? [:]
         ]
+        if let url = userActivity.webpageURL?.absoluteString {
+            userActivityData["webpageURL"] = url
+        }
+        if let title = userActivity.title, !title.isEmpty {
+            userActivityData["title"] = title
+        }
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
-        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer"].contains(activityType) {
+        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer", "io.bluewallet.bluewallet.sendonchain", "io.bluewallet.bluewallet.signverify", "io.bluewallet.bluewallet.isitmyaddress"].contains(activityType) {
           EventEmitter.shared().sendUserActivity(userActivityData)
             return true
         }

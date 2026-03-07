@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { NativeEventEmitter, NativeModules } from 'react-native';
+import { Linking, NativeEventEmitter, NativeModules } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { HandOffActivityType } from '../components/types';
@@ -10,7 +10,16 @@ interface UserActivityData {
   userInfo: {
     address?: string;
     xpub?: string;
+    walletID?: string;
+    memo?: string;
+    message?: string;
+    amount?: number | string;
+    amountSats?: number | string;
+    feeRate?: string;
+    recipients?: Array<{ address: string; amount?: number | string; amountSats?: number | string }>;
   };
+  webpageURL?: string;
+  title?: string;
 }
 
 const EventEmitter = NativeModules.EventEmitter;
@@ -27,14 +36,34 @@ const useHandoffListener = () => {
         console.debug(`Invalid handoff data received: ${data ? JSON.stringify(data) : 'No data provided'}`);
         return;
       }
-      const { activityType, userInfo } = data;
+      const { activityType, userInfo, webpageURL } = data;
       const modifiedUserInfo = { ...(userInfo || {}), type: activityType };
       try {
         if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
           navigate( 'ReceiveDetails', { address: modifiedUserInfo.address, type: activityType },
           );
-        } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
-          navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
+        } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub && modifiedUserInfo.walletID) {
+          navigate('WalletXpub', { walletID: modifiedUserInfo.walletID, xpub: modifiedUserInfo.xpub });
+        } else if (activityType === HandOffActivityType.SendOnchain && modifiedUserInfo.walletID) {
+          navigate('SendDetailsRoot', {
+            screen: 'SendDetails',
+            params: {
+              walletID: modifiedUserInfo.walletID,
+              address: modifiedUserInfo.address,
+              amount: modifiedUserInfo.amount ? Number(modifiedUserInfo.amount) : undefined,
+              amountSats: modifiedUserInfo.amountSats ? Number(modifiedUserInfo.amountSats) : undefined,
+              transactionMemo: modifiedUserInfo.memo,
+            },
+          });
+        } else if (activityType === HandOffActivityType.ViewInBlockExplorer && webpageURL) {
+          Linking.openURL(webpageURL).catch(err => console.error('useHandoffListener: could not open URL', err));
+        } else if (activityType === HandOffActivityType.SignVerify && modifiedUserInfo.walletID && modifiedUserInfo.address) {
+          navigate('SignVerifyRoot', {
+            screen: 'SignVerify',
+            params: { walletID: modifiedUserInfo.walletID, address: modifiedUserInfo.address },
+          });
+        } else if (activityType === HandOffActivityType.IsItMyAddress) {
+          navigate('IsItMyAddress', { address: modifiedUserInfo.address });
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }

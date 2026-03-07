@@ -1339,11 +1339,11 @@ PODS:
     - Yoga
   - react-native-menu (1.2.4):
     - React
-  - react-native-safe-area-context (5.5.2):
+  - react-native-safe-area-context (5.7.0):
     - React-Core
   - react-native-secure-key-store (2.0.10):
     - React-Core
-  - react-native-tcp-socket (6.3.0):
+  - react-native-tcp-socket (6.4.1):
     - CocoaAsyncSocket
     - React-Core
   - react-native-true-sheet (2.0.0):
@@ -1367,10 +1367,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - react-native-vector-icons-entypo (12.4.0)
+  - react-native-vector-icons-entypo (12.4.1)
   - react-native-vector-icons-fontawesome (12.4.1)
   - react-native-vector-icons-fontawesome6 (12.3.1)
-  - react-native-vector-icons-ionicons (12.3.0)
+  - react-native-vector-icons-ionicons (12.4.1)
   - react-native-vector-icons-material-design-icons (12.4.1)
   - react-native-vector-icons-material-icons (12.4.1)
   - React-NativeModulesApple (0.78.2):
@@ -1716,9 +1716,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNHandoff (0.0.3):
-    - React
-  - RNKeychain (9.1.0):
+  - RNKeychain (9.2.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1739,9 +1737,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNLocalize (3.5.4):
+  - RNLocalize (3.7.0):
     - React-Core
-  - RNPermissions (5.4.4):
+  - RNPermissions (5.5.0):
     - React-Core
   - RNQrGenerator (1.4.5):
     - React
@@ -1769,7 +1767,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated (3.18.0):
+  - RNReanimated (3.19.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1791,10 +1789,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated (= 3.18.0)
-    - RNReanimated/worklets (= 3.18.0)
+    - RNReanimated/reanimated (= 3.19.5)
+    - RNReanimated/worklets (= 3.19.5)
     - Yoga
-  - RNReanimated/reanimated (3.18.0):
+  - RNReanimated/reanimated (3.19.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1816,9 +1814,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/reanimated/apple (= 3.18.0)
+    - RNReanimated/reanimated/apple (= 3.19.5)
     - Yoga
-  - RNReanimated/reanimated/apple (3.18.0):
+  - RNReanimated/reanimated/apple (3.19.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1841,7 +1839,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNReanimated/worklets (3.18.0):
+  - RNReanimated/worklets (3.19.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1863,9 +1861,9 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNReanimated/worklets/apple (= 3.18.0)
+    - RNReanimated/worklets/apple (= 3.19.5)
     - Yoga
-  - RNReanimated/worklets/apple (3.18.0):
+  - RNReanimated/worklets/apple (3.19.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1910,7 +1908,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNShare (12.1.0):
+  - RNShare (12.2.5):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1931,7 +1929,7 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNSVG (15.12.1):
+  - RNSVG (15.15.3):
     - React-Core
   - RNWatch (1.1.0):
     - React
@@ -2039,7 +2037,6 @@ DEPENDENCIES:
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
-  - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -2252,8 +2249,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
-  RNHandoff:
-    :path: "../node_modules/react-native-handoff"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
   RNLocalize:
@@ -2330,14 +2325,14 @@ SPEC CHECKSUMS:
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 1b6097f71e3cf785a40d22be7904f17e924965bb
   react-native-menu: 475e400d9b57949c076a0844e130044b45f2aa3d
-  react-native-safe-area-context: 0f7bf11598f9a61b7ceac8dc3f59ef98697e99e1
+  react-native-safe-area-context: e89848fc12d32ccca63d0d7d16dd96918d07c730
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
-  react-native-tcp-socket: 120072c8020262032773f80f0daaf3964aaa08a1
+  react-native-tcp-socket: 7c7e53a07f122ecf00fb3626684bc0ca82c4f044
   react-native-true-sheet: b593fa693ce5380ffc4a0e895ab2a9435657223e
-  react-native-vector-icons-entypo: feb9d28fa1769fd6b1913649f4a56f50510ee9a1
+  react-native-vector-icons-entypo: 9b3015a5b28f681c668cb3c4c7b4e18ddfac63a3
   react-native-vector-icons-fontawesome: 3ecb33d69640b08c1800d2893d90eeac4af22e61
   react-native-vector-icons-fontawesome6: 7464629872b702957385275b62cff2f6c28199cc
-  react-native-vector-icons-ionicons: ad07e944a092a5cf71b8b569d8f5ce2bf674c415
+  react-native-vector-icons-ionicons: 7bc32eadb4d24c93252430b49f25b8be000e2340
   react-native-vector-icons-material-design-icons: 06451bebfd9affaecdd541230f23c6cb077e7063
   react-native-vector-icons-material-icons: 2fe75632937d07937bfe8ca953e1b5d06eef3a1d
   React-NativeModulesApple: fd0545efbb7f936f78edd15a6564a72d2c34bb32
@@ -2377,17 +2372,16 @@ SPEC CHECKSUMS:
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
   RNGestureHandler: 1bbdb4b4c48ccca85434278e8626b848f37d146d
-  RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
-  RNKeychain: fa7765e6af5a8ec866bea4e86d2a1086f562d69f
-  RNLocalize: d7859f87f1083349c73aa089e360af33ef89efc2
-  RNPermissions: 3f86a2c7cd6d76b307cc57ac774038e4571b4722
+  RNKeychain: 824e7372c7e921d76c4ea4169bdc6c7a32025784
+  RNLocalize: 5b24342fb7288242c2215756412d8dcb8dadf31e
+  RNPermissions: 5c6d91c08a71060d20785a28d5276d80fe4ca59f
   RNQrGenerator: b467624cdcb0e88108a8b4ca74c94b0978efa265
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReactNativeHapticFeedback: f9cfb40676f21a52e9e172648d033f539156a5ec
-  RNReanimated: 76e3bdba62bb728ea8d8d23b451e8070e6c2c2bc
+  RNReanimated: 5c4fb526815ad92eba1f77b23b9601c503eb7be7
   RNScreens: 4369e7ae645058ce553eb6b206fd8ff77a3c3882
-  RNShare: 5bc29e5794f5d451ca1308d6ad9101088eb15f8c
-  RNSVG: cd580f422f3c4f0ffa490b6ac479c6602ae54bca
+  RNShare: d4185a30a4610f9d3eded2fd3cfc3bc968a3df98
+  RNSVG: 359a574ff5fdc0b2f1eb0fa6a4bba7bea0f99731
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: e14bad835e12b6c7e2260fc320bd00e0f4b45add

@@ -43,8 +43,8 @@ import useMenuElements from '../../hooks/useMenuElements';
 import { useSettings } from '../../hooks/context/useSettings';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import { getClipboardContent } from '../../blue_modules/clipboard';
-import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
+import useHandoff from '../../hooks/useHandoff';
 import WalletGradient from '../../class/wallet-gradient';
 
 const buttonFontSize =
@@ -80,6 +80,19 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+
+  useHandoff({
+    title: wallet.getLabel(),
+    type: HandOffActivityType.Xpub,
+    userInfo:
+      wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub()
+        ? { xpub: wallet.getXpub()!, walletID }
+        : undefined,
+    url:
+      wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub()
+        ? `https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`
+        : undefined,
+  });
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -637,13 +650,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           />
         )}
       </FContainer>
-      {wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub() ? (
-        <HandOffComponent
-          title={wallet.getLabel()}
-          type={HandOffActivityType.Xpub}
-          url={`https://www.blockonomics.co/#/search?q=${wallet.getXpub()}`}
-        />
-      ) : null}
     </View>
   );
 };

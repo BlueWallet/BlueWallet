@@ -12,6 +12,9 @@ enum HandoffIdentifier: String {
   case ReceiveOnchain = "io.bluewallet.bluewallet.receiveonchain"
   case Xpub = "io.bluewallet.bluewallet.xpub"
   case ViewInBlockExplorer = "io.bluewallet.bluewallet.blockexplorer"
+  case SendOnchain = "io.bluewallet.bluewallet.sendonchain"
+  case SignVerify = "io.bluewallet.bluewallet.signverify"
+  case IsItMyAddress = "io.bluewallet.bluewallet.isitmyaddress"
 }
 
 enum HandOffUserInfoKey: String {

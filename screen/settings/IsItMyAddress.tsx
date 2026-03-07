@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import Button from '../../components/Button';
 import { BlueButtonLink } from '../../BlueComponents';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
@@ -15,17 +17,26 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
+import useHandoff from '../../hooks/useHandoff';
+import { HandOffActivityType } from '../../components/types';
 
 const IsItMyAddress: React.FC = () => {
+  const { params } = useRoute<RouteProp<DetailViewStackParamList, 'IsItMyAddress'>>();
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
   const { colors, dark } = useTheme();
   const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
   const scrollViewRef = useRef<ScrollView>(null);
   const firstWalletRef = useRef<View>(null);
-  const [address, setAddress] = useState<string>('');
+  const [address, setAddress] = useState<string>(params?.address ?? '');
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
   const [resultCleanAddress, setResultCleanAddress] = useState<string | undefined>();
+
+  useHandoff({
+    title: loc.is_it_my_address.title,
+    type: HandOffActivityType.IsItMyAddress,
+    userInfo: resultCleanAddress ? { address: resultCleanAddress } : undefined,
+  });
 
   const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 

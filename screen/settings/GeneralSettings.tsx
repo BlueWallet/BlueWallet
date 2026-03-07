@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Platform, View, ListRenderItem } from 'react-native';
+import { Linking, NativeModules, Platform, View, ListRenderItem } from 'react-native';
+import presentAlert from '../../components/Alert';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
@@ -51,6 +52,7 @@ const GeneralSettings: React.FC = () => {
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
+  const [isHandoffSupported, setIsHandoffSupported] = useState<boolean>(true);
 
   useEffect(() => {
     (async () => {
@@ -62,6 +64,13 @@ const GeneralSettings: React.FC = () => {
       setIsLoading(SettingsPrivacySection.None);
     })();
   }, [isStorageEncrypted]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
+    NativeModules.BWHandoff?.isSupported?.()
+      .then((supported: boolean) => setIsHandoffSupported(supported))
+      .catch(() => setIsHandoffSupported(false));
+  }, []);
 
   const onDoNotTrackValueChange = useCallback(
     async (value: boolean) => {
@@ -247,8 +256,8 @@ const GeneralSettings: React.FC = () => {
       });
     }
 
-    // Continuity section (iOS only)
-    if (Platform.OS === 'ios') {
+    // Continuity section
+    if (Platform.OS === 'ios' || Platform.OS === 'android') {
       items.push({
         id: 'continuitySectionHeader',
         title: '',
@@ -259,12 +268,28 @@ const GeneralSettings: React.FC = () => {
       items.push({
         id: 'continuity',
         title: loc.settings.general_continuity,
-        subtitle: <SettingsSubtitle>{loc.settings.general_continuity_e}</SettingsSubtitle>,
+        subtitle: isHandoffSupported ? loc.settings.general_continuity_e : loc.settings.general_continuity_unavailable,
         switch: {
-          value: isHandOffUseEnabled,
+          value: isHandoffSupported && isHandOffUseEnabled,
           onValueChange: onHandOffUseEnabledChange,
+          disabled: !isHandoffSupported,
         },
         Component: View,
+        showItem: true,
+      });
+      items.push({
+        id: 'continuityLearnMore',
+        title: loc.wallets.learn_more,
+        subtitle: '',
+        onPress: async () => {
+          const url =
+            Platform.OS === 'ios' ? 'https://support.apple.com/en-us/102426' : 'https://developer.android.com/guide/topics/assist';
+          try {
+            await Linking.openURL(url);
+          } catch (e: any) {
+            presentAlert({ message: e instanceof Error ? e.message : loc.transactions.open_url_error });
+          }
+        },
         showItem: true,
       });
     }
@@ -298,6 +323,7 @@ const GeneralSettings: React.FC = () => {
     openApplicationSettings,
     isHandOffUseEnabled,
     onHandOffUseEnabledChange,
+    isHandoffSupported,
   ]);
 
   const renderItem: ListRenderItem<SettingItem> = useCallback(
