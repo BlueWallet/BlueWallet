@@ -1,0 +1,8 @@
+
+node_modules
+android/.gradle
+android/build
+android/.kotlin
+.git
+output
+android/app/build
