@@ -10,6 +10,12 @@ interface UserActivityData {
   userInfo: {
     address?: string;
     xpub?: string;
+    walletID?: string;
+    memo?: string;
+    amount?: number | string;
+    amountSats?: number | string;
+    feeRate?: string;
+    recipients?: Array<{ address: string; amount?: number | string; amountSats?: number | string }>;
   };
 }
 
@@ -35,6 +41,17 @@ const useHandoffListener = () => {
           );
         } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
           navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
+        } else if (activityType === HandOffActivityType.SendOnchain && userInfo.walletID) {
+          navigate('SendDetailsRoot', {
+            screen: 'SendDetails',
+            params: {
+              walletID: userInfo.walletID,
+              address: userInfo.address,
+              amount: userInfo.amount ? Number(userInfo.amount) : undefined,
+              amountSats: userInfo.amountSats ? Number(userInfo.amountSats) : undefined,
+              transactionMemo: userInfo.memo,
+            },
+          });
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }

@@ -46,11 +46,7 @@ export enum HandOffActivityType {
   ReceiveOnchain = 'io.bluewallet.bluewallet.receiveonchain',
   Xpub = 'io.bluewallet.bluewallet.xpub',
   ViewInBlockExplorer = 'io.bluewallet.bluewallet.blockexplorer',
-}
-
-export interface HandOffComponentProps {
-  url?: string;
-  title?: string;
-  type: HandOffActivityType;
-  userInfo?: object;
+  SendOnchain = 'io.bluewallet.bluewallet.sendonchain',
+  SignVerify = 'io.bluewallet.bluewallet.signverify',
+  IsItMyAddress = 'io.bluewallet.bluewallet.isitmyaddress',
 }

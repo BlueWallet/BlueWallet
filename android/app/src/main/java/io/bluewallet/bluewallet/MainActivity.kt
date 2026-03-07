@@ -1,7 +1,9 @@
 package io.bluewallet.bluewallet
 
+import android.app.assist.AssistContent
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -59,6 +61,23 @@ class MainActivity : ReactActivity() {
                     .setPositiveButton(android.R.string.ok, null)
                     .show()
             }, 500)
+        }
+    }
+
+    /**
+     * Provide the current user-activity context to the Android system.
+     * This is the Android equivalent of Apple's Handoff / NSUserActivity.
+     * Google Assistant and cross-device features can use this to let the
+     * user continue what they were doing on another device.
+     */
+    override fun onProvideAssistContent(outContent: AssistContent) {
+        super.onProvideAssistContent(outContent)
+
+        BWHandoffModule.currentWebUri?.let { uri ->
+            outContent.webUri = Uri.parse(uri)
+        }
+        BWHandoffModule.currentStructuredData?.let { data ->
+            outContent.structuredData = data.toString()
         }
     }
 

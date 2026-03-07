@@ -30,6 +30,7 @@ export type SendDetailsParams = {
     address: string;
     amount?: number;
     memo?: string;
+    nonce?: number;
   };
 };
 

@@ -15,6 +15,8 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
+import useHandoff from '../../hooks/useHandoff';
+import { HandOffActivityType } from '../../components/types';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
@@ -26,6 +28,12 @@ const IsItMyAddress: React.FC = () => {
   const [address, setAddress] = useState<string>('');
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
   const [resultCleanAddress, setResultCleanAddress] = useState<string | undefined>();
+
+  useHandoff({
+    title: loc.is_it_my_address.title,
+    type: HandOffActivityType.IsItMyAddress,
+    userInfo: resultCleanAddress ? { address: resultCleanAddress } : undefined,
+  });
 
   const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 

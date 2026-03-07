@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { Platform } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modules/clipboard';
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, setPreferredCurrency } from '../../blue_modules/currency';
@@ -10,7 +11,6 @@ import {
   getEnabled as getIsDeviceQuickActionsEnabled,
   setEnabled as setIsDeviceQuickActionsEnabled,
 } from '../../hooks/useDeviceQuickActions';
-import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { useStorage } from '../../hooks/context/useStorage';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
@@ -18,6 +18,23 @@ import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer,
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const getIsHandOffUseEnabled = async (): Promise<boolean> => {
+  if (Platform.OS !== 'ios') return false;
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const value = await DefaultPreference.get(BlueApp.HANDOFF_STORAGE_KEY);
+    return value === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const setIsHandOffUseEnabled = async (value: boolean): Promise<void> => {
+  if (Platform.OS !== 'ios') return;
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  await DefaultPreference.set(BlueApp.HANDOFF_STORAGE_KEY, value.toString());
+};
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {

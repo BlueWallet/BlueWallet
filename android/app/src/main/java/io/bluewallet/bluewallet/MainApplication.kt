@@ -74,6 +74,7 @@ class MainApplication : Application(), ReactApplication {
                     // add(MyReactNativePackage())
                     add(CustomSegmentedControlPackage())
                     add(SettingsPackage())
+                    add(BWHandoffPackage())
                 }
 
             override fun getJSMainModuleName(): String = "index"

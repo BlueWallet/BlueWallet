@@ -8,12 +8,12 @@ import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-import HandOffComponent from '../../components/HandOffComponent';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SeedWords from '../../components/SeedWords';
 import { useTheme } from '../../components/themes';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import useHandoff from '../../hooks/useHandoff';
 import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
@@ -94,6 +94,12 @@ const WalletExport: React.FC = () => {
   const secretIsMnemonic: boolean = useMemo(() => {
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
+
+  useHandoff({
+    title: loc.wallets.xpub_title,
+    type: HandOffActivityType.Xpub,
+    userInfo: wallet.type === WatchOnlyWallet.type && secrets.length === 1 ? { xpub: secrets[0] } : undefined,
+  });
 
   useEffect(() => {
     if (previousAppState === 'active' && currentAppState !== 'active') {
@@ -213,10 +219,6 @@ const WalletExport: React.FC = () => {
           </BlueText>
           <CopyBox text={secret} onPress={handleCopy} />
         </>
-      )}
-
-      {wallet.type === WatchOnlyWallet.type && (
-        <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: secret }} />
       )}
 
       <BlueText style={styles.typeText}>{loc.formatString(loc.wallets.wallet_type_this, { type: wallet.typeReadable })}</BlueText>
