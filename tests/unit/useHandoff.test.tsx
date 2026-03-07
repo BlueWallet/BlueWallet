@@ -84,6 +84,37 @@ describe('useHandoff', () => {
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
   });
 
+  it('does not call becomeCurrent when all userInfo values are empty strings', () => {
+    render(<HookRunner title="All Empty" type={HandOffActivityType.SendOnchain} userInfo={{ address: '', memo: '' }} />);
+
+    assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
+  });
+
+  it('does not call becomeCurrent when all userInfo values are null or empty arrays', () => {
+    render(
+      <HookRunner
+        title="SendDetails initial state"
+        type={HandOffActivityType.SendOnchain}
+        userInfo={{ address: '', amount: null, recipients: [], walletID: null }}
+      />,
+    );
+
+    assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
+  });
+
+  it('calls becomeCurrent when at least one userInfo value is meaningful', () => {
+    render(
+      <HookRunner
+        title="SendDetails with address"
+        type={HandOffActivityType.SendOnchain}
+        userInfo={{ address: 'bc1qxxx', amount: '', recipients: [], walletID: null }}
+      />,
+    );
+
+    assert.strictEqual(mockBecomeCurrent.mock.calls.length, 1);
+    assert.deepStrictEqual(mockBecomeCurrent.mock.calls[0][3], { address: 'bc1qxxx', amount: '', recipients: [], walletID: null });
+  });
+
   it('calls invalidate on unmount', () => {
     const { unmount } = render(
       <HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,

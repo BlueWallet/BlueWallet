@@ -33,7 +33,11 @@ const useHandoff = ({ title, type, url, userInfo }: UseHandoffParams): void => {
     }
 
     const parsedUserInfo = serializedUserInfo ? JSON.parse(serializedUserInfo) : undefined;
-    const hasUserInfo = parsedUserInfo && Object.keys(parsedUserInfo).length > 0;
+    const hasUserInfo =
+      parsedUserInfo &&
+      Object.values(parsedUserInfo).some(
+        value => value !== null && value !== '' && !(Array.isArray(value) && value.length === 0),
+      );
     const hasUrl = url && url.trim().length > 0;
 
     if (!hasUserInfo && !hasUrl) {
