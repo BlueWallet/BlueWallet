@@ -18,7 +18,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
   },
   iconContainer: {
     padding: 0,
@@ -27,6 +26,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '100%',
     height: '100%',
+  },
+  pressed: {
+    opacity: 0.6,
   },
   icon: {
     padding: 0,

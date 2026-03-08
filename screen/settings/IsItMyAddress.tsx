@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';

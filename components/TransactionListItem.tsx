@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { Linking, Text, TextStyle, ViewStyle, StyleSheet } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
@@ -481,7 +480,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
               </Text>
             </View>
           </View>
-        </View>
+        </ListItem>
       </ToolTipMenu>
     );
   },

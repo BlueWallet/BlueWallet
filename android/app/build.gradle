@@ -90,7 +90,8 @@ android {
         versionName "7.2.7"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        missingDimensionStrategy "react-native-capture-protection", "fullMediaCapture"
+        // Keep compatibility across react-native-capture-protection flavor changes.
+        missingDimensionStrategy "react-native-capture-protection", "callbackTiramisu", "base"
     }
 
     lintOptions {

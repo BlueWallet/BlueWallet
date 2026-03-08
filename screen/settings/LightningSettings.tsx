@@ -160,7 +160,7 @@ export default LightningSettings;
 
 const styles = StyleSheet.create({
   cardContent: {
-    paddingHorizontal: horizontalPadding,
+    paddingHorizontal: 16,
     paddingVertical: isAndroid ? 12 : 10,
   },
   inputContainer: {

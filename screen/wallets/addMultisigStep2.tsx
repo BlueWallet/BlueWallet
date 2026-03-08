@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import {
   ActivityIndicator,
   FlatList,
@@ -31,6 +32,7 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 type MultisigStep2Params = {
   m: number;
@@ -712,27 +714,28 @@ const WalletsAddMultisigStep2 = () => {
               LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setAskPassphrase(!askPassphrase);
             }}
-          />
-          {renderProvideKeyButtons && (
-            <>
-              <MultipleStepsListItem
-                showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
-                button={{
-                  testID: 'VaultKeyGenerate',
-                  buttonType: MultipleStepsListItemButtonType.Full,
-                  onPress: () => {
-                    setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });
-                    generateNewKey();
-                  },
-                  text: loc.multisig.create_new_key,
-                  disabled: vaultKeyData.isLoading,
+            actions={toolTipActions}
+            style={[styles.askPassprase, stylesHook.askPassphrase]}
+          >
+            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
+          </ToolTipMenu>
+        }
+      >
+        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
+        <BlueSpacing20 />
+        <View style={styles.multiLineTextInput}>
+          <BlueFormMultiInput value={importText} onChangeText={setImportText} inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID} />
+          {Platform.select({
+            ios: (
+              <DoneAndDismissKeyboardInputAccessory
+                onClearTapped={() => setImportText('')}
+                onPasteTapped={async () => {
+                  const paste = await Clipboard.getString();
+                  setImportText(paste);
                 }}
-                dashes={MultipleStepsListItemDashType.TopAndBottom}
-                checked={isChecked}
               />
             ),
           })}
-
           <BlueSpacing20 />
         </View>
       </BottomModal>
