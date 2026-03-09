@@ -174,7 +174,7 @@
     "fee_3h": "3 godz.",
     "fee_custom": "Niestandardowe",
     "insert_custom_fee": "Wprowadź opłatę",
-    "fee_fast": "Szybkie",
+    "fee_fast": "Szybko",
     "fee_medium": "Średnie",
     "fee_replace_minvb": "Całkowita stawka opłaty (satoshi za vByte), którą chcesz zapłacić, powinna być wyższa niż {min} sat/vByte.",
     "fee_satvbyte": "w sat/vByte",
