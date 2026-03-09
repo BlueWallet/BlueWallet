@@ -1,24 +1,36 @@
 import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeSwaps, BoltzSwapProvider, decodeInvoice, PendingSwap, migrateToSwapRepository } from '@arkade-os/boltz-swap';
-import { SingleKey, Ramps, Wallet, ExtendedCoin, ArkTransaction, RestArkProvider, RestIndexerProvider, migrateWalletRepository, requiresMigration, rollbackMigration } from '@arkade-os/sdk';
+import {
+  SingleKey,
+  MnemonicIdentity,
+  Ramps,
+  Wallet,
+  ExtendedCoin,
+  ArkTransaction,
+  RestArkProvider,
+  RestIndexerProvider,
+  migrateWalletRepository,
+  requiresMigration,
+  rollbackMigration,
+} from '@arkade-os/sdk';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RealmWalletRepository, RealmContractRepository, RealmSwapRepository, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm';
+import {
+  RealmWalletRepository,
+  RealmContractRepository,
+  RealmSwapRepository,
+  getArkadeRealm,
+} from '../../blue_modules/arkade-adapters/realm';
 import { fetch } from '../../util/fetch';
-
-import BIP32Factory from 'bip32';
 
 import { LightningCustodianWallet } from './lightning-custodian-wallet.ts';
 import { randomBytes } from '../rng.ts';
 import * as bip39 from 'bip39';
 import { LightningTransaction, Transaction } from './types.ts';
-import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 import assert from 'assert';
-import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
-const { bech32m } = require('bech32');
-
-const bip32 = BIP32Factory(ecc);
+const { bech32, bech32m } = require('bech32');
 
 const staticWalletCache: Record<string, Wallet> = {};
 const initLock: Record<string, boolean> = {};
@@ -37,11 +49,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _arkadeSwaps: ArkadeSwaps | undefined = undefined;
   private _arkServerUrl: string = 'https://arkade.computer';
   private _arkServerPublicKey: string = '022b74c2011af089c849383ee527c72325de52df6a788428b68d49e9174053aaba';
+
   private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
 
   private _swapHistory: PendingSwap[] = [];
   private _transactionsHistory: ArkTransaction[] = [];
-  private _privateKeyCache = '';
   private _boardingUtxos: ExtendedCoin[] = [];
 
   // fees from Boltz:
@@ -61,22 +73,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
   _getIdentity() {
     assert(this.secret, 'No secret provided');
 
-    if (!this._privateKeyCache) {
-      const mnemonic = this.secret.replace('arkade://', '').trim();
-      const seed = bip39.mnemonicToSeedSync(mnemonic);
-
-      const index = 0;
-      const internal = 0;
-      const accountNumber = 0;
-      const root = bip32.fromSeed(seed);
-      const path = `m/86'/0'/${accountNumber}'/${internal}/${index}`;
-      const child = root.derivePath(path);
-      assert(child.privateKey, 'Internal error: no private key for child');
-
-      this._privateKeyCache = uint8ArrayToHex(child.privateKey);
+    if (this.secret.startsWith('nsec1')) {
+      // nsec import: NIP-19 bech32-encoded raw private key
+      const decoded = bech32.decode(this.secret, 1000);
+      const privKeyBytes = new Uint8Array(bech32.fromWords(decoded.words));
+      return SingleKey.fromPrivateKey(privKeyBytes);
     }
 
-    return SingleKey.fromPrivateKey(hexToUint8Array(this._privateKeyCache));
+    // Default: mnemonic-based identity with BIP86 derivation
+    const mnemonic = this.secret.replace('arkade://', '').trim();
+    return MnemonicIdentity.fromMnemonic(mnemonic, { isMainnet: true });
   }
 
   getNamespace(): string {
@@ -359,7 +365,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     assert(invoiceDetails.amountSats > this._limitMin, `Minimum you can send is ${this._limitMin} sat`);
     assert(invoiceDetails.amountSats < this._limitMax, `Maximum you can is ${this._limitMax} sat`);
 
-    const paymentResult = await this._arkadeSwaps.sendLightningPayment({ invoice });
+    const paymentResult = await this._arkadeSwaps.sendLightningPayment({
+      invoice,
+    });
 
     console.log('Payment successful!');
     console.log('Amount:', paymentResult.amount);
