@@ -1,10 +1,11 @@
 import { LinkingOptions } from '@react-navigation/native';
-import { NativeModules, NativeEventEmitter, Linking, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeModules, NativeEventEmitter, Linking, Alert, Platform } from 'react-native';
+import DefaultPreference from 'react-native-default-preference';
 import { ContinuityActivityType } from '../components/types';
 import { navigationRef, navigate } from '../NavigationService';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import loc from '../loc';
+import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 
 const CONTINUITY_PREFIX = 'continuity://';
 const CONTINUITY_STORAGE_KEY = 'HandOff';
@@ -45,6 +46,7 @@ function activityToURL(data: UserActivityData): string | null {
       return `${CONTINUITY_PREFIX}xpub${buildQuery({ walletID: userInfo.walletID, xpub: userInfo.xpub })}`;
 
     case ContinuityActivityType.IsItMyAddress:
+      if (!userInfo.address) return null;
       return `${CONTINUITY_PREFIX}isitmyaddress${buildQuery({ address: userInfo.address })}`;
 
     case ContinuityActivityType.SignVerify:
@@ -69,8 +71,11 @@ function activityToURL(data: UserActivityData): string | null {
 // ── Helpers ─────────────────────────────────────────────────
 
 async function isEnabled(): Promise<boolean> {
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return false;
   try {
-    return !!(await AsyncStorage.getItem(CONTINUITY_STORAGE_KEY));
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const value = await DefaultPreference.get(CONTINUITY_STORAGE_KEY);
+    return value === 'true';
   } catch {
     return false;
   }

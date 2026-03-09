@@ -154,6 +154,7 @@ const SendDetails = () => {
     return defaultFee;
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
+  const populatedRecipients = addresses.filter(a => a.address?.trim());
   useContinuity({
     title: loc.send.header,
     type: ContinuityActivityType.SendOnchain,
@@ -164,7 +165,7 @@ const SendDetails = () => {
       memo: transactionMemo,
       feeRate,
       walletID: wallet?.getID(),
-      recipients: addresses.map(a => ({ address: a.address, amount: a.amount, amountSats: a.amountSats })),
+      recipients: populatedRecipients.length > 0 ? populatedRecipients.map(a => ({ address: a.address, amount: a.amount, amountSats: a.amountSats })) : undefined,
     },
   });
 
