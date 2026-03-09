@@ -3,6 +3,7 @@ import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
+import Avatar from '../../components/Avatar';
 import ListItem from '../../components/ListItem';
 import { BlueSpacing10 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
@@ -12,7 +13,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
-import { Avatar, ListItem as RNElementsListItem } from '@rneui/themed';
 import * as RNLocalize from 'react-native-localize';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import HeaderRightButton from '../../components/HeaderRightButton';
@@ -106,36 +106,30 @@ const CoinControlOutputSheet: React.FC = () => {
         <HeaderRightButton testID="CoinControlOutputDone" title={loc.send.input_done} onPress={applyChangesAndClose} disabled={loading} />
       </View>
       <View style={styles.flex}>
-        <RNElementsListItem bottomDivider containerStyle={styles.headerContainer}>
+        <View style={styles.headerContainer}>
           <View style={styles.rowContent}>
             <Avatar rounded size={40} containerStyle={[styles.avatar, { backgroundColor: color }]} />
-            <RNElementsListItem.Content>
-              <RNElementsListItem.Title numberOfLines={1} adjustsFontSizeToFit style={[styles.amount, { color: colors.foregroundColor }]}>
+            <View style={styles.listContent}>
+              <Text numberOfLines={1} style={[styles.amount, { color: colors.foregroundColor }]}>
                 {amount}
-                <View style={styles.tranContainer}>
-                  <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>
-                    {loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}
-                  </Text>
-                </View>
-              </RNElementsListItem.Title>
+              </Text>
+              <View style={styles.tranContainer}>
+                <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>
+                  {loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}
+                </Text>
+              </View>
               {memo ? (
                 <>
-                  <RNElementsListItem.Subtitle style={[styles.memo, { color: colors.alternativeTextColor }]}>
-                    {memo}
-                  </RNElementsListItem.Subtitle>
+                  <Text style={[styles.memo, { color: colors.alternativeTextColor }]}>{memo}</Text>
                   <BlueSpacing10 />
                 </>
               ) : null}
-              <RNElementsListItem.Subtitle style={[styles.memo, { color: colors.alternativeTextColor }]}>
-                {utxo.address}
-              </RNElementsListItem.Subtitle>
+              <Text style={[styles.memo, { color: colors.alternativeTextColor }]}>{utxo.address}</Text>
               <BlueSpacing10 />
-              <RNElementsListItem.Subtitle
-                style={[styles.memo, { color: colors.alternativeTextColor }]}
-              >{`${utxo.txid}:${utxo.vout}`}</RNElementsListItem.Subtitle>
-            </RNElementsListItem.Content>
+              <Text style={[styles.memo, { color: colors.alternativeTextColor }]}>{`${utxo.txid}:${utxo.vout}`}</Text>
+            </View>
           </View>
-        </RNElementsListItem>
+        </View>
 
         <View style={styles.content}>
           <TextInput
@@ -187,8 +181,13 @@ const styles = StyleSheet.create({
   rowContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'transparent',
     gap: 10,
+  },
+  listContent: {
+    flex: 1,
   },
   avatar: { borderColor: 'white', borderWidth: 1 },
   amount: { fontWeight: 'bold' },
