@@ -117,6 +117,7 @@
     "@react-native-vector-icons/ionicons": "12.4.1",
     "@react-native-vector-icons/material-design-icons": "12.4.1",
     "@react-native-vector-icons/material-icons": "12.4.1",
+    "@react-native/codegen": "^0.83.1",
     "@react-native/gradle-plugin": "0.83.1",
     "@react-native/metro-config": "0.83.1",
     "@react-navigation/devtools": "7.0.47",
