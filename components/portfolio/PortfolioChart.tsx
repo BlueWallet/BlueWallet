@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native';
+import React, { useMemo, useState, useCallback } from 'react';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Text, LayoutChangeEvent } from 'react-native';
 import { BarChart, LineChart } from 'react-native-gifted-charts';
 import { useTheme } from '../themes';
 import { ChartDataPoint, TimeRange } from '../../class/portfolio/portfolio-calculator';
@@ -8,15 +8,19 @@ import dayjs from 'dayjs';
 interface PortfolioChartProps {
   data: ChartDataPoint[];
   timeRange: TimeRange;
+  /** The time range the current `data` is for. When this differs from `timeRange`, data is still loading for the selected range – don't animate. */
+  dataTimeRange?: TimeRange | null;
   onTimeRangeChange: (range: TimeRange) => void;
   currencySymbol: string;
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CHART_WIDTH = SCREEN_WIDTH - 64; // Account for padding (16 on each side + 16 for chart padding)
 const CHART_HEIGHT = 250;
-const LEFT_Y_AXIS_WIDTH = 50; // Width reserved for left Y-axis labels
-const RIGHT_Y_AXIS_WIDTH = 60; // Width reserved for right Y-axis labels
+const LEFT_Y_AXIS_WIDTH = 0; // Width reserved for left Y-axis labels
+const RIGHT_Y_AXIS_WIDTH = 0; // Width reserved for right Y-axis labels
+const CHART_CONTAINER_MARGIN = 32; // marginHorizontal 16 each side
+// Content area between the two Y-axes: no overflow into axis or padding
+const CONTENT_WIDTH = SCREEN_WIDTH - CHART_CONTAINER_MARGIN - LEFT_Y_AXIS_WIDTH - RIGHT_Y_AXIS_WIDTH;
 
 // Format date label based on time range
 const formatDateLabel = (dateStr: string, timeRange: TimeRange): string => {
@@ -39,8 +43,45 @@ const formatDateLabel = (dateStr: string, timeRange: TimeRange): string => {
   }
 };
 
-const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTimeRangeChange, currencySymbol }) => {
+// Tooltip shown when user taps a bar: time + BTC + local currency
+const ChartTooltip: React.FC<{
+  dateLabel: string;
+  btcValue: number;
+  currencyValue: number;
+  currencySymbol: string;
+  colors: { background: string; foregroundColor: string; alternativeTextColor: string };
+}> = ({ dateLabel, btcValue, currencyValue, currencySymbol, colors }) => {
+  const formattedCurrency =
+    currencyValue != null && !isNaN(currencyValue)
+      ? `${currencySymbol}${currencyValue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+      : '—';
+  const formattedBtc = btcValue >= 0.00001 ? btcValue.toFixed(8) : btcValue.toFixed(4);
+  return (
+    <View style={[styles.tooltipContainer, { backgroundColor: colors.background }]}>
+      <Text style={[styles.tooltipDate, { color: colors.foregroundColor }]}>{dateLabel}</Text>
+      <Text style={[styles.tooltipBtc, { color: colors.alternativeTextColor }]}>{formattedBtc} BTC</Text>
+      <Text style={[styles.tooltipCurrency, { color: colors.foregroundColor }]}>{formattedCurrency}</Text>
+    </View>
+  );
+};
+
+const TOOLTIP_WIDTH = 120;
+
+const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, dataTimeRange = null, onTimeRangeChange, currencySymbol }) => {
   const { colors } = useTheme();
+  const [contentWidth, setContentWidth] = useState(0);
+  const [pointerX, setPointerX] = useState<number | null>(null);
+  const onContentLayout = useCallback((e: LayoutChangeEvent) => {
+    const w = e.nativeEvent.layout.width;
+    if (w > 0) setContentWidth(w);
+  }, []);
+
+  // Use measured content width so chart fills actual space; fallback to constant for first paint
+  const chartWidth = contentWidth > 0 ? contentWidth : CONTENT_WIDTH;
+
+  // Only animate when the displayed data matches the selected time range (avoids animating with stale data)
+  const shouldAnimate = dataTimeRange !== null && dataTimeRange === timeRange;
+  const displayRange = dataTimeRange ?? timeRange;
 
   // Calculate expected number of bars for fixed time ranges
   const getExpectedBarCount = (range: TimeRange): number | null => {
@@ -62,70 +103,33 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTime
     }
   };
 
-  // Calculate bar width and spacing based on time range
+  // Calculate bar width and spacing to fill the entire content width with 0 padding
   const getBarDimensions = (
-    range: TimeRange, 
-    barCount: number
+    range: TimeRange,
+    barCount: number,
+    availableWidth: number = chartWidth
   ): { barWidth: number; spacing: number; initialSpacing: number; endSpacing: number } => {
-    const MAX_BAR_WIDTH = 32; // Maximum bar width in pixels
     const GAP_WIDTH = 2; // Fixed 2px gap between bars
-    const availableWidth = CHART_WIDTH;
-    
-    const expectedCount = getExpectedBarCount(range);
-    const actualBarCount = barCount;
-    
-    // For "All" or if we don't have expected count, use dynamic calculation
-    if (range === 'All' || expectedCount === null) {
-      // Calculate bar width with max constraint
-      const totalGaps = (actualBarCount - 1) * GAP_WIDTH;
-      const maxBarWidth = Math.min(MAX_BAR_WIDTH, (availableWidth - totalGaps) / Math.max(actualBarCount, 1));
-      const barWidth = Math.max(12, maxBarWidth);
-      
-      // Calculate total width needed
-      const totalBarsWidth = barWidth * actualBarCount;
-      const totalWidth = totalBarsWidth + totalGaps;
-      
-      // Center the bars if they don't fill the entire width
-      const remainingSpace = availableWidth - totalWidth;
-      const initialSpacing = Math.max(10, remainingSpace / 2);
-      const endSpacing = Math.max(0, remainingSpace / 2);
-      
-      return {
-        barWidth,
-        spacing: GAP_WIDTH,
-        initialSpacing,
-        endSpacing,
-      };
-    }
-    
-    // For fixed ranges, calculate to fill entire width with 2px gaps, but cap at 16px
-    const totalGaps = (expectedCount - 1) * GAP_WIDTH;
-    const maxBarWidth = Math.min(MAX_BAR_WIDTH, (availableWidth - totalGaps) / expectedCount);
-    const barWidth = Math.max(12, maxBarWidth);
-    
-    // Calculate total width needed
-    const totalBarsWidth = barWidth * expectedCount;
-    const totalWidth = totalBarsWidth + totalGaps;
-    
-    // Center the bars if they don't fill the entire width
-    const remainingSpace = availableWidth - totalWidth;
-    const initialSpacing = Math.max(10, remainingSpace / 2);
-    const endSpacing = Math.max(0, remainingSpace / 2);
-    
+    const n = Math.max(barCount, 1);
+    const totalGaps = (n - 1) * GAP_WIDTH;
+
+    // Bar width so that n * barWidth + totalGaps = availableWidth (exact fill, 0 padding)
+    const barWidth = Math.max(8, (availableWidth - totalGaps) / n);
+
     return {
       barWidth,
       spacing: GAP_WIDTH,
-      initialSpacing,
-      endSpacing,
+      initialSpacing: 0,
+      endSpacing: 0,
     };
   };
 
   // Prepare data for charts
   const chartData = useMemo(() => {
-    console.log('PortfolioChart: useMemo triggered - timeRange:', timeRange, 'data length:', data?.length);
+    console.log('PortfolioChart: useMemo triggered - displayRange:', displayRange, 'data length:', data?.length);
     console.log('PortfolioChart: ========== CHART DATA PROCESSING START ==========');
     console.log('PortfolioChart: Received data:', data?.length, 'points');
-    console.log('PortfolioChart: Time range:', timeRange);
+    console.log('PortfolioChart: Display range (data range):', displayRange);
     if (data && data.length > 0) {
       console.log('PortfolioChart: First data point:', {
         date: data[0].date,
@@ -153,7 +157,7 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTime
     
     if (!data || data.length === 0) {
       console.log('PortfolioChart: No data provided');
-      return { barData: [], lineData: [], maxBtc: 0, maxCurrency: 0, minCurrency: 0, maxCurrencyWithPadding: 0, niceMaxBtc: 0, chartMaxBtc: 0, chartMinBtc: 0 };
+      return { barData: [], lineData: [], realCurrencyValues: [], maxBtc: 0, maxCurrency: 0, minCurrency: 0, maxCurrencyWithPadding: 0, niceMaxBtc: 0, chartMaxBtc: 0, chartMinBtc: 0 };
     }
 
     // Filter out invalid data points
@@ -171,7 +175,7 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTime
     );
 
     if (validData.length === 0) {
-      return { barData: [], lineData: [], maxBtc: 0, maxCurrency: 0, minCurrency: 0, maxCurrencyWithPadding: 0, niceMaxBtc: 0, chartMaxBtc: 0, chartMinBtc: 0 };
+      return { barData: [], lineData: [], realCurrencyValues: [], maxBtc: 0, maxCurrency: 0, minCurrency: 0, maxCurrencyWithPadding: 0, niceMaxBtc: 0, chartMaxBtc: 0, chartMinBtc: 0 };
     }
 
     // Find min and max values for scaling - ensure they're valid numbers
@@ -247,7 +251,7 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTime
       // Ensure brandingColor is valid (not white/transparent/undefined)
       let barColor = colors.brandingColor;
       if (!barColor || barColor === '#ffffff' || barColor === '#FFFFFF' || barColor === 'white' || barColor === 'transparent') {
-        barColor = '#8B5CF6'; // Fallback to purple/violet
+        barColor = '#80CCEC'; // Fallback to purple/violet
       }
       
       // All bars use the same color
@@ -267,11 +271,11 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTime
       
       const barItem = {
         value: safeBtcValue,
-        label: index % labelFrequency === 0 ? formatDateLabel(point.date, timeRange) : '',
+        label: index % labelFrequency === 0 ? formatDateLabel(point.date, displayRange) : '',
         frontColor: frontColor,
         gradientColor: gradientColor,
         topLabelComponent: () => null, // Hide top labels for cleaner look
-        radius: 4, // Border radius for rounded corners
+        borderRadius: 6, // Per-bar radius (doc: barDataItem.borderRadius); keep small so bars don't look pill-shaped
       };
       
       // Log first 3 bars and last 3 bars for debugging
@@ -343,32 +347,41 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTime
     }
     console.log('PortfolioChart: ========== CHART DATA PROCESSING END ==========');
 
-    // Prepare line chart data (Local currency value)
-    // Don't include labels - BarChart will show them
+    // Prepare line chart data: use normalized values (0–1) so pointer and line share the same Y scale.
+    // The library's pointer position uses a 0-based scale; with a custom mostNegativeValue the line
+    // was drawn with min–max range but the pointer could mismatch. Normalizing fixes alignment.
+    const lineRange = maxCurrencyWithPadding - minCurrencyWithPadding;
     const lineData = validData.map((point) => {
-      const safeValue = isNaN(point.localCurrencyValue) || !isFinite(point.localCurrencyValue) || point.localCurrencyValue < 0 
-        ? 0 
+      const safeValue = isNaN(point.localCurrencyValue) || !isFinite(point.localCurrencyValue) || point.localCurrencyValue < 0
+        ? 0
         : point.localCurrencyValue;
-      
+      const normalizedValue =
+        lineRange > 0
+          ? Math.max(0, Math.min(1, (safeValue - minCurrencyWithPadding) / lineRange))
+          : 0;
       return {
-        value: safeValue,
-        label: '', // No labels for line chart - BarChart handles X-axis labels
+        value: normalizedValue,
+        label: '',
       };
     });
+    const realCurrencyValues = validData.map(
+      d => (isNaN(d.localCurrencyValue) || !isFinite(d.localCurrencyValue) || d.localCurrencyValue < 0 ? 0 : d.localCurrencyValue),
+    );
 
-        return { 
-          barData, 
-          lineData, 
-          maxBtc, 
-          minBtc: minBtcWithPadding,
-          maxCurrency, 
-          minCurrency: minCurrencyWithPadding,
-          maxCurrencyWithPadding, // Include padded max for line chart
-          niceMaxBtc: niceMaxBtc, 
-          chartMaxBtc,
-          chartMinBtc 
-        };
-  }, [data, colors, timeRange]);
+    return {
+      barData,
+      lineData,
+      realCurrencyValues,
+      maxBtc,
+      minBtc: minBtcWithPadding,
+      maxCurrency,
+      minCurrency: minCurrencyWithPadding,
+      maxCurrencyWithPadding,
+      niceMaxBtc,
+      chartMaxBtc,
+      chartMinBtc,
+    };
+  }, [data, colors, displayRange]);
 
   const timeRanges: TimeRange[] = ['1W', '1M', '6M', '1Y', '5Y', 'All'];
 
@@ -399,17 +412,6 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTime
 
   return (
     <View style={styles.container}>
-      {/* Debug info - outside chart container */}
-      {__DEV__ && (
-        <View style={[styles.debugContainer, { backgroundColor: '#F3F4F6' }]}>
-          <Text style={{ fontSize: 10, color: '#666' }}>
-            Bars: {chartData.barData.length} | Max: {chartData.maxBtc.toFixed(8)} BTC | 
-            First: {chartData.barData[0]?.value?.toFixed(8)} | 
-            Last: {chartData.barData[chartData.barData.length - 1]?.value?.toFixed(8)}
-          </Text>
-        </View>
-      )}
-      
       {/* Combined Chart Container */}
       <View style={[styles.chartContainer, { backgroundColor: colors.background || '#FFFFFF' }]}>
         {chartData.barData.length > 0 ? (
@@ -420,109 +422,139 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, onTime
               minValue={chartData.chartMinBtc ?? 0}
               height={CHART_HEIGHT}
               noOfSections={4}
-              color={colors.alternativeTextColor || '#9CA3AF'}
+              color={colors.foregroundColor || '#111827'}
             />
-            
-            {/* Bar Chart (Bitcoin amounts) with secondary line for currency value */}
-            {(() => {
-              const dimensions = getBarDimensions(timeRange, chartData.barData.length);
-              return (
-                <BarChart
-                  key={`bar-chart-${timeRange}-${chartData.barData.length}`}
-                  data={chartData.barData}
-                  width={CHART_WIDTH}
-                  height={CHART_HEIGHT}
-                  barWidth={dimensions.barWidth}
-                  spacing={dimensions.spacing}
-                  roundedTop
-                  roundedBottom
-                  barBorderRadius={4}
-                  hideRules={false}
-                  rulesType="solid"
-                  rulesColor={colors.buttonDisabledBackgroundColor || '#E5E7EB'}
-                  rulesThickness={0.5}
-                  xAxisThickness={1}
-                  yAxisThickness={0}
-                  xAxisColor={colors.buttonDisabledBackgroundColor || '#E5E7EB'}
-                  yAxisColor="transparent"
-                  hideYAxisText={true}
-                  xAxisLabelTextStyle={{ 
-                    color: colors.alternativeTextColor || '#9CA3AF', 
-                    fontSize: 10, 
-                    fontWeight: '500',
-                  }}
-                  yAxisLabelPrefix=""
-                  yAxisLabelSuffix=""
-                  yAxisLabelWidth={0}
-                  mostNegativeValue={chartData.chartMinBtc || 0}
-                  yAxisOffset={0}
-                  rotateLabel={false}
-                  noOfSections={4}
-                  maxValue={(chartData.chartMaxBtc ?? 0) > 0 ? (chartData.chartMaxBtc ?? 0.001) : 0.001}
-                  isAnimated={true}
-                  animationDuration={1200}
-                  showGradient={false}
-                  backgroundColor={colors.background || '#FFFFFF'}
-                  showVerticalLines={false}
-                  initialSpacing={dimensions.initialSpacing}
-                  endSpacing={dimensions.endSpacing}
-                  disableScroll={chartData.barData.length <= 10}
-                  scrollToEnd={chartData.barData.length > 10}
-                  scrollAnimation={chartData.barData.length > 10}
-                />
-              );
-            })()}
-            
-            {/* Line Chart overlay (Local currency value) - positioned absolutely */}
-            <View style={styles.lineChartOverlay} pointerEvents="none">
+            {/* Content area: measured so bar/line use full available width */}
+            <View style={styles.chartContentArea} onLayout={onContentLayout}>
               {(() => {
-                const dimensions = getBarDimensions(timeRange, chartData.barData.length);
-                // Calculate the overlay offset to align with BarChart
-                const overlayLeftOffset = LEFT_Y_AXIS_WIDTH + 20;
-                // Use the same width as BarChart and shift it left to align
+                const dimensions = getBarDimensions(displayRange, chartData.barData.length);
                 return (
-                  <View style={{ marginLeft: -overlayLeftOffset }}>
-                    <LineChart
-                      data={chartData.lineData}
-                      width={CHART_WIDTH}
+                  <>
+                    <BarChart
+                      key={`bar-chart-${displayRange}-${chartData.barData.length}`}
+                      data={chartData.barData}
+                      width={chartWidth}
+                      parentWidth={chartWidth}
+                      adjustToWidth
                       height={CHART_HEIGHT}
-                      color={colors.success || '#34C759'}
-                      thickness={2}
-                      curved={true}
-                      hideRules={true}
-                      hideYAxisText={true}
-                      xAxisLabelTextStyle={{ color: 'transparent', fontSize: 0 }}
-                      xAxisThickness={0}
+                      barWidth={dimensions.barWidth}
+                      spacing={dimensions.spacing}
+                      barBorderRadius={6}
+                      hideRules={false}
+                      rulesType="solid"
+                      rulesColor={colors.buttonDisabledBackgroundColor || '#E5E7EB'}
+                      rulesThickness={0.5}
+                      xAxisThickness={1}
                       yAxisThickness={0}
+                      xAxisColor={colors.buttonDisabledBackgroundColor || '#E5E7EB'}
                       yAxisColor="transparent"
-                      hideDataPoints={false}
-                      dataPointsColor={colors.success || '#34C759'}
-                      dataPointsRadius={3}
+                      hideYAxisText={true}
+                      xAxisLabelTextStyle={{
+                        color: colors.alternativeTextColor || '#9CA3AF',
+                        fontSize: 10,
+                        fontWeight: '500',
+                      }}
+                      yAxisLabelPrefix=""
+                      yAxisLabelSuffix=""
+                      yAxisLabelWidth={0}
+                      mostNegativeValue={chartData.chartMinBtc || 0}
+                      yAxisOffset={0}
+                      rotateLabel={false}
                       noOfSections={4}
-                      maxValue={(chartData.maxCurrencyWithPadding ?? 0) > 0 ? (chartData.maxCurrencyWithPadding ?? 0) : 1}
-                      mostNegativeValue={chartData.minCurrency ?? 0}
-                      isAnimated={true}
-                      animationDuration={1000}
-                      backgroundColor="transparent"
+                      maxValue={(chartData.chartMaxBtc ?? 0) > 0 ? (chartData.chartMaxBtc ?? 0.001) : 0.001}
+                      isAnimated={shouldAnimate}
+                      animationDuration={1200}
+                      showGradient={false}
+                      backgroundColor={colors.background || '#FFFFFF'}
+                      showVerticalLines={false}
                       initialSpacing={dimensions.initialSpacing}
                       endSpacing={dimensions.endSpacing}
-                      areaChart={false}
-                      disableScroll={chartData.lineData.length <= 15}
-                      scrollToEnd={chartData.lineData.length > 15}
-                      scrollAnimation={chartData.lineData.length > 15}
+                      disableScroll={chartData.barData.length <= 10}
+                      scrollToEnd={chartData.barData.length > 10}
+                      scrollAnimation={chartData.barData.length > 10}
                     />
-                  </View>
+                    <View style={styles.lineChartOverlay} pointerEvents="auto">
+                      <LineChart
+                        data={chartData.lineData}
+                        width={chartWidth}
+                        height={CHART_HEIGHT}
+                        color={colors.foregroundColor || '#111827'}
+                        thickness={2}
+                        curved={true}
+                        hideRules={true}
+                        hideYAxisText={true}
+                        xAxisLabelTextStyle={{ color: 'transparent', fontSize: 0 }}
+                        xAxisThickness={0}
+                        yAxisThickness={0}
+                        yAxisColor="transparent"
+                        hideDataPoints={false}
+                        dataPointsColor={colors.foregroundColor || '#111827'}
+                        dataPointsRadius={3}
+                        noOfSections={4}
+                        maxValue={1}
+                        mostNegativeValue={0}
+                        isAnimated={shouldAnimate}
+                        animationDuration={1000}
+                        backgroundColor="transparent"
+                        initialSpacing={dimensions.initialSpacing}
+                        endSpacing={dimensions.endSpacing}
+                        adjustToWidth
+                        areaChart={false}
+                        disableScroll={chartData.lineData.length <= 15}
+                        scrollToEnd={chartData.lineData.length > 15}
+                        scrollAnimation={chartData.lineData.length > 15}
+                        getPointerProps={(props: { pointerIndex: number; pointerX: number; pointerY: number }) => {
+                          setPointerX(props.pointerIndex >= 0 ? props.pointerX : null);
+                        }}
+                        pointerConfig={{
+                          pointerEvents: 'auto',
+                          showPointerStrip: true,
+                          pointerColor: colors.success || '#60A5FA',
+                          pointerStripColor: colors.success || '#60A5FA',
+                          pointerStripWidth: 1,
+                          activatePointersOnLongPress: chartData.lineData.length > 15,
+                          activatePointersInstantlyOnTouch: chartData.lineData.length <= 15,
+                          autoAdjustPointerLabelPosition: true,
+                          pointerLabelWidth: TOOLTIP_WIDTH,
+                          pointerLabelHeight: 70,
+                          shiftPointerLabelY: -80,
+                          shiftPointerLabelX:
+                            pointerX != null && chartWidth > 0
+                              ? Math.min(0, chartWidth - pointerX - TOOLTIP_WIDTH - 30)
+                              : 0,
+                          pointerLabelComponent: (items: Array<{ value?: number }>, _secondaryDataItem: unknown, pointerIndex: number) => {
+                            const point = data[pointerIndex];
+                            const dateLabel = point ? dayjs(point.date).format('MMM D, YYYY') : '';
+                            const btcVal = chartData.barData[pointerIndex]?.value ?? 0;
+                            const currencyVal = chartData.realCurrencyValues[pointerIndex] ?? 0;
+                            return (
+                              <ChartTooltip
+                                dateLabel={dateLabel}
+                                btcValue={btcVal}
+                                currencyValue={currencyVal}
+                                currencySymbol={currencySymbol}
+                                colors={{
+                                  background: colors.background || '#FFFFFF',
+                                  foregroundColor: colors.foregroundColor || '#111827',
+                                  alternativeTextColor: colors.alternativeTextColor || '#6B7280',
+                                }}
+                              />
+                            );
+                          },
+                        }}
+                      />
+                    </View>
+                  </>
                 );
               })()}
             </View>
-            
             {/* Custom Right Y-Axis for Line Chart */}
             <RightYAxis
               maxValue={(chartData.maxCurrencyWithPadding ?? 0) > 0 ? (chartData.maxCurrencyWithPadding ?? 0) : 1}
               minValue={chartData.minCurrency ?? 0}
               height={CHART_HEIGHT}
               noOfSections={4}
-              color={colors.success || '#34C759'}
+              color={colors.foregroundColor || '#111827'}
             />
           </>
         ) : (
@@ -699,12 +731,6 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 16,
   },
-  debugContainer: {
-    padding: 8,
-    borderRadius: 4,
-    marginHorizontal: 16,
-    marginBottom: 8,
-  },
   timeRangeContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -731,35 +757,40 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     paddingTop: 20,
-    paddingBottom: 20, // Extra padding at bottom for X-axis labels
-    paddingLeft: 10,
-    paddingRight: 10, // Reduced right padding to minimize spacing
+    paddingBottom: 20,
     marginHorizontal: 16,
     position: 'relative',
-    overflow: 'visible', // Changed to visible so labels can render outside
-   
+    overflow: 'visible',
+    minHeight: CHART_HEIGHT + 40,
+  },
+  chartContentArea: {
+    position: 'absolute',
+    top: 20,
+    left: LEFT_Y_AXIS_WIDTH,
+    right: RIGHT_Y_AXIS_WIDTH,
+    bottom: 20,
+    overflow: 'visible',
   },
   chartWrapper: {
     position: 'relative',
   },
-      lineChartOverlay: {
-        position: 'absolute',
-        top: 20,
-        left: LEFT_Y_AXIS_WIDTH + 0,
-        right: RIGHT_Y_AXIS_WIDTH + 0,
-        bottom: 40,
-        pointerEvents: 'none',
-        overflow: 'hidden', // Prevent line chart from overflowing
-      },
+  lineChartOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: -10,
+    right: 0,
+    bottom: 0,
+    overflow: 'visible',
+  },
       leftYAxisContainer: {
         position: 'absolute',
         top: 20,
         left: 0,
-        width: 50,
+        width: 0,
         height: CHART_HEIGHT,
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
-        paddingLeft: 4,
+        paddingLeft: 0,
         zIndex: 100,
       },
       leftYAxisLabel: {
@@ -790,6 +821,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 14,
     padding: 20,
+  },
+  tooltipContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    minWidth: 100,
+    maxWidth: 120,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 4,
+    zIndex: 9999,
+  },
+  tooltipDate: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  tooltipBtc: {
+    fontSize: 11,
+    marginBottom: 1,
+  },
+  tooltipCurrency: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   emptyChartContainer: {
     height: CHART_HEIGHT,

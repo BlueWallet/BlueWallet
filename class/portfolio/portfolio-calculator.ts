@@ -905,28 +905,5 @@ export class PortfolioCalculator {
     return `${year}-${month}-${day}`;
   }
 
-  /**
-   * Gets fees data with current price conversion
-   *
-   * @param wallets - Array of wallets
-   * @param currency - Currency code
-   * @returns Fees data with value and percentage
-   */
-  static async getFeesData(wallets: TWallet[], currency: string): Promise<FeesData> {
-    const feesData = this.calculateFeesSpent(wallets);
-    const currentPrice = await PriceService.getHistoricalPrice(new Date(), currency);
-    const btcAmount = new BigNumber(feesData.totalFeesSats).dividedBy(100000000);
-    const totalFeesValue = btcAmount.multipliedBy(currentPrice).toNumber();
-
-    const currentValue = await this.calculateCurrentValue(wallets, currency);
-    const feesPercent = currentValue > 0 ? (totalFeesValue / currentValue) * 100 : 0;
-
-    return {
-      totalFeesSats: feesData.totalFeesSats,
-      totalFeesValue,
-      feesPercent,
-      isGood: feesPercent < 0.5, // < 0.5% is good
-    };
-  }
 }
 

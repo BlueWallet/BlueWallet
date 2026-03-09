@@ -8,9 +8,8 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import PortfolioChart from '../../components/portfolio/PortfolioChart';
 import PortfolioMetrics from '../../components/portfolio/PortfolioMetrics';
-import FeesDisplay from '../../components/portfolio/FeesDisplay';
 import PortfolioTotalBalance from '../../components/portfolio/PortfolioTotalBalance';
-import { PortfolioCalculator, TimeRange, PortfolioMetrics as PortfolioMetricsType, FeesData } from '../../class/portfolio/portfolio-calculator';
+import { PortfolioCalculator, TimeRange, PortfolioMetrics as PortfolioMetricsType } from '../../class/portfolio/portfolio-calculator';
 import { UtxoTracker } from '../../class/portfolio/utxo-tracker';
 import { PriceService } from '../../class/portfolio/price-service';
 import { getPreferredCurrency as getPreferredCurrencyFunc } from '../../blue_modules/currency';
@@ -24,8 +23,8 @@ const Portfolio: React.FC = () => {
   const { colors } = useTheme();
   const { setOptions } = useExtendedNavigation();
   const [timeRange, setTimeRange] = useState<TimeRange>('1Y');
+  const [chartDataTimeRange, setChartDataTimeRange] = useState<TimeRange | null>(null);
   const [metrics, setMetrics] = useState<PortfolioMetricsType | null>(null);
-  const [feesData, setFeesData] = useState<FeesData | null>(null);
   const [chartData, setChartData] = useState<any[]>([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -136,19 +135,14 @@ const Portfolio: React.FC = () => {
           const portfolioMetrics = await PortfolioCalculator.getMetrics(currentWallets, currentCurrency);
           setMetrics(portfolioMetrics);
           console.log('Portfolio: Metrics calculated', portfolioMetrics);
-
-          console.log('Portfolio: Calculating fees...');
-          // Calculate fees
-          const fees = await PortfolioCalculator.getFeesData(currentWallets, currentCurrency);
-          setFeesData(fees);
-          console.log('Portfolio: Fees calculated', fees);
         }
 
         console.log('Portfolio: Getting chart history...');
         // Get chart data
         const history = await PortfolioCalculator.getPortfolioHistory(currentWallets, currentTimeRange, currentCurrency);
         setChartData(history);
-        console.log('Portfolio: Chart history loaded', history.length, 'data points');
+        setChartDataTimeRange(currentTimeRange);
+        console.log('Portfolio: Chart history loaded', history.length, 'data points for range', currentTimeRange);
 
         hasLoadedOnce.current = true;
       } catch (error) {
@@ -308,18 +302,42 @@ const Portfolio: React.FC = () => {
     });
   }, [loadPortfolioData]);
 
-  // Header right button for cache management
+  // Show debug info in an alert (chart data summary) - btcAmount from API is in sats
+  const handleShowDebug = useCallback(() => {
+    const points = chartData.length;
+    const toBtc = (sats: number) => (sats / 100_000_000).toFixed(8);
+    const maxSats = points > 0 ? Math.max(...chartData.map(d => Number(d.btcAmount))) : 0;
+    const firstSats = points > 0 ? Number(chartData[0].btcAmount) : 0;
+    const lastSats = points > 0 ? Number(chartData[points - 1].btcAmount) : 0;
+    presentAlert({
+      title: 'Portfolio Debug',
+      message: `Points: ${points}\nMax: ${toBtc(maxSats)} BTC\nFirst: ${toBtc(firstSats)} BTC\nLast: ${toBtc(lastSats)} BTC`,
+    });
+  }, [chartData]);
+
+  // Header right: repair cache + debug (debug only in __DEV__)
   const HeaderRight = useMemo(
     () => (
-      <TouchableOpacity
-        onPress={handleRepairCache}
-        style={{ paddingHorizontal: 16 }}
-        accessibilityLabel={loc.portfolio.repair_cache || 'Repair Cache'}
-      >
-        <Text style={{ color: colors.brandingColor, fontSize: 16 }}>🔧</Text>
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {__DEV__ && (
+          <TouchableOpacity
+            onPress={handleShowDebug}
+            style={{ paddingHorizontal: 12 }}
+            accessibilityLabel="Debug"
+          >
+            <Text style={{ color: colors.brandingColor, fontSize: 16 }}>📊</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          onPress={handleRepairCache}
+          style={{ paddingHorizontal: 12 }}
+          accessibilityLabel={loc.portfolio.repair_cache || 'Repair Cache'}
+        >
+          <Text style={{ color: colors.brandingColor, fontSize: 16 }}>🔧</Text>
+        </TouchableOpacity>
+      </View>
     ),
-    [handleRepairCache, colors.brandingColor],
+    [handleRepairCache, handleShowDebug, colors.brandingColor],
   );
 
   // Set header options
@@ -338,10 +356,9 @@ const Portfolio: React.FC = () => {
   //     walletsLength: wallets.length,
   //     currency,
   //     metrics: metrics ? 'present' : 'null',
-  //     feesData: feesData ? 'present' : 'null',
   //     chartDataLength: chartData.length,
   //   });
-  // }, [isInitialLoading, wallets.length, currency, metrics, feesData, chartData.length]);
+  // }, [isInitialLoading, wallets.length, currency, metrics, chartData.length]);
 
   // Show loading only on initial load
   if (isInitialLoading && !hasLoadedOnce.current) {
@@ -382,13 +399,16 @@ const Portfolio: React.FC = () => {
         <PortfolioTotalBalance currency={currency} currencySymbol={currencySymbol} isLoading={isInitialLoading && !metrics} />
 
         {/* Chart */}
-        <PortfolioChart data={chartData} timeRange={timeRange} onTimeRangeChange={handleTimeRangeChange} currencySymbol={currencySymbol} />
+        <PortfolioChart
+          data={chartData}
+          timeRange={timeRange}
+          dataTimeRange={chartDataTimeRange}
+          onTimeRangeChange={handleTimeRangeChange}
+          currencySymbol={currencySymbol}
+        />
 
         {/* Metrics - only show loading on initial load */}
         <PortfolioMetrics metrics={metrics} currency={currency} isLoading={isInitialLoading && !metrics} />
-
-        {/* Fees Display - only show loading on initial load */}
-        <FeesDisplay feesData={feesData} currency={currency} isLoading={isInitialLoading && !feesData} />
       </View>
     </SafeAreaScrollView>
   );

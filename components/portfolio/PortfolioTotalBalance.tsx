@@ -55,7 +55,6 @@ const PortfolioTotalBalance: React.FC<PortfolioTotalBalanceProps> = ({ currency,
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.label, { color: colors.alternativeTextColor }]}>Total Balance</Text>
       <Text style={[styles.btcBalance, { color: colors.foregroundColor }]}>
         {btcFormatted} BTC
       </Text>
@@ -70,17 +69,12 @@ const PortfolioTotalBalance: React.FC<PortfolioTotalBalanceProps> = ({ currency,
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    paddingTop: 20,
     marginHorizontal: 16,
     marginTop: 16,
     marginBottom: 8,
     borderRadius: 12,
-    alignItems: 'center',
-  },
-  label: {
-    fontSize: 14,
-    marginBottom: 8,
-    fontWeight: '500',
+    alignItems: 'flex-start',
   },
   btcBalance: {
     fontSize: 32,

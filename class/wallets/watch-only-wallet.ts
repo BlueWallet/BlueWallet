@@ -201,8 +201,12 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   getUtxo(...args: Parameters<THDWalletForWatchOnly['getUtxo']>) {
-    if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo(...args);
-    throw new Error('Not initialized');
+    if (this.isHd()) {
+      if (!this._hdWalletInstance) this.init();
+      if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo(...args);
+      throw new Error('Not initialized');
+    }
+    return super.getUtxo(...args);
   }
 
   combinePsbt(...args: Parameters<THDWalletForWatchOnly['combinePsbt']>) {

@@ -29,74 +29,68 @@ const PortfolioMetrics: React.FC<PortfolioMetricsProps> = ({ metrics, currency, 
     return `${sign}${value.toFixed(2)}%`;
   };
 
+  const metricBg = colors.buttonDisabledBackgroundColor || '#F3F4F6';
+
   if (isLoading || !metrics) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.foregroundColor }]}>
-          {loc.portfolio.metrics_title || 'Portfolio Metrics'}
-        </Text>
+      <View style={styles.container}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color={colors.brandingColor} />
-          <Text style={[styles.loadingText, { color: colors.foregroundColor }]}>
+          <Text style={[styles.loadingText, { color: colors.alternativeTextColor }]}>
             {loc.portfolio.loading || 'Loading...'}
           </Text>
         </View>
-        {/* Placeholder rows to maintain height */}
-        <View style={styles.metricRow}>
-          <View style={[styles.placeholder, { backgroundColor: colors.buttonDisabledBackgroundColor }]} />
-          <View style={[styles.placeholderValue, { backgroundColor: colors.buttonDisabledBackgroundColor }]} />
+        <View style={[styles.metricCard, { backgroundColor: metricBg }]}>
+          <View style={[styles.placeholder, { backgroundColor: colors.alternativeTextColor }]} />
+          <View style={[styles.placeholderValue, { backgroundColor: colors.alternativeTextColor }]} />
         </View>
-        <View style={styles.metricRow}>
-          <View style={[styles.placeholder, { backgroundColor: colors.buttonDisabledBackgroundColor }]} />
-          <View style={[styles.placeholderValue, { backgroundColor: colors.buttonDisabledBackgroundColor }]} />
+        <View style={[styles.metricCard, { backgroundColor: metricBg }]}>
+          <View style={[styles.placeholder, { backgroundColor: colors.alternativeTextColor }]} />
+          <View style={[styles.placeholderValue, { backgroundColor: colors.alternativeTextColor }]} />
         </View>
-        <View style={styles.metricRow}>
-          <View style={[styles.placeholder, { backgroundColor: colors.buttonDisabledBackgroundColor }]} />
-          <View style={[styles.placeholderValue, { backgroundColor: colors.buttonDisabledBackgroundColor }]} />
+        <View style={[styles.metricCard, { backgroundColor: metricBg }]}>
+          <View style={[styles.placeholder, { backgroundColor: colors.alternativeTextColor }]} />
+          <View style={[styles.placeholderValue, { backgroundColor: colors.alternativeTextColor }]} />
         </View>
       </View>
     );
   }
 
-  const unrealizedReturnColor = metrics.unrealizedReturn >= 0 ? colors.success : colors.danger;
-
-
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Text style={[styles.title, { color: colors.foregroundColor }]}>
-        {loc.portfolio.metrics_title || 'Portfolio Metrics'}
-      </Text>
-
+    <View style={styles.container}>
       {/* Unrealized Return */}
-      <View style={styles.metricRow}>
-        <Text style={[styles.metricLabel, { color: colors.alternativeTextColor }]}>
-          {loc.portfolio.unrealized_return || 'Unrealized Return'}
-        </Text>
+      <View style={[styles.metricCard, { backgroundColor: metricBg }]}>
+        <View style={styles.metricLabelBlock}>
+          <Text style={[styles.metricTitle, { color: colors.foregroundColor }]}>Return</Text>
+          <Text style={[styles.metricSubtitle, { color: colors.alternativeTextColor }]}>Unrealized</Text>
+        </View>
         <View style={styles.metricValueContainer}>
-          <Text style={[styles.metricValue, { color: unrealizedReturnColor }]}>
+          <Text style={[styles.metricValue, { color: colors.foregroundColor }]}>
             {formatCurrency(metrics.unrealizedReturn)}
           </Text>
-          <Text style={[styles.metricPercent, { color: unrealizedReturnColor }]}>
+          <Text style={[styles.metricPercent, { color: colors.foregroundColor }]}>
             {formatPercent(metrics.unrealizedReturnPercent)}
           </Text>
         </View>
       </View>
 
       {/* Average Buy Price */}
-      <View style={styles.metricRow}>
-        <Text style={[styles.metricLabel, { color: colors.alternativeTextColor }]}>
-          {loc.portfolio.average_buy_price || 'Average Buy Price'}
-        </Text>
+      <View style={[styles.metricCard, { backgroundColor: metricBg }]}>
+        <View style={styles.metricLabelBlock}>
+          <Text style={[styles.metricTitle, { color: colors.foregroundColor }]}>Buy Price</Text>
+          <Text style={[styles.metricSubtitle, { color: colors.alternativeTextColor }]}>Average</Text>
+        </View>
         <Text style={[styles.metricValue, { color: colors.foregroundColor }]}>
           {metrics.averageBuyPrice > 0 ? formatCurrency(metrics.averageBuyPrice) : 'N/A'}
         </Text>
       </View>
 
       {/* Cost Basis */}
-      <View style={styles.metricRow}>
-        <Text style={[styles.metricLabel, { color: colors.alternativeTextColor }]}>
-          {loc.portfolio.cost_basis || 'Cost Basis'}
-        </Text>
+      <View style={[styles.metricCard, { backgroundColor: metricBg }]}>
+        <View style={styles.metricLabelBlock}>
+          <Text style={[styles.metricTitle, { color: colors.foregroundColor }]}>Cost</Text>
+          <Text style={[styles.metricSubtitle, { color: colors.alternativeTextColor }]}>Basis</Text>
+        </View>
         <Text style={[styles.metricValue, { color: colors.foregroundColor }]}>
           {formatCurrency(metrics.costBasis)}
         </Text>
@@ -107,25 +101,28 @@ const PortfolioMetrics: React.FC<PortfolioMetricsProps> = ({ metrics, currency, 
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    borderRadius: 12,
-    margin: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 16,
   },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 8,
     gap: 8,
   },
   loadingText: {
     fontSize: 14,
-    color: '#9BA0A9',
+  },
+  metricCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderRadius: 6,
+    marginBottom: 12,
   },
   placeholder: {
     height: 14,
@@ -139,15 +136,17 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     opacity: 0.3,
   },
-  metricRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  metricLabel: {
-    fontSize: 14,
+  metricLabelBlock: {
     flex: 1,
+  },
+  metricTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  metricSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+    fontWeight: '500',
   },
   metricValueContainer: {
     alignItems: 'flex-end',
