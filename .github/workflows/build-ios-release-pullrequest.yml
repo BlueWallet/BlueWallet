@@ -236,6 +236,11 @@ jobs:
           
           echo -e "\033[1;34m========================================================\033[0m"
 
+      - name: Install Dependencies with Bundler
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3 --quiet
+
       - name: Install Node Modules
         run: npm ci --omit=dev --yes
 
