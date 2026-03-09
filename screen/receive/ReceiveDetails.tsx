@@ -20,8 +20,8 @@ import SegmentedControl from '../../components/SegmentControl';
 import { useTheme } from '../../components/themes';
 import TipBox from '../../components/TipBox';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
-import { HandOffActivityType } from '../../components/types';
-import useHandoff from '../../hooks/useHandoff';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -94,9 +94,9 @@ const ReceiveDetails = () => {
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
 
-  useHandoff({
+  useContinuity({
     title: loc.send.details_address,
-    type: HandOffActivityType.ReceiveOnchain,
+    type: ContinuityActivityType.ReceiveOnchain,
     userInfo: address ? { address } : undefined,
   });
 

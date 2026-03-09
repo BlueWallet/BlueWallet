@@ -43,8 +43,8 @@ import useMenuElements from '../../hooks/useMenuElements';
 import { useSettings } from '../../hooks/context/useSettings';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import { getClipboardContent } from '../../blue_modules/clipboard';
-import { HandOffActivityType } from '../../components/types';
-import useHandoff from '../../hooks/useHandoff';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import WalletGradient from '../../class/wallet-gradient';
 
 const buttonFontSize =
@@ -81,9 +81,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
 
-  useHandoff({
+  useContinuity({
     title: wallet.getLabel(),
-    type: HandOffActivityType.Xpub,
+    type: ContinuityActivityType.Xpub,
     userInfo:
       wallet.chain === Chain.ONCHAIN && wallet.type !== MultisigHDWallet.type && wallet.getXpub && wallet.getXpub()
         ? { xpub: wallet.getXpub()!, walletID }

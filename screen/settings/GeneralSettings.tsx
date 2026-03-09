@@ -47,12 +47,12 @@ const GeneralSettings: React.FC = () => {
     setIsQuickActionsEnabledStorage,
     isTotalBalanceEnabled,
     setIsTotalBalanceEnabledStorage,
-    isHandOffUseEnabled,
-    setIsHandOffUseEnabledAsyncStorage,
+    isContinuityEnabled,
+    setIsContinuityEnabledStorage,
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-  const [isHandoffSupported, setIsHandoffSupported] = useState<boolean>(true);
+  const [isContinuitySupported, setIsHandoffSupported] = useState<boolean>(true);
 
   useEffect(() => {
     (async () => {
@@ -67,7 +67,7 @@ const GeneralSettings: React.FC = () => {
 
   useEffect(() => {
     if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
-    NativeModules.BWHandoff?.isSupported?.()
+    NativeModules.ReactNativeContinuity?.isSupported?.()
       .then((supported: boolean) => setIsHandoffSupported(supported))
       .catch(() => setIsHandoffSupported(false));
   }, []);
@@ -138,11 +138,11 @@ const GeneralSettings: React.FC = () => {
     openSettings();
   }, []);
 
-  const onHandOffUseEnabledChange = useCallback(
+  const onContinuityEnabledChange = useCallback(
     async (value: boolean) => {
-      await setIsHandOffUseEnabledAsyncStorage(value);
+      await setIsContinuityEnabledStorage(value);
     },
-    [setIsHandOffUseEnabledAsyncStorage],
+    [setIsContinuityEnabledStorage],
   );
 
   const settingsItems = useCallback(() => {
@@ -268,11 +268,11 @@ const GeneralSettings: React.FC = () => {
       items.push({
         id: 'continuity',
         title: loc.settings.general_continuity,
-        subtitle: isHandoffSupported ? loc.settings.general_continuity_e : loc.settings.general_continuity_unavailable,
+        subtitle: isContinuitySupported ? loc.settings.general_continuity_e : loc.settings.general_continuity_unavailable,
         switch: {
-          value: isHandoffSupported && isHandOffUseEnabled,
-          onValueChange: onHandOffUseEnabledChange,
-          disabled: !isHandoffSupported,
+          value: isContinuitySupported && isContinuityEnabled,
+          onValueChange: onContinuityEnabledChange,
+          disabled: !isContinuitySupported,
         },
         Component: View,
         showItem: true,
@@ -321,9 +321,9 @@ const GeneralSettings: React.FC = () => {
     onTotalBalanceEnabledValueChange,
     onWidgetsTotalBalanceValueChange,
     openApplicationSettings,
-    isHandOffUseEnabled,
-    onHandOffUseEnabledChange,
-    isHandoffSupported,
+    isContinuityEnabled,
+    onContinuityEnabledChange,
+    isContinuitySupported,
   ]);
 
   const renderItem: ListRenderItem<SettingItem> = useCallback(

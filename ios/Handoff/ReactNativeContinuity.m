@@ -1,6 +1,6 @@
 #import <React/RCTBridgeModule.h>
 
-@interface RCT_EXTERN_MODULE(BWHandoff, NSObject)
+@interface RCT_EXTERN_MODULE(ReactNativeContinuity, NSObject)
 
 RCT_EXTERN_METHOD(becomeCurrent:(nonnull NSNumber *)activityId
                   type:(NSString *)type

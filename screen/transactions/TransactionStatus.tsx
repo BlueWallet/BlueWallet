@@ -17,8 +17,8 @@ import { useTheme } from '../../components/themes';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { HandOffActivityType } from '../../components/types';
-import useHandoff from '../../hooks/useHandoff';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -120,9 +120,9 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   const { selectedBlockExplorer } = useSettings();
   const fetchTxInterval = useRef<NodeJS.Timeout>();
 
-  useHandoff({
+  useContinuity({
     title: loc.transactions.details_title,
-    type: HandOffActivityType.ViewInBlockExplorer,
+    type: ContinuityActivityType.ViewInBlockExplorer,
     url: tx?.hash ? `${selectedBlockExplorer.url}/tx/${tx.hash}` : undefined,
   });
 

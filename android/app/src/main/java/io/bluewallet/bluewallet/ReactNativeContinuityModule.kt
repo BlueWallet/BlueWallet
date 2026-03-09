@@ -1,6 +1,7 @@
 package io.bluewallet.bluewallet
 
 import android.os.Build
+import android.util.Log
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
@@ -9,7 +10,7 @@ import com.facebook.react.bridge.ReadableMap
 import org.json.JSONObject
 
 /**
- * Android equivalent of iOS Handoff (NSUserActivity).
+ * Android equivalent of iOS Continuity / NSUserActivity.
  *
  * Uses Android's AssistContent API to advertise the current user activity
  * to the system (Google Assistant, etc.) so that it can be continued on
@@ -19,10 +20,10 @@ import org.json.JSONObject
  * MainActivity via the companion-object accessor so that
  * Activity.onProvideAssistContent can return the right content.
  */
-class BWHandoffModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     companion object {
-        private const val TAG = "BWHandoff"
+        private const val TAG = "ReactNativeContinuity"
 
         // The currently-active assist data, read by MainActivity.onProvideAssistContent
         @Volatile
@@ -39,16 +40,16 @@ class BWHandoffModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     }
 
     // Map of activityId → stored state so we can invalidate the right one
-    private data class HandoffEntry(
+    private data class ContinuityEntry(
         val type: String,
         val title: String?,
         val webUri: String?,
         val structuredData: JSONObject?,
     )
 
-    private val activities = mutableMapOf<Int, HandoffEntry>()
+    private val activities = mutableMapOf<Int, ContinuityEntry>()
 
-    override fun getName(): String = "BWHandoff"
+    override fun getName(): String = "ReactNativeContinuity"
 
     /**
      * Start advertising an activity.  Mirrors the iOS API:
@@ -58,7 +59,7 @@ class BWHandoffModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     fun becomeCurrent(activityId: Int, type: String, title: String?, userInfo: ReadableMap?, url: String?) {
         val structured = userInfo?.let { readableMapToJson(it) }
 
-        val entry = HandoffEntry(
+        val entry = ContinuityEntry(
             type = type,
             title = title,
             webUri = if (!url.isNullOrBlank()) url else null,
@@ -102,12 +103,26 @@ class BWHandoffModule(reactContext: ReactApplicationContext) : ReactContextBaseJ
     // ---- helpers ----
 
     /**
-     * Returns whether the AssistContent API (Android's equivalent of Handoff)
-     * is available on this device.  Requires API 23+.
+     * Returns whether the AssistContent API (Android's equivalent of Continuity)
+     * is available on this device and the user has the assistant enabled.
+     * Requires API 23+ and an active assist component in Settings.
      */
     @ReactMethod
     fun isSupported(promise: Promise) {
-        promise.resolve(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            promise.resolve(false)
+            return
+        }
+        try {
+            val assistComponent = android.provider.Settings.Secure.getString(
+                reactApplicationContext.contentResolver,
+                "assistant"
+            )
+            promise.resolve(!assistComponent.isNullOrBlank())
+        } catch (e: Exception) {
+            // If we can't read the setting, fall back to OS version check
+            promise.resolve(true)
+        }
     }
 
     private fun readableMapToJson(map: ReadableMap): JSONObject {

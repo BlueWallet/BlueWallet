@@ -293,7 +293,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     override func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
       let activityType = userActivity.activityType
       guard !activityType.isEmpty else {
-            print("[Handoff] Invalid or missing userActivity")
+            print("[Continuity] Invalid or missing userActivity")
             return false
         }
 
@@ -319,7 +319,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             return RCTLinkingManager.application(application, continue: userActivity, restorationHandler: restorationHandler)
         }
 
-        print("[Handoff] Unhandled user activity type: \(activityType)")
+        print("[Continuity] Unhandled user activity type: \(activityType)")
         return false
     }
 

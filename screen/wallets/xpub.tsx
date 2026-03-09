@@ -11,9 +11,9 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
-import { HandOffActivityType } from '../../components/types';
+import { ContinuityActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import useHandoff from '../../hooks/useHandoff';
+import useContinuity from '../../hooks/useContinuity';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { HDTaprootWallet } from '../../class';
 import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
@@ -40,9 +40,9 @@ const WalletXpub: React.FC = () => {
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const lastWalletIdRef = useRef<string | undefined>();
 
-  useHandoff({
+  useContinuity({
     title: loc.wallets.xpub_title,
-    type: HandOffActivityType.Xpub,
+    type: ContinuityActivityType.Xpub,
     userInfo: xPubText ? { xpub: xPubText, walletID } : undefined,
   });
 

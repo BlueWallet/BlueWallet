@@ -16,8 +16,8 @@ import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useStorage } from '../../hooks/context/useStorage';
-import { HandOffActivityType } from '../../components/types';
-import useHandoff from '../../hooks/useHandoff';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -90,9 +90,9 @@ const TransactionDetails = () => {
     },
   });
 
-  useHandoff({
+  useContinuity({
     title: loc.transactions.details_title,
-    type: HandOffActivityType.ViewInBlockExplorer,
+    type: ContinuityActivityType.ViewInBlockExplorer,
     url: tx?.hash ? `${selectedBlockExplorer.url}/tx/${tx.hash}` : undefined,
   });
 

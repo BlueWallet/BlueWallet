@@ -66,17 +66,17 @@ class MainActivity : ReactActivity() {
 
     /**
      * Provide the current user-activity context to the Android system.
-     * This is the Android equivalent of Apple's Handoff / NSUserActivity.
+     * This is the Android equivalent of Apple's Continuity / NSUserActivity.
      * Google Assistant and cross-device features can use this to let the
      * user continue what they were doing on another device.
      */
     override fun onProvideAssistContent(outContent: AssistContent) {
         super.onProvideAssistContent(outContent)
 
-        BWHandoffModule.currentWebUri?.let { uri ->
+        ReactNativeContinuityModule.currentWebUri?.let { uri ->
             outContent.webUri = Uri.parse(uri)
         }
-        BWHandoffModule.currentStructuredData?.let { data ->
+        ReactNativeContinuityModule.currentStructuredData?.let { data ->
             outContent.structuredData = data.toString()
         }
     }

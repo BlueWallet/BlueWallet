@@ -1,34 +1,34 @@
 import { useEffect, useRef } from 'react';
 import { NativeModules } from 'react-native';
 import { useSettings } from './context/useSettings';
-import { HandOffActivityType } from '../components/types';
+import { ContinuityActivityType } from '../components/types';
 
 let nextActivityId = 0;
 
-interface UseHandoffParams {
+interface UseContinuityParams {
   title?: string;
-  type: HandOffActivityType;
+  type: ContinuityActivityType;
   url?: string;
   userInfo?: object;
 }
 
-const useHandoff = ({ title, type, url, userInfo }: UseHandoffParams): void => {
-  const { isHandOffUseEnabled } = useSettings();
+const useContinuity = ({ title, type, url, userInfo }: UseContinuityParams): void => {
+  const { isContinuityEnabled } = useSettings();
   const activityIdRef = useRef<number | null>(null);
   const serializedUserInfo = userInfo ? JSON.stringify(userInfo) : undefined;
 
   useEffect(() => {
-    if (!NativeModules.BWHandoff) {
+    if (!NativeModules.ReactNativeContinuity) {
       return;
     }
 
     // Invalidate previous activity when deps change
     if (activityIdRef.current !== null) {
-      NativeModules.BWHandoff?.invalidate(activityIdRef.current);
+      NativeModules.ReactNativeContinuity?.invalidate(activityIdRef.current);
       activityIdRef.current = null;
     }
 
-    if (!isHandOffUseEnabled || !type) {
+    if (!isContinuityEnabled || !type) {
       return;
     }
 
@@ -46,15 +46,15 @@ const useHandoff = ({ title, type, url, userInfo }: UseHandoffParams): void => {
 
     const id = ++nextActivityId;
     activityIdRef.current = id;
-    NativeModules.BWHandoff?.becomeCurrent(id, type, title ?? '', parsedUserInfo ?? null, url ?? null);
+    NativeModules.ReactNativeContinuity?.becomeCurrent(id, type, title ?? '', parsedUserInfo ?? null, url ?? null);
 
     return () => {
       if (activityIdRef.current !== null) {
-        NativeModules.BWHandoff?.invalidate(activityIdRef.current);
+        NativeModules.ReactNativeContinuity?.invalidate(activityIdRef.current);
         activityIdRef.current = null;
       }
     };
-  }, [isHandOffUseEnabled, type, title, serializedUserInfo, url]);
+  }, [isContinuityEnabled, type, title, serializedUserInfo, url]);
 };
 
-export default useHandoff;
+export default useContinuity;

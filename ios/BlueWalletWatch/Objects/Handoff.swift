@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum HandoffIdentifier: String {
+enum ContinuityIdentifier: String {
   case ReceiveOnchain = "io.bluewallet.bluewallet.receiveonchain"
   case Xpub = "io.bluewallet.bluewallet.xpub"
   case ViewInBlockExplorer = "io.bluewallet.bluewallet.blockexplorer"
@@ -17,12 +17,12 @@ enum HandoffIdentifier: String {
   case IsItMyAddress = "io.bluewallet.bluewallet.isitmyaddress"
 }
 
-enum HandOffUserInfoKey: String {
+enum ContinuityUserInfoKey: String {
   case ReceiveOnchain = "address"
   case Xpub = "xpub"
 }
 
-enum HandOffTitle: String {
+enum ContinuityTitle: String {
   case ReceiveOnchain = "View Address"
   case Xpub = "View XPUB"
 }

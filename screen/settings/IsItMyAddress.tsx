@@ -17,8 +17,8 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
-import useHandoff from '../../hooks/useHandoff';
-import { HandOffActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
+import { ContinuityActivityType } from '../../components/types';
 
 const IsItMyAddress: React.FC = () => {
   const { params } = useRoute<RouteProp<DetailViewStackParamList, 'IsItMyAddress'>>();
@@ -32,9 +32,9 @@ const IsItMyAddress: React.FC = () => {
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
   const [resultCleanAddress, setResultCleanAddress] = useState<string | undefined>();
 
-  useHandoff({
+  useContinuity({
     title: loc.is_it_my_address.title,
-    type: HandOffActivityType.IsItMyAddress,
+    type: ContinuityActivityType.IsItMyAddress,
     userInfo: resultCleanAddress ? { address: resultCleanAddress } : undefined,
   });
 

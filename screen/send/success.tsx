@@ -9,8 +9,8 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { HandOffActivityType } from '../../components/types';
-import useHandoff from '../../hooks/useHandoff';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useSettings } from '../../hooks/context/useSettings';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
@@ -44,9 +44,9 @@ const Success = () => {
     console.log('send/success - useEffect');
   }, []);
 
-  useHandoff({
+  useContinuity({
     title: loc.transactions.details_title,
-    type: HandOffActivityType.ViewInBlockExplorer,
+    type: ContinuityActivityType.ViewInBlockExplorer,
     url: txid ? `${selectedBlockExplorer.url}/tx/${txid}` : undefined,
   });
 

@@ -42,7 +42,7 @@ export interface ToolTipMenuProps {
   onMenuWillHide?: () => void;
 }
 
-export enum HandOffActivityType {
+export enum ContinuityActivityType {
   ReceiveOnchain = 'io.bluewallet.bluewallet.receiveonchain',
   Xpub = 'io.bluewallet.bluewallet.xpub',
   ViewInBlockExplorer = 'io.bluewallet.bluewallet.blockexplorer',
