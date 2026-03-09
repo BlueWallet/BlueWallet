@@ -52,7 +52,7 @@ const GeneralSettings: React.FC = () => {
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-  const [isContinuitySupported, setIsHandoffSupported] = useState<boolean>(true);
+  const [isContinuitySupported, setIsContinuitySupported] = useState<boolean>(true);
 
   useEffect(() => {
     (async () => {
@@ -68,8 +68,8 @@ const GeneralSettings: React.FC = () => {
   useEffect(() => {
     if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
     NativeModules.ReactNativeContinuity?.isSupported?.()
-      .then((supported: boolean) => setIsHandoffSupported(supported))
-      .catch(() => setIsHandoffSupported(false));
+      .then((supported: boolean) => setIsContinuitySupported(supported))
+      .catch(() => setIsContinuitySupported(false));
   }, []);
 
   const onDoNotTrackValueChange = useCallback(

@@ -33,11 +33,19 @@ const useContinuity = ({ title, type, url, userInfo }: UseContinuityParams): voi
     }
 
     const parsedUserInfo = serializedUserInfo ? JSON.parse(serializedUserInfo) : undefined;
-    const hasUserInfo =
-      parsedUserInfo &&
-      Object.values(parsedUserInfo).some(
-        value => value !== null && value !== '' && !(Array.isArray(value) && value.length === 0),
-      );
+    const isMeaningfulValue = (value: unknown): boolean => {
+      if (value === null || value === undefined || value === '') return false;
+      if (Array.isArray(value)) {
+        return value.some(item => {
+          if (typeof item === 'object' && item !== null) {
+            return Object.values(item).some(v => isMeaningfulValue(v));
+          }
+          return isMeaningfulValue(item);
+        });
+      }
+      return true;
+    };
+    const hasUserInfo = parsedUserInfo && Object.values(parsedUserInfo).some(isMeaningfulValue);
     const hasUrl = url && url.trim().length > 0;
 
     if (!hasUserInfo && !hasUrl) {
