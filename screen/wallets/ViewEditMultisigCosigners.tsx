@@ -12,7 +12,6 @@ import {
   View,
 } from 'react-native';
 import Badge from '../../components/Badge';
-import Icon from '../../components/Icon';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import { BlueCard } from '../../BlueComponents';
@@ -158,17 +157,17 @@ const ViewEditMultisigCosigners: React.FC = () => {
         setIsLoading(true);
 
         let cancelled = false;
-      (async () => {
+        (async () => {
           if (!w.current) {
-              w.current = new MultisigHDWallet();
+            w.current = new MultisigHDWallet();
             w.current.setNativeSegwit();
           } else {
             tempWallet.current.setSecret(w.current.getSecret());
             if (!cancelled) {
-            setWalletData(new Array(tempWallet.current.getN()));
+              setWalletData(new Array(tempWallet.current.getN()));
               setWallet(tempWallet.current);
             }
-        }
+          }
           hasLoaded.current = true;
           if (!cancelled) setIsLoading(false);
         })();
@@ -533,18 +532,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 22 },
-  textDestination: { fontWeight: '600' },
-  vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  newKeyModalContent: {
-    paddingHorizontal: 22,
-    minHeight: 350,
-  },
-  paddingTop44: { paddingTop: 44 },
-  multiLineTextInput: {
-    minHeight: 130,
-  },
   contentContainerStyle: {
     padding: 16,
   },
@@ -562,8 +549,6 @@ const styles = StyleSheet.create({
   tipLabelText: {
     fontWeight: '500',
   },
-
-  askPassprase: { top: 0, left: 0, alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 32 / 2 },
 });
 
 export default ViewEditMultisigCosigners;

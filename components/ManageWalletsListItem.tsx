@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Icon from './Icon';
@@ -90,8 +90,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const swipeableRef = useRef<Swipeable | null>(null);
 
   const CARD_SORT_ACTIVE = 1.0;
-  const HANDLE_WIDTH = 28;
-  const HANDLE_MARGIN_RIGHT = 4;
   const scaleValue = useRef(new Animated.Value(1)).current;
   const handleOpacity = useRef(new Animated.Value(1)).current;
   const prevIsActive = useRef(isActive);
@@ -126,11 +124,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       useNativeDriver: true,
     }).start();
   }, [hideHandle, handleOpacity]);
-
-  const handleAnimatedStyle = useMemo(
-    () => [{ opacity: handleOpacity, width: hideHandle ? 0 : HANDLE_WIDTH, marginRight: hideHandle ? 0 : HANDLE_MARGIN_RIGHT }],
-    [handleOpacity, hideHandle],
-  );
 
   const onPress = useCallback(() => {
     if (item.type === ItemType.WalletSection) {
@@ -180,9 +173,6 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     };
 
     const backgroundColor = isActive ? colors.brandingColor : colors.background;
-    const dragIconName = Platform.OS === 'ios' ? 'reorder-three' : 'drag-handle';
-    const dragIconType = Platform.OS === 'ios' ? 'ionicon' : 'material';
-
     const content = (
       <View style={[style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}>
         <WalletCarouselItem
@@ -502,18 +492,8 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     overflow: 'hidden',
   },
-  walletRowContainer: {
-    width: '100%',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
   transparentBackground: {
     backgroundColor: 'transparent',
-  },
-  swipeableContainer: {
-    paddingVertical: 6,
-    paddingHorizontal: 0,
-    marginVertical: -6,
   },
   itemDivider: {
     height: 1,

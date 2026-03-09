@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Icon } from '@rneui/themed';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
+import Icon from '../../components/Icon';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -41,7 +41,7 @@ const ViewEditMultisigCosignerViewSheet = () => {
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
       <View style={styles.content}>
         <View style={[styles.vaultKeyCircleSuccess, { backgroundColor: colors.msSuccessBG }]}>
-          <Icon size={24} name="check" type="ionicons" color={colors.msSuccessCheck} />
+          <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
         </View>
         <BlueSpacing20 />
         <BlueTextCentered>{loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}</BlueTextCentered>

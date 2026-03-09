@@ -314,7 +314,6 @@ const TransactionDetails = () => {
             <ToolTipMenu
               isButton
               title={tx.hash}
-              isMenuPrimaryAction
               actions={[
                 {
                   id: actionKeys.CopyToClipboard,
@@ -336,7 +335,6 @@ const TransactionDetails = () => {
             <ToolTipMenu
               isButton
               title={dayjs(tx.timestamp * 1000).format('LLL')}
-              isMenuPrimaryAction
               actions={[
                 {
                   id: actionKeys.CopyToClipboard,
@@ -358,7 +356,6 @@ const TransactionDetails = () => {
             <ToolTipMenu
               isButton
               title={String(tx.inputs.length)}
-              isMenuPrimaryAction
               actions={[
                 {
                   id: actionKeys.CopyToClipboard,
@@ -380,7 +377,6 @@ const TransactionDetails = () => {
             <ToolTipMenu
               isButton
               title={String(tx.outputs.length)}
-              isMenuPrimaryAction
               actions={[
                 {
                   id: actionKeys.CopyToClipboard,

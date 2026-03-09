@@ -19,6 +19,18 @@ export type ScanQRCodeParamList = {
   animatedQRCodeData?: Record<string, any>;
 };
 
+type VaultKeyData = {
+  keyIndex: number;
+  seed: string;
+  passphrase?: string;
+  xpub: string;
+  fp: string;
+  path: string;
+  cosignerXpubURv2: string;
+  exportFilename: string;
+  exportString?: string;
+};
+
 export type DetailViewStackParamList = {
   DrawerRoot: undefined;
   UnlockWithScreen: undefined;
@@ -96,7 +108,26 @@ export type DetailViewStackParamList = {
   SelfTest: undefined;
   ReleaseNotes: undefined;
   SettingsTools: undefined;
-  ViewEditMultisigCosigners: { walletID: string; cosigners: string[] };
+  ViewEditMultisigCosigners: {
+    walletID: string;
+    cosigners: string[];
+    sheetAction?: string;
+    sheetImportText?: string;
+    sheetAskPassphrase?: boolean;
+  };
+  ViewEditMultisigCosignerViewSheet: { walletID: string; vaultKeyData: VaultKeyData };
+  ViewEditMultisigProvideMnemonicsSheet: {
+    walletID: string;
+    currentlyEditingCosignerNum: number;
+    importText: string;
+    askPassphrase: boolean;
+  };
+  ViewEditMultisigShareCosignerSheet: {
+    walletID: string;
+    cosignerXpub: string;
+    cosignerXpubURv2: string;
+    exportFilename: string;
+  };
   WalletXpub: { walletID: string; xpub: string };
   SignVerifyRoot: {
     screen: 'SignVerify';
@@ -121,5 +152,7 @@ export type DetailViewStackParamList = {
     paymentCode: string;
     walletID: string;
   };
+  SettingsPrivacy: undefined;
+  PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
 };

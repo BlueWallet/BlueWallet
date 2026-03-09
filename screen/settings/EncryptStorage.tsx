@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
-import { Alert, Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
-import ListItem, { TouchableOpacityWrapper } from '../../components/ListItem';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import ListItem from '../../components/ListItem';
 import { useTheme } from '../../components/themes';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
@@ -155,7 +155,6 @@ const EncryptStorage = () => {
           <Header leftText={loc.settings.biometrics} />
           <ListItem
             title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType! })}
-            Component={TouchableWithoutFeedback}
             switch={{
               value: biometricEnabled,
               onValueChange: onUseBiometricSwitch,
@@ -179,7 +178,6 @@ const EncryptStorage = () => {
       <ListItem
         testID="EncyptedAndPasswordProtected"
         title={loc.settings.encrypt_enc_and_pass}
-        Component={TouchableWithoutFeedback}
         switch={{
           onValueChange: onEncryptStorageSwitch,
           value: state.storageIsEncryptedSwitchEnabled,
@@ -195,7 +193,6 @@ const EncryptStorage = () => {
           title={loc.settings.plausible_deniability}
           chevron
           testID="PlausibleDeniabilityButton"
-          Component={TouchableOpacityWrapper}
           containerStyle={[styles.row, styleHooks.root]}
         />
       )}

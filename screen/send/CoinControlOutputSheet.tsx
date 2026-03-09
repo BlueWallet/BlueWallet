@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import ListItem from '../../components/ListItem';
 import { BlueSpacing10 } from '../../components/BlueSpacing';
@@ -155,7 +155,7 @@ const CoinControlOutputSheet: React.FC = () => {
             ]}
             onChangeText={onMemoChange}
           />
-          <ListItem title={loc.cc.freezeLabel} Component={TouchableWithoutFeedback} switch={switchValue} bottomDivider={false} />
+          <ListItem title={loc.cc.freezeLabel} switch={switchValue} bottomDivider={false} />
         </View>
 
         <View style={styles.buttonContainer}>

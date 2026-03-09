@@ -239,6 +239,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  buttonSpacing: {
+    height: 16,
+  },
+  buttonSpacingSmall: {
+    height: 8,
+  },
   spacingLarge: {
     height: 32,
   },

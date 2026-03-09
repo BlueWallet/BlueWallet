@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unused-prop-types */
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
 import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, View, Platform, UIManager } from 'react-native';
@@ -210,10 +209,17 @@ const WalletAddresses: React.FC = () => {
     ({ item }: { item: Address }) => {
       const { key, ...rest } = item;
       return (
-        <AddressItem key={key} item={item} {...rest} balanceUnit={balanceUnit} walletID={walletID} allowSignVerifyMessage={allowSignVerifyMessage} />
+        <AddressItem
+          key={key}
+          item={item}
+          {...rest}
+          balanceUnit={balanceUnit}
+          walletID={walletID}
+          allowSignVerifyMessage={allowSignVerifyMessage}
+        />
       );
     },
-    [balanceUnit, walletID, allowSignVerifyMessage, search],
+    [balanceUnit, walletID, allowSignVerifyMessage],
   );
 
   if (!wallet) {

@@ -8,13 +8,7 @@ import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import {
-  platformSizing,
-  platformLayout,
-  getSettingsCardColor,
-  getSettingsRowBackgroundColor,
-  SettingsScrollView,
-} from '../../components/platform';
+import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -204,35 +198,11 @@ const Broadcast: React.FC = () => {
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
-  const { colors, dark } = useTheme();
-  const sizing = platformSizing;
-  const layout = platformLayout;
+  const { colors } = useTheme();
 
   if (!tx) {
     return null;
   }
-
-  const cardColor = getSettingsCardColor(colors, dark);
-
-  const successStyles = StyleSheet.create({
-    card: {
-      backgroundColor: cardColor,
-      borderRadius: sizing.containerBorderRadius,
-      padding: sizing.basePadding,
-      ...layout.cardShadow,
-    },
-    broadcastResultWrapper: {
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingVertical: sizing.basePadding,
-    },
-    successText: {
-      color: colors.foregroundColor,
-      fontSize: sizing.subtitleFontSize,
-      textAlign: 'center',
-    },
-  });
 
   return (
     <View style={styles.successWrapper}>
@@ -248,33 +218,6 @@ const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
 export default Broadcast;
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: 10,
-  },
-  labelText: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
-  input: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    alignItems: 'center',
-    borderRadius: 4,
-  },
-  text: {
-    flex: 1,
-    padding: 8,
-    maxHeight: 100,
-    minHeight: 100,
-  },
   successWrapper: {
     flexDirection: 'column',
     justifyContent: 'center',

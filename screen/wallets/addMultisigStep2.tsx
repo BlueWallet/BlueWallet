@@ -104,7 +104,7 @@ const WalletsAddMultisigStep2 = () => {
           style={[styles.helpButton, { backgroundColor: colors.buttonDisabledBackgroundColor }]}
           onPress={handleOnHelpPress}
         >
-          <Icon size={20} name="help" type="octaicon" color={colors.foregroundColor} />
+          <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
           <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
         </TouchableOpacity>
       ),
@@ -578,33 +578,6 @@ const WalletsAddMultisigStep2 = () => {
         )}
       </View>
     );
-  };
-
-  const renderSecret = (entries: string[]) => {
-    const component = [];
-    const entriesObject = entries.entries();
-    for (const [index, secret] of entriesObject) {
-      if (entries.length > 1) {
-        const text = `${index + 1}. ${secret}  `;
-        component.push(
-          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
-            <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
-              {text}
-            </Text>
-          </View>,
-        );
-      } else {
-        const text = `${secret}  `;
-        component.push(
-          <View style={[styles.word, stylesHook.word]} key={`${secret}${index}`}>
-            <Text style={[styles.wordText, stylesHook.wordText]} textBreakStrategy="simple">
-              {text}
-            </Text>
-          </View>,
-        );
-      }
-    }
-    return component;
   };
 
   const footer = (

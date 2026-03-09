@@ -19,23 +19,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconContainer: {
-    padding: 0,
-    margin: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
-  },
   pressed: {
     opacity: 0.6,
-  },
-  icon: {
-    padding: 0,
-    margin: 0,
-    lineHeight: 22,
-    textAlignVertical: 'center',
-    textAlign: 'center',
   },
 });
 

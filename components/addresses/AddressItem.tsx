@@ -18,7 +18,7 @@ import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import HighlightedText from '../HighlightedText';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
 interface AddressItemProps {
   item: any;
@@ -119,11 +119,6 @@ const AddressItem = ({
 
     previousBalance.current = balance;
   }, [balance, balanceOpacity, balanceTranslateY]);
-
-  const animatedBalanceStyle = useAnimatedStyle(() => ({
-    opacity: balanceOpacity.value,
-    transform: [{ translateY: balanceTranslateY.value }],
-  }));
 
   const handleCopyPress = useCallback(() => {
     Clipboard.setString(item.address);
@@ -246,14 +241,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginHorizontal: 4,
   },
-  itemContainer: {
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-  },
-  itemWrapper: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-  },
   tooltipButton: {
     width: '100%',
     alignSelf: 'stretch',
@@ -266,7 +253,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontWeight: '600',
   },
-  mainSection: {
+  row: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',

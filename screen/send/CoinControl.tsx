@@ -4,21 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
-import {
-  Animated,
-  ActivityIndicator,
-  Keyboard,
-  LayoutAnimation,
-  PixelRatio,
-  Pressable,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  useWindowDimensions,
-  View,
-} from 'react-native';
-import * as RNLocalize from 'react-native-localize';
+import { Animated, ActivityIndicator, Keyboard, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
@@ -33,8 +19,6 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import ListItem from '../../components/ListItem';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -135,8 +119,6 @@ const OutputList: React.FC<TOutputListProps> = ({
     container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
     avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
     amount: { fontWeight: 'bold', color: colors.foregroundColor },
-    tranContainer: { paddingLeft: 20 },
-    tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
     memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
     containerSelected: { backgroundColor: 'red' }, // fixme
   });
@@ -161,133 +143,6 @@ const OutputList: React.FC<TOutputListProps> = ({
         {change && <ChangeBadge />}
       </View>
     </Pressable>
-  );
-};
-
-type TOutputModalProps = {
-  item: Utxo;
-  balanceUnit: string;
-  oMemo?: string;
-};
-
-const OutputModal: React.FC<TOutputModalProps> = ({
-  item: { address, txid, value, vout, confirmations = 0 },
-  balanceUnit = BitcoinUnit.BTC,
-  oMemo,
-}) => {
-  const { colors } = useTheme();
-  const { txMetadata } = useStorage();
-  const memo = oMemo || txMetadata[txid]?.memo || '';
-  const fullId = `${txid}:${vout}`;
-  const color = `#${txid.substring(0, 6)}`;
-  const amount = formatBalance(value, balanceUnit, true);
-
-  const oStyles = StyleSheet.create({
-    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
-    avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
-    amount: { fontWeight: 'bold', color: colors.foregroundColor },
-    tranContainer: { paddingLeft: 20 },
-    tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
-    memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
-  });
-  const confirmationsFormatted = new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(
-    confirmations,
-  );
-
-  return (
-    <View style={[styles.listRow, oStyles.container]}>
-      <Avatar rounded size={40} containerStyle={oStyles.avatar} />
-      <View style={styles.listContent}>
-        <Text numberOfLines={1} style={oStyles.amount}>
-          {amount}
-        </Text>
-        <View style={oStyles.tranContainer}>
-          <Text style={oStyles.tranText}>{loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}</Text>
-        </View>
-        {memo ? (
-          <>
-            <Text style={oStyles.memo}>{memo}</Text>
-            <BlueSpacing10 />
-          </>
-        ) : null}
-        <Text style={oStyles.memo}>{address}</Text>
-        <BlueSpacing10 />
-        <Text style={oStyles.memo}>{fullId}</Text>
-      </View>
-    </View>
-  );
-};
-
-const mStyles = StyleSheet.create({
-  memoTextInput: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    color: '#81868e',
-  },
-  buttonContainer: {
-    height: 45,
-    marginBottom: 36,
-    marginHorizontal: 24,
-  },
-});
-
-type TOutputModalContentProps = {
-  output: Utxo;
-  wallet: TWallet;
-  onUseCoin: (u: Utxo[]) => void;
-  frozen: boolean;
-  setFrozen: (value: boolean) => void;
-};
-
-const transparentBackground = { backgroundColor: 'transparent' };
-const OutputModalContent: React.FC<TOutputModalContentProps> = ({ output, wallet, onUseCoin, frozen, setFrozen }) => {
-  const { colors } = useTheme();
-  const { txMetadata, saveToDisk } = useStorage();
-  const [memo, setMemo] = useState<string>(wallet.getUTXOMetadata(output.txid, output.vout).memo || txMetadata[output.txid]?.memo || '');
-  const switchValue = useMemo(() => ({ value: frozen, onValueChange: (value: boolean) => setFrozen(value) }), [frozen, setFrozen]);
-
-  const onMemoChange = (value: string) => setMemo(value);
-
-  // save on form change. Because effect called on each event, debounce it.
-  const debouncedSaveMemo = useRef(
-    debounce(async m => {
-      wallet.setUTXOMetadata(output.txid, output.vout, { memo: m });
-      await saveToDisk();
-    }, 500),
-  );
-  useEffect(() => {
-    debouncedSaveMemo.current(memo);
-  }, [memo]);
-
-  return (
-    <View>
-      <OutputModal item={output} balanceUnit={wallet.getPreferredBalanceUnit()} />
-      <BlueSpacing20 />
-      <TextInput
-        testID="OutputMemo"
-        placeholder={loc.send.details_note_placeholder}
-        value={memo}
-        placeholderTextColor="#81868e"
-        style={[
-          mStyles.memoTextInput,
-          {
-            borderColor: colors.formBorder,
-            borderBottomColor: colors.formBorder,
-            backgroundColor: colors.inputBackgroundColor,
-          },
-        ]}
-        onChangeText={onMemoChange}
-      />
-      <ListItem title={loc.cc.freezeLabel} containerStyle={transparentBackground} noFeedback switch={switchValue} />
-      <BlueSpacing20 />
-    </View>
   );
 };
 
@@ -552,12 +407,6 @@ const styles = StyleSheet.create({
   sendIcon: {
     transform: [{ rotate: '225deg' }],
   },
-  rowContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 16,
-  },
   badges: {
     flexDirection: 'row',
   },
@@ -594,20 +443,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-  },
-  outputContainer: {
-    borderBottomColor: 'rgba(0, 0, 0, 0)',
-  },
-  outputAvatar: {
-    borderColor: 'white',
-    borderWidth: 1,
-  },
-  outputAmount: {
-    fontWeight: 'bold',
-  },
-  outputMemo: {
-    fontSize: 13,
-    marginTop: 3,
   },
 });
 
