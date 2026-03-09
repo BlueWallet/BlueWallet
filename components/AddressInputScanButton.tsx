@@ -137,6 +137,7 @@ export const AddressInputScanButton = ({
       shouldOpenOnLongPress
       disabled={isLoading}
       onPress={toolTipOnPress}
+      testID={type === 'default' ? testID : undefined}
       buttonStyle={menuButtonStyle}
       accessibilityLabel={loc.send.details_scan}
       accessibilityHint={loc.send.details_scan_hint}
@@ -168,6 +169,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
+    minWidth: 82,
+    flexShrink: 0,
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -176,14 +179,14 @@ const styles = StyleSheet.create({
   },
   scanText: {
     marginLeft: 4,
-    flexShrink: 1,
+    flexShrink: 0,
     textAlignVertical: 'center',
   },
   scanContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 1,
+    flexShrink: 0,
   },
   linkText: {
     textAlign: 'center',

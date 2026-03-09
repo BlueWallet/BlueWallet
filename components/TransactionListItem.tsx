@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, memo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Linking, Text, TextStyle, ViewStyle, StyleSheet } from 'react-native';
+import { Linking, Text, TextStyle, ViewStyle, StyleSheet, View } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -25,6 +25,7 @@ import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import ListItem from './ListItem';
 
 const styles = StyleSheet.create({
   pressable: {
@@ -455,12 +456,12 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         <ListItem
           leftAvatar={avatar}
           title={listTitle}
-          subtitle={<Text style={dateLineStyle}>{dateLine}</Text>}
+          subtitle={<Text style={styles.dateLine}>{dateLine}</Text>}
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
           rightSubtitle={noteForCopy}
-          rightSubtitleStyle={rightMemoStyle}
+          rightSubtitleStyle={styles.rightColumn}
           containerStyle={combinedStyle}
           testID="TransactionListItem"
           accessibilityRole="button"

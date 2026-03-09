@@ -378,7 +378,7 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           title: loc.settings.password,
           presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
+          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
           sheetGrabberVisible: true,
           closeButtonPosition: CloseButtonPosition.Right,
           headerBackButtonDisplayMode: 'minimal',
@@ -409,8 +409,8 @@ const DetailViewStackScreensStack = () => {
         component={ReceiveCustomAmountSheet}
         options={navigationStyle({
           presentation: 'formSheet',
-          sheetAllowedDetents: 'fitToContents',
-          headerTitle: '',
+          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
+          headerTitle: loc.receive.details_setAmount,
           sheetGrabberVisible: true,
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}

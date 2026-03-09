@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import Icon from './Icon';

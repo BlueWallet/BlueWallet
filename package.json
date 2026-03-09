@@ -68,6 +68,7 @@
     "start": "react-native start",
     "android": "react-native run-android",
     "android:relaunch": "adb shell am force-stop io.bluewallet.bluewallet; adb shell monkey -p io.bluewallet.bluewallet -c android.intent.category.LAUNCHER 1",
+    "android:uninstall": "adb uninstall io.bluewallet.bluewallet",
     "adb": "adb reverse tcp:8081 tcp:8081",
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; rm -r -f android/app/.cxx; npm run android",
     "android:restart": "adb shell am force-stop io.bluewallet.bluewallet; adb shell monkey -p io.bluewallet.bluewallet -c android.intent.category.LAUNCHER 1",

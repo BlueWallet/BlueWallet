@@ -1,18 +1,7 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
-import {
-  ActivityIndicator,
-  FlatList,
-  InteractionManager,
-  Keyboard,
-  LayoutAnimation,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
 import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
@@ -32,7 +21,6 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 type MultisigStep2Params = {
   m: number;
@@ -563,6 +551,7 @@ const WalletsAddMultisigStep2 = () => {
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index && vaultKeyData.isLoading}
               button={{
+                testID: 'VaultKeyGenerate',
                 buttonType: MultipleStepsListItemButtonType.Full,
                 onPress: () => {
                   setVaultKeyData({ keyIndex: el.index, xpub: '', seed: '', isLoading: true });
@@ -616,175 +605,6 @@ const WalletsAddMultisigStep2 = () => {
       }
     }
     return component;
-  };
-
-  const dismissMnemonicsModal = async () => {
-    await mnemonicsModalRef.current?.dismiss();
-  };
-
-  const renderMnemonicsModal = () => {
-    return (
-      <BottomModal
-        ref={mnemonicsModalRef}
-        isGrabberVisible={false}
-        dismissible={false}
-        showCloseButton={!isLoading}
-        sizes={[Platform.OS === 'ios' ? 'auto' : '80%']}
-        backgroundColor={colors.modal}
-        footer={
-          <View style={styles.modalFooterBottomPadding}>
-            {isLoading ? <ActivityIndicator /> : <Button title={loc.send.success_done} onPress={dismissMnemonicsModal} />}
-          </View>
-        }
-      >
-        <View style={styles.itemKeyUnprovidedWrapper}>
-          <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-            <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
-          </View>
-          <View style={styles.vaultKeyTextWrapper}>
-            <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-              {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
-            </Text>
-          </View>
-        </View>
-        <BlueSpacing20 />
-        <Text style={[styles.headerText, stylesHook.textDestination]}>{loc.multisig.wallet_key_created}</Text>
-        <BlueSpacing20 />
-        <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
-        <BlueSpacing10 />
-        <View style={[styles.secretContainer, stylesHook.secretContainer]}>{renderSecret(vaultKeyData.seed.split(' '))}</View>
-        <BlueSpacing20 />
-      </BottomModal>
-    );
-  };
-
-  const toolTipActions = useMemo(() => {
-    const passphrase = CommonToolTipActions.Passphrase;
-    passphrase.menuState = askPassphrase;
-    return [passphrase];
-  }, [askPassphrase]);
-
-  const renderProvideMnemonicsModal = () => {
-    const opacity = isVisible ? 0 : 1;
-    return (
-      <BottomModal
-        footer={
-          <View style={[styles.modalFooterBottomPadding, { opacity }]}>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <>
-                <Button
-                  testID="DoImportKeyButton"
-                  disabled={importText.trim().length === 0}
-                  title={loc.wallets.import_do_import}
-                  onPress={utilizeMnemonicPhrase}
-                />
-                <View style={styles.height16} />
-
-                <AddressInputScanButton
-                  beforePress={async () => {
-                    await provideMnemonicsModalRef.current?.dismiss();
-                  }}
-                  testID="ScanOrOpenFile"
-                  type="link"
-                  isLoading={isLoading}
-                  onChangeText={setImportText}
-                />
-              </>
-            )}
-          </View>
-        }
-        ref={provideMnemonicsModalRef}
-        backgroundColor={colors.modal}
-        contentContainerStyle={styles.provideMnemonicsModalStyle}
-        isGrabberVisible={false}
-        showCloseButton={true}
-        sizes={['auto']}
-        onDismiss={() => {
-          Keyboard.dismiss();
-          setImportText('');
-          setAskPassphrase(false);
-        }}
-        header={
-          <ToolTipMenu
-            isButton
-            isMenuPrimaryAction
-            onPressMenuItem={_id => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-              setAskPassphrase(!askPassphrase);
-            }}
-            actions={toolTipActions}
-            style={[styles.askPassprase, stylesHook.askPassphrase]}
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </ToolTipMenu>
-        }
-      >
-        <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-        <BlueSpacing20 />
-        <View style={styles.multiLineTextInput}>
-          <BlueFormMultiInput value={importText} onChangeText={setImportText} inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID} />
-          {Platform.select({
-            ios: (
-              <DoneAndDismissKeyboardInputAccessory
-                onClearTapped={() => setImportText('')}
-                onPasteTapped={async () => {
-                  const paste = await Clipboard.getString();
-                  setImportText(paste);
-                }}
-              />
-            ),
-          })}
-          <BlueSpacing20 />
-        </View>
-      </BottomModal>
-    );
-  };
-
-  const hideCosignersXpubModal = () => {
-    Keyboard.dismiss();
-    renderCosignersXpubModalRef.current?.dismiss();
-  };
-
-  const renderCosignersXpubModal = () => {
-    return (
-      <BottomModal
-        onClose={hideCosignersXpubModal}
-        ref={renderCosignersXpubModalRef}
-        backgroundColor={colors.modal}
-        shareContent={{ fileContent: cosignerXpub, fileName: cosignerXpubFilename }}
-        footerDefaultMargins
-        contentContainerStyle={styles.modalContent}
-        footer={<View style={styles.modalFooterBottomPadding}>{isLoading ? <ActivityIndicator /> : null}</View>}
-      >
-        <Text style={[styles.headerText, stylesHook.textDestination]}>
-          {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-        </Text>
-        <BlueSpacing20 />
-        <View style={styles.qrContainer}>
-          <QRCodeComponent value={cosignerXpubURv2} size={260} />
-        </View>
-        <BlueSpacing20 />
-      </BottomModal>
-    );
-  };
-
-  const renderHelp = () => {
-    const opacity = isLoading ? 0.5 : 1;
-    return (
-      <View style={[styles.helpButtonWrapper, stylesHook.helpButtonWrapper]}>
-        <TouchableOpacity
-          accessibilityRole="button"
-          style={[styles.helpButton, stylesHook.helpButton, { opacity }]}
-          onPress={handleOnHelpPress}
-          disabled={isLoading}
-        >
-          <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
-          <Text style={[styles.helpButtonText, stylesHook.helpButtonText]}>{loc.multisig.ms_help}</Text>
-        </TouchableOpacity>
-      </View>
-    );
   };
 
   const footer = (

@@ -14,6 +14,7 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
+import { BlueButtonLink } from '../../BlueComponents';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
@@ -155,7 +156,7 @@ const IsItMyAddress: React.FC = () => {
             placeholder={loc.is_it_my_address.enter_address}
             placeholderTextColor={colors.placeholderTextColor}
             value={address}
-            onChangeText={handleUpdateAddress}
+            onChangeText={setAddress}
             testID="AddressInput"
           />
           {address.length > 0 && (

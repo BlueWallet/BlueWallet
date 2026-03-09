@@ -5,6 +5,7 @@ import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
 import {
+  Animated,
   ActivityIndicator,
   Keyboard,
   LayoutAnimation,
@@ -32,6 +33,8 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
+import ListItem from '../../components/ListItem';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -127,6 +130,16 @@ const OutputList: React.FC<TOutputListProps> = ({
   if (selectionStarted) {
     onPress = selected ? onDeSelect : onSelect;
   }
+
+  const oStyles = StyleSheet.create({
+    container: { paddingHorizontal: 0, borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
+    avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
+    amount: { fontWeight: 'bold', color: colors.foregroundColor },
+    tranContainer: { paddingLeft: 20 },
+    tranText: { fontWeight: 'normal', fontSize: 13, color: colors.alternativeTextColor },
+    memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
+    containerSelected: { backgroundColor: 'red' }, // fixme
+  });
 
   return (
     <Pressable onPress={onPress} style={[styles.listRow, selected ? oStyles.containerSelected : oStyles.container]}>
@@ -495,40 +508,10 @@ const CoinControl: React.FC = () => {
           <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
         </View>
       )}
-
-      <BottomModal
-        ref={bottomModalRef}
-        onClose={() => {
-          Keyboard.dismiss();
-          setOutput(undefined);
-        }}
-        backgroundColor={colors.elevated}
-        contentContainerStyle={styles.modalMinHeight}
-        footer={
-          <View style={mStyles.buttonContainer}>
-            {!isVisible && (
-              <Button
-                testID="UseCoin"
-                title={loc.cc.use_coin}
-                onPress={async () => {
-                  if (!output) throw new Error('output is not set');
-                  await bottomModalRef.current?.dismiss();
-                  handleUseCoin([output]);
-                }}
-              />
-            )}
-          </View>
-        }
-      >
-        {renderOutputModalContent(output)}
-      </BottomModal>
-      <SafeAreaFlatList
-        ListHeaderComponent={tipCoins}
-        data={utxos}
-        renderItem={renderItem}
-        keyExtractor={item => `${item.txid}:${item.vout}`}
-        contentContainerStyle={styles.listContainerContent}
-      />
+      <SafeAreaScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.listContent}>
+        {tipCoins()}
+        {utxos.map(renderItem)}
+      </SafeAreaScrollView>
 
       {selectionStarted && (
         <FContainer>
@@ -586,11 +569,45 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   listContent: {
-    flex: 1,
-    marginLeft: 12,
+    paddingBottom: 70,
   },
-  listContainerContent: {
-    paddingBottom: 16,
+  badge: {
+    borderWidth: 0,
+    marginLeft: 4,
+  },
+  badgeText: {
+    marginTop: -1,
+  },
+  tipOuter: {
+    marginVertical: 24,
+    marginHorizontal: 16,
+  },
+  tipOverflow: {
+    overflow: 'hidden',
+  },
+  tipContainer: {
+    borderRadius: 12,
+    padding: 16,
+  },
+  tipAbsolute: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+  },
+  outputContainer: {
+    borderBottomColor: 'rgba(0, 0, 0, 0)',
+  },
+  outputAvatar: {
+    borderColor: 'white',
+    borderWidth: 1,
+  },
+  outputAmount: {
+    fontWeight: 'bold',
+  },
+  outputMemo: {
+    fontSize: 13,
+    marginTop: 3,
   },
 });
 

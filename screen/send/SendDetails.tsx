@@ -1439,18 +1439,28 @@ const SendDetails = () => {
         <View style={styles.addressInputContainer}>
           <AddressInput
             onChangeText={text => {
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text.trim());
+              const trimmedText = text.trim();
+              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
+              const hasPositiveAmount = Number(amount) > 0;
               setAddresses(addrs => {
-                item.address = address || text.trim();
-                item.amount = amount || item.amount;
-                addrs[index] = item;
-                return [...addrs];
+                const updatedAddresses = [...addrs];
+                const updatedItem = { ...updatedAddresses[index] };
+                updatedItem.address = address || trimmedText;
+
+                if (hasPositiveAmount) {
+                  updatedItem.amount = amount;
+                  updatedItem.amountSats = btcToSatoshi(amount!);
+                  updatedItem.unit = BitcoinUnit.BTC;
+                }
+
+                updatedAddresses[index] = updatedItem;
+                return updatedAddresses;
               });
               if (memo) {
                 setParams({ transactionMemo: memo });
               }
               setIsLoading(false);
-              setParams({ payjoinUrl: pjUrl });
+              setParams(hasPositiveAmount ? { payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: pjUrl });
             }}
             address={item.address}
             isLoading={isLoading}

@@ -8,6 +8,7 @@ import { SendDetailsStackParamList } from './SendDetailsStackParamList';
 import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
+import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 

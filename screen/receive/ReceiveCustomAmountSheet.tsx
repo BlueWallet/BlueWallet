@@ -36,9 +36,6 @@ const ReceiveCustomAmountSheet = () => {
       customAmountText: {
         color: colors.foregroundColor,
       },
-      modalButton: {
-        backgroundColor: colors.modalButton,
-      },
     }),
     [colors],
   );
@@ -143,19 +140,25 @@ const ReceiveCustomAmountSheet = () => {
         <BlueSpacing20 />
         <BlueSpacing20 />
         <View style={styles.modalButtonContainer}>
-          <Button
-            testID="CustomAmountResetButton"
-            style={[styles.modalButton, stylesHook.modalButton]}
-            title={loc.receive.reset}
-            onPress={handleReset}
-          />
+          <View style={styles.modalButton}>
+            <Button
+              testID="CustomAmountResetButton"
+              backgroundColor={colors.modalButton}
+              buttonTextColor={colors.foregroundColor}
+              title={loc.receive.reset}
+              onPress={handleReset}
+            />
+          </View>
           <View style={styles.modalButtonSpacing} />
-          <Button
-            testID="CustomAmountSaveButton"
-            style={[styles.modalButton, stylesHook.modalButton]}
-            title={loc.receive.details_create}
-            onPress={handleSave}
-          />
+          <View style={styles.modalButton}>
+            <Button
+              testID="CustomAmountSaveButton"
+              backgroundColor={colors.modalButton}
+              buttonTextColor={colors.foregroundColor}
+              title={loc.receive.details_create}
+              onPress={handleSave}
+            />
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -183,13 +186,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   modalButton: {
-    paddingVertical: 14,
-    minWidth: 100,
-    paddingHorizontal: 16,
-    borderRadius: 50,
-    fontWeight: '700',
     flex: 0.5,
-    alignItems: 'center',
   },
   modalButtonContainer: {
     flexDirection: 'row',
