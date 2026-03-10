@@ -392,8 +392,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const _handleUseMnemonicPhrase = useCallback(
-    (mnemonic: string, passphrase?: string) => {
-      if (!wallet || !currentlyEditingCosignerNum) {
+    (mnemonic: string, passphrase?: string, cosignerNumOverride?: number) => {
+      const cosignerNum = cosignerNumOverride ?? currentlyEditingCosignerNum;
+      if (!wallet || !cosignerNum) {
         // failsafe
         return;
       }
@@ -402,7 +403,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       hd.setSecret(mnemonic);
       if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
       try {
-        wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
+        wallet.replaceCosignerXpubWithSeed(cosignerNum, hd.getSecret(), passphrase);
       } catch (e: any) {
         console.log(e);
         return presentAlert({ message: e.message });
@@ -418,7 +419,11 @@ const ViewEditMultisigCosigners: React.FC = () => {
   );
 
   const handleUseMnemonicPhrase = useCallback(
-    async ({ mnemonicOverride, askPassphraseOverride }: { mnemonicOverride?: string; askPassphraseOverride?: boolean } = {}) => {
+    async ({
+      mnemonicOverride,
+      askPassphraseOverride,
+      cosignerNumOverride,
+    }: { mnemonicOverride?: string; askPassphraseOverride?: boolean; cosignerNumOverride?: number } = {}) => {
       const mnemonicToUse = (mnemonicOverride ?? importText).trim();
       if (!mnemonicToUse) return;
       const shouldAskPassphrase = askPassphraseOverride ?? askPassphrase;
@@ -434,7 +439,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
           throw e;
         }
       }
-      return _handleUseMnemonicPhrase(mnemonicToUse, passphrase);
+      return _handleUseMnemonicPhrase(mnemonicToUse, passphrase, cosignerNumOverride);
     },
     [askPassphrase, importText, _handleUseMnemonicPhrase],
   );
@@ -456,15 +461,30 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   useEffect(() => {
     if (route.params.sheetAction === 'importMnemonic' && route.params.sheetImportText) {
+      const targetCosignerNum = route.params.sheetCurrentlyEditingCosignerNum;
+      if (targetCosignerNum) setCurrentlyEditingCosignerNum(targetCosignerNum);
       setImportText(route.params.sheetImportText);
       setAskPassphrase(!!route.params.sheetAskPassphrase);
       handleUseMnemonicPhrase({
         mnemonicOverride: route.params.sheetImportText,
         askPassphraseOverride: route.params.sheetAskPassphrase,
+        cosignerNumOverride: targetCosignerNum,
       });
-      setParams({ sheetAction: undefined, sheetImportText: undefined, sheetAskPassphrase: undefined });
+      setParams({
+        sheetAction: undefined,
+        sheetImportText: undefined,
+        sheetAskPassphrase: undefined,
+        sheetCurrentlyEditingCosignerNum: undefined,
+      });
     }
-  }, [handleUseMnemonicPhrase, route.params.sheetAction, route.params.sheetImportText, route.params.sheetAskPassphrase, setParams]);
+  }, [
+    handleUseMnemonicPhrase,
+    route.params.sheetAction,
+    route.params.sheetImportText,
+    route.params.sheetAskPassphrase,
+    route.params.sheetCurrentlyEditingCosignerNum,
+    setParams,
+  ]);
 
   if (isLoading)
     return (

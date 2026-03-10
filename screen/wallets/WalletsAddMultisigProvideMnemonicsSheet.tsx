@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Platform, StyleSheet, Switch, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -68,7 +68,7 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
-      <View style={styles.flex}>
+      <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always">
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
@@ -95,12 +95,7 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
           <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
         </View>
         <BlueSpacing20 />
-        <Button
-          testID="DoImportKeyButton"
-          disabled={importText.trim().length === 0}
-          title={loc.wallets.import_do_import}
-          onPress={() => handleImport()}
-        />
+        <Button testID="DoImportKeyButton" title={loc.wallets.import_do_import} onPress={() => handleImport()} />
         <BlueSpacing20 />
         <AddressInputScanButton
           type="link"
@@ -110,7 +105,7 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
             handleScanResult(text);
           }}
         />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -120,8 +115,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 22,
   },
-  flex: {
-    flex: 1,
+  contentContainer: {
+    flexGrow: 1,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -130,6 +125,8 @@ const styles = StyleSheet.create({
   },
   mnemonicInput: {
     minHeight: 220,
+    maxHeight: 220,
+    flex: 0,
     marginHorizontal: 0,
   },
 });

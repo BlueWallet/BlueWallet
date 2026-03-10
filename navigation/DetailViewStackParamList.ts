@@ -114,6 +114,7 @@ export type DetailViewStackParamList = {
     sheetAction?: string;
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
+    sheetCurrentlyEditingCosignerNum?: number;
   };
   ViewEditMultisigCosignerViewSheet: { walletID: string; vaultKeyData: VaultKeyData };
   ViewEditMultisigProvideMnemonicsSheet: {

@@ -965,6 +965,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('NavigationCloseButton')).atIndex(0).tap();
     await device.enableSynchronization();
 
+    // go to receive screen and capture current receive address
+    await goBack();
+    await waitForId('ReceiveButton');
+    await element(by.id('ReceiveButton')).tap();
+    await waitForId('AddressValue');
+    const vaultReceiveAddress = await extractTextFromElementById('AddressValue');
+    assert.ok(vaultReceiveAddress && vaultReceiveAddress.length > 20);
+    await goBack();
+    await element(by.id('WalletDetails')).tap();
+
+    console.log('vaultReceiveAddress', vaultReceiveAddress);
+
     // test View/Edit Cosigners
     await waitFor(element(by.id('ViewEditCosigners')))
       .toBeVisible()
@@ -996,6 +1008,52 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .withTimeout(33000);
     await element(by.id('VaultCosignersSave')).tap();
     await waitForId('WalletsList');
+
+    // verify receive address remains unchanged after forgetting cosigner 3 seed
+    await scrollUpOnHomeScreen();
+    await waitForId('Multisig Vault');
+    await element(by.id('Multisig Vault')).tap();
+    await waitForId('ReceiveButton');
+    await element(by.id('ReceiveButton')).tap();
+    await element(by.text('Yes, I have.')).tap();
+    await waitForId('AddressValue');
+    const vaultReceiveAddressAfterCosignerSave = await extractTextFromElementById('AddressValue');
+    assert.strictEqual(vaultReceiveAddressAfterCosignerSave, vaultReceiveAddress);
+
+    // go back to manage keys, restore seed for cosigner 3, and save
+    await goBack();
+    await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.id('ViewEditCosigners')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
+    await element(by.id('ViewEditCosigners')).tap();
+    await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
+      .toBeVisible()
+      .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
+      .scroll(100, 'down');
+    await element(by.id('VaultCosignerImportMnemonics3')).tap();
+    await waitForId('MnemonicInputSheet');
+    await element(by.id('MnemonicInputSheet')).replaceText(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+    );
+    await element(by.id('DoImportKeyButton')).tap();
+    await waitFor(element(by.id('VaultCosignersSave')))
+      .toBeVisible()
+      .withTimeout(33000);
+    await element(by.id('VaultCosignersSave')).tap();
+    await waitForId('WalletsList');
+
+    // verify receive address remains unchanged after restoring cosigner 3 seed
+    await scrollUpOnHomeScreen();
+    await waitForId('Multisig Vault');
+    await element(by.id('Multisig Vault')).tap();
+    await waitForId('ReceiveButton');
+    await element(by.id('ReceiveButton')).tap();
+    await element(by.text('Yes, I have.')).tap();
+    await waitForId('AddressValue');
+    const vaultReceiveAddressAfterCosignerRestore = await extractTextFromElementById('AddressValue');
+    assert.strictEqual(vaultReceiveAddressAfterCosignerRestore, vaultReceiveAddress);
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });

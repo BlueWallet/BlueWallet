@@ -1,5 +1,6 @@
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
+import { Platform } from 'react-native';
 import UnlockWith from '../screen/UnlockWith';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
@@ -57,6 +58,7 @@ const LazyExportMultisigCoordinationSetupStack = withLazySuspense(ExportMultisig
 const LazyViewEditMultisigCosigners = withLazySuspense(ViewEditMultisigCosigners);
 const LazySignVerifyStackRoot = withLazySuspense(SignVerifyStackRoot);
 const LazyScanQRCodeComponent = withLazySuspense(ScanQRCode);
+const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
 const MainRoot = () => {
   const { walletsInitialized } = useStorage();
@@ -109,7 +111,7 @@ const MainRoot = () => {
             component={ViewEditMultisigCosignerViewSheet}
             options={navigationStyle({
               presentation: 'formSheet',
-              sheetAllowedDetents: 'fitToContents',
+              sheetAllowedDetents: multisigSheetAllowedDetents,
               sheetGrabberVisible: true,
               closeButtonPosition: CloseButtonPosition.Right,
               headerShown: true,
@@ -121,7 +123,7 @@ const MainRoot = () => {
             component={ViewEditMultisigProvideMnemonicsSheet}
             options={navigationStyle({
               presentation: 'formSheet',
-              sheetAllowedDetents: 'fitToContents',
+              sheetAllowedDetents: multisigSheetAllowedDetents,
               sheetGrabberVisible: true,
               closeButtonPosition: CloseButtonPosition.Right,
               headerShown: true,
@@ -133,7 +135,7 @@ const MainRoot = () => {
             component={ViewEditMultisigShareCosignerSheet}
             options={navigationStyle({
               presentation: 'formSheet',
-              sheetAllowedDetents: 'fitToContents',
+              sheetAllowedDetents: multisigSheetAllowedDetents,
               sheetGrabberVisible: true,
               closeButtonPosition: CloseButtonPosition.Right,
               headerShown: true,

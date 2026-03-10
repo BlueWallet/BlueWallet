@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { Platform, StyleSheet, Switch, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { BlueFormLabel, BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
@@ -20,7 +20,12 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigProvideMnemonicsSheet'>>();
   const { colors } = useTheme();
-  const { importText: initialImportText = '', askPassphrase: initialAskPassphrase = false, walletID } = route.params;
+  const {
+    importText: initialImportText = '',
+    askPassphrase: initialAskPassphrase = false,
+    walletID,
+    currentlyEditingCosignerNum,
+  } = route.params;
 
   const [importText, setImportText] = useState(initialImportText);
   const [askPassphrase, setAskPassphrase] = useState(initialAskPassphrase);
@@ -29,25 +34,27 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
     (text?: string) => {
       const textToUse = (text ?? importText).trim();
       if (!textToUse) return;
-      navigation.navigate(
-        'ViewEditMultisigCosigners',
-        {
-          walletID,
-          cosigners: [],
-          sheetAction: 'importMnemonic',
-          sheetImportText: textToUse,
-          sheetAskPassphrase: askPassphrase,
-        },
-        { merge: true },
+      navigation.dispatch(
+        StackActions.popTo(
+          'ViewEditMultisigCosigners',
+          {
+            walletID,
+            cosigners: [],
+            sheetAction: 'importMnemonic',
+            sheetImportText: textToUse,
+            sheetAskPassphrase: askPassphrase,
+            sheetCurrentlyEditingCosignerNum: currentlyEditingCosignerNum,
+          },
+          { merge: true },
+        ),
       );
-      navigation.goBack();
     },
-    [askPassphrase, importText, navigation, walletID],
+    [askPassphrase, importText, navigation, walletID, currentlyEditingCosignerNum],
   );
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
-      <View style={styles.flex}>
+      <ScrollView contentContainerStyle={styles.contentContainer} keyboardShouldPersistTaps="always">
         <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
         <BlueSpacing20 />
         <BlueFormMultiInput
@@ -74,12 +81,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
           <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
         </View>
         <BlueSpacing20 />
-        <Button
-          testID="DoImportKeyButton"
-          disabled={importText.trim().length === 0}
-          title={loc.wallets.import_do_import}
-          onPress={() => handleImport()}
-        />
+        <Button testID="DoImportKeyButton" title={loc.wallets.import_do_import} onPress={() => handleImport()} />
         <BlueSpacing20 />
         <AddressInputScanButton
           type="link"
@@ -89,7 +91,7 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
             handleImport(text);
           }}
         />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -99,8 +101,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 22,
   },
-  flex: {
-    flex: 1,
+  contentContainer: {
+    flexGrow: 1,
   },
   toggleRow: {
     flexDirection: 'row',
@@ -109,6 +111,8 @@ const styles = StyleSheet.create({
   },
   mnemonicInput: {
     minHeight: 220,
+    maxHeight: 220,
+    flex: 0,
     marginHorizontal: 0,
   },
 });
