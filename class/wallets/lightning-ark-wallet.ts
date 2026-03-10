@@ -310,6 +310,18 @@ export class LightningArkWallet extends LightningCustodianWallet {
       });
     }
 
+    // Build a set of amounts from settled Lightning receive swaps so we can
+    // skip the duplicate Ark transaction history entries (the claimed VTXO
+    // shows up in both _swapHistory and _transactionsHistory).
+    const swapReceiveAmounts = new Map<number, number>();
+    for (const swap of this._swapHistory) {
+      if (swap.status === 'invoice.settled') {
+        // @ts-ignore properties do exist
+        const amt: number = swap.response.onchainAmount || swap.response.expectedAmount || 0;
+        swapReceiveAmounts.set(amt, (swapReceiveAmounts.get(amt) || 0) + 1);
+      }
+    }
+
     for (const boardingTx of this._boardingUtxos) {
       ret.push({
         type: 'bitcoind_tx',
@@ -322,7 +334,15 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
 
     for (const histTx of this._transactionsHistory) {
-      if (!histTx.settled) continue;
+      // Skip RECEIVED non-boarding entries that are already covered by a
+      // swap history entry (Lightning receives via Boltz reverse swap).
+      if (histTx.type === 'RECEIVED' && !histTx.key.boardingTxid) {
+        const count = swapReceiveAmounts.get(histTx.amount);
+        if (count && count > 0) {
+          swapReceiveAmounts.set(histTx.amount, count - 1);
+          continue;
+        }
+      }
 
       let description: string;
       if (histTx.key.boardingTxid) {
@@ -333,6 +353,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
         description = 'Sent';
       }
 
+      // Sent transactions are always considered settled (matching reference app behavior).
+      // Received transactions use the actual settled flag from the Ark SDK.
+      const isSettled = histTx.type === 'SENT' ? true : histTx.settled;
+
       ret.push({
         type: 'bitcoind_tx',
         walletID,
@@ -340,7 +364,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         memo: description,
         value: histTx.type === 'SENT' ? -histTx.amount : histTx.amount,
         timestamp: Math.floor(histTx.createdAt / 1000),
-        confirmations: 3, // settled Ark transactions are final
+        confirmations: isSettled ? 3 : 0,
       });
     }
 
