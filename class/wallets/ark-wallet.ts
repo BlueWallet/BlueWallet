@@ -1,7 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
-import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
-import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
+import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction, RestArkProvider, RestIndexerProvider } from '@arkade-os/sdk';
+import { RealmWalletRepository, RealmContractRepository, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm';
 
 import BIP32Factory from 'bip32';
 
@@ -101,33 +100,17 @@ export class ArkWallet extends AbstractWallet {
     try {
       const identity = this._getIdentity();
 
-      class ArkCustomStorage {
-        async getItem(key: string): Promise<string | null> {
-          return await AsyncStorage.getItem(`${namespace}_${key}`);
-        }
-
-        async setItem(key: string, value: string): Promise<void> {
-          return await AsyncStorage.setItem(`${namespace}_${key}`, value);
-        }
-
-        async removeItem(key: string): Promise<void> {
-          await AsyncStorage.removeItem(`${namespace}_${key}`);
-        }
-
-        async clear(): Promise<void> {
-          // nop
-        }
-      }
-
-      const storage = new ArkCustomStorage();
+      const realm = await getArkadeRealm(namespace);
+      const walletRepository = new RealmWalletRepository(realm as any);
+      const contractRepository = new RealmContractRepository(realm as any);
 
       if (!staticWalletCache[namespace]) {
         const wallet = await Wallet.create({
-          storage,
           identity,
-          arkProvider: new ExpoArkProvider(this._arkServerUrl),
-          indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
+          arkProvider: new RestArkProvider(this._arkServerUrl),
+          indexerProvider: new RestIndexerProvider(this._arkServerUrl),
           arkServerPublicKey: this._arkServerPublicKey,
+          storage: { walletRepository, contractRepository },
         });
         staticWalletCache[namespace] = wallet;
       }
