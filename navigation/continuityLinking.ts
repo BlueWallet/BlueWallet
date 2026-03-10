@@ -1,14 +1,12 @@
 import { LinkingOptions } from '@react-navigation/native';
-import { NativeModules, NativeEventEmitter, Linking, Alert, Platform } from 'react-native';
-import DefaultPreference from 'react-native-default-preference';
+import { NativeModules, NativeEventEmitter, Linking, Alert } from 'react-native';
 import { ContinuityActivityType } from '../components/types';
 import { navigationRef, navigate } from '../NavigationService';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import loc from '../loc';
-import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
+import { setLNDHub } from '../helpers/lndHub';
 
-const CONTINUITY_PREFIX = 'continuity://';
-const CONTINUITY_STORAGE_KEY = 'HandOff';
+const CONTINUITY_PREFIX = 'bluewallet://';
 
 const EventEmitter = NativeModules.EventEmitter;
 const eventEmitter = EventEmitter ? new NativeEventEmitter(EventEmitter) : null;
@@ -19,8 +17,6 @@ interface UserActivityData {
   webpageURL?: string;
   title?: string;
 }
-
-// ── URL construction ────────────────────────────────────────
 
 function buildQuery(params: Record<string, string | number | undefined>): string {
   const parts: string[] = [];
@@ -63,21 +59,12 @@ function activityToURL(data: UserActivityData): string | null {
         transactionMemo: userInfo.memo,
       })}`;
 
+    case ContinuityActivityType.LightningSettings:
+      if (!userInfo.url) return null;
+      return `${CONTINUITY_PREFIX}lightningsettings${buildQuery({ url: userInfo.url })}`;
+
     default:
       return null;
-  }
-}
-
-// ── Helpers ─────────────────────────────────────────────────
-
-async function isEnabled(): Promise<boolean> {
-  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return false;
-  try {
-    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    const value = await DefaultPreference.get(CONTINUITY_STORAGE_KEY);
-    return value === 'true';
-  } catch {
-    return false;
   }
 }
 
@@ -119,29 +106,47 @@ function handleSendOnchainConflict(data: UserActivityData, listener: (url: strin
   ]);
 }
 
-// ── Subscriber reference for deferred initial-activity check ─
+function handleLightningSettingsReceived(data: UserActivityData): void {
+  const { userInfo = {} } = data;
+  const url = userInfo.url;
+  if (!url) return;
+
+  Alert.alert(
+    loc.settings.continuity_lndhub_title,
+    loc.formatString(loc.settings.continuity_lndhub_message, { url }) as string,
+    [
+      { text: loc._.cancel, style: 'cancel' },
+      {
+        text: loc.settings.continuity_lndhub_apply,
+        onPress: () => {
+          setLNDHub(url)
+            .then(() => {
+              navigate('LightningSettings', { url });
+            })
+            .catch(err => console.error('[Continuity] Failed to set LNDHub:', err));
+        },
+      },
+    ],
+  );
+}
 
 let _listener: ((url: string) => void) | null = null;
 
-/**
- * Process the most recent continuity activity stored in native defaults.
- * Called by useContinuityListener after wallets finish initialising so that
- * cold-start activities are handled only once the target screens exist.
- */
 export function processInitialContinuityActivity(): void {
   if (!_listener || !EventEmitter?.getMostRecentUserActivity) return;
   const listener = _listener;
 
-  isEnabled()
-    .then(enabled => {
-      if (!enabled) return;
-      return EventEmitter.getMostRecentUserActivity();
-    })
+  EventEmitter.getMostRecentUserActivity()
     .then((data: UserActivityData | null | undefined) => {
       if (!data?.activityType) return;
 
       if (data.activityType === ContinuityActivityType.ViewInBlockExplorer) {
         openExternalURL(data.webpageURL);
+        return;
+      }
+
+      if (data.activityType === ContinuityActivityType.LightningSettings) {
+        handleLightningSettingsReceived(data);
         return;
       }
 
@@ -151,13 +156,11 @@ export function processInitialContinuityActivity(): void {
     .catch(() => console.debug('[Continuity] No initial activity'));
 }
 
-// ── Linking configuration ───────────────────────────────────
-
 const continuityLinking: LinkingOptions<DetailViewStackParamList> = {
   prefixes: [CONTINUITY_PREFIX],
 
-  // The nested-screen paths require NavigatorScreenParams in the param-list
-  // types to satisfy the generic, but changing those types is out of scope.
+  filter: (url: string) => url.startsWith(CONTINUITY_PREFIX),
+
   config: {
     screens: {
       DrawerRoot: {
@@ -190,8 +193,6 @@ const continuityLinking: LinkingOptions<DetailViewStackParamList> = {
     },
   } as LinkingOptions<DetailViewStackParamList>['config'],
 
-  // Cold-start activities are handled after wallet init via
-  // processInitialContinuityActivity(), so return null here.
   getInitialURL: async () => null,
 
   subscribe: (listener: (url: string) => void) => {
@@ -200,16 +201,16 @@ const continuityLinking: LinkingOptions<DetailViewStackParamList> = {
     const subscription = eventEmitter?.addListener('onUserActivityOpen', async (data: UserActivityData) => {
       if (!data?.activityType) return;
 
-      const enabled = await isEnabled();
-      if (!enabled) return;
-
-      // External URL — open directly, no in-app navigation
       if (data.activityType === ContinuityActivityType.ViewInBlockExplorer) {
         openExternalURL(data.webpageURL);
         return;
       }
 
-      // SendOnchain: show conflict alert when already on SendDetails
+      if (data.activityType === ContinuityActivityType.LightningSettings) {
+        handleLightningSettingsReceived(data);
+        return;
+      }
+
       if (data.activityType === ContinuityActivityType.SendOnchain) {
         const currentRoute = navigationRef.current?.getCurrentRoute();
         if (currentRoute?.name === 'SendDetails') {
@@ -218,7 +219,6 @@ const continuityLinking: LinkingOptions<DetailViewStackParamList> = {
         }
       }
 
-      // Default: convert to continuity:// URL and let React Navigation resolve it
       const url = activityToURL(data);
       if (url) {
         listener(url);

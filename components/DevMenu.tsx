@@ -194,6 +194,9 @@ const DevMenu: React.FC = () => {
           [ContinuityActivityType.IsItMyAddress]: {
             userInfo: { address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' },
           },
+          [ContinuityActivityType.LightningSettings]: {
+            userInfo: { url: 'https://lndhub.herokuapp.com' },
+          },
         };
 
         const labels: Record<ContinuityActivityType, string> = {
@@ -203,6 +206,7 @@ const DevMenu: React.FC = () => {
           [ContinuityActivityType.SendOnchain]: 'Send Onchain',
           [ContinuityActivityType.SignVerify]: 'Sign / Verify',
           [ContinuityActivityType.IsItMyAddress]: 'Is It My Address',
+          [ContinuityActivityType.LightningSettings]: 'Lightning Settings',
         };
 
         const options: AlertButton[] = Object.values(ContinuityActivityType).map(activityType => ({

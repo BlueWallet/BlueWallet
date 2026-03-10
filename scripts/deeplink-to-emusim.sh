@@ -15,7 +15,7 @@ deepLinks=(
   "zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
 )
 
-testOptions=("Send" "Notification")
+testOptions=("Send" "Notification" "Continuity")
 select_test_type() {
   local ESC=$(printf "\033")
   local selected=0
@@ -55,12 +55,20 @@ select_test_type() {
 }
 select_test_type
 
-# For Notification mode, use only three bare bitcoin addresses
 if [[ "$TEST_TYPE" == "Notification" ]]; then
   deepLinks=(
     "12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG"
     "bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
     "BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE"
+  )
+elif [[ "$TEST_TYPE" == "Continuity" ]]; then
+  deepLinks=(
+    "bluewallet://receiveonchain?address=bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
+    "bluewallet://xpub?walletID=wallet123&xpub=zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
+    "bluewallet://isitmyaddress?address=bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
+    "bluewallet://signverify?walletID=wallet123&address=bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
+    "bluewallet://sendonchain?walletID=wallet123&address=12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG&amount=0.001&amountSats=100000&transactionMemo=Test"
+    "bluewallet://lightningsettings?url=https%3A%2F%2Flndhub.herokuapp.com"
   )
 fi
 

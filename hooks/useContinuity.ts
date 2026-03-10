@@ -22,7 +22,6 @@ const useContinuity = ({ title, type, url, userInfo }: UseContinuityParams): voi
       return;
     }
 
-    // Invalidate previous activity when deps change
     if (activityIdRef.current !== null) {
       NativeModules.ReactNativeContinuity?.invalidate(activityIdRef.current);
       activityIdRef.current = null;

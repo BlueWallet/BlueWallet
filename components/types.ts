@@ -49,4 +49,5 @@ export enum ContinuityActivityType {
   SendOnchain = 'io.bluewallet.bluewallet.sendonchain',
   SignVerify = 'io.bluewallet.bluewallet.signverify',
   IsItMyAddress = 'io.bluewallet.bluewallet.isitmyaddress',
+  LightningSettings = 'io.bluewallet.bluewallet.lightningsettings',
 }

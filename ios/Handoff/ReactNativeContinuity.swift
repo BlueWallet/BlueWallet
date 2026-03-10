@@ -4,7 +4,6 @@ import React
 @objc(ReactNativeContinuity)
 class ReactNativeContinuity: NSObject {
 
-  /// Accessed only on the main thread.
   private var activities: [Int: NSUserActivity] = [:]
 
   @objc
@@ -47,9 +46,6 @@ class ReactNativeContinuity: NSObject {
     }
   }
 
-  /// Returns whether Continuity / Handoff is likely available.
-  /// Checks iCloud sign-in, which is the prerequisite for Handoff.
-  /// Note: There is no public API to query the Handoff toggle in Settings.
   @objc
   func isSupported(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     resolve(FileManager.default.ubiquityIdentityToken != nil)
