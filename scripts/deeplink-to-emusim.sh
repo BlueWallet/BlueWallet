@@ -70,6 +70,8 @@ elif [[ "$TEST_TYPE" == "Continuity" ]]; then
     "bluewallet://sendonchain?walletID=wallet123&address=12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG&amount=0.001&amountSats=100000&transactionMemo=Test"
     "bluewallet://lightningsettings?url=https%3A%2F%2Flndhub.herokuapp.com"
   )
+  # Note: ViewInBlockExplorer activity opens external URLs directly (e.g., mempool.space)
+  # and is not testable via deep links - it uses Linking.openURL() instead of navigation
 fi
 
 select_option() {

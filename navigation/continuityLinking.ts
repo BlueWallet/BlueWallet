@@ -174,6 +174,7 @@ const continuityLinking: LinkingOptions<DetailViewStackParamList> = {
         },
       },
       WalletXpub: 'xpub',
+      LightningSettings: 'lightningsettings',
       SendDetailsRoot: {
         screens: {
           SendDetails: {
@@ -181,6 +182,10 @@ const continuityLinking: LinkingOptions<DetailViewStackParamList> = {
             parse: {
               amount: Number,
               amountSats: Number,
+            },
+            stringify: {
+              amount: (value: number) => String(value),
+              amountSats: (value: number) => String(value),
             },
           },
         },
