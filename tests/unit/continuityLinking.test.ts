@@ -16,14 +16,14 @@ jest.mock('../../helpers/lndHub', () => ({
   setLNDHub: jest.fn(() => Promise.resolve()),
 }));
 
-// Import the module under test after mocks
-import continuityLinking from '../../navigation/continuityLinking';
-
 describe('continuityLinking', () => {
   let mockListener: jest.Mock;
+  let continuityLinking: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.resetModules();
+    continuityLinking = require('../../navigation/continuityLinking').default;
     mockListener = jest.fn();
   });
 
