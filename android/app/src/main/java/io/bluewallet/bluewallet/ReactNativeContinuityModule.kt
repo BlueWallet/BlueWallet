@@ -25,6 +25,10 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : React
         @Volatile
         var currentActivityType: String? = null
             private set
+
+        @Volatile
+        var currentActivityTitle: String? = null
+            private set
     }
 
     private data class ContinuityEntry(
@@ -51,6 +55,7 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : React
         activities[activityId] = entry
 
         currentActivityType = type
+        currentActivityTitle = title
         currentWebUri = entry.webUri
         currentStructuredData = entry.structuredData
 
@@ -66,11 +71,13 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : React
 
         if (activities.isEmpty()) {
             currentActivityType = null
+            currentActivityTitle = null
             currentWebUri = null
             currentStructuredData = null
         } else {
             val latest = activities.maxByOrNull { it.key }!!.value
             currentActivityType = latest.type
+            currentActivityTitle = latest.title
             currentWebUri = latest.webUri
             currentStructuredData = latest.structuredData
         }
