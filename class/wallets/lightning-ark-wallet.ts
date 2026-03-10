@@ -21,8 +21,6 @@ import {
   RealmSwapRepository,
   getArkadeRealm,
 } from '../../blue_modules/arkade-adapters/realm';
-import { fetch } from '../../util/fetch';
-
 import { LightningCustodianWallet } from './lightning-custodian-wallet.ts';
 import { randomBytes } from '../rng.ts';
 import * as bip39 from 'bip39';
@@ -33,6 +31,7 @@ import { Measure } from '../measure.ts';
 const { bech32, bech32m } = require('bech32');
 
 const staticWalletCache: Record<string, Wallet> = {};
+const staticSwapsCache: Record<string, ArkadeSwaps> = {};
 const initLock: Record<string, boolean> = {};
 const boardingLock: Record<string, boolean> = {};
 
@@ -45,12 +44,23 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // @ts-ignore: override
   public readonly typeReadable = LightningArkWallet.typeReadable;
 
-  private _wallet: Wallet | undefined;
-  private _arkadeSwaps: ArkadeSwaps | undefined = undefined;
+  // _wallet and _arkadeSwaps are defined as non-enumerable in the constructor
+  // so that Object.assign (used by saveToDisk) skips them during serialization,
+  // avoiding the need to clear them in prepareForSerialization (which races
+  // with the background sync timer).
+  private _wallet!: Wallet | undefined;
+  private _arkadeSwaps!: ArkadeSwaps | undefined;
   private _arkServerUrl: string = 'https://arkade.computer';
   private _arkServerPublicKey: string = '022b74c2011af089c849383ee527c72325de52df6a788428b68d49e9174053aaba';
 
   private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
+
+  constructor() {
+    super();
+    // Non-enumerable so Object.assign (serialization) skips these runtime-only fields
+    Object.defineProperty(this, '_wallet', { enumerable: false, writable: true, value: undefined });
+    Object.defineProperty(this, '_arkadeSwaps', { enumerable: false, writable: true, value: undefined });
+  }
 
   private _swapHistory: PendingSwap[] = [];
   private _transactionsHistory: ArkTransaction[] = [];
@@ -66,8 +76,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
   };
 
   prepareForSerialization() {
-    this._wallet = undefined;
-    this._arkadeSwaps = undefined;
+    // No-op: _wallet and _arkadeSwaps are non-enumerable, so Object.assign
+    // (used by saveToDisk) already excludes them from the serialized clone.
   }
 
   _getIdentity() {
@@ -182,18 +192,31 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
+  private async _fetchBoltzFeesAndLimits() {
+    assert(this._arkadeSwaps, 'ArkadeSwaps must be initialized first');
+    try {
+      const [fees, limits] = await Promise.all([this._arkadeSwaps.getFees(), this._arkadeSwaps.getLimits()]);
+      this._feePercentage = fees.reverse.percentage ?? 0;
+      this._limitMin = limits.min ?? 333;
+      this._limitMax = limits.max ?? 1000000;
+    } catch (e) {
+      console.log('[ARK] Failed to fetch Boltz fees/limits:', e);
+    }
+  }
+
   async _initLightningSwaps(swapRepository: InstanceType<typeof RealmSwapRepository>) {
     assert(this._wallet, 'Ark wallet must be initialized first');
     assert(this._boltzApiUrl, 'Boltz Api Url is not set');
 
-    // fetching fees boltz takes:
-    const feesResponse = await fetch(this._boltzApiUrl + '/v2/swap/submarine');
-    const feesResponseJson = await feesResponse.json();
-    this._limitMin = feesResponseJson?.ARK?.BTC?.limits?.minimal ?? 333;
-    this._limitMax = feesResponseJson?.ARK?.BTC?.limits?.maximal ?? 1000000;
-    this._feePercentage = feesResponseJson?.ARK?.BTC?.fees?.percentage ?? 0;
-    if (!feesResponseJson?.ARK?.BTC?.fees?.percentage) {
-      console.log('warning: unexpected fees response from boltz:', JSON.stringify(feesResponseJson, null, 2));
+    const namespace = this.getNamespace();
+
+    // Reuse existing ArkadeSwaps instance (and its SwapManager) for this namespace
+    if (staticSwapsCache[namespace]) {
+      this._arkadeSwaps = staticSwapsCache[namespace];
+      if (!this._feePercentage) {
+        await this._fetchBoltzFeesAndLimits();
+      }
+      return;
     }
 
     // Initialize the Lightning swap provider
@@ -202,14 +225,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
       network: 'bitcoin',
     });
 
-    // Create the ArkadeSwaps instance with Realm-backed swap repository and SwapManager
-    // SwapManager monitors swaps via WebSocket and auto-claims/refunds
+    // Create the ArkadeSwaps instance with Realm-backed swap repository
     this._arkadeSwaps = new ArkadeSwaps({
       wallet: this._wallet,
       swapProvider,
       swapRepository,
-      swapManager: true,
     });
+
+    staticSwapsCache[namespace] = this._arkadeSwaps;
+
+    await this._fetchBoltzFeesAndLimits();
   }
 
   async generate(): Promise<void> {
@@ -297,17 +322,26 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
 
     for (const histTx of this._transactionsHistory) {
-      if (histTx.key.boardingTxid && histTx.type === 'RECEIVED' && histTx.settled) {
-        // for now putting on the list only onchain top-up transactions:
-        ret.push({
-          type: 'bitcoind_tx',
-          walletID,
-          description: 'Refill',
-          memo: 'Refill',
-          value: histTx.amount,
-          timestamp: Math.floor(histTx.createdAt / 1000),
-        });
+      if (!histTx.settled) continue;
+
+      let description: string;
+      if (histTx.key.boardingTxid) {
+        description = 'Refill';
+      } else if (histTx.type === 'RECEIVED') {
+        description = 'Received';
+      } else {
+        description = 'Sent';
       }
+
+      ret.push({
+        type: 'bitcoind_tx',
+        walletID,
+        description,
+        memo: description,
+        value: histTx.type === 'SENT' ? -histTx.amount : histTx.amount,
+        timestamp: Math.floor(histTx.createdAt / 1000),
+        confirmations: 3, // settled Ark transactions are final
+      });
     }
 
     // @ts-ignore meh
@@ -400,8 +434,18 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Expiry (seconds):', result.expiry);
     console.log('Lightning Invoice:', result.invoice);
     console.log('Payment Hash:', result.paymentHash);
-    console.log('Pending swap', result.pendingSwap);
-    console.log('Preimage', result.preimage);
+
+    // Monitor the swap in the background and claim the VHTLC when the payer pays the LN invoice.
+    // This is fire-and-forget: the UI polls for balance/invoice changes separately.
+    this._arkadeSwaps
+      .waitAndClaim(result.pendingSwap)
+      .then(() => {
+        console.log('Reverse swap claimed successfully for invoice:', result.invoice);
+      })
+      .catch(err => {
+        // WebSocket may close after the swap is already claimed — this is expected
+        console.warn('waitAndClaim ended with error (swap may already be claimed):', err?.message ?? err);
+      });
 
     return result.invoice;
   }

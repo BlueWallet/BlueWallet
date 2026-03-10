@@ -278,11 +278,14 @@ const LNDCreateInvoice = () => {
       const invoiceRequest = await wallet.current?.addInvoice(+invoiceAmount, description);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
 
-      // lets decode payreq and subscribe groundcontrol so we can receive push notification when our invoice is paid
-      const decoded = await wallet.current?.decodeInvoice(invoiceRequest);
-      tryToObtainPermissions()
-        .then(res => majorTomToGroundControl([], [decoded.payment_hash], []))
-        .catch(err => console.error(err.message));
+      // subscribe groundcontrol so we can receive push notification when our invoice is paid
+      // (not applicable to Ark wallets — they claim via waitAndClaim instead)
+      if (!(wallet.current instanceof LightningArkWallet)) {
+        const decoded = await wallet.current?.decodeInvoice(invoiceRequest);
+        tryToObtainPermissions()
+          .then(res => majorTomToGroundControl([], [decoded.payment_hash], []))
+          .catch(err => console.error(err.message));
+      }
 
       // send to lnurl-withdraw callback url if that exists
       if (lnurlParams) {

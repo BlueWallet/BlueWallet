@@ -181,6 +181,17 @@ const LNDViewInvoice = () => {
           setIsFetchingInvoices(false);
           clearInterval(fetchInvoiceInterval.current);
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          const received = newBalance - initialBalance;
+          setParams({
+            invoice: {
+              ispaid: true,
+              value: received,
+              amt: received,
+              type: 'user_invoice',
+              timestamp: Math.floor(Date.now() / 1000),
+              description: 'Received',
+            },
+          });
           setInvoiceStatusChanged(true);
           fetchAndSaveWalletTransactions(walletID);
         }
