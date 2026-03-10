@@ -12,7 +12,7 @@ import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-
 import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-const { bech32m } = require('bech32');
+const { bech32, bech32m } = require('bech32');
 
 const bip32 = BIP32Factory(ecc);
 
@@ -56,6 +56,13 @@ export class ArkWallet extends AbstractWallet {
 
   _getIdentity() {
     assert(this.secret, 'No secret provided');
+
+    if (this.secret.startsWith('nsec1')) {
+      // nsec import: NIP-19 bech32-encoded raw private key
+      const decoded = bech32.decode(this.secret, 1000);
+      const privKeyBytes = new Uint8Array(bech32.fromWords(decoded.words));
+      return SingleKey.fromPrivateKey(privKeyBytes);
+    }
 
     if (!this._privateKeyCache) {
       const mnemonic = this.secret.replace('ark://', '').trim();

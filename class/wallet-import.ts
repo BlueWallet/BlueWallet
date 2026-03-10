@@ -69,6 +69,7 @@ const startImport = (
   onProgress: (name: string) => void,
   onWallet: (wallet: TWallet) => void,
   onPassword: (title: string, text: string) => Promise<string>,
+  walletType?: string,
 ): TImport => {
   // state
   let promiseResolve: (arg: TStatus) => void;
@@ -129,6 +130,44 @@ const startImport = (
     // 8. check if its a json array from BC-UR with multiple accounts
     let text = importTextOrig.trim();
     let password;
+
+    // If a specific wallet type was requested (e.g. from the Add Wallet screen),
+    // import directly as that type without running generic discovery.
+    if (walletType === ArkWallet.type) {
+      yield { progress: 'ark' };
+      const ark = new ArkWallet();
+      // Accept plain mnemonic, nsec, or prefixed secret
+      if (text.startsWith('nsec1')) {
+        ark.setSecret(text);
+      } else {
+        ark.setSecret(text.startsWith('ark://') ? text : 'ark://' + text);
+      }
+      await ark.init();
+      if (!offline) {
+        await ark.fetchBalance();
+        await ark.fetchTransactions();
+      }
+      yield { wallet: ark };
+      return;
+    }
+
+    if (walletType === LightningArkWallet.type) {
+      yield { progress: 'lightning ark' };
+      const ark = new LightningArkWallet();
+      // Accept plain mnemonic, nsec, or prefixed secret
+      if (text.startsWith('nsec1')) {
+        ark.setSecret(text);
+      } else {
+        ark.setSecret(text.startsWith('arkade://') ? text : 'arkade://' + text);
+      }
+      await ark.init();
+      if (!offline) {
+        await ark.fetchBalance();
+        await ark.fetchTransactions();
+      }
+      yield { wallet: ark };
+      return;
+    }
 
     // BIP38 password required
     if (text.startsWith('6P')) {
