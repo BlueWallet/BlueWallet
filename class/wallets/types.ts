@@ -18,7 +18,6 @@ import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWall
 import { WatchOnlyWallet } from './watch-only-wallet';
 import { TaprootWallet } from './taproot-wallet.ts';
 import { HDTaprootWallet } from './hd-taproot-wallet.ts';
-import { ArkWallet } from './ark-wallet.ts';
 import { LightningArkWallet } from './lightning-ark-wallet.ts';
 
 export type Utxo = {
@@ -147,7 +146,6 @@ export type ExtendedTransaction = Transaction & {
 };
 
 export type TWallet =
-  | ArkWallet
   | HDAezeedWallet
   | HDLegacyBreadwalletWallet
   | HDLegacyElectrumSeedP2PKHWallet

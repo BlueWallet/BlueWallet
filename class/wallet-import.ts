@@ -13,7 +13,6 @@ import {
   HDTaprootWallet,
   LegacyWallet,
   LightningCustodianWallet,
-  ArkWallet,
   LightningArkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
@@ -133,24 +132,6 @@ const startImport = (
 
     // If a specific wallet type was requested (e.g. from the Add Wallet screen),
     // import directly as that type without running generic discovery.
-    if (walletType === ArkWallet.type) {
-      yield { progress: 'ark' };
-      const ark = new ArkWallet();
-      // Accept plain mnemonic, nsec, or prefixed secret
-      if (text.startsWith('nsec1')) {
-        ark.setSecret(text);
-      } else {
-        ark.setSecret(text.startsWith('ark://') ? text : 'ark://' + text);
-      }
-      await ark.init();
-      if (!offline) {
-        await ark.fetchBalance();
-        await ark.fetchTransactions();
-      }
-      yield { wallet: ark };
-      return;
-    }
-
     if (walletType === LightningArkWallet.type) {
       yield { progress: 'lightning ark' };
       const ark = new LightningArkWallet();
@@ -253,19 +234,6 @@ const startImport = (
         await lnd.fetchBalance();
       }
       yield { wallet: lnd };
-    }
-
-    // is it a pure ark wallet?
-    yield { progress: 'ark' };
-    if (text.startsWith('ark://')) {
-      const ark = new ArkWallet();
-      ark.setSecret(text);
-      await ark.init();
-      if (!offline) {
-        await ark.fetchBalance();
-        await ark.fetchTransactions();
-      }
-      yield { wallet: ark };
     }
 
     // is it lightning ark wallet?

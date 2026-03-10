@@ -13,7 +13,6 @@ import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
 import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import { TaprootWallet } from './wallets/taproot-wallet.ts';
-import { ArkWallet } from './wallets/ark-wallet.ts';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 
 export default class WalletGradient {
@@ -73,7 +72,6 @@ export default class WalletGradient {
       case HDAezeedWallet.type:
         gradient = WalletGradient.aezeedWallet;
         break;
-      case ArkWallet.type:
       case LightningArkWallet.type:
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;

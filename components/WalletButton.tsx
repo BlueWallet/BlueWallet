@@ -42,12 +42,6 @@ const buttonDetails: Record<string, ButtonDetails> = {
     explain: loc.wallets.add_lightning_explain,
     borderColorActive: 'lnborderColor',
   },
-  Ark: {
-    image: require('../img/addWallet/bitcoin.png'),
-    title: loc.wallets.add_ark,
-    explain: loc.wallets.add_ark_explain,
-    borderColorActive: 'foregroundColor',
-  },
   LightningArk: {
     image: require('../img/addWallet/lightning.png'),
     title: loc.wallets.add_lightning,

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -34,7 +34,6 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import { ArkWallet } from '../../class/wallets/ark-wallet.ts';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 
@@ -44,7 +43,6 @@ enum ButtonSelected {
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
-  ARK = 'ARK',
   LIGHTNING_ARK = 'LIGHTNING_ARK',
 }
 
@@ -248,10 +246,6 @@ const WalletsAdd: React.FC = () => {
     return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyActions] : [walletAction];
   }, [selectedWalletType, selectedIndex, entropy, words, entropyButtonText]);
 
-  const handleOnArkButtonPressed = useCallback(() => {
-    confirmResetEntropy(ButtonSelected.ARK);
-  }, [confirmResetEntropy]);
-
   const handleOnLightningArkButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.LIGHTNING_ARK);
   }, [confirmResetEntropy]);
@@ -333,8 +327,6 @@ const WalletsAdd: React.FC = () => {
 
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet();
-    } else if (selectedWalletType === ButtonSelected.ARK) {
-      createArkWallet();
     } else if (selectedWalletType === ButtonSelected.LIGHTNING_ARK) {
       createLightningArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
@@ -429,26 +421,6 @@ const WalletsAdd: React.FC = () => {
     });
   };
 
-  const createArkWallet = async () => {
-    const wallet = new ArkWallet();
-    wallet.setLabel(label || loc.wallets.details_title);
-    try {
-      await wallet.generate();
-    } catch (Err: any) {
-      setIsLoading(false);
-      console.warn('ark create failure', Err);
-      return presentAlert({ message: Err.message ?? '' });
-    }
-
-    addWallet(wallet);
-    await saveToDisk();
-
-    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    navigate('PleaseBackupLNDHub', {
-      walletID: wallet.getID(),
-    });
-  };
-
   const createLightningArkWallet = async () => {
     const wallet = new LightningArkWallet();
     wallet.setLabel(label || loc.wallets.details_title);
@@ -471,7 +443,6 @@ const WalletsAdd: React.FC = () => {
 
   const navigateToImportWallet = () => {
     const walletTypeMap: Partial<Record<ButtonSelected, string>> = {
-      [ButtonSelected.ARK]: ArkWallet.type,
       [ButtonSelected.LIGHTNING_ARK]: LightningArkWallet.type,
     };
     navigate('ImportWallet', { walletType: walletTypeMap[selectedWalletType] });
@@ -482,9 +453,13 @@ const WalletsAdd: React.FC = () => {
     confirmResetEntropy(ButtonSelected.VAULT);
   };
 
+  const [lightningArkTapCount, setLightningArkTapCount] = useState(0);
+  const isLightningArkVisible = lightningArkTapCount >= 20;
+
   const handleOnBitcoinButtonPressed = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
+    setLightningArkTapCount(prev => prev + 1);
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
 
@@ -544,20 +519,15 @@ const WalletsAdd: React.FC = () => {
           onPress={handleOnVaultButtonPressed}
           size={styles.button}
         />
-        <WalletButton
-          buttonType="Ark"
-          testID="ActivateArkButton"
-          active={selectedWalletType === ButtonSelected.ARK}
-          onPress={handleOnArkButtonPressed}
-          size={styles.button}
-        />
-        <WalletButton
-          buttonType="LightningArk"
-          testID="ActivateLightningArkButton"
-          active={selectedWalletType === ButtonSelected.LIGHTNING_ARK}
-          onPress={handleOnLightningArkButtonPressed}
-          size={styles.button}
-        />
+        {isLightningArkVisible && (
+          <WalletButton
+            buttonType="LightningArk"
+            testID="ActivateLightningArkButton"
+            active={selectedWalletType === ButtonSelected.LIGHTNING_ARK}
+            onPress={handleOnLightningArkButtonPressed}
+            size={styles.button}
+          />
+        )}
         {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
       </View>
       <View style={styles.advanced}>

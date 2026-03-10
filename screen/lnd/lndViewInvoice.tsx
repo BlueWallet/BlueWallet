@@ -20,7 +20,7 @@ import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { LightningCustodianWallet } from '../../class';
+import { LightningArkWallet, LightningCustodianWallet } from '../../class';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -35,10 +35,11 @@ const LNDViewInvoice = () => {
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
 
-  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
+  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | LightningArkWallet | undefined;
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
+  const [arkAddress, setArkAddress] = useState<string>('');
   const fetchInvoiceInterval = useRef<any>();
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
@@ -154,13 +155,58 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (wallet && wallet.type === LightningArkWallet.type) {
+      (wallet as LightningArkWallet)
+        .getArkAddress()
+        .then(setArkAddress)
+        .catch(e => console.log('Failed to fetch Ark address:', e));
+    }
+  }, [wallet]);
+
+  // Poll Ark balance for direct Ark address payments (not via Lightning invoice)
+  useEffect(() => {
+    if (!wallet || wallet.type !== LightningArkWallet.type) return;
+    if ((invoice as LightningTransaction).ispaid) return;
+
+    const arkWallet = wallet as LightningArkWallet;
+    const initialBalance = arkWallet.getBalance();
+
+    const arkPollInterval = setInterval(async () => {
+      try {
+        await arkWallet.fetchBalance();
+        const newBalance = arkWallet.getBalance();
+        if (newBalance > initialBalance) {
+          clearInterval(arkPollInterval);
+          setIsFetchingInvoices(false);
+          clearInterval(fetchInvoiceInterval.current);
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          setInvoiceStatusChanged(true);
+          fetchAndSaveWalletTransactions(walletID);
+        }
+      } catch (e) {
+        console.log('Ark balance poll error:', e);
+      }
+    }, 5000);
+
+    return () => clearInterval(arkPollInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const navigateToPreImageScreen = (preImageData: string) => {
     navigate('LNDViewAdditionalInvoicePreImage', { preImageData });
   };
 
+  const getQrValue = (paymentRequest: string): string => {
+    if (arkAddress) {
+      return `bitcoin:?ark=${arkAddress}&lightning=${paymentRequest}`;
+    }
+    return paymentRequest;
+  };
+
   const handleOnSharePressed = () => {
     if (typeof invoice === 'string' || !invoice.payment_request) return;
-    Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
+    Share.open({ message: getQrValue(invoice.payment_request) }).catch(error => console.log(error));
   };
 
   useEffect(() => {
@@ -252,7 +298,7 @@ const LNDViewInvoice = () => {
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
               <View style={styles.activeQrcode}>
-                <QRCodeComponent value={invoice.payment_request} size={qrCodeSize} />
+                <QRCodeComponent value={getQrValue(invoice.payment_request)} size={qrCodeSize} />
               </View>
               <BlueSpacing20 />
               <BlueText>
@@ -264,6 +310,12 @@ const LNDViewInvoice = () => {
                 </BlueText>
               )}
               <CopyTextToClipboard truncated text={invoice.payment_request} />
+              {arkAddress ? (
+                <>
+                  <BlueSpacing20 />
+                  <CopyTextToClipboard truncated text={arkAddress} />
+                </>
+              ) : null}
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>
@@ -275,7 +327,7 @@ const LNDViewInvoice = () => {
       return (
         <View style={[styles.activeRoot, stylesHook.root]}>
           <View style={styles.activeQrcode}>
-            <QRCodeComponent value={invoice} size={qrCodeSize} />
+            <QRCodeComponent value={getQrValue(invoice)} size={qrCodeSize} />
           </View>
         </View>
       );

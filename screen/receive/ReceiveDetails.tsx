@@ -8,7 +8,7 @@ import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
-import { ArkWallet } from '../../class/wallets/ark-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
@@ -120,7 +120,7 @@ const ReceiveDetails = () => {
 
   const setAddressBIP21Encoded = useCallback(
     (addr: string) => {
-      const isArk = wallet?.type === ArkWallet.type;
+      const isArk = wallet?.type === LightningArkWallet.type;
       const newBip21encoded = isArk ? addr : DeeplinkSchemaMatch.bip21encode(addr);
       setParams({ address: addr });
       setBip21encoded(newBip21encoded);
@@ -138,7 +138,7 @@ const ReceiveDetails = () => {
     }
     if (address) {
       setAddressBIP21Encoded(address);
-      if (wallet.type !== ArkWallet.type) {
+      if (wallet.type !== LightningArkWallet.type) {
         try {
           await tryToObtainPermissions();
           majorTomToGroundControl([address], [], []);
@@ -187,7 +187,7 @@ const ReceiveDetails = () => {
 
     setAddressBIP21Encoded(newAddress);
 
-    if (wallet.type !== ArkWallet.type) {
+    if (wallet.type !== LightningArkWallet.type) {
       try {
         await tryToObtainPermissions();
         majorTomToGroundControl([newAddress], [], []);
@@ -246,7 +246,7 @@ const ReceiveDetails = () => {
 
     const intervalId = setInterval(async () => {
       try {
-        if (wallet?.type === ArkWallet.type) {
+        if (wallet?.type === LightningArkWallet.type) {
           // Ark: poll balance via the wallet SDK instead of Electrum
           const previousBalance = wallet.getBalance();
           await wallet.fetchBalance();
@@ -511,7 +511,7 @@ const ReceiveDetails = () => {
     setCustomAmount(tempCustomAmount);
     setCustomUnit(tempCustomUnit);
     // address is always defined here
-    const isArk = wallet?.type === ArkWallet.type;
+    const isArk = wallet?.type === LightningArkWallet.type;
     setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!, { amount, label: tempCustomLabel }));
     setShowAddress(true);
   };
@@ -524,7 +524,7 @@ const ReceiveDetails = () => {
     setCustomAmount('');
     setCustomUnit(wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
     // address is always defined here
-    const isArk = wallet?.type === ArkWallet.type;
+    const isArk = wallet?.type === LightningArkWallet.type;
     setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!));
     setShowAddress(true);
     bottomModalRef.current?.dismiss();

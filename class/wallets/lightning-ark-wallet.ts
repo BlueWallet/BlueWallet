@@ -202,11 +202,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
       network: 'bitcoin',
     });
 
-    // Create the ArkadeSwaps instance with Realm-backed swap repository
+    // Create the ArkadeSwaps instance with Realm-backed swap repository and SwapManager
+    // SwapManager monitors swaps via WebSocket and auto-claims/refunds
     this._arkadeSwaps = new ArkadeSwaps({
       wallet: this._wallet,
       swapProvider,
       swapRepository,
+      swapManager: true,
     });
   }
 
