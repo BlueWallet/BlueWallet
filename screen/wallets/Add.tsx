@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -34,7 +34,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+import { ArkWallet } from '../../class/wallets/ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 
 enum ButtonSelected {
@@ -114,7 +114,6 @@ const WalletsAdd: React.FC = () => {
 
   // State
   const [state, dispatch] = useReducer(walletReducer, initialState);
-  const [backdoorPressed, setBackdoorPressed] = useState(0);
   const isLoading = state.isLoading;
   const walletBaseURI = state.walletBaseURI;
   const selectedIndex = state.selectedIndex;
@@ -329,7 +328,7 @@ const WalletsAdd: React.FC = () => {
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet();
     } else if (selectedWalletType === ButtonSelected.ARK) {
-      createLightningArkWallet();
+      createArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
 
@@ -422,14 +421,14 @@ const WalletsAdd: React.FC = () => {
     });
   };
 
-  const createLightningArkWallet = async () => {
-    const wallet = new LightningArkWallet();
+  const createArkWallet = async () => {
+    const wallet = new ArkWallet();
     wallet.setLabel(label || loc.wallets.details_title);
     try {
       await wallet.generate();
     } catch (Err: any) {
       setIsLoading(false);
-      console.warn('lightning ark create failure', Err);
+      console.warn('ark create failure', Err);
       return presentAlert({ message: Err.message ?? '' });
     }
 
@@ -452,7 +451,6 @@ const WalletsAdd: React.FC = () => {
   };
 
   const handleOnBitcoinButtonPressed = () => {
-    setBackdoorPressed(prevState => prevState + 1);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
     setSelectedWalletType(ButtonSelected.ONCHAIN);
@@ -514,15 +512,13 @@ const WalletsAdd: React.FC = () => {
           onPress={handleOnVaultButtonPressed}
           size={styles.button}
         />
-        {backdoorPressed >= 20 ? (
-          <WalletButton
-            buttonType="LightningArk"
-            testID="ActivateLightningArkButton"
-            active={selectedWalletType === ButtonSelected.ARK}
-            onPress={handleOnLightningArkButtonPressed}
-            size={styles.button}
-          />
-        ) : null}
+        <WalletButton
+          buttonType="Ark"
+          testID="ActivateArkButton"
+          active={selectedWalletType === ButtonSelected.ARK}
+          onPress={handleOnLightningArkButtonPressed}
+          size={styles.button}
+        />
         {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
       </View>
       <View style={styles.advanced}>

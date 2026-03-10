@@ -8,6 +8,7 @@ import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
+import { ArkWallet } from '../../class/wallets/ark-wallet';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
@@ -119,12 +120,13 @@ const ReceiveDetails = () => {
 
   const setAddressBIP21Encoded = useCallback(
     (addr: string) => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      const isArk = wallet?.type === ArkWallet.type;
+      const newBip21encoded = isArk ? addr : DeeplinkSchemaMatch.bip21encode(addr);
       setParams({ address: addr });
       setBip21encoded(newBip21encoded);
       setShowAddress(true);
     },
-    [setParams],
+    [setParams, wallet?.type],
   );
 
   const obtainWalletAddress = useCallback(async () => {
@@ -240,6 +242,8 @@ const ReceiveDetails = () => {
 
     const intervalId = setInterval(async () => {
       try {
+        if (wallet?.type === ArkWallet.type) return; // Ark addresses are not on-chain; skip Electrum polling
+
         const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
         const addressToUse = address || decoded.address;
         if (!addressToUse) return;
@@ -313,7 +317,7 @@ const ReceiveDetails = () => {
     }, intervalMs);
 
     return () => clearInterval(intervalId);
-  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID]);
+  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID, wallet?.type]);
 
   useEffect(() => {
     const handleBackButton = () => {
@@ -481,7 +485,8 @@ const ReceiveDetails = () => {
     setCustomAmount(tempCustomAmount);
     setCustomUnit(tempCustomUnit);
     // address is always defined here
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address!, { amount, label: tempCustomLabel }));
+    const isArk = wallet?.type === ArkWallet.type;
+    setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!, { amount, label: tempCustomLabel }));
     setShowAddress(true);
   };
 
@@ -493,7 +498,8 @@ const ReceiveDetails = () => {
     setCustomAmount('');
     setCustomUnit(wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
     // address is always defined here
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address!));
+    const isArk = wallet?.type === ArkWallet.type;
+    setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!));
     setShowAddress(true);
     bottomModalRef.current?.dismiss();
   };

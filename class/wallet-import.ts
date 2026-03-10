@@ -13,6 +13,7 @@ import {
   HDTaprootWallet,
   LegacyWallet,
   LightningCustodianWallet,
+  ArkWallet,
   LightningArkWallet,
   MultisigHDWallet,
   SegwitBech32Wallet,
@@ -213,6 +214,19 @@ const startImport = (
         await lnd.fetchBalance();
       }
       yield { wallet: lnd };
+    }
+
+    // is it a pure ark wallet?
+    yield { progress: 'ark' };
+    if (text.startsWith('ark://')) {
+      const ark = new ArkWallet();
+      ark.setSecret(text);
+      await ark.init();
+      if (!offline) {
+        await ark.fetchBalance();
+        await ark.fetchTransactions();
+      }
+      yield { wallet: ark };
     }
 
     // is it lightning ark wallet?

@@ -26,7 +26,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
-import { LightningArkWallet } from '../../class';
+import { ArkWallet } from '../../class';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
@@ -113,7 +113,7 @@ const ScanLNDInvoice = () => {
       console.log(data);
 
       if (data.toLowerCase().startsWith('ark1')) {
-        const arkw = new LightningArkWallet();
+        const arkw = new ArkWallet();
         if (arkw.isAddressValid(data)) {
           setParams({ uri: undefined, invoice: data });
           // @ts-ignore we need it to be set to something

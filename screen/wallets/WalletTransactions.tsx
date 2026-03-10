@@ -19,7 +19,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { ArkWallet, LightningArkWallet, LightningCustodianWallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
@@ -598,7 +598,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             testID="ReceiveButton"
             text={loc.receive.header}
             onPress={() => {
-              if (wallet.chain === Chain.OFFCHAIN) {
+              if (wallet.type === ArkWallet.type) {
+                navigate('ReceiveDetails', { walletID });
+              } else if (wallet.chain === Chain.OFFCHAIN) {
                 navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID } });
               } else {
                 navigate('ReceiveDetails', { walletID });
