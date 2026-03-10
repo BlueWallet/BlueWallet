@@ -171,6 +171,14 @@ export class ArkWallet extends AbstractWallet {
     return this.secret;
   }
 
+  timeToRefreshBalance(): boolean {
+    return +new Date() - this._lastBalanceFetch >= 5 * 60 * 1000;
+  }
+
+  timeToRefreshTransaction(): boolean {
+    return +new Date() - this._lastTxFetch >= 5 * 60 * 1000;
+  }
+
   getAddress(): string | false {
     return this._address || false;
   }

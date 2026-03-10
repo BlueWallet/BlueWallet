@@ -138,11 +138,13 @@ const ReceiveDetails = () => {
     }
     if (address) {
       setAddressBIP21Encoded(address);
-      try {
-        await tryToObtainPermissions();
-        majorTomToGroundControl([address], [], []);
-      } catch (error) {
-        console.error('Error obtaining notifications permissions:', error);
+      if (wallet.type !== ArkWallet.type) {
+        try {
+          await tryToObtainPermissions();
+          majorTomToGroundControl([address], [], []);
+        } catch (error) {
+          console.error('Error obtaining notifications permissions:', error);
+        }
       }
       return;
     }
@@ -185,11 +187,13 @@ const ReceiveDetails = () => {
 
     setAddressBIP21Encoded(newAddress);
 
-    try {
-      await tryToObtainPermissions();
-      majorTomToGroundControl([newAddress], [], []);
-    } catch (error) {
-      console.error('Error obtaining notifications permissions:', error);
+    if (wallet.type !== ArkWallet.type) {
+      try {
+        await tryToObtainPermissions();
+        majorTomToGroundControl([newAddress], [], []);
+      } catch (error) {
+        console.error('Error obtaining notifications permissions:', error);
+      }
     }
   }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
@@ -242,7 +246,29 @@ const ReceiveDetails = () => {
 
     const intervalId = setInterval(async () => {
       try {
-        if (wallet?.type === ArkWallet.type) return; // Ark addresses are not on-chain; skip Electrum polling
+        if (wallet?.type === ArkWallet.type) {
+          // Ark: poll balance via the wallet SDK instead of Electrum
+          const previousBalance = wallet.getBalance();
+          await wallet.fetchBalance();
+          const newBalance = wallet.getBalance();
+          if (newBalance > previousBalance) {
+            const received = newBalance - previousBalance;
+            triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
+            setShowConfirmedBalance(true);
+            setShowPendingBalance(false);
+            setShowAddress(false);
+            setDisplayBalance(
+              loc.formatString(loc.transactions.received_with_amount, {
+                amt1: formatBalance(received, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+                amt2: formatBalance(received, BitcoinUnit.BTC, true).toString(),
+              }),
+            );
+            if (walletID) {
+              fetchAndSaveWalletTransactions(walletID);
+            }
+          }
+          return;
+        }
 
         const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
         const addressToUse = address || decoded.address;
@@ -317,7 +343,7 @@ const ReceiveDetails = () => {
     }, intervalMs);
 
     return () => clearInterval(intervalId);
-  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID, wallet?.type]);
+  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID, wallet]);
 
   useEffect(() => {
     const handleBackButton = () => {

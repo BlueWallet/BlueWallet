@@ -35,6 +35,7 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { ArkWallet } from '../../class/wallets/ark-wallet.ts';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 
 enum ButtonSelected {
@@ -44,6 +45,7 @@ enum ButtonSelected {
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
   ARK = 'ARK',
+  LIGHTNING_ARK = 'LIGHTNING_ARK',
 }
 
 interface State {
@@ -246,8 +248,12 @@ const WalletsAdd: React.FC = () => {
     return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyActions] : [walletAction];
   }, [selectedWalletType, selectedIndex, entropy, words, entropyButtonText]);
 
-  const handleOnLightningArkButtonPressed = useCallback(() => {
+  const handleOnArkButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.ARK);
+  }, [confirmResetEntropy]);
+
+  const handleOnLightningArkButtonPressed = useCallback(() => {
+    confirmResetEntropy(ButtonSelected.LIGHTNING_ARK);
   }, [confirmResetEntropy]);
 
   const handleOnLightningButtonPressed = useCallback(() => {
@@ -329,6 +335,8 @@ const WalletsAdd: React.FC = () => {
       createLightningWallet();
     } else if (selectedWalletType === ButtonSelected.ARK) {
       createArkWallet();
+    } else if (selectedWalletType === ButtonSelected.LIGHTNING_ARK) {
+      createLightningArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
 
@@ -441,6 +449,26 @@ const WalletsAdd: React.FC = () => {
     });
   };
 
+  const createLightningArkWallet = async () => {
+    const wallet = new LightningArkWallet();
+    wallet.setLabel(label || loc.wallets.details_title);
+    try {
+      await wallet.generate();
+    } catch (Err: any) {
+      setIsLoading(false);
+      console.warn('lightning ark create failure', Err);
+      return presentAlert({ message: Err.message ?? '' });
+    }
+
+    addWallet(wallet);
+    await saveToDisk();
+
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    navigate('PleaseBackupLNDHub', {
+      walletID: wallet.getID(),
+    });
+  };
+
   const navigateToImportWallet = () => {
     navigate('ImportWallet');
   };
@@ -516,6 +544,13 @@ const WalletsAdd: React.FC = () => {
           buttonType="Ark"
           testID="ActivateArkButton"
           active={selectedWalletType === ButtonSelected.ARK}
+          onPress={handleOnArkButtonPressed}
+          size={styles.button}
+        />
+        <WalletButton
+          buttonType="LightningArk"
+          testID="ActivateLightningArkButton"
+          active={selectedWalletType === ButtonSelected.LIGHTNING_ARK}
           onPress={handleOnLightningArkButtonPressed}
           size={styles.button}
         />
