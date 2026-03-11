@@ -958,7 +958,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.id('MultisigCoordinationSetup')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
-      .scroll(100, 'down');
+      .scroll(150, 'down');
     await element(by.id('MultisigCoordinationSetup')).tap();
     await device.disableSynchronization();
     await waitForId('ExportMultisigCoordinationSetupView');
