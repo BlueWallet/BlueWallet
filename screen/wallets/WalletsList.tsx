@@ -319,12 +319,18 @@ const WalletsList: React.FC = () => {
 
       switch (section.section.key) {
         case WalletsListSections.TRANSACTIONS:
-          return renderListHeaderComponent();
+          return (
+            <View style={styles.transactionsHeaderWrapper}>
+              <View style={styles.portfolioBoxWrapper}>
+                <PortfolioBox />
+              </View>
+              {renderListHeaderComponent()}
+            </View>
+          );
         case WalletsListSections.CAROUSEL: {
           return (
             <View style={stylesHook.walletsListWrapper}>
               {isTotalBalanceEnabled && <TotalWalletsBalance />}
-              <PortfolioBox />
             </View>
           );
         }
@@ -514,6 +520,13 @@ const WalletsList: React.FC = () => {
 export default WalletsList;
 
 const styles = StyleSheet.create({
+  transactionsHeaderWrapper: {
+    backgroundColor: 'transparent',
+  },
+  portfolioBoxWrapper: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+  },
   listHeaderBack: {
     flexDirection: 'row',
     justifyContent: 'space-between',

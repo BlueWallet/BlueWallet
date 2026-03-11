@@ -71,6 +71,7 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, dataTi
   const { colors } = useTheme();
   const [contentWidth, setContentWidth] = useState(0);
   const [pointerX, setPointerX] = useState<number | null>(null);
+  const [pointerIndex, setPointerIndex] = useState<number | null>(null);
   const onContentLayout = useCallback((e: LayoutChangeEvent) => {
     const w = e.nativeEvent.layout.width;
     if (w > 0) setContentWidth(w);
@@ -251,13 +252,14 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, dataTi
       // Ensure brandingColor is valid (not white/transparent/undefined)
       let barColor = colors.brandingColor;
       if (!barColor || barColor === '#ffffff' || barColor === '#FFFFFF' || barColor === 'white' || barColor === 'transparent') {
-        barColor = '#80CCEC'; // Fallback to purple/violet
+        barColor = '#80CCEC'; // Fallback
       }
-      
-      // All bars use the same color
-      const frontColor = barColor;
-      const gradientColor = barColor;
-      
+      const isDimmed = pointerIndex != null && index !== pointerIndex;
+      const hexBase = barColor.length >= 7 ? barColor.slice(0, 7) : barColor;
+      const dimmedColor = hexBase + '40'; // ~25% opacity
+      const frontColor = isDimmed ? dimmedColor : barColor;
+      const gradientColor = isDimmed ? dimmedColor : barColor;
+
       // Debug: Log color assignment for verification
       if (index === 0 || index === validData.length - 1) {
         console.log(`PortfolioChart: Bar ${index} color:`, {
@@ -381,7 +383,7 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, dataTi
       chartMaxBtc,
       chartMinBtc,
     };
-  }, [data, colors, displayRange]);
+  }, [data, colors, displayRange, pointerIndex]);
 
   const timeRanges: TimeRange[] = ['1W', '1M', '6M', '1Y', '5Y', 'All'];
 
@@ -495,6 +497,8 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, dataTi
                         mostNegativeValue={0}
                         isAnimated={shouldAnimate}
                         animationDuration={1000}
+                        animateOnDataChange={shouldAnimate}
+                        onDataChangeAnimationDuration={800}
                         backgroundColor="transparent"
                         initialSpacing={dimensions.initialSpacing}
                         endSpacing={dimensions.endSpacing}
@@ -504,11 +508,18 @@ const PortfolioChart: React.FC<PortfolioChartProps> = ({ data, timeRange, dataTi
                         scrollToEnd={chartData.lineData.length > 15}
                         scrollAnimation={chartData.lineData.length > 15}
                         getPointerProps={(props: { pointerIndex: number; pointerX: number; pointerY: number }) => {
-                          setPointerX(props.pointerIndex >= 0 ? props.pointerX : null);
+                          const active = props.pointerIndex >= 0;
+                          setPointerX(active ? props.pointerX : null);
+                          setPointerIndex(active ? props.pointerIndex : null);
                         }}
                         pointerConfig={{
                           pointerEvents: 'auto',
                           showPointerStrip: true,
+                          onPointerLeave: () => {
+                            setPointerX(null);
+                            setPointerIndex(null);
+                          },
+                          resetPointerIndexOnRelease: true,
                           pointerColor: colors.success || '#60A5FA',
                           pointerStripColor: colors.success || '#60A5FA',
                           pointerStripWidth: 1,
