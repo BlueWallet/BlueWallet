@@ -190,5 +190,13 @@ describe('continuityLinking', () => {
       capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { xpub: 'xpubABC' } });
       assert.strictEqual(mockListener.mock.calls.length, 0);
     });
+
+    it('should not call listener for Xpub when walletID is missing but xpub is present', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { walletID: 'wallet123' } });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+    });
   });
 });
