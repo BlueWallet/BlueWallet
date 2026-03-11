@@ -155,18 +155,21 @@ const SendDetails = () => {
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
   const populatedRecipients = addresses.filter(a => a.address?.trim());
+  const hasMeaningfulDraft = populatedRecipients.length > 0 || Boolean(transactionMemo?.trim());
   useContinuity({
     title: loc.send.header,
     type: ContinuityActivityType.SendOnchain,
-    userInfo: {
-      address: addresses[0]?.address,
-      amount: addresses[0]?.amount,
-      amountSats: addresses[0]?.amountSats,
-      memo: transactionMemo,
-      feeRate,
-      walletID: wallet?.getID(),
-      recipients: populatedRecipients.length > 0 ? populatedRecipients.map(a => ({ address: a.address, amount: a.amount, amountSats: a.amountSats })) : undefined,
-    },
+    userInfo: hasMeaningfulDraft
+      ? {
+          address: addresses[0]?.address,
+          amount: addresses[0]?.amount,
+          amountSats: addresses[0]?.amountSats,
+          memo: transactionMemo,
+          feeRate,
+          walletID: wallet?.getID(),
+          recipients: populatedRecipients.map(a => ({ address: a.address, amount: a.amount, amountSats: a.amountSats })),
+        }
+      : undefined,
   });
 
   useEffect(() => {
