@@ -1,6 +1,24 @@
 import assert from 'assert';
 import { ContinuityActivityType } from '../../components/types';
 
+// Capture the onUserActivityOpen callback so tests can fire synthetic events
+let capturedEventCallback: ((data: any) => void) | null = null;
+const mockAddListener = jest.fn((event: string, cb: (data: any) => void) => {
+  if (event === 'onUserActivityOpen') capturedEventCallback = cb;
+  return { remove: jest.fn() };
+});
+
+jest.mock('react-native', () => {
+  return {
+    NativeModules: {
+      EventEmitter: { getMostRecentUserActivity: jest.fn(() => Promise.resolve(null)) },
+    },
+    NativeEventEmitter: jest.fn(() => ({ addListener: mockAddListener })),
+    Alert: { alert: jest.fn() },
+    Linking: { openURL: jest.fn(() => Promise.resolve()) },
+  };
+});
+
 // Mock dependencies before importing the module
 jest.mock('../../NavigationService', () => ({
   navigationRef: {
@@ -23,6 +41,7 @@ describe('continuityLinking', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
+    capturedEventCallback = null;
     continuityLinking = require('../../navigation/continuityLinking').default;
     mockListener = jest.fn();
   });
@@ -126,6 +145,50 @@ describe('continuityLinking', () => {
       expectedPatterns.forEach(({ pattern }) => {
         assert.ok(pattern instanceof RegExp);
       });
+    });
+  });
+
+  describe('null guard behavior', () => {
+    it('should not call listener for IsItMyAddress when address is missing', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.IsItMyAddress, userInfo: {} });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+    });
+
+    it('should not call listener for IsItMyAddress when address is empty string', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.IsItMyAddress, userInfo: { address: '' } });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+    });
+
+    it('should call listener for IsItMyAddress when address is present', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.IsItMyAddress, userInfo: { address: 'bc1qtest' } });
+      assert.strictEqual(mockListener.mock.calls.length, 1);
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('isitmyaddress'));
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('bc1qtest'));
+    });
+
+    it('should not call listener for ReceiveOnchain when address is missing', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.ReceiveOnchain, userInfo: {} });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+    });
+
+    it('should not call listener for Xpub when xpub or walletID is missing', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { xpub: 'xpubABC' } });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
     });
   });
 });
