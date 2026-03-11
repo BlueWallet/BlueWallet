@@ -1,6 +1,16 @@
 import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
-import { ArkadeSwaps, BoltzSwapProvider, decodeInvoice, PendingSwap, migrateToSwapRepository } from '@arkade-os/boltz-swap';
+import {
+  ArkadeSwaps,
+  BoltzSwapProvider,
+  decodeInvoice,
+  PendingSwap,
+  migrateToSwapRepository,
+  isPendingReverseSwap,
+  isPendingSubmarineSwap,
+  isReverseFinalStatus,
+  isSubmarineFinalStatus,
+} from '@arkade-os/boltz-swap';
 import {
   SingleKey,
   MnemonicIdentity,
@@ -28,6 +38,8 @@ import { LightningTransaction, Transaction } from './types.ts';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 import assert from 'assert';
 import { Measure } from '../measure.ts';
+import { enqueueSwapTask, reconcileSwapTasks } from '../../blue_modules/arkade-adapters/background/swap-queue';
+import type { SwapProcessorDeps } from '../../blue_modules/arkade-adapters/background/swap-processor';
 const { bech32, bech32m } = require('bech32');
 
 const staticWalletCache: Record<string, Wallet> = {};
@@ -187,6 +199,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
       }
 
       await this._initLightningSwaps(swapRepository);
+
+      // Reconcile background tasks for any pending swaps (handles app startup + wallet restore)
+      this.reconcileBackgroundTasks().catch(e => console.log('[ARK] Background task reconcile failed:', e));
     } finally {
       initLock[namespace] = false;
     }
@@ -283,7 +298,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
           ispaid = true;
           break;
         case 'swap.created':
-          // nop, this is invoice that we created
+          // This is a Lightning invoice we created but hasn't been paid yet.
+          // Hide it once the invoice has expired (it will never settle).
+          if (timestamp + expiry < Math.floor(Date.now() / 1000)) continue;
           break;
         case 'invoice.set':
           // dont return it, its an invoice we trief to pay but could not
@@ -314,11 +331,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
     // skip the duplicate Ark transaction history entries (the claimed VTXO
     // shows up in both _swapHistory and _transactionsHistory).
     const swapReceiveAmounts = new Map<number, number>();
+    const settledSwapAmounts = new Set<number>();
     for (const swap of this._swapHistory) {
       if (swap.status === 'invoice.settled') {
         // @ts-ignore properties do exist
         const amt: number = swap.response.onchainAmount || swap.response.expectedAmount || 0;
         swapReceiveAmounts.set(amt, (swapReceiveAmounts.get(amt) || 0) + 1);
+        settledSwapAmounts.add(amt);
       }
     }
 
@@ -354,8 +373,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
       }
 
       // Sent transactions are always considered settled (matching reference app behavior).
-      // Received transactions use the actual settled flag from the Ark SDK.
-      const isSettled = histTx.type === 'SENT' ? true : histTx.settled;
+      // Received transactions use the actual settled flag from the Ark SDK,
+      // but also consider the transaction settled if a matching swap is already
+      // settled (the Ark SDK may lag behind the swap status).
+      const isSettled = histTx.type === 'SENT' ? true : histTx.settled || settledSwapAmounts.has(histTx.amount);
 
       ret.push({
         type: 'bitcoind_tx',
@@ -471,6 +492,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
         console.warn('waitAndClaim ended with error (swap may already be claimed):', err?.message ?? err);
       });
 
+    // Seed a background task so the swap is monitored even if the app is killed
+    await this._seedSwapTask(result.pendingSwap.id);
+
     return result.invoice;
   }
 
@@ -556,6 +580,67 @@ export class LightningArkWallet extends LightningCustodianWallet {
       .finally(() => {
         boardingLock[namespace] = false;
       });
+  }
+
+  /**
+   * Return the SwapProcessorDeps needed by the background swap-monitor processor.
+   * Returns null if the wallet is not fully initialized.
+   */
+  getProcessorDeps(): SwapProcessorDeps | null {
+    if (!this._wallet || !this._arkadeSwaps) return null;
+
+    const swapProvider = new BoltzSwapProvider({
+      apiUrl: this._boltzApiUrl,
+      network: 'bitcoin',
+    });
+
+    return {
+      swapRepository: this._arkadeSwaps.swapRepository,
+      swapProvider,
+      wallet: this._wallet,
+    };
+  }
+
+  /**
+   * Reconcile the background task queue against the current set of pending swaps.
+   * Call on app startup, wallet import/restore, and periodically.
+   */
+  async reconcileBackgroundTasks(): Promise<void> {
+    if (!this._arkadeSwaps) return;
+
+    const namespace = this.getNamespace();
+    const allSwaps = await this._arkadeSwaps.getSwapHistory();
+
+    const pendingSwapIds = allSwaps
+      .filter(swap => {
+        if (isPendingReverseSwap(swap)) return !isReverseFinalStatus(swap.status);
+        if (isPendingSubmarineSwap(swap)) return !isSubmarineFinalStatus(swap.status);
+        return false;
+      })
+      .map(swap => swap.id);
+
+    await reconcileSwapTasks(namespace, pendingSwapIds, {
+      arkServerUrl: this._arkServerUrl,
+      boltzApiUrl: this._boltzApiUrl,
+      network: 'bitcoin',
+    });
+  }
+
+  /**
+   * Seed a background task for a newly created pending swap.
+   */
+  private async _seedSwapTask(swapId: string): Promise<void> {
+    try {
+      await enqueueSwapTask({
+        namespace: this.getNamespace(),
+        swapId,
+        arkServerUrl: this._arkServerUrl,
+        boltzApiUrl: this._boltzApiUrl,
+        network: 'bitcoin',
+      });
+    } catch (error) {
+      console.log('[ARK] Failed to seed swap task:', error);
+    }
   }
 
   isAddressValid(address: string): boolean {
