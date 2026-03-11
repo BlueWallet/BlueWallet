@@ -286,7 +286,7 @@
     "general": "General",
     "general_continuity": "Continuity",
     "general_continuity_e": "Share your current activity with your nearby devices. When viewing a wallet, transaction, or address, it will appear on your other devices so you can continue where you left off.",
-    "general_continuity_unavailable": "Continuity is not available on this device. Please ensure you are signed into iCloud and that Handoff is enabled in your device settings.",
+    "general_continuity_unavailable": "Continuity is not available on this device. Please ensure your devices meet the requirements and that Continuity is enabled in your system settings.",
     "groundcontrol_explanation": "GroundControl is a free, open-source push notifications server for Bitcoin wallets. You can install your own GroundControl server and put its URL here to not rely on BlueWallet’s infrastructure. Leave blank to use GroundControl’s default server.",
     "header": "Settings",
     "language": "Language",
