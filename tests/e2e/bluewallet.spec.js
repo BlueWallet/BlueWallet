@@ -904,7 +904,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t10'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true, permissions: { camera: 'YES' } });
+    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } });
     await waitForId('WalletsList');
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()
