@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct LatestTransaction {
+struct LatestTransaction: Codable {
   let isUnconfirmed: Bool?
   let epochValue: Int?
 }

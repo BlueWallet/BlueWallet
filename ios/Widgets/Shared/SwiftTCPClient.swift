@@ -27,42 +27,6 @@ enum SwiftTCPClientError: Error, LocalizedError {
 
 struct TimeoutError: Error {}
 
-actor HostManager {
-    var availableHosts: [(host: String, port: UInt16, useSSL: Bool)]
-    var hostFailureCounts: [String: Int] = [:]
-    let maxRetriesPerHost: Int
-
-    init(hosts: [(host: String, port: UInt16, useSSL: Bool)], maxRetriesPerHost: Int) {
-        self.availableHosts = hosts
-        self.maxRetriesPerHost = maxRetriesPerHost
-    }
-
-    func getNextHost() -> (host: String, port: UInt16, useSSL: Bool)? {
-        guard !availableHosts.isEmpty else {
-            return nil
-        }
-        // Rotate the first host to the end
-        let currentHost = availableHosts.removeFirst()
-        availableHosts.append(currentHost)
-        return currentHost
-    }
-
-    func shouldSkipHost(_ host: String) -> Bool {
-        if let failureCount = hostFailureCounts[host], failureCount >= maxRetriesPerHost {
-            return true
-        }
-        return false
-    }
-
-    func resetFailureCount(for host: String) {
-        hostFailureCounts[host] = 0
-    }
-
-    func incrementFailureCount(for host: String) {
-        hostFailureCounts[host, default: 0] += 1
-    }
-}
-
 class SwiftTCPClient {
     private var connection: NWConnection?
     private let queue = DispatchQueue(label: "SwiftTCPClientQueue", qos: .userInitiated)
@@ -484,7 +448,7 @@ class SwiftTCPClient {
     private func isTLSError(_ error: NWError) -> Bool {
         let nsError = error as NSError
         let code = nsError.code
-        if #available(iOS 16.4, *) {
+        if #available(iOS 16.4, macOS 13.3, watchOS 9.4, *) {
             switch code {
             case 20, 21, 22:
                 return true

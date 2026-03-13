@@ -9,7 +9,6 @@
 import AppIntents
 import WidgetKit
 
-@available(iOS 14.0, *)
 public struct PriceWidgetEntry: TimelineEntry {
     public let date: Date
     public let family: WidgetFamily

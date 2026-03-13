@@ -3,6 +3,7 @@ import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import UserNotifications
+import WidgetKit
 import Bugsnag
 
 
@@ -286,7 +287,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         ]
 
         if keys.contains(keyPath) {
-            WidgetHelper.reloadAllWidgets()
+            WidgetCenter.shared.reloadAllTimelines()
         }
     }
 

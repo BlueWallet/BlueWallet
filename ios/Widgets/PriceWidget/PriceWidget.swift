@@ -9,51 +9,27 @@
 import WidgetKit
 import SwiftUI
 
-@available(iOS 16.0, *)
 struct PriceWidget: Widget {
     let kind: String = "PriceWidget"
 
-  var body: some WidgetConfiguration {
+    var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: PriceWidgetProvider()) { entry in
             PriceWidgetEntryView(entry: entry)
+                .containerBackground(Color.widgetBackground, for: .widget)
         }
         .configurationDisplayName("Price")
         .description("View the current price of Bitcoin.")
-        .supportedFamilies(supportedFamilies)
-        .contentMarginsDisabledIfAvailable() 
-    }
-
-  @available(iOS 16.0, *)
-  private var supportedFamilies: [WidgetFamily] {
-        if #available(iOSApplicationExtension 16.0, *) {
-            return [.systemSmall, .accessoryCircular, .accessoryInline, .accessoryRectangular]
-        } else {
-            return [.systemSmall]
-        }
-    }
-}
-
-@available(iOS 16.0, *)
-struct PriceWidget_Previews: PreviewProvider {
-  static var previews: some View {
-        Group {
-            PriceWidgetEntryView(entry: PreviewData.entry)
-                .previewContext(WidgetPreviewContext(family: .systemSmall))
-            if #available(iOSApplicationExtension 16.0, *) {
-                PriceWidgetEntryView(entry: PreviewData.entry)
-                    .previewContext(WidgetPreviewContext(family: .accessoryCircular))
-                PriceWidgetEntryView(entry: PreviewData.entry)
-                    .previewContext(WidgetPreviewContext(family: .accessoryInline))
-                PriceWidgetEntryView(entry: PreviewData.entry)
-                    .previewContext(WidgetPreviewContext(family: .accessoryRectangular))
-            }
-        }
+        #if os(watchOS)
+        .supportedFamilies([.accessoryCircular, .accessoryInline, .accessoryRectangular])
+        #else
+        .supportedFamilies([.systemSmall, .accessoryCircular, .accessoryInline, .accessoryRectangular])
+        #endif
+        .contentMarginsDisabled()
     }
 }
 
 let previewMarketData = MarketData(nextBlock: "", sats: "", price: "$10,000", rate: 10000, dateString: "2019-09-18T17:27:00+00:00")
 
-@available(iOS 14.0, *)
 struct PreviewData {
     static let entry = PriceWidgetEntry(
         date: Date(),
@@ -63,19 +39,26 @@ struct PreviewData {
     )
 }
 
-@available(iOS 14.0, *)
-extension WidgetConfiguration
-{
-  @available(iOS 15.0, *)
-  func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration
-    {
-        if #available(iOSApplicationExtension 17.0, *)
-        {
-            return self.contentMarginsDisabled()
-        }
-        else
-        {
-            return self
-        }
-    }
+#Preview("System Small", as: .systemSmall) {
+    PriceWidget()
+} timeline: {
+    PreviewData.entry
+}
+
+#Preview("Accessory Circular", as: .accessoryCircular) {
+    PriceWidget()
+} timeline: {
+    PreviewData.entry
+}
+
+#Preview("Accessory Inline", as: .accessoryInline) {
+    PriceWidget()
+} timeline: {
+    PreviewData.entry
+}
+
+#Preview("Accessory Rectangular", as: .accessoryRectangular) {
+    PriceWidget()
+} timeline: {
+    PreviewData.entry
 }

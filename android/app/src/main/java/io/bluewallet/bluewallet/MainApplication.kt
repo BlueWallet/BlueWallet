@@ -28,11 +28,11 @@ class MainApplication : Application(), ReactApplication {
         if (key == "preferredCurrency") {
             prefs.edit().remove("previous_price").apply()
             
-            // Update BitcoinPrice widgets
+            // Schedule immediate updates for both widgets via their workers
+            WidgetUpdateWorker.scheduleImmediateUpdate(this)
             WidgetUpdateWorker.scheduleWork(this)
-            
-            // Immediately refresh Market widgets
-            MarketWidget.refreshAllWidgetsImmediately(this)
+            MarketWidgetUpdateWorker.scheduleImmediateUpdate(this)
+            MarketWidgetUpdateWorker.scheduleWork(this)
         } else if (key == "force_dark_mode") {
             // Theme setting changed, update all widgets
             ThemeHelper.updateAllWidgets(this)

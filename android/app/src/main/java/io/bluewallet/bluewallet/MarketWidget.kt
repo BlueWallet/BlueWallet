@@ -12,7 +12,6 @@ import android.widget.RemoteViews
 import androidx.work.WorkManager
 import kotlinx.coroutines.delay
 import org.json.JSONObject
-import java.util.concurrent.TimeUnit
 import io.bluewallet.bluewallet.ElectrumClient.ElectrumServer
 
 class MarketWidget : AppWidgetProvider() {
@@ -56,7 +55,7 @@ class MarketWidget : AppWidgetProvider() {
         fun updateAllWidgets(context: Context) {
             val widgetIds = getAllWidgetIds(context)
             if (widgetIds.isNotEmpty()) {
-                MarketWidgetUpdateWorker.scheduleMarketUpdate(context)
+                MarketWidgetUpdateWorker.scheduleWork(context)
             }
         }
         
@@ -68,7 +67,7 @@ class MarketWidget : AppWidgetProvider() {
                     updateAppWidget(context, appWidgetManager, widgetId)
                 }
                 
-                MarketWidgetUpdateWorker.scheduleMarketUpdate(context, forceUpdate = true)
+                MarketWidgetUpdateWorker.scheduleImmediateUpdate(context)
                 
                 Log.d(TAG, "Scheduled immediate market widget update")
             }
@@ -134,13 +133,6 @@ class MarketWidget : AppWidgetProvider() {
             
             // Update the widget
             appWidgetManager.updateAppWidget(appWidgetId, views)
-            
-            // Schedule update if network available, otherwise retry in 30 seconds
-            if (isNetworkAvailable) {
-                MarketWidgetUpdateWorker.scheduleMarketUpdate(context)
-            } else {
-                MarketWidgetUpdateWorker.scheduleRetryOnNetworkAvailable(context)
-            }
         }
         
 
@@ -194,16 +186,14 @@ class MarketWidget : AppWidgetProvider() {
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
         
-        MarketWidgetUpdateWorker.scheduleMarketUpdate(context)
+        MarketWidgetUpdateWorker.scheduleWork(context)
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
         Log.d(TAG, "MarketWidget enabled - First widget added")
-        val widgetIds = getAllWidgetIds(context)
-        if (widgetIds.isNotEmpty()) {
-            MarketWidgetUpdateWorker.scheduleMarketUpdate(context, forceUpdate = true)
-        }
+        MarketWidgetUpdateWorker.scheduleImmediateUpdate(context)
+        MarketWidgetUpdateWorker.scheduleWork(context)
     }
 
     override fun onDisabled(context: Context) {
