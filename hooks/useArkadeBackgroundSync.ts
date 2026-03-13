@@ -56,20 +56,20 @@ export function useArkadeBackgroundSync() {
 
   /**
    * Handle outbox results — refresh wallet state and trigger notifications.
+   * Also polls Ark balance on every tick to detect direct Ark address payments
+   * (which don't go through the swap pipeline).
    */
   const handleResults = useCallback(
     (results: TaskResult[]) => {
-      const hasUpdates = results.some(r => r.status === 'success' && r.data?.statusChanged);
-      if (!hasUpdates) return;
-
-      // Refresh wallets that had status changes
+      // Always refresh Ark wallets: direct Ark address payments don't produce
+      // swap task results, so we poll balance on every foreground tick.
       const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
       for (const wallet of arkWallets) {
         wallet
           .fetchBalance()
           .then(() => wallet.fetchTransactions())
           .then(() => saveToDisk())
-          .catch(e => console.log('[ArkadeSync] Refresh after result error:', e));
+          .catch(e => console.log('[ArkadeSync] Refresh error:', e));
       }
     },
     [wallets, saveToDisk],

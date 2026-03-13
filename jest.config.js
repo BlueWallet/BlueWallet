@@ -10,6 +10,7 @@ module.exports = {
   moduleNameMapper: {
     '^expo/fetch$': '<rootDir>/util/expo-fetch-nodejs.js',
     '^@arkade-os/sdk/repositories/realm$': '<rootDir>/node_modules/@arkade-os/sdk/dist/cjs/repositories/realm/index.js',
+    '^@arkade-os/sdk/worker/expo$': '<rootDir>/node_modules/@arkade-os/sdk/dist/cjs/worker/expo/index.js',
     '^@arkade-os/boltz-swap/repositories/realm$': '<rootDir>/node_modules/@arkade-os/boltz-swap/dist/repositories/realm/index.cjs',
     '^@react-native-vector-icons/(.*)$': '<rootDir>/tests/mocks/vector-icons.js',
   },

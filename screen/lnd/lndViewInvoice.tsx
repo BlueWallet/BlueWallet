@@ -208,16 +208,20 @@ const LNDViewInvoice = () => {
     navigate('LNDViewAdditionalInvoicePreImage', { preImageData });
   };
 
-  const getQrValue = (paymentRequest: string): string => {
-    if (arkAddress) {
+  const getQrValue = (paymentRequest?: string): string => {
+    if (arkAddress && paymentRequest) {
       return `bitcoin:?ark=${arkAddress}&lightning=${paymentRequest}`;
     }
-    return paymentRequest;
+    if (arkAddress) {
+      return `bitcoin:?ark=${arkAddress}`;
+    }
+    return paymentRequest ?? '';
   };
 
   const handleOnSharePressed = () => {
-    if (typeof invoice === 'string' || !invoice.payment_request) return;
-    Share.open({ message: getQrValue(invoice.payment_request) }).catch(error => console.log(error));
+    const qr = typeof invoice === 'string' ? getQrValue(invoice) : getQrValue(invoice.payment_request);
+    if (!qr) return;
+    Share.open({ message: qr }).catch(error => console.log(error));
   };
 
   useEffect(() => {
@@ -304,7 +308,7 @@ const LNDViewInvoice = () => {
         );
       }
       // Invoice has not expired, nor has it been paid for.
-      if (invoice.payment_request) {
+      if (invoice.payment_request || arkAddress) {
         return (
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
@@ -312,15 +316,17 @@ const LNDViewInvoice = () => {
                 <QRCodeComponent value={getQrValue(invoice.payment_request)} size={qrCodeSize} />
               </View>
               <BlueSpacing20 />
-              <BlueText>
-                {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
-              </BlueText>
+              {invoice.amt ? (
+                <BlueText>
+                  {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+                </BlueText>
+              ) : null}
               {'description' in invoice && (invoice.description?.length ?? 0) > 0 && (
                 <BlueText>
                   {loc.lndViewInvoice.for} {invoice.description ?? ''}
                 </BlueText>
               )}
-              <CopyTextToClipboard truncated text={invoice.payment_request} />
+              {invoice.payment_request ? <CopyTextToClipboard truncated text={invoice.payment_request} /> : null}
               {arkAddress ? (
                 <>
                   <BlueSpacing20 />

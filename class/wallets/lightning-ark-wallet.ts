@@ -46,6 +46,8 @@ const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapsCache: Record<string, ArkadeSwaps> = {};
 const initLock: Record<string, boolean> = {};
 const boardingLock: Record<string, boolean> = {};
+/** Track swap IDs that already have an active waitAndClaim listener. */
+const observedSwapIds = new Set<string>();
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
@@ -82,6 +84,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _limitMin: number = 0;
   private _limitMax: number = 0;
   private _feePercentage: number = 0;
+
+  /**
+   * Returns true if the amount is within Boltz swap limits for Lightning invoices.
+   * If limits haven't been fetched yet, returns false (Ark-only fallback).
+   */
+  isLightningAmountEligible(amt: number): boolean {
+    if (!this._limitMin || !this._limitMax) return false;
+    console.log(`[ARK] isLightningAmountEligible(${amt}): min=${this._limitMin}, max=${this._limitMax}`);
+    return amt >= this._limitMin && amt <= this._limitMax;
+  }
 
   hashIt = (s: string): string => {
     return uint8ArrayToHex(sha256(s));
@@ -231,6 +243,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (!this._feePercentage) {
         await this._fetchBoltzFeesAndLimits();
       }
+      // Re-observe any pending swaps whose WebSocket may have died
+      this._reobservePendingSwaps().catch(e => console.log('[ARK] Re-observe pending swaps failed:', e));
       return;
     }
 
@@ -250,6 +264,41 @@ export class LightningArkWallet extends LightningCustodianWallet {
     staticSwapsCache[namespace] = this._arkadeSwaps;
 
     await this._fetchBoltzFeesAndLimits();
+
+    // Re-observe any pending reverse swaps whose WebSocket listener may have died
+    this._reobservePendingSwaps().catch(e => console.log('[ARK] Re-observe pending swaps failed:', e));
+  }
+
+  /**
+   * Re-establish waitAndClaim() WebSocket listeners for pending reverse swaps.
+   * This ensures that swaps created in a previous session (or before navigation)
+   * can still be paid and claimed.
+   */
+  private async _reobservePendingSwaps(): Promise<void> {
+    assert(this._arkadeSwaps, 'ArkadeSwaps must be initialized first');
+
+    const allSwaps = await this._arkadeSwaps.getSwapHistory();
+
+    for (const swap of allSwaps) {
+      if (!isPendingReverseSwap(swap)) continue;
+      if (isReverseFinalStatus(swap.status)) continue;
+      if (observedSwapIds.has(swap.id)) continue;
+
+      observedSwapIds.add(swap.id);
+      console.log('[ARK] Re-observing pending reverse swap:', swap.id);
+
+      this._arkadeSwaps
+        .waitAndClaim(swap as PendingSwap)
+        .then(() => {
+          console.log('[ARK] Re-observed swap claimed successfully:', swap.id);
+        })
+        .catch(err => {
+          console.warn('[ARK] Re-observed waitAndClaim ended:', swap.id, err?.message ?? err);
+        })
+        .finally(() => {
+          observedSwapIds.delete(swap.id);
+        });
+    }
   }
 
   async generate(): Promise<void> {
@@ -482,6 +531,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     // Monitor the swap in the background and claim the VHTLC when the payer pays the LN invoice.
     // This is fire-and-forget: the UI polls for balance/invoice changes separately.
+    observedSwapIds.add(result.pendingSwap.id);
     this._arkadeSwaps
       .waitAndClaim(result.pendingSwap)
       .then(() => {
@@ -490,6 +540,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
       .catch(err => {
         // WebSocket may close after the swap is already claimed — this is expected
         console.warn('waitAndClaim ended with error (swap may already be claimed):', err?.message ?? err);
+      })
+      .finally(() => {
+        observedSwapIds.delete(result.pendingSwap.id);
       });
 
     // Seed a background task so the swap is monitored even if the app is killed
