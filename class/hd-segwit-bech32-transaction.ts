@@ -390,7 +390,7 @@ export class HDSegwitBech32Transaction {
       }
     }
 
-    // @ts-ignore stfu
-    return { tx, inputs, outputs, fee };
+    // Non-null assertions are safe here because the while loop always runs at least once (add starts at 0)
+    return { tx: tx!, inputs: inputs!, outputs: outputs!, fee: fee! };
   }
 }
