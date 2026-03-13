@@ -8,6 +8,16 @@
 	<array>
 		<dict>
 			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string></string>
+			<key>Key</key>
+			<string></string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 			<key>FooterText</key>
 			<string>Provide this Unique ID when reporting an issue</string>
@@ -19,7 +29,7 @@
 			<string>PSTextFieldSpecifier</string>
 			<key>Title</key>
 			<string>Unique ID</string>
-            <key>Key</key>
+			<key>Key</key>
 			<string>deviceUIDCopy</string>
 		</dict>
 		<dict>
@@ -37,6 +47,14 @@
 			<string>clearFilesOnLaunch</string>
 			<key>DefaultValue</key>
 			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+			<key>Title</key>
+			<string>Network Settings</string>
+			<key>File</key>
+			<string>Network</string>
 		</dict>
 	</array>
 </dict>
