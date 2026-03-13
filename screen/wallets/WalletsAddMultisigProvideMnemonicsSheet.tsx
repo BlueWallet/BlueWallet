@@ -113,10 +113,10 @@ const WalletsAddMultisigProvideMnemonicsSheet = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    padding: 22,
   },
   contentContainer: {
     flexGrow: 1,
+    paddingHorizontal: 24,
   },
   toggleRow: {
     flexDirection: 'row',
