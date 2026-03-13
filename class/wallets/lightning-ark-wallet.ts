@@ -20,6 +20,7 @@ import {
   ArkTransaction,
   RestArkProvider,
   RestIndexerProvider,
+  RestDelegatorProvider,
   migrateWalletRepository,
   requiresMigration,
   rollbackMigration,
@@ -65,6 +66,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _wallet!: Wallet | undefined;
   private _arkadeSwaps!: ArkadeSwaps | undefined;
   private _arkServerUrl: string = 'https://arkade.computer';
+  private _delegatorUrl: string = 'https://delegate.arkade.money';
   private _arkServerPublicKey: string = '022b74c2011af089c849383ee527c72325de52df6a788428b68d49e9174053aaba';
 
   private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
@@ -155,6 +157,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
           identity,
           arkProvider: new RestArkProvider(this._arkServerUrl),
           indexerProvider: new RestIndexerProvider(this._arkServerUrl),
+          delegatorProvider: new RestDelegatorProvider(this._delegatorUrl),
           arkServerPublicKey: this._arkServerPublicKey,
           storage: { walletRepository, contractRepository },
         });
