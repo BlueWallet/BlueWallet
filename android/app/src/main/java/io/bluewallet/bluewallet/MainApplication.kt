@@ -66,7 +66,7 @@ class MainApplication : Application(), ReactApplication {
     override val reactNativeHost: ReactNativeHost by lazy {
         object : DefaultReactNativeHost(this) {
             override fun getPackages() =
-                PackageList(this@MainApplication).packages.apply {
+                PackageList(this).packages.apply {
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // add(MyReactNativePackage())
                     add(CustomSegmentedControlPackage())

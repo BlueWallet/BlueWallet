@@ -6,7 +6,7 @@
 //  Copyright © 2025 BlueWallet. All rights reserved.
 //
 
-#import <RNCPushNotificationIOS.h>
+#import "RNNotifications.h"
 #import "RNQuickActionManager.h"
 #import "NativeEventEmitterSpec.h"
 #import "NativeMenuElementsEmitterSpec.h"
