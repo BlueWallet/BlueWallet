@@ -40,6 +40,12 @@
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="false" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/notification_icon" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/foreground_color" />
 <provider
     android:name="androidx.core.content.FileProvider"
     android:authorities="${applicationId}.provider"
