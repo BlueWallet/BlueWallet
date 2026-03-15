@@ -293,18 +293,24 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     override func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
       let activityType = userActivity.activityType
       guard !activityType.isEmpty else {
-            print("[Handoff] Invalid or missing userActivity")
+            print("[Continuity] Invalid or missing userActivity")
             return false
         }
 
-        let userActivityData: [String: Any] = [
+        var userActivityData: [String: Any] = [
             "activityType": activityType,
             "userInfo": userActivity.userInfo ?? [:]
         ]
+        if let url = userActivity.webpageURL?.absoluteString {
+            userActivityData["webpageURL"] = url
+        }
+        if let title = userActivity.title, !title.isEmpty {
+            userActivityData["title"] = title
+        }
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
-        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer"].contains(activityType) {
+        if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer", "io.bluewallet.bluewallet.sendonchain", "io.bluewallet.bluewallet.signverify", "io.bluewallet.bluewallet.isitmyaddress"].contains(activityType) {
           EventEmitter.shared().sendUserActivity(userActivityData)
             return true
         }
@@ -313,7 +319,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             return RCTLinkingManager.application(application, continue: userActivity, restorationHandler: restorationHandler)
         }
 
-        print("[Handoff] Unhandled user activity type: \(activityType)")
+        print("[Continuity] Unhandled user activity type: \(activityType)")
         return false
     }
 

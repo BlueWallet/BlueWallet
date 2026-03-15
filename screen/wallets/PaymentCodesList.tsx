@@ -187,6 +187,7 @@ export default function PaymentCodesList() {
         walletID,
         addRecipientParams: {
           address: pc,
+          nonce: Date.now(),
         },
         merge: true,
       });

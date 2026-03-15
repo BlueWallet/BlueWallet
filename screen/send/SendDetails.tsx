@@ -44,7 +44,8 @@ import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { Action } from '../../components/types';
+import { Action, ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -153,6 +154,24 @@ const SendDetails = () => {
     return defaultFee;
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
+  const populatedRecipients = addresses.filter(a => a.address?.trim());
+  const hasMeaningfulDraft = populatedRecipients.length > 0 || Boolean(transactionMemo?.trim());
+  useContinuity({
+    title: loc.send.header,
+    type: ContinuityActivityType.SendOnchain,
+    userInfo: hasMeaningfulDraft
+      ? {
+          address: addresses[0]?.address,
+          amount: addresses[0]?.amount,
+          amountSats: addresses[0]?.amountSats,
+          memo: transactionMemo,
+          feeRate,
+          walletID: wallet?.getID(),
+          recipients: populatedRecipients.map(a => ({ address: a.address, amount: a.amount, amountSats: a.amountSats })),
+        }
+      : undefined,
+  });
+
   useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
@@ -188,6 +207,55 @@ const SendDetails = () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
       }
+    } else if (routeParams.addRecipientParams) {
+      // used to add a recipient, mainly from contacts aka paymentcodes screen
+      const { address, amount } = routeParams.addRecipientParams;
+
+      let appendedIndex = -1;
+
+      setAddresses(prevAddresses => {
+        if (!address) return prevAddresses;
+
+        const currentIndex = prevAddresses.length === 0 ? 0 : scrollIndex.current;
+        const currentEntry = prevAddresses[currentIndex];
+        const currentIsEmpty = !currentEntry?.address;
+
+        if (currentIsEmpty) {
+          // Fill the empty slot
+          const updatedAddresses = [...prevAddresses];
+          updatedAddresses[currentIndex] = {
+            ...updatedAddresses[currentIndex],
+            address,
+            amount: amount ?? updatedAddresses[currentIndex].amount,
+            amountSats: amount ? btcToSatoshi(amount) : updatedAddresses[currentIndex].amountSats,
+          };
+          return updatedAddresses;
+        }
+
+        // Append a new recipient
+        appendedIndex = prevAddresses.length;
+        return [
+          ...prevAddresses,
+          {
+            address,
+            amount: amount ?? 0,
+            amountSats: amount ? btcToSatoshi(amount) : 0,
+            key: String(Math.random()),
+            unit: amountUnit,
+          },
+        ];
+      });
+
+      // Scroll to the newly appended entry (only when a new slot was added)
+      if (appendedIndex >= 0) {
+        setTimeout(() => {
+          scrollIndex.current = appendedIndex;
+          scrollView.current?.scrollToIndex({ index: appendedIndex, animated: true });
+        }, 0);
+      }
+
+      // @ts-ignore: Fix later
+      setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
     } else if (routeParams.address) {
       // screen was called with `address` parameter, so we just prefill it
       setAddresses(prevAddresses => {
@@ -200,26 +268,6 @@ const SendDetails = () => {
         };
         return updatedAddresses;
       });
-    } else if (routeParams.addRecipientParams) {
-      // used to add a recipient, mainly from contacts aka paymentcodes screen
-      const index = addresses.length === 0 ? 0 : scrollIndex.current;
-      const { address, amount } = routeParams.addRecipientParams;
-
-      setAddresses(prevAddresses => {
-        const updatedAddresses = [...prevAddresses];
-        if (address) {
-          updatedAddresses[index] = {
-            ...updatedAddresses[index],
-            address,
-            amount: amount ?? updatedAddresses[index].amount,
-            amountSats: amount ? btcToSatoshi(amount) : updatedAddresses[index].amountSats,
-          };
-        }
-        return updatedAddresses;
-      });
-
-      // @ts-ignore: Fix later
-      setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
     } else {
       setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]); // key is for the FlatList
     }

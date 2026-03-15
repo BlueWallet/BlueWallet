@@ -14,14 +14,14 @@ import * as AmountInput from '../../components/AmountInput';
 import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import HandOffComponent from '../../components/HandOffComponent';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SegmentedControl from '../../components/SegmentControl';
 import { useTheme } from '../../components/themes';
 import TipBox from '../../components/TipBox';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
-import { HandOffActivityType } from '../../components/types';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -93,6 +93,12 @@ const ReceiveDetails = () => {
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
+
+  useContinuity({
+    title: loc.send.details_address,
+    type: ContinuityActivityType.ReceiveOnchain,
+    userInfo: address ? { address } : undefined,
+  });
 
   const stylesHook = StyleSheet.create({
     customAmount: {
@@ -559,9 +565,6 @@ const ReceiveDetails = () => {
           />
         )}
         {showAddress && renderTabContent()}
-        {showAddress && address !== undefined && (
-          <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
-        )}
         {showConfirmedBalance && renderConfirmedBalance()}
         {showPendingBalance && renderPendingBalance()}
 
