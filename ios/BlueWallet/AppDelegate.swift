@@ -336,7 +336,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     }
 
     override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        RNNotifications.didFailToRegisterForRemoteNotifications(withError: error)
+        RNNotifications.didFailToRegisterForRemoteNotificationsWithError(error)
     }
 
     override func application(

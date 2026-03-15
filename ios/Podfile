@@ -52,12 +52,25 @@ post_install do |installer|
     :mac_catalyst_enabled => true,
     # :ccache_enabled => true
   )
-  # Fix RCTDeprecation module map error with Xcode 16+/26+ (explicit modules).
-  # Required for react-native-notifications: without this, the bridging header
-  # fails to resolve RCTDeprecation module map, which cascades and hides
-  # RNNotifications methods from Swift (e.g. didFailToRegisterForRemoteNotifications).
-  # Both Swift and Clang explicit modules must be disabled — the bridging header
-  # is compiled by Clang, so CLANG_ENABLE_EXPLICIT_MODULES must also be NO.
+  # Fix RCTDeprecation module map error with Xcode 16+/26+.
+  # The bridging header imports RCTBridgeModule.h which does
+  # #import <RCTDeprecation/RCTDeprecation.h>. With -fmodules, Clang treats this
+  # as a module import and builds a PCM, but PCH verification then fails with
+  # "module 'RCTDeprecation' is not defined in any loaded module map file".
+  # Fix: remove RCTDeprecation -fmodule-map-file from the consumer xcconfigs
+  # so the import resolves as a plain textual include via HEADER_SEARCH_PATHS.
+  # No code uses @import RCTDeprecation, so this is safe.
+  installer.generated_aggregate_targets.each do |aggregate_target|
+    aggregate_target.xcconfigs.each do |config_name, config|
+      xcconfig_path = aggregate_target.xcconfig_path(config_name)
+      content = File.read(xcconfig_path)
+      # Order matters: match -Xcc variant first to avoid leaving a dangling -Xcc
+      content.gsub!('-Xcc -fmodule-map-file="${PODS_ROOT}/Headers/Public/RCTDeprecation/RCTDeprecation.modulemap" ', '')
+      content.gsub!('-fmodule-map-file="${PODS_ROOT}/Headers/Public/RCTDeprecation/RCTDeprecation.modulemap" ', '')
+      File.write(xcconfig_path, content)
+    end
+  end
+
   ReactNativePodsUtils.set_build_setting(installer, build_setting: "SWIFT_ENABLE_EXPLICIT_MODULES", value: "NO")
   ReactNativePodsUtils.set_build_setting(installer, build_setting: "CLANG_ENABLE_EXPLICIT_MODULES", value: "NO")
   installer.pods_project.targets.each do |target|
