@@ -25,3 +25,9 @@ Do *not* add new dependencies. Bonus points if you manage to actually remove a d
 All new files must be in typescript. Bonus points if you convert some of the existing files to typescript.
 
 New components must go in `components/`. Bonus points if you refactor some of old components in `BlueComponents.js` to separate files.
+
+Don't forget to add tests. Bonus points for e2e tests.
+
+# PRs
+
+When submitting PR, it must include screenshot (from the emulator or the device) how the proposed change looks, even better - a video; and a short description of why (it was implemented) and how (it works under the hood).

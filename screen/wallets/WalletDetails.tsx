@@ -1,15 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  InteractionManager,
-  LayoutAnimation,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, LayoutAnimation, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -269,19 +259,20 @@ const WalletDetails: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        if (isMasterFingerPrintVisible && wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
+      let cancelled = false;
+      if (isMasterFingerPrintVisible && wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
+        // @ts-expect-error: Need to fix later
+        if (wallet.getMasterFingerprintHex && !cancelled) {
           // @ts-expect-error: Need to fix later
-          if (wallet.getMasterFingerprintHex) {
-            // @ts-expect-error: Need to fix later
-            setMasterFingerprint(wallet.getMasterFingerprintHex());
-          }
-        } else {
-          setMasterFingerprint(undefined);
+          setMasterFingerprint(wallet.getMasterFingerprintHex());
         }
-      });
+      } else {
+        setMasterFingerprint(undefined);
+      }
 
-      return () => task.cancel();
+      return () => {
+        cancelled = true;
+      };
     }, [isMasterFingerPrintVisible, wallet]),
   );
 
