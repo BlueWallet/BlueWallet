@@ -198,5 +198,63 @@ describe('continuityLinking', () => {
       capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { walletID: 'wallet123' } });
       assert.strictEqual(mockListener.mock.calls.length, 0);
     });
+
+    it('should not call listener for SignVerify when walletID is missing', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.SignVerify, userInfo: { address: 'bc1qtest' } });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+    });
+
+    it('should not call listener for SignVerify when address is missing', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.SignVerify, userInfo: { walletID: 'wallet123' } });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+    });
+
+    it('should call listener for SignVerify when walletID and address are present', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.SignVerify, userInfo: { walletID: 'wallet123', address: 'bc1qtest' } });
+      assert.strictEqual(mockListener.mock.calls.length, 1);
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('signverify'));
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('wallet123'));
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('bc1qtest'));
+    });
+  });
+
+  describe('ViewInBlockExplorer handling', () => {
+    let Linking: { openURL: jest.Mock };
+
+    beforeEach(() => {
+      Linking = require('react-native').Linking;
+    });
+
+    it('should open external URL for ViewInBlockExplorer and not call listener', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({
+        activityType: ContinuityActivityType.ViewInBlockExplorer,
+        userInfo: {},
+        webpageURL: 'https://mempool.space/tx/abc123',
+      });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+      assert.strictEqual(Linking.openURL.mock.calls.length, 1);
+      assert.strictEqual(Linking.openURL.mock.calls[0][0], 'https://mempool.space/tx/abc123');
+    });
+
+    it('should not open URL for ViewInBlockExplorer when webpageURL is absent', () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.ViewInBlockExplorer, userInfo: {} });
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+      assert.strictEqual(Linking.openURL.mock.calls.length, 0);
+    });
   });
 });
