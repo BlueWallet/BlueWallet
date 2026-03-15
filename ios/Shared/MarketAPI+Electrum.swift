@@ -9,7 +9,7 @@
 import Foundation
 
 struct APIError: LocalizedError {
-  var errorDescription: String = "Failed to fetch Electrum data..."
+  var errorDescription: String = String(localized: "Failed to fetch Electrum data...")
 }
 
 extension MarketAPI {
@@ -86,15 +86,5 @@ extension MarketAPI {
         return marketDataEntry
     }
 
-    static func fetchMarketData(currency: String, completion: @escaping (Result<MarketData, Error>) -> ()) {
-        Task {
-            do {
-                let marketData = try await fetchMarketData(currency: currency)
-                completion(.success(marketData))
-            } catch {
-                completion(.failure(error))
-            }
-        }
-    }
 }
 
