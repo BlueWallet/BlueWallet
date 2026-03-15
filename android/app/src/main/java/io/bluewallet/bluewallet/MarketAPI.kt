@@ -22,53 +22,9 @@ object MarketAPI {
 
     var baseUrl: String? = null
 
-    data class ApiResponse(val body: String?, val code: Int)
-
-    /**
-     * Fetch bitcoin price for a given currency. Returns the raw price string or null.
-     */
-    suspend fun fetchPrice(context: Context, currency: String): String? {
-        return try {
-            val response = fetchPriceResponse(context, currency)
-            if (response.code == 200) response.body else null
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching price for $currency", e)
-            null
-        }
-    }
-
-    /**
-     * Fetch price with full response details (body + HTTP code).
-     */
-    suspend fun fetchPriceResponse(context: Context, currency: String): ApiResponse {
-        try {
-            val fiatUnitsJson = context.assets.open("fiatUnits.json").bufferedReader().use { it.readText() }
-            val json = JSONObject(fiatUnitsJson)
-
-            if (!json.has(currency)) return ApiResponse(null, 404)
-
-            val currencyInfo = json.getJSONObject(currency)
-            val source = currencyInfo.getString("source")
-            val endPointKey = currencyInfo.getString("endPointKey")
-            val urlString = buildURLString(source, endPointKey)
-
-            val request = Request.Builder().url(urlString).build()
-            val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
-
-            if (response.code == 429) return ApiResponse(null, 429)
-            if (!response.isSuccessful) return ApiResponse(null, response.code)
-
-            val jsonResponse = response.body?.string()
-            val parsed = if (jsonResponse != null) parseJSONBasedOnSource(jsonResponse, source, endPointKey) else null
-            return ApiResponse(parsed, response.code)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error fetching price for $currency: ${e.message}")
-            return ApiResponse(null, -1)
-        }
-    }
-
     /**
      * Fetch complete market data (price, sats per unit, next block fee).
+     * Single public entry point for all widget data needs.
      */
     suspend fun fetchMarketData(context: Context, currency: String): MarketData {
         val marketData = MarketData()
@@ -78,24 +34,17 @@ object MarketAPI {
         }
 
         try {
-            val response = fetchPriceResponse(context, currency)
-            if (response.code == 429) throw RateLimitException("Rate limited by price API")
-
-            val priceStr = response.body
-            if (priceStr != null) {
-                val rate = priceStr.toDoubleOrNull() ?: 0.0
+            val rate = fetchPriceRate(context, currency)
+            if (rate != null && rate > 0) {
                 marketData.rate = rate
-                if (rate > 0) {
-                    marketData.price = formatCurrencyAmount(rate, currency)
-                    marketData.sats = numberFormatter.format(((10 / rate) * 10000000).toInt())
-                }
+                marketData.price = formatCurrencyAmount(rate, currency)
+                marketData.sats = numberFormatter.format(((10 / rate) * 10000000).toInt())
             }
-
             marketData.nextBlock = fetchNextBlockFee(context)
         } catch (e: RateLimitException) {
             throw e
         } catch (e: Exception) {
-            Log.e(TAG, "Error fetching market data: ${e.message}", e)
+            Log.e(TAG, "Error fetching market data: ${e.message}")
         }
 
         return marketData
@@ -109,13 +58,36 @@ object MarketAPI {
         try {
             formatter.currency = Currency.getInstance(currencyCode)
             formatter.maximumFractionDigits = 0
-        } catch (e: Exception) {
-            Log.e(TAG, "Invalid currency code: $currencyCode", e)
-        }
+        } catch (_: Exception) {}
         return formatter.format(amount.toInt())
     }
 
     // MARK: - Private
+
+    /**
+     * Fetch the raw price rate for a currency. Returns the rate as Double, or null on failure.
+     * Throws RateLimitException if rate-limited.
+     */
+    private suspend fun fetchPriceRate(context: Context, currency: String): Double? {
+        val fiatUnitsJson = context.assets.open("fiatUnits.json").bufferedReader().use { it.readText() }
+        val json = JSONObject(fiatUnitsJson)
+
+        if (!json.has(currency)) return null
+
+        val currencyInfo = json.getJSONObject(currency)
+        val source = currencyInfo.getString("source")
+        val endPointKey = currencyInfo.getString("endPointKey")
+        val urlString = buildURLString(source, endPointKey)
+
+        val request = Request.Builder().url(urlString).build()
+        val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
+
+        if (response.code == 429) throw RateLimitException("Rate limited by price API")
+        if (!response.isSuccessful) return null
+
+        val jsonResponse = response.body?.string() ?: return null
+        return parseJSONBasedOnSource(jsonResponse, source, endPointKey)?.toDoubleOrNull()
+    }
 
     /**
      * Fetch the next block fee estimate from an Electrum server.

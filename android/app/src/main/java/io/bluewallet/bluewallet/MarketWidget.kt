@@ -10,9 +10,7 @@ import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.work.WorkManager
-import kotlinx.coroutines.delay
 import org.json.JSONObject
-import io.bluewallet.bluewallet.ElectrumClient.ElectrumServer
 
 class MarketWidget : AppWidgetProvider() {
 
@@ -20,45 +18,11 @@ class MarketWidget : AppWidgetProvider() {
         private const val TAG = "MarketWidget"
         private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
         private const val DEFAULT_CURRENCY = "USD"
-        private const val KEY_LAST_ONLINE_STATUS = "market_widget_last_online_status"
-
-        private val hardcodedPeers = listOf(
-            ElectrumServer("mainnet.foundationdevices.com", 50002, true),
-            ElectrumServer("electrum1.bluewallet.io", 443, true),
-            ElectrumServer("electrum.acinq.co", 50002, true),
-            ElectrumServer("electrum.bitaroo.net", 50002, true)
-        )
-
-        private suspend fun connectToElectrumServer(): Boolean {
-            for (peer in hardcodedPeers) {
-                repeat(3) { attempt ->
-                    Log.d(TAG, "Attempting to connect to Electrum server: ${peer.host}:${peer.port}, Attempt: ${attempt + 1}")
-                    val success = ElectrumClient().connect(peer, validateCertificates = true)
-                    if (success) {
-                        Log.i(TAG, "Successfully connected to Electrum server: ${peer.host}:${peer.port}")
-                        return true
-                    } else {
-                        Log.w(TAG, "Failed to connect to Electrum server: ${peer.host}:${peer.port}, Attempt: ${attempt + 1}")
-                    }
-                }
-            }
-            Log.e(TAG, "Failed to connect to any Electrum server from the hardcoded list after 3 attempts each. Waiting 10 minutes before retrying.")
-            delay(10 * 60 * 1000) // Wait for 10 minutes
-            return false
-        }
 
         fun updateWidget(context: Context, appWidgetId: Int) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+            updateAppWidget(context, AppWidgetManager.getInstance(context), appWidgetId)
         }
-        
-        fun updateAllWidgets(context: Context) {
-            val widgetIds = getAllWidgetIds(context)
-            if (widgetIds.isNotEmpty()) {
-                MarketWidgetUpdateWorker.scheduleWork(context)
-            }
-        }
-        
+
         fun refreshAllWidgetsImmediately(context: Context) {
             val widgetIds = getAllWidgetIds(context)
             if (widgetIds.isNotEmpty()) {
@@ -66,154 +30,94 @@ class MarketWidget : AppWidgetProvider() {
                 for (widgetId in widgetIds) {
                     updateAppWidget(context, appWidgetManager, widgetId)
                 }
-                
                 MarketWidgetUpdateWorker.scheduleImmediateUpdate(context)
-                
-                Log.d(TAG, "Scheduled immediate market widget update")
             }
         }
-        
+
         fun getAllWidgetIds(context: Context): IntArray {
             val appWidgetManager = AppWidgetManager.getInstance(context)
-            val thisWidget = ComponentName(context, MarketWidget::class.java)
-            return appWidgetManager.getAppWidgetIds(thisWidget)
+            return appWidgetManager.getAppWidgetIds(ComponentName(context, MarketWidget::class.java))
         }
 
         private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            Log.d(TAG, "Updating widget: $appWidgetId")
-            
-            // Check network connectivity
             val isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
-            
-            // Store connectivity status
-            storeConnectivityStatus(context, isNetworkAvailable)
-            
-            // Get market data from shared preferences
             val marketData = getStoredMarketData(context)
-            Log.d(TAG, "Retrieved market data for widget: $marketData")
-            
-            // Create RemoteViews to update the widget
             val views = RemoteViews(context.packageName, R.layout.widget_market)
-            
+
             views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
-            
-            // Add click intent to open the app
+
             val intent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or 
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP or 
-                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 action = Intent.ACTION_MAIN
                 addCategory(Intent.CATEGORY_LAUNCHER)
             }
-            
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.widget_market, pendingIntent)
-            
-            // Set the text for each view
+            views.setOnClickPendingIntent(R.id.widget_market, PendingIntent.getActivity(
+                context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            ))
+
             val formattedNextBlock = marketData.formattedNextBlock
-            Log.d(TAG, "Setting next block value to: '$formattedNextBlock'")
-            
-            val displayText = when (formattedNextBlock) {
+            views.setTextViewText(R.id.next_block_value, when (formattedNextBlock) {
                 "..." -> context.getString(R.string.loading_placeholder, "...")
                 "!" -> context.getString(R.string.error_placeholder, "!")
                 else -> formattedNextBlock
-            }
-            views.setTextViewText(R.id.next_block_value, displayText)
-            
-            // Get the user preferred currency
+            })
+
             val currency = getPreferredCurrency(context)
             views.setTextViewText(R.id.sats_label, context.getString(R.string.market_sats_label, currency))
             views.setTextViewText(R.id.sats_value, marketData.sats)
             views.setTextViewText(R.id.price_value, marketData.price)
-            
-            // Update the widget
+
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
-        
 
-        
-        private fun storeConnectivityStatus(context: Context, isOnline: Boolean) {
-            val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            sharedPrefs.edit().putBoolean(KEY_LAST_ONLINE_STATUS, isOnline).apply()
-        }
-        
         private fun getStoredMarketData(context: Context): MarketData {
-            val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            val marketDataJson = sharedPrefs.getString(MarketData.PREF_KEY, null)
-            
-            Log.d(TAG, "Reading market data from preferences: $marketDataJson")
-            
-            return if (marketDataJson != null) {
-                try {
-                    val json = JSONObject(marketDataJson)
-                    val nextBlock = json.optString("nextBlock", "...")
-                    Log.d(TAG, "Retrieved nextBlock from storage: $nextBlock")
-                    
-                    MarketData(
-                        nextBlock = nextBlock,
-                        sats = json.optString("sats", "..."),
-                        price = json.optString("price", "..."),
-                        rate = json.optDouble("rate", 0.0),
-                        dateString = json.optString("dateString", "")
-                    )
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error parsing stored market data", e)
-                    MarketData()
-                }
-            } else {
-                Log.d(TAG, "No market data found in preferences")
+            val json = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+                .getString(MarketData.PREF_KEY, null) ?: return MarketData()
+
+            return try {
+                val obj = JSONObject(json)
+                MarketData(
+                    nextBlock = obj.optString("nextBlock", "..."),
+                    sats = obj.optString("sats", "..."),
+                    price = obj.optString("price", "..."),
+                    rate = obj.optDouble("rate", 0.0),
+                    dateString = obj.optString("dateString", "")
+                )
+            } catch (e: Exception) {
+                Log.e(TAG, "Error parsing stored market data", e)
                 MarketData()
             }
         }
-        
+
         private fun getPreferredCurrency(context: Context): String {
-            val sharedPrefs = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
-            val preferredCurrency = sharedPrefs.getString("preferredCurrency", null)
-            return preferredCurrency ?: DEFAULT_CURRENCY // Default to USD if no currency is saved
+            return context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+                .getString("preferredCurrency", DEFAULT_CURRENCY) ?: DEFAULT_CURRENCY
         }
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
-        Log.d(TAG, "MarketWidget onUpdate called. Widget IDs: ${appWidgetIds.joinToString()}")
-        
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
-        
         MarketWidgetUpdateWorker.scheduleWork(context)
     }
 
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        Log.d(TAG, "MarketWidget enabled - First widget added")
         MarketWidgetUpdateWorker.scheduleImmediateUpdate(context)
         MarketWidgetUpdateWorker.scheduleWork(context)
     }
 
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        Log.d(TAG, "MarketWidget disabled - Last widget removed")
-        // Cancel all scheduled work when last widget is removed
         val workManager = WorkManager.getInstance(context)
         workManager.cancelUniqueWork(MarketWidgetUpdateWorker.WORK_NAME)
         workManager.cancelUniqueWork(MarketWidgetUpdateWorker.NETWORK_RETRY_WORK_NAME)
-        
-        // Clear cached data
-        clearMarketData(context)
-    }
-    
-    private fun clearMarketData(context: Context) {
+
         context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             .edit()
             .remove(MarketData.PREF_KEY)
-            .remove(KEY_LAST_ONLINE_STATUS)
             .apply()
-        Log.d(TAG, "Market widget data cleared")
     }
 }
