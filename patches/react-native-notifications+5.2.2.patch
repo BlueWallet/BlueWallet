@@ -25,8 +25,8 @@ index c7bf71c..08022ff 100644
 +            try {
 +                final ReactInstanceManager instanceManager = reactApplication.getReactNativeHost().getReactInstanceManager();
 +                reactContext = instanceManager.getCurrentReactContext();
-+            } catch (UnsupportedOperationException ignored) {
-+                // Bridgeless mode does not support ReactInstanceManager access.
++            } catch (Throwable ignored) {
++                // Bridgeless mode or other configurations may not support ReactInstanceManager access.
 +            }
          }
          // Note: Cannot assume react-context exists cause this is an async dispatched service.

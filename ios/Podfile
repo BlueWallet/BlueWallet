@@ -52,6 +52,8 @@ post_install do |installer|
     :mac_catalyst_enabled => true,
     # :ccache_enabled => true
   )
+  # Fix RCTDeprecation module map error with Xcode 26+ (explicit modules)
+  ReactNativePodsUtils.set_build_setting(installer, build_setting: "SWIFT_ENABLE_EXPLICIT_MODULES", value: "NO")
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
