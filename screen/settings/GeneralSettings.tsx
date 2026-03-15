@@ -52,7 +52,7 @@ const GeneralSettings: React.FC = () => {
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-  const [isContinuitySupported, setIsContinuitySupported] = useState<boolean>(true);
+  const [isContinuitySupported, setIsContinuitySupported] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -67,7 +67,13 @@ const GeneralSettings: React.FC = () => {
 
   useEffect(() => {
     if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
-    NativeModules.ReactNativeContinuity?.isSupported?.()
+    const continuityModule = NativeModules.ReactNativeContinuity;
+    if (!continuityModule || typeof continuityModule.isSupported !== 'function') {
+      setIsContinuitySupported(false);
+      return;
+    }
+    continuityModule
+      .isSupported()
       .then((supported: boolean) => setIsContinuitySupported(supported))
       .catch(() => setIsContinuitySupported(false));
   }, []);
