@@ -39,15 +39,15 @@ PODS:
   - hermes-engine (0.14.0):
     - hermes-engine/Pre-built (= 0.14.0)
   - hermes-engine/Pre-built (0.14.0)
-  - lottie-ios (4.5.0)
-  - lottie-react-native (7.3.5):
+  - lottie-ios (4.6.0)
+  - lottie-react-native (7.3.6):
     - boost
     - DoubleConversion
     - fast_float
     - fmt
     - glog
     - hermes-engine
-    - lottie-ios (= 4.5.0)
+    - lottie-ios (= 4.6.0)
     - RCT-Folly
     - RCT-Folly/Fabric
     - RCTRequired
@@ -2073,6 +2073,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - react-native-notifications (5.2.2):
+    - React-Core
   - react-native-safe-area-context (5.7.0):
     - boost
     - DoubleConversion
@@ -2165,12 +2167,12 @@ PODS:
   - react-native-tcp-socket (6.4.1):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-vector-icons-entypo (12.4.1)
-  - react-native-vector-icons-fontawesome (12.4.1)
-  - react-native-vector-icons-fontawesome6 (12.3.1)
-  - react-native-vector-icons-ionicons (12.4.1)
-  - react-native-vector-icons-material-design-icons (12.4.1)
-  - react-native-vector-icons-material-icons (12.4.1)
+  - react-native-vector-icons-entypo (12.4.2)
+  - react-native-vector-icons-fontawesome (12.4.2)
+  - react-native-vector-icons-fontawesome6 (12.3.2)
+  - react-native-vector-icons-ionicons (12.4.2)
+  - react-native-vector-icons-material-design-icons (12.4.2)
+  - react-native-vector-icons-material-icons (12.4.2)
   - React-NativeModulesApple (0.83.1):
     - boost
     - DoubleConversion
@@ -2814,8 +2816,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNCPushNotificationIOS (1.12.0):
-    - React-Core
   - RNDefaultPreference (1.5.1):
     - React-Core
   - RNDeviceInfo (14.1.1):
@@ -2908,7 +2908,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNPermissions (5.5.0):
+  - RNPermissions (5.5.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2941,7 +2941,7 @@ PODS:
     - ZXingObjC
   - RNQuickAction (0.3.13):
     - React
-  - RNReactNativeHapticFeedback (2.3.3):
+  - RNReactNativeHapticFeedback (2.3.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -3120,7 +3120,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNShare (12.2.5):
+  - RNShare (12.2.6):
     - boost
     - DoubleConversion
     - fast_float
@@ -3358,6 +3358,7 @@ DEPENDENCIES:
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
+  - react-native-notifications (from `../node_modules/react-native-notifications`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
@@ -3404,7 +3405,6 @@ DEPENDENCIES:
   - RealmJS (from `../node_modules/realm`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
-  - "RNCPushNotificationIOS (from `../node_modules/@react-native-community/push-notification-ios`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
@@ -3542,6 +3542,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-menu:
     :path: "../node_modules/@react-native-menu/menu"
+  react-native-notifications:
+    :path: "../node_modules/react-native-notifications"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-secure-key-store:
@@ -3634,8 +3636,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-clipboard/clipboard"
-  RNCPushNotificationIOS:
-    :path: "../node_modules/@react-native-community/push-notification-ios"
   RNDefaultPreference:
     :path: "../node_modules/react-native-default-preference"
   RNDeviceInfo:
@@ -3683,9 +3683,9 @@ SPEC CHECKSUMS:
   FBLazyVector: 309703e71d3f2f1ed7dc7889d58309c9d77a95a4
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
-  hermes-engine: 1195b00d0f49a367b01a38c87b43227542fc3532
-  lottie-ios: a881093fab623c467d3bce374367755c272bdd59
-  lottie-react-native: 691b8363e8c591fb78a78254ff2517258891456b
+  hermes-engine: b6ee973c4fd6366874d9aabcaf396d53475038eb
+  lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
+  lottie-react-native: 983fd0489530e8d40f173de7f04e2f88b9317a15
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
   RCTDeprecation: a41bbdd9af30bf2e5715796b313e44ec43eefff1
   RCTRequired: 7be34aabb0b77c3cefe644528df0fa0afad4e4d0
@@ -3730,15 +3730,16 @@ SPEC CHECKSUMS:
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 0314366753615115fa55c3cc937ac44cb7e75702
   react-native-menu: 8d2c831a735c9e6528c28b26ca14e57591d87e14
+  react-native-notifications: e2d3c022d6077de7e420ba5c01b4bd9464f3941d
   react-native-safe-area-context: befb5404eb8a16fdc07fa2bebab3568ecabcbb8a
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 7c7e53a07f122ecf00fb3626684bc0ca82c4f044
-  react-native-vector-icons-entypo: 9b3015a5b28f681c668cb3c4c7b4e18ddfac63a3
-  react-native-vector-icons-fontawesome: 3ecb33d69640b08c1800d2893d90eeac4af22e61
-  react-native-vector-icons-fontawesome6: 7464629872b702957385275b62cff2f6c28199cc
-  react-native-vector-icons-ionicons: 7bc32eadb4d24c93252430b49f25b8be000e2340
-  react-native-vector-icons-material-design-icons: 06451bebfd9affaecdd541230f23c6cb077e7063
-  react-native-vector-icons-material-icons: 2fe75632937d07937bfe8ca953e1b5d06eef3a1d
+  react-native-vector-icons-entypo: df7884c4002b70c79d41b7de10b53df3ce8c1e8e
+  react-native-vector-icons-fontawesome: 3604609191a2b4323637a4a25dcd4e6e05579dc2
+  react-native-vector-icons-fontawesome6: 3765e18f5116ae4498997bf8548eaab05de72ee6
+  react-native-vector-icons-ionicons: 7cc4388958a60560aa6f5e257ad8197d555700ff
+  react-native-vector-icons-material-design-icons: 12bc222b4cd6781a3cbbf4b537767d3d528011dd
+  react-native-vector-icons-material-icons: 433cb95ee9de1246934b2ae8414f9c02b520b628
   React-NativeModulesApple: a2c3d2cbec893956a5b3e4060322db2984fff75b
   React-networking: 3f98bd96893a294376e7e03730947a08d474c380
   React-oscompat: 80166b66da22e7af7fad94474e9997bd52d4c8c6
@@ -3776,7 +3777,6 @@ SPEC CHECKSUMS:
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
   RNCAsyncStorage: 29f0230e1a25f36c20b05f65e2eb8958d6526e82
   RNCClipboard: 4b58c780f63676367640f23c8e114e9bd0cf86ac
-  RNCPushNotificationIOS: 85957a0534fd1309b4c028ccbe5b1baf9ab5cf57
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
@@ -3784,13 +3784,13 @@ SPEC CHECKSUMS:
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 483402cf2b90647eb0cf569cebbc069d32addea4
   RNLocalize: 1aedbc2c15073861a364174919d23c31c5924b16
-  RNPermissions: 1b19ad7b3f9139dd5978abdf74a2a80c7ce0ce55
+  RNPermissions: 29cfd9c9bbb7f0bd35e702dc849e33b294feac52
   RNQrGenerator: b467624cdcb0e88108a8b4ca74c94b0978efa265
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
-  RNReactNativeHapticFeedback: be4f1b4bf0398c30b59b76ed92ecb0a2ff3a69c6
+  RNReactNativeHapticFeedback: 43181767a132b77676b6a58b7ed852928e0d4862
   RNReanimated: 18324d3313d6477e1d12836c20c3ee30afb5de30
   RNScreens: 7f643ee0fd1407dc5085c7795460bd93da113b8f
-  RNShare: 60a6937925595bf06a0061ffe8a34dbbdd8c6584
+  RNShare: 51d221e8ac06263e91168c604b94274fdcc4784f
   RNSVG: 595abfa0f9ac26d56afcaaedf4e37a00f54cab71
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   RNWorklets: 01efdd402d236a13651ea5ea5437ca85a44e7afa
