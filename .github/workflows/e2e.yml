@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   ios:
-    runs-on: macos-latest
+    runs-on: macos-26
     env:
       BUILD_CONFIGURATION: Release
       HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
