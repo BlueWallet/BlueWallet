@@ -6,7 +6,9 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import org.json.JSONArray
 import org.json.JSONObject
 
 class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -106,12 +108,29 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : React
         while (iter.hasNextKey()) {
             val key = iter.nextKey()
             when (map.getType(key)) {
+                com.facebook.react.bridge.ReadableType.Null -> json.put(key, JSONObject.NULL)
                 com.facebook.react.bridge.ReadableType.Boolean -> json.put(key, map.getBoolean(key))
                 com.facebook.react.bridge.ReadableType.Number -> json.put(key, map.getDouble(key))
                 com.facebook.react.bridge.ReadableType.String -> json.put(key, map.getString(key))
-                else -> {}
+                com.facebook.react.bridge.ReadableType.Map -> map.getMap(key)?.let { json.put(key, readableMapToJson(it)) }
+                com.facebook.react.bridge.ReadableType.Array -> map.getArray(key)?.let { json.put(key, readableArrayToJson(it)) }
             }
         }
         return json
+    }
+
+    private fun readableArrayToJson(array: ReadableArray): JSONArray {
+        val jsonArray = JSONArray()
+        for (i in 0 until array.size()) {
+            when (array.getType(i)) {
+                com.facebook.react.bridge.ReadableType.Null -> jsonArray.put(JSONObject.NULL)
+                com.facebook.react.bridge.ReadableType.Boolean -> jsonArray.put(array.getBoolean(i))
+                com.facebook.react.bridge.ReadableType.Number -> jsonArray.put(array.getDouble(i))
+                com.facebook.react.bridge.ReadableType.String -> jsonArray.put(array.getString(i))
+                com.facebook.react.bridge.ReadableType.Map -> array.getMap(i)?.let { jsonArray.put(readableMapToJson(it)) }
+                com.facebook.react.bridge.ReadableType.Array -> array.getArray(i)?.let { jsonArray.put(readableArrayToJson(it)) }
+            }
+        }
+        return jsonArray
     }
 }
