@@ -102,6 +102,18 @@ describe('useContinuity', () => {
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
   });
 
+  it('does not call becomeCurrent when recipients array contains only empty-value objects', () => {
+    render(
+      <HookRunner
+        title="SendDetails blank recipient"
+        type={ContinuityActivityType.SendOnchain}
+        userInfo={{ recipients: [{ address: '', amount: '' }] }}
+      />,
+    );
+
+    assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
+  });
+
   it('calls becomeCurrent when at least one userInfo value is meaningful', () => {
     render(
       <HookRunner
