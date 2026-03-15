@@ -1,10 +1,13 @@
 import { LinkingOptions } from '@react-navigation/native';
-import { NativeModules, NativeEventEmitter, Linking, Alert } from 'react-native';
+import { NativeModules, NativeEventEmitter, Linking, Alert, Platform } from 'react-native';
+import DefaultPreference from 'react-native-default-preference';
 import { ContinuityActivityType } from '../components/types';
 import { navigationRef, navigate } from '../NavigationService';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import loc from '../loc';
 import { setLNDHub } from '../helpers/lndHub';
+import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
+import { BlueApp } from '../class';
 
 const CONTINUITY_PREFIX = 'bluewallet://';
 
@@ -65,6 +68,17 @@ function activityToURL(data: UserActivityData): string | null {
 
     default:
       return null;
+  }
+}
+
+async function isEnabled(): Promise<boolean> {
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return false;
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const value = await DefaultPreference.get(BlueApp.CONTINUITY_STORAGE_KEY);
+    return value === 'true';
+  } catch {
+    return false;
   }
 }
 
@@ -136,7 +150,11 @@ export function processInitialContinuityActivity(): void {
   if (!_listener || !EventEmitter?.getMostRecentUserActivity) return;
   const listener = _listener;
 
-  EventEmitter.getMostRecentUserActivity()
+  isEnabled()
+    .then(enabled => {
+      if (!enabled) return;
+      return EventEmitter.getMostRecentUserActivity();
+    })
     .then((data: UserActivityData | null | undefined) => {
       if (!data?.activityType) return;
 
@@ -205,6 +223,9 @@ const continuityLinking: LinkingOptions<DetailViewStackParamList> = {
 
     const subscription = eventEmitter?.addListener('onUserActivityOpen', async (data: UserActivityData) => {
       if (!data?.activityType) return;
+
+      const enabled = await isEnabled();
+      if (!enabled) return;
 
       if (data.activityType === ContinuityActivityType.ViewInBlockExplorer) {
         openExternalURL(data.webpageURL);
