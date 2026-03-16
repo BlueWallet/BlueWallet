@@ -18,13 +18,12 @@ import {
   Wallet,
   ExtendedCoin,
   ArkTransaction,
-  RestArkProvider,
-  RestIndexerProvider,
   RestDelegatorProvider,
   migrateWalletRepository,
   requiresMigration,
   rollbackMigration,
 } from '@arkade-os/sdk';
+import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   RealmWalletRepository,
@@ -151,20 +150,19 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const contractRepository = new RealmContractRepository(realm as any);
       const swapRepository = new RealmSwapRepository(realm as any);
 
-      const mm = new Measure('Wallet.create()');
       if (!staticWalletCache[namespace]) {
+        const mm = new Measure('Wallet.create()');
         const wallet = await Wallet.create({
           identity,
-          arkProvider: new RestArkProvider(this._arkServerUrl),
-          indexerProvider: new RestIndexerProvider(this._arkServerUrl),
+          arkProvider: new ExpoArkProvider(this._arkServerUrl),
+          indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
           delegatorProvider: new RestDelegatorProvider(this._delegatorUrl),
           arkServerPublicKey: this._arkServerPublicKey,
           storage: { walletRepository, contractRepository },
         });
         staticWalletCache[namespace] = wallet;
+        mm.end();
       }
-
-      mm.end();
       this._wallet = staticWalletCache[namespace];
 
       // Migration from legacy AsyncStorage to Realm
@@ -454,20 +452,66 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._wallet) throw new Error('Ark wallet not initialized');
     if (!this._arkadeSwaps) throw new Error('Ark Swaps not initialized');
 
+    // Skip if we fetched recently (within 30s)
+    const now = +new Date();
+    if (this._lastTxFetch && now - this._lastTxFetch < 30000) {
+      return;
+    }
+
+    // Fast path: fetch with current script only (no contract manager).
     this._swapHistory = await this._arkadeSwaps.getSwapHistory();
     this._transactionsHistory = await this._wallet.getTransactionHistory();
     this._lastTxFetch = +new Date();
+
+    // Background: init contract manager then re-fetch to include old non-delegate VTXOs.
+    const wallet = this._wallet;
+    const swaps = this._arkadeSwaps;
+    wallet
+      .getContractManager()
+      .then(() => Promise.all([swaps.getSwapHistory(), wallet.getTransactionHistory()]))
+      .then(([swapHistory, txHistory]) => {
+        this._swapHistory = swapHistory;
+        this._transactionsHistory = txHistory;
+        this._lastTxFetch = +new Date();
+      })
+      .catch(() => {});
   }
 
   async fetchBalance(noRetry?: boolean): Promise<void> {
     if (!this._wallet) await this.init();
     if (!this._wallet) throw new Error('Ark wallet not initialized');
 
-    await this._attemptBoardUtxos();
+    // Skip if we fetched recently (within 30s) to avoid hammering the indexer
+    const now = +new Date();
+    if (this._lastBalanceFetch && now - this._lastBalanceFetch < 30000) {
+      return;
+    }
 
-    const balance = await this._wallet.getBalance();
-    this._lastBalanceFetch = +new Date();
-    this.balance = balance.available;
+    // Fire-and-forget: boarding UTXOs are only used for display in getTransactions(),
+    // so we don't need to block the balance fetch on them.
+    this._attemptBoardUtxos().catch(e => console.log('[ARK] boarding check failed:', e.message));
+
+    try {
+      await this._withTimeout(async () => {
+        const balance = await this._wallet!.getBalance();
+        this._lastBalanceFetch = +new Date();
+        this.balance = balance.available;
+      }, 15000);
+    } catch {
+      console.warn('[ARK] fetchBalance timed out, using cached balance');
+    }
+  }
+
+  private async _withTimeout<T>(fn: () => Promise<T>, ms: number): Promise<T> {
+    let timer: ReturnType<typeof setTimeout>;
+    const timeout = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => reject(new Error(`[ARK] Operation timed out after ${ms}ms`)), ms);
+    });
+    try {
+      return await Promise.race([fn(), timeout]);
+    } finally {
+      clearTimeout(timer!);
+    }
   }
 
   getBalance() {
