@@ -113,15 +113,18 @@ const CharacterList = memo(
       [number, index, lineHeight, mass, stiffness, damping, reduceMotion, initialRender, targetPosition],
     );
 
+    const characterListStyle = useMemo(() => {
+      if (number === 1) {
+        return styles.characterListOne;
+      }
+      if (number === 7) {
+        return styles.characterListSeven;
+      }
+      return styles.characterList;
+    }, [number]);
+
     return (
-      <View
-        style={[
-          styles.characterList,
-          { height: lineHeight },
-          number === 1 && { marginRight: -6 },
-          number === 7 && { marginRight: -3 },
-        ]}
-      >
+      <View style={[characterListStyle, { height: lineHeight }]}>
         <Reanimated.View style={animateStyle}>
           {DIGITS.map((digit, digitIndex) => (
             <Character
@@ -298,6 +301,14 @@ const styles = StyleSheet.create({
   },
   characterList: {
     overflow: 'hidden',
+  },
+  characterListOne: {
+    overflow: 'hidden',
+    marginRight: -6,
+  },
+  characterListSeven: {
+    overflow: 'hidden',
+    marginRight: -3,
   },
 });
 

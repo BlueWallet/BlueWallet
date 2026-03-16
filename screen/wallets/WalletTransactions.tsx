@@ -584,6 +584,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         </>
       </View>
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- wallet.preferredBalanceUnit, wallet.hideBalance, and balance are needed because wallet is a stable ref with mutated properties
     [
       wallet,
       wallet.preferredBalanceUnit,
