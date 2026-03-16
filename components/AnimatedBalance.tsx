@@ -30,7 +30,13 @@ const subtleAnimationConfig = {
   damping: 20,
 };
 
-const AnimatedBalance: React.FC<AnimatedBalanceProps> = ({ formattedValue, textStyle, separatorStyle, variant = 'prominent', autoFitText }) => {
+const AnimatedBalance: React.FC<AnimatedBalanceProps> = ({
+  formattedValue,
+  textStyle,
+  separatorStyle,
+  variant = 'prominent',
+  autoFitText,
+}) => {
   const animationConfig = useMemo(() => {
     return variant === 'subtle' ? subtleAnimationConfig : prominentAnimationConfig;
   }, [variant]);
@@ -63,4 +69,3 @@ const styles = StyleSheet.create({
 });
 
 export default React.memo(AnimatedBalance);
-

@@ -19,7 +19,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
-import loc, { formatBalance, formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
+import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
@@ -343,9 +343,9 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     }
 
     const preferredUnit = item.getPreferredBalanceUnit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- preferredFiatCurrency triggers re-render when fiat currency changes
     const balance = useMemo(
       () => !item.hideBalance && formatBalanceWithoutSuffix(Number(item.getBalance()), preferredUnit, true),
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- preferredFiatCurrency invalidates cached fiat formatting
       [item, preferredUnit, preferredFiatCurrency],
     );
     const balanceUnit = !item.hideBalance && preferredUnit !== BitcoinUnit.LOCAL_CURRENCY ? preferredUnit : null;

@@ -182,13 +182,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             {hideBalance ? (
               <BlurredBalanceView />
             ) : (
-              <View>
-                <AnimatedBalance
-                  formattedValue={String(balance)}
-                  textStyle={styles.walletBalanceText}
-                  variant="prominent"
-                  autoFitText
-                />
+              <View testID="WalletBalance" accessible accessibilityLabel={String(balance)}>
+                <AnimatedBalance formattedValue={String(balance)} textStyle={styles.walletBalanceText} variant="prominent" autoFitText />
               </View>
             )}
           </View>

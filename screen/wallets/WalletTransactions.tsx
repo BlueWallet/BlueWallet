@@ -87,35 +87,33 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const listUnitTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const stylesHook = useMemo(
-    () =>
-      StyleSheet.create({
-        listFooterStyle: {
-          height: '100%',
-          backgroundColor: colors.background,
-        },
-        gradientBackground: {
-          backgroundColor: headerHeight > 0 ? WalletGradient.headerColorFor(wallet.type) : colors.background,
-          height: headerHeight > 0 ? headerHeight : '30%',
-        },
-        activityIndicatorStyle: {
-          backgroundColor: colors.background,
-        },
-        sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
-        receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
-      }),
+    () => ({
+      listFooterStyle: {
+        height: '100%' as const,
+        backgroundColor: colors.background,
+      },
+      gradientBackground: {
+        backgroundColor: headerHeight > 0 ? WalletGradient.headerColorFor(wallet.type) : colors.background,
+        height: headerHeight > 0 ? headerHeight : ('30%' as const),
+      },
+      activityIndicatorStyle: {
+        backgroundColor: colors.background,
+      },
+      sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
+      receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
+    }),
     [colors.background, headerHeight, wallet.type, direction],
   );
 
   const headerListStyles = useMemo(
-    () =>
-      StyleSheet.create({
-        backgroundContainer: {
-          backgroundColor: colors.background,
-        },
-        listHeaderText: {
-          color: colors.foregroundColor,
-        },
-      }),
+    () => ({
+      backgroundContainer: {
+        backgroundColor: colors.background,
+      },
+      listHeaderText: {
+        color: colors.foregroundColor,
+      },
+    }),
     [colors.background, colors.foregroundColor],
   );
 
@@ -330,9 +328,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const renderItem = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ item }: { item: Transaction }) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={listUnit} walletID={walletID} />
-    ),
+    ({ item }: { item: Transaction }) => <TransactionListItem key={item.hash} item={item} itemPriceUnit={listUnit} walletID={walletID} />,
     [listUnit, walletID],
   );
 
@@ -587,6 +583,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         </>
       </View>
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- wallet.preferredBalanceUnit and wallet.hideBalance are needed because wallet is a stable ref with mutated properties
     [
       wallet,
       wallet.preferredBalanceUnit,
@@ -631,7 +628,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         scrollEventThrottle={16}
         ListHeaderComponent={listHeaderElement}
         ListEmptyComponent={
-          <ScrollView style={[styles.emptyTxsContainer, headerListStyles.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
+          <ScrollView
+            style={[styles.emptyTxsContainer, headerListStyles.backgroundContainer]}
+            contentContainerStyle={styles.scrollViewContent}
+          >
             <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
               {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
             </Text>
