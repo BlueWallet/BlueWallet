@@ -129,7 +129,6 @@ const styles = StyleSheet.create({
   balance: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginRight: -1,
   },
   balanceRow: {
     flexDirection: 'row',

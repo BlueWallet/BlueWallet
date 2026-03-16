@@ -128,7 +128,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   useFocusEffect(
     useCallback(() => {
       setOptions(getWalletTransactionsOptions({ route }));
-    }, [route, setOptions]),
+      setBalance(wallet.getBalance());
+    }, [route, setOptions, wallet]),
   );
 
   const onBarCodeRead = useCallback(
@@ -583,11 +584,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         </>
       </View>
     ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- wallet.preferredBalanceUnit and wallet.hideBalance are needed because wallet is a stable ref with mutated properties
     [
       wallet,
       wallet.preferredBalanceUnit,
       wallet.hideBalance,
+      balance,
       measureHeaderHeight,
       headerListStyles.backgroundContainer,
       headerListStyles.listHeaderText,

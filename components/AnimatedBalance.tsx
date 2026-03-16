@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Platform, StyleSheet, StyleProp, TextStyle } from 'react-native';
-import NumberFlow from 'rn-number-flow';
+import NumberFlow from './NumberFlow';
 
 type AnimatedBalanceVariant = 'prominent' | 'subtle';
 
@@ -56,6 +56,7 @@ const AnimatedBalance: React.FC<AnimatedBalanceProps> = ({
       separatorStyle={resolvedSeparatorStyle}
       animationConfig={animationConfig}
       autoFitText={autoFitText}
+      useTabularNumbers={false}
     />
   );
 };
