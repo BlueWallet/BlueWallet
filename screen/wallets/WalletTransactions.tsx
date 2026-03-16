@@ -29,7 +29,7 @@ import TransactionsNavigationHeader, { actionKeys } from '../../components/Trans
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
-import { Chain } from '../../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
@@ -503,7 +503,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [, forceRender] = useState(0);
 
   const handleWalletUnitChange = useCallback(
-    (selectedUnit: string) => {
+    (selectedUnit: BitcoinUnit) => {
       wallet.preferredBalanceUnit = selectedUnit;
       forceRender(c => c + 1);
       if (listUnitTimerRef.current) clearTimeout(listUnitTimerRef.current);
@@ -556,7 +556,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   );
 
   const handleWatchOnlyDismiss = useCallback(() => {
-    wallet.isWatchOnlyWarningVisible = false;
+    if ('isWatchOnlyWarningVisible' in wallet) {
+      wallet.isWatchOnlyWarningVisible = false;
+    }
     LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
     saveToDisk();
   }, [wallet, saveToDisk]);
@@ -578,7 +580,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             </View>
           </View>
           <View style={headerListStyles.backgroundContainer}>
-            {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
+            {wallet.type === WatchOnlyWallet.type && 'isWatchOnlyWarningVisible' in wallet && wallet.isWatchOnlyWarningVisible && (
               <WatchOnlyWarning handleDismiss={handleWatchOnlyDismiss} />
             )}
           </View>

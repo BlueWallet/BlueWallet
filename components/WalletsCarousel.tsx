@@ -404,7 +404,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                           formattedValue={`${balance}`}
                           textStyle={[iStyles.balance, { color: colors.inverseForegroundColor, writingDirection: direction }]}
                           variant="subtle"
-                          testID="WalletCardBalance"
                           autoFitText
                         />
                         {balanceUnit && (
