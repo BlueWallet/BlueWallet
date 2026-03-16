@@ -43,7 +43,7 @@ enum ButtonSelected {
   // @ts-ignore: Return later to update
   OFFCHAIN = Chain.OFFCHAIN,
   VAULT = 'VAULT',
-  ARK = 'ARK',
+  LIGHTNING_ARK = 'LIGHTNING_ARK',
 }
 
 interface State {
@@ -114,7 +114,6 @@ const WalletsAdd: React.FC = () => {
 
   // State
   const [state, dispatch] = useReducer(walletReducer, initialState);
-  const [backdoorPressed, setBackdoorPressed] = useState(0);
   const isLoading = state.isLoading;
   const walletBaseURI = state.walletBaseURI;
   const selectedIndex = state.selectedIndex;
@@ -248,7 +247,7 @@ const WalletsAdd: React.FC = () => {
   }, [selectedWalletType, selectedIndex, entropy, words, entropyButtonText]);
 
   const handleOnLightningArkButtonPressed = useCallback(() => {
-    confirmResetEntropy(ButtonSelected.ARK);
+    confirmResetEntropy(ButtonSelected.LIGHTNING_ARK);
   }, [confirmResetEntropy]);
 
   const handleOnLightningButtonPressed = useCallback(() => {
@@ -328,7 +327,7 @@ const WalletsAdd: React.FC = () => {
 
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
       createLightningWallet();
-    } else if (selectedWalletType === ButtonSelected.ARK) {
+    } else if (selectedWalletType === ButtonSelected.LIGHTNING_ARK) {
       createLightningArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
@@ -443,7 +442,10 @@ const WalletsAdd: React.FC = () => {
   };
 
   const navigateToImportWallet = () => {
-    navigate('ImportWallet');
+    const walletTypeMap: Partial<Record<ButtonSelected, string>> = {
+      [ButtonSelected.LIGHTNING_ARK]: LightningArkWallet.type,
+    };
+    navigate('ImportWallet', { walletType: walletTypeMap[selectedWalletType] });
   };
 
   const handleOnVaultButtonPressed = () => {
@@ -451,10 +453,13 @@ const WalletsAdd: React.FC = () => {
     confirmResetEntropy(ButtonSelected.VAULT);
   };
 
+  const [lightningArkTapCount, setLightningArkTapCount] = useState(0);
+  const isLightningArkVisible = lightningArkTapCount >= 20;
+
   const handleOnBitcoinButtonPressed = () => {
-    setBackdoorPressed(prevState => prevState + 1);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     Keyboard.dismiss();
+    setLightningArkTapCount(prev => prev + 1);
     setSelectedWalletType(ButtonSelected.ONCHAIN);
   };
 
@@ -514,15 +519,15 @@ const WalletsAdd: React.FC = () => {
           onPress={handleOnVaultButtonPressed}
           size={styles.button}
         />
-        {backdoorPressed >= 20 ? (
+        {isLightningArkVisible && (
           <WalletButton
             buttonType="LightningArk"
             testID="ActivateLightningArkButton"
-            active={selectedWalletType === ButtonSelected.ARK}
+            active={selectedWalletType === ButtonSelected.LIGHTNING_ARK}
             onPress={handleOnLightningArkButtonPressed}
             size={styles.button}
           />
-        ) : null}
+        )}
         {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
       </View>
       <View style={styles.advanced}>

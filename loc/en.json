@@ -28,7 +28,8 @@
     "unlock": "Unlock",
     "port": "Port",
     "ssl_port": "SSL Port",
-    "suggested": "Suggested"
+    "suggested": "Suggested",
+    "skip": "Skip"
   },
   "azteco": {
     "codeIs": "Your voucher code is",
@@ -393,6 +394,8 @@
     "custom_fee_warning_description": "Fees below 1 sat/vB are valid, but may not be relayed due to node policies."
   },
   "wallets": {
+    "add_ark": "Ark",
+    "add_ark_explain": "Bitcoin transactions with improved privacy and efficiency",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Create",
@@ -686,7 +689,7 @@
     "notification_tx_unconfirmed": "Notification transaction is not confirmed yet, please wait",
     "failed_create_notif_tx": "Failed to create on-chain transaction",
     "onchain_tx_needed": "On-chain transaction needed",
-    "notif_tx_sent" : "Notification transaction sent. Please wait for it to confirm",
+    "notif_tx_sent": "Notification transaction sent. Please wait for it to confirm",
     "notif_tx": "Notification transaction",
     "not_found": "Payment code not found"
   }

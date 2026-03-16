@@ -16,11 +16,13 @@ export type AddWalletStackParamList = {
     label?: string;
     triggerImport?: boolean;
     onBarScanned?: string;
+    walletType?: string;
   };
   ImportWalletDiscovery: {
     importText: string;
     askPassphrase: boolean;
     searchAccounts: boolean;
+    walletType?: string;
   };
   ImportSpeed: undefined;
   ImportCustomDerivationPath: {

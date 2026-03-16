@@ -5,6 +5,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>io.bluewallet.bluewallet.fetchTxsForWallet</string>
+		<string>io.bluewallet.bluewallet.arkadeSync</string>
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
