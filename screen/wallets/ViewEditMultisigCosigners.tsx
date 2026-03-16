@@ -1,35 +1,27 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
 import {
-  ActivityIndicator,
   Alert,
   findNodeHandle,
   FlatList,
   GestureResponderEvent,
-  InteractionManager,
-  Keyboard,
   LayoutAnimation,
   ListRenderItemInfo,
-  Platform,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import Badge from '../../components/Badge';
-import Icon from '../../components/Icon';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueCard, BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
+import { BlueCard } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
 import presentAlert from '../../components/Alert';
-import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtonType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import QRCodeComponent from '../../components/QRCodeComponent';
-import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
@@ -38,13 +30,9 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
-import ToolTipMenu from '../../components/TooltipMenu';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useSettings } from '../../hooks/context/useSettings';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import SafeArea from '../../components/SafeArea';
 import { TWallet } from '../../class/wallets/types';
-import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -59,7 +47,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { dispatch, setOptions, navigateToWalletsList } = useExtendedNavigation<NavigationProp>();
+  const { dispatch, setOptions, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -68,13 +56,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaveButtonDisabled, setIsSaveButtonDisabled] = useState(true);
   const [currentlyEditingCosignerNum, setCurrentlyEditingCosignerNum] = useState<number | false>(false);
-  const shareModalRef = useRef<BottomModalHandle>(null);
-  const provideMnemonicsModalRef = useRef<BottomModalHandle>(null);
-  const mnemonicsModalRef = useRef<BottomModalHandle>(null);
   const [importText, setImportText] = useState('');
-  const [exportString, setExportString] = useState('{}'); // used in exportCosigner()
-  const [exportStringURv2, setExportStringURv2] = useState(''); // used in QR
-  const [exportFilename, setExportFilename] = useState('bw-cosigner.json');
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', passphrase: '', path: '', fp: '', isLoading: false }); // string rendered in modal
   const [isVaultKeyIndexDataLoading, setIsVaultKeyIndexDataLoading] = useState<number | undefined>(undefined);
   const [askPassphrase, setAskPassphrase] = useState(false);
@@ -88,18 +70,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
-    },
-    textDestination: {
-      color: colors.foregroundColor,
-    },
-    vaultKeyText: {
-      color: colors.alternativeTextColor,
-    },
-    askPassphrase: {
-      backgroundColor: colors.lightButton,
-    },
-    vaultKeyCircleSuccess: {
-      backgroundColor: colors.msSuccessBG,
     },
     tipKeys: {
       color: colors.alternativeTextColor,
@@ -186,22 +156,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
       if (!hasLoaded.current) {
         setIsLoading(true);
 
-        const task = InteractionManager.runAfterInteractions(async () => {
+        let cancelled = false;
+        (async () => {
           if (!w.current) {
-            // lets create fake wallet so renderer wont throw any errors
             w.current = new MultisigHDWallet();
             w.current.setNativeSegwit();
           } else {
             tempWallet.current.setSecret(w.current.getSecret());
-            setWalletData(new Array(tempWallet.current.getN()));
-            setWallet(tempWallet.current);
+            if (!cancelled) {
+              setWalletData(new Array(tempWallet.current.getN()));
+              setWallet(tempWallet.current);
+            }
           }
           hasLoaded.current = true;
-          setIsLoading(false);
-        });
+          if (!cancelled) setIsLoading(false);
+        })();
         return () => {
           disableScreenProtect();
-          task.cancel();
+          cancelled = true;
         };
       }
       return () => {
@@ -210,78 +182,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),
   );
-
-  const renderMnemonicsModal = () => {
-    return (
-      <BottomModal
-        ref={mnemonicsModalRef}
-        backgroundColor={colors.elevated}
-        contentContainerStyle={[styles.newKeyModalContent, styles.paddingTop44]}
-        shareButtonOnPress={() => {
-          shareModalRef.current?.present();
-        }}
-        sizes={[Platform.OS === 'ios' ? 'auto' : '50%']}
-        header={
-          <View style={styles.itemKeyUnprovidedWrapper}>
-            <View style={[styles.vaultKeyCircleSuccess, stylesHook.vaultKeyCircleSuccess]}>
-              <Icon size={24} name="checkmark" type="ionicons" color={colors.msSuccessCheck} />
-            </View>
-            <View style={styles.vaultKeyTextWrapper}>
-              <Text style={[styles.vaultKeyText, stylesHook.vaultKeyText]}>
-                {loc.formatString(loc.multisig.vault_key, { number: vaultKeyData.keyIndex })}
-              </Text>
-            </View>
-          </View>
-        }
-      >
-        {vaultKeyData.xpub.length > 1 && (
-          <>
-            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.wallet_key}</Text>
-            <BlueSpacing10 />
-            <SquareEnumeratedWords
-              contentAlign={SquareEnumeratedWordsContentAlign.left}
-              entries={[vaultKeyData.xpub, vaultKeyData.fp, vaultKeyData.path]}
-              appendNumber={false}
-            />
-          </>
-        )}
-        {vaultKeyData.seed.length > 1 && (
-          <>
-            <BlueSpacing20 />
-            <Text style={[styles.textDestination, stylesHook.textDestination]}>{loc._.seed}</Text>
-            <BlueSpacing10 />
-            <SquareEnumeratedWords
-              contentAlign={SquareEnumeratedWordsContentAlign.left}
-              entries={vaultKeyData.seed.split(' ')}
-              appendNumber
-            />
-            {vaultKeyData.passphrase.length > 1 && (
-              <Text style={[styles.textDestination, stylesHook.textDestination]}>{vaultKeyData.passphrase}</Text>
-            )}
-          </>
-        )}
-        {renderShareModal()}
-      </BottomModal>
-    );
-  };
-
-  const resetModalData = () => {
-    setVaultKeyData({
-      keyIndex: 1,
-      xpub: '',
-      seed: '',
-      passphrase: '',
-      path: '',
-      fp: '',
-      isLoading: false,
-    });
-    setImportText('');
-    setExportString('{}');
-    setExportStringURv2('');
-    setExportFilename('');
-    setIsSaveButtonDisabled(false);
-    setAskPassphrase(false);
-  };
 
   const _renderKeyItem = (el: ListRenderItemInfo<any>) => {
     if (!wallet) {
@@ -316,6 +216,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
             {!vaultKeyData.isLoading && (
               <MultipleStepsListItem
                 button={{
+                  testID: 'VaultCosignerView' + String(el.index + 1),
                   buttonType: MultipleStepsListItemButtonType.Partial,
                   leftText,
                   text: loc.multisig.view,
@@ -332,6 +233,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
                         presentAlert({ message: 'Cannot find derivation path for this cosigner' });
                         return;
                       }
+                      const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
+                      const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
+                      const exportUr = encodeUR(exportJson, 175, null)[0];
                       setVaultKeyData({
                         keyIndex,
                         seed: '',
@@ -341,10 +245,20 @@ const ViewEditMultisigCosigners: React.FC = () => {
                         path,
                         isLoading: false,
                       });
-                      setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
-                      setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path), 175, null)[0]);
-                      setExportFilename('bw-cosigner-' + fp + '.json');
-                      mnemonicsModalRef.current?.present();
+                      navigate('ViewEditMultisigCosignerViewSheet', {
+                        walletID,
+                        vaultKeyData: {
+                          keyIndex,
+                          seed: '',
+                          passphrase: '',
+                          xpub,
+                          fp,
+                          path,
+                          cosignerXpubURv2: exportUr,
+                          exportFilename: exportFilenameValue,
+                          exportString: exportJson,
+                        },
+                      });
                       setIsVaultKeyIndexDataLoading(undefined);
                     }, 100);
                   },
@@ -355,12 +269,18 @@ const ViewEditMultisigCosigners: React.FC = () => {
             <MultipleStepsListItem
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               button={{
+                testID: 'VaultCosignerImportMnemonics' + String(el.index + 1),
                 text: loc.multisig.i_have_mnemonics,
                 buttonType: MultipleStepsListItemButtonType.Full,
                 disabled: vaultKeyData.isLoading,
                 onPress: () => {
                   setCurrentlyEditingCosignerNum(el.index + 1);
-                  provideMnemonicsModalRef.current?.present();
+                  navigate('ViewEditMultisigProvideMnemonicsSheet', {
+                    walletID,
+                    currentlyEditingCosignerNum: el.index + 1,
+                    importText,
+                    askPassphrase,
+                  });
                 },
               }}
               dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
@@ -372,6 +292,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
               <MultipleStepsListItem
                 showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
                 button={{
+                  testID: 'VaultCosignerView' + String(el.index + 1),
                   leftText,
                   text: loc.multisig.view,
                   disabled: vaultKeyData.isLoading,
@@ -399,10 +320,24 @@ const ViewEditMultisigCosigners: React.FC = () => {
                         return;
                       }
                       const xpub = wallet.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(seed, path, passphrase));
-                      setExportString(MultisigCosigner.exportToJson(fp, xpub, path));
-                      setExportStringURv2(encodeUR(MultisigCosigner.exportToJson(fp, xpub, path), 175, null)[0]);
-                      setExportFilename('bw-cosigner-' + fp + '.json');
-                      mnemonicsModalRef.current?.present();
+                      const exportJson = MultisigCosigner.exportToJson(fp, xpub, path);
+                      const exportFilenameValue = 'bw-cosigner-' + fp + '.json';
+                      const exportUr = encodeUR(exportJson, 175, null)[0];
+                      setAskPassphrase(false);
+                      navigate('ViewEditMultisigCosignerViewSheet', {
+                        walletID,
+                        vaultKeyData: {
+                          keyIndex,
+                          seed,
+                          xpub,
+                          fp,
+                          path,
+                          passphrase: passphrase ?? '',
+                          cosignerXpubURv2: exportUr,
+                          exportFilename: exportFilenameValue,
+                          exportString: exportJson,
+                        },
+                      });
                       setIsVaultKeyIndexDataLoading(undefined);
                     }, 100);
                   },
@@ -422,6 +357,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
               showActivityIndicator={vaultKeyData.keyIndex === el.index + 1 && vaultKeyData.isLoading}
               dashes={el.index === length - 1 ? MultipleStepsListItemDashType.Top : MultipleStepsListItemDashType.TopAndBottom}
               button={{
+                testID: 'VaultCosignerForgetSeed' + String(el.index + 1),
                 text: loc.multisig.forget_this_seed,
                 disabled: vaultKeyData.isLoading,
                 buttonType: MultipleStepsListItemButtonType.Full,
@@ -456,8 +392,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
   };
 
   const _handleUseMnemonicPhrase = useCallback(
-    (mnemonic: string, passphrase?: string) => {
-      if (!wallet || !currentlyEditingCosignerNum) {
+    (mnemonic: string, passphrase?: string, cosignerNumOverride?: number) => {
+      const cosignerNum = cosignerNumOverride ?? currentlyEditingCosignerNum;
+      if (!wallet || !cosignerNum) {
         // failsafe
         return;
       }
@@ -466,7 +403,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       hd.setSecret(mnemonic);
       if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
       try {
-        wallet.replaceCosignerXpubWithSeed(currentlyEditingCosignerNum, hd.getSecret(), passphrase);
+        wallet.replaceCosignerXpubWithSeed(cosignerNum, hd.getSecret(), passphrase);
       } catch (e: any) {
         console.log(e);
         return presentAlert({ message: e.message });
@@ -474,7 +411,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setWallet(wallet);
-      provideMnemonicsModalRef.current?.dismiss();
       setIsSaveButtonDisabled(false);
       setImportText('');
       setAskPassphrase(false);
@@ -482,135 +418,73 @@ const ViewEditMultisigCosigners: React.FC = () => {
     [wallet, currentlyEditingCosignerNum],
   );
 
-  const handleUseMnemonicPhrase = async () => {
-    let passphrase;
-    if (askPassphrase) {
-      try {
-        passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
-      } catch (e: any) {
-        if (e.message === 'Cancel Pressed') {
-          setIsLoading(false);
-          return;
+  const handleUseMnemonicPhrase = useCallback(
+    async ({
+      mnemonicOverride,
+      askPassphraseOverride,
+      cosignerNumOverride,
+    }: { mnemonicOverride?: string; askPassphraseOverride?: boolean; cosignerNumOverride?: number } = {}) => {
+      const mnemonicToUse = (mnemonicOverride ?? importText).trim();
+      if (!mnemonicToUse) return;
+      const shouldAskPassphrase = askPassphraseOverride ?? askPassphrase;
+      let passphrase;
+      if (shouldAskPassphrase) {
+        try {
+          passphrase = await prompt(loc.wallets.import_passphrase_title, loc.wallets.import_passphrase_message);
+        } catch (e: any) {
+          if (e.message === 'Cancel Pressed') {
+            setIsLoading(false);
+            return;
+          }
+          throw e;
         }
-        throw e;
       }
-    }
-
-    return _handleUseMnemonicPhrase(importText, passphrase);
-  };
+      return _handleUseMnemonicPhrase(mnemonicToUse, passphrase, cosignerNumOverride);
+    },
+    [askPassphrase, importText, _handleUseMnemonicPhrase],
+  );
 
   const xpubInsteadOfSeed = (index: number): Promise<void> => {
     return new Promise((resolve, reject) => {
-      InteractionManager.runAfterInteractions(() => {
-        try {
-          wallet?.replaceCosignerSeedWithXpub(index);
-        } catch (e: any) {
-          reject(e);
-          return presentAlert({ message: e.message });
-        }
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setWallet(wallet);
-        setIsSaveButtonDisabled(false);
-        resolve();
-      });
+      try {
+        wallet?.replaceCosignerSeedWithXpub(index);
+      } catch (e: any) {
+        reject(e);
+        return presentAlert({ message: e.message });
+      }
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setWallet(wallet);
+      setIsSaveButtonDisabled(false);
+      resolve();
     });
   };
 
-  const hideProvideMnemonicsModal = () => {
-    Keyboard.dismiss();
-    provideMnemonicsModalRef.current?.dismiss();
-    resetModalData();
-  };
-
-  const hideShareModal = () => {};
-
-  const toolTipActions = useMemo(() => {
-    return [{ ...CommonToolTipActions.Passphrase, menuState: askPassphrase }];
-  }, [askPassphrase]);
-
-  const renderProvideMnemonicsModal = () => {
-    return (
-      <BottomModal
-        onClose={hideProvideMnemonicsModal}
-        ref={provideMnemonicsModalRef}
-        contentContainerStyle={styles.newKeyModalContent}
-        backgroundColor={colors.elevated}
-        footerDefaultMargins
-        header={
-          <ToolTipMenu
-            isButton
-            isMenuPrimaryAction
-            onPressMenuItem={(id: string) => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-              setAskPassphrase(!askPassphrase);
-            }}
-            actions={toolTipActions}
-            style={[styles.askPassprase, stylesHook.askPassphrase]}
-          >
-            <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
-          </ToolTipMenu>
-        }
-        footer={
-          <>
-            {isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} onPress={handleUseMnemonicPhrase} />
-            )}
-
-            {!isLoading && (
-              <>
-                <BlueSpacing20 />
-                <AddressInputScanButton
-                  beforePress={async () => {
-                    await provideMnemonicsModalRef.current?.dismiss();
-                  }}
-                  isLoading={isLoading}
-                  type="link"
-                  onChangeText={async text => {
-                    setImportText(text);
-                    await new Promise(resolve => setTimeout(resolve, 500)); // propagate
-                    await provideMnemonicsModalRef.current?.present(); // showing modal again so user can tap Import button
-                  }}
-                />
-                <BlueSpacing20 />
-              </>
-            )}
-          </>
-        }
-      >
-        <>
-          <BlueTextCentered>{loc.multisig.type_your_mnemonics}</BlueTextCentered>
-          <BlueSpacing20 />
-          <View style={styles.multiLineTextInput}>
-            <BlueFormMultiInput editable={!isLoading} value={importText} onChangeText={setImportText} />
-          </View>
-        </>
-      </BottomModal>
-    );
-  };
-
-  const renderShareModal = () => {
-    return (
-      <BottomModal
-        ref={shareModalRef}
-        onClose={hideShareModal}
-        contentContainerStyle={[styles.modalContent, styles.alignItemsCenter, styles.shareModalHeight]}
-        backgroundColor={colors.elevated}
-        shareContent={{ fileName: exportFilename, fileContent: exportString }}
-      >
-        <SafeArea>
-          <View style={styles.alignItemsCenter}>
-            <Text style={[styles.headerText, stylesHook.textDestination]}>
-              {loc.multisig.this_is_cosigners_xpub} {Platform.OS === 'ios' ? loc.multisig.this_is_cosigners_xpub_airdrop : ''}
-            </Text>
-            <BlueSpacing20 />
-            <QRCodeComponent value={exportStringURv2} size={260} isLogoRendered={false} />
-          </View>
-        </SafeArea>
-      </BottomModal>
-    );
-  };
+  useEffect(() => {
+    if (route.params.sheetAction === 'importMnemonic' && route.params.sheetImportText) {
+      const targetCosignerNum = route.params.sheetCurrentlyEditingCosignerNum;
+      if (targetCosignerNum) setCurrentlyEditingCosignerNum(targetCosignerNum);
+      setImportText(route.params.sheetImportText);
+      setAskPassphrase(!!route.params.sheetAskPassphrase);
+      handleUseMnemonicPhrase({
+        mnemonicOverride: route.params.sheetImportText,
+        askPassphraseOverride: route.params.sheetAskPassphrase,
+        cosignerNumOverride: targetCosignerNum,
+      });
+      setParams({
+        sheetAction: undefined,
+        sheetImportText: undefined,
+        sheetAskPassphrase: undefined,
+        sheetCurrentlyEditingCosignerNum: undefined,
+      });
+    }
+  }, [
+    handleUseMnemonicPhrase,
+    route.params.sheetAction,
+    route.params.sheetImportText,
+    route.params.sheetAskPassphrase,
+    route.params.sheetCurrentlyEditingCosignerNum,
+    setParams,
+  ]);
 
   if (isLoading)
     return (
@@ -649,11 +523,14 @@ const ViewEditMultisigCosigners: React.FC = () => {
     );
   };
 
-  const footer = <Button disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />;
+  const footer = (
+    <Button testID="VaultCosignersSave" disabled={vaultKeyData.isLoading || isSaveButtonDisabled} title={loc._.save} onPress={onSave} />
+  );
 
   return (
     <View style={[styles.root, stylesHook.root]} ref={discardChangesRef}>
       <FlatList
+        testID="ViewEditMultisigCosignersFlatList"
         ListHeaderComponent={tipKeys}
         data={walletData}
         extraData={vaultKeyData}
@@ -666,10 +543,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
       />
       <BlueCard>{footer}</BlueCard>
       <BlueSpacing20 />
-
-      {renderProvideMnemonicsModal()}
-
-      {renderMnemonicsModal()}
     </View>
   );
 };
@@ -679,36 +552,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
   },
-  itemKeyUnprovidedWrapper: { flexDirection: 'row', paddingTop: 22 },
-  textDestination: { fontWeight: '600' },
-  vaultKeyText: { fontSize: 18, fontWeight: 'bold' },
-  vaultKeyTextWrapper: { justifyContent: 'center', alignItems: 'center', paddingLeft: 16 },
-  newKeyModalContent: {
-    paddingHorizontal: 22,
-    minHeight: 350,
-  },
-  paddingTop44: { paddingTop: 44 },
-  multiLineTextInput: {
-    minHeight: 130,
-  },
   contentContainerStyle: {
     padding: 16,
   },
-  modalContent: {
-    padding: 22,
-    justifyContent: 'center',
-  },
-  vaultKeyCircleSuccess: {
-    width: 42,
-    height: 42,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  headerText: { fontSize: 15, color: '#13244D' },
-  alignItemsCenter: { alignItems: 'center', justifyContent: 'space-between' },
-  shareModalHeight: { minHeight: 370 },
   tipKeys: {
     fontSize: 15,
     fontWeight: '600',
@@ -723,8 +569,6 @@ const styles = StyleSheet.create({
   tipLabelText: {
     fontWeight: '500',
   },
-
-  askPassprase: { top: 0, left: 0, alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 32 / 2 },
 });
 
 export default ViewEditMultisigCosigners;
