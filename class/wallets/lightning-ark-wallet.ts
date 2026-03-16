@@ -290,17 +290,32 @@ export class LightningArkWallet extends LightningCustodianWallet {
       observedSwapIds.add(swap.id);
       console.log('[ARK] Re-observing pending reverse swap:', swap.id);
 
-      this._arkadeSwaps
+      // Extract the invoice string so waitForInvoicePayment() can find the promise
+      // @ts-ignore response.invoice exists on reverse swaps
+      const invoiceStr: string | undefined = swap.response?.invoice;
+
+      const claimPromise = this._arkadeSwaps
         .waitAndClaim(swap as PendingSwap)
-        .then(() => {
+        .then(async () => {
           console.log('[ARK] Re-observed swap claimed successfully:', swap.id);
+          // Refresh swap statuses so getTransactions() returns settled status immediately
+          if (this._arkadeSwaps) {
+            await this._arkadeSwaps.refreshSwapsStatus();
+            this._swapHistory = await this._arkadeSwaps.getSwapHistory();
+            this._lastTxFetch = 0;
+          }
         })
         .catch(err => {
           console.warn('[ARK] Re-observed waitAndClaim ended:', swap.id, err?.message ?? err);
         })
         .finally(() => {
           observedSwapIds.delete(swap.id);
+          if (invoiceStr) claimPromises.delete(invoiceStr);
         });
+
+      if (invoiceStr) {
+        claimPromises.set(invoiceStr, claimPromise);
+      }
     }
   }
 
@@ -379,17 +394,23 @@ export class LightningArkWallet extends LightningCustodianWallet {
       });
     }
 
-    // Build a set of amounts from settled Lightning receive swaps so we can
-    // skip the duplicate Ark transaction history entries (the claimed VTXO
-    // shows up in both _swapHistory and _transactionsHistory).
+    // Track settled Lightning swap amounts so we can skip duplicate Ark
+    // transaction history entries. Reverse swaps duplicate RECEIVED entries;
+    // submarine swaps duplicate SENT entries.
     const swapReceiveAmounts = new Map<number, number>();
-    const settledSwapAmounts = new Set<number>();
+    const settledReceiveSwapAmounts = new Set<number>();
+    const swapSendAmounts = new Map<number, number>();
     for (const swap of this._swapHistory) {
-      if (swap.status === 'invoice.settled') {
-        // @ts-ignore properties do exist
-        const amt: number = swap.response.onchainAmount || swap.response.expectedAmount || 0;
+      if (isPendingReverseSwap(swap) && swap.status === 'invoice.settled') {
+        const amt = swap.response.onchainAmount || 0;
         swapReceiveAmounts.set(amt, (swapReceiveAmounts.get(amt) || 0) + 1);
-        settledSwapAmounts.add(amt);
+        settledReceiveSwapAmounts.add(amt);
+        continue;
+      }
+
+      if (isPendingSubmarineSwap(swap) && swap.status === 'transaction.claimed') {
+        const amt = swap.response.expectedAmount || 0;
+        swapSendAmounts.set(amt, (swapSendAmounts.get(amt) || 0) + 1);
       }
     }
 
@@ -415,6 +436,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
         }
       }
 
+      // Skip SENT non-boarding entries that are already covered by a
+      // swap history entry (Lightning payments via Boltz submarine swap).
+      if (histTx.type === 'SENT' && !histTx.key.boardingTxid) {
+        const count = swapSendAmounts.get(histTx.amount);
+        if (count && count > 0) {
+          swapSendAmounts.set(histTx.amount, count - 1);
+          continue;
+        }
+      }
+
       let description: string;
       if (histTx.key.boardingTxid) {
         description = 'Refill';
@@ -428,7 +459,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       // Received transactions use the actual settled flag from the Ark SDK,
       // but also consider the transaction settled if a matching swap is already
       // settled (the Ark SDK may lag behind the swap status).
-      const isSettled = histTx.type === 'SENT' ? true : histTx.settled || settledSwapAmounts.has(histTx.amount);
+      const isSettled = histTx.type === 'SENT' ? true : histTx.settled || settledReceiveSwapAmounts.has(histTx.amount);
 
       ret.push({
         type: 'bitcoind_tx',
