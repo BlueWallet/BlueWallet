@@ -16,8 +16,8 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
-import useHandoff from '../../hooks/useHandoff';
-import { HandOffActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
+import { ContinuityActivityType } from '../../components/types';
 
 type SignVerifyRouteParams = {
   walletID: string;
@@ -41,9 +41,9 @@ const SignVerify = () => {
   const wallet = useWalletSubscribe(walletID);
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
 
-  useHandoff({
+  useContinuity({
     title: loc.addresses.sign_title,
-    type: HandOffActivityType.SignVerify,
+    type: ContinuityActivityType.SignVerify,
     url: signature
       ? `https://bluewallet.github.io/VerifySignature?a=${address}&m=${encodeURIComponent(message)}&s=${encodeURIComponent(signature)}`
       : undefined,
