@@ -398,7 +398,7 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
   });
 }
 
-const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
+export const presentNetworkErrorAlert = async (usingPeer?: Peer, allowRepeat = false) => {
   if (await isDisabled()) {
     console.log(
       'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
@@ -407,7 +407,7 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
   }
 
   presentAlert({
-    allowRepeat: false,
+    allowRepeat,
     title: loc.errors.network,
     message: loc.formatString(
       usingPeer ? loc.settings.electrum_unable_to_connect : loc.settings.electrum_error_connect,

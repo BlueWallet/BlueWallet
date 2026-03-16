@@ -1,5 +1,5 @@
-import React, { lazy, useCallback, useMemo } from 'react';
-import { View, Platform, PlatformColor } from 'react-native';
+import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -26,9 +26,11 @@ import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
 import { DetailViewStack } from './index';
 import { withLazySuspense } from './LazyLoadingIndicator';
+import Icon from '../components/Icon';
 import SettingsButton from '../components/icons/SettingsButton';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import { WalletTransactionsStatus } from '../components/Context/StorageProvider';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';
@@ -51,18 +53,82 @@ import SettingsTools from '../screen/settings/SettingsTools';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
+import * as BlueElectrum from '../blue_modules/BlueElectrum';
+import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
+const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.55,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [opacity]);
+
+  return (
+    <View style={containerStyle}>
+      <Animated.Text style={[textStyle, { opacity }]}>{loc.transactions.updating}</Animated.Text>
+    </View>
+  );
+};
+
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
-  const { wallets } = useStorage();
-  const { isTotalBalanceEnabled } = useSettings();
+  const { wallets, walletTransactionUpdateStatus } = useStorage();
+  const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
+  const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
+
+  const pollConnection = useCallback(async () => {
+    if (isElectrumDisabled) return;
+    const ok = await BlueElectrum.ping();
+    setElectrumConnected(ok);
+  }, [isElectrumDisabled]);
+
+  useEffect(() => {
+    if (isElectrumDisabled) {
+      setElectrumConnected(null);
+      return;
+    }
+    pollConnection();
+  }, [isElectrumDisabled, pollConnection]);
+
+  useEffect(() => {
+    if (isElectrumDisabled) return;
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active') {
+        pollConnection();
+      }
+    });
+    return () => subscription.remove();
+  }, [isElectrumDisabled, pollConnection]);
+  // When starting up in an unknown state, we optimistically rely on ping()
+  // and the disconnected retry loop below to surface connectivity issues.
+
+  useEffect(() => {
+    if (isElectrumDisabled || electrumConnected !== false) return;
+    const interval = setInterval(pollConnection, 3000);
+    return () => clearInterval(interval);
+  }, [isElectrumDisabled, electrumConnected, pollConnection]);
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
@@ -84,8 +150,53 @@ const DetailViewStackScreensStack = () => {
     [sizeClass, navigateToAddWallet],
   );
 
+  const navigateToElectrumSettings = useCallback(() => {
+    navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
+  }, [navigation]);
+
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
+    const isUpdating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
+    const showOffline = isElectrumDisabled;
+    // When the user explicitly pulls to refresh, we always prefer showing
+    // the \"Updating...\" pill over \"Not connected\" during that refresh.
+    const showNotConnected = !isElectrumDisabled && electrumConnected === false && !isUpdating;
+    const showUpdating = !isElectrumDisabled && isUpdating;
+
+    const renderHeaderLeft = () => {
+      if (showOffline) {
+        const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
+        return (
+          <Pressable
+            onPress={navigateToElectrumSettings}
+            style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor: offlineBg }]}
+          >
+            <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
+            <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
+          </Pressable>
+        );
+      }
+      if (showNotConnected) {
+        return (
+          <Pressable
+            onPress={() => BlueElectrum.presentNetworkErrorAlert(undefined, true)}
+            style={[styles.updatingLabelContainer, { backgroundColor: theme.colors.redBG }]}
+          >
+            <Text style={[styles.updatingLabelText, { color: theme.colors.redText }]}>{loc.settings.electrum_connected_not}</Text>
+          </Pressable>
+        );
+      }
+      if (showUpdating) {
+        return (
+          <UpdatingLabel
+            containerStyle={[styles.updatingLabelContainer, { backgroundColor: theme.colors.lightButton }]}
+            textStyle={[styles.updatingLabelText, { color: theme.colors.foregroundColor }]}
+          />
+        );
+      }
+      return null;
+    };
+
     return {
       title: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
       navigationBarColor: theme.colors.navigationBarColor,
@@ -94,9 +205,27 @@ const DetailViewStackScreensStack = () => {
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
+      headerLeft: renderHeaderLeft,
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
-  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, theme.colors.navigationBarColor, wallets]);
+  }, [
+    RightBarButtons,
+    sizeClass,
+    isTotalBalanceEnabled,
+    theme.colors.customHeader,
+    theme.colors.foregroundColor,
+    theme.colors.lightButton,
+    theme.colors.navigationBarColor,
+    theme.colors.redBG,
+    theme.colors.redText,
+    theme.colors.darkGray,
+    theme.dark,
+    electrumConnected,
+    isElectrumDisabled,
+    navigateToElectrumSettings,
+    walletTransactionUpdateStatus,
+    wallets,
+  ]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
@@ -129,11 +258,12 @@ const DetailViewStackScreensStack = () => {
   };
 
   return (
-    <DetailViewStack.Navigator
-      initialRouteName="WalletsList"
-      screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
-    >
-      <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
+    <ConnectionPollContext.Provider value={{ pollConnection }}>
+      <DetailViewStack.Navigator
+        initialRouteName="WalletsList"
+        screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
+      >
+        <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
       <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
       <DetailViewStack.Screen
         name="WalletDetails"
@@ -392,17 +522,36 @@ const DetailViewStackScreensStack = () => {
         })(theme)}
       />
     </DetailViewStack.Navigator>
+    </ConnectionPollContext.Provider>
   );
 };
 
 export default DetailViewStackScreensStack;
 
-const styles = {
+const styles = StyleSheet.create({
   width24: {
     width: 24,
   },
-  walletDetails: {
+  updatingLabelContainer: {
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     justifyContent: 'center',
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
-};
+  offlineLabelRow: {
+    flexDirection: 'row',
+  },
+  offlineLabelIcon: {
+    marginRight: 6,
+  },
+  offlineLabelText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  updatingLabelText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+});
