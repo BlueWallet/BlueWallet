@@ -52,7 +52,7 @@ post_install do |installer|
     :mac_catalyst_enabled => true,
     # :ccache_enabled => true
   )
-  # Fix RCTDeprecation module map error with Xcode 16+/26+.
+  # Fix RCTDeprecation module map error with Xcode 16+/26+ (required for react-native-notifications).
   # The bridging header imports RCTBridgeModule.h which does
   # #import <RCTDeprecation/RCTDeprecation.h>. With -fmodules, Clang treats this
   # as a module import and builds a PCM, but PCH verification then fails with
@@ -70,9 +70,6 @@ post_install do |installer|
       File.write(xcconfig_path, content)
     end
   end
-
-  ReactNativePodsUtils.set_build_setting(installer, build_setting: "SWIFT_ENABLE_EXPLICIT_MODULES", value: "NO")
-  ReactNativePodsUtils.set_build_setting(installer, build_setting: "CLANG_ENABLE_EXPLICIT_MODULES", value: "NO")
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
