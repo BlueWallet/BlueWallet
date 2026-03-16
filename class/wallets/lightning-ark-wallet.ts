@@ -584,8 +584,15 @@ export class LightningArkWallet extends LightningCustodianWallet {
     observedSwapIds.add(result.pendingSwap.id);
     const claimPromise = this._arkadeSwaps
       .waitAndClaim(result.pendingSwap)
-      .then(() => {
+      .then(async () => {
         console.log('Reverse swap claimed successfully for invoice:', result.invoice);
+        // Refresh swap statuses from Boltz API then update local history
+        // so getTransactions() returns the settled status immediately
+        if (this._arkadeSwaps) {
+          await this._arkadeSwaps.refreshSwapsStatus();
+          this._swapHistory = await this._arkadeSwaps.getSwapHistory();
+          this._lastTxFetch = 0;
+        }
       })
       .catch(err => {
         // WebSocket may close after the swap is already claimed — this is expected
