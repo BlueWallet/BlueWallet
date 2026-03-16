@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
@@ -16,6 +16,7 @@ import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -98,6 +99,7 @@ const WalletsList: React.FC = () => {
   const { isLoading } = state;
   const { sizeClass, isLarge } = useSizeClass();
   const walletsCarousel = useRef<any>();
+  const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
@@ -140,12 +142,10 @@ const WalletsList: React.FC = () => {
     [isElectrumDisabled, refreshAllWalletTransactions],
   );
 
-  /**
-   * Forcefully fetches TXs and balance for ALL wallets.
-   * Triggered manually by user on pull-to-refresh.
-   */
   const refreshTransactions = useCallback(() => {
-    refreshWallets(undefined, true, true);
+    // Manual pull-to-refresh already has its own loading UI, so we
+    // don't surface the global \"Updating...\" header pill here.
+    refreshWallets(undefined, true, false);
   }, [refreshWallets]);
 
   useEffect(() => {
@@ -183,6 +183,7 @@ const WalletsList: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
+      connectionPoll?.pollConnection();
       const screenKey = route.name;
 
       return () => {
@@ -190,7 +191,7 @@ const WalletsList: React.FC = () => {
         unregisterTransactionsHandler(screenKey);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [unregisterTransactionsHandler]),
+    }, [connectionPoll, unregisterTransactionsHandler]),
   );
 
   useEffect(() => {

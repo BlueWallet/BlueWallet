@@ -54,6 +54,7 @@ import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
+import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 
@@ -89,9 +90,6 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
   );
 };
 
-const ELECTRUM_POLL_INTERVAL_MS = 2500;
-const ELECTRUM_POLL_INTERVAL_DISCONNECTED_MS = 1000;
-
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
@@ -102,12 +100,8 @@ const DetailViewStackScreensStack = () => {
 
   const pollConnection = useCallback(async () => {
     if (isElectrumDisabled) return;
-    try {
-      await BlueElectrum.getConfig();
-      setElectrumConnected(true);
-    } catch {
-      setElectrumConnected(false);
-    }
+    const ok = await BlueElectrum.ping();
+    setElectrumConnected(ok);
   }, [isElectrumDisabled]);
 
   useEffect(() => {
@@ -116,11 +110,7 @@ const DetailViewStackScreensStack = () => {
       return;
     }
     pollConnection();
-    const intervalMs =
-      electrumConnected === false ? ELECTRUM_POLL_INTERVAL_DISCONNECTED_MS : ELECTRUM_POLL_INTERVAL_MS;
-    const interval = setInterval(pollConnection, intervalMs);
-    return () => clearInterval(interval);
-  }, [isElectrumDisabled, electrumConnected, pollConnection]);
+  }, [isElectrumDisabled, pollConnection]);
 
   useEffect(() => {
     if (isElectrumDisabled) return;
@@ -131,6 +121,14 @@ const DetailViewStackScreensStack = () => {
     });
     return () => subscription.remove();
   }, [isElectrumDisabled, pollConnection]);
+  // When starting up in an unknown state, we optimistically rely on ping()
+  // and the disconnected retry loop below to surface connectivity issues.
+
+  useEffect(() => {
+    if (isElectrumDisabled || electrumConnected !== false) return;
+    const interval = setInterval(pollConnection, 3000);
+    return () => clearInterval(interval);
+  }, [isElectrumDisabled, electrumConnected, pollConnection]);
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
@@ -160,8 +158,10 @@ const DetailViewStackScreensStack = () => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     const isUpdating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
     const showOffline = isElectrumDisabled;
-    const showNotConnected = !isElectrumDisabled && electrumConnected !== true;
-    const showUpdating = !isElectrumDisabled && electrumConnected === true && isUpdating;
+    // When the user explicitly pulls to refresh, we always prefer showing
+    // the \"Updating...\" pill over \"Not connected\" during that refresh.
+    const showNotConnected = !isElectrumDisabled && electrumConnected === false && !isUpdating;
+    const showUpdating = !isElectrumDisabled && isUpdating;
 
     const renderHeaderLeft = () => {
       if (showOffline) {
@@ -258,11 +258,12 @@ const DetailViewStackScreensStack = () => {
   };
 
   return (
-    <DetailViewStack.Navigator
-      initialRouteName="WalletsList"
-      screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
-    >
-      <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
+    <ConnectionPollContext.Provider value={{ pollConnection }}>
+      <DetailViewStack.Navigator
+        initialRouteName="WalletsList"
+        screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
+      >
+        <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
       <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
       <DetailViewStack.Screen
         name="WalletDetails"
@@ -521,6 +522,7 @@ const DetailViewStackScreensStack = () => {
         })(theme)}
       />
     </DetailViewStack.Navigator>
+    </ConnectionPollContext.Provider>
   );
 };
 
