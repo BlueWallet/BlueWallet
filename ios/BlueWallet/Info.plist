@@ -205,6 +205,7 @@
 		<string>Ionicons.ttf</string>
 		<string>MaterialDesignIcons.ttf</string>
 		<string>MaterialIcons.ttf</string>
+		<string>SF-Pro-Rounded-Bold.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

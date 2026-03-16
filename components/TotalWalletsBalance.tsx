@@ -8,6 +8,7 @@ import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useTheme } from './themes';
+import AnimatedBalance from './AnimatedBalance';
 
 export const TotalWalletsBalancePreferredUnit = 'TotalWalletsBalancePreferredUnit';
 export const TotalWalletsBalanceKey = 'TotalWalletsBalance';
@@ -97,12 +98,16 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
       <View style={styles.container}>
         <Text style={styles.label}>{loc.wallets.total_balance}</Text>
         <TouchableOpacity onPress={handleBalanceOnPress}>
-          <Text style={[styles.balance, { color: colors.foregroundColor }]}>
-            {totalBalanceFormatted}{' '}
+          <View style={styles.balanceRow}>
+            <AnimatedBalance
+              formattedValue={totalBalanceFormatted.toString()}
+              textStyle={[styles.balance, { color: colors.foregroundColor }]}
+              variant="prominent"
+            />
             {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (
               <Text style={[styles.currency, { color: colors.foregroundColor }]}>{totalBalancePreferredUnit}</Text>
             )}
-          </Text>
+          </View>
         </TouchableOpacity>
       </View>
     </ToolTipMenu>
@@ -113,7 +118,8 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'flex-start',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   label: {
     fontSize: 14,
@@ -124,9 +130,14 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
   },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
   currency: {
     fontSize: 18,
     fontWeight: 'bold',
+    marginLeft: 4,
   },
 });
 

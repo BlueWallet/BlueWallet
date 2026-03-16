@@ -768,7 +768,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await goBack();
 
     // asserting there are no transactions and balance is 0:
-    await expect(element(by.id('WalletBalance'))).toHaveText('0');
+    await expect(element(by.id('WalletBalance'))).toHaveLabel('0');
     await waitForId('TransactionsListEmpty');
     assert.strictEqual(await countElements('TransactionListItem'), 0);
 
@@ -780,7 +780,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitFor(element(by.id('TransactionsListEmpty')))
       .not.toBeVisible()
       .withTimeout(25_000);
-    await expect(element(by.id('WalletBalance'))).toHaveText('0.00105526');
+    await expect(element(by.id('WalletBalance'))).toHaveLabel('0.00105526');
     await expect(element(by.id('TransactionsListEmpty'))).not.toBeVisible();
     assert.ok((await countElements('TransactionListItem')) >= 3); // 3 is arbitrary, real txs on screen depend on screen size
   });
@@ -812,7 +812,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // asserting there are no transactions and balance is 0:
 
-    await expect(element(by.id('WalletBalance'))).toHaveText('0');
+    await expect(element(by.id('WalletBalance'))).toHaveLabel('0');
     await waitForId('TransactionsListEmpty');
     assert.strictEqual(await countElements('TransactionListItem'), 0);
 

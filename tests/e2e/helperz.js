@@ -103,7 +103,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
   // label might change in the future
-  await expect(element(by.id('WalletBalance'))).toHaveText(expectedBalance);
+  await expect(element(by.id('WalletBalance'))).toHaveLabel(expectedBalance);
 }
 
 export async function sleep(ms) {

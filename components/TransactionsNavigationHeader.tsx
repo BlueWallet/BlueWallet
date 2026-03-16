@@ -13,6 +13,7 @@ import { useSettings } from '../hooks/context/useSettings';
 import ToolTipMenu from './TooltipMenu';
 import useAnimateOnChange from '../hooks/useAnimateOnChange';
 import { useLocale } from '@react-navigation/native';
+import AnimatedBalance from './AnimatedBalance';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
@@ -112,9 +113,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   const currentBalance = wallet ? wallet.getBalance() : 0;
   const formattedBalance = useMemo(() => {
-    return unit === BitcoinUnit.LOCAL_CURRENCY
-      ? formatBalance(currentBalance, unit, true)
-      : formatBalanceWithoutSuffix(currentBalance, unit, true);
+    return formatBalanceWithoutSuffix(currentBalance, unit, true);
   }, [unit, currentBalance]);
 
   const balance = !wallet.hideBalance && formattedBalance;
@@ -160,9 +159,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
   }, [direction, wallet.type]);
 
-  useAnimateOnChange(balance);
   useAnimateOnChange(hideBalance);
-  useAnimateOnChange(unit);
   useAnimateOnChange(wallet.getID?.());
 
   return (
@@ -185,17 +182,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             {hideBalance ? (
               <BlurredBalanceView />
             ) : (
-              <View>
-                <Text
-                  key={String(balance)} // force component recreation on balance change. To fix right-to-left languages, like Farsis
-                  testID="WalletBalance"
-                  numberOfLines={1}
-                  minimumFontScale={0.5}
-                  adjustsFontSizeToFit
-                  style={styles.walletBalanceText}
-                >
-                  {balance}
-                </Text>
+              <View testID="WalletBalance" accessible accessibilityLabel={String(balance)}>
+                <AnimatedBalance formattedValue={String(balance)} textStyle={styles.walletBalanceText} variant="prominent" autoFitText />
               </View>
             )}
           </View>
@@ -246,7 +234,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   walletBalance: {
-    flexShrink: 1,
     marginRight: 6,
   },
   manageFundsButton: {
@@ -274,7 +261,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 36,
-    flexShrink: 1, // Allow the text to shrink if there's not enough space
+    letterSpacing: -0.5,
   },
   walletPreferredUnitView: {
     justifyContent: 'center',
@@ -315,4 +302,4 @@ export const actionIcons = {
   },
 };
 
-export default TransactionsNavigationHeader;
+export default React.memo(TransactionsNavigationHeader);
