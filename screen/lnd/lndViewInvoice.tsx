@@ -69,89 +69,89 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const isArkOnly = typeof invoice === 'object' && !invoice.payment_request;
+
   useEffect(() => {
-    setOptions(
-      isModal
-        ? {
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-            },
-            gestureEnabled: false,
-            headerBackVisible: false,
-            // eslint-disable-next-line react/no-unstable-nested-components
-            headerRight: () => (
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => {
-                  // @ts-ignore: navigation
-                  navigation?.getParent().pop();
-                }}
-                testID="NavigationCloseButton"
-              >
-                <Image source={closeImage} />
-              </TouchableOpacity>
-            ),
-          }
-        : {
-            headerRight: () => {},
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-            },
+    const options: Record<string, any> = isModal
+      ? {
+          headerStyle: {
+            backgroundColor: colors.customHeader,
           },
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, isModal]);
-
-  useEffect(() => {
-    console.log('LNDViewInvoice - useEffect', { invoice });
-
-    if (!wallet) {
-      return;
+          gestureEnabled: false,
+          headerBackVisible: false,
+          // eslint-disable-next-line react/no-unstable-nested-components
+          headerRight: () => (
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => {
+                // @ts-ignore: navigation
+                navigation?.getParent().pop();
+              }}
+              testID="NavigationCloseButton"
+            >
+              <Image source={closeImage} />
+            </TouchableOpacity>
+          ),
+        }
+      : {
+          headerRight: () => {},
+          headerStyle: {
+            backgroundColor: colors.customHeader,
+          },
+        };
+    if (isArkOnly) {
+      options.headerTitle = loc.receive.header;
     }
-    if (!(invoice as LightningTransaction).ispaid) {
-      fetchInvoiceInterval.current = setInterval(async () => {
-        if (isFetchingInvoices) {
-          try {
-            // @ts-ignore - getUserInvoices is not set on TWallet
-            const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
-            // fetching only last 20 invoices
-            // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
-            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
-            const updatedUserInvoice = userInvoices.filter((filteredInvoice: LightningTransaction) =>
-              typeof invoice === 'object'
-                ? filteredInvoice.payment_request === invoice.payment_request
-                : filteredInvoice.payment_request === invoice,
-            )[0];
-            if (updatedUserInvoice) {
-              setInvoiceStatusChanged(true);
-              setParams({ invoice: updatedUserInvoice });
-              if (updatedUserInvoice.ispaid) {
-                // we fetched the invoice, and it is paid :-)
-                setIsFetchingInvoices(false);
-                clearInterval(fetchInvoiceInterval.current);
-                triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    setOptions(options);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [colors, isModal, isArkOnly]);
+
+  // LN invoice polling for non-Ark wallets (LNDHub custodian wallets)
+  useEffect(() => {
+    if (!wallet || wallet.type === LightningArkWallet.type) return;
+    if ((invoice as LightningTransaction).ispaid) return;
+
+    fetchInvoiceInterval.current = setInterval(async () => {
+      if (isFetchingInvoices) {
+        try {
+          // @ts-ignore - getUserInvoices is not set on TWallet
+          const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
+          const updatedUserInvoice = userInvoices.filter((filteredInvoice: LightningTransaction) =>
+            typeof invoice === 'object'
+              ? filteredInvoice.payment_request === invoice.payment_request
+              : filteredInvoice.payment_request === invoice,
+          )[0];
+          if (updatedUserInvoice) {
+            setInvoiceStatusChanged(true);
+            setParams({ invoice: updatedUserInvoice });
+            if (updatedUserInvoice.ispaid) {
+              setIsFetchingInvoices(false);
+              clearInterval(fetchInvoiceInterval.current);
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+              fetchAndSaveWalletTransactions(walletID);
+            } else {
+              const currentDate = new Date();
+              const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
+              const invoiceExpiration = (updatedUserInvoice.timestamp ?? 0) + (updatedUserInvoice.expire_time ?? 0);
+              if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 fetchAndSaveWalletTransactions(walletID);
-              } else {
-                const currentDate = new Date();
-                const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-                const invoiceExpiration = (updatedUserInvoice.timestamp ?? 0) + (updatedUserInvoice.expire_time ?? 0);
-                if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
-                  // invoice expired :-(
-                  fetchAndSaveWalletTransactions(walletID);
-                  setIsFetchingInvoices(false);
-                  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                  clearInterval(fetchInvoiceInterval.current);
-                  fetchInvoiceInterval.current = undefined;
-                }
+                setIsFetchingInvoices(false);
+                triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                clearInterval(fetchInvoiceInterval.current);
+                fetchInvoiceInterval.current = undefined;
               }
             }
-          } catch (error) {
-            console.log(error);
           }
+        } catch (error) {
+          console.log(error);
         }
-      }, 3000);
-    }
+      }
+    }, 3000);
 
+    return () => {
+      clearInterval(fetchInvoiceInterval.current);
+      fetchInvoiceInterval.current = undefined;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -164,43 +164,72 @@ const LNDViewInvoice = () => {
     }
   }, [wallet]);
 
-  // Poll Ark balance for direct Ark address payments (not via Lightning invoice)
+  // Real-time Ark payment detection via SDK's notifyIncomingFunds + LN swap polling
   useEffect(() => {
     if (!wallet || wallet.type !== LightningArkWallet.type) return;
     if ((invoice as LightningTransaction).ispaid) return;
 
     const arkWallet = wallet as LightningArkWallet;
-    const initialBalance = arkWallet.getBalance();
+    let stopNotify: (() => void) | undefined;
 
-    const arkPollInterval = setInterval(async () => {
-      try {
-        await arkWallet.fetchBalance();
-        const newBalance = arkWallet.getBalance();
-        if (newBalance > initialBalance) {
-          clearInterval(arkPollInterval);
-          setIsFetchingInvoices(false);
-          clearInterval(fetchInvoiceInterval.current);
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          const received = newBalance - initialBalance;
+    const onPaymentReceived = () => {
+      setIsFetchingInvoices(false);
+      clearInterval(fetchInvoiceInterval.current);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      // Force refresh to get accurate balance
+      arkWallet._lastBalanceFetch = 0;
+      arkWallet._lastTxFetch = 0;
+      arkWallet
+        .fetchBalance()
+        .then(() => arkWallet.fetchTransactions())
+        .then(() => {
+          const txs = arkWallet.getTransactions();
+          const latest = txs.filter(tx => tx.value! > 0)[0];
           setParams({
             invoice: {
               ispaid: true,
-              value: received,
-              amt: received,
+              value: latest?.value ?? 0,
+              amt: latest?.amt ?? 0,
               type: 'user_invoice',
               timestamp: Math.floor(Date.now() / 1000),
-              description: 'Received',
+              description: latest?.description ?? 'Received',
+              payment_request: latest?.payment_request,
             },
           });
           setInvoiceStatusChanged(true);
           fetchAndSaveWalletTransactions(walletID);
-        }
-      } catch (e) {
-        console.log('Ark balance poll error:', e);
-      }
-    }, 5000);
+        })
+        .catch(e => console.log('[ARK] Post-receive refresh error:', e));
+    };
 
-    return () => clearInterval(arkPollInterval);
+    // Subscribe to real-time VTXO notifications for direct Ark payments
+    arkWallet
+      .notifyIncomingFunds(event => {
+        if ((event.type === 'vtxo' && event.newVtxos?.length) || (event.type === 'utxo' && event.coins?.length)) {
+          stopNotify?.();
+          onPaymentReceived();
+        }
+      })
+      .then(stop => {
+        stopNotify = stop;
+      })
+      .catch(e => console.log('[ARK] notifyIncomingFunds error:', e));
+
+    // Wait for LN invoice payment via waitAndClaim (WebSocket-based, no polling)
+    const paymentRequest = typeof invoice === 'string' ? invoice : (invoice as LightningTransaction).payment_request;
+    if (paymentRequest) {
+      arkWallet
+        .waitForInvoicePayment(paymentRequest)
+        .then(() => {
+          stopNotify?.();
+          onPaymentReceived();
+        })
+        .catch(e => console.log('[ARK] waitForInvoicePayment error:', e));
+    }
+
+    return () => {
+      stopNotify?.();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -327,6 +356,7 @@ const LNDViewInvoice = () => {
                 </BlueText>
               )}
               {invoice.payment_request ? <CopyTextToClipboard truncated text={invoice.payment_request} /> : null}
+              {isArkOnly && arkAddress ? <CopyTextToClipboard truncated text={arkAddress} /> : null}
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>

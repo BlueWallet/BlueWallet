@@ -48,6 +48,8 @@ const initLock: Record<string, boolean> = {};
 const boardingLock: Record<string, boolean> = {};
 /** Track swap IDs that already have an active waitAndClaim listener. */
 const observedSwapIds = new Set<string>();
+/** Promises that resolve when a waitAndClaim completes for a given invoice. */
+const claimPromises = new Map<string, Promise<void>>();
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
@@ -579,9 +581,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Payment Hash:', result.paymentHash);
 
     // Monitor the swap in the background and claim the VHTLC when the payer pays the LN invoice.
-    // This is fire-and-forget: the UI polls for balance/invoice changes separately.
     observedSwapIds.add(result.pendingSwap.id);
-    this._arkadeSwaps
+    const claimPromise = this._arkadeSwaps
       .waitAndClaim(result.pendingSwap)
       .then(() => {
         console.log('Reverse swap claimed successfully for invoice:', result.invoice);
@@ -592,12 +593,23 @@ export class LightningArkWallet extends LightningCustodianWallet {
       })
       .finally(() => {
         observedSwapIds.delete(result.pendingSwap.id);
+        claimPromises.delete(result.invoice);
       });
+    claimPromises.set(result.invoice, claimPromise);
 
     // Seed a background task so the swap is monitored even if the app is killed
     await this._seedSwapTask(result.pendingSwap.id);
 
     return result.invoice;
+  }
+
+  /**
+   * Returns a promise that resolves when the given LN invoice is paid and claimed.
+   * Returns immediately if no pending claim exists for this invoice.
+   */
+  async waitForInvoicePayment(invoiceStr: string): Promise<void> {
+    const promise = claimPromises.get(invoiceStr);
+    if (promise) await promise;
   }
 
   async getArkAddress(): Promise<string> {
@@ -608,6 +620,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async fetchPendingTransactions() {
     // nop
+  }
+
+  /**
+   * Subscribe to real-time incoming fund notifications (VTXOs + boarding UTXOs).
+   * Returns a stop function to unsubscribe.
+   */
+  async notifyIncomingFunds(callback: (event: { type: string; newVtxos?: any[]; coins?: any[] }) => void): Promise<() => void> {
+    if (!this._wallet) await this.init();
+    if (!this._wallet) throw new Error('Ark wallet not initialized');
+    return this._wallet.notifyIncomingFunds(callback);
   }
 
   async decodeInvoiceRemote(invoice: string) {
