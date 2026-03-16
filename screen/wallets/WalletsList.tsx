@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
-import { Alert, findNodeHandle, Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, findNodeHandle, Image, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -524,6 +524,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginVertical: 16,
     flexWrap: 'wrap',
+    ...Platform.select({ ios: { fontFamily: 'SF Pro Rounded' } }),
   },
   footerRoot: {
     top: 80,

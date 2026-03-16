@@ -91,6 +91,7 @@ const DetailViewStackScreensStack = () => {
       navigationBarColor: theme.colors.navigationBarColor,
       headerLargeTitle: displayTitle && sizeClass === SizeClass.Compact,
       headerShadowVisible: false,
+      ...(Platform.OS === 'ios' && { headerLargeTitleStyle: { fontFamily: 'SF Pro Rounded' } }),
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },

@@ -19,14 +19,17 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
 import WalletGradient from '../class/wallet-gradient';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
-import loc, { formatBalance, transactionTimeToReadable } from '../loc';
+import loc, { formatBalance, formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
 import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 import HighlightedText from './HighlightedText';
 import { BlueSpacing10 } from './BlueSpacing';
+import AnimatedBalance from './AnimatedBalance';
+import { useSettings } from '../hooks/context/useSettings';
 import { useLocale } from '@react-navigation/native';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -176,6 +179,17 @@ const iStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 36,
+    letterSpacing: -0.5,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  balanceUnit: {
+    backgroundColor: 'transparent',
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginLeft: 4,
   },
   latestTx: {
     backgroundColor: 'transparent',
@@ -224,6 +238,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const translateYValue = useRef(new Animated.Value(isNewWallet ? 20 : 0)).current;
     const { colors } = useTheme();
     const { walletTransactionUpdateStatus } = useStorage();
+    const { preferredFiatCurrency } = useSettings();
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
     const { sizeClass } = useSizeClass();
@@ -327,7 +342,13 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
     }
 
-    const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+    const preferredUnit = item.getPreferredBalanceUnit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- preferredFiatCurrency triggers re-render when fiat currency changes
+    const balance = useMemo(
+      () => !item.hideBalance && formatBalanceWithoutSuffix(Number(item.getBalance()), preferredUnit, true),
+      [item, preferredUnit, preferredFiatCurrency],
+    );
+    const balanceUnit = !item.hideBalance && preferredUnit !== BitcoinUnit.LOCAL_CURRENCY ? preferredUnit : null;
 
     return (
       <Animated.View
@@ -377,14 +398,21 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                         <BlurredBalanceView />
                       </>
                     ) : (
-                      <Text
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                        style={[iStyles.balance, { color: colors.inverseForegroundColor, writingDirection: direction }]}
-                      >
-                        {`${balance} `}
-                      </Text>
+                      <View style={iStyles.balanceRow}>
+                        <AnimatedBalance
+                          key={`${balance}`}
+                          formattedValue={`${balance}`}
+                          textStyle={[iStyles.balance, { color: colors.inverseForegroundColor, writingDirection: direction }]}
+                          variant="subtle"
+                          testID="WalletCardBalance"
+                          autoFitText
+                        />
+                        {balanceUnit && (
+                          <Text style={[iStyles.balanceUnit, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
+                            {balanceUnit}
+                          </Text>
+                        )}
+                      </View>
                     )}
                   </View>
                   <Text style={iStyles.br} />
