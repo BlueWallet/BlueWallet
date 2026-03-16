@@ -55,25 +55,28 @@ export function useArkadeBackgroundSync() {
   }, [wallets]);
 
   /**
-   * Handle outbox results — refresh wallet state and trigger notifications.
-   * Also polls Ark balance on every tick to detect direct Ark address payments
-   * (which don't go through the swap pipeline).
+   * Called unconditionally on every foreground tick — refreshes Ark wallet
+   * balance and transactions so direct Ark payments are detected even when
+   * no swap results arrive.
    */
-  const handleResults = useCallback(
-    (results: TaskResult[]) => {
-      // Always refresh Ark wallets: direct Ark address payments don't produce
-      // swap task results, so we poll balance on every foreground tick.
-      const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
-      for (const wallet of arkWallets) {
-        wallet
-          .fetchBalance()
-          .then(() => wallet.fetchTransactions())
-          .then(() => saveToDisk())
-          .catch(e => console.log('[ArkadeSync] Refresh error:', e));
-      }
-    },
-    [wallets, saveToDisk],
-  );
+  const onTick = useCallback(() => {
+    const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+    for (const wallet of arkWallets) {
+      wallet
+        .fetchBalance()
+        .then(() => wallet.fetchTransactions())
+        .then(() => saveToDisk())
+        .catch(e => console.log('[ArkadeSync] Refresh error:', e));
+    }
+  }, [wallets, saveToDisk]);
+
+  /**
+   * Handle outbox results — swap-specific notifications can be added here.
+   */
+  const handleResults = useCallback((_results: TaskResult[]) => {
+    // Swap-specific UI notifications can be added here in the future.
+    // Balance/transaction refresh is handled by onTick.
+  }, []);
 
   useEffect(() => {
     const hasArkWallet = wallets.some(w => w.type === LightningArkWallet.type);
@@ -83,7 +86,7 @@ export function useArkadeBackgroundSync() {
       reconcile()
         .then(() => registerArkadeBackgroundTask(buildDeps))
         .catch(e => console.log('[ArkadeSync] Registration failed:', e));
-      startPolling(handleResults);
+      startPolling(handleResults, undefined, onTick);
       isRegistered.current = true;
     }
 
@@ -110,5 +113,5 @@ export function useArkadeBackgroundSync() {
         isRegistered.current = false;
       }
     };
-  }, [wallets, buildDeps, reconcile, handleResults]);
+  }, [wallets, buildDeps, reconcile, handleResults, onTick]);
 }

@@ -3,6 +3,7 @@ import type { TaskResult } from '@arkade-os/sdk/worker/expo';
 import { swapTaskQueue, SWAP_MONITOR_TASK_TYPE } from './swap-queue';
 import { swapMonitorProcessor, type SwapProcessorDeps } from './swap-processor';
 import type { SwapMonitorPayload } from './swap-queue';
+import { BlueApp, LightningArkWallet } from '../../../class';
 
 const TASK_ID = 'io.bluewallet.bluewallet.arkadeSync';
 
@@ -111,6 +112,48 @@ export async function unregisterArkadeBackgroundTask(): Promise<void> {
 }
 
 /**
+ * Build SwapProcessorDeps by loading wallets directly from disk.
+ * Used in headless mode where the React tree never mounts and _depsFactory is null.
+ */
+async function buildDepsFromDisk(): Promise<Map<string, SwapProcessorDeps>> {
+  const depsMap = new Map<string, SwapProcessorDeps>();
+
+  try {
+    const app = BlueApp.getInstance();
+
+    // Can't prompt for password in headless mode — skip encrypted storage
+    if (await app.storageIsEncrypted()) {
+      console.log('[ArkadeSync] Storage is encrypted, skipping headless swap processing');
+      return depsMap;
+    }
+
+    const loaded = await app.loadFromDisk();
+    if (!loaded) {
+      console.log('[ArkadeSync] Failed to load wallets from disk in headless mode');
+      return depsMap;
+    }
+
+    const arkWallets = app.wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+
+    for (const wallet of arkWallets) {
+      try {
+        await wallet.init();
+        const walletDeps = wallet.getProcessorDeps();
+        if (walletDeps) {
+          depsMap.set(wallet.getNamespace(), walletDeps);
+        }
+      } catch (error) {
+        console.log('[ArkadeSync] Headless: failed to init wallet:', error);
+      }
+    }
+  } catch (error) {
+    console.log('[ArkadeSync] Headless: buildDepsFromDisk failed:', error);
+  }
+
+  return depsMap;
+}
+
+/**
  * Headless task handler for Android — runs after app termination.
  *
  * Must be registered at global scope in index.js via
@@ -118,6 +161,15 @@ export async function unregisterArkadeBackgroundTask(): Promise<void> {
  */
 export async function headlessSwapTask({ taskId }: { taskId: string }): Promise<void> {
   try {
+    // In headless mode the React tree never mounts, so _depsFactory is null.
+    // Bootstrap deps from disk so runSwapQueue() can actually process swaps.
+    if (!_depsFactory) {
+      const depsFromDisk = await buildDepsFromDisk();
+      if (depsFromDisk.size > 0) {
+        _depsFactory = async () => depsFromDisk;
+      }
+    }
+
     await runSwapQueue();
   } catch (error) {
     console.log('[ArkadeSync] Headless task error:', error);

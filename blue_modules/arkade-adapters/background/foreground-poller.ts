@@ -8,6 +8,7 @@ let _intervalId: ReturnType<typeof setInterval> | null = null;
 let _appStateSubscription: ReturnType<typeof AppState.addEventListener> | null = null;
 let _intervalMs = 30_000;
 let _onResults: ((results: TaskResult[]) => void) | null = null;
+let _onTick: (() => void) | null = null;
 
 async function _tick(): Promise<void> {
   try {
@@ -30,6 +31,8 @@ async function _tick(): Promise<void> {
   } catch (error) {
     console.log('[ArkadeSync] Foreground poll error:', error);
   }
+
+  _onTick?.();
 }
 
 function _startInterval(): void {
@@ -61,9 +64,11 @@ function _handleAppStateChange(state: AppStateStatus): void {
  *
  * @param onResults - Callback invoked with outbox results for UI refresh / notifications.
  * @param intervalMs - Poll interval in milliseconds (default 30s).
+ * @param onTick - Callback invoked unconditionally at the end of every tick (for balance polling).
  */
-export function startPolling(onResults?: (results: TaskResult[]) => void, intervalMs = 30_000): void {
+export function startPolling(onResults?: (results: TaskResult[]) => void, intervalMs = 30_000, onTick?: () => void): void {
   _onResults = onResults ?? null;
+  _onTick = onTick ?? null;
   _intervalMs = intervalMs;
 
   _startInterval();
@@ -79,4 +84,5 @@ export function stopPolling(): void {
   _appStateSubscription?.remove();
   _appStateSubscription = null;
   _onResults = null;
+  _onTick = null;
 }
