@@ -155,9 +155,6 @@
 		B4CAC0022025010100000002 /* WidgetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CAC0012025010100000001 /* WidgetCache.swift */; };
 		B4CAC0032025010100000003 /* WidgetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CAC0012025010100000001 /* WidgetCache.swift */; };
 		B4CAC0042025010100000004 /* WidgetCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4CAC0012025010100000001 /* WidgetCache.swift */; };
-		B4DDA0022025060900000002 /* WidgetDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DDA0012025060900000001 /* WidgetDataLoader.swift */; };
-		B4DDA0032025060900000003 /* WidgetDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DDA0012025060900000001 /* WidgetDataLoader.swift */; };
-		B4DDA0042025060900000004 /* WidgetDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DDA0012025060900000001 /* WidgetDataLoader.swift */; };
 		B4D0B2622C1DEA11006B6B1B /* ReceivePageInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */; };
 		B4D0B2642C1DEA99006B6B1B /* ReceiveType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */; };
 		B4D0B2662C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */; };
@@ -168,6 +165,9 @@
 		B4D59C212D8BB42100B7025B /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C202D8BB41F00B7025B /* File.swift */; };
 		B4D59C272D8C5D6F00B7025B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C262D8C5D6E00B7025B /* main.swift */; };
 		B4D899942DCAE67700B959AA /* CustomSegmentedControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D899932DCAE67700B959AA /* CustomSegmentedControl.m */; };
+		B4DDA0022025060900000002 /* WidgetDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DDA0012025060900000001 /* WidgetDataLoader.swift */; };
+		B4DDA0032025060900000003 /* WidgetDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DDA0012025060900000001 /* WidgetDataLoader.swift */; };
+		B4DDA0042025060900000004 /* WidgetDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DDA0012025060900000001 /* WidgetDataLoader.swift */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
@@ -378,7 +378,6 @@
 		B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomSegmentedControl.swift; path = SegmentedControl/CustomSegmentedControl.swift; sourceTree = "<group>"; };
 		B4B3EC232D69FF8700327F3D /* EventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEmitter.swift; sourceTree = "<group>"; };
 		B4CAC0012025010100000001 /* WidgetCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetCache.swift; sourceTree = "<group>"; };
-		B4DDA0012025060900000001 /* WidgetDataLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataLoader.swift; sourceTree = "<group>"; };
 		B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivePageInterfaceController.swift; sourceTree = "<group>"; };
 		B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveType.swift; sourceTree = "<group>"; };
 		B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveInterfaceMode.swift; sourceTree = "<group>"; };
@@ -387,6 +386,7 @@
 		B4D59C202D8BB41F00B7025B /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		B4D59C262D8C5D6E00B7025B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		B4D899932DCAE67700B959AA /* CustomSegmentedControl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomSegmentedControl.m; sourceTree = "<group>"; };
+		B4DDA0012025060900000001 /* WidgetDataLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetDataLoader.swift; sourceTree = "<group>"; };
 		B4EFF73A2C3F6C5E0095D655 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WidgetHelper.mm; sourceTree = "<group>"; };
 		B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = EventEmitter.mm; sourceTree = "<group>"; };
