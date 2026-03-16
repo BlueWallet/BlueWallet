@@ -767,8 +767,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await tapIfTextPresent('OK');
     await goBack();
 
-    // asserting there are no transactions and balance is 0:
-    await expect(element(by.id('WalletBalance'))).toHaveLabel('0');
+    // asserting there are no transactions and balance is 0 (wait for header to update after focus):
+    await waitFor(element(by.id('WalletBalance')))
+      .toHaveLabel('0')
+      .withTimeout(5000);
     await waitForId('TransactionsListEmpty');
     assert.strictEqual(await countElements('TransactionListItem'), 0);
 
@@ -810,9 +812,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await tapIfTextPresent('OK');
     await goBack();
 
-    // asserting there are no transactions and balance is 0:
-
-    await expect(element(by.id('WalletBalance'))).toHaveLabel('0');
+    // asserting there are no transactions and balance is 0 (wait for header to update after focus):
+    await waitFor(element(by.id('WalletBalance')))
+      .toHaveLabel('0')
+      .withTimeout(5000);
     await waitForId('TransactionsListEmpty');
     assert.strictEqual(await countElements('TransactionListItem'), 0);
 
