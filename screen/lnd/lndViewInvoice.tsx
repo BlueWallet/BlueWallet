@@ -327,26 +327,24 @@ const LNDViewInvoice = () => {
                 </BlueText>
               )}
               {invoice.payment_request ? <CopyTextToClipboard truncated text={invoice.payment_request} /> : null}
-              {arkAddress ? (
-                <>
-                  <BlueSpacing20 />
-                  <CopyTextToClipboard truncated text={arkAddress} />
-                </>
-              ) : null}
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>
         );
       }
     } else if (invoice) {
-      // `invoice` is string, just not decoded yet. lets just display it as a QR code first (till it gets decoded
-      // and more data is rendered)
+      // `invoice` is string, just not decoded yet. Display QR code + copyable invoice text.
       return (
-        <View style={[styles.activeRoot, stylesHook.root]}>
-          <View style={styles.activeQrcode}>
-            <QRCodeComponent value={getQrValue(invoice)} size={qrCodeSize} />
+        <ScrollView>
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <View style={styles.activeQrcode}>
+              <QRCodeComponent value={getQrValue(invoice)} size={qrCodeSize} />
+            </View>
+            <BlueSpacing20 />
+            <CopyTextToClipboard truncated text={invoice} />
+            <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
           </View>
-        </View>
+        </ScrollView>
       );
     } else {
       // something is not right

@@ -553,6 +553,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   async getUserInvoices(limit: number | false = false): Promise<LightningTransaction[]> {
+    // Force refresh (bypass throttle) so newly created invoices are found
+    this._lastTxFetch = 0;
     await this.fetchTransactions();
     const txs = this.getTransactions();
     return txs.filter(tx => tx.value! > 0);
