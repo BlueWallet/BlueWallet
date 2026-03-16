@@ -165,9 +165,10 @@ const MultisigAdvanced: React.FC = () => {
   const [currentN, setCurrentN] = React.useState(n);
   const [currentFormat, setCurrentFormat] = React.useState(format);
 
-  const isValidSelection = React.useMemo(() => {
-    return currentM >= 2 && currentM <= 7 && currentN >= currentM && currentN <= 7;
-  }, [currentM, currentN]);
+  // Check if there are unsaved changes
+  const hasUnsavedChanges = React.useMemo(() => {
+    return currentM !== m || currentN !== n || currentFormat !== format;
+  }, [currentM, currentN, currentFormat, m, n, format]);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -188,8 +189,8 @@ const MultisigAdvanced: React.FC = () => {
   }, [onSave, currentM, currentN, currentFormat, navigation]);
 
   const SaveButton = useCallback(
-    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />,
-    [handleSave, isValidSelection],
+    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />,
+    [handleSave, hasUnsavedChanges],
   );
 
   React.useLayoutEffect(() => {
@@ -215,7 +216,7 @@ const MultisigAdvanced: React.FC = () => {
             </Pressable>
             <Text style={[styles.androidHeaderTitle, { color: colors.foregroundColor }]}>{loc.multisig.multisig_vault}</Text>
             <View style={styles.androidSaveButton}>
-              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />
+              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />
             </View>
           </View>
         </View>

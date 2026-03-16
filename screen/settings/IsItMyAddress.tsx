@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
+import { BlueButtonLink } from '../../BlueComponents';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -14,7 +15,6 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
-import { BlueButtonLink } from '../../BlueComponents';
 
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
@@ -26,6 +26,8 @@ const IsItMyAddress: React.FC = () => {
   const [address, setAddress] = useState<string>('');
   const [matchingWallets, setMatchingWallets] = useState<TWallet[] | undefined>();
   const [resultCleanAddress, setResultCleanAddress] = useState<string | undefined>();
+
+  const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 
   const clearAddressInput = () => {
     setAddress('');
@@ -110,6 +112,7 @@ const IsItMyAddress: React.FC = () => {
       }
       const value = values[match[1]];
       if (value) {
+        // Bold the wallet name (label), regular weight for address
         const isLabel = match[1] === 'label';
         parts.push(
           <Text key={`bold-${index++}`} selectable style={isLabel ? styles.boldText : undefined}>
@@ -156,7 +159,7 @@ const IsItMyAddress: React.FC = () => {
             placeholder={loc.is_it_my_address.enter_address}
             placeholderTextColor={colors.placeholderTextColor}
             value={address}
-            onChangeText={setAddress}
+            onChangeText={handleUpdateAddress}
             testID="AddressInput"
           />
           {address.length > 0 && (

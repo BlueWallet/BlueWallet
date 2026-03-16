@@ -5,8 +5,6 @@ import loc from '../loc';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { ReceiveDetailsStackParamList } from './ReceiveDetailsStackParamList';
-import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
-import { Platform } from 'react-native';
 
 const Stack = createNativeStackNavigator<ReceiveDetailsStackParamList>();
 
@@ -23,17 +21,6 @@ const ReceiveDetailsStack = () => {
           closeButtonPosition: CloseButtonPosition.Left,
           statusBarStyle: 'light',
           headerShown: true,
-        })(theme)}
-      />
-      <Stack.Screen
-        name="ReceiveCustomAmount"
-        component={ReceiveCustomAmountSheet}
-        options={navigationStyle({
-          presentation: 'formSheet',
-          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-          headerTitle: loc.receive.details_setAmount,
-          sheetGrabberVisible: true,
-          closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
     </Stack.Navigator>

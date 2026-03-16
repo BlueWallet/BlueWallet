@@ -32,10 +32,9 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     headerStyle: {
       backgroundColor,
     },
-    headerBackButtonDisplayMode: 'minimal',
     headerShadowVisible: false,
     headerTintColor: '#FFFFFF',
-    statusBarStyle: 'light',
+    statusBarBackgroundColor: backgroundColor,
     headerBackTitle: undefined,
     headerRight: () => RightButton,
   };

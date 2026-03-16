@@ -53,7 +53,7 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
       onMenuWillHide={onMenuWillHide}
       onMenuWillShow={onMenuWillShow}
       isButton
-      shouldOpenOnLongPress={false}
+      isMenuPrimaryAction
       actions={actions}
       onPressMenuItem={handlePressMenuItem}
       buttonStyle={style as ViewStyle} // Type assertion to match ViewStyle

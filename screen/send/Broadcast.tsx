@@ -4,11 +4,18 @@ import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { BlueButtonLink } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
+import {
+  platformSizing,
+  platformLayout,
+  getSettingsCardColor,
+  getSettingsRowBackgroundColor,
+  SettingsScrollView,
+} from '../../components/platform';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -157,14 +164,9 @@ const Broadcast: React.FC = () => {
               {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
             </View>
 
-            <View
-              style={[
-                styles.input,
-                { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
-              ]}
-            >
+            <View style={styles.input}>
               <TextInput
-                style={[styles.text, { color: colors.foregroundColor }]}
+                style={styles.text}
                 multiline
                 editable
                 placeholderTextColor={colors.placeholderTextColor}
@@ -174,7 +176,9 @@ const Broadcast: React.FC = () => {
                 testID="TxHex"
               />
             </View>
+            <BlueSpacing20 />
 
+            <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
             <BlueSpacing20 />
 
             <Button
@@ -183,11 +187,6 @@ const Broadcast: React.FC = () => {
               disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
               testID="BroadcastButton"
             />
-
-            <BlueSpacing10 />
-
-            <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
-
             <BlueSpacing20 />
           </>
         )}
@@ -198,34 +197,47 @@ const Broadcast: React.FC = () => {
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
+  const sizing = platformSizing;
+  const layout = platformLayout;
 
   if (!tx) {
     return null;
   }
 
+  const cardColor = getSettingsCardColor(colors, dark);
+
+  const successStyles = StyleSheet.create({
+    card: {
+      backgroundColor: cardColor,
+      borderRadius: sizing.containerBorderRadius,
+      padding: sizing.basePadding,
+      ...layout.cardShadow,
+    },
+    broadcastResultWrapper: {
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingVertical: sizing.basePadding,
+    },
+    successText: {
+      color: colors.foregroundColor,
+      fontSize: sizing.subtitleFontSize,
+      textAlign: 'center',
+    },
+  });
+
   return (
-    <View style={styles.successWrapper}>
-      <BlueBigCheckmark />
-      <BlueSpacing20 />
-      <Text style={[styles.successText, { color: colors.foregroundColor }]}>{loc.settings.success_transaction_broadcasted}</Text>
-      <BlueSpacing10 />
-      <Button title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
+    <View style={successStyles.card}>
+      <View style={successStyles.broadcastResultWrapper}>
+        <BlueBigCheckmark />
+        <BlueSpacing20 />
+        <Text style={successStyles.successText}>{loc.settings.success_transaction_broadcasted}</Text>
+        <BlueSpacing10 />
+        <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
+      </View>
     </View>
   );
 };
 
 export default Broadcast;
-
-const styles = StyleSheet.create({
-  successWrapper: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  successText: {
-    fontSize: 15,
-    textAlign: 'center',
-  },
-});

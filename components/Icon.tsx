@@ -15,7 +15,6 @@ export type MaterialDesignIconName = React.ComponentProps<typeof MaterialDesignI
 export type EntypoIconName = React.ComponentProps<typeof Entypo>['name'];
 
 type IconType = 'font-awesome' | 'font-awesome-6' | 'ionicons' | 'material' | 'material-community' | 'entypo';
-type IconComponentType = React.ComponentType<any>;
 
 type IconNameFor<T extends IconType> = T extends 'font-awesome'
   ? FontAwesomeIconName
@@ -47,13 +46,22 @@ export interface IconProps<T extends IconType = IconType> {
   testID?: string;
 }
 
-const ICON_COMPONENTS: Record<IconType, IconComponentType> = {
-  'font-awesome': FontAwesome,
-  'font-awesome-6': FontAwesome6,
-  ionicons: Ionicons,
-  material: MaterialIcons,
-  'material-community': MaterialDesignIcons,
-  entypo: Entypo,
+const resolveIconComponent = (type?: IconType): React.ComponentType<any> => {
+  switch (type) {
+    case 'font-awesome-6':
+      return FontAwesome6;
+    case 'ionicons':
+      return Ionicons;
+    case 'material':
+      return MaterialIcons;
+    case 'material-community':
+      return MaterialDesignIcons;
+    case 'entypo':
+      return Entypo;
+    case 'font-awesome':
+    default:
+      return FontAwesome;
+  }
 };
 
 const Icon = <T extends IconType = 'font-awesome'>({
@@ -68,7 +76,7 @@ const Icon = <T extends IconType = 'font-awesome'>({
   accessibilityLabel,
   testID,
 }: IconProps<T>): React.ReactElement | null => {
-  const IconComponent = ICON_COMPONENTS[type ?? 'font-awesome'] as React.ComponentType<any>;
+  const IconComponent = resolveIconComponent(type);
   const isFa6 = type === 'font-awesome-6';
   const fa6IconStyle = isFa6 ? (typeof iconStyle === 'string' ? iconStyle : 'solid') : undefined;
   const mergedStyle = isFa6 ? style : [style, iconStyle];

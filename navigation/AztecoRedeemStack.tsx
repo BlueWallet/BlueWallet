@@ -23,6 +23,7 @@ const AztecoRedeemStackRoot = () => {
         component={AztecoRedeemComponent}
         options={navigationStyle({
           title: loc.azteco.title,
+          statusBarStyle: 'auto',
         })(theme)}
       />
       <Stack.Screen

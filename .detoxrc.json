@@ -33,7 +33,7 @@
     "simulator": {
       "type": "ios.simulator",
       "device": {
-        "type": "iPhone 17"
+        "type": "iPhone 16"
       }
     },
     "emulator": {
@@ -44,10 +44,6 @@
     }
   },
   "configurations": {
-    "ios.debug": {
-      "device": "simulator",
-      "app": "ios.debug"
-    },
     "ios.release": {
       "device": "simulator",
       "app": "ios.release"

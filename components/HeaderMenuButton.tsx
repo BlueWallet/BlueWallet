@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Platform, StyleSheet } from 'react-native';
+import { Pressable, Platform } from 'react-native';
 import ToolTipMenu from './TooltipMenu';
 import { useTheme } from './themes';
 import Icon from './Icon';
@@ -22,8 +22,7 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
         testID="HeaderMenuButton"
         disabled={disabled}
         android_ripple={{ color: colors.lightButton }}
-        hitSlop={8}
-        style={({ pressed }) => [styles.buttonCenter, pressed && styles.pressed]}
+        style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1 }]}
       >
         <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
       </Pressable>
@@ -37,27 +36,14 @@ const HeaderMenuButton: React.FC<HeaderMenuButtonProps> = ({ onPressMenuItem, ac
       testID="HeaderMenuButton"
       disabled={disabled}
       isButton
-      shouldOpenOnLongPress={false}
+      isMenuPrimaryAction
       onPressMenuItem={onPressMenuItem}
       actions={menuActions}
       title={title}
-      buttonStyle={styles.buttonCenter}
     >
       <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} {...styleProps} />
     </ToolTipMenu>
   );
 };
-
-const styles = StyleSheet.create({
-  buttonCenter: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    minWidth: 44,
-    minHeight: 44,
-  },
-  pressed: { opacity: 0.5 },
-});
 
 export default HeaderMenuButton;

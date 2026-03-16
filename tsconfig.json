@@ -1,5 +1,4 @@
 {
-  "extends": "@react-native/typescript-config",
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -13,17 +12,9 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
-    "types": ["jest"],
-    "paths": {}
+    "paths": {
+    }
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
-  "exclude": [
-    "node_modules",
-    "babel.config.js",
-    "jest.config.js",
-    "components/react-native-draggable-flatlist",
-    "scripts/maccatalystpatches",
-    "**/Pods"
-  ]
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "exclude": ["node_modules", "babel.config.js", "jest.config.js", "components/react-native-draggable-flatlist", "scripts/maccatalystpatches"],
 }

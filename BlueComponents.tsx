@@ -90,14 +90,13 @@ export const BlueFormLabel: React.FC<TextProps> = props => {
 
 export const BlueFormMultiInput: React.FC<TextInputProps> = props => {
   const { colors } = useTheme();
-  const { style, editable, ...restProps } = props;
 
   return (
     <TextInput
       multiline
       underlineColorAndroid="transparent"
       numberOfLines={4}
-      editable={editable}
+      editable={!props.editable}
       style={[
         styles.blueFormMultiInput,
         {
@@ -106,12 +105,11 @@ export const BlueFormMultiInput: React.FC<TextInputProps> = props => {
           backgroundColor: colors.inputBackgroundColor,
           color: colors.foregroundColor,
         },
-        style,
       ]}
       autoCorrect={false}
       autoCapitalize="none"
       spellCheck={false}
-      {...restProps}
+      {...props}
       selectTextOnFocus={false}
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
     />

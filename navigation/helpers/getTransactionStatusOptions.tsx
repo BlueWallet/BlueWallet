@@ -29,6 +29,7 @@ const getTransactionStatusOptions = ({ route, navigation, theme }: GetTransactio
         backgroundColor: theme.colors.customHeader,
       },
       headerBackTitleStyle: { fontSize: 0 },
+      statusBarStyle: 'auto',
     })(theme),
     headerRight: () => (
       <HeaderRightButton

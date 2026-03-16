@@ -10,7 +10,7 @@ interface SettingsBlockExplorerCustomUrlItemProps {
   customUrl: string;
   onCustomUrlChange: (url: string) => void;
   onSubmitCustomUrl: () => void;
-  inputRef?: React.RefObject<TextInput | null>;
+  inputRef?: React.RefObject<TextInput>;
 }
 
 const SettingsBlockExplorerCustomUrlItem: React.FC<SettingsBlockExplorerCustomUrlItemProps> = ({

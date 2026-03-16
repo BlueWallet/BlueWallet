@@ -4,13 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
-import com.facebook.react.module.annotations.ReactModule
-import io.bluewallet.bluewallet.NativeSettingsModuleSpec
+import java.util.UUID
 
-@ReactModule(name = SettingsModule.NAME)
-class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModuleSpec(reactContext) {
+class SettingsModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
     private val sharedPref: SharedPreferences = reactContext.getSharedPreferences(
         "group.io.bluewallet.bluewallet",
@@ -23,7 +22,10 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
         private const val DEVICE_UID_COPY_KEY = "deviceUIDCopy"
         private const val CLEAR_FILES_ON_LAUNCH_KEY = "clearFilesOnLaunch"
         private const val DO_NOT_TRACK_KEY = "donottrack"
-        const val NAME = "SettingsModule"
+    }
+
+    override fun getName(): String {
+        return "SettingsModule"
     }
 
     /**
@@ -31,7 +33,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Uses the same Android ID as react-native-device-info's getUniqueId()
      */
     @ReactMethod
-    override fun initializeDeviceUID(promise: Promise) {
+    fun initializeDeviceUID(promise: Promise) {
         try {
             val isDoNotTrackEnabled = sharedPref.getString(DO_NOT_TRACK_KEY, "0") == "1"
             
@@ -84,7 +86,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Get the device UID
      */
     @ReactMethod
-    override fun getDeviceUID(promise: Promise) {
+    fun getDeviceUID(promise: Promise) {
         try {
             val isDoNotTrackEnabled = sharedPref.getString(DO_NOT_TRACK_KEY, "0") == "1"
             
@@ -105,7 +107,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Get the device UID copy (for Settings display)
      */
     @ReactMethod
-    override fun getDeviceUIDCopy(promise: Promise) {
+    fun getDeviceUIDCopy(promise: Promise) {
         try {
             val deviceUIDCopy = sharedPref.getString(DEVICE_UID_COPY_KEY, "")
             promise.resolve(deviceUIDCopy)
@@ -119,7 +121,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Set the clearFilesOnLaunch preference
      */
     @ReactMethod
-    override fun setClearFilesOnLaunch(value: Boolean, promise: Promise) {
+    fun setClearFilesOnLaunch(value: Boolean, promise: Promise) {
         try {
             sharedPref.edit()
                 .putBoolean(CLEAR_FILES_ON_LAUNCH_KEY, value)
@@ -136,7 +138,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Get the clearFilesOnLaunch preference
      */
     @ReactMethod
-    override fun getClearFilesOnLaunch(promise: Promise) {
+    fun getClearFilesOnLaunch(promise: Promise) {
         try {
             val value = sharedPref.getBoolean(CLEAR_FILES_ON_LAUNCH_KEY, false)
             promise.resolve(value)
@@ -150,7 +152,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Set Do Not Track setting
      */
     @ReactMethod
-    override fun setDoNotTrack(enabled: Boolean, promise: Promise) {
+    fun setDoNotTrack(enabled: Boolean, promise: Promise) {
         try {
             val value = if (enabled) "1" else "0"
             sharedPref.edit()
@@ -182,7 +184,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Get Do Not Track setting
      */
     @ReactMethod
-    override fun getDoNotTrack(promise: Promise) {
+    fun getDoNotTrack(promise: Promise) {
         try {
             val value = sharedPref.getString(DO_NOT_TRACK_KEY, "0")
             val enabled = value == "1"
@@ -197,7 +199,7 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
      * Open the settings activity from JavaScript
      */
     @ReactMethod
-    override fun openSettings(promise: Promise) {
+    fun openSettings(promise: Promise) {
         try {
             val intent = android.content.Intent(reactApplicationContext, SettingsActivity::class.java)
             intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)

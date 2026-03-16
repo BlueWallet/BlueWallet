@@ -12,14 +12,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     private var userDefaultsGroup: UserDefaults?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        #if RCT_NEW_ARCH_ENABLED
-        let turboModuleEnabled = true
-        #else
-        let turboModuleEnabled = false
-        #endif
-
-        RCTAppSetupPrepareApp(application, turboModuleEnabled)
-
         clearFilesIfNeeded()
         
         // Fix app group UserDefaults initialization
@@ -58,8 +50,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         RCTI18nUtil.sharedInstance().allowRTL(true)
 
-        RNNotifications.startMonitorNotifications()
-        RNNotifications.addNativeDelegate(self)
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
 
         setupUserDefaultsListener()
         registerNotificationCategories()
@@ -68,9 +60,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         _ = MenuElementsEmitter.sharedInstance()
         NSLog("[MenuElements] AppDelegate: Initialized emitter singleton")
         
-        let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
-
-        return result
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 
     override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -296,7 +286,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         ]
 
         if keys.contains(keyPath) {
-            WidgetHelper().reloadAllWidgets()
+            WidgetHelper.reloadAllWidgets()
         }
     }
 
@@ -331,26 +321,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         return RCTLinkingManager.application(app, open: url, options: options)
     }
 
-    override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        RNNotifications.didRegisterForRemoteNotifications(withDeviceToken: deviceToken)
-    }
-
-    override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        RNNotifications.didFailToRegisterForRemoteNotificationsWithError(error)
-    }
-
-    override func application(
-        _ application: UIApplication,
-        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-    ) {
-        RNNotifications.didReceiveBackgroundNotification(userInfo, withCompletionHandler: completionHandler)
-    }
-
     override func applicationWillTerminate(_ application: UIApplication) {
         userDefaultsGroup?.removeObject(forKey: "onUserActivityOpen")
-
-        RNNotifications.removeNativeDelegate(self)
+        
         UserDefaults.standard.removeObserver(self, forKeyPath: "deviceUID")
     }
 
@@ -378,6 +351,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             }
         }
 
+        RNCPushNotificationIOS.didReceive(response)
         completionHandler()
     }
     

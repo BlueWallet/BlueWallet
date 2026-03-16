@@ -159,7 +159,6 @@ const ImportCustomDerivationPath: React.FC = () => {
       <BlueSpacing20 />
       <TextInput
         testID="DerivationPathInput"
-        autoCapitalize="none"
         placeholder={loc.send.details_note_placeholder}
         value={path}
         placeholderTextColor="#81868e"

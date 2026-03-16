@@ -4,6 +4,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  LayoutAnimation,
   Platform,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -141,6 +142,7 @@ const UnlockWith: React.FC = () => {
       const result = await startAndDecrypt(isRetry, promptForPassword);
 
       if (result) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         dispatch({ type: SET_SUCCESS, payload: true });
         passwordInputRef.current?.showSuccess();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);

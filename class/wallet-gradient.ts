@@ -1,3 +1,4 @@
+import { useTheme } from '../components/themes';
 import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
@@ -29,7 +30,8 @@ export default class WalletGradient {
   static aezeedWallet: string[] = ['#8584FF', '#5351FB'];
 
   static createWallet = () => {
-    return WalletGradient.defaultGradients[0];
+    const { colors } = useTheme();
+    return colors.lightButton;
   };
 
   static gradientsFor(type: string): string[] {

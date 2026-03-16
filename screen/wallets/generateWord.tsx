@@ -29,6 +29,7 @@ const GenerateWord = () => {
     const possibleWords = generateChecksumWords(seedPhrase);
 
     if (!possibleWords) {
+      // likely because of an invalid mnemonic
       setResult(loc.autofill_word.error);
       return;
     }

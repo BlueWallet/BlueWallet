@@ -127,18 +127,17 @@ export const AddressInputScanButton = ({
     [onChangeText],
   );
 
-  const menuButtonStyle = useMemo(() => (type === 'default' ? [styles.scan, stylesHook.scan] : undefined), [stylesHook.scan, type]);
+  const buttonStyle = useMemo(() => [styles.scan, stylesHook.scan], [stylesHook.scan]);
 
   return (
     <ToolTipMenu
       actions={actions}
       isButton
       onPressMenuItem={onMenuItemPressed}
-      shouldOpenOnLongPress
+      testID={testID}
       disabled={isLoading}
       onPress={toolTipOnPress}
-      testID={type === 'default' ? testID : undefined}
-      buttonStyle={menuButtonStyle}
+      buttonStyle={type === 'default' ? buttonStyle : undefined}
       accessibilityLabel={loc.send.details_scan}
       accessibilityHint={loc.send.details_scan_hint}
     >
@@ -150,11 +149,7 @@ export const AddressInputScanButton = ({
           </Text>
         </View>
       ) : (
-        <View testID={testID} style={styles.contentRow}>
-          <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
-            {loc.wallets.import_scan_qr}
-          </Text>
-        </View>
+        <Text style={[styles.linkText, { color: colors.foregroundColor }]}>{loc.wallets.import_scan_qr}</Text>
       )}
     </ToolTipMenu>
   );
@@ -169,35 +164,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    minWidth: 82,
-    flexShrink: 0,
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
     marginHorizontal: 4,
-    alignSelf: 'center',
   },
   scanText: {
     marginLeft: 4,
-    flexShrink: 0,
-    textAlignVertical: 'center',
   },
   scanContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0,
+    flexShrink: 1,
   },
   linkText: {
     textAlign: 'center',
     fontSize: 16,
-    flexShrink: 1,
-    textAlignVertical: 'center',
-  },
-  contentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
   },
 });

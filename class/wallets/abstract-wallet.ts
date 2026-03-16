@@ -136,14 +136,6 @@ export class AbstractWallet {
     return BitcoinUnit.BTC;
   }
 
-  setPreferredBalanceUnit(unit: BitcoinUnit): void {
-    if (Object.values(BitcoinUnit).includes(unit)) {
-      this.preferredBalanceUnit = unit;
-      return;
-    }
-    this.preferredBalanceUnit = BitcoinUnit.BTC;
-  }
-
   async allowOnchainAddress(): Promise<boolean> {
     throw new Error('allowOnchainAddress: Not implemented');
   }

@@ -1,5 +1,4 @@
-import { Platform } from 'react-native';
-import NativeSettingsModule from '../codegen/NativeSettingsModule';
+import { NativeModules, Platform } from 'react-native';
 
 interface SettingsModuleInterface {
   /**
@@ -47,7 +46,6 @@ interface SettingsModuleInterface {
 }
 
 // Only available on Android
-const nativeModule = NativeSettingsModule ?? null;
-const SettingsModule: SettingsModuleInterface | null = Platform.OS === 'android' ? nativeModule : null;
+const SettingsModule: SettingsModuleInterface | null = Platform.OS === 'android' ? NativeModules.SettingsModule : null;
 
 export default SettingsModule;

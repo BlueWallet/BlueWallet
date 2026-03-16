@@ -36,7 +36,6 @@ import { SettingsCard, SettingsScrollView } from '../../components/platform';
 const bip32 = BIP32Factory(ecc);
 
 type TState = {
-  started?: boolean;
   isLoading?: boolean;
   isOk?: boolean;
   errorMessage?: string;
@@ -52,9 +51,6 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
   },
-  fullWidth: {
-    width: '100%',
-  },
 });
 
 export default class SelfTest extends Component {
@@ -63,8 +59,7 @@ export default class SelfTest extends Component {
   constructor(props: any) {
     super(props);
     this.state = {
-      started: false,
-      isLoading: false,
+      isLoading: true,
     };
   }
 
@@ -82,21 +77,12 @@ export default class SelfTest extends Component {
     }
   };
 
-  runSelfTest = async () => {
-    console.debug('SelfTest - runSelfTest');
-    this.setState({
-      started: true,
-      isLoading: true,
-      isOk: undefined,
-      errorMessage: '',
-    });
-
+  async componentDidMount() {
+    console.debug('SelfTest - componentDidMount');
     let errorMessage = '';
     let isOk = true;
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1_000)); // propagate ui
-
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         const uniqs: Record<string, 1> = {};
         const w = new SegwitP2SHWallet();
@@ -378,73 +364,50 @@ export default class SelfTest extends Component {
       isOk,
       errorMessage,
     });
-  };
+  }
 
   render() {
-    return <SelfTestContent state={this.state} onPressImportDocument={this.onPressImportDocument} onPressRunSelfTest={this.runSelfTest} />;
+    return <SelfTestContent state={this.state} onPressImportDocument={this.onPressImportDocument} />;
   }
 }
 
-const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => void; onPressRunSelfTest: () => void }> = ({
-  state,
-  onPressImportDocument,
-  onPressRunSelfTest,
-}) => {
-  let selfTestResult: React.ReactNode = null;
-
-  if (state.started) {
-    if (state.isLoading) {
-      selfTestResult = <BlueLoading />;
-    } else if (state.isOk) {
-      selfTestResult = (
-        <View style={styles.center}>
-          <BlueText testID="SelfTestOk" h4>
-            OK
-          </BlueText>
-          <BlueSpacing20 />
-          <BlueText>{loc.settings.about_selftest_ok}</BlueText>
-        </View>
-      );
-    } else {
-      selfTestResult = (
-        <View style={styles.center}>
-          <BlueText h4 numberOfLines={0}>
-            {state.errorMessage}
-          </BlueText>
-        </View>
-      );
-    }
-  }
-
+const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => void }> = ({ state, onPressImportDocument }) => {
   return (
     <SettingsScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
       <SettingsCard>
         <BlueSpacing20 />
 
-        {selfTestResult}
-        {!state.isLoading && (
-          <>
-            <BlueSpacing20 />
-            <View style={styles.fullWidth}>
-              <Button title="Run self-test" onPress={onPressRunSelfTest} testID="SelfTestLoading" />
-            </View>
-            <BlueSpacing20 />
-            <View style={styles.fullWidth}>
-              <SaveFileButton
-                fileName="bluewallet-selftest.txt"
-                fileContent={'Success on ' + new Date().toUTCString()}
-                style={styles.fullWidth}
-              >
-                <Button title="Test Save to Storage" />
-              </SaveFileButton>
-            </View>
-            <BlueSpacing20 />
-            <View style={styles.fullWidth}>
-              <Button title="Test File Import" onPress={onPressImportDocument} />
-            </View>
-            <BlueSpacing20 />
-          </>
+        {state.isLoading ? (
+          <BlueLoading testID="SelfTestLoading" />
+        ) : (
+          (() => {
+            if (state.isOk) {
+              return (
+                <View style={styles.center}>
+                  <BlueText testID="SelfTestOk" h4>
+                    OK
+                  </BlueText>
+                  <BlueSpacing20 />
+                  <BlueText>{loc.settings.about_selftest_ok}</BlueText>
+                </View>
+              );
+            } else {
+              return (
+                <View style={styles.center}>
+                  <BlueText h4 numberOfLines={0}>
+                    {state.errorMessage}
+                  </BlueText>
+                </View>
+              );
+            }
+          })()
         )}
+        <BlueSpacing20 />
+        <SaveFileButton fileName="bluewallet-selftest.txt" fileContent={'Success on ' + new Date().toUTCString()}>
+          <Button title="Test Save to Storage" />
+        </SaveFileButton>
+        <BlueSpacing20 />
+        <Button title="Test File Import" onPress={onPressImportDocument} />
       </SettingsCard>
     </SettingsScrollView>
   );

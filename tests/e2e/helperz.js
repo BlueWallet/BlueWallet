@@ -88,9 +88,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
-  if (device.getPlatform() === 'ios') {
-    await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
-  }
+  await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
   if (passphrase) {
     await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
     await element(by.id('SpeedPassphraseInput')).tapReturnKey();
@@ -98,15 +96,9 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedDoImport')).tap();
 
-  try {
-    await sleep(1_000);
-    await element(by.id('SpeedDoImport')).tap(); // sometimes doesnt work the 1st time
-  } catch (_) {}
-
   // waiting for import result
   await waitForText('OK', 3 * 61000);
   await element(by.text('OK')).tap();
-  await scrollUpOnHomeScreen();
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
@@ -178,7 +170,6 @@ export async function helperCreateWallet(walletName) {
     .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
 
   await element(by.id('PleasebackupOk')).tap();
-  await scrollUpOnHomeScreen();
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
   await sleep(200);
@@ -291,7 +282,6 @@ export async function typeTextIntoAlertInput(text) {
   } else {
     await element(by.type('_UIAlertControllerTextField')).replaceText(text);
   }
-  await sleep(1000);
 }
 
 /**
@@ -302,10 +292,10 @@ export async function scrollUpOnHomeScreen() {
     return;
   }
   try {
-    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView'))).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTCustomScrollView').withDescendant(by.type('RCTCustomScrollView'))).swipe('down', 'slow', 0.5);
   } catch (_) {
     // if no wallets there will be just one scroll
-    await element(by.type('RCTEnhancedScrollView')).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTCustomScrollView')).swipe('down', 'slow', 0.5);
   }
   await sleep(200); // bounce animation
 }

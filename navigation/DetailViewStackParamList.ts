@@ -1,7 +1,6 @@
 import { AztecoVoucher } from '../class/azteco';
 import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
+import { Chain } from '../models/bitcoinUnits';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
 
@@ -17,18 +16,6 @@ export type ScanQRCodeParamList = {
   backdoorVisible?: boolean;
   orientation?: 'portrait';
   animatedQRCodeData?: Record<string, any>;
-};
-
-type VaultKeyData = {
-  keyIndex: number;
-  seed: string;
-  passphrase?: string;
-  xpub: string;
-  fp: string;
-  path: string;
-  cosignerXpubURv2: string;
-  exportFilename: string;
-  exportString?: string;
 };
 
 export type DetailViewStackParamList = {
@@ -91,13 +78,13 @@ export type DetailViewStackParamList = {
   Settings: undefined;
   Currency: undefined;
   GeneralSettings: undefined;
+  PlausibleDeniability: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
   ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
   SettingsBlockExplorer: undefined;
-  PlausibleDeniability: undefined;
   EncryptStorage: undefined;
   Language: undefined;
   LightningSettings: {
@@ -108,27 +95,7 @@ export type DetailViewStackParamList = {
   SelfTest: undefined;
   ReleaseNotes: undefined;
   SettingsTools: undefined;
-  ViewEditMultisigCosigners: {
-    walletID: string;
-    cosigners: string[];
-    sheetAction?: string;
-    sheetImportText?: string;
-    sheetAskPassphrase?: boolean;
-    sheetCurrentlyEditingCosignerNum?: number;
-  };
-  ViewEditMultisigCosignerViewSheet: { walletID: string; vaultKeyData: VaultKeyData };
-  ViewEditMultisigProvideMnemonicsSheet: {
-    walletID: string;
-    currentlyEditingCosignerNum: number;
-    importText: string;
-    askPassphrase: boolean;
-  };
-  ViewEditMultisigShareCosignerSheet: {
-    walletID: string;
-    cosignerXpub: string;
-    cosignerXpubURv2: string;
-    exportFilename: string;
-  };
+  ViewEditMultisigCosigners: { walletID: string; cosigners: string[] };
   WalletXpub: { walletID: string; xpub: string };
   SignVerifyRoot: {
     screen: 'SignVerify';
@@ -141,19 +108,10 @@ export type DetailViewStackParamList = {
     walletID?: string;
     address: string;
   };
-  ReceiveCustomAmount: {
-    address: string;
-    currentLabel?: string;
-    currentAmount?: string;
-    currentUnit?: BitcoinUnit;
-    preferredUnit?: BitcoinUnit;
-  };
   ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: {
     paymentCode: string;
     walletID: string;
   };
-  SettingsPrivacy: undefined;
-  PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
 };

@@ -274,7 +274,7 @@ const ScanLNDInvoice = () => {
     navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN });
   };
 
-  const renderWalletSelectionButton = (): React.ReactElement | undefined => {
+  const renderWalletSelectionButton = (): JSX.Element | undefined => {
     if (renderWalletSelectionButtonHidden || !wallet) return;
     const walletLabel = wallet.getLabel();
     return (

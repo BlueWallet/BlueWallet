@@ -1,6 +1,5 @@
 import React, { lazy, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform } from 'react-native';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
@@ -9,7 +8,6 @@ import { SendDetailsStackParamList } from './SendDetailsStackParamList';
 import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
-import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
@@ -102,17 +100,6 @@ const SendDetailsStack = () => {
         name="SelectWallet"
         component={SelectWalletComponent}
         options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
-      <Stack.Screen
-        name="CoinControlOutput"
-        component={CoinControlOutputSheet}
-        options={navigationStyle({
-          presentation: 'formSheet',
-          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-          headerTitle: '',
-          sheetGrabberVisible: true,
-          closeButtonPosition: CloseButtonPosition.Right,
-        })(theme)}
       />
       <Stack.Screen name="CoinControl" component={CoinControlComponent} options={navigationStyle({ title: loc.cc.header })(theme)} />
       <Stack.Screen
