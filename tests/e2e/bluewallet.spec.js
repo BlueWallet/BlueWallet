@@ -78,7 +78,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SettingsButton')).tap();
 
     await element(by.id('GeneralSettings')).tap();
-    await waitForId('SettingsPrivacy');
+    await waitForId('GeneralSettingsScreen');
 
     // trigger switches
     await waitForId('ClipboardSwitch');
