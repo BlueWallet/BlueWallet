@@ -27,8 +27,8 @@ export class LegacyWallet extends AbstractWallet {
   // @ts-ignore: override
   public readonly typeReadable = LegacyWallet.typeReadable;
 
-  _txs_by_external_index: Transaction[] = [];
-  _txs_by_internal_index: Transaction[] = [];
+  _txs_by_external_index: Record<number, Transaction[]> = {};
+  _txs_by_internal_index: Record<number, Transaction[]> = {};
 
   /**
    * Simple function which says that we havent tried to fetch balance
@@ -338,14 +338,14 @@ export class LegacyWallet extends AbstractWallet {
       }
     }
 
-    this._txs_by_external_index = _txsByExternalIndex;
+    this._txs_by_external_index = { 0: _txsByExternalIndex };
     this._lastTxFetch = +new Date();
   }
 
   getTransactions(): Transaction[] {
     // a hacky code reuse from electrum HD wallet:
-    this._txs_by_external_index = this._txs_by_external_index || [];
-    this._txs_by_internal_index = [];
+    this._txs_by_external_index = this._txs_by_external_index || {};
+    this._txs_by_internal_index = {};
 
     const hd = new HDSegwitBech32Wallet();
     return hd.getTransactions.apply(this);

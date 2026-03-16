@@ -421,15 +421,7 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   animateChanges?: boolean;
 }
 
-type FlatListRefType = FlatList<any> & {
-  scrollToEnd(params?: { animated?: boolean | null }): void;
-  scrollToIndex(params: { animated?: boolean | null; index: number; viewOffset?: number; viewPosition?: number }): void;
-  scrollToItem(params: { animated?: boolean | null; item: TWallet; viewPosition?: number }): void;
-  scrollToOffset(params: { animated?: boolean | null; offset: number }): void;
-  recordInteraction(): void;
-  flashScrollIndicators(): void;
-  getNativeScrollRef(): View;
-};
+export type CarouselListRefType = FlatList<TWallet>;
 
 const styles = StyleSheet.create({
   listHeaderSeparator: {
@@ -440,7 +432,7 @@ const styles = StyleSheet.create({
 
 const ListHeaderSeparator = () => <View style={styles.listHeaderSeparator} />;
 
-const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
+const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((props, ref) => {
   const {
     horizontal = true,
     data,
@@ -466,7 +458,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialMount = useRef(true);
 
-  const flatListRef = useRef<FlatList<any>>(null);
+  const flatListRef = useRef<FlatList<TWallet>>(null);
   const walletRefs = useRef<Record<string, React.RefObject<View>>>({});
 
   const { sizeClass } = useSizeClass();
