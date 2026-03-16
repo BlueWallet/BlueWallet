@@ -11,6 +11,8 @@ function createWallet() {
     _swapHistory: any[];
     _transactionsHistory: any[];
     _boardingUtxos: any[];
+    _wallet?: any;
+    _attemptBoardUtxos?: () => Promise<void>;
   };
 
   wallet._boardingUtxos = [];
@@ -116,5 +118,254 @@ describe('LightningArkWallet transaction history', () => {
     assert.strictEqual(txs[0].type, 'paid_invoice');
     assert.strictEqual(txs[0].value, -1003);
     assert.strictEqual(txs[0].ispaid, true);
+  });
+});
+
+describe('LightningArkWallet balance', () => {
+  it('includes subdust change in the displayed balance', async () => {
+    const wallet = createWallet();
+
+    wallet._wallet = {
+      getAddress: async () => 'ark1qwallet',
+      dustAmount: 330n,
+      arkAddress: {
+        subdustPkScript: Uint8Array.from([1, 2, 3]),
+      },
+      getVtxos: async () => [],
+      walletRepository: {
+        getVtxos: async (address: string) => {
+          assert.strictEqual(address, 'ark1qwallet');
+          return [
+            {
+              txid: 'subdust-change',
+              vout: 1,
+              value: 197,
+              isSpent: false,
+              virtualStatus: {
+                state: 'preconfirmed',
+              },
+            },
+          ];
+        },
+        saveVtxos: async () => {},
+      },
+      indexerProvider: {
+        getVtxos: async ({ scripts }: { scripts: string[] }) => {
+          assert.deepStrictEqual(scripts, ['010203']);
+          return { vtxos: [] };
+        },
+      },
+    };
+    wallet._attemptBoardUtxos = async () => {};
+
+    await wallet.fetchBalance();
+
+    assert.strictEqual(wallet.getBalance(), 197);
+  });
+
+  it('does not double count subdust coins already returned by the main VTXO query', async () => {
+    const wallet = createWallet();
+
+    const subdustVtxo = {
+      txid: 'subdust-change',
+      vout: 1,
+      value: 197,
+      isSpent: false,
+      virtualStatus: {
+        state: 'preconfirmed',
+      },
+    };
+
+    wallet._wallet = {
+      getAddress: async () => 'ark1qwallet',
+      dustAmount: 330n,
+      arkAddress: {
+        subdustPkScript: Uint8Array.from([1, 2, 3]),
+      },
+      getVtxos: async () => [subdustVtxo],
+      walletRepository: {
+        getVtxos: async () => [subdustVtxo],
+        saveVtxos: async () => {},
+      },
+      indexerProvider: {
+        getVtxos: async () => ({
+          vtxos: [subdustVtxo],
+        }),
+      },
+    };
+    wallet._attemptBoardUtxos = async () => {};
+
+    await wallet.fetchBalance();
+
+    assert.strictEqual(wallet.getBalance(), 197);
+  });
+
+  it('recovers hidden settled subdust change from transaction history', async () => {
+    const wallet = createWallet();
+    const savedVtxos: any[] = [];
+
+    wallet._swapHistory = [
+      {
+        id: 'reverse-1',
+        type: 'reverse',
+        createdAt: 1761224952,
+        preimage: 'receive-preimage',
+        status: 'invoice.settled',
+        request: {
+          claimPublicKey: 'claim-public-key',
+          invoiceAmount: 1200,
+          preimageHash: 'receive-hash',
+          description: 'test invoice',
+        },
+        response: {
+          id: 'reverse-1',
+          invoice,
+          onchainAmount: 1200,
+          lockupAddress: 'ark1qreceive',
+          refundPublicKey: 'refund-public-key',
+          timeoutBlockHeights: {},
+        },
+      },
+    ];
+
+    wallet._transactionsHistory = [
+      {
+        key: {
+          boardingTxid: '',
+          commitmentTxid: '',
+          arkTxid: 'send-ark-tx',
+        },
+        type: 'SENT',
+        amount: 1003,
+        settled: true,
+        createdAt: 1761225645000,
+      },
+      {
+        key: {
+          boardingTxid: '',
+          commitmentTxid: '',
+          arkTxid: 'topup-ark-tx',
+        },
+        type: 'RECEIVED',
+        amount: 330,
+        settled: true,
+        createdAt: 1761225700000,
+      },
+    ];
+
+    wallet._wallet = {
+      getAddress: async () => 'ark1qwallet',
+      dustAmount: 330n,
+      arkAddress: {
+        subdustPkScript: Uint8Array.from([1, 2, 3]),
+      },
+      offchainTapscript: {
+        forfeit: () => ({ cb: 'cb', s: 's' }),
+        encode: () => 'tapTree',
+      },
+      getVtxos: async () => [
+        {
+          txid: 'topup-ark-tx',
+          vout: 0,
+          value: 330,
+          isSpent: false,
+          virtualStatus: {
+            state: 'settled',
+          },
+        },
+      ],
+      walletRepository: {
+        getVtxos: async () => [],
+        saveVtxos: async (_address: string, vtxos: any[]) => {
+          savedVtxos.push(...vtxos);
+        },
+      },
+      indexerProvider: {
+        getVtxos: async () => ({ vtxos: [] }),
+      },
+    };
+    wallet._attemptBoardUtxos = async () => {};
+
+    await wallet.fetchBalance();
+
+    assert.strictEqual(wallet.getBalance(), 527);
+    assert.strictEqual(savedVtxos.length, 1);
+    assert.strictEqual(savedVtxos[0].txid, 'send-ark-tx');
+    assert.strictEqual(savedVtxos[0].vout, 1);
+    assert.strictEqual(savedVtxos[0].value, 197);
+  });
+
+  it('falls back to the transaction-derived balance when the visible balance is zero', async () => {
+    const wallet = createWallet();
+
+    wallet._swapHistory = [
+      {
+        id: 'reverse-1',
+        type: 'reverse',
+        createdAt: 1761224952,
+        preimage: 'receive-preimage',
+        status: 'invoice.settled',
+        request: {
+          claimPublicKey: 'claim-public-key',
+          invoiceAmount: 1200,
+          preimageHash: 'receive-hash',
+          description: 'test invoice',
+        },
+        response: {
+          id: 'reverse-1',
+          invoice,
+          onchainAmount: 1200,
+          lockupAddress: 'ark1qreceive',
+          refundPublicKey: 'refund-public-key',
+          timeoutBlockHeights: {},
+        },
+      },
+    ];
+
+    wallet._transactionsHistory = [
+      {
+        key: {
+          boardingTxid: '',
+          commitmentTxid: '',
+          arkTxid: 'send-ark-tx',
+        },
+        type: 'SENT',
+        amount: 1003,
+        settled: true,
+        createdAt: 1761225645000,
+      },
+      {
+        key: {
+          boardingTxid: '',
+          commitmentTxid: '',
+          arkTxid: 'topup-ark-tx',
+        },
+        type: 'RECEIVED',
+        amount: 330,
+        settled: true,
+        createdAt: 1761225700000,
+      },
+    ];
+
+    wallet._wallet = {
+      getAddress: async () => 'ark1qwallet',
+      dustAmount: 330n,
+      arkAddress: {
+        subdustPkScript: Uint8Array.from([1, 2, 3]),
+      },
+      getVtxos: async () => [],
+      walletRepository: {
+        getVtxos: async () => [],
+        saveVtxos: async () => {},
+      },
+      indexerProvider: {
+        getVtxos: async () => ({ vtxos: [] }),
+      },
+    };
+    wallet._attemptBoardUtxos = async () => {};
+
+    await wallet.fetchBalance();
+
+    assert.strictEqual(wallet.getBalance(), 527);
   });
 });

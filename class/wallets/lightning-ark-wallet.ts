@@ -18,6 +18,7 @@ import {
   Wallet,
   ExtendedCoin,
   ArkTransaction,
+  isSpendable,
   RestDelegatorProvider,
   migrateWalletRepository,
   requiresMigration,
@@ -50,6 +51,13 @@ const boardingLock: Record<string, boolean> = {};
 const observedSwapIds = new Set<string>();
 /** Promises that resolve when a waitAndClaim completes for a given invoice. */
 const claimPromises = new Map<string, Promise<void>>();
+
+type SpendableArkVtxo = Awaited<ReturnType<Wallet['getVtxos']>>[number];
+type SendBitcoinParams = Parameters<Wallet['sendBitcoin']>[0];
+type PatchedWallet = Wallet & {
+  __bluewalletOriginalSendBitcoin?: Wallet['sendBitcoin'];
+  __bluewalletSendBitcoinHelper?: (params: SendBitcoinParams) => Promise<string>;
+};
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
@@ -166,6 +174,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         mm.end();
       }
       this._wallet = staticWalletCache[namespace];
+      this._patchWalletRuntime();
 
       // Migration from legacy AsyncStorage to Realm
       const legacyStorage = {
@@ -494,6 +503,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     // Fast path: fetch with current script only (no contract manager).
     this._swapHistory = await this._arkadeSwaps.getSwapHistory();
     this._transactionsHistory = await this._wallet.getTransactionHistory();
+    this.balance = this._getCorrectedBalance(this.balance);
     this._lastTxFetch = +new Date();
 
     // Background: init contract manager then re-fetch to include old non-delegate VTXOs.
@@ -505,6 +515,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       .then(([swapHistory, txHistory]) => {
         this._swapHistory = swapHistory;
         this._transactionsHistory = txHistory;
+        this.balance = this._getCorrectedBalance(this.balance);
         this._lastTxFetch = +new Date();
       })
       .catch(() => {});
@@ -526,12 +537,285 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     try {
       await this._withTimeout(async () => {
-        const balance = await this._wallet!.getBalance();
+        const balance = await this._getAvailableBalance();
         this._lastBalanceFetch = +new Date();
-        this.balance = balance.available;
+        this.balance = this._getCorrectedBalance(balance);
       }, 15000);
     } catch {
       console.warn('[ARK] fetchBalance timed out, using cached balance');
+    }
+  }
+
+  private async _getAvailableBalance(): Promise<number> {
+    const vtxos = await this._getUnifiedSpendableVtxos();
+    return vtxos.reduce((sum, vtxo) => sum + vtxo.value, 0);
+  }
+
+  private _patchWalletRuntime() {
+    if (!this._wallet) return;
+
+    const wallet = this._wallet as PatchedWallet;
+    wallet.__bluewalletSendBitcoinHelper = (params: SendBitcoinParams) => this._sendBitcoinWithHiddenSubdustSupport(params);
+
+    if (wallet.__bluewalletOriginalSendBitcoin) return;
+
+    wallet.__bluewalletOriginalSendBitcoin = wallet.sendBitcoin.bind(wallet);
+    wallet.sendBitcoin = async (params: SendBitcoinParams) => {
+      if (wallet.__bluewalletSendBitcoinHelper) {
+        return wallet.__bluewalletSendBitcoinHelper(params);
+      }
+
+      assert(wallet.__bluewalletOriginalSendBitcoin, 'Original sendBitcoin implementation missing');
+      return wallet.__bluewalletOriginalSendBitcoin(params);
+    };
+  }
+
+  private _getCorrectedBalance(visibleBalance: number): number {
+    const derivedBalance = this._getDerivedBalanceFromCachedTransactions();
+    if (visibleBalance === 0 && derivedBalance > 0) {
+      return derivedBalance;
+    }
+
+    const hiddenSubdust = this._getHiddenSubdustAmount(visibleBalance);
+    return visibleBalance + hiddenSubdust;
+  }
+
+  private _getHiddenSubdustAmount(visibleBalance: number): number {
+    const derivedBalance = this._getDerivedBalanceFromCachedTransactions();
+    const delta = derivedBalance - visibleBalance;
+
+    if (delta > 0 && delta < this._getDustAmount()) {
+      return delta;
+    }
+
+    return 0;
+  }
+
+  private _getDerivedBalanceFromCachedTransactions(): number {
+    return this.getTransactions().reduce((sum, tx) => {
+      if (typeof tx.value !== 'number') return sum;
+      if (tx.type === 'user_invoice' && !tx.ispaid) return sum;
+      return sum + tx.value;
+    }, 0);
+  }
+
+  private _getDustAmount(): number {
+    const dustAmount = this._wallet?.dustAmount;
+    return typeof dustAmount === 'bigint' ? Number(dustAmount) : 330;
+  }
+
+  private async _getUnifiedSpendableVtxos(): Promise<SpendableArkVtxo[]> {
+    const visibleVtxos = await this._getVisibleSpendableVtxos();
+    const hiddenVtxo = await this._recoverHiddenSubdustVtxo(visibleVtxos);
+    return hiddenVtxo ? this._dedupeVtxos(visibleVtxos, [hiddenVtxo]) : visibleVtxos;
+  }
+
+  private async _getVisibleSpendableVtxos(): Promise<SpendableArkVtxo[]> {
+    assert(this._wallet, 'Ark wallet not initialized');
+
+    const [regularVtxos, storedVtxos, subdustVtxos] = await Promise.all([
+      this._wallet.getVtxos(),
+      this._getStoredVtxos(),
+      this._getSubdustVtxos(),
+    ]);
+
+    return this._dedupeVtxos(regularVtxos, storedVtxos, subdustVtxos).filter(
+      vtxo => isSpendable(vtxo) && (vtxo.virtualStatus.state === 'settled' || vtxo.virtualStatus.state === 'preconfirmed'),
+    );
+  }
+
+  private _dedupeVtxos(...vtxoSets: SpendableArkVtxo[][]): SpendableArkVtxo[] {
+    const uniqueVtxos = new Map<string, SpendableArkVtxo>();
+
+    for (const vtxos of vtxoSets) {
+      for (const vtxo of vtxos) {
+        const key = `${vtxo.txid}:${vtxo.vout}`;
+        const existing = uniqueVtxos.get(key);
+        uniqueVtxos.set(key, existing ? { ...existing, ...vtxo } : vtxo);
+      }
+    }
+
+    return Array.from(uniqueVtxos.values());
+  }
+
+  private async _recoverHiddenSubdustVtxo(visibleVtxos: SpendableArkVtxo[]): Promise<SpendableArkVtxo | null> {
+    assert(this._wallet, 'Ark wallet not initialized');
+
+    const visibleBalance = visibleVtxos.reduce((sum, vtxo) => sum + vtxo.value, 0);
+    const hiddenSubdust = this._getHiddenSubdustAmount(visibleBalance);
+    if (!hiddenSubdust) return null;
+
+    const latestSentTx = [...this._transactionsHistory]
+      .reverse()
+      .find(tx => tx.type === 'SENT' && !tx.key.boardingTxid && !!tx.key.arkTxid);
+    if (!latestSentTx) return null;
+
+    const syntheticVtxo = this._buildSyntheticSubdustVtxo({
+      txid: latestSentTx.key.arkTxid,
+      value: hiddenSubdust,
+      createdAt: latestSentTx.createdAt,
+      commitmentTxid: latestSentTx.key.commitmentTxid,
+      settled: latestSentTx.settled,
+    });
+
+    const alreadyVisible = visibleVtxos.some(vtxo => vtxo.txid === syntheticVtxo.txid && vtxo.vout === syntheticVtxo.vout);
+    if (!alreadyVisible) {
+      await this._saveSyntheticSubdustVtxo(syntheticVtxo);
+    }
+
+    return syntheticVtxo;
+  }
+
+  private async _saveSyntheticSubdustVtxo(vtxo: SpendableArkVtxo): Promise<void> {
+    assert(this._wallet, 'Ark wallet not initialized');
+
+    try {
+      const arkAddress = await this._wallet.getAddress();
+      await this._wallet.walletRepository.saveVtxos(arkAddress, [vtxo]);
+    } catch (error: any) {
+      console.log('[ARK] Failed to save synthetic subdust VTXO:', error?.message ?? error);
+    }
+  }
+
+  private _buildSyntheticSubdustVtxo({
+    txid,
+    value,
+    createdAt,
+    commitmentTxid,
+    settled,
+  }: {
+    txid: string;
+    value: number;
+    createdAt: number;
+    commitmentTxid?: string;
+    settled: boolean;
+  }): SpendableArkVtxo {
+    assert(this._wallet, 'Ark wallet not initialized');
+
+    return {
+      txid,
+      vout: 1,
+      value,
+      createdAt: new Date(createdAt),
+      forfeitTapLeafScript: this._wallet.offchainTapscript.forfeit(),
+      intentTapLeafScript: this._wallet.offchainTapscript.forfeit(),
+      isUnrolled: false,
+      isSpent: false,
+      tapTree: this._wallet.offchainTapscript.encode(),
+      virtualStatus: settled
+        ? { state: 'settled' }
+        : {
+            state: 'preconfirmed',
+            commitmentTxIds: commitmentTxid ? [commitmentTxid] : undefined,
+          },
+      status: {
+        confirmed: settled,
+      },
+    } as SpendableArkVtxo;
+  }
+
+  private async _sendBitcoinWithHiddenSubdustSupport(params: SendBitcoinParams): Promise<string> {
+    assert(this._wallet, 'Ark wallet not initialized');
+
+    const wallet = this._wallet as PatchedWallet;
+    assert(wallet.__bluewalletOriginalSendBitcoin, 'Original sendBitcoin implementation missing');
+
+    if (params.selectedVtxos && params.selectedVtxos.length > 0) {
+      return wallet.__bluewalletOriginalSendBitcoin(params);
+    }
+
+    const [regularVtxos, unifiedVtxos] = await Promise.all([this._wallet.getVtxos(), this._getUnifiedSpendableVtxos()]);
+    const regularVtxoKeys = new Set(regularVtxos.map(vtxo => `${vtxo.txid}:${vtxo.vout}`));
+
+    try {
+      const selection = this._selectSpendableVtxos(unifiedVtxos, params.amount);
+      const usesRecoveredSubdust = selection.inputs.some(vtxo => !regularVtxoKeys.has(`${vtxo.txid}:${vtxo.vout}`));
+
+      if (!usesRecoveredSubdust) {
+        return wallet.__bluewalletOriginalSendBitcoin(params);
+      }
+
+      const txid = await wallet.__bluewalletOriginalSendBitcoin({
+        ...params,
+        selectedVtxos: selection.inputs,
+      });
+
+      if (selection.changeAmount > 0n && selection.changeAmount < BigInt(this._getDustAmount())) {
+        await this._saveSyntheticSubdustVtxo(
+          this._buildSyntheticSubdustVtxo({
+            txid,
+            value: Number(selection.changeAmount),
+            createdAt: Date.now(),
+            settled: selection.inputs.every(input => input.virtualStatus.state === 'settled'),
+          }),
+        );
+      }
+
+      return txid;
+    } catch {
+      return wallet.__bluewalletOriginalSendBitcoin(params);
+    }
+  }
+
+  private _selectSpendableVtxos(vtxos: SpendableArkVtxo[], targetAmount: number): { inputs: SpendableArkVtxo[]; changeAmount: bigint } {
+    const sortedVtxos = [...vtxos].sort((a, b) => {
+      const expiryA = a.virtualStatus.batchExpiry || Number.MAX_SAFE_INTEGER;
+      const expiryB = b.virtualStatus.batchExpiry || Number.MAX_SAFE_INTEGER;
+      if (expiryA !== expiryB) {
+        return expiryA - expiryB;
+      }
+      return b.value - a.value;
+    });
+
+    const selected: SpendableArkVtxo[] = [];
+    let selectedAmount = 0;
+    for (const vtxo of sortedVtxos) {
+      selected.push(vtxo);
+      selectedAmount += vtxo.value;
+      if (selectedAmount >= targetAmount) break;
+    }
+
+    if (selectedAmount < targetAmount) {
+      throw new Error('Insufficient funds');
+    }
+
+    return {
+      inputs: selected,
+      changeAmount: BigInt(selectedAmount - targetAmount),
+    };
+  }
+
+  private async _getStoredVtxos() {
+    assert(this._wallet, 'Ark wallet not initialized');
+
+    try {
+      const arkAddress = await this._wallet.getAddress();
+      return await this._wallet.walletRepository.getVtxos(arkAddress);
+    } catch (error: any) {
+      console.log('[ARK] Failed to fetch stored VTXOs:', error?.message ?? error);
+      return [];
+    }
+  }
+
+  private async _getSubdustVtxos() {
+    assert(this._wallet, 'Ark wallet not initialized');
+
+    try {
+      const subdustScript = uint8ArrayToHex(this._wallet.arkAddress.subdustPkScript);
+      const response = await this._wallet.indexerProvider.getVtxos({ scripts: [subdustScript] });
+      if (!this._wallet.offchainTapscript) {
+        return response.vtxos as SpendableArkVtxo[];
+      }
+
+      return response.vtxos.map(vtxo => ({
+        ...vtxo,
+        forfeitTapLeafScript: this._wallet!.offchainTapscript.forfeit(),
+        intentTapLeafScript: this._wallet!.offchainTapscript.forfeit(),
+        tapTree: this._wallet!.offchainTapscript.encode(),
+      })) as SpendableArkVtxo[];
+    } catch (error: any) {
+      console.log('[ARK] Failed to fetch subdust VTXOs:', error?.message ?? error);
+      return [];
     }
   }
 
