@@ -183,18 +183,6 @@ const ScanQRCode = () => {
       return _onReadUniformResourceV2(ret.data);
     }
 
-    if (ret.data.toUpperCase().startsWith('UR:ETH-SIGNATURE')) {
-      return _onReadUniformResourceV2(ret.data);
-    }
-
-    if (ret.data.toUpperCase().startsWith('UR:SOL-SIGNATURE')) {
-      return _onReadUniformResourceV2(ret.data);
-    }
-
-    if (ret.data.toUpperCase().startsWith('UR:BTC-SIGNATURE')) {
-      return _onReadUniformResourceV2(ret.data);
-    }
-
     if (ret.data.toUpperCase().startsWith('B$')) {
       useBBQRRef.current = true;
       return _onReadUniformResourceV2(ret.data);
