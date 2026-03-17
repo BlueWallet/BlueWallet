@@ -118,7 +118,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   const { navigate, setOptions, goBack } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
-  const fetchTxInterval = useRef<NodeJS.Timeout>();
+  const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useContinuity({
     title: loc.transactions.details_title,
@@ -284,8 +284,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
           }
-          clearInterval(fetchTxInterval.current);
-          fetchTxInterval.current = undefined;
+          if (fetchTxInterval.current) {
+            clearInterval(fetchTxInterval.current);
+            fetchTxInterval.current = undefined;
+          }
           if (wallet?.getID()) {
             fetchAndSaveWalletTransactions(wallet.getID());
           } else {
@@ -298,8 +300,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
     }, intervalMs);
 
     return () => {
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
   }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet]);
 
@@ -311,8 +315,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
 
     return () => {
       subscription.remove();
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

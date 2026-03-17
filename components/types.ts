@@ -1,4 +1,4 @@
-import { AccessibilityRole, ViewStyle, ColorValue } from 'react-native';
+import { AccessibilityRole, ViewStyle, ColorValue, GestureResponderEvent } from 'react-native';
 
 export interface Action {
   id: string | number;
@@ -25,10 +25,10 @@ export interface ToolTipMenuProps {
   dismissMenu?: () => void;
   onPressMenuItem: (id: string) => void;
   title?: string;
-  isMenuPrimaryAction?: boolean;
+  shouldOpenOnLongPress?: boolean;
   isButton?: boolean;
   renderPreview?: () => React.ReactNode;
-  onPress?: () => void;
+  onPress?: (event: GestureResponderEvent) => void;
   previewValue?: string;
   accessibilityRole?: AccessibilityRole;
   disabled?: boolean;

@@ -199,6 +199,8 @@
 		<string>io.bluewallet.bluewallet.signverify</string>
 		<string>io.bluewallet.bluewallet.isitmyaddress</string>
 	</array>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Entypo.ttf</string>

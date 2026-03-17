@@ -3,7 +3,6 @@ import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleShe
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import Button from '../../components/Button';
-import { BlueButtonLink } from '../../BlueComponents';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -19,6 +18,7 @@ import { platformSizing, platformLayout, getSettingsRowBackgroundColor, Settings
 import { useTheme } from '../../components/themes';
 import useContinuity from '../../hooks/useContinuity';
 import { ContinuityActivityType } from '../../components/types';
+import { BlueButtonLink } from '../../BlueComponents';
 
 const IsItMyAddress: React.FC = () => {
   const { params } = useRoute<RouteProp<DetailViewStackParamList, 'IsItMyAddress'>>();
@@ -37,8 +37,6 @@ const IsItMyAddress: React.FC = () => {
     type: ContinuityActivityType.IsItMyAddress,
     userInfo: resultCleanAddress ? { address: resultCleanAddress } : undefined,
   });
-
-  const handleUpdateAddress = (nextValue: string) => setAddress(nextValue);
 
   const clearAddressInput = () => {
     setAddress('');
@@ -123,7 +121,6 @@ const IsItMyAddress: React.FC = () => {
       }
       const value = values[match[1]];
       if (value) {
-        // Bold the wallet name (label), regular weight for address
         const isLabel = match[1] === 'label';
         parts.push(
           <Text key={`bold-${index++}`} selectable style={isLabel ? styles.boldText : undefined}>
@@ -170,7 +167,7 @@ const IsItMyAddress: React.FC = () => {
             placeholder={loc.is_it_my_address.enter_address}
             placeholderTextColor={colors.placeholderTextColor}
             value={address}
-            onChangeText={handleUpdateAddress}
+            onChangeText={setAddress}
             testID="AddressInput"
           />
           {address.length > 0 && (
