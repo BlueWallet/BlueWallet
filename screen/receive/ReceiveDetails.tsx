@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
@@ -12,8 +12,6 @@ import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
-import * as AmountInput from '../../components/AmountInput';
-import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -78,15 +76,11 @@ const ReceiveDetails = () => {
   const [customUnit, setCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState('');
   const [isCustom, setIsCustom] = useState(false);
-  const [tempCustomLabel, setTempCustomLabel] = useState('');
-  const [tempCustomAmount, setTempCustomAmount] = useState('');
-  const [tempCustomUnit, setTempCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams, setOptions, navigate } = useExtendedNavigation<NavigationProps>();
-  const bottomModalRef = useRef<BottomModalHandle | null>(null);
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
@@ -490,50 +484,6 @@ const ReceiveDetails = () => {
       preferredUnit: wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC,
     });
   }, [address, customAmount, customLabel, customUnit, navigate, wallet]);
-
-  const createCustomAmountAddress = () => {
-    bottomModalRef.current?.dismiss();
-        setIsCustom(true);
-        let amount = tempCustomAmount;
-        const amountNumber = Number(amount);
-        switch (tempCustomUnit) {
-            case BitcoinUnit.BTC:
-                // nop
-                break;
-            case BitcoinUnit.SATS:
-                amount = satoshiToBTC(amountNumber);
-                break;
-            case BitcoinUnit.LOCAL_CURRENCY:
-                if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
-                    // cache hit! we reuse old value that supposedly doesnt have rounding errors
-                    amount = satoshiToBTC(Number(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]));
-                } else {
-                    amount = fiatToBTC(amountNumber);
-                }
-                break;
-        }
-        setCustomLabel(tempCustomLabel);
-        setCustomAmount(tempCustomAmount);
-        setCustomUnit(tempCustomUnit);
-        // address is always defined here
-        const isArk = wallet?.type === LightningArkWallet.type;
-        setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!, { amount, label: tempCustomLabel }));
-        setShowAddress(true);
-    };
-
-    const resetCustomAmount = () => {
-        setTempCustomLabel('');
-        setTempCustomAmount('');
-        setTempCustomUnit(wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
-        setCustomLabel('');
-        setCustomAmount('');
-        setCustomUnit(wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
-        // address is always defined here
-        const isArk = wallet?.type === LightningArkWallet.type;
-        setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!));
-        setShowAddress(true);
-        bottomModalRef.current?.dismiss();
-    };
 
   useEffect(() => {
     const {
