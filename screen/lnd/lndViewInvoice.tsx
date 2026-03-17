@@ -35,12 +35,11 @@ const LNDViewInvoice = () => {
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
 
-  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | LightningArkWallet | undefined;
-  const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
+  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | LightningArkWallet | undefined;const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const [arkAddress, setArkAddress] = useState<string>('');
-  const fetchInvoiceInterval = useRef<any>();
+  const fetchInvoiceInterval = useRef<any>(null);
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
   const stylesHook = StyleSheet.create({

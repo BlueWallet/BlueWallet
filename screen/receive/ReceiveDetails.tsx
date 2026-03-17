@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BackHandler, InteractionManager, LayoutAnimation, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import { BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
+import Animated, { Layout } from 'react-native-reanimated';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
@@ -12,7 +13,7 @@ import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
-import BottomModal, { BottomModalHandle } from '../../components/BottomModal';
+import { BottomModalHandle } from '../../components/BottomModal';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
@@ -31,7 +32,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { SuccessView } from '../send/success';
-import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
+import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
@@ -67,7 +68,8 @@ type NavigationProps = NativeStackNavigationProp<ReceiveDetailsStackParamList, '
 type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 
 const ReceiveDetails = () => {
-  const { walletID, address } = useRoute<RouteProps>().params;
+  const route = useRoute<RouteProps>();
+  const { walletID, address } = route.params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
@@ -83,7 +85,7 @@ const ReceiveDetails = () => {
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
-  const { goBack, setParams, setOptions } = useExtendedNavigation<NavigationProps>();
+  const { goBack, setParams, setOptions, navigate } = useExtendedNavigation<NavigationProps>();
   const bottomModalRef = useRef<BottomModalHandle | null>(null);
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
@@ -96,14 +98,6 @@ const ReceiveDetails = () => {
   const isBIP47Enabled = wallet?.isBIP47Enabled();
 
   const stylesHook = StyleSheet.create({
-    customAmount: {
-      borderColor: colors.formBorder,
-      borderBottomColor: colors.formBorder,
-      backgroundColor: colors.inputBackgroundColor,
-    },
-    customAmountText: {
-      color: colors.foregroundColor,
-    },
     root: {
       backgroundColor: colors.elevated,
     },
@@ -112,9 +106,6 @@ const ReceiveDetails = () => {
     },
     label: {
       color: colors.foregroundColor,
-    },
-    modalButton: {
-      backgroundColor: colors.modalButton,
     },
   });
 
@@ -126,14 +117,14 @@ const ReceiveDetails = () => {
       setBip21encoded(newBip21encoded);
       setShowAddress(true);
     },
-    [setParams, wallet?.type],
+      [setParams, wallet?.type],
   );
 
-  const obtainWalletAddress = useCallback(async () => {
-    console.debug('ReceiveDetails - componentDidMount');
-    // this function should only be called when wallet exists
-    if (!wallet) {
-      console.warn('Wallet not found');
+    const obtainWalletAddress = useCallback(async () => {
+        console.debug('ReceiveDetails - componentDidMount');
+        // this function should only be called when wallet exists
+        if (!wallet) {
+            console.warn('Wallet not found');
       return;
     }
     if (address) {
@@ -212,10 +203,10 @@ const ReceiveDetails = () => {
   }, [showConfirmedBalance]);
 
   useEffect(() => {
-    if (address) {
+    if (address && !isCustom) {
       setAddressBIP21Encoded(address);
     }
-  }, [address, setAddressBIP21Encoded]);
+  }, [address, isCustom, setAddressBIP21Encoded]);
 
   const toolTipActions = useMemo(() => {
     const action = { ...CommonToolTipActions.PaymentsCode };
@@ -224,7 +215,6 @@ const ReceiveDetails = () => {
   }, [isBIP47Enabled]);
 
   const onPressMenuItem = useCallback(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onEnablePaymentsCodeSwitchValue();
   }, [onEnablePaymentsCodeSwitchValue]);
 
@@ -460,9 +450,18 @@ const ReceiveDetails = () => {
     }
   };
 
+  const hasIncomingCustomParams =
+    route.params?.customLabel !== undefined ||
+    route.params?.customAmount !== undefined ||
+    route.params?.customUnit !== undefined ||
+    route.params?.bip21encoded !== undefined ||
+    route.params?.isCustom !== undefined;
+
   useFocusEffect(
     useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(async () => {
+      if (isCustom || hasIncomingCustomParams) return () => {};
+      let cancelled = false;
+      (async () => {
         try {
           if (wallet) {
             await obtainWalletAddress();
@@ -470,65 +469,117 @@ const ReceiveDetails = () => {
             setAddressBIP21Encoded(address);
           }
         } catch (error) {
-          console.error('Error during focus effect:', error);
+          if (!cancelled) {
+            console.error('Error during focus effect:', error);
+          }
         }
-      });
+      })();
       return () => {
-        task.cancel();
+        cancelled = true;
       };
-    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded]),
+    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
   );
 
   const showCustomAmountModal = useCallback(() => {
-    setTempCustomLabel(customLabel);
-    setTempCustomAmount(customAmount);
-    setTempCustomUnit(customUnit);
-    bottomModalRef.current?.present();
-  }, [customLabel, customAmount, customUnit]);
+    if (!address) return;
+    navigate('ReceiveCustomAmount', {
+      address,
+      currentLabel: customLabel,
+      currentAmount: customAmount,
+      currentUnit: customUnit,
+      preferredUnit: wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC,
+    });
+  }, [address, customAmount, customLabel, customUnit, navigate, wallet]);
 
   const createCustomAmountAddress = () => {
     bottomModalRef.current?.dismiss();
-    setIsCustom(true);
-    let amount = tempCustomAmount;
-    const amountNumber = Number(amount);
-    switch (tempCustomUnit) {
-      case BitcoinUnit.BTC:
-        // nop
-        break;
-      case BitcoinUnit.SATS:
-        amount = satoshiToBTC(amountNumber);
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesnt have rounding errors
-          amount = satoshiToBTC(Number(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]));
-        } else {
-          amount = fiatToBTC(amountNumber);
+        setIsCustom(true);
+        let amount = tempCustomAmount;
+        const amountNumber = Number(amount);
+        switch (tempCustomUnit) {
+            case BitcoinUnit.BTC:
+                // nop
+                break;
+            case BitcoinUnit.SATS:
+                amount = satoshiToBTC(amountNumber);
+                break;
+            case BitcoinUnit.LOCAL_CURRENCY:
+                if (AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+                    // cache hit! we reuse old value that supposedly doesnt have rounding errors
+                    amount = satoshiToBTC(Number(AmountInput.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]));
+                } else {
+                    amount = fiatToBTC(amountNumber);
+                }
+                break;
         }
-        break;
-    }
-    setCustomLabel(tempCustomLabel);
-    setCustomAmount(tempCustomAmount);
-    setCustomUnit(tempCustomUnit);
-    // address is always defined here
-    const isArk = wallet?.type === LightningArkWallet.type;
-    setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!, { amount, label: tempCustomLabel }));
-    setShowAddress(true);
-  };
+        setCustomLabel(tempCustomLabel);
+        setCustomAmount(tempCustomAmount);
+        setCustomUnit(tempCustomUnit);
+        // address is always defined here
+        const isArk = wallet?.type === LightningArkWallet.type;
+        setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!, { amount, label: tempCustomLabel }));
+        setShowAddress(true);
+    };
 
-  const resetCustomAmount = () => {
-    setTempCustomLabel('');
-    setTempCustomAmount('');
-    setTempCustomUnit(wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
-    setCustomLabel('');
-    setCustomAmount('');
-    setCustomUnit(wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
-    // address is always defined here
-    const isArk = wallet?.type === LightningArkWallet.type;
-    setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!));
-    setShowAddress(true);
-    bottomModalRef.current?.dismiss();
-  };
+    const resetCustomAmount = () => {
+        setTempCustomLabel('');
+        setTempCustomAmount('');
+        setTempCustomUnit(wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
+        setCustomLabel('');
+        setCustomAmount('');
+        setCustomUnit(wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
+        // address is always defined here
+        const isArk = wallet?.type === LightningArkWallet.type;
+        setBip21encoded(isArk ? address! : DeeplinkSchemaMatch.bip21encode(address!));
+        setShowAddress(true);
+        bottomModalRef.current?.dismiss();
+    };
+
+  useEffect(() => {
+    const {
+      customLabel: incomingLabel,
+      customAmount: incomingAmount,
+      customUnit: incomingUnit,
+      bip21encoded: incomingBip21,
+      isCustom: incomingIsCustom,
+    } = route.params;
+
+    const noIncomingParams =
+      incomingLabel === undefined &&
+      incomingAmount === undefined &&
+      incomingUnit === undefined &&
+      incomingBip21 === undefined &&
+      incomingIsCustom === undefined;
+
+    if (noIncomingParams) return;
+
+    if (incomingIsCustom) {
+      setIsCustom(true);
+      setCustomLabel(incomingLabel ?? '');
+      setCustomAmount(incomingAmount ?? '');
+      setCustomUnit(incomingUnit ?? BitcoinUnit.BTC);
+      if (incomingBip21) {
+        setBip21encoded(incomingBip21);
+      }
+      setShowAddress(true);
+      setShowPendingBalance(false);
+      setShowConfirmedBalance(false);
+    } else {
+      const fallbackUnit = wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC;
+      setIsCustom(false);
+      setCustomLabel('');
+      setCustomAmount('');
+      setCustomUnit(fallbackUnit);
+      if (incomingBip21) {
+        setBip21encoded(incomingBip21);
+      }
+      setShowAddress(true);
+      setShowPendingBalance(false);
+      setShowConfirmedBalance(false);
+    }
+
+    setParams({ customLabel: undefined, customAmount: undefined, customUnit: undefined, bip21encoded: undefined, isCustom: undefined });
+  }, [route.params, setParams, wallet]);
 
   /**
    * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
@@ -567,7 +618,7 @@ const ReceiveDetails = () => {
   };
 
   return (
-    <View style={[styles.flex, stylesHook.root]}>
+    <Animated.View layout={Layout.duration(200)} style={[styles.flex, stylesHook.root]}>
       <SafeAreaScrollView
         centerContent
         contentInsetAdjustmentBehavior="automatic"
@@ -621,72 +672,11 @@ const ReceiveDetails = () => {
           </BlueCard>
         </View>
       </SafeAreaScrollView>
-
-      <BottomModal
-        ref={bottomModalRef}
-        contentContainerStyle={styles.modalContainerJustify}
-        backgroundColor={colors.modal}
-        footer={
-          <View style={styles.modalButtonContainer}>
-            <Button
-              testID="CustomAmountResetButton"
-              style={[styles.modalButton, stylesHook.modalButton]}
-              title={loc.receive.reset}
-              onPress={resetCustomAmount}
-            />
-            <View style={styles.modalButtonSpacing} />
-            <Button
-              testID="CustomAmountSaveButton"
-              style={[styles.modalButton, stylesHook.modalButton]}
-              title={loc.receive.details_create}
-              onPress={createCustomAmountAddress}
-            />
-          </View>
-        }
-      >
-        <AmountInput.AmountInput
-          unit={tempCustomUnit}
-          amount={tempCustomAmount || ''}
-          onChangeText={setTempCustomAmount}
-          onAmountUnitChange={setTempCustomUnit}
-        />
-        <View style={[styles.customAmount, stylesHook.customAmount]}>
-          <TextInput
-            onChangeText={setTempCustomLabel}
-            placeholderTextColor="#81868e"
-            placeholder={loc.receive.details_label}
-            value={tempCustomLabel || ''}
-            numberOfLines={1}
-            style={[styles.customAmountText, stylesHook.customAmountText]}
-            testID="CustomAmountDescription"
-          />
-        </View>
-        <BlueSpacing20 />
-
-        <BlueSpacing20 />
-      </BottomModal>
-    </View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
-  modalContainerJustify: {
-    alignContent: 'center',
-    padding: 22,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  customAmount: {
-    flexDirection: 'row',
-    borderWidth: 1.0,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-  },
   root: {
     flexGrow: 1,
     justifyContent: 'space-between',
@@ -724,29 +714,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     paddingBottom: 12,
-  },
-  modalButton: {
-    paddingVertical: 14,
-    minWidth: 100,
-    paddingHorizontal: 16,
-    borderRadius: 50,
-    fontWeight: '700',
-    flex: 0.5,
-    alignItems: 'center',
-  },
-  modalButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 34,
-  },
-  modalButtonSpacing: {
-    width: 16,
-  },
-  customAmountText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 33,
   },
   container: {
     flex: 1,

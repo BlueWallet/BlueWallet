@@ -37,26 +37,17 @@
         android:configChanges="uiMode">
 
         <meta-data
-            android:name="com.dieam.reactnativepushnotification.notification_channel_name"
-            android:value="BlueWallet notifications" />
-        <meta-data
-            android:name="com.dieam.reactnativepushnotification.notification_channel_description"
-            android:value="Notifications about incoming payments" />
-        <meta-data
-            android:name="com.dieam.reactnativepushnotification.notification_foreground"
-            android:value="true" />
-        <meta-data
-            android:name="com.dieam.reactnativepushnotification.channel_create_default"
-            android:value="true" />
-        <meta-data
-            android:name="com.dieam.reactnativepushnotification.notification_color"
-            android:resource="@color/white" />
-        <meta-data
             android:name="firebase_messaging_auto_init_enabled"
             android:value="false" />
         <meta-data
             android:name="firebase_analytics_collection_enabled"
             android:value="false" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/notification_icon" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/foreground_color" />
 <provider
     android:name="androidx.core.content.FileProvider"
     android:authorities="${applicationId}.provider"
@@ -66,16 +57,6 @@
         android:name="android.support.FILE_PROVIDER_PATHS"
         android:resource="@xml/file_paths" />
 </provider>
-        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationActions" />
-        <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
-        <receiver
-            android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
         <receiver android:name=".BitcoinPriceWidget" android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -131,14 +112,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity-alias>
-
-        <service
-            android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationListenerService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
 
         <activity
             android:name=".MainActivity"

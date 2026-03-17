@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Image } from 'react-native';
@@ -34,7 +34,7 @@ const ImportWallet = () => {
   const walletType = route?.params?.walletType;
   const [importText, setImportText] = useState<string>(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState<boolean>(false);
-  const [, setSpeedBackdoor] = useState<number>(0);
+  const speedBackdoorTapCountRef = useRef(0);
   const [searchAccountsMenuState, setSearchAccountsMenuState] = useState<boolean>(false);
   const [askPassphraseMenuState, setAskPassphraseMenuState] = useState<boolean>(false);
   const [clearClipboardMenuState, setClearClipboardMenuState] = useState<boolean>(true);
@@ -123,12 +123,11 @@ const ImportWallet = () => {
   }, [route.name, onBarScanned, route.params?.onBarScanned, navigation]);
 
   const speedBackdoorTap = () => {
-    setSpeedBackdoor(v => {
-      v += 1;
-      if (v < 5) return v;
+    speedBackdoorTapCountRef.current += 1;
+    if (speedBackdoorTapCountRef.current >= 5) {
+      speedBackdoorTapCountRef.current = 0;
       navigation.navigate('ImportSpeed');
-      return 0;
-    });
+    }
   };
 
   const toolTipOnPressMenuItem = useCallback(
@@ -200,7 +199,7 @@ const ImportWallet = () => {
         <>
           <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} testID="DoImport" onPress={handleImport} />
           <BlueSpacing20 />
-          <AddressInputScanButton type="link" onChangeText={setImportText} testID="ScanImport" />
+          <AddressInputScanButton type="link" onChangeText={onBarScanned} testID="ScanImport" />
         </>
       </View>
     </>

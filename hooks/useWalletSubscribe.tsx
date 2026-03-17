@@ -9,7 +9,7 @@ const useWalletSubscribe = (walletID: string): TWallet => {
   const { wallets } = useStorage();
 
   // get wallet by ID or used cached wallet
-  const previousWallet = useRef<TWallet | undefined>();
+  const previousWallet = useRef<TWallet | undefined>(undefined);
   const origWallet = wallets.find(w => w.getID() === walletID) ?? previousWallet.current;
   if (!origWallet) {
     throw new Error(`Wallet with ID ${walletID} not found`);
