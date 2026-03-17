@@ -116,6 +116,7 @@ const ScanQRCode = () => {
       }
     } catch (error: any) {
       console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
+      decoder = undefined;
     }
   };
 

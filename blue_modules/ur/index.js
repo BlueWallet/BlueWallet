@@ -1,3 +1,7 @@
+// Must be imported first to register CBOR semantic decoders (tag 303/304/etc.)
+// Without this, nested tagged items inside crypto-multi-accounts/crypto-hdkey
+// are decoded as plain Objects instead of DataItem instances, causing getData() errors.
+import '@keystonehq/bc-ur-registry/dist/patchCBOR';
 import {
   Bytes,
   CryptoAccount,
@@ -7,6 +11,7 @@ import {
   CryptoPSBT,
   PathComponent,
   ScriptExpressions,
+  CryptoMultiAccounts,
 } from '@keystonehq/bc-ur-registry/dist';
 import { URDecoder } from '@ngraveio/bc-ur';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -276,6 +281,94 @@ function decodeUR(arg) {
   return uint8ArrayToHex(stringToUint8Array(str)); // we are expected to return hex-encoded string
 }
 
+/**
+ * Convert a CryptoHDKey to the {ExtPubKey, MasterFingerprint, AccountKeyPath} result
+ * format that BlueWallet uses for watch-only / hardware wallet import.
+ *
+ * Returns null (key is skipped) when:
+ *  - the key has no origin (can't determine derivation path)
+ *  - the key has no path components (e.g. a bare master key)
+ *  - the key is missing chainCode or public key bytes
+ *  - the coin type is not Bitcoin (0) – hardware wallets like OneKey send keys for
+ *    multiple chains (ETH coin=60, SOL coin=501 …) in a single crypto-multi-accounts
+ *    payload; BlueWallet is Bitcoin-only so non-Bitcoin keys must be filtered out.
+ *
+ * @param {CryptoHDKey} hdKey
+ * @param {string|null} masterFingerprintOverride
+ *   Pass the master fingerprint from the outer CryptoMultiAccounts object when
+ *   processing a multi-accounts payload, because individual HDKey entries may not
+ *   carry the master fingerprint themselves.
+ */
+function _hdKeyToResult(hdKey, masterFingerprintOverride) {
+  const origin = hdKey.getOrigin();
+  if (!origin) return null;
+
+  const components = origin.getComponents();
+  if (!components || components.length === 0) return null;
+
+  // Coin type is the second path component (index 1): m / purpose' / coin_type' / account'
+  // BIP-44 standard: coin type 0 = Bitcoin mainnet.
+  // Skip non-Bitcoin keys (ETH=60, TRX=195, SOL=501, etc.) so they don't appear as
+  // blank wallets in the BlueWallet import UI.
+  if (components.length >= 2 && components[1].getIndex() !== 0) return null;
+
+  const chainCode = hdKey.getChainCode();
+  const key = hdKey.getKey();
+  if (!chainCode || !key) return null;
+
+  const derivationPath = 'm/' + origin.getPath();
+
+  // Multisig wallets use a different xpub version prefix than single-sig.
+  const isMultisig =
+    derivationPath === MultisigHDWallet.PATH_LEGACY ||
+    derivationPath === MultisigHDWallet.PATH_WRAPPED_SEGWIT ||
+    derivationPath === MultisigHDWallet.PATH_NATIVE_SEGWIT;
+
+  // Default version bytes produce a zpub (native segwit / BIP-84).
+  // For multisig we use Zprv/Zpub version bytes instead.
+  const version = hexToUint8Array(isMultisig ? '02aa7ed3' : '04b24746');
+
+  const parentFingerprint = hdKey.getParentFingerprint() || new Uint8Array(4);
+  // depth may be encoded in the origin or inferred from the number of path components
+  const depth = origin.getDepth() || components.length;
+  const depthBuf = new Uint8Array(1);
+  depthBuf[0] = depth;
+
+  const lastComponent = components[components.length - 1];
+  const index = lastComponent.isHardened() ? lastComponent.getIndex() + 0x80000000 : lastComponent.getIndex();
+  const indexBuf = new Uint8Array(4);
+  new DataView(indexBuf.buffer).setUint32(0, index, false);
+
+  const keyData = concatUint8Arrays([version, depthBuf, parentFingerprint, indexBuf, chainCode, key]);
+
+  const result = {};
+  result.ExtPubKey = b58.encode(keyData);
+  result.MasterFingerprint =
+    masterFingerprintOverride ||
+    (origin.getSourceFingerprint() ? uint8ArrayToHex(origin.getSourceFingerprint()).toUpperCase() : '');
+  result.AccountKeyPath = derivationPath;
+
+  // Re-encode with the correct version bytes for the specific script type so that
+  // BlueWallet can recognise the wallet type from the prefix alone (xpub/ypub/zpub).
+  if (derivationPath.startsWith("m/49'/0'/")) {
+    // BIP-49 P2SH-P2WPKH → ypub (version 0x049d7cb2)
+    let d = b58.decode(result.ExtPubKey);
+    d = d.slice(4);
+    result.ExtPubKey = b58.encode(concatUint8Arrays([hexToUint8Array('049d7cb2'), d]));
+  }
+  if (derivationPath.startsWith("m/44'/0'/")) {
+    // BIP-44 P2PKH → xpub (version 0x0488b21e)
+    let d = b58.decode(result.ExtPubKey);
+    d = d.slice(4);
+    result.ExtPubKey = b58.encode(concatUint8Arrays([hexToUint8Array('0488b21e'), d]));
+  }
+  // BIP-84 m/84'/0'/ keeps the default zpub version (0x04b24746) – no re-encoding needed.
+  // BIP-86 m/86'/0'/ (Taproot) also falls through with zpub bytes; BlueWallet detects
+  // Taproot via the derivation path rather than the version prefix.
+
+  return result;
+}
+
 class BlueURDecoder extends URDecoder {
   bbqrParts = {}; // key-value, payload->1
 
@@ -367,7 +460,31 @@ class BlueURDecoder extends URDecoder {
       return output.toString();
     }
 
-    throw new Error('unsupported data format');
+    if (decoded.type === 'crypto-hdkey') {
+      const hdKey = CryptoHDKey.fromCBOR(decoded.cbor);
+      const result = _hdKeyToResult(hdKey, null);
+      if (!result) throw new Error('crypto-hdkey: missing origin or components');
+      return JSON.stringify([result]);
+    }
+
+    if (decoded.type === 'crypto-multi-accounts') {
+      const multiAccounts = CryptoMultiAccounts.fromCBOR(decoded.cbor);
+      const masterFingerprint = uint8ArrayToHex(multiAccounts.getMasterFingerprint()).toUpperCase();
+
+      const results = [];
+      for (const hdKey of multiAccounts.getKeys()) {
+        // skip keys without a valid Bitcoin derivation path (e.g. ETH/SOL keys)
+        const result = _hdKeyToResult(hdKey, masterFingerprint);
+        if (result) results.push(result);
+      }
+
+      if (results.length === 0) throw new Error('crypto-multi-accounts: no valid Bitcoin keys found');
+      return JSON.stringify(results);
+    }
+
+    // For all other UR types (e.g. btc-signature, eth-signature, sol-signature),
+    // return the raw CBOR hex so callers can handle it if needed.
+    return decoded.cbor.toString('hex');
   }
 
   isComplete() {
