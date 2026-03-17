@@ -178,8 +178,6 @@
     "biom_remove_decrypt": "तपाईंको सबै वालेटहरू हटाइनेछ र तपाईंको भण्डारण डिक्रिप्ट गरिनेछ। के तपाई निश्चित रूपमा अगाडि बढ्न चाहनुहुन्छ?",
     "currency": "मुद्रा",
     "currency_fetch_error": "चयन गरिएको मुद्राको लागि दर प्राप्त गर्दा एर्रोर भयो।",
-    "default_info": "पूर्वनिर्धारित जानकारी",
-    "default_wallets": "सबै वालेटहरू हेर्नुहोस्",
     "electrum_connected": "जोडिएको",
     "electrum_connected_not": "जोडिएको छैन",
     "electrum_offline_mode": "अफलाइन मोड",
@@ -228,6 +226,7 @@
     "details_title": "लेनदेन",
     "pending": "पेनदिंग",
     "list_title": "लेनदेन",
+    "list_title_received": "प्राप्त भयो",
     "transaction": "लेनदेन",
     "status_cancel": "लेनदेन क्यान्सिल "
   },
