@@ -45,7 +45,7 @@
     "biom_conf_identity": "Abeg confirm who you be.",
     "currency_fetch_error": "Error dey as we dey find rate for the currency you select. ",
     "default_title": "As you launch",
-    "electrum_unable_to_connect": "We nor fit connect to [server]"
+    "electrum_unable_to_connect": "We nor fit connect to {server}."
   },
   "transactions": {
     "pending": "Pend"

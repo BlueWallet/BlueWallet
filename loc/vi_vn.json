@@ -292,7 +292,7 @@
     "add_entropy": "Entropy",
     "add_entropy_generated": "{gen} bytes entropy đã được tạo",
     "add_entropy_provide": "Cung cấp entropy bằng dice roll",
-    "add_entropy_remain": "{gen} bytes entropy đã được tạo. {gen} bytes còn lại sẽ lấy được từ số ngẫu nhiên của hệ thống. ",
+    "add_entropy_remain": "{gen} bytes entropy đã được tạo. {rem} bytes còn lại sẽ lấy được từ số ngẫu nhiên của hệ thống. ",
     "add_import_wallet": "Nhập ví",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Để chi tiêu với các giao dịch tức thời ",
