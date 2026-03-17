@@ -81,7 +81,7 @@ async function runSwapQueue(): Promise<TaskResult[]> {
 export async function registerArkadeBackgroundTask(depsFactory: DepsFactory): Promise<void> {
   _depsFactory = depsFactory;
 
-  await BackgroundFetch.configure(
+  const status = await BackgroundFetch.configure(
     {
       minimumFetchInterval: 15, // iOS minimum is 15 min
       stopOnTerminate: false,
@@ -101,6 +101,10 @@ export async function registerArkadeBackgroundTask(depsFactory: DepsFactory): Pr
       BackgroundFetch.finish(taskId);
     },
   );
+
+  if (status !== BackgroundFetch.STATUS_AVAILABLE) {
+    console.log('[ArkadeSync] BackgroundFetch not available, status:', status);
+  }
 }
 
 /**
@@ -164,10 +168,7 @@ export async function headlessSwapTask({ taskId }: { taskId: string }): Promise<
     // In headless mode the React tree never mounts, so _depsFactory is null.
     // Bootstrap deps from disk so runSwapQueue() can actually process swaps.
     if (!_depsFactory) {
-      const depsFromDisk = await buildDepsFromDisk();
-      if (depsFromDisk.size > 0) {
-        _depsFactory = async () => depsFromDisk;
-      }
+      _depsFactory = buildDepsFromDisk;
     }
 
     await runSwapQueue();
