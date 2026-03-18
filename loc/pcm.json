@@ -44,10 +44,8 @@
     "biom_10times": "Na like 10 times you don enter password, You go like reset your storage? This one go comot all your wallets and e go decrypt your storage.",
     "biom_conf_identity": "Abeg confirm who you be.",
     "currency_fetch_error": "Error dey as we dey find rate for the currency you select. ",
-    "default_info": "Normal info",
     "default_title": "As you launch",
-    "default_wallets": "See all your wallets",
-    "electrum_unable_to_connect": "We nor fit connect to [server]"
+    "electrum_unable_to_connect": "We nor fit connect to {server}."
   },
   "transactions": {
     "pending": "Pend"

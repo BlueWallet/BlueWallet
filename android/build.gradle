@@ -20,7 +20,7 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:8.7.2")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
 	    classpath 'com.google.gms:google-services:4.4.4'  // Google Services plugin
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:8.2.0")
     }
@@ -66,15 +66,6 @@ allprojects {
 	                excludeGroup "com.facebook.react"
 	            }
 	        }
-        mavenLocal()
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url("$rootDir/../node_modules/react-native/android")
-        }
-        maven {
-            // Android JSC is installed from npm
-            url("$rootDir/../node_modules/jsc-android/dist")
-        }
         google()
                 maven { url 'https://www.jitpack.io' }
     }
@@ -144,6 +135,22 @@ subprojects { project ->
             proj.android.sourceSets.main.java.srcDir("${proj.buildDir}/generated/source/codegen/java")
         }
 
+<<<<<<< HEAD
+    }
+}
+
+// Final guard: fail fast if any jcenter repository slips through
+gradle.projectsEvaluated {
+    allprojects { proj ->
+        def offenders = proj.repositories.findAll { repo ->
+            repo instanceof org.gradle.api.artifacts.repositories.MavenArtifactRepository &&
+                    repo.url?.toString()?.contains('jcenter')
+        }
+        if (!offenders.isEmpty()) {
+            throw new GradleException("jcenter() detected in ${proj.path}; remove or replace with mavenCentral()");
+        }
+=======
+>>>>>>> master
     }
 }
 
@@ -159,3 +166,5 @@ gradle.projectsEvaluated {
         }
     }
 }
+
+apply plugin: "com.facebook.react.rootproject"

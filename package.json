@@ -166,6 +166,7 @@
     "react-native-fs": "2.20.0",
     "react-native-gesture-handler": "2.30.0",
     "react-native-get-random-values": "1.11.0",
+
     "react-native-haptic-feedback": "2.3.4",
     "react-native-image-picker": "8.2.1",
     "react-native-keychain": "9.2.3",
