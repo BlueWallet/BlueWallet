@@ -1,21 +1,24 @@
 import assert from 'assert';
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { NativeModules, View } from 'react-native';
+import { View } from 'react-native';
 import { ContinuityActivityType } from '../../components/types';
-
-// Import *after* mocks are in place
-import useContinuity from '../../hooks/useContinuity';
 
 // --- mocks ---
 
 const mockBecomeCurrent = jest.fn();
 const mockInvalidate = jest.fn();
 
-NativeModules.ReactNativeContinuity = {
-  becomeCurrent: mockBecomeCurrent,
-  invalidate: mockInvalidate,
-};
+jest.mock('../../codegen/NativeReactNativeContinuity', () => ({
+  __esModule: true,
+  default: {
+    becomeCurrent: (...args: any[]) => mockBecomeCurrent(...args),
+    invalidate: (...args: any[]) => mockInvalidate(...args),
+  },
+}));
+
+// Import *after* mocks are in place
+import useContinuity from '../../hooks/useContinuity';
 
 let mockContinuityEnabled = true;
 jest.mock('../../hooks/context/useSettings', () => ({

@@ -16,8 +16,22 @@ jest.mock('react-native', () => {
     NativeEventEmitter: jest.fn(() => ({ addListener: mockAddListener })),
     Alert: { alert: jest.fn() },
     Linking: { openURL: jest.fn(() => Promise.resolve()) },
+    Platform: { OS: 'ios' },
   };
 });
+
+jest.mock('react-native-default-preference', () => ({
+  setName: jest.fn(() => Promise.resolve()),
+  get: jest.fn(() => Promise.resolve('true')),
+}));
+
+jest.mock('../../blue_modules/currency', () => ({
+  GROUP_IO_BLUEWALLET: 'group.io.bluewallet.bluewallet',
+}));
+
+jest.mock('../../class', () => ({
+  BlueApp: { CONTINUITY_STORAGE_KEY: 'HandOff' },
+}));
 
 // Mock dependencies before importing the module
 jest.mock('../../NavigationService', () => ({
@@ -34,6 +48,12 @@ jest.mock('../../helpers/lndHub', () => ({
   setLNDHub: jest.fn(() => Promise.resolve()),
 }));
 
+const mockPresentAlert = jest.fn();
+jest.mock('../../components/Alert', () => ({
+  __esModule: true,
+  default: (...args: any[]) => mockPresentAlert(...args),
+}));
+
 describe('continuityLinking', () => {
   let mockListener: jest.Mock;
   let continuityLinking: any;
@@ -42,6 +62,7 @@ describe('continuityLinking', () => {
     jest.clearAllMocks();
     jest.resetModules();
     capturedEventCallback = null;
+    mockPresentAlert.mockClear();
     continuityLinking = require('../../navigation/continuityLinking').default;
     mockListener = jest.fn();
   });
@@ -165,11 +186,12 @@ describe('continuityLinking', () => {
       assert.strictEqual(mockListener.mock.calls.length, 0);
     });
 
-    it('should call listener for IsItMyAddress when address is present', () => {
+    it('should call listener for IsItMyAddress when address is present', async () => {
       if (!continuityLinking.subscribe) return;
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.IsItMyAddress, userInfo: { address: 'bc1qtest' } });
+      await new Promise(resolve => setTimeout(resolve, 10));
       assert.strictEqual(mockListener.mock.calls.length, 1);
       assert.ok((mockListener.mock.calls[0][0] as string).includes('isitmyaddress'));
       assert.ok((mockListener.mock.calls[0][0] as string).includes('bc1qtest'));
@@ -180,7 +202,13 @@ describe('continuityLinking', () => {
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.ReceiveOnchain, userInfo: {} });
-      assert.strictEqual(mockListener.mock.calls.length, 0);
+      // Even the alert should not appear when address is missing
+      return new Promise<void>(resolve => setTimeout(() => {
+        const { Alert } = require('react-native');
+        // No alert shown because activityToURL returns null for missing address
+        assert.strictEqual(mockListener.mock.calls.length, 0);
+        resolve();
+      }, 10));
     });
 
     it('should not call listener for Xpub when xpub or walletID is missing', () => {
@@ -188,7 +216,10 @@ describe('continuityLinking', () => {
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { xpub: 'xpubABC' } });
-      assert.strictEqual(mockListener.mock.calls.length, 0);
+      return new Promise<void>(resolve => setTimeout(() => {
+        assert.strictEqual(mockListener.mock.calls.length, 0);
+        resolve();
+      }, 10));
     });
 
     it('should not call listener for Xpub when walletID is missing but xpub is present', () => {
@@ -196,7 +227,10 @@ describe('continuityLinking', () => {
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { walletID: 'wallet123' } });
-      assert.strictEqual(mockListener.mock.calls.length, 0);
+      return new Promise<void>(resolve => setTimeout(() => {
+        assert.strictEqual(mockListener.mock.calls.length, 0);
+        resolve();
+      }, 10));
     });
 
     it('should not call listener for SignVerify when walletID is missing', () => {
@@ -215,11 +249,12 @@ describe('continuityLinking', () => {
       assert.strictEqual(mockListener.mock.calls.length, 0);
     });
 
-    it('should call listener for SignVerify when walletID and address are present', () => {
+    it('should call listener for SignVerify when walletID and address are present', async () => {
       if (!continuityLinking.subscribe) return;
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.SignVerify, userInfo: { walletID: 'wallet123', address: 'bc1qtest' } });
+      await new Promise(resolve => setTimeout(resolve, 10));
       assert.strictEqual(mockListener.mock.calls.length, 1);
       assert.ok((mockListener.mock.calls[0][0] as string).includes('signverify'));
       assert.ok((mockListener.mock.calls[0][0] as string).includes('wallet123'));
@@ -234,7 +269,7 @@ describe('continuityLinking', () => {
       Linking = require('react-native').Linking;
     });
 
-    it('should open external URL for ViewInBlockExplorer and not call listener', () => {
+    it('should open external URL for ViewInBlockExplorer and not call listener', async () => {
       if (!continuityLinking.subscribe) return;
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
@@ -243,6 +278,7 @@ describe('continuityLinking', () => {
         userInfo: {},
         webpageURL: 'https://mempool.space/tx/abc123',
       });
+      await new Promise(resolve => setTimeout(resolve, 10));
       assert.strictEqual(mockListener.mock.calls.length, 0);
       assert.strictEqual(Linking.openURL.mock.calls.length, 1);
       assert.strictEqual(Linking.openURL.mock.calls[0][0], 'https://mempool.space/tx/abc123');
@@ -255,6 +291,101 @@ describe('continuityLinking', () => {
       capturedEventCallback!({ activityType: ContinuityActivityType.ViewInBlockExplorer, userInfo: {} });
       assert.strictEqual(mockListener.mock.calls.length, 0);
       assert.strictEqual(Linking.openURL.mock.calls.length, 0);
+    });
+  });
+
+  describe('ReceiveOnchain and Xpub prompt handling', () => {
+    let navigateMock: jest.Mock;
+
+    beforeEach(() => {
+      navigateMock = require('../../NavigationService').navigate;
+    });
+
+    it('should show alert for ReceiveOnchain with valid address', async () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.ReceiveOnchain, userInfo: { address: 'bc1qtest' } });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      assert.strictEqual(mockPresentAlert.mock.calls.length, 1);
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+      const buttons = mockPresentAlert.mock.calls[0][0].buttons;
+      assert.strictEqual(buttons.length, 3);
+    });
+
+    it('should show alert for Xpub with valid data', async () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { xpub: 'xpubABC', walletID: 'wallet123' } });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      assert.strictEqual(mockPresentAlert.mock.calls.length, 1);
+      assert.strictEqual(mockListener.mock.calls.length, 0);
+      const buttons = mockPresentAlert.mock.calls[0][0].buttons;
+      assert.strictEqual(buttons.length, 3);
+    });
+
+    it('should call listener when View as QR is pressed for ReceiveOnchain', async () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.ReceiveOnchain, userInfo: { address: 'bc1qtest' } });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      const buttons = mockPresentAlert.mock.calls[0][0].buttons;
+      const qrButton = buttons.find((b: any) => b.text !== 'Cancel' && b.text !== 'Import');
+      assert.ok(qrButton, 'QR button should exist');
+      qrButton.onPress();
+      assert.strictEqual(mockListener.mock.calls.length, 1);
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('receiveonchain'));
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('bc1qtest'));
+    });
+
+    it('should navigate to ImportWallet when Import is pressed for ReceiveOnchain', async () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.ReceiveOnchain, userInfo: { address: 'bc1qtest' } });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      const buttons = mockPresentAlert.mock.calls[0][0].buttons;
+      const importButton = buttons.find((b: any) => b.text === 'Import');
+      assert.ok(importButton, 'Import button should exist');
+      importButton.onPress();
+      assert.strictEqual(navigateMock.mock.calls.length, 1);
+      assert.strictEqual(navigateMock.mock.calls[0][0], 'AddWalletRoot');
+      assert.strictEqual(navigateMock.mock.calls[0][1].screen, 'ImportWallet');
+      assert.strictEqual(navigateMock.mock.calls[0][1].params.label, 'bc1qtest');
+      assert.strictEqual(navigateMock.mock.calls[0][1].params.triggerImport, true);
+    });
+
+    it('should navigate to ImportWallet with xpub when Import is pressed for Xpub', async () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { xpub: 'xpubABC', walletID: 'wallet123' } });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      const buttons = mockPresentAlert.mock.calls[0][0].buttons;
+      const importButton = buttons.find((b: any) => b.text === 'Import');
+      assert.ok(importButton, 'Import button should exist');
+      importButton.onPress();
+      assert.strictEqual(navigateMock.mock.calls.length, 1);
+      assert.strictEqual(navigateMock.mock.calls[0][0], 'AddWalletRoot');
+      assert.strictEqual(navigateMock.mock.calls[0][1].params.label, 'xpubABC');
+    });
+
+    it('should call listener when View as QR is pressed for Xpub', async () => {
+      if (!continuityLinking.subscribe) return;
+      continuityLinking.subscribe(mockListener);
+      assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
+      capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { xpub: 'xpubABC', walletID: 'wallet123' } });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      const buttons = mockPresentAlert.mock.calls[0][0].buttons;
+      const qrButton = buttons.find((b: any) => b.text !== 'Cancel' && b.text !== 'Import');
+      assert.ok(qrButton, 'QR button should exist');
+      qrButton.onPress();
+      assert.strictEqual(mockListener.mock.calls.length, 1);
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('xpub'));
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('wallet123'));
+      assert.ok((mockListener.mock.calls[0][0] as string).includes('xpubABC'));
     });
   });
 });

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { NativeModules } from 'react-native';
 import { useSettings } from './context/useSettings';
 import { ContinuityActivityType } from '../components/types';
+import NativeReactNativeContinuity from '../codegen/NativeReactNativeContinuity';
 
 let nextActivityId = 0;
 
@@ -18,12 +18,12 @@ const useContinuity = ({ title, type, url, userInfo }: UseContinuityParams): voi
   const serializedUserInfo = userInfo ? JSON.stringify(userInfo) : undefined;
 
   useEffect(() => {
-    if (!NativeModules.ReactNativeContinuity) {
+    if (!NativeReactNativeContinuity) {
       return;
     }
 
     if (activityIdRef.current !== null) {
-      NativeModules.ReactNativeContinuity?.invalidate(activityIdRef.current);
+      NativeReactNativeContinuity?.invalidate(activityIdRef.current);
       activityIdRef.current = null;
     }
 
@@ -53,11 +53,11 @@ const useContinuity = ({ title, type, url, userInfo }: UseContinuityParams): voi
 
     const id = ++nextActivityId;
     activityIdRef.current = id;
-    NativeModules.ReactNativeContinuity?.becomeCurrent(id, type, title ?? '', parsedUserInfo ?? null, url ?? null);
+    NativeReactNativeContinuity?.becomeCurrent(id, type, title ?? '', parsedUserInfo ?? null, url ?? null);
 
     return () => {
       if (activityIdRef.current !== null) {
-        NativeModules.ReactNativeContinuity?.invalidate(activityIdRef.current);
+        NativeReactNativeContinuity?.invalidate(activityIdRef.current);
         activityIdRef.current = null;
       }
     };

@@ -1,7 +1,8 @@
 import { LinkingOptions } from '@react-navigation/native';
-import { NativeModules, NativeEventEmitter, Linking, Alert, Platform } from 'react-native';
+import { NativeModules, NativeEventEmitter, Linking, Platform } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import { ContinuityActivityType } from '../components/types';
+import presentAlert from '../components/Alert';
 import { navigationRef, navigate } from '../NavigationService';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import loc from '../loc';
@@ -98,26 +99,61 @@ function handleSendOnchainConflict(data: UserActivityData, listener: (url: strin
     if (url) listener(url);
   };
 
-  Alert.alert(loc.send.continuity_draft_conflict_title, loc.send.continuity_draft_conflict_message, [
-    { text: loc._.cancel, style: 'cancel' },
-    { text: loc.send.continuity_draft_replace, style: 'destructive', onPress: navigateReplace },
-    {
-      text: loc.send.continuity_draft_add_recipient,
-      onPress: () => {
-        navigate('SendDetailsRoot', {
-          screen: 'SendDetails',
-          params: {
-            walletID: currentWalletID,
-            addRecipientParams: {
-              address: userInfo.address ?? '',
-              amount: userInfo.amount ? Number(userInfo.amount) : undefined,
-              nonce: Date.now(),
+  presentAlert({
+    title: loc.send.continuity_draft_conflict_title,
+    message: loc.send.continuity_draft_conflict_message,
+    buttons: [
+      { text: loc._.cancel, style: 'cancel' },
+      { text: loc.send.continuity_draft_replace, style: 'destructive', onPress: navigateReplace },
+      {
+        text: loc.send.continuity_draft_add_recipient,
+        onPress: () => {
+          navigate('SendDetailsRoot', {
+            screen: 'SendDetails',
+            params: {
+              walletID: currentWalletID,
+              addRecipientParams: {
+                address: userInfo.address ?? '',
+                amount: userInfo.amount ? Number(userInfo.amount) : undefined,
+                nonce: Date.now(),
+              },
             },
-          },
-        } as any);
+          } as any);
+        },
       },
-    },
-  ]);
+    ],
+  });
+}
+
+function handleReceiveOrXpubReceived(data: UserActivityData, listener: (url: string) => void): void {
+  const { activityType, userInfo = {} } = data;
+  const isXpub = activityType === ContinuityActivityType.Xpub;
+  const message = isXpub ? loc.send.continuity_received_xpub_message : loc.send.continuity_received_address_message;
+
+  const viewAsQR = () => {
+    const url = activityToURL(data);
+    if (url) listener(url);
+  };
+
+  const importData = () => {
+    const value = isXpub ? userInfo.xpub : userInfo.address;
+    if (value) {
+      navigate('AddWalletRoot', {
+        screen: 'ImportWallet',
+        params: { label: value, triggerImport: true },
+      });
+    }
+  };
+
+  presentAlert({
+    title: loc.send.continuity_received_title,
+    message,
+    buttons: [
+      { text: loc._.cancel, style: 'cancel' },
+      { text: loc.send.continuity_received_import, onPress: importData },
+      { text: loc.send.continuity_received_qr, onPress: viewAsQR },
+    ],
+  });
 }
 
 function handleLightningSettingsReceived(data: UserActivityData): void {
@@ -125,10 +161,10 @@ function handleLightningSettingsReceived(data: UserActivityData): void {
   const url = userInfo.url;
   if (!url) return;
 
-  Alert.alert(
-    loc.settings.continuity_lndhub_title,
-    loc.formatString(loc.settings.continuity_lndhub_message, { url }) as string,
-    [
+  presentAlert({
+    title: loc.settings.continuity_lndhub_title,
+    message: loc.formatString(loc.settings.continuity_lndhub_message, { url }) as string,
+    buttons: [
       { text: loc._.cancel, style: 'cancel' },
       {
         text: loc.settings.continuity_lndhub_apply,
@@ -141,7 +177,7 @@ function handleLightningSettingsReceived(data: UserActivityData): void {
         },
       },
     ],
-  );
+  });
 }
 
 let _listener: ((url: string) => void) | null = null;
@@ -165,6 +201,11 @@ export function processInitialContinuityActivity(): void {
 
       if (data.activityType === ContinuityActivityType.LightningSettings) {
         handleLightningSettingsReceived(data);
+        return;
+      }
+
+      if (data.activityType === ContinuityActivityType.ReceiveOnchain || data.activityType === ContinuityActivityType.Xpub) {
+        handleReceiveOrXpubReceived(data, listener);
         return;
       }
 
@@ -234,6 +275,11 @@ const continuityLinking: LinkingOptions<DetailViewStackParamList> = {
 
       if (data.activityType === ContinuityActivityType.LightningSettings) {
         handleLightningSettingsReceived(data);
+        return;
+      }
+
+      if (data.activityType === ContinuityActivityType.ReceiveOnchain || data.activityType === ContinuityActivityType.Xpub) {
+        handleReceiveOrXpubReceived(data, listener);
         return;
       }
 

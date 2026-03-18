@@ -2,7 +2,9 @@ import Foundation
 import React
 
 @objc(ReactNativeContinuity)
-class ReactNativeContinuity: NSObject {
+class ReactNativeContinuity: NSObject, NativeReactNativeContinuitySpec {
+
+  static func moduleName() -> String! { "ReactNativeContinuity" }
 
   private var activities: [Int: NSUserActivity] = [:]
 
@@ -12,8 +14,8 @@ class ReactNativeContinuity: NSObject {
   }
 
   @objc
-  func becomeCurrent(_ activityId: NSNumber, type: String, title: String?, userInfo: [String: Any]?, url: String?) {
-    let id = activityId.intValue
+  func becomeCurrent(_ activityId: Double, type: String, title: String?, userInfo: [String: Any]?, url: String?) {
+    let id = Int(activityId)
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
 
@@ -35,8 +37,8 @@ class ReactNativeContinuity: NSObject {
   }
 
   @objc
-  func invalidate(_ activityId: NSNumber) {
-    let key = activityId.intValue
+  func invalidate(_ activityId: Double) {
+    let key = Int(activityId)
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
       if let activity = self.activities[key] {

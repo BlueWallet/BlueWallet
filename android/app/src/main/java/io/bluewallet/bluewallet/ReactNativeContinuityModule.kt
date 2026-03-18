@@ -4,16 +4,18 @@ import android.os.Build
 import android.util.Log
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.module.annotations.ReactModule
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+@ReactModule(name = ReactNativeContinuityModule.NAME)
+class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : NativeReactNativeContinuitySpec(reactContext) {
 
     companion object {
+        const val NAME = "ReactNativeContinuity"
         private const val TAG = "ReactNativeContinuity"
 
         @Volatile
@@ -42,10 +44,11 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : React
 
     private val activities = mutableMapOf<Int, ContinuityEntry>()
 
-    override fun getName(): String = "ReactNativeContinuity"
+    override fun getName(): String = NAME
 
     @ReactMethod
-    fun becomeCurrent(activityId: Int, type: String, title: String?, userInfo: ReadableMap?, url: String?) {
+    override fun becomeCurrent(activityId: Double, type: String, title: String?, userInfo: ReadableMap?, url: String?) {
+        val id = activityId.toInt()
         val structured = userInfo?.let { readableMapToJson(it) }
 
         val entry = ContinuityEntry(
@@ -54,21 +57,22 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : React
             webUri = if (!url.isNullOrBlank()) url else null,
             structuredData = structured,
         )
-        activities[activityId] = entry
+        activities[id] = entry
 
         currentActivityType = type
         currentActivityTitle = title
         currentWebUri = entry.webUri
         currentStructuredData = entry.structuredData
 
-        Log.d(TAG, "becomeCurrent id=$activityId type=$type")
+        Log.d(TAG, "becomeCurrent id=$id type=$type")
     }
 
     @ReactMethod
-    fun invalidate(activityId: Int) {
-        val removed = activities.remove(activityId)
+    override fun invalidate(activityId: Double) {
+        val id = activityId.toInt()
+        val removed = activities.remove(id)
         if (removed != null) {
-            Log.d(TAG, "invalidate id=$activityId")
+            Log.d(TAG, "invalidate id=$id")
         }
 
         if (activities.isEmpty()) {
@@ -86,7 +90,7 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : React
     }
 
     @ReactMethod
-    fun isSupported(promise: Promise) {
+    override fun isSupported(promise: Promise) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             promise.resolve(false)
             return

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, NativeModules, Platform, View, ListRenderItem } from 'react-native';
+import { Linking, Platform, View, ListRenderItem } from 'react-native';
+import NativeReactNativeContinuity from '../../codegen/NativeReactNativeContinuity';
 import presentAlert from '../../components/Alert';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
@@ -67,12 +68,11 @@ const GeneralSettings: React.FC = () => {
 
   useEffect(() => {
     if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
-    const continuityModule = NativeModules.ReactNativeContinuity;
-    if (!continuityModule || typeof continuityModule.isSupported !== 'function') {
+    if (!NativeReactNativeContinuity || typeof NativeReactNativeContinuity.isSupported !== 'function') {
       setIsContinuitySupported(false);
       return;
     }
-    continuityModule
+    NativeReactNativeContinuity
       .isSupported()
       .then((supported: boolean) => setIsContinuitySupported(supported))
       .catch(() => setIsContinuitySupported(false));

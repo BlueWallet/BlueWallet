@@ -182,6 +182,7 @@ const DevMenu: React.FC = () => {
               address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
               amount: '0.001',
               memo: 'Continuity test payment',
+              walletID: wallets.length > 0 ? wallets[0].getID() : 'test-wallet-id',
             },
           },
           [ContinuityActivityType.SignVerify]: {
