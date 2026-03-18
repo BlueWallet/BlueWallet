@@ -4,6 +4,9 @@ import { render } from '@testing-library/react-native';
 import { View } from 'react-native';
 import { ContinuityActivityType } from '../../components/types';
 
+// Import *after* mocks are in place
+import useContinuity from '../../hooks/useContinuity';
+
 // --- mocks ---
 
 const mockBecomeCurrent = jest.fn();
@@ -16,9 +19,6 @@ jest.mock('../../codegen/NativeReactNativeContinuity', () => ({
     invalidate: (...args: any[]) => mockInvalidate(...args),
   },
 }));
-
-// Import *after* mocks are in place
-import useContinuity from '../../hooks/useContinuity';
 
 let mockContinuityEnabled = true;
 jest.mock('../../hooks/context/useSettings', () => ({
@@ -151,7 +151,9 @@ describe('useContinuity', () => {
 
     const firstId = mockBecomeCurrent.mock.calls[0][0];
 
-    rerender(<HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/def456" />);
+    rerender(
+      <HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/def456" />,
+    );
 
     // Should have invalidated the first activity
     assert.strictEqual(mockInvalidate.mock.calls.length, 1);
@@ -170,7 +172,9 @@ describe('useContinuity', () => {
     const firstId = mockBecomeCurrent.mock.calls[0][0];
     mockContinuityEnabled = false;
 
-    rerender(<HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
+    rerender(
+      <HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,
+    );
 
     // Should invalidate the old activity
     assert.strictEqual(mockInvalidate.mock.calls.length, 1);

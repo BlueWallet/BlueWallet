@@ -72,8 +72,7 @@ const GeneralSettings: React.FC = () => {
       setIsContinuitySupported(false);
       return;
     }
-    NativeReactNativeContinuity
-      .isSupported()
+    NativeReactNativeContinuity.isSupported()
       .then((supported: boolean) => setIsContinuitySupported(supported))
       .catch(() => setIsContinuitySupported(false));
   }, []);

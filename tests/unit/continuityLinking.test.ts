@@ -203,12 +203,13 @@ describe('continuityLinking', () => {
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.ReceiveOnchain, userInfo: {} });
       // Even the alert should not appear when address is missing
-      await new Promise<void>(resolve => setTimeout(() => {
-        const { Alert } = require('react-native');
-        // No alert shown because activityToURL returns null for missing address
-        assert.strictEqual(mockListener.mock.calls.length, 0);
-        resolve();
-      }, 10));
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          // No alert shown because activityToURL returns null for missing address
+          assert.strictEqual(mockListener.mock.calls.length, 0);
+          resolve();
+        }, 10),
+      );
     });
 
     it('should not call listener for Xpub when xpub or walletID is missing', async () => {
@@ -216,10 +217,12 @@ describe('continuityLinking', () => {
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { xpub: 'xpubABC' } });
-      await new Promise<void>(resolve => setTimeout(() => {
-        assert.strictEqual(mockListener.mock.calls.length, 0);
-        resolve();
-      }, 10));
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          assert.strictEqual(mockListener.mock.calls.length, 0);
+          resolve();
+        }, 10),
+      );
     });
 
     it('should not call listener for Xpub when walletID is missing but xpub is present', async () => {
@@ -227,10 +230,12 @@ describe('continuityLinking', () => {
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { walletID: 'wallet123' } });
-      await new Promise<void>(resolve => setTimeout(() => {
-        assert.strictEqual(mockListener.mock.calls.length, 0);
-        resolve();
-      }, 10));
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          assert.strictEqual(mockListener.mock.calls.length, 0);
+          resolve();
+        }, 10),
+      );
     });
 
     it('should not call listener for SignVerify when walletID is missing', () => {
