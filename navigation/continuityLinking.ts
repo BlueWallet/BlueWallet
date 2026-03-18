@@ -141,7 +141,7 @@ function handleReceiveOrXpubReceived(data: UserActivityData, listener: (url: str
       navigate('AddWalletRoot', {
         screen: 'ImportWallet',
         params: { label: value, triggerImport: true },
-      });
+      } as any);
     }
   };
 

@@ -197,13 +197,13 @@ describe('continuityLinking', () => {
       assert.ok((mockListener.mock.calls[0][0] as string).includes('bc1qtest'));
     });
 
-    it('should not call listener for ReceiveOnchain when address is missing', () => {
+    it('should not call listener for ReceiveOnchain when address is missing', async () => {
       if (!continuityLinking.subscribe) return;
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.ReceiveOnchain, userInfo: {} });
       // Even the alert should not appear when address is missing
-      return new Promise<void>(resolve => setTimeout(() => {
+      await new Promise<void>(resolve => setTimeout(() => {
         const { Alert } = require('react-native');
         // No alert shown because activityToURL returns null for missing address
         assert.strictEqual(mockListener.mock.calls.length, 0);
@@ -211,23 +211,23 @@ describe('continuityLinking', () => {
       }, 10));
     });
 
-    it('should not call listener for Xpub when xpub or walletID is missing', () => {
+    it('should not call listener for Xpub when xpub or walletID is missing', async () => {
       if (!continuityLinking.subscribe) return;
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { xpub: 'xpubABC' } });
-      return new Promise<void>(resolve => setTimeout(() => {
+      await new Promise<void>(resolve => setTimeout(() => {
         assert.strictEqual(mockListener.mock.calls.length, 0);
         resolve();
       }, 10));
     });
 
-    it('should not call listener for Xpub when walletID is missing but xpub is present', () => {
+    it('should not call listener for Xpub when walletID is missing but xpub is present', async () => {
       if (!continuityLinking.subscribe) return;
       continuityLinking.subscribe(mockListener);
       assert.ok(capturedEventCallback, 'onUserActivityOpen callback should be registered');
       capturedEventCallback!({ activityType: ContinuityActivityType.Xpub, userInfo: { walletID: 'wallet123' } });
-      return new Promise<void>(resolve => setTimeout(() => {
+      await new Promise<void>(resolve => setTimeout(() => {
         assert.strictEqual(mockListener.mock.calls.length, 0);
         resolve();
       }, 10));
