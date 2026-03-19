@@ -191,25 +191,26 @@ export function processInitialContinuityActivity(): void {
       if (!enabled) return;
       return NativeEventEmitterModule.getMostRecentUserActivity();
     })
-    .then((data: UserActivityData | null | undefined) => {
-      if (!data?.activityType) return;
+    .then((data: unknown) => {
+      const activity = data as UserActivityData | null | undefined;
+      if (!activity?.activityType) return;
 
-      if (data.activityType === ContinuityActivityType.ViewInBlockExplorer) {
-        openExternalURL(data.webpageURL);
+      if (activity.activityType === ContinuityActivityType.ViewInBlockExplorer) {
+        openExternalURL(activity.webpageURL);
         return;
       }
 
-      if (data.activityType === ContinuityActivityType.LightningSettings) {
-        handleLightningSettingsReceived(data);
+      if (activity.activityType === ContinuityActivityType.LightningSettings) {
+        handleLightningSettingsReceived(activity);
         return;
       }
 
-      if (data.activityType === ContinuityActivityType.ReceiveOnchain || data.activityType === ContinuityActivityType.Xpub) {
-        handleReceiveOrXpubReceived(data, listener);
+      if (activity.activityType === ContinuityActivityType.ReceiveOnchain || activity.activityType === ContinuityActivityType.Xpub) {
+        handleReceiveOrXpubReceived(activity, listener);
         return;
       }
 
-      const url = activityToURL(data);
+      const url = activityToURL(activity);
       if (url) listener(url);
     })
     .catch(() => console.debug('[Continuity] No initial activity'));
