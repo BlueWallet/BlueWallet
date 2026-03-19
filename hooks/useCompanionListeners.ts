@@ -24,7 +24,7 @@ import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
 import useWatchConnectivity from './useWatchConnectivity';
 import useDeviceQuickActions from './useDeviceQuickActions';
-import useHandoffListener from './useHandoffListener';
+import useContinuityListener from './useContinuityListener';
 import useMenuElements from './useMenuElements';
 import { useExtendedNavigation } from './useExtendedNavigation';
 
@@ -47,7 +47,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     walletsInitialized,
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
-  const clipboardContent = useRef<undefined | string>();
+  const clipboardContent = useRef<undefined | string>(undefined);
   const navigation = useExtendedNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
@@ -60,7 +60,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   useWidgetCommunication();
   useMenuElements();
   useDeviceQuickActions();
-  useHandoffListener();
+  useContinuityListener();
 
   const processPushNotifications = useCallback(async () => {
     if (!shouldActivateListeners) return false;

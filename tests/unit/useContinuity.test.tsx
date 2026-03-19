@@ -1,91 +1,94 @@
 import assert from 'assert';
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { NativeModules, View } from 'react-native';
-import { HandOffActivityType } from '../../components/types';
+import { View } from 'react-native';
+import { ContinuityActivityType } from '../../components/types';
 
 // Import *after* mocks are in place
-import useHandoff from '../../hooks/useHandoff';
+import useContinuity from '../../hooks/useContinuity';
 
 // --- mocks ---
 
 const mockBecomeCurrent = jest.fn();
 const mockInvalidate = jest.fn();
 
-NativeModules.BWHandoff = {
-  becomeCurrent: mockBecomeCurrent,
-  invalidate: mockInvalidate,
-};
+jest.mock('../../codegen/NativeReactNativeContinuity', () => ({
+  __esModule: true,
+  default: {
+    becomeCurrent: (...args: any[]) => mockBecomeCurrent(...args),
+    invalidate: (...args: any[]) => mockInvalidate(...args),
+  },
+}));
 
-let mockHandOffEnabled = true;
+let mockContinuityEnabled = true;
 jest.mock('../../hooks/context/useSettings', () => ({
-  useSettings: () => ({ isHandOffUseEnabled: mockHandOffEnabled }),
+  useSettings: () => ({ isContinuityEnabled: mockContinuityEnabled }),
 }));
 
 // Helper component that exercises the hook
 // eslint-disable-next-line react/no-unused-prop-types
-function HookRunner(props: { title?: string; type: HandOffActivityType; url?: string; userInfo?: object }) {
-  useHandoff(props);
+function HookRunner(props: { title?: string; type: ContinuityActivityType; url?: string; userInfo?: object }) {
+  useContinuity(props);
   return <View />;
 }
 
-describe('useHandoff', () => {
+describe('useContinuity', () => {
   beforeEach(() => {
     mockBecomeCurrent.mockClear();
     mockInvalidate.mockClear();
-    mockHandOffEnabled = true;
+    mockContinuityEnabled = true;
   });
 
   it('calls becomeCurrent when given a url', () => {
-    render(<HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
+    render(<HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 1);
     const call = mockBecomeCurrent.mock.calls[0];
     assert.strictEqual(typeof call[0], 'number'); // activityId
-    assert.strictEqual(call[1], HandOffActivityType.ViewInBlockExplorer);
+    assert.strictEqual(call[1], ContinuityActivityType.ViewInBlockExplorer);
     assert.strictEqual(call[2], 'View Transaction');
     assert.strictEqual(call[3], null); // no userInfo
     assert.strictEqual(call[4], 'https://mempool.space/tx/abc123');
   });
 
   it('calls becomeCurrent when given userInfo', () => {
-    render(<HookRunner title="Receive" type={HandOffActivityType.ReceiveOnchain} userInfo={{ address: 'bc1q...' }} />);
+    render(<HookRunner title="Receive" type={ContinuityActivityType.ReceiveOnchain} userInfo={{ address: 'bc1q...' }} />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 1);
     const call = mockBecomeCurrent.mock.calls[0];
-    assert.strictEqual(call[1], HandOffActivityType.ReceiveOnchain);
+    assert.strictEqual(call[1], ContinuityActivityType.ReceiveOnchain);
     assert.deepStrictEqual(call[3], { address: 'bc1q...' });
     assert.strictEqual(call[4], null); // no url
   });
 
-  it('does not call becomeCurrent when handoff is disabled', () => {
-    mockHandOffEnabled = false;
+  it('does not call becomeCurrent when continuity is disabled', () => {
+    mockContinuityEnabled = false;
 
-    render(<HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
+    render(<HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
   });
 
   it('does not call becomeCurrent when url and userInfo are both empty', () => {
-    render(<HookRunner title="Empty" type={HandOffActivityType.ViewInBlockExplorer} />);
+    render(<HookRunner title="Empty" type={ContinuityActivityType.ViewInBlockExplorer} />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
   });
 
   it('does not call becomeCurrent for blank url without userInfo', () => {
-    render(<HookRunner title="Blank" type={HandOffActivityType.ViewInBlockExplorer} url="   " />);
+    render(<HookRunner title="Blank" type={ContinuityActivityType.ViewInBlockExplorer} url="   " />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
   });
 
   it('does not call becomeCurrent for empty userInfo object', () => {
-    render(<HookRunner title="Empty Object" type={HandOffActivityType.ReceiveOnchain} userInfo={{}} />);
+    render(<HookRunner title="Empty Object" type={ContinuityActivityType.ReceiveOnchain} userInfo={{}} />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
   });
 
   it('does not call becomeCurrent when all userInfo values are empty strings', () => {
-    render(<HookRunner title="All Empty" type={HandOffActivityType.SendOnchain} userInfo={{ address: '', memo: '' }} />);
+    render(<HookRunner title="All Empty" type={ContinuityActivityType.SendOnchain} userInfo={{ address: '', memo: '' }} />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
   });
@@ -94,8 +97,20 @@ describe('useHandoff', () => {
     render(
       <HookRunner
         title="SendDetails initial state"
-        type={HandOffActivityType.SendOnchain}
+        type={ContinuityActivityType.SendOnchain}
         userInfo={{ address: '', amount: null, recipients: [], walletID: null }}
+      />,
+    );
+
+    assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
+  });
+
+  it('does not call becomeCurrent when recipients array contains only empty-value objects', () => {
+    render(
+      <HookRunner
+        title="SendDetails blank recipient"
+        type={ContinuityActivityType.SendOnchain}
+        userInfo={{ recipients: [{ address: '', amount: '' }] }}
       />,
     );
 
@@ -106,7 +121,7 @@ describe('useHandoff', () => {
     render(
       <HookRunner
         title="SendDetails with address"
-        type={HandOffActivityType.SendOnchain}
+        type={ContinuityActivityType.SendOnchain}
         userInfo={{ address: 'bc1qxxx', amount: '', recipients: [], walletID: null }}
       />,
     );
@@ -117,7 +132,7 @@ describe('useHandoff', () => {
 
   it('calls invalidate on unmount', () => {
     const { unmount } = render(
-      <HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,
+      <HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,
     );
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 1);
@@ -131,12 +146,14 @@ describe('useHandoff', () => {
 
   it('invalidates previous activity when url changes', () => {
     const { rerender } = render(
-      <HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,
+      <HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,
     );
 
     const firstId = mockBecomeCurrent.mock.calls[0][0];
 
-    rerender(<HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/def456" />);
+    rerender(
+      <HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/def456" />,
+    );
 
     // Should have invalidated the first activity
     assert.strictEqual(mockInvalidate.mock.calls.length, 1);
@@ -147,15 +164,17 @@ describe('useHandoff', () => {
     assert.strictEqual(mockBecomeCurrent.mock.calls[1][4], 'https://mempool.space/tx/def456');
   });
 
-  it('invalidates when handoff becomes disabled', () => {
+  it('invalidates when continuity becomes disabled', () => {
     const { rerender } = render(
-      <HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,
+      <HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,
     );
 
     const firstId = mockBecomeCurrent.mock.calls[0][0];
-    mockHandOffEnabled = false;
+    mockContinuityEnabled = false;
 
-    rerender(<HookRunner title="View Transaction" type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
+    rerender(
+      <HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />,
+    );
 
     // Should invalidate the old activity
     assert.strictEqual(mockInvalidate.mock.calls.length, 1);
@@ -166,7 +185,7 @@ describe('useHandoff', () => {
   });
 
   it('uses empty string for title when not provided', () => {
-    render(<HookRunner type={HandOffActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
+    render(<HookRunner type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 1);
     assert.strictEqual(mockBecomeCurrent.mock.calls[0][2], '');
@@ -174,13 +193,13 @@ describe('useHandoff', () => {
 
   it('assigns incrementing activity IDs', () => {
     const { unmount: unmount1 } = render(
-      <HookRunner title="First" type={HandOffActivityType.ViewInBlockExplorer} url="https://example.com/1" />,
+      <HookRunner title="First" type={ContinuityActivityType.ViewInBlockExplorer} url="https://example.com/1" />,
     );
     const id1 = mockBecomeCurrent.mock.calls[0][0];
     unmount1();
 
     const { unmount: unmount2 } = render(
-      <HookRunner title="Second" type={HandOffActivityType.ViewInBlockExplorer} url="https://example.com/2" />,
+      <HookRunner title="Second" type={ContinuityActivityType.ViewInBlockExplorer} url="https://example.com/2" />,
     );
     const id2 = mockBecomeCurrent.mock.calls[1][0];
     unmount2();

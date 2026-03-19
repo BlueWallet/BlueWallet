@@ -11,9 +11,9 @@ import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import QRCodeComponent from '../../components/QRCodeComponent';
 import SeedWords from '../../components/SeedWords';
 import { useTheme } from '../../components/themes';
-import { HandOffActivityType } from '../../components/types';
+import { ContinuityActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import useHandoff from '../../hooks/useHandoff';
+import useContinuity from '../../hooks/useContinuity';
 import { useStorage } from '../../hooks/context/useStorage';
 import useAppState from '../../hooks/useAppState';
 import loc from '../../loc';
@@ -95,9 +95,9 @@ const WalletExport: React.FC = () => {
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
 
-  useHandoff({
+  useContinuity({
     title: loc.wallets.xpub_title,
-    type: HandOffActivityType.Xpub,
+    type: ContinuityActivityType.Xpub,
     userInfo: wallet.type === WatchOnlyWallet.type && secrets.length === 1 ? { xpub: secrets[0], walletID } : undefined,
   });
 
@@ -146,7 +146,7 @@ const WalletExport: React.FC = () => {
 
   const Scroll = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ children }: { children: React.ReactNode | React.ReactNodeArray }) => (
+    ({ children }: { children: React.ReactNode | React.ReactNode[] }) => (
       <ScrollView
         automaticallyAdjustContentInsets
         contentInsetAdjustmentBehavior="automatic"

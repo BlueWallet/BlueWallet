@@ -4,7 +4,7 @@ import { RouteProp, useFocusEffect, usePreventRemove, useRoute } from '@react-na
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import dayjs from 'dayjs';
-import { InteractionManager, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Linking, StyleSheet, Text, TextInput, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import { Transaction, TWallet } from '../../class/wallets/types';
@@ -16,8 +16,8 @@ import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useStorage } from '../../hooks/context/useStorage';
-import { HandOffActivityType } from '../../components/types';
-import useHandoff from '../../hooks/useHandoff';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -90,9 +90,9 @@ const TransactionDetails = () => {
     },
   });
 
-  useHandoff({
+  useContinuity({
     title: loc.transactions.details_title,
-    type: HandOffActivityType.ViewInBlockExplorer,
+    type: ContinuityActivityType.ViewInBlockExplorer,
     url: tx?.hash ? `${selectedBlockExplorer.url}/tx/${tx.hash}` : undefined,
   });
 
@@ -112,7 +112,9 @@ const TransactionDetails = () => {
 
   useFocusEffect(
     useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
+      let cancelled = false;
+
+      (() => {
         let foundTx: Transaction | false = false;
         let newFrom: string[] = [];
         let newTo: string[] = [];
@@ -136,23 +138,21 @@ const TransactionDetails = () => {
         if (wallet.allowBIP47() && wallet.isBIP47Enabled() && 'getBip47CounterpartyByTxid' in wallet) {
           const foundPaymentCode = wallet.getBip47CounterpartyByTxid(hash);
           if (foundPaymentCode) {
-            // okay, this txid _was_ with someone using payment codes, so we show the label edit dialog
-            // and load user-defined alias for the pc if any
-
             setCounterpartyLabel(counterpartyMetadata ? (counterpartyMetadata[foundPaymentCode]?.label ?? '') : '');
             setIsCounterpartyLabelVisible(true);
             setPaymentCode(foundPaymentCode);
           }
         }
 
+        if (cancelled) return;
         setMemo(txMetadata[foundTx.hash]?.memo ?? '');
         setTX(foundTx);
         setFrom(newFrom);
         setTo(newTo);
         setIsLoading(false);
-      });
+      })();
       return () => {
-        task.cancel();
+        cancelled = true;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hash, wallets]),
@@ -242,7 +242,7 @@ const TransactionDetails = () => {
       }
 
       fromArray.push(
-        <ToolTipMenu key={address} isButton title={address} isMenuPrimaryAction actions={actions} onPressMenuItem={onPressMenuItem}>
+        <ToolTipMenu key={address} isButton title={address} shouldOpenOnLongPress actions={actions} onPressMenuItem={onPressMenuItem}>
           <BlueText style={isWeOwnAddress ? [styles.rowValue, styles.weOwnAddress] : styles.rowValue}>
             {address}
             {index === array.length - 1 ? null : ','}
@@ -315,7 +315,6 @@ const TransactionDetails = () => {
             <ToolTipMenu
               isButton
               title={tx.hash}
-              isMenuPrimaryAction
               actions={[
                 {
                   id: actionKeys.CopyToClipboard,
@@ -337,7 +336,6 @@ const TransactionDetails = () => {
             <ToolTipMenu
               isButton
               title={dayjs(tx.timestamp * 1000).format('LLL')}
-              isMenuPrimaryAction
               actions={[
                 {
                   id: actionKeys.CopyToClipboard,
@@ -359,7 +357,6 @@ const TransactionDetails = () => {
             <ToolTipMenu
               isButton
               title={String(tx.inputs.length)}
-              isMenuPrimaryAction
               actions={[
                 {
                   id: actionKeys.CopyToClipboard,
@@ -381,7 +378,6 @@ const TransactionDetails = () => {
             <ToolTipMenu
               isButton
               title={String(tx.outputs.length)}
-              isMenuPrimaryAction
               actions={[
                 {
                   id: actionKeys.CopyToClipboard,
@@ -401,6 +397,7 @@ const TransactionDetails = () => {
           actions={toolTipMenuActions}
           onPressMenuItem={handleCopyPress}
           onPress={handleOnOpenTransactionOnBlockExplorerTapped}
+          shouldOpenOnLongPress
           buttonStyle={StyleSheet.flatten([styles.greyButton, stylesHooks.greyButton])}
         >
           <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_view_in_browser}</Text>

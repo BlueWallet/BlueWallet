@@ -263,7 +263,6 @@
     "encrypt_decrypt": "解密存储",
     "encrypt_decrypt_q": "您确定要解密存储吗？这将允许在无需密码的情况下访问您的钱包。",
     "encrypt_enc_and_pass": "密码保护",
-    "encrypt_enc_and_pass_description": "使用密码来加密存储。生物识别认证将不会用于解锁加密存储。",
     "encrypt_storage_explanation_headline": "启用存储加密",
     "encrypt_storage_explanation_description_line1": "启用“存储加密”可通过保护数据在设备上的存储方式，为应用增加额外的安全防护层。这使得未经许可的人员更难访问您的信息。",
     "encrypt_storage_explanation_description_line2": "但是，需要注意的是，此加密仅保护设备钥匙链中存储的钱包的访问权限，并不会为钱包本身设置密码或提供额外保护。",
@@ -304,8 +303,6 @@
     "password": "密码",
     "password_explain": "请输入用于解锁存储的密码。",
     "plausible_deniability": "可合理否认",
-    "plausible_deniability_description": "高级防护，请谨慎操作。",
-    "multiple_storages": "多个存储空间",
     "privacy": "隐私",
     "privacy_read_clipboard": "读取剪贴板",
     "privacy_system_settings": "系统设置",
@@ -686,7 +683,7 @@
     "notification_tx_unconfirmed": "通知交易尚未确认，请稍等。",
     "failed_create_notif_tx": "创建链上交易失败",
     "onchain_tx_needed": "需要在链上交易",
-    "notif_tx_sent" : "通知交易已发送。请等待确认",
+    "notif_tx_sent": "通知交易已发送。请等待确认",
     "notif_tx": "通知交易",
     "not_found": "未找到支付码"
   }

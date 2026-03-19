@@ -17,8 +17,8 @@ import { useTheme } from '../../components/themes';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { HandOffActivityType } from '../../components/types';
-import useHandoff from '../../hooks/useHandoff';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -118,11 +118,11 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   const { navigate, setOptions, goBack } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
-  const fetchTxInterval = useRef<NodeJS.Timeout>();
+  const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  useHandoff({
+  useContinuity({
     title: loc.transactions.details_title,
-    type: HandOffActivityType.ViewInBlockExplorer,
+    type: ContinuityActivityType.ViewInBlockExplorer,
     url: tx?.hash ? `${selectedBlockExplorer.url}/tx/${tx.hash}` : undefined,
   });
 
@@ -284,8 +284,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
           }
-          clearInterval(fetchTxInterval.current);
-          fetchTxInterval.current = undefined;
+          if (fetchTxInterval.current) {
+            clearInterval(fetchTxInterval.current);
+            fetchTxInterval.current = undefined;
+          }
           if (wallet?.getID()) {
             fetchAndSaveWalletTransactions(wallet.getID());
           } else {
@@ -298,8 +300,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
     }, intervalMs);
 
     return () => {
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
   }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet]);
 
@@ -311,8 +315,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
 
     return () => {
       subscription.remove();
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

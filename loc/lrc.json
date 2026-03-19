@@ -101,7 +101,6 @@
     "biometrics": "بیومتریک",
     "biom_conf_identity": "هوویت خوتونه تایید بکؽت.",
     "currency": "واهد پیلٛ",
-    "default_info": "دونسمنیا پؽش فرز",
     "default_title": "مجال ر ونن",
     "electrum_offline_mode": "هالت آفلاین",
     "use_ssl": "SSL ن و کار بییر",
@@ -134,6 +133,7 @@
     "details_received": "گرته بیه",
     "details_title": "تراکونش",
     "list_title": "تراکونشیا",
+    "list_title_received": "گرته بیه",
     "transaction": "تراکونش",
     "open_url_error": "نا مووفق د واز کردن لینگ وا گشت گر پؽش فرز. گشت گر پؽش فرز خوته آلشت کوݩ ۉ د نۊ تفره بکوݩ."
   },

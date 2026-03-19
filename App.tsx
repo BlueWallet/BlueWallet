@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
 import React from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,15 +9,20 @@ import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
+import continuityLinking from './navigation/continuityLinking';
 
 const App = () => {
   const colorScheme = useColorScheme();
 
-  useLogger(navigationRef);
+  useLogger(navigationRef as unknown as React.RefObject<NavigationContainerRef<ParamListBase>>);
 
   return (
     <SizeClassProvider>
-      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+      <NavigationContainer
+        ref={navigationRef}
+        linking={continuityLinking}
+        theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
+      >
         <SafeAreaProvider>
           <StorageProvider>
             <SettingsProvider>

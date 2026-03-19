@@ -2,6 +2,7 @@ package io.bluewallet.bluewallet
 
 import android.app.assist.AssistContent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
@@ -15,6 +16,7 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
+import org.json.JSONObject
 
 class MainActivity : ReactActivity() {
 
@@ -66,18 +68,35 @@ class MainActivity : ReactActivity() {
 
     /**
      * Provide the current user-activity context to the Android system.
-     * This is the Android equivalent of Apple's Handoff / NSUserActivity.
+     * This is the Android equivalent of Apple's Continuity / NSUserActivity.
      * Google Assistant and cross-device features can use this to let the
      * user continue what they were doing on another device.
      */
     override fun onProvideAssistContent(outContent: AssistContent) {
         super.onProvideAssistContent(outContent)
 
-        BWHandoffModule.currentWebUri?.let { uri ->
-            outContent.webUri = Uri.parse(uri)
+        val continuityUri = ReactNativeContinuityModule.currentWebUri
+        continuityUri?.let { uri ->
+            val parsedUri = Uri.parse(uri)
+            outContent.webUri = parsedUri
+            outContent.intent = Intent(Intent.ACTION_VIEW, parsedUri).apply {
+                setPackage(packageName)
+            }
         }
-        BWHandoffModule.currentStructuredData?.let { data ->
-            outContent.structuredData = data.toString()
+
+        val structured = JSONObject()
+        ReactNativeContinuityModule.currentStructuredData?.let { data ->
+            data.keys().forEach { key ->
+                structured.put(key, data.opt(key))
+            }
+        }
+        ReactNativeContinuityModule.currentActivityType?.let { structured.put("activityType", it) }
+        ReactNativeContinuityModule.currentActivityTitle?.let { structured.put("title", it) }
+        if (continuityUri != null) {
+            structured.put("webpageURL", continuityUri)
+        }
+        if (structured.length() > 0) {
+            outContent.structuredData = structured.toString()
         }
     }
 
