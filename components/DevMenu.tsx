@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-import { DevSettings, Alert, Platform, AlertButton, NativeModules } from 'react-native';
+import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { useSettings } from '../hooks/context/useSettings';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../class';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
-import { HandOffActivityType } from './types';
+import { ContinuityActivityType } from './types';
+import NativeReactNativeContinuity from '../codegen/NativeReactNativeContinuity';
 import { navigationRef } from '../NavigationService';
 import loc from '../loc';
 
@@ -74,7 +75,7 @@ const showAlertWithWalletOptions = (
 
 const DevMenu: React.FC = () => {
   const { wallets, addWallet } = useStorage();
-  const { isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } = useSettings();
+  const { isContinuityEnabled, setIsContinuityEnabledStorage } = useSettings();
 
   useEffect(() => {
     if (__DEV__) {
@@ -167,10 +168,10 @@ const DevMenu: React.FC = () => {
       // ---- Handoff Debug Options ----
 
       DevSettings.addMenuItem('Handoff: Check Status', async () => {
-        const lines: string[] = [`Setting enabled: ${isHandOffUseEnabled}`, `Platform: ${Platform.OS}`];
-        if (Platform.OS !== 'web' && NativeModules.BWHandoff?.isSupported) {
+        const lines: string[] = [`Setting enabled: ${isContinuityEnabled}`, `Platform: ${Platform.OS}`];
+        if (Platform.OS !== 'web' && NativeReactNativeContinuity?.isSupported) {
           try {
-            const supported = await NativeModules.BWHandoff.isSupported();
+            const supported = await NativeReactNativeContinuity.isSupported();
             lines.push(`Device supported: ${supported}`);
           } catch (e: any) {
             lines.push(`Device supported: error (${e.message})`);
@@ -180,8 +181,8 @@ const DevMenu: React.FC = () => {
       });
 
       DevSettings.addMenuItem('Handoff: Toggle Setting', async () => {
-        const newValue = !isHandOffUseEnabled;
-        await setIsHandOffUseEnabledAsyncStorage(newValue);
+        const newValue = !isContinuityEnabled;
+        await setIsContinuityEnabledStorage(newValue);
         Alert.alert('Handoff Setting', `Continuity is now ${newValue ? 'ON' : 'OFF'}`);
       });
 
@@ -190,16 +191,15 @@ const DevMenu: React.FC = () => {
           Alert.alert('Not available on web');
           return;
         }
-        const BWHandoff = NativeModules.BWHandoff;
-        if (!BWHandoff) {
-          Alert.alert('BWHandoff native module not available');
+        if (!NativeReactNativeContinuity) {
+          Alert.alert('ReactNativeContinuity native module not available');
           return;
         }
 
         const testId = Date.now();
-        const testType = HandOffActivityType.ViewInBlockExplorer;
+        const testType = ContinuityActivityType.ViewInBlockExplorer;
         const testUrl = 'https://mempool.space/tx/test-handoff-debug';
-        BWHandoff.becomeCurrent(testId, testType, 'Handoff Debug Test', null, testUrl);
+        NativeReactNativeContinuity.becomeCurrent(testId, testType, 'Handoff Debug Test', null, testUrl);
         Alert.alert(
           'Handoff Test Activity',
           `Activity advertised.\n\nType: ${testType}\nURL: ${testUrl}\nID: ${testId}\n\nCheck another device for Handoff availability. Tap OK to invalidate.`,
@@ -211,7 +211,7 @@ const DevMenu: React.FC = () => {
             {
               text: 'Invalidate Now',
               onPress: () => {
-                BWHandoff.invalidate(testId);
+                NativeReactNativeContinuity?.invalidate(testId);
                 Alert.alert('Test activity invalidated');
               },
             },
@@ -249,15 +249,15 @@ const DevMenu: React.FC = () => {
         }
 
         // Simulate draft conflict
-        Alert.alert(loc.send.handoff_draft_conflict_title, loc.send.handoff_draft_conflict_message, [
+        Alert.alert(loc.send.continuity_draft_conflict_title, loc.send.continuity_draft_conflict_message, [
           { text: loc._.cancel, style: 'cancel' },
           {
-            text: loc.send.handoff_draft_replace,
+            text: loc.send.continuity_draft_replace,
             style: 'destructive',
             onPress: navigateToSend,
           },
           {
-            text: loc.send.handoff_draft_add_recipient,
+            text: loc.send.continuity_draft_add_recipient,
             onPress: () => {
               // @ts-ignore: debug-only navigation
               navigationRef.current?.navigate('SendDetailsRoot', {
@@ -275,7 +275,7 @@ const DevMenu: React.FC = () => {
         ]);
       });
     }
-  }, [wallets, addWallet, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage]);
+  }, [wallets, addWallet, isContinuityEnabled, setIsContinuityEnabledStorage]);
 
   return null;
 };

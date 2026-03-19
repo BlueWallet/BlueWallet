@@ -44,8 +44,8 @@ import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { Action, HandOffActivityType } from '../../components/types';
-import useHandoff from '../../hooks/useHandoff';
+import { Action, ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -154,9 +154,9 @@ const SendDetails = () => {
     return defaultFee;
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
-  useHandoff({
+  useContinuity({
     title: loc.send.header,
-    type: HandOffActivityType.SendOnchain,
+    type: ContinuityActivityType.SendOnchain,
     userInfo: {
       address: addresses[0]?.address,
       amount: addresses[0]?.amount,
