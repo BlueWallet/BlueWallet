@@ -1,6 +1,6 @@
 import React, { lazy, useCallback, useMemo } from 'react';
 import { View, Platform, PlatformColor } from 'react-native';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackHeaderItem } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -87,6 +87,30 @@ const DetailViewStackScreensStack = () => {
     [sizeClass, navigateToAddWallet],
   );
 
+  const headerRightItems = useCallback((): NativeStackHeaderItem[] => {
+    if (isDesktop) return [];
+    const settingsItem: NativeStackHeaderItem = {
+      type: 'button',
+      label: loc.settings.default_title,
+      icon: { type: 'sfSymbol', name: 'ellipsis' },
+      onPress: () => navigation.navigate('Settings'),
+      accessibilityLabel: loc.settings.default_title,
+    };
+    if (sizeClass === SizeClass.Large) {
+      return [settingsItem];
+    }
+    return [
+      {
+        type: 'button',
+        label: loc.wallets.add_title,
+        icon: { type: 'sfSymbol', name: 'plus' },
+        onPress: () => navigation.navigate('AddWalletRoot'),
+        accessibilityLabel: loc.wallets.add_title,
+      },
+      settingsItem,
+    ];
+  }, [sizeClass, navigation]);
+
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
@@ -96,9 +120,11 @@ const DetailViewStackScreensStack = () => {
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
-      headerRight: () => (isDesktop ? undefined : RightBarButtons),
+      ...(Platform.OS === 'ios'
+        ? { unstable_headerRightItems: headerRightItems }
+        : { headerRight: () => (isDesktop ? undefined : RightBarButtons) }),
     };
-  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets]);
+  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets, headerRightItems]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
