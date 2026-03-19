@@ -153,7 +153,6 @@ export type DetailViewStackParamList = {
     paymentCode: string;
     walletID: string;
   };
-  SettingsPrivacy: undefined;
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
 };

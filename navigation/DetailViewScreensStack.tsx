@@ -55,7 +55,7 @@ import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
-import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
+
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
@@ -366,11 +366,6 @@ const DetailViewStackScreensStack = () => {
         name="SettingsTools"
         component={SettingsTools}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="SettingsPrivacy"
-        component={SettingsPrivacy}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.privacy))(theme)}
       />
       <DetailViewStack.Screen
         name="PromptPasswordConfirmationSheet"

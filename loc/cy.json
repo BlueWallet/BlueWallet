@@ -104,7 +104,6 @@
   },
   "settings": {
     "currency": "Arian",
-    "default_wallets": "Gweld Pob Waled",
     "electrum_connected": "Wedi Cysylltu",
     "electrum_connected_not": "Heb Gysylltu",
     "encrypt_decrypt": "Dadgryptio'r Storfa",
@@ -139,6 +138,7 @@
     "details_to": "Allbwn",
     "pending": "Disgwyl",
     "list_title": "Trafodion",
+    "list_title_received": "Derbynwyd",
     "transaction": "Trafodyn"
   },
   "wallets": {

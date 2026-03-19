@@ -263,7 +263,6 @@
     "encrypt_decrypt": "Odszyfruj Magazyn Danych",
     "encrypt_decrypt_q": "Czy jesteś pewien, że chcesz odszyfrować schowek? To pozwoli na dostęp do twoich portfeli bez hasła.",
     "encrypt_enc_and_pass": "Chroniony hasłem",
-    "encrypt_enc_and_pass_description": "Szyfrowane przechowywanie z hasłem. Dane biometryczne nie będą używane do odblokowania szyfrowanego przechowywania.",
     "encrypt_storage_explanation_headline": "Włącz szyfrowanie danych",
     "encrypt_storage_explanation_description_line1": "Włączenie szyfrowania danych dodaje dodatkową warstwę ochrony do aplikacji, zabezpieczając sposób, w jaki dane są przechowywane na urządzeniu. Utrudnia to dostęp do Twoich informacji bez odpowiedniego upoważnienia.",
     "encrypt_storage_explanation_description_line2": "Jednak warto wiedzieć, że to szyfrowanie chroni jedynie dostęp do portfeli przechowywanych w pęku kluczy urządzenia. Nie zabezpiecza ono samych portfeli hasłem ani żadną dodatkową ochroną.",
@@ -304,8 +303,6 @@
     "password": "Hasło",
     "password_explain": "Podaj hasło, do odblokowania pamięci telefonu.",
     "plausible_deniability": "Wiarygodna zaprzeczalność",
-    "plausible_deniability_description": "Zaawansowana ochrona, zachowaj ostrożność.",
-    "multiple_storages": "Wiele magazynów danych",
     "privacy": "Prywatność",
     "privacy_read_clipboard": "Czytaj Schowek",
     "privacy_system_settings": "Ustawienia Systemowe",
@@ -686,7 +683,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }

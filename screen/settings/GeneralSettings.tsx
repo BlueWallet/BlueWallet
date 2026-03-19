@@ -339,7 +339,7 @@ const GeneralSettings: React.FC = () => {
 
   return (
     <SettingsFlatList
-      testID="SettingsPrivacy"
+      testID="GeneralSettingsScreen"
       data={settingsItems()}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
