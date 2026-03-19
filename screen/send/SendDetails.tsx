@@ -44,8 +44,8 @@ import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { Action, ContinuityActivityType } from '../../components/types';
-import useContinuity from '../../hooks/useContinuity';
+import { Action, HandOffActivityType } from '../../components/types';
+import useHandoff from '../../hooks/useHandoff';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -79,7 +79,7 @@ const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
   const { direction } = useLocale();
-  const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
+  const selectedDataProcessor = useRef<ToolTipAction | undefined>();
   const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
@@ -154,22 +154,18 @@ const SendDetails = () => {
     return defaultFee;
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
-  const populatedRecipients = addresses.filter(a => a.address?.trim());
-  const hasMeaningfulDraft = populatedRecipients.length > 0 || Boolean(transactionMemo?.trim());
-  useContinuity({
+  useHandoff({
     title: loc.send.header,
-    type: ContinuityActivityType.SendOnchain,
-    userInfo: hasMeaningfulDraft
-      ? {
-          address: addresses[0]?.address,
-          amount: addresses[0]?.amount,
-          amountSats: addresses[0]?.amountSats,
-          memo: transactionMemo,
-          feeRate,
-          walletID: wallet?.getID(),
-          recipients: populatedRecipients.map(a => ({ address: a.address, amount: a.amount, amountSats: a.amountSats })),
-        }
-      : undefined,
+    type: HandOffActivityType.SendOnchain,
+    userInfo: {
+      address: addresses[0]?.address,
+      amount: addresses[0]?.amount,
+      amountSats: addresses[0]?.amountSats,
+      memo: transactionMemo,
+      feeRate,
+      walletID: wallet?.getID(),
+      recipients: addresses.map(a => ({ address: a.address, amount: a.amount, amountSats: a.amountSats })),
+    },
   });
 
   useEffect(() => {
@@ -211,8 +207,6 @@ const SendDetails = () => {
       // used to add a recipient, mainly from contacts aka paymentcodes screen
       const { address, amount } = routeParams.addRecipientParams;
 
-      let appendedIndex = -1;
-
       setAddresses(prevAddresses => {
         if (!address) return prevAddresses;
 
@@ -233,7 +227,6 @@ const SendDetails = () => {
         }
 
         // Append a new recipient
-        appendedIndex = prevAddresses.length;
         return [
           ...prevAddresses,
           {
@@ -246,13 +239,12 @@ const SendDetails = () => {
         ];
       });
 
-      // Scroll to the newly appended entry (only when a new slot was added)
-      if (appendedIndex >= 0) {
-        setTimeout(() => {
-          scrollIndex.current = appendedIndex;
-          scrollView.current?.scrollToIndex({ index: appendedIndex, animated: true });
-        }, 0);
-      }
+      // Scroll to the new/updated entry
+      setTimeout(() => {
+        const targetIndex = addresses.length;
+        scrollIndex.current = targetIndex;
+        scrollView.current?.scrollToIndex({ index: targetIndex, animated: true });
+      }, 0);
 
       // @ts-ignore: Fix later
       setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
@@ -1030,11 +1022,7 @@ const SendDetails = () => {
   }, [addresses, amountUnit]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
-    scrollIndex.current = 0;
     setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
-    setTimeout(() => {
-      scrollView.current?.scrollToOffset({ offset: 0, animated: false });
-    }, 0);
   }, [amountUnit]);
 
   const handleRemoveAllRecipients = useCallback(() => {
@@ -1414,7 +1402,7 @@ const SendDetails = () => {
   const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
-      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index} collapsable={false}>
+      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index}>
         <View style={styles.amountInputContainer}>
           <AmountInput.AmountInput
             isLoading={isLoading}
@@ -1487,28 +1475,18 @@ const SendDetails = () => {
         <View style={styles.addressInputContainer}>
           <AddressInput
             onChangeText={text => {
-              const trimmedText = text.trim();
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
-              const hasPositiveAmount = Number(amount) > 0;
+              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text.trim());
               setAddresses(addrs => {
-                const updatedAddresses = [...addrs];
-                const updatedItem = { ...updatedAddresses[index] };
-                updatedItem.address = address || trimmedText;
-
-                if (hasPositiveAmount) {
-                  updatedItem.amount = amount;
-                  updatedItem.amountSats = btcToSatoshi(amount!);
-                  updatedItem.unit = BitcoinUnit.BTC;
-                }
-
-                updatedAddresses[index] = updatedItem;
-                return updatedAddresses;
+                item.address = address || text.trim();
+                item.amount = amount || item.amount;
+                addrs[index] = item;
+                return [...addrs];
               });
               if (memo) {
                 setParams({ transactionMemo: memo });
               }
               setIsLoading(false);
-              setParams(hasPositiveAmount ? { payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: pjUrl });
+              setParams({ payjoinUrl: pjUrl });
             }}
             address={item.address}
             isLoading={isLoading}

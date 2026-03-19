@@ -14,7 +14,7 @@ class ReactNativeContinuity: NSObject, NativeReactNativeContinuitySpec {
   }
 
   @objc
-  func becomeCurrent(_ activityId: Double, type: String, title: String?, userInfo: [String: Any]?, url: String?) {
+  func becomeCurrent(_ activityId: Double, type: String, title: String?, userInfo: [AnyHashable: Any]?, url: String?) {
     let id = Int(activityId)
     DispatchQueue.main.async { [weak self] in
       guard let self = self else { return }
