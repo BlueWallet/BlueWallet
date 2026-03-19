@@ -1,6 +1,7 @@
 import { LinkingOptions } from '@react-navigation/native';
-import { NativeModules, NativeEventEmitter, Linking, Platform } from 'react-native';
+import { NativeEventEmitter, Linking, Platform } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
+import NativeEventEmitterModule from '../codegen/NativeEventEmitter';
 import { ContinuityActivityType } from '../components/types';
 import presentAlert from '../components/Alert';
 import { navigationRef, navigate } from '../NavigationService';
@@ -12,8 +13,7 @@ import { BlueApp } from '../class';
 
 const CONTINUITY_PREFIX = 'bluewallet://';
 
-const EventEmitter = NativeModules.EventEmitter;
-const eventEmitter = EventEmitter ? new NativeEventEmitter(EventEmitter) : null;
+const eventEmitter = NativeEventEmitterModule ? new NativeEventEmitter(NativeEventEmitterModule) : null;
 
 interface UserActivityData {
   activityType: ContinuityActivityType;
@@ -183,13 +183,13 @@ function handleLightningSettingsReceived(data: UserActivityData): void {
 let _listener: ((url: string) => void) | null = null;
 
 export function processInitialContinuityActivity(): void {
-  if (!_listener || !EventEmitter?.getMostRecentUserActivity) return;
+  if (!_listener || !NativeEventEmitterModule?.getMostRecentUserActivity) return;
   const listener = _listener;
 
   isEnabled()
     .then(enabled => {
       if (!enabled) return;
-      return EventEmitter.getMostRecentUserActivity();
+      return NativeEventEmitterModule.getMostRecentUserActivity();
     })
     .then((data: UserActivityData | null | undefined) => {
       if (!data?.activityType) return;

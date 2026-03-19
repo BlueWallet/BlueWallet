@@ -8,11 +8,13 @@ const mockAddListener = jest.fn((event: string, cb: (data: any) => void) => {
   return { remove: jest.fn() };
 });
 
+jest.mock('../../codegen/NativeEventEmitter', () => ({
+  __esModule: true,
+  default: { getMostRecentUserActivity: jest.fn(() => Promise.resolve(null)) },
+}));
+
 jest.mock('react-native', () => {
   return {
-    NativeModules: {
-      EventEmitter: { getMostRecentUserActivity: jest.fn(() => Promise.resolve(null)) },
-    },
     NativeEventEmitter: jest.fn(() => ({ addListener: mockAddListener })),
     Alert: { alert: jest.fn() },
     Linking: { openURL: jest.fn(() => Promise.resolve()) },
