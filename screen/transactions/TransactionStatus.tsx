@@ -22,6 +22,7 @@ import { HandOffActivityType } from '../../components/types';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
+import { adjustBlockExplorerUrlForNetwork } from '../../models/blockExplorer';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -117,7 +118,8 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   const subscribedWallet = useWalletSubscribe(walletID!);
   const { navigate, setOptions, goBack } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
-  const { selectedBlockExplorer } = useSettings();
+  const { selectedBlockExplorer, networkType } = useSettings();
+  const blockExplorerUrl = adjustBlockExplorerUrlForNetwork(selectedBlockExplorer.url, networkType);
   const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
   const stylesHook = StyleSheet.create({
     value: {
@@ -569,7 +571,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
           <HandOffComponent
             title={loc.transactions.details_title}
             type={HandOffActivityType.ViewInBlockExplorer}
-            url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
+            url={`${blockExplorerUrl}/tx/${tx.hash}`}
           />
 
           <View style={styles.container}>

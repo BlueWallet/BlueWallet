@@ -1,5 +1,6 @@
 // blockExplorer.ts
 import DefaultPreference from 'react-native-default-preference';
+import { NetworkType } from './network';
 
 export interface BlockExplorer {
   key: string;
@@ -44,6 +45,31 @@ export const getDomain = (url: string): string => {
   } catch {
     return '';
   }
+};
+
+/**
+ * Adjusts a block explorer URL for the given network.
+ * e.g. mempool.space -> mempool.space/testnet4, blockstream.info -> blockstream.info/testnet
+ */
+export const adjustBlockExplorerUrlForNetwork = (url: string, network: NetworkType): string => {
+  if (network === 'mainnet') return url;
+
+  const normalized = normalizeUrl(url);
+  const networkPath = network === 'testnet' ? 'testnet4' : 'signet';
+
+  const domain = getDomain(normalized);
+
+  if (domain === 'mempool.space') {
+    return `${normalized}/${networkPath}`;
+  }
+  if (domain === 'blockstream.info') {
+    return `${normalized}/${network === 'testnet' ? 'testnet' : 'signet'}`;
+  }
+  if (domain === 'blockchair.com') {
+    return `${normalized.replace('/bitcoin', '')}/${network === 'testnet' ? 'bitcoin/testnet' : 'bitcoin/signet'}`;
+  }
+
+  return normalized;
 };
 
 const BLOCK_EXPLORER_STORAGE_KEY = 'blockExplorer';

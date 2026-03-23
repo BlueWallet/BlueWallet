@@ -7,6 +7,7 @@ import { SegwitBech32Wallet } from './segwit-bech32-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types.ts';
 import { CoinSelectTarget } from 'coinselect';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
+import { getNetwork } from '../../models/network';
 const ECPair = ECPairFactory(ecc);
 
 export class TaprootWallet extends SegwitBech32Wallet {
@@ -27,7 +28,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
   static scriptPubKeyToAddress(scriptPubKey: string): string | false {
     try {
       const publicKey = hexToUint8Array(scriptPubKey);
-      return bitcoin.address.fromOutputScript(publicKey, bitcoin.networks.bitcoin);
+      return bitcoin.address.fromOutputScript(publicKey, getNetwork());
     } catch (_) {
       return false;
     }
@@ -61,6 +62,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
       const xOnlyPubkey = keyPair.publicKey.subarray(1, 33);
       address = bitcoin.payments.p2tr({
         internalPubkey: xOnlyPubkey,
+        network: getNetwork(),
       }).address;
     } catch (err: any) {
       console.log(err.message);
@@ -92,6 +94,7 @@ export class TaprootWallet extends SegwitBech32Wallet {
     // Precompute the P2TR payment (to rebuild scriptPubKey)
     const p2tr = bitcoin.payments.p2tr({
       internalPubkey: xOnlyPub,
+      network: getNetwork(),
     });
     if (!p2tr.output) throw new Error('Could not build p2tr.output');
 

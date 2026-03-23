@@ -14,6 +14,7 @@ import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
 import loc, { formatBalanceWithoutSuffix, formatTransactionListDate, transactionTimeToReadable } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useSettings } from '../hooks/context/useSettings';
+import { adjustBlockExplorerUrlForNetwork } from '../models/blockExplorer';
 import { useTheme } from './themes';
 import { Action } from './types';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
@@ -99,7 +100,8 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
     const { txMetadata, counterpartyMetadata, wallets } = useStorage();
-    const { language, selectedBlockExplorer } = useSettings();
+    const { language, selectedBlockExplorer, networkType } = useSettings();
+    const blockExplorerUrl = adjustBlockExplorerUrlForNetwork(selectedBlockExplorer.url, networkType);
     const insets = useSafeAreaInsets();
     const containerStyle = useMemo(
       () => ({
@@ -344,16 +346,16 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
     const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
     const handleOnCopyNote = useCallback(() => Clipboard.setString(noteForCopy ?? ''), [noteForCopy]);
     const handleOnViewOnBlockExplorer = useCallback(() => {
-      const url = `${selectedBlockExplorer.url}/tx/${item.hash}`;
+      const url = `${blockExplorerUrl}/tx/${item.hash}`;
       Linking.canOpenURL(url).then(supported => {
         if (supported) {
           Linking.openURL(url);
         }
       });
-    }, [item.hash, selectedBlockExplorer]);
+    }, [item.hash, blockExplorerUrl]);
     const handleCopyOpenInBlockExplorerPress = useCallback(() => {
-      Clipboard.setString(`${selectedBlockExplorer.url}/tx/${item.hash}`);
-    }, [item.hash, selectedBlockExplorer]);
+      Clipboard.setString(`${blockExplorerUrl}/tx/${item.hash}`);
+    }, [item.hash, blockExplorerUrl]);
 
     const onToolTipPress = useCallback(
       (id: any) => {

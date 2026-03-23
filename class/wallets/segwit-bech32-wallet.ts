@@ -6,6 +6,7 @@ import ecc from '../../blue_modules/noble_ecc';
 import { LegacyWallet } from './legacy-wallet';
 import { CreateTransactionResult, CreateTransactionUtxo } from './types';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
+import { getNetwork } from '../../models/network';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -29,6 +30,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
       }
       address = bitcoin.payments.p2wpkh({
         pubkey: keyPair.publicKey,
+        network: getNetwork(),
       }).address;
     } catch (err) {
       return false;
@@ -44,7 +46,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
       return (
         bitcoin.payments.p2wpkh({
           pubkey,
-          network: bitcoin.networks.bitcoin,
+          network: getNetwork(),
         }).address ?? false
       );
     } catch (_) {
@@ -64,7 +66,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
       return (
         bitcoin.payments.p2wpkh({
           output: scriptPubKey2,
-          network: bitcoin.networks.bitcoin,
+          network: getNetwork(),
         }).address ?? false
       );
     } catch (_) {
@@ -94,7 +96,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
       c++;
 
       const pubkey = keyPair.publicKey;
-      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey, network: getNetwork() });
       if (!p2wpkh.output) {
         throw new Error('Internal error: no p2wpkh.output during createTransaction()');
       }
