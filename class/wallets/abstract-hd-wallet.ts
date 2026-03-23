@@ -3,6 +3,7 @@ import * as bip39 from 'bip39';
 
 import * as bip39custom from '../../blue_modules/bip39';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { isTestnet } from '../../models/network';
 import { LegacyWallet } from './legacy-wallet';
 import { Transaction } from './types';
 
@@ -32,6 +33,7 @@ export class AbstractHDWallet extends LegacyWallet {
   passphrase?: string;
   _node0?: BIP32Interface;
   _node1?: BIP32Interface;
+  _cachedForNetwork?: string;
 
   constructor() {
     super();
@@ -45,6 +47,7 @@ export class AbstractHDWallet extends LegacyWallet {
     this._address_to_wif_cache = {};
     this.gap_limit = 20;
     this._derivationPath = Constructor.derivationPath;
+    this._cachedForNetwork = isTestnet() ? 'testnet' : 'mainnet';
   }
 
   getNextFreeAddressIndex(): number {
@@ -53,6 +56,24 @@ export class AbstractHDWallet extends LegacyWallet {
 
   getNextFreeChangeAddressIndex(): number {
     return this.next_free_change_address_index;
+  }
+
+  static fromJson(obj: string): AbstractHDWallet {
+    const wallet = super.fromJson(obj) as AbstractHDWallet;
+    const currentNetworkKey = isTestnet() ? 'testnet' : 'mainnet';
+    if (wallet._cachedForNetwork !== currentNetworkKey) {
+      // Network changed since wallet was last saved — clear all derived caches
+      // so addresses and xpubs are re-derived for the correct network.
+      wallet.external_addresses_cache = {};
+      wallet.internal_addresses_cache = {};
+      wallet._address_to_wif_cache = {};
+      wallet._address = false;
+      delete wallet._node0;
+      delete wallet._node1;
+      wallet._xpub = '';
+      wallet._cachedForNetwork = currentNetworkKey;
+    }
+    return wallet;
   }
 
   prepareForSerialization(): void {
@@ -322,7 +343,12 @@ export class AbstractHDWallet extends LegacyWallet {
   /**
    * @returns {string} Root derivation path for wallet if any
    */
-  getDerivationPath() {
+  getDerivationPath(): string {
+    if (!this._derivationPath) return this._derivationPath || '';
+    // On testnet/signet, swap coin type 0 to 1 (e.g. m/84'/0'/0' -> m/84'/1'/0')
+    if (isTestnet()) {
+      return this._derivationPath.replace(/^(m\/\d+')\/0'\//, "$1/1'/");
+    }
     return this._derivationPath;
   }
 

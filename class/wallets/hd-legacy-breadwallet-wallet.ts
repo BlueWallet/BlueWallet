@@ -8,6 +8,7 @@ import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
+import { getNetwork } from '../../models/network';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -32,10 +33,10 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   _calcNodeAddressByIndex(node: number, index: number, p2wpkh: boolean = false) {
     let _node: BIP32Interface | undefined;
     if (node === 0) {
-      _node = this._node0 || (this._node0 = bip32.fromBase58(this.getXpub()).derive(node));
+      _node = this._node0 || (this._node0 = bip32.fromBase58(this.getXpub(), getNetwork()).derive(node));
     }
     if (node === 1) {
-      _node = this._node1 || (this._node1 = bip32.fromBase58(this.getXpub()).derive(node));
+      _node = this._node1 || (this._node1 = bip32.fromBase58(this.getXpub(), getNetwork()).derive(node));
     }
 
     if (!_node) {
@@ -43,7 +44,9 @@ export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
     }
 
     const pubkey = _node.derive(index).publicKey;
-    const address = p2wpkh ? bitcoinjs.payments.p2wpkh({ pubkey }).address : bitcoinjs.payments.p2pkh({ pubkey }).address;
+    const address = p2wpkh
+      ? bitcoinjs.payments.p2wpkh({ pubkey, network: getNetwork() }).address
+      : bitcoinjs.payments.p2pkh({ pubkey, network: getNetwork() }).address;
 
     if (!address) {
       throw new Error('Internal error: no address in _calcNodeAddressByIndex');
