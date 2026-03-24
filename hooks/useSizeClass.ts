@@ -5,5 +5,3 @@ export { SizeClass };
 export type { SizeClassInfo };
 
 export const useSizeClass = useSizeClassOriginal;
-
-export const useIsLargeScreen = useSizeClassOriginal;

@@ -73,9 +73,10 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-  const { isLarge } = useSizeClass();
+  const { horizontalSizeClass } = useSizeClass();
+  const isLargeLayout = horizontalSizeClass !== SizeClass.Compact;
   const nStylesHooks = StyleSheet.create({
-    container: isLarge
+    container: isLargeLayout
       ? {
           paddingHorizontal: 24,
           marginVertical: 16,
@@ -104,7 +105,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
       onPress={onPress}
       testID="CreateAWallet"
       style={({ pressed }) => [
-        isLarge ? {} : { width: itemWidth * 1.2 },
+        isLargeLayout ? {} : { width: itemWidth * 1.2 },
         {
           opacity: pressed ? 0.9 : 1.0,
         },
@@ -117,7 +118,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
           nStyles.container,
           nStylesHooks.container,
           { backgroundColor: colors.borderTopColor },
-          isLarge ? {} : { width: itemWidth },
+          isLargeLayout ? {} : { width: itemWidth },
           animatedScaleStyle,
         ]}
       >
@@ -282,7 +283,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
-    const { sizeClass } = useSizeClass();
+    const { horizontalSizeClass } = useSizeClass();
     const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
     const previousBalance = useRef<string | undefined>(undefined);
@@ -394,7 +395,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     return (
       <Animated.View
         style={[
-          sizeClass === SizeClass.Large || !horizontal
+          horizontalSizeClass === SizeClass.Large || !horizontal
             ? [iStyles.rootLargeDevice, customStyle]
             : [iStyles.root, { width: itemWidth }, customStyle],
           animatedCardStyle,
@@ -553,7 +554,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const flatListRef = useRef<FlatList<any>>(null);
   const walletRefs = useRef<Record<string, React.MutableRefObject<View | null>>>({});
 
-  const { sizeClass } = useSizeClass();
+  const { horizontalSizeClass } = useSizeClass();
 
   useImperativeHandle(ref, (): any => {
     if (isFlatList) {
@@ -845,7 +846,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       paddingTop: 16,
     },
     contentLargeScreen: {
-      paddingHorizontal: sizeClass === SizeClass.Large ? 16 : 12,
+      paddingHorizontal: horizontalSizeClass === SizeClass.Large ? 16 : 12,
     },
   });
 

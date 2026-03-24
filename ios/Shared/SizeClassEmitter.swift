@@ -12,6 +12,7 @@ class SizeClassEmitter: RCTEventEmitter {
 
   private static var sharedEmitter = SizeClassEmitter()
   private var hasListeners = false
+  private var traitObserverView: TraitObserverView?
 
     override init() {
       super.init()
@@ -54,46 +55,39 @@ class SizeClassEmitter: RCTEventEmitter {
 
   override func startObserving() {
     hasListeners = true
-
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(handlePotentialTraitChange),
-      name: UIDevice.orientationDidChangeNotification,
-      object: nil
-    )
-
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(handlePotentialTraitChange),
-      name: UIApplication.didBecomeActiveNotification,
-      object: nil
-    )
-
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(handlePotentialTraitChange),
-      name: UIWindow.didBecomeKeyNotification,
-      object: nil
-    )
-
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(handlePotentialTraitChange),
-      name: UIWindow.didResignKeyNotification,
-      object: nil
-    )
+    installTraitObserver()
   }
 
   override func stopObserving() {
     hasListeners = false
-    NotificationCenter.default.removeObserver(self)
+    removeTraitObserver()
   }
 
-  // MARK: - Notification handling
+  // MARK: - Trait observer
 
-  @objc private func handlePotentialTraitChange() {
-    sendUpdate(window: nil, reason: "notification")
+  private func installTraitObserver() {
+    DispatchQueue.main.async {
+      guard self.traitObserverView == nil else { return }
+      guard let window = self.resolveWindow(nil) else { return }
+
+      let observer = TraitObserverView { [weak self] in
+        self?.sendUpdate(window: nil, reason: "traitCollectionDidChange")
+      }
+      observer.isHidden = true
+      observer.frame = .zero
+      window.addSubview(observer)
+      self.traitObserverView = observer
+    }
   }
+
+  private func removeTraitObserver() {
+    DispatchQueue.main.async {
+      self.traitObserverView?.removeFromSuperview()
+      self.traitObserverView = nil
+    }
+  }
+
+  // MARK: - Event emission
 
   private func sendUpdate(window: UIWindow?, reason: String) {
     guard hasListeners else { return }
@@ -106,7 +100,7 @@ class SizeClassEmitter: RCTEventEmitter {
     sendEvent(withName: "sizeClassDidChange", body: payload)
   }
 
-  // MARK: - Payload construction
+  // MARK: - Payload construction from traits
 
   private func buildPayload(window: UIWindow?) -> [String: Any]? {
     guard let activeWindow = resolveWindow(window) else {
@@ -119,7 +113,6 @@ class SizeClassEmitter: RCTEventEmitter {
     let horizontalClass = map(sizeClass: traits.horizontalSizeClass)
     let verticalClass = map(sizeClass: traits.verticalSizeClass)
 
-    // Preserve previous JS behavior: any non-Compact width is considered Large overall.
     let overallClass: SizeClassValue = horizontalClass == .compact ? .compact : .large
 
     let orientation: String = bounds.width > bounds.height ? "landscape" : "portrait"
@@ -152,10 +145,39 @@ class SizeClassEmitter: RCTEventEmitter {
       return providedWindow
     }
 
-    if let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
+    if let scene = UIApplication.shared.connectedScenes
+      .compactMap({ $0 as? UIWindowScene })
+      .first(where: { $0.activationState == .foregroundActive }),
+      let keyWindow = scene.windows.first(where: { $0.isKeyWindow }) ?? scene.windows.first {
       return keyWindow
     }
 
-    return UIApplication.shared.windows.first
+    return nil
+  }
+}
+
+// MARK: - Hidden UIView that observes trait collection changes
+
+private class TraitObserverView: UIView {
+  private let onChange: () -> Void
+
+  init(onChange: @escaping () -> Void) {
+    self.onChange = onChange
+    super.init(frame: .zero)
+    isUserInteractionEnabled = false
+    accessibilityElementsHidden = true
+  }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    super.traitCollectionDidChange(previousTraitCollection)
+    guard traitCollection.horizontalSizeClass != previousTraitCollection?.horizontalSizeClass ||
+          traitCollection.verticalSizeClass != previousTraitCollection?.verticalSizeClass else {
+      return
+    }
+    onChange()
   }
 }

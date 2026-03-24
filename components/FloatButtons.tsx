@@ -149,12 +149,12 @@ const useFloatButtonAnimation = (height: number) => {
   };
 };
 
-const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
+const useFloatButtonLayout = (width: number, horizontalSizeClass: SizeClass) => {
   const lastVerticalDecision = useRef(false);
 
   const shouldUseVerticalLayout = useCallback(
     (totalWidthNeeded: number, availableWidth: number, totalChildren: number) => {
-      if (sizeClass !== SizeClass.Large || totalChildren <= 1) return false;
+      if (horizontalSizeClass !== SizeClass.Large || totalChildren <= 1) return false;
 
       const minWidthPerButton = 130;
       const totalButtonsWidth = minWidthPerButton * totalChildren;
@@ -177,14 +177,14 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
 
       return lastVerticalDecision.current;
     },
-    [sizeClass],
+    [horizontalSizeClass],
   );
 
   const calculateButtonWidth = useCallback(
     (containerWidth: number, totalChildren: number): number => {
       if (containerWidth <= 0) return 0;
 
-      const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
+      const drawerOffset = horizontalSizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
       const availableWidth = width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2;
 
       const contentWidth = Math.ceil(containerWidth);
@@ -194,9 +194,9 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
       const totalWidthNeeded = totalButtonWidth + totalSpacersWidth + LAYOUT.SAFETY_MARGIN;
 
       const effectiveMinButtonWidth =
-        sizeClass === SizeClass.Large
+        horizontalSizeClass === SizeClass.Large
           ? LAYOUT.MIN_BUTTON_WIDTH_LARGE
-          : sizeClass === SizeClass.Regular
+          : horizontalSizeClass === SizeClass.Regular
             ? LAYOUT.MIN_BUTTON_WIDTH
             : LAYOUT.MIN_BUTTON_WIDTH * 0.85;
 
@@ -205,7 +205,7 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
       let calculatedWidth;
 
       if (shouldBeVertical) {
-        calculatedWidth = sizeClass === SizeClass.Large ? availableWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2 : availableWidth;
+        calculatedWidth = horizontalSizeClass === SizeClass.Large ? availableWidth - LAYOUT.CONTAINER_SIDE_MARGIN * 2 : availableWidth;
       } else {
         if (totalWidthNeeded > availableWidth) {
           const availableWidthPerButton = (availableWidth - totalSpacersWidth) / totalChildren;
@@ -216,8 +216,8 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
       }
 
       if (totalChildren === 1 && !shouldBeVertical) {
-        const singleButtonMaxWidth = availableWidth * (sizeClass === SizeClass.Compact ? 0.7 : LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR);
-        const effectiveSingleMinWidth = sizeClass === SizeClass.Large ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
+        const singleButtonMaxWidth = availableWidth * (horizontalSizeClass === SizeClass.Compact ? 0.7 : LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR);
+        const effectiveSingleMinWidth = horizontalSizeClass === SizeClass.Large ? LAYOUT.MIN_BUTTON_WIDTH * 1.2 : LAYOUT.MIN_BUTTON_WIDTH;
 
         calculatedWidth = Math.max(
           effectiveSingleMinWidth - LAYOUT.PADDINGS * 2,
@@ -227,12 +227,12 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
 
       return Math.floor(calculatedWidth);
     },
-    [width, sizeClass, shouldUseVerticalLayout],
+    [width, horizontalSizeClass, shouldUseVerticalLayout],
   );
 
   const calculateVisualParameters = useCallback(
     (calculatedWidth: number, totalChildren: number) => {
-      const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
+      const drawerOffset = horizontalSizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
       const availableWidth = width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2;
 
       const buttonWidth = Math.max(calculatedWidth, LAYOUT.MIN_BUTTON_WIDTH_LARGE) + LAYOUT.PADDINGS * 2;
@@ -254,7 +254,7 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
 
       return { buttonRadius: multiButtonRadius, singleButtonRadius, shouldBeVertical };
     },
-    [width, sizeClass, shouldUseVerticalLayout],
+    [width, horizontalSizeClass, shouldUseVerticalLayout],
   );
 
   const calculateContainerHeight = useCallback((childrenCount: number, isVerticalLayout: boolean) => {
@@ -268,10 +268,10 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
   }, []);
 
   const calculateButtonFontSize = useMemo(() => {
-    const divisor = sizeClass === SizeClass.Large ? 22 : sizeClass === SizeClass.Regular ? 24 : 28;
+    const divisor = horizontalSizeClass === SizeClass.Large ? 22 : horizontalSizeClass === SizeClass.Regular ? 24 : 28;
     const baseSize = PixelRatio.roundToNearestPixel(width / divisor);
     return Math.min(LAYOUT.MAX_BUTTON_FONT_SIZE, baseSize);
-  }, [width, sizeClass]);
+  }, [width, horizontalSizeClass]);
 
   return {
     calculateButtonWidth,
@@ -528,7 +528,7 @@ export const FButton = ({
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const insets = useSafeAreaInsets();
   const { height, width } = useWindowDimensions();
-  const { sizeClass } = useSizeClass();
+  const { horizontalSizeClass } = useSizeClass();
 
   const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
   const [isVertical, setIsVertical] = useState(false);
@@ -554,7 +554,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
     width,
-    sizeClass,
+    horizontalSizeClass,
   );
 
   const handleBorderRadiusAnimation = useCallback(
@@ -653,7 +653,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   useEffect(() => {
     debouncedCalculateLayout();
-  }, [debouncedCalculateLayout, width, height, props.children, sizeClass]);
+  }, [debouncedCalculateLayout, width, height, props.children, horizontalSizeClass]);
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     const { width: currentLayoutWidth } = event.nativeEvent.layout;
