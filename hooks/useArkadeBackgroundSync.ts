@@ -13,6 +13,7 @@ import type { TaskResult } from '@arkade-os/sdk/worker/expo';
 export function useArkadeBackgroundSync() {
   const { wallets, saveToDisk } = useStorage();
   const isRegistered = useRef(false);
+  const tickInFlight = useRef(false);
 
   /**
    * Build SwapProcessorDeps for each Ark wallet.
@@ -60,14 +61,23 @@ export function useArkadeBackgroundSync() {
    * no swap results arrive.
    */
   const onTick = useCallback(() => {
+    if (tickInFlight.current) return;
+    tickInFlight.current = true;
+
     const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
-    for (const wallet of arkWallets) {
-      wallet
-        .fetchBalance()
-        .then(() => wallet.fetchTransactions())
-        .then(() => saveToDisk())
-        .catch(e => console.log('[ArkadeSync] Refresh error:', e));
-    }
+    Promise.all(
+      arkWallets.map(wallet =>
+        wallet
+          .fetchBalance()
+          .then(() => wallet.fetchTransactions())
+          .catch(e => console.log('[ArkadeSync] Refresh error:', e)),
+      ),
+    )
+      .then(() => saveToDisk())
+      .catch(e => console.log('[ArkadeSync] Save error:', e))
+      .finally(() => {
+        tickInFlight.current = false;
+      });
   }, [wallets, saveToDisk]);
 
   /**
