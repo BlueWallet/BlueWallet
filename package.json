@@ -92,8 +92,8 @@
     "unit": "jest -b -w tests/unit/*"
   },
   "dependencies": {
-    "@arkade-os/boltz-swap": "^0.3.5",
-    "@arkade-os/sdk": "^0.4.7",
+    "@arkade-os/boltz-swap": "^0.3.9",
+    "@arkade-os/sdk": "^0.4.10",
     "@babel/preset-env": "7.29.0",
     "@bugsnag/react-native": "8.8.1",
     "@bugsnag/source-maps": "2.3.3",
