@@ -28,6 +28,10 @@ let skipUpdateExchangeRate: boolean = false;
 
 let currencyFormatter: Intl.NumberFormat | null = null;
 
+function clearCurrencyFormatterCache(): void {
+  currencyFormatter = null;
+}
+
 function getCurrencyFormatter(): Intl.NumberFormat {
   if (
     !currencyFormatter ||
@@ -384,6 +388,7 @@ export {
   _setSkipUpdateExchangeRate,
   BTCToLocalCurrency,
   btcToSatoshi,
+  clearCurrencyFormatterCache,
   EXCHANGE_RATES_STORAGE_KEY,
   fiatToBTC,
   getCurrencySymbol,

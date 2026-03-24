@@ -359,6 +359,27 @@ export const saveLanguage = async (lang: string) => {
   setDateTimeLocale(lang);
 };
 
+/**
+ * Re-reads the system locale from native and updates the app language if it changed.
+ * Returns the new language value, or null if unchanged.
+ */
+export const syncLanguageFromSystem = (): string | null => {
+  const locales = NativeLocaleHelper?.getLocales() ?? [];
+  const systemLang = (locales.length > 0 ? mapSystemLocaleToAppLanguage(locales[0]) : undefined) ?? 'en';
+  const currentLang = loc.getLanguage();
+
+  if (systemLang === currentLang) return null;
+
+  loc.setLanguage(systemLang);
+  if (process.env.JEST_WORKER_ID === undefined) {
+    const langEntry = AvailableLanguages.find(l => l.value === systemLang);
+    I18nManager.allowRTL(langEntry?.isRTL ?? false);
+    I18nManager.forceRTL(langEntry?.isRTL ?? false);
+  }
+  setDateTimeLocale(systemLang);
+  return systemLang;
+};
+
 /** Returns the currently active app language value */
 export const getCurrentLanguage = (): string => {
   return loc.getLanguage();
