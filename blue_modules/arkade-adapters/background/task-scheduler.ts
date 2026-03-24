@@ -5,7 +5,6 @@ import { swapMonitorProcessor, type SwapProcessorDeps } from './swap-processor';
 import type { SwapMonitorPayload } from './swap-queue';
 import { BlueApp, LightningArkWallet } from '../../../class';
 
-const TASK_ID = 'io.bluewallet.bluewallet.arkadeSync';
 
 /**
  * Factory that returns a map of namespace → SwapProcessorDeps.
@@ -112,7 +111,7 @@ export async function registerArkadeBackgroundTask(depsFactory: DepsFactory): Pr
  */
 export async function unregisterArkadeBackgroundTask(): Promise<void> {
   _depsFactory = null;
-  await BackgroundFetch.stop(TASK_ID);
+  await BackgroundFetch.stop();
 }
 
 /**
