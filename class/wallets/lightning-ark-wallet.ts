@@ -5,6 +5,7 @@ import {
   BoltzSwapProvider,
   decodeInvoice,
   PendingSwap,
+  PendingReverseSwap,
   migrateToSwapRepository,
   isPendingReverseSwap,
   isPendingSubmarineSwap,
@@ -305,7 +306,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const invoiceStr: string | undefined = swap.response?.invoice;
 
       const claimPromise = this._arkadeSwaps
-        .waitAndClaim(swap as PendingSwap)
+        .waitAndClaim(swap as PendingReverseSwap)
         .then(async () => {
           console.log('[ARK] Re-observed swap claimed successfully:', swap.id);
           // Refresh swap statuses so getTransactions() returns settled status immediately

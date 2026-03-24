@@ -391,8 +391,6 @@
     "custom_fee_warning_description": "Fees below 1 sat/vB are valid, but may not be relayed due to node policies."
   },
   "wallets": {
-    "add_ark": "Ark",
-    "add_ark_explain": "Bitcoin transactions with improved privacy and efficiency",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Simple and powerful Bitcoin wallet",
     "add_create": "Create",

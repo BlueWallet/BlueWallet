@@ -6,14 +6,8 @@ import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts'
 const invoice =
   'lnbc20n1p59n9nkpp58s49flel3cz5u3lrve8qeqzxljxmu0gja06elfcgwrx2e9nq959ssp5z7ytwq0rm6yq8evn2kteduj6a0rs4svn3sfwvg92a29f8l022jjqxq9z0rgqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qcqzpgdq023mk7gryv9uhxgq9qyyssqy4mv8te3l6mrc7qf4pksh4m4z76jz7s2qrwxd7q2s22ghnanqt33e9p0nahz9fr32g00vn2vhc9rrhpvtr54s40tle25tyyvp59sdpsqty30rp';
 
-function createWallet() {
-  const wallet = new LightningArkWallet() as LightningArkWallet & {
-    _swapHistory: any[];
-    _transactionsHistory: any[];
-    _boardingUtxos: any[];
-    _wallet?: any;
-    _attemptBoardUtxos?: () => Promise<void>;
-  };
+function createWallet(): any {
+  const wallet: any = new LightningArkWallet();
 
   wallet._boardingUtxos = [];
   wallet._swapHistory = [];
