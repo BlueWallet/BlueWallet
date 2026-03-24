@@ -76,7 +76,7 @@ export class BlueApp {
 
   private static _instance: BlueApp | null = null;
 
-  static keys2migrate = [BlueApp.CONTINUITY_STORAGE_KEY, BlueApp.DO_NOT_TRACK];
+  static keys2migrate = [BlueApp.DO_NOT_TRACK];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
@@ -889,17 +889,6 @@ export class BlueApp {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
-  };
-
-  isContinuityEnabled = async (): Promise<boolean> => {
-    try {
-      return !!(await AsyncStorage.getItem(BlueApp.CONTINUITY_STORAGE_KEY));
-    } catch (_) {}
-    return false;
-  };
-
-  setIsContinuityEnabled = async (value: boolean): Promise<void> => {
-    await AsyncStorage.setItem(BlueApp.CONTINUITY_STORAGE_KEY, value ? '1' : '');
   };
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {
