@@ -191,7 +191,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       };
 
       // Only attempt migration if legacy data actually exists in AsyncStorage
-      const hasLegacyData = await AsyncStorage.getItem(`${namespace}_wallet:state`);
+      const allKeys = await AsyncStorage.getAllKeys();
+      const hasLegacyData = allKeys.some(k => k.startsWith(`${namespace}_`));
       if (hasLegacyData) {
         // Migrate wallet data (vtxos, transactions, etc.)
         try {
