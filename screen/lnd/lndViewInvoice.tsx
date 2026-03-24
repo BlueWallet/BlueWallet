@@ -133,9 +133,13 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, isModal, isArkOnly]);
 
-  // LN invoice polling for non-Ark wallets (LNDHub custodian wallets)
+  // LN invoice polling — works for all wallet types (LNDHub + Ark).
+  // For Ark wallets this serves as a reliable fallback: the Ark-specific
+  // useEffect below provides faster WebSocket-based detection, but if
+  // the WebSocket listener stalls this poll will still pick up the
+  // status change once the background processor claims the swap.
   useEffect(() => {
-    if (!wallet || wallet.type === LightningArkWallet.type) return;
+    if (!wallet) return;
     if ((invoice as LightningTransaction).ispaid) return;
 
     fetchInvoiceInterval.current = setInterval(async () => {
