@@ -183,7 +183,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 export default ToolTipMenu;
 
 const styles = StyleSheet.create({
-  menuViewFlex: { flex: 1 },
+  menuViewFlex: { flexShrink: 1 },
   pressable: { alignSelf: 'center' },
   pressed: { opacity: 0.6 },
 });
