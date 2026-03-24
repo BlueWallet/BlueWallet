@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import DefaultPreference from 'react-native-default-preference';
-import * as RNLocalize from 'react-native-localize';
 
+import NativeLocaleHelper from './LocaleHelper';
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
@@ -143,7 +143,7 @@ async function getPreferredCurrency(): Promise<FiatUnitType> {
   }
 
   if (!preferredFiatCurrency) {
-    const deviceCurrencies = RNLocalize.getCurrencies();
+    const deviceCurrencies = NativeLocaleHelper?.getCurrencies() ?? [];
     if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
       preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
     } else {
@@ -206,7 +206,7 @@ async function _restoreSavedPreferredFiatCurrencyFromStorage(): Promise<void> {
     } catch (error) {
       await DefaultPreference.clear(PREFERRED_CURRENCY_STORAGE_KEY);
 
-      const deviceCurrencies = RNLocalize.getCurrencies();
+      const deviceCurrencies = NativeLocaleHelper?.getCurrencies() ?? [];
       if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
         preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
       } else {
@@ -214,7 +214,7 @@ async function _restoreSavedPreferredFiatCurrencyFromStorage(): Promise<void> {
       }
     }
   } catch (error) {
-    const deviceCurrencies = RNLocalize.getCurrencies();
+    const deviceCurrencies = NativeLocaleHelper?.getCurrencies() ?? [];
     if (deviceCurrencies[0] && FiatUnit[deviceCurrencies[0]]) {
       preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
     } else {

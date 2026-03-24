@@ -2880,34 +2880,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNLocalize (3.7.0):
-    - boost
-    - DoubleConversion
-    - fast_float
-    - fmt
-    - glog
-    - hermes-engine
-    - RCT-Folly
-    - RCT-Folly/Fabric
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - SocketRocket
-    - Yoga
   - RNPermissions (5.5.1):
     - boost
     - DoubleConversion
@@ -3411,7 +3383,6 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
-  - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNQrGenerator (from `../node_modules/rn-qr-generator`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
@@ -3648,8 +3619,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-handoff"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
-  RNLocalize:
-    :path: "../node_modules/react-native-localize"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
   RNQrGenerator:
@@ -3683,7 +3652,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 309703e71d3f2f1ed7dc7889d58309c9d77a95a4
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
-  hermes-engine: 1195b00d0f49a367b01a38c87b43227542fc3532
+  hermes-engine: b6ee973c4fd6366874d9aabcaf396d53475038eb
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
   lottie-react-native: 983fd0489530e8d40f173de7f04e2f88b9317a15
   RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
@@ -3771,7 +3740,7 @@ SPEC CHECKSUMS:
   React-utils: 8ab26781c2f5c2f7fafb2022c8ab39d39f231b80
   React-webperformancenativemodule: 7953b7fe519f76fa595111fe18ff3d5de131bfe9
   ReactAppDependencyProvider: 0eb286cc274abb059ee601b862ebddac2e681d01
-  ReactCodegen: 7e000704d5303430bdbc4fcf4509888ac3253ed1
+  ReactCodegen: 7c98a5b5d08317f408dfe876fbf8ceccab78ae9d
   ReactCommon: ac934cb340aee91282ecd6f273a26d24d4c55cae
   ReactNativeCameraKit: f0f16aa7f60b7392161b57b09d24073e71e29123
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
@@ -3783,7 +3752,6 @@ SPEC CHECKSUMS:
   RNGestureHandler: cd4be101cfa17ea6bbd438710caa02e286a84381
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 483402cf2b90647eb0cf569cebbc069d32addea4
-  RNLocalize: 1aedbc2c15073861a364174919d23c31c5924b16
   RNPermissions: 29cfd9c9bbb7f0bd35e702dc849e33b294feac52
   RNQrGenerator: b467624cdcb0e88108a8b4ca74c94b0978efa265
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
