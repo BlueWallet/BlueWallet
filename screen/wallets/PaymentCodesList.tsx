@@ -228,7 +228,7 @@ export default function PaymentCodesList() {
         actions={toolTipActions}
         onPressMenuItem={(item: any) => onToolTipPress(item, pc)}
         isButton={true}
-        isMenuPrimaryAction={true}
+        shouldOpenOnLongPress={false}
       >
         <View style={styles.contactRowContainer}>
           <View style={[styles.circle, { backgroundColor: '#' + color }]} />

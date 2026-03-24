@@ -18,7 +18,7 @@ import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import HighlightedText from '../HighlightedText';
-import { useSharedValue, withSpring, withTiming, useAnimatedStyle, Animated } from 'react-native-reanimated';
+import Animated, { useSharedValue, withSpring, withTiming, useAnimatedStyle } from 'react-native-reanimated';
 
 interface AddressItemProps {
   item: any;
