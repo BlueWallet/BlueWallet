@@ -18,6 +18,7 @@ class SizeClassEmitterModule(private val reactContext: ReactApplicationContext) 
 
         // Material Design window size class breakpoints (dp)
         private const val COMPACT_WIDTH_MAX = 600
+        private const val MEDIUM_WIDTH_MAX = 840
         private const val COMPACT_HEIGHT_MAX = 480
 
         // SizeClass enum values matching iOS/TS
@@ -66,10 +67,14 @@ class SizeClassEmitterModule(private val reactContext: ReactApplicationContext) 
         val widthDp = config.screenWidthDp
         val heightDp = config.screenHeightDp
 
-        val horizontalClass = if (widthDp < COMPACT_WIDTH_MAX) SIZE_CLASS_COMPACT else SIZE_CLASS_REGULAR
+        val horizontalClass = when {
+            widthDp < COMPACT_WIDTH_MAX -> SIZE_CLASS_COMPACT
+            widthDp < MEDIUM_WIDTH_MAX -> SIZE_CLASS_REGULAR
+            else -> SIZE_CLASS_LARGE
+        }
         val verticalClass = if (heightDp < COMPACT_HEIGHT_MAX) SIZE_CLASS_COMPACT else SIZE_CLASS_REGULAR
 
-        val overallClass = if (horizontalClass == SIZE_CLASS_COMPACT) SIZE_CLASS_COMPACT else SIZE_CLASS_LARGE
+        val overallClass = horizontalClass
 
         val isLandscape = config.orientation == Configuration.ORIENTATION_LANDSCAPE
         val orientation = if (isLandscape) "landscape" else "portrait"

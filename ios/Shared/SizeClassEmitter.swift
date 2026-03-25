@@ -13,6 +13,7 @@ class SizeClassEmitter: RCTEventEmitter {
   private static var sharedEmitter = SizeClassEmitter()
   private var hasListeners = false
   private var traitObserverView: TraitObserverView?
+  private var keyWindowObserver: NSObjectProtocol?
 
     override init() {
       super.init()
@@ -67,23 +68,53 @@ class SizeClassEmitter: RCTEventEmitter {
 
   private func installTraitObserver() {
     DispatchQueue.main.async {
-      guard self.traitObserverView == nil else { return }
-      guard let window = self.resolveWindow(nil) else { return }
+      self.attachObserverToCurrentWindow()
 
-      let observer = TraitObserverView { [weak self] in
-        self?.sendUpdate(window: nil, reason: "traitCollectionDidChange")
+      // Re-attach when the key window changes (multi-window, external display, scene lifecycle).
+      if self.keyWindowObserver == nil {
+        self.keyWindowObserver = NotificationCenter.default.addObserver(
+          forName: UIWindow.didBecomeKeyNotification,
+          object: nil,
+          queue: .main
+        ) { [weak self] notification in
+          guard let self = self, self.hasListeners else { return }
+          let newWindow = notification.object as? UIWindow
+          // Only reattach if the observer is on a different window.
+          if let newWindow = newWindow, newWindow !== self.traitObserverView?.superview {
+            self.detachObserverView()
+            self.attachObserverToCurrentWindow()
+            self.sendUpdate(window: newWindow, reason: "keyWindowDidChange")
+          }
+        }
       }
-      observer.isHidden = true
-      observer.frame = .zero
-      window.addSubview(observer)
-      self.traitObserverView = observer
     }
+  }
+
+  private func attachObserverToCurrentWindow() {
+    guard self.traitObserverView == nil else { return }
+    guard let window = self.resolveWindow(nil) else { return }
+
+    let observer = TraitObserverView { [weak self] in
+      self?.sendUpdate(window: nil, reason: "traitCollectionDidChange")
+    }
+    observer.isHidden = true
+    observer.frame = .zero
+    window.addSubview(observer)
+    self.traitObserverView = observer
+  }
+
+  private func detachObserverView() {
+    self.traitObserverView?.removeFromSuperview()
+    self.traitObserverView = nil
   }
 
   private func removeTraitObserver() {
     DispatchQueue.main.async {
-      self.traitObserverView?.removeFromSuperview()
-      self.traitObserverView = nil
+      self.detachObserverView()
+      if let observer = self.keyWindowObserver {
+        NotificationCenter.default.removeObserver(observer)
+        self.keyWindowObserver = nil
+      }
     }
   }
 

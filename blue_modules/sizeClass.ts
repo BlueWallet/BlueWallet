@@ -1,4 +1,4 @@
-import { NativeEventEmitter, NativeModules } from 'react-native';
+import { Dimensions, NativeEventEmitter, NativeModules, Platform } from 'react-native';
 import { useEffect, useState } from 'react';
 
 type NativeSizeClassPayload = {
@@ -49,7 +49,21 @@ const normalizeNativePayload = (payload?: NativeSizeClassPayload | null): SizeCl
   };
 };
 
-let cachedSizeClassInfo: SizeClassInfo = DEFAULT_SIZE_CLASS_INFO;
+// Dimensions-based fallback when native module is unavailable (desktop, web, test harness).
+const COMPACT_WIDTH_MAX = Platform.OS === 'android' ? 600 : 768;
+const MEDIUM_WIDTH_MAX = Platform.OS === 'android' ? 840 : 1024;
+const COMPACT_HEIGHT_MAX = Platform.OS === 'android' ? 480 : 480;
+
+const sizeClassFromDimensions = (): SizeClassInfo => {
+  const { width, height } = Dimensions.get('window');
+  // Use dp-equivalent values (RN Dimensions already returns dp on Android, points on iOS).
+  const horizontalSizeClass: SizeClass =
+    width < COMPACT_WIDTH_MAX ? SizeClass.Compact : width < MEDIUM_WIDTH_MAX ? SizeClass.Regular : SizeClass.Large;
+  const verticalSizeClass: SizeClass = height < COMPACT_HEIGHT_MAX ? SizeClass.Compact : SizeClass.Regular;
+  return { horizontalSizeClass, verticalSizeClass };
+};
+
+let cachedSizeClassInfo: SizeClassInfo = sizeClassNativeModule ? DEFAULT_SIZE_CLASS_INFO : sizeClassFromDimensions();
 let nativeInitRequested = false;
 
 const fetchNativeSizeClass = async (): Promise<SizeClassInfo | null> => {
@@ -94,6 +108,13 @@ export function useSizeClass(): SizeClassInfo {
       if (normalized) apply(normalized);
     });
 
+    // When native module is unavailable, listen to Dimensions changes as fallback.
+    const dimensionsSub = !sizeClassNativeModule
+      ? Dimensions.addEventListener('change', () => {
+          apply(sizeClassFromDimensions());
+        })
+      : null;
+
     fetchNativeSizeClass().then(native => {
       if (native) apply(native);
     });
@@ -101,6 +122,7 @@ export function useSizeClass(): SizeClassInfo {
     return () => {
       mounted = false;
       nativeSub?.remove();
+      dimensionsSub?.remove();
     };
   }, []);
 

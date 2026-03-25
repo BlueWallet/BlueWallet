@@ -55,11 +55,11 @@ const style = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignContent: 'center',
   },
   iconContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
+    alignContent: 'center',
   },
   icon: {},
 });
