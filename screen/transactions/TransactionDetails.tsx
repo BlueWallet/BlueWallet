@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useFocusEffect, usePreventRemove, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -22,6 +22,11 @@ import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
+import {
+  checkForAddressPoisoning,
+  collectRecentlyUsedAddresses,
+  PoisoningCheckResult,
+} from '../../helpers/addressPoisoningDetection';
 
 const actionKeys = {
   CopyToClipboard: 'copyToClipboard',
@@ -75,6 +80,7 @@ const TransactionDetails = () => {
   const [counterpartyLabel, setCounterpartyLabel] = useState<string>('');
   const [paymentCode, setPaymentCode] = useState<string>('');
   const [isCounterpartyLabelVisible, setIsCounterpartyLabelVisible] = useState<boolean>(false);
+  const [poisoningWarningDismissed, setPoisoningWarningDismissed] = useState<boolean>(false);
   const { colors } = useTheme();
   const stylesHooks = StyleSheet.create({
     memoTextInput: {
@@ -198,6 +204,52 @@ const TransactionDetails = () => {
     return null;
   };
 
+  // Address poisoning detection: compare output addresses against recently-seen addresses
+  const poisoningCheck = useMemo((): PoisoningCheckResult => {
+    if (!tx || poisoningWarningDismissed) {
+      return { isSuspicious: false, warnings: [] };
+    }
+
+    // Build set of own addresses from all wallets
+    const ownAddresses = new Set<string>();
+    for (const w of wallets) {
+      try {
+        const allAddresses = w.getAllAddresses ? w.getAllAddresses() : [];
+        for (const addr of allAddresses) {
+          if (addr) ownAddresses.add(addr);
+        }
+      } catch {
+        // Some wallet types may not support getAllAddresses
+      }
+    }
+
+    // Collect recently-used addresses from all transactions
+    const allTransactions = getTransactions(undefined, Infinity, true);
+    const recentlyUsedAddresses = collectRecentlyUsedAddresses(allTransactions, ownAddresses);
+
+    // Extract output addresses from the current transaction (excluding own addresses)
+    const outputAddresses: string[] = [];
+    if (tx.outputs) {
+      for (const output of tx.outputs) {
+        if (output?.scriptPubKey?.addresses) {
+          outputAddresses.push(...output.scriptPubKey.addresses);
+        }
+      }
+    }
+
+    // Extract input addresses from the current transaction
+    const inputAddresses: string[] = [];
+    if (tx.inputs) {
+      for (const input of tx.inputs) {
+        if (input?.addresses) {
+          inputAddresses.push(...input.addresses);
+        }
+      }
+    }
+
+    return checkForAddressPoisoning(outputAddresses, recentlyUsedAddresses, ownAddresses, inputAddresses);
+  }, [tx, wallets, getTransactions, poisoningWarningDismissed]);
+
   const navigateToWallet = (wallet: TWallet) => {
     navigate('WalletTransactions', {
       walletID: wallet.getID(),
@@ -255,6 +307,42 @@ const TransactionDetails = () => {
         type={HandOffActivityType.ViewInBlockExplorer}
         url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
       />
+
+      {/* Address Poisoning Warning Banner */}
+      {poisoningCheck.isSuspicious && (
+        <View style={styles.poisoningWarningContainer}>
+          <Text style={styles.poisoningWarningTitle}>{loc.transactions.poisoning_alert_title}</Text>
+          <Text style={styles.poisoningWarningDescription}>{loc.transactions.poisoning_alert_description}</Text>
+          {poisoningCheck.warnings.map((warning, index) => (
+            <View key={index} style={styles.poisoningWarningItem}>
+              <Text style={styles.poisoningWarningAddress} numberOfLines={1} ellipsizeMode="middle">
+                {warning.address}
+              </Text>
+              <Text style={styles.poisoningWarningDetail}>
+                {loc.transactions.poisoning_diff_from}{' '}
+                <Text style={styles.poisoningWarningAddress} numberOfLines={1} ellipsizeMode="middle">
+                  {warning.similarTo}
+                </Text>
+              </Text>
+              <Text style={styles.poisoningWarningDiffCount}>
+                {warning.differences === 1
+                  ? loc.transactions.poisoning_characters_different.replace('{count}', '1')
+                  : loc.transactions.poisoning_characters_different_plural.replace('{count}', String(warning.differences))}
+              </Text>
+              <Text style={styles.poisoningWarningReason}>{warning.reason}</Text>
+            </View>
+          ))}
+          <View style={styles.poisoningWarningDismissRow}>
+            <Text
+              style={styles.poisoningWarningDismiss}
+              onPress={() => setPoisoningWarningDismissed(true)}
+            >
+              {loc.transactions.poisoning_dismiss}
+            </Text>
+          </View>
+        </View>
+      )}
+
       <BlueCard>
         <View>
           <TextInput
@@ -434,6 +522,68 @@ const styles = StyleSheet.create({
   },
   weOwnAddress: {
     fontWeight: '700',
+  },
+  poisoningWarningContainer: {
+    backgroundColor: '#FFF3CD',
+    borderColor: '#FFEEBA',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginHorizontal: 20,
+    marginTop: 16,
+    padding: 16,
+  },
+  poisoningWarningTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#856404',
+    marginBottom: 8,
+  },
+  poisoningWarningDescription: {
+    fontSize: 13,
+    color: '#856404',
+    marginBottom: 12,
+    lineHeight: 18,
+  },
+  poisoningWarningItem: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 6,
+    padding: 10,
+    marginBottom: 8,
+    borderColor: '#FFEEBA',
+    borderWidth: 1,
+  },
+  poisoningWarningAddress: {
+    fontSize: 11,
+    fontFamily: 'monospace',
+    color: '#664D03',
+  },
+  poisoningWarningDetail: {
+    fontSize: 12,
+    color: '#856404',
+    marginTop: 4,
+  },
+  poisoningWarningDiffCount: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#DC3545',
+    marginTop: 4,
+  },
+  poisoningWarningReason: {
+    fontSize: 12,
+    color: '#856404',
+    marginTop: 4,
+    fontStyle: 'italic',
+    lineHeight: 16,
+  },
+  poisoningWarningDismissRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 8,
+  },
+  poisoningWarningDismiss: {
+    fontSize: 14,
+    color: '#856404',
+    fontWeight: '600',
   },
   memoTextInput: {
     flexDirection: 'row',
