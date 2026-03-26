@@ -72,11 +72,18 @@ function hasSamePrefix(a: string, b: string, prefixLength: number = 8): boolean 
 }
 
 /**
- * Normalizes a Bitcoin address for comparison by lowercasing it.
- * This is safe because Bitcoin addresses are case-insensitive for the data part.
+ * Normalizes a Bitcoin address for comparison.
+ * Bech32 (bc1...) and Bech32m (bc1p...) addresses are case-insensitive, so we lowercase them.
+ * Base58 (1.../3...) addresses are case-sensitive and must be left as-is to avoid
+ * false positives - two different Base58 addresses could become identical after lowercasing.
  */
 function normalizeAddress(address: string): string {
-  return address.toLowerCase();
+  // Bech32 and Bech32m addresses start with 'bc1' (mainnet) or 'tb1' (testnet)
+  if (address.toLowerCase().startsWith('bc1') || address.toLowerCase().startsWith('tb1')) {
+    return address.toLowerCase();
+  }
+  // Base58 addresses: preserve original casing
+  return address;
 }
 
 export interface AddressPoisoningWarning {

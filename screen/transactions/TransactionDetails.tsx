@@ -191,19 +191,6 @@ const TransactionDetails = () => {
     Clipboard.setString(stringToCopy !== actionKeys.CopyToClipboard ? stringToCopy : `${selectedBlockExplorer.url}/tx/${tx?.hash}`);
   };
 
-  if (isLoading || !tx) {
-    return <BlueLoading />;
-  }
-
-  const weOwnAddress = (address: string): TWallet | null => {
-    for (const w of wallets) {
-      if (w.weOwnAddress(address)) {
-        return w;
-      }
-    }
-    return null;
-  };
-
   // Address poisoning detection: compare output addresses against recently-seen addresses
   const poisoningCheck = useMemo((): PoisoningCheckResult => {
     if (!tx || poisoningWarningDismissed) {
@@ -249,6 +236,19 @@ const TransactionDetails = () => {
 
     return checkForAddressPoisoning(outputAddresses, recentlyUsedAddresses, ownAddresses, inputAddresses);
   }, [tx, wallets, getTransactions, poisoningWarningDismissed]);
+
+  if (isLoading || !tx) {
+    return <BlueLoading />;
+  }
+  const weOwnAddress = (address: string): TWallet | null => {
+    for (const w of wallets) {
+      if (w.weOwnAddress(address)) {
+        return w;
+      }
+    }
+    return null;
+  };
+
 
   const navigateToWallet = (wallet: TWallet) => {
     navigate('WalletTransactions', {

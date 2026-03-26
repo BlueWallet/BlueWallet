@@ -8,8 +8,8 @@ import {
   checkForAddressPoisoning,
   collectRecentlyUsedAddresses,
   AddressPoisoningWarning,
-} from '../helpers/addressPoisoningDetection';
-import { Transaction } from '../class/wallets/types';
+} from '../../helpers/addressPoisoningDetection';
+import { Transaction } from '../../class/wallets/types';
 
 describe('Address Poisoning Detection', () => {
   const ownAddresses = new Set<string>([
