@@ -1,6 +1,6 @@
 /* eslint react/prop-types: "off" */
 import React from 'react';
-import { render, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Header } from '../../components/Header';
@@ -40,12 +40,14 @@ it.skip('Settings work', () => {
 });
 
 it('SelfTest work', async () => {
-  const { toJSON, queryByTestId } = render(
+  const { toJSON, queryByTestId, getByText } = render(
     <Wrapper>
       <SelfTest />
     </Wrapper>,
   );
   expect(toJSON()).toBeTruthy();
+
+  fireEvent.press(getByText('Run self-test'));
 
   // Self-tests can complete very quickly or take a while
   // Wait for OK to appear (it might be there immediately or after tests complete)

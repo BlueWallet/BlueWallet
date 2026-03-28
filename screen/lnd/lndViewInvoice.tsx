@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RouteProp, useNavigation, useNavigationState, useRoute, useLocale } from '@react-navigation/native';
 import { BackHandler, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText, BlueTextCentered } from '../../BlueComponents';
@@ -39,7 +39,7 @@ const LNDViewInvoice = () => {
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
-  const fetchInvoiceInterval = useRef<any>();
+  const fetchInvoiceInterval = useRef<any>(null);
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
   const stylesHook = StyleSheet.create({

@@ -2,7 +2,7 @@ import React, { useCallback, FC } from 'react';
 import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import { MultisigHDWallet } from '../../class';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
@@ -55,7 +55,12 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           disabled={n === m || m === 7}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon
+            name="keyboard-arrow-up"
+            size={22}
+            type="material"
+            color={n === m || m === 7 ? colors.buttonDisabledTextColor : '#007AFF'}
+          />
         </Pressable>
         <Text style={[styles.textM, { color: colors.outputValue }]}>{m}</Text>
         <Pressable
@@ -64,7 +69,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           disabled={m === 2}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-down" size={22} type="font-awesome-5" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-down" size={22} type="material" color={m === 2 ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
       </View>
 
@@ -79,7 +84,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           onPress={increaseN}
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
         >
-          <Icon name="chevron-up" size={22} type="font-awesome-5" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-up" size={22} type="material" color={n === 7 ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
         <Text style={[styles.textM, { color: colors.outputValue }]}>{n}</Text>
         <Pressable
@@ -89,7 +94,7 @@ const QuorumSelector: FC<QuorumSelectorProps> = ({ m, n, onMChange, onNChange, c
           style={({ pressed }) => [pressed && styles.pressed, styles.chevron]}
           testID="DecreaseN"
         >
-          <Icon name="chevron-down" size={22} type="font-awesome-5" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
+          <Icon name="keyboard-arrow-down" size={22} type="material" color={n === m ? colors.buttonDisabledTextColor : '#007AFF'} />
         </Pressable>
       </View>
     </View>
@@ -160,10 +165,9 @@ const MultisigAdvanced: React.FC = () => {
   const [currentN, setCurrentN] = React.useState(n);
   const [currentFormat, setCurrentFormat] = React.useState(format);
 
-  // Check if there are unsaved changes
-  const hasUnsavedChanges = React.useMemo(() => {
-    return currentM !== m || currentN !== n || currentFormat !== format;
-  }, [currentM, currentN, currentFormat, m, n, format]);
+  const isValidSelection = React.useMemo(() => {
+    return currentM >= 2 && currentM <= 7 && currentN >= currentM && currentN <= 7;
+  }, [currentM, currentN]);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -184,8 +188,8 @@ const MultisigAdvanced: React.FC = () => {
   }, [onSave, currentM, currentN, currentFormat, navigation]);
 
   const SaveButton = useCallback(
-    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />,
-    [handleSave, hasUnsavedChanges],
+    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />,
+    [handleSave, isValidSelection],
   );
 
   React.useLayoutEffect(() => {
@@ -211,7 +215,7 @@ const MultisigAdvanced: React.FC = () => {
             </Pressable>
             <Text style={[styles.androidHeaderTitle, { color: colors.foregroundColor }]}>{loc.multisig.multisig_vault}</Text>
             <View style={styles.androidSaveButton}>
-              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />
+              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />
             </View>
           </View>
         </View>

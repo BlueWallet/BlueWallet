@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import assert from 'assert';
 import BigNumber from 'bignumber.js';
 import { TOptions } from 'bip21';
@@ -78,7 +78,7 @@ const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
   const { direction } = useLocale();
-  const selectedDataProcessor = useRef<ToolTipAction | undefined>();
+  const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
   const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
@@ -110,7 +110,8 @@ const SendDetails = () => {
   // if utxo is limited we use it to calculate available balance
   const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
-
+  // estimated sendable amount when MAX is selected (null if not applicable)
+  const [maxSendableAmount, setMaxSendableAmount] = useState<number | null>(null);
   // if cutomFee is not set, we need to choose highest possible fee for wallet balance
   // if there are no funds for even Slow option, use 1 sat/vbyte fee
   const feeRate = useMemo(() => {
@@ -316,8 +317,12 @@ const SendDetails = () => {
     let targets = [];
     for (const transaction of addresses) {
       if (transaction.amount === BitcoinUnit.MAX) {
-        // single output with MAX
-        targets = [{ address: transaction.address }];
+        // single output with MAX — use P2TR dummy (43-byte output) for conservative estimate
+        const addr =
+          transaction.address && wallet.isAddressValid(transaction.address)
+            ? transaction.address
+            : 'bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqzk5jj0';
+        targets = [{ address: addr }];
         break;
       }
       const value = transaction.amountSats;
@@ -364,6 +369,17 @@ const SendDetails = () => {
     }
 
     setFeePrecalc(newFeePrecalc);
+
+    // Calculate maxSendableAmount (only for single recipient with MAX)
+    if (addresses.length === 1 && addresses[0].amount === BitcoinUnit.MAX && newFeePrecalc.current !== null) {
+      // use lutxo to match what coinSelectSplit actually receives
+      const spendableBalance = lutxo.reduce((prev: number, curr: { value: number }) => prev + curr.value, 0);
+      const sendable = spendableBalance - newFeePrecalc.current;
+      setMaxSendableAmount(sendable > 0 ? sendable : null);
+    } else {
+      setMaxSendableAmount(null);
+    }
+
     setParams({ frozenBalance: frozen });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, networkTransactionFees, utxos, addresses, feeRate, dumb]);
@@ -966,7 +982,11 @@ const SendDetails = () => {
   }, [addresses, amountUnit]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
+    scrollIndex.current = 0;
     setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
+    setTimeout(() => {
+      scrollView.current?.scrollToOffset({ offset: 0, animated: false });
+    }, 0);
   }, [amountUnit]);
 
   const handleRemoveAllRecipients = useCallback(() => {
@@ -1346,7 +1366,7 @@ const SendDetails = () => {
   const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
-      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index}>
+      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index} collapsable={false}>
         <View style={styles.amountInputContainer}>
           <AmountInput.AmountInput
             isLoading={isLoading}
@@ -1399,6 +1419,8 @@ const SendDetails = () => {
             editable={isEditable}
             disabled={!isEditable}
             inputAccessoryViewID={InputAccessoryAllFundsAccessoryViewID}
+            maxSendableAmount={index === scrollIndex.current ? maxSendableAmount : null}
+            isMaxAmountEstimate={!(item.address && wallet?.isAddressValid(item.address))}
           />
         </View>
 
@@ -1417,18 +1439,28 @@ const SendDetails = () => {
         <View style={styles.addressInputContainer}>
           <AddressInput
             onChangeText={text => {
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text.trim());
+              const trimmedText = text.trim();
+              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
+              const hasPositiveAmount = Number(amount) > 0;
               setAddresses(addrs => {
-                item.address = address || text.trim();
-                item.amount = amount || item.amount;
-                addrs[index] = item;
-                return [...addrs];
+                const updatedAddresses = [...addrs];
+                const updatedItem = { ...updatedAddresses[index] };
+                updatedItem.address = address || trimmedText;
+
+                if (hasPositiveAmount) {
+                  updatedItem.amount = amount;
+                  updatedItem.amountSats = btcToSatoshi(amount!);
+                  updatedItem.unit = BitcoinUnit.BTC;
+                }
+
+                updatedAddresses[index] = updatedItem;
+                return updatedAddresses;
               });
               if (memo) {
                 setParams({ transactionMemo: memo });
               }
               setIsLoading(false);
-              setParams({ payjoinUrl: pjUrl });
+              setParams(hasPositiveAmount ? { payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: pjUrl });
             }}
             address={item.address}
             isLoading={isLoading}

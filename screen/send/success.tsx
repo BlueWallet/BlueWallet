@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import LottieView from 'lottie-react-native';
-import { StyleSheet, View } from 'react-native';
-import { Text } from '@rneui/themed';
+import { StyleSheet, Text, View } from 'react-native';
 import { BlueCard } from '../../BlueComponents';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -14,12 +13,11 @@ import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
+import { popToTop } from '../../NavigationService.ts';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'Success'>;
 
 const Success = () => {
-  const navigation = useExtendedNavigation();
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
   const route = useRoute<RouteProps>();
@@ -38,7 +36,7 @@ const Success = () => {
 
   const onDonePressed = () => {
     // @ts-ignore idk
-    navigation?.getParent().pop();
+    popToTop();
   };
 
   useEffect(() => {

@@ -8,7 +8,7 @@
     "discard_changes_explain": "Ju keni ndryshime të pashpëtuara. Jeni i sigurtë që nuk doni ti ruani dhe te dilni?",
     "enter_password": "Fusni fjalëkalimin",
     "never": "Kurrë",
-    "of": "{numri} nga {totali}",
+    "of": "{number} nga {total}",
     "ok": "OK",
     "enter_url": "Fusni URL",
     "storage_is_encrypted": "Memoria është e kriptuar. Duhet të fusni fjalkalimin për të pasur vizibilitet.",

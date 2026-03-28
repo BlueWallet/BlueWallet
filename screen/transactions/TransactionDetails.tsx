@@ -4,7 +4,7 @@ import { RouteProp, useFocusEffect, usePreventRemove, useRoute } from '@react-na
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import dayjs from 'dayjs';
-import { InteractionManager, Linking, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Linking, StyleSheet, Text, TextInput, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
 import { Transaction, TWallet } from '../../class/wallets/types';
@@ -106,7 +106,9 @@ const TransactionDetails = () => {
 
   useFocusEffect(
     useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
+      let cancelled = false;
+
+      (() => {
         let foundTx: Transaction | false = false;
         let newFrom: string[] = [];
         let newTo: string[] = [];
@@ -130,23 +132,21 @@ const TransactionDetails = () => {
         if (wallet.allowBIP47() && wallet.isBIP47Enabled() && 'getBip47CounterpartyByTxid' in wallet) {
           const foundPaymentCode = wallet.getBip47CounterpartyByTxid(hash);
           if (foundPaymentCode) {
-            // okay, this txid _was_ with someone using payment codes, so we show the label edit dialog
-            // and load user-defined alias for the pc if any
-
             setCounterpartyLabel(counterpartyMetadata ? (counterpartyMetadata[foundPaymentCode]?.label ?? '') : '');
             setIsCounterpartyLabelVisible(true);
             setPaymentCode(foundPaymentCode);
           }
         }
 
+        if (cancelled) return;
         setMemo(txMetadata[foundTx.hash]?.memo ?? '');
         setTX(foundTx);
         setFrom(newFrom);
         setTo(newTo);
         setIsLoading(false);
-      });
+      })();
       return () => {
-        task.cancel();
+        cancelled = true;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hash, wallets]),
@@ -236,7 +236,7 @@ const TransactionDetails = () => {
       }
 
       fromArray.push(
-        <ToolTipMenu key={address} isButton title={address} isMenuPrimaryAction actions={actions} onPressMenuItem={onPressMenuItem}>
+        <ToolTipMenu key={address} isButton title={address} shouldOpenOnLongPress actions={actions} onPressMenuItem={onPressMenuItem}>
           <BlueText style={isWeOwnAddress ? [styles.rowValue, styles.weOwnAddress] : styles.rowValue}>
             {address}
             {index === array.length - 1 ? null : ','}
@@ -311,7 +311,20 @@ const TransactionDetails = () => {
               <BlueText style={styles.txid}>{loc.transactions.txid}</BlueText>
               <CopyToClipboardButton stringToCopy={tx.hash} />
             </View>
-            <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
+            <ToolTipMenu
+              isButton
+              title={tx.hash}
+              actions={[
+                {
+                  id: actionKeys.CopyToClipboard,
+                  text: loc.transactions.details_copy,
+                  icon: actionIcons.Clipboard,
+                },
+              ]}
+              onPressMenuItem={() => Clipboard.setString(tx.hash)}
+            >
+              <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
+            </ToolTipMenu>
             <View style={styles.marginBottom18} />
           </>
         )}
@@ -319,7 +332,20 @@ const TransactionDetails = () => {
         {tx.timestamp && (
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
-            <BlueText style={styles.rowValue}>{dayjs(tx.timestamp * 1000).format('LLL')}</BlueText>
+            <ToolTipMenu
+              isButton
+              title={dayjs(tx.timestamp * 1000).format('LLL')}
+              actions={[
+                {
+                  id: actionKeys.CopyToClipboard,
+                  text: loc.transactions.details_copy,
+                  icon: actionIcons.Clipboard,
+                },
+              ]}
+              onPressMenuItem={() => Clipboard.setString(dayjs(tx.timestamp * 1000).format('LLL'))}
+            >
+              <BlueText style={styles.rowValue}>{dayjs(tx.timestamp * 1000).format('LLL')}</BlueText>
+            </ToolTipMenu>
             <View style={styles.marginBottom18} />
           </>
         )}
@@ -327,7 +353,20 @@ const TransactionDetails = () => {
         {tx.inputs && (
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
-            <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
+            <ToolTipMenu
+              isButton
+              title={String(tx.inputs.length)}
+              actions={[
+                {
+                  id: actionKeys.CopyToClipboard,
+                  text: loc.transactions.details_copy,
+                  icon: actionIcons.Clipboard,
+                },
+              ]}
+              onPressMenuItem={() => Clipboard.setString(String(tx.inputs.length))}
+            >
+              <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
+            </ToolTipMenu>
             <View style={styles.marginBottom18} />
           </>
         )}
@@ -335,7 +374,20 @@ const TransactionDetails = () => {
         {tx.outputs?.length > 0 && (
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
-            <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
+            <ToolTipMenu
+              isButton
+              title={String(tx.outputs.length)}
+              actions={[
+                {
+                  id: actionKeys.CopyToClipboard,
+                  text: loc.transactions.details_copy,
+                  icon: actionIcons.Clipboard,
+                },
+              ]}
+              onPressMenuItem={() => Clipboard.setString(String(tx.outputs.length))}
+            >
+              <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
+            </ToolTipMenu>
             <View style={styles.marginBottom18} />
           </>
         )}
@@ -344,6 +396,7 @@ const TransactionDetails = () => {
           actions={toolTipMenuActions}
           onPressMenuItem={handleCopyPress}
           onPress={handleOnOpenTransactionOnBlockExplorerTapped}
+          shouldOpenOnLongPress
           buttonStyle={StyleSheet.flatten([styles.greyButton, stylesHooks.greyButton])}
         >
           <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_view_in_browser}</Text>

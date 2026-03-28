@@ -1,5 +1,6 @@
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
+import { Platform } from 'react-native';
 import UnlockWith from '../screen/UnlockWith';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
@@ -9,6 +10,9 @@ import navigationStyle, { CloseButtonPosition } from '../components/navigationSt
 import { useTheme } from '../components/themes';
 import WalletXpub from '../screen/wallets/xpub';
 import WalletExport from '../screen/wallets/WalletExport';
+import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
+import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
+import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -30,6 +34,8 @@ export const NavigationDefaultOptions: NativeStackNavigationOptions = {
 export const NavigationFormModalOptions: NativeStackNavigationOptions = {
   headerShown: false,
   presentation: 'formSheet',
+  sheetAllowedDetents: 'fitToContents',
+  sheetGrabberVisible: true,
 };
 
 export const NavigationFormNoSwipeDefaultOptions: NativeStackNavigationOptions = {
@@ -52,6 +58,7 @@ const LazyExportMultisigCoordinationSetupStack = withLazySuspense(ExportMultisig
 const LazyViewEditMultisigCosigners = withLazySuspense(ViewEditMultisigCosigners);
 const LazySignVerifyStackRoot = withLazySuspense(SignVerifyStackRoot);
 const LazyScanQRCodeComponent = withLazySuspense(ScanQRCode);
+const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
 const MainRoot = () => {
   const { walletsInitialized } = useStorage();
@@ -97,6 +104,42 @@ const MainRoot = () => {
               headerShown: true,
               gestureEnabled: false,
               closeButtonPosition: CloseButtonPosition.Right,
+            })(theme)}
+          />
+          <DetailViewStack.Screen
+            name="ViewEditMultisigCosignerViewSheet"
+            component={ViewEditMultisigCosignerViewSheet}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: multisigSheetAllowedDetents,
+              sheetGrabberVisible: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+              headerShown: true,
+              headerTitle: '',
+            })(theme)}
+          />
+          <DetailViewStack.Screen
+            name="ViewEditMultisigProvideMnemonicsSheet"
+            component={ViewEditMultisigProvideMnemonicsSheet}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: multisigSheetAllowedDetents,
+              sheetGrabberVisible: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+              headerShown: true,
+              headerTitle: '',
+            })(theme)}
+          />
+          <DetailViewStack.Screen
+            name="ViewEditMultisigShareCosignerSheet"
+            component={ViewEditMultisigShareCosignerSheet}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: multisigSheetAllowedDetents,
+              sheetGrabberVisible: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+              headerShown: true,
+              headerTitle: '',
             })(theme)}
           />
           <DetailViewStack.Screen

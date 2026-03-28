@@ -202,9 +202,7 @@ const NotificationSettings: React.FC = () => {
         <View style={[styles.divider, { backgroundColor: colors.lightBorder ?? colors.borderTopColor }]} />
         <SettingsCard style={styles.card}>
           <View style={styles.cardContent}>
-            <Pressable onPress={handleTap}>
-              <Text style={[styles.multilineText, { color: colors.foregroundColor }]}>{loc.settings.groundcontrol_explanation}</Text>
-            </Pressable>
+            <Text style={[styles.multilineText, { color: colors.foregroundColor }]}>{loc.settings.groundcontrol_explanation}</Text>
           </View>
         </SettingsCard>
 
@@ -259,6 +257,18 @@ const NotificationSettings: React.FC = () => {
     );
   }, [tapCount, colors, isLoading, URI, tokenInfo, save]);
 
+  const renderPushNotificationsExplanation = useCallback(() => {
+    return (
+      <SettingsCard compact style={styles.notificationsExplanationCard}>
+        <View style={styles.cardContent}>
+          <Pressable onPress={handleTap}>
+            <SettingsSubtitle>{loc.settings.push_notifications_explanation}</SettingsSubtitle>
+          </Pressable>
+        </View>
+      </SettingsCard>
+    );
+  }, []);
+
   const settingsItems = useCallback((): SettingItem[] => {
     const items: SettingItem[] = [
       {
@@ -278,13 +288,7 @@ const NotificationSettings: React.FC = () => {
       {
         id: 'notificationsExplanation',
         title: '',
-        customContent: (
-          <SettingsCard compact style={!isAndroid ? styles.cardNoRadius : undefined}>
-            <View style={styles.cardContent}>
-              <SettingsSubtitle>{loc.settings.push_notifications_explanation}</SettingsSubtitle>
-            </View>
-          </SettingsCard>
-        ),
+        customContent: renderPushNotificationsExplanation(),
         section: 1,
       },
       {
@@ -309,13 +313,19 @@ const NotificationSettings: React.FC = () => {
         id: 'privacySystemSettings',
         title: loc.settings.privacy_system_settings,
         onPress: onSystemSettings,
-        chevron: true,
         section: 3,
       },
     ];
 
     return items.filter(item => item.title !== '' || item.customContent);
-  }, [isNotificationsEnabledState, onNotificationsSwitch, isLoading, renderDeveloperSettings, onSystemSettings]);
+  }, [
+    isNotificationsEnabledState,
+    onNotificationsSwitch,
+    isLoading,
+    renderDeveloperSettings,
+    renderPushNotificationsExplanation,
+    onSystemSettings,
+  ]);
 
   const renderItem = useCallback(
     (props: { item: SettingItem }) => {
@@ -360,8 +370,8 @@ const styles = StyleSheet.create({
   card: {
     marginVertical: isAndroid ? 8 : 0,
   },
-  cardNoRadius: {
-    borderRadius: 0,
+  notificationsExplanationCard: {
+    marginVertical: isAndroid ? 12 : 10,
   },
   cardContent: {
     paddingHorizontal: horizontalPadding,

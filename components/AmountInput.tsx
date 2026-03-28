@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Badge, Icon, Text } from '@rneui/themed';
-import BigNumber from 'bignumber.js';
-import dayjs from 'dayjs';
+import Clipboard from '@react-native-clipboard/clipboard';
 import {
+  Text,
   Image,
   LayoutAnimation,
   NativeSyntheticEvent,
@@ -14,6 +13,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Badge from './Badge';
+import Icon from './Icon';
+import BigNumber from 'bignumber.js';
+import dayjs from 'dayjs';
 
 import {
   CurrencyRate,
@@ -24,6 +27,7 @@ import {
   satoshiToBTC,
   updateExchangeRate,
 } from '../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueText } from '../BlueComponents';
 import confirm from '../helpers/confirm';
 import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
@@ -68,13 +72,31 @@ type AmountInputProps = Omit<TextInputProps, 'onChangeText' | 'value'> & {
    * Returns a BitcoinUnit value
    */
   onAmountUnitChange: (unit: BitcoinUnit) => void;
+  /**
+   * Estimated sendable amount in satoshis when MAX is selected.
+   * Displayed below the MAX label. Pass null to hide.
+   */
+  maxSendableAmount?: number | null;
+  /**
+   * When true, shows ≈ prefix for maxSendableAmount (indicates estimate).
+   */
+  isMaxAmountEstimate?: boolean;
 };
 
 export const AmountInput: React.FC<AmountInputProps> = props => {
   const textInputRef = useRef<TextInput>(null);
   const { colors } = useTheme();
   const amount = props.amount || '0'; // internally amount is aways a string with a correct number
-  const { onChangeText, unit, onAmountUnitChange, disabled = false, isLoading = false, ...otherProps } = props;
+  const {
+    onChangeText,
+    unit,
+    onAmountUnitChange,
+    disabled = false,
+    isLoading = false,
+    maxSendableAmount,
+    isMaxAmountEstimate,
+    ...otherProps
+  } = props;
   const [isRateBeingUpdatedLocal, setIsRateBeingUpdatedLocal] = useState(false);
   const [outdatedRefreshRate, setOutdatedRefreshRate] = useState<CurrencyRate | undefined>();
 
@@ -239,6 +261,13 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     }
   }, [onChangeText]);
 
+  const copyMaxEstimate = useCallback(() => {
+    if (maxSendableAmount == null) return;
+    const btcValue = removeTrailingZeros(new BigNumber(maxSendableAmount).dividedBy(100000000).toFixed(8));
+    Clipboard.setString(btcValue);
+    triggerHapticFeedback(HapticFeedbackTypes.Selection);
+  }, [maxSendableAmount]);
+
   const handleSelectionChange = useCallback(
     (event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
       const { selection } = event.nativeEvent;
@@ -281,8 +310,16 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                 {...otherProps}
               />
             ) : (
-              <Pressable onPress={resetAmount}>
+              <Pressable onPress={resetAmount} style={styles.maxPressable}>
                 <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
+                {maxSendableAmount != null && (
+                  <Text style={[styles.maxEstimate, stylesHook.localCurrency]} onLongPress={copyMaxEstimate}>
+                    {(isMaxAmountEstimate ? '≈ ' : '') +
+                      removeTrailingZeros(new BigNumber(maxSendableAmount).dividedBy(100000000).toFixed(8)) +
+                      ' ' +
+                      loc.units[BitcoinUnit.BTC]}
+                  </Text>
+                )}
               </Pressable>
             )}
             {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
@@ -309,7 +346,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
       </View>
       {outdatedRefreshRate && (
         <View style={styles.outdatedRateContainer}>
-          <Badge status="warning" />
+          <Badge badgeStyle={styles.warningBadge} />
           <View style={styles.spacing8} />
           <BlueText>{loc.formatString(loc.send.outdated_rate, { date: dayjs(outdatedRefreshRate.LastUpdated).format('l LT') })}</BlueText>
           <View style={styles.spacing8} />
@@ -320,7 +357,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
             disabled={isRateBeingUpdatedLocal}
             style={isRateBeingUpdatedLocal ? styles.disabledButton : styles.enabledButon}
           >
-            <Icon name="sync" type="font-awesome-5" size={16} color={colors.buttonAlternativeTextColor} />
+            <Icon name="arrows-rotate" type="font-awesome-6" size={16} color={colors.buttonAlternativeTextColor} />
           </TouchableOpacity>
         </View>
       )}
@@ -341,6 +378,12 @@ const styles = StyleSheet.create({
   },
   spacing8: {
     width: 8,
+  },
+  warningBadge: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#fc990e',
   },
   disabledButton: {
     opacity: 0.5,
@@ -386,6 +429,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#9BA0A9',
     fontWeight: '600',
+  },
+  maxEstimate: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  maxPressable: {
+    alignItems: 'center',
   },
   changeAmountUnit: {
     alignSelf: 'center',

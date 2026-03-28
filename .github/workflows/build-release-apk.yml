@@ -11,39 +11,64 @@ on:
 
 jobs:
   buildReleaseApk:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout project
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: "0"
 
+      - name: Free disk space (Android build)
+        shell: bash
+        run: |
+          df -h
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /usr/local/share/boost || true
+          sudo rm -rf /usr/local/lib/android/sdk/ndk || true
+          docker system prune -af || true
+          sudo rm -rf /usr/local/lib/android/sdk/system-images || true
+          sudo rm -rf /usr/local/lib/android/sdk/emulator || true
+          rm -rf ~/.gradle/caches/modules-2/files-2.1 || true
+          rm -rf ~/.gradle/caches/build-cache || true
+          rm -rf ~/.npm/_cacache ~/.cache || true
+          sudo rm -rf /home/runner/work/_temp || true
+          df -h
+
       - name: Specify node version
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: 24
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
       - name: Use specific Java version for sdkmanager to work
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
         with:
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
 
-      - name: Install node_modules
-        run: npm ci --omit=dev --yes
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platforms;android-36" "platform-tools" "build-tools;36.0.0" "ndk;27.1.12297006"
+
+      - name: Install node_modules (include dev deps for patch-package)
+        run: npm ci --yes
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1.6
+          ruby-version: 3.4.8
           bundler-cache: true
 
       - name: Cache Ruby Gems
-        uses: actions/cache@v5
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-ruby-${{ hashFiles('**/Gemfile.lock') }}
@@ -55,31 +80,41 @@ jobs:
         run: |
           NEW_BUILD_NUMBER="$(date +%s)"
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
 
-      - name: Prepare Keystore
-        run: bundle exec fastlane android prepare_keystore
-        env:
-          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
-
-      - name: Update Version Code, Build, and Sign APK
+      - name: Build and sign APK
         id: build_and_sign_apk
-        run: |
-          bundle exec fastlane android update_version_build_and_sign_apk
+        run: bundle exec fastlane android build_release_apk
         env:
-          BUILD_NUMBER: ${{ env.NEW_BUILD_NUMBER }}
+          BUILD_NUMBER: ${{ steps.build_number.outputs.build_number }}
+          KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+
+      - name: Upload build logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build-logs
+          path: |
+            fastlane/logs/**/*.log
+            android/**/*.log
+            android/**/build/**/*.log
+            android/**/outputs/logs/**/*.log
+            android/**/reports/**/*.log
+          if-no-files-found: warn
 
       - name: Determine APK Filename and Path
         id: determine_apk_path
         run: |
+          BUILD_NUMBER=${{ steps.build_number.outputs.build_number }}
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
           BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
           BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/_/g')
 
           if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "master" ]; then
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}-${BRANCH_NAME}.apk"
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.apk"
           else
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${NEW_BUILD_NUMBER}.apk"
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}.apk"
           fi
       
           APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
@@ -87,32 +122,32 @@ jobs:
           echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
 
       - name: Upload APK as artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: signed-apk
           path: ${{ env.APK_PATH }}
           if-no-files-found: error
 
   browserstack:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     needs: buildReleaseApk
     if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack') }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1.6
+          ruby-version: 3.4.8
           bundler-cache: true
 
       - name: Install dependencies with Bundler
         run: bundle install --jobs 4 --retry 3
 
       - name: Download APK artifact
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: signed-apk
 

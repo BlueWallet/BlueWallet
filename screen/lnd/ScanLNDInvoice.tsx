@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -274,7 +274,7 @@ const ScanLNDInvoice = () => {
     navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN });
   };
 
-  const renderWalletSelectionButton = (): JSX.Element | undefined => {
+  const renderWalletSelectionButton = (): React.ReactElement | undefined => {
     if (renderWalletSelectionButtonHidden || !wallet) return;
     const walletLabel = wallet.getLabel();
     return (

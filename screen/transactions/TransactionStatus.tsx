@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'reac
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, BackHandler, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueCard, BlueText } from '../../BlueComponents';
@@ -118,7 +118,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   const { navigate, setOptions, goBack } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
-  const fetchTxInterval = useRef<NodeJS.Timeout>();
+  const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
   const stylesHook = StyleSheet.create({
     value: {
       color: colors.alternativeTextColor2,
@@ -277,8 +277,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
           }
-          clearInterval(fetchTxInterval.current);
-          fetchTxInterval.current = undefined;
+          if (fetchTxInterval.current) {
+            clearInterval(fetchTxInterval.current);
+            fetchTxInterval.current = undefined;
+          }
           if (wallet?.getID()) {
             fetchAndSaveWalletTransactions(wallet.getID());
           } else {
@@ -291,8 +293,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
     }, intervalMs);
 
     return () => {
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
   }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet]);
 
@@ -304,8 +308,10 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
 
     return () => {
       subscription.remove();
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -677,6 +683,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     alignSelf: 'center',
+    alignItems: 'center',
     justifyContent: 'center',
     marginTop: 43,
     marginBottom: 53,

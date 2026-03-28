@@ -1,17 +1,14 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
 import * as bitcoin from 'bitcoinjs-lib';
-import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text, Platform, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text } from 'react-native';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueButtonLink } from '../../BlueComponents';
 import { HDSegwitBech32Wallet } from '../../class';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import { platformSizing, platformLayout } from '../../components/platform';
+import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -29,42 +26,23 @@ const BROADCAST_RESULT = Object.freeze({
 const Broadcast: React.FC = () => {
   const [tx, setTx] = useState<string | undefined>();
   const [txHex, setTxHex] = useState<string | undefined>();
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const sizing = platformSizing;
   const layout = platformLayout;
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
   const { selectedBlockExplorer } = useSettings();
-  const insets = useSafeAreaInsets();
-
-  // Calculate header height for Android with transparent header
-  // Standard Android header is 56dp + status bar height
-  // For older Android versions, use a fallback if StatusBar.currentHeight is not available
-  const headerHeight = useMemo(() => {
-    if (Platform.OS === 'android') {
-      const statusBarHeight = StatusBar.currentHeight ?? insets.top ?? 24; // Fallback to 24dp for older Android
-      return 56 + statusBarHeight;
-    }
-    return 0;
-  }, [insets.top]);
-
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
+  const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
     contentContainer: {
+      flex: 1,
       paddingHorizontal: sizing.contentContainerPaddingHorizontal || 0,
     },
-    firstSectionContainer: {
+    contentWrapper: {
       paddingTop: sizing.firstSectionContainerPaddingTop,
       marginHorizontal: sizing.contentContainerMarginHorizontal || 0,
       marginBottom: sizing.sectionContainerMarginBottom,
-      backgroundColor: colors.background,
-    },
-    card: {
-      backgroundColor: cardColor,
+      backgroundColor: rowBackgroundColor,
       borderRadius: sizing.containerBorderRadius,
       padding: sizing.basePadding,
       ...layout.cardShadow,
@@ -170,23 +148,23 @@ const Broadcast: React.FC = () => {
   }
 
   return (
-    <SafeAreaScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      testID="BroadcastView"
-      headerHeight={headerHeight}
-    >
-      <View style={styles.firstSectionContainer}>
+    <SettingsScrollView style={styles.contentContainer} testID="BroadcastView">
+      <View style={styles.contentWrapper}>
         {BROADCAST_RESULT.success !== broadcastResult && (
-          <View style={styles.card}>
+          <>
             <View style={styles.topFormRow}>
               <Text style={styles.labelText}>{status}</Text>
               {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
             </View>
 
-            <View style={styles.input}>
+            <View
+              style={[
+                styles.input,
+                { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
+              ]}
+            >
               <TextInput
-                style={styles.text}
+                style={[styles.text, { color: colors.foregroundColor }]}
                 multiline
                 editable
                 placeholderTextColor={colors.placeholderTextColor}
@@ -196,9 +174,7 @@ const Broadcast: React.FC = () => {
                 testID="TxHex"
               />
             </View>
-            <BlueSpacing20 />
 
-            <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
             <BlueSpacing20 />
 
             <Button
@@ -207,57 +183,49 @@ const Broadcast: React.FC = () => {
               disabled={broadcastResult === BROADCAST_RESULT.pending || txHex?.length === 0 || txHex === undefined}
               testID="BroadcastButton"
             />
+
+            <BlueSpacing10 />
+
+            <Button title={loc.multisig.scan_or_open_file} onPress={handleQRScan} />
+
             <BlueSpacing20 />
-          </View>
+          </>
         )}
         {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
       </View>
-    </SafeAreaScrollView>
+    </SettingsScrollView>
   );
 };
 
 const SuccessScreen: React.FC<{ tx: string; url: string }> = ({ tx, url }) => {
   const { colors } = useTheme();
-  const sizing = platformSizing;
-  const layout = platformLayout;
 
   if (!tx) {
     return null;
   }
 
-  const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
-
-  const successStyles = StyleSheet.create({
-    card: {
-      backgroundColor: cardColor,
-      borderRadius: sizing.containerBorderRadius,
-      padding: sizing.basePadding,
-      ...layout.cardShadow,
-    },
-    broadcastResultWrapper: {
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingVertical: sizing.basePadding,
-    },
-    successText: {
-      color: colors.foregroundColor,
-      fontSize: sizing.subtitleFontSize,
-      textAlign: 'center',
-    },
-  });
-
   return (
-    <View style={successStyles.card}>
-      <View style={successStyles.broadcastResultWrapper}>
-        <BlueBigCheckmark />
-        <BlueSpacing20 />
-        <Text style={successStyles.successText}>{loc.settings.success_transaction_broadcasted}</Text>
-        <BlueSpacing10 />
-        <BlueButtonLink title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
-      </View>
+    <View style={styles.successWrapper}>
+      <BlueBigCheckmark />
+      <BlueSpacing20 />
+      <Text style={[styles.successText, { color: colors.foregroundColor }]}>{loc.settings.success_transaction_broadcasted}</Text>
+      <BlueSpacing10 />
+      <Button title={loc.settings.open_link_in_explorer} onPress={() => Linking.openURL(url)} />
     </View>
   );
 };
 
 export default Broadcast;
+
+const styles = StyleSheet.create({
+  successWrapper: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  successText: {
+    fontSize: 15,
+    textAlign: 'center',
+  },
+});
