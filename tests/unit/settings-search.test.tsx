@@ -64,7 +64,10 @@ jest.mock('../../loc', () => ({
     },
     wallets: {
       no_results_found: 'No results found',
-      manage_wallets_search_placeholder: 'Search wallets, addresses, transactions and memos',
+      manage_wallets_search_placeholder: 'Search',
+    },
+    _: {
+      search: 'Search',
     },
   },
 }));
@@ -95,7 +98,7 @@ describe('Settings search', () => {
     expect(mockSetOptions).toHaveBeenCalled();
     const options = mockSetOptions.mock.calls[0][0];
 
-    expect(options.headerSearchBarOptions.placeholder).toBe('Search wallets, addresses, transactions and memos');
+    expect(options.headerSearchBarOptions.placeholder).toBe('Search');
   });
 
   it('filters settings items when search text changes', () => {
