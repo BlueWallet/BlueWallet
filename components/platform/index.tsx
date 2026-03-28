@@ -207,10 +207,10 @@ interface SettingsFlatListProps<ItemT> extends Omit<FlatListProps<ItemT>, 'conte
   floatingButtonHeight?: number;
 }
 
-const SettingsFlatListInner = <ItemT,>(
+export const SettingsFlatList = forwardRef(function SettingsFlatList<ItemT>(
   props: SettingsFlatListProps<ItemT>,
   ref: React.ForwardedRef<import('react-native').FlatList<ItemT>>,
-) => {
+) {
   const { contentContainerStyle, headerHeight, floatingButtonHeight, style, ...rest } = props;
   const { colors, dark } = useTheme();
   const insets = useSafeAreaInsets();
@@ -228,9 +228,7 @@ const SettingsFlatListInner = <ItemT,>(
       {...rest}
     />
   );
-};
-
-export const SettingsFlatList = forwardRef(SettingsFlatListInner) as <ItemT>(
+}) as <ItemT>(
   props: SettingsFlatListProps<ItemT> & { ref?: React.ForwardedRef<import('react-native').FlatList<ItemT>> },
 ) => React.ReactElement;
 
