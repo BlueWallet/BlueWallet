@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback, useRef } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
 
@@ -63,7 +63,7 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
   ecl = 'H',
   onError = () => {},
 }) => {
-  const qrCode = useRef<any>();
+  const qrCode = useRef<any>(null);
   const { colors, dark } = useTheme();
 
   const handleShareQRCode = () => {
@@ -90,6 +90,13 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
     container: { borderWidth: dark ? BORDER_WIDTH : 0 },
   });
 
+  const qrButtonStyle: ViewStyle = {
+    width: newSize,
+    height: newSize,
+    justifyContent: 'center',
+    alignItems: 'center',
+  };
+
   const renderQRCode = (
     <QRCode
       value={value}
@@ -102,20 +109,27 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
       ecl={ecl}
       getRef={(c: any) => (qrCode.current = c)}
       onError={onError}
+      testID="BitcoinAddressQRCode"
     />
   );
 
   return (
     <View
       style={[styles.container, stylesHook.container]}
-      testID="BitcoinAddressQRCodeContainer"
       accessibilityIgnoresInvertColors
       importantForAccessibility="no-hide-descendants"
       accessibilityRole="image"
       accessibilityLabel={loc.receive.qrcode_for_the_address}
     >
       {isMenuAvailable ? (
-        <ToolTipMenu actions={menuActions} onPressMenuItem={onPressMenuItem}>
+        <ToolTipMenu
+          actions={menuActions}
+          onPressMenuItem={onPressMenuItem}
+          shouldOpenOnLongPress
+          isButton
+          enableAndroidRipple={false}
+          buttonStyle={qrButtonStyle}
+        >
           {renderQRCode}
         </ToolTipMenu>
       ) : (
@@ -128,5 +142,5 @@ const QRCodeComponent: React.FC<QRCodeComponentProps> = ({
 export default QRCodeComponent;
 
 const styles = StyleSheet.create({
-  container: { borderColor: '#FFFFFF' },
+  container: { borderColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
 });

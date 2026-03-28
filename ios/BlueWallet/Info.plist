@@ -132,7 +132,7 @@
 		<string>itms-apps</string>
 	</array>
 	<key>LSMinimumSystemVersion</key>
-	<string>11</string>
+	<string>14</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
@@ -195,6 +195,8 @@
 		<string>io.bluewallet.bluewallet.receiveonchain</string>
 		<string>io.bluewallet.bluewallet.xpub</string>
 	</array>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Entypo.ttf</string>

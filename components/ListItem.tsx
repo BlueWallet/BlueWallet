@@ -23,6 +23,7 @@ interface ListItemProps {
   rightSubtitleStyle?: StyleProp<TextStyle>;
   chevron?: boolean;
   checkmark?: boolean;
+  isLoading?: boolean;
 }
 
 const ListItem: React.FC<ListItemProps> = React.memo(
@@ -44,6 +45,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     rightSubtitleStyle,
     chevron,
     checkmark,
+    isLoading,
   }: ListItemProps) => {
     const { colors } = useTheme();
     const { direction } = useLocale();

@@ -227,7 +227,8 @@ export default function PaymentCodesList() {
         actions={toolTipActions}
         onPressMenuItem={(item: any) => onToolTipPress(item, pc)}
         isButton={true}
-        isMenuPrimaryAction={true}
+        shouldOpenOnLongPress={false}
+        buttonStyle={styles.tooltipButton}
       >
         <View style={styles.contactRowContainer}>
           <View style={[styles.circle, { backgroundColor: '#' + color }]} />
@@ -393,8 +394,9 @@ const styles = StyleSheet.create({
     height: 35,
     borderRadius: 25,
   },
-  contactRowBody: { flex: 6, justifyContent: 'center', top: -3 },
-  contactRowNameText: { marginLeft: 10, fontSize: 16 },
+  contactRowBody: { justifyContent: 'center', top: -3, marginLeft: 10, flexShrink: 1 },
+  contactRowNameText: { fontSize: 16 },
   contactRowContainer: { flexDirection: 'row', padding: 15 },
   stick: { borderStyle: 'solid', borderWidth: 0.5, borderColor: 'gray', opacity: 0.5, top: 0, left: -10, width: '110%' },
+  tooltipButton: { width: '100%', alignSelf: 'stretch' },
 });
