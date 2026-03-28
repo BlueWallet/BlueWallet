@@ -45,8 +45,6 @@ const SafeAreaFlatList = forwardRef(function SafeAreaFlatList<ItemT>(
   }, [insets, contentContainerStyle, headerHeight, floatingButtonHeight]);
 
   return <FlatList ref={ref} style={componentStyle} contentContainerStyle={contentStyle} {...otherProps} />;
-}) as <ItemT>(
-  props: SafeAreaFlatListProps<ItemT> & { ref?: React.ForwardedRef<FlatList<ItemT>> },
-) => React.ReactElement;
+}) as <ItemT>(props: SafeAreaFlatListProps<ItemT> & { ref?: React.ForwardedRef<FlatList<ItemT>> }) => React.ReactElement;
 
 export default SafeAreaFlatList;
