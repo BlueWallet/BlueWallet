@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
-import ContextMenu, { ContextMenuAction } from 'react-native-context-menu-view';
+import { NativeSyntheticEvent, Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
@@ -28,14 +28,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
   const { language } = useSettings();
   const openedRef = useRef(false);
-
-  const handleMenuWillShow = useCallback(() => {
-    if (openedRef.current) {
-      return;
-    }
-    openedRef.current = true;
-    onMenuWillShow?.();
-  }, [onMenuWillShow]);
 
   const normalizeMenuState = useCallback((menuState?: Action['menuState']): boolean | undefined => {
     if (menuState === undefined) {
@@ -108,9 +100,39 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     return mergedActions.map(mapMenuItemForMenuView).filter((item): item is ContextMenuAction => item !== null);
   }, [actions, mapMenuItemForMenuView]);
 
-  const handlePressMenuItemForMenuView = ({ nativeEvent }: { nativeEvent: { name?: string } }) => {
-    if (nativeEvent?.name) {
-      onPressMenuItem(nativeEvent.name);
+  // Map each action's display text to its stable id so the native press event
+  // (which only carries the action title) can be resolved back to the original id.
+  const titleToId = useMemo(() => {
+    const map = new Map<string, string>();
+    const registerAction = (action: Action) => {
+      if (action.id && action.text && !action.hidden) {
+        map.set(action.text, action.id);
+      }
+      if (action.subactions) {
+        action.subactions.forEach(registerAction);
+      }
+    };
+    actions.flat().forEach(registerAction);
+    return map;
+  }, [actions]);
+
+  const handleMenuWillShow = useCallback(() => {
+    if (openedRef.current) {
+      return;
+    }
+    const visibleItems = Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid;
+    if (visibleItems.length === 0) {
+      return;
+    }
+    openedRef.current = true;
+    onMenuWillShow?.();
+  }, [onMenuWillShow, menuViewItemsIOS, menuViewItemsAndroid]);
+
+  const handlePressMenuItemForMenuView = (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+    const { name } = e.nativeEvent;
+    if (name) {
+      const id = titleToId.get(name) ?? name;
+      onPressMenuItem(id);
     }
     openedRef.current = false;
     onMenuWillHide?.();
