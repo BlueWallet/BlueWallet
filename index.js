@@ -6,8 +6,13 @@ import './shim.js';
 import React, { useEffect } from 'react';
 import { AppRegistry, LogBox } from 'react-native';
 
+import BackgroundFetch from 'react-native-background-fetch';
 import App from './App';
 import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_modules/currency';
+import { headlessSwapTask } from './blue_modules/arkade-adapters/background/task-scheduler';
+
+// Register Android headless task so swap processing can run after app termination.
+BackgroundFetch.registerHeadlessTask(headlessSwapTask);
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
