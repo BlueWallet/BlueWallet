@@ -3,6 +3,7 @@ import * as bip39 from 'bip39';
 
 import * as bip39custom from '../../blue_modules/bip39';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { isTestnet } from '../../models/network';
 import { LegacyWallet } from './legacy-wallet';
 import { Transaction } from './types';
 
@@ -323,6 +324,11 @@ export class AbstractHDWallet extends LegacyWallet {
    * @returns {string} Root derivation path for wallet if any
    */
   getDerivationPath() {
+    if (!this._derivationPath) return this._derivationPath;
+    // On testnet/signet, swap coin type 0 to 1 (e.g. m/84'/0'/0' -> m/84'/1'/0')
+    if (isTestnet()) {
+      return this._derivationPath.replace(/^(m\/\d+')\/0'\//, "$1/1'/");
+    }
     return this._derivationPath;
   }
 

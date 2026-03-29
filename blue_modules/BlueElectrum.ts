@@ -13,6 +13,7 @@ import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
 import { AlertButton } from 'react-native';
 import { uint8ArrayToHex, stringToUint8Array, hexToUint8Array } from './uint8array-extras/index';
+import { getNetwork, NetworkType } from '../models/network';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -84,6 +85,7 @@ export const ELECTRUM_SERVER_HISTORY = 'electrum_server_history';
 const ELECTRUM_CONNECTION_DISABLED = 'electrum_disabled';
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', ssl: 443 };
+
 export const hardcodedPeers: Peer[] = [
   { host: 'mainnet.foundationdevices.com', ssl: 50002 },
   { host: 'bitcoin.lu.ke', ssl: 50002 },
@@ -92,9 +94,36 @@ export const hardcodedPeers: Peer[] = [
   { host: 'electrum.acinq.co', ssl: 50002 },
 ];
 
+function getHardcodedPeersForNetwork(network: NetworkType): Peer[] {
+  switch (network) {
+    case 'testnet':
+      return [
+        { host: 'testnet4-electrumx.wakiyamap.dev', ssl: 51002 },
+        { host: 'mempool.space', ssl: 40002 },
+      ];
+    case 'signet':
+      return [
+        { host: 'signet-electrumx.wakiyamap.dev', ssl: 50002 },
+        { host: 'electrum.emzy.de', ssl: 53002 },
+        { host: 'mempool.space', ssl: 60602 },
+      ];
+    case 'mainnet':
+    default:
+      return hardcodedPeers;
+  }
+}
+
 export const suggestedServers: Peer[] = hardcodedPeers.map(peer => ({
   ...peer,
 }));
+
+export function getHardcodedPeersForCurrentNetwork(): Peer[] {
+  return getHardcodedPeersForNetwork(currentNetwork);
+}
+
+export function getSuggestedServersForCurrentNetwork(): Peer[] {
+  return getHardcodedPeersForNetwork(currentNetwork).map(peer => ({ ...peer }));
+}
 
 let mainClient: typeof ElectrumClient | undefined;
 let mainConnected: boolean = false;
@@ -102,6 +131,7 @@ let wasConnectedAtLeastOnce: boolean = false;
 let serverName: string | false = false;
 let disableBatching: boolean = false;
 let connectionAttempt: number = 0;
+let currentNetwork: NetworkType = 'mainnet';
 let currentPeerIndex = hardcodedPeers.findIndex(peer => peer.host === defaultPeer.host && peer.ssl === defaultPeer.ssl);
 if (currentPeerIndex < 0) currentPeerIndex = 0;
 let latestBlock: { height: number; time: number } | { height: undefined; time: undefined } = { height: undefined, time: undefined };
@@ -205,16 +235,19 @@ export async function setDisabled(disabled = true) {
 }
 
 function getCurrentPeer() {
-  return hardcodedPeers[currentPeerIndex];
+  const peers = getHardcodedPeersForNetwork(currentNetwork);
+  if (currentPeerIndex >= peers.length) currentPeerIndex = 0;
+  return peers[currentPeerIndex];
 }
 
 /**
  * Returns NEXT hardcoded electrum server (increments index after use)
  */
 function getNextPeer() {
+  const peers = getHardcodedPeersForNetwork(currentNetwork);
   const peer = getCurrentPeer();
   currentPeerIndex++;
-  if (currentPeerIndex >= hardcodedPeers.length) currentPeerIndex = 0;
+  if (currentPeerIndex >= peers.length) currentPeerIndex = 0;
   return peer;
 }
 
@@ -246,10 +279,14 @@ async function getSavedPeer(): Promise<Peer | null> {
   }
 }
 
-export async function connectMain(): Promise<void> {
+export async function connectMain(network: NetworkType = 'mainnet'): Promise<void> {
   if (await isDisabled()) {
     console.log('Electrum connection disabled by user. Skipping connectMain call');
     return;
+  }
+  if (network !== currentNetwork) {
+    currentNetwork = network;
+    currentPeerIndex = 0;
   }
   let usingPeer = getNextPeer();
   const savedPeer = await getSavedPeer();
@@ -275,7 +312,7 @@ export async function connectMain(): Promise<void> {
         // dropping `mainConnected` flag ensures there wont be reconnection race condition if several
         // errors triggered
         console.log('reconnecting after socket error');
-        setTimeout(connectMain, usingPeer.host.endsWith('.onion') ? 4000 : 500);
+        setTimeout(() => connectMain(currentNetwork), usingPeer.host.endsWith('.onion') ? 4000 : 500);
       }
     };
     const ver = await mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
@@ -332,7 +369,7 @@ export async function connectMain(): Promise<void> {
     } else {
       console.log('reconnection attempt #', connectionAttempt);
       await new Promise(resolve => setTimeout(resolve, 500)); // sleep
-      return connectMain();
+      return connectMain(currentNetwork);
     }
   }
 }
@@ -420,7 +457,7 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
           connectionAttempt = 0;
           mainClient?.close();
           mainClient = undefined;
-          setTimeout(connectMain, 500);
+          setTimeout(() => connectMain(currentNetwork), 500);
         },
         style: 'default',
       },
@@ -432,7 +469,7 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
               connectionAttempt = 0;
               mainClient?.close();
               mainClient = undefined;
-              setTimeout(connectMain, 500);
+              setTimeout(() => connectMain(currentNetwork), 500);
             }
           });
         },
@@ -490,7 +527,7 @@ async function getRandomDynamicPeer(): Promise<Peer> {
 export const getBalanceByAddress = async function (address: string): Promise<{ confirmed: number; unconfirmed: number }> {
   try {
     if (!mainClient) throw new Error('Electrum client is not connected');
-    const script = bitcoin.address.toOutputScript(address);
+    const script = bitcoin.address.toOutputScript(address, getNetwork());
     const hash = bitcoinjs_crypto_sha256(script);
     const reversedHash = new Uint8Array(hash).reverse();
     const balance = await mainClient.blockchainScripthash_getBalance(uint8ArrayToHex(reversedHash));
@@ -518,7 +555,7 @@ export const getSecondsSinceLastRequest = function () {
 
 export const getTransactionsByAddress = async function (address: string): Promise<ElectrumHistory[]> {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const script = bitcoin.address.toOutputScript(address);
+  const script = bitcoin.address.toOutputScript(address, getNetwork());
   const hash = bitcoinjs_crypto_sha256(script);
   const reversedHash = new Uint8Array(hash).reverse();
   const history = await mainClient.blockchainScripthash_getHistory(uint8ArrayToHex(reversedHash));
@@ -531,7 +568,7 @@ export const getTransactionsByAddress = async function (address: string): Promis
 
 export const getMempoolTransactionsByAddress = async function (address: string): Promise<MempoolTransaction[]> {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const script = bitcoin.address.toOutputScript(address);
+  const script = bitcoin.address.toOutputScript(address, getNetwork());
   const hash = bitcoinjs_crypto_sha256(script);
   const reversedHash = new Uint8Array(hash).reverse();
   return mainClient.blockchainScripthash_getMempool(uint8ArrayToHex(reversedHash));
@@ -717,7 +754,7 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
     const scripthashes = [];
     const scripthash2addr: Record<string, string> = {};
     for (const addr of chunk) {
-      const script = bitcoin.address.toOutputScript(addr);
+      const script = bitcoin.address.toOutputScript(addr, getNetwork());
       const hash = bitcoinjs_crypto_sha256(script);
       const reversedHash = uint8ArrayToHex(new Uint8Array(hash).reverse());
       scripthashes.push(reversedHash);
@@ -761,7 +798,7 @@ export const multiGetUtxoByAddress = async function (addresses: string[], batchs
     const scripthashes = [];
     const scripthash2addr: Record<string, string> = {};
     for (const addr of chunk) {
-      const script = bitcoin.address.toOutputScript(addr);
+      const script = bitcoin.address.toOutputScript(addr, getNetwork());
       const hash = bitcoinjs_crypto_sha256(script);
       const reversedHash = uint8ArrayToHex(new Uint8Array(hash).reverse());
       scripthashes.push(reversedHash);
@@ -811,7 +848,7 @@ export const multiGetHistoryByAddress = async function (
     const scripthashes = [];
     const scripthash2addr: Record<string, string> = {};
     for (const addr of chunk) {
-      const script = bitcoin.address.toOutputScript(addr);
+      const script = bitcoin.address.toOutputScript(addr, getNetwork());
       const hash = bitcoinjs_crypto_sha256(script);
       const reversedHash = uint8ArrayToHex(new Uint8Array(hash).reverse());
       scripthashes.push(reversedHash);

@@ -12,6 +12,7 @@ import { HDSegwitBech32Wallet } from '..';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { getNetwork } from '../../models/network';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
 bitcoin.initEccLib(ecc);
 
@@ -404,9 +405,9 @@ export class LegacyWallet extends AbstractWallet {
     }
 
     for (const t of _targets) {
-      if (t.address?.startsWith('bc1')) {
+      if (t.address?.startsWith('bc1') || t.address?.startsWith('tb1')) {
         // in case address is non-typical and takes more bytes than coinselect library anticipates by default
-        t.script = { length: bitcoin.address.toOutputScript(t.address).length + 3 };
+        t.script = { length: bitcoin.address.toOutputScript(t.address, getNetwork()).length + 3 };
       }
 
       if (t.script?.hex) {
@@ -526,9 +527,9 @@ export class LegacyWallet extends AbstractWallet {
    */
   isAddressValid(address: string): boolean {
     try {
-      bitcoin.address.toOutputScript(address); // throws, no?
+      bitcoin.address.toOutputScript(address, getNetwork()); // throws, no?
 
-      if (!address.toLowerCase().startsWith('bc1')) return true;
+      if (!address.toLowerCase().startsWith('bc1') && !address.toLowerCase().startsWith('tb1')) return true;
       const decoded = bitcoin.address.fromBech32(address);
       if (decoded.version === 0) return true;
       if (decoded.version === 1 && decoded.data.length !== 32) return false;

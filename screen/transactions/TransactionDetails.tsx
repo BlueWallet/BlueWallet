@@ -19,6 +19,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import { adjustBlockExplorerUrlForNetwork } from '../../models/blockExplorer';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -66,7 +67,8 @@ const TransactionDetails = () => {
   const { navigate } = useExtendedNavigation<NavigationProps>();
   const { hash, walletID } = useRoute<RouteProps>().params;
   const { saveToDisk, txMetadata, counterpartyMetadata, wallets, getTransactions } = useStorage();
-  const { selectedBlockExplorer } = useSettings();
+  const { selectedBlockExplorer, networkType } = useSettings();
+  const blockExplorerUrl = adjustBlockExplorerUrlForNetwork(selectedBlockExplorer.url, networkType);
   const [from, setFrom] = useState<string[]>([]);
   const [to, setTo] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -157,7 +159,7 @@ const TransactionDetails = () => {
   }, [saveTransactionDetails]);
 
   const handleOnOpenTransactionOnBlockExplorerTapped = () => {
-    const url = `${selectedBlockExplorer.url}/tx/${tx?.hash}`;
+    const url = `${blockExplorerUrl}/tx/${tx?.hash}`;
     Linking.canOpenURL(url)
       .then(supported => {
         if (supported) {
@@ -182,7 +184,7 @@ const TransactionDetails = () => {
   };
 
   const handleCopyPress = (stringToCopy: string) => {
-    Clipboard.setString(stringToCopy !== actionKeys.CopyToClipboard ? stringToCopy : `${selectedBlockExplorer.url}/tx/${tx?.hash}`);
+    Clipboard.setString(stringToCopy !== actionKeys.CopyToClipboard ? stringToCopy : `${blockExplorerUrl}/tx/${tx?.hash}`);
   };
 
   if (isLoading || !tx) {
@@ -253,7 +255,7 @@ const TransactionDetails = () => {
       <HandOffComponent
         title={loc.transactions.details_title}
         type={HandOffActivityType.ViewInBlockExplorer}
-        url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
+        url={`${blockExplorerUrl}/tx/${tx.hash}`}
       />
       <BlueCard>
         <View>
