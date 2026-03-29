@@ -2,7 +2,6 @@ import { NavigationContainer, NavigationContainerRef, ParamListBase } from '@rea
 import React from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { SizeClassProvider } from './components/Context/SizeClassProvider';
 import { SettingsProvider } from './components/Context/SettingsProvider';
 import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
@@ -16,17 +15,15 @@ const App = () => {
   useLogger(navigationRef as unknown as React.RefObject<NavigationContainerRef<ParamListBase>>);
 
   return (
-    <SizeClassProvider>
-      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-        <SafeAreaProvider>
-          <StorageProvider>
-            <SettingsProvider>
-              <MasterView />
-            </SettingsProvider>
-          </StorageProvider>
-        </SafeAreaProvider>
-      </NavigationContainer>
-    </SizeClassProvider>
+    <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+      <SafeAreaProvider>
+        <StorageProvider>
+          <SettingsProvider>
+            <MasterView />
+          </SettingsProvider>
+        </StorageProvider>
+      </SafeAreaProvider>
+    </NavigationContainer>
   );
 };
 

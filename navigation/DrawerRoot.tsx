@@ -11,9 +11,9 @@ import useCompanionListeners from '../hooks/useCompanionListeners';
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 const DrawerContent = (props: DrawerContentComponentProps) => {
-  const { isLargeScreen } = useSizeClass();
+  const { horizontalSizeClass } = useSizeClass();
 
-  if (!isLargeScreen) {
+  if (horizontalSizeClass === SizeClass.Compact) {
     return null;
   }
 
@@ -34,12 +34,12 @@ const getAnimationConfig = (isDrawerTransitionConfigured: boolean) => {
 };
 
 const DrawerRoot = () => {
-  const { sizeClass, isLargeScreen } = useSizeClass();
+  const { horizontalSizeClass } = useSizeClass();
   const { direction } = useLocale();
   useCompanionListeners();
 
   const getDrawerWidth = useMemo(() => {
-    switch (sizeClass) {
+    switch (horizontalSizeClass) {
       case SizeClass.Large:
         return 320;
       case SizeClass.Regular:
@@ -47,7 +47,7 @@ const DrawerRoot = () => {
       default:
         return 0;
     }
-  }, [sizeClass]);
+  }, [horizontalSizeClass]);
 
   const drawerStyle: DrawerNavigationOptions = useMemo(
     () => ({
@@ -56,25 +56,25 @@ const DrawerRoot = () => {
         width: getDrawerWidth,
         height: '100%',
       },
-      drawerType: isLargeScreen ? 'permanent' : 'front',
+      drawerType: horizontalSizeClass !== SizeClass.Compact ? 'permanent' : 'front',
       overlayColor: 'rgba(0,0,0,0.4)',
       swipeEnabled: false,
 
       ...getAnimationConfig(true),
     }),
-    [getDrawerWidth, isLargeScreen, direction],
+    [getDrawerWidth, horizontalSizeClass, direction],
   );
 
   useEffect(() => {
-    console.debug('[DrawerRoot] Size class changed:', SizeClass[sizeClass]);
-  }, [sizeClass]);
+    console.debug('[DrawerRoot] Size class changed:', SizeClass[horizontalSizeClass]);
+  }, [horizontalSizeClass]);
 
   return (
     <Drawer.Navigator
       screenOptions={drawerStyle}
       drawerContent={DrawerContent}
       initialRouteName="DetailViewStackScreensStack"
-      defaultStatus={isLargeScreen ? 'open' : 'closed'}
+      defaultStatus={horizontalSizeClass !== SizeClass.Compact ? 'open' : 'closed'}
     >
       <Drawer.Screen name="DetailViewStackScreensStack" component={DetailViewStackScreensStack} options={{ headerShown: false }} />
     </Drawer.Navigator>
