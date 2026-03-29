@@ -401,6 +401,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await element(by.id('WalletDetails')).tap();
 
+    // await detox.REPL(); // <---------------------------------------------
+
     // switch on BIP47 slider if its not switched
     if (!(await getSwitchValue('BIP47Switch'))) {
       await expect(element(by.text('Contacts'))).not.toBeVisible();

@@ -1,6 +1,5 @@
 import SwiftUI
 
-@available(iOS 15.0, *)
 struct CompactPriceView: View {
     @Environment(\.colorScheme) var colorScheme
 
@@ -16,8 +15,8 @@ struct CompactPriceView: View {
                 .bold()
                 .multilineTextAlignment(.center)
                 .dynamicTypeSize(.large ... .accessibility5)
-                .foregroundColor(textColor)
-                .accessibilityLabel("Bitcoin price: \(price)")
+                .foregroundStyle(textColor)
+                .accessibilityLabel(String(localized: "Bitcoin price: \(price)"))
 
             VStack(alignment: .center, spacing: 8) {
                 Text(code)
@@ -28,7 +27,7 @@ struct CompactPriceView: View {
                     .shadow(color: shadowColor, radius: 1, x: 0, y: 1)
             }
             .font(.subheadline)
-            .foregroundColor(textColor)
+            .foregroundStyle(textColor)
             .multilineTextAlignment(.center)
             .accessibilityElement(children: .combine)
         }
@@ -45,23 +44,20 @@ struct CompactPriceView: View {
     }
 }
 
-@available(iOS 15.0, *)
-struct CompactPriceView_Previews: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [.blue, .purple]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+#Preview("Compact Price View") {
+    ZStack {
+        LinearGradient(
+            gradient: Gradient(colors: [.blue, .purple]),
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
 
-            CompactPriceView(
-                price: "$50,000",
-                lastUpdated: "Last updated: Oct 10, 2023",
-                code: "BTC",
-                dataSource: "Data source: CoinDesk"
-            )
-        }
+        CompactPriceView(
+            price: "$50,000",
+            lastUpdated: "Last updated: Oct 10, 2023",
+            code: "BTC",
+            dataSource: "Data source: CoinDesk"
+        )
     }
 }

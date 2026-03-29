@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct WalletData {
+struct WalletData: Codable {
   var balance: Double
   var latestTransactionTime: LatestTransaction = LatestTransaction(isUnconfirmed: false, epochValue: 0)
   var formattedBalanceBTC: String {

@@ -19,13 +19,13 @@ enum BitcoinUnit: String, Codable, Equatable, CustomStringConvertible {
     var description: String {
         switch self {
         case .btc:
-            return "BTC"
+            return String(localized: "BTC")
         case .sats:
-            return "sats"
+            return String(localized: "sats")
         case .localCurrency:
-            return "Local Currency"
+            return String(localized: "Local Currency")
         case .max:
-            return "MAX"
+            return String(localized: "MAX")
         }
     }
 
