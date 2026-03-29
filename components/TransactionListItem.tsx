@@ -452,7 +452,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
         accessibilityRole="button"
       >
-        {/* @ts-ignore - MenuView types can be overly strict about child element props */}
+        {/* @ts-ignore - Context menu wrapper types can be overly strict about child element props */}
         <ListItem
           leftAvatar={avatar}
           title={listTitle}

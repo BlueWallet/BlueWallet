@@ -41,7 +41,7 @@ const SettingsButton = () => {
       shouldOpenOnLongPress
     >
       <View style={style.iconContainer}>
-        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} iconStyle={style.icon} />
+        <Icon size={22} name="more-horiz" type="material" color={colors.foregroundColor} />
       </View>
     </ToolTipMenu>
   );
@@ -58,8 +58,8 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  icon: {},
 });

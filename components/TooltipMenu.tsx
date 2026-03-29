@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
-import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
+import { NativeSyntheticEvent, Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
 
@@ -23,79 +23,65 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     onMenuWillShow,
     onMenuWillHide,
     enableAndroidRipple = true,
+    enableIOSPressOpacity = false,
   } = props;
 
   const { language } = useSettings();
   const openedRef = useRef(false);
-  const menuRef = useRef<any>(null);
 
-  const normalizeMenuState = useCallback((menuState?: Action['menuState']): MenuAction['state'] | undefined => {
+  const normalizeMenuState = useCallback((menuState?: Action['menuState']): boolean | undefined => {
     if (menuState === undefined) {
       return undefined;
     }
     if (menuState === 'mixed') {
-      return 'mixed';
+      return true;
     }
-    return menuState ? 'on' : 'off';
-  }, []);
-
-  const buildAttributes = useCallback((action: Action): MenuAction['attributes'] | undefined => {
-    const attributes = {
-      destructive: Boolean(action.destructive),
-      disabled: Boolean(action.disabled),
-      hidden: Boolean(action.hidden),
-    };
-
-    if (!attributes.destructive && !attributes.disabled && !attributes.hidden) {
-      return undefined;
-    }
-
-    return attributes;
+    return Boolean(menuState);
   }, []);
 
   const mapMenuItemForMenuView = useCallback(
-    (action: Action): MenuAction | null => {
-      if (!action?.id) return null;
+    (action: Action): ContextMenuAction | null => {
+      if (!action?.id || action.hidden) return null;
 
       const mappedSubactions = (action.subactions || [])
         .map(subaction => mapMenuItemForMenuView(subaction))
-        .filter((item): item is MenuAction => item !== null);
+        .filter((item): item is ContextMenuAction => item !== null);
 
-      const menuItem: MenuAction = {
-        id: action.id.toString(),
+      const menuItem: ContextMenuAction = {
         title: action.text,
         subtitle: action.subtitle,
-        image: action.icon?.iconValue ?? action.image,
-        imageColor: action.imageColor,
-        attributes: buildAttributes(action),
-        displayInline: Platform.OS === 'ios' ? action.displayInline : undefined,
+        systemIcon: Platform.OS === 'ios' ? (action.icon?.iconValue ?? action.image) : undefined,
+        icon: Platform.OS === 'android' ? (action.icon?.iconValue ?? action.image) : undefined,
+        iconColor: typeof action.imageColor === 'string' ? action.imageColor : undefined,
+        destructive: Boolean(action.destructive),
+        disabled: Boolean(action.disabled),
+        inlineChildren: Platform.OS === 'ios' ? action.displayInline : undefined,
       };
 
-      const state = normalizeMenuState(action.menuState);
-      if (state) {
-        menuItem.state = state;
+      const selected = normalizeMenuState(action.menuState);
+      if (selected !== undefined) {
+        menuItem.selected = selected;
       }
 
       if (mappedSubactions.length > 0) {
-        menuItem.subactions = mappedSubactions;
+        menuItem.actions = mappedSubactions;
       }
 
       return menuItem;
     },
-    [buildAttributes, normalizeMenuState],
+    [normalizeMenuState],
   );
 
   const menuViewItemsIOS = useMemo(() => {
     return actions
       .map(actionGroup => {
         if (Array.isArray(actionGroup) && actionGroup.length > 0) {
-          const inlineActions = actionGroup.map(mapMenuItemForMenuView).filter((item): item is MenuAction => item !== null);
+          const inlineActions = actionGroup.map(mapMenuItemForMenuView).filter((item): item is ContextMenuAction => item !== null);
           if (inlineActions.length === 0) return null;
-          const group: MenuAction = {
-            id: inlineActions[0].id,
+          const group: ContextMenuAction = {
             title: '',
-            subactions: inlineActions,
-            displayInline: true,
+            actions: inlineActions,
+            inlineChildren: true,
           };
           return group;
         }
@@ -106,18 +92,50 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
         return null;
       })
-      .filter((item): item is MenuAction => item !== null);
+      .filter((item): item is ContextMenuAction => item !== null);
   }, [actions, mapMenuItemForMenuView]);
 
   const menuViewItemsAndroid = useMemo(() => {
-    const mergedActions = actions.flat().filter(action => action.id);
-    return mergedActions.map(mapMenuItemForMenuView).filter((item): item is MenuAction => item !== null);
+    const mergedActions = actions.flat().filter(action => action.id && !action.hidden);
+    return mergedActions.map(mapMenuItemForMenuView).filter((item): item is ContextMenuAction => item !== null);
   }, [actions, mapMenuItemForMenuView]);
 
-  const handlePressMenuItemForMenuView = ({ nativeEvent }: NativeActionEvent) => {
-    if (nativeEvent?.event) {
-      onPressMenuItem(nativeEvent.event);
+  // Map each action's display text to its stable id so the native press event
+  // (which only carries the action title) can be resolved back to the original id.
+  const titleToId = useMemo(() => {
+    const map = new Map<string, string>();
+    const registerAction = (action: Action) => {
+      if (action.id && action.text && !action.hidden) {
+        map.set(action.text, String(action.id));
+      }
+      if (action.subactions) {
+        action.subactions.forEach(registerAction);
+      }
+    };
+    actions.flat().forEach(registerAction);
+    return map;
+  }, [actions]);
+
+  const handleMenuWillShow = useCallback(() => {
+    if (openedRef.current) {
+      return;
     }
+    const visibleItems = Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid;
+    if (visibleItems.length === 0) {
+      return;
+    }
+    openedRef.current = true;
+    onMenuWillShow?.();
+  }, [onMenuWillShow, menuViewItemsIOS, menuViewItemsAndroid]);
+
+  const handlePressMenuItemForMenuView = (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+    const { name } = e.nativeEvent;
+    if (name) {
+      const id = titleToId.get(name) ?? name;
+      onPressMenuItem(id);
+    }
+    openedRef.current = false;
+    onMenuWillHide?.();
   };
 
   const renderMenuView = () => {
@@ -137,12 +155,17 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
               base.push(buttonStyle);
             }
           }
-          if (pressed && enableAndroidRipple) base.push(styles.pressed);
+          // Keep visual feedback on Android by default. iOS context-menu preview
+          // already applies a system press effect; opt in when needed.
+          const shouldApplyPressedStyle =
+            pressed && ((Platform.OS === 'android' && enableAndroidRipple) || (Platform.OS === 'ios' && enableIOSPressOpacity));
+          if (shouldApplyPressedStyle) base.push(styles.pressed);
           return base;
         }}
         disabled={disabled}
         onPress={onPress}
-        onLongPress={shouldOpenOnLongPress ? () => {} : undefined}
+        onPressIn={!shouldOpenOnLongPress ? handleMenuWillShow : undefined}
+        onLongPress={shouldOpenOnLongPress ? handleMenuWillShow : undefined}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityRole={accessibilityRole}
@@ -151,28 +174,24 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         testID={testID}
         hitSlop={8}
       >
-        <MenuView
-          ref={menuRef}
+        <ContextMenu
           title={title}
-          isAnchoredToRight
-          onOpenMenu={() => {
-            openedRef.current = true;
-            onMenuWillShow?.();
-          }}
-          onCloseMenu={() => {
+          previewBackgroundColor="transparent"
+          onPress={handlePressMenuItemForMenuView}
+          onCancel={() => {
             if (!openedRef.current) {
               return;
             }
             openedRef.current = false;
             onMenuWillHide?.();
           }}
-          onPressAction={handlePressMenuItemForMenuView}
           actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
-          shouldOpenOnLongPress={shouldOpenOnLongPress}
+          dropdownMenuMode={!shouldOpenOnLongPress}
+          disabled={disabled}
           style={buttonStyle ? styles.menuViewFlex : undefined}
         >
           {children}
-        </MenuView>
+        </ContextMenu>
       </Pressable>
     );
   };

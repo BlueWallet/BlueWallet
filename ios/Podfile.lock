@@ -1477,6 +1477,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - react-native-context-menu-view (1.21.0):
+    - React
   - react-native-document-picker (12.0.1):
     - hermes-engine
     - RCTRequired
@@ -1502,28 +1504,6 @@ PODS:
   - react-native-get-random-values (1.11.0):
     - React-Core
   - react-native-image-picker (8.2.1):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - Yoga
-  - react-native-menu (2.0.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2516,10 +2496,10 @@ DEPENDENCIES:
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
   - react-native-capture-protection (from `../node_modules/react-native-capture-protection`)
+  - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - "react-native-document-picker (from `../node_modules/@react-native-documents/picker`)"
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
-  - "react-native-menu (from `../node_modules/@react-native-menu/menu`)"
   - react-native-notifications (from `../node_modules/react-native-notifications`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
@@ -2685,14 +2665,14 @@ EXTERNAL SOURCES:
     :path: "../blue_modules/react-native-bw-file-access"
   react-native-capture-protection:
     :path: "../node_modules/react-native-capture-protection"
+  react-native-context-menu-view:
+    :path: "../node_modules/react-native-context-menu-view"
   react-native-document-picker:
     :path: "../node_modules/@react-native-documents/picker"
   react-native-get-random-values:
     :path: "../node_modules/react-native-get-random-values"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
-  react-native-menu:
-    :path: "../node_modules/@react-native-menu/menu"
   react-native-notifications:
     :path: "../node_modules/react-native-notifications"
   react-native-safe-area-context:
@@ -2874,10 +2854,10 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-capture-protection: 813b00ddd5e6d41849800674022e0ff4544f5f62
+  react-native-context-menu-view: da39a4612c1294d651907162529cfba8421e9b89
   react-native-document-picker: 29b2ee2573287f2b34c7716c98ffc3d9322fbe72
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 48d850454b4a389753053e1d7378b624d3b47d77
-  react-native-menu: 2de122c54dc10056932c0c0f73b82adfa4231faf
   react-native-notifications: e2d3c022d6077de7e420ba5c01b4bd9464f3941d
   react-native-safe-area-context: ae7587b95fb580d1800c5b0b2a7bd48c2868e67a
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
