@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import { StyleSheet, FlatList, FlatListProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,7 +9,10 @@ interface SafeAreaFlatListProps<ItemT> extends FlatListProps<ItemT> {
   floatingButtonHeight?: number;
 }
 
-const SafeAreaFlatList = <ItemT,>(props: SafeAreaFlatListProps<ItemT>) => {
+const SafeAreaFlatList = forwardRef(function SafeAreaFlatList<ItemT>(
+  props: SafeAreaFlatListProps<ItemT>,
+  ref: React.ForwardedRef<FlatList<ItemT>>,
+) {
   const { style, contentContainerStyle, headerHeight = 0, floatingButtonHeight = 0, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
@@ -41,7 +44,7 @@ const SafeAreaFlatList = <ItemT,>(props: SafeAreaFlatListProps<ItemT>) => {
     );
   }, [insets, contentContainerStyle, headerHeight, floatingButtonHeight]);
 
-  return <FlatList style={componentStyle} contentContainerStyle={contentStyle} {...otherProps} />;
-};
+  return <FlatList ref={ref} style={componentStyle} contentContainerStyle={contentStyle} {...otherProps} />;
+}) as <ItemT>(props: SafeAreaFlatListProps<ItemT> & { ref?: React.ForwardedRef<FlatList<ItemT>> }) => React.ReactElement;
 
 export default SafeAreaFlatList;

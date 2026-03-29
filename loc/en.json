@@ -27,6 +27,7 @@
     "qr_custom_input_button": "Tap 10 times to enter custom input",
     "unlock": "Unlock",
     "port": "Port",
+    "search": "Search",
     "ssl_port": "SSL Port",
     "suggested": "Suggested"
   },
