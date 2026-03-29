@@ -71,6 +71,7 @@ class MainApplication : Application(), ReactApplication {
                     // add(MyReactNativePackage())
                     add(CustomSegmentedControlPackage())
                     add(SettingsPackage())
+                    add(LocalePackage())
                 }
 
             override fun getUseDeveloperSupport() = BuildConfig.DEBUG

@@ -1,10 +1,18 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modules/clipboard';
-import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, setPreferredCurrency } from '../../blue_modules/currency';
+import {
+  getPreferredCurrency,
+  GROUP_IO_BLUEWALLET,
+  initCurrencyDaemon,
+  setPreferredCurrency,
+  updateExchangeRate,
+  clearCurrencyFormatterCache,
+} from '../../blue_modules/currency';
 import { clearUseURv1, isURv1Enabled, setUseURv1 } from '../../blue_modules/ur';
 import { BlueApp } from '../../class';
-import { saveLanguage, STORAGE_KEY } from '../../loc';
+import { saveLanguage, getCurrentLanguage, syncLanguageFromSystem } from '../../loc';
 import { FiatUnit, TFiatUnit } from '../../models/fiatUnit';
 import {
   getEnabled as getIsDeviceQuickActionsEnabled,
@@ -17,7 +25,6 @@ import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../Tot
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -148,6 +155,41 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
 
   const { walletsInitialized } = useStorage();
+  const appState = useRef<AppStateStatus>(AppState.currentState);
+
+  // Re-sync language, currency, and exchange rates when the app returns to foreground.
+  // This catches changes made via system settings (per-app language, region/currency).
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+        // Language: re-read system locale and update if changed
+        const newLang = syncLanguageFromSystem();
+        if (newLang) {
+          setLanguage(newLang);
+        }
+
+        // Currency: re-read preferred currency (may detect new system currency)
+        getPreferredCurrency()
+          .then(currency => {
+            setPreferredFiatCurrencyState(prev => {
+              if (prev.endPointKey !== currency.endPointKey) {
+                clearCurrencyFormatterCache();
+                return currency as TFiatUnit;
+              }
+              return prev;
+            });
+          })
+          .catch(e => console.error('Error re-syncing currency on foreground:', e));
+
+        // Exchange rates: refresh if stale
+        updateExchangeRate().catch(e => console.error('Error updating exchange rate on foreground:', e));
+      }
+      appState.current = nextAppState;
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription.remove();
+  }, []);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -164,8 +206,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         getIsHandOffUseEnabled().then(handOff => {
           setIsHandOffUseEnabledState(handOff);
         }),
-        AsyncStorage.getItem(STORAGE_KEY).then(lang => {
-          setLanguage(lang ?? 'en');
+        new Promise<void>(resolve => {
+          setLanguage(getCurrentLanguage());
+          resolve();
         }),
         isBalanceDisplayAllowed().then(balanceDisplayAllowed => {
           setIsWidgetBalanceDisplayAllowed(balanceDisplayAllowed);

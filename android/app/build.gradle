@@ -120,7 +120,12 @@ task copyFiatUnits(type: Copy) {
     into 'src/main/assets'
 }
 
-preBuild.dependsOn(copyFiatUnits)
+task syncAndroidLocales(type: Exec) {
+    description 'Syncs locale_config.xml and values-XX/ folders from loc/languages.ts'
+    commandLine 'bash', '../../scripts/sync-android-locales.sh'
+}
+
+preBuild.dependsOn(copyFiatUnits, syncAndroidLocales)
 
 // Ensure fiat units are available before codegen scans JS sources
 tasks.configureEach { task ->

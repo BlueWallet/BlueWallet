@@ -13,7 +13,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
-import * as RNLocalize from 'react-native-localize';
+import NativeLocaleHelper from '../../blue_modules/LocaleHelper';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import HeaderRightButton from '../../components/HeaderRightButton';
 
@@ -71,7 +71,10 @@ const CoinControlOutputSheet: React.FC = () => {
   const amount = formatBalance(utxo.value, wallet?.getPreferredBalanceUnit?.() ?? BitcoinUnit.BTC, true);
   const color = `#${utxo.txid.substring(0, 6)}`;
   const confirmationsFormatted = useMemo(
-    () => new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(utxo.confirmations ?? 0),
+    () =>
+      new Intl.NumberFormat(NativeLocaleHelper?.getLocales()[0]?.languageCode ?? 'en', { maximumSignificantDigits: 3 }).format(
+        utxo.confirmations ?? 0,
+      ),
     [utxo.confirmations],
   );
 
