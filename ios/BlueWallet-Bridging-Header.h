@@ -11,3 +11,4 @@
 #import "NativeEventEmitterSpec.h"
 #import "NativeMenuElementsEmitterSpec.h"
 #import "NativeWidgetHelperSpec.h"
+#import "NativeReactNativeContinuitySpec.h"

@@ -24,7 +24,7 @@ import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
 import useWatchConnectivity from './useWatchConnectivity';
 import useDeviceQuickActions from './useDeviceQuickActions';
-import useHandoffListener from './useHandoffListener';
+import useContinuityListener from './useContinuityListener';
 import useMenuElements from './useMenuElements';
 import { useExtendedNavigation } from './useExtendedNavigation';
 
@@ -60,7 +60,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   useWidgetCommunication();
   useMenuElements();
   useDeviceQuickActions();
-  useHandoffListener();
+  useContinuityListener();
 
   const processPushNotifications = useCallback(async () => {
     if (!shouldActivateListeners) return false;

@@ -9,8 +9,8 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import HandOffComponent from '../../components/HandOffComponent';
-import { HandOffActivityType } from '../../components/types';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useSettings } from '../../hooks/context/useSettings';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { popToTop } from '../../NavigationService.ts';
@@ -43,19 +43,18 @@ const Success = () => {
     console.log('send/success - useEffect');
   }, []);
 
+  useContinuity({
+    title: loc.transactions.details_title,
+    type: ContinuityActivityType.ViewInBlockExplorer,
+    url: txid ? `${selectedBlockExplorer.url}/tx/${txid}` : undefined,
+  });
+
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>
       <SuccessView amount={amount} amountUnit={amountUnit} fee={fee} invoiceDescription={invoiceDescription} />
       <View style={styles.buttonContainer}>
         <Button onPress={onDonePressed} title={loc.send.success_done} />
       </View>
-      {txid && (
-        <HandOffComponent
-          title={loc.transactions.details_title}
-          type={HandOffActivityType.ViewInBlockExplorer}
-          url={`${selectedBlockExplorer.url}/tx/${txid}`}
-        />
-      )}
     </SafeArea>
   );
 };

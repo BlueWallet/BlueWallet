@@ -14,6 +14,8 @@ import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
+import useContinuity from '../../hooks/useContinuity';
+import { ContinuityActivityType } from '../../components/types';
 import {
   SettingsScrollView,
   SettingsCard,
@@ -30,6 +32,12 @@ const LightningSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
   const { setParams } = useExtendedNavigation();
+
+  useContinuity({
+    title: loc.settings.lightning_settings,
+    type: ContinuityActivityType.LightningSettings,
+    userInfo: URI ? { url: URI } : undefined,
+  });
 
   useEffect(() => {
     const fetchURI = async () => {

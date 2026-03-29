@@ -19,12 +19,12 @@ class ReceiveInterfaceController: WKInterfaceController {
     @IBOutlet weak var addressLabel: WKInterfaceLabel!
     @IBOutlet weak var loadingIndicator: WKInterfaceGroup!
     @IBOutlet weak var imageInterface: WKInterfaceImage!
-    private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.ReceiveOnchain.rawValue)
+    private let userActivity: NSUserActivity = NSUserActivity(activityType: ContinuityIdentifier.ReceiveOnchain.rawValue)
 
     override func willActivate() {
         super.willActivate()
-        userActivity.title = HandOffTitle.ReceiveOnchain.rawValue
-        userActivity.requiredUserInfoKeys = [HandOffUserInfoKey.ReceiveOnchain.rawValue]
+        userActivity.title = ContinuityTitle.ReceiveOnchain.rawValue
+        userActivity.requiredUserInfoKeys = [ContinuityUserInfoKey.ReceiveOnchain.rawValue]
         userActivity.isEligibleForHandoff = true
         update(userActivity)
     }

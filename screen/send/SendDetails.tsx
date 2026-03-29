@@ -44,7 +44,8 @@ import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { Action } from '../../components/types';
+import { Action, ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
@@ -78,7 +79,7 @@ const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
   const { direction } = useLocale();
-  const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
+  const selectedDataProcessor = useRef<ToolTipAction | undefined>();
   const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
@@ -153,6 +154,20 @@ const SendDetails = () => {
     return defaultFee;
   }, [customFee, selectedPresetFeeRate, feePrecalc, networkTransactionFees]);
 
+  useContinuity({
+    title: loc.send.header,
+    type: ContinuityActivityType.SendOnchain,
+    userInfo: {
+      address: addresses[0]?.address,
+      amount: addresses[0]?.amount,
+      amountSats: addresses[0]?.amountSats,
+      memo: transactionMemo,
+      feeRate,
+      walletID: wallet?.getID(),
+      recipients: addresses.map(a => ({ address: a.address, amount: a.amount, amountSats: a.amountSats })),
+    },
+  });
+
   useEffect(() => {
     // decode route params
     const currentAddress = addresses[scrollIndex.current];
@@ -188,6 +203,51 @@ const SendDetails = () => {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
         presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
       }
+    } else if (routeParams.addRecipientParams) {
+      // used to add a recipient, mainly from contacts aka paymentcodes screen
+      const { address, amount } = routeParams.addRecipientParams;
+
+      setAddresses(prevAddresses => {
+        if (!address) return prevAddresses;
+
+        const currentIndex = prevAddresses.length === 0 ? 0 : scrollIndex.current;
+        const currentEntry = prevAddresses[currentIndex];
+        const currentIsEmpty = !currentEntry?.address;
+
+        if (currentIsEmpty) {
+          // Fill the empty slot
+          const updatedAddresses = [...prevAddresses];
+          updatedAddresses[currentIndex] = {
+            ...updatedAddresses[currentIndex],
+            address,
+            amount: amount ?? updatedAddresses[currentIndex].amount,
+            amountSats: amount ? btcToSatoshi(amount) : updatedAddresses[currentIndex].amountSats,
+          };
+          return updatedAddresses;
+        }
+
+        // Append a new recipient
+        return [
+          ...prevAddresses,
+          {
+            address,
+            amount: amount ?? 0,
+            amountSats: amount ? btcToSatoshi(amount) : 0,
+            key: String(Math.random()),
+            unit: amountUnit,
+          },
+        ];
+      });
+
+      // Scroll to the new/updated entry
+      setTimeout(() => {
+        const targetIndex = addresses.length;
+        scrollIndex.current = targetIndex;
+        scrollView.current?.scrollToIndex({ index: targetIndex, animated: true });
+      }, 0);
+
+      // @ts-ignore: Fix later
+      setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
     } else if (routeParams.address) {
       // screen was called with `address` parameter, so we just prefill it
       setAddresses(prevAddresses => {
@@ -200,26 +260,6 @@ const SendDetails = () => {
         };
         return updatedAddresses;
       });
-    } else if (routeParams.addRecipientParams) {
-      // used to add a recipient, mainly from contacts aka paymentcodes screen
-      const index = addresses.length === 0 ? 0 : scrollIndex.current;
-      const { address, amount } = routeParams.addRecipientParams;
-
-      setAddresses(prevAddresses => {
-        const updatedAddresses = [...prevAddresses];
-        if (address) {
-          updatedAddresses[index] = {
-            ...updatedAddresses[index],
-            address,
-            amount: amount ?? updatedAddresses[index].amount,
-            amountSats: amount ? btcToSatoshi(amount) : updatedAddresses[index].amountSats,
-          };
-        }
-        return updatedAddresses;
-      });
-
-      // @ts-ignore: Fix later
-      setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
     } else {
       setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]); // key is for the FlatList
     }
@@ -982,11 +1022,7 @@ const SendDetails = () => {
   }, [addresses, amountUnit]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
-    scrollIndex.current = 0;
     setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
-    setTimeout(() => {
-      scrollView.current?.scrollToOffset({ offset: 0, animated: false });
-    }, 0);
   }, [amountUnit]);
 
   const handleRemoveAllRecipients = useCallback(() => {
@@ -1366,7 +1402,7 @@ const SendDetails = () => {
   const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
-      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index} collapsable={false}>
+      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index}>
         <View style={styles.amountInputContainer}>
           <AmountInput.AmountInput
             isLoading={isLoading}
@@ -1439,28 +1475,18 @@ const SendDetails = () => {
         <View style={styles.addressInputContainer}>
           <AddressInput
             onChangeText={text => {
-              const trimmedText = text.trim();
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
-              const hasPositiveAmount = Number(amount) > 0;
+              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text.trim());
               setAddresses(addrs => {
-                const updatedAddresses = [...addrs];
-                const updatedItem = { ...updatedAddresses[index] };
-                updatedItem.address = address || trimmedText;
-
-                if (hasPositiveAmount) {
-                  updatedItem.amount = amount;
-                  updatedItem.amountSats = btcToSatoshi(amount!);
-                  updatedItem.unit = BitcoinUnit.BTC;
-                }
-
-                updatedAddresses[index] = updatedItem;
-                return updatedAddresses;
+                item.address = address || text.trim();
+                item.amount = amount || item.amount;
+                addrs[index] = item;
+                return [...addrs];
               });
               if (memo) {
                 setParams({ transactionMemo: memo });
               }
               setIsLoading(false);
-              setParams(hasPositiveAmount ? { payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: pjUrl });
+              setParams({ payjoinUrl: pjUrl });
             }}
             address={item.address}
             isLoading={isLoading}

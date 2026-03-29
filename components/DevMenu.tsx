@@ -1,9 +1,14 @@
 import React, { useEffect } from 'react';
 import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
+import { useSettings } from '../hooks/context/useSettings';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../class';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
+import { ContinuityActivityType } from './types';
+import NativeReactNativeContinuity from '../codegen/NativeReactNativeContinuity';
+import { navigationRef } from '../NavigationService';
+import loc from '../loc';
 
 const getRandomLabelFromSecret = (secret: string): string => {
   const words = secret.split(' ');
@@ -70,6 +75,7 @@ const showAlertWithWalletOptions = (
 
 const DevMenu: React.FC = () => {
   const { wallets, addWallet } = useStorage();
+  const { isContinuityEnabled, setIsContinuityEnabledStorage } = useSettings();
 
   useEffect(() => {
     if (__DEV__) {
@@ -158,8 +164,118 @@ const DevMenu: React.FC = () => {
           Alert.alert(msg);
         });
       });
+
+      // ---- Handoff Debug Options ----
+
+      DevSettings.addMenuItem('Handoff: Check Status', async () => {
+        const lines: string[] = [`Setting enabled: ${isContinuityEnabled}`, `Platform: ${Platform.OS}`];
+        if (Platform.OS !== 'web' && NativeReactNativeContinuity?.isSupported) {
+          try {
+            const supported = await NativeReactNativeContinuity.isSupported();
+            lines.push(`Device supported: ${supported}`);
+          } catch (e: any) {
+            lines.push(`Device supported: error (${e.message})`);
+          }
+        }
+        Alert.alert('Handoff Status', lines.join('\n'));
+      });
+
+      DevSettings.addMenuItem('Handoff: Toggle Setting', async () => {
+        const newValue = !isContinuityEnabled;
+        await setIsContinuityEnabledStorage(newValue);
+        Alert.alert('Handoff Setting', `Continuity is now ${newValue ? 'ON' : 'OFF'}`);
+      });
+
+      DevSettings.addMenuItem('Handoff: Test Activity', async () => {
+        if (Platform.OS === 'web') {
+          Alert.alert('Not available on web');
+          return;
+        }
+        if (!NativeReactNativeContinuity) {
+          Alert.alert('ReactNativeContinuity native module not available');
+          return;
+        }
+
+        const testId = Date.now();
+        const testType = ContinuityActivityType.ViewInBlockExplorer;
+        const testUrl = 'https://mempool.space/tx/test-handoff-debug';
+        NativeReactNativeContinuity.becomeCurrent(testId, testType, 'Handoff Debug Test', null, testUrl);
+        Alert.alert(
+          'Handoff Test Activity',
+          `Activity advertised.\n\nType: ${testType}\nURL: ${testUrl}\nID: ${testId}\n\nCheck another device for Handoff availability. Tap OK to invalidate.`,
+          [
+            {
+              text: 'Keep Active',
+              style: 'cancel',
+            },
+            {
+              text: 'Invalidate Now',
+              onPress: () => {
+                NativeReactNativeContinuity?.invalidate(testId);
+                Alert.alert('Test activity invalidated');
+              },
+            },
+          ],
+        );
+      });
+
+      DevSettings.addMenuItem('Handoff: Test Send Onchain', () => {
+        const testAddress = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq';
+        const testAmount = '0.001';
+        const testMemo = 'Handoff Debug Test';
+
+        const currentRoute = navigationRef.current?.getCurrentRoute();
+        const isOnSendDetails = currentRoute?.name === 'SendDetails';
+
+        const navigateToSend = () => {
+          // @ts-ignore: debug-only navigation
+          navigationRef.current?.navigate('SendDetailsRoot', {
+            screen: 'SendDetails',
+            params: {
+              address: testAddress,
+              amount: Number(testAmount),
+              transactionMemo: testMemo,
+            },
+          });
+        };
+
+        if (!isOnSendDetails) {
+          navigateToSend();
+          Alert.alert(
+            'Handoff: Send Onchain',
+            `Navigated to SendDetails.\n\nAddress: ${testAddress}\nAmount: ${testAmount} BTC\nMemo: ${testMemo}`,
+          );
+          return;
+        }
+
+        // Simulate draft conflict
+        Alert.alert(loc.send.continuity_draft_conflict_title, loc.send.continuity_draft_conflict_message, [
+          { text: loc._.cancel, style: 'cancel' },
+          {
+            text: loc.send.continuity_draft_replace,
+            style: 'destructive',
+            onPress: navigateToSend,
+          },
+          {
+            text: loc.send.continuity_draft_add_recipient,
+            onPress: () => {
+              // @ts-ignore: debug-only navigation
+              navigationRef.current?.navigate('SendDetailsRoot', {
+                screen: 'SendDetails',
+                params: {
+                  addRecipientParams: {
+                    address: testAddress,
+                    amount: Number(testAmount),
+                    nonce: Date.now(),
+                  },
+                },
+              });
+            },
+          },
+        ]);
+      });
     }
-  }, [wallets, addWallet]);
+  }, [wallets, addWallet, isContinuityEnabled, setIsContinuityEnabledStorage]);
 
   return null;
 };
