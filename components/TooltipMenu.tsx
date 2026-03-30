@@ -50,8 +50,8 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       const menuItem: ContextMenuAction = {
         title: action.text,
         subtitle: action.subtitle,
-        systemIcon: Platform.OS === 'ios' ? action.icon?.iconValue ?? action.image : undefined,
-        icon: Platform.OS === 'android' ? action.icon?.iconValue ?? action.image : undefined,
+        systemIcon: Platform.OS === 'ios' ? (action.icon?.iconValue ?? action.image) : undefined,
+        icon: Platform.OS === 'android' ? (action.icon?.iconValue ?? action.image) : undefined,
         iconColor: typeof action.imageColor === 'string' ? action.imageColor : undefined,
         destructive: Boolean(action.destructive),
         disabled: Boolean(action.disabled),
@@ -106,7 +106,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     const map = new Map<string, string>();
     const registerAction = (action: Action) => {
       if (action.id && action.text && !action.hidden) {
-        map.set(action.text, action.id);
+        map.set(action.text, String(action.id));
       }
       if (action.subactions) {
         action.subactions.forEach(registerAction);
@@ -158,8 +158,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
           // Keep visual feedback on Android by default. iOS context-menu preview
           // already applies a system press effect; opt in when needed.
           const shouldApplyPressedStyle =
-            pressed &&
-            ((Platform.OS === 'android' && enableAndroidRipple) || (Platform.OS === 'ios' && enableIOSPressOpacity));
+            pressed && ((Platform.OS === 'android' && enableAndroidRipple) || (Platform.OS === 'ios' && enableIOSPressOpacity));
           if (shouldApplyPressedStyle) base.push(styles.pressed);
           return base;
         }}
