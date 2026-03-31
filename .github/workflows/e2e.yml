@@ -229,7 +229,7 @@ jobs:
       run: npm i || npm i
 
     - name: Run tests
-      uses: reactivecircus/android-emulator-runner@b530d96654c385303d652368551fb075bc2f0b6b # v2
+      uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2
       with:
         api-level: 36
         profile: pixel
