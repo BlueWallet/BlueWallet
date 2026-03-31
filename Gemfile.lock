@@ -3,7 +3,7 @@ GEM
   specs:
     CFPropertyList (3.0.8)
     abbrev (0.1.2)
-    activesupport (7.2.3)
+    activesupport (7.2.3.1)
       base64
       benchmark (>= 0.3)
       bigdecimal
@@ -12,7 +12,7 @@ GEM
       drb
       i18n (>= 1.6, < 2)
       logger (>= 1.4.2)
-      minitest (>= 5.1)
+      minitest (>= 5.1, < 6)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
     addressable (2.8.9)
@@ -255,9 +255,7 @@ GEM
     mime-types-data (3.2026.0303)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
-    minitest (6.0.2)
-      drb (~> 2.0)
-      prism (~> 1.5)
+    minitest (5.27.0)
     molinillo (0.8.0)
     multi_json (1.19.1)
     multipart-post (2.4.1)
@@ -271,7 +269,6 @@ GEM
     os (1.1.4)
     ostruct (0.6.3)
     plist (3.7.2)
-    prism (1.9.0)
     process_executer (4.0.2)
       track_open_instances (~> 0.1)
     public_suffix (4.0.7)
@@ -354,7 +351,7 @@ DEPENDENCIES
 CHECKSUMS
   CFPropertyList (3.0.8) sha256=2c99d0d980536d3d7ab252f7bd59ac8be50fbdd1ff487c98c949bb66bb114261
   abbrev (0.1.2) sha256=ad1b4eaaaed4cb722d5684d63949e4bde1d34f2a95e20db93aecfe7cbac74242
-  activesupport (7.2.3) sha256=5675c9770dac93e371412684249f9dc3c8cec104efd0624362a520ae685c7b10
+  activesupport (7.2.3.1) sha256=11ebed516a43a0bb47346227a35ebae4d9427465a7c9eb197a03d5c8d283cb34
   addressable (2.8.9) sha256=cc154fcbe689711808a43601dee7b980238ce54368d23e127421753e46895485
   algoliasearch (1.27.5) sha256=26c1cddf3c2ec4bd60c148389e42702c98fdac862881dc6b07a4c0b89ffec853
   artifactory (3.0.17) sha256=3023d5c964c31674090d655a516f38ca75665c15084140c08b7f2841131af263
@@ -440,7 +437,7 @@ CHECKSUMS
   mime-types-data (3.2026.0303) sha256=164af1de5824c5195d4b503b0a62062383b65c08671c792412450cd22d3bc224
   mini_magick (4.13.2) sha256=71d6258e0e8a3d04a9a0a09784d5d857b403a198a51dd4f882510435eb95ddd9
   mini_mime (1.1.5) sha256=8681b7e2e4215f2a159f9400b5816d85e9d8c6c6b491e96a12797e798f8bccef
-  minitest (6.0.2) sha256=db6e57956f6ecc6134683b4c87467d6dd792323c7f0eea7b93f66bd284adbc3d
+  minitest (5.27.0) sha256=2d3b17f8a36fe7801c1adcffdbc38233b938eb0b4966e97a6739055a45fa77d5
   molinillo (0.8.0) sha256=efbff2716324e2a30bccd3eba1ff3a735f4d5d53ffddbc6a2f32c0ca9433045d
   multi_json (1.19.1) sha256=7aefeff8f2c854bf739931a238e4aea64592845e0c0395c8a7d2eea7fdd631b7
   multipart-post (2.4.1) sha256=9872d03a8e552020ca096adadbf5e3cb1cd1cdd6acd3c161136b8a5737cdb4a8
@@ -454,7 +451,6 @@ CHECKSUMS
   os (1.1.4) sha256=57816d6a334e7bd6aed048f4b0308226c5fb027433b67d90a9ab435f35108d3f
   ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
   plist (3.7.2) sha256=d37a4527cc1116064393df4b40e1dbbc94c65fa9ca2eec52edf9a13616718a42
-  prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
   process_executer (4.0.2) sha256=c73eb646d450044241c973a8360f6326e33ec5ad933f7acf503f6f3579873a71
   public_suffix (4.0.7) sha256=8be161e2421f8d45b0098c042c06486789731ea93dc3a896d30554ee38b573b8
   rake (13.3.1) sha256=8c9e89d09f66a26a01264e7e3480ec0607f0c497a861ef16063604b1b08eb19c
