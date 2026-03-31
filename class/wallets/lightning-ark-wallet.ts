@@ -615,13 +615,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private async _getVisibleSpendableVtxos(): Promise<SpendableArkVtxo[]> {
     assert(this._wallet, 'Ark wallet not initialized');
 
-    const [regularVtxos, storedVtxos, subdustVtxos] = await Promise.all([
+    const [regularVtxos, storedVtxos] = await Promise.all([
       this._wallet.getVtxos(),
       this._getStoredVtxos(),
-      this._getSubdustVtxos(),
     ]);
 
-    return this._dedupeVtxos(regularVtxos, storedVtxos, subdustVtxos).filter(
+    return this._dedupeVtxos(regularVtxos, storedVtxos).filter(
       vtxo => isSpendable(vtxo) && (vtxo.virtualStatus.state === 'settled' || vtxo.virtualStatus.state === 'preconfirmed'),
     );
   }
@@ -795,28 +794,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       return await this._wallet.walletRepository.getVtxos(arkAddress);
     } catch (error: any) {
       console.log('[ARK] Failed to fetch stored VTXOs:', error?.message ?? error);
-      return [];
-    }
-  }
-
-  private async _getSubdustVtxos() {
-    assert(this._wallet, 'Ark wallet not initialized');
-
-    try {
-      const subdustScript = uint8ArrayToHex(this._wallet.arkAddress.subdustPkScript);
-      const response = await this._wallet.indexerProvider.getVtxos({ scripts: [subdustScript] });
-      if (!this._wallet.offchainTapscript) {
-        return response.vtxos as SpendableArkVtxo[];
-      }
-
-      return response.vtxos.map(vtxo => ({
-        ...vtxo,
-        forfeitTapLeafScript: this._wallet!.offchainTapscript.forfeit(),
-        intentTapLeafScript: this._wallet!.offchainTapscript.forfeit(),
-        tapTree: this._wallet!.offchainTapscript.encode(),
-      })) as SpendableArkVtxo[];
-    } catch (error: any) {
-      console.log('[ARK] Failed to fetch subdust VTXOs:', error?.message ?? error);
       return [];
     }
   }
