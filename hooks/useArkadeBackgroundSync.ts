@@ -67,10 +67,9 @@ export function useArkadeBackgroundSync() {
     const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
     Promise.all(
       arkWallets.map(wallet =>
-        wallet
-          .fetchBalance()
-          .then(() => wallet.fetchTransactions())
-          .catch(e => console.log('[ArkadeSync] Refresh error:', e)),
+        Promise.all([wallet.fetchBalance(), wallet.fetchTransactions()]).catch(e =>
+          console.log('[ArkadeSync] Refresh error:', e),
+        ),
       ),
     )
       .then(() => saveToDisk())
