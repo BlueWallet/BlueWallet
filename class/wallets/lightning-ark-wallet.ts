@@ -580,11 +580,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   private _getCorrectedBalance(visibleBalance: number): number {
-    const derivedBalance = this._getDerivedBalanceFromCachedTransactions();
-    if (visibleBalance === 0 && derivedBalance > 0) {
-      return derivedBalance;
-    }
-
     const hiddenSubdust = this._getHiddenSubdustAmount(visibleBalance);
     return visibleBalance + hiddenSubdust;
   }
@@ -831,6 +826,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
         address: invoice,
         amount: freeAmount,
       });
+      this._lastBalanceFetch = 0;
+      this._lastTxFetch = 0;
       return;
     }
 
@@ -853,6 +850,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Amount:', paymentResult.amount);
     console.log('Preimage:', paymentResult.preimage);
     console.log('Transaction ID:', paymentResult.txid);
+
+    this._lastBalanceFetch = 0;
+    this._lastTxFetch = 0;
   }
 
   async getUserInvoices(limit: number | false = false): Promise<LightningTransaction[]> {
