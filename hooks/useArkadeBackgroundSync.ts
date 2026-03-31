@@ -11,7 +11,7 @@ import type { SwapProcessorDeps } from '../blue_modules/arkade-adapters/backgrou
 import type { TaskResult } from '@arkade-os/sdk/worker/expo';
 
 export function useArkadeBackgroundSync() {
-  const { wallets, saveToDisk } = useStorage();
+  const { wallets, saveToDisk, selectedWalletID } = useStorage();
   const isRegistered = useRef(false);
   const tickInFlight = useRef(false);
 
@@ -56,28 +56,29 @@ export function useArkadeBackgroundSync() {
   }, [wallets]);
 
   /**
-   * Called unconditionally on every foreground tick — refreshes Ark wallet
-   * balance and transactions so direct Ark payments are detected even when
-   * no swap results arrive.
+   * Called on every foreground tick — refreshes only the currently viewed
+   * Ark wallet so direct Ark payments are detected even when no swap
+   * results arrive. Other Ark wallets refresh when navigated to via
+   * the WalletTransactions screen.
    */
   const onTick = useCallback(() => {
     if (tickInFlight.current) return;
+
+    const currentID = selectedWalletID();
+    const activeWallet = currentID
+      ? (wallets.find(w => w.type === LightningArkWallet.type && w.getID() === currentID) as LightningArkWallet | undefined)
+      : undefined;
+    if (!activeWallet) return;
+
     tickInFlight.current = true;
 
-    const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
-    Promise.all(
-      arkWallets.map(wallet =>
-        Promise.all([wallet.fetchBalance(), wallet.fetchTransactions()]).catch(e =>
-          console.log('[ArkadeSync] Refresh error:', e),
-        ),
-      ),
-    )
+    Promise.all([activeWallet.fetchBalance(), activeWallet.fetchTransactions()])
       .then(() => saveToDisk())
-      .catch(e => console.log('[ArkadeSync] Save error:', e))
+      .catch(e => console.log('[ArkadeSync] Refresh error:', e))
       .finally(() => {
         tickInFlight.current = false;
       });
-  }, [wallets, saveToDisk]);
+  }, [wallets, saveToDisk, selectedWalletID]);
 
   /**
    * Handle outbox results — swap-specific notifications can be added here.
