@@ -91,6 +91,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _swapHistory: PendingSwap[] = [];
   private _transactionsHistory: ArkTransaction[] = [];
   private _boardingUtxos: ExtendedCoin[] = [];
+  private _contractsLoaded: boolean = false;
 
   // fees from Boltz:
   private _limitMin: number = 0;
@@ -509,18 +510,24 @@ export class LightningArkWallet extends LightningCustodianWallet {
     this._lastTxFetch = +new Date();
 
     // Background: init contract manager then re-fetch to include old non-delegate VTXOs.
-    const wallet = this._wallet;
-    const swaps = this._arkadeSwaps;
-    wallet
-      .getContractManager()
-      .then(() => Promise.all([swaps.getSwapHistory(), wallet.getTransactionHistory()]))
-      .then(([swapHistory, txHistory]) => {
-        this._swapHistory = swapHistory;
-        this._transactionsHistory = txHistory;
-        this.balance = this._getCorrectedBalance(this.balance);
-        this._lastTxFetch = +new Date();
-      })
-      .catch(() => {});
+    // Only needed once — after the first load, getScriptMap() already includes contracts.
+    if (!this._contractsLoaded) {
+      const wallet = this._wallet;
+      const swaps = this._arkadeSwaps;
+      wallet
+        .getContractManager()
+        .then(() => {
+          this._contractsLoaded = true;
+          return Promise.all([swaps.getSwapHistory(), wallet.getTransactionHistory()]);
+        })
+        .then(([swapHistory, txHistory]) => {
+          this._swapHistory = swapHistory;
+          this._transactionsHistory = txHistory;
+          this.balance = this._getCorrectedBalance(this.balance);
+          this._lastTxFetch = +new Date();
+        })
+        .catch(() => {});
+    }
   }
 
   async fetchBalance(noRetry?: boolean): Promise<void> {
