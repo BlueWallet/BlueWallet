@@ -71,7 +71,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.4.8
+          ruby-version: 3.4.9
           bundler-cache: true
 
       - name: Install Node modules
