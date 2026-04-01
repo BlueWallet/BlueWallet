@@ -3,10 +3,11 @@
 buildscript {
     ext {
         minSdkVersion = 24
+      
         buildToolsVersion = "36.0.0"
         compileSdkVersion = 36
         targetSdkVersion = 36
-        googlePlayServicesVersion = "16.+"
+        googlePlayServicesVersion = "16.1.0"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "21.1.0"
         ndkVersion = "27.1.12297006"
@@ -17,7 +18,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        classpath("com.android.tools.build:gradle:8.8.0")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
 	    classpath 'com.google.gms:google-services:4.4.4'  // Google Services plugin
@@ -117,8 +118,19 @@ subprojects { project ->
                  defaultConfig {
                     minSdkVersion 24
                 }
+
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
             }
         }
+
+        tasks.withType(AbstractArchiveTask).configureEach {
+        preserveFileTimestamps = false
+        reproducibleFileOrder = true
+        }
+
         tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
             // FIXME: next line should be removed when https://github.com/wix/Detox/issues/4678 is fixed
             kotlinOptions.freeCompilerArgs += ["-Xopt-in=kotlin.ExperimentalStdlibApi"]
@@ -127,6 +139,7 @@ subprojects { project ->
             } else {
                 kotlinOptions.jvmTarget = sourceCompatibility
             }
+            kotlinOptions.jvmTarget = "17"
         }
 
         if (proj.name == "react-native-reanimated" && proj.hasProperty("android")) {
