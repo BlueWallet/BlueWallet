@@ -1,6 +1,7 @@
 import assert from 'assert';
 
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import linking from '../../navigation/linking';
 import { HDSegwitBech32Wallet, LightningCustodianWallet } from '../../class';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
@@ -124,24 +125,6 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
       {
         argument: { url: `12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG` },
         expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
-      },
-      {
-        argument: { url: `bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG` },
-        expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
-      },
-      {
-        argument: { url: `BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo` },
-        expected: [
-          'SendDetailsRoot',
-          { screen: 'SendDetails', params: { uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' } },
-        ],
-      },
-      {
-        argument: { url: `bluewallet:BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo` },
-        expected: [
-          'SendDetailsRoot',
-          { screen: 'SendDetails', params: { uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' } },
-        ],
       },
       {
         argument: {
@@ -331,13 +314,28 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
       assert.deepStrictEqual(navValue, event.expected);
     }
 
-    // BIP21 w/BOLT11 support
-    const rez = await asyncNavigationRouteFor({
-      url: `bitcoin:${suffix}1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4`,
-    });
-    assert.strictEqual(rez[0], 'SelectWallet');
-    assert.ok(rez[1].onWalletSelect);
-    assert.ok(typeof rez[1].onWalletSelect === 'function');
+    // BIP21 w/BOLT11 support is handled by NavigationContainer linking
+    const pathForLinking = `${suffix}1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4`;
+    const state = linking.getStateFromPath(pathForLinking);
+    assert.strictEqual(state.routes[0].name, 'SelectWallet');
+    assert.ok(state.routes[0].params.onWalletSelect);
+    assert.ok(typeof state.routes[0].params.onWalletSelect === 'function');
+  });
+
+  it('linking handles plain bitcoin URIs to SendDetails', () => {
+    const pathAddressOnly = `${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`;
+    const state1 = linking.getStateFromPath(pathAddressOnly);
+    assert.strictEqual(state1.routes[0].name, 'SendDetailsRoot');
+    const inner1 = state1.routes[0].state.routes[0];
+    assert.strictEqual(inner1.name, 'SendDetails');
+    assert.strictEqual(inner1.params.uri, 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
+
+    const pathWithParams = `${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo`;
+    const state2 = linking.getStateFromPath(pathWithParams);
+    assert.strictEqual(state2.routes[0].name, 'SendDetailsRoot');
+    const inner2 = state2.routes[0].state.routes[0];
+    assert.strictEqual(inner2.name, 'SendDetails');
+    assert.strictEqual(inner2.params.uri, 'bitcoin:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo');
   });
 
   it('decodes bip21', () => {
