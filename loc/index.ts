@@ -5,17 +5,65 @@ import localizedFormat from 'dayjs/plugin/localizedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Localization, { LocalizedStrings } from 'react-localization';
 import { I18nManager } from 'react-native';
-import * as RNLocalize from 'react-native-localize';
 
+import NativeLocaleHelper from '../blue_modules/LocaleHelper';
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages } from './languages';
 import enJson from './en.json';
 
 export const STORAGE_KEY = 'lang';
+const SYSTEM_LOCALE_KEY = 'system_locale';
 
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
+
+// Build lookup map from Apple locale code → app language value
+const appleLocaleToAppLang: Map<string, string> = new Map();
+for (const lang of AvailableLanguages) {
+  if (lang.appleLocale) {
+    appleLocaleToAppLang.set(lang.appleLocale, lang.value);
+  }
+}
+
+/**
+ * Maps a system locale to the closest matching app language value.
+ * Uses the appleLocale field from AvailableLanguages as the source of truth.
+ * Returns undefined if no match is found.
+ */
+export const mapSystemLocaleToAppLanguage = (locale: {
+  languageCode: string;
+  countryCode: string;
+  scriptCode?: string;
+}): string | undefined => {
+  const { languageCode, countryCode, scriptCode } = locale;
+  const lc = languageCode.toLowerCase();
+  const cc = countryCode.toLowerCase();
+
+  // Chinese: distinguished by script (zh-Hans / zh-Hant)
+  if (lc === 'zh') {
+    const key = scriptCode === 'Hant' ? 'zh-Hant' : 'zh-Hans';
+    return appleLocaleToAppLang.get(key);
+  }
+
+  // Portuguese: distinguished by region (pt-BR / pt-PT)
+  if (lc === 'pt') {
+    const key = cc === 'br' ? 'pt-BR' : 'pt-PT';
+    return appleLocaleToAppLang.get(key);
+  }
+
+  // Spanish: Latin America (es-419) vs Spain (es)
+  if (lc === 'es') {
+    const latamCodes = ['419', 'mx', 'ar', 'co', 'cl', 'pe', 've', 'ec', 'gt', 'cu', 'bo', 'do', 'hn', 'py', 'sv', 'ni', 'cr', 'pa', 'uy'];
+    if (latamCodes.includes(cc)) {
+      return appleLocaleToAppLang.get('es-419');
+    }
+    return appleLocaleToAppLang.get('es');
+  }
+
+  // Standard lookup by language code
+  return appleLocaleToAppLang.get(lc);
+};
 
 interface ILocalization1 extends LocalizedStrings<typeof enJson> {}
 
@@ -24,8 +72,8 @@ interface ILocalization extends Omit<ILocalization1, 'formatString'> {
   formatString: (...args: Parameters<ILocalization1['formatString']>) => string;
 }
 
-const setDateTimeLocale = async () => {
-  let lang = (await AsyncStorage.getItem(STORAGE_KEY)) ?? '';
+const setDateTimeLocale = (langValue: string) => {
+  let lang = langValue;
   let localeForDayJSAvailable = true;
   switch (lang) {
     case 'ar':
@@ -211,36 +259,34 @@ const setDateTimeLocale = async () => {
 };
 
 const init = async () => {
-  // finding out whether lang preference was saved
-  const lang = await AsyncStorage.getItem(STORAGE_KEY);
-  if (lang) {
-    await saveLanguage(lang);
-    await loc.setLanguage(lang);
+  // One-time migration: move language preference from AsyncStorage to native per-app language setting
+  const storedLang = await AsyncStorage.getItem(STORAGE_KEY);
+  if (storedLang) {
+    const langEntry = AvailableLanguages.find(l => l.value === storedLang);
+    if (langEntry?.appleLocale) {
+      NativeLocaleHelper?.setPreferredLanguage(langEntry.appleLocale);
+    }
+    await AsyncStorage.multiRemove([STORAGE_KEY, SYSTEM_LOCALE_KEY]);
+    loc.setLanguage(storedLang);
     if (process.env.JEST_WORKER_ID === undefined) {
-      const foundLang = AvailableLanguages.find(language => language.value === lang);
-      I18nManager.allowRTL(foundLang?.isRTL ?? false);
-      I18nManager.forceRTL(foundLang?.isRTL ?? false);
+      I18nManager.allowRTL(langEntry?.isRTL ?? false);
+      I18nManager.forceRTL(langEntry?.isRTL ?? false);
     }
-    await setDateTimeLocale();
-  } else {
-    const locales = RNLocalize.getLocales();
-    if (Object.values(AvailableLanguages).some(language => language.value === locales[0].languageCode)) {
-      await saveLanguage(locales[0].languageCode);
-      await loc.setLanguage(locales[0].languageCode);
-      if (process.env.JEST_WORKER_ID === undefined) {
-        I18nManager.allowRTL(locales[0].isRTL ?? false);
-        I18nManager.forceRTL(locales[0].isRTL ?? false);
-      }
-    } else {
-      await saveLanguage('en');
-      await loc.setLanguage('en');
-      if (process.env.JEST_WORKER_ID === undefined) {
-        I18nManager.allowRTL(false);
-        I18nManager.forceRTL(false);
-      }
-    }
-    await setDateTimeLocale();
+    setDateTimeLocale(storedLang);
+    return;
   }
+
+  // Read language from system / per-app locale (set via NativeLocaleHelper or iOS Settings)
+  const locales = NativeLocaleHelper?.getLocales() ?? [];
+  const lang = (locales.length > 0 ? mapSystemLocaleToAppLanguage(locales[0]) : undefined) ?? 'en';
+
+  loc.setLanguage(lang);
+  if (process.env.JEST_WORKER_ID === undefined) {
+    const foundLang = AvailableLanguages.find(l => l.value === lang);
+    I18nManager.allowRTL(foundLang?.isRTL ?? false);
+    I18nManager.forceRTL(foundLang?.isRTL ?? false);
+  }
+  setDateTimeLocale(lang);
 };
 init();
 
@@ -300,15 +346,43 @@ const loc: ILocalization = new Localization({
 });
 
 export const saveLanguage = async (lang: string) => {
-  await AsyncStorage.setItem(STORAGE_KEY, lang);
-  loc.setLanguage(lang);
-  // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
-  if (process.env.JEST_WORKER_ID === undefined) {
-    const foundLang = AvailableLanguages.find(language => language.value === lang);
-    I18nManager.allowRTL(foundLang?.isRTL ?? false);
-    I18nManager.forceRTL(foundLang?.isRTL ?? false);
+  // Persist to native per-app language setting (iOS: AppleLanguages, Android: AppCompatDelegate)
+  const langEntry = AvailableLanguages.find(language => language.value === lang);
+  if (langEntry?.appleLocale) {
+    NativeLocaleHelper?.setPreferredLanguage(langEntry.appleLocale);
   }
-  await setDateTimeLocale();
+  loc.setLanguage(lang);
+  if (process.env.JEST_WORKER_ID === undefined) {
+    I18nManager.allowRTL(langEntry?.isRTL ?? false);
+    I18nManager.forceRTL(langEntry?.isRTL ?? false);
+  }
+  setDateTimeLocale(lang);
+};
+
+/**
+ * Re-reads the system locale from native and updates the app language if it changed.
+ * Returns the new language value, or null if unchanged.
+ */
+export const syncLanguageFromSystem = (): string | null => {
+  const locales = NativeLocaleHelper?.getLocales() ?? [];
+  const systemLang = (locales.length > 0 ? mapSystemLocaleToAppLanguage(locales[0]) : undefined) ?? 'en';
+  const currentLang = loc.getLanguage();
+
+  if (systemLang === currentLang) return null;
+
+  loc.setLanguage(systemLang);
+  if (process.env.JEST_WORKER_ID === undefined) {
+    const langEntry = AvailableLanguages.find(l => l.value === systemLang);
+    I18nManager.allowRTL(langEntry?.isRTL ?? false);
+    I18nManager.forceRTL(langEntry?.isRTL ?? false);
+  }
+  setDateTimeLocale(systemLang);
+  return systemLang;
+};
+
+/** Returns the currently active app language value */
+export const getCurrentLanguage = (): string => {
+  return loc.getLanguage();
 };
 
 export const transactionTimeToReadable = (time: number | string) => {

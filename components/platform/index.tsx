@@ -110,14 +110,21 @@ export const getSettingsHeaderOptions = (
   return {
     title,
     headerLargeTitle: isIOS,
-    headerLargeTitleStyle: isIOS ? { color: headerTextColor } : undefined,
-    headerTitleStyle: { color: headerTextColor },
     headerBackButtonDisplayMode: 'minimal' as const,
     headerBackTitle: '',
     headerBackVisible: true,
-    headerTransparent: false,
-    headerBlurEffect: undefined,
-    headerStyle: { backgroundColor: headerBackgroundColor },
+    ...(isIOS
+      ? {
+          headerTransparent: true,
+          scrollEdgeEffects: { top: 'automatic' as const },
+        }
+      : {
+          headerLargeTitleStyle: undefined,
+          headerTitleStyle: { color: headerTextColor },
+          headerTransparent: false,
+          headerBlurEffect: undefined,
+          headerStyle: { backgroundColor: headerBackgroundColor },
+        }),
   };
 };
 
