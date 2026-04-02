@@ -19,6 +19,7 @@ import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { SilentPayment, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
 import { isValidBech32Address } from '../../util/isValidBech32Address.ts';
+import { getNetwork, isTestnet } from '../../models/network';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -41,6 +42,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   public readonly type = AbstractHDElectrumWallet.type;
   // @ts-ignore: override
   public readonly typeReadable = AbstractHDElectrumWallet.typeReadable;
+
+  public readonly network?: bitcoin.networks.Network;
 
   _balances_by_external_index: Record<number, BalanceByIndex>;
   _balances_by_internal_index: Record<number, BalanceByIndex>;
@@ -188,7 +191,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _getWIFByIndex(internal: boolean, index: number): string | false {
     if (!this.secret) return false;
     const seed = this._getSeed();
-    const root = bip32.fromSeed(seed);
+    const root = bip32.fromSeed(seed, getNetwork());
     const path = `${this.getDerivationPath()}/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
@@ -207,13 +210,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub, getNetwork());
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub, getNetwork());
       this._node1 = hdNode.derive(node);
     }
 
@@ -240,13 +243,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub, getNetwork());
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub, getNetwork());
       this._node1 = hdNode.derive(node);
     }
 
@@ -281,7 +284,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
     // first, getting xpub
     const seed = this._getSeed();
-    const root = bip32.fromSeed(seed);
+    const root = bip32.fromSeed(seed, getNetwork());
 
     const path = this.getDerivationPath();
     if (!path) {
@@ -290,10 +293,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const child = root.derivePath(path).neutered();
     const xpub = child.toBase58();
 
-    // bitcoinjs does not support zpub yet, so we just convert it from xpub
+    // bitcoinjs does not support zpub yet, so we just convert it from xpub/tpub
     let data = b58.decode(xpub);
     data = data.slice(4);
-    const concatenated = concatUint8Arrays([hexToUint8Array('04b24746'), data]);
+    // mainnet zpub prefix: 04b24746, testnet vpub prefix: 045f1cf6
+    const prefix = isTestnet() ? '045f1cf6' : '04b24746';
+    const concatenated = concatUint8Arrays([hexToUint8Array(prefix), data]);
     this._xpub = b58.encode(concatenated);
 
     return this._xpub;
@@ -1214,7 +1219,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
-    let psbt = new bitcoin.Psbt();
+    let psbt = new bitcoin.Psbt({ network: getNetwork() });
     let c = 0;
     const keypairs: Record<number, ECPairInterface> = {};
     const values: Record<number, number> = {};
@@ -1223,7 +1228,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
-        keyPair = ECPair.fromWIF(this._getWifForAddress(String(input.address)));
+        keyPair = ECPair.fromWIF(this._getWifForAddress(String(input.address)), getNetwork());
         keypairs[c] = keyPair;
       }
       values[c] = input.value;
@@ -1340,7 +1345,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (!pubkey || !path) {
       throw new Error('Internal error: pubkey or path are invalid');
     }
-    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey, network: getNetwork() });
     if (!p2wpkh.output) {
       throw new Error('Internal error: could not create p2wpkh output during _addPsbtInput');
     }
@@ -1395,6 +1400,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _nodeToBech32SegwitAddress(hdNode: BIP32Interface): string {
     const { address } = bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
+      network: getNetwork(),
     });
 
     if (!address) {
@@ -1407,6 +1413,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _nodeToLegacyAddress(hdNode: BIP32Interface): string {
     const { address } = bitcoin.payments.p2pkh({
       pubkey: hdNode.publicKey,
+      network: getNetwork(),
     });
 
     if (!address) {
@@ -1421,7 +1428,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   _nodeToP2shSegwitAddress(hdNode: BIP32Interface): string {
     const { address } = bitcoin.payments.p2sh({
-      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey, network: getNetwork() }),
+      network: getNetwork(),
     });
 
     if (!address) {
@@ -1464,7 +1472,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       return false;
     }
     // only check BIP47 if derivation path is regular, otherwise too many wallets will be found
-    if (!["m/84'/0'/0'", "m/44'/0'/0'", "m/49'/0'/0'"].includes(this.getDerivationPath() as string)) {
+    if (
+      !["m/84'/0'/0'", "m/44'/0'/0'", "m/49'/0'/0'", "m/84'/1'/0'", "m/44'/1'/0'", "m/49'/1'/0'"].includes(
+        this.getDerivationPath() as string,
+      )
+    ) {
       return false;
     }
 
@@ -1528,7 +1540,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    */
   cosignPsbt(psbt: Psbt) {
     const seed = this._getSeed();
-    const hdRoot = bip32.fromSeed(seed);
+    const hdRoot = bip32.fromSeed(seed, getNetwork());
 
     for (let cc = 0; cc < psbt.inputCount; cc++) {
       try {
@@ -1544,7 +1556,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           if (!wif) {
             throw new Error('Internal error: cant get WIF by index during cosingPsbt');
           }
-          const keyPair = ECPair.fromWIF(wif);
+          const keyPair = ECPair.fromWIF(wif, getNetwork());
           try {
             psbt.signInput(cc, keyPair);
           } catch (e) {} // protects agains duplicate cosignings or if this output can't be signed with current wallet
@@ -1565,7 +1577,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @returns {string} Hex string of fingerprint derived from mnemonics. Always has length of 8 chars and correct leading zeroes. All caps
    */
   static seedToFingerprint(seed: Uint8Array) {
-    const root = bip32.fromSeed(seed);
+    const root = bip32.fromSeed(seed, getNetwork());
     let hex = uint8ArrayToHex(root.fingerprint);
     while (hex.length < 8) hex = '0' + hex; // leading zeroes
     return hex.toUpperCase();
@@ -1711,7 +1723,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     // utxo selected. lets create op_return payload using the correct (first!) utxo and correct targets with that payload
 
-    const keyPair = ECPair.fromWIF(inputsTemp[0].wif);
+    const keyPair = ECPair.fromWIF(inputsTemp[0].wif, getNetwork());
     const outputNumber = new Uint8Array(4); // 00000000 in hex
     new DataView(outputNumber.buffer).setUint32(0, inputsTemp[0].vout, true); // little-endian
     const blindedPaymentCode = aliceBip47.getBlindedPaymentCode(

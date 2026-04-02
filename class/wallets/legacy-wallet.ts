@@ -12,6 +12,7 @@ import { HDSegwitBech32Wallet } from '..';
 import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
+import { getNetwork } from '../../models/network';
 const ECPair: ECPairAPI = ECPairFactory(ecc);
 bitcoin.initEccLib(ecc);
 
@@ -60,23 +61,24 @@ export class LegacyWallet extends AbstractWallet {
 
   async generate(): Promise<void> {
     const buf = await randomBytes(32);
-    this.secret = ECPair.makeRandom({ rng: () => buf }).toWIF();
+    this.secret = ECPair.makeRandom({ rng: () => buf, network: getNetwork() }).toWIF();
   }
 
   async generateFromEntropy(user: Uint8Array): Promise<void> {
     if (user.length !== 32) {
       throw new Error('Entropy should be 32 bytes');
     }
-    this.secret = ECPair.fromPrivateKey(user).toWIF();
+    this.secret = ECPair.fromPrivateKey(user, { network: getNetwork() }).toWIF();
   }
 
   getAddress(): string | false {
     if (this._address) return this._address;
     let address;
     try {
-      const keyPair = ECPair.fromWIF(this.secret);
+      const keyPair = ECPair.fromWIF(this.secret, getNetwork());
       address = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
+        network: getNetwork(),
       }).address;
     } catch (err) {
       return false;
@@ -404,9 +406,9 @@ export class LegacyWallet extends AbstractWallet {
     }
 
     for (const t of _targets) {
-      if (t.address?.startsWith('bc1')) {
+      if (t.address?.startsWith('bc1') || t.address?.startsWith('tb1')) {
         // in case address is non-typical and takes more bytes than coinselect library anticipates by default
-        t.script = { length: bitcoin.address.toOutputScript(t.address).length + 3 };
+        t.script = { length: bitcoin.address.toOutputScript(t.address, getNetwork()).length + 3 };
       }
 
       if (t.script?.hex) {
@@ -448,14 +450,14 @@ export class LegacyWallet extends AbstractWallet {
     if (targets.length === 0) throw new Error('No destination provided');
     const { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
     sequence = sequence || 0xffffffff; // disable RBF by default
-    const psbt = new bitcoin.Psbt();
+    const psbt = new bitcoin.Psbt({ network: getNetwork() });
     let c = 0;
     const values: Record<number, number> = {};
     let keyPair: Signer | null = null;
 
     if (!skipSigning) {
       // skiping signing related stuff
-      keyPair = ECPair.fromWIF(this.secret); // secret is WIF
+      keyPair = ECPair.fromWIF(this.secret, getNetwork()); // secret is WIF
     }
 
     inputs.forEach(input => {
@@ -526,9 +528,9 @@ export class LegacyWallet extends AbstractWallet {
    */
   isAddressValid(address: string): boolean {
     try {
-      bitcoin.address.toOutputScript(address); // throws, no?
+      bitcoin.address.toOutputScript(address, getNetwork()); // throws, no?
 
-      if (!address.toLowerCase().startsWith('bc1')) return true;
+      if (!address.toLowerCase().startsWith('bc1') && !address.toLowerCase().startsWith('tb1')) return true;
       const decoded = bitcoin.address.fromBech32(address);
       if (decoded.version === 0) return true;
       if (decoded.version === 1 && decoded.data.length !== 32) return false;
@@ -553,7 +555,7 @@ export class LegacyWallet extends AbstractWallet {
       return (
         bitcoin.payments.p2pkh({
           output: scriptPubKey2,
-          network: bitcoin.networks.bitcoin,
+          network: getNetwork(),
         }).address ?? false
       );
     } catch (_) {
@@ -615,7 +617,7 @@ export class LegacyWallet extends AbstractWallet {
   signMessage(message: string, address: string, useSegwit = true): string {
     const wif = this._getWIFbyAddress(address);
     if (!wif) throw new Error('Invalid address');
-    const keyPair = ECPair.fromWIF(wif);
+    const keyPair = ECPair.fromWIF(wif, getNetwork());
     const privateKey = keyPair.privateKey;
     if (!privateKey) throw new Error('Invalid private key');
     let segwitType: 'p2wpkh' | 'p2sh(p2wpkh)';

@@ -13,6 +13,7 @@ import WalletButton from '../../components/WalletButton';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
 import { getLNDHub } from '../../helpers/lndHub';
@@ -114,6 +115,7 @@ const WalletsAdd: React.FC = () => {
   const colorScheme = useColorScheme();
   //
   const { addWallet, saveToDisk } = useStorage();
+  const { networkType } = useSettings();
   const { entropy: entropyHex, words } = useRoute<RouteProps>().params || {};
   const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
   const { navigate, goBack, setOptions, setParams } = useExtendedNavigation<NavigationProps>();
@@ -176,6 +178,8 @@ const WalletsAdd: React.FC = () => {
     },
     [entropy, setParams, words],
   );
+
+  const isTestnet = networkType !== 'mainnet';
 
   const toolTipActions = useMemo(() => {
     const walletSubactions: Action[] = [
@@ -502,7 +506,7 @@ const WalletsAdd: React.FC = () => {
             onPress={handleOnVaultButtonPressed}
             size={styles.button}
           />
-          {backdoorPressed >= 20 ? (
+          {!isTestnet && backdoorPressed >= 20 ? (
             <WalletButton
               buttonType="LightningArk"
               testID="ActivateLightningArkButton"
@@ -511,7 +515,7 @@ const WalletsAdd: React.FC = () => {
               size={styles.button}
             />
           ) : null}
-          {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
+          {!isTestnet && selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
         </View>
         <View style={styles.advanced}>
           {selectedWalletType === ButtonSelected.OFFCHAIN && (

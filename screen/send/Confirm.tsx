@@ -26,6 +26,7 @@ import { HDSegwitBech32Wallet } from '../../class';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { getNetwork } from '../../models/network';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -170,7 +171,8 @@ const Confirm: React.FC = () => {
     if (!(recipients.length > 0) || !recipients[0].address) {
       return undefined;
     }
-    return bitcoin.address.toOutputScript(recipients[0].address, bitcoin.networks.bitcoin);
+    const addr = recipients[0].address;
+    return bitcoin.address.toOutputScript(addr, getNetwork());
   };
 
   const handleSendTransaction = async () => {

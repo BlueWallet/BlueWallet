@@ -12,6 +12,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import { adjustBlockExplorerUrlForNetwork } from '../../models/blockExplorer';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { popToTop } from '../../NavigationService.ts';
 
@@ -19,7 +20,8 @@ type RouteProps = RouteProp<SendDetailsStackParamList, 'Success'>;
 
 const Success = () => {
   const { colors } = useTheme();
-  const { selectedBlockExplorer } = useSettings();
+  const { selectedBlockExplorer, networkType } = useSettings();
+  const blockExplorerUrl = adjustBlockExplorerUrlForNetwork(selectedBlockExplorer.url, networkType);
   const route = useRoute<RouteProps>();
   const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', txid } = route.params || {};
   const stylesHook = StyleSheet.create({
@@ -53,7 +55,7 @@ const Success = () => {
         <HandOffComponent
           title={loc.transactions.details_title}
           type={HandOffActivityType.ViewInBlockExplorer}
-          url={`${selectedBlockExplorer.url}/tx/${txid}`}
+          url={`${blockExplorerUrl}/tx/${txid}`}
         />
       )}
     </SafeArea>
