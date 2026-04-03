@@ -201,6 +201,21 @@ jest.mock('@react-native-documents/picker', () => ({}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
 
+jest.mock('react-native-background-fetch', () => ({
+  configure: jest.fn(),
+  scheduleTask: jest.fn(),
+  finish: jest.fn(),
+  registerHeadlessTask: jest.fn(),
+  stop: jest.fn(),
+  start: jest.fn(),
+  STATUS_AVAILABLE: 2,
+  STATUS_DENIED: 1,
+  STATUS_RESTRICTED: 0,
+  FETCH_RESULT_NEW_DATA: 0,
+  FETCH_RESULT_NO_DATA: 1,
+  FETCH_RESULT_FAILED: 2,
+}));
+
 const realmInstanceMock = {
   create: function () {},
   delete: function () {},
