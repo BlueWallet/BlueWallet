@@ -51,7 +51,7 @@
     "node-fetch": "^2.6.7",
     "patch-package": "^8.0.0",
     "prettier": "^3.2.5",
-    "ts-jest": "^29.4.6",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.9.3"
   },
   "engines": {
@@ -94,7 +94,7 @@
   "dependencies": {
     "@arkade-os/boltz-swap": "^0.3.13",
     "@arkade-os/sdk": "^0.4.14",
-    "@babel/preset-env": "7.29.0",
+    "@babel/preset-env": "7.29.2",
     "@bugsnag/react-native": "8.8.1",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.7.1",
@@ -108,7 +108,7 @@
     "@react-native-community/cli-platform-ios": "20.0.2",
     "@react-native-documents/picker": "12.0.1",
     "react-native-context-menu-view": "github:BlueWallet/react-native-context-menu-view#144110b02afdb11b431741aef5da95e91b942a9b",
-    "@react-native-vector-icons/entypo": "12.4.2",
+    "@react-native-vector-icons/entypo": "12.5.0",
     "@react-native-vector-icons/fontawesome": "12.4.2",
     "@react-native-vector-icons/fontawesome6": "12.3.2",
     "@react-native-vector-icons/ionicons": "12.4.2",
@@ -165,7 +165,7 @@
     "react-native-draglist": "github:BlueWallet/react-native-draglist#0c8049d",
     "react-native-edge-to-edge": "1.8.1",
     "react-native-fs": "2.20.0",
-    "react-native-gesture-handler": "2.30.0",
+    "react-native-gesture-handler": "2.30.1",
     "react-native-get-random-values": "1.11.0",
     "react-native-handoff": "github:BlueWallet/react-native-handoff#v0.0.4",
     "react-native-haptic-feedback": "2.3.4",
