@@ -37,7 +37,6 @@ const IsItMyAddress: React.FC = () => {
     type: ContinuityActivityType.IsItMyAddress,
     userInfo: resultCleanAddress ? { address: resultCleanAddress } : undefined,
   });
-
   const clearAddressInput = () => {
     setAddress('');
     setResultCleanAddress(undefined);

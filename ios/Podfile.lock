@@ -1987,6 +1987,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - react-native-context-menu-view (1.21.0):
+    - React
   - react-native-document-picker (12.0.1):
     - boost
     - DoubleConversion
@@ -3352,6 +3354,7 @@ DEPENDENCIES:
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
   - react-native-capture-protection (from `../node_modules/react-native-capture-protection`)
+  - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - "react-native-document-picker (from `../node_modules/@react-native-documents/picker`)"
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
@@ -3531,6 +3534,8 @@ EXTERNAL SOURCES:
     :path: "../blue_modules/react-native-bw-file-access"
   react-native-capture-protection:
     :path: "../node_modules/react-native-capture-protection"
+  react-native-context-menu-view:
+    :path: "../node_modules/react-native-context-menu-view"
   react-native-document-picker:
     :path: "../node_modules/@react-native-documents/picker"
   react-native-get-random-values:
@@ -3721,6 +3726,7 @@ SPEC CHECKSUMS:
   react-native-blue-crypto: de5babd59b17fbf3fc31d2e1e5d59ec859093fbc
   react-native-bw-file-access: fe925b77dbf48500df0b294c6851f8c84607a203
   react-native-capture-protection: 6d8d6a714114decb938d029f88e8df3da636e996
+  react-native-context-menu-view: da39a4612c1294d651907162529cfba8421e9b89
   react-native-document-picker: dc2d83366e47e89e7c51e8a41eab99c1d54e941c
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
   react-native-image-picker: 0314366753615115fa55c3cc937ac44cb7e75702

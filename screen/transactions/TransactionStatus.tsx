@@ -125,7 +125,6 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
     type: ContinuityActivityType.ViewInBlockExplorer,
     url: tx?.hash ? `${selectedBlockExplorer.url}/tx/${tx.hash}` : undefined,
   });
-
   const stylesHook = StyleSheet.create({
     value: {
       color: colors.alternativeTextColor2,
