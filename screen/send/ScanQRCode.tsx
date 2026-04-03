@@ -116,6 +116,7 @@ const ScanQRCode = () => {
       }
     } catch (error: any) {
       console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
+      decoder = undefined;
     }
   };
 
@@ -171,6 +172,14 @@ const ScanQRCode = () => {
     }
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-OUTPUT')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-HDKEY')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-MULTI-ACCOUNTS')) {
       return _onReadUniformResourceV2(ret.data);
     }
 
