@@ -580,6 +580,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   private _getCorrectedBalance(visibleBalance: number): number {
+    const derivedBalance = this._getDerivedBalanceFromCachedTransactions();
+    if (visibleBalance === 0 && derivedBalance > 0) {
+      return derivedBalance;
+    }
+
     const hiddenSubdust = this._getHiddenSubdustAmount(visibleBalance);
     return visibleBalance + hiddenSubdust;
   }
