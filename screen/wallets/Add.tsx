@@ -431,7 +431,10 @@ const WalletsAdd: React.FC = () => {
   };
 
   const navigateToImportWallet = () => {
-    navigate('ImportWallet');
+    const walletTypeMap: Partial<Record<ButtonSelected, string>> = {
+      [ButtonSelected.ARK]: LightningArkWallet.type,
+    };
+    navigate('ImportWallet', { walletType: walletTypeMap[selectedWalletType] });
   };
 
   const handleOnVaultButtonPressed = () => {
