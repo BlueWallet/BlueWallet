@@ -622,10 +622,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private async _getVisibleSpendableVtxos(): Promise<SpendableArkVtxo[]> {
     assert(this._wallet, 'Ark wallet not initialized');
 
-    const [regularVtxos, storedVtxos] = await Promise.all([
-      this._wallet.getVtxos(),
-      this._getStoredVtxos(),
-    ]);
+    const [regularVtxos, storedVtxos] = await Promise.all([this._wallet.getVtxos(), this._getStoredVtxos()]);
 
     return this._dedupeVtxos(regularVtxos, storedVtxos).filter(
       vtxo => isSpendable(vtxo) && (vtxo.virtualStatus.state === 'settled' || vtxo.virtualStatus.state === 'preconfirmed'),

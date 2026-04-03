@@ -1,48 +1,40 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { BackHandler, Platform, StyleSheet, Text, View } from "react-native";
-import Animated, { Layout } from "react-native-reanimated";
-import Share from "react-native-share";
-import * as BlueElectrum from "../../blue_modules/BlueElectrum";
-import { fiatToBTC, satoshiToBTC } from "../../blue_modules/currency";
-import triggerHapticFeedback, {
-  HapticFeedbackTypes,
-} from "../../blue_modules/hapticFeedback";
-import {
-  majorTomToGroundControl,
-  tryToObtainPermissions,
-} from "../../blue_modules/notifications";
-import { BlueButtonLink, BlueCard, BlueText } from "../../BlueComponents";
-import { LightningArkWallet } from "../../class/wallets/lightning-ark-wallet";
-import DeeplinkSchemaMatch from "../../class/deeplink-schema-match";
-import presentAlert from "../../components/Alert";
-import Button from "../../components/Button";
-import CopyTextToClipboard from "../../components/CopyTextToClipboard";
-import HandOffComponent from "../../components/HandOffComponent";
-import HeaderMenuButton from "../../components/HeaderMenuButton";
-import QRCodeComponent from "../../components/QRCodeComponent";
-import SegmentedControl from "../../components/SegmentControl";
-import { useTheme } from "../../components/themes";
-import TipBox from "../../components/TipBox";
-import { TransactionPendingIconBig } from "../../components/TransactionPendingIconBig";
-import { HandOffActivityType } from "../../components/types";
-import { useSettings } from "../../hooks/context/useSettings";
-import { useStorage } from "../../hooks/context/useStorage";
-import { useExtendedNavigation } from "../../hooks/useExtendedNavigation";
-import loc, { formatBalance } from "../../loc";
-import { BitcoinUnit, Chain } from "../../models/bitcoinUnits";
-import { ReceiveDetailsStackParamList } from "../../navigation/ReceiveDetailsStackParamList";
-import { CommonToolTipActions } from "../../typings/CommonToolTipActions";
-import { SuccessView } from "../send/success";
-import { BlueSpacing40 } from "../../components/BlueSpacing";
-import { BlueLoading } from "../../components/BlueLoading";
-import SafeAreaScrollView from "../../components/SafeAreaScrollView";
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
+import Animated, { Layout } from 'react-native-reanimated';
+import Share from 'react-native-share';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
+import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import presentAlert from '../../components/Alert';
+import Button from '../../components/Button';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import HandOffComponent from '../../components/HandOffComponent';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
+import QRCodeComponent from '../../components/QRCodeComponent';
+import SegmentedControl from '../../components/SegmentControl';
+import { useTheme } from '../../components/themes';
+import TipBox from '../../components/TipBox';
+import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
+import { HandOffActivityType } from '../../components/types';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
+import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { SuccessView } from '../send/success';
+import { BlueSpacing40 } from '../../components/BlueSpacing';
+import { BlueLoading } from '../../components/BlueLoading';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 
-const segmentControlValues = [
-  loc.wallets.details_address,
-  loc.bip47.payment_code,
-];
+const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 const HORIZONTAL_PADDING = 20;
 
 type StickyHeaderProps = {
@@ -54,65 +46,49 @@ type StickyHeaderProps = {
   backgroundColor: string;
 };
 
-const StickyHeader = React.memo(
-  ({
-    wallet,
-    isBIP47Enabled,
-    tabValues,
-    currentTab,
-    setCurrentTab,
-    backgroundColor,
-  }: StickyHeaderProps) => {
-    if (!wallet || !isBIP47Enabled) return null;
+const StickyHeader = React.memo(({ wallet, isBIP47Enabled, tabValues, currentTab, setCurrentTab, backgroundColor }: StickyHeaderProps) => {
+  if (!wallet || !isBIP47Enabled) return null;
 
-    return (
-      <View style={[styles.tabsContainer, { backgroundColor }]}>
-        <SegmentedControl
-          values={tabValues}
-          selectedIndex={tabValues.findIndex((tab) => tab === currentTab)}
-          onChange={(index) => {
-            setCurrentTab(tabValues[index]);
-          }}
-        />
-      </View>
-    );
-  },
-);
+  return (
+    <View style={[styles.tabsContainer, { backgroundColor }]}>
+      <SegmentedControl
+        values={tabValues}
+        selectedIndex={tabValues.findIndex(tab => tab === currentTab)}
+        onChange={index => {
+          setCurrentTab(tabValues[index]);
+        }}
+      />
+    </View>
+  );
+});
 
-type NavigationProps = NativeStackNavigationProp<
-  ReceiveDetailsStackParamList,
-  "ReceiveDetails"
->;
-type RouteProps = RouteProp<ReceiveDetailsStackParamList, "ReceiveDetails">;
+type NavigationProps = NativeStackNavigationProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
+type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
   const { walletID, address } = route.params;
-  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } =
-    useStorage();
+  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
-  const [customLabel, setCustomLabel] = useState("");
-  const [customAmount, setCustomAmount] = useState("");
+  const [customLabel, setCustomLabel] = useState('');
+  const [customAmount, setCustomAmount] = useState('');
   const [customUnit, setCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
-  const [bip21encoded, setBip21encoded] = useState("");
+  const [bip21encoded, setBip21encoded] = useState('');
   const [isCustom, setIsCustom] = useState(false);
   const [showPendingBalance, setShowPendingBalance] = useState(false);
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
-  const { goBack, setParams, setOptions, navigate } =
-    useExtendedNavigation<NavigationProps>();
+  const { goBack, setParams, setOptions, navigate } = useExtendedNavigation<NavigationProps>();
   const [intervalMs, setIntervalMs] = useState(5000);
-  const [eta, setEta] = useState("");
+  const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
   const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
-  const [displayBalance, setDisplayBalance] = useState("");
+  const [displayBalance, setDisplayBalance] = useState('');
   const [qrCodeSize, setQRCodeSize] = useState(90);
 
-  const wallet = walletID
-    ? wallets.find((w) => w.getID() === walletID)
-    : undefined;
+  const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
 
   const stylesHook = StyleSheet.create({
@@ -130,9 +106,7 @@ const ReceiveDetails = () => {
   const setAddressBIP21Encoded = useCallback(
     (addr: string) => {
       const isArk = wallet?.type === LightningArkWallet.type;
-      const newBip21encoded = isArk
-        ? addr
-        : DeeplinkSchemaMatch.bip21encode(addr);
+      const newBip21encoded = isArk ? addr : DeeplinkSchemaMatch.bip21encode(addr);
       setParams({ address: addr });
       setBip21encoded(newBip21encoded);
       setShowAddress(true);
@@ -141,10 +115,9 @@ const ReceiveDetails = () => {
   );
 
   const obtainWalletAddress = useCallback(async () => {
-    console.debug("ReceiveDetails - componentDidMount");
-    // this function should only be called when wallet exists
+    console.debug('ReceiveDetails - componentDidMount');
     if (!wallet) {
-      console.warn("Wallet not found");
+      console.warn('Wallet not found');
       return;
     }
     if (address) {
@@ -154,7 +127,7 @@ const ReceiveDetails = () => {
           await tryToObtainPermissions();
           majorTomToGroundControl([address], [], []);
         } catch (error) {
-          console.error("Error obtaining notifications permissions:", error);
+          console.error('Error obtaining notifications permissions:', error);
         }
       }
       return;
@@ -163,19 +136,13 @@ const ReceiveDetails = () => {
     let newAddress;
     if (wallet.chain === Chain.ONCHAIN) {
       try {
-        if (!isElectrumDisabled)
-          newAddress = await Promise.race([
-            wallet.getAddressAsync(),
-            sleep(1000),
-          ]);
+        if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
       } catch (error) {
-        console.warn("Error fetching wallet address (ONCHAIN):", error);
+        console.warn('Error fetching wallet address (ONCHAIN):', error);
       }
       if (newAddress === undefined) {
-        if ("_getExternalAddressByIndex" in wallet) {
-          newAddress = wallet._getExternalAddressByIndex(
-            wallet.getNextFreeAddressIndex(),
-          );
+        if ('_getExternalAddressByIndex' in wallet) {
+          newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
         } else {
           newAddress = wallet.getAddress();
         }
@@ -187,12 +154,10 @@ const ReceiveDetails = () => {
         await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
         newAddress = wallet.getAddress();
       } catch (error) {
-        console.warn("Error fetching wallet address (OFFCHAIN):", error);
+        console.warn('Error fetching wallet address (OFFCHAIN):', error);
       }
       if (newAddress === undefined) {
-        console.warn(
-          "either sleep expired or getAddressAsync threw an exception",
-        );
+        console.warn('either sleep expired or getAddressAsync threw an exception');
         newAddress = wallet.getAddress();
       } else {
         saveToDisk(); // caching whatever getAddressAsync() generated internally
@@ -214,17 +179,10 @@ const ReceiveDetails = () => {
         await tryToObtainPermissions();
         majorTomToGroundControl([newAddress], [], []);
       } catch (error) {
-        console.error("Error obtaining notifications permissions:", error);
+        console.error('Error obtaining notifications permissions:', error);
       }
     }
-  }, [
-    wallet,
-    saveToDisk,
-    address,
-    setAddressBIP21Encoded,
-    isElectrumDisabled,
-    sleep,
-  ]);
+  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
   const onEnablePaymentsCodeSwitchValue = useCallback(() => {
     if (wallet && wallet.allowBIP47()) {
@@ -257,12 +215,7 @@ const ReceiveDetails = () => {
   }, [onEnablePaymentsCodeSwitchValue]);
 
   const HeaderRight = useMemo(
-    () => (
-      <HeaderMenuButton
-        actions={toolTipActions}
-        onPressMenuItem={onPressMenuItem}
-      />
-    ),
+    () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
     [onPressMenuItem, toolTipActions],
   );
 
@@ -275,7 +228,7 @@ const ReceiveDetails = () => {
 
   // re-fetching address balance periodically
   useEffect(() => {
-    console.debug("receive/details - useEffect");
+    console.debug('receive/details - useEffect');
 
     const intervalId = setInterval(async () => {
       try {
@@ -292,11 +245,7 @@ const ReceiveDetails = () => {
             setShowAddress(false);
             setDisplayBalance(
               loc.formatString(loc.transactions.received_with_amount, {
-                amt1: formatBalance(
-                  received,
-                  BitcoinUnit.LOCAL_CURRENCY,
-                  true,
-                ).toString(),
+                amt1: formatBalance(received, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
                 amt2: formatBalance(received, BitcoinUnit.BTC, true).toString(),
               }),
             );
@@ -311,9 +260,9 @@ const ReceiveDetails = () => {
         const addressToUse = address || decoded.address;
         if (!addressToUse) return;
 
-        console.debug("checking address", addressToUse, "for balance...");
+        console.debug('checking address', addressToUse, 'for balance...');
         const balance = await BlueElectrum.getBalanceByAddress(addressToUse);
-        console.debug("...got", balance);
+        console.debug('...got', balance);
 
         if (balance.unconfirmed > 0) {
           if (initialConfirmed === 0 && initialUnconfirmed === 0) {
@@ -323,15 +272,10 @@ const ReceiveDetails = () => {
             triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
           }
 
-          const txs =
-            await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
+          const txs = await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
           const tx = txs.pop();
           if (tx) {
-            const rez = await BlueElectrum.multiGetTransactionByTxid(
-              [tx.tx_hash],
-              true,
-              10,
-            );
+            const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], true, 10);
             if (rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
               const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
               const fees = await BlueElectrum.estimateFees();
@@ -347,16 +291,8 @@ const ReceiveDetails = () => {
 
           setDisplayBalance(
             loc.formatString(loc.transactions.pending_with_amount, {
-              amt1: formatBalance(
-                balance.unconfirmed,
-                BitcoinUnit.LOCAL_CURRENCY,
-                true,
-              ).toString(),
-              amt2: formatBalance(
-                balance.unconfirmed,
-                BitcoinUnit.BTC,
-                true,
-              ).toString(),
+              amt1: formatBalance(balance.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+              amt2: formatBalance(balance.unconfirmed, BitcoinUnit.BTC, true).toString(),
             }),
           );
           setShowPendingBalance(true);
@@ -373,16 +309,8 @@ const ReceiveDetails = () => {
             setShowAddress(false);
             setDisplayBalance(
               loc.formatString(loc.transactions.received_with_amount, {
-                amt1: formatBalance(
-                  balanceToShow,
-                  BitcoinUnit.LOCAL_CURRENCY,
-                  true,
-                ).toString(),
-                amt2: formatBalance(
-                  balanceToShow,
-                  BitcoinUnit.BTC,
-                  true,
-                ).toString(),
+                amt1: formatBalance(balanceToShow, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+                amt2: formatBalance(balanceToShow, BitcoinUnit.BTC, true).toString(),
               }),
             );
             if (walletID) {
@@ -396,21 +324,12 @@ const ReceiveDetails = () => {
           }
         }
       } catch (error) {
-        console.debug("Error checking balance:", error);
+        console.debug('Error checking balance:', error);
       }
     }, intervalMs);
 
     return () => clearInterval(intervalId);
-  }, [
-    bip21encoded,
-    address,
-    initialConfirmed,
-    initialUnconfirmed,
-    intervalMs,
-    fetchAndSaveWalletTransactions,
-    walletID,
-    wallet,
-  ]);
+  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID, wallet]);
 
   useEffect(() => {
     const handleBackButton = () => {
@@ -418,10 +337,7 @@ const ReceiveDetails = () => {
       return true;
     };
 
-    const subscription = BackHandler.addEventListener(
-      "hardwareBackPress",
-      handleBackButton,
-    );
+    const subscription = BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => subscription.remove();
   }, [goBack]);
 
@@ -461,25 +377,22 @@ const ReceiveDetails = () => {
     );
   };
 
-  const onLayout = useCallback(
-    (e: { nativeEvent: { layout: { height: number; width: number } } }) => {
-      const { height, width } = e.nativeEvent.layout;
+  const onLayout = useCallback((e: { nativeEvent: { layout: { height: number; width: number } } }) => {
+    const { height, width } = e.nativeEvent.layout;
 
-      const isPortrait = height > width;
-      const maxQRSize = 500;
+    const isPortrait = height > width;
+    const maxQRSize = 500;
 
-      if (isPortrait) {
-        const heightBasedSize = Math.min(height * 0.6, maxQRSize);
-        const widthBasedSize = width * 0.85 - HORIZONTAL_PADDING * 2;
-        setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
-      } else {
-        const heightBasedSize = Math.min(height * 0.7, maxQRSize);
-        const widthBasedSize = width * 0.45;
-        setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
-      }
-    },
-    [],
-  );
+    if (isPortrait) {
+      const heightBasedSize = Math.min(height * 0.6, maxQRSize);
+      const widthBasedSize = width * 0.85 - HORIZONTAL_PADDING * 2;
+      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
+    } else {
+      const heightBasedSize = Math.min(height * 0.7, maxQRSize);
+      const widthBasedSize = width * 0.45;
+      setQRCodeSize(Math.min(heightBasedSize, widthBasedSize));
+    }
+  }, []);
 
   const renderTabContent = () => {
     if (currentTab === segmentControlValues[0]) {
@@ -490,20 +403,12 @@ const ReceiveDetails = () => {
               {isCustom && (
                 <>
                   {getDisplayAmount() && (
-                    <BlueText
-                      testID="BitcoinAmountText"
-                      style={[styles.amount, stylesHook.amount]}
-                      numberOfLines={1}
-                    >
+                    <BlueText testID="BitcoinAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
                       {getDisplayAmount()}
                     </BlueText>
                   )}
                   {customLabel?.length > 0 && (
-                    <BlueText
-                      testID="CustomAmountDescriptionText"
-                      style={[styles.label, stylesHook.label]}
-                      numberOfLines={1}
-                    >
+                    <BlueText testID="CustomAmountDescriptionText" style={[styles.label, stylesHook.label]} numberOfLines={1}>
                       {customLabel}
                     </BlueText>
                   )}
@@ -512,29 +417,19 @@ const ReceiveDetails = () => {
               <View style={styles.qrCodeContainer}>
                 <QRCodeComponent value={bip21encoded} size={qrCodeSize} />
               </View>
-              <CopyTextToClipboard
-                text={isCustom ? bip21encoded : address}
-                isAddress={true}
-              />
+              <CopyTextToClipboard text={isCustom ? bip21encoded : address} isAddress={true} />
             </View>
           )}
         </View>
       );
     } else if (wallet && isBIP47Enabled) {
       // wallet is always defined here
-      const qrValue =
-        "getBIP47PaymentCode" in wallet &&
-        typeof wallet.getBIP47PaymentCode === "function"
-          ? wallet.getBIP47PaymentCode()
-          : undefined;
+      const qrValue = (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) ?? undefined;
       return (
         <View style={styles.container}>
           {qrValue ? (
             <>
-              <TipBox
-                description={loc.receive.bip47_explanation}
-                containerStyle={styles.tip}
-              />
+              <TipBox description={loc.receive.bip47_explanation} containerStyle={styles.tip} />
               <View style={styles.qrCodeContainer}>
                 <QRCodeComponent value={qrValue} size={qrCodeSize} />
               </View>
@@ -570,26 +465,19 @@ const ReceiveDetails = () => {
           }
         } catch (error) {
           if (!cancelled) {
-            console.error("Error during focus effect:", error);
+            console.error('Error during focus effect:', error);
           }
         }
       })();
       return () => {
         cancelled = true;
       };
-    }, [
-      wallet,
-      address,
-      obtainWalletAddress,
-      setAddressBIP21Encoded,
-      isCustom,
-      hasIncomingCustomParams,
-    ]),
+    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
   );
 
   const showCustomAmountModal = useCallback(() => {
     if (!address) return;
-    navigate("ReceiveCustomAmount", {
+    navigate('ReceiveCustomAmount', {
       address,
       currentLabel: customLabel,
       currentAmount: customAmount,
@@ -618,8 +506,8 @@ const ReceiveDetails = () => {
 
     if (incomingIsCustom) {
       setIsCustom(true);
-      setCustomLabel(incomingLabel ?? "");
-      setCustomAmount(incomingAmount ?? "");
+      setCustomLabel(incomingLabel ?? '');
+      setCustomAmount(incomingAmount ?? '');
       setCustomUnit(incomingUnit ?? BitcoinUnit.BTC);
       if (incomingBip21) {
         setBip21encoded(incomingBip21);
@@ -630,8 +518,8 @@ const ReceiveDetails = () => {
     } else {
       const fallbackUnit = wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC;
       setIsCustom(false);
-      setCustomLabel("");
-      setCustomAmount("");
+      setCustomLabel('');
+      setCustomAmount('');
       setCustomUnit(fallbackUnit);
       if (incomingBip21) {
         setBip21encoded(incomingBip21);
@@ -658,13 +546,13 @@ const ReceiveDetails = () => {
     if (number > 0) {
       switch (customUnit) {
         case BitcoinUnit.BTC:
-          return customAmount + " BTC";
+          return customAmount + ' BTC';
         case BitcoinUnit.SATS:
-          return satoshiToBTC(number) + " BTC";
+          return satoshiToBTC(number) + ' BTC';
         case BitcoinUnit.LOCAL_CURRENCY:
-          return fiatToBTC(number) + " BTC";
+          return fiatToBTC(number) + ' BTC';
       }
-      return customAmount + " " + customUnit;
+      return customAmount + ' ' + customUnit;
     } else {
       return null;
     }
@@ -675,11 +563,7 @@ const ReceiveDetails = () => {
     if (currentTab === segmentControlValues[0]) {
       message = bip21encoded;
     } else {
-      message =
-        (wallet &&
-          "getBIP47PaymentCode" in wallet &&
-          wallet.getBIP47PaymentCode()) ??
-        false;
+      message = (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) ?? false;
     }
 
     if (!message) {
@@ -687,16 +571,11 @@ const ReceiveDetails = () => {
       return;
     }
 
-    Share.open({ message }).catch((error) =>
-      console.debug("Error sharing:", error),
-    );
+    Share.open({ message }).catch(error => console.debug('Error sharing:', error));
   };
 
   return (
-    <Animated.View
-      layout={Layout.duration(200)}
-      style={[styles.flex, stylesHook.root]}
-    >
+    <Animated.View layout={Layout.duration(200)} style={[styles.flex, stylesHook.root]}>
       <SafeAreaScrollView
         centerContent
         contentInsetAdjustmentBehavior="automatic"
@@ -721,11 +600,7 @@ const ReceiveDetails = () => {
         )}
         {showAddress && renderTabContent()}
         {showAddress && address !== undefined && (
-          <HandOffComponent
-            title={loc.send.details_address}
-            type={HandOffActivityType.ReceiveOnchain}
-            userInfo={{ address }}
-          />
+          <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
         )}
         {showConfirmedBalance && renderConfirmedBalance()}
         {showPendingBalance && renderPendingBalance()}
@@ -749,10 +624,7 @@ const ReceiveDetails = () => {
             <Button
               onPress={handleShareButtonPressed}
               title={loc.receive.details_share}
-              disabled={
-                !bip21encoded &&
-                !(currentTab === segmentControlValues[1] && isBIP47Enabled)
-              }
+              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
             />
           </BlueCard>
         </View>
@@ -764,25 +636,25 @@ const ReceiveDetails = () => {
 const styles = StyleSheet.create({
   root: {
     flexGrow: 1,
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
   },
   flex: {
     flex: 1,
   },
   tabsContainer: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: Platform.OS === "ios" ? "transparent" : undefined,
+    backgroundColor: Platform.OS === 'ios' ? 'transparent' : undefined,
   },
   scrollBody: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   share: {
-    width: "100%",
+    width: '100%',
     paddingHorizontal: 32,
     marginBottom: 16,
   },
@@ -791,19 +663,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   amount: {
-    fontWeight: "600",
+    fontWeight: '600',
     fontSize: 36,
-    textAlign: "center",
+    textAlign: 'center',
   },
   label: {
-    fontWeight: "600",
-    textAlign: "center",
+    fontWeight: '600',
+    textAlign: 'center',
     paddingBottom: 12,
   },
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tip: {
     marginHorizontal: 16,
@@ -811,14 +683,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   qrCodeContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   loadingContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 40,
   },
 });
