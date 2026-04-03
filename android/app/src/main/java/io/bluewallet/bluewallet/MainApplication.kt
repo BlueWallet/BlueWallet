@@ -16,6 +16,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.modules.i18nmanager.I18nUtil
 import io.bluewallet.bluewallet.components.segmentedcontrol.CustomSegmentedControlPackage
+import io.bluewallet.bluewallet.sizeclass.SizeClassEmitterPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -71,6 +72,7 @@ class MainApplication : Application(), ReactApplication {
                     // add(MyReactNativePackage())
                     add(CustomSegmentedControlPackage())
                     add(SettingsPackage())
+                    add(SizeClassEmitterPackage())
                 }
 
             override fun getUseDeveloperSupport() = BuildConfig.DEBUG

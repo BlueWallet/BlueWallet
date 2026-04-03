@@ -96,7 +96,7 @@ type RouteProps = RouteProp<DetailViewStackParamList, 'WalletsList'>;
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading } = state;
-  const { sizeClass, isLarge } = useSizeClass();
+  const { horizontalSizeClass } = useSizeClass();
   const walletsCarousel = useRef<any>(null);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
@@ -117,7 +117,7 @@ const WalletsList: React.FC = () => {
     },
     listHeaderBack: {
       backgroundColor: colors.background,
-      paddingTop: sizeClass === SizeClass.Large ? 8 : 0,
+      paddingTop: horizontalSizeClass === SizeClass.Large ? 8 : 0,
     },
     listHeaderText: {
       color: colors.foregroundColor,
@@ -195,11 +195,11 @@ const WalletsList: React.FC = () => {
 
   useEffect(() => {
     // new wallet added - no longer auto-scrolls
-    if (!isLarge) {
+    if (horizontalSizeClass !== SizeClass.Large) {
       // Just update the count, no scrolling
       walletsCount.current = wallets.length;
     }
-  }, [isLarge, wallets]);
+  }, [horizontalSizeClass, wallets]);
 
   const onBarScanned = useCallback(
     (value: any) => {
@@ -300,19 +300,19 @@ const WalletsList: React.FC = () => {
     (item: { section: any; item: ExtendedTransaction }) => {
       switch (item.section.key) {
         case WalletsListSections.CAROUSEL:
-          return sizeClass === SizeClass.Large ? null : renderWalletsCarousel();
+          return horizontalSizeClass === SizeClass.Large ? null : renderWalletsCarousel();
         case WalletsListSections.TRANSACTIONS:
           return renderTransactionListsRow(item.item);
         default:
           return null;
       }
     },
-    [sizeClass, renderTransactionListsRow, renderWalletsCarousel],
+    [horizontalSizeClass, renderTransactionListsRow, renderWalletsCarousel],
   );
 
   const renderSectionHeader = useCallback(
     (section: { section: { key: any } }) => {
-      if (sizeClass === SizeClass.Large) {
+      if (horizontalSizeClass === SizeClass.Large) {
         return null;
       }
 
@@ -330,7 +330,7 @@ const WalletsList: React.FC = () => {
           return null;
       }
     },
-    [sizeClass, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.walletsListWrapper],
+    [horizontalSizeClass, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.walletsListWrapper],
   );
 
   const renderSectionFooter = useCallback(
@@ -429,7 +429,7 @@ const WalletsList: React.FC = () => {
 
   const sections: SectionData[] = useMemo(() => {
     // On large screens, only show transactions section
-    if (sizeClass === SizeClass.Large) {
+    if (horizontalSizeClass === SizeClass.Large) {
       return [{ key: WalletsListSections.TRANSACTIONS, data: dataSource }];
     }
 
@@ -438,7 +438,7 @@ const WalletsList: React.FC = () => {
       { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
       { key: WalletsListSections.TRANSACTIONS, data: dataSource },
     ];
-  }, [sizeClass, dataSource]);
+  }, [horizontalSizeClass, dataSource]);
 
   // Constants for layout calculations
   const TRANSACTION_ITEM_HEIGHT = 80;
@@ -447,14 +447,14 @@ const WalletsList: React.FC = () => {
   const LARGE_TITLE_EXTRA_HEIGHT = 20; // Additional height for large titles
 
   const getSectionHeaderHeight = useCallback(() => {
-    return SECTION_HEADER_HEIGHT + (sizeClass === SizeClass.Large ? LARGE_TITLE_EXTRA_HEIGHT : 0);
-  }, [sizeClass]);
+    return SECTION_HEADER_HEIGHT + (horizontalSizeClass === SizeClass.Large ? LARGE_TITLE_EXTRA_HEIGHT : 0);
+  }, [horizontalSizeClass]);
 
   const getItemLayout = useCallback(
     (data: any, index: number) => {
       const headerHeight = getSectionHeaderHeight();
 
-      if (sizeClass === SizeClass.Large) {
+      if (horizontalSizeClass === SizeClass.Large) {
         // On large screens: only transaction items, no carousel
         return {
           length: TRANSACTION_ITEM_HEIGHT,
@@ -485,7 +485,7 @@ const WalletsList: React.FC = () => {
         };
       }
     },
-    [sizeClass, getSectionHeaderHeight],
+    [horizontalSizeClass, getSectionHeaderHeight],
   );
 
   return (

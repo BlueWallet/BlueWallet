@@ -64,7 +64,7 @@ const DetailViewStackScreensStack = () => {
   const navigation = useExtendedNavigation();
   const { wallets } = useStorage();
   const { isTotalBalanceEnabled } = useSettings();
-  const { sizeClass } = useSizeClass();
+  const { horizontalSizeClass } = useSizeClass();
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
@@ -74,7 +74,7 @@ const DetailViewStackScreensStack = () => {
 
   const RightBarButtons = useMemo(
     () =>
-      sizeClass === SizeClass.Large ? (
+      horizontalSizeClass === SizeClass.Large ? (
         <SettingsButton />
       ) : (
         <>
@@ -83,21 +83,21 @@ const DetailViewStackScreensStack = () => {
           <SettingsButton />
         </>
       ),
-    [sizeClass, navigateToAddWallet],
+    [horizontalSizeClass, navigateToAddWallet],
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
-      title: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
-      headerLargeTitle: displayTitle && sizeClass === SizeClass.Compact,
+      title: horizontalSizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
+      headerLargeTitle: displayTitle && horizontalSizeClass === SizeClass.Compact,
       headerShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
-  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets]);
+  }, [RightBarButtons, horizontalSizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
