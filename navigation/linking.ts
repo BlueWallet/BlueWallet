@@ -168,7 +168,7 @@ const isBothBitcoinAndLightningOnWalletSelect = (
 
 const routeFromUrl = (
   url: string,
-  context: TDeepLinkContext = { wallets: [], saveToDisk: () => {}, addWallet: () => {}, setSharedCosigner: () => {} },
+  context: TDeepLinkContext = defaultContext,
 ): TCompletionHandlerParams | undefined => {
   const normalizedUrl = normalizeUrl(url);
 
