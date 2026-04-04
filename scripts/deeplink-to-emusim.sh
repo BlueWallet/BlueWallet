@@ -14,14 +14,15 @@ deepLinks=(
   "lnaddress@zbd.gg"
   "zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
 )
+optionLabels=("${deepLinks[@]}")
 
-testOptions=("Send" "Notification")
+testOptions=("Send" "Notification" "Continuity")
 select_test_type() {
   local ESC=$(printf "\033")
   local selected=0
   while true; do
     clear
-    echo -e "\n\033[1mSelect test type (Send or Notification):\033[0m\n"
+    echo -e "\n\033[1mSelect test type:\033[0m\n"
     for i in "${!testOptions[@]}"; do
       if [ $i -eq $selected ]; then
         echo "> ${testOptions[$i]}"
@@ -55,12 +56,57 @@ select_test_type() {
 }
 select_test_type
 
-# For Notification mode, use only three bare bitcoin addresses
 if [[ "$TEST_TYPE" == "Notification" ]]; then
   deepLinks=(
     "12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG"
     "bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
     "BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE"
+  )
+  optionLabels=(
+    "Notification: legacy address"
+    "Notification: bech32 address"
+    "Notification: uppercase bech32 address"
+  )
+elif [[ "$TEST_TYPE" == "Continuity" ]]; then
+  deepLinks=(
+    "bluewallet://receiveonchain/bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
+    "bluewallet://receiveonchain"
+    "bluewallet://xpub/wallet123/zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
+    "bluewallet://xpub?xpub=zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
+    "bluewallet://xpub/wallet123"
+    "bluewallet://isitmyaddress/bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
+    "bluewallet://isitmyaddress"
+    "bluewallet://signverify/wallet123/bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
+    "bluewallet://signverify?address=bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
+    "bluewallet://signverify/wallet123"
+    "bluewallet://sendonchain/wallet123?address=12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG&amount=0.001&amountSats=100000&transactionMemo=Test"
+    "bluewallet://sendonchain/wallet123"
+    "bluewallet://sendonchain/wallet123?address=12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG&amount=0.001&amountSats=100000&transactionMemo=ConflictTest"
+    "bluewallet://lightningsettings?url=https%3A%2F%2Flndhub.herokuapp.com"
+    "bluewallet://lightningsettings"
+    "bluewallet://electrumsettings?server=electrum1.bluewallet.io%3A443%3As"
+    "bluewallet://electrumsettings"
+    "https://mempool.space/tx/abc123"
+  )
+  optionLabels=(
+    "ReceiveOnchain: valid address (expect QR/import prompt)"
+    "ReceiveOnchain: missing address (expect no-op)"
+    "Xpub: valid walletID + xpub (expect QR/import prompt)"
+    "Xpub: missing walletID (expect no-op)"
+    "Xpub: missing xpub (expect no-op)"
+    "IsItMyAddress: valid address"
+    "IsItMyAddress: missing address (expect no-op)"
+    "SignVerify: valid walletID + address"
+    "SignVerify: missing walletID (expect no-op)"
+    "SignVerify: missing address (expect no-op)"
+    "SendOnchain: prefilled draft"
+    "SendOnchain: wallet-only draft"
+    "SendOnchain: conflict prompt (run while already on Send Details)"
+    "LightningSettings: valid LNDHub URL"
+    "LightningSettings: missing URL (expect no-op)"
+    "ElectrumSettings: valid server"
+    "ElectrumSettings: missing server (expect no-op)"
+    "ViewInBlockExplorer: external URL behavior"
   )
 fi
 
@@ -76,10 +122,25 @@ select_option() {
       echo -e "\n\033[1m[Test: $TEST_TYPE] Select a deep link:\033[0m\n"
     fi
     for i in "${!deepLinks[@]}"; do
-      if [ $i -eq $selected ]; then
-        echo "> ${deepLinks[$i]}"
+      label="${optionLabels[$i]:-${deepLinks[$i]}}"
+      if [[ "$label" == *:* ]]; then
+        titlePart="${label%%:*}"
+        restPart="${label#*:}"
+        formattedLabel="\033[1m${titlePart}:\033[0m${restPart}"
       else
-        echo "  ${deepLinks[$i]}"
+        formattedLabel="\033[1m${label}\033[0m"
+      fi
+
+      if [ $i -eq $selected ]; then
+        echo -e "> $formattedLabel"
+        if [[ "$TEST_TYPE" == "Continuity" ]]; then
+          echo "    ${deepLinks[$i]}"
+        fi
+      else
+        echo -e "  $formattedLabel"
+        if [[ "$TEST_TYPE" == "Continuity" ]]; then
+          echo "    ${deepLinks[$i]}"
+        fi
       fi
     done
 
@@ -106,6 +167,7 @@ select_option() {
   done
 
   selectedLink="${deepLinks[$selected]}"
+  selectedLabel="${optionLabels[$selected]:-${deepLinks[$selected]}}"
 }
 
 select_option
@@ -199,11 +261,11 @@ JSON
       xcrun simctl push "$udid" "$apns_file"
       rm "$apns_file"
     else
-      echo -e "\nSending deep link to iOS simulator: $selectedLink\n"
+      echo -e "\nSending to iOS simulator: $selectedLabel\n$selectedLink\n"
       xcrun simctl openurl "$udid" "$selectedLink"
     fi
   else
-    echo -e "\nSending deep link to Android emulator: $selectedLink\n"
+    echo -e "\nSending to Android emulator: $selectedLabel\n$selectedLink\n"
     # Strip version info to get the emulator device ID
     emuId="${dev%% *}"
     adb -s "$emuId" shell am start -a android.intent.action.VIEW -d "$selectedLink"

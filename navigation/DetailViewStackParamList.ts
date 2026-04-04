@@ -57,7 +57,7 @@ export type DetailViewStackParamList = {
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
   Broadcast: object;
-  IsItMyAddress: object;
+  IsItMyAddress: { address?: string };
   GenerateWord: undefined;
   LnurlPay: undefined;
   LnurlPaySuccess: {
@@ -153,6 +153,7 @@ export type DetailViewStackParamList = {
     paymentCode: string;
     walletID: string;
   };
+  SettingsPrivacy: undefined;
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
 };

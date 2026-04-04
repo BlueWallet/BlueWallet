@@ -6,6 +6,8 @@ def node_require(script)
       {paths: [process.argv[1]]},
     )", __dir__]).strip
 end
+ENV['RCT_NEW_ARCH_ENABLED'] = '1'
+min_ios_version_supported = '15.1'
 node_require('react-native/scripts/react_native_pods.rb')
 node_require('react-native-permissions/scripts/setup.rb')
 
@@ -59,6 +61,17 @@ post_install do |installer|
       content.gsub!('-Xcc -fmodule-map-file="${PODS_ROOT}/Headers/Public/RCTDeprecation/RCTDeprecation.modulemap" ', '')
       content.gsub!('-fmodule-map-file="${PODS_ROOT}/Headers/Public/RCTDeprecation/RCTDeprecation.modulemap" ', '')
       File.write(xcconfig_path, content)
+    end
+  end
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.1'
+      
+      if ['React-Core-AccessibilityResources'].include? target.name 
+        config.build_settings['CODE_SIGN_STYLE'] = "Manual"
+        config.build_settings['CODE_SIGN_IDENTITY'] = "Apple Distribution: Bluewallet Services, S. R. L. (A7W54YZ4WU)"
+        config.build_settings['DEVELOPMENT_TEAM'] = "A7W54YZ4WU"
+      end
     end
   end
 end

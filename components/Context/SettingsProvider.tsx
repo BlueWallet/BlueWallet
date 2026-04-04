@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { Platform } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import { isReadClipboardAllowed, setReadClipboardAllowed } from '../../blue_modules/clipboard';
 import { getPreferredCurrency, GROUP_IO_BLUEWALLET, initCurrencyDaemon, setPreferredCurrency } from '../../blue_modules/currency';
@@ -10,7 +11,6 @@ import {
   getEnabled as getIsDeviceQuickActionsEnabled,
   setEnabled as setIsDeviceQuickActionsEnabled,
 } from '../../hooks/useDeviceQuickActions';
-import { getIsHandOffUseEnabled, setIsHandOffUseEnabled } from '../HandOffComponent';
 import { useStorage } from '../../hooks/context/useStorage';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
@@ -18,6 +18,23 @@ import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer,
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const getIsContinuityEnabled = async (): Promise<boolean> => {
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return false;
+  try {
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    const value = await DefaultPreference.get(BlueApp.CONTINUITY_STORAGE_KEY);
+    return value === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const setIsContinuityEnabled = async (value: boolean): Promise<void> => {
+  if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  await DefaultPreference.set(BlueApp.CONTINUITY_STORAGE_KEY, value.toString());
+};
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -77,8 +94,8 @@ interface SettingsContextType {
   setPreferredFiatCurrencyStorage: (currency: TFiatUnit) => Promise<void>;
   language: string;
   setLanguageStorage: (language: string) => Promise<void>;
-  isHandOffUseEnabled: boolean;
-  setIsHandOffUseEnabledAsyncStorage: (value: boolean) => Promise<void>;
+  isContinuityEnabled: boolean;
+  setIsContinuityEnabledStorage: (value: boolean) => Promise<void>;
   isPrivacyBlurEnabled: boolean;
   setIsPrivacyBlurEnabled: (value: boolean) => void;
   isDoNotTrackEnabled: boolean;
@@ -106,8 +123,8 @@ const defaultSettingsContext: SettingsContextType = {
   setPreferredFiatCurrencyStorage: async () => {},
   language: 'en',
   setLanguageStorage: async () => {},
-  isHandOffUseEnabled: false,
-  setIsHandOffUseEnabledAsyncStorage: async () => {},
+  isContinuityEnabled: false,
+  setIsContinuityEnabledStorage: async () => {},
   isPrivacyBlurEnabled: true,
   setIsPrivacyBlurEnabled: () => {},
   isDoNotTrackEnabled: false,
@@ -135,7 +152,7 @@ export const SettingsContext = createContext<SettingsContextType>(defaultSetting
 export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.memo(({ children }: { children: React.ReactNode }) => {
   const [preferredFiatCurrency, setPreferredFiatCurrencyState] = useState<TFiatUnit>(FiatUnit.USD);
   const [language, setLanguage] = useState<string>('en');
-  const [isHandOffUseEnabled, setIsHandOffUseEnabledState] = useState<boolean>(false);
+  const [isContinuityEnabled, setIsContinuityEnabledState] = useState<boolean>(false);
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState<boolean>(true);
   const [isDoNotTrackEnabled, setIsDoNotTrackEnabled] = useState<boolean>(false);
   const [isWidgetBalanceDisplayAllowed, setIsWidgetBalanceDisplayAllowed] = useState<boolean>(true);
@@ -161,8 +178,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         BlueElectrum.isDisabled().then(disabled => {
           setIsElectrumDisabled(disabled);
         }),
-        getIsHandOffUseEnabled().then(handOff => {
-          setIsHandOffUseEnabledState(handOff);
+        getIsContinuityEnabled().then(enabled => {
+          setIsContinuityEnabledState(enabled);
         }),
         AsyncStorage.getItem(STORAGE_KEY).then(lang => {
           setLanguage(lang ?? 'en');
@@ -256,13 +273,13 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     }
   }, []);
 
-  const setIsHandOffUseEnabledAsyncStorage = useCallback(async (value: boolean): Promise<void> => {
+  const setIsContinuityEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
-      console.debug('setIsHandOffUseEnabledAsyncStorage', value);
-      await setIsHandOffUseEnabled(value);
-      setIsHandOffUseEnabledState(value);
+      console.debug('setIsContinuityEnabledStorage', value);
+      await setIsContinuityEnabled(value);
+      setIsContinuityEnabledState(value);
     } catch (e) {
-      console.error('Error setting isHandOffUseEnabled:', e);
+      console.error('Error setting isContinuityEnabled:', e);
     }
   }, []);
 
@@ -342,8 +359,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setPreferredFiatCurrencyStorage,
       language,
       setLanguageStorage,
-      isHandOffUseEnabled,
-      setIsHandOffUseEnabledAsyncStorage,
+      isContinuityEnabled,
+      setIsContinuityEnabledStorage,
       isPrivacyBlurEnabled,
       setIsPrivacyBlurEnabled,
       isDoNotTrackEnabled,
@@ -370,8 +387,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setPreferredFiatCurrencyStorage,
       language,
       setLanguageStorage,
-      isHandOffUseEnabled,
-      setIsHandOffUseEnabledAsyncStorage,
+      isContinuityEnabled,
+      setIsContinuityEnabledStorage,
       isPrivacyBlurEnabled,
       setIsPrivacyBlurEnabled,
       isDoNotTrackEnabled,

@@ -6,4 +6,5 @@
 - (void)removeListeners:(double)count;
 - (void)getMostRecentUserActivity:(RCTPromiseResolveBlock)resolve
                          rejecter:(RCTPromiseRejectBlock)reject;
+- (void)clearMostRecentUserActivity;
 @end

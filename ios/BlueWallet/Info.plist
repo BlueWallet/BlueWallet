@@ -194,6 +194,11 @@
 	<array>
 		<string>io.bluewallet.bluewallet.receiveonchain</string>
 		<string>io.bluewallet.bluewallet.xpub</string>
+		<string>io.bluewallet.bluewallet.sendonchain</string>
+		<string>io.bluewallet.bluewallet.blockexplorer</string>
+		<string>io.bluewallet.bluewallet.signverify</string>
+		<string>io.bluewallet.bluewallet.isitmyaddress</string>
+		<string>io.bluewallet.bluewallet.lightningsettings</string>
 	</array>
 	<key>RCTNewArchEnabled</key>
 	<true/>
