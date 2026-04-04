@@ -400,8 +400,8 @@ const routeToState = ([routeName, routeParams]: TCompletionHandlerParams): Parti
   }
 
   return {
-    routes: [{ name: routeName, params: routeParams }],
-    index: 0,
+    routes: [{ name: 'DrawerRoot' }, { name: routeName, params: routeParams }],
+    index: 1,
   };
 };
 
