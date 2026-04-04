@@ -73,6 +73,40 @@ const showAlertWithWalletOptions = (
   }
 };
 
+const showContinuityAdvertisedAlert = (
+  id: number,
+  type: ContinuityActivityType,
+  title: string,
+  userInfo?: Record<string, unknown> | null,
+  url?: string,
+) => {
+  const details = ['Continuity activity advertised.', '', `Title: ${title}`, `Type: ${type}`, `ID: ${id}`];
+
+  if (userInfo && Object.keys(userInfo).length > 0) {
+    details.push('', `User info: ${JSON.stringify(userInfo, null, 2)}`);
+  }
+
+  if (url) {
+    details.push('', `URL: ${url}`);
+  }
+
+  details.push('', 'Check another device for Continuity availability.');
+
+  Alert.alert('Continuity Test Activity', details.join('\n'), [
+    {
+      text: 'Keep Active',
+      style: 'cancel',
+    },
+    {
+      text: 'Invalidate Now',
+      onPress: () => {
+        NativeReactNativeContinuity?.invalidate(id);
+        Alert.alert('Continuity test activity invalidated');
+      },
+    },
+  ]);
+};
+
 const DevMenu: React.FC = () => {
   const { wallets, addWallet } = useStorage();
   const { isContinuityEnabled, setIsContinuityEnabledStorage } = useSettings();
@@ -165,9 +199,33 @@ const DevMenu: React.FC = () => {
         });
       });
 
-      // ---- Handoff Debug Options ----
+      // ---- Continuity Debug Options ----
 
-      DevSettings.addMenuItem('Handoff: Check Status', async () => {
+      const ensureContinuityAvailable = (): boolean => {
+        if (Platform.OS === 'web') {
+          Alert.alert('Continuity is not available on web');
+          return false;
+        }
+        if (!NativeReactNativeContinuity) {
+          Alert.alert('ReactNativeContinuity native module not available');
+          return false;
+        }
+        return true;
+      };
+
+      const advertiseContinuityActivity = (
+        type: ContinuityActivityType,
+        title: string,
+        userInfo?: Record<string, unknown> | null,
+        url?: string,
+      ) => {
+        if (!ensureContinuityAvailable()) return;
+        const testId = Date.now();
+        NativeReactNativeContinuity?.becomeCurrent(testId, type, title, userInfo ?? null, url ?? null);
+        showContinuityAdvertisedAlert(testId, type, title, userInfo, url);
+      };
+
+      DevSettings.addMenuItem('Continuity: Check Status', async () => {
         const lines: string[] = [`Setting enabled: ${isContinuityEnabled}`, `Platform: ${Platform.OS}`];
         if (Platform.OS !== 'web' && NativeReactNativeContinuity?.isSupported) {
           try {
@@ -177,52 +235,82 @@ const DevMenu: React.FC = () => {
             lines.push(`Device supported: error (${e.message})`);
           }
         }
-        Alert.alert('Handoff Status', lines.join('\n'));
+        lines.push(
+          'Types: Block Explorer, Receive, Xpub, Sign/Verify, Is It My Address, Send Onchain, Lightning Settings, Electrum Settings',
+        );
+        Alert.alert('Continuity Status', lines.join('\n'));
       });
 
-      DevSettings.addMenuItem('Handoff: Toggle Setting', async () => {
+      DevSettings.addMenuItem('Continuity: Toggle Setting', async () => {
         const newValue = !isContinuityEnabled;
         await setIsContinuityEnabledStorage(newValue);
-        Alert.alert('Handoff Setting', `Continuity is now ${newValue ? 'ON' : 'OFF'}`);
+        Alert.alert('Continuity Setting', `Continuity is now ${newValue ? 'ON' : 'OFF'}`);
       });
 
-      DevSettings.addMenuItem('Handoff: Test Activity', async () => {
-        if (Platform.OS === 'web') {
-          Alert.alert('Not available on web');
-          return;
-        }
-        if (!NativeReactNativeContinuity) {
-          Alert.alert('ReactNativeContinuity native module not available');
-          return;
-        }
-
-        const testId = Date.now();
-        const testType = ContinuityActivityType.ViewInBlockExplorer;
-        const testUrl = 'https://mempool.space/tx/test-handoff-debug';
-        NativeReactNativeContinuity.becomeCurrent(testId, testType, 'Handoff Debug Test', null, testUrl);
-        Alert.alert(
-          'Handoff Test Activity',
-          `Activity advertised.\n\nType: ${testType}\nURL: ${testUrl}\nID: ${testId}\n\nCheck another device for Handoff availability. Tap OK to invalidate.`,
-          [
-            {
-              text: 'Keep Active',
-              style: 'cancel',
-            },
-            {
-              text: 'Invalidate Now',
-              onPress: () => {
-                NativeReactNativeContinuity?.invalidate(testId);
-                Alert.alert('Test activity invalidated');
-              },
-            },
-          ],
+      DevSettings.addMenuItem('Continuity: Test Block Explorer', () => {
+        advertiseContinuityActivity(
+          ContinuityActivityType.ViewInBlockExplorer,
+          'View Transaction in Block Explorer',
+          null,
+          'https://mempool.space/tx/test-continuity-debug',
         );
       });
 
-      DevSettings.addMenuItem('Handoff: Test Send Onchain', () => {
+      DevSettings.addMenuItem('Continuity: Test Receive Onchain', () => {
+        advertiseContinuityActivity(ContinuityActivityType.ReceiveOnchain, 'Receive Bitcoin', {
+          address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+        });
+      });
+
+      DevSettings.addMenuItem('Continuity: Test Wallet Xpub', () => {
+        if (wallets.length === 0) {
+          Alert.alert('No wallets available');
+          return;
+        }
+
+        showAlertWithWalletOptions(
+          wallets,
+          'Continuity: Test Wallet Xpub',
+          'Select the wallet to advertise over Continuity',
+          wallet => {
+            const xpub = wallet.getXpub();
+            if (!xpub) {
+              Alert.alert('This wallet does not have an Xpub.');
+              return;
+            }
+            advertiseContinuityActivity(ContinuityActivityType.Xpub, 'Wallet XPub', {
+              walletID: wallet.getID(),
+              xpub,
+            });
+          },
+          wallet => typeof wallet.getXpub === 'function' && !!wallet.getXpub(),
+        );
+      });
+
+      DevSettings.addMenuItem('Continuity: Test Is It My Address', () => {
+        advertiseContinuityActivity(ContinuityActivityType.IsItMyAddress, 'Is It My Address', {
+          address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+        });
+      });
+
+      DevSettings.addMenuItem('Continuity: Test Sign/Verify', () => {
+        if (wallets.length === 0) {
+          Alert.alert('No wallets available');
+          return;
+        }
+
+        showAlertWithWalletOptions(wallets, 'Continuity: Test Sign/Verify', 'Select the wallet to advertise over Continuity', wallet => {
+          advertiseContinuityActivity(ContinuityActivityType.SignVerify, 'Sign & Verify', {
+            walletID: wallet.getID(),
+            address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+          });
+        });
+      });
+
+      DevSettings.addMenuItem('Continuity: Test Send Onchain', () => {
         const testAddress = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq';
         const testAmount = '0.001';
-        const testMemo = 'Handoff Debug Test';
+        const testMemo = 'Continuity Debug Test';
 
         const currentRoute = navigationRef.current?.getCurrentRoute();
         const isOnSendDetails = currentRoute?.name === 'SendDetails';
@@ -242,13 +330,12 @@ const DevMenu: React.FC = () => {
         if (!isOnSendDetails) {
           navigateToSend();
           Alert.alert(
-            'Handoff: Send Onchain',
+            'Continuity: Send Onchain',
             `Navigated to SendDetails.\n\nAddress: ${testAddress}\nAmount: ${testAmount} BTC\nMemo: ${testMemo}`,
           );
           return;
         }
 
-        // Simulate draft conflict
         Alert.alert(loc.send.continuity_draft_conflict_title, loc.send.continuity_draft_conflict_message, [
           { text: loc._.cancel, style: 'cancel' },
           {
@@ -273,6 +360,18 @@ const DevMenu: React.FC = () => {
             },
           },
         ]);
+      });
+
+      DevSettings.addMenuItem('Continuity: Test Lightning Settings', () => {
+        advertiseContinuityActivity(ContinuityActivityType.LightningSettings, loc.settings.lightning_settings, {
+          url: 'https://lndhub.herokuapp.com',
+        });
+      });
+
+      DevSettings.addMenuItem('Continuity: Test Electrum Settings', () => {
+        advertiseContinuityActivity(ContinuityActivityType.ElectrumSettings, loc.settings.electrum_settings_server, {
+          server: 'electrum1.bluewallet.io:443:s',
+        });
       });
     }
   }, [wallets, addWallet, isContinuityEnabled, setIsContinuityEnabledStorage]);
