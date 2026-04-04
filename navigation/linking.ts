@@ -166,10 +166,7 @@ const isBothBitcoinAndLightningOnWalletSelect = (
   ];
 };
 
-const routeFromUrl = (
-  url: string,
-  context: TDeepLinkContext = defaultContext,
-): TCompletionHandlerParams | undefined => {
+const routeFromUrl = (url: string, context: TDeepLinkContext = defaultContext): TCompletionHandlerParams | undefined => {
   const normalizedUrl = normalizeUrl(url);
 
   if (isWidgetAction(normalizedUrl) && context.wallets.length > 0) {
@@ -246,8 +243,8 @@ const routeFromUrl = (
         return ['ElectrumSettings', { server: typeof server === 'string' ? server : undefined }];
       }
       case 'setlndhuburl': {
-        const url = getUrlFromSetLndhubUrlAction(normalizedUrl);
-        return ['LightningSettings', { url: typeof url === 'string' ? url : undefined }];
+        const lndhubUrl = getUrlFromSetLndhubUrlAction(normalizedUrl);
+        return ['LightningSettings', { url: typeof lndhubUrl === 'string' ? lndhubUrl : undefined }];
       }
     }
   }
@@ -264,7 +261,7 @@ const buildQueryString = (params: Record<string, unknown>): string => {
   return query ? `?${query}` : '';
 };
 
-const buildInternalUrl = (path: string, params: Record<string, unknown> = {}): string => {
+export const buildInternalUrl = (path: string, params: Record<string, unknown> = {}): string => {
   return `${INTERNAL_ROUTE_PREFIX}${path}${buildQueryString(params)}`;
 };
 

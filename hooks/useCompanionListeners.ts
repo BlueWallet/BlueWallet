@@ -1,4 +1,3 @@
-import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { getClipboardContent } from '../blue_modules/clipboard';
@@ -15,7 +14,6 @@ import {
 import { LightningCustodianWallet } from '../class';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
-import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from './context/useStorage';
 import RNQRGenerator from 'rn-qr-generator';
@@ -25,8 +23,14 @@ import useWatchConnectivity from './useWatchConnectivity';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
-import { useExtendedNavigation } from './useExtendedNavigation';
-import { isBitcoinAddress, isBothBitcoinAndLightning, isLightningInvoice, isLnUrl, navigateFromDeepLink } from '../navigation/linking';
+import {
+  buildInternalUrl,
+  isBitcoinAddress,
+  isBothBitcoinAndLightning,
+  isLightningInvoice,
+  isLnUrl,
+  navigateFromDeepLink,
+} from '../navigation/linking';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -48,7 +52,6 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>(undefined);
-  const navigation = useExtendedNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
   // We'll use this check inside the effects to conditionally run logic
@@ -61,6 +64,30 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   useMenuElements();
   useDeviceQuickActions();
   useHandoffListener();
+
+  const handleNotificationNavigation = useCallback(
+    async (wallet: (typeof wallets)[number], payload: { type?: number; address?: string }) => {
+      const walletID = wallet.getID();
+      const targetUrl =
+        payload.type !== 3 || wallet.chain === Chain.OFFCHAIN
+          ? buildInternalUrl('wallet/transactions', { walletID, walletType: wallet.type })
+          : buildInternalUrl('wallet/receive', { walletID, address: payload.address });
+
+      const handled = await navigateFromDeepLink(targetUrl, {
+        wallets,
+        addWallet,
+        saveToDisk,
+        setSharedCosigner,
+      });
+
+      if (!handled) {
+        console.warn('Failed to navigate from notification link:', targetUrl);
+      }
+
+      return handled;
+    },
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
+  );
 
   const processPushNotifications = useCallback(async () => {
     if (!shouldActivateListeners) return false;
@@ -101,18 +128,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           const walletID = wallet.getID();
           fetchAndSaveWalletTransactions(walletID);
           if (wasTapped) {
-            if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
-              navigation.navigate('WalletTransactions', {
-                walletID,
-                walletType: wallet.type,
-              });
-            } else {
-              navigation.navigate('ReceiveDetails', {
-                walletID,
-                address: payload.address,
-              });
-            }
-
+            await handleNotificationNavigation(wallet, payload);
             return true;
           }
         } else {
@@ -141,28 +157,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             const walletID = wallet.getID();
             fetchAndSaveWalletTransactions(walletID);
             if (wasTapped) {
-              if (payload.type !== 3 || wallet.chain === Chain.OFFCHAIN) {
-                navigationRef.dispatch(
-                  CommonActions.navigate({
-                    name: 'WalletTransactions',
-                    params: {
-                      walletID,
-                      walletType: wallet.type,
-                    },
-                  }),
-                );
-              } else {
-                navigationRef.dispatch(
-                  CommonActions.navigate({
-                    name: 'ReceiveDetails',
-                    params: {
-                      walletID,
-                      address: payload.address,
-                    },
-                  }),
-                );
-              }
-
+              await handleNotificationNavigation(wallet, payload);
               return true;
             }
           } else {
@@ -178,7 +173,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
       console.error('Failed to process push notifications:', error);
     }
     return false;
-  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, navigation, refreshAllWalletTransactions]);
+  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, handleNotificationNavigation, refreshAllWalletTransactions]);
 
   useEffect(() => {
     if (!shouldActivateListeners) return;

@@ -2141,7 +2141,7 @@ PODS:
   - react-native-tcp-socket (6.4.1):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-vector-icons-entypo (12.4.2)
+  - react-native-vector-icons-entypo (12.5.0)
   - react-native-vector-icons-fontawesome (12.4.2)
   - react-native-vector-icons-fontawesome6 (12.3.2)
   - react-native-vector-icons-ionicons (12.4.2)
@@ -2796,7 +2796,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.30.0):
+  - RNGestureHandler (2.30.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -3708,7 +3708,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: befb5404eb8a16fdc07fa2bebab3568ecabcbb8a
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 7c7e53a07f122ecf00fb3626684bc0ca82c4f044
-  react-native-vector-icons-entypo: df7884c4002b70c79d41b7de10b53df3ce8c1e8e
+  react-native-vector-icons-entypo: 3cd60c5950ea9b2cf7f1fe4fe50fbcbcef2ba381
   react-native-vector-icons-fontawesome: 3604609191a2b4323637a4a25dcd4e6e05579dc2
   react-native-vector-icons-fontawesome6: 3765e18f5116ae4498997bf8548eaab05de72ee6
   react-native-vector-icons-ionicons: 7cc4388958a60560aa6f5e257ad8197d555700ff
@@ -3754,7 +3754,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: cd4be101cfa17ea6bbd438710caa02e286a84381
+  RNGestureHandler: b407c25a3f51d22dd7430e6b530f753f112b7e77
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 483402cf2b90647eb0cf569cebbc069d32addea4
   RNLocalize: 1aedbc2c15073861a364174919d23c31c5924b16
