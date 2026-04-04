@@ -134,6 +134,33 @@ class MainActivity : ReactActivity() {
         val activityType = ContinuityActivityRegistry.activityTypeForRoute(route) ?: return null
 
         val userInfo = JSONObject()
+
+        // Parse path segments into userInfo based on route type
+        val pathSegments = uri.pathSegments
+        when (route) {
+            "receiveonchain", "isitmyaddress" -> {
+                pathSegments.getOrNull(0)?.takeIf { it.isNotEmpty() }
+                    ?.let { userInfo.put("address", Uri.decode(it)) }
+            }
+            "xpub" -> {
+                pathSegments.getOrNull(0)?.takeIf { it.isNotEmpty() }
+                    ?.let { userInfo.put("walletID", Uri.decode(it)) }
+                pathSegments.getOrNull(1)?.takeIf { it.isNotEmpty() }
+                    ?.let { userInfo.put("xpub", Uri.decode(it)) }
+            }
+            "signverify" -> {
+                pathSegments.getOrNull(0)?.takeIf { it.isNotEmpty() }
+                    ?.let { userInfo.put("walletID", Uri.decode(it)) }
+                pathSegments.getOrNull(1)?.takeIf { it.isNotEmpty() }
+                    ?.let { userInfo.put("address", Uri.decode(it)) }
+            }
+            "sendonchain" -> {
+                pathSegments.getOrNull(0)?.takeIf { it.isNotEmpty() }
+                    ?.let { userInfo.put("walletID", Uri.decode(it)) }
+            }
+        }
+
+        // Parse query parameters (may override or supplement path-derived values)
         for (name in uri.queryParameterNames) {
             userInfo.put(name, uri.getQueryParameter(name))
         }
