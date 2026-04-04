@@ -1,9 +1,9 @@
 import { useEffect, useCallback } from 'react';
 import { NativeEventEmitter } from 'react-native';
 import EventEmitterModule from '../blue_modules/NativeEventEmitter';
-import { useStorage } from '../hooks/context/useStorage';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { HandOffActivityType } from '../components/types';
+import { buildInternalUrl, navigateFromDeepLink } from '../navigation/linking';
+import { useStorage } from '../hooks/context/useStorage';
 import { useSettings } from './context/useSettings';
 
 interface UserActivityData {
@@ -19,31 +19,35 @@ const eventEmitter = EventEmitterModule ? new NativeEventEmitter(EventEmitterMod
 const useHandoffListener = () => {
   const { walletsInitialized } = useStorage();
   const { isHandOffUseEnabled } = useSettings();
-  const { navigate } = useExtendedNavigation();
 
-  const handleUserActivity = useCallback(
-    (data: UserActivityData) => {
-      if (!data || !data.activityType) {
-        console.debug(`Invalid handoff data received: ${data ? JSON.stringify(data) : 'No data provided'}`);
+  const handleUserActivity = useCallback(async (data: UserActivityData) => {
+    if (!data || !data.activityType) {
+      console.debug(`Invalid handoff data received: ${data ? JSON.stringify(data) : 'No data provided'}`);
+      return;
+    }
+
+    const { activityType, userInfo } = data;
+
+    try {
+      let url: string | null = null;
+
+      if (activityType === HandOffActivityType.ReceiveOnchain && userInfo?.address) {
+        url = buildInternalUrl('wallet/receive', { address: userInfo.address });
+      } else if (activityType === HandOffActivityType.Xpub && userInfo?.xpub) {
+        url = buildInternalUrl('wallet/xpub', { xpub: userInfo.xpub });
+      } else {
+        console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, userInfo);
         return;
       }
-      const { activityType, userInfo } = data;
-      const modifiedUserInfo = { ...(userInfo || {}), type: activityType };
-      try {
-        if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
-          navigate( 'ReceiveDetails', { address: modifiedUserInfo.address, type: activityType },
-          );
-        } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
-          navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
-        } else {
-          console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
-        }
-      } catch (error) {
-        console.error('Error handling user activity:', error);
+
+      const handled = await navigateFromDeepLink(url);
+      if (!handled) {
+        console.debug(`Unable to route handoff activity via linking: ${activityType}`, userInfo);
       }
-    },
-    [navigate],
-  );
+    } catch (error) {
+      console.error('Error handling user activity:', error);
+    }
+  }, []);
 
   useEffect(() => {
     if (!walletsInitialized || !isHandOffUseEnabled) return;

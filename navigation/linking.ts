@@ -1,6 +1,7 @@
 import { getActionFromState, LinkingOptions, NavigationState, ParamListBase, PartialState } from '@react-navigation/native';
 import URL from 'url';
-import { Linking } from 'react-native';
+import { DeviceEventEmitter, Linking } from 'react-native';
+import QuickActions from 'react-native-quick-actions';
 import { readFileOutsideSandbox } from '../blue_modules/fs';
 import { WatchOnlyWallet } from '../class';
 import Azteco from '../class/azteco';
@@ -27,6 +28,10 @@ const defaultContext: TDeepLinkContext = {
   saveToDisk: () => {},
   addWallet: () => {},
   setSharedCosigner: () => {},
+};
+
+const getQuickActionUrl = (data: { userInfo?: { url?: string } } | null | undefined): string | null => {
+  return typeof data?.userInfo?.url === 'string' ? data.userInfo.url : null;
 };
 
 const INTERNAL_ROUTE_PREFIX = 'bluewallet://route/';
@@ -463,6 +468,8 @@ const getInternalRouteFromPath = (path: string): TCompletionHandlerParams | unde
         'DetailViewStackScreensStack',
         { screen: 'ReceiveDetails', params: compactParams({ walletID: params.walletID, address: params.address }) },
       ];
+    case 'wallet/xpub':
+      return ['WalletXpub', compactParams({ walletID: params.walletID, xpub: params.xpub })];
     case 'settings/electrum':
       return ['ElectrumSettings', compactParams({ server: params.server })];
     case 'settings/lightning':
@@ -501,6 +508,8 @@ const buildInternalUrlFromRoute = (route: TCompletionHandlerParams, sourceUrl: s
         return buildInternalUrl('wallet/receive', routeParams.params ?? {});
       }
       return null;
+    case 'WalletXpub':
+      return buildInternalUrl('wallet/xpub', routeParams ?? {});
     case 'SelectWallet': {
       const both = isBothBitcoinAndLightning(sourceUrl);
       return both ? buildInternalUrl('send/select-wallet', both) : null;
@@ -632,14 +641,19 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
     async getInitialURL() {
       try {
         const url = await Linking.getInitialURL();
-        return url ? await resolveDeepLinkUrl(url, context) : null;
+        if (url) {
+          return await resolveDeepLinkUrl(url, context);
+        }
+
+        const quickActionUrl = getQuickActionUrl(await QuickActions.popInitialAction());
+        return quickActionUrl ? await resolveDeepLinkUrl(quickActionUrl, context) : null;
       } catch (error) {
         console.warn(error);
         return null;
       }
     },
     subscribe(listener) {
-      const subscription = Linking.addEventListener('url', event => {
+      const linkingSubscription = Linking.addEventListener('url', event => {
         resolveDeepLinkUrl(event.url, context)
           .then(resolvedUrl => {
             if (resolvedUrl) {
@@ -649,8 +663,24 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
           .catch(error => console.warn(error));
       });
 
+      const quickActionSubscription = DeviceEventEmitter.addListener('quickActionShortcut', event => {
+        const quickActionUrl = getQuickActionUrl(event);
+        if (!quickActionUrl) {
+          return;
+        }
+
+        resolveDeepLinkUrl(quickActionUrl, context)
+          .then(resolvedUrl => {
+            if (resolvedUrl) {
+              listener(resolvedUrl);
+            }
+          })
+          .catch(error => console.warn(error));
+      });
+
       return () => {
-        subscription.remove();
+        linkingSubscription.remove();
+        quickActionSubscription.remove();
       };
     },
     config: linkingConfig as NonNullable<LinkingOptions<ParamListBase>['config']>,
