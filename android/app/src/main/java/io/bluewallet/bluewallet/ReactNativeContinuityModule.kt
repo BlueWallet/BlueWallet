@@ -64,7 +64,11 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : Nativ
         currentWebUri = entry.webUri
         currentStructuredData = entry.structuredData
 
-        Log.d(TAG, "becomeCurrent id=$id type=$type")
+        val userInfoKeys = structured?.keys()?.asSequence()?.toList().orEmpty()
+        Log.i(
+            TAG,
+            "Registered continuity activity id=$id type=$type title=${title ?: ""} hasWebUri=${entry.webUri != null} userInfoKeys=$userInfoKeys",
+        )
     }
 
     @ReactMethod
@@ -72,7 +76,9 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : Nativ
         val id = activityId.toInt()
         val removed = activities.remove(id)
         if (removed != null) {
-            Log.d(TAG, "invalidate id=$id")
+            Log.i(TAG, "Invalidated continuity activity id=$id type=${removed.type} remaining=${activities.size}")
+        } else {
+            Log.w(TAG, "invalidate called for unknown continuity activity id=$id")
         }
 
         if (activities.isEmpty()) {
@@ -92,6 +98,7 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : Nativ
     @ReactMethod
     override fun isSupported(promise: Promise) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Log.w(TAG, "Continuity not supported on this device: sdk=${Build.VERSION.SDK_INT}")
             promise.resolve(false)
             return
         }
@@ -100,8 +107,15 @@ class ReactNativeContinuityModule(reactContext: ReactApplicationContext) : Nativ
                 reactApplicationContext.contentResolver,
                 "assistant"
             )
-            promise.resolve(!assistComponent.isNullOrBlank())
+            val supported = !assistComponent.isNullOrBlank()
+            if (supported) {
+                Log.i(TAG, "Continuity support check succeeded")
+            } else {
+                Log.w(TAG, "Continuity support check returned false because no assistant is configured")
+            }
+            promise.resolve(supported)
         } catch (e: Exception) {
+            Log.e(TAG, "Continuity support check failed; defaulting to supported", e)
             promise.resolve(true)
         }
     }

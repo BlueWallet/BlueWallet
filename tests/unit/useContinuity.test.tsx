@@ -11,6 +11,10 @@ import useContinuity from '../../hooks/useContinuity';
 
 const mockBecomeCurrent = jest.fn();
 const mockInvalidate = jest.fn();
+const infoSpy = jest.spyOn(console, 'info').mockImplementation(() => {});
+const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
 jest.mock('../../codegen/NativeReactNativeContinuity', () => ({
   __esModule: true,
@@ -36,7 +40,18 @@ describe('useContinuity', () => {
   beforeEach(() => {
     mockBecomeCurrent.mockClear();
     mockInvalidate.mockClear();
+    infoSpy.mockClear();
+    debugSpy.mockClear();
+    warnSpy.mockClear();
+    errorSpy.mockClear();
     mockContinuityEnabled = true;
+  });
+
+  afterAll(() => {
+    infoSpy.mockRestore();
+    debugSpy.mockRestore();
+    warnSpy.mockRestore();
+    errorSpy.mockRestore();
   });
 
   it('calls becomeCurrent when given a url', () => {
@@ -61,12 +76,39 @@ describe('useContinuity', () => {
     assert.strictEqual(call[4], null); // no url
   });
 
+  it('logs useful info when a continuity activity is registered', () => {
+    render(<HookRunner title="Receive" type={ContinuityActivityType.ReceiveOnchain} userInfo={{ address: 'bc1q...' }} />);
+
+    const registrationLog = infoSpy.mock.calls.find(([message]) => message === '[Continuity] Registered activity');
+    assert.ok(registrationLog, 'Expected a continuity registration log');
+    assert.deepStrictEqual(registrationLog?.[1], {
+      id: mockBecomeCurrent.mock.calls[0][0],
+      type: ContinuityActivityType.ReceiveOnchain,
+      title: 'Receive',
+      hasUrl: false,
+      hasUserInfo: true,
+    });
+  });
+
   it('does not call becomeCurrent when continuity is disabled', () => {
     mockContinuityEnabled = false;
 
     render(<HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
 
     assert.strictEqual(mockBecomeCurrent.mock.calls.length, 0);
+  });
+
+  it('logs a warning when continuity is disabled', () => {
+    mockContinuityEnabled = false;
+
+    render(<HookRunner title="View Transaction" type={ContinuityActivityType.ViewInBlockExplorer} url="https://mempool.space/tx/abc123" />);
+
+    const warningLog = warnSpy.mock.calls.find(([message]) => message === '[Continuity] Skipping activity registration because continuity is disabled');
+    assert.ok(warningLog, 'Expected a continuity disabled warning');
+    assert.deepStrictEqual(warningLog?.[1], {
+      type: ContinuityActivityType.ViewInBlockExplorer,
+      title: 'View Transaction',
+    });
   });
 
   it('does not call becomeCurrent when url and userInfo are both empty', () => {

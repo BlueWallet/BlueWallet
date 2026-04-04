@@ -19,6 +19,10 @@ import org.json.JSONObject
 
 class MainActivity : ReactActivity() {
 
+    companion object {
+        private const val CONTINUITY_TAG = "ReactNativeContinuity"
+    }
+
     /**
      * Returns the name of the main component registered from JavaScript.
      * This is used to schedule rendering of the component.
@@ -103,6 +107,10 @@ class MainActivity : ReactActivity() {
         }
         if (structured.length() > 0) {
             outContent.structuredData = structured.toString()
+            Log.i(
+                CONTINUITY_TAG,
+                "Provided assist content type=${ReactNativeContinuityModule.currentActivityType ?: ""} title=${ReactNativeContinuityModule.currentActivityTitle ?: ""} hasWebUri=${continuityUri != null} structuredFieldCount=${structured.length()}",
+            )
         }
     }
 
@@ -121,6 +129,10 @@ class MainActivity : ReactActivity() {
             ?.reactInstanceManager
             ?.currentReactContext
 
+        Log.i(
+            CONTINUITY_TAG,
+            "Handling continuity intent activityType=${payload.optString("activityType")} hasUserInfo=${payload.optJSONObject("userInfo")?.length() ?: 0 > 0} webpageURL=${payload.optString("webpageURL")}",
+        )
         EventEmitterModule.persistAndEmitUserActivity(applicationContext, payload, reactContext)
     }
 
@@ -131,7 +143,11 @@ class MainActivity : ReactActivity() {
         if (!uri.scheme.equals("bluewallet", ignoreCase = true)) return null
 
         val route = (uri.host ?: uri.pathSegments.firstOrNull())?.lowercase() ?: return null
-        val activityType = ContinuityActivityRegistry.activityTypeForRoute(route) ?: return null
+        val activityType = ContinuityActivityRegistry.activityTypeForRoute(route)
+        if (activityType == null) {
+            Log.w(CONTINUITY_TAG, "Ignoring unsupported continuity route route=$route uri=$uri")
+            return null
+        }
 
         val userInfo = JSONObject()
 
@@ -169,6 +185,11 @@ class MainActivity : ReactActivity() {
             put("activityType", activityType)
             put("userInfo", userInfo)
             put("webpageURL", uri.toString())
+        }.also {
+            Log.i(
+                CONTINUITY_TAG,
+                "Parsed continuity intent route=$route activityType=$activityType pathSegments=${pathSegments.size} queryParameters=${uri.queryParameterNames.size}",
+            )
         }
     }
 }

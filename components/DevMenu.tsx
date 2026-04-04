@@ -73,6 +73,22 @@ const showAlertWithWalletOptions = (
   }
 };
 
+type ContinuityLogLevel = 'debug' | 'info' | 'warn' | 'error';
+
+const logContinuity = (level: ContinuityLogLevel, message: string, details?: Record<string, unknown>, error?: unknown): void => {
+  const logger = console[level] ?? console.log;
+
+  if (details && error) {
+    logger(`[Continuity] ${message}`, details, error);
+  } else if (details) {
+    logger(`[Continuity] ${message}`, details);
+  } else if (error) {
+    logger(`[Continuity] ${message}`, error);
+  } else {
+    logger(`[Continuity] ${message}`);
+  }
+};
+
 const showContinuityAdvertisedAlert = (
   id: number,
   type: ContinuityActivityType,
@@ -101,6 +117,7 @@ const showContinuityAdvertisedAlert = (
       text: 'Invalidate Now',
       onPress: () => {
         NativeReactNativeContinuity?.invalidate(id);
+        logContinuity('info', 'Invalidated dev menu continuity activity', { id, type, title });
         Alert.alert('Continuity test activity invalidated');
       },
     },
@@ -203,10 +220,12 @@ const DevMenu: React.FC = () => {
 
       const ensureContinuityAvailable = (): boolean => {
         if (Platform.OS === 'web') {
+          logContinuity('warn', 'Continuity is unavailable on web', { platform: Platform.OS });
           Alert.alert('Continuity is not available on web');
           return false;
         }
         if (!NativeReactNativeContinuity) {
+          logContinuity('warn', 'ReactNativeContinuity native module is not available', { platform: Platform.OS });
           Alert.alert('ReactNativeContinuity native module not available');
           return false;
         }
@@ -220,9 +239,23 @@ const DevMenu: React.FC = () => {
         url?: string,
       ) => {
         if (!ensureContinuityAvailable()) return;
+
         const testId = Date.now();
-        NativeReactNativeContinuity?.becomeCurrent(testId, type, title, userInfo ?? null, url ?? null);
-        showContinuityAdvertisedAlert(testId, type, title, userInfo, url);
+        try {
+          logContinuity('info', 'Advertising dev menu continuity activity', {
+            id: testId,
+            type,
+            title,
+            hasUrl: Boolean(url),
+            userInfoKeys: userInfo ? Object.keys(userInfo) : [],
+          });
+          NativeReactNativeContinuity?.becomeCurrent(testId, type, title, userInfo ?? null, url ?? null);
+          logContinuity('info', 'Dev menu continuity activity advertised successfully', { id: testId, type, title });
+          showContinuityAdvertisedAlert(testId, type, title, userInfo, url);
+        } catch (error) {
+          logContinuity('error', 'Failed to advertise dev menu continuity activity', { id: testId, type, title }, error);
+          Alert.alert('Continuity Error', 'Failed to advertise continuity activity. Check logs for details.');
+        }
       };
 
       DevSettings.addMenuItem('Continuity: Check Status', async () => {
@@ -230,8 +263,14 @@ const DevMenu: React.FC = () => {
         if (Platform.OS !== 'web' && NativeReactNativeContinuity?.isSupported) {
           try {
             const supported = await NativeReactNativeContinuity.isSupported();
+            logContinuity('info', 'Continuity support check completed', {
+              enabled: isContinuityEnabled,
+              platform: Platform.OS,
+              supported,
+            });
             lines.push(`Device supported: ${supported}`);
           } catch (e: any) {
+            logContinuity('error', 'Continuity support check failed', { enabled: isContinuityEnabled, platform: Platform.OS }, e);
             lines.push(`Device supported: error (${e.message})`);
           }
         }
@@ -244,6 +283,7 @@ const DevMenu: React.FC = () => {
       DevSettings.addMenuItem('Continuity: Toggle Setting', async () => {
         const newValue = !isContinuityEnabled;
         await setIsContinuityEnabledStorage(newValue);
+        logContinuity('info', 'Continuity setting toggled from dev menu', { enabled: newValue });
         Alert.alert('Continuity Setting', `Continuity is now ${newValue ? 'ON' : 'OFF'}`);
       });
 
