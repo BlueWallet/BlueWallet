@@ -428,11 +428,14 @@ const getInternalRouteFromPath = (path: string): TCompletionHandlerParams | unde
           params: compactParams({ deepLinkPSBT: params.deepLinkPSBT, walletID: params.walletID }),
         },
       ];
-    case 'send/select-wallet':
-      return [
-        'SendDetailsRoot',
-        { screen: 'SelectWallet', params: compactParams({ onWalletSelect: createOnWalletSelect(params.bitcoin, params.lndInvoice) }) },
-      ];
+    case 'send/select-wallet': {
+      const onWalletSelect = createOnWalletSelect(params.bitcoin, params.lndInvoice);
+      if (onWalletSelect === undefined) {
+        return undefined;
+      }
+
+      return ['SendDetailsRoot', { screen: 'SelectWallet', params: compactParams({ onWalletSelect }) }];
+    }
     case 'lightning/scan':
       return ['ScanLNDInvoiceRoot', { screen: 'ScanLNDInvoice', params: compactParams({ uri: params.uri, walletID: params.walletID }) }];
     case 'lightning/create-invoice':
