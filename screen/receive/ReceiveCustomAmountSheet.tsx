@@ -8,9 +8,9 @@ import * as AmountInput from '../../components/AmountInput';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
+import { bip21encode } from '../../class/bitcoin-uri';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { satoshiToBTC, fiatToBTC } from '../../blue_modules/currency';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
 
@@ -44,7 +44,7 @@ const ReceiveCustomAmountSheet = () => {
     (nextAmount: string, nextUnit: BitcoinUnit, nextLabel: string): string => {
       const trimmedAmount = nextAmount.trim();
       if (trimmedAmount.length === 0) {
-        return nextLabel ? DeeplinkSchemaMatch.bip21encode(address, { label: nextLabel }) : DeeplinkSchemaMatch.bip21encode(address);
+        return nextLabel ? bip21encode(address, { label: nextLabel }) : bip21encode(address);
       }
 
       let normalizedAmount: string | number = trimmedAmount;
@@ -75,7 +75,7 @@ const ReceiveCustomAmountSheet = () => {
         options.label = nextLabel;
       }
 
-      return DeeplinkSchemaMatch.bip21encode(address, options);
+      return bip21encode(address, options);
     },
     [address],
   );
@@ -107,7 +107,7 @@ const ReceiveCustomAmountSheet = () => {
 
   const handleReset = useCallback(() => {
     const fallbackUnit = preferredUnit || BitcoinUnit.BTC;
-    const encoded = DeeplinkSchemaMatch.bip21encode(address);
+    const encoded = bip21encode(address);
     navigation.popTo(
       'ReceiveDetails',
       {

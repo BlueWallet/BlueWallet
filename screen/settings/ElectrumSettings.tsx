@@ -7,7 +7,6 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { hardcodedPeers, presentResetToDefaultsAlert, suggestedServers } from '../../blue_modules/BlueElectrum';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -32,6 +31,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { getServerFromSetElectrumServerAction } from '../../navigation/linking';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
@@ -430,8 +430,8 @@ const ElectrumSettings: React.FC = () => {
 
   const onBarScanned = (value: string) => {
     let v = value;
-    if (value && DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value)) {
-      v = DeeplinkSchemaMatch.getServerFromSetElectrumServerAction(value) as string;
+    if (value && getServerFromSetElectrumServerAction(value)) {
+      v = getServerFromSetElectrumServerAction(value) as string;
     }
     const [scannedHost, scannedPort, type] = v?.split(':') ?? [];
     setHost(scannedHost);

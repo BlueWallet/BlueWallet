@@ -5,7 +5,7 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { navigateFromDeepLink } from '../../navigation/linking';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
@@ -100,7 +100,7 @@ const WalletsList: React.FC = () => {
   const walletsCarousel = useRef<any>(null);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
-  const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
+  const { wallets, getTransactions, refreshAllWalletTransactions, addWallet, saveToDisk, setSharedCosigner } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -202,19 +202,24 @@ const WalletsList: React.FC = () => {
   }, [isLarge, wallets]);
 
   const onBarScanned = useCallback(
-    (value: any) => {
+    async (value: any) => {
       if (!value) return;
       try {
-        DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          // @ts-ignore: for now
-          navigation.navigate(...completionValue);
+        const handled = await navigateFromDeepLink(value, {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
         });
+
+        if (handled) {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        }
       } catch (e: any) {
         Alert.alert(loc.send.details_scan_error, e.message);
       }
     },
-    [navigation],
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
   );
 
   const handleClick = useCallback(

@@ -9,7 +9,7 @@ import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueButtonLink, BlueCard, BlueText } from '../../BlueComponents';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { bip21decode, bip21encode } from '../../class/bitcoin-uri';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
@@ -104,7 +104,7 @@ const ReceiveDetails = () => {
 
   const setAddressBIP21Encoded = useCallback(
     (addr: string) => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
+      const newBip21encoded = bip21encode(addr);
       setParams({ address: addr });
       setBip21encoded(newBip21encoded);
       setShowAddress(true);
@@ -223,7 +223,7 @@ const ReceiveDetails = () => {
 
     const intervalId = setInterval(async () => {
       try {
-        const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
+        const decoded = bip21decode(bip21encoded);
         const addressToUse = address || decoded.address;
         if (!addressToUse) return;
 

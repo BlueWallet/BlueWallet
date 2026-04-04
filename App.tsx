@@ -1,31 +1,51 @@
 import { NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SizeClassProvider } from './components/Context/SizeClassProvider';
 import { SettingsProvider } from './components/Context/SettingsProvider';
-import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
-import MasterView from './navigation/MasterView';
-import { navigationRef } from './NavigationService';
-import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
+import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
+import { useLogger } from '@react-navigation/devtools';
+import { useStorage } from './hooks/context/useStorage';
+import { navigationRef } from './NavigationService';
+import MasterView from './navigation/MasterView';
+import { createBlueWalletLinking } from './navigation/linking';
 
-const App = () => {
+const AppNavigation = () => {
   const colorScheme = useColorScheme();
+  const { wallets, addWallet, saveToDisk, setSharedCosigner } = useStorage();
 
   useLogger(navigationRef as unknown as React.RefObject<NavigationContainerRef<ParamListBase>>);
 
+  const linking = useMemo(
+    () =>
+      createBlueWalletLinking({
+        wallets,
+        addWallet,
+        saveToDisk,
+        setSharedCosigner,
+      }),
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
+  );
+
+  return (
+    <NavigationContainer ref={navigationRef} linking={linking} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+      <MasterView />
+    </NavigationContainer>
+  );
+};
+
+const App = () => {
   return (
     <SizeClassProvider>
-      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
-        <SafeAreaProvider>
-          <StorageProvider>
-            <SettingsProvider>
-              <MasterView />
-            </SettingsProvider>
-          </StorageProvider>
-        </SafeAreaProvider>
-      </NavigationContainer>
+      <SafeAreaProvider>
+        <StorageProvider>
+          <SettingsProvider>
+            <AppNavigation />
+          </SettingsProvider>
+        </StorageProvider>
+      </SafeAreaProvider>
     </SizeClassProvider>
   );
 };
