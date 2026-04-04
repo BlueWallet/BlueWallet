@@ -241,10 +241,14 @@ const routeFromUrl = (
   const urlObject = URL.parse(normalizedUrl, true); // eslint-disable-line n/no-deprecated-api
   if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
     switch (urlObject.host) {
-      case 'setelectrumserver':
-        return ['ElectrumSettings', { server: getServerFromSetElectrumServerAction(normalizedUrl) }];
-      case 'setlndhuburl':
-        return ['LightningSettings', { url: getUrlFromSetLndhubUrlAction(normalizedUrl) }];
+      case 'setelectrumserver': {
+        const server = getServerFromSetElectrumServerAction(normalizedUrl);
+        return ['ElectrumSettings', { server: typeof server === 'string' ? server : undefined }];
+      }
+      case 'setlndhuburl': {
+        const url = getUrlFromSetLndhubUrlAction(normalizedUrl);
+        return ['LightningSettings', { url: typeof url === 'string' ? url : undefined }];
+      }
     }
   }
 
