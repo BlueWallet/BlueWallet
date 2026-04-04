@@ -35,12 +35,10 @@ const useContinuity = ({ title, type, url, userInfo }: UseContinuityParams): voi
     const isMeaningfulValue = (value: unknown): boolean => {
       if (value === null || value === undefined || value === '') return false;
       if (Array.isArray(value)) {
-        return value.some(item => {
-          if (typeof item === 'object' && item !== null) {
-            return Object.values(item).some(v => isMeaningfulValue(v));
-          }
-          return isMeaningfulValue(item);
-        });
+        return value.some(item => isMeaningfulValue(item));
+      }
+      if (typeof value === 'object') {
+        return Object.values(value).some(v => isMeaningfulValue(v));
       }
       return true;
     };
