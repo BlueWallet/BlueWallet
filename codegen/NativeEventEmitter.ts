@@ -7,6 +7,7 @@ export interface Spec extends TurboModule {
   addListener(eventName: string): void;
   removeListeners(count: Double): void;
   getMostRecentUserActivity(): Promise<UnsafeObject | null>;
+  clearMostRecentUserActivity(): void;
 }
 
 const moduleProxy = TurboModuleRegistry.getEnforcing<Spec>('EventEmitter');

@@ -30,6 +30,7 @@ export type SendDetailsParams = {
     address: string;
     amount?: number;
     memo?: string;
+    nonce?: number;
   };
 };
 
@@ -44,10 +45,6 @@ export type TNavigationWrapper = {
 
 export type SendDetailsStackParamList = {
   SendDetails: SendDetailsParams;
-  CoinControlOutput: {
-    walletID: string;
-    utxo: Utxo;
-  };
   SelectFee: {
     networkTransactionFees: {
       fastestFee: number;
@@ -122,6 +119,10 @@ export type SendDetailsStackParamList = {
   };
   CoinControl: {
     walletID: string;
+  };
+  CoinControlOutput: {
+    walletID: string;
+    utxo: Utxo;
   };
   PaymentCodeList: {
     walletID: string;

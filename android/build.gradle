@@ -10,6 +10,7 @@ buildscript {
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "21.1.0"
         ndkVersion = "27.1.12297006"
+        kotlin_version = '2.1.20'
         kotlinVersion = '2.1.20'
     }
     repositories {
@@ -17,7 +18,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        classpath("com.android.tools.build:gradle:8.7.2")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
 	    classpath 'com.google.gms:google-services:4.4.4'  // Google Services plugin
