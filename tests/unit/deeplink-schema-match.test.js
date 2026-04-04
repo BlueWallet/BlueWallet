@@ -384,7 +384,7 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
   it('encodes bip21 and discards empty arguments', () => {
     const encoded = bip21encode('1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH', {
       label: ' ',
-      amoount: undefined,
+      amount: undefined,
     });
     assert.strictEqual(encoded, 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH');
   });
