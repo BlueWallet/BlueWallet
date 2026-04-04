@@ -709,7 +709,7 @@ export class BlueApp {
       try {
         realm = await this.getRealmForTransactions();
       } catch (error: any) {
-        presentStorageSaveError(String(error?.message || error), () => this.purgeRealmKeyValueFile());
+        presentStorageSaveError(String(error?.message || error));
       }
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
