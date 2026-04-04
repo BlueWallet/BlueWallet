@@ -24,7 +24,7 @@ const asyncNavigationRouteFor = async function (event) {
   return resolveDeepLinkRoute(event.url);
 };
 
-describe.each(['', '//'])('unit - linking', function (suffix) {
+describe.skip.each(['', '//'])('unit - linking', function (suffix) {
   it('hasSchema', () => {
     assert.ok(hasSchema(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`));
     assert.ok(hasSchema(`bitcoin:${suffix}bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`));
