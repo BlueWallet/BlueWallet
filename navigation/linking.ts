@@ -527,13 +527,17 @@ export const resolveDeepLinkRoute = async (
     const walletID = decodeURIComponent(walletShortcutMatch[1]);
     const wallet = context.wallets.find(item => item.getID() === walletID);
 
+    if (!wallet) {
+      return undefined;
+    }
+
     return [
       'DetailViewStackScreensStack',
       {
         screen: 'WalletTransactions',
         params: compactParams({
           walletID,
-          walletType: wallet?.type,
+          walletType: wallet.type,
         }),
       },
     ];
