@@ -8,8 +8,10 @@ import Azteco from '../class/azteco';
 import { isBitcoinAddress, isPossiblyPSBTFile } from '../class/bitcoin-uri';
 import Lnurl from '../class/lnurl';
 import type { TWallet } from '../class/wallets/types';
+import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
+import RNQRGenerator from 'rn-qr-generator';
 
 export { isBitcoinAddress };
 
@@ -67,6 +69,28 @@ const isWidgetAction = (text: string): boolean => {
 
 const isPossiblyCosignerFile = (filePath: string): boolean => {
   return filePath.toLowerCase().endsWith('.bwcosigner');
+};
+
+const isImageFilePath = (filePath: string): boolean => {
+  const normalizedPath = filePath.split('?')[0]?.toLowerCase() ?? '';
+  return normalizedPath.endsWith('.png') || normalizedPath.endsWith('.jpg') || normalizedPath.endsWith('.jpeg');
+};
+
+const getDeepLinkFromImage = async (url: string): Promise<string> => {
+  const attempts = [url, url.replace(/^file:\/\//, '')].filter((value, index, self) => value.length > 0 && self.indexOf(value) === index);
+
+  for (const uri of attempts) {
+    try {
+      const qrResult = await RNQRGenerator.detect({ uri });
+      if (qrResult?.values?.length) {
+        return qrResult.values[0];
+      }
+    } catch (error) {
+      console.error('QR detection failed while resolving deeplink image:', error);
+    }
+  }
+
+  throw new Error(loc.send.qr_error_no_qrcode);
 };
 
 export const isLightningInvoice = (invoice: string): boolean => {
@@ -531,7 +555,19 @@ export const resolveDeepLinkRoute = async (
     return undefined;
   }
 
-  const walletShortcutMatch = url.match(/^bluewallet:\/\/wallet\/([^/?#]+)/i);
+  let decodedUrl = url;
+  try {
+    decodedUrl = decodeURIComponent(url);
+  } catch {
+    decodedUrl = url;
+  }
+
+  if (isImageFilePath(decodedUrl)) {
+    const imageDeepLink = await getDeepLinkFromImage(decodedUrl);
+    return resolveDeepLinkRoute(imageDeepLink, context);
+  }
+
+  const walletShortcutMatch = decodedUrl.match(/^bluewallet:\/\/wallet\/([^/?#]+)/i);
   if (walletShortcutMatch) {
     const walletID = decodeURIComponent(walletShortcutMatch[1]);
     const wallet = context.wallets.find(item => item.getID() === walletID);

@@ -422,6 +422,24 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
     assert.ok(isPossiblyPSBTFile('file://com.android.externalstorage.documents/document/081D-1403%3Atxhex.psbt'));
   });
 
+  it('resolves image-based QR deeplinks through linking', async () => {
+    const qrGenerator = require('rn-qr-generator');
+    qrGenerator.detect.mockResolvedValueOnce({ values: [`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`] });
+
+    const route = await resolveDeepLinkRoute('file:///tmp/test-qr.png');
+    assert.deepStrictEqual(route, [
+      'SendDetailsRoot',
+      { screen: 'SendDetails', params: { uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } },
+    ]);
+  });
+
+  it('throws a human-readable error when a shared image has no QR code', async () => {
+    const qrGenerator = require('rn-qr-generator');
+    qrGenerator.detect.mockResolvedValueOnce({ values: [] }).mockResolvedValueOnce({ values: [] });
+
+    await assert.rejects(resolveDeepLinkRoute('file:///tmp/no-qr.jpg'), /valid QR Code/i);
+  });
+
   it('resolves canonical navigation URLs for React Navigation linking', async () => {
     const sendUrl = await resolveDeepLinkUrl(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`);
     assert.strictEqual(sendUrl, 'bluewallet://route/send?uri=bitcoin%3A12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');

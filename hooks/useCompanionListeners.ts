@@ -16,7 +16,6 @@ import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from './context/useStorage';
-import RNQRGenerator from 'rn-qr-generator';
 import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
 import useWatchConnectivity from './useWatchConnectivity';
@@ -188,47 +187,16 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
       try {
         if (!event.url) return;
-        let decodedUrl: string;
-        try {
-          decodedUrl = decodeURIComponent(event.url);
-        } catch (e) {
-          console.error('Failed to decode URL, using original', e);
-          decodedUrl = event.url;
-        }
-        const fileName = decodedUrl.split('/').pop()?.toLowerCase() || '';
-        if (/\.(jpe?g|png)$/i.test(fileName)) {
-          let qrResult;
-          try {
-            qrResult = await RNQRGenerator.detect({ uri: decodedUrl });
-          } catch (e) {
-            console.error('QR detection first attempt failed:', e);
-          }
-          if (!qrResult || !qrResult.values || qrResult.values.length === 0) {
-            const altUrl = decodedUrl.replace(/^file:\/\//, '');
-            try {
-              qrResult = await RNQRGenerator.detect({ uri: altUrl });
-            } catch (e) {
-              console.error('QR detection second attempt failed:', e);
-            }
-          }
-          if (qrResult?.values?.length) {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-            await navigateFromDeepLink(qrResult.values[0], {
-              wallets,
-              addWallet,
-              saveToDisk,
-              setSharedCosigner,
-            });
-          } else {
-            throw new Error(loc.send.qr_error_no_qrcode);
-          }
-        } else {
-          await navigateFromDeepLink(event.url, {
-            wallets,
-            addWallet,
-            saveToDisk,
-            setSharedCosigner,
-          });
+
+        const handled = await navigateFromDeepLink(event.url, {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
+
+        if (handled) {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
         }
       } catch (err: any) {
         console.error('Error in handleOpenURL:', err);
