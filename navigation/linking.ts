@@ -592,13 +592,13 @@ export const resolveDeepLinkRoute = async (
 
   if (isPossiblyPSBTFile(normalizedUrl)) {
     try {
-      const file = await readFileOutsideSandbox(decodeURI(normalizedUrl));
-      return file
+      const deepLinkPSBTFilePath = decodeURI(normalizedUrl);
+      return deepLinkPSBTFilePath
         ? [
             'SendDetailsRoot',
             {
               screen: 'PsbtWithHardwareWallet',
-              params: { deepLinkPSBT: file },
+              params: { deepLinkPSBTFilePath },
             },
           ]
         : undefined;
