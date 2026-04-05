@@ -20,6 +20,7 @@ type TBothBitcoinAndLightning = { bitcoin: string; lndInvoice: string } | undefi
 
 export type TDeepLinkContext = {
   wallets: TWallet[];
+  walletsInitialized?: boolean;
   saveToDisk: () => void;
   addWallet: (wallet: TWallet) => void;
   setSharedCosigner: (cosigner: string) => void;
@@ -27,6 +28,7 @@ export type TDeepLinkContext = {
 
 const defaultContext: TDeepLinkContext = {
   wallets: [],
+  walletsInitialized: true,
   saveToDisk: () => {},
   addWallet: () => {},
   setSharedCosigner: () => {},
@@ -42,7 +44,36 @@ const RECENT_DEEP_LINK_WINDOW_MS = 3_000;
 let lastDeepLinkAt = 0;
 let lastResolvedUrl: string | null = null;
 let lastInitialUrl: string | null = null;
+let pendingDeepLinkUrl: string | null = null;
+let pendingDeepLinkReplayInFlight = false;
+let latestDeepLinkContext: TDeepLinkContext = defaultContext;
 let appState: AppStateStatus = AppState.currentState;
+
+const isDeepLinkContextReady = (context: TDeepLinkContext): boolean => {
+  return context.walletsInitialized !== false;
+};
+
+const queuePendingDeepLink = (url: string | null | undefined): void => {
+  if (typeof url !== 'string' || url.length === 0) {
+    return;
+  }
+
+  pendingDeepLinkUrl = url;
+
+  if (pendingDeepLinkReplayInFlight || !navigationRef.isReady() || !isDeepLinkContextReady(latestDeepLinkContext)) {
+    return;
+  }
+
+  pendingDeepLinkReplayInFlight = true;
+  Promise.resolve()
+    .then(() => replayPendingDeepLink(latestDeepLinkContext))
+    .catch(error => {
+      console.warn('Failed to replay queued deep link:', error);
+    })
+    .finally(() => {
+      pendingDeepLinkReplayInFlight = false;
+    });
+};
 
 const recordDeepLinkActivity = (resolvedUrl?: string | null): void => {
   if (!resolvedUrl) {
@@ -670,6 +701,13 @@ export const resolveDeepLinkUrl = async (url: string, context: TDeepLinkContext 
 };
 
 export const navigateFromDeepLink = async (url: string, context: TDeepLinkContext = defaultContext): Promise<boolean> => {
+  latestDeepLinkContext = context;
+
+  if (!isDeepLinkContextReady(context)) {
+    queuePendingDeepLink(url);
+    return false;
+  }
+
   const resolvedUrl = await resolveDeepLinkUrl(url, context);
   if (!resolvedUrl || !navigationRef.isReady()) {
     return false;
@@ -694,7 +732,31 @@ export const navigateFromDeepLink = async (url: string, context: TDeepLinkContex
   return true;
 };
 
+export const replayPendingDeepLink = async (context: TDeepLinkContext = latestDeepLinkContext): Promise<boolean> => {
+  latestDeepLinkContext = context;
+
+  if (!isDeepLinkContextReady(context) || !pendingDeepLinkUrl) {
+    return false;
+  }
+
+  const queuedUrl = pendingDeepLinkUrl;
+  pendingDeepLinkUrl = null;
+
+  const handled = await navigateFromDeepLink(queuedUrl, context);
+  if (!handled) {
+    pendingDeepLinkUrl = queuedUrl;
+  }
+
+  return handled;
+};
+
 export const createBlueWalletLinking = (context: TDeepLinkContext = defaultContext): LinkingOptions<ParamListBase> => {
+  latestDeepLinkContext = context;
+
+  if (pendingDeepLinkUrl && navigationRef.isReady() && isDeepLinkContextReady(context) && !pendingDeepLinkReplayInFlight) {
+    queuePendingDeepLink(pendingDeepLinkUrl);
+  }
+
   return {
     prefixes: [
       'bluewallet://',
@@ -713,6 +775,11 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
         const url = await Linking.getInitialURL();
         if (url) {
           lastInitialUrl = url;
+          if (!isDeepLinkContextReady(context)) {
+            queuePendingDeepLink(url);
+            return null;
+          }
+
           const resolvedUrl = await resolveDeepLinkUrl(url, context);
           recordDeepLinkActivity(resolvedUrl);
           return resolvedUrl;
@@ -720,6 +787,11 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
 
         const quickActionUrl = getQuickActionUrl(await QuickActions.popInitialAction());
         if (quickActionUrl) {
+          if (!isDeepLinkContextReady(context)) {
+            queuePendingDeepLink(quickActionUrl);
+            return null;
+          }
+
           const resolvedUrl = await resolveDeepLinkUrl(quickActionUrl, context);
           recordDeepLinkActivity(resolvedUrl);
           return resolvedUrl;
@@ -732,21 +804,27 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
       }
     },
     subscribe(listener) {
-      const linkingSubscription = Linking.addEventListener('url', event => {
-        resolveDeepLinkUrl(event.url, context)
-          .then(resolvedUrl => emitResolvedUrl(listener, resolvedUrl))
-          .catch(error => console.warn(error));
-      });
-
-      const quickActionSubscription = DeviceEventEmitter.addListener('quickActionShortcut', event => {
-        const quickActionUrl = getQuickActionUrl(event);
-        if (!quickActionUrl) {
+      const processIncomingUrl = (url: string | null | undefined) => {
+        if (!url) {
           return;
         }
 
-        resolveDeepLinkUrl(quickActionUrl, context)
+        if (!isDeepLinkContextReady(context)) {
+          queuePendingDeepLink(url);
+          return;
+        }
+
+        resolveDeepLinkUrl(url, context)
           .then(resolvedUrl => emitResolvedUrl(listener, resolvedUrl))
           .catch(error => console.warn(error));
+      };
+
+      const linkingSubscription = Linking.addEventListener('url', event => {
+        processIncomingUrl(event.url);
+      });
+
+      const quickActionSubscription = DeviceEventEmitter.addListener('quickActionShortcut', event => {
+        processIncomingUrl(getQuickActionUrl(event));
       });
 
       const appStateSubscription = AppState.addEventListener('change', nextAppState => {
@@ -764,6 +842,11 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
             }
 
             lastInitialUrl = url;
+            if (!isDeepLinkContextReady(context)) {
+              queuePendingDeepLink(url);
+              return null;
+            }
+
             return resolveDeepLinkUrl(url, context);
           })
           .then(resolvedUrl => emitResolvedUrl(listener, resolvedUrl))

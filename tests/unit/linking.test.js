@@ -1,8 +1,11 @@
 import assert from 'assert';
+import { Linking } from 'react-native';
 
 import { HDSegwitBech32Wallet, LightningCustodianWallet } from '../../class';
 import { bip21decode, bip21encode, decodeBitcoinUri, isBitcoinAddress, isPossiblyPSBTFile, isTXNFile } from '../../class/bitcoin-uri';
+import { navigationRef } from '../../NavigationService';
 import {
+  createBlueWalletLinking,
   getServerFromSetElectrumServerAction,
   getUrlFromSetLndhubUrlAction,
   hasNeededJsonKeysForMultiSigSharing,
@@ -10,6 +13,7 @@ import {
   isBothBitcoinAndLightning,
   isLightningInvoice,
   isLnUrl,
+  replayPendingDeepLink,
   resolveDeepLinkRoute,
   resolveDeepLinkUrl,
 } from '../../navigation/linking';
@@ -431,6 +435,42 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
       'SendDetailsRoot',
       { screen: 'SendDetails', params: { uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } },
     ]);
+  });
+
+  it('defers cold-boot deeplinks until wallets are initialized', async () => {
+    const getInitialUrlSpy = jest
+      .spyOn(Linking, 'getInitialURL')
+      .mockResolvedValueOnce(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`);
+    const isReadySpy = jest.spyOn(navigationRef, 'isReady').mockReturnValue(true);
+    const dispatchSpy = jest.spyOn(navigationRef, 'dispatch').mockImplementation(() => {});
+    const navigateSpy = jest.spyOn(navigationRef, 'navigate').mockImplementation(() => {});
+
+    const linking = createBlueWalletLinking({
+      wallets: [],
+      walletsInitialized: false,
+      saveToDisk: () => {},
+      addWallet: () => {},
+      setSharedCosigner: () => {},
+    });
+
+    const initialUrl = await linking.getInitialURL();
+    assert.strictEqual(initialUrl, null);
+
+    const handled = await replayPendingDeepLink({
+      wallets: [],
+      walletsInitialized: true,
+      saveToDisk: () => {},
+      addWallet: () => {},
+      setSharedCosigner: () => {},
+    });
+
+    assert.strictEqual(handled, true);
+    assert.ok(dispatchSpy.mock.calls.length + navigateSpy.mock.calls.length > 0);
+
+    getInitialUrlSpy.mockRestore();
+    isReadySpy.mockRestore();
+    dispatchSpy.mockRestore();
+    navigateSpy.mockRestore();
   });
 
   it('throws a human-readable error when a shared image has no QR code', async () => {
