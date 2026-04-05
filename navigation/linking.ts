@@ -1,6 +1,6 @@
 import { getActionFromState, LinkingOptions, NavigationState, ParamListBase, PartialState } from '@react-navigation/native';
 import URL from 'url';
-import { DeviceEventEmitter, Linking } from 'react-native';
+import { AppState, AppStateStatus, DeviceEventEmitter, Linking } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { readFileOutsideSandbox } from '../blue_modules/fs';
 import { WatchOnlyWallet } from '../class';
@@ -37,6 +37,38 @@ const getQuickActionUrl = (data: { userInfo?: { url?: string } } | null | undefi
 };
 
 const INTERNAL_ROUTE_PREFIX = 'bluewallet://route/';
+const RECENT_DEEP_LINK_WINDOW_MS = 3_000;
+
+let lastDeepLinkAt = 0;
+let lastResolvedUrl: string | null = null;
+let lastInitialUrl: string | null = null;
+let appState: AppStateStatus = AppState.currentState;
+
+const recordDeepLinkActivity = (resolvedUrl?: string | null): void => {
+  if (!resolvedUrl) {
+    return;
+  }
+
+  lastDeepLinkAt = Date.now();
+  lastResolvedUrl = resolvedUrl;
+};
+
+export const hasRecentDeepLinkActivity = (windowMs: number = RECENT_DEEP_LINK_WINDOW_MS): boolean => {
+  return Date.now() - lastDeepLinkAt < windowMs;
+};
+
+const emitResolvedUrl = (listener: (url: string) => void, resolvedUrl: string | null): void => {
+  if (!resolvedUrl) {
+    return;
+  }
+
+  if (resolvedUrl === lastResolvedUrl && hasRecentDeepLinkActivity()) {
+    return;
+  }
+
+  recordDeepLinkActivity(resolvedUrl);
+  listener(resolvedUrl);
+};
 
 export const hasSchema = (schemaString: string): boolean => {
   if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
@@ -588,7 +620,7 @@ export const resolveDeepLinkRoute = async (
     ];
   }
 
-  const normalizedUrl = normalizeUrl(url);
+  const normalizedUrl = normalizeUrl(decodedUrl);
 
   if (isPossiblyPSBTFile(normalizedUrl)) {
     try {
@@ -643,6 +675,8 @@ export const navigateFromDeepLink = async (url: string, context: TDeepLinkContex
     return false;
   }
 
+  recordDeepLinkActivity(resolvedUrl);
+
   const route = getInternalRouteFromPath(resolvedUrl.replace(/^bluewallet:\/\//, ''));
   if (!route) {
     return false;
@@ -678,11 +712,20 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
       try {
         const url = await Linking.getInitialURL();
         if (url) {
-          return await resolveDeepLinkUrl(url, context);
+          lastInitialUrl = url;
+          const resolvedUrl = await resolveDeepLinkUrl(url, context);
+          recordDeepLinkActivity(resolvedUrl);
+          return resolvedUrl;
         }
 
         const quickActionUrl = getQuickActionUrl(await QuickActions.popInitialAction());
-        return quickActionUrl ? await resolveDeepLinkUrl(quickActionUrl, context) : null;
+        if (quickActionUrl) {
+          const resolvedUrl = await resolveDeepLinkUrl(quickActionUrl, context);
+          recordDeepLinkActivity(resolvedUrl);
+          return resolvedUrl;
+        }
+
+        return null;
       } catch (error) {
         console.warn(error);
         return null;
@@ -691,11 +734,7 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
     subscribe(listener) {
       const linkingSubscription = Linking.addEventListener('url', event => {
         resolveDeepLinkUrl(event.url, context)
-          .then(resolvedUrl => {
-            if (resolvedUrl) {
-              listener(resolvedUrl);
-            }
-          })
+          .then(resolvedUrl => emitResolvedUrl(listener, resolvedUrl))
           .catch(error => console.warn(error));
       });
 
@@ -706,17 +745,35 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
         }
 
         resolveDeepLinkUrl(quickActionUrl, context)
-          .then(resolvedUrl => {
-            if (resolvedUrl) {
-              listener(resolvedUrl);
+          .then(resolvedUrl => emitResolvedUrl(listener, resolvedUrl))
+          .catch(error => console.warn(error));
+      });
+
+      const appStateSubscription = AppState.addEventListener('change', nextAppState => {
+        const wasInactive = appState === 'background' || appState === 'inactive';
+        appState = nextAppState;
+
+        if (!wasInactive || nextAppState !== 'active') {
+          return;
+        }
+
+        Linking.getInitialURL()
+          .then(url => {
+            if (!url || url === lastInitialUrl) {
+              return null;
             }
+
+            lastInitialUrl = url;
+            return resolveDeepLinkUrl(url, context);
           })
+          .then(resolvedUrl => emitResolvedUrl(listener, resolvedUrl))
           .catch(error => console.warn(error));
       });
 
       return () => {
         linkingSubscription.remove();
         quickActionSubscription.remove();
+        appStateSubscription.remove();
       };
     },
     config: linkingConfig as NonNullable<LinkingOptions<ParamListBase>['config']>,
