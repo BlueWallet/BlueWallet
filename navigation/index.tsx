@@ -9,6 +9,7 @@ import loc from '../loc';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
+import getSettingsScreenOptions from './helpers/getSettingsScreenOptions';
 import WalletXpub from '../screen/wallets/xpub';
 import WalletExport from '../screen/wallets/WalletExport';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
@@ -92,20 +93,12 @@ const MainRoot = () => {
             name="ElectrumSettings"
             component={ElectrumSettings}
             initialParams={{ server: undefined }}
-            options={navigationStyle({
-              title: loc.settings.electrum_settings_server,
-              headerBackButtonDisplayMode: 'minimal',
-              headerBackTitle: '',
-            })(theme)}
+            options={navigationStyle(getSettingsScreenOptions(loc.settings.electrum_settings_server, theme))(theme)}
           />
           <DetailViewStack.Screen
             name="LightningSettings"
             component={LightningSettings}
-            options={navigationStyle({
-              title: loc.settings.lightning_settings,
-              headerBackButtonDisplayMode: 'minimal',
-              headerBackTitle: '',
-            })(theme)}
+            options={navigationStyle(getSettingsScreenOptions(loc.settings.lightning_settings, theme))(theme)}
           />
 
           {/* Modal stacks */}
