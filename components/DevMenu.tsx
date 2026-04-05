@@ -470,7 +470,7 @@ const DevMenu: React.FC = () => {
 
     addCategoryMenuItem('Maintenance', [
       {
-        label: 'Purge transactions',
+        label: 'Purge transactions...',
         action: () => {
           const currentWallets = getWallets();
           if (currentWallets.length === 0) {
