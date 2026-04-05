@@ -46,7 +46,7 @@ export const bip21encode = (address: string, options?: TOptions): string => {
   }
 
   for (const key in cleanedOptions) {
-    if (key === 'label' && String(cleanedOptions[key]).replace(' ', '').length === 0) {
+    if (key === 'label' && String(cleanedOptions[key]).trim().length === 0) {
       delete cleanedOptions[key];
     }
     if (key === 'amount' && !(Number(cleanedOptions[key]) > 0)) {
