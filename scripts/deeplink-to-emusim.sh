@@ -1,19 +1,40 @@
 #!/bin/bash
 
-deepLinks=(
-  "bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG"
-  "bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo"
-  "BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE"
-  "bluewallet:bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG"
-  "lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde"
-  "bluewallet:lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde"
-  "https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261"
-  "https://azte.co/redeem?code=1111222233334444"
-  "bluewallet:setelectrumserver?server=electrum1.bluewallet.io%3A443%3As"
-  "bluewallet:setlndhuburl?url=https%3A%2F%2Flndhub.herokuapp.com"
-  "lnaddress@zbd.gg"
-  "zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
-)
+deepLinks=()
+
+prompt_for_single_value() {
+  local prompt="$1"
+  local input
+
+  while true; do
+    read -r -p "$prompt: " input
+    input=$(echo "$input" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+    if [[ -n "$input" ]]; then
+      printf '%s' "$input"
+      return
+    fi
+
+    echo -e "\n\033[1mA value is required. Please try again.\033[0m\n"
+  done
+}
+
+prompt_for_notification_addresses() {
+  local address
+
+  echo -e "\n\033[1mEnter the wallet receive address to test notifications.\033[0m"
+  address=$(prompt_for_single_value "Address")
+  deepLinks=("$address")
+}
+
+prompt_for_send_targets() {
+  local target
+
+  echo -e "\n\033[1mEnter the deep link target to test.\033[0m"
+  echo "Examples: bitcoin:..., lightning:..., bluewallet:setelectrumserver?..."
+  target=$(prompt_for_single_value "Deep link")
+  deepLinks=("$target")
+}
 
 testOptions=("Send" "Notification")
 select_test_type() {
@@ -55,60 +76,54 @@ select_test_type() {
 }
 select_test_type
 
-# For Notification mode, use only three bare bitcoin addresses
 if [[ "$TEST_TYPE" == "Notification" ]]; then
-  deepLinks=(
-    "12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG"
-    "bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
-    "BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE"
-  )
-fi
+  prompt_for_notification_addresses
+  selectedLink="${deepLinks[0]}"
+else
+  prompt_for_send_targets
 
-select_option() {
-  local ESC=$(printf "\033")
-  local selected=0
+  select_option() {
+    local ESC=$(printf "\033")
+    local selected=0
 
-  while true; do
-    clear
-    if [[ "$TEST_TYPE" == "Notification" ]]; then
-      echo -e "\n\033[1m[Category: Receive] Select a deep link for notification:\033[0m\n"
-    else
+    while true; do
+      clear
       echo -e "\n\033[1m[Test: $TEST_TYPE] Select a deep link:\033[0m\n"
-    fi
-    for i in "${!deepLinks[@]}"; do
-      if [ $i -eq $selected ]; then
-        echo "> ${deepLinks[$i]}"
-      else
-        echo "  ${deepLinks[$i]}"
+      for i in "${!deepLinks[@]}"; do
+        if [ $i -eq $selected ]; then
+          echo "> ${deepLinks[$i]}"
+        else
+          echo "  ${deepLinks[$i]}"
+        fi
+      done
+
+      read -rsn1 key
+      if [[ $key == $ESC ]]; then
+        read -rsn2 key
+        case $key in
+          '[A') # Up arrow
+            ((selected--))
+            if [ $selected -lt 0 ]; then
+              selected=$((${#deepLinks[@]} - 1))
+            fi
+            ;;
+          '[B') # Down arrow
+            ((selected++))
+            if [ $selected -ge ${#deepLinks[@]} ]; then
+              selected=0
+            fi
+            ;;
+        esac
+      elif [[ $key == "" ]]; then
+        break
       fi
     done
 
-    read -rsn1 key
-    if [[ $key == $ESC ]]; then
-      read -rsn2 key
-      case $key in
-        '[A') # Up arrow
-          ((selected--))
-          if [ $selected -lt 0 ]; then
-            selected=$((${#deepLinks[@]} - 1))
-          fi
-          ;;
-        '[B') # Down arrow
-          ((selected++))
-          if [ $selected -ge ${#deepLinks[@]} ]; then
-            selected=0
-          fi
-          ;;
-      esac
-    elif [[ $key == "" ]]; then
-      break
-    fi
-  done
+    selectedLink="${deepLinks[$selected]}"
+  }
 
-  selectedLink="${deepLinks[$selected]}"
-}
-
-select_option
+  select_option
+fi
 
 # Enumerate booted iOS simulators with OS versions
 ios_sims=()
