@@ -560,7 +560,10 @@ const getInternalRouteFromPath = (path: string): TCompletionHandlerParams | unde
         'SendDetailsRoot',
         {
           screen: 'PsbtWithHardwareWallet',
-          params: compactParams({ deepLinkPSBT: params.deepLinkPSBT, walletID: params.walletID }),
+          params: compactParams({
+            deepLinkPSBTFilePath: params.deepLinkPSBTFilePath ?? params.deepLinkPSBT,
+            walletID: params.walletID,
+          }),
         },
       ];
     case 'send/select-wallet': {
