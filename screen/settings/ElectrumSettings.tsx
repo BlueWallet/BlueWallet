@@ -430,9 +430,9 @@ const ElectrumSettings: React.FC = () => {
 
   const onBarScanned = (value: string) => {
     let v = value;
-    const server = getServerFromSetElectrumServerAction(value);
-    if (value && server) {
-      v = server as string;
+    const detectedServer = getServerFromSetElectrumServerAction(value);
+    if (value && detectedServer) {
+      v = detectedServer as string;
     }
     const [scannedHost, scannedPort, type] = v?.split(':') ?? [];
     setHost(scannedHost);

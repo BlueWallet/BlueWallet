@@ -57,13 +57,17 @@ const getWalletFromNotificationPayload = (
   payload: TNotificationPayload,
   context: TDeepLinkContext = defaultContext,
 ): TWallet | undefined => {
-  switch (+payload.type) {
+  const payloadType = Number(payload.type);
+
+  switch (payloadType) {
     case 2:
     case 3:
       return context.wallets.find(wallet => !!payload.address && wallet.weOwnAddress(payload.address));
     case 1:
-    case 4:
-      return context.wallets.find(wallet => wallet.weOwnTransaction(payload.txid || payload.hash));
+    case 4: {
+      const txIdentifier = payload.txid || payload.hash;
+      return txIdentifier ? context.wallets.find(wallet => wallet.weOwnTransaction(txIdentifier)) : undefined;
+    }
     default:
       return undefined;
   }
@@ -79,7 +83,9 @@ export const getDeepLinkUrlFromNotification = (
   }
 
   const walletID = wallet.getID();
-  return +payload.type !== 3 || wallet.chain === Chain.OFFCHAIN
+  const payloadType = Number(payload.type);
+
+  return payloadType !== 3 || wallet.chain === Chain.OFFCHAIN
     ? buildInternalUrl('wallet/transactions', { walletID, walletType: wallet.type })
     : buildInternalUrl('wallet/receive', { walletID, address: payload.address });
 };
