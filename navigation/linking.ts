@@ -555,7 +555,7 @@ export const resolveDeepLinkRoute = async (
     return undefined;
   }
 
-  let decodedUrl = url;
+  let decodedUrl: string;
   try {
     decodedUrl = decodeURIComponent(url);
   } catch {
