@@ -1,0 +1,288 @@
+import { useCallback, useEffect, useRef } from 'react';
+import { AppState, AppStateStatus } from 'react-native';
+import { getClipboardContent } from '../blue_modules/clipboard';
+import { updateExchangeRate } from '../blue_modules/currency';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import {
+  clearStoredNotifications,
+  getDeliveredNotifications,
+  getStoredNotifications,
+  initializeNotifications,
+  removeAllDeliveredNotifications,
+  setApplicationIconBadgeNumber,
+} from '../blue_modules/notifications';
+import { LightningCustodianWallet } from '../class';
+import presentAlert from '../components/Alert';
+import loc from '../loc';
+import { Chain } from '../models/bitcoinUnits';
+import ActionSheet from '../screen/ActionSheet';
+import { useStorage } from './context/useStorage';
+import {
+  getDeepLinkUrlFromNotification,
+  hasRecentDeepLinkActivity,
+  isBitcoinAddress,
+  isBothBitcoinAndLightning,
+  isLightningInvoice,
+  isLnUrl,
+  navigateFromDeepLink,
+} from '../navigation/linking';
+
+const ClipboardContentType = Object.freeze({
+  BITCOIN: 'BITCOIN',
+  LIGHTNING: 'LIGHTNING',
+});
+
+const useDeepLinkListeners = () => {
+  const {
+    wallets,
+    addWallet,
+    saveToDisk,
+    fetchAndSaveWalletTransactions,
+    refreshAllWalletTransactions,
+    setSharedCosigner,
+    walletsInitialized,
+  } = useStorage();
+  const appState = useRef<AppStateStatus>(AppState.currentState);
+  const clipboardContent = useRef<undefined | string>(undefined);
+
+  const shouldActivateListeners = walletsInitialized;
+
+  const handleNotificationNavigation = useCallback(
+    async (payload: { type?: number; address?: string }) => {
+      const targetUrl = getDeepLinkUrlFromNotification(payload, {
+        wallets,
+        addWallet,
+        saveToDisk,
+        setSharedCosigner,
+      });
+
+      if (!targetUrl) {
+        console.log('could not build a deep link from the notification payload, NOP');
+        return false;
+      }
+
+      const handled = await navigateFromDeepLink(targetUrl, {
+        wallets,
+        addWallet,
+        saveToDisk,
+        setSharedCosigner,
+      });
+
+      if (!handled) {
+        console.warn('Failed to navigate from notification link:', targetUrl);
+      }
+
+      return handled;
+    },
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
+  );
+
+  const processPushNotifications = useCallback(async () => {
+    if (!shouldActivateListeners) return false;
+
+    await new Promise(resolve => setTimeout(resolve, 200));
+    try {
+      const notifications2process = await getStoredNotifications();
+      await clearStoredNotifications();
+      setApplicationIconBadgeNumber(0);
+
+      const deliveredNotifications = await getDeliveredNotifications();
+      setTimeout(async () => {
+        try {
+          removeAllDeliveredNotifications();
+        } catch (error) {
+          console.error('Failed to remove delivered notifications:', error);
+        }
+      }, 5000);
+
+      for (const payload of notifications2process) {
+        const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
+
+        console.log('processing push notification:', payload);
+        let wallet;
+        switch (+payload.type) {
+          case 2:
+          case 3:
+            wallet = wallets.find(w => w.weOwnAddress(payload.address));
+            break;
+          case 1:
+          case 4:
+            wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+            break;
+        }
+
+        if (wallet) {
+          const walletID = wallet.getID();
+          fetchAndSaveWalletTransactions(walletID);
+          if (wasTapped) {
+            await handleNotificationNavigation(payload);
+            return true;
+          }
+        } else {
+          console.log('could not find wallet while processing push notification, NOP');
+        }
+      }
+
+      if (deliveredNotifications.length > 0) {
+        for (const payload of deliveredNotifications) {
+          const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
+
+          console.log('processing push notification:', payload);
+          let wallet;
+          switch (+payload.type) {
+            case 2:
+            case 3:
+              wallet = wallets.find(w => w.weOwnAddress(payload.address));
+              break;
+            case 1:
+            case 4:
+              wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+              break;
+          }
+
+          if (wallet) {
+            const walletID = wallet.getID();
+            fetchAndSaveWalletTransactions(walletID);
+            if (wasTapped) {
+              await handleNotificationNavigation(payload);
+              return true;
+            }
+          } else {
+            console.log('could not find wallet while processing push notification, NOP');
+          }
+        }
+      }
+
+      if (deliveredNotifications.length > 0) {
+        refreshAllWalletTransactions();
+      }
+    } catch (error) {
+      console.error('Failed to process push notifications:', error);
+    }
+    return false;
+  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, handleNotificationNavigation, refreshAllWalletTransactions]);
+
+  useEffect(() => {
+    if (!shouldActivateListeners) return;
+
+    initializeNotifications(processPushNotifications);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldActivateListeners]);
+
+  const handleOpenURL = useCallback(
+    async (event: { url: string }): Promise<void> => {
+      if (!shouldActivateListeners) return;
+
+      try {
+        if (!event.url) return;
+
+        const handled = await navigateFromDeepLink(event.url, {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        });
+
+        if (handled) {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        }
+      } catch (err: any) {
+        console.error('Error in handleOpenURL:', err);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
+      }
+    },
+    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
+  );
+
+  const showClipboardAlert = useCallback(
+    ({ contentType }: { contentType: undefined | string }) => {
+      if (!shouldActivateListeners) return;
+
+      triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+      getClipboardContent().then(clipboard => {
+        if (!clipboard) return;
+        ActionSheet.showActionSheetWithOptions(
+          {
+            title: loc._.clipboard,
+            message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
+            options: [loc._.cancel, loc._.continue],
+            cancelButtonIndex: 0,
+          },
+          buttonIndex => {
+            switch (buttonIndex) {
+              case 0:
+                break;
+              case 1:
+                handleOpenURL({ url: clipboard });
+                break;
+            }
+          },
+        );
+      });
+    },
+    [handleOpenURL, shouldActivateListeners],
+  );
+
+  const handleAppStateChange = useCallback(
+    async (nextAppState: AppStateStatus | undefined) => {
+      if (!shouldActivateListeners || wallets.length === 0) return;
+
+      if ((appState.current.match(/inactive|background/) && nextAppState === 'active') || nextAppState === undefined) {
+        updateExchangeRate();
+        const processed = await processPushNotifications();
+        if (processed) return;
+        const clipboard = await getClipboardContent();
+        if (!clipboard) return;
+        if (hasRecentDeepLinkActivity()) {
+          clipboardContent.current = clipboard;
+          return;
+        }
+
+        const isAddressFromStoredWallet = wallets.some(wallet => {
+          if (wallet.chain === Chain.ONCHAIN) {
+            return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
+          } else {
+            return (wallet as LightningCustodianWallet).isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
+          }
+        });
+        const clipboardHasBitcoinAddress = isBitcoinAddress(clipboard);
+        const clipboardHasLightningInvoice = isLightningInvoice(clipboard);
+        const isLNURL = isLnUrl(clipboard);
+        const clipboardHasBothBitcoinAndLightning = isBothBitcoinAndLightning(clipboard);
+        if (
+          !isAddressFromStoredWallet &&
+          clipboardContent.current !== clipboard &&
+          (clipboardHasBitcoinAddress || clipboardHasLightningInvoice || isLNURL || clipboardHasBothBitcoinAndLightning)
+        ) {
+          let contentType;
+          if (clipboardHasBitcoinAddress) {
+            contentType = ClipboardContentType.BITCOIN;
+          } else if (clipboardHasLightningInvoice || isLNURL) {
+            contentType = ClipboardContentType.LIGHTNING;
+          } else if (clipboardHasBothBitcoinAndLightning) {
+            contentType = ClipboardContentType.BITCOIN;
+          }
+          showClipboardAlert({ contentType });
+        }
+        clipboardContent.current = clipboard;
+      }
+      if (nextAppState) {
+        appState.current = nextAppState;
+      }
+    },
+    [processPushNotifications, showClipboardAlert, wallets, shouldActivateListeners],
+  );
+
+  useEffect(() => {
+    if (!shouldActivateListeners) return;
+
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      appStateSubscription?.remove?.();
+    };
+  }, [handleAppStateChange, shouldActivateListeners]);
+};
+
+export default useDeepLinkListeners;

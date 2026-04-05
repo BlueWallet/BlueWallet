@@ -18,7 +18,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { navigateFromDeepLink } from '../../navigation/linking';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -32,7 +32,7 @@ type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 
 const ScanLNDInvoice = () => {
-  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions, addWallet, saveToDisk, setSharedCosigner } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
   const { direction } = useLocale();
@@ -316,14 +316,20 @@ const ScanLNDInvoice = () => {
   };
 
   const onBarScanned = useCallback(
-    (value: string): void => {
+    async (value: string): Promise<void> => {
       if (!value) return;
-      DeeplinkSchemaMatch.navigationRouteFor({ url: value }, (completionValue: any) => {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        navigate(...completionValue);
+      const handled = await navigateFromDeepLink(value, {
+        wallets,
+        addWallet,
+        saveToDisk,
+        setSharedCosigner,
       });
+
+      if (handled) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      }
     },
-    [navigate],
+    [wallets, addWallet, saveToDisk, setSharedCosigner],
   );
 
   useEffect(() => {

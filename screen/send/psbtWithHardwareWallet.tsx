@@ -18,7 +18,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
-import { openSignedTransactionRaw } from '../../blue_modules/fs';
+import { openSignedTransactionRaw, readFileOutsideSandbox } from '../../blue_modules/fs';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class';
@@ -29,16 +29,27 @@ const PsbtWithHardwareWallet = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useExtendedNavigation();
   const route = useRoute<RouteProp<SendDetailsStackParamList, 'PsbtWithHardwareWallet'>>();
-  const { walletID, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
+  const { walletID, memo, psbt, deepLinkPSBT, deepLinkPSBTFilePath, launchedBy } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID) as WatchOnlyWallet;
   const routeParamsPSBT = useRef(route.params.psbt);
   const routeParamsTXHex = route.params.txhex;
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState<string | undefined>(route.params.txhex);
+  const [resolvedDeepLinkPSBT, setResolvedDeepLinkPSBT] = useState<string | undefined>(deepLinkPSBT);
   const openScannerButton = useRef<View | null>(null);
   const dynamicQRCode = useRef<DynamicQRCode | null>(null);
   const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (deepLinkPSBTFilePath) {
+      readFileOutsideSandbox(deepLinkPSBTFilePath)
+        .then(content => {
+          if (content) setResolvedDeepLinkPSBT(content);
+        })
+        .catch(err => console.warn('Failed to read PSBT file:', err));
+    }
+  }, [deepLinkPSBTFilePath]);
 
   const stylesHook = StyleSheet.create({
     scrollViewContent: {
@@ -117,8 +128,8 @@ const PsbtWithHardwareWallet = () => {
       presentAlert({ message: loc.send.no_tx_signing_in_progress });
     }
 
-    if (deepLinkPSBT) {
-      const newPsbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
+    if (resolvedDeepLinkPSBT) {
+      const newPsbt = bitcoin.Psbt.fromBase64(resolvedDeepLinkPSBT);
       try {
         if (routeParamsPSBT.current) {
           const Tx = wallet.combinePsbt(routeParamsPSBT.current, newPsbt);
@@ -133,7 +144,7 @@ const PsbtWithHardwareWallet = () => {
       setTxHex(routeParamsTXHex);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deepLinkPSBT, routeParamsTXHex]);
+  }, [resolvedDeepLinkPSBT, routeParamsTXHex]);
 
   const broadcast = async () => {
     setIsLoading(true);

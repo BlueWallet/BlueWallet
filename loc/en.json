@@ -49,7 +49,14 @@
   "errors": {
     "broadcast": "Broadcast failed.",
     "error": "Error",
-    "network": "Network Error"
+    "network": "Network Error",
+    "storage_save_failed": "BlueWallet couldn’t save your data.",
+    "storage_file_decryption_failed": "BlueWallet couldn’t open its encrypted local storage. This usually means the local app data is corrupted or the encryption key no longer matches.",
+    "storage_file_decryption_failed_solutions": "Try force-closing and reopening the app. If the problem continues, make sure you have your wallet backups, then reset encrypted storage or reinstall the app.",
+    "storage_file_decryption_failed_purge": "Purge corrupted file",
+    "storage_file_decryption_failed_purged": "The corrupted file was removed. Please restart BlueWallet before making any further changes so the app can save properly again.",
+    "storage_file_decryption_failed_purged_acknowledge": "Ok, I understand.",
+    "storage_file_decryption_failed_purge_failed": "BlueWallet couldn’t remove the corrupted local storage file automatically. Please restart the app and try again."
   },
   "lnd": {
     "errorInvoiceExpired": "Invoice expired.",

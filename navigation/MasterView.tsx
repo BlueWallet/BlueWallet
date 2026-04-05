@@ -1,12 +1,13 @@
 import React from 'react';
-import DevMenu from '../components/DevMenu';
 import MainRoot from './index';
+
+const DevMenu = __DEV__ ? require('../components/DevMenu').default : null;
 
 const MasterView = () => {
   return (
     <>
       <MainRoot />
-      {__DEV__ && <DevMenu />}
+      {DevMenu ? <DevMenu /> : null}
     </>
   );
 };

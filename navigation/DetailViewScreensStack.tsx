@@ -1,5 +1,5 @@
 import React, { lazy, useCallback, useMemo } from 'react';
-import { View, Platform, PlatformColor } from 'react-native';
+import { View, Platform } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -51,6 +51,7 @@ import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
+import getSettingsScreenOptions from './helpers/getSettingsScreenOptions';
 import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
@@ -105,29 +106,6 @@ const DetailViewStackScreensStack = () => {
   const settingsHeaderBackgroundColor = isIOSLightMode ? settingsCardColor : theme.colors.customHeader;
 
   // Consistent header configuration for all settings screens
-  const getSettingsHeaderOptions = (title: string) => {
-    // Use PlatformColor for iOS to match the Settings component, fallback to theme color
-    const titleColor = Platform.OS === 'ios' ? PlatformColor('label') : theme.colors.foregroundColor;
-    // Convert PlatformColor to string for TypeScript compatibility
-    const titleColorString = typeof titleColor === 'string' ? titleColor : String(titleColor);
-    return {
-      title,
-      headerBackButtonDisplayMode: 'minimal' as const,
-      headerBackTitle: '',
-      headerBackVisible: true, // Show back button on Android
-      headerShadowVisible: false,
-      headerLargeTitle: false,
-      headerLargeTitleStyle: undefined,
-      headerTitleStyle: {
-        color: titleColorString,
-      },
-      headerTransparent: false,
-      headerBlurEffect: undefined,
-      headerStyle: {
-        backgroundColor: settingsHeaderBackgroundColor,
-      },
-    };
-  };
 
   return (
     <DetailViewStack.Navigator
@@ -204,18 +182,18 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="Broadcast"
         component={Broadcast}
-        options={navigationStyle(getSettingsHeaderOptions(loc.send.create_broadcast))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.send.create_broadcast, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="IsItMyAddress"
         component={IsItMyAddress}
         initialParams={{ address: undefined }}
-        options={navigationStyle(getSettingsHeaderOptions(loc.is_it_my_address.title))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.is_it_my_address.title, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="GenerateWord"
         component={GenerateWord}
-        options={navigationStyle(getSettingsHeaderOptions(loc.autofill_word.title))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.autofill_word.title, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="LnurlPay"
@@ -287,84 +265,84 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="Currency"
         component={Currency}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.currency))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.currency, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="GeneralSettings"
         component={GeneralSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.general))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.general, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="PlausibleDeniability"
         component={PlausibleDeniability}
-        options={navigationStyle(getSettingsHeaderOptions(loc.plausibledeniability.title))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.plausibledeniability.title, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="Licensing"
         component={Licensing}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.license))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.license, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="NetworkSettings"
         component={NetworkSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.network))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.network, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="SettingsBlockExplorer"
         component={SettingsBlockExplorer}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.block_explorer))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.block_explorer, theme))(theme)}
       />
 
       <DetailViewStack.Screen
         name="About"
         component={About}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.about, theme))(theme)}
       />
       {/* <DetailViewStack.Screen
         name="DefaultView"
         component={DefaultView}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.default_title))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.default_title, theme))(theme)}
       /> */}
       <DetailViewStack.Screen
         name="ElectrumSettings"
         component={ElectrumSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.electrum_settings_server, theme))(theme)}
         initialParams={{ server: undefined }}
       />
       <DetailViewStack.Screen
         name="EncryptStorage"
         component={EncryptStorage}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.encrypt_title))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.encrypt_title, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="Language"
         component={Language}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.language))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.language, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="LightningSettings"
         component={LightningSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.lightning_settings))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.lightning_settings, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="NotificationSettings"
         component={NotificationSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.notifications))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.notifications, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="SelfTest"
         component={SelfTest}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.selfTest))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.selfTest, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="ReleaseNotes"
         component={ReleaseNotes}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.about_release_notes))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.about_release_notes, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="SettingsTools"
         component={SettingsTools}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
+        options={navigationStyle(getSettingsScreenOptions(loc.settings.tools, theme))(theme)}
       />
       <DetailViewStack.Screen
         name="PromptPasswordConfirmationSheet"

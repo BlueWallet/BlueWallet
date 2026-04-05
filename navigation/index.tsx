@@ -8,8 +8,14 @@ import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
+import getSettingsScreenOptions from './helpers/getSettingsScreenOptions';
 import WalletXpub from '../screen/wallets/xpub';
 import WalletExport from '../screen/wallets/WalletExport';
+import WalletTransactions from '../screen/wallets/WalletTransactions';
+import ReceiveDetails from '../screen/receive/ReceiveDetails';
+import ElectrumSettings from '../screen/settings/ElectrumSettings';
+import LightningSettings from '../screen/settings/LightningSettings';
 import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
@@ -65,12 +71,35 @@ const MainRoot = () => {
   const theme = useTheme();
 
   return (
-    <DetailViewStack.Navigator screenOptions={{ headerShown: false }}>
+    <DetailViewStack.Navigator UNSTABLE_routeNamesChangeBehavior="lastUnhandled" screenOptions={{ headerShown: false }}>
       {!walletsInitialized ? (
         <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (
         <>
           <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
+          <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
+          <DetailViewStack.Screen
+            name="ReceiveDetails"
+            component={ReceiveDetails}
+            options={navigationStyle({
+              title: loc.receive.header,
+              closeButtonPosition: CloseButtonPosition.Left,
+              statusBarStyle: 'light',
+              headerShown: true,
+              presentation: 'modal',
+            })(theme)}
+          />
+          <DetailViewStack.Screen
+            name="ElectrumSettings"
+            component={ElectrumSettings}
+            initialParams={{ server: undefined }}
+            options={navigationStyle(getSettingsScreenOptions(loc.settings.electrum_settings_server, theme))(theme)}
+          />
+          <DetailViewStack.Screen
+            name="LightningSettings"
+            component={LightningSettings}
+            options={navigationStyle(getSettingsScreenOptions(loc.settings.lightning_settings, theme))(theme)}
+          />
 
           {/* Modal stacks */}
           <DetailViewStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />

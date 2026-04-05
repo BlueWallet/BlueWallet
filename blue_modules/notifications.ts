@@ -98,6 +98,8 @@ const getNotificationKey = (payload: Partial<TPayload>, notification?: RNNotific
     txid: payload.txid ?? '',
     address: payload.address ?? '',
     message: payload.message ?? '',
+    foreground: payload.foreground ?? false,
+    userInteraction: payload.userInteraction ?? false,
   });
 };
 
@@ -151,7 +153,7 @@ const storeIncomingNotification = async (
 
     await addNotification(payload);
 
-    if (payload.foreground && onProcessNotificationsHandler) {
+    if ((payload.foreground || payload.userInteraction) && onProcessNotificationsHandler) {
       await onProcessNotificationsHandler();
     }
   } catch (error) {

@@ -8,6 +8,7 @@ import Realm from 'realm';
 
 import * as encryption from '../blue_modules/encryption';
 import presentAlert from '../components/Alert';
+import loc from '../loc';
 import { randomBytes } from './rng';
 import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
@@ -67,6 +68,63 @@ type TBucketStorage = {
 };
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
+
+const isRealmFileDecryptionError = (message: string): boolean => {
+  return (
+    message.includes('Realm file decryption failed') || (message.includes('Failed to open Realm file') && message.includes('HMAC check'))
+  );
+};
+
+const presentStorageSaveError = (message: string, onPurgeCorruptedFile?: () => void | Promise<void>) => {
+  if (isRealmFileDecryptionError(message)) {
+    const buttons = onPurgeCorruptedFile
+      ? [
+          {
+            text: loc._.cancel,
+            style: 'cancel' as const,
+            onPress: () => {},
+          },
+          {
+            text: loc.errors.storage_file_decryption_failed_purge,
+            style: 'destructive' as const,
+            onPress: () => {
+              Promise.resolve(onPurgeCorruptedFile())
+                .then(() => {
+                  presentAlert({
+                    title: loc._.success,
+                    message: loc.errors.storage_file_decryption_failed_purged,
+                    buttons: [{ text: loc.errors.storage_file_decryption_failed_purged_acknowledge, onPress: () => {} }],
+                    allowRepeat: false,
+                  });
+                })
+                .catch(error => {
+                  console.error('Failed to purge corrupted Realm file:', error);
+                  presentAlert({
+                    title: loc.errors.error,
+                    message: loc.errors.storage_file_decryption_failed_purge_failed,
+                    allowRepeat: false,
+                  });
+                });
+            },
+          },
+        ]
+      : undefined;
+
+    presentAlert({
+      title: loc.errors.error,
+      message: `${loc.errors.storage_file_decryption_failed}\n\n${loc.errors.storage_file_decryption_failed_solutions}`,
+      buttons,
+      allowRepeat: false,
+    });
+    return;
+  }
+
+  presentAlert({
+    title: loc.errors.error,
+    message: `${loc.errors.storage_save_failed}\n\n${message}`,
+    allowRepeat: false,
+  });
+};
 
 export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -651,7 +709,7 @@ export class BlueApp {
       try {
         realm = await this.getRealmForTransactions();
       } catch (error: any) {
-        presentAlert({ message: error.message });
+        presentStorageSaveError(String(error?.message || error));
       }
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
@@ -729,12 +787,9 @@ export class BlueApp {
       this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
       realmkeyValue.close();
     } catch (error: any) {
-      console.error('save to disk exception:', error.message);
-      presentAlert({ message: 'save to disk exception: ' + error.message });
-      if (error.message.includes('Realm file decryption failed')) {
-        console.warn('purging realm key-value database file');
-        this.purgeRealmKeyValueFile();
-      }
+      const errorMessage = String(error?.message || error);
+      console.error('save to disk exception:', errorMessage);
+      presentStorageSaveError(errorMessage, () => this.purgeRealmKeyValueFile());
     } finally {
       savingInProgress = 0;
     }
@@ -934,11 +989,24 @@ export class BlueApp {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
 
-  purgeRealmKeyValueFile() {
-    const path = 'keyvalue.realm';
-    return Realm.deleteFile({
-      path,
-    });
+  async purgeRealmKeyValueFile() {
+    const path = `${RNFS.CachesDirectoryPath}/keyvalue.realm`;
+
+    try {
+      Realm.deleteFile({ path });
+    } catch (error) {
+      console.warn('Failed to delete Realm key-value file via Realm.deleteFile:', error);
+    }
+
+    for (const sidecarPath of [path, `${path}.lock`, `${path}.note`, `${path}.management`]) {
+      try {
+        if (await RNFS.exists(sidecarPath)) {
+          await RNFS.unlink(sidecarPath);
+        }
+      } catch (error) {
+        console.warn('Failed to remove Realm sidecar file:', sidecarPath, error);
+      }
+    }
   }
 
   async moveRealmFilesToCacheDirectory() {
