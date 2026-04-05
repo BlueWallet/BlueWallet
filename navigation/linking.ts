@@ -32,6 +32,88 @@ const defaultContext: TDeepLinkContext = {
   setSharedCosigner: () => {},
 };
 
+type TNotificationPayload = {
+  type?: number | string;
+  address?: string;
+  txid?: string;
+  hash?: string;
+  [key: string]: any;
+};
+
+const waitForNavigationReady = async (timeoutMs: number = 3_000): Promise<boolean> => {
+  if (navigationRef.isReady()) {
+    return true;
+  }
+
+  const startedAt = Date.now();
+  while (!navigationRef.isReady() && Date.now() - startedAt < timeoutMs) {
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+
+  return navigationRef.isReady();
+};
+
+const getWalletFromNotificationPayload = (
+  payload: TNotificationPayload,
+  context: TDeepLinkContext = defaultContext,
+): TWallet | undefined => {
+  switch (+payload.type) {
+    case 2:
+    case 3:
+      return context.wallets.find(wallet => !!payload.address && wallet.weOwnAddress(payload.address));
+    case 1:
+    case 4:
+      return context.wallets.find(wallet => wallet.weOwnTransaction(payload.txid || payload.hash));
+    default:
+      return undefined;
+  }
+};
+
+export const getDeepLinkUrlFromNotification = (
+  payload: TNotificationPayload,
+  context: TDeepLinkContext = defaultContext,
+): string | null => {
+  const wallet = getWalletFromNotificationPayload(payload, context);
+  if (!wallet) {
+    return null;
+  }
+
+  const walletID = wallet.getID();
+  return +payload.type !== 3 || wallet.chain === Chain.OFFCHAIN
+    ? buildInternalUrl('wallet/transactions', { walletID, walletType: wallet.type })
+    : buildInternalUrl('wallet/receive', { walletID, address: payload.address });
+};
+
+const extractNotificationPayload = (
+  notification: { payload?: Record<string, any> | null } | null | undefined,
+): TNotificationPayload | null => {
+  if (!notification?.payload || typeof notification.payload !== 'object') {
+    return null;
+  }
+
+  const rawPayload = notification.payload;
+  const nestedPayload = rawPayload.data && typeof rawPayload.data === 'object' ? rawPayload.data : {};
+  const nestedData = nestedPayload.data && typeof nestedPayload.data === 'object' ? nestedPayload.data : {};
+
+  return {
+    ...rawPayload,
+    ...nestedPayload,
+    ...nestedData,
+  };
+};
+
+const getInitialNotificationUrl = async (context: TDeepLinkContext = defaultContext): Promise<string | null> => {
+  try {
+    const { Notifications } = require('react-native-notifications') as typeof import('react-native-notifications');
+    const notification = await Notifications.getInitialNotification();
+    const payload = extractNotificationPayload(notification);
+    return payload ? getDeepLinkUrlFromNotification(payload, context) : null;
+  } catch (error) {
+    console.warn(error);
+    return null;
+  }
+};
+
 const getQuickActionUrl = (data: { userInfo?: { url?: string } } | null | undefined): string | null => {
   return typeof data?.userInfo?.url === 'string' ? data.userInfo.url : null;
 };
@@ -240,7 +322,7 @@ const routeFromUrl = (url: string, context: TDeepLinkContext = defaultContext): 
       }
 
       if (action === 'openReceive') {
-        return ['DetailViewStackScreensStack', { screen: 'ReceiveDetails', params: { walletID: wallet.getID() } }];
+        return ['ReceiveDetails', { walletID: wallet.getID() }];
       }
     } else if (wallet.chain === Chain.OFFCHAIN) {
       if (action === 'openSend') {
@@ -350,7 +432,12 @@ const parseInternalPath = (path: string): { path: string; params: Record<string,
 };
 
 const isDrawerManagedRoute = (routeName: string): boolean => {
-  return routeName === 'ElectrumSettings' || routeName === 'LightningSettings' || routeName === 'DetailViewStackScreensStack';
+  return (
+    routeName === 'WalletTransactions' ||
+    routeName === 'ReceiveDetails' ||
+    routeName === 'ElectrumSettings' ||
+    routeName === 'LightningSettings'
+  );
 };
 
 const linkingConfig = {
@@ -360,14 +447,14 @@ const linkingConfig = {
         DetailViewStackScreensStack: {
           screens: {
             WalletsList: '',
-            WalletTransactions: 'route/wallet/transactions',
-            ReceiveDetails: 'route/wallet/receive',
-            ElectrumSettings: 'route/settings/electrum',
-            LightningSettings: 'route/settings/lightning',
           },
         },
       },
     },
+    WalletTransactions: 'route/wallet/transactions',
+    ReceiveDetails: 'route/wallet/receive',
+    ElectrumSettings: 'route/settings/electrum',
+    LightningSettings: 'route/settings/lightning',
     SendDetailsRoot: {
       screens: {
         SendDetails: 'route/send',
@@ -424,24 +511,8 @@ const routeToState = ([routeName, routeParams]: TCompletionHandlerParams): Parti
 
   if (isDrawerManagedRoute(routeName)) {
     return {
-      routes: [
-        {
-          name: 'DrawerRoot',
-          state: {
-            routes: [
-              {
-                name: 'DetailViewStackScreensStack',
-                state: {
-                  routes: [{ name: routeName, params: routeParams }],
-                  index: 0,
-                },
-              },
-            ],
-            index: 0,
-          },
-        },
-      ],
-      index: 0,
+      routes: [{ name: 'DrawerRoot' }, { name: routeName, params: routeParams }],
+      index: 1,
     };
   }
 
@@ -515,15 +586,9 @@ const getInternalRouteFromPath = (path: string): TCompletionHandlerParams | unde
         { screen: 'ImportWallet', params: compactParams({ label: params.label, triggerImport: params.triggerImport === 'true' }) },
       ];
     case 'wallet/transactions':
-      return [
-        'DetailViewStackScreensStack',
-        { screen: 'WalletTransactions', params: compactParams({ walletID: params.walletID, walletType: params.walletType }) },
-      ];
+      return ['WalletTransactions', compactParams({ walletID: params.walletID, walletType: params.walletType })];
     case 'wallet/receive':
-      return [
-        'DetailViewStackScreensStack',
-        { screen: 'ReceiveDetails', params: compactParams({ walletID: params.walletID, address: params.address }) },
-      ];
+      return ['ReceiveDetails', compactParams({ walletID: params.walletID, address: params.address })];
     case 'wallet/xpub':
       return ['WalletXpub', compactParams({ walletID: params.walletID, xpub: params.xpub })];
     case 'settings/electrum':
@@ -564,6 +629,10 @@ const buildInternalUrlFromRoute = (route: TCompletionHandlerParams, sourceUrl: s
         return buildInternalUrl('wallet/receive', routeParams.params ?? {});
       }
       return null;
+    case 'WalletTransactions':
+      return buildInternalUrl('wallet/transactions', routeParams ?? {});
+    case 'ReceiveDetails':
+      return buildInternalUrl('wallet/receive', routeParams ?? {});
     case 'WalletXpub':
       return buildInternalUrl('wallet/xpub', routeParams ?? {});
     case 'SelectWallet': {
@@ -605,14 +674,11 @@ export const resolveDeepLinkRoute = async (
     const wallet = context.wallets.find(item => item.getID() === walletID);
 
     return [
-      'DetailViewStackScreensStack',
-      {
-        screen: 'WalletTransactions',
-        params: compactParams({
-          walletID,
-          walletType: wallet?.type,
-        }),
-      },
+      'WalletTransactions',
+      compactParams({
+        walletID,
+        walletType: wallet?.type,
+      }),
     ];
   }
 
@@ -667,7 +733,12 @@ export const resolveDeepLinkUrl = async (url: string, context: TDeepLinkContext 
 
 export const navigateFromDeepLink = async (url: string, context: TDeepLinkContext = defaultContext): Promise<boolean> => {
   const resolvedUrl = await resolveDeepLinkUrl(url, context);
-  if (!resolvedUrl || !navigationRef.isReady()) {
+  if (!resolvedUrl) {
+    return false;
+  }
+
+  const navigationReady = await waitForNavigationReady();
+  if (!navigationReady) {
     return false;
   }
 
@@ -712,6 +783,12 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
           const resolvedUrl = await resolveDeepLinkUrl(url, context);
           recordDeepLinkActivity(resolvedUrl);
           return resolvedUrl;
+        }
+
+        const initialNotificationUrl = await getInitialNotificationUrl(context);
+        if (initialNotificationUrl) {
+          recordDeepLinkActivity(initialNotificationUrl);
+          return initialNotificationUrl;
         }
 
         const quickActionUrl = getQuickActionUrl(await QuickActions.popInitialAction());

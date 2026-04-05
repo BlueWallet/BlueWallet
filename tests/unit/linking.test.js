@@ -10,6 +10,7 @@ import {
   isBothBitcoinAndLightning,
   isLightningInvoice,
   isLnUrl,
+  createBlueWalletLinking,
   resolveDeepLinkRoute,
   resolveDeepLinkUrl,
 } from '../../navigation/linking';
@@ -483,6 +484,16 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
       setSharedCosigner: () => {},
     });
     assert.strictEqual(widgetUrl, `bluewallet://route/wallet/receive?walletID=${encodeURIComponent(wallet.getID())}`);
+  });
+
+  it('preserves wallet transaction deeplinks at the root level for cold boot handling', () => {
+    const linking = createBlueWalletLinking();
+    const state = linking.getStateFromPath?.('route/wallet/transactions?walletID=test-wallet&walletType=segwit');
+
+    assert.deepStrictEqual(state, {
+      routes: [{ name: 'DrawerRoot' }, { name: 'WalletTransactions', params: { walletID: 'test-wallet', walletType: 'segwit' } }],
+      index: 1,
+    });
   });
 
   it('can work with some deeplink actions', () => {

@@ -18,7 +18,7 @@ import { Chain } from '../models/bitcoinUnits';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from './context/useStorage';
 import {
-  buildInternalUrl,
+  getDeepLinkUrlFromNotification,
   hasRecentDeepLinkActivity,
   isBitcoinAddress,
   isBothBitcoinAndLightning,
@@ -48,12 +48,18 @@ const useDeepLinkListeners = () => {
   const shouldActivateListeners = walletsInitialized;
 
   const handleNotificationNavigation = useCallback(
-    async (wallet: (typeof wallets)[number], payload: { type?: number; address?: string }) => {
-      const walletID = wallet.getID();
-      const targetUrl =
-        payload.type !== 3 || wallet.chain === Chain.OFFCHAIN
-          ? buildInternalUrl('wallet/transactions', { walletID, walletType: wallet.type })
-          : buildInternalUrl('wallet/receive', { walletID, address: payload.address });
+    async (payload: { type?: number; address?: string }) => {
+      const targetUrl = getDeepLinkUrlFromNotification(payload, {
+        wallets,
+        addWallet,
+        saveToDisk,
+        setSharedCosigner,
+      });
+
+      if (!targetUrl) {
+        console.log('could not build a deep link from the notification payload, NOP');
+        return false;
+      }
 
       const handled = await navigateFromDeepLink(targetUrl, {
         wallets,
@@ -109,7 +115,7 @@ const useDeepLinkListeners = () => {
           const walletID = wallet.getID();
           fetchAndSaveWalletTransactions(walletID);
           if (wasTapped) {
-            await handleNotificationNavigation(wallet, payload);
+            await handleNotificationNavigation(payload);
             return true;
           }
         } else {
@@ -138,7 +144,7 @@ const useDeepLinkListeners = () => {
             const walletID = wallet.getID();
             fetchAndSaveWalletTransactions(walletID);
             if (wasTapped) {
-              await handleNotificationNavigation(wallet, payload);
+              await handleNotificationNavigation(payload);
               return true;
             }
           } else {
