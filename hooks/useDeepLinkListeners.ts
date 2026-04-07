@@ -4,13 +4,12 @@ import { getClipboardContent } from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import {
-  clearStoredNotifications,
   getDeliveredNotifications,
-  getStoredNotifications,
-  initializeNotifications,
   removeAllDeliveredNotifications,
   setApplicationIconBadgeNumber,
+  type TPayload,
 } from '../blue_modules/notifications';
+import useNotifications from './useNotifications';
 import { LightningCustodianWallet } from '../class';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
@@ -18,7 +17,6 @@ import { Chain } from '../models/bitcoinUnits';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from './context/useStorage';
 import {
-  getDeepLinkUrlFromNotification,
   hasRecentDeepLinkActivity,
   isBitcoinAddress,
   isBothBitcoinAndLightning,
@@ -47,44 +45,36 @@ const useDeepLinkListeners = () => {
 
   const shouldActivateListeners = walletsInitialized;
 
-  const handleNotificationNavigation = useCallback(
-    async (payload: { type?: number; address?: string }) => {
-      const targetUrl = getDeepLinkUrlFromNotification(payload, {
-        wallets,
-        addWallet,
-        saveToDisk,
-        setSharedCosigner,
-      });
-
-      if (!targetUrl) {
-        console.log('could not build a deep link from the notification payload, NOP');
-        return false;
-      }
-
-      const handled = await navigateFromDeepLink(targetUrl, {
-        wallets,
-        addWallet,
-        saveToDisk,
-        setSharedCosigner,
-      });
-
-      if (!handled) {
-        console.warn('Failed to navigate from notification link:', targetUrl);
-      }
-
-      return handled;
-    },
-    [wallets, addWallet, saveToDisk, setSharedCosigner],
-  );
-
-  const processPushNotifications = useCallback(async () => {
+  const processPushNotifications = useCallback(async (payload?: TPayload) => {
     if (!shouldActivateListeners) return false;
 
     await new Promise(resolve => setTimeout(resolve, 200));
     try {
-      const notifications2process = await getStoredNotifications();
-      await clearStoredNotifications();
       setApplicationIconBadgeNumber(0);
+
+      if (payload) {
+        console.log('processing push notification:', payload);
+        let wallet;
+        switch (+payload.type) {
+          case 2:
+          case 3:
+            wallet = wallets.find(w => payload.address && w.weOwnAddress(payload.address));
+            break;
+          case 1:
+            // type 1: LN invoice paid — identified by preimage hash
+            wallet = wallets.find(w => payload.hash && w.weOwnTransaction(payload.hash));
+            break;
+          case 4:
+            // type 4: txid confirmed — identified by txid
+            wallet = wallets.find(w => payload.txid && w.weOwnTransaction(payload.txid));
+            break;
+        }
+        if (wallet) {
+          fetchAndSaveWalletTransactions(wallet.getID());
+        } else {
+          console.log('could not find wallet while processing push notification, NOP');
+        }
+      }
 
       const deliveredNotifications = await getDeliveredNotifications();
       setTimeout(async () => {
@@ -95,79 +85,37 @@ const useDeepLinkListeners = () => {
         }
       }, 5000);
 
-      for (const payload of notifications2process) {
-        const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
-
-        console.log('processing push notification:', payload);
-        let wallet;
-        switch (+payload.type) {
-          case 2:
-          case 3:
-            wallet = wallets.find(w => w.weOwnAddress(payload.address));
-            break;
-          case 1:
-          case 4:
-            wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
-            break;
-        }
-
-        if (wallet) {
-          const walletID = wallet.getID();
-          fetchAndSaveWalletTransactions(walletID);
-          if (wasTapped) {
-            await handleNotificationNavigation(payload);
-            return true;
-          }
-        } else {
-          console.log('could not find wallet while processing push notification, NOP');
-        }
-      }
-
       if (deliveredNotifications.length > 0) {
-        for (const payload of deliveredNotifications) {
-          const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
-
-          console.log('processing push notification:', payload);
+        for (const deliveredPayload of deliveredNotifications) {
+          console.log('processing push notification:', deliveredPayload);
           let wallet;
-          switch (+payload.type) {
+          switch (+deliveredPayload.type) {
             case 2:
             case 3:
-              wallet = wallets.find(w => w.weOwnAddress(payload.address));
+              wallet = wallets.find(w => deliveredPayload.address && w.weOwnAddress(deliveredPayload.address));
               break;
             case 1:
+              wallet = wallets.find(w => deliveredPayload.hash && w.weOwnTransaction(deliveredPayload.hash));
+              break;
             case 4:
-              wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+              wallet = wallets.find(w => deliveredPayload.txid && w.weOwnTransaction(deliveredPayload.txid));
               break;
           }
-
           if (wallet) {
-            const walletID = wallet.getID();
-            fetchAndSaveWalletTransactions(walletID);
-            if (wasTapped) {
-              await handleNotificationNavigation(payload);
-              return true;
-            }
+            fetchAndSaveWalletTransactions(wallet.getID());
           } else {
             console.log('could not find wallet while processing push notification, NOP');
           }
         }
-      }
-
-      if (deliveredNotifications.length > 0) {
         refreshAllWalletTransactions();
       }
     } catch (error) {
       console.error('Failed to process push notifications:', error);
     }
     return false;
-  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, handleNotificationNavigation, refreshAllWalletTransactions]);
+  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, refreshAllWalletTransactions]);
 
-  useEffect(() => {
-    if (!shouldActivateListeners) return;
-
-    initializeNotifications(processPushNotifications);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldActivateListeners]);
+  useNotifications({ enabled: shouldActivateListeners, onProcessNotifications: processPushNotifications });
 
   const handleOpenURL = useCallback(
     async (event: { url: string }): Promise<void> => {

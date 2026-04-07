@@ -3,9 +3,7 @@ import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../class';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { addNotification } from '../blue_modules/notifications';
 import { TWallet } from '../class/wallets/types';
-import { Chain } from '../models/bitcoinUnits';
 import { navigateFromDeepLink } from '../navigation/linking';
 import presentAlert from '../components/Alert';
 
@@ -165,56 +163,6 @@ const openTestDeepLink = async (url: string, wallets: TWallet[]): Promise<void> 
   }
 };
 
-const queueTestNotificationPayload = async (
-  wallet: TWallet,
-  type: 1 | 2 | 3 | 4,
-  options: { foreground?: boolean; userInteraction?: boolean } = {},
-): Promise<void> => {
-  const payload = {
-    foreground: options.foreground ?? false,
-    userInteraction: options.userInteraction ?? true,
-    address: '',
-    txid: '',
-    type,
-    hash: '',
-    title: `[Dev] Notification type ${type}`,
-    subText: `Test payload for ${wallet.getLabel()}`,
-    message: `Queued notification payload type ${type}`,
-    identifier: `dev-notification-${type}-${Date.now()}`,
-  };
-
-  if (type === 3 && wallet.chain !== Chain.ONCHAIN) {
-    Alert.alert('Notification test unavailable', 'Type 3 payloads require an on-chain wallet.');
-    return;
-  }
-
-  if (type === 2 || type === 3) {
-    const address = await wallet.getAddressAsync();
-    if (!address) {
-      Alert.alert('Notification test unavailable', 'The selected wallet does not currently have a usable address.');
-      return;
-    }
-
-    payload.address = String(address);
-  } else {
-    const tx = wallet.getTransactions()[0];
-    const txid = tx?.txid ?? tx?.hash;
-    if (!txid) {
-      Alert.alert('Notification test unavailable', 'The selected wallet does not have any transactions to reference yet.');
-      return;
-    }
-
-    payload.txid = String(txid);
-    payload.hash = String(tx?.hash ?? txid);
-  }
-
-  await addNotification(payload);
-  Alert.alert(
-    'Notification queued',
-    `Queued payload type ${type} for ${wallet.getLabel()}\n\nBackground and reopen the app to let the notification handler process it.`,
-  );
-};
-
 const DevMenu: React.FC = () => {
   const { wallets, addWallet } = useStorage();
   const walletsRef = useRef(wallets);
@@ -355,115 +303,6 @@ const DevMenu: React.FC = () => {
             'Select the wallet to open with bluewallet://wallet/:id',
             wallet => openTestDeepLink(`bluewallet://wallet/${encodeURIComponent(wallet.getID())}`, currentWallets),
           );
-        },
-      },
-    ]);
-
-    addCategoryMenuItem('Notifications', [
-      {
-        label: 'Transaction events',
-        action: () => {
-          showAlertWithActionItems('Notifications / Transactions', [
-            {
-              label: 'Payment detected',
-              action: () => {
-                const currentWallets = getWallets();
-                if (currentWallets.length === 0) {
-                  Alert.alert('No wallets available');
-                  return;
-                }
-
-                showAlertWithWalletOptions(
-                  currentWallets,
-                  'Simulate payment detected...',
-                  'Select a wallet to simulate a payment-detected notification',
-                  wallet => queueTestNotificationPayload(wallet, 1),
-                );
-              },
-            },
-            {
-              label: 'Tx confirmation',
-              action: () => {
-                const currentWallets = getWallets();
-                if (currentWallets.length === 0) {
-                  Alert.alert('No wallets available');
-                  return;
-                }
-
-                showAlertWithWalletOptions(
-                  currentWallets,
-                  'Simulate transaction confirmation...',
-                  'Select a wallet to simulate a transaction-confirmed notification',
-                  wallet => queueTestNotificationPayload(wallet, 4),
-                );
-              },
-            },
-          ]);
-        },
-      },
-      {
-        label: 'Address events',
-        action: () => {
-          showAlertWithActionItems('Notifications / Addresses', [
-            {
-              label: 'Address activity',
-              action: () => {
-                const currentWallets = getWallets();
-                if (currentWallets.length === 0) {
-                  Alert.alert('No wallets available');
-                  return;
-                }
-
-                showAlertWithWalletOptions(
-                  currentWallets,
-                  'Simulate address activity...',
-                  'Select a wallet to simulate incoming activity for one of its addresses',
-                  wallet => queueTestNotificationPayload(wallet, 2),
-                );
-              },
-            },
-            {
-              label: 'Open receive',
-              action: () => {
-                const currentWallets = getWallets();
-                if (currentWallets.length === 0) {
-                  Alert.alert('No wallets available');
-                  return;
-                }
-
-                showAlertWithWalletOptions(
-                  currentWallets,
-                  'Open receive screen from notification...',
-                  'Select an on-chain wallet to simulate a notification that opens Receive Details',
-                  wallet => queueTestNotificationPayload(wallet, 3),
-                );
-              },
-            },
-          ]);
-        },
-      },
-      {
-        label: 'Foreground behavior',
-        action: () => {
-          showAlertWithActionItems('Notifications / Foreground', [
-            {
-              label: 'Foreground only',
-              action: () => {
-                const currentWallets = getWallets();
-                if (currentWallets.length === 0) {
-                  Alert.alert('No wallets available');
-                  return;
-                }
-
-                showAlertWithWalletOptions(
-                  currentWallets,
-                  'Show foreground notification without opening...',
-                  'Select a wallet to simulate a foreground notification that should not auto-open a screen',
-                  wallet => queueTestNotificationPayload(wallet, 2, { foreground: true, userInteraction: false }),
-                );
-              },
-            },
-          ]);
         },
       },
     ]);

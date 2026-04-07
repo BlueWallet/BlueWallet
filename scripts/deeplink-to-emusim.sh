@@ -198,30 +198,30 @@ select device in "${devices[@]}"; do
     "type": 2,
     "sat": 2000,
     "address": "$selectedLink",
-    "txid": "sample_txid_2",
-    "userInteraction": true,
-    "foreground": false,
-    "walletID": "wallet123",
-    "chain": "ONCHAIN",
-    "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    "txid": "sample_txid_2"
   }
 }
 JSON
-      # write payload to temporary file
-      apns_file=$(mktemp /tmp/bluewallet-apns-XXXXXX.apns)
+      # write payload to persistent file so the one-liner stays valid
+      apns_file="/tmp/bluewallet-last-notification.apns"
       printf '%s' "$APNS_PAYLOAD" > "$apns_file"
       echo -e "Pushing notification to simulator $udid..."
       xcrun simctl push "$udid" "$apns_file"
-      rm "$apns_file"
+      echo -e "\n\033[1mRe-run one-liner:\033[0m"
+      echo "  xcrun simctl push $udid $apns_file"
     else
       echo -e "\nSending deep link to iOS simulator: $selectedLink\n"
       xcrun simctl openurl "$udid" "$selectedLink"
+      echo -e "\n\033[1mRe-run one-liner:\033[0m"
+      echo "  xcrun simctl openurl $udid '$selectedLink'"
     fi
   else
     echo -e "\nSending deep link to Android emulator: $selectedLink\n"
     # Strip version info to get the emulator device ID
     emuId="${dev%% *}"
     adb -s "$emuId" shell am start -a android.intent.action.VIEW -d "$selectedLink"
+    echo -e "\n\033[1mRe-run one-liner:\033[0m"
+    echo "  adb -s $emuId shell am start -a android.intent.action.VIEW -d '$selectedLink'"
   fi
   break
 done

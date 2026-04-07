@@ -3,6 +3,7 @@ import assert from 'assert';
 import { HDSegwitBech32Wallet, LightningCustodianWallet } from '../../class';
 import { bip21decode, bip21encode, decodeBitcoinUri, isBitcoinAddress, isPossiblyPSBTFile, isTXNFile } from '../../class/bitcoin-uri';
 import {
+  getDeepLinkUrlFromNotification,
   getServerFromSetElectrumServerAction,
   getUrlFromSetLndhubUrlAction,
   hasNeededJsonKeysForMultiSigSharing,
@@ -441,6 +442,52 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
     await assert.rejects(resolveDeepLinkRoute('file:///tmp/no-qr.jpg'), /valid QR Code/i);
   });
 
+  it('resolves notification deeplinks before wallets finish initializing when payload metadata is present', () => {
+    const transactionsUrl = getDeepLinkUrlFromNotification({
+      type: 2,
+      walletID: 'wallet-123',
+      walletType: 'hdsegwitbech32',
+      chain: 'ONCHAIN',
+    });
+    assert.strictEqual(transactionsUrl, 'bluewallet://route/wallet/transactions?walletID=wallet-123&walletType=hdsegwitbech32');
+
+    const receiveUrl = getDeepLinkUrlFromNotification({
+      type: 3,
+      walletID: 'wallet-123',
+      chain: 'ONCHAIN',
+      address: 'bc1qexampleaddress',
+    });
+    assert.strictEqual(receiveUrl, 'bluewallet://route/wallet/receive?walletID=wallet-123&address=bc1qexampleaddress');
+  });
+
+  it('prefers the actual wallet over placeholder notification metadata when the address matches', () => {
+    const actualWallet = {
+      getID: () => 'real-wallet-id',
+      type: 'hdsegwitbech32',
+      chain: 'ONCHAIN',
+      weOwnAddress: address => address === 'bc1qrealaddress',
+      weOwnTransaction: () => false,
+    };
+
+    const resolvedUrl = getDeepLinkUrlFromNotification(
+      {
+        type: 3,
+        walletID: 'wallet123',
+        walletType: 'wrong-type',
+        chain: 'OFFCHAIN',
+        address: 'bc1qrealaddress',
+      },
+      {
+        wallets: [actualWallet],
+        saveToDisk: () => {},
+        addWallet: () => {},
+        setSharedCosigner: () => {},
+      },
+    );
+
+    assert.strictEqual(resolvedUrl, 'bluewallet://route/wallet/receive?walletID=real-wallet-id&address=bc1qrealaddress');
+  });
+
   it('resolves canonical navigation URLs for React Navigation linking', async () => {
     const sendUrl = await resolveDeepLinkUrl(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`);
     assert.strictEqual(sendUrl, 'bluewallet://route/send?uri=bitcoin%3A12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
@@ -486,13 +533,32 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
     assert.strictEqual(widgetUrl, `bluewallet://route/wallet/receive?walletID=${encodeURIComponent(wallet.getID())}`);
   });
 
-  it('preserves wallet transaction deeplinks at the root level for cold boot handling', () => {
+  it('routes wallet transaction deeplinks through DrawerRoot with WalletsList beneath WalletTransactions', () => {
     const linking = createBlueWalletLinking();
     const state = linking.getStateFromPath?.('route/wallet/transactions?walletID=test-wallet&walletType=segwit');
 
     assert.deepStrictEqual(state, {
-      routes: [{ name: 'DrawerRoot' }, { name: 'WalletTransactions', params: { walletID: 'test-wallet', walletType: 'segwit' } }],
-      index: 1,
+      routes: [
+        {
+          name: 'DrawerRoot',
+          state: {
+            routes: [
+              {
+                name: 'DetailViewStackScreensStack',
+                state: {
+                  routes: [
+                    { name: 'WalletsList', params: undefined },
+                    { name: 'WalletTransactions', params: { walletID: 'test-wallet', walletType: 'segwit' } },
+                  ],
+                  index: 1,
+                },
+              },
+            ],
+            index: 0,
+          },
+        },
+      ],
+      index: 0,
     });
   });
 

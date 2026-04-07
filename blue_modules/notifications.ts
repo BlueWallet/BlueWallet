@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AppState, AppStateStatus, EmitterSubscription, Platform } from 'react-native';
+import { DeviceEventEmitter, Platform } from 'react-native';
 import { getApplicationName, getSystemName, getSystemVersion, getVersion, hasGmsSync, hasHmsSync } from 'react-native-device-info';
 import {
   Notification as RNNotification,
@@ -14,12 +14,84 @@ import { fetch } from '../util/fetch';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
-const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 const ANDROID_NOTIFICATION_CHANNEL_ID = 'channel_01';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
 let baseURI = groundControlUri;
-let notificationSubscriptions: EmitterSubscription[] = [];
-let onProcessNotificationsHandler: undefined | (() => void | Promise<void>);
+let onProcessNotificationsHandler: undefined | ((payload?: TPayload) => void | Promise<void>);
+let pendingOpenedNotification: TPayload | null = null;
+let notificationEventsRegistered = false;
+let remoteRegistrationRequested = false;
+let remoteRegistrationCompleted = false;
+let remoteRegistrationResult = false;
+
+/**
+ * Emitted via DeviceEventEmitter when the user taps a notification.
+ * Subscribe to this in the React Navigation linking `subscribe` function.
+ */
+export const NOTIFICATION_OPENED_EVENT = 'bluewallet:notificationOpened' as const;
+
+/**
+ * Eagerly captured at module-load time so the native cold-boot notification
+ * is not consumed by the OS before configureNotifications() runs (after
+ * wallets have loaded from disk).  Per react-native-notifications docs,
+ * getInitialNotification() resolves to the Notification that launched the
+ * app, or undefined otherwise.
+ */
+let pendingInitialNotification: TNotificationSource | null = null;
+const pendingInitialNotificationPromise: Promise<TNotificationSource | null> =
+  typeof Notifications?.getInitialNotification === 'function'
+    ? Notifications.getInitialNotification()
+        .then(notification => {
+          pendingInitialNotification = notification ?? null;
+          return pendingInitialNotification;
+        })
+        .catch(() => null)
+    : Promise.resolve(null);
+
+const getInitialNotificationWithRetry = async (attempts = 5, delayMs = 250): Promise<TNotificationSource | null> => {
+  let notification = pendingInitialNotification ?? (await pendingInitialNotificationPromise);
+  if (notification) {
+    return notification;
+  }
+
+  if (typeof Notifications?.getInitialNotification !== 'function') {
+    return null;
+  }
+
+  // On RN bridgeless startup, the first JS call can race with the native bridge
+  // setting `launchOptions`. Retry briefly so cold-start notification taps are not missed.
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, delayMs));
+    try {
+      notification = (await Notifications.getInitialNotification()) ?? null;
+      if (notification) {
+        pendingInitialNotification = notification;
+        return notification;
+      }
+    } catch {
+      // Ignore retry failures and keep polling for the remaining attempts.
+    }
+  }
+
+  return null;
+};
+
+export const setProcessNotificationsHandler = (handler: (payload?: TPayload) => void | Promise<void>) => {
+  onProcessNotificationsHandler = handler;
+};
+
+/**
+ * Function reference populated by `useNotifications` on mount.
+ * Allows `tryToObtainPermissions` — which is called from UI screens that
+ * have no hook context — to trigger the notifications configuration pipeline.
+ */
+let _configureNotificationsRef: (() => Promise<boolean>) | null = null;
+
+/** Called by `useNotifications` to inject its `configureNotifications` fn. */
+export const _setConfigureNotificationsFn = (fn: (() => Promise<boolean>) | null) => {
+  _configureNotificationsRef = fn;
+};
+
 const handledNotificationKeys = new Set<string>();
 let pendingRegistrationPromise: Promise<boolean> | null = null;
 let pendingRegistrationResolve: ((value: boolean) => void) | null = null;
@@ -30,17 +102,43 @@ type TPushToken = {
   os: 'ios' | 'android';
 };
 
-type TPayload = {
-  subText?: string;
+type TNotificationSource = RNNotification | Record<string, any>;
+
+/** Notification types per GroundControl swagger PushNotificationBase */
+export type TNotificationType = 1 | 2 | 3 | 4 | 5;
+
+/**
+ * Processed push notification payload. Fields map directly to the GroundControl
+ * swagger schema; type-specific fields are optional:
+ *   type 1 (LN invoice paid)       → sat, hash, memo
+ *   type 2 (address got paid)       → address, sat, txid
+ *   type 3 (address unconfirmed tx) → address, sat, txid
+ *   type 4 (txid confirmed)         → txid
+ *   type 5 (text message)           → text
+ */
+export type TPayload = {
+  // Base fields (swagger PushNotificationBase)
+  type: TNotificationType;
+  badge?: number;
+  level?: string;
+  // Type 1: lightning invoice paid
+  hash?: string;
+  sat?: number;
+  memo?: string;
+  // Types 2 & 3: onchain address activity
+  address?: string;
+  // Types 2, 3, 4: transaction ID
+  txid?: string;
+  // Type 5: arbitrary text message
+  text?: string;
+  // App-side display fields (populated by normalizeNotificationPayload)
   title?: string;
-  identifier?: string;
+  subText?: string;
   message?: string | object;
+  identifier?: string;
+  // App-side delivery context
   foreground: boolean;
   userInteraction: boolean;
-  address: string;
-  txid: string;
-  type: number;
-  hash: string;
   [key: string]: any;
 };
 
@@ -54,6 +152,9 @@ const createPushToken = (deviceToken: string): TPushToken => ({
 });
 
 const settlePendingRegistration = (value: boolean) => {
+  remoteRegistrationCompleted = true;
+  remoteRegistrationResult = value;
+
   if (!pendingRegistrationResolve) return;
   const resolve = pendingRegistrationResolve;
   pendingRegistrationResolve = null;
@@ -65,6 +166,18 @@ const settlePendingRegistration = (value: boolean) => {
   resolve(value);
 };
 
+export const consumePendingOpenedNotification = (): TPayload | null => {
+  const payload = pendingOpenedNotification;
+  pendingOpenedNotification = null;
+  return payload;
+};
+
+/**
+ * Returns a promise that resolves once the device has received (or failed to
+ * receive) a remote-notifications registration token.  Callers must have
+ * already registered the relevant event handlers before invoking this, and
+ * must separately call `Notifications.registerRemoteNotifications()`.
+ */
 const waitForRemoteRegistration = (timeoutMs = 10_000): Promise<boolean> => {
   if (pendingRegistrationPromise) return pendingRegistrationPromise;
   pendingRegistrationPromise = new Promise<boolean>(resolve => {
@@ -73,7 +186,6 @@ const waitForRemoteRegistration = (timeoutMs = 10_000): Promise<boolean> => {
       settlePendingRegistration(false);
     }, timeoutMs);
   });
-  Notifications.registerRemoteNotifications();
   return pendingRegistrationPromise;
 };
 
@@ -90,14 +202,69 @@ const ensureAndroidNotificationChannel = () => {
   });
 };
 
-const getNotificationKey = (payload: Partial<TPayload>, notification?: RNNotification) => {
+const ensureNotificationEventSubscriptions = () => {
+  if (notificationEventsRegistered) {
+    return;
+  }
+
+  notificationEventsRegistered = true;
+
+  Notifications.events().registerRemoteNotificationsRegistered(async event => {
+    console.log('processing event', event);
+    const token = createPushToken(event.deviceToken);
+    if (__DEV__) {
+      console.log('configureNotifications: Token received:', token);
+    }
+    await _setPushToken(token);
+    await postTokenConfig().catch(error => console.error('Failed to post token configuration:', error));
+    settlePendingRegistration(true);
+  });
+
+  Notifications.events().registerRemoteNotificationsRegistrationFailed(error => {
+    console.error('Registration error:', error);
+    settlePendingRegistration(false);
+  });
+
+  Notifications.events().registerRemoteNotificationsRegistrationDenied(() => {
+    console.log('Remote notification registration denied');
+    settlePendingRegistration(false);
+  });
+
+  Notifications.events().registerNotificationReceivedForeground(async (notification, completion) => {
+    await storeIncomingNotification(notification, { foreground: true, userInteraction: false }, completion);
+  });
+
+  Notifications.events().registerNotificationReceivedBackground(async (notification, completion) => {
+    await storeIncomingNotification(notification, { foreground: false, userInteraction: false }, completion);
+  });
+
+  Notifications.events().registerNotificationOpened(async (notification, completion) => {
+    try {
+      await storeIncomingNotification(notification, { foreground: false, userInteraction: true });
+    } finally {
+      completion();
+    }
+  });
+};
+
+try {
+  ensureNotificationEventSubscriptions();
+} catch (error) {
+  console.warn('Failed to eagerly register notification event subscriptions:', error);
+}
+
+const getNotificationKey = (payload: Partial<TPayload>, notification?: TNotificationSource) => {
+  // NOTE: 'message' is intentionally excluded — it can differ between getInitialNotification()
+  // and registerNotificationOpened() for the same notification (one path uses a flat launch
+  // userInfo dict, the other a wrapped Notification instance), which would break deduplication.
+  const notificationRecord = notification && typeof notification === 'object' ? (notification as Record<string, any>) : undefined;
+
   return JSON.stringify({
-    identifier: notification?.identifier ?? payload.identifier ?? '',
+    identifier: notificationRecord?.identifier ?? payload.identifier ?? '',
     type: payload.type ?? '',
     hash: payload.hash ?? '',
     txid: payload.txid ?? '',
     address: payload.address ?? '',
-    message: payload.message ?? '',
     foreground: payload.foreground ?? false,
     userInteraction: payload.userInteraction ?? false,
   });
@@ -111,20 +278,41 @@ const markNotificationHandled = (key: string) => {
   }
 };
 
-const normalizeNotificationPayload = (notification: RNNotification, status: Pick<TPayload, 'foreground' | 'userInteraction'>): TPayload => {
+const normalizeNotificationPayload = (
+  notification: TNotificationSource,
+  status: Pick<TPayload, 'foreground' | 'userInteraction'>,
+): TPayload => {
+  const source =
+    notification && typeof notification === 'object' ? (deepClone(notification as Record<string, any>) as Record<string, any>) : {};
+
+  // Warm path (`registerNotificationOpened`) provides a Notification instance whose
+  // custom payload is under `.payload`. Cold boot (`getInitialNotification`) returns
+  // the raw launch userInfo dictionary directly. Support both shapes.
+  const baseNotification =
+    source.payload && typeof source.payload === 'object'
+      ? { ...source, payload: deepClone(source.payload) }
+      : source.notification && typeof source.notification === 'object'
+        ? (deepClone(source.notification) as Record<string, any>)
+        : source;
+
   const rawPayload =
-    notification.payload && typeof notification.payload === 'object' ? (deepClone(notification.payload) as Record<string, any>) : {};
+    baseNotification.payload && typeof baseNotification.payload === 'object'
+      ? (baseNotification.payload as Record<string, any>)
+      : baseNotification;
   const nestedPayload = rawPayload.data && typeof rawPayload.data === 'object' ? rawPayload.data : {};
   const nestedData = nestedPayload.data && typeof nestedPayload.data === 'object' ? nestedPayload.data : {};
+  const apsAlert = rawPayload.aps?.alert && typeof rawPayload.aps.alert === 'object' ? rawPayload.aps.alert : {};
+  const title = baseNotification.title ?? rawPayload.title ?? apsAlert.title;
+  const body = baseNotification.body ?? rawPayload.body ?? apsAlert.body;
 
   const payload: TPayload = {
     ...rawPayload,
     ...nestedPayload,
     ...nestedData,
-    title: notification.title ?? rawPayload.title,
-    subText: rawPayload.subText ?? rawPayload.subtitle ?? notification.title,
-    message: rawPayload.message ?? notification.body,
-    identifier: notification.identifier,
+    title,
+    subText: rawPayload.subText ?? rawPayload.subtitle ?? title,
+    message: rawPayload.message ?? body,
+    identifier: baseNotification.identifier ?? source.identifier,
     foreground: status.foreground,
     userInteraction: status.userInteraction,
   } as TPayload;
@@ -134,7 +322,7 @@ const normalizeNotificationPayload = (notification: RNNotification, status: Pick
 };
 
 const storeIncomingNotification = async (
-  notification: RNNotification,
+  notification: TNotificationSource,
   status: Pick<TPayload, 'foreground' | 'userInteraction'>,
   completion?: ((response: NotificationCompletion) => void) | ((response: NotificationBackgroundFetchResult) => void),
 ) => {
@@ -151,10 +339,13 @@ const storeIncomingNotification = async (
       return;
     }
 
-    await addNotification(payload);
+    if (payload.userInteraction) {
+      pendingOpenedNotification = payload;
+      DeviceEventEmitter.emit(NOTIFICATION_OPENED_EVENT, payload);
+    }
 
     if ((payload.foreground || payload.userInteraction) && onProcessNotificationsHandler) {
-      await onProcessNotificationsHandler();
+      await onProcessNotificationsHandler(payload);
     }
   } catch (error) {
     console.error('Failed to store incoming notification:', error);
@@ -189,29 +380,6 @@ export const checkNotificationPermissionStatus = async () => {
     return 'unavailable'; // Return 'unavailable' if the status cannot be retrieved
   }
 };
-
-// Listener to monitor notification permission status changes while app is running
-let currentPermissionStatus = 'unavailable';
-const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-  try {
-    if (nextAppState === 'active') {
-      const isDisabledByUser = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
-      if (!isDisabledByUser) {
-        const newPermissionStatus = await checkNotificationPermissionStatus();
-        if (newPermissionStatus !== currentPermissionStatus) {
-          currentPermissionStatus = newPermissionStatus;
-          if (newPermissionStatus === 'granted') {
-            await initializeNotifications();
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Failed handling app state notification refresh:', error);
-  }
-};
-
-AppState.addEventListener('change', handleAppStateChange);
 
 export const cleanUserOptOutFlag = async () => {
   return AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
@@ -248,7 +416,10 @@ export const tryToObtainPermissions = async (): Promise<boolean> => {
       console.log('tryToObtainPermissions: Permission denied');
       return false;
     }
-    return configureNotifications();
+    if (_configureNotificationsRef) {
+      return _configureNotificationsRef();
+    }
+    return false;
   } catch (error) {
     console.error('Error requesting notification permissions:', error);
     return false;
@@ -401,22 +572,6 @@ export const setLevels = async (levelAll: boolean) => {
   }
 };
 
-export const addNotification = async (notification: TPayload) => {
-  let notifications = [];
-  try {
-    const stringified = await AsyncStorage.getItem(NOTIFICATIONS_STORAGE);
-    notifications = JSON.parse(String(stringified));
-    if (!Array.isArray(notifications)) notifications = [];
-  } catch (e) {
-    console.error(e);
-    // Start fresh with just the new notification
-    notifications = [];
-  }
-
-  notifications.push(notification);
-  await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify(notifications));
-};
-
 const postTokenConfig = async () => {
   console.log('postTokenConfig: Starting token configuration');
   const pushToken = await getPushToken();
@@ -461,13 +616,20 @@ const _setPushToken = async (token: TPushToken) => {
 /**
  * Configures notifications. For Android, it will show a native rationale prompt if necessary.
  *
+ * Call order follows the library docs:
+ *   1. Register event handlers (registerRemoteNotificationsRegistered, etc.)
+ *   2. Call registerRemoteNotifications() to trigger token flow
+ *   3. Handle the cold-boot notification (app launched via tap) if present
+ *
  * @returns {Promise<boolean>} whether successfully registered for remote push notifications
  */
-const configureNotifications = async (onProcessNotifications?: () => void): Promise<boolean> => {
+export const configureNotifications = async (onProcessNotifications?: (payload?: TPayload) => void): Promise<boolean> => {
   console.log('configureNotifications()');
   if (onProcessNotifications) {
     onProcessNotificationsHandler = onProcessNotifications;
   }
+
+  ensureNotificationEventSubscriptions();
 
   try {
     const { status } = await checkNotifications();
@@ -478,53 +640,27 @@ const configureNotifications = async (onProcessNotifications?: () => void): Prom
 
     ensureAndroidNotificationChannel();
 
-    if (notificationSubscriptions.length === 0) {
-      notificationSubscriptions = [
-        Notifications.events().registerRemoteNotificationsRegistered(async event => {
-          console.log('processing event', event);
-          const token = createPushToken(event.deviceToken);
-          if (__DEV__) {
-            console.log('configureNotifications: Token received:', token);
-          }
-          await _setPushToken(token);
-          await postTokenConfig().catch(error => console.error('Failed to post token configuration:', error));
-          settlePendingRegistration(true);
-        }),
-        Notifications.events().registerRemoteNotificationsRegistrationFailed(error => {
-          console.error('Registration error:', error);
-          settlePendingRegistration(false);
-        }),
-        Notifications.events().registerRemoteNotificationsRegistrationDenied(() => {
-          console.log('Remote notification registration denied');
-          settlePendingRegistration(false);
-        }),
-        Notifications.events().registerNotificationReceivedForeground(async (notification, completion) => {
-          await storeIncomingNotification(notification, { foreground: true, userInteraction: false }, completion);
-        }),
-        Notifications.events().registerNotificationReceivedBackground(async (notification, completion) => {
-          await storeIncomingNotification(notification, { foreground: false, userInteraction: false }, completion);
-        }),
-        Notifications.events().registerNotificationOpened(async (notification, completion) => {
-          try {
-            await storeIncomingNotification(notification, { foreground: false, userInteraction: true });
-          } finally {
-            completion();
-          }
-        }),
-      ];
+    // Step 2: Request the push token once. Event subscriptions are already in place,
+    // so any cold-start notification-open event can be buffered even before React
+    // Navigation finishes attaching its listener.
+    const registrationPromise = remoteRegistrationCompleted ? Promise.resolve(remoteRegistrationResult) : waitForRemoteRegistration();
+    if (!remoteRegistrationRequested) {
+      remoteRegistrationRequested = true;
+      Notifications.registerRemoteNotifications();
     }
 
-    Notifications.getInitialNotification()
-      .then(async initialNotification => {
-        if (initialNotification) {
-          console.log('App was launched by a push notification:', initialNotification);
-          await storeIncomingNotification(initialNotification, { foreground: false, userInteraction: true });
-        }
-      })
-      .catch(error => console.error('Failed to retrieve initial notification:', error));
+    // Step 3: Handle cold-boot (app was launched by the user tapping a notification).
+    // On bridgeless startup, launchOptions can become visible slightly after the first JS
+    // call to getInitialNotification(). Retry briefly so the launch notification is still
+    // picked up even if the initial eager read raced the bridge initialization.
+    const initialNotification = await getInitialNotificationWithRetry();
+    console.log('configureNotifications: initial notification present:', !!initialNotification);
+    if (initialNotification) {
+      pendingInitialNotification = null;
+      await storeIncomingNotification(initialNotification, { foreground: false, userInteraction: true });
+    }
 
-    // waiting and returning actual result of remote pushes registration: success or failure
-    return await waitForRemoteRegistration();
+    return await registrationPromise;
   } catch (error) {
     console.error('Error in configureNotifications:', error);
     return false;
@@ -639,26 +775,35 @@ const _getHeaders = () => {
   };
 };
 
-export const clearStoredNotifications = async () => {
-  try {
-    await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, JSON.stringify([]));
-  } catch (_) {}
-};
+export const getDeliveredNotifications = async (): Promise<TPayload[]> => {
+  if (Platform.OS !== 'ios') {
+    return [];
+  }
 
-export const getDeliveredNotifications: () => Promise<Record<string, any>[]> = () => {
+  // iOS delivered notifications come back as a flat native dict where `content.userInfo`
+  // fields are merged into the root via `addEntriesFromDictionary`. Our GroundControl data
+  // lives under the `data` key (or at the root), NOT under `notification.payload.data` as
+  // `normalizeNotificationPayload` would expect. Extract only the fields we actually need.
   try {
-    if (Platform.OS !== 'ios') {
-      return Promise.resolve([]);
-    }
-
-    return Notifications.ios
-      .getDeliveredNotifications()
-      .then(notifications =>
-        notifications.map(notification => normalizeNotificationPayload(notification, { foreground: true, userInteraction: false })),
-      );
+    const notifications: any[] = await Notifications.ios.getDeliveredNotifications();
+    return notifications
+      .map((n: any) => {
+        const data: Record<string, any> = n.data && typeof n.data === 'object' ? n.data : {};
+        return {
+          type: data.type ?? n.type,
+          hash: data.hash ?? n.hash,
+          sat: data.sat ?? n.sat,
+          address: data.address ?? n.address,
+          txid: data.txid ?? n.txid,
+          text: data.text ?? n.text,
+          foreground: true,
+          userInteraction: false,
+        } as TPayload;
+      })
+      .filter(payload => payload.type != null || !!payload.address || !!payload.hash || !!payload.txid || !!payload.text);
   } catch (error) {
     console.error('Error getting delivered notifications:', error);
-    throw error;
+    return [];
   }
 };
 
@@ -727,25 +872,6 @@ export const isNotificationsEnabled = async () => {
   }
 };
 
-export const getStoredNotifications = async (): Promise<TPayload[]> => {
-  let notifications = [];
-  try {
-    notifications = JSON.parse(String(await AsyncStorage.getItem(NOTIFICATIONS_STORAGE)));
-    if (!Array.isArray(notifications)) notifications = [];
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      console.error('Invalid notifications format:', e);
-      notifications = [];
-      await AsyncStorage.setItem(NOTIFICATIONS_STORAGE, '[]');
-    } else {
-      console.error('Error accessing notifications:', e);
-      throw e;
-    }
-  }
-
-  return notifications;
-};
-
 // on app launch (load module):
 export const initializeNotifications = async (onProcessNotifications?: () => void) => {
   console.log('initializeNotifications: Starting initialization');
@@ -766,7 +892,7 @@ export const initializeNotifications = async (onProcessNotifications?: () => voi
     setApplicationIconBadgeNumber(0);
 
     // Only check permissions, never request
-    currentPermissionStatus = await checkNotificationPermissionStatus();
+    const currentPermissionStatus = await checkNotificationPermissionStatus();
     console.log('initializeNotifications: Permission status:', currentPermissionStatus);
 
     // Handle Android 13+ permissions differently

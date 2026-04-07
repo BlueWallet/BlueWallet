@@ -1,6 +1,7 @@
 import { getActionFromState, LinkingOptions, NavigationState, ParamListBase, PartialState } from '@react-navigation/native';
 import URL from 'url';
 import { AppState, AppStateStatus, DeviceEventEmitter, Linking } from 'react-native';
+import { consumePendingOpenedNotification, NOTIFICATION_OPENED_EVENT } from '../blue_modules/notifications';
 import QuickActions from 'react-native-quick-actions';
 import { readFileOutsideSandbox } from '../blue_modules/fs';
 import { WatchOnlyWallet } from '../class';
@@ -37,6 +38,9 @@ type TNotificationPayload = {
   address?: string;
   txid?: string;
   hash?: string;
+  walletID?: string;
+  walletType?: string;
+  chain?: Chain;
   [key: string]: any;
 };
 
@@ -63,10 +67,13 @@ const getWalletFromNotificationPayload = (
     case 2:
     case 3:
       return context.wallets.find(wallet => !!payload.address && wallet.weOwnAddress(payload.address));
-    case 1:
+    case 1: {
+      // type 1: LN invoice paid — identified by preimage hash
+      return payload.hash ? context.wallets.find(wallet => wallet.weOwnTransaction(payload.hash!)) : undefined;
+    }
     case 4: {
-      const txIdentifier = payload.txid || payload.hash;
-      return txIdentifier ? context.wallets.find(wallet => wallet.weOwnTransaction(txIdentifier)) : undefined;
+      // type 4: txid confirmed — identified by txid
+      return payload.txid ? context.wallets.find(wallet => wallet.weOwnTransaction(payload.txid!)) : undefined;
     }
     default:
       return undefined;
@@ -78,46 +85,20 @@ export const getDeepLinkUrlFromNotification = (
   context: TDeepLinkContext = defaultContext,
 ): string | null => {
   const wallet = getWalletFromNotificationPayload(payload, context);
-  if (!wallet) {
+  const walletID = wallet?.getID() ?? payload.walletID;
+
+  if (!walletID) {
     return null;
   }
 
-  const walletID = wallet.getID();
   const payloadType = Number(payload.type);
+  const walletType = wallet?.type ?? payload.walletType;
+  const walletChain = wallet?.chain ?? payload.chain;
+  const shouldOpenReceive = payloadType === 3 && walletChain !== Chain.OFFCHAIN;
 
-  return payloadType !== 3 || wallet.chain === Chain.OFFCHAIN
-    ? buildInternalUrl('wallet/transactions', { walletID, walletType: wallet.type })
-    : buildInternalUrl('wallet/receive', { walletID, address: payload.address });
-};
-
-const extractNotificationPayload = (
-  notification: { payload?: Record<string, any> | null } | null | undefined,
-): TNotificationPayload | null => {
-  if (!notification?.payload || typeof notification.payload !== 'object') {
-    return null;
-  }
-
-  const rawPayload = notification.payload;
-  const nestedPayload = rawPayload.data && typeof rawPayload.data === 'object' ? rawPayload.data : {};
-  const nestedData = nestedPayload.data && typeof nestedPayload.data === 'object' ? nestedPayload.data : {};
-
-  return {
-    ...rawPayload,
-    ...nestedPayload,
-    ...nestedData,
-  };
-};
-
-const getInitialNotificationUrl = async (context: TDeepLinkContext = defaultContext): Promise<string | null> => {
-  try {
-    const { Notifications } = require('react-native-notifications') as typeof import('react-native-notifications');
-    const notification = await Notifications.getInitialNotification();
-    const payload = extractNotificationPayload(notification);
-    return payload ? getDeepLinkUrlFromNotification(payload, context) : null;
-  } catch (error) {
-    console.warn(error);
-    return null;
-  }
+  return shouldOpenReceive
+    ? buildInternalUrl('wallet/receive', { walletID, address: payload.address })
+    : buildInternalUrl('wallet/transactions', { walletID, walletType });
 };
 
 const getQuickActionUrl = (data: { userInfo?: { url?: string } } | null | undefined): string | null => {
@@ -131,6 +112,44 @@ let lastDeepLinkAt = 0;
 let lastResolvedUrl: string | null = null;
 let lastInitialUrl: string | null = null;
 let appState: AppStateStatus = AppState.currentState;
+
+/**
+ * Fallback for cold-boot push notifications.
+ *
+ * Race condition: when the app cold-boots from a notification tap the following
+ * state machine can occur:
+ *
+ *   1. Navigator mounts → subscribe() called with wallets=[] (wallets not yet in
+ *      React state; StorageProvider's useEffect hasn't run yet).
+ *   2. configureNotifications() fires NOTIFICATION_OPENED_EVENT.
+ *   3. The active listener has wallets=[] → getDeepLinkUrlFromNotification returns
+ *      null → navigation is lost.
+ *   4. StorageProvider's useEffect runs → setWallets([…]) triggers a re-render.
+ *   5. subscribe() is re-called with wallets=[populated].
+ *
+ * The fix: if the notification listener can't resolve a URL (step 3), store the
+ * payload here.  The next subscribe() call (step 5) drains it with the now-
+ * populated wallet context.
+ */
+let pendingColdBootPayload: TNotificationPayload | null = null;
+let pendingDeferredResolvedUrl: string | null = null;
+
+const getActiveRouteName = (state?: PartialState<NavigationState> | NavigationState): string | undefined => {
+  if (!state?.routes?.length) {
+    return undefined;
+  }
+
+  const activeRoute = state.routes[state.index ?? state.routes.length - 1] as any;
+  if (activeRoute?.state) {
+    return getActiveRouteName(activeRoute.state) ?? activeRoute.name;
+  }
+
+  return activeRoute?.params?.screen ?? activeRoute?.name;
+};
+
+const isUnlockScreenActive = (): boolean => {
+  return getActiveRouteName(navigationRef.getRootState()) === 'UnlockWithScreen';
+};
 
 const recordDeepLinkActivity = (resolvedUrl?: string | null): void => {
   if (!resolvedUrl) {
@@ -156,6 +175,33 @@ const emitResolvedUrl = (listener: (url: string) => void, resolvedUrl: string | 
 
   recordDeepLinkActivity(resolvedUrl);
   listener(resolvedUrl);
+};
+
+const emitResolvedUrlWhenNavigationSettles = (listener: (url: string) => void, resolvedUrl: string | null): void => {
+  if (!resolvedUrl) {
+    return;
+  }
+
+  if (!navigationRef.isReady() || isUnlockScreenActive()) {
+    pendingDeferredResolvedUrl = resolvedUrl;
+    console.log('[linking] deferring deep link until unlock/navigation settles:', resolvedUrl);
+
+    (async () => {
+      const startedAt = Date.now();
+      while (Date.now() - startedAt < 5_000) {
+        if (navigationRef.isReady() && !isUnlockScreenActive()) {
+          const deferredUrl = pendingDeferredResolvedUrl;
+          pendingDeferredResolvedUrl = null;
+          emitResolvedUrl(listener, deferredUrl ?? resolvedUrl);
+          return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    })().catch(error => console.warn('[linking] deferred deep link error:', error));
+    return;
+  }
+
+  emitResolvedUrl(listener, resolvedUrl);
 };
 
 export const hasSchema = (schemaString: string): boolean => {
@@ -453,14 +499,14 @@ const linkingConfig = {
         DetailViewStackScreensStack: {
           screens: {
             WalletsList: '',
+            WalletTransactions: 'route/wallet/transactions',
+            ReceiveDetails: 'route/wallet/receive',
+            ElectrumSettings: 'route/settings/electrum',
+            LightningSettings: 'route/settings/lightning',
           },
         },
       },
     },
-    WalletTransactions: 'route/wallet/transactions',
-    ReceiveDetails: 'route/wallet/receive',
-    ElectrumSettings: 'route/settings/electrum',
-    LightningSettings: 'route/settings/lightning',
     SendDetailsRoot: {
       screens: {
         SendDetails: 'route/send',
@@ -491,7 +537,22 @@ const linkingConfig = {
   },
 };
 
+const buildDetailViewStackState = (routeName: string, routeParams?: Record<string, any>): PartialState<NavigationState> => {
+  if (routeName === 'WalletTransactions') {
+    return {
+      routes: [{ name: 'WalletsList', params: undefined }, { name: routeName, params: routeParams }],
+      index: 1,
+    };
+  }
+
+  return {
+    routes: [{ name: routeName, params: routeParams }],
+    index: 0,
+  };
+};
+
 const routeToState = ([routeName, routeParams]: TCompletionHandlerParams): PartialState<NavigationState> => {
+  console.log('[linking] routeToState input:', routeName, JSON.stringify(routeParams));
   if (routeName === 'DetailViewStackScreensStack' && routeParams?.screen) {
     return {
       routes: [
@@ -501,10 +562,7 @@ const routeToState = ([routeName, routeParams]: TCompletionHandlerParams): Parti
             routes: [
               {
                 name: 'DetailViewStackScreensStack',
-                state: {
-                  routes: [{ name: routeParams.screen, params: routeParams.params }],
-                  index: 0,
-                },
+                state: buildDetailViewStackState(routeParams.screen, routeParams.params),
               },
             ],
             index: 0,
@@ -517,8 +575,21 @@ const routeToState = ([routeName, routeParams]: TCompletionHandlerParams): Parti
 
   if (isDrawerManagedRoute(routeName)) {
     return {
-      routes: [{ name: 'DrawerRoot' }, { name: routeName, params: routeParams }],
-      index: 1,
+      routes: [
+        {
+          name: 'DrawerRoot',
+          state: {
+            routes: [
+              {
+                name: 'DetailViewStackScreensStack',
+                state: buildDetailViewStackState(routeName, routeParams),
+              },
+            ],
+            index: 0,
+          },
+        },
+      ],
+      index: 0,
     };
   }
 
@@ -741,31 +812,40 @@ export const resolveDeepLinkUrl = async (url: string, context: TDeepLinkContext 
 };
 
 export const navigateFromDeepLink = async (url: string, context: TDeepLinkContext = defaultContext): Promise<boolean> => {
+  console.log('[linking] navigateFromDeepLink called with:', url);
   const resolvedUrl = await resolveDeepLinkUrl(url, context);
+  console.log('[linking] resolvedUrl:', resolvedUrl);
   if (!resolvedUrl) {
+    console.warn('[linking] navigateFromDeepLink: could not resolve URL, aborting');
     return false;
   }
 
   const navigationReady = await waitForNavigationReady();
   if (!navigationReady) {
+    console.warn('[linking] navigateFromDeepLink: navigation not ready, aborting');
     return false;
   }
 
   recordDeepLinkActivity(resolvedUrl);
 
   const route = getInternalRouteFromPath(resolvedUrl.replace(/^bluewallet:\/\//, ''));
+  console.log('[linking] resolved route:', JSON.stringify(route));
   if (!route) {
+    console.warn('[linking] navigateFromDeepLink: no route for resolved URL, aborting');
     return false;
   }
 
   const state = routeToState(route);
+  console.log('[linking] routeToState result:', JSON.stringify(state));
   const action = getActionFromState(state);
+  console.log('[linking] getActionFromState result:', JSON.stringify(action));
 
   if (action) {
     navigationRef.dispatch(action);
     return true;
   }
 
+  console.warn('[linking] no action from state, falling back to navigate()');
   navigationRef.navigate(route[0], route[1]);
   return true;
 };
@@ -787,18 +867,18 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
     async getInitialURL() {
       try {
         const url = await Linking.getInitialURL();
+        console.log('[linking] getInitialURL raw:', url);
         if (url) {
           lastInitialUrl = url;
           const resolvedUrl = await resolveDeepLinkUrl(url, context);
+          console.log('[linking] getInitialURL resolved to:', resolvedUrl);
           recordDeepLinkActivity(resolvedUrl);
           return resolvedUrl;
         }
 
-        const initialNotificationUrl = await getInitialNotificationUrl(context);
-        if (initialNotificationUrl) {
-          recordDeepLinkActivity(initialNotificationUrl);
-          return initialNotificationUrl;
-        }
+        // Cold-boot push notifications are NOT handled here because wallets are not yet
+        // loaded when getInitialURL fires. They are handled by configureNotifications() in
+        // notifications.ts once walletsInitialized is true, via NOTIFICATION_OPENED_EVENT.
 
         const quickActionUrl = getQuickActionUrl(await QuickActions.popInitialAction());
         if (quickActionUrl) {
@@ -818,10 +898,14 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
         if (!url) {
           return;
         }
+        console.log('[linking] subscribe: processIncomingUrl raw:', url);
 
         resolveDeepLinkUrl(url, context)
-          .then(resolvedUrl => emitResolvedUrl(listener, resolvedUrl))
-          .catch(error => console.warn(error));
+          .then(resolvedUrl => {
+            console.log('[linking] subscribe: resolved to:', resolvedUrl);
+            emitResolvedUrlWhenNavigationSettles(listener, resolvedUrl);
+          })
+          .catch(error => console.warn('[linking] subscribe: resolve error:', error));
       };
 
       const linkingSubscription = Linking.addEventListener('url', event => {
@@ -831,6 +915,44 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
       const quickActionSubscription = DeviceEventEmitter.addListener('quickActionShortcut', event => {
         processIncomingUrl(getQuickActionUrl(event));
       });
+
+      const handleNotificationPayload = (payload: TNotificationPayload) => {
+        consumePendingOpenedNotification();
+
+        const url = getDeepLinkUrlFromNotification(payload, context);
+        if (url) {
+          emitResolvedUrlWhenNavigationSettles(listener, url);
+        } else if (payload.userInteraction) {
+          // Cold-boot race: wallets may not be in React state yet when this fires.
+          // Store for the next subscribe() call (which gets fresh wallet context).
+          pendingColdBootPayload = payload;
+        }
+      };
+
+      // Per React Navigation docs: subscribe to notification opens so React Navigation
+      // handles navigation via getStateFromPath rather than imperative navigateFromDeepLink.
+      // This listener is re-registered whenever `context` (wallets) changes, keeping it fresh.
+      const notificationOpenedSubscription = DeviceEventEmitter.addListener(NOTIFICATION_OPENED_EVENT, handleNotificationPayload);
+
+      const pendingOpenedPayload = consumePendingOpenedNotification();
+      if (pendingOpenedPayload) {
+        handleNotificationPayload(pendingOpenedPayload);
+      }
+
+      // Drain any cold-boot notification that was stored while wallets were empty.
+      // subscribe() is re-called by useLinking whenever `linking` changes (i.e. whenever
+      // `wallets` changes), so by the time we reach here the context has populated wallets.
+      if (pendingColdBootPayload) {
+        const pending = pendingColdBootPayload;
+        pendingColdBootPayload = null;
+        handleNotificationPayload(pending);
+      }
+
+      if (pendingDeferredResolvedUrl) {
+        const deferredUrl = pendingDeferredResolvedUrl;
+        pendingDeferredResolvedUrl = null;
+        emitResolvedUrlWhenNavigationSettles(listener, deferredUrl);
+      }
 
       const appStateSubscription = AppState.addEventListener('change', nextAppState => {
         const wasInactive = appState === 'background' || appState === 'inactive';
@@ -849,24 +971,30 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
             lastInitialUrl = url;
             return resolveDeepLinkUrl(url, context);
           })
-          .then(resolvedUrl => emitResolvedUrl(listener, resolvedUrl))
+          .then(resolvedUrl => emitResolvedUrlWhenNavigationSettles(listener, resolvedUrl))
           .catch(error => console.warn(error));
       });
 
       return () => {
         linkingSubscription.remove();
         quickActionSubscription.remove();
+        notificationOpenedSubscription.remove();
         appStateSubscription.remove();
       };
     },
     config: linkingConfig as NonNullable<LinkingOptions<ParamListBase>['config']>,
     getStateFromPath(path, _options) {
+      console.log('[linking] getStateFromPath called with path:', path);
       if (hasSchema(path)) {
+        console.log('[linking] getStateFromPath: has schema, returning undefined (handled via resolveDeepLinkUrl)');
         return undefined;
       }
 
       const route = getInternalRouteFromPath(path);
-      return route ? routeToState(route) : undefined;
+      console.log('[linking] getStateFromPath route:', JSON.stringify(route));
+      const state = route ? routeToState(route) : undefined;
+      console.log('[linking] getStateFromPath state:', JSON.stringify(state));
+      return state;
     },
   };
 };
