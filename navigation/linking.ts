@@ -1,4 +1,12 @@
-import { getActionFromState, LinkingOptions, NavigationState, ParamListBase, PartialState } from '@react-navigation/native';
+import {
+  getActionFromState,
+  getPathFromState as getPathFromStateFromNavigation,
+  getStateFromPath as getStateFromPathFromNavigation,
+  LinkingOptions,
+  NavigationState,
+  ParamListBase,
+  PartialState,
+} from '@react-navigation/native';
 import URL from 'url';
 import { AppState, AppStateStatus, DeviceEventEmitter, Linking } from 'react-native';
 import { consumePendingOpenedNotification, NOTIFICATION_OPENED_EVENT } from '../blue_modules/notifications';
@@ -99,6 +107,44 @@ export const getDeepLinkUrlFromNotification = (
   return shouldOpenReceive
     ? buildInternalUrl('wallet/receive', { walletID, address: payload.address })
     : buildInternalUrl('wallet/transactions', { walletID, walletType });
+};
+
+export const getWalletQuickActionUrl = (wallet: Pick<TWallet, 'getID' | 'type'>): string => {
+  return buildInternalUrl('wallet/transactions', compactParams({ walletID: wallet.getID(), walletType: wallet.type }));
+};
+
+export const getWidgetActionUrl = (
+  action: 'openSend' | 'openReceive' | string,
+  context: TDeepLinkContext = defaultContext,
+): string | null => {
+  const wallet = context.wallets[0];
+  if (!wallet) {
+    return null;
+  }
+
+  const walletID = wallet.getID();
+
+  if (wallet.chain === Chain.ONCHAIN) {
+    if (action === 'openSend') {
+      return buildInternalUrl('send', { walletID });
+    }
+
+    if (action === 'openReceive') {
+      return buildInternalUrl('wallet/receive', { walletID });
+    }
+  }
+
+  if (wallet.chain === Chain.OFFCHAIN) {
+    if (action === 'openSend') {
+      return buildInternalUrl('lightning/scan', { walletID });
+    }
+
+    if (action === 'openReceive') {
+      return buildInternalUrl('lightning/create-invoice', { walletID });
+    }
+  }
+
+  return null;
 };
 
 const getQuickActionUrl = (data: { userInfo?: { url?: string } } | null | undefined): string | null => {
@@ -364,26 +410,12 @@ const isBothBitcoinAndLightningOnWalletSelect = (
 const routeFromUrl = (url: string, context: TDeepLinkContext = defaultContext): TCompletionHandlerParams | undefined => {
   const normalizedUrl = normalizeUrl(url);
 
-  if (isWidgetAction(normalizedUrl) && context.wallets.length > 0) {
-    const wallet = context.wallets[0];
+  if (isWidgetAction(normalizedUrl)) {
     const action = normalizedUrl.split('widget?action=')[1];
+    const widgetUrl = getWidgetActionUrl(action, context);
 
-    if (wallet.chain === Chain.ONCHAIN) {
-      if (action === 'openSend') {
-        return ['SendDetailsRoot', { screen: 'SendDetails', params: { walletID: wallet.getID() } }];
-      }
-
-      if (action === 'openReceive') {
-        return ['ReceiveDetails', { walletID: wallet.getID() }];
-      }
-    } else if (wallet.chain === Chain.OFFCHAIN) {
-      if (action === 'openSend') {
-        return ['ScanLNDInvoiceRoot', { screen: 'ScanLNDInvoice', params: { walletID: wallet.getID() } }];
-      }
-
-      if (action === 'openReceive') {
-        return ['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } }];
-      }
+    if (widgetUrl) {
+      return getInternalRouteFromPath(widgetUrl.replace(/^bluewallet:\/\//, ''));
     }
   }
 
@@ -469,6 +501,19 @@ const compactParams = <T extends Record<string, any>>(params: T): T => {
   }, {} as T);
 };
 
+const parseStringParam = (value: string): string => value;
+const stringifyStringParam = (value: unknown): string => String(value);
+const parseBooleanParam = (value: string): boolean => value === 'true';
+const stringifyBooleanParam = (value: boolean): string => (value ? 'true' : 'false');
+
+const createLinkingParamConfig = (stringKeys: string[] = [], booleanKeys: string[] = []) => ({
+  parse: Object.fromEntries([...stringKeys.map(key => [key, parseStringParam]), ...booleanKeys.map(key => [key, parseBooleanParam])]),
+  stringify: Object.fromEntries([
+    ...stringKeys.map(key => [key, stringifyStringParam]),
+    ...booleanKeys.map(key => [key, stringifyBooleanParam]),
+  ]),
+});
+
 const parseInternalPath = (path: string): { path: string; params: Record<string, string> } => {
   const [rawPath, rawQuery = ''] = path.split('?');
   const normalizedPath = rawPath.replace(/^\/+/, '').replace(/^route\/?/, '');
@@ -497,41 +542,75 @@ const linkingConfig = {
     DrawerRoot: {
       screens: {
         DetailViewStackScreensStack: {
+          initialRouteName: 'WalletsList',
           screens: {
             WalletsList: '',
-            WalletTransactions: 'route/wallet/transactions',
-            ReceiveDetails: 'route/wallet/receive',
-            ElectrumSettings: 'route/settings/electrum',
-            LightningSettings: 'route/settings/lightning',
+            WalletTransactions: {
+              path: 'route/wallet/transactions',
+              ...createLinkingParamConfig(['walletID', 'walletType']),
+            },
+            ReceiveDetails: {
+              path: 'route/wallet/receive',
+              ...createLinkingParamConfig(['walletID', 'address']),
+            },
+            ElectrumSettings: {
+              path: 'route/settings/electrum',
+              ...createLinkingParamConfig(['server']),
+            },
+            LightningSettings: {
+              path: 'route/settings/lightning',
+              ...createLinkingParamConfig(['url']),
+            },
           },
         },
       },
     },
     SendDetailsRoot: {
       screens: {
-        SendDetails: 'route/send',
-        PsbtWithHardwareWallet: 'route/send/psbt',
-        SelectWallet: 'route/send/select-wallet',
+        SendDetails: {
+          path: 'route/send',
+          ...createLinkingParamConfig(['uri', 'walletID']),
+        },
+        PsbtWithHardwareWallet: {
+          path: 'route/send/psbt',
+          ...createLinkingParamConfig(['deepLinkPSBTFilePath', 'deepLinkPSBT', 'walletID']),
+        },
+        SelectWallet: {
+          path: 'route/send/select-wallet',
+          ...createLinkingParamConfig(['bitcoin', 'lndInvoice']),
+        },
       },
     },
     ScanLNDInvoiceRoot: {
       screens: {
-        ScanLNDInvoice: 'route/lightning/scan',
+        ScanLNDInvoice: {
+          path: 'route/lightning/scan',
+          ...createLinkingParamConfig(['uri', 'walletID']),
+        },
       },
     },
     LNDCreateInvoiceRoot: {
       screens: {
-        LNDCreateInvoice: 'route/lightning/create-invoice',
+        LNDCreateInvoice: {
+          path: 'route/lightning/create-invoice',
+          ...createLinkingParamConfig(['uri', 'walletID']),
+        },
       },
     },
     AztecoRedeemRoot: {
       screens: {
-        AztecoRedeem: 'route/azteco/redeem',
+        AztecoRedeem: {
+          path: 'route/azteco/redeem',
+          ...createLinkingParamConfig(['c1', 'c2', 'c3', 'c4']),
+        },
       },
     },
     AddWalletRoot: {
       screens: {
-        ImportWallet: 'route/wallet/import',
+        ImportWallet: {
+          path: 'route/wallet/import',
+          ...createLinkingParamConfig(['label'], ['triggerImport']),
+        },
       },
     },
   },
@@ -540,7 +619,10 @@ const linkingConfig = {
 const buildDetailViewStackState = (routeName: string, routeParams?: Record<string, any>): PartialState<NavigationState> => {
   if (routeName === 'WalletTransactions') {
     return {
-      routes: [{ name: 'WalletsList', params: undefined }, { name: routeName, params: routeParams }],
+      routes: [
+        { name: 'WalletsList', params: undefined },
+        { name: routeName, params: routeParams },
+      ],
       index: 1,
     };
   }
@@ -550,6 +632,8 @@ const buildDetailViewStackState = (routeName: string, routeParams?: Record<strin
     index: 0,
   };
 };
+
+const linkingConfigTyped = linkingConfig as NonNullable<LinkingOptions<ParamListBase>['config']>;
 
 const routeToState = ([routeName, routeParams]: TCompletionHandlerParams): PartialState<NavigationState> => {
   console.log('[linking] routeToState input:', routeName, JSON.stringify(routeParams));
@@ -982,19 +1066,31 @@ export const createBlueWalletLinking = (context: TDeepLinkContext = defaultConte
         appStateSubscription.remove();
       };
     },
-    config: linkingConfig as NonNullable<LinkingOptions<ParamListBase>['config']>,
-    getStateFromPath(path, _options) {
+    config: linkingConfigTyped,
+    getPathFromState(state, options) {
+      const path = getPathFromStateFromNavigation(state, options ?? linkingConfigTyped);
+      console.log('[linking] getPathFromState result:', path);
+      return path;
+    },
+    getStateFromPath(path, options) {
       console.log('[linking] getStateFromPath called with path:', path);
       if (hasSchema(path)) {
         console.log('[linking] getStateFromPath: has schema, returning undefined (handled via resolveDeepLinkUrl)');
         return undefined;
       }
 
+      const navigationState = getStateFromPathFromNavigation(path, options ?? linkingConfigTyped);
+      console.log('[linking] getStateFromPath navigation state:', JSON.stringify(navigationState));
+
       const route = getInternalRouteFromPath(path);
       console.log('[linking] getStateFromPath route:', JSON.stringify(route));
-      const state = route ? routeToState(route) : undefined;
-      console.log('[linking] getStateFromPath state:', JSON.stringify(state));
-      return state;
+      if (route) {
+        const state = routeToState(route);
+        console.log('[linking] getStateFromPath state:', JSON.stringify(state));
+        return state;
+      }
+
+      return navigationState;
     },
   };
 };

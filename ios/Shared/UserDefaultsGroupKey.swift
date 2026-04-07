@@ -19,4 +19,6 @@ enum UserDefaultsGroupKey: String {
   case AllWalletsBalance = "WidgetCommunicationAllWalletsSatoshiBalance"
   case AllWalletsLatestTransactionTime = "WidgetCommunicationAllWalletsLatestTransactionTime"
   case LatestTransactionIsUnconfirmed = "\"WidgetCommunicationLatestTransactionIsUnconfirmed\""
+  case WidgetOpenSendURL = "WidgetCommunicationOpenSendURL"
+  case WidgetOpenReceiveURL = "WidgetCommunicationOpenReceiveURL"
 }

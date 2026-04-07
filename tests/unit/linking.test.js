@@ -6,6 +6,8 @@ import {
   getDeepLinkUrlFromNotification,
   getServerFromSetElectrumServerAction,
   getUrlFromSetLndhubUrlAction,
+  getWalletQuickActionUrl,
+  getWidgetActionUrl,
   hasNeededJsonKeysForMultiSigSharing,
   hasSchema,
   isBothBitcoinAndLightning,
@@ -488,6 +490,36 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
     assert.strictEqual(resolvedUrl, 'bluewallet://route/wallet/receive?walletID=real-wallet-id&address=bc1qrealaddress');
   });
 
+  it('builds linking URLs for quick actions and widget actions', () => {
+    const onchainWallet = new HDSegwitBech32Wallet();
+    const lightningWallet = new LightningCustodianWallet();
+
+    assert.strictEqual(
+      getWalletQuickActionUrl(onchainWallet),
+      `bluewallet://route/wallet/transactions?walletID=${encodeURIComponent(onchainWallet.getID())}&walletType=${encodeURIComponent(onchainWallet.type)}`,
+    );
+
+    assert.strictEqual(
+      getWidgetActionUrl('openSend', {
+        wallets: [onchainWallet],
+        saveToDisk: () => {},
+        addWallet: () => {},
+        setSharedCosigner: () => {},
+      }),
+      `bluewallet://route/send?walletID=${encodeURIComponent(onchainWallet.getID())}`,
+    );
+
+    assert.strictEqual(
+      getWidgetActionUrl('openReceive', {
+        wallets: [lightningWallet],
+        saveToDisk: () => {},
+        addWallet: () => {},
+        setSharedCosigner: () => {},
+      }),
+      `bluewallet://route/lightning/create-invoice?walletID=${encodeURIComponent(lightningWallet.getID())}`,
+    );
+  });
+
   it('resolves canonical navigation URLs for React Navigation linking', async () => {
     const sendUrl = await resolveDeepLinkUrl(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`);
     assert.strictEqual(sendUrl, 'bluewallet://route/send?uri=bitcoin%3A12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
@@ -560,6 +592,57 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
       ],
       index: 0,
     });
+  });
+
+  it('serializes linking state back to the canonical wallet transaction path', () => {
+    const linking = createBlueWalletLinking();
+    const path = linking.getPathFromState?.({
+      routes: [
+        {
+          name: 'DrawerRoot',
+          state: {
+            routes: [
+              {
+                name: 'DetailViewStackScreensStack',
+                state: {
+                  routes: [
+                    { name: 'WalletsList', params: undefined },
+                    { name: 'WalletTransactions', params: { walletID: 'test-wallet', walletType: 'segwit' } },
+                  ],
+                  index: 1,
+                },
+              },
+            ],
+            index: 0,
+          },
+        },
+      ],
+      index: 0,
+    });
+
+    assert.strictEqual(path, '/route/wallet/transactions?walletID=test-wallet&walletType=segwit');
+  });
+
+  it('parses and stringifies import params through the linking config', () => {
+    const linking = createBlueWalletLinking();
+    const state = linking.getStateFromPath?.('route/wallet/import?label=My%20Wallet&triggerImport=true');
+
+    assert.deepStrictEqual(state, {
+      routes: [
+        { name: 'DrawerRoot' },
+        {
+          name: 'AddWalletRoot',
+          state: {
+            routes: [{ name: 'ImportWallet', params: { label: 'My Wallet', triggerImport: true } }],
+            index: 0,
+          },
+        },
+      ],
+      index: 1,
+    });
+
+    const path = linking.getPathFromState?.(state);
+    assert.strictEqual(path, '/route/wallet/import?label=My%20Wallet&triggerImport=true');
   });
 
   it('can work with some deeplink actions', () => {

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
 import { formatBalance } from '../loc';
+import { getWalletQuickActionUrl } from '../navigation/linking';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 
@@ -76,7 +77,7 @@ const useDeviceQuickActions = () => {
                 ? ''
                 : formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
             userInfo: {
-              url: `bluewallet://wallet/${wallet.getID()}`,
+              url: getWalletQuickActionUrl(wallet),
             },
             icon:
               Platform.select({
