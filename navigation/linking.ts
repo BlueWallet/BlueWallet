@@ -440,12 +440,13 @@ const routeFromUrl = (url: string, context: TDeepLinkContext = defaultContext): 
     return ['ScanLNDInvoiceRoot', { screen: 'ScanLNDInvoice', params: { uri: normalizedUrl.replace('://', ':') } }];
   }
 
-  if (isLnUrl(normalizedUrl)) {
+  const normalizedLnurl = normalizedUrl.replace(/^lightning:\/\//i, 'lightning:');
+  if (isLnUrl(normalizedLnurl)) {
     return [
       'LNDCreateInvoiceRoot',
       {
         screen: 'LNDCreateInvoice',
-        params: { uri: normalizedUrl.replace('lightning:', '').replace('LIGHTNING:', '') },
+        params: { uri: normalizedLnurl.replace(/^lightning:/i, '') },
       },
     ];
   }
