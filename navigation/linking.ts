@@ -765,19 +765,29 @@ const getInternalRouteFromPath = (path: string): TCompletionHandlerParams | unde
   }
 };
 
+const sanitizeInternalUrlParams = <T extends Record<string, unknown> | undefined>(params: T): T => {
+  if (params == null || typeof params !== 'object' || !('deepLinkPSBT' in params)) {
+    return params;
+  }
+
+  const { deepLinkPSBT, ...safeParams } = params;
+  void deepLinkPSBT;
+  return safeParams as T;
+};
+
 const buildInternalUrlFromRoute = (route: TCompletionHandlerParams, sourceUrl: string): string | null => {
   const [routeName, routeParams] = route;
 
   switch (routeName) {
     case 'SendDetailsRoot':
       if (routeParams?.screen === 'PsbtWithHardwareWallet') {
-        return buildInternalUrl('send/psbt', routeParams.params ?? {});
+        return buildInternalUrl('send/psbt', sanitizeInternalUrlParams(routeParams.params) ?? {});
       }
       if (routeParams?.screen === 'SelectWallet') {
         const both = isBothBitcoinAndLightning(sourceUrl);
         return both ? buildInternalUrl('send/select-wallet', both) : null;
       }
-      return buildInternalUrl('send', routeParams?.params ?? {});
+      return buildInternalUrl('send', sanitizeInternalUrlParams(routeParams?.params) ?? {});
     case 'ScanLNDInvoiceRoot':
       return buildInternalUrl('lightning/scan', routeParams?.params ?? {});
     case 'LNDCreateInvoiceRoot':
