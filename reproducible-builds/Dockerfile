@@ -1,5 +1,5 @@
 # 1. Base image with Digest pinning
-FROM node:24-bullseye@sha256:38edad6b2e5962120f5144ff9dd3dbd223c7f140ba6fa03920d62d28b021402b
+FROM node:24-bullseye-slim@sha256:597306380830419c70897a39ec0037113f7adc118b4e8d703d7f28136cac434f
 
 # 2. Environment Setup
 ENV TZ=UTC \
@@ -9,7 +9,7 @@ ENV TZ=UTC \
     ANDROID_SDK_ROOT=/opt/android-sdk
 
 # 3. Update Path to include all pinned tool locations
-ENV PATH=$ANDROID_SDK_ROOT/cmdline-tools/11.0/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/35.0.0:$JAVA_HOME/bin:$PATH
+ENV PATH=$ANDROID_SDK_ROOT/cmdline-tools/11.0/bin:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/build-tools/36.0.0:$JAVA_HOME/bin:$PATH
 
 # 4. Install  system packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -19,9 +19,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zip \
     libglu1-mesa \
     wget \
+    xxd \
+    zipalign \
     build-essential \
-    openjdk-17-jdk \
+    openjdk-17-jdk-headless \
     && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get clean
 
 # 5. Download, Verify, and Install Android Command Line Tools
 RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools \
@@ -34,12 +38,29 @@ RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools \
 # 6. Install SDK Components (Aligned with build.gradle)
 RUN yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses \
     && sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
-    "platforms;android-35" \
-    "build-tools;35.0.0" \
+    "platforms;android-36" \
+    "build-tools;36.0.0" \
     "ndk;27.1.12297006" \
+    "ndk;27.0.12077973"  \
+    "cmake;3.22.1" \
     "platform-tools" \
     && rm -rf $ANDROID_SDK_ROOT/cmdline-tools/tmp
 
-WORKDIR /app
 
-COPY . /app
+RUN chown -R node:node $ANDROID_SDK_ROOT
+
+WORKDIR /app/android
+COPY --chown=node:node android/gradle/wrapper ./gradle/wrapper
+COPY --chown=node:node android/gradlew .
+COPY --chown=node:node android/build.gradle .
+COPY --chown=node:node android/settings.gradle .
+
+RUN ./gradlew --version
+
+
+WORKDIR /app
+COPY --chown=node:node . /app
+
+RUN chown node:node /app
+
+USER node
