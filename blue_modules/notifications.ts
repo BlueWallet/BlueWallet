@@ -20,6 +20,8 @@ let baseURI = groundControlUri;
 let onProcessNotificationsHandler: undefined | ((payload?: TPayload) => void | Promise<void>);
 let pendingOpenedNotification: TPayload | null = null;
 let notificationEventsRegistered = false;
+let initialNotificationConsumed = false;
+let notificationsConfigured = false;
 let remoteRegistrationRequested = false;
 let remoteRegistrationCompleted = false;
 let remoteRegistrationResult = false;
@@ -33,9 +35,7 @@ export const NOTIFICATION_OPENED_EVENT = 'bluewallet:notificationOpened' as cons
 /**
  * Eagerly captured at module-load time so the native cold-boot notification
  * is not consumed by the OS before configureNotifications() runs (after
- * wallets have loaded from disk).  Per react-native-notifications docs,
- * getInitialNotification() resolves to the Notification that launched the
- * app, or undefined otherwise.
+ * wallets have loaded from disk).
  */
 let pendingInitialNotification: TNotificationSource | null = null;
 const pendingInitialNotificationPromise: Promise<TNotificationSource | null> =
@@ -48,35 +48,7 @@ const pendingInitialNotificationPromise: Promise<TNotificationSource | null> =
         .catch(() => null)
     : Promise.resolve(null);
 
-const getInitialNotificationWithRetry = async (attempts = 5, delayMs = 250): Promise<TNotificationSource | null> => {
-  let notification = pendingInitialNotification ?? (await pendingInitialNotificationPromise);
-  if (notification) {
-    return notification;
-  }
-
-  if (typeof Notifications?.getInitialNotification !== 'function') {
-    return null;
-  }
-
-  // On RN bridgeless startup, the first JS call can race with the native bridge
-  // setting `launchOptions`. Retry briefly so cold-start notification taps are not missed.
-  for (let attempt = 0; attempt < attempts; attempt++) {
-    await new Promise(resolve => setTimeout(resolve, delayMs));
-    try {
-      notification = (await Notifications.getInitialNotification()) ?? null;
-      if (notification) {
-        pendingInitialNotification = notification;
-        return notification;
-      }
-    } catch {
-      // Ignore retry failures and keep polling for the remaining attempts.
-    }
-  }
-
-  return null;
-};
-
-export const setProcessNotificationsHandler = (handler: (payload?: TPayload) => void | Promise<void>) => {
+export const setProcessNotificationsHandler = (handler?: (payload?: TPayload) => void | Promise<void>) => {
   onProcessNotificationsHandler = handler;
 };
 
@@ -240,6 +212,14 @@ const ensureNotificationEventSubscriptions = () => {
 
   Notifications.events().registerNotificationOpened(async (notification, completion) => {
     try {
+      // During cold boot, configureNotifications() handles the launch notification
+      // via getInitialNotification(). registerNotificationOpened may also fire for
+      // the same notification but with a different wrapper shape, causing the
+      // content-based dedup key to differ. Skip here to avoid double navigation.
+      // After configureNotifications() completes, this handler processes warm-boot taps.
+      if (!notificationsConfigured) {
+        return;
+      }
       await storeIncomingNotification(notification, { foreground: false, userInteraction: true });
     } finally {
       completion();
@@ -253,14 +233,12 @@ try {
   console.warn('Failed to eagerly register notification event subscriptions:', error);
 }
 
-const getNotificationKey = (payload: Partial<TPayload>, notification?: TNotificationSource) => {
-  // NOTE: 'message' is intentionally excluded — it can differ between getInitialNotification()
-  // and registerNotificationOpened() for the same notification (one path uses a flat launch
-  // userInfo dict, the other a wrapped Notification instance), which would break deduplication.
-  const notificationRecord = notification && typeof notification === 'object' ? (notification as Record<string, any>) : undefined;
-
+const getNotificationKey = (payload: Partial<TPayload>) => {
+  // 'identifier' and 'message' are intentionally excluded — they can differ between
+  // getInitialNotification() and registerNotificationOpened() for the same native
+  // notification (one returns a raw launch userInfo dict, the other a wrapped Notification
+  // instance). The content fields are sufficient for deduplication.
   return JSON.stringify({
-    identifier: notificationRecord?.identifier ?? payload.identifier ?? '',
     type: payload.type ?? '',
     hash: payload.hash ?? '',
     txid: payload.txid ?? '',
@@ -328,7 +306,7 @@ const storeIncomingNotification = async (
 ) => {
   try {
     const payload = normalizeNotificationPayload(notification, status);
-    const notificationKey = getNotificationKey(payload, notification);
+    const notificationKey = getNotificationKey(payload);
     if (handledNotificationKeys.has(notificationKey)) {
       return;
     }
@@ -340,6 +318,7 @@ const storeIncomingNotification = async (
     }
 
     if (payload.userInteraction) {
+      initialNotificationConsumed = true;
       pendingOpenedNotification = payload;
       DeviceEventEmitter.emit(NOTIFICATION_OPENED_EVENT, payload);
     }
@@ -650,15 +629,20 @@ export const configureNotifications = async (onProcessNotifications?: (payload?:
     }
 
     // Step 3: Handle cold-boot (app was launched by the user tapping a notification).
-    // On bridgeless startup, launchOptions can become visible slightly after the first JS
-    // call to getInitialNotification(). Retry briefly so the launch notification is still
-    // picked up even if the initial eager read raced the bridge initialization.
-    const initialNotification = await getInitialNotificationWithRetry();
-    console.log('configureNotifications: initial notification present:', !!initialNotification);
-    if (initialNotification) {
-      pendingInitialNotification = null;
-      await storeIncomingNotification(initialNotification, { foreground: false, userInteraction: true });
+    // registerNotificationOpened is gated behind notificationsConfigured (set below)
+    // so it won't fire for the same cold-boot notification.
+    if (!initialNotificationConsumed) {
+      const initialNotification = pendingInitialNotification ?? (await pendingInitialNotificationPromise);
+      console.log('configureNotifications: initial notification present:', !!initialNotification);
+      if (initialNotification) {
+        initialNotificationConsumed = true;
+        pendingInitialNotification = null;
+        await storeIncomingNotification(initialNotification, { foreground: false, userInteraction: true });
+      }
     }
+
+    // Allow registerNotificationOpened to handle subsequent warm-boot notification taps.
+    notificationsConfigured = true;
 
     return await registrationPromise;
   } catch (error) {

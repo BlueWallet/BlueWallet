@@ -520,6 +520,14 @@ describe.each(['', '//'])('unit - linking', function (suffix) {
     );
   });
 
+  it('includes the native deep-link prefixes', () => {
+    const linking = createBlueWalletLinking();
+
+    assert.ok(linking.prefixes.includes('bluewallet://'));
+    assert.ok(linking.prefixes.includes('bitcoin:'));
+    assert.ok(linking.prefixes.includes('lightning:'));
+  });
+
   it('resolves canonical navigation URLs for React Navigation linking', async () => {
     const sendUrl = await resolveDeepLinkUrl(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`);
     assert.strictEqual(sendUrl, 'bluewallet://route/send?uri=bitcoin%3A12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');

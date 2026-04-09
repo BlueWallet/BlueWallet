@@ -148,20 +148,27 @@ const WalletsList: React.FC = () => {
     refreshWallets(undefined, true, true);
   }, [refreshWallets]);
 
-  useEffect(() => {
-    // Initial load of transactions without triggering scroll
-    const initialLoad = async () => {
-      if (isElectrumDisabled) return;
-      try {
-        await refreshAllWalletTransactions(undefined, true);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const hasInitialLoadedRef = useRef(false);
 
-    initialLoad();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (hasInitialLoadedRef.current) return;
+      hasInitialLoadedRef.current = true;
+      // Initial load of transactions without triggering scroll.
+      // Deferred to first focus so wallet updates don't compete with push animations
+      // when the app is cold-booted via a notification tap (WalletTransactions opens on top).
+      const initialLoad = async () => {
+        if (isElectrumDisabled) return;
+        try {
+          await refreshAllWalletTransactions(undefined, true);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      initialLoad();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []),
+  );
 
   const onRefresh = useCallback(() => {
     console.debug('WalletsList onRefresh');

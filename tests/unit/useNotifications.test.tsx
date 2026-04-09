@@ -9,6 +9,9 @@ const setProcessNotificationsHandler = jest.fn();
 const checkNotificationPermissionStatus = jest.fn().mockResolvedValue('granted');
 const configureNotifications = jest.fn().mockResolvedValue(true);
 const setConfigureNotificationsFn = jest.fn();
+const getDeliveredNotifications = jest.fn().mockResolvedValue([]);
+const removeAllDeliveredNotifications = jest.fn();
+const setApplicationIconBadgeNumber = jest.fn();
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn().mockResolvedValue(null),
@@ -21,10 +24,24 @@ jest.mock('../../blue_modules/notifications', () => ({
   configureNotifications: (...args: unknown[]) => configureNotifications(...args),
   initializeNotifications: (...args: unknown[]) => initializeNotifications(...args),
   setProcessNotificationsHandler: (...args: unknown[]) => setProcessNotificationsHandler(...args),
+  getDeliveredNotifications: (...args: unknown[]) => getDeliveredNotifications(...args),
+  removeAllDeliveredNotifications: (...args: unknown[]) => removeAllDeliveredNotifications(...args),
+  setApplicationIconBadgeNumber: (...args: unknown[]) => setApplicationIconBadgeNumber(...args),
 }));
 
-const HookConsumer = ({ enabled = true }: { enabled?: boolean }) => {
-  useNotifications({ enabled });
+const mockWalletsInitialized = { current: true };
+
+jest.mock('../../hooks/context/useStorage', () => ({
+  useStorage: () => ({
+    wallets: [],
+    walletsInitialized: mockWalletsInitialized.current,
+    fetchAndSaveWalletTransactions: jest.fn(),
+    refreshAllWalletTransactions: jest.fn(),
+  }),
+}));
+
+const HookConsumer = () => {
+  useNotifications();
   return null;
 };
 
@@ -34,6 +51,7 @@ describe('useNotifications', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     appStateHandlers.length = 0;
+    mockWalletsInitialized.current = true;
     jest.spyOn(AppState, 'addEventListener').mockImplementation((_event, handler) => {
       appStateHandlers.push(handler);
       return { remove: jest.fn() } as any;
@@ -44,22 +62,27 @@ describe('useNotifications', () => {
     jest.restoreAllMocks();
   });
 
-  it('bootstraps and keeps notification initialization deduplicated across mounts and app activation', async () => {
-    render(
-      <>
-        <HookConsumer enabled />
-        <HookConsumer enabled />
-      </>,
-    );
+  it('bootstraps notifications once and wires up globals', async () => {
+    render(<HookConsumer />);
 
     await waitFor(() => {
       expect(initializeNotifications).toHaveBeenCalledTimes(1);
     });
 
-    await act(async () => {
-      await Promise.all(appStateHandlers.map(handler => handler('active')));
+    expect(setProcessNotificationsHandler).toHaveBeenCalledWith(expect.any(Function));
+    expect(setConfigureNotificationsFn).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  it('cleans up globals on unmount', async () => {
+    const { unmount } = render(<HookConsumer />);
+
+    await waitFor(() => {
+      expect(setConfigureNotificationsFn).toHaveBeenLastCalledWith(expect.any(Function));
     });
 
-    expect(initializeNotifications).toHaveBeenCalledTimes(1);
+    unmount();
+
+    expect(setConfigureNotificationsFn).toHaveBeenLastCalledWith(null);
+    expect(setProcessNotificationsHandler).toHaveBeenLastCalledWith(undefined);
   });
 });

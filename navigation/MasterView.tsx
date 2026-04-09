@@ -1,13 +1,11 @@
 import React from 'react';
-import MainRoot from './index';
 import useNotifications from '../hooks/useNotifications';
+import MainRoot from './index';
 
 const DevMenu = __DEV__ ? require('../components/DevMenu').default : null;
 
 const MasterView = () => {
-  // Register native notification listeners at app startup (before unlock) so
-  // cold-boot notification taps are captured using the library's public APIs.
-  useNotifications({ enabled: true });
+  useNotifications();
 
   return (
     <>

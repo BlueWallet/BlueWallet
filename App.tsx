@@ -1,5 +1,5 @@
 import { NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SizeClassProvider } from './components/Context/SizeClassProvider';
@@ -11,6 +11,7 @@ import { useStorage } from './hooks/context/useStorage';
 import { navigationRef } from './NavigationService';
 import MasterView from './navigation/MasterView';
 import { createBlueWalletLinking } from './navigation/linking';
+import type { TDeepLinkContext } from './navigation/linking/types';
 
 const AppNavigation = () => {
   const colorScheme = useColorScheme();
@@ -18,7 +19,7 @@ const AppNavigation = () => {
 
   useLogger(navigationRef as unknown as React.RefObject<NavigationContainerRef<ParamListBase>>);
 
-  const deepLinkContext = useMemo(
+  const deepLinkContext: TDeepLinkContext = useMemo(
     () => ({
       wallets,
       addWallet,
@@ -28,7 +29,16 @@ const AppNavigation = () => {
     [wallets, addWallet, saveToDisk, setSharedCosigner],
   );
 
-  const linking = useMemo(() => createBlueWalletLinking(deepLinkContext), [deepLinkContext]);
+  // Store context in a ref so the linking object can always read the latest
+  // wallets/context without the linking prop itself changing. This prevents
+  // React Navigation's useLinking from re-subscribing on every wallet update,
+  // which caused race conditions (POP undoing notification navigation).
+  const deepLinkContextRef = useRef<TDeepLinkContext>(deepLinkContext);
+  useEffect(() => {
+    deepLinkContextRef.current = deepLinkContext;
+  }, [deepLinkContext]);
+
+  const linking = useMemo(() => createBlueWalletLinking(deepLinkContextRef), []);
 
   return (
     <NavigationContainer ref={navigationRef} linking={linking} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>

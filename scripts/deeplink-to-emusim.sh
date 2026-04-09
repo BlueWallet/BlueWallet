@@ -216,12 +216,30 @@ JSON
       echo "  xcrun simctl openurl $udid '$selectedLink'"
     fi
   else
-    echo -e "\nSending deep link to Android emulator: $selectedLink\n"
     # Strip version info to get the emulator device ID
     emuId="${dev%% *}"
-    adb -s "$emuId" shell am start -a android.intent.action.VIEW -d "$selectedLink"
-    echo -e "\n\033[1mRe-run one-liner:\033[0m"
-    echo "  adb -s $emuId shell am start -a android.intent.action.VIEW -d '$selectedLink'"
+    if [[ "$TEST_TYPE" == "Notification" ]]; then
+      echo -e "\nSimulating notification tap on Android emulator: $emuId\n"
+      echo -e "Address: $selectedLink\n"
+      # Launch the main activity with extras that react-native-notifications
+      # recognises as a notification-opened intent (google.message_id triggers
+      # canHandleIntent, and the remaining extras become the notification payload).
+      msgId="test_$(date +%s)"
+      adb -s "$emuId" shell am start \
+        -n io.bluewallet.bluewallet/.MainActivity \
+        --es google.message_id "$msgId" \
+        --es type "2" \
+        --es sat "2000" \
+        --es address "$selectedLink" \
+        --es txid "sample_txid_2"
+      echo -e "\n\033[1mRe-run one-liner:\033[0m"
+      echo "  adb -s $emuId shell am start -n io.bluewallet.bluewallet/.MainActivity --es google.message_id 'test_\$(date +%s)' --es type '2' --es sat '2000' --es address '$selectedLink' --es txid 'sample_txid_2'"
+    else
+      echo -e "\nSending deep link to Android emulator: $selectedLink\n"
+      adb -s "$emuId" shell am start -a android.intent.action.VIEW -d "$selectedLink"
+      echo -e "\n\033[1mRe-run one-liner:\033[0m"
+      echo "  adb -s $emuId shell am start -a android.intent.action.VIEW -d '$selectedLink'"
+    fi
   fi
   break
 done

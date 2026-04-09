@@ -1,66 +1,112 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import {
   _setConfigureNotificationsFn,
   checkNotificationPermissionStatus,
   configureNotifications,
+  getDeliveredNotifications,
   initializeNotifications,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
+  removeAllDeliveredNotifications,
+  setApplicationIconBadgeNumber,
   setProcessNotificationsHandler,
   type TPayload,
 } from '../blue_modules/notifications';
-
-interface UseNotificationsOptions {
-  /** Set to true once wallets are loaded and navigation is ready. */
-  enabled?: boolean;
-  /**
-   * Called when a push notification is received or tapped and wallet
-   * transactions should be re-fetched.
-   */
-  onProcessNotifications?: (payload?: TPayload) => unknown;
-}
+import { useStorage } from './context/useStorage';
 
 let hasBootstrappedNotifications = false;
-let lastKnownPermissionStatus = 'unavailable';
+let lastKnownPermissionStatus: string | null = null;
 let pendingPermissionRecovery: Promise<void> | null = null;
+let appStateSubscription: { remove: () => void } | null = null;
 
 /**
- * Initialises react-native-notifications and wires up the process handler.
- * Mount this hook once, high in the component tree (e.g. inside App.tsx or
- * useDeepLinkListeners).
+ * Initialises react-native-notifications, processes incoming push payloads,
+ * and re-fetches wallet transactions as needed.
  *
- * Follows the react-native-notifications docs pattern:
- *   1. Register all event listeners (done inside initializeNotifications)
- *   2. Call Notifications.registerRemoteNotifications() (done inside configureNotifications)
- *   3. Handle the cold-boot notification via the eagerly-captured initial value
- *
- * The AppState listener re-initialises when the user grants permission while
- * the app is backgrounded, without requiring a restart.
+ * Mount once at the top of the component tree (MasterView).
  */
-const useNotifications = ({ enabled = false, onProcessNotifications }: UseNotificationsOptions = {}) => {
-  // Always-current ref — updated after every render so closures never go stale.
-  const onProcessRef = useRef(onProcessNotifications);
-  useEffect(() => {
-    onProcessRef.current = onProcessNotifications;
-  });
+const useNotifications = () => {
+  const { wallets, walletsInitialized, fetchAndSaveWalletTransactions, refreshAllWalletTransactions } = useStorage();
+  const walletsRef = useRef(wallets);
+  const fetchRef = useRef(fetchAndSaveWalletTransactions);
+  const refreshRef = useRef(refreshAllWalletTransactions);
 
-  // Tracks the last-known permission status to detect changes in AppState handler.
+  useEffect(() => {
+    walletsRef.current = wallets;
+  }, [wallets]);
+  useEffect(() => {
+    fetchRef.current = fetchAndSaveWalletTransactions;
+  }, [fetchAndSaveWalletTransactions]);
+  useEffect(() => {
+    refreshRef.current = refreshAllWalletTransactions;
+  }, [refreshAllWalletTransactions]);
+
   const permissionStatusRef = useRef<string>('unavailable');
 
-  // ── Inject configureNotifications into notifications.ts ────────────────────
-  // This enables tryToObtainPermissions (called from UI screens without hook
-  // context) to trigger the notification configuration pipeline via the ref.
-  useEffect(() => {
-    _setConfigureNotificationsFn(() => configureNotifications((payload?: TPayload) => onProcessRef.current?.(payload)));
-    return () => {
-      _setConfigureNotificationsFn(null);
-    };
+  const processNotifications = useCallback(async (payload?: TPayload) => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    try {
+      setApplicationIconBadgeNumber(0);
+
+      const findWallet = (p: TPayload) => {
+        switch (+p.type) {
+          case 2:
+          case 3:
+            return walletsRef.current.find(w => p.address && w.weOwnAddress(p.address));
+          case 1:
+            return walletsRef.current.find(w => p.hash && w.weOwnTransaction(p.hash));
+          case 4:
+            return walletsRef.current.find(w => p.txid && w.weOwnTransaction(p.txid));
+          default:
+            return undefined;
+        }
+      };
+
+      if (payload) {
+        const wallet = findWallet(payload);
+        if (wallet) {
+          fetchRef.current(wallet.getID());
+        }
+      }
+
+      const delivered = await getDeliveredNotifications();
+      setTimeout(() => {
+        try {
+          removeAllDeliveredNotifications();
+        } catch {}
+      }, 5000);
+
+      if (delivered.length > 0) {
+        for (const d of delivered) {
+          const wallet = findWallet(d);
+          if (wallet) {
+            fetchRef.current(wallet.getID());
+          }
+        }
+        refreshRef.current();
+      }
+    } catch (error) {
+      console.error('useNotifications: failed to process notifications:', error);
+    }
   }, []);
 
-  // ── Step 1: initialise when enabled ────────────────────────────────────────
+  // ── Wire globals so non-hook code (tryToObtainPermissions) can trigger config
   useEffect(() => {
-    if (!enabled) return;
+    if (!walletsInitialized) return;
+
+    _setConfigureNotificationsFn(() => configureNotifications(processNotifications));
+    setProcessNotificationsHandler(processNotifications);
+
+    return () => {
+      _setConfigureNotificationsFn(null);
+      setProcessNotificationsHandler(undefined);
+    };
+  }, [walletsInitialized, processNotifications]);
+
+  // ── Initialise once ────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!walletsInitialized) return;
 
     checkNotificationPermissionStatus()
       .then(status => {
@@ -73,53 +119,46 @@ const useNotifications = ({ enabled = false, onProcessNotifications }: UseNotifi
 
     if (hasBootstrappedNotifications) return;
     hasBootstrappedNotifications = true;
-    initializeNotifications((payload?: TPayload) => onProcessRef.current?.(payload));
-  }, [enabled]);
+    initializeNotifications(processNotifications);
+  }, [walletsInitialized, processNotifications]);
 
-  // ── Step 2: keep the in-module handler current ─────────────────────────────
-  // A stable closure is registered once; it always reads the latest callback
-  // from the ref, so we don't need to re-call setProcessNotificationsHandler
-  // every time onProcessNotifications changes.
+  // ── AppState: permission recovery + process delivered notifications ─────────
   useEffect(() => {
-    if (!enabled) return;
-    setProcessNotificationsHandler(async (payload?: TPayload) => {
-      await onProcessRef.current?.(payload);
-    });
-  }, [enabled]);
+    if (!walletsInitialized) return;
 
-  // ── Step 3: re-initialise when notification permission is granted ───────────
-  // Handles the case where the user navigates to System Settings, grants
-  // permission, and returns to the app without restarting it.
-  useEffect(() => {
-    if (!enabled) return;
+    if (!appStateSubscription) {
+      const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+        if (nextAppState !== 'active') return;
+        try {
+          const isOptedOut = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
+          if (isOptedOut) return;
 
-    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
-      if (nextAppState !== 'active') return;
-      try {
-        const isOptedOut = (await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG)) === 'true';
-        if (isOptedOut) return;
+          const previousStatus = lastKnownPermissionStatus ?? permissionStatusRef.current;
+          const newStatus = await checkNotificationPermissionStatus();
+          permissionStatusRef.current = newStatus;
+          lastKnownPermissionStatus = newStatus;
 
-        const previousStatus = lastKnownPermissionStatus || permissionStatusRef.current;
-        const newStatus = await checkNotificationPermissionStatus();
-        permissionStatusRef.current = newStatus;
-        lastKnownPermissionStatus = newStatus;
-
-        if (previousStatus !== 'granted' && newStatus === 'granted') {
-          if (!pendingPermissionRecovery) {
-            pendingPermissionRecovery = initializeNotifications((payload?: TPayload) => onProcessRef.current?.(payload)).finally(() => {
-              pendingPermissionRecovery = null;
-            });
+          if (previousStatus !== null && previousStatus !== 'granted' && newStatus === 'granted') {
+            if (!pendingPermissionRecovery) {
+              pendingPermissionRecovery = initializeNotifications(processNotifications).finally(() => {
+                pendingPermissionRecovery = null;
+              });
+            }
+            await pendingPermissionRecovery;
           }
-          await pendingPermissionRecovery;
+        } catch (error) {
+          console.error('useNotifications: appState handler error:', error);
         }
-      } catch (error) {
-        console.error('useNotifications: appState handler error:', error);
-      }
-    };
+      };
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
-    return () => subscription.remove();
-  }, [enabled]); // handler reads refs; only attach while notifications are enabled
+      appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+    }
+
+    return () => {
+      appStateSubscription?.remove();
+      appStateSubscription = null;
+    };
+  }, [walletsInitialized, processNotifications]);
 };
 
 export default useNotifications;
