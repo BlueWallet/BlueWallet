@@ -23,14 +23,19 @@ docker run --rm \
   bash -c "
     set -e
 
-    npm ci --omit=dev --yes --verbose
+    npm config set fetch-timeout 600000 \
+    && npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm ci --omit=dev --yes --verbose
+
     cd android
     ./gradlew bundleRelease
 
     AAB_PATH=app/build/outputs/bundle/release/app-release.aab
 
 
-    cp \$AAB_PATH /build/app-release-$BUILD_ID.aab
+    cp \$AAB_PATH /build/Bluewallet-$BUILD_ID.aab
   "
 
 log "App bundle saved in $OUT"

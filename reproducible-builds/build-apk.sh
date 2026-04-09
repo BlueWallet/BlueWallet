@@ -23,7 +23,13 @@ docker run --rm \
   bash -c "
     set -e
 
-    npm ci --omit=dev --yes --verbose
+    npm config set fetch-timeout 600000 \
+    && npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm ci --omit=dev --yes --verbose
+
+
     cd android
     ./gradlew assembleRelease
 
@@ -53,7 +59,7 @@ docker run --rm \
 
     apksigner verify --verbose \$APK_SIGNED
 
-    cp \$APK_SIGNED /build/app-release-$BUILD_ID.apk
+    cp \$APK_SIGNED /build/Bluewallet-$BUILD_ID.apk
   "
 
 log "Signed APK saved in $OUT"

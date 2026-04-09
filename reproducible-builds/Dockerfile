@@ -27,15 +27,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN apt-get clean
 
-# 5. Download, Verify, and Install Android Command Line Tools
+# 5. Create SDK directory with correct ownership
 RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools \
-    && wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/tools.zip \
+    && chown -R node:node $ANDROID_SDK_ROOT
+
+# 6. Download, Verify, and Install Android Command Line Tools
+RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/tools.zip \
     && echo "2d2d50857e4eb553af5a6dc3ad507a17adf43d115264b1afc116f95c92e5e258 /tmp/tools.zip" | sha256sum -c - \
     && unzip -X -q /tmp/tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools \
     && mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/11.0 \
     && rm /tmp/tools.zip
 
-# 6. Install SDK Components (Aligned with build.gradle)
+
+USER node
+
+# 7. Install SDK Components (Aligned with build.gradle)
 RUN yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses \
     && sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
     "platforms;android-36" \
@@ -47,7 +53,6 @@ RUN yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses \
     && rm -rf $ANDROID_SDK_ROOT/cmdline-tools/tmp
 
 
-RUN chown -R node:node $ANDROID_SDK_ROOT
 
 WORKDIR /app/android
 COPY --chown=node:node android/gradle/wrapper ./gradle/wrapper
@@ -55,12 +60,12 @@ COPY --chown=node:node android/gradlew .
 COPY --chown=node:node android/build.gradle .
 COPY --chown=node:node android/settings.gradle .
 
+ 
+ENV GRADLE_USER_HOME=/home/node/.gradle \
+    GRADLE_OPTS="-Dorg.gradle.internal.http.connectionTimeout=60000 -Dorg.gradle.internal.http.socketTimeout=60000"
+
 RUN ./gradlew --version
 
 
 WORKDIR /app
 COPY --chown=node:node . /app
-
-RUN chown node:node /app
-
-USER node
