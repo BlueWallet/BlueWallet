@@ -311,20 +311,9 @@ const TransactionDetails = () => {
               <BlueText style={styles.txid}>{loc.transactions.txid}</BlueText>
               <CopyToClipboardButton stringToCopy={tx.hash} />
             </View>
-            <ToolTipMenu
-              isButton
-              title={tx.hash}
-              actions={[
-                {
-                  id: actionKeys.CopyToClipboard,
-                  text: loc.transactions.details_copy,
-                  icon: actionIcons.Clipboard,
-                },
-              ]}
-              onPressMenuItem={() => Clipboard.setString(tx.hash)}
-            >
-              <BlueText style={styles.rowValue}>{tx.hash}</BlueText>
-            </ToolTipMenu>
+            <BlueText selectable style={styles.rowValue}>
+              {tx.hash}
+            </BlueText>
             <View style={styles.marginBottom18} />
           </>
         )}
@@ -332,20 +321,9 @@ const TransactionDetails = () => {
         {tx.timestamp && (
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_received}</BlueText>
-            <ToolTipMenu
-              isButton
-              title={dayjs(tx.timestamp * 1000).format('LLL')}
-              actions={[
-                {
-                  id: actionKeys.CopyToClipboard,
-                  text: loc.transactions.details_copy,
-                  icon: actionIcons.Clipboard,
-                },
-              ]}
-              onPressMenuItem={() => Clipboard.setString(dayjs(tx.timestamp * 1000).format('LLL'))}
-            >
-              <BlueText style={styles.rowValue}>{dayjs(tx.timestamp * 1000).format('LLL')}</BlueText>
-            </ToolTipMenu>
+            <BlueText selectable style={styles.rowValue}>
+              {dayjs(tx.timestamp * 1000).format('LLL')}
+            </BlueText>
             <View style={styles.marginBottom18} />
           </>
         )}
@@ -353,20 +331,9 @@ const TransactionDetails = () => {
         {tx.inputs && (
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_inputs}</BlueText>
-            <ToolTipMenu
-              isButton
-              title={String(tx.inputs.length)}
-              actions={[
-                {
-                  id: actionKeys.CopyToClipboard,
-                  text: loc.transactions.details_copy,
-                  icon: actionIcons.Clipboard,
-                },
-              ]}
-              onPressMenuItem={() => Clipboard.setString(String(tx.inputs.length))}
-            >
-              <BlueText style={styles.rowValue}>{tx.inputs.length}</BlueText>
-            </ToolTipMenu>
+            <BlueText selectable style={styles.rowValue}>
+              {tx.inputs.length}
+            </BlueText>
             <View style={styles.marginBottom18} />
           </>
         )}
@@ -374,20 +341,9 @@ const TransactionDetails = () => {
         {tx.outputs?.length > 0 && (
           <>
             <BlueText style={styles.rowCaption}>{loc.transactions.details_outputs}</BlueText>
-            <ToolTipMenu
-              isButton
-              title={String(tx.outputs.length)}
-              actions={[
-                {
-                  id: actionKeys.CopyToClipboard,
-                  text: loc.transactions.details_copy,
-                  icon: actionIcons.Clipboard,
-                },
-              ]}
-              onPressMenuItem={() => Clipboard.setString(String(tx.outputs.length))}
-            >
-              <BlueText style={styles.rowValue}>{tx.outputs.length}</BlueText>
-            </ToolTipMenu>
+            <BlueText selectable style={styles.rowValue}>
+              {tx.outputs.length}
+            </BlueText>
             <View style={styles.marginBottom18} />
           </>
         )}

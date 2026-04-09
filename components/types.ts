@@ -22,6 +22,7 @@ export interface ToolTipMenuProps {
   actions: Action[] | Action[][];
   children: React.ReactNode;
   enableAndroidRipple?: boolean;
+  enableIOSPressOpacity?: boolean;
   dismissMenu?: () => void;
   onPressMenuItem: (id: string) => void;
   title?: string;
