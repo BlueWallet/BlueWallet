@@ -102,6 +102,7 @@ export type LightningTransaction = {
   payment_hash?: string | { data: string };
   category?: 'receive';
   timestamp: number; // seconds, not milliseconds
+  confirmations?: number;
   expire_time?: number;
   ispaid?: boolean;
   walletID?: string;

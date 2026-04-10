@@ -13,7 +13,7 @@ import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
-import { popToTop } from '../../NavigationService.ts';
+import { navigate } from '../../NavigationService.ts';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'Success'>;
 
@@ -35,8 +35,7 @@ const Success = () => {
   });
 
   const onDonePressed = () => {
-    // @ts-ignore idk
-    popToTop();
+    navigate('DrawerRoot');
   };
 
   useEffect(() => {

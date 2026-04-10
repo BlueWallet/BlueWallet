@@ -1,0 +1,127 @@
+import { useEffect, useRef, useCallback } from 'react';
+import { useStorage } from './context/useStorage';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+import {
+  registerArkadeBackgroundTask,
+  unregisterArkadeBackgroundTask,
+  type DepsFactory,
+} from '../blue_modules/arkade-adapters/background/task-scheduler';
+import { startPolling, stopPolling } from '../blue_modules/arkade-adapters/background/foreground-poller';
+import type { SwapProcessorDeps } from '../blue_modules/arkade-adapters/background/swap-processor';
+import type { TaskResult } from '@arkade-os/sdk/worker/expo';
+
+export function useArkadeBackgroundSync() {
+  const { wallets, saveToDisk, selectedWalletID } = useStorage();
+  const isRegistered = useRef(false);
+  const tickInFlight = useRef(false);
+
+  /**
+   * Build SwapProcessorDeps for each Ark wallet.
+   * Called by the task scheduler on every background/foreground wake.
+   */
+  const buildDeps: DepsFactory = useCallback(async () => {
+    const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+    const depsMap = new Map<string, SwapProcessorDeps>();
+
+    for (const wallet of arkWallets) {
+      try {
+        await wallet.init();
+        const walletDeps = wallet.getProcessorDeps();
+        if (walletDeps) {
+          depsMap.set(wallet.getNamespace(), walletDeps);
+        }
+      } catch (error) {
+        console.log('[ArkadeSync] Failed to build deps for wallet:', error);
+      }
+    }
+
+    return depsMap;
+  }, [wallets]);
+
+  /**
+   * Reconcile the task queue: ensure every pending swap has a queued task,
+   * and remove tasks for swaps that reached a final state.
+   */
+  const reconcile = useCallback(async () => {
+    const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+
+    for (const wallet of arkWallets) {
+      try {
+        await wallet.init();
+        await wallet.reconcileBackgroundTasks();
+      } catch (error) {
+        console.log('[ArkadeSync] Reconcile error:', error);
+      }
+    }
+  }, [wallets]);
+
+  /**
+   * Called on every foreground tick — refreshes only the currently viewed
+   * Ark wallet so direct Ark payments are detected even when no swap
+   * results arrive. Other Ark wallets refresh when navigated to via
+   * the WalletTransactions screen.
+   */
+  const onTick = useCallback(() => {
+    if (tickInFlight.current) return;
+
+    const currentID = selectedWalletID();
+    const activeWallet = currentID
+      ? (wallets.find(w => w.type === LightningArkWallet.type && w.getID() === currentID) as LightningArkWallet | undefined)
+      : undefined;
+    if (!activeWallet) return;
+
+    tickInFlight.current = true;
+
+    Promise.all([activeWallet.fetchBalance(), activeWallet.fetchTransactions()])
+      .then(() => saveToDisk())
+      .catch(e => console.log('[ArkadeSync] Refresh error:', e))
+      .finally(() => {
+        tickInFlight.current = false;
+      });
+  }, [wallets, saveToDisk, selectedWalletID]);
+
+  /**
+   * Handle outbox results — swap-specific notifications can be added here.
+   */
+  const handleResults = useCallback((_results: TaskResult[]) => {
+    // Swap-specific UI notifications can be added here in the future.
+    // Balance/transaction refresh is handled by onTick.
+  }, []);
+
+  useEffect(() => {
+    const hasArkWallet = wallets.some(w => w.type === LightningArkWallet.type);
+
+    if (hasArkWallet && !isRegistered.current) {
+      // Reconcile tasks on startup, then register background + foreground
+      reconcile()
+        .then(() => registerArkadeBackgroundTask(buildDeps))
+        .catch(e => console.log('[ArkadeSync] Registration failed:', e));
+      startPolling(handleResults, undefined, onTick);
+      isRegistered.current = true;
+    }
+
+    if (!hasArkWallet && isRegistered.current) {
+      unregisterArkadeBackgroundTask().catch(e => console.log('[ArkadeSync] Unregistration failed:', e));
+      stopPolling();
+
+      // Clean up all task queue entries for removed wallets
+      const cleanup = async () => {
+        // We don't know which namespace was removed, so clear all swap tasks
+        // This is safe because we reconcile on next startup anyway
+        const { swapTaskQueue } = await import('../blue_modules/arkade-adapters/background/swap-queue');
+        await swapTaskQueue.clearTasks();
+      };
+      cleanup().catch(e => console.log('[ArkadeSync] Cleanup failed:', e));
+
+      isRegistered.current = false;
+    }
+
+    return () => {
+      if (isRegistered.current) {
+        unregisterArkadeBackgroundTask().catch(e => console.log('[ArkadeSync] Cleanup failed:', e));
+        stopPolling();
+        isRegistered.current = false;
+      }
+    };
+  }, [wallets, buildDeps, reconcile, handleResults, onTick]);
+}

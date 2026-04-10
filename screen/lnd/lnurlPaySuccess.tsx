@@ -7,7 +7,6 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import { SuccessView } from '../send/success';
-import { popToTop } from '../../NavigationService';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
@@ -126,7 +125,7 @@ const LnurlPaySuccess: React.FC = () => {
           ) : (
             <Button
               onPress={() => {
-                popToTop();
+                navigate('DrawerRoot');
               }}
               title={loc.send.success_done}
             />

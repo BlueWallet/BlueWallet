@@ -7,6 +7,7 @@ import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
 import { DrawerParamList } from './DrawerParamList';
 import useCompanionListeners from '../hooks/useCompanionListeners';
+import { useArkadeBackgroundSync } from '../hooks/useArkadeBackgroundSync';
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
@@ -37,6 +38,7 @@ const DrawerRoot = () => {
   const { sizeClass, isLargeScreen } = useSizeClass();
   const { direction } = useLocale();
   useCompanionListeners();
+  useArkadeBackgroundSync();
 
   const getDrawerWidth = useMemo(() => {
     switch (sizeClass) {

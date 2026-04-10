@@ -83,27 +83,33 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
 
-  const stylesHook = StyleSheet.create({
-    listHeaderText: {
-      color: colors.foregroundColor,
-    },
-    listFooterStyle: {
-      height: '100%',
-      backgroundColor: colors.background,
-    },
-    backgroundContainer: {
-      backgroundColor: colors.background,
-    },
-    gradientBackground: {
-      backgroundColor: headerHeight > 0 ? WalletGradient.headerColorFor(wallet.type) : colors.background,
-      height: headerHeight > 0 ? headerHeight : '30%',
-    },
-    activityIndicatorStyle: {
-      backgroundColor: colors.background,
-    },
-    sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
-    receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
-  });
+  /* eslint-disable react-native/no-unused-styles */
+  const stylesHook = useMemo(
+    () =>
+      StyleSheet.create({
+        listHeaderText: {
+          color: colors.foregroundColor,
+        },
+        listFooterStyle: {
+          height: '100%',
+          backgroundColor: colors.background,
+        },
+        backgroundContainer: {
+          backgroundColor: colors.background,
+        },
+        gradientBackground: {
+          backgroundColor: headerHeight > 0 ? WalletGradient.headerColorFor(wallet.type) : colors.background,
+          height: headerHeight > 0 ? headerHeight : '30%',
+        },
+        activityIndicatorStyle: {
+          backgroundColor: colors.background,
+        },
+        sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
+        receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
+      }),
+    [colors.foregroundColor, colors.background, headerHeight, wallet.type, direction],
+  );
+  /* eslint-enable react-native/no-unused-styles */
 
   useFocusEffect(
     useCallback(() => {
@@ -459,22 +465,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const measureHeaderHeight = useCallback(() => {
     if (!headerRef.current) {
-      // If header ref is not available, use default background
       setHeaderHeight(0);
       return;
     }
 
-    headerRef.current.measure((x, y, width, height, pageX, pageY) => {
-      // Check if the header is actually visible
-      if (height === 0 || pageY < 0) {
-        // Header is not visible, use default background
+    headerRef.current.measure((_x, _y, _width, height) => {
+      if (height > 0) {
+        setHeaderHeight(height);
+      } else {
         setHeaderHeight(0);
-        return;
-      }
-
-      const fullHeight = pageY + height;
-      if (fullHeight > 0) {
-        setHeaderHeight(fullHeight);
       }
     });
   }, []);
@@ -484,7 +483,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return () => clearTimeout(timer);
   }, [walletID, measureHeaderHeight]);
 
-  const ListHeaderComponent = useCallback(
+  const listHeaderElement = useMemo(
     () => (
       <View ref={headerRef} onLayout={measureHeaderHeight}>
         <TransactionsNavigationHeader
@@ -605,7 +604,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onScroll={handleScroll}
         windowSize={15}
         scrollEventThrottle={16}
-        ListHeaderComponent={ListHeaderComponent}
+        ListHeaderComponent={listHeaderElement}
         ListEmptyComponent={
           <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
             <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">

@@ -444,6 +444,7 @@ export class BlueApp {
             break;
           case LightningArkWallet.type:
             unserializedWallet = LightningArkWallet.fromJson(key) as unknown as LightningArkWallet;
+            unserializedWallet.init().catch(e => console.warn('[ARK] Eager init failed:', e));
             break;
           case LightningCustodianWallet.type: {
             unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;

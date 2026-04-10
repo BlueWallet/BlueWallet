@@ -385,7 +385,12 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       latestTransactionText = loc.transactions.updating;
     } else if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
-    } else if (item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)) {
+    } else if (
+      item.getTransactions().reduce((latest: Transaction | null, tx: Transaction) => {
+        if (!tx.timestamp) return latest;
+        return !latest || tx.timestamp > latest.timestamp ? tx : latest;
+      }, null)?.confirmations === 0
+    ) {
       latestTransactionText = loc.transactions.pending;
     } else {
       latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
