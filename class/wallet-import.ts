@@ -130,26 +130,6 @@ const startImport = (
     let text = importTextOrig.trim();
     let password;
 
-    // If a specific wallet type was requested (e.g. from the Add Wallet screen),
-    // import directly as that type without running generic discovery.
-    if (walletType === LightningArkWallet.type) {
-      yield { progress: 'lightning ark' };
-      const ark = new LightningArkWallet();
-      // Accept plain mnemonic, nsec, or prefixed secret
-      if (text.startsWith('nsec1')) {
-        ark.setSecret(text);
-      } else {
-        ark.setSecret(text.startsWith('arkade://') ? text : 'arkade://' + text);
-      }
-      await ark.init();
-      if (!offline) {
-        await ark.fetchBalance();
-        await ark.fetchTransactions();
-      }
-      yield { wallet: ark };
-      return;
-    }
-
     // BIP38 password required
     if (text.startsWith('6P')) {
       do {

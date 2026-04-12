@@ -339,35 +339,13 @@ const LNDCreateInvoice = () => {
     }
   };
 
-  const skipToArkAddress = () => {
-    if (!wallet.current) return;
-    navigate('LNDViewInvoice', {
-      invoice: {
-        amt: 0,
-        type: 'user_invoice',
-        timestamp: Math.floor(Date.now() / 1000),
-        description: '',
-      },
-      walletID: wallet.current.getID(),
-    });
-  };
-
-  const isArkWallet = wallet.current instanceof LightningArkWallet;
-
   const renderCreateButton = () => {
     return (
       <View style={styles.createButton}>
         {isLoading ? (
           <ActivityIndicator />
         ) : (
-          <>
-            <Button disabled={!(amount && +amount > 0)} onPress={createInvoice} title={loc.send.details_create} />
-            {isArkWallet && (
-              <View style={styles.skipButton}>
-                <Button onPress={skipToArkAddress} title={loc._.skip} />
-              </View>
-            )}
-          </>
+          <Button disabled={!(amount && +amount > 0)} onPress={createInvoice} title={loc.send.details_create} />
         )}
       </View>
     );
@@ -477,9 +455,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 16,
     minHeight: 45,
-  },
-  skipButton: {
-    marginTop: 8,
   },
   scanRoot: {
     height: 36,

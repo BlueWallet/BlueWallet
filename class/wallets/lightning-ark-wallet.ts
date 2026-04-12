@@ -6,7 +6,6 @@ import {
   decodeInvoice,
   PendingSwap,
   PendingReverseSwap,
-  migrateToSwapRepository,
   isPendingReverseSwap,
   isPendingSubmarineSwap,
   isReverseFinalStatus,
@@ -21,12 +20,8 @@ import {
   ArkTransaction,
   isSpendable,
   RestDelegatorProvider,
-  migrateWalletRepository,
-  requiresMigration,
-  rollbackMigration,
 } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   RealmWalletRepository,
   RealmContractRepository,
@@ -177,53 +172,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       }
       this._wallet = staticWalletCache[namespace];
       this._patchWalletRuntime();
-
-      // Migration from legacy AsyncStorage to Realm
-      const legacyStorage = {
-        getItem: (key: string) => AsyncStorage.getItem(`${namespace}_${key}`),
-        setItem: (key: string, value: string) => AsyncStorage.setItem(`${namespace}_${key}`, value),
-        removeItem: (key: string) => AsyncStorage.removeItem(`${namespace}_${key}`),
-        clear: async () => {
-          const allKeys = await AsyncStorage.getAllKeys();
-          const namespacedKeys = allKeys.filter(k => k.startsWith(`${namespace}_`));
-          if (namespacedKeys.length > 0) {
-            await AsyncStorage.multiRemove(namespacedKeys);
-          }
-        },
-      };
-
-      // Only attempt migration if legacy data actually exists in AsyncStorage
-      const allKeys = await AsyncStorage.getAllKeys();
-      const hasLegacyData = allKeys.some(k => k.startsWith(`${namespace}_`));
-      if (hasLegacyData) {
-        // Migrate wallet data (vtxos, transactions, etc.)
-        try {
-          const needsWalletMigration = await requiresMigration('wallet', legacyStorage);
-          if (needsWalletMigration) {
-            console.log('[ARK] Migrating wallet data from AsyncStorage to Realm...');
-            const boardingAddress = await this._wallet!.getBoardingAddress();
-            const arkAddress = await this._wallet!.getAddress();
-            await migrateWalletRepository(legacyStorage, walletRepository, {
-              onchain: [boardingAddress],
-              offchain: [arkAddress],
-            });
-            console.log('[ARK] Wallet migration complete');
-          }
-        } catch (error: any) {
-          console.log('[ARK] Wallet migration failed, rolling back:', error.message);
-          await rollbackMigration('wallet', legacyStorage);
-        }
-
-        // Migrate swap data (pending swaps, swap history)
-        try {
-          const swapsMigrated = await migrateToSwapRepository(legacyStorage, swapRepository);
-          if (swapsMigrated) {
-            console.log('[ARK] Swap data migrated to Realm');
-          }
-        } catch (error: any) {
-          console.log('[ARK] Swap migration failed:', error.message);
-        }
-      }
 
       await this._initLightningSwaps(swapRepository);
 
