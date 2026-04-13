@@ -161,8 +161,8 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   const { width: screenWidth } = useWindowDimensions();
   const { direction } = useLocale();
   const isRTL = direction === 'rtl';
-  const amount = props.amount || DEFAULT_AMOUNT_VALUE; // internally amount is aways a string with a correct number
   const {
+    amount: amountProp,
     onChangeText,
     unit,
     onAmountUnitChange,
@@ -172,6 +172,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     isMaxAmountEstimate,
     ...otherProps
   } = props;
+  const amount = amountProp || DEFAULT_AMOUNT_VALUE; // internally amount is aways a string with a correct number
   const [state, dispatch] = useReducer(amountInputReducer, INITIAL_AMOUNT_INPUT_STATE);
 
   const unitDisplayLabel = useMemo(() => {
@@ -256,23 +257,27 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     dispatch({ type: AMOUNT_INPUT_ACTIONS.SET_RATE_LOADING, payload: true });
     try {
       await updateExchangeRate();
-    } finally {
-      if (await isRateOutdated()) {
-        const recent = await mostRecentFetchedRate();
-        dispatch({ type: AMOUNT_INPUT_ACTIONS.SET_OUTDATED_RATE, payload: recent });
-      } else {
-        dispatch({ type: AMOUNT_INPUT_ACTIONS.CLEAR_OUTDATED_RATE });
+      try {
+        if (await isRateOutdated()) {
+          const recent = await mostRecentFetchedRate();
+          dispatch({ type: AMOUNT_INPUT_ACTIONS.SET_OUTDATED_RATE, payload: recent });
+        } else {
+          dispatch({ type: AMOUNT_INPUT_ACTIONS.CLEAR_OUTDATED_RATE });
+        }
+      } catch {
+        // Silently ignore rate-check failures; the loading flag will still be cleared below
       }
+    } finally {
       dispatch({ type: AMOUNT_INPUT_ACTIONS.SET_RATE_LOADING, payload: false });
     }
   }, [state.isRateBeingUpdatedLocal]);
 
   const changeAmountUnit = useCallback(() => {
     let previousUnit = unit;
-    const newUnit = getNextAmountUnit(previousUnit);
     if (!UNIT_SWITCH_SEQUENCE.includes(previousUnit)) {
       previousUnit = BitcoinUnit.SATS;
     }
+    const newUnit = getNextAmountUnit(previousUnit);
 
     /**
      * here we must recalculate old amont value (which was denominated in `previousUnit`) to new denomination `newUnit`
@@ -344,7 +349,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
         if (text.startsWith('0') && !(text.includes('.') || text.includes(','))) {
           text = text.replace(/^(0+)/g, '');
         }
-        text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
+        text = text.replace(/[^\d.,]/g, ''); // remove all but numbers, dots & commas
         text = text.replace(/(\..*)\./g, '$1');
       }
       if (text.startsWith('.')) {

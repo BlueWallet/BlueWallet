@@ -53,6 +53,19 @@ jest.mock('../../blue_modules/currency', () => ({
   CurrencyRate: {},
 }));
 
+jest.mock('dayjs', () => {
+  const actualDayjs = jest.requireActual('dayjs');
+  const mockDayjs = (date?: any) => {
+    const instance = actualDayjs(date);
+    return {
+      ...instance,
+      format: (_fmt: string) => '04/12/2026 10:30 AM',
+    };
+  };
+  Object.assign(mockDayjs, actualDayjs);
+  return { __esModule: true, default: mockDayjs };
+});
+
 jest.mock('../../loc', () => ({
   __esModule: true,
   default: {

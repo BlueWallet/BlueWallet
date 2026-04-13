@@ -300,7 +300,6 @@ exports[`AmountInput renders default state 1`] = `
             }
           }
           allowFontScaling={true}
-          amount="0.001"
           editable={true}
           keyboardType="numeric"
           maxFontSizeMultiplier={2}
@@ -549,7 +548,6 @@ exports[`AmountInput renders outdated-rate warning block 1`] = `
             }
           }
           allowFontScaling={true}
-          amount="0.001"
           editable={true}
           keyboardType="numeric"
           maxFontSizeMultiplier={2}
@@ -748,7 +746,7 @@ exports[`AmountInput renders outdated-rate warning block 1`] = `
         }
       }
     >
-      Outdated rate at l LT
+      Outdated rate at 04/12/2026 10:30 AM
     </Text>
     <View
       accessibilityLabel="Refresh"
