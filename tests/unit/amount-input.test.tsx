@@ -55,7 +55,7 @@ jest.mock('../../blue_modules/currency', () => ({
 
 jest.mock('dayjs', () => {
   const actualDayjs = jest.requireActual('dayjs');
-  const mockDayjs = (date?: any) => {
+  const mockDayjs = (date?: string | number | Date | null) => {
     const instance = actualDayjs(date);
     return {
       ...instance,

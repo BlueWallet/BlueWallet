@@ -172,7 +172,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     isMaxAmountEstimate,
     ...otherProps
   } = props;
-  const amount = amountProp || DEFAULT_AMOUNT_VALUE; // internally amount is aways a string with a correct number
+  const amount = amountProp || DEFAULT_AMOUNT_VALUE; // internally amount is always a string with a correct number
   const [state, dispatch] = useReducer(amountInputReducer, INITIAL_AMOUNT_INPUT_STATE);
 
   const unitDisplayLabel = useMemo(() => {
