@@ -1,4 +1,4 @@
-name: BuildReleaseApk
+name: BuildReleaseApk 
 
 on:
   pull_request:
@@ -15,66 +15,22 @@ jobs:
 
     steps:
       - name: Checkout project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@v4
         with:
-          fetch-depth: "0"
+          fetch-depth: 0
 
-      - name: Free disk space (Android build)
-        shell: bash
+      - name: Check Docker
+        run: docker version
+
+      - name: Free disk space
         run: |
           df -h
-          sudo rm -rf /usr/share/dotnet || true
-          sudo rm -rf /opt/ghc || true
-          sudo rm -rf /usr/local/share/boost || true
-          sudo rm -rf /usr/local/lib/android/sdk/ndk || true
+          rm -rf /usr/share/dotnet || true
+          rm -rf /opt/ghc || true
+          rm -rf /usr/local/share/boost || true
           docker system prune -af || true
-          sudo rm -rf /usr/local/lib/android/sdk/system-images || true
-          sudo rm -rf /usr/local/lib/android/sdk/emulator || true
-          rm -rf ~/.gradle/caches/modules-2/files-2.1 || true
-          rm -rf ~/.gradle/caches/build-cache || true
-          rm -rf ~/.npm/_cacache ~/.cache || true
-          sudo rm -rf /home/runner/work/_temp || true
           df -h
-
-      - name: Specify node version
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
-        with:
-          node-version: 24
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
-
-      - name: Use specific Java version for sdkmanager to work
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
-
-      - name: Install Android SDK components
-        run: |
-          yes | sdkmanager --licenses
-          sdkmanager "platforms;android-36" "platform-tools" "build-tools;36.0.0" "ndk;27.1.12297006"
-
-      - name: Install node_modules (include dev deps for patch-package)
-        run: npm ci --yes
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.4.8
-          bundler-cache: true
-
-      - name: Cache Ruby Gems
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-ruby-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-ruby-
-
+      
       - name: Generate Build Number based on timestamp
         id: build_number
         run: |
@@ -82,21 +38,21 @@ jobs:
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
           echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
 
-      - name: Build and sign APK
-        id: build_and_sign_apk
-        run: bundle exec fastlane android build_release_apk
+
+      - name: Build APK inside Docker
         env:
-          BUILD_NUMBER: ${{ steps.build_number.outputs.build_number }}
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          chmod +x reproducible-builds/build-apk.sh
+          ./reproducible-builds/build-apk.sh
 
       - name: Upload build logs on failure
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@v4
         with:
           name: android-build-logs
           path: |
-            fastlane/logs/**/*.log
             android/**/*.log
             android/**/build/**/*.log
             android/**/outputs/logs/**/*.log
@@ -117,9 +73,28 @@ jobs:
             EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}.apk"
           fi
       
-          APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
           echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
-          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
+
+
+      - name: Find APK
+        run: |
+          APK_PATH=$(find reproducible-builds/build -maxdepth 1 -name "*.apk" -print -quit)
+
+          if [ -z "$APK_PATH" ]; then
+            echo "No APK found"
+            ls -R reproducible-builds/build
+            exit 1
+          fi
+
+          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
+
+      - name: Rename APK
+        run: |
+          FINAL_PATH="reproducible-builds/build/${EXPECTED_FILENAME}"
+
+          mv "$APK_PATH" "$FINAL_PATH"
+
+          echo "APK_PATH=$FINAL_PATH" >> $GITHUB_ENV
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
@@ -128,38 +103,38 @@ jobs:
           path: ${{ env.APK_PATH }}
           if-no-files-found: error
 
-  browserstack:
-    runs-on: macos-latest
-    needs: buildReleaseApk
-    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack') }}
+  # browserstack:
+  #   runs-on: macos-latest
+  #   needs: buildReleaseApk
+  #   if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'browserstack') }}
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.4.8
-          bundler-cache: true
+  #     - name: Set up Ruby
+  #       uses: ruby/setup-ruby@v1
+  #       with:
+  #         ruby-version: 3.4.8
+  #         bundler-cache: true
 
-      - name: Install dependencies with Bundler
-        run: bundle install --jobs 4 --retry 3
+  #     - name: Install dependencies with Bundler
+  #       run: bundle install --jobs 4 --retry 3
 
-      - name: Download APK artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
-        with:
-          name: signed-apk
+  #     - name: Download APK artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: signed-apk
 
-      - name: Set APK Path
-        run: |
-          APK_PATH=$(find ${{ github.workspace }} -name '*.apk')
-          echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
+  #     - name: Set APK Path
+  #       run: |
+  #         APK_PATH=$(find ${{ github.workspace }} -name '*.apk')
+  #         echo "APK_PATH=$APK_PATH" >> $GITHUB_ENV
 
-      - name: Upload APK to BrowserStack and Post PR Comment
-        env:
-          BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
-          BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bundle exec fastlane upload_to_browserstack_and_comment
+  #     - name: Upload APK to BrowserStack and Post PR Comment
+  #       env:
+  #         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
+  #         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+  #         GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       run: bundle exec fastlane upload_to_browserstack_and_comment
