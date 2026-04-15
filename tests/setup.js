@@ -202,7 +202,6 @@ jest.mock('@react-native-documents/picker', () => ({}));
 jest.mock('react-native-haptic-feedback', () => ({}));
 
 jest.mock('react-native-reanimated', () => {
-  const React = require('react');
   const { View, Text, ScrollView, FlatList, Image } = require('react-native');
 
   const createAnimationBuilder = () => ({
