@@ -101,13 +101,12 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, isModal]);
 
-  // LN invoice polling — works for all wallet types (LNDHub + Ark).
-  // For Ark wallets this serves as a reliable fallback: the Ark-specific
-  // useEffect below provides faster WebSocket-based detection, but if
-  // the WebSocket listener stalls this poll will still pick up the
-  // status change once the background processor claims the swap.
+  // LN invoice polling for LNDHub. Ark wallets use waitForInvoicePayment
+  // in a separate useEffect below — the SDK manages WS reconnection and
+  // polling fallback internally, so the consumer just awaits the promise.
   useEffect(() => {
     if (!wallet) return;
+    if (wallet.type === LightningArkWallet.type) return;
     if ((invoice as LightningTransaction).ispaid) return;
 
     fetchInvoiceInterval.current = setInterval(async () => {
@@ -163,72 +162,40 @@ const LNDViewInvoice = () => {
     }
   }, [wallet]);
 
-  // Real-time Ark payment detection via SDK's notifyIncomingFunds + LN swap polling
+  // Ark wallets: trust the SDK's waitForInvoicePayment to flip the UI on
+  // settlement. The SDK owns WebSocket reconnection and polling fallback.
   useEffect(() => {
     if (!wallet || wallet.type !== LightningArkWallet.type) return;
     if ((invoice as LightningTransaction).ispaid) return;
 
     const arkWallet = wallet as LightningArkWallet;
-    let stopNotify: (() => void) | undefined;
-
-    const onPaymentReceived = () => {
-      setIsFetchingInvoices(false);
-      clearInterval(fetchInvoiceInterval.current);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      // Force refresh to get accurate balance
-      arkWallet._lastBalanceFetch = 0;
-      arkWallet._lastTxFetch = 0;
-      arkWallet
-        .fetchBalance()
-        .then(() => arkWallet.fetchTransactions())
-        .then(() => {
-          const txs = arkWallet.getTransactions();
-          const latest = txs.filter(tx => tx.value! > 0)[0];
-          setParams({
-            invoice: {
-              ispaid: true,
-              value: latest?.value ?? 0,
-              amt: latest?.amt ?? 0,
-              type: 'user_invoice',
-              timestamp: Math.floor(Date.now() / 1000),
-              description: latest?.description ?? 'Received',
-              payment_request: latest?.payment_request,
-            },
-          });
-          setInvoiceStatusChanged(true);
-          fetchAndSaveWalletTransactions(walletID);
-        })
-        .catch(e => console.log('[ARK] Post-receive refresh error:', e));
-    };
-
-    // Subscribe to real-time VTXO notifications for direct Ark payments
-    arkWallet
-      .notifyIncomingFunds(event => {
-        if ((event.type === 'vtxo' && event.newVtxos?.length) || (event.type === 'utxo' && event.coins?.length)) {
-          stopNotify?.();
-          onPaymentReceived();
-        }
-      })
-      .then(stop => {
-        stopNotify = stop;
-      })
-      .catch(e => console.log('[ARK] notifyIncomingFunds error:', e));
-
-    // Wait for LN invoice payment via waitAndClaim (WebSocket-based, no polling)
     const paymentRequest = typeof invoice === 'string' ? invoice : (invoice as LightningTransaction).payment_request;
-    if (paymentRequest) {
-      arkWallet
-        .waitForInvoicePayment(paymentRequest)
-        .then(() => {
-          stopNotify?.();
-          onPaymentReceived();
-        })
-        .catch(e => console.log('[ARK] waitForInvoicePayment error:', e));
-    }
+    if (!paymentRequest) return;
 
-    return () => {
-      stopNotify?.();
-    };
+    arkWallet
+      .waitForInvoicePayment(paymentRequest)
+      .then(async () => {
+        arkWallet._lastBalanceFetch = 0;
+        arkWallet._lastTxFetch = 0;
+        await arkWallet.fetchBalance();
+        await arkWallet.fetchTransactions();
+        const txs = arkWallet.getTransactions();
+        const latest = txs.filter(tx => tx.value! > 0)[0];
+        setParams({
+          invoice: {
+            ispaid: true,
+            value: latest?.value ?? 0,
+            amt: latest?.amt ?? 0,
+            type: 'user_invoice',
+            timestamp: Math.floor(Date.now() / 1000),
+            description: latest?.description ?? 'Received',
+            payment_request: latest?.payment_request,
+          },
+        });
+        setInvoiceStatusChanged(true);
+        fetchAndSaveWalletTransactions(walletID);
+      })
+      .catch(e => console.log('[ARK] waitForInvoicePayment error:', e));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
