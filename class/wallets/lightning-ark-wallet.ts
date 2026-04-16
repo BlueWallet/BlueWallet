@@ -35,8 +35,11 @@ import { LightningTransaction, Transaction } from './types.ts';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 import assert from 'assert';
 import { Measure } from '../measure.ts';
-import { enqueueSwapTask, reconcileSwapTasks } from '../../blue_modules/arkade-adapters/background/swap-queue';
+import { enqueueSwapTask, reconcileSwapTasks, swapTaskQueue } from '../../blue_modules/arkade-adapters/background/swap-queue';
 import type { SwapProcessorDeps } from '../../blue_modules/arkade-adapters/background/swap-processor';
+import { registerArkadeBackgroundTask, unregisterArkadeBackgroundTask } from '../../blue_modules/arkade-adapters/background/task-scheduler';
+import { startPolling, stopPolling } from '../../blue_modules/arkade-adapters/background/foreground-poller';
+import type { TWallet } from './types';
 const { bech32, bech32m } = require('bech32');
 
 const staticWalletCache: Record<string, Wallet> = {};
@@ -138,6 +141,77 @@ export class LightningArkWallet extends LightningCustodianWallet {
   getAllExternalAddresses(): string[] {
     return [];
   }
+
+  // ---- Background lifecycle (formerly hooks/useArkadeBackgroundSync.ts) ----
+  //
+  // The class owns the registration of the background task scheduler and the
+  // foreground poller. A single static `syncBackground(walletsProvider)` call,
+  // re-invoked whenever the wallets list changes, registers when the first Ark
+  // wallet appears and tears down when the last one is removed. Background
+  // callbacks read the current wallets via the stored provider so they always
+  // see the live list.
+
+  private static _walletsProvider: (() => TWallet[]) | null = null;
+  private static _backgroundRegistered: boolean = false;
+  private static _tickInFlight: WeakSet<LightningArkWallet> = new WeakSet();
+
+  static async syncBackground(walletsProvider: () => TWallet[]): Promise<void> {
+    LightningArkWallet._walletsProvider = walletsProvider;
+    const wallets = walletsProvider();
+    const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+
+    if (arkWallets.length > 0 && !LightningArkWallet._backgroundRegistered) {
+      LightningArkWallet._backgroundRegistered = true;
+      // Init each Ark wallet so reconcileBackgroundTasks (called inside init) queues any pending swaps.
+      await Promise.all(arkWallets.map(w => w.init().catch(e => console.log('[ArkadeSync] Bootstrap init failed:', e))));
+      await registerArkadeBackgroundTask(LightningArkWallet._buildDeps).catch(e => console.log('[ArkadeSync] Registration failed:', e));
+      startPolling(undefined, undefined, LightningArkWallet._onTick);
+      return;
+    }
+
+    if (arkWallets.length === 0 && LightningArkWallet._backgroundRegistered) {
+      LightningArkWallet._backgroundRegistered = false;
+      await unregisterArkadeBackgroundTask().catch(e => console.log('[ArkadeSync] Unregistration failed:', e));
+      stopPolling();
+      // No Ark wallets left → wipe queue so stale namespaces don't linger.
+      await swapTaskQueue.clearTasks().catch(e => console.log('[ArkadeSync] Cleanup failed:', e));
+    }
+  }
+
+  private static _buildDeps = async (): Promise<Map<string, SwapProcessorDeps>> => {
+    const depsMap = new Map<string, SwapProcessorDeps>();
+    const wallets = LightningArkWallet._walletsProvider?.() ?? [];
+    const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+
+    for (const wallet of arkWallets) {
+      try {
+        await wallet.init();
+        const walletDeps = wallet.getProcessorDeps();
+        if (walletDeps) {
+          depsMap.set(wallet.getNamespace(), walletDeps);
+        }
+      } catch (error) {
+        console.log('[ArkadeSync] Failed to build deps for wallet:', error);
+      }
+    }
+    return depsMap;
+  };
+
+  // Refresh every Ark wallet on each foreground tick so direct Ark payments to
+  // any wallet are detected, not just the currently-selected one.
+  private static _onTick = (): void => {
+    const wallets = LightningArkWallet._walletsProvider?.() ?? [];
+    const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+
+    for (const wallet of arkWallets) {
+      if (LightningArkWallet._tickInFlight.has(wallet)) continue;
+      LightningArkWallet._tickInFlight.add(wallet);
+
+      Promise.all([wallet.fetchBalance(), wallet.fetchTransactions()])
+        .catch(e => console.log('[ArkadeSync] Refresh error:', e))
+        .finally(() => LightningArkWallet._tickInFlight.delete(wallet));
+    }
+  };
 
   async init() {
     const namespace = this.getNamespace();
