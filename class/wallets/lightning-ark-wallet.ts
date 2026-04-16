@@ -132,6 +132,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return this.hashIt(this.secret);
   }
 
+  // Ark wallets have no on-chain external addresses to subscribe for GroundControl
+  // push notifications. Returning [] makes upstream subscribe/unsubscribe call sites
+  // a no-op without needing to type-sniff the wallet.
+  getAllExternalAddresses(): string[] {
+    return [];
+  }
+
   async init() {
     const namespace = this.getNamespace();
 

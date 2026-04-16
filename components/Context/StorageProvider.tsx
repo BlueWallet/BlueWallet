@@ -1,13 +1,6 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutAnimation } from 'react-native';
-import {
-  BlueApp as BlueAppClass,
-  LegacyWallet,
-  LightningArkWallet,
-  TCounterpartyMetadata,
-  TTXMetadata,
-  WatchOnlyWallet,
-} from '../../class';
+import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
@@ -460,10 +453,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       });
 
       await w.fetchBalance();
-      // GroundControl push notifications are not applicable to Ark wallets
-      if (w.type !== LightningArkWallet.type) {
+      const externalAddresses = w.getAllExternalAddresses();
+      if (externalAddresses.length > 0) {
         try {
-          await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+          await majorTomToGroundControl(externalAddresses, [], []);
         } catch (error) {
           console.warn('Failed to setup notifications:', error);
         }
