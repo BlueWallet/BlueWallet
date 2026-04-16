@@ -78,6 +78,7 @@ export type SendDetailsStackParamList = {
     psbt?: Psbt;
     txhex?: string;
     deepLinkPSBT?: string;
+    deepLinkPSBTFilePath?: string;
     onBarScanned?: string;
   };
   CreateTransaction: {

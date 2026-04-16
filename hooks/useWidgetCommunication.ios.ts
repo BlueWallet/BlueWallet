@@ -1,21 +1,25 @@
 import { useEffect, useRef } from 'react';
 import DefaultPreference from 'react-native-default-preference';
 import { Transaction, TWallet } from '../class/wallets/types';
-import { useSettings } from '../hooks/context/useSettings';
-import { useStorage } from '../hooks/context/useStorage';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import debounce from '../blue_modules/debounce';
+import { useSettings } from '../hooks/context/useSettings';
+import { useStorage } from '../hooks/context/useStorage';
+import { getWidgetActionUrl } from '../navigation/linking';
 
 enum WidgetCommunicationKeys {
   AllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance',
   AllWalletsLatestTransactionTime = 'WidgetCommunicationAllWalletsLatestTransactionTime',
   DisplayBalanceAllowed = 'WidgetCommunicationDisplayBalanceAllowed',
   LatestTransactionIsUnconfirmed = 'WidgetCommunicationLatestTransactionIsUnconfirmed',
+  OpenSendURL = 'WidgetCommunicationOpenSendURL',
+  OpenReceiveURL = 'WidgetCommunicationOpenReceiveURL',
 }
 
 const WIDGET_ENABLED = '1';
 const WIDGET_DISABLED = '0';
 const WIDGET_CLEARED_VALUE = '0';
+const WIDGET_EMPTY_URL = '';
 
 const secondsToMilliseconds = (seconds: number): number => seconds * 1000;
 
@@ -119,6 +123,37 @@ export const syncWidgetBalanceWithWallets = async (
   }
 };
 
+export const syncWidgetLinkingUrls = async (
+  wallets: TWallet[],
+  walletsInitialized: boolean,
+  cachedOpenSendURL: { current: string },
+  cachedOpenReceiveURL: { current: string },
+): Promise<void> => {
+  try {
+    const linkingContext = {
+      wallets,
+      saveToDisk: () => {},
+      addWallet: () => {},
+      setSharedCosigner: () => {},
+    };
+
+    const openSendURL = walletsInitialized ? getWidgetActionUrl('openSend', linkingContext) ?? WIDGET_EMPTY_URL : WIDGET_EMPTY_URL;
+    const openReceiveURL = walletsInitialized ? getWidgetActionUrl('openReceive', linkingContext) ?? WIDGET_EMPTY_URL : WIDGET_EMPTY_URL;
+
+    if (cachedOpenSendURL.current !== openSendURL || cachedOpenReceiveURL.current !== openReceiveURL) {
+      await Promise.all([
+        DefaultPreference.set(WidgetCommunicationKeys.OpenSendURL, openSendURL),
+        DefaultPreference.set(WidgetCommunicationKeys.OpenReceiveURL, openReceiveURL),
+      ]);
+
+      cachedOpenSendURL.current = openSendURL;
+      cachedOpenReceiveURL.current = openReceiveURL;
+    }
+  } catch (error) {
+    console.error('Failed to sync widget action URLs:', error);
+  }
+};
+
 const debouncedSyncWidgetBalanceWithWallets = debounce(
   async (
     wallets: TWallet[],
@@ -136,6 +171,8 @@ const useWidgetCommunication = (): void => {
   const { isWidgetBalanceDisplayAllowed } = useSettings();
   const cachedBalance = useRef<number>(0);
   const cachedLatestTransactionTime = useRef<number | string>(0);
+  const cachedOpenSendURL = useRef<string>(WIDGET_EMPTY_URL);
+  const cachedOpenReceiveURL = useRef<string>(WIDGET_EMPTY_URL);
 
   // Handle widget data clearing when the setting is disabled
   useEffect(() => {
@@ -164,6 +201,10 @@ const useWidgetCommunication = (): void => {
       debouncedSyncWidgetBalanceWithWallets(wallets, walletsInitialized, cachedBalance, cachedLatestTransactionTime);
     }
   }, [wallets, walletsInitialized, isWidgetBalanceDisplayAllowed]);
+
+  useEffect(() => {
+    syncWidgetLinkingUrls(wallets, walletsInitialized, cachedOpenSendURL, cachedOpenReceiveURL);
+  }, [wallets, walletsInitialized]);
 
   useEffect(() => {
     return () => {

@@ -50,6 +50,13 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         RCTI18nUtil.sharedInstance().allowRTL(true)
 
+        if let launchNotification = launchOptions?[.remoteNotification] as? [AnyHashable: Any] {
+            RNNotificationsStore.sharedInstance().initialNotification = launchNotification
+            NSLog("[AppDelegate] Seeded RNNotificationsStore from launchOptions remote notification")
+        } else {
+            NSLog("[AppDelegate] Launch remote notification present: false")
+        }
+
         RNNotifications.startMonitorNotifications()
         RNNotifications.addNativeDelegate(self)
 
@@ -111,6 +118,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             "WidgetCommunicationAllWalletsLatestTransactionTime",
             "WidgetCommunicationDisplayBalanceAllowed",
             "WidgetCommunicationLatestTransactionIsUnconfirmed",
+            "WidgetCommunicationOpenSendURL",
+            "WidgetCommunicationOpenReceiveURL",
             "preferredCurrency",
             "preferredCurrencyLocale",
             "electrum_host",
@@ -280,6 +289,8 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             "WidgetCommunicationAllWalletsLatestTransactionTime",
             "WidgetCommunicationDisplayBalanceAllowed",
             "WidgetCommunicationLatestTransactionIsUnconfirmed",
+            "WidgetCommunicationOpenSendURL",
+            "WidgetCommunicationOpenReceiveURL",
             "preferredCurrency",
             "preferredCurrencyLocale",
             "electrum_host",
@@ -356,6 +367,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         let userInfo = response.notification.request.content.userInfo
+        RNNotificationsStore.sharedInstance().initialNotification = userInfo
+        NSLog("[AppDelegate] Stored notification response for JS cold-start handoff")
+
         let blockExplorer = userDefaultsGroup?.string(forKey: "blockExplorer") ?? "https://www.mempool.space"
 
         if let data = userInfo["data"] as? [String: Any] {

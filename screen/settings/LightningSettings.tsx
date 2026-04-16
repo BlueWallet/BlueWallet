@@ -3,7 +3,6 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { Alert, Linking, StyleSheet, View } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import { BlueLoading } from '../../components/BlueLoading';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import { Button } from '../../components/Button';
@@ -12,6 +11,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { getUrlFromSetLndhubUrlAction } from '../../navigation/linking';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
 import {
@@ -69,7 +69,7 @@ const LightningSettings: React.FC = () => {
   }, [params?.url]);
 
   const setLndhubURI = (value: string) => {
-    const setLndHubUrl = DeeplinkSchemaMatch.getUrlFromSetLndhubUrlAction(value);
+    const setLndHubUrl = getUrlFromSetLndhubUrlAction(value);
     setURI(typeof setLndHubUrl === 'string' ? setLndHubUrl.trim() : value.trim());
   };
 

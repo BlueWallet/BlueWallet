@@ -30,8 +30,8 @@ import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { bip21decode, decodeBitcoinUri, isPossiblyPSBTFile, isTXNFile } from '../../class/bitcoin-uri';
 import { ContactList } from '../../class/contact-list';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
 import AddressInput from '../../components/AddressInput';
@@ -158,7 +158,7 @@ const SendDetails = () => {
     const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
       try {
-        const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
+        const { address, amount, memo, payjoinUrl: pjUrl } = decodeBitcoinUri(routeParams.uri);
 
         setAddresses(addrs => {
           addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
@@ -464,12 +464,12 @@ const SendDetails = () => {
       let options: TOptions;
       try {
         if (!data.toLowerCase().startsWith('bitcoin:')) data = `bitcoin:${data}`;
-        const decoded = DeeplinkSchemaMatch.bip21decode(data);
+        const decoded = bip21decode(data);
         address = decoded.address;
         options = decoded.options;
       } catch (error) {
         data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
-        const decoded = DeeplinkSchemaMatch.bip21decode(data);
+        const decoded = bip21decode(data);
         decoded.options.amount = 0;
         address = decoded.address;
         options = decoded.options;
@@ -759,7 +759,7 @@ const SendDetails = () => {
     try {
       const res = await pickTransaction();
 
-      if (DeeplinkSchemaMatch.isPossiblyPSBTFile(String(res.name))) {
+      if (isPossiblyPSBTFile(String(res.name))) {
         const file = await RNFS.readFile(res.uri, 'ascii');
         const psbt = bitcoin.Psbt.fromBase64(file);
 
@@ -786,7 +786,7 @@ const SendDetails = () => {
         return;
       }
 
-      if (DeeplinkSchemaMatch.isTXNFile(String(res.name))) {
+      if (isTXNFile(String(res.name))) {
         // plain text file with txhex ready to broadcast
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
         navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex: file });
@@ -1440,7 +1440,7 @@ const SendDetails = () => {
           <AddressInput
             onChangeText={text => {
               const trimmedText = text.trim();
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
+              const { address, amount, memo, payjoinUrl: pjUrl } = decodeBitcoinUri(trimmedText);
               const hasPositiveAmount = Number(amount) > 0;
               setAddresses(addrs => {
                 const updatedAddresses = [...addrs];

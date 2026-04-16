@@ -65,7 +65,7 @@ const MainRoot = () => {
   const theme = useTheme();
 
   return (
-    <DetailViewStack.Navigator screenOptions={{ headerShown: false }}>
+    <DetailViewStack.Navigator UNSTABLE_routeNamesChangeBehavior="lastUnhandled" screenOptions={{ headerShown: false }}>
       {!walletsInitialized ? (
         <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (

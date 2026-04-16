@@ -4,7 +4,6 @@ import {
   getDefaultUri,
   getPushToken,
   getSavedUri,
-  getStoredNotifications,
   saveUri,
   isNotificationsEnabled,
   setLevels,
@@ -142,14 +141,7 @@ const NotificationSettings: React.FC = () => {
         }
 
         setURI((await getSavedUri()) ?? getDefaultUri());
-        setTokenInfo(
-          'token: ' +
-            JSON.stringify(await getPushToken()) +
-            ' permissions: ' +
-            JSON.stringify(await checkPermissions()) +
-            ' stored notifications: ' +
-            JSON.stringify(await getStoredNotifications()),
-        );
+        setTokenInfo('token: ' + JSON.stringify(await getPushToken()) + ' permissions: ' + JSON.stringify(await checkPermissions()));
       } catch (e) {
         console.error(e);
         presentAlert({ message: (e as Error).message });

@@ -1,12 +1,16 @@
 import React from 'react';
-import DevMenu from '../components/DevMenu';
+import useNotifications from '../hooks/useNotifications';
 import MainRoot from './index';
 
+const DevMenu = __DEV__ ? require('../components/DevMenu').default : null;
+
 const MasterView = () => {
+  useNotifications();
+
   return (
     <>
       <MainRoot />
-      {__DEV__ && <DevMenu />}
+      {DevMenu ? <DevMenu /> : null}
     </>
   );
 };
