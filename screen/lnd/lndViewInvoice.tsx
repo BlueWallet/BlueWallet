@@ -69,8 +69,6 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isArkOnly = typeof invoice === 'object' && !invoice.payment_request;
-
   useEffect(() => {
     const options: Record<string, any> = isModal
       ? {
@@ -99,12 +97,9 @@ const LNDViewInvoice = () => {
             backgroundColor: colors.customHeader,
           },
         };
-    if (isArkOnly) {
-      options.headerTitle = loc.receive.header;
-    }
     setOptions(options);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, isModal, isArkOnly]);
+  }, [colors, isModal]);
 
   // LN invoice polling — works for all wallet types (LNDHub + Ark).
   // For Ark wallets this serves as a reliable fallback: the Ark-specific
@@ -341,7 +336,7 @@ const LNDViewInvoice = () => {
         );
       }
       // Invoice has not expired, nor has it been paid for.
-      if (invoice.payment_request || arkAddress) {
+      if (invoice.payment_request) {
         return (
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
@@ -359,8 +354,14 @@ const LNDViewInvoice = () => {
                   {loc.lndViewInvoice.for} {invoice.description ?? ''}
                 </BlueText>
               )}
-              {invoice.payment_request ? <CopyTextToClipboard truncated text={invoice.payment_request} /> : null}
-              {isArkOnly && arkAddress ? <CopyTextToClipboard truncated text={arkAddress} /> : null}
+              <CopyTextToClipboard truncated text={invoice.payment_request} />
+              {arkAddress ? (
+                <>
+                  <BlueSpacing20 />
+                  <BlueText>{loc.lndViewInvoice.ark_address_label}</BlueText>
+                  <CopyTextToClipboard truncated text={arkAddress} />
+                </>
+              ) : null}
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>
@@ -376,6 +377,13 @@ const LNDViewInvoice = () => {
             </View>
             <BlueSpacing20 />
             <CopyTextToClipboard truncated text={invoice} />
+            {arkAddress ? (
+              <>
+                <BlueSpacing20 />
+                <BlueText>{loc.lndViewInvoice.ark_address_label}</BlueText>
+                <CopyTextToClipboard truncated text={arkAddress} />
+              </>
+            ) : null}
             <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
           </View>
         </ScrollView>

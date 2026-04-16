@@ -275,23 +275,6 @@ const LNDCreateInvoice = () => {
 
       assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
 
-      // For Ark wallets, skip Lightning invoice when amount is outside Boltz swap limits.
-      // Only the Ark address will be shown for receiving.
-      if (wallet.current instanceof LightningArkWallet && !wallet.current.isLightningAmountEligible(+invoiceAmount)) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        navigate('LNDViewInvoice', {
-          invoice: {
-            amt: +invoiceAmount,
-            type: 'user_invoice',
-            timestamp: Math.floor(Date.now() / 1000),
-            description,
-          },
-          walletID: wallet.current.getID(),
-        });
-        setIsLoading(false);
-        return;
-      }
-
       const invoiceRequest = await wallet.current?.addInvoice(+invoiceAmount, description);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
 

@@ -69,6 +69,7 @@
   },
   "lndViewInvoice": {
     "additional_info": "Additional Information",
+    "ark_address_label": "Or pay directly to this Ark address:",
     "for": "For:",
     "lightning_invoice": "Lightning Invoice",
     "please_pay_between_and": "Please pay between {min} and {max}",
