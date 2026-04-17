@@ -118,11 +118,10 @@ export default class SelfTest extends Component {
         spkw.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
         await spkw.init();
         const arkAddress = await spkw.getArkAddress();
-        // The user-pubkey prefix is deterministic from the mnemonic; the suffix varies
-        // depending on which contract/server key is used (e.g. delegate vs direct).
-        const expectedPrefix = 'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t';
-        if (!arkAddress.startsWith(expectedPrefix)) {
-          throw new Error('Ark address prefix mismatch: expected ' + expectedPrefix + '... but got ' + arkAddress);
+        const expectedAddress =
+          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t4damkjtcm90w43zn6f90ermjhr9d2qxmsw75r7daanhmasp6avmstu5est';
+        if (arkAddress !== expectedAddress) {
+          throw new Error('Ark address mismatch: expected ' + expectedAddress + ' but got ' + arkAddress);
         }
         if (!spkw.isAddressValid(arkAddress)) {
           throw new Error('Ark address is not valid: ' + arkAddress);
