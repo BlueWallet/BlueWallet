@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import { _setExchangeRate, _setPreferredFiatCurrency, _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
-import { _leaveNumbersAndDots, formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
+import { _leaveNumbersAndDots, formatBalance, formatBalancePlain, formatBalanceWithoutSuffix, mapSystemLocaleToAppLanguage } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 
@@ -85,4 +85,57 @@ describe('Localization', () => {
     },
     240000,
   );
+
+  describe('mapSystemLocaleToAppLanguage', () => {
+    it.each([
+      // Direct matches (languageCode === app value)
+      [{ languageCode: 'en', countryCode: 'US' }, 'en'],
+      [{ languageCode: 'ar', countryCode: 'SA' }, 'ar'],
+      [{ languageCode: 'he', countryCode: 'IL' }, 'he'],
+      [{ languageCode: 'it', countryCode: 'IT' }, 'it'],
+      [{ languageCode: 'pl', countryCode: 'PL' }, 'pl'],
+      [{ languageCode: 'ro', countryCode: 'RO' }, 'ro'],
+      [{ languageCode: 'ru', countryCode: 'RU' }, 'ru'],
+      [{ languageCode: 'ca', countryCode: 'ES' }, 'ca'],
+      // Mapped language codes
+      [{ languageCode: 'fr', countryCode: 'FR' }, 'fr_fr'],
+      [{ languageCode: 'de', countryCode: 'DE' }, 'de_de'],
+      [{ languageCode: 'ja', countryCode: 'JP' }, 'jp_jp'],
+      [{ languageCode: 'ko', countryCode: 'KR' }, 'ko_kr'],
+      [{ languageCode: 'uk', countryCode: 'UA' }, 'ua'],
+      [{ languageCode: 'tr', countryCode: 'TR' }, 'tr_tr'],
+      [{ languageCode: 'nl', countryCode: 'NL' }, 'nl_nl'],
+      [{ languageCode: 'sv', countryCode: 'SE' }, 'sv_se'],
+      [{ languageCode: 'da', countryCode: 'DK' }, 'da_dk'],
+      [{ languageCode: 'nb', countryCode: 'NO' }, 'nb_no'],
+      [{ languageCode: 'fi', countryCode: 'FI' }, 'fi_fi'],
+      [{ languageCode: 'hu', countryCode: 'HU' }, 'hu_hu'],
+      [{ languageCode: 'cs', countryCode: 'CZ' }, 'cs_cz'],
+      [{ languageCode: 'sk', countryCode: 'SK' }, 'sk_sk'],
+      [{ languageCode: 'bg', countryCode: 'BG' }, 'bg_bg'],
+      [{ languageCode: 'hr', countryCode: 'HR' }, 'hr_hr'],
+      [{ languageCode: 'sl', countryCode: 'SI' }, 'sl_si'],
+      [{ languageCode: 'vi', countryCode: 'VN' }, 'vi_vn'],
+      [{ languageCode: 'th', countryCode: 'TH' }, 'th_th'],
+      [{ languageCode: 'id', countryCode: 'ID' }, 'id_id'],
+      [{ languageCode: 'af', countryCode: 'ZA' }, 'zar_afr'],
+      [{ languageCode: 'xh', countryCode: 'ZA' }, 'zar_xho'],
+      // Chinese variants
+      [{ languageCode: 'zh', countryCode: 'CN', scriptCode: 'Hans' }, 'zh_cn'],
+      [{ languageCode: 'zh', countryCode: 'TW', scriptCode: 'Hant' }, 'zh_tw'],
+      [{ languageCode: 'zh', countryCode: 'CN' }, 'zh_cn'],
+      // Portuguese variants
+      [{ languageCode: 'pt', countryCode: 'BR' }, 'pt_br'],
+      [{ languageCode: 'pt', countryCode: 'PT' }, 'pt_pt'],
+      // Spanish variants
+      [{ languageCode: 'es', countryCode: 'ES' }, 'es'],
+      [{ languageCode: 'es', countryCode: 'MX' }, 'es_419'],
+      [{ languageCode: 'es', countryCode: '419' }, 'es_419'],
+      [{ languageCode: 'es', countryCode: 'AR' }, 'es_419'],
+      // Unknown language
+      [{ languageCode: 'xx', countryCode: 'XX' }, undefined],
+    ])('maps %j to %s', (locale, expected) => {
+      assert.strictEqual(mapSystemLocaleToAppLanguage(locale), expected);
+    });
+  });
 });

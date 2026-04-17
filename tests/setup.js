@@ -269,4 +269,18 @@ jest.mock('react-native-keychain', () => mockKeychain);
 
 jest.mock('react-native-tcp-socket', () => mockKeychain);
 
+jest.mock('../codegen/NativeLocaleHelper', () => ({
+  __esModule: true,
+  default: {
+    setPreferredLanguage: jest.fn(),
+    getPreferredLanguage: jest.fn(() => null),
+    resetPreferredLanguage: jest.fn(),
+    getLocales: jest.fn(() => [
+      { countryCode: 'US', languageTag: 'en-US', languageCode: 'en', isRTL: false },
+      { countryCode: 'FR', languageTag: 'fr-FR', languageCode: 'fr', isRTL: false },
+    ]),
+    getCurrencies: jest.fn(() => ['USD', 'EUR']),
+  },
+}));
+
 global.alert = () => {};

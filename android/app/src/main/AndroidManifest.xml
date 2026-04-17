@@ -31,7 +31,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:configChanges="uiMode">
+        android:configChanges="uiMode"
+        android:localeConfig="@xml/locale_config">
 
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
