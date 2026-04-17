@@ -141,10 +141,7 @@ async function buildDepsFromDisk(): Promise<Map<string, SwapProcessorDeps>> {
     for (const wallet of arkWallets) {
       try {
         await wallet.init();
-        const walletDeps = wallet.getProcessorDeps();
-        if (walletDeps) {
-          depsMap.set(wallet.getNamespace(), walletDeps);
-        }
+        depsMap.set(wallet.getNamespace(), wallet.getProcessorDeps());
       } catch (error) {
         console.log('[ArkadeSync] Headless: failed to init wallet:', error);
       }

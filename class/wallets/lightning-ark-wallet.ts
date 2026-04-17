@@ -203,10 +203,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     for (const wallet of arkWallets) {
       try {
         await wallet.init();
-        const walletDeps = wallet.getProcessorDeps();
-        if (walletDeps) {
-          depsMap.set(wallet.getNamespace(), walletDeps);
-        }
+        depsMap.set(wallet.getNamespace(), wallet.getProcessorDeps());
       } catch (error) {
         console.log('[ArkadeSync] Failed to build deps for wallet:', error);
       }
@@ -1063,10 +1060,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   /**
    * Return the SwapProcessorDeps needed by the background swap-monitor processor.
-   * Returns null if the wallet is not fully initialized.
+   * Throws if init() hasn't populated _wallet/_arkadeSwaps — both call sites
+   * await init() immediately before calling this, so the throw signals a real
+   * regression in init's invariants rather than masking it with a silent null.
    */
-  getProcessorDeps(): SwapProcessorDeps | null {
-    if (!this._wallet || !this._arkadeSwaps) return null;
+  getProcessorDeps(): SwapProcessorDeps {
+    if (!this._wallet || !this._arkadeSwaps) {
+      throw new Error('getProcessorDeps called before init() completed');
+    }
 
     const swapProvider = new BoltzSwapProvider({
       apiUrl: this._boltzApiUrl,
