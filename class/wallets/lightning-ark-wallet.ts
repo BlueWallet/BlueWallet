@@ -231,14 +231,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
     initLock[namespace] = true;
 
     try {
-      const identity = this._getIdentity();
-
       const realm = await getArkadeRealm(namespace);
       const walletRepository = new RealmWalletRepository(realm as any);
       const contractRepository = new RealmContractRepository(realm as any);
       const swapRepository = new RealmSwapRepository(realm as any);
 
       if (!staticWalletCache[namespace]) {
+        // Identity derivation runs PBKDF2 (BIP39 seed) — only pay it on a real cache miss.
+        const identity = this._getIdentity();
         const mm = new Measure('Wallet.create()');
         const wallet = await Wallet.create({
           identity,
