@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js';
-import { sha256 } from '@noble/hashes/sha256';
 import {
   ArkadeSwaps,
   BoltzSwapProvider,
@@ -79,6 +78,13 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
 
+  // Per-wallet random identifier used as the key for the Realm file path,
+  // Keychain service, and swap-queue task IDs. Lazily generated on first
+  // getNamespace() call and persisted on the next saveToDisk(). Was once
+  // sha256(secret), but that leaked wallet existence in plaintext
+  // AsyncStorage / filesystem / keychain — undermining plausible deniability.
+  private _taskNamespace: string = '';
+
   constructor() {
     super();
     // Non-enumerable so Object.assign (serialization) skips these runtime-only fields
@@ -106,10 +112,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return amt >= this._limitMin && amt <= this._limitMax;
   }
 
-  hashIt = (s: string): string => {
-    return uint8ArrayToHex(sha256(s));
-  };
-
   prepareForSerialization() {
     // No-op: _wallet and _arkadeSwaps are non-enumerable, so Object.assign
     // (used by saveToDisk) already excludes them from the serialized clone.
@@ -131,8 +133,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   getNamespace(): string {
-    assert(this.secret, 'No secret provided');
-    return this.hashIt(this.secret);
+    if (!this._taskNamespace) {
+      const bytes = new Uint8Array(16);
+      (globalThis as any).crypto.getRandomValues(bytes);
+      this._taskNamespace = uint8ArrayToHex(bytes);
+    }
+    return this._taskNamespace;
   }
 
   // Ark wallets have no on-chain external addresses to subscribe for GroundControl
