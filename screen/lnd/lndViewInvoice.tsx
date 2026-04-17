@@ -175,8 +175,8 @@ const LNDViewInvoice = () => {
     arkWallet
       .waitForInvoicePayment(paymentRequest)
       .then(async () => {
-        arkWallet._lastBalanceFetch = 0;
-        arkWallet._lastTxFetch = 0;
+        arkWallet.invalidateBalanceCache();
+        arkWallet.invalidateTxCache();
         await arkWallet.fetchBalance();
         await arkWallet.fetchTransactions();
         const txs = arkWallet.getTransactions();

@@ -112,6 +112,17 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return amt >= this._limitMin && amt <= this._limitMax;
   }
 
+  // fetchTransactions / fetchBalance throttle for 30s using these timestamps.
+  // Resetting to 0 forces the next call to bypass the throttle and refetch.
+  // Call after any operation that changed wallet state (sent/paid/claimed).
+  invalidateTxCache(): void {
+    this._lastTxFetch = 0;
+  }
+
+  invalidateBalanceCache(): void {
+    this._lastBalanceFetch = 0;
+  }
+
   prepareForSerialization() {
     // No-op: _wallet and _arkadeSwaps are non-enumerable, so Object.assign
     // (used by saveToDisk) already excludes them from the serialized clone.
@@ -349,7 +360,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
           if (this._arkadeSwaps) {
             await this._arkadeSwaps.refreshSwapsStatus();
             this._swapHistory = await this._arkadeSwaps.getSwapHistory();
-            this._lastTxFetch = 0;
+            this.invalidateTxCache();
           }
         })
         .catch(err => {
@@ -863,8 +874,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
         address: invoice,
         amount: freeAmount,
       });
-      this._lastBalanceFetch = 0;
-      this._lastTxFetch = 0;
+      this.invalidateBalanceCache();
+      this.invalidateTxCache();
       return;
     }
 
@@ -888,13 +899,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Preimage:', paymentResult.preimage);
     console.log('Transaction ID:', paymentResult.txid);
 
-    this._lastBalanceFetch = 0;
-    this._lastTxFetch = 0;
+    this.invalidateBalanceCache();
+    this.invalidateTxCache();
   }
 
   async getUserInvoices(limit: number | false = false): Promise<LightningTransaction[]> {
-    // Force refresh (bypass throttle) so newly created invoices are found
-    this._lastTxFetch = 0;
+    this.invalidateTxCache();
     await this.fetchTransactions();
     const txs = this.getTransactions();
     return txs.filter(tx => tx.value! > 0);
@@ -929,7 +939,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         if (this._arkadeSwaps) {
           await this._arkadeSwaps.refreshSwapsStatus();
           this._swapHistory = await this._arkadeSwaps.getSwapHistory();
-          this._lastTxFetch = 0;
+          this.invalidateTxCache();
         }
       })
       .catch(err => {
