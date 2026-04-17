@@ -275,17 +275,22 @@ const LNDCreateInvoice = () => {
 
       assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
 
-      const invoiceRequest = await wallet.current?.addInvoice(+invoiceAmount, description);
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-
-      // subscribe groundcontrol so we can receive push notification when our invoice is paid
-      // (not applicable to Ark wallets — they claim via waitAndClaim instead)
-      if (!(wallet.current instanceof LightningArkWallet)) {
-        const decoded = await wallet.current?.decodeInvoice(invoiceRequest);
+      let invoiceRequest: string;
+      let swapId: string | undefined;
+      if (wallet.current instanceof LightningArkWallet) {
+        const reverseSwap = await wallet.current.createReverseSwap(+invoiceAmount, description);
+        invoiceRequest = reverseSwap.invoice;
+        swapId = reverseSwap.pendingSwap.id;
+      } else {
+        invoiceRequest = await wallet.current.addInvoice(+invoiceAmount, description);
+        // subscribe groundcontrol so we can receive push notification when our invoice is paid
+        // (not applicable to Ark wallets — they claim via waitAndClaim instead)
+        const decoded = await wallet.current.decodeInvoice(invoiceRequest);
         tryToObtainPermissions()
           .then(res => majorTomToGroundControl([], [decoded.payment_hash], []))
           .catch(err => console.error(err.message));
       }
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
 
       // send to lnurl-withdraw callback url if that exists
       if (lnurlParams) {
@@ -314,6 +319,7 @@ const LNDCreateInvoice = () => {
       navigate('LNDViewInvoice', {
         invoice: invoiceRequest,
         walletID: wallet.current?.getID(),
+        swapId,
       });
     } catch (Err: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);

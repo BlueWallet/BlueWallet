@@ -3,8 +3,8 @@ import {
   ArkadeSwaps,
   BoltzSwapProvider,
   decodeInvoice,
-  PendingSwap,
-  PendingReverseSwap,
+  BoltzSwap,
+  BoltzReverseSwap,
   isPendingReverseSwap,
   isPendingSubmarineSwap,
   isReverseFinalStatus,
@@ -45,10 +45,6 @@ const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapsCache: Record<string, ArkadeSwaps> = {};
 const initLock: Record<string, boolean> = {};
 const boardingLock: Record<string, boolean> = {};
-/** Track swap IDs that already have an active waitAndClaim listener. */
-const observedSwapIds = new Set<string>();
-/** Promises that resolve when a waitAndClaim completes for a given invoice. */
-const claimPromises = new Map<string, Promise<void>>();
 
 type SpendableArkVtxo = Awaited<ReturnType<Wallet['getVtxos']>>[number];
 type SendBitcoinParams = Parameters<Wallet['sendBitcoin']>[0];
@@ -92,7 +88,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     Object.defineProperty(this, '_arkadeSwaps', { enumerable: false, writable: true, value: undefined });
   }
 
-  private _swapHistory: PendingSwap[] = [];
+  private _swapHistory: BoltzSwap[] = [];
   private _transactionsHistory: ArkTransaction[] = [];
   private _boardingUtxos: ExtendedCoin[] = [];
   private _contractsLoaded: boolean = false;
@@ -301,8 +297,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (!this._feePercentage) {
         await this._fetchBoltzFeesAndLimits();
       }
-      // Re-observe any pending swaps whose WebSocket may have died
-      this._reobservePendingSwaps().catch(e => console.log('[ARK] Re-observe pending swaps failed:', e));
       return;
     }
 
@@ -322,56 +316,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     staticSwapsCache[namespace] = this._arkadeSwaps;
 
     await this._fetchBoltzFeesAndLimits();
-
-    // Re-observe any pending reverse swaps whose WebSocket listener may have died
-    this._reobservePendingSwaps().catch(e => console.log('[ARK] Re-observe pending swaps failed:', e));
-  }
-
-  /**
-   * Re-establish waitAndClaim() WebSocket listeners for pending reverse swaps.
-   * This ensures that swaps created in a previous session (or before navigation)
-   * can still be paid and claimed.
-   */
-  private async _reobservePendingSwaps(): Promise<void> {
-    assert(this._arkadeSwaps, 'ArkadeSwaps must be initialized first');
-
-    const allSwaps = await this._arkadeSwaps.getSwapHistory();
-
-    for (const swap of allSwaps) {
-      if (!isPendingReverseSwap(swap)) continue;
-      if (isReverseFinalStatus(swap.status)) continue;
-      if (observedSwapIds.has(swap.id)) continue;
-
-      observedSwapIds.add(swap.id);
-      console.log('[ARK] Re-observing pending reverse swap:', swap.id);
-
-      // Extract the invoice string so waitForInvoicePayment() can find the promise
-      // @ts-ignore response.invoice exists on reverse swaps
-      const invoiceStr: string | undefined = swap.response?.invoice;
-
-      const claimPromise = this._arkadeSwaps
-        .waitAndClaim(swap as PendingReverseSwap)
-        .then(async () => {
-          console.log('[ARK] Re-observed swap claimed successfully:', swap.id);
-          // Refresh swap statuses so getTransactions() returns settled status immediately
-          if (this._arkadeSwaps) {
-            await this._arkadeSwaps.refreshSwapsStatus();
-            this._swapHistory = await this._arkadeSwaps.getSwapHistory();
-            this.invalidateTxCache();
-          }
-        })
-        .catch(err => {
-          console.warn('[ARK] Re-observed waitAndClaim ended:', swap.id, err?.message ?? err);
-        })
-        .finally(() => {
-          observedSwapIds.delete(swap.id);
-          if (invoiceStr) claimPromises.delete(invoiceStr);
-        });
-
-      if (invoiceStr) {
-        claimPromises.set(invoiceStr, claimPromise);
-      }
-    }
   }
 
   async generate(): Promise<void> {
@@ -907,7 +851,18 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return txs.filter(tx => tx.value! > 0);
   }
 
-  async addInvoice(amt: number, memo: string) {
+  async addInvoice(amt: number, memo: string): Promise<string> {
+    const { invoice } = await this.createReverseSwap(amt, memo);
+    return invoice;
+  }
+
+  /**
+   * Create a Lightning-to-Ark reverse swap and return both the invoice and the
+   * pending swap. Consumers drive settlement by calling waitAndClaim(pendingSwap);
+   * the swap is also seeded into the background queue so it is monitored even if
+   * the app is killed.
+   */
+  async createReverseSwap(amt: number, memo: string): Promise<{ invoice: string; pendingSwap: BoltzReverseSwap }> {
     if (!this._wallet) await this.init();
     assert(this._arkadeSwaps, 'Ark Swaps not initialized');
     assert(amt > this._limitMin, `Minimum to receive is ${this._limitMin} sat`);
@@ -925,43 +880,45 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Lightning Invoice:', result.invoice);
     console.log('Payment Hash:', result.paymentHash);
 
-    // Monitor the swap in the background and claim the VHTLC when the payer pays the LN invoice.
-    observedSwapIds.add(result.pendingSwap.id);
-    const claimPromise = this._arkadeSwaps
-      .waitAndClaim(result.pendingSwap)
-      .then(async () => {
-        console.log('Reverse swap claimed successfully for invoice:', result.invoice);
-        // Refresh swap statuses from Boltz API then update local history
-        // so getTransactions() returns the settled status immediately
-        if (this._arkadeSwaps) {
-          await this._arkadeSwaps.refreshSwapsStatus();
-          this._swapHistory = await this._arkadeSwaps.getSwapHistory();
-          this.invalidateTxCache();
-        }
-      })
-      .catch(err => {
-        // WebSocket may close after the swap is already claimed — this is expected
-        console.warn('waitAndClaim ended with error (swap may already be claimed):', err?.message ?? err);
-      })
-      .finally(() => {
-        observedSwapIds.delete(result.pendingSwap.id);
-        claimPromises.delete(result.invoice);
-      });
-    claimPromises.set(result.invoice, claimPromise);
-
-    // Seed a background task so the swap is monitored even if the app is killed
     await this._seedSwapTask(result.pendingSwap.id);
 
-    return result.invoice;
+    return { invoice: result.invoice, pendingSwap: result.pendingSwap };
   }
 
   /**
-   * Returns a promise that resolves when the given LN invoice is paid and claimed.
-   * Returns immediately if no pending claim exists for this invoice.
+   * Wait for a pending reverse swap to be paid, then claim the VHTLC. Refreshes
+   * local swap history on success so getTransactions() reflects settlement.
+   * Delegates WebSocket reconnection + polling fallback to @arkade-os/boltz-swap.
    */
-  async waitForInvoicePayment(invoiceStr: string): Promise<void> {
-    const promise = claimPromises.get(invoiceStr);
-    if (promise) await promise;
+  async waitAndClaim(pendingSwap: BoltzReverseSwap): Promise<void> {
+    if (!this._arkadeSwaps) await this.init();
+    assert(this._arkadeSwaps, 'Ark Swaps not initialized');
+    await this._arkadeSwaps.waitAndClaim(pendingSwap);
+    await this._arkadeSwaps.refreshSwapsStatus();
+    this._swapHistory = await this._arkadeSwaps.getSwapHistory();
+    this.invalidateTxCache();
+  }
+
+  /** Look up an in-flight reverse swap by its ID. Primary entry for the
+   *  view-invoice screen arriving from create-invoice with swapId in params. */
+  async getPendingReverseSwapById(swapId: string): Promise<BoltzReverseSwap | undefined> {
+    if (!this._arkadeSwaps) await this.init();
+    assert(this._arkadeSwaps, 'Ark Swaps not initialized');
+    const history = await this._arkadeSwaps.getSwapHistory();
+    return history.find(
+      s => isPendingReverseSwap(s) && !isReverseFinalStatus(s.status) && s.id === swapId,
+    ) as BoltzReverseSwap | undefined;
+  }
+
+  /** Fallback lookup by invoice string for entry paths without a swap ID
+   *  (e.g. tapping a pending invoice from the transactions list). */
+  async getPendingReverseSwapByInvoice(invoiceStr: string): Promise<BoltzReverseSwap | undefined> {
+    if (!this._arkadeSwaps) await this.init();
+    assert(this._arkadeSwaps, 'Ark Swaps not initialized');
+    const history = await this._arkadeSwaps.getSwapHistory();
+    return history.find(
+      s => isPendingReverseSwap(s) && !isReverseFinalStatus(s.status) && s.response.invoice === invoiceStr,
+    ) as BoltzReverseSwap | undefined;
   }
 
   async getArkAddress(): Promise<string> {

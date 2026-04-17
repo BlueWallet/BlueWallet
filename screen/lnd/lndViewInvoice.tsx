@@ -25,10 +25,11 @@ import { LightningArkWallet, LightningCustodianWallet } from '../../class';
 type LNDViewInvoiceRouteParams = {
   walletID: string;
   invoice: LightningTransaction | string; // its first passed as string and then decoded and turned into object
+  swapId?: string; // Ark: pendingSwap id forwarded from create-invoice, used to drive waitAndClaim
 };
 
 const LNDViewInvoice = () => {
-  const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
+  const { invoice, walletID, swapId } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors, closeImage } = useTheme();
   const { direction } = useLocale();
@@ -101,9 +102,8 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, isModal]);
 
-  // LN invoice polling for LNDHub. Ark wallets use waitForInvoicePayment
-  // in a separate useEffect below — the SDK manages WS reconnection and
-  // polling fallback internally, so the consumer just awaits the promise.
+  // LN invoice polling for LNDHub. Ark wallets are handled by a separate
+  // useEffect below that awaits the SDK's waitAndClaim directly.
   useEffect(() => {
     if (!wallet) return;
     if (wallet.type === LightningArkWallet.type) return;
@@ -162,40 +162,57 @@ const LNDViewInvoice = () => {
     }
   }, [wallet]);
 
-  // Ark wallets: trust the SDK's waitForInvoicePayment to flip the UI on
-  // settlement. The SDK owns WebSocket reconnection and polling fallback.
+  // Ark wallets: resolve the pending swap (via swapId from create-invoice, or by
+  // invoice string for re-entry paths) and await waitAndClaim directly. The SDK
+  // owns WebSocket reconnection and polling fallback.
   useEffect(() => {
     if (!wallet || wallet.type !== LightningArkWallet.type) return;
-    if ((invoice as LightningTransaction).ispaid) return;
+    if (typeof invoice !== 'string' && invoice.ispaid) return;
 
     const arkWallet = wallet as LightningArkWallet;
-    const paymentRequest = typeof invoice === 'string' ? invoice : (invoice as LightningTransaction).payment_request;
-    if (!paymentRequest) return;
+    const paymentRequest = typeof invoice === 'string' ? invoice : invoice.payment_request;
 
-    arkWallet
-      .waitForInvoicePayment(paymentRequest)
-      .then(async () => {
-        arkWallet.invalidateBalanceCache();
-        arkWallet.invalidateTxCache();
-        await arkWallet.fetchBalance();
-        await arkWallet.fetchTransactions();
-        const txs = arkWallet.getTransactions();
-        const latest = txs.filter(tx => tx.value! > 0)[0];
-        setParams({
-          invoice: {
-            ispaid: true,
-            value: latest?.value ?? 0,
-            amt: latest?.amt ?? 0,
-            type: 'user_invoice',
-            timestamp: Math.floor(Date.now() / 1000),
-            description: latest?.description ?? 'Received',
-            payment_request: latest?.payment_request,
-          },
-        });
-        setInvoiceStatusChanged(true);
-        fetchAndSaveWalletTransactions(walletID);
-      })
-      .catch(e => console.log('[ARK] waitForInvoicePayment error:', e));
+    let cancelled = false;
+    (async () => {
+      const pendingSwap = swapId
+        ? await arkWallet.getPendingReverseSwapById(swapId)
+        : paymentRequest
+          ? await arkWallet.getPendingReverseSwapByInvoice(paymentRequest)
+          : undefined;
+      if (!pendingSwap || cancelled) return;
+
+      try {
+        await arkWallet.waitAndClaim(pendingSwap);
+      } catch (e) {
+        console.log('[ARK] waitAndClaim error:', e);
+        return;
+      }
+      if (cancelled) return;
+
+      arkWallet.invalidateBalanceCache();
+      arkWallet.invalidateTxCache();
+      await arkWallet.fetchBalance();
+      await arkWallet.fetchTransactions();
+      const txs = arkWallet.getTransactions();
+      const latest = txs.filter(tx => tx.value! > 0)[0];
+      setParams({
+        invoice: {
+          ispaid: true,
+          value: latest?.value ?? 0,
+          amt: latest?.amt ?? 0,
+          type: 'user_invoice',
+          timestamp: Math.floor(Date.now() / 1000),
+          description: latest?.description ?? 'Received',
+          payment_request: latest?.payment_request,
+        },
+      });
+      setInvoiceStatusChanged(true);
+      fetchAndSaveWalletTransactions(walletID);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
