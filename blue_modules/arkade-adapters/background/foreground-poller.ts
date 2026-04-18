@@ -12,21 +12,14 @@ let _onTick: (() => void) | null = null;
 
 async function _tick(): Promise<void> {
   try {
-    // Run queued tasks
-    const results = await runSwapQueue();
+    // runSwapQueue pushes each result into the outbox, so getResults() is the
+    // single source of truth across foreground, background, and headless runs.
+    await runSwapQueue();
 
-    // Consume outbox results (background + foreground)
     const outboxResults = await swapTaskQueue.getResults();
     if (outboxResults.length > 0) {
-      if (_onResults) {
-        _onResults(outboxResults);
-      }
+      _onResults?.(outboxResults);
       await swapTaskQueue.acknowledgeResults(outboxResults.map(r => r.id));
-    }
-
-    // Also deliver this run's results
-    if (results.length > 0 && _onResults) {
-      _onResults(results);
     }
   } catch (error) {
     console.log('[ArkadeSync] Foreground poll error:', error);
@@ -55,21 +48,26 @@ function _handleAppStateChange(state: AppStateStatus): void {
   }
 }
 
+export interface PollingOptions {
+  onResults?: (results: TaskResult[]) => void;
+  onTick?: () => void;
+  intervalMs?: number;
+}
+
 /**
  * Start a `setInterval`-based polling loop that runs the swap task queue
- * every `intervalMs` milliseconds while the app is in the foreground.
+ * while the app is in the foreground. Automatically pauses when the app
+ * backgrounds and resumes when it comes back to the foreground.
  *
- * Automatically pauses when the app backgrounds and resumes when it
- * comes back to the foreground.
- *
- * @param onResults - Callback invoked with outbox results for UI refresh / notifications.
- * @param intervalMs - Poll interval in milliseconds (default 30s).
- * @param onTick - Callback invoked unconditionally at the end of every tick (for balance polling).
+ * Idempotent — a second call without an intervening `stopPolling()` is a
+ * no-op, preventing duplicate AppState listeners on unexpected re-entry.
  */
-export function startPolling(onResults?: (results: TaskResult[]) => void, intervalMs = 30_000, onTick?: () => void): void {
-  _onResults = onResults ?? null;
-  _onTick = onTick ?? null;
-  _intervalMs = intervalMs;
+export function startPolling(opts: PollingOptions = {}): void {
+  if (_appStateSubscription) return;
+
+  _onResults = opts.onResults ?? null;
+  _onTick = opts.onTick ?? null;
+  _intervalMs = opts.intervalMs ?? 30_000;
 
   _startInterval();
 

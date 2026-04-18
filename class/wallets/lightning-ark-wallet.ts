@@ -34,7 +34,7 @@ import { LightningTransaction, Transaction } from './types.ts';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 import assert from 'assert';
 import { Measure } from '../measure.ts';
-import { enqueueSwapTask, reconcileSwapTasks, swapTaskQueue } from '../../blue_modules/arkade-adapters/background/swap-queue';
+import { clearNamespaceTasks, enqueueSwapTask, reconcileSwapTasks } from '../../blue_modules/arkade-adapters/background/swap-queue';
 import type { SwapProcessorDeps } from '../../blue_modules/arkade-adapters/background/swap-processor';
 import { registerArkadeBackgroundTask, unregisterArkadeBackgroundTask } from '../../blue_modules/arkade-adapters/background/task-scheduler';
 import { startPolling, stopPolling } from '../../blue_modules/arkade-adapters/background/foreground-poller';
@@ -160,18 +160,28 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private static _walletsProvider: (() => TWallet[]) | null = null;
   private static _backgroundRegistered: boolean = false;
   private static _tickInFlight: WeakSet<LightningArkWallet> = new WeakSet();
+  private static _prevNamespaces: Set<string> = new Set();
 
   static async syncBackground(walletsProvider: () => TWallet[]): Promise<void> {
     LightningArkWallet._walletsProvider = walletsProvider;
-    const wallets = walletsProvider();
-    const arkWallets = wallets.filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+    const arkWallets = walletsProvider().filter(w => w.type === LightningArkWallet.type) as LightningArkWallet[];
+    const currentNamespaces = new Set(arkWallets.map(w => w.getNamespace()));
+
+    // Prune tasks for any Ark wallet removed since the last sync — keeps surviving
+    // wallets' monitoring intact. The "last wallet gone" case falls out naturally.
+    for (const ns of LightningArkWallet._prevNamespaces) {
+      if (!currentNamespaces.has(ns)) {
+        await clearNamespaceTasks(ns).catch(e => console.log('[ArkadeSync] Cleanup failed:', e));
+      }
+    }
+    LightningArkWallet._prevNamespaces = currentNamespaces;
 
     if (arkWallets.length > 0 && !LightningArkWallet._backgroundRegistered) {
       LightningArkWallet._backgroundRegistered = true;
       // Init each Ark wallet so reconcileBackgroundTasks (called inside init) queues any pending swaps.
       await Promise.all(arkWallets.map(w => w.init().catch(e => console.log('[ArkadeSync] Bootstrap init failed:', e))));
       await registerArkadeBackgroundTask(LightningArkWallet._buildDeps).catch(e => console.log('[ArkadeSync] Registration failed:', e));
-      startPolling(undefined, undefined, LightningArkWallet._onTick);
+      startPolling({ onTick: LightningArkWallet._onTick });
       return;
     }
 
@@ -179,8 +189,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       LightningArkWallet._backgroundRegistered = false;
       await unregisterArkadeBackgroundTask().catch(e => console.log('[ArkadeSync] Unregistration failed:', e));
       stopPolling();
-      // No Ark wallets left → wipe queue so stale namespaces don't linger.
-      await swapTaskQueue.clearTasks().catch(e => console.log('[ArkadeSync] Cleanup failed:', e));
     }
   }
 
