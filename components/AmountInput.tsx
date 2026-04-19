@@ -239,9 +239,12 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
 
     (async () => {
       if (await isRateOutdated()) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         const recent = await mostRecentFetchedRate();
         if (isMounted) {
+          // Configure animation immediately before the dispatch so no unrelated
+          // state update (e.g. QR-scan data arriving mid-await) accidentally gets
+          // animated by a previously-configured LayoutAnimation.
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
           dispatch({ type: AMOUNT_INPUT_ACTIONS.SET_OUTDATED_RATE, payload: recent });
         }
       }

@@ -65,7 +65,8 @@ const ScanQRCode = () => {
   const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
 
   const { launchedBy = defaultLaunchedBy, showFileImportButton, onBarScanned } = route.params || {};
-  const scannedCache: Record<string, number> = {};
+  // useRef so the dedup cache survives re-renders (a plain variable resets every render)
+  const scannedCache = useRef<Record<string, number>>({});
   const { colors } = useTheme();
   const isFocused = useIsFocused();
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -156,11 +157,11 @@ const ScanQRCode = () => {
 
   const onBarCodeRead = (ret: { data: string }) => {
     const h = HashIt(ret.data);
-    if (scannedCache[h]) {
+    if (scannedCache.current[h]) {
       // this QR was already scanned by this ScanQRCode, lets prevent firing duplicate callbacks
       return;
     }
-    scannedCache[h] = +new Date();
+    scannedCache.current[h] = +new Date();
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-ACCOUNT')) {
       return _onReadUniformResourceV2(ret.data);
