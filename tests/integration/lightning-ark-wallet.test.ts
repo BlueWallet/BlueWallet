@@ -2,7 +2,7 @@ import assert from 'assert';
 import fs from 'fs';
 import path from 'path';
 
-import { HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 
 // Mock AsyncStorage using fs in tests/integration/fixtures/ark/

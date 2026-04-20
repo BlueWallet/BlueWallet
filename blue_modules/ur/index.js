@@ -13,7 +13,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Psbt } from 'bitcoinjs-lib';
 import b58 from 'bs58check';
 
-import { MultisigCosigner, MultisigHDWallet } from '../../class';
+import { MultisigCosigner } from '../../class/multisig-cosigner';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { joinQRs } from '../bbqr/join';
 import {
   concatUint8Arrays,

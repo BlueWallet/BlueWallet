@@ -20,7 +20,7 @@ import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { LightningCustodianWallet } from '../../class';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;

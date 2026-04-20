@@ -2,7 +2,7 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { HDSegwitP2SHWallet } from '../../class';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 
 jest.setTimeout(300 * 1000);
 

@@ -21,7 +21,7 @@ import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
-import { WatchOnlyWallet } from '../../class';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
