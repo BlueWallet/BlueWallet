@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { HDLegacyBreadwalletWallet } from '../../class';
+import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('HDLegacyBreadwalletWallet', () => {

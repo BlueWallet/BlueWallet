@@ -7,7 +7,7 @@ import { sha256 } from '@noble/hashes/sha256';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { ContactList } from '../../class/contact-list';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import presentAlert from '../../components/Alert';

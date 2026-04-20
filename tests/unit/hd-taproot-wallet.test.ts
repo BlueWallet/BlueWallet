@@ -1,6 +1,7 @@
 import assert from 'assert';
 
-import { HDTaprootWallet, TaprootWallet } from '../../class';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
+import { TaprootWallet } from '../../class/wallets/taproot-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 const utxos = [

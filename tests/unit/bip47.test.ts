@@ -4,7 +4,8 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { ECPairFactory } from 'ecpair';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { CreateTransactionUtxo } from '../../class/wallets/types';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 

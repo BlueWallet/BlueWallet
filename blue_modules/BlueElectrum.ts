@@ -5,7 +5,10 @@ import RNFS from 'react-native-fs';
 import Realm from 'realm';
 import { sha256 as _sha256 } from '@noble/hashes/sha256';
 
-import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet, TaprootWallet } from '../class';
+import type { LegacyWallet as LegacyWalletT } from '../class/wallets/legacy-wallet';
+import type { SegwitBech32Wallet as SegwitBech32WalletT } from '../class/wallets/segwit-bech32-wallet';
+import type { SegwitP2SHWallet as SegwitP2SHWalletT } from '../class/wallets/segwit-p2sh-wallet';
+import type { TaprootWallet as TaprootWalletT } from '../class/wallets/taproot-wallet';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { GROUP_IO_BLUEWALLET } from './currency';
@@ -598,6 +601,21 @@ export function txhexToElectrumTransaction(txhex: string): ElectrumTransactionWi
     const value = new BigNumber(out.value).dividedBy(100000000).toNumber();
     let address: false | string = false;
     let type: false | string = false;
+
+    // Lazy require to avoid the module-scope cycle described above. These
+    // modules are fully loaded by the time this function is actually invoked.
+    const { SegwitBech32Wallet } = require('../class/wallets/segwit-bech32-wallet') as {
+      SegwitBech32Wallet: typeof SegwitBech32WalletT;
+    };
+    const { SegwitP2SHWallet } = require('../class/wallets/segwit-p2sh-wallet') as {
+      SegwitP2SHWallet: typeof SegwitP2SHWalletT;
+    };
+    const { LegacyWallet } = require('../class/wallets/legacy-wallet') as {
+      LegacyWallet: typeof LegacyWalletT;
+    };
+    const { TaprootWallet } = require('../class/wallets/taproot-wallet') as {
+      TaprootWallet: typeof TaprootWalletT;
+    };
 
     if (SegwitBech32Wallet.scriptPubKeyToAddress(uint8ArrayToHex(out.script))) {
       address = SegwitBech32Wallet.scriptPubKeyToAddress(uint8ArrayToHex(out.script));
