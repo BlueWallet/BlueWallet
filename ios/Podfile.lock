@@ -2141,7 +2141,7 @@ PODS:
   - react-native-tcp-socket (6.4.1):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-vector-icons-entypo (12.4.2)
+  - react-native-vector-icons-entypo (12.5.0)
   - react-native-vector-icons-fontawesome (12.4.2)
   - react-native-vector-icons-fontawesome6 (12.3.2)
   - react-native-vector-icons-ionicons (12.4.2)
@@ -2796,7 +2796,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.30.0):
+  - RNGestureHandler (2.30.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2824,8 +2824,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNHandoff (0.0.3):
-    - React
   - RNKeychain (9.2.3):
     - boost
     - DoubleConversion
@@ -3383,7 +3381,6 @@ DEPENDENCIES:
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
-  - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -3618,8 +3615,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
-  RNHandoff:
-    :path: "../node_modules/react-native-handoff"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
   RNLocalize:
@@ -3708,7 +3703,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: befb5404eb8a16fdc07fa2bebab3568ecabcbb8a
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 7c7e53a07f122ecf00fb3626684bc0ca82c4f044
-  react-native-vector-icons-entypo: df7884c4002b70c79d41b7de10b53df3ce8c1e8e
+  react-native-vector-icons-entypo: 3cd60c5950ea9b2cf7f1fe4fe50fbcbcef2ba381
   react-native-vector-icons-fontawesome: 3604609191a2b4323637a4a25dcd4e6e05579dc2
   react-native-vector-icons-fontawesome6: 3765e18f5116ae4498997bf8548eaab05de72ee6
   react-native-vector-icons-ionicons: 7cc4388958a60560aa6f5e257ad8197d555700ff
@@ -3745,7 +3740,7 @@ SPEC CHECKSUMS:
   React-utils: 8ab26781c2f5c2f7fafb2022c8ab39d39f231b80
   React-webperformancenativemodule: 7953b7fe519f76fa595111fe18ff3d5de131bfe9
   ReactAppDependencyProvider: 0eb286cc274abb059ee601b862ebddac2e681d01
-  ReactCodegen: 7e000704d5303430bdbc4fcf4509888ac3253ed1
+  ReactCodegen: d3e3be90d5a302b38fb8aab5194c72af747c8695
   ReactCommon: ac934cb340aee91282ecd6f273a26d24d4c55cae
   ReactNativeCameraKit: f0f16aa7f60b7392161b57b09d24073e71e29123
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
@@ -3754,8 +3749,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: cd4be101cfa17ea6bbd438710caa02e286a84381
-  RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
+  RNGestureHandler: b407c25a3f51d22dd7430e6b530f753f112b7e77
   RNKeychain: 483402cf2b90647eb0cf569cebbc069d32addea4
   RNLocalize: 1aedbc2c15073861a364174919d23c31c5924b16
   RNPermissions: 29cfd9c9bbb7f0bd35e702dc849e33b294feac52
@@ -3772,6 +3766,6 @@ SPEC CHECKSUMS:
   Yoga: 5456bb010373068fc92221140921b09d126b116e
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 7e23f7f009125b117989e69fd28c8a04aa4eacc8
+PODFILE CHECKSUM: 5cabedfdef2cebf02475162827def1d2c38cfac3
 
 COCOAPODS: 1.16.2

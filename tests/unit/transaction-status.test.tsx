@@ -86,7 +86,7 @@ jest.mock('../../BlueComponents', () => {
 });
 
 jest.mock('../../components/Button', () => 'Button');
-jest.mock('../../components/HandOffComponent', () => 'HandOffComponent');
+jest.mock('../../hooks/useContinuity', () => ({ __esModule: true, default: jest.fn() }));
 jest.mock('../../components/HeaderRightButton', () => 'HeaderRightButton');
 jest.mock('../../components/BlueSpacing', () => ({
   BlueSpacing10: 'BlueSpacing10',

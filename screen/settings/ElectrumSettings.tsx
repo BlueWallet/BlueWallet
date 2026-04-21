@@ -27,8 +27,9 @@ import {
   isAndroid,
 } from '../../components/platform';
 import { useTheme } from '../../components/themes';
-import { Action } from '../../components/types';
+import { Action, ContinuityActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import useContinuity from '../../hooks/useContinuity';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -64,6 +65,19 @@ const ElectrumSettings: React.FC = () => {
     host: '',
     tcp: '',
     ssl: '',
+  });
+
+  const continuityServer = useMemo(() => {
+    if (!host) return undefined;
+    const activePort = sslPort ?? port;
+    if (!activePort) return undefined;
+    return `${host}:${activePort}:${sslPort !== undefined ? 's' : 't'}`;
+  }, [host, port, sslPort]);
+
+  useContinuity({
+    title: loc.settings.electrum_settings_server,
+    type: ContinuityActivityType.ElectrumSettings,
+    userInfo: continuityServer ? { server: continuityServer } : undefined,
   });
 
   const stylesHook = StyleSheet.create({

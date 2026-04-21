@@ -72,11 +72,11 @@ export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LNDHUB = 'lndhub';
   static DO_NOT_TRACK = 'donottrack';
-  static HANDOFF_STORAGE_KEY = 'HandOff';
+  static CONTINUITY_STORAGE_KEY = 'HandOff';
 
   private static _instance: BlueApp | null = null;
 
-  static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK];
+  static keys2migrate = [BlueApp.DO_NOT_TRACK];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
@@ -889,17 +889,6 @@ export class BlueApp {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
-  };
-
-  isHandoffEnabled = async (): Promise<boolean> => {
-    try {
-      return !!(await AsyncStorage.getItem(BlueApp.HANDOFF_STORAGE_KEY));
-    } catch (_) {}
-    return false;
-  };
-
-  setIsHandoffEnabled = async (value: boolean): Promise<void> => {
-    await AsyncStorage.setItem(BlueApp.HANDOFF_STORAGE_KEY, value ? '1' : '');
   };
 
   isDoNotTrackEnabled = async (): Promise<boolean> => {

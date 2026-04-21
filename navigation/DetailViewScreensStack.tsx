@@ -1,6 +1,6 @@
 import React, { lazy, useCallback, useMemo } from 'react';
 import { View, Platform, PlatformColor } from 'react-native';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackHeaderItem } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -55,6 +55,7 @@ import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
+import SettingsPrivacy from '../screen/settings/SettingsPrivacy';
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
@@ -86,6 +87,30 @@ const DetailViewStackScreensStack = () => {
     [sizeClass, navigateToAddWallet],
   );
 
+  const headerRightItems = useCallback((): NativeStackHeaderItem[] => {
+    if (isDesktop) return [];
+    const settingsItem: NativeStackHeaderItem = {
+      type: 'button',
+      label: loc.settings.default_title,
+      icon: { type: 'sfSymbol', name: 'ellipsis' },
+      onPress: () => navigation.navigate('Settings'),
+      accessibilityLabel: loc.settings.default_title,
+    };
+    if (sizeClass === SizeClass.Large) {
+      return [settingsItem];
+    }
+    return [
+      {
+        type: 'button',
+        label: loc.wallets.add_title,
+        icon: { type: 'sfSymbol', name: 'plus' },
+        onPress: () => navigation.navigate('AddWalletRoot'),
+        accessibilityLabel: loc.wallets.add_title,
+      },
+      settingsItem,
+    ];
+  }, [sizeClass, navigation]);
+
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
@@ -95,9 +120,11 @@ const DetailViewStackScreensStack = () => {
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
-      headerRight: () => (isDesktop ? undefined : RightBarButtons),
+      ...(Platform.OS === 'ios'
+        ? { unstable_headerRightItems: headerRightItems }
+        : { headerRight: () => (isDesktop ? undefined : RightBarButtons) }),
     };
-  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets]);
+  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets, headerRightItems]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
@@ -365,6 +392,11 @@ const DetailViewStackScreensStack = () => {
         name="SettingsTools"
         component={SettingsTools}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
+      />
+      <DetailViewStack.Screen
+        name="SettingsPrivacy"
+        component={SettingsPrivacy}
+        options={navigationStyle(getSettingsHeaderOptions(loc.settings.privacy))(theme)}
       />
       <DetailViewStack.Screen
         name="PromptPasswordConfirmationSheet"

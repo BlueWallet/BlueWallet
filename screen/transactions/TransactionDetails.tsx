@@ -10,14 +10,14 @@ import { BlueCard, BlueText } from '../../BlueComponents';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
-import HandOffComponent from '../../components/HandOffComponent';
 import { useTheme } from '../../components/themes';
 import ToolTipMenu from '../../components/TooltipMenu';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useStorage } from '../../hooks/context/useStorage';
-import { HandOffActivityType } from '../../components/types';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -88,6 +88,12 @@ const TransactionDetails = () => {
     Link: {
       color: colors.buttonTextColor,
     },
+  });
+
+  useContinuity({
+    title: loc.transactions.details_title,
+    type: ContinuityActivityType.ViewInBlockExplorer,
+    url: tx?.hash ? `${selectedBlockExplorer.url}/tx/${tx.hash}` : undefined,
   });
 
   const saveTransactionDetails = useCallback(() => {
@@ -250,11 +256,6 @@ const TransactionDetails = () => {
 
   return (
     <SafeAreaScrollView>
-      <HandOffComponent
-        title={loc.transactions.details_title}
-        type={HandOffActivityType.ViewInBlockExplorer}
-        url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
-      />
       <BlueCard>
         <View>
           <TextInput

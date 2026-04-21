@@ -16,6 +16,8 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
+import useContinuity from '../../hooks/useContinuity';
+import { ContinuityActivityType } from '../../components/types';
 
 type SignVerifyRouteParams = {
   walletID: string;
@@ -38,6 +40,15 @@ const SignVerify = () => {
 
   const wallet = useWalletSubscribe(walletID);
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
+
+  useContinuity({
+    title: loc.addresses.sign_title,
+    type: ContinuityActivityType.SignVerify,
+    url: signature
+      ? `https://bluewallet.github.io/VerifySignature?a=${address}&m=${encodeURIComponent(message)}&s=${encodeURIComponent(signature)}`
+      : undefined,
+    userInfo: address ? { address, message, walletID } : undefined,
+  });
 
   useEffect(() => {
     const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () =>

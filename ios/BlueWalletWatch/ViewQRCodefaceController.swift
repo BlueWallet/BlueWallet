@@ -20,7 +20,7 @@ class ViewQRCodefaceController: WKInterfaceController {
   }
 
   private var interfaceMode = ReceiveInterfaceMode.Address
-  private let userActivity: NSUserActivity = NSUserActivity(activityType: HandoffIdentifier.Xpub.rawValue)
+  private let userActivity: NSUserActivity = NSUserActivity(activityType: ContinuityIdentifier.Xpub.rawValue)
     
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
@@ -35,14 +35,14 @@ class ViewQRCodefaceController: WKInterfaceController {
   }
 
   private func configureUserActivity() {
-    userActivity.title = HandOffTitle.Xpub.rawValue
-    userActivity.requiredUserInfoKeys = [HandOffUserInfoKey.Xpub.rawValue]
+    userActivity.title = ContinuityTitle.Xpub.rawValue
+    userActivity.requiredUserInfoKeys = [ContinuityUserInfoKey.Xpub.rawValue]
     userActivity.isEligibleForHandoff = true
   }
   
   private func updateUserActivity() {
     if let address = address, !address.isEmpty {
-      userActivity.userInfo = [HandOffUserInfoKey.Xpub.rawValue: address]
+      userActivity.userInfo = [ContinuityUserInfoKey.Xpub.rawValue: address]
       userActivity.becomeCurrent()
     } else {
       userActivity.invalidate()

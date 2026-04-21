@@ -9,7 +9,6 @@ import { BlueCard, BlueText } from '../../BlueComponents';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
-import HandOffComponent from '../../components/HandOffComponent';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
@@ -18,7 +17,8 @@ import { useTheme } from '../../components/themes';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { HandOffActivityType } from '../../components/types';
+import { ContinuityActivityType } from '../../components/types';
+import useContinuity from '../../hooks/useContinuity';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -119,6 +119,13 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
   const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  useContinuity({
+    title: loc.transactions.details_title,
+    type: ContinuityActivityType.ViewInBlockExplorer,
+    url: tx?.hash ? `${selectedBlockExplorer.url}/tx/${tx.hash}` : undefined,
+  });
+
   const stylesHook = StyleSheet.create({
     value: {
       color: colors.alternativeTextColor2,
@@ -566,12 +573,6 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({ transaction, txid
         <BlueText>{loc.transactions.transaction_not_available}</BlueText>
       ) : (
         <>
-          <HandOffComponent
-            title={loc.transactions.details_title}
-            type={HandOffActivityType.ViewInBlockExplorer}
-            url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
-          />
-
           <View style={styles.container}>
             <BlueCard>
               <View style={styles.center}>

@@ -9,6 +9,7 @@ import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
+import continuityLinking from './navigation/continuityLinking';
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -17,7 +18,11 @@ const App = () => {
 
   return (
     <SizeClassProvider>
-      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+      <NavigationContainer
+        ref={navigationRef}
+        linking={continuityLinking}
+        theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
+      >
         <SafeAreaProvider>
           <StorageProvider>
             <SettingsProvider>

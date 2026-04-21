@@ -1,20 +1,17 @@
+/**
+ * @deprecated This screen's functionality has been merged into GeneralSettings.tsx
+ * This file is kept for backwards compatibility and may be used in tests.
+ * New code should use GeneralSettings.tsx instead.
+ */
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, Platform, View, ListRenderItem } from 'react-native';
-import NativeReactNativeContinuity from '../../codegen/NativeReactNativeContinuity';
-import presentAlert from '../../components/Alert';
+import { Platform, View, ListRenderItemInfo } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
-import {
-  SettingsFlatList,
-  SettingsListItem,
-  SettingsListItemProps,
-  SettingsSectionHeader,
-  SettingsSubtitle,
-} from '../../components/platform';
+import { SettingsFlatList, SettingsListItem, SettingsSectionHeader, SettingsSubtitle } from '../../components/platform';
 
 enum SettingsPrivacySection {
   None,
@@ -26,15 +23,23 @@ enum SettingsPrivacySection {
   TotalBalance,
 }
 
-interface SettingItem extends SettingsListItemProps {
+interface SettingItem {
   id: string;
+  title: string;
+  subtitle: React.ReactNode;
+  isSwitch?: boolean;
+  switchValue?: boolean;
+  onSwitchValueChange?: (value: boolean) => void;
+  switchDisabled?: boolean;
+  onPress?: () => void;
+  testID?: string;
+  chevron?: boolean;
   section?: string;
-  showItem: boolean;
+  Component?: React.ElementType;
 }
 
-const GeneralSettings: React.FC = () => {
-  const { wallets, isStorageEncrypted } = useStorage();
-
+const SettingsPrivacy: React.FC = () => {
+  const { isStorageEncrypted, wallets } = useStorage();
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
@@ -48,12 +53,9 @@ const GeneralSettings: React.FC = () => {
     setIsQuickActionsEnabledStorage,
     isTotalBalanceEnabled,
     setIsTotalBalanceEnabledStorage,
-    isContinuityEnabled,
-    setIsContinuityEnabledStorage,
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-  const [isContinuitySupported, setIsContinuitySupported] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
@@ -65,17 +67,6 @@ const GeneralSettings: React.FC = () => {
       setIsLoading(SettingsPrivacySection.None);
     })();
   }, [isStorageEncrypted]);
-
-  useEffect(() => {
-    if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
-    if (!NativeReactNativeContinuity || typeof NativeReactNativeContinuity.isSupported !== 'function') {
-      setIsContinuitySupported(false);
-      return;
-    }
-    NativeReactNativeContinuity.isSupported()
-      .then((supported: boolean) => setIsContinuitySupported(supported))
-      .catch(() => setIsContinuitySupported(false));
-  }, []);
 
   const onDoNotTrackValueChange = useCallback(
     async (value: boolean) => {
@@ -143,34 +134,18 @@ const GeneralSettings: React.FC = () => {
     openSettings();
   }, []);
 
-  const onContinuityEnabledChange = useCallback(
-    async (value: boolean) => {
-      await setIsContinuityEnabledStorage(value);
-    },
-    [setIsContinuityEnabledStorage],
-  );
-
-  const settingsItems = useCallback(() => {
+  const settingsItems = useCallback((): SettingItem[] => {
     const items: SettingItem[] = [
-      {
-        id: 'privacySectionHeader',
-        title: '',
-        subtitle: '',
-        section: loc.settings.privacy,
-        showItem: true,
-      },
       {
         id: 'readClipboard',
         title: loc.settings.privacy_read_clipboard,
         subtitle: <SettingsSubtitle>{loc.settings.privacy_clipboard_explanation}</SettingsSubtitle>,
-        switch: {
-          value: isClipboardGetContentEnabled,
-          onValueChange: setIsClipboardGetContentEnabledStorage,
-          disabled: isLoading === SettingsPrivacySection.All,
-        },
+        isSwitch: true,
+        switchValue: isClipboardGetContentEnabled,
+        onSwitchValueChange: setIsClipboardGetContentEnabledStorage,
+        switchDisabled: isLoading === SettingsPrivacySection.All,
         testID: 'ClipboardSwitch',
         Component: View,
-        showItem: true,
       },
       {
         id: 'quickActions',
@@ -181,27 +156,23 @@ const GeneralSettings: React.FC = () => {
             {storageIsEncrypted && <SettingsSubtitle>{loc.settings.encrypted_feature_disabled}</SettingsSubtitle>}
           </>
         ),
-        switch: {
-          value: storageIsEncrypted ? false : isQuickActionsEnabled,
-          onValueChange: onQuickActionsValueChange,
-          disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
-        },
+        isSwitch: true,
+        switchValue: storageIsEncrypted ? false : isQuickActionsEnabled,
+        onSwitchValueChange: onQuickActionsValueChange,
+        switchDisabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
         testID: 'QuickActionsSwitch',
         Component: View,
-        showItem: true,
       },
       {
         id: 'totalBalance',
         title: loc.total_balance_view.title,
         subtitle: <SettingsSubtitle>{loc.total_balance_view.explanation}</SettingsSubtitle>,
-        switch: {
-          value: isTotalBalanceEnabled,
-          onValueChange: onTotalBalanceEnabledValueChange,
-          disabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
-        },
+        isSwitch: true,
+        switchValue: isTotalBalanceEnabled,
+        onSwitchValueChange: onTotalBalanceEnabledValueChange,
+        switchDisabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
         testID: 'TotalBalanceSwitch',
         Component: View,
-        showItem: true,
       },
     ];
 
@@ -210,13 +181,11 @@ const GeneralSettings: React.FC = () => {
         id: 'temporaryScreenshots',
         title: loc.settings.privacy_temporary_screenshots,
         subtitle: <SettingsSubtitle>{loc.settings.privacy_temporary_screenshots_instructions}</SettingsSubtitle>,
-        switch: {
-          value: !isPrivacyBlurEnabled,
-          onValueChange: onTemporaryScreenshotsValueChange,
-          disabled: isLoading === SettingsPrivacySection.All,
-        },
+        isSwitch: true,
+        switchValue: !isPrivacyBlurEnabled,
+        onSwitchValueChange: onTemporaryScreenshotsValueChange,
+        switchDisabled: isLoading === SettingsPrivacySection.All,
         Component: View,
-        showItem: true,
       });
     }
 
@@ -224,22 +193,19 @@ const GeneralSettings: React.FC = () => {
       id: 'doNotTrack',
       title: loc.settings.privacy_do_not_track,
       subtitle: <SettingsSubtitle>{loc.settings.privacy_do_not_track_explanation}</SettingsSubtitle>,
-      switch: {
-        value: isDoNotTrackEnabled,
-        onValueChange: onDoNotTrackValueChange,
-        disabled: isLoading === SettingsPrivacySection.All,
-      },
+      isSwitch: true,
+      switchValue: isDoNotTrackEnabled,
+      onSwitchValueChange: onDoNotTrackValueChange,
+      switchDisabled: isLoading === SettingsPrivacySection.All,
       Component: View,
-      showItem: true,
     });
 
     if (Platform.OS === 'ios') {
       items.push({
-        id: 'widgetsSectionHeader',
-        title: '',
+        id: 'sectionHeader',
+        title: 'widgets',
         subtitle: '',
         section: loc.settings.widgets,
-        showItem: true,
       });
 
       items.push({
@@ -251,51 +217,11 @@ const GeneralSettings: React.FC = () => {
             {storageIsEncrypted && <SettingsSubtitle>{loc.settings.encrypted_feature_disabled}</SettingsSubtitle>}
           </>
         ),
-        switch: {
-          value: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
-          onValueChange: onWidgetsTotalBalanceValueChange,
-          disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
-        },
+        isSwitch: true,
+        switchValue: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
+        onSwitchValueChange: onWidgetsTotalBalanceValueChange,
+        switchDisabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
         Component: View,
-        showItem: true,
-      });
-    }
-
-    // Continuity section
-    if (Platform.OS === 'ios' || Platform.OS === 'android') {
-      items.push({
-        id: 'continuitySectionHeader',
-        title: '',
-        subtitle: '',
-        section: loc.settings.general_continuity,
-        showItem: true,
-      });
-      items.push({
-        id: 'continuity',
-        title: loc.settings.general_continuity,
-        subtitle: isContinuitySupported ? loc.settings.general_continuity_e : loc.settings.general_continuity_unavailable,
-        switch: {
-          value: isContinuitySupported && isContinuityEnabled,
-          onValueChange: onContinuityEnabledChange,
-          disabled: !isContinuitySupported,
-        },
-        Component: View,
-        showItem: true,
-      });
-      items.push({
-        id: 'continuityLearnMore',
-        title: loc.wallets.learn_more,
-        subtitle: '',
-        onPress: async () => {
-          const url =
-            Platform.OS === 'ios' ? 'https://support.apple.com/en-us/102426' : 'https://developer.android.com/guide/topics/assist';
-          try {
-            await Linking.openURL(url);
-          } catch (e: any) {
-            presentAlert({ message: e instanceof Error ? e.message : loc.transactions.open_url_error });
-          }
-        },
-        showItem: true,
       });
     }
 
@@ -303,12 +229,12 @@ const GeneralSettings: React.FC = () => {
       id: 'privacySystemSettings',
       title: loc.settings.privacy_system_settings,
       subtitle: '',
+      chevron: true,
       onPress: openApplicationSettings,
       testID: 'PrivacySystemSettings',
-      showItem: true,
     });
 
-    return items.filter(item => item.showItem);
+    return items;
   }, [
     isClipboardGetContentEnabled,
     isQuickActionsEnabled,
@@ -326,42 +252,54 @@ const GeneralSettings: React.FC = () => {
     onTotalBalanceEnabledValueChange,
     onWidgetsTotalBalanceValueChange,
     openApplicationSettings,
-    isContinuityEnabled,
-    onContinuityEnabledChange,
-    isContinuitySupported,
   ]);
 
-  const renderItem: ListRenderItem<SettingItem> = useCallback(
-    ({ item }) => {
-      const { id, section, ...listItemProps } = item;
-      const items = settingsItems();
+  const renderItem = useCallback(
+    (info: ListRenderItemInfo<SettingItem>): React.ReactElement => {
+      const item = info.item;
+      const items: SettingItem[] = settingsItems();
 
-      if (section) {
-        return <SettingsSectionHeader title={section} />;
+      if (item.section) {
+        return <SettingsSectionHeader title={item.section} />;
       }
 
-      const itemIndex = items.findIndex(i => i.id === id);
-      let nextRegularItemIndex = itemIndex + 1;
+      const index: number = items.findIndex(i => i.id === item.id);
+      let nextRegularItemIndex = index + 1;
       while (nextRegularItemIndex < items.length && items[nextRegularItemIndex].section) {
         nextRegularItemIndex++;
       }
 
-      const isSystemSettings = id === 'privacySystemSettings';
-      const isBeforeSystemSettings = nextRegularItemIndex < items.length && items[nextRegularItemIndex].id === 'privacySystemSettings';
-      const isContinuity = id === 'continuity';
-      const isBeforeContinuity = nextRegularItemIndex < items.length && items[nextRegularItemIndex].id === 'continuity';
-
-      const previousItem = itemIndex > 0 ? items[itemIndex - 1] : null;
-      const hasSectionHeaderAbove = previousItem?.section !== undefined;
-      const immediateNextItem = itemIndex + 1 < items.length ? items[itemIndex + 1] : null;
-      const immediateNextIsSectionHeader = immediateNextItem?.section !== undefined;
-
-      const isFirst = isSystemSettings || isContinuity || itemIndex === 0 || !!items[itemIndex - 1]?.section;
-      const isLast = isBeforeSystemSettings || isBeforeContinuity || immediateNextIsSectionHeader || nextRegularItemIndex >= items.length;
+      const isFirst: boolean = index === 0 || !!items[index - 1].section;
+      const isLast: boolean = nextRegularItemIndex >= items.length || !!items[nextRegularItemIndex].section;
       const position = isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle';
-      const spacingTop = isSystemSettings && !hasSectionHeaderAbove;
 
-      return <SettingsListItem {...listItemProps} position={position} spacingTop={spacingTop} />;
+      if (item.isSwitch) {
+        return (
+          <SettingsListItem
+            title={item.title}
+            subtitle={item.subtitle}
+            Component={item.Component}
+            position={position}
+            switch={{
+              value: item.switchValue || false,
+              onValueChange: item.onSwitchValueChange,
+              disabled: item.switchDisabled,
+            }}
+            testID={item.testID}
+          />
+        );
+      }
+
+      return (
+        <SettingsListItem
+          title={item.title}
+          subtitle={item.subtitle}
+          onPress={item.onPress}
+          testID={item.testID}
+          chevron={item.chevron}
+          position={position}
+        />
+      );
     },
     [settingsItems],
   );
@@ -370,7 +308,6 @@ const GeneralSettings: React.FC = () => {
 
   return (
     <SettingsFlatList
-      testID="GeneralSettingsScreen"
       data={settingsItems()}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
@@ -381,4 +318,4 @@ const GeneralSettings: React.FC = () => {
   );
 };
 
-export default GeneralSettings;
+export default SettingsPrivacy;
