@@ -4,6 +4,7 @@ import ecc from '../../blue_modules/noble_ecc';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt } from 'bitcoinjs-lib';
 import { CoinSelectReturnInput } from 'coinselect';
+import { getNetwork } from '../../models/network';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -25,7 +26,7 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
       return this._xpub; // cache hit
     }
     const seed = this._getSeed();
-    const root = bip32.fromSeed(seed);
+    const root = bip32.fromSeed(seed, getNetwork());
 
     const path = this.getDerivationPath();
     if (!path) {
@@ -49,6 +50,7 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
 
     const { address } = bitcoin.payments.p2tr({
       internalPubkey: xOnlyPubkey,
+      network: getNetwork(),
     });
 
     if (!address) {
@@ -67,7 +69,7 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
         // bip32.fromBase58() wont work with zpub prefix, need to swap it for the traditional one
         xpub = this._zpubToXpub(xpub);
       }
-      const hdNode = bip32.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub, getNetwork());
       this._node0 = hdNode.derive(node);
     }
 
@@ -77,7 +79,7 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
         // bip32.fromBase58() wont work with zpub prefix, need to swap it for the traditional one
         xpub = this._zpubToXpub(xpub);
       }
-      const hdNode = bip32.fromBase58(xpub);
+      const hdNode = bip32.fromBase58(xpub, getNetwork());
       this._node1 = hdNode.derive(node);
     }
 
@@ -104,6 +106,7 @@ export class HDTaprootWallet extends AbstractHDElectrumWallet {
 
     const p2tr = bitcoin.payments.p2tr({
       internalPubkey: pubkey,
+      network: getNetwork(),
     });
     if (!p2tr.output) throw new Error('Could not build p2tr.output');
 

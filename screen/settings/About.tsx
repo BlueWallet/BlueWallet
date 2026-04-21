@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { useCallback } from 'react';
-import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { ActionSheetIOS, Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVersion, hasGmsSync } from 'react-native-device-info';
 import Icon from '@react-native-vector-icons/fontawesome6';
 
@@ -20,6 +20,7 @@ import {
 } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
+import { NetworkType } from '../../models/network';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 
@@ -33,8 +34,9 @@ interface AboutItem extends SettingsListItemProps {
 
 const About: React.FC = () => {
   const { navigate } = useExtendedNavigation();
-  const { isElectrumDisabled } = useSettings();
+  const { isElectrumDisabled, networkType, setNetworkTypeStorage } = useSettings();
   const { colors } = useTheme();
+  const [, setLogoTapCount] = useState(0);
 
   const handleOnReleaseNotesPress = useCallback(() => {
     navigate('ReleaseNotes');
@@ -76,6 +78,52 @@ const About: React.FC = () => {
     }
   }, []);
 
+  const handleLogoPress = useCallback(() => {
+    setLogoTapCount(prev => {
+      const next = prev + 1;
+      if (next >= 10) {
+        const networks: { label: string; value: NetworkType }[] = [
+          { label: `Mainnet${networkType === 'mainnet' ? ' (current)' : ''}`, value: 'mainnet' },
+          { label: `Testnet${networkType === 'testnet' ? ' (current)' : ''}`, value: 'testnet' },
+          { label: `Signet${networkType === 'signet' ? ' (current)' : ''}`, value: 'signet' },
+        ];
+
+        if (Platform.OS === 'ios') {
+          ActionSheetIOS.showActionSheetWithOptions(
+            {
+              title: loc.settings.network_select,
+              options: [...networks.map(n => n.label), loc._.cancel],
+              cancelButtonIndex: networks.length,
+            },
+            buttonIndex => {
+              if (buttonIndex < networks.length && networks[buttonIndex].value !== networkType) {
+                setNetworkTypeStorage(networks[buttonIndex].value).then(() => {
+                  Alert.alert(loc.settings.network_select, loc.settings.network_restart);
+                });
+              }
+            },
+          );
+        } else {
+          Alert.alert(loc.settings.network_select, undefined, [
+            ...networks.map(n => ({
+              text: n.label,
+              onPress: () => {
+                if (n.value !== networkType) {
+                  setNetworkTypeStorage(n.value).then(() => {
+                    Alert.alert(loc.settings.network_select, loc.settings.network_restart);
+                  });
+                }
+              },
+            })),
+            { text: loc._.cancel, style: 'cancel' as const },
+          ]);
+        }
+        return 0;
+      }
+      return next;
+    });
+  }, [networkType, setNetworkTypeStorage]);
+
   const handlePerformanceTest = useCallback(async () => {
     const secret = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const w = new HDSegwitBech32Wallet();
@@ -102,7 +150,9 @@ const About: React.FC = () => {
           <SettingsSection compact>
             <SettingsCard style={[styles.card, styles.headerCard]}>
               <View style={styles.center}>
-                <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+                <TouchableOpacity onPress={handleLogoPress} activeOpacity={1}>
+                  <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+                </TouchableOpacity>
                 <Text style={[styles.textFree, { color: colors.foregroundColor }]}>{loc.settings.about_free}</Text>
                 <Text style={[styles.textBackup, { color: colors.alternativeTextColor }]}>
                   {formatStringAddTwoWhiteSpaces(loc.settings.about_backup)}
@@ -230,6 +280,7 @@ const About: React.FC = () => {
   }, [
     colors.foregroundColor,
     colors.alternativeTextColor,
+    handleLogoPress,
     handleOnRatePress,
     handleOnXPress,
     handleOnTelegramPress,

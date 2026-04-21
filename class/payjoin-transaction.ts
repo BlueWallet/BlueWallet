@@ -7,6 +7,7 @@ import presentAlert from '../components/Alert';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import assert from 'assert';
 import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import { getNetwork } from '../models/network';
 const ECPair = ECPairFactory(ecc);
 
 const delay = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -33,9 +34,9 @@ export default class PayjoinTransaction {
       delete input.finalScriptWitness;
 
       assert(input.witnessUtxo, 'Internal error: input.witnessUtxo is not set');
-      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
+      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script, getNetwork());
       const wif = this._wallet._getWifForAddress(address);
-      const keyPair = ECPair.fromWIF(wif);
+      const keyPair = ECPair.fromWIF(wif, getNetwork());
 
       unfinalized.signInput(index, keyPair);
     }
@@ -77,10 +78,10 @@ export default class PayjoinTransaction {
 
     for (const [index, input] of payjoinPsbt.data.inputs.entries()) {
       assert(input.witnessUtxo, 'Internal error: input.witnessUtxo is not set');
-      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
+      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script, getNetwork());
       try {
         const wif = this._wallet._getWifForAddress(address);
-        const keyPair = ECPair.fromWIF(wif);
+        const keyPair = ECPair.fromWIF(wif, getNetwork());
         payjoinPsbt.signInput(index, keyPair).finalizeInput(index);
       } catch (e) {}
     }

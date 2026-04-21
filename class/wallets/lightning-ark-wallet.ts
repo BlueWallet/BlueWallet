@@ -15,6 +15,7 @@ import { LightningTransaction, Transaction } from './types.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras/index';
 import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
+import { getNetwork, isTestnet } from '../../models/network';
 import { Measure } from '../measure.ts';
 const { bech32m } = require('bech32');
 
@@ -69,8 +70,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const index = 0;
       const internal = 0;
       const accountNumber = 0;
-      const root = bip32.fromSeed(seed);
-      const path = `m/86'/0'/${accountNumber}'/${internal}/${index}`;
+      const root = bip32.fromSeed(seed, getNetwork());
+      const path = `m/86'/${isTestnet() ? 1 : 0}'/${accountNumber}'/${internal}/${index}`;
       const child = root.derivePath(path);
       assert(child.privateKey, 'Internal error: no private key for child');
 

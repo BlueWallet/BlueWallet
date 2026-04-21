@@ -2,6 +2,7 @@ import BIP32Factory from 'bip32';
 import b58 from 'bs58check';
 
 import ecc from '../blue_modules/noble_ecc';
+import { getNetwork } from '../models/network';
 import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
 import assert from 'assert';
 const bip32 = BIP32Factory(ecc);
@@ -173,7 +174,7 @@ export class MultisigCosigner {
     try {
       const tempWallet = new MultisigHDWallet();
       xpub = tempWallet._zpubToXpub(key);
-      bip32.fromBase58(xpub);
+      bip32.fromBase58(xpub, getNetwork());
       return true;
     } catch (_) {}
 

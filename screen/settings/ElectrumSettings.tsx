@@ -4,7 +4,11 @@ import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, Text, T
 import DefaultPreference from 'react-native-default-preference';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { hardcodedPeers, presentResetToDefaultsAlert, suggestedServers } from '../../blue_modules/BlueElectrum';
+import {
+  getHardcodedPeersForCurrentNetwork,
+  getSuggestedServersForCurrentNetwork,
+  presentResetToDefaultsAlert,
+} from '../../blue_modules/BlueElectrum';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -65,6 +69,8 @@ const ElectrumSettings: React.FC = () => {
     tcp: '',
     ssl: '',
   });
+  const hardcodedPeers = useMemo(() => getHardcodedPeersForCurrentNetwork(), []);
+  const suggestedServers = useMemo(() => getSuggestedServersForCurrentNetwork(), []);
 
   const stylesHook = StyleSheet.create({
     inputWrap: {
@@ -147,7 +153,7 @@ const ElectrumSettings: React.FC = () => {
     return () => {
       if (configIntervalRef.current) clearInterval(configIntervalRef.current);
     };
-  }, []);
+  }, [hardcodedPeers, suggestedServers]);
 
   useEffect(() => {
     fetchData();
@@ -240,7 +246,7 @@ const ElectrumSettings: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [host, port, sslPort, fetchData, serverHistory],
+    [host, port, sslPort, fetchData, serverHistory, hardcodedPeers],
   );
 
   const selectServer = useCallback(
@@ -402,7 +408,7 @@ const ElectrumSettings: React.FC = () => {
     actions.push(resetToDefaults);
 
     return actions;
-  }, [config?.connected, config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
+  }, [config?.connected, config?.host, config.port, createServerAction, host, isPreferred, serverHistory, suggestedServers]);
 
   const HeaderRight = useMemo(
     () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,

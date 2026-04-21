@@ -3,6 +3,7 @@ import { sha256 } from '@noble/hashes/sha256';
 import wif from 'wif';
 
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { isTestnet } from '../../models/network';
 import { CreateTransactionResult, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { hexToUint8Array, concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
@@ -456,7 +457,9 @@ export class AbstractWallet {
   _zpubToXpub(zpub: string): string {
     let data = b58.decode(zpub);
     data = data.slice(4);
-    const concatenated = concatUint8Arrays([hexToUint8Array('0488b21e'), data]);
+    // mainnet xpub prefix: 0488b21e, testnet tpub prefix: 043587cf
+    const prefix = isTestnet() ? '043587cf' : '0488b21e';
+    const concatenated = concatUint8Arrays([hexToUint8Array(prefix), data]);
 
     return b58.encode(concatenated);
   }

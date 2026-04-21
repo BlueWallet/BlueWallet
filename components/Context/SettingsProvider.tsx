@@ -16,8 +16,11 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { setNetworkType as setGlobalNetworkType, NetworkType } from '../../models/network';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const NETWORK_TYPE_KEY = 'network_type';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -99,6 +102,8 @@ interface SettingsContextType {
   setBlockExplorerStorage: (explorer: BlockExplorer) => Promise<boolean>;
   isElectrumDisabled: boolean;
   setIsElectrumDisabled: (value: boolean) => void;
+  networkType: NetworkType;
+  setNetworkTypeStorage: (network: NetworkType) => Promise<void>;
 }
 
 const defaultSettingsContext: SettingsContextType = {
@@ -128,6 +133,8 @@ const defaultSettingsContext: SettingsContextType = {
   setBlockExplorerStorage: async () => false,
   isElectrumDisabled: false,
   setIsElectrumDisabled: () => {},
+  networkType: 'mainnet' as NetworkType,
+  setNetworkTypeStorage: async () => {},
 };
 
 export const SettingsContext = createContext<SettingsContextType>(defaultSettingsContext);
@@ -146,6 +153,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
   const [isElectrumDisabled, setIsElectrumDisabled] = useState<boolean>(true);
+  const [networkType, setNetworkType] = useState<NetworkType>('mainnet');
+  const [settingsLoaded, setSettingsLoaded] = useState<boolean>(false);
 
   const { walletsInitialized } = useStorage();
 
@@ -160,6 +169,12 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       const promises: Promise<void>[] = [
         BlueElectrum.isDisabled().then(disabled => {
           setIsElectrumDisabled(disabled);
+        }),
+        DefaultPreference.get(NETWORK_TYPE_KEY).then(network => {
+          if (network === 'testnet' || network === 'signet') {
+            setNetworkType(network);
+            setGlobalNetworkType(network);
+          }
         }),
         getIsHandOffUseEnabled().then(handOff => {
           setIsHandOffUseEnabledState(handOff);
@@ -201,6 +216,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
           console.error(`Error loading setting ${index}:`, result.reason);
         }
       });
+
+      setSettingsLoaded(true);
     };
 
     loadSettings();
@@ -219,10 +236,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   }, []);
 
   useEffect(() => {
-    if (walletsInitialized) {
-      isElectrumDisabled ? BlueElectrum.forceDisconnect() : BlueElectrum.connectMain();
+    if (walletsInitialized && settingsLoaded) {
+      isElectrumDisabled ? BlueElectrum.forceDisconnect() : BlueElectrum.connectMain(networkType);
     }
-  }, [isElectrumDisabled, walletsInitialized]);
+  }, [isElectrumDisabled, walletsInitialized, networkType, settingsLoaded]);
 
   const setPreferredFiatCurrencyStorage = useCallback(async (currency: TFiatUnit): Promise<void> => {
     try {
@@ -323,6 +340,24 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     }
   }, []);
 
+  const setNetworkTypeStorage = useCallback(
+    async (network: NetworkType): Promise<void> => {
+      try {
+        DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+        await DefaultPreference.set(NETWORK_TYPE_KEY, network);
+        setNetworkType(network);
+        setGlobalNetworkType(network);
+        BlueElectrum.forceDisconnect();
+        if (!isElectrumDisabled) {
+          BlueElectrum.connectMain(network);
+        }
+      } catch (e) {
+        console.error('Error setting networkType:', e);
+      }
+    },
+    [isElectrumDisabled],
+  );
+
   const setBlockExplorerStorage = useCallback(async (explorer: BlockExplorer): Promise<boolean> => {
     try {
       const success = await saveBlockExplorer(explorer.url);
@@ -364,6 +399,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setBlockExplorerStorage,
       isElectrumDisabled,
       setIsElectrumDisabled,
+      networkType,
+      setNetworkTypeStorage,
     }),
     [
       preferredFiatCurrency,
@@ -391,6 +428,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       selectedBlockExplorer,
       setBlockExplorerStorage,
       isElectrumDisabled,
+      networkType,
+      setNetworkTypeStorage,
     ],
   );
 

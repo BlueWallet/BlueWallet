@@ -11,6 +11,7 @@ import { useTheme } from '../../components/themes';
 import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
+import { adjustBlockExplorerUrlForNetwork } from '../../models/blockExplorer';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
@@ -30,7 +31,8 @@ const Broadcast: React.FC = () => {
   const sizing = platformSizing;
   const layout = platformLayout;
   const [broadcastResult, setBroadcastResult] = useState<string>(BROADCAST_RESULT.none);
-  const { selectedBlockExplorer } = useSettings();
+  const { selectedBlockExplorer, networkType } = useSettings();
+  const blockExplorerUrl = adjustBlockExplorerUrlForNetwork(selectedBlockExplorer.url, networkType);
   const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
 
   const styles = StyleSheet.create({
@@ -191,7 +193,7 @@ const Broadcast: React.FC = () => {
             <BlueSpacing20 />
           </>
         )}
-        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${selectedBlockExplorer.url}/tx/${tx}`} />}
+        {BROADCAST_RESULT.success === broadcastResult && tx && <SuccessScreen tx={tx} url={`${blockExplorerUrl}/tx/${tx}`} />}
       </View>
     </SettingsScrollView>
   );
