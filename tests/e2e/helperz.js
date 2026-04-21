@@ -140,12 +140,31 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
 }
 
 /**
- * Extracts element text or label using getAttributes()
+ * Extracts visible element text from Detox attributes.
+ * On Android, TextInput can expose accessibility metadata separately from the
+ * typed text, so prefer real text-bearing fields before label fallbacks.
  * @returns {Promise<string>}
  */
 export async function extractTextFromElementById(id) {
   const attributes = await element(by.id(id)).getAttributes();
-  return attributes.value || attributes.label;
+
+  if (typeof attributes.text === 'string') {
+    return attributes.text;
+  }
+
+  if (typeof attributes.value === 'string' || typeof attributes.value === 'number') {
+    return String(attributes.value);
+  }
+
+  if (attributes.value && typeof attributes.value.text === 'string') {
+    return attributes.value.text;
+  }
+
+  if (typeof attributes.label === 'string') {
+    return attributes.label;
+  }
+
+  return '';
 }
 
 export const expectToBeVisible = async id => {
