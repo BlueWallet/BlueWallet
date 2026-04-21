@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useLocale } from '@react-navigation/native';
 import {
@@ -49,6 +49,8 @@ const DEFAULT_AMOUNT_VALUE = '0';
 const INPUT_PLACEHOLDER = '0';
 const NUMERIC_KEYBOARD_TYPE: TextInputProps['keyboardType'] = 'numeric';
 const UNIT_SWITCH_SLOT_WIDTH = 60;
+const MIN_INPUT_WIDTH = 24;
+const INPUT_MEASUREMENT_BUFFER = 6;
 
 const AMOUNT_MAX_LENGTH_BY_UNIT: Record<BitcoinUnit, number> = {
   [BitcoinUnit.BTC]: 11,
@@ -174,6 +176,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   } = props;
   const amount = amountProp || DEFAULT_AMOUNT_VALUE; // internally amount is always a string with a correct number
   const [state, dispatch] = useReducer(amountInputReducer, INITIAL_AMOUNT_INPUT_STATE);
+  const [inputWidth, setInputWidth] = useState(MIN_INPUT_WIDTH);
 
   const unitDisplayLabel = useMemo(() => {
     if (unit === BitcoinUnit.BTC) return loc.units[BitcoinUnit.BTC];
@@ -399,11 +402,29 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     },
   });
 
+  const measuredInputText = amount === BitcoinUnit.MAX ? BitcoinUnit.MAX : String(amount || INPUT_PLACEHOLDER);
+
+  const handleInputMeasurementLayout = useCallback((width: number) => {
+    const nextWidth = Math.max(MIN_INPUT_WIDTH, Math.ceil(width) + INPUT_MEASUREMENT_BUFFER);
+    setInputWidth(currentWidth => (currentWidth === nextWidth ? currentWidth : nextWidth));
+  }, []);
+
   return (
     <Pressable accessible={false} disabled={disabled} onPress={handleTextInputOnPress}>
       <View style={[styles.root, ...(isRTL ? [styles.rtlRoot] : [])]}>
         <View style={[styles.sideSlot, stylesHook.sideSlot]} />
         <View style={styles.flex}>
+          <View pointerEvents="none" style={styles.inputMeasurementContainer} accessible={false}>
+            <Text
+              allowFontScaling
+              maxFontSizeMultiplier={2}
+              numberOfLines={1}
+              style={[styles.input, styles.inputMeasurementText, stylesHook.input]}
+              onLayout={event => handleInputMeasurementLayout(event.nativeEvent.layout.width)}
+            >
+              {measuredInputText}
+            </Text>
+          </View>
           <View style={styles.container}>
             {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
               <Text style={[styles.localCurrency, stylesHook.localCurrency, { fontSize: symbolFontSize }]}>
@@ -421,7 +442,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                 editable={!isLoading && !disabled}
                 value={String(amount)}
                 placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
-                style={[styles.input, stylesHook.input]}
+                style={[styles.input, stylesHook.input, { width: inputWidth }]}
                 allowFontScaling
                 maxFontSizeMultiplier={2}
                 accessibilityLabel={loc._.enter_amount}
@@ -532,6 +553,11 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
   },
+  inputMeasurementContainer: {
+    position: 'absolute',
+    opacity: 0,
+    zIndex: -1,
+  },
   sideSlot: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -571,8 +597,13 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     paddingHorizontal: 0,
     flexShrink: 1,
-    minWidth: 24,
+    minWidth: MIN_INPUT_WIDTH,
     maxWidth: '100%',
+  },
+  inputMeasurementText: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
   },
   cryptoCurrency: {
     marginHorizontal: 4,
