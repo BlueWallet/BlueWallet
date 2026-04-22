@@ -540,7 +540,13 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   } = props;
 
   const { width } = useWindowDimensions();
-  const itemWidth = React.useMemo(() => (width * 0.82 > 375 ? 375 : width * 0.82), [width]);
+  const itemWidth = React.useMemo(() => Math.round(width * 0.82 > 375 ? 375 : width * 0.82), [width]);
+  const snapInterval = React.useMemo(() => itemWidth, [itemWidth]);
+  const snapOffsets = React.useMemo(() => {
+    if (!horizontal) return undefined;
+    const cardsCount = data.length + (onNewWalletPress ? 1 : 0);
+    return Array.from({ length: cardsCount }, (_, index) => index * snapInterval);
+  }, [horizontal, data.length, onNewWalletPress, snapInterval]);
   const layoutTransition = useMemo(() => LinearTransition.duration(240).easing(Easing.inOut(Easing.quad)), []);
   const enteringTransition = useMemo(() => FadeIn.duration(180), []);
   const exitingTransition = useMemo(() => FadeOut.duration(150), []);
@@ -858,9 +864,11 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
-      pagingEnabled={horizontal}
+      pagingEnabled={false}
       disableIntervalMomentum={horizontal}
-      snapToInterval={horizontal ? itemWidth - CARD_OVERLAP : undefined}
+      snapToInterval={undefined}
+      snapToOffsets={snapOffsets}
+      snapToAlignment={horizontal ? 'start' : undefined}
       decelerationRate="fast"
       contentContainerStyle={cStyles.content}
       directionalLockEnabled

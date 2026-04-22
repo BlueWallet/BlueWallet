@@ -237,10 +237,13 @@ const WalletsList: React.FC = () => {
       if (!isFocused) return;
 
       const contentOffset = e.nativeEvent.contentOffset;
-      const index = Math.ceil(contentOffset.x / width);
+      const cardWidth = Math.round(width * 0.82 > 375 ? 375 : width * 0.82);
+      const snapStep = cardWidth; // keep in sync with WalletsCarousel snap interval
+      const index = Math.max(0, Math.round(contentOffset.x / snapStep));
 
       if (currentWalletIndex.current !== index) {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
           refreshWallets(index, false, false);
         }
