@@ -37,9 +37,6 @@ import { Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
 
-// Horizontal carousel shows a small peek of the next card; adjust overlap to control that spacing.
-const CARD_OVERLAP = 24;
-
 interface NewWalletPanelProps {
   onPress: () => void;
 }
