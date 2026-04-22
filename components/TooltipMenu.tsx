@@ -13,7 +13,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     buttonStyle,
     onPressMenuItem,
     children,
-    isButton = false,
     actions,
     accessibilityLabel,
     accessibilityHint,

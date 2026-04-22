@@ -27,8 +27,6 @@ import WalletsList from '../screen/wallets/WalletsList';
 import { DetailViewStack } from './index';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import SettingsButton from '../components/icons/SettingsButton';
-import { useSettings } from '../hooks/context/useSettings';
-import { useStorage } from '../hooks/context/useStorage';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';
@@ -62,8 +60,6 @@ const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
-  const { wallets } = useStorage();
-  const { isTotalBalanceEnabled } = useSettings();
   const { sizeClass } = useSizeClass();
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);

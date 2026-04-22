@@ -342,7 +342,15 @@ const WalletsList: React.FC = () => {
           return null;
       }
     },
-    [sizeClass, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.listHeaderBack, stylesHook.listHeaderText, stylesHook.walletsListWrapper, wallets.length],
+    [
+      sizeClass,
+      isTotalBalanceEnabled,
+      renderListHeaderComponent,
+      stylesHook.listHeaderBack,
+      stylesHook.listHeaderText,
+      stylesHook.walletsListWrapper,
+      wallets.length,
+    ],
   );
 
   const renderSectionFooter = useCallback(
