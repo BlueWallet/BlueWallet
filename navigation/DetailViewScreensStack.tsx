@@ -73,31 +73,27 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const RightBarButtons = useMemo(
-    () =>
-      sizeClass === SizeClass.Large ? (
+    () => (
+      <View style={styles.headerButtonsRow}>
+        <AddWalletButton onPress={navigateToAddWallet} />
+        <View style={styles.width16} />
         <SettingsButton />
-      ) : (
-        <>
-          <AddWalletButton onPress={navigateToAddWallet} />
-          <View style={styles.width24} />
-          <SettingsButton />
-        </>
-      ),
-    [sizeClass, navigateToAddWallet],
+      </View>
+    ),
+    [navigateToAddWallet],
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
-    const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
-      title: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
-      headerLargeTitle: displayTitle && sizeClass === SizeClass.Compact,
+      title: sizeClass === SizeClass.Large ? loc.transactions.list_title : '',
+      headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
-  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets]);
+  }, [RightBarButtons, sizeClass, theme.colors.customHeader]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
@@ -416,8 +412,14 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = {
-  width24: {
-    width: 24,
+  headerButtonsRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    height: 32,
+  },
+  width16: {
+    width: 16,
   },
   walletDetails: {
     justifyContent: 'center',

@@ -20,6 +20,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     accessibilityRole,
     accessibilityState,
     testID,
+    style,
     onMenuWillShow,
     onMenuWillHide,
     enableAndroidRipple = true,
@@ -139,7 +140,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   };
 
   const renderMenuView = () => {
-    if (disabled || (!isButton && !onPress)) {
+    if (disabled) {
       return null;
     }
 
@@ -148,6 +149,13 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}
         style={({ pressed }) => {
           const base: ViewStyle[] = [styles.pressable];
+          if (style) {
+            if (Array.isArray(style)) {
+              base.push(...style);
+            } else {
+              base.push(style);
+            }
+          }
           if (buttonStyle) {
             if (Array.isArray(buttonStyle)) {
               base.push(...buttonStyle);

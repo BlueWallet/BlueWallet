@@ -320,17 +320,29 @@ const WalletsList: React.FC = () => {
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
         case WalletsListSections.CAROUSEL: {
-          return isTotalBalanceEnabled ? (
+          const shouldShowTotalBalance = isTotalBalanceEnabled && wallets.length > 1;
+          return shouldShowTotalBalance ? (
             <View style={stylesHook.walletsListWrapper}>
               <TotalWalletsBalance />
             </View>
-          ) : null;
+          ) : (
+            <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
+              <Text
+                textBreakStrategy="simple"
+                style={[styles.listHeaderText, stylesHook.listHeaderText]}
+                numberOfLines={2}
+                adjustsFontSizeToFit={true}
+              >
+                {`${loc.wallets.wallets}${'  '}`}
+              </Text>
+            </View>
+          );
         }
         default:
           return null;
       }
     },
-    [sizeClass, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.walletsListWrapper],
+    [sizeClass, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.listHeaderBack, stylesHook.listHeaderText, stylesHook.walletsListWrapper, wallets.length],
   );
 
   const renderSectionFooter = useCallback(
