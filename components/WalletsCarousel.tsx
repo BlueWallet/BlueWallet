@@ -118,7 +118,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
         style={[
           nStyles.container,
           nStylesHooks.container,
-          { backgroundColor: colors.borderTopColor },
+          { backgroundColor: colors.lightButton },
           isLarge ? {} : { width: itemWidth },
           animatedScaleStyle,
         ]}
