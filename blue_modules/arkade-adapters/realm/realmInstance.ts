@@ -2,7 +2,7 @@ import RNFS from 'react-native-fs';
 import Realm from 'realm';
 import Keychain from 'react-native-keychain';
 
-import { ArkRealmSchemas } from '@arkade-os/sdk/repositories/realm';
+import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION, runArkRealmMigrations } from '@arkade-os/sdk/repositories/realm';
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
@@ -47,6 +47,10 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
   const realm = await Realm.open({
     // @ts-ignore schema doesn't match Realm's schema type
     schema: AllArkadeSchemas,
+    schemaVersion: ARK_REALM_SCHEMA_VERSION,
+    onMigration: (oldRealm, newRealm) => {
+      runArkRealmMigrations(oldRealm, newRealm);
+    },
     path,
     encryptionKey,
     excludeFromIcloudBackup: true,

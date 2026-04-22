@@ -92,8 +92,8 @@
     "unit": "jest -b -w tests/unit/*"
   },
   "dependencies": {
-    "@arkade-os/boltz-swap": "0.3.17",
-    "@arkade-os/sdk": "0.4.16",
+    "@arkade-os/boltz-swap": "0.3.19",
+    "@arkade-os/sdk": "0.4.18",
     "@babel/preset-env": "7.29.2",
     "@bugsnag/react-native": "8.8.1",
     "@bugsnag/source-maps": "2.3.3",
@@ -107,7 +107,6 @@
     "@react-native-community/cli-platform-android": "20.0.2",
     "@react-native-community/cli-platform-ios": "20.0.2",
     "@react-native-documents/picker": "12.0.1",
-    "react-native-context-menu-view": "github:BlueWallet/react-native-context-menu-view#144110b02afdb11b431741aef5da95e91b942a9b",
     "@react-native-vector-icons/entypo": "12.5.0",
     "@react-native-vector-icons/fontawesome": "12.4.2",
     "@react-native-vector-icons/fontawesome6": "12.3.2",
@@ -159,6 +158,7 @@
     "react-native-blue-crypto": "github:BlueWallet/react-native-blue-crypto#3cb5442",
     "react-native-camera-kit-no-google": "16.2.0",
     "react-native-capture-protection": "github:BlueWallet/react-native-capture-protection#bb78a40",
+    "react-native-context-menu-view": "github:BlueWallet/react-native-context-menu-view#144110b02afdb11b431741aef5da95e91b942a9b",
     "react-native-default-preference": "https://github.com/BlueWallet/react-native-default-preference.git#6338a1f1235e4130b8cfc2dd3b53015eeff2870c",
     "react-native-device-info": "14.1.1",
     "react-native-draggable-flatlist": "4.0.3",
