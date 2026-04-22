@@ -90,7 +90,11 @@ export type DetailViewStackParamList = {
   ExportMultisigCoordinationSetupRoot: undefined;
   Settings: undefined;
   Currency: undefined;
-  GeneralSettings: undefined;
+  GeneralSettings:
+    | {
+        targetItemId?: string;
+      }
+    | undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
   About: undefined;
