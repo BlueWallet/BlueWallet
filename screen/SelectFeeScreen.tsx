@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useReducer, useEffect, FC } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard, ScrollView } from 'react-native';
 import { useTheme } from '../components/themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -154,7 +154,8 @@ const SelectFeeScreen = () => {
     container: {
       backgroundColor: colors.elevated,
       paddingHorizontal: 16,
-      paddingVertical: 8,
+      paddingTop: 0,
+      paddingBottom: 8,
     },
     feeModalItemActiveBackground: {
       backgroundColor: colors.feeActive,
@@ -258,7 +259,7 @@ const SelectFeeScreen = () => {
   );
 
   return (
-    <KeyboardAvoidingView style={styles.keyboardAvoidingRoot} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+    <View style={styles.keyboardAvoidingRoot}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[stylesHook.container, styles.screenContainer]}
@@ -319,7 +320,7 @@ const SelectFeeScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -333,13 +334,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   screenContainer: {
-    minHeight: 300,
-    maxHeight: 500,
-    flexGrow: 1,
+    paddingBottom: 0,
   },
   contentContainer: {
-    paddingTop: 16,
-    paddingBottom: 32,
+    paddingTop: 0,
+    paddingBottom: 8,
   },
   feeModalItem: {
     paddingHorizontal: 16,
@@ -372,7 +371,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   customFeeButton: {
-    marginBottom: 44,
+    marginBottom: 0,
   },
   feeModalTime: {
     borderRadius: 5,
