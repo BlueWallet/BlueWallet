@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
-  ActivityIndicator,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -197,9 +196,6 @@ const UnlockWith: React.FC = () => {
   };
 
   const renderUnlockOptions = () => {
-    if (state.isAuthenticating && !state.showPasswordInput) {
-      return <ActivityIndicator />;
-    }
 
     if (state.showPasswordInput) {
       return (
