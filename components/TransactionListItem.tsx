@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, memo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Linking, Text, TextStyle, ViewStyle, StyleSheet, View } from 'react-native';
@@ -85,17 +85,16 @@ interface TransactionListItemProps {
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
-export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
-  ({
-    item,
-    itemPriceUnit = BitcoinUnit.BTC,
-    walletID,
-    searchQuery,
-    style,
-    renderHighlightedText,
-    onPress: customOnPress,
-    disableNavigation = false,
-  }: TransactionListItemProps) => {
+export const TransactionListItem: React.FC<TransactionListItemProps> = ({
+  item,
+  itemPriceUnit = BitcoinUnit.BTC,
+  walletID,
+  searchQuery,
+  style,
+  renderHighlightedText,
+  onPress: customOnPress,
+  disableNavigation = false,
+}: TransactionListItemProps) => {
     const { colors } = useTheme();
     const { navigate } = useExtendedNavigation<NavigationProps>();
     const { txMetadata, counterpartyMetadata, wallets } = useStorage();
@@ -441,57 +440,47 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       );
     }, [subtitle, subtitleNumberOfLines, renderHighlightedText, searchQuery, subtitleStyle]);
 
-    return (
-      <ToolTipMenu
-        isButton
-        actions={toolTipActions}
-        onPressMenuItem={onToolTipPress}
-        onPress={onPress}
-        shouldOpenOnLongPress
-        buttonStyle={styles.fullWidthButton}
-        accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+  return (
+    <ToolTipMenu
+      isButton
+      actions={toolTipActions}
+      onPressMenuItem={onToolTipPress}
+      onPress={onPress}
+      shouldOpenOnLongPress
+      buttonStyle={styles.fullWidthButton}
+      accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+      accessibilityRole="button"
+    >
+      {/* @ts-ignore - Context menu wrapper types can be overly strict about child element props */}
+      <ListItem
+        leftAvatar={avatar}
+        title={listTitle}
+        subtitle={<Text style={styles.dateLine}>{dateLine}</Text>}
+        chevron={false}
+        rightTitle={rowTitle}
+        rightTitleStyle={rowTitleStyle}
+        rightSubtitle={noteForCopy}
+        rightSubtitleStyle={styles.rightColumn}
+        containerStyle={combinedStyle}
+        testID="TransactionListItem"
         accessibilityRole="button"
+        accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
       >
-        {/* @ts-ignore - Context menu wrapper types can be overly strict about child element props */}
-        <ListItem
-          leftAvatar={avatar}
-          title={listTitle}
-          subtitle={<Text style={styles.dateLine}>{dateLine}</Text>}
-          chevron={false}
-          rightTitle={rowTitle}
-          rightTitleStyle={rowTitleStyle}
-          rightSubtitle={noteForCopy}
-          rightSubtitleStyle={styles.rightColumn}
-          containerStyle={combinedStyle}
-          testID="TransactionListItem"
-          accessibilityRole="button"
-          accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
-        >
-          <View style={styles.row}>
-            <View style={styles.avatarContainer}>{avatar}</View>
-            <View style={styles.textContainer}>
-              <Text style={[styles.title, titleStyle]} numberOfLines={1}>
-                {title}
-              </Text>
-              {subtitleContent}
-            </View>
-            <View style={styles.rightColumn}>
-              <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
-                {rowTitle}
-              </Text>
-            </View>
+        <View style={styles.row}>
+          <View style={styles.avatarContainer}>{avatar}</View>
+          <View style={styles.textContainer}>
+            <Text style={[styles.title, titleStyle]} numberOfLines={1}>
+              {title}
+            </Text>
+            {subtitleContent}
           </View>
-        </ListItem>
-      </ToolTipMenu>
-    );
-  },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.item.hash === nextProps.item.hash &&
-      prevProps.item.timestamp === nextProps.item.timestamp &&
-      prevProps.itemPriceUnit === nextProps.itemPriceUnit &&
-      prevProps.walletID === nextProps.walletID &&
-      prevProps.searchQuery === nextProps.searchQuery
-    );
-  },
-);
+          <View style={styles.rightColumn}>
+            <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
+              {rowTitle}
+            </Text>
+          </View>
+        </View>
+      </ListItem>
+    </ToolTipMenu>
+  );
+};
