@@ -1045,7 +1045,11 @@ const TransactionStatus: React.FC = () => {
         style={[
           styles.stateCard,
           stylesHook.stateCard,
-          isPending ? stylesHook.stateCardPending : txValue !== null && txValue < 0 ? stylesHook.stateCardSent : stylesHook.stateCardReceived,
+          isPending
+            ? stylesHook.stateCardPending
+            : txValue !== null && txValue < 0
+              ? stylesHook.stateCardSent
+              : stylesHook.stateCardReceived,
         ]}
       >
         <View style={styles.stateSection}>
