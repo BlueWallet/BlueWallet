@@ -14,7 +14,6 @@ import {
   scrollUpOnHomeScreen,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
-  tapIfPresent,
   tapIfTextPresent,
   waitForId,
   waitForKeyboardToClose,

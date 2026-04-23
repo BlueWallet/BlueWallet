@@ -304,13 +304,13 @@ export async function goBack() {
   if (device.getPlatform() === 'ios') {
     try {
       await element(by.id('BackButton')).atIndex(0).tap();
-    } catch (_) {
+    } catch (_backError) {
       try {
         await element(by.id('NavigationCloseButton')).atIndex(0).tap();
-      } catch (_) {
+      } catch (_closeButtonError) {
         try {
           await element(by.label('Back')).atIndex(0).tap();
-        } catch (_) {
+        } catch (_backLabelError) {
           await element(by.text('Close')).atIndex(0).tap();
         }
       }

@@ -80,7 +80,7 @@ const DetailViewStackScreensStack = () => {
         </>
       ),
     [sizeClass, navigateToAddWallet],
-    );
+  );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     return {
