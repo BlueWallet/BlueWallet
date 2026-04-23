@@ -2,7 +2,7 @@ import assert from 'assert';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { BlueURDecoder, clearUseURv1, decodeUR, encodeUR, extractSingleWorkload, setUseURv1 } from '../../blue_modules/ur';
-import { WatchOnlyWallet } from '../../class';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Watch only wallet', () => {

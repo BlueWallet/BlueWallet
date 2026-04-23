@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
-import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../class';
+import { HDSegwitBech32Wallet } from '../class/wallets/hd-segwit-bech32-wallet';
+import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
 

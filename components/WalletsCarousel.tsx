@@ -23,7 +23,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import WalletGradient from '../class/wallet-gradient';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
@@ -116,7 +118,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
         style={[
           nStyles.container,
           nStylesHooks.container,
-          { backgroundColor: colors.borderTopColor },
+          { backgroundColor: colors.lightButton },
           isLarge ? {} : { width: itemWidth },
           animatedScaleStyle,
         ]}

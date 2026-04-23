@@ -3,7 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 
 import Base43 from '../../blue_modules/base43';
 import { BlueURDecoder, decodeUR, encodeUR } from '../../blue_modules/ur';
-import { MultisigHDWallet } from '../../class/';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
