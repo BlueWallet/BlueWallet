@@ -319,6 +319,24 @@ const startImport = (
     }
 
     yield { progress: 'wif' };
+
+    const isHexKey = /^[0-9a-fA-F]{64}$/.test(text);
+    const isBase64Key = /^[A-Za-z0-9+/=]{43,44}$/.test(text);
+
+    let rawKeyBuffer;
+
+    if (isHexKey) {
+      rawKeyBuffer = Buffer.from(text, 'hex');
+    } else if (isBase64Key) {
+      try {
+        rawKeyBuffer = Buffer.from(text, 'base64');
+      } catch (_) {}
+    }
+
+    if (rawKeyBuffer && rawKeyBuffer.length === 32) {
+      text = wif.encode(0x80, rawKeyBuffer, true);
+    }
+
     const segwitWallet = new SegwitP2SHWallet();
     segwitWallet.setSecret(text);
     if (segwitWallet.getAddress()) {
