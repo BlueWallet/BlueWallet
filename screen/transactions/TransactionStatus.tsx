@@ -3,7 +3,7 @@ import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpa
 import { sha256 } from '@noble/hashes/sha256';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -11,7 +11,8 @@ import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -122,10 +123,14 @@ const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> 
 );
 
 const TransactionStatus: React.FC = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
+  const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
+    tx: initialTx,
+    isLoading: !initialTx,
+  });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
-  const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
   const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
@@ -255,7 +260,7 @@ const TransactionStatus: React.FC = () => {
       backgroundColor: colors.transactionStateCancelButtonBackground,
     },
     cancelButtonText: {
-      color: colors.alternativeTextColor,
+      color: colors.transactionPendingColor,
     },
     advancedHeader: {
       borderColor: colors.cardBorderColor,
@@ -603,9 +608,10 @@ const TransactionStatus: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!tx?.hash || !wallet) return;
     initialButtonsState().catch(error => console.error('Unhandled error in initialButtonsState:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx, wallets]);
+  }, [tx?.hash, wallet]);
 
   useEffect(() => {
     if (!tx && hash) {
@@ -659,22 +665,25 @@ const TransactionStatus: React.FC = () => {
   }, [isLoading]);
 
   const checkPossibilityOfCPFP = async () => {
+    if (!wallet || !tx?.hash) {
+      return setIsCPFPPossible(ButtonStatus.Unknown);
+    }
     if (!wallet?.allowRBF()) {
       return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
 
-    if (wallet) {
-      const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
-      if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
-        return setIsCPFPPossible(ButtonStatus.Possible);
-      } else {
-        return setIsCPFPPossible(ButtonStatus.NotPossible);
-      }
+    const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
+      return setIsCPFPPossible(ButtonStatus.Possible);
+    } else {
+      return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
-    return setIsCPFPPossible(ButtonStatus.NotPossible);
   };
 
   const checkPossibilityOfRBFBumpFee = async () => {
+    if (!wallet || !tx?.hash) {
+      return setIsRBFBumpFeePossible(ButtonStatus.Unknown);
+    }
     if (!wallet?.allowRBF()) {
       return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
@@ -693,6 +702,9 @@ const TransactionStatus: React.FC = () => {
   };
 
   const checkPossibilityOfRBFCancel = async () => {
+    if (!wallet || !tx?.hash) {
+      return setIsRBFCancelPossible(ButtonStatus.Unknown);
+    }
     if (!wallet?.allowRBF()) {
       return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
@@ -842,7 +854,12 @@ const TransactionStatus: React.FC = () => {
     if (!tx) return null;
 
     if (tx.fee !== undefined && tx.fee !== null) {
-      return tx.fee;
+      const txFee = Number(tx.fee);
+      if (Number.isFinite(txFee)) return txFee;
+    }
+    if (txFromElectrum?.fee !== undefined && txFromElectrum?.fee !== null) {
+      const electrumFee = Number(txFromElectrum.fee);
+      if (Number.isFinite(electrumFee)) return electrumFee;
     }
     if (!tx.confirmations && mempoolFee != null) {
       return mempoolFee;
@@ -853,14 +870,23 @@ const TransactionStatus: React.FC = () => {
     const outputs = txFromElectrum?.vout ?? tx.outputs;
     if (!inputs?.length || !outputs?.length) return null;
 
-    const toSats = (v: number) => (v < 1 ? Math.round(v * 100000000) : v);
+    const toSats = (raw: unknown): number | null => {
+      const parsed = Number(raw);
+      if (!Number.isFinite(parsed)) return null;
+      // If value is already an integer sat amount, keep as-is.
+      if (Number.isInteger(parsed)) return parsed;
+      // Otherwise treat as BTC decimal and convert to sats.
+      return Math.round(parsed * 100000000);
+    };
     let totalInputs = 0;
     let totalOutputs = 0;
     for (const vin of inputs) {
-      if (vin.value != null) totalInputs += toSats(vin.value);
+      const vinValue = toSats(vin.value);
+      if (vinValue !== null) totalInputs += vinValue;
     }
     for (const vout of outputs) {
-      if (vout.value != null) totalOutputs += toSats(vout.value);
+      const voutValue = toSats(vout.value);
+      if (voutValue !== null) totalOutputs += voutValue;
     }
     if (totalInputs > 0 && totalOutputs > 0) {
       const fee = totalInputs - totalOutputs;
@@ -871,9 +897,14 @@ const TransactionStatus: React.FC = () => {
 
   // Calculate fee rate
   const feeRate = calculatedFee && tx?.vsize ? Math.round(calculatedFee / tx.vsize) : null;
+  const parsedTxValue = Number(tx?.value);
+  const txValue = Number.isFinite(parsedTxValue) ? parsedTxValue : null;
+  const parsedConfirmations = Number(tx?.confirmations);
+  const isPending = Number.isFinite(parsedConfirmations) ? parsedConfirmations <= 0 : !tx?.confirmations;
+  const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
 
   // Get transaction direction and date
-  const transactionDirection = tx?.value < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
+  const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   // Get memo
@@ -975,7 +1006,7 @@ const TransactionStatus: React.FC = () => {
     );
   }
 
-  if (isLoading || !wallet) {
+  if (isLoading && !tx) {
     return (
       <SafeAreaScrollView>
         <BlueLoading />
@@ -997,14 +1028,14 @@ const TransactionStatus: React.FC = () => {
       <View style={styles.valueCard}>
         <View style={styles.valueContent}>
           <Text style={[styles.value, stylesHook.value]} selectable>
-            {formatBalanceWithoutSuffix(tx.value, wallet.preferredBalanceUnit, true)}
+            {txValue !== null ? formatBalanceWithoutSuffix(txValue, preferredBalanceUnit, true) : '-'}
             {` `}
-            {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-              <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{wallet.preferredBalanceUnit}</Text>
+            {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+              <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{preferredBalanceUnit}</Text>
             )}
           </Text>
-          {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{satoshiToLocalCurrency(Math.abs(tx.value))}</Text>
+          {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && txValue !== null && (
+            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{satoshiToLocalCurrency(Math.abs(txValue))}</Text>
           )}
         </View>
       </View>
@@ -1014,11 +1045,11 @@ const TransactionStatus: React.FC = () => {
         style={[
           styles.stateCard,
           stylesHook.stateCard,
-          !tx.confirmations ? stylesHook.stateCardPending : tx.value < 0 ? stylesHook.stateCardSent : stylesHook.stateCardReceived,
+          isPending ? stylesHook.stateCardPending : txValue !== null && txValue < 0 ? stylesHook.stateCardSent : stylesHook.stateCardReceived,
         ]}
       >
         <View style={styles.stateSection}>
-          {!tx.confirmations ? (
+          {isPending ? (
             <>
               <View style={styles.stateIndicator}>
                 <TransactionPendingIcon />
@@ -1029,7 +1060,7 @@ const TransactionStatus: React.FC = () => {
                   </BlueText>
                 </View>
               </View>
-              {(isRBFBumpFeePossible === ButtonStatus.Possible || isRBFCancelPossible === ButtonStatus.Possible) && (
+              {wallet && (isRBFBumpFeePossible === ButtonStatus.Possible || isRBFCancelPossible === ButtonStatus.Possible) && (
                 <View style={styles.stateButtons}>
                   {isRBFBumpFeePossible === ButtonStatus.Possible && (
                     <TouchableOpacity
@@ -1052,14 +1083,14 @@ const TransactionStatus: React.FC = () => {
                 </View>
               )}
             </>
-          ) : tx.value < 0 ? (
+          ) : txValue < 0 ? (
             <View style={styles.stateIndicator}>
               <TransactionOutgoingIcon />
               <View style={styles.stateLabelContainer}>
                 <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent]}>{loc.transactions.details_sent}</BlueText>
                 <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline]}>
                   {loc.formatString(loc.transactions.confirmations_lowercase, {
-                    confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+                    confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
                   })}
                 </BlueText>
               </View>
@@ -1071,7 +1102,7 @@ const TransactionStatus: React.FC = () => {
                 <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived]}>{loc.transactions.details_received}</BlueText>
                 <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline]}>
                   {loc.formatString(loc.transactions.confirmations_lowercase, {
-                    confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+                    confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
                   })}
                 </BlueText>
               </View>
@@ -1132,7 +1163,8 @@ const TransactionStatus: React.FC = () => {
         </View>
 
         {/* To address - sent transactions only, when exactly one external output (single recipient or rest is change) */}
-        {tx.value < 0 &&
+        {txValue !== null &&
+          txValue < 0 &&
           (() => {
             const externalAddresses = arrDiff(from, to.filter(onlyUnique));
             if (externalAddresses.length !== 1) return null;
@@ -1214,14 +1246,15 @@ const TransactionStatus: React.FC = () => {
         <TouchableOpacity
           onPress={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
           style={[styles.advancedHeader, stylesHook.advancedHeader]}
+          activeOpacity={0.85}
         >
           <View style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRow]}>
             <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_advanced}</BlueText>
             <Icon
               name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
-              type="font-awesome-5"
+              type="font-awesome"
               size={16}
-              color={colors.foregroundColor}
+              color={colors.alternativeTextColor}
             />
           </View>
         </TouchableOpacity>
@@ -1315,7 +1348,7 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {tx.confirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
+      {wallet && parsedConfirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
     </SafeAreaScrollView>
   );
 };
