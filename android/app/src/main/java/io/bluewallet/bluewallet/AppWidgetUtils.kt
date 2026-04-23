@@ -20,29 +20,6 @@ object AppWidgetUtils {
     }
     
     /**
-     * Trigger update for all widgets when theme changes
-     */
-    fun updateWidgetsForThemeChange(context: Context) {
-        Log.d(TAG, "Updating widgets for theme change")
-        
-        // Update Bitcoin Price widgets - force a complete refresh
-        val bitcoinWidgetIds = getBitcoinPriceWidgetIds(context)
-        if (bitcoinWidgetIds.isNotEmpty()) {
-            Log.d(TAG, "Refreshing ${bitcoinWidgetIds.size} Bitcoin Price widgets")
-            for (widgetId in bitcoinWidgetIds) {
-                BitcoinPriceWidget.refreshWidget(context, widgetId)
-            }
-        }
-        
-        // Update Market widgets
-        val marketWidgetIds = MarketWidget.getAllWidgetIds(context)
-        if (marketWidgetIds.isNotEmpty()) {
-            Log.d(TAG, "Refreshing ${marketWidgetIds.size} Market widgets")
-            MarketWidget.refreshAllWidgetsImmediately(context)
-        }
-    }
-    
-    /**
      * Check if app widgets are supported and available on this device
      */
     fun isWidgetAvailable(context: Context): Boolean {
@@ -89,27 +66,6 @@ object AppWidgetUtils {
         } catch (e: Exception) {
             Log.e(TAG, "Failed to request pin widget", e)
             false
-        }
-    }
-    
-    /**
-     * Refresh all widgets by triggering updates
-     */
-    fun refreshAllWidgets(context: Context) {
-        Log.d(TAG, "Refreshing all widgets")
-        
-        // Refresh Bitcoin Price widgets
-        val bitcoinWidgetIds = getBitcoinPriceWidgetIds(context)
-        if (bitcoinWidgetIds.isNotEmpty()) {
-            for (widgetId in bitcoinWidgetIds) {
-                BitcoinPriceWidget.refreshWidget(context, widgetId)
-            }
-        }
-        
-        // Refresh Market widgets
-        val marketWidgetIds = MarketWidget.getAllWidgetIds(context)
-        if (marketWidgetIds.isNotEmpty()) {
-            MarketWidget.refreshAllWidgetsImmediately(context)
         }
     }
 }

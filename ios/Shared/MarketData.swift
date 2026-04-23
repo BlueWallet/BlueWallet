@@ -18,14 +18,15 @@ public struct MarketData:Codable  {
     if nextBlock == "..." {
       return "..."
     } else {
+      let unit = String(localized: "sat/vb")
       if let nextBlockInt = Int(nextBlock) {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
         if let formattedNumber = numberFormatter.string(from: NSNumber(value: nextBlockInt)) {
-          return "\(formattedNumber) sat/vb"
+          return "\(formattedNumber) \(unit)"
         }
       }
-      return "\(nextBlock) sat/vb"  // Fallback in case the nextBlock cannot be converted to an Int
+      return "\(nextBlock) \(unit)"
     }
   }
   var dateString: String = ""

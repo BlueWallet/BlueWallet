@@ -7,7 +7,8 @@ import android.content.res.Configuration
 import android.util.Log
 
 /**
- * BroadcastReceiver to handle system theme changes (light/dark mode)
+ * BroadcastReceiver to handle system theme changes (light/dark mode).
+ * Triggers direct widget refreshes without intermediary helpers.
  */
 class ThemeChangeReceiver : BroadcastReceiver() {
     companion object {
@@ -20,7 +21,17 @@ class ThemeChangeReceiver : BroadcastReceiver() {
             
             if (!ThemeHelper.isForceDarkModeEnabled(context)) {
                 Log.d(TAG, "Configuration changed, updating widgets for theme change")
-                AppWidgetUtils.updateWidgetsForThemeChange(context)
+                
+                // Refresh Bitcoin Price widgets directly
+                val bitcoinWidgetIds = AppWidgetUtils.getBitcoinPriceWidgetIds(context)
+                if (bitcoinWidgetIds.isNotEmpty()) {
+                    for (widgetId in bitcoinWidgetIds) {
+                        BitcoinPriceWidget.refreshWidget(context, widgetId)
+                    }
+                }
+                
+                // Refresh Market widgets directly
+                MarketWidget.refreshAllWidgetsImmediately(context)
             }
         }
     }

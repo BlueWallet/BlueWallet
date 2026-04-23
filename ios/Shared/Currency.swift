@@ -9,7 +9,7 @@
 import Foundation
 
 struct CurrencyError: LocalizedError {
-  var errorDescription: String = "Failed to parse response"
+  var errorDescription: String = String(localized: "Failed to parse response")
 }
 
 class Currency {

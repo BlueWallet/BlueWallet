@@ -3,7 +3,6 @@
 
 import AppIntents
 
-@available(iOS 16.0, *)
 enum FiatUnitEnum: String, AppEnum, CaseIterable, Identifiable, Codable {
   
   var id: String { self.rawValue }

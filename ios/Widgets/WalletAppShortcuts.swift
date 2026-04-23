@@ -5,7 +5,6 @@
 
 import AppIntents
 
-@available(iOS 16.4, *)
 struct WalletAppShortcuts: AppShortcutsProvider {
     
     @AppShortcutsBuilder

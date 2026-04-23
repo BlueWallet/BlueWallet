@@ -4,15 +4,16 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
 import androidx.work.WorkManager
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class BitcoinPriceWidget : AppWidgetProvider() {
 
     companion object {
-        private const val TAG = "BitcoinPriceWidget"
         private const val SHARED_PREF_NAME = "group.io.bluewallet.bluewallet"
         
         fun updateNetworkStatus(context: Context, appWidgetIds: IntArray) {
@@ -28,83 +29,51 @@ class BitcoinPriceWidget : AppWidgetProvider() {
 
         fun refreshWidget(context: Context, appWidgetId: Int) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
-            
-            // Create new RemoteViews to ensure it picks up current theme
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
-            
-            // Set network status
-            val isNetworkAvailable = NetworkUtils.isNetworkAvailable(context)
-            views.setViewVisibility(R.id.network_status, if (isNetworkAvailable) View.GONE else View.VISIBLE)
-            
-            // Try to load cached data first
+
+            views.setViewVisibility(R.id.network_status,
+                if (NetworkUtils.isNetworkAvailable(context)) View.GONE else View.VISIBLE
+            )
+
             val sharedPref = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
             val cachedPrice = sharedPref.getString("previous_price", null)
-            val preferredCurrency = sharedPref.getString("preferredCurrency", "USD")
-            val preferredCurrencyLocale = sharedPref.getString("preferredCurrencyLocale", null)
-            
+            val preferredCurrency = sharedPref.getString("preferredCurrency", "USD") ?: "USD"
+
             if (cachedPrice != null) {
-                // Show cached data immediately
-                try {
-                    val locale = preferredCurrencyLocale
-                        ?.let { runCatching { java.util.Locale.forLanguageTag(it) }.getOrNull() }
-                        ?.takeIf { it.language.isNotBlank() }
-                        ?: java.util.Locale.getDefault()
-
-                    val currencyFormat = java.text.NumberFormat.getCurrencyInstance(locale)
-                    val currency = java.util.Currency.getInstance(preferredCurrency ?: "USD")
-                    currencyFormat.currency = currency
-                    currencyFormat.maximumFractionDigits = 0
-
-                    val parsedCached = cachedPrice.toDoubleOrNull()?.toInt()
-
+                val rate = cachedPrice.toDoubleOrNull()
+                if (rate != null) {
                     views.setViewVisibility(R.id.loading_indicator, View.GONE)
+                    views.setViewVisibility(R.id.price_value, View.VISIBLE)
+                    views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
+                    views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
+                    views.setTextViewText(R.id.price_value, MarketAPI.formatCurrencyAmount(rate, preferredCurrency))
+                    views.setTextViewText(R.id.last_updated_time,
+                        SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date()))
                     views.setViewVisibility(R.id.price_arrow_container, View.GONE)
-
-                    if (parsedCached != null) {
-                        views.setViewVisibility(R.id.price_value, View.VISIBLE)
-                        views.setViewVisibility(R.id.last_updated_label, View.VISIBLE)
-                        views.setViewVisibility(R.id.last_updated_time, View.VISIBLE)
-                        views.setTextViewText(R.id.price_value, currencyFormat.format(parsedCached))
-                        views.setTextViewText(
-                            R.id.last_updated_time,
-                            java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault()).format(java.util.Date())
-                        )
-                    } else {
-                        // If parsing fails, show loading state
-                        views.setViewVisibility(R.id.price_value, View.GONE)
-                        views.setViewVisibility(R.id.last_updated_label, View.GONE)
-                        views.setViewVisibility(R.id.last_updated_time, View.GONE)
-                        views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error displaying cached price", e)
-                    // Show loading state if cache display fails
-                    views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
-                    views.setViewVisibility(R.id.price_value, View.GONE)
-                    views.setViewVisibility(R.id.last_updated_label, View.GONE)
-                    views.setViewVisibility(R.id.last_updated_time, View.GONE)
-                    views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+                } else {
+                    setLoadingState(views)
                 }
             } else {
-                // No cached data, show loading state
-                views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
-                views.setViewVisibility(R.id.price_value, View.GONE)
-                views.setViewVisibility(R.id.last_updated_label, View.GONE)
-                views.setViewVisibility(R.id.last_updated_time, View.GONE)
-                views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+                setLoadingState(views)
             }
             
             appWidgetManager.updateAppWidget(appWidgetId, views)
             WidgetUpdateWorker.scheduleImmediateUpdate(context)
             WidgetUpdateWorker.scheduleWork(context)
         }
+
+        private fun setLoadingState(views: RemoteViews) {
+            views.setViewVisibility(R.id.loading_indicator, View.VISIBLE)
+            views.setViewVisibility(R.id.price_value, View.GONE)
+            views.setViewVisibility(R.id.last_updated_label, View.GONE)
+            views.setViewVisibility(R.id.last_updated_time, View.GONE)
+            views.setViewVisibility(R.id.price_arrow_container, View.GONE)
+        }
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
-        
         for (widgetId in appWidgetIds) {
-            Log.d(TAG, "Updating widget with ID: $widgetId")
             refreshWidget(context, widgetId)
         }
     }

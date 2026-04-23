@@ -57,20 +57,19 @@ object ThemeHelper {
     }
     
     /**
-     * Update all widgets to reflect current theme
-     * @param context Application context
+     * Update all widgets to reflect current theme.
+     * Calls widget providers directly without intermediary helpers.
      */
     fun updateAllWidgets(context: Context) {
-        // Update Bitcoin Price Widgets
+        // Update Bitcoin Price Widgets directly
         val bitcoinPriceWidgetIds = AppWidgetUtils.getBitcoinPriceWidgetIds(context)
         if (bitcoinPriceWidgetIds.isNotEmpty()) {
-            BitcoinPriceWidget.updateNetworkStatus(context, bitcoinPriceWidgetIds)
+            for (widgetId in bitcoinPriceWidgetIds) {
+                BitcoinPriceWidget.refreshWidget(context, widgetId)
+            }
         }
         
-        // Update Market Widgets
-        val marketWidgetIds = MarketWidget.getAllWidgetIds(context)
-        if (marketWidgetIds.isNotEmpty()) {
-            MarketWidget.refreshAllWidgetsImmediately(context)
-        }
+        // Update Market Widgets directly
+        MarketWidget.refreshAllWidgetsImmediately(context)
     }
 }

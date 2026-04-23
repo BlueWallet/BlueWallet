@@ -3,6 +3,7 @@ import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import UserNotifications
+import WidgetKit
 import Bugsnag
 
 
@@ -12,6 +13,14 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     private var userDefaultsGroup: UserDefaults?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        #if RCT_NEW_ARCH_ENABLED
+        let turboModuleEnabled = true
+        #else
+        let turboModuleEnabled = false
+        #endif
+
+        RCTAppSetupPrepareApp(application, turboModuleEnabled)
+
         clearFilesIfNeeded()
         
         // Fix app group UserDefaults initialization

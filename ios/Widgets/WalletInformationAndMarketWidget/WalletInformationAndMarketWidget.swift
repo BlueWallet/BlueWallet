@@ -12,91 +12,30 @@ import SwiftUI
 struct WalletInformationAndMarketWidgetProvider: TimelineProvider {
     typealias Entry = WalletInformationAndMarketWidgetEntry
 
-    actor LastSuccessfulEntryStore {
-        private var lastSuccessfulEntry: WalletInformationAndMarketWidgetEntry?
-
-        func getLastSuccessfulEntry() -> WalletInformationAndMarketWidgetEntry? {
-            return lastSuccessfulEntry
-        }
-
-        func setLastSuccessfulEntry(_ entry: WalletInformationAndMarketWidgetEntry) {
-            lastSuccessfulEntry = entry
-        }
-    }
-
-    let entryStore = LastSuccessfulEntryStore()
-
     func placeholder(in context: Context) -> WalletInformationAndMarketWidgetEntry {
         return WalletInformationAndMarketWidgetEntry.placeholder
     }
 
     func getSnapshot(in context: Context, completion: @escaping (WalletInformationAndMarketWidgetEntry) -> ()) {
-        let entry: WalletInformationAndMarketWidgetEntry
-        if (context.isPreview) {
-            entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
-        } else {
-            entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: emptyMarketData)
+        if context.isPreview {
+            completion(WalletInformationAndMarketWidgetEntry.placeholder)
+            return
         }
-        completion(entry)
+        Task {
+            let data = await WidgetDataLoader.shared.cachedWalletData(cacheKey: .walletInformationAndMarket)
+            completion(WalletInformationAndMarketWidgetEntry(date: Date(), marketData: data.marketData, allWalletsBalance: data.walletData))
+        }
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [WalletInformationAndMarketWidgetEntry] = []
-        if (context.isPreview) {
-            let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
-            entries.append(entry)
-            let timeline = Timeline(entries: entries, policy: .atEnd)
+        Task {
+            let data = await WidgetDataLoader.shared.loadWalletAndMarketData(cacheKey: .walletInformationAndMarket)
+            let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: data.marketData, allWalletsBalance: data.walletData)
+            let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(900)))
             completion(timeline)
-        } else {
-            let userPreferredCurrency = Currency.getUserPreferredCurrency()
-            let allWalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
-
-            fetchMarketDataWithRetry(currency: userPreferredCurrency, retries: 3) { marketData in
-                let entry = WalletInformationAndMarketWidgetEntry(date: Date(), marketData: marketData, allWalletsBalance: allWalletsBalance)
-                Task {
-                    await entryStore.setLastSuccessfulEntry(entry)
-                    entries.append(entry)
-                    let timeline = Timeline(entries: entries, policy: .atEnd)
-                    completion(timeline)
-                }
-            }
         }
     }
 
-    private func fetchMarketDataWithRetry(currency: String, retries: Int, completion: @escaping (MarketData) -> ()) {
-        var attempt = 0
-
-        func attemptFetch() {
-            attempt += 1
-            print("Attempt \(attempt) to fetch market data.")
-
-          MarketAPI.fetchMarketData(currency: currency) { result in
-                switch result {
-                case .success(let marketData):
-                    print("Successfully fetched market data on attempt \(attempt).")
-                    completion(marketData)
-                case .failure(let error):
-                    print("Error fetching market data: \(error.localizedDescription). Retry \(attempt)/\(retries)")
-                    if attempt < retries {
-                        DispatchQueue.global().asyncAfter(deadline: .now() + 2) {
-                            attemptFetch()
-                        }
-                    } else {
-                        print("Max retries reached.")
-                        Task {
-                            if let lastEntry = await entryStore.getLastSuccessfulEntry() {
-                                completion(lastEntry.marketData)
-                            } else {
-                                completion(WalletInformationAndMarketWidgetEntry.placeholder.marketData)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        attemptFetch()
-    }
 }
 
 struct WalletInformationAndMarketWidgetEntry: TimelineEntry {
@@ -110,38 +49,59 @@ struct WalletInformationAndMarketWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
     let entry: WalletInformationAndMarketWidgetEntry
 
-    var WalletBalance: some View {
-        WalletInformationView(allWalletsBalance: entry.allWalletsBalance, marketData: entry.marketData).background(Color.widgetBackground)
-    }
-
-    var MarketStack: some View {
-        MarketView(marketData: entry.marketData)
-    }
-
-    var SendReceiveButtonsView: some View {
-        SendReceiveButtons().padding(.all, 10)
-    }
-
     var body: some View {
-        if family == .systemLarge {
-            HStack(alignment: .center, spacing: nil, content: {
-                VStack(alignment: .leading, spacing: nil, content: {
-                    HStack(content: {
-                        WalletBalance.padding()
-                    }).background(Color.widgetBackground)
-                    HStack(content: {
-                        MarketStack
-                    }).padding()
-                    SendReceiveButtonsView
-                }).background(Color(.lightGray).opacity(0.77))
-            })
-        } else {
-            HStack(content: {
-                WalletBalance.padding()
-                HStack(content: {
-                    MarketStack.padding()
-                }).background(Color(.lightGray).opacity(0.77))
-            }).background(Color.widgetBackground)
+        switch family {
+        case .accessoryRectangular:
+            accessoryRectangularView
+        case .systemLarge:
+            largeLayout
+                .containerBackground(Color.widgetBackground, for: .widget)
+        default:
+            mediumLayout
+                .containerBackground(Color.widgetBackground, for: .widget)
+        }
+    }
+
+    private var accessoryRectangularView: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(entry.allWalletsBalance.formattedBalanceBTC)
+                .font(.caption)
+                .fontWeight(.bold)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
+            Text(entry.marketData.price)
+                .font(.caption2)
+            Text(entry.marketData.formattedNextBlock)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .containerBackground(for: .widget) {
+            AccessoryWidgetBackground()
+        }
+    }
+
+    private var largeLayout: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            WalletInformationView(allWalletsBalance: entry.allWalletsBalance, marketData: entry.marketData)
+                .padding()
+                .background(Color.widgetBackground)
+            MarketView(marketData: entry.marketData)
+                .padding()
+                .background(Color.secondaryWidgetBackground)
+            SendReceiveButtons()
+                .padding(.all, 10)
+                .background(Color.secondaryWidgetBackground)
+        }
+    }
+
+    private var mediumLayout: some View {
+        HStack(spacing: 0) {
+            WalletInformationView(allWalletsBalance: entry.allWalletsBalance, marketData: entry.marketData)
+                .padding()
+                .background(Color.widgetBackground)
+            MarketView(marketData: entry.marketData)
+                .padding()
+                .background(Color.secondaryWidgetBackground)
         }
     }
 }
@@ -154,16 +114,24 @@ struct WalletInformationAndMarketWidget: Widget {
             WalletInformationAndMarketWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("Wallet and Market")
-        .description("View your total wallet balance and network prices.").supportedFamilies([.systemMedium, .systemLarge])
-        .contentMarginsDisabledIfAvailable()
+        .description("View your total wallet balance and network prices.")
+        #if os(watchOS)
+        .supportedFamilies([.accessoryRectangular])
+        #else
+        .supportedFamilies([.systemMedium, .systemLarge])
+        #endif
+        .contentMarginsDisabled()
     }
 }
 
-struct WalletInformationAndMarketWidget_Previews: PreviewProvider {
-    static var previews: some View {
-        WalletInformationAndMarketWidgetEntryView(entry: WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
-            .previewContext(WidgetPreviewContext(family: .systemMedium))
-        WalletInformationAndMarketWidgetEntryView(entry: WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000))))
-            .previewContext(WidgetPreviewContext(family: .systemLarge))
-    }
+#Preview("System Medium", as: .systemMedium) {
+    WalletInformationAndMarketWidget()
+} timeline: {
+    WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
+}
+
+#Preview("System Large", as: .systemLarge) {
+    WalletInformationAndMarketWidget()
+} timeline: {
+    WalletInformationAndMarketWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 0), allWalletsBalance: WalletData(balance: 10000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
 }

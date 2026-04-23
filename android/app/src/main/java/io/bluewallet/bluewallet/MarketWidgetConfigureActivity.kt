@@ -38,7 +38,8 @@ class MarketWidgetConfigureActivity : AppCompatActivity() {
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         setResult(RESULT_OK, resultValue)
 
-        MarketWidgetUpdateWorker.scheduleMarketUpdate(this, forceUpdate = true)
+        MarketWidgetUpdateWorker.scheduleImmediateUpdate(this)
+        MarketWidgetUpdateWorker.scheduleWork(this)
 
         // Finish the activity
         finish()

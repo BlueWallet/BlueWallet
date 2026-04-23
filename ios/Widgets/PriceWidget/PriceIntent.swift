@@ -17,11 +17,11 @@ enum PriceIntentError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .fetchFailed:
-            return "Failed to fetch Bitcoin price data"
+            return String(localized: "Failed to fetch Bitcoin price data")
         case .invalidData:
-            return "Received invalid price data"
+            return String(localized: "Received invalid price data")
         case .networkUnavailable:
-            return "Network is unavailable"
+            return String(localized: "Network is unavailable")
         }
     }
 }
@@ -36,7 +36,7 @@ struct PriceData {
     let dataSource: String
 }
 
-@available(iOS 16.0, *)
+@available(iOS 16.0, macOS 13.0, watchOS 10.0, *)
 struct PriceIntent: AppIntent {
     // MARK: - Intent Metadata
     
@@ -72,10 +72,10 @@ struct PriceIntent: AppIntent {
             )
         } catch {
             let errorView = CompactPriceView(
-                price: "N/A",
+                price: String(localized: "N/A"),
                 lastUpdated: "--",
                 code: selectedCurrency.rawValue,
-                dataSource: "Error fetching data"
+                dataSource: String(localized: "Error fetching data")
             )
             
             return .result(
