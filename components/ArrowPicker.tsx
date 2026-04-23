@@ -1,7 +1,7 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
-import { Icon, Text } from '@rneui/themed';
+import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
+import Icon from './Icon';
 
 import loc from '../loc';
 import { useTheme } from './themes';
@@ -50,7 +50,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
           styles.wrapperCustom,
         ]}
       >
-        <Icon size={24} name="chevron-left" type="ionicons" />
+        <Icon size={24} name="chevron-back" type="ionicons" />
       </Pressable>
       <View style={{ width: 200 }}>
         <Text style={[styles.text, stylesHook.text]}>{props.isItemUnknown ? loc.send.fee_custom : keys[keyIndex]}</Text>
@@ -76,7 +76,7 @@ export const ArrowPicker = (props: ArrowPickerProps) => {
           styles.wrapperCustom,
         ]}
       >
-        <Icon size={24} name="chevron-right" type="ionicons" />
+        <Icon size={24} name="chevron-forward" type="ionicons" />
       </Pressable>
     </View>
   );

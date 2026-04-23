@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { WatchOnlyWallet } from '../../class';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 jest.setTimeout(500 * 1000);
 

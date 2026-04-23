@@ -1,6 +1,6 @@
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, InteractionManager, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import Share from 'react-native-share';
 import { BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
@@ -15,7 +15,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { HDTaprootWallet } from '../../class';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
@@ -38,7 +38,7 @@ const WalletXpub: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
   const stylesHook = useDynamicStyles(); // This now includes the theme implicitly
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
-  const lastWalletIdRef = useRef<string | undefined>();
+  const lastWalletIdRef = useRef<string | undefined>(undefined);
 
   useFocusEffect(
     useCallback(() => {
@@ -47,22 +47,22 @@ const WalletXpub: React.FC = () => {
       if (lastWalletIdRef.current === walletID) {
         return;
       }
-      const task = InteractionManager.runAfterInteractions(async () => {
+      let cancelled = false;
+      (async () => {
         if (wallet) {
           const walletXpub = wallet.getXpub();
-          if (xpub !== walletXpub) {
+          if (!cancelled && xpub !== walletXpub) {
             navigation.setParams({ xpub: walletXpub || undefined });
           }
-
-          setIsLoading(false);
-        } else if (xpub) {
+          if (!cancelled) setIsLoading(false);
+        } else if (xpub && !cancelled) {
           setIsLoading(false);
         }
-      });
+      })();
       lastWalletIdRef.current = walletID;
       return () => {
         disableScreenProtect();
-        task.cancel();
+        cancelled = true;
       };
     }, [isPrivacyBlurEnabled, walletID, wallet, xpub, navigation, enableScreenProtect, disableScreenProtect]),
   );

@@ -12,7 +12,7 @@ import {
   removeAllDeliveredNotifications,
   setApplicationIconBadgeNumber,
 } from '../blue_modules/notifications';
-import { LightningCustodianWallet } from '../class';
+import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
@@ -47,7 +47,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     walletsInitialized,
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
-  const clipboardContent = useRef<undefined | string>();
+  const clipboardContent = useRef<undefined | string>(undefined);
   const navigation = useExtendedNavigation();
 
   // We need to call hooks unconditionally before any conditional logic

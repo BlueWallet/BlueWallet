@@ -1,7 +1,7 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Bech32 Segwit HD (BIP84)', () => {

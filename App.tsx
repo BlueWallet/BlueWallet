@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
 import React from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -13,7 +13,7 @@ import { StorageProvider } from './components/Context/StorageProvider';
 const App = () => {
   const colorScheme = useColorScheme();
 
-  useLogger(navigationRef);
+  useLogger(navigationRef as unknown as React.RefObject<NavigationContainerRef<ParamListBase>>);
 
   return (
     <SizeClassProvider>

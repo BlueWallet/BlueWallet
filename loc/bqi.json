@@ -211,9 +211,7 @@
     "currency": "واهڌ پیل",
     "currency_source": "نرخ ب دست ٱووڌه ز",
     "currency_fetch_error": "منه گرؽڌن نرخ سی واهڌ پیل پسند بیڌه ی ختا پؽش اووڌ.",
-    "default_info": "دووسمندیا پؽش فرز",
     "default_title": "موقه ره وندن",
-    "default_wallets": "نیشتن پوی کیفا پیل",
     "electrum_connected": "منپیز",
     "electrum_connected_not": "بؽ منپیز",
     "electrum_error_connect": "نتره و سرور الکتروم داڌه وابیڌه منپیز بۊوه",
@@ -289,6 +287,7 @@
     "offchain": "آفچین",
     "onchain": "آنچین",
     "pending": "مندیر سی زفت",
+    "list_title_received": "گرؽڌه وابیڌه",
     "transaction": "تراکونش",
     "open_url_error": "نا مووفق منه گۊشیڌن لینگ وا گشت گر پؽش فرز. گشت گر پؽش فرز خوته آلشت کوݩ ۉ ز نۊ تفره کو."
   },
@@ -352,7 +351,6 @@
     "display_in_bitcoin": "نشووݩ داڌن من بیت کوین",
     "hide": "بؽڌار",
     "display_in_sats": "نشووݩ داڌن و ری ساتۊشی",
-    "display_in_fiat": "نشووݩ داڌن و ری (ٱرز)",
     "title": "پوی مۉجۊدی"
   },
   "multisig": {

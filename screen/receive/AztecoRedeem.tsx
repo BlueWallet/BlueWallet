@@ -1,5 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import React, { useEffect, useState } from 'react';
 import { I18nManager, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 

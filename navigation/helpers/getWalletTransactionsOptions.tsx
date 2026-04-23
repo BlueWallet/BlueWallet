@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import WalletGradient from '../../class/wallet-gradient';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../DetailViewStackParamList';
@@ -32,9 +32,10 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     headerStyle: {
       backgroundColor,
     },
+    headerBackButtonDisplayMode: 'minimal',
     headerShadowVisible: false,
     headerTintColor: '#FFFFFF',
-    statusBarBackgroundColor: backgroundColor,
+    statusBarStyle: 'light',
     headerBackTitle: undefined,
     headerRight: () => RightButton,
   };
