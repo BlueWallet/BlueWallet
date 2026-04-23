@@ -143,7 +143,6 @@ export const BlueDarkTheme: Theme = {
     incomingForegroundColor: '#37C0A1',
     transactionPendingIconBackground: 'rgba(90, 158, 255, 0.3)',
     transactionPendingAnimationColor: '#5A9EFF',
-    navigationBarColor: '#3A3A3C',
     androidRippleColor: '#444444',
     transactionPendingColor: '#5A9EFF',
     transactionPendingBackgroundColor: 'rgba(10, 132, 255, 0.15)',

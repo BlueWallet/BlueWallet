@@ -136,7 +136,7 @@ const TransactionStatus: React.FC = () => {
   const { colors } = useTheme();
   const { width: windowWidth } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
-  const fetchTxInterval = useRef<NodeJS.Timeout>();
+  const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
 
   // Explicit width for To/ID text so Android StaticLayout can apply ellipsis (flex alone often fails on Android)
   const detailValueMaxWidth = useMemo(() => Math.max(0, Math.floor((windowWidth - 48) / 2)), [windowWidth]);
@@ -1083,7 +1083,7 @@ const TransactionStatus: React.FC = () => {
                 </View>
               )}
             </>
-          ) : txValue < 0 ? (
+          ) : txValue !== null && txValue < 0 ? (
             <View style={styles.stateIndicator}>
               <TransactionOutgoingIcon />
               <View style={styles.stateLabelContainer}>

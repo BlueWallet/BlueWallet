@@ -70,6 +70,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
     };
 
     const mergedTextStyle = style || styles.defaultTextStyle;
+    const textAlignStyle = textAlign ? { textAlign } : undefined;
     const finalNumberOfLines = numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
     const finalEllipsizeMode = ellipsizeMode || (truncated ? 'middle' : undefined);
 
@@ -77,11 +78,10 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
     // width so Android constrains the Text and applies ellipsis instead of wrapping (long IDs).
     const textContent = (
       <BlueText
-        style={containerStyle ? [mergedTextStyle, styles.textFillContainer] : mergedTextStyle}
+        style={containerStyle ? [mergedTextStyle, styles.textFillContainer, textAlignStyle] : [mergedTextStyle, textAlignStyle]}
         numberOfLines={finalNumberOfLines}
         ellipsizeMode={finalEllipsizeMode}
         selectable={selectable}
-        textAlign={textAlign}
         {...textProps}
         testID="AddressValue"
       >
