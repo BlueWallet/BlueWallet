@@ -69,15 +69,18 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const RightBarButtons = useMemo(
-    () => (
-      <View style={styles.headerButtonsRow}>
+    () =>
+      sizeClass === SizeClass.Large ? (
         <AddWalletButton onPress={navigateToAddWallet} />
-        <View style={styles.width16} />
-        <SettingsButton />
-      </View>
-    ),
-    [navigateToAddWallet],
-  );
+      ) : (
+        <>
+          <AddWalletButton onPress={navigateToAddWallet} />
+          <View style={styles.width24} />
+          <SettingsButton />
+        </>
+      ),
+    [sizeClass, navigateToAddWallet],
+    );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     return {
@@ -413,6 +416,9 @@ const styles = {
     alignItems: 'center' as const,
     justifyContent: 'center' as const,
     height: 32,
+  },
+  width24: {
+    width: 24,
   },
   width16: {
     width: 16,

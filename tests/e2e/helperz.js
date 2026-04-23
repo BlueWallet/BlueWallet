@@ -278,7 +278,15 @@ export async function goBack() {
     try {
       await element(by.id('BackButton')).atIndex(0).tap();
     } catch (_) {
-      await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+      try {
+        await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+      } catch (_) {
+        try {
+          await element(by.label('Back')).atIndex(0).tap();
+        } catch (_) {
+          await element(by.text('Close')).atIndex(0).tap();
+        }
+      }
     }
   } else {
     await device.pressBack();
