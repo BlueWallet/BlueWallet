@@ -87,13 +87,14 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "7.2.7"
+        versionName "8.0.0"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        missingDimensionStrategy "react-native-capture-protection", "fullMediaCapture"
+        // Keep compatibility across react-native-capture-protection flavor changes.
+        missingDimensionStrategy "react-native-capture-protection", "callbackTiramisu", "base"
     }
 
-    lintOptions {
+    lint {
         abortOnError false
         checkReleaseBuilds false
     }
@@ -106,8 +107,6 @@ android {
 
     buildTypes {
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             proguardFile "${rootProject.projectDir}/../node_modules/detox/android/detox/proguard-rules-app.pro"
@@ -123,14 +122,21 @@ task copyFiatUnits(type: Copy) {
 
 preBuild.dependsOn(copyFiatUnits)
 
+// Ensure fiat units are available before codegen scans JS sources
+tasks.configureEach { task ->
+    if (task.name == 'generateCodegenSchemaFromJavaScript') {
+        task.dependsOn(copyFiatUnits)
+    }
+}
+
 dependencies {
 		androidTestImplementation('com.wix:detox:+')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation 'androidx.core:core-ktx:1.16.0'
-    implementation 'androidx.work:work-runtime-ktx:2.10.5'
+    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.work:work-runtime-ktx:2.11.2'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.compose.ui:ui:1.9.4'
+    implementation 'androidx.compose.ui:ui:1.10.6'
     implementation 'androidx.compose.material3:material3:1.3.2'
     implementation 'androidx.preference:preference-ktx:1.2.1'
 
@@ -139,9 +145,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    androidTestImplementation('com.wix:detox:0.1.1')
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin

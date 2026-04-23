@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-import { BlueApp as BlueAppClass } from '../class/';
+import { BlueApp as BlueAppClass } from '../class/blue-app';
 import prompt from '../helpers/prompt';
 import { showKeychainWipeAlert } from '../hooks/useBiometrics';
 import loc from '../loc';

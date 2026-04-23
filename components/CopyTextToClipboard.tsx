@@ -12,8 +12,8 @@ type CopyTextToClipboardProps = TextProps & {
   selectable?: boolean;
   textAlign?: 'left' | 'center' | 'right' | 'auto' | 'justify';
   containerStyle?: ViewStyle;
+  isAddress?: boolean;
 };
-
 const styles = StyleSheet.create({
   defaultTextStyle: {
     marginVertical: 32,

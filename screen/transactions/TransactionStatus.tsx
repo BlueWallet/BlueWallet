@@ -6,7 +6,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Icon } from '@rneui/themed';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -147,7 +146,6 @@ const TransactionStatus: React.FC = () => {
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
-
   const stylesHook = StyleSheet.create({
     value: {
       color: colors.foregroundColor,
@@ -530,8 +528,10 @@ const TransactionStatus: React.FC = () => {
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
           }
-          clearInterval(fetchTxInterval.current);
-          fetchTxInterval.current = undefined;
+          if (fetchTxInterval.current) {
+            clearInterval(fetchTxInterval.current);
+            fetchTxInterval.current = undefined;
+          }
           if (wallet?.getID()) {
             // Fetch and save wallet transactions, then refresh the transaction data
             fetchAndSaveWalletTransactions(wallet.getID()).then(() => {
@@ -567,8 +567,10 @@ const TransactionStatus: React.FC = () => {
     }, intervalMs);
 
     return () => {
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
   }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet, subscribedWallet]);
 
@@ -580,8 +582,10 @@ const TransactionStatus: React.FC = () => {
 
     return () => {
       subscription.remove();
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

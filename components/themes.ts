@@ -69,7 +69,6 @@ export const BlueDefaultTheme = {
     changeText: '#F38C47',
     receiveBackground: '#D1F9D6',
     receiveText: '#37C0A1',
-    navigationBarColor: '#FFFFFF',
     androidRippleColor: '#CCCCCC',
     transactionPendingColor: '#2757C6',
     transactionPendingBackgroundColor: '#DBEFFD',

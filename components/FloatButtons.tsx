@@ -417,12 +417,15 @@ const ButtonContent = ({ icon, text, textStyle, iconStyle }: ButtonContentProps)
   if (React.isValidElement(icon)) {
     const iconElement = icon as React.ReactElement;
 
-    scaledIcon = React.cloneElement(iconElement, {
-      ...iconElement.props,
-      size: iconSize,
-      width: iconSize,
-      height: iconSize,
-    });
+    scaledIcon = React.cloneElement(
+      iconElement as React.ReactElement<any>,
+      {
+        ...(iconElement.props as Record<string, unknown>),
+        size: iconSize,
+        width: iconSize,
+        height: iconSize,
+      } as any,
+    );
   } else {
     scaledIcon = icon;
   }

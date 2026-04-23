@@ -1,19 +1,14 @@
-import React, { useReducer, useRef } from 'react';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
+import React, { useCallback, useReducer } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { BlueCard, BlueText } from '../BlueComponents';
-import presentAlert from '../components/Alert';
 import Button from '../components/Button';
 import loc from '../loc';
-import { useStorage } from '../hooks/context/useStorage';
-import PromptPasswordConfirmationModal, {
-  PromptPasswordConfirmationModalHandle,
-  MODAL_TYPES,
-} from '../components/PromptPasswordConfirmationModal';
+import { MODAL_TYPES } from './PromptPasswordConfirmationSheet.types';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
-import { StackActions } from '@react-navigation/native';
 import SafeAreaScrollView from '../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../components/BlueSpacing';
 import { BlueLoading } from '../components/BlueLoading';
+import { useStorage } from '../hooks/context/useStorage';
 
 // Action Types
 const SET_LOADING = 'SET_LOADING';
@@ -47,50 +42,25 @@ function reducer(state: State, action: Action): State {
 
 // Component
 const PlausibleDeniability: React.FC = () => {
-  const { cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
+  useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
   const navigation = useExtendedNavigation();
-  const promptRef = useRef<PromptPasswordConfirmationModalHandle>(null);
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });
     dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.CREATE_FAKE_STORAGE });
-    await promptRef.current?.present();
+    navigation.navigate('PromptPasswordConfirmationSheet', {
+      modalType: MODAL_TYPES.CREATE_FAKE_STORAGE,
+      returnTo: 'PlausibleDeniability',
+    });
   };
 
-  const handleConfirmationSuccess = async (password: string) => {
-    let success = false;
-    const isProvidedPasswordInUse = password === cachedPassword || (await isPasswordInUse(password));
-    if (isProvidedPasswordInUse) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: loc.plausibledeniability.password_should_not_match });
-      return false;
-    }
-
-    try {
-      await createFakeStorage(password);
-      resetWallets();
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-
-      // Set the modal type to SUCCESS to show the success animation instead of the alert
-      dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.SUCCESS });
-
-      success = true;
-      setTimeout(async () => {
-        const popToTop = StackActions.popToTop();
-        navigation.dispatch(popToTop);
-      }, 3000);
-    } catch {
-      success = false;
+  useFocusEffect(
+    useCallback(() => {
       dispatch({ type: SET_LOADING, payload: false });
-    }
-
-    return success;
-  };
-
-  const handleConfirmationFailure = () => {
-    dispatch({ type: SET_LOADING, payload: false });
-  };
+      dispatch({ type: SET_MODAL_TYPE, payload: MODAL_TYPES.CREATE_FAKE_STORAGE });
+    }, []),
+  );
 
   return (
     <SafeAreaScrollView centerContent={state.isLoading}>
@@ -110,12 +80,6 @@ const PlausibleDeniability: React.FC = () => {
           />
         </BlueCard>
       )}
-      <PromptPasswordConfirmationModal
-        ref={promptRef}
-        modalType={state.modalType}
-        onConfirmationSuccess={handleConfirmationSuccess}
-        onConfirmationFailure={handleConfirmationFailure}
-      />
     </SafeAreaScrollView>
   );
 };

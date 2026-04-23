@@ -2,7 +2,10 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnlyWallet } from '../../class';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { CreateTransactionUtxo } from '../../class/wallets/types.ts';
 import { Transaction } from 'bitcoinjs-lib';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras/index';

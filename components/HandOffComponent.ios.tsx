@@ -4,7 +4,7 @@ import DefaultPreference from 'react-native-default-preference';
 import Handoff from 'react-native-handoff';
 import { useSettings } from '../hooks/context/useSettings';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
-import { BlueApp } from '../class';
+import { BlueApp } from '../class/blue-app';
 import { HandOffComponentProps } from './types';
 
 const HandOffComponent: React.FC<HandOffComponentProps> = props => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../Icon';
 
 import { useTheme } from '../themes';
 
@@ -29,7 +29,7 @@ const TransactionExpiredIcon: React.FC = () => {
   return (
     <View style={styles.boxIncoming}>
       <View style={[styles.ballOutgoingExpired, stylesHooks.ballOutgoingExpired]}>
-        <Icon name="timer" size={16} type="font-awesome-6" color="#9AA0AA" />
+        <Icon name="clock" size={16} type="font-awesome-6" color="#9AA0AA" />
       </View>
     </View>
   );

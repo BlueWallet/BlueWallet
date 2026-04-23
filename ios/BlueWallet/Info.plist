@@ -132,7 +132,7 @@
 		<string>itms-apps</string>
 	</array>
 	<key>LSMinimumSystemVersion</key>
-	<string>11</string>
+	<string>14</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
@@ -195,16 +195,18 @@
 		<string>io.bluewallet.bluewallet.receiveonchain</string>
 		<string>io.bluewallet.bluewallet.xpub</string>
 	</array>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Entypo.ttf</string>
 		<string>FontAwesome.ttf</string>
-		<string>FontAwesome5_Brands.ttf</string>
-		<string>FontAwesome5_Regular.ttf</string>
-		<string>FontAwesome5_Solid.ttf</string>
+		<string>FontAwesome6_Brands.ttf</string>
+		<string>FontAwesome6_Regular.ttf</string>
+		<string>FontAwesome6_Solid.ttf</string>
 		<string>Ionicons.ttf</string>
+		<string>MaterialDesignIcons.ttf</string>
 		<string>MaterialIcons.ttf</string>
-		<string>Octicons.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
