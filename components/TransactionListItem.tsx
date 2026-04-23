@@ -289,7 +289,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         if (renderHighlightedText) {
           pop();
         }
-        navigate('TransactionStatus', { hash: item.hash, walletID });
+        navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
       } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
         const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
         if (lightningWallet.length === 1) {
