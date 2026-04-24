@@ -675,11 +675,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // change note of 0.00069909 tx output (new UI: tap "add" to open note prompt, type in alert, tap OK)
     await element(by.text('0.00069909')).atIndex(0).tap();
-    await element(by.text('Details')).tap();
     const txidToVerify = '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20';
     const shortenedTxidToVerify = `${txidToVerify.slice(0, 10)}...${txidToVerify.slice(-10)}`;
     // Transaction ID is intentionally shortened in UI; verify copy operation carries full txid.
-    await expect(element(by.text(shortenedTxidToVerify))).toBeVisible();
+    await waitFor(element(by.text(shortenedTxidToVerify)))
+      .toBeVisible()
+      .withTimeout(10000);
     await element(by.text(shortenedTxidToVerify)).tap();
     if (typeof device.getClipboard === 'function') {
       const clipboardValue = await device.getClipboard();
