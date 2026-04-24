@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, View } from 'react-native';
@@ -13,14 +13,16 @@ import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
-import { popToTop } from '../../NavigationService.ts';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'Success'>;
+type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Success'>;
 
 const Success = () => {
   const { colors } = useTheme();
   const { selectedBlockExplorer } = useSettings();
   const route = useRoute<RouteProps>();
+  const navigation = useNavigation<NavigationProps>();
   const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', txid } = route.params || {};
   const stylesHook = StyleSheet.create({
     root: {
@@ -35,8 +37,8 @@ const Success = () => {
   });
 
   const onDonePressed = () => {
-    // @ts-ignore idk
-    popToTop();
+    // Close SendDetails modal stack and return to the underlying wallet view.
+    navigation.getParent()?.goBack();
   };
 
   useEffect(() => {

@@ -1544,11 +1544,12 @@ const SendDetails = () => {
             accessibilityRole="button"
             onPress={() => {
               Keyboard.dismiss();
+              const selectedRecipientUnit = addresses[scrollIndex.current]?.unit || amountUnit;
               navigation.navigate('SelectFee', {
                 networkTransactionFees,
                 feePrecalc,
                 feeRate,
-                feeUnit,
+                feeUnit: selectedRecipientUnit,
                 walletID: wallet?.getID() || '',
                 customFee,
               });

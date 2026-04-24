@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useReducer, useEffect, FC } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, StyleSheet, Keyboard, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useTheme } from '../components/themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -151,10 +151,16 @@ const SelectFeeScreen = () => {
   const nf = networkTransactionFees;
 
   const stylesHook = StyleSheet.create({
+    keyboardAvoidingRoot: {
+      backgroundColor: colors.elevated,
+    },
+    scrollView: {
+      backgroundColor: colors.elevated,
+    },
     container: {
       backgroundColor: colors.elevated,
       paddingHorizontal: 16,
-      paddingTop: 0,
+      paddingTop: 12,
       paddingBottom: 8,
     },
     feeModalItemActiveBackground: {
@@ -259,68 +265,74 @@ const SelectFeeScreen = () => {
   );
 
   return (
-    <View style={styles.keyboardAvoidingRoot}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={[stylesHook.container, styles.screenContainer]}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.contentContainer}>
-          {state.options.map(({ label, time, fee, rate, active, disabled, feeType }) => (
-            <FeeOption
-              key={label}
-              label={label}
-              time={time}
-              fee={fee}
-              rate={rate}
-              active={active}
-              disabled={disabled}
-              onPress={() => handleFeeOptionPress(rate, feeType)}
-              formatFee={formatFee}
-              colors={colors}
-            />
-          ))}
-          <TouchableOpacity
-            accessibilityRole="button"
-            testID="feeCustomContainerButton"
-            onPress={handleCustomPress}
-            style={[
-              styles.feeModalItem,
-              styles.customFeeButton,
-              state.isCustomFeeSelected && styles.feeModalItemActive,
-              state.isCustomFeeSelected && stylesHook.feeModalItemActiveBackground,
-            ]}
-          >
-            <View style={styles.feeModalRow}>
-              <Text style={[styles.feeModalLabel, stylesHook.customLabelColor]}>{loc.send.fee_custom}</Text>
-              <View style={styles.customFeeContainer}>
-                <TextInput
-                  ref={customFeeInputRef}
-                  style={[styles.customFeeInput, stylesHook.customFeeInputColors]}
-                  keyboardType="numeric"
-                  placeholder={loc.send.insert_custom_fee}
-                  value={state.customFeeValue}
-                  placeholderTextColor={colors.placeholderTextColor}
-                  onChangeText={handleCustomFeeChange}
-                  onSubmitEditing={handleCustomFeeSubmit}
-                  onFocus={handleCustomFocus}
-                  onBlur={handleCustomFeeBlur}
-                  enablesReturnKeyAutomatically
-                  returnKeyType="done"
-                  accessibilityLabel={loc.send.create_fee}
-                  testID="feeCustom"
-                />
-                {state.customFeeValue && /^\d+(\.\d+)?$/.test(state.customFeeValue) && Number(state.customFeeValue) > 0 && (
-                  <Text style={stylesHook.satVbyteText}>{loc.units.sat_vbyte}</Text>
-                )}
+    <KeyboardAvoidingView
+      style={[styles.keyboardAvoidingRoot, stylesHook.keyboardAvoidingRoot]}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <View style={[styles.keyboardAvoidingRoot, stylesHook.keyboardAvoidingRoot]}>
+        <ScrollView
+          style={[styles.scrollView, stylesHook.scrollView]}
+          contentContainerStyle={[stylesHook.container, styles.screenContainer]}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentInsetAdjustmentBehavior="never"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.contentContainer}>
+            {state.options.map(({ label, time, fee, rate, active, disabled, feeType }) => (
+              <FeeOption
+                key={label}
+                label={label}
+                time={time}
+                fee={fee}
+                rate={rate}
+                active={active}
+                disabled={disabled}
+                onPress={() => handleFeeOptionPress(rate, feeType)}
+                formatFee={formatFee}
+                colors={colors}
+              />
+            ))}
+            <TouchableOpacity
+              accessibilityRole="button"
+              testID="feeCustomContainerButton"
+              onPress={handleCustomPress}
+              style={[
+                styles.feeModalItem,
+                styles.customFeeButton,
+                state.isCustomFeeSelected && styles.feeModalItemActive,
+                state.isCustomFeeSelected && stylesHook.feeModalItemActiveBackground,
+              ]}
+            >
+              <View style={styles.feeModalRow}>
+                <Text style={[styles.feeModalLabel, stylesHook.customLabelColor]}>{loc.send.fee_custom}</Text>
+                <View style={styles.customFeeContainer}>
+                  <TextInput
+                    ref={customFeeInputRef}
+                    style={[styles.customFeeInput, stylesHook.customFeeInputColors]}
+                    keyboardType="numeric"
+                    placeholder={loc.send.insert_custom_fee}
+                    value={state.customFeeValue}
+                    placeholderTextColor={colors.placeholderTextColor}
+                    onChangeText={handleCustomFeeChange}
+                    onSubmitEditing={handleCustomFeeSubmit}
+                    onFocus={handleCustomFocus}
+                    onBlur={handleCustomFeeBlur}
+                    enablesReturnKeyAutomatically
+                    returnKeyType="done"
+                    accessibilityLabel={loc.send.create_fee}
+                    testID="feeCustom"
+                  />
+                  {state.customFeeValue && /^\d+(\.\d+)?$/.test(state.customFeeValue) && Number(state.customFeeValue) > 0 && (
+                    <Text style={stylesHook.satVbyteText}>{loc.units.sat_vbyte}</Text>
+                  )}
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -328,10 +340,10 @@ export default SelectFeeScreen;
 
 const styles = StyleSheet.create({
   keyboardAvoidingRoot: {
-    flex: 1,
+    width: '100%',
   },
   scrollView: {
-    flex: 1,
+    width: '100%',
   },
   screenContainer: {
     paddingBottom: 0,
