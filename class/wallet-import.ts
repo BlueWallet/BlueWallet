@@ -320,6 +320,7 @@ const startImport = (
 
     yield { progress: 'wif' };
 
+    // check if text is in hex or base64 format
     const isHexKey = /^[0-9a-fA-F]{64}$/.test(text);
     const isBase64Key = /^[A-Za-z0-9+/=]{43,44}$/.test(text);
 
@@ -328,11 +329,11 @@ const startImport = (
     if (isHexKey) {
       rawKeyBuffer = Buffer.from(text, 'hex');
     } else if (isBase64Key) {
-      try {
-        rawKeyBuffer = Buffer.from(text, 'base64');
-      } catch (_) {}
+      rawKeyBuffer = Buffer.from(text, 'base64');
     }
 
+    // convert the bytes to Wallet import format, 0x80 for mainnet,
+    // compressed is set to true as it is recommended to use compressed addresses
     if (rawKeyBuffer && rawKeyBuffer.length === 32) {
       text = wif.encode(0x80, rawKeyBuffer, true);
     }
