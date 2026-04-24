@@ -454,7 +454,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       });
 
-      await w.fetchBalance();
       try {
         await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
       } catch (error) {
