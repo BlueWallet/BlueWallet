@@ -511,6 +511,7 @@ const WalletsList: React.FC = () => {
   return (
     <>
       <SafeAreaSectionList<any | string, SectionData>
+        testID="Wallets"
         renderItem={renderSectionItem}
         keyExtractor={sectionListKeyExtractor}
         renderSectionHeader={renderSectionHeader}

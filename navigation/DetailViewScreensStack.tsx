@@ -107,8 +107,7 @@ const DetailViewStackScreensStack = () => {
     const titleColorString = typeof titleColor === 'string' ? titleColor : String(titleColor);
     return {
       title,
-      headerBackButtonDisplayMode: 'minimal' as const,
-      headerBackTitle: '',
+      headerBackButtonDisplayMode: 'default' as const,
       headerBackVisible: true, // Show back button on Android
       headerShadowVisible: false,
       headerLargeTitle: false,
