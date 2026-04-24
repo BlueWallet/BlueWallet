@@ -10,6 +10,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     shouldOpenOnLongPress = true,
     disabled = false,
     onPress,
+    isButton = false,
     buttonStyle,
     onPressMenuItem,
     children,
@@ -141,6 +142,33 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   const renderMenuView = () => {
     if (disabled) {
       return null;
+    }
+
+    // Keep wrapper behavior opt-in for button-like call sites.
+    // Non-button usages should not gain extra press/long-press handlers.
+    const shouldWrapWithPressable = isButton || Boolean(onPress);
+
+    if (!shouldWrapWithPressable) {
+      return (
+        <ContextMenu
+          title={title}
+          previewBackgroundColor="transparent"
+          onPress={handlePressMenuItemForMenuView}
+          onCancel={() => {
+            if (!openedRef.current) {
+              return;
+            }
+            openedRef.current = false;
+            onMenuWillHide?.();
+          }}
+          actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
+          dropdownMenuMode={!shouldOpenOnLongPress}
+          disabled={disabled}
+          style={style}
+        >
+          {children}
+        </ContextMenu>
+      );
     }
 
     return (

@@ -84,7 +84,7 @@ const DetailViewStackScreensStack = () => {
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     return {
-      title: sizeClass === SizeClass.Large ? loc.transactions.list_title : '',
+      title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
       headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
