@@ -39,7 +39,7 @@ import { useLocale } from '@react-navigation/native';
 
 export const WALLET_CAROUSEL_HEADER_WIDTH = 16;
 
-export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round((screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82));
+export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
 
 interface NewWalletPanelProps {
   onPress: () => void;
