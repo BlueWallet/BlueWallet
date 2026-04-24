@@ -148,6 +148,7 @@ const SelectFeeScreen = () => {
   });
 
   const customFeeInputRef = useRef<TextInput>(null);
+  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nf = networkTransactionFees;
 
   const stylesHook = StyleSheet.create({
@@ -256,11 +257,29 @@ const SelectFeeScreen = () => {
   }, [state.customFeeValue]);
 
   const handleCustomFocus = useCallback(() => dispatch({ type: FeeScreenActions.SET_CUSTOM_FEE_FOCUSED }), []);
-  const handleCustomPress = useCallback(() => customFeeInputRef.current?.focus(), []);
+  const handleCustomPress = useCallback(() => {
+    if (focusTimeoutRef.current) {
+      clearTimeout(focusTimeoutRef.current);
+    }
+    if (Platform.OS === 'android') {
+      // Let sheet/touch animations settle before requesting focus.
+      focusTimeoutRef.current = setTimeout(() => {
+        customFeeInputRef.current?.focus();
+      }, 120);
+      return;
+    }
+    customFeeInputRef.current?.focus();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
-      return () => Keyboard.dismiss();
+      return () => {
+        if (focusTimeoutRef.current) {
+          clearTimeout(focusTimeoutRef.current);
+          focusTimeoutRef.current = null;
+        }
+        Keyboard.dismiss();
+      };
     }, []),
   );
 
