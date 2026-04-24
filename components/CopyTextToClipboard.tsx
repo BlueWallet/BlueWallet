@@ -46,6 +46,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
     const [hasTappedText, setHasTappedText] = useState(false);
     const initialDisplayText = displayTextProp || text;
     const [displayText, setDisplayText] = useState(initialDisplayText);
+    const isCopiedState = hasTappedText && displayText === 'copied!';
 
     useEffect(() => {
       if (!hasTappedText) {
@@ -66,19 +67,19 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       setTimeout(() => {
         setHasTappedText(false);
         setDisplayText(displayTextProp || text);
-      }, 1000);
+      }, 1500);
     };
 
     const mergedTextStyle = style || styles.defaultTextStyle;
     const textAlignStyle = textAlign ? { textAlign } : undefined;
-    const finalNumberOfLines = numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
-    const finalEllipsizeMode = ellipsizeMode || (truncated ? 'middle' : undefined);
+    const finalNumberOfLines = isCopiedState ? 1 : numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
+    const finalEllipsizeMode = isCopiedState ? undefined : ellipsizeMode || (truncated ? 'middle' : undefined);
 
     // When containerStyle is used (e.g. fixed width for ellipsis), wrap Text in a View with that
     // width so Android constrains the Text and applies ellipsis instead of wrapping (long IDs).
     const textContent = (
       <BlueText
-        style={containerStyle ? [mergedTextStyle, styles.textFillContainer, textAlignStyle] : [mergedTextStyle, textAlignStyle]}
+        style={containerStyle && !isCopiedState ? [mergedTextStyle, styles.textFillContainer, textAlignStyle] : [mergedTextStyle, textAlignStyle]}
         numberOfLines={finalNumberOfLines}
         ellipsizeMode={finalEllipsizeMode}
         selectable={selectable}
