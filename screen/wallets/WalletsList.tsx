@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel from '../../components/WalletsCarousel';
+import WalletsCarousel, { getWalletCarouselItemWidth } from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -236,10 +236,13 @@ const WalletsList: React.FC = () => {
       if (!isFocused) return;
 
       const contentOffset = e.nativeEvent.contentOffset;
-      const index = Math.ceil(contentOffset.x / width);
+      const cardWidth = getWalletCarouselItemWidth(width);
+      const snapStep = cardWidth; // keep in sync with WalletsCarousel snap interval
+      const index = Math.max(0, Math.round(contentOffset.x / snapStep));
 
       if (currentWalletIndex.current !== index) {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
           refreshWallets(index, false, false);
         }
