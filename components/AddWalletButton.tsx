@@ -11,21 +11,6 @@ type AddWalletButtonProps = {
   onPress?: (event: GestureResponderEvent) => void;
 };
 
-const styles = StyleSheet.create({
-  ball: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
-
 const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const navigation = useExtendedNavigation();
@@ -64,3 +49,18 @@ const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
 };
 
 export default AddWalletButton;
+
+const styles = StyleSheet.create({
+  ball: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

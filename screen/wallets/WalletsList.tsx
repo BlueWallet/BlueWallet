@@ -121,7 +121,6 @@ const WalletsList: React.FC = () => {
     },
     listHeaderText: {
       color: colors.foregroundColor,
-      flexShrink: 1,
     },
   });
 
@@ -545,6 +544,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginVertical: 16,
     flexWrap: 'wrap',
+    flexShrink: 1,
   },
   footerRoot: {
     top: 80,

@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, StyleSheet } from 'react-native';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -175,27 +175,11 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       <Pressable
         android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}
         style={({ pressed }) => {
-          const base: ViewStyle[] = [styles.pressable];
-          if (style) {
-            if (Array.isArray(style)) {
-              base.push(...style);
-            } else {
-              base.push(style);
-            }
-          }
-          if (buttonStyle) {
-            if (Array.isArray(buttonStyle)) {
-              base.push(...buttonStyle);
-            } else {
-              base.push(buttonStyle);
-            }
-          }
           // Keep visual feedback on Android by default. iOS context-menu preview
           // already applies a system press effect; opt in when needed.
           const shouldApplyPressedStyle =
             pressed && ((Platform.OS === 'android' && enableAndroidRipple) || (Platform.OS === 'ios' && enableIOSPressOpacity));
-          if (shouldApplyPressedStyle) base.push(styles.pressed);
-          return base;
+          return StyleSheet.flatten([styles.pressable, style, buttonStyle, shouldApplyPressedStyle && styles.pressed]);
         }}
         disabled={disabled}
         onPress={onPress}

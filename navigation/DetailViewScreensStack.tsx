@@ -411,16 +411,13 @@ export default DetailViewStackScreensStack;
 
 const styles = {
   headerButtonsRow: {
-    flexDirection: 'row' as const,
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     height: 32,
   },
   width24: {
     width: 24,
-  },
-  width16: {
-    width: 16,
   },
   walletDetails: {
     justifyContent: 'center',
