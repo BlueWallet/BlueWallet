@@ -27,8 +27,6 @@ import WalletsList from '../screen/wallets/WalletsList';
 import { DetailViewStack } from './index';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import SettingsButton from '../components/icons/SettingsButton';
-import { useSettings } from '../hooks/context/useSettings';
-import { useStorage } from '../hooks/context/useStorage';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';
@@ -62,8 +60,6 @@ const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
-  const { wallets } = useStorage();
-  const { isTotalBalanceEnabled } = useSettings();
   const { sizeClass } = useSizeClass();
 
   const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
@@ -75,7 +71,7 @@ const DetailViewStackScreensStack = () => {
   const RightBarButtons = useMemo(
     () =>
       sizeClass === SizeClass.Large ? (
-        <SettingsButton />
+        <AddWalletButton onPress={navigateToAddWallet} />
       ) : (
         <>
           <AddWalletButton onPress={navigateToAddWallet} />
@@ -87,17 +83,16 @@ const DetailViewStackScreensStack = () => {
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
-    const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     return {
-      title: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
-      headerLargeTitle: displayTitle && sizeClass === SizeClass.Compact,
+      title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+      headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
-  }, [RightBarButtons, sizeClass, isTotalBalanceEnabled, theme.colors.customHeader, wallets]);
+  }, [RightBarButtons, sizeClass, theme.colors.customHeader]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
@@ -112,8 +107,7 @@ const DetailViewStackScreensStack = () => {
     const titleColorString = typeof titleColor === 'string' ? titleColor : String(titleColor);
     return {
       title,
-      headerBackButtonDisplayMode: 'minimal' as const,
-      headerBackTitle: '',
+      headerBackButtonDisplayMode: 'default' as const,
       headerBackVisible: true, // Show back button on Android
       headerShadowVisible: false,
       headerLargeTitle: false,
@@ -416,6 +410,12 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = {
+  headerButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 32,
+  },
   width24: {
     width: 24,
   },

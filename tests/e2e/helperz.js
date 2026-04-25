@@ -251,6 +251,33 @@ export async function tapIfTextPresent(text) {
   // no need to check for visibility, just silently ignore exception if such testID is not present
 }
 
+/**
+ * Confirms password dialogs in a platform-safe way.
+ * Android must tap a visible confirmation to keep test flow deterministic.
+ * iOS can fall back between id-based and text-based buttons.
+ */
+export async function confirmPasswordDialog() {
+  if (device.getPlatform() === 'android') {
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.text('OK')).tap();
+    return;
+  }
+
+  try {
+    await waitFor(element(by.id('OKButton')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.id('OKButton')).tap();
+  } catch (_) {
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.text('OK')).tap();
+  }
+}
+
 export async function countElements(testId) {
   let count = 0;
   while (true) {
@@ -277,8 +304,16 @@ export async function goBack() {
   if (device.getPlatform() === 'ios') {
     try {
       await element(by.id('BackButton')).atIndex(0).tap();
-    } catch (_) {
-      await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+    } catch (_backError) {
+      try {
+        await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+      } catch (_closeButtonError) {
+        try {
+          await element(by.label('Back')).atIndex(0).tap();
+        } catch (_backLabelError) {
+          await element(by.text('Close')).atIndex(0).tap();
+        }
+      }
     }
   } else {
     await device.pressBack();
