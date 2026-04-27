@@ -873,9 +873,8 @@ const TransactionStatus: React.FC = () => {
     const toSats = (raw: unknown): number | null => {
       const parsed = Number(raw);
       if (!Number.isFinite(parsed)) return null;
-      // If value is already an integer sat amount, keep as-is.
-      if (Number.isInteger(parsed)) return parsed;
-      // Otherwise treat as BTC decimal and convert to sats.
+      // Electrum tx vin/vout values are BTC-denominated (can still be whole numbers like "1"),
+      // so always convert BTC -> sats to avoid under/over-counting fees.
       return Math.round(parsed * 100000000);
     };
     let totalInputs = 0;
@@ -1027,15 +1026,25 @@ const TransactionStatus: React.FC = () => {
       {/* Value Section */}
       <View style={styles.valueCard}>
         <View style={styles.valueContent}>
-          <Text style={[styles.value, stylesHook.value]} selectable>
+          <Text
+            style={[styles.value, stylesHook.value]}
+            selectable
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.55}
+          >
             {txValue !== null ? formatBalanceWithoutSuffix(txValue, preferredBalanceUnit, true) : '-'}
             {` `}
             {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
               <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{preferredBalanceUnit}</Text>
             )}
           </Text>
-          {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && txValue !== null && (
-            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{satoshiToLocalCurrency(Math.abs(txValue))}</Text>
+          {txValue !== null && (
+            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>
+              {preferredBalanceUnit === BitcoinUnit.LOCAL_CURRENCY
+                ? `${formatBalanceWithoutSuffix(Math.abs(txValue), BitcoinUnit.BTC, true)} ${BitcoinUnit.BTC}`
+                : satoshiToLocalCurrency(Math.abs(txValue))}
+            </Text>
           )}
         </View>
       </View>
