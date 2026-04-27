@@ -344,12 +344,13 @@ export default SelectFeeScreen;
 
 const styles = StyleSheet.create({
   keyboardAvoidingRoot: {
-    width: '100%',
+    flex: 1,
   },
   scrollView: {
-    width: '100%',
+    flex: 1,
   },
   screenContainer: {
+    flexGrow: 1,
     paddingBottom: 0,
   },
   contentContainer: {
