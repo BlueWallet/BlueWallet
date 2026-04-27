@@ -4,6 +4,7 @@ import { useTheme } from '../components/themes';
 import loc, { formatBalance } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SendDetailsStackParamList } from '../navigation/SendDetailsStackParamList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
@@ -137,6 +138,7 @@ const SelectFeeScreen = () => {
   const navigation = useNavigation<SelectFeeScreenNavigationProp>();
   const route = useRoute<SelectFeeScreenRouteProp>();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
 
   const { networkTransactionFees, feePrecalc, feeRate, feeUnit = BitcoinUnit.BTC, walletID, customFee } = route.params;
 
@@ -161,7 +163,7 @@ const SelectFeeScreen = () => {
       backgroundColor: colors.elevated,
       paddingHorizontal: 16,
       paddingTop: 12,
-      paddingBottom: 8,
+      paddingBottom: Math.max(insets.bottom, 16) + 8,
     },
     feeModalItemActiveBackground: {
       backgroundColor: colors.feeActive,
