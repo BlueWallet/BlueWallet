@@ -1,6 +1,6 @@
 import React, { lazy, useCallback, useMemo } from 'react';
 import { View, Platform, PlatformColor } from 'react-native';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackHeaderItem } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -53,6 +53,7 @@ import { isDesktop } from '../blue_modules/environment';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
+import { isIOS26OrHigher } from '../components/platform';
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
@@ -66,6 +67,18 @@ const DetailViewStackScreensStack = () => {
 
   const navigateToAddWallet = useCallback(() => {
     navigation.navigate('AddWalletRoot');
+  }, [navigation]);
+
+  const navigateToSettings = useCallback(() => {
+    // From this component, `useNavigation()` returns the Drawer's navigation, not the
+    // inner DetailViewStack's. `Settings` lives inside DrawerRoot -> DetailViewStackScreensStack
+    // -> (inner) DetailViewStack, so we need the explicit nested form to reach it.
+    navigation.navigate('DrawerRoot', {
+      screen: 'DetailViewStackScreensStack',
+      params: {
+        screen: 'Settings',
+      },
+    });
   }, [navigation]);
 
   const RightBarButtons = useMemo(
@@ -83,6 +96,46 @@ const DetailViewStackScreensStack = () => {
   );
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
+    if (isIOS26OrHigher) {
+      // On iOS 26, render each header button as a native UIBarButtonItem via
+      // `unstable_headerRightItems` with `type: 'button'` (default plain variant).
+      // `sharesBackground: false` opts each item out of the shared capsule so we get
+      // one circular glass button per icon at the system default size. We avoid
+      // `variant: 'prominent'`, which fills the button with the system tint color
+      // (solid blue) instead of the glass material we want. The legacy long-press
+      // secondary menus (Import Wallet / Manage Wallets) are intentionally not
+      // exposed on iOS 26 since native bar buttons can't combine a primary tap
+      // action with a long-press menu.
+      return {
+        title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+        headerLargeTitle: false,
+        headerTransparent: true,
+        unstable_headerRightItems: () => {
+          if (isDesktop) {
+            return [];
+          }
+          const items: NativeStackHeaderItem[] = [
+            {
+              type: 'button',
+              label: loc.wallets.add_title,
+              icon: { type: 'sfSymbol', name: 'plus' },
+              sharesBackground: false,
+              onPress: navigateToAddWallet,
+            },
+          ];
+          if (sizeClass !== SizeClass.Large) {
+            items.push({
+              type: 'button',
+              label: loc.settings.default_title,
+              icon: { type: 'sfSymbol', name: 'ellipsis' },
+              sharesBackground: false,
+              onPress: navigateToSettings,
+            });
+          }
+          return items;
+        },
+      };
+    }
     return {
       title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
       headerLargeTitle: false,
@@ -92,7 +145,7 @@ const DetailViewStackScreensStack = () => {
       },
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
-  }, [RightBarButtons, sizeClass, theme.colors.customHeader]);
+  }, [RightBarButtons, sizeClass, theme.colors.customHeader, navigateToAddWallet, navigateToSettings]);
 
   const walletListScreenOptions = useWalletListScreenOptions;
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
@@ -101,6 +154,14 @@ const DetailViewStackScreensStack = () => {
 
   // Consistent header configuration for all settings screens
   const getSettingsHeaderOptions = (title: string) => {
+    if (isIOS26OrHigher) {
+      return {
+        title,
+        headerLargeTitle: true,
+        headerLargeTitleShadowVisible: true,
+        headerBackButtonDisplayMode: 'minimal' as const,
+      };
+    }
     // Use PlatformColor for iOS to match the Settings component, fallback to theme color
     const titleColor = Platform.OS === 'ios' ? PlatformColor('label') : theme.colors.foregroundColor;
     // Convert PlatformColor to string for TypeScript compatibility
@@ -122,6 +183,11 @@ const DetailViewStackScreensStack = () => {
       },
     };
   };
+
+  // On iOS 26+, bypass navigationStyle so its `headerShadowVisible: false` default
+  // doesn't interfere with the native large-title shadow (`headerLargeTitleShadowVisible`).
+  const settingsScreenOptions = (title: string) =>
+    isIOS26OrHigher ? getSettingsHeaderOptions(title) : navigationStyle(getSettingsHeaderOptions(title))(theme);
 
   return (
     <DetailViewStack.Navigator
@@ -195,22 +261,14 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
       />
 
-      <DetailViewStack.Screen
-        name="Broadcast"
-        component={Broadcast}
-        options={navigationStyle(getSettingsHeaderOptions(loc.send.create_broadcast))(theme)}
-      />
+      <DetailViewStack.Screen name="Broadcast" component={Broadcast} options={settingsScreenOptions(loc.send.create_broadcast)} />
       <DetailViewStack.Screen
         name="IsItMyAddress"
         component={IsItMyAddress}
         initialParams={{ address: undefined }}
-        options={navigationStyle(getSettingsHeaderOptions(loc.is_it_my_address.title))(theme)}
+        options={settingsScreenOptions(loc.is_it_my_address.title)}
       />
-      <DetailViewStack.Screen
-        name="GenerateWord"
-        component={GenerateWord}
-        options={navigationStyle(getSettingsHeaderOptions(loc.autofill_word.title))(theme)}
-      />
+      <DetailViewStack.Screen name="GenerateWord" component={GenerateWord} options={settingsScreenOptions(loc.autofill_word.title)} />
       <DetailViewStack.Screen
         name="LnurlPay"
         component={LnurlPay}
@@ -253,113 +311,88 @@ const DetailViewStackScreensStack = () => {
       <DetailViewStack.Screen
         name="Settings"
         component={Settings}
-        options={navigationStyle({
-          title: loc.settings.header,
-          headerBackButtonDisplayMode: 'minimal',
-          headerBackTitle: '',
-          headerShadowVisible: false,
-          // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
-          headerLargeTitle: Platform.OS === 'ios',
-          headerLargeTitleStyle:
-            Platform.OS === 'ios'
-              ? {
+        options={
+          isIOS26OrHigher
+            ? getSettingsHeaderOptions(loc.settings.header)
+            : navigationStyle({
+                title: loc.settings.header,
+                headerBackButtonDisplayMode: 'minimal',
+                headerBackTitle: '',
+                headerShadowVisible: false,
+                // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
+                headerLargeTitle: Platform.OS === 'ios',
+                headerLargeTitleStyle:
+                  Platform.OS === 'ios'
+                    ? {
+                        color:
+                          typeof theme.colors.foregroundColor === 'string'
+                            ? theme.colors.foregroundColor
+                            : String(theme.colors.foregroundColor),
+                      }
+                    : undefined,
+                headerTitleStyle: {
                   color:
                     typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
-                }
-              : undefined,
-          headerTitleStyle: {
-            color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
-          },
-          headerTransparent: false,
-          headerBlurEffect: undefined,
-          headerStyle: {
-            backgroundColor: settingsHeaderBackgroundColor,
-          },
-          animationTypeForReplace: 'push',
-        })(theme)}
+                },
+                headerTransparent: false,
+                headerBlurEffect: undefined,
+                headerStyle: {
+                  backgroundColor: settingsHeaderBackgroundColor,
+                },
+                animationTypeForReplace: 'push',
+              })(theme)
+        }
       />
-      <DetailViewStack.Screen
-        name="Currency"
-        component={Currency}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.currency))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="GeneralSettings"
-        component={GeneralSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.general))(theme)}
-      />
+      <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
+      <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
       <DetailViewStack.Screen
         name="PlausibleDeniability"
         component={PlausibleDeniability}
-        options={navigationStyle(getSettingsHeaderOptions(loc.plausibledeniability.title))(theme)}
+        options={settingsScreenOptions(loc.plausibledeniability.title)}
       />
-      <DetailViewStack.Screen
-        name="Licensing"
-        component={Licensing}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.license))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="NetworkSettings"
-        component={NetworkSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.network))(theme)}
-      />
+      <DetailViewStack.Screen name="Licensing" component={Licensing} options={settingsScreenOptions(loc.settings.license)} />
+      <DetailViewStack.Screen name="NetworkSettings" component={NetworkSettings} options={settingsScreenOptions(loc.settings.network)} />
       <DetailViewStack.Screen
         name="SettingsBlockExplorer"
         component={SettingsBlockExplorer}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.block_explorer))(theme)}
+        options={settingsScreenOptions(loc.settings.block_explorer)}
       />
 
-      <DetailViewStack.Screen
-        name="About"
-        component={About}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)}
-      />
+      <DetailViewStack.Screen name="About" component={About} options={settingsScreenOptions(loc.settings.about)} />
       {/* <DetailViewStack.Screen
         name="DefaultView"
         component={DefaultView}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.default_title))(theme)}
+        options={settingsScreenOptions(loc.settings.default_title)}
       /> */}
       <DetailViewStack.Screen
         name="ElectrumSettings"
         component={ElectrumSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server))(theme)}
+        options={settingsScreenOptions(loc.settings.electrum_settings_server)}
         initialParams={{ server: undefined }}
       />
       <DetailViewStack.Screen
         name="EncryptStorage"
         component={EncryptStorage}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.encrypt_title))(theme)}
+        options={settingsScreenOptions(loc.settings.encrypt_title)}
       />
-      <DetailViewStack.Screen
-        name="Language"
-        component={Language}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.language))(theme)}
-      />
+      <DetailViewStack.Screen name="Language" component={Language} options={settingsScreenOptions(loc.settings.language)} />
       <DetailViewStack.Screen
         name="LightningSettings"
         component={LightningSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.lightning_settings))(theme)}
+        options={settingsScreenOptions(loc.settings.lightning_settings)}
       />
       <DetailViewStack.Screen
         name="NotificationSettings"
         component={NotificationSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.notifications))(theme)}
+        options={settingsScreenOptions(loc.settings.notifications)}
       />
-      <DetailViewStack.Screen
-        name="SelfTest"
-        component={SelfTest}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.selfTest))(theme)}
-      />
+      <DetailViewStack.Screen name="SelfTest" component={SelfTest} options={settingsScreenOptions(loc.settings.selfTest)} />
       <DetailViewStack.Screen
         name="ReleaseNotes"
         component={ReleaseNotes}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.about_release_notes))(theme)}
+        options={settingsScreenOptions(loc.settings.about_release_notes)}
       />
-      <DetailViewStack.Screen
-        name="SettingsTools"
-        component={SettingsTools}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
-      />
+      <DetailViewStack.Screen name="SettingsTools" component={SettingsTools} options={settingsScreenOptions(loc.settings.tools)} />
       <DetailViewStack.Screen
         name="PromptPasswordConfirmationSheet"
         component={PromptPasswordConfirmationSheet}
