@@ -2156,29 +2156,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNQrGenerator (2.0.0):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - Yoga
-    - ZXingObjC
   - RNQuickAction (0.3.13):
     - React
   - RNReactNativeHapticFeedback (2.3.4):
@@ -2465,9 +2442,6 @@ PODS:
     - ReactNativeDependencies
     - Yoga
   - Yoga (0.0.0)
-  - ZXingObjC (3.6.9):
-    - ZXingObjC/All (= 3.6.9)
-  - ZXingObjC/All (3.6.9)
 
 DEPENDENCIES:
   - "BugsnagReactNative (from `../node_modules/@bugsnag/react-native`)"
@@ -2576,7 +2550,6 @@ DEPENDENCIES:
   - RNKeychain (from `../node_modules/react-native-keychain`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNPermissions (from `../node_modules/react-native-permissions`)
-  - RNQrGenerator (from `../node_modules/rn-qr-generator`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -2591,7 +2564,6 @@ SPEC REPOS:
   trunk:
     - CocoaAsyncSocket
     - lottie-ios
-    - ZXingObjC
 
 EXTERNAL SOURCES:
   BugsnagReactNative:
@@ -2805,8 +2777,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-localize"
   RNPermissions:
     :path: "../node_modules/react-native-permissions"
-  RNQrGenerator:
-    :path: "../node_modules/rn-qr-generator"
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
   RNReactNativeHapticFeedback:
@@ -2831,7 +2801,7 @@ SPEC CHECKSUMS:
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   FBLazyVector: e97c19a5a442429d1988f182a1940fb08df514da
-  hermes-engine: 26a52ac276936854ac2797880e2c181aa1fb0025
+  hermes-engine: 5b6b255f9e4ba0f6f699433393c9ca57c402fc96
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
   lottie-react-native: 6a080b2f109ef611c75c503a33ebb8ea75db0c91
   RCTDeprecation: af44b104091a34482596cd9bd7e8d90c4e9b4bd7
@@ -2842,7 +2812,7 @@ SPEC CHECKSUMS:
   React: 1ba7d364ade7d883a1ec055bfc3606f35fdee17b
   React-callinvoker: bc2a26f8d84fb01f003fc6de6c9337b64715f95b
   React-Core: 7840d3a80b43a95c5e80ef75146bd70925ebab0f
-  React-Core-prebuilt: 96b4b7f11b336f3b9d498eca3460c82ee260b31e
+  React-Core-prebuilt: fe445abdc8b577160a3ecf632edd6545f00f10cf
   React-CoreModules: 2eb010400b63b89e53a324ffb3c112e4c7c3ce42
   React-cxxreact: a558e92199d26f145afa9e62c4233cf8e7950efe
   React-debug: 755200a6e7f5e6e0a40ff8d215493d43cce285fc
@@ -2922,7 +2892,7 @@ SPEC CHECKSUMS:
   ReactCodegen: c8cd59a80d11b8c2f8e70fab3cdc62673ae56f1b
   ReactCommon: 07572bf9e687c8a52fbe4a3641e9e3a1a477c78e
   ReactNativeCameraKit: 2f24ad111e0f525a6529dd0eff5bf5d4454a24ba
-  ReactNativeDependencies: d91ea5381a1df88b4bc29bfb8a525ececa743c3d
+  ReactNativeDependencies: 9f044a84d7bddd9822da88447b4a37e7cc085862
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
   RNCAsyncStorage: 3a4f5e2777dae1688b781a487923a08569e27fe4
   RNCClipboard: 88d7eeb555d1183915f0885bdbc5c97eb6f7f3ba
@@ -2934,7 +2904,6 @@ SPEC CHECKSUMS:
   RNKeychain: 667b7bd224f14055ae4cb52b41a82ad0ad70574f
   RNLocalize: 1e6eb4290e89502c3d2193d82dfb7de14a9e672b
   RNPermissions: 71ff057a9f7607de93c7b4e27db8a76cf03d2367
-  RNQrGenerator: dd31405ad364fc0950cda4e4e9c08293d26c7058
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReactNativeHapticFeedback: d6666654afe70a15d04ecb6257809a4081fab84c
   RNReanimated: 66fa99647173f254f731e6aa59a0a2cc8c838ac1
@@ -2944,7 +2913,6 @@ SPEC CHECKSUMS:
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   RNWorklets: 30f9a363d681c776a5f9d74f6d21a6d1bb7bfe80
   Yoga: c0b3f2c7e8d3e327e450223a2414ca3fa296b9a2
-  ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
 PODFILE CHECKSUM: 7e23f7f009125b117989e69fd28c8a04aa4eacc8
 
