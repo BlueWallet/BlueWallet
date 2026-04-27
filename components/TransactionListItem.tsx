@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo, memo } from 'react';
+import React, { useCallback, useMemo, memo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Linking, Text, TextStyle, ViewStyle, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Linking, Pressable, Text, TextStyle, ViewStyle, StyleSheet, View } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
@@ -28,11 +28,6 @@ import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import ListItem from './ListItem';
 
 const styles = StyleSheet.create({
-  pressable: {
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    width: '100%',
-  },
   dateLine: {
     fontSize: 13,
   },
@@ -70,7 +65,44 @@ const styles = StyleSheet.create({
   rightTitle: {
     textAlign: 'right',
   },
+  animatedScaleContainer: {
+    width: '100%',
+  },
 });
+
+type AnimatedPressableRowProps = {
+  onPress: () => void;
+  children: React.ReactNode;
+  accessibilityLabel: string;
+};
+
+const AnimatedPressableRow: React.FC<AnimatedPressableRowProps> = ({ onPress, children, accessibilityLabel }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const animateTo = useCallback(
+    (toValue: number) => {
+      Animated.timing(scaleAnim, {
+        toValue,
+        duration: 120,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    },
+    [scaleAnim],
+  );
+
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={() => animateTo(0.97)}
+      onPressOut={() => animateTo(1)}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+    >
+      <Animated.View style={[styles.animatedScaleContainer, { transform: [{ scale: scaleAnim }] }]}>{children}</Animated.View>
+    </Pressable>
+  );
+};
 
 interface TransactionListItemProps {
   itemPriceUnit?: BitcoinUnit;
@@ -443,45 +475,45 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     return (
       <ToolTipMenu
-        isButton
         actions={toolTipActions}
         onPressMenuItem={onToolTipPress}
-        onPress={onPress}
         shouldOpenOnLongPress
-        buttonStyle={styles.fullWidthButton}
+        style={styles.fullWidthButton}
         accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
         accessibilityRole="button"
       >
-        {/* @ts-ignore - Context menu wrapper types can be overly strict about child element props */}
-        <ListItem
-          leftAvatar={avatar}
-          title={listTitle}
-          subtitle={<Text style={styles.dateLine}>{dateLine}</Text>}
-          chevron={false}
-          rightTitle={rowTitle}
-          rightTitleStyle={rowTitleStyle}
-          rightSubtitle={noteForCopy}
-          rightSubtitleStyle={styles.rightColumn}
-          containerStyle={combinedStyle}
-          testID="TransactionListItem"
-          accessibilityRole="button"
-          accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
-        >
-          <View style={styles.row}>
-            <View style={styles.avatarContainer}>{avatar}</View>
-            <View style={styles.textContainer}>
-              <Text style={[styles.title, titleStyle]} numberOfLines={1}>
-                {title}
-              </Text>
-              {subtitleContent}
+        <AnimatedPressableRow onPress={onPress} accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}>
+          {/* @ts-ignore - Context menu wrapper types can be overly strict about child element props */}
+          <ListItem
+            leftAvatar={avatar}
+            title={listTitle}
+            subtitle={<Text style={styles.dateLine}>{dateLine}</Text>}
+            chevron={false}
+            rightTitle={rowTitle}
+            rightTitleStyle={rowTitleStyle}
+            rightSubtitle={noteForCopy}
+            rightSubtitleStyle={styles.rightColumn}
+            containerStyle={combinedStyle}
+            testID="TransactionListItem"
+            accessibilityRole="button"
+            accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+          >
+            <View style={styles.row}>
+              <View style={styles.avatarContainer}>{avatar}</View>
+              <View style={styles.textContainer}>
+                <Text style={[styles.title, titleStyle]} numberOfLines={1}>
+                  {title}
+                </Text>
+                {subtitleContent}
+              </View>
+              <View style={styles.rightColumn}>
+                <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
+                  {rowTitle}
+                </Text>
+              </View>
             </View>
-            <View style={styles.rightColumn}>
-              <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
-                {rowTitle}
-              </Text>
-            </View>
-          </View>
-        </ListItem>
+          </ListItem>
+        </AnimatedPressableRow>
       </ToolTipMenu>
     );
   },
