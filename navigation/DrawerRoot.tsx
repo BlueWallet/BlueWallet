@@ -1,12 +1,14 @@
 import { createDrawerNavigator, DrawerNavigationOptions, DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useLocale } from '@react-navigation/native';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, Easing } from 'react-native';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import DrawerList from '../screen/wallets/DrawerList';
 import DetailViewStackScreensStack from './DetailViewScreensStack';
 import { DrawerParamList } from './DrawerParamList';
 import useCompanionListeners from '../hooks/useCompanionListeners';
+import { useStorage } from '../hooks/context/useStorage';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
@@ -36,7 +38,16 @@ const getAnimationConfig = (isDrawerTransitionConfigured: boolean) => {
 const DrawerRoot = () => {
   const { sizeClass, isLargeScreen } = useSizeClass();
   const { direction } = useLocale();
+  const { wallets } = useStorage();
   useCompanionListeners();
+
+  // Keep the wallets reference live so the static background callbacks always
+  // see the current list (instead of capturing a stale render's value).
+  const walletsRef = useRef(wallets);
+  walletsRef.current = wallets;
+  useEffect(() => {
+    LightningArkWallet.syncBackground(() => walletsRef.current).catch(e => console.log('[ArkadeSync] syncBackground failed:', e));
+  }, [wallets]);
 
   const getDrawerWidth = useMemo(() => {
     switch (sizeClass) {

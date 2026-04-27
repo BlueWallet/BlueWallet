@@ -53,7 +53,7 @@ export type DetailViewStackParamList = {
     onChainRequireSend?: boolean;
     selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
   };
-  LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
+  LNDViewInvoice: { invoice: LightningTransaction | string; walletID: string; swapId?: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
   LNDViewAdditionalInvoicePreImage: { invoiceId: string };
   Broadcast: object;

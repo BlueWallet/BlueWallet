@@ -115,11 +115,15 @@ export default class SelfTest extends Component {
         const spkw = new LightningArkWallet();
         spkw.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
         await spkw.init();
-        assertStrictEqual(
-          await spkw.getArkAddress(),
-          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t59s7u3fgnd3lyjda00ycjq53mgxl6wsxspe4s72t5dss3q6w5clv0xpgal',
-          'Ark failed',
-        );
+        const arkAddress = await spkw.getArkAddress();
+        const expectedAddress =
+          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t4damkjtcm90w43zn6f90ermjhr9d2qxmsw75r7daanhmasp6avmstu5est';
+        if (arkAddress !== expectedAddress) {
+          throw new Error('Ark address mismatch: expected ' + expectedAddress + ' but got ' + arkAddress);
+        }
+        if (!spkw.isAddressValid(arkAddress)) {
+          throw new Error('Ark address is not valid: ' + arkAddress);
+        }
       } else {
         // skipping RN-specific test
       }

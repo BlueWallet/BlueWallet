@@ -21,24 +21,27 @@ import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
   invoice: LightningTransaction | string; // its first passed as string and then decoded and turned into object
+  swapId?: string; // Ark: pendingSwap id forwarded from create-invoice, used to drive waitAndClaim
 };
 
 const LNDViewInvoice = () => {
-  const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
+  const { invoice, walletID, swapId } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors, closeImage } = useTheme();
   const { direction } = useLocale();
   const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
 
-  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
+  const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | LightningArkWallet | undefined;
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
+  const [arkAddress, setArkAddress] = useState<string>('');
   const fetchInvoiceInterval = useRef<any>(null);
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
@@ -69,88 +72,148 @@ const LNDViewInvoice = () => {
   }, []);
 
   useEffect(() => {
-    setOptions(
-      isModal
-        ? {
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-            },
-            gestureEnabled: false,
-            headerBackVisible: false,
-            // eslint-disable-next-line react/no-unstable-nested-components
-            headerRight: () => (
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => {
-                  // @ts-ignore: navigation
-                  navigation?.getParent().pop();
-                }}
-                testID="NavigationCloseButton"
-              >
-                <Image source={closeImage} />
-              </TouchableOpacity>
-            ),
-          }
-        : {
-            headerRight: () => {},
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-            },
+    const options: Record<string, any> = isModal
+      ? {
+          headerStyle: {
+            backgroundColor: colors.customHeader,
           },
-    );
+          gestureEnabled: false,
+          headerBackVisible: false,
+          // eslint-disable-next-line react/no-unstable-nested-components
+          headerRight: () => (
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => {
+                // @ts-ignore: navigation
+                navigation?.getParent().pop();
+              }}
+              testID="NavigationCloseButton"
+            >
+              <Image source={closeImage} />
+            </TouchableOpacity>
+          ),
+        }
+      : {
+          headerRight: () => {},
+          headerStyle: {
+            backgroundColor: colors.customHeader,
+          },
+        };
+    setOptions(options);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, isModal]);
 
+  // LN invoice polling for LNDHub. Ark wallets are handled by a separate
+  // useEffect below that awaits the SDK's waitAndClaim directly.
   useEffect(() => {
-    console.log('LNDViewInvoice - useEffect', { invoice });
+    if (!wallet) return;
+    if (wallet.type === LightningArkWallet.type) return;
+    if ((invoice as LightningTransaction).ispaid) return;
 
-    if (!wallet) {
-      return;
-    }
-    if (!(invoice as LightningTransaction).ispaid) {
-      fetchInvoiceInterval.current = setInterval(async () => {
-        if (isFetchingInvoices) {
-          try {
-            // @ts-ignore - getUserInvoices is not set on TWallet
-            const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
-            // fetching only last 20 invoices
-            // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
-            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
-            const updatedUserInvoice = userInvoices.filter((filteredInvoice: LightningTransaction) =>
-              typeof invoice === 'object'
-                ? filteredInvoice.payment_request === invoice.payment_request
-                : filteredInvoice.payment_request === invoice,
-            )[0];
-            if (updatedUserInvoice) {
-              setInvoiceStatusChanged(true);
-              setParams({ invoice: updatedUserInvoice });
-              if (updatedUserInvoice.ispaid) {
-                // we fetched the invoice, and it is paid :-)
-                setIsFetchingInvoices(false);
-                clearInterval(fetchInvoiceInterval.current);
-                triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    fetchInvoiceInterval.current = setInterval(async () => {
+      if (isFetchingInvoices) {
+        try {
+          // @ts-ignore - getUserInvoices is not set on TWallet
+          const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
+          const updatedUserInvoice = userInvoices.filter((filteredInvoice: LightningTransaction) =>
+            typeof invoice === 'object'
+              ? filteredInvoice.payment_request === invoice.payment_request
+              : filteredInvoice.payment_request === invoice,
+          )[0];
+          if (updatedUserInvoice) {
+            setInvoiceStatusChanged(true);
+            setParams({ invoice: updatedUserInvoice });
+            if (updatedUserInvoice.ispaid) {
+              setIsFetchingInvoices(false);
+              clearInterval(fetchInvoiceInterval.current);
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+              fetchAndSaveWalletTransactions(walletID);
+            } else {
+              const currentDate = new Date();
+              const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
+              const invoiceExpiration = (updatedUserInvoice.timestamp ?? 0) + (updatedUserInvoice.expire_time ?? 0);
+              if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 fetchAndSaveWalletTransactions(walletID);
-              } else {
-                const currentDate = new Date();
-                const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-                const invoiceExpiration = (updatedUserInvoice.timestamp ?? 0) + (updatedUserInvoice.expire_time ?? 0);
-                if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
-                  // invoice expired :-(
-                  fetchAndSaveWalletTransactions(walletID);
-                  setIsFetchingInvoices(false);
-                  triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                  clearInterval(fetchInvoiceInterval.current);
-                  fetchInvoiceInterval.current = undefined;
-                }
+                setIsFetchingInvoices(false);
+                triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                clearInterval(fetchInvoiceInterval.current);
+                fetchInvoiceInterval.current = undefined;
               }
             }
-          } catch (error) {
-            console.log(error);
           }
+        } catch (error) {
+          console.log(error);
         }
-      }, 3000);
-    }
+      }
+    }, 3000);
 
+    return () => {
+      clearInterval(fetchInvoiceInterval.current);
+      fetchInvoiceInterval.current = undefined;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (wallet && wallet.type === LightningArkWallet.type) {
+      (wallet as LightningArkWallet)
+        .getArkAddress()
+        .then(setArkAddress)
+        .catch(e => console.log('Failed to fetch Ark address:', e));
+    }
+  }, [wallet]);
+
+  // Ark wallets: resolve the pending swap (via swapId from create-invoice, or by
+  // invoice string for re-entry paths) and await waitAndClaim directly. The SDK
+  // owns WebSocket reconnection and polling fallback.
+  useEffect(() => {
+    if (!wallet || wallet.type !== LightningArkWallet.type) return;
+    if (typeof invoice !== 'string' && invoice.ispaid) return;
+
+    const arkWallet = wallet as LightningArkWallet;
+    const paymentRequest = typeof invoice === 'string' ? invoice : invoice.payment_request;
+
+    let cancelled = false;
+    (async () => {
+      const pendingSwap = swapId
+        ? await arkWallet.getPendingReverseSwapById(swapId)
+        : paymentRequest
+          ? await arkWallet.getPendingReverseSwapByInvoice(paymentRequest)
+          : undefined;
+      if (!pendingSwap || cancelled) return;
+
+      try {
+        await arkWallet.waitAndClaim(pendingSwap);
+      } catch (e) {
+        console.log('[ARK] waitAndClaim error:', e);
+        return;
+      }
+      if (cancelled) return;
+
+      arkWallet.invalidateBalanceCache();
+      arkWallet.invalidateTxCache();
+      await arkWallet.fetchBalance();
+      await arkWallet.fetchTransactions();
+      const txs = arkWallet.getTransactions();
+      const latest = txs.filter(tx => tx.value! > 0)[0];
+      setParams({
+        invoice: {
+          ispaid: true,
+          value: latest?.value ?? 0,
+          amt: latest?.amt ?? 0,
+          type: 'user_invoice',
+          timestamp: Math.floor(Date.now() / 1000),
+          description: latest?.description ?? 'Received',
+          payment_request: latest?.payment_request,
+        },
+      });
+      setInvoiceStatusChanged(true);
+      fetchAndSaveWalletTransactions(walletID);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -158,9 +221,20 @@ const LNDViewInvoice = () => {
     navigate('LNDViewAdditionalInvoicePreImage', { preImageData });
   };
 
+  const getQrValue = (paymentRequest?: string): string => {
+    if (arkAddress && paymentRequest) {
+      return `bitcoin:?ark=${arkAddress}&lightning=${paymentRequest}`;
+    }
+    if (arkAddress) {
+      return `bitcoin:?ark=${arkAddress}`;
+    }
+    return paymentRequest ?? '';
+  };
+
   const handleOnSharePressed = () => {
-    if (typeof invoice === 'string' || !invoice.payment_request) return;
-    Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
+    const qr = typeof invoice === 'string' ? getQrValue(invoice) : getQrValue(invoice.payment_request);
+    if (!qr) return;
+    Share.open({ message: qr }).catch(error => console.log(error));
   };
 
   useEffect(() => {
@@ -252,32 +326,52 @@ const LNDViewInvoice = () => {
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
               <View style={styles.activeQrcode}>
-                <QRCodeComponent value={invoice.payment_request} size={qrCodeSize} />
+                <QRCodeComponent value={getQrValue(invoice.payment_request)} size={qrCodeSize} />
               </View>
               <BlueSpacing20 />
-              <BlueText>
-                {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
-              </BlueText>
+              {invoice.amt ? (
+                <BlueText>
+                  {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+                </BlueText>
+              ) : null}
               {'description' in invoice && (invoice.description?.length ?? 0) > 0 && (
                 <BlueText>
                   {loc.lndViewInvoice.for} {invoice.description ?? ''}
                 </BlueText>
               )}
               <CopyTextToClipboard truncated text={invoice.payment_request} />
+              {arkAddress ? (
+                <>
+                  <BlueSpacing20 />
+                  <BlueText>{loc.lndViewInvoice.ark_address_label}</BlueText>
+                  <CopyTextToClipboard truncated text={arkAddress} />
+                </>
+              ) : null}
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>
         );
       }
     } else if (invoice) {
-      // `invoice` is string, just not decoded yet. lets just display it as a QR code first (till it gets decoded
-      // and more data is rendered)
+      // `invoice` is string, just not decoded yet. Display QR code + copyable invoice text.
       return (
-        <View style={[styles.activeRoot, stylesHook.root]}>
-          <View style={styles.activeQrcode}>
-            <QRCodeComponent value={invoice} size={qrCodeSize} />
+        <ScrollView>
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <View style={styles.activeQrcode}>
+              <QRCodeComponent value={getQrValue(invoice)} size={qrCodeSize} />
+            </View>
+            <BlueSpacing20 />
+            <CopyTextToClipboard truncated text={invoice} />
+            {arkAddress ? (
+              <>
+                <BlueSpacing20 />
+                <BlueText>{loc.lndViewInvoice.ark_address_label}</BlueText>
+                <CopyTextToClipboard truncated text={arkAddress} />
+              </>
+            ) : null}
+            <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
           </View>
-        </View>
+        </ScrollView>
       );
     } else {
       // something is not right

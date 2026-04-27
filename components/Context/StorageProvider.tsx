@@ -455,11 +455,13 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       });
 
       await w.fetchBalance();
-      try {
-        await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
-      } catch (error) {
-        console.warn('Failed to setup notifications:', error);
-        // Consider if user should be notified of notification setup failure
+      const externalAddresses = w.getAllExternalAddresses();
+      if (externalAddresses.length > 0) {
+        try {
+          await majorTomToGroundControl(externalAddresses, [], []);
+        } catch (error) {
+          console.warn('Failed to setup notifications:', error);
+        }
       }
     },
     [wallets, addWallet, saveToDisk],

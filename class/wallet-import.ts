@@ -64,6 +64,7 @@ const startImport = (
   onProgress: (name: string) => void,
   onWallet: (wallet: TWallet) => void,
   onPassword: (title: string, text: string) => Promise<string>,
+  walletType?: string,
 ): TImport => {
   // state
   let promiseResolve: (arg: TStatus) => void;

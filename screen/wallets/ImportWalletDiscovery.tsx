@@ -39,7 +39,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const navigation = useExtendedNavigation<NavigationProp>();
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
-  const { importText, askPassphrase, searchAccounts } = route.params;
+  const { importText, askPassphrase, searchAccounts, walletType } = route.params;
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const task = useRef<TImport | null>(null);
@@ -120,7 +120,7 @@ const ImportWalletDiscovery: React.FC = () => {
       }
     };
 
-    task.current = startImport(importText, askPassphrase, searchAccounts, isElectrumDisabled, onProgress, onWallet, onPassword);
+    task.current = startImport(importText, askPassphrase, searchAccounts, isElectrumDisabled, onProgress, onWallet, onPassword, walletType);
 
     task.current.promise
       .then(({ cancelled, wallets: w }) => {
@@ -143,7 +143,7 @@ const ImportWalletDiscovery: React.FC = () => {
     return () => {
       task.current?.stop();
     };
-  }, [askPassphrase, importText, isElectrumDisabled, navigation, saveWallet, searchAccounts]);
+  }, [askPassphrase, importText, isElectrumDisabled, navigation, saveWallet, searchAccounts, walletType]);
 
   useEffect(() => {
     if (isPrivacyBlurEnabled) {

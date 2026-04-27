@@ -31,6 +31,7 @@ const ImportWallet = () => {
   const route = useRoute<RouteProps>();
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
+  const walletType = route?.params?.walletType;
   const [importText, setImportText] = useState<string>(label);
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState<boolean>(false);
   const speedBackdoorTapCountRef = useRef(0);
@@ -88,10 +89,11 @@ const ImportWallet = () => {
         importText: text,
         askPassphrase: askPassphraseMenuState,
         searchAccounts: searchAccountsMenuState,
+        walletType,
       });
     },
 
-    [askPassphraseMenuState, clearClipboardMenuState, navigation, searchAccountsMenuState],
+    [askPassphraseMenuState, clearClipboardMenuState, navigation, searchAccountsMenuState, walletType],
   );
 
   const handleImport = useCallback(() => {

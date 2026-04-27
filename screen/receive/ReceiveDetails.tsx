@@ -104,9 +104,8 @@ const ReceiveDetails = () => {
 
   const setAddressBIP21Encoded = useCallback(
     (addr: string) => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
       setParams({ address: addr });
-      setBip21encoded(newBip21encoded);
+      setBip21encoded(DeeplinkSchemaMatch.bip21encode(addr));
       setShowAddress(true);
     },
     [setParams],
@@ -114,12 +113,12 @@ const ReceiveDetails = () => {
 
   const obtainWalletAddress = useCallback(async () => {
     console.debug('ReceiveDetails - componentDidMount');
-    // this function should only be called when wallet exists
     if (!wallet) {
       console.warn('Wallet not found');
       return;
     }
     if (address) {
+      setAddressBIP21Encoded(address);
       try {
         await tryToObtainPermissions();
         majorTomToGroundControl([address], [], []);
@@ -161,7 +160,10 @@ const ReceiveDetails = () => {
     }
 
     if (!newAddress) {
-      presentAlert({ title: loc.errors.error, message: loc.receive.address_not_found });
+      presentAlert({
+        title: loc.errors.error,
+        message: loc.receive.address_not_found,
+      });
       return;
     }
 
@@ -391,8 +393,7 @@ const ReceiveDetails = () => {
       );
     } else if (wallet && isBIP47Enabled) {
       // wallet is always defined here
-      const qrValue =
-        'getBIP47PaymentCode' in wallet && typeof wallet.getBIP47PaymentCode === 'function' ? wallet.getBIP47PaymentCode() : undefined;
+      const qrValue = (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) ?? undefined;
       return (
         <View style={styles.container}>
           {qrValue ? (
@@ -497,7 +498,13 @@ const ReceiveDetails = () => {
       setShowConfirmedBalance(false);
     }
 
-    setParams({ customLabel: undefined, customAmount: undefined, customUnit: undefined, bip21encoded: undefined, isCustom: undefined });
+    setParams({
+      customLabel: undefined,
+      customAmount: undefined,
+      customUnit: undefined,
+      bip21encoded: undefined,
+      isCustom: undefined,
+    });
   }, [route.params, setParams, wallet]);
 
   /**
