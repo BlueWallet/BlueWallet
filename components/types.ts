@@ -22,15 +22,17 @@ export interface ToolTipMenuProps {
   actions: Action[] | Action[][];
   children: React.ReactNode;
   enableAndroidRipple?: boolean;
-  enableIOSPressOpacity?: boolean;
-  dismissMenu?: () => void;
   onPressMenuItem: (id: string) => void;
   title?: string;
+  // When true (default) the menu opens on long-press; when false it opens
+  // on a single tap (dropdown mode).
   shouldOpenOnLongPress?: boolean;
+  // Hint that the trigger should be styled like a button (e.g. center it).
   isButton?: boolean;
-  renderPreview?: () => React.ReactNode;
+  // Optional short-tap action. When provided, the trigger is wrapped in a
+  // Pressable so that a quick tap fires this callback while a long-press
+  // (or single tap in dropdown mode) still opens the native menu.
   onPress?: (event: GestureResponderEvent) => void;
-  previewValue?: string;
   accessibilityRole?: AccessibilityRole;
   disabled?: boolean;
   testID?: string;
@@ -39,8 +41,6 @@ export interface ToolTipMenuProps {
   accessibilityHint?: string;
   accessibilityState?: object;
   buttonStyle?: ViewStyle | ViewStyle[];
-  onMenuWillShow?: () => void;
-  onMenuWillHide?: () => void;
 }
 
 export enum HandOffActivityType {
