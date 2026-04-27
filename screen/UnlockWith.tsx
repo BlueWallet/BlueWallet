@@ -123,10 +123,7 @@ const UnlockWith: React.FC = () => {
             Keyboard.addListener('keyboardWillChangeFrame', animateToKeyboardPosition),
             Keyboard.addListener('keyboardWillHide', resetPosition),
           ]
-        : [
-            Keyboard.addListener('keyboardDidShow', animateToKeyboardPosition),
-            Keyboard.addListener('keyboardDidHide', resetPosition),
-          ];
+        : [Keyboard.addListener('keyboardDidShow', animateToKeyboardPosition), Keyboard.addListener('keyboardDidHide', resetPosition)];
 
     return () => {
       subscriptions.forEach(sub => sub.remove());

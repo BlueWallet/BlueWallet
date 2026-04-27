@@ -28,11 +28,6 @@ import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import ListItem from './ListItem';
 
 const styles = StyleSheet.create({
-  pressable: {
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    width: '100%',
-  },
   dateLine: {
     fontSize: 13,
   },
