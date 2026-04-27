@@ -3,8 +3,8 @@ import type { TaskResult } from '@arkade-os/sdk/worker/expo';
 import { swapTaskQueue, SWAP_MONITOR_TASK_TYPE } from './swap-queue';
 import { swapMonitorProcessor, type SwapProcessorDeps } from './swap-processor';
 import type { SwapMonitorPayload } from './swap-queue';
-import { BlueApp, LightningArkWallet } from '../../../class';
-
+import { LightningArkWallet } from '../../../class/wallets/lightning-ark-wallet';
+import { BlueApp } from '../../../class/blue-app.ts';
 
 /**
  * Factory that returns a map of namespace → SwapProcessorDeps.

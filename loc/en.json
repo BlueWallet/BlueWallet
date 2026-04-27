@@ -28,8 +28,7 @@
     "unlock": "Unlock",
     "port": "Port",
     "ssl_port": "SSL Port",
-    "suggested": "Suggested",
-    "skip": "Skip"
+    "suggested": "Suggested"
   },
   "azteco": {
     "codeIs": "Your voucher code is",

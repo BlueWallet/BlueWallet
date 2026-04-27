@@ -1,6 +1,5 @@
 import assert from 'assert';
 
-import '../../class';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 
 const invoice =
