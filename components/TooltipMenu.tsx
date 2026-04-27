@@ -175,8 +175,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       <Pressable
         android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}
         style={({ pressed }) => {
-          // Keep visual feedback on Android by default. iOS context-menu preview
-          // already applies a system press effect; opt in when needed.
           const shouldApplyPressedStyle =
             pressed && ((Platform.OS === 'android' && enableAndroidRipple) || (Platform.OS === 'ios' && enableIOSPressOpacity));
           return StyleSheet.flatten([styles.pressable, style, buttonStyle, shouldApplyPressedStyle && styles.pressed]);
