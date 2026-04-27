@@ -51,9 +51,9 @@ export default SettingsButton;
 
 const style = StyleSheet.create({
   buttonStyle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },

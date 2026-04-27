@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, StyleSheet } from 'react-native';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 import { ToolTipMenuProps, Action } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -10,16 +10,17 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     shouldOpenOnLongPress = true,
     disabled = false,
     onPress,
+    isButton = false,
     buttonStyle,
     onPressMenuItem,
     children,
-    isButton = false,
     actions,
     accessibilityLabel,
     accessibilityHint,
     accessibilityRole,
     accessibilityState,
     testID,
+    style,
     onMenuWillShow,
     onMenuWillHide,
     enableAndroidRipple = true,
@@ -139,28 +140,46 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   };
 
   const renderMenuView = () => {
-    if (disabled || (!isButton && !onPress)) {
+    if (disabled) {
       return null;
+    }
+
+    // Keep wrapper behavior opt-in for button-like call sites.
+    // Non-button usages should not gain extra press/long-press handlers.
+    const shouldWrapWithPressable = isButton || Boolean(onPress);
+
+    if (!shouldWrapWithPressable) {
+      return (
+        <ContextMenu
+          title={title}
+          previewBackgroundColor="transparent"
+          onPress={handlePressMenuItemForMenuView}
+          onCancel={() => {
+            if (!openedRef.current) {
+              return;
+            }
+            openedRef.current = false;
+            onMenuWillHide?.();
+          }}
+          actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
+          dropdownMenuMode={!shouldOpenOnLongPress}
+          disabled={disabled}
+          style={style}
+        >
+          {children}
+        </ContextMenu>
+      );
     }
 
     return (
       <Pressable
         android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}
         style={({ pressed }) => {
-          const base: ViewStyle[] = [styles.pressable];
-          if (buttonStyle) {
-            if (Array.isArray(buttonStyle)) {
-              base.push(...buttonStyle);
-            } else {
-              base.push(buttonStyle);
-            }
-          }
           // Keep visual feedback on Android by default. iOS context-menu preview
           // already applies a system press effect; opt in when needed.
           const shouldApplyPressedStyle =
             pressed && ((Platform.OS === 'android' && enableAndroidRipple) || (Platform.OS === 'ios' && enableIOSPressOpacity));
-          if (shouldApplyPressedStyle) base.push(styles.pressed);
-          return base;
+          return StyleSheet.flatten([styles.pressable, style, buttonStyle, shouldApplyPressedStyle && styles.pressed]);
         }}
         disabled={disabled}
         onPress={onPress}

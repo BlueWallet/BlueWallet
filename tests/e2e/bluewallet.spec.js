@@ -3,6 +3,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { element, waitFor } from 'detox';
 
 import {
+  confirmPasswordDialog,
   expectToBeVisible,
   extractTextFromElementById,
   goBack,
@@ -13,7 +14,6 @@ import {
   scrollUpOnHomeScreen,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
-  tapIfPresent,
   tapIfTextPresent,
   waitForId,
   waitForKeyboardToClose,
@@ -317,7 +317,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).replaceText('666');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
+    await confirmPasswordDialog();
 
     // now, lets put correct passwords and encrypt the storage
     await element(by.id('PasswordInput')).clearText();
@@ -328,8 +328,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
-    await tapIfPresent('OKButton'); // might not always work the first time
+    await confirmPasswordDialog(); // might not always work the first time
     await sleep(1000); // propagate
 
     // relaunch app
@@ -372,8 +371,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
-    await tapIfPresent('OKButton'); // first time might not always work
+    await confirmPasswordDialog(); // first time might not always work
     await sleep(1000); // propagate
     await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
     await element(by.text('OK')).atIndex(0).tap();
@@ -387,7 +385,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorageWithTypo'); // retyping with typo
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
+    await confirmPasswordDialog();
 
     // trying new password
     await element(by.id('PasswordInput')).clearText();
@@ -398,8 +396,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorage'); // retyping
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
-    await tapIfPresent('OKButton'); // first time might not always work
+    await confirmPasswordDialog(); // first time might not always work
     await sleep(1000); // propagate
     await scrollUpOnHomeScreen();
 
@@ -440,8 +437,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
-    await tapIfPresent('OKButton'); // in case it didnt work first time
+    await confirmPasswordDialog(); // in case it didnt work first time
     await sleep(1000); // propagate
     await scrollUpOnHomeScreen();
     await expect(element(by.text('fake_wallet'))).toBeVisible();
@@ -472,8 +468,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).replaceText('pass');
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
-    await tapIfPresent('OKButton'); // might not always work first time
+    await confirmPasswordDialog();
     await sleep(1000); // propagate
     await element(by.id('PlausibleDeniabilityButton')).tap();
 
@@ -486,8 +481,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
     await element(by.id('ConfirmPasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
-    await tapIfPresent('OKButton'); // might not always work first time
+    await confirmPasswordDialog();
     if (device.getPlatform() === 'ios') {
       // FIXME: WAllets does not exists on android
       await waitForId('Wallets');
@@ -519,8 +513,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
-    await tapIfPresent('OKButton'); // might not always work first time
+    await confirmPasswordDialog();
     await sleep(1000); // propagate
     await element(by.text('OK')).atIndex(0).tap(); // INCORRECT PASSWORD alert
     // correct password
@@ -528,8 +521,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('OKButton')).tap();
-    await tapIfPresent('OKButton'); // might not always work first time
+    await confirmPasswordDialog();
     await sleep(1000); // propagate
 
     // relaunch app
