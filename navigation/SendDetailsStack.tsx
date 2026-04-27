@@ -64,6 +64,7 @@ const SendDetailsStack = () => {
           headerTitle: '',
           sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.4],
           sheetGrabberVisible: true,
+          keyboardHandlingEnabled: true,
         })(theme)}
       />
       <Stack.Screen
