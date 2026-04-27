@@ -690,7 +690,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       await expect(element(by.text('copied!'))).toBeVisible();
     }
     await element(by.text('add')).tap();
-    await typeTextIntoAlertInput('test1');
+    await typeTextIntoAlertInput('Test1');
     await element(by.text('OK')).tap();
     await waitForKeyboardToClose();
 
