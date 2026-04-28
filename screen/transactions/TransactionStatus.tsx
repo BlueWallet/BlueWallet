@@ -1200,7 +1200,6 @@ const TransactionStatus: React.FC = () => {
                       ])}
                       numberOfLines={1}
                       ellipsizeMode="middle"
-                      selectable
                       textAlign="right"
                     />
                   </View>
@@ -1227,7 +1226,6 @@ const TransactionStatus: React.FC = () => {
                   ])}
                   numberOfLines={1}
                   ellipsizeMode="middle"
-                  selectable
                   textAlign="right"
                 />
               </View>
