@@ -13,6 +13,8 @@ type CopyTextToClipboardProps = TextProps & {
   textAlign?: 'left' | 'center' | 'right' | 'auto' | 'justify';
   containerStyle?: ViewStyle;
   isAddress?: boolean;
+  buttonTestID?: string;
+  textTestID?: string;
 };
 const styles = StyleSheet.create({
   defaultTextStyle: {
@@ -39,6 +41,9 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       selectable,
       textAlign,
       containerStyle,
+      accessibilityLabel,
+      buttonTestID = 'CopyTextToClipboard',
+      textTestID = 'AddressValue',
       ...textProps
     },
     ref,
@@ -56,7 +61,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
 
     const copyToClipboard = () => {
       // Don't copy if text is empty or just "-"
-      if (!text || text === '-') {
+      if (hasTappedText || !text || text === '-') {
         return;
       }
 
@@ -84,7 +89,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
         ellipsizeMode={finalEllipsizeMode}
         selectable={selectable}
         {...textProps}
-        testID="AddressValue"
+        testID={textTestID}
       >
         {displayText}
       </BlueText>
@@ -94,9 +99,10 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       <TouchableOpacity
         ref={ref}
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
         onPress={copyToClipboard}
         disabled={hasTappedText || !text || text === '-'}
-        testID="CopyTextToClipboard"
+        testID={buttonTestID}
         activeOpacity={0.7}
         style={containerStyle}
       >

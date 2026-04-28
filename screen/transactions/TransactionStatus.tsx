@@ -1218,6 +1218,9 @@ const TransactionStatus: React.FC = () => {
                   containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, { width: detailValueMaxWidth }])}
                   text={tx.hash}
                   displayText={shortenTxHash(tx.hash)}
+                  accessibilityLabel={tx.hash}
+                  buttonTestID="TransactionIdCopyButton"
+                  textTestID="TransactionIdDisplayText"
                   style={StyleSheet.flatten([
                     styles.detailValue,
                     stylesHook.detailValue,
