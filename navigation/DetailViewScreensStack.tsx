@@ -1,6 +1,6 @@
 import React, { lazy, useCallback, useMemo } from 'react';
 import { View, Platform, PlatformColor } from 'react-native';
-import { NativeStackNavigationOptions, NativeStackHeaderItem } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -54,6 +54,11 @@ import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import { isIOS26OrHigher } from '../components/platform';
+
+// Derive the header item type from the options interface so we don't depend on a
+// specific named export (`NativeStackHeaderItem`) which could be renamed across
+// versions of @react-navigation/native-stack.
+type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
@@ -114,7 +119,7 @@ const DetailViewStackScreensStack = () => {
           if (isDesktop) {
             return [];
           }
-          const items: NativeStackHeaderItem[] = [
+          const items: HeaderRightItem[] = [
             {
               type: 'button',
               label: loc.wallets.add_title,
