@@ -595,6 +595,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       isUnitSwitching,
       measureHeaderHeight,
       stylesHook.backgroundContainer,
+      stylesHook.headerBottomBar,
       stylesHook.listHeaderText,
       saveToDisk,
       isBiometricUseCapableAndEnabled,
