@@ -16,7 +16,7 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import QRCodeComponent from '../../components/QRCodeComponent';
-import SegmentedControl from '../../components/SegmentControl';
+import SegmentedControl from '../../components/SegmentedControl';
 import { useTheme } from '../../components/themes';
 import TipBox from '../../components/TipBox';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
