@@ -62,10 +62,11 @@ const SendDetailsStack = () => {
         options={navigationStyle({
           presentation: 'formSheet',
           headerTitle: '',
-          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.4],
+          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.45],
           sheetGrabberVisible: true,
           contentStyle: { flex: 1 },
           keyboardHandlingEnabled: true,
+          navigationBarTranslucent: false,
         })(theme)}
       />
       <Stack.Screen

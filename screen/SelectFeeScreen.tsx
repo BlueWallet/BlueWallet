@@ -163,7 +163,7 @@ const SelectFeeScreen = () => {
       backgroundColor: colors.elevated,
       paddingHorizontal: 16,
       paddingTop: 12,
-      paddingBottom: Math.max(insets.bottom, 16) + 8,
+      paddingBottom: Math.max(insets.bottom, 48) + 16,
     },
     feeModalItemActiveBackground: {
       backgroundColor: colors.feeActive,
