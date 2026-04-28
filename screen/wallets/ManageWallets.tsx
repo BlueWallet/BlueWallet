@@ -1,17 +1,5 @@
 import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState, lazy, Suspense } from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Alert,
-  Animated,
-  ActivityIndicator,
-  UIManager,
-  Platform,
-  Keyboard,
-  Text,
-  Pressable,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, Image, Alert, Animated, ActivityIndicator, Keyboard, Text, Pressable } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocale, usePreventRemove } from '@react-navigation/native';
@@ -153,10 +141,6 @@ const reducer = (state: State, action: Action): State => {
       throw new Error(`Unhandled action type: ${(action as Action).type}`);
   }
 };
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 const ManageWallets: React.FC = () => {
   const { colors, closeImage } = useTheme();

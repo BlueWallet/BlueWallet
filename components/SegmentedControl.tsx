@@ -1,20 +1,21 @@
-import React, { useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet, NativeSyntheticEvent } from 'react-native';
-import NativeSegmentedControl from '../codegen/SegmentControlNativeComponent';
+import NativeSegmentedControl from '../codegen/SegmentedControlNativeComponent';
 
 interface SegmentedControlProps {
   values: string[];
   selectedIndex: number;
   onChange: (index: number) => void;
+  testID?: string;
 }
 
 interface SegmentedControlEvent {
   selectedIndex: number;
 }
 
-const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedIndex, onChange }) => {
-  const handleChange = useMemo(
-    () => (event: NativeSyntheticEvent<SegmentedControlEvent>) => {
+const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedIndex, onChange, testID }) => {
+  const handleChange = useCallback(
+    (event: NativeSyntheticEvent<SegmentedControlEvent>) => {
       if (event?.nativeEvent?.selectedIndex !== undefined) {
         onChange(event.nativeEvent.selectedIndex);
       }
@@ -38,6 +39,7 @@ const SegmentedControl: React.FC<SegmentedControlProps> = ({ values, selectedInd
         momentary={false}
         style={styles.segmentedControl}
         onChange={handleChange}
+        testID={testID}
       />
     </View>
   );

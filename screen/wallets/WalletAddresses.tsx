@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
 import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, StyleSheet, View, Platform, UIManager } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { useTheme } from '../../components/themes';
@@ -8,7 +8,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import SegmentedControl from '../../components/SegmentControl';
+import SegmentedControl from '../../components/SegmentedControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -20,10 +20,6 @@ export const TABS = {
 } as const;
 
 type TabKey = keyof typeof TABS;
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 interface Address {
   key: string;
