@@ -124,6 +124,7 @@ const DetailViewStackScreensStack = () => {
               type: 'button',
               label: loc.wallets.add_title,
               icon: { type: 'sfSymbol', name: 'plus' },
+              identifier: 'AddWalletButton',
               sharesBackground: false,
               onPress: navigateToAddWallet,
             },
@@ -133,6 +134,7 @@ const DetailViewStackScreensStack = () => {
               type: 'button',
               label: loc.settings.default_title,
               icon: { type: 'sfSymbol', name: 'ellipsis' },
+              identifier: 'SettingsButton',
               sharesBackground: false,
               onPress: navigateToSettings,
             });
