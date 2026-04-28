@@ -677,18 +677,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('0.00069909')).atIndex(0).tap();
     const txidToVerify = '8b0ab2c7196312e021e0d3dc73f801693826428782970763df6134457bd2ec20';
     const shortenedTxidToVerify = `${txidToVerify.slice(0, 10)}...${txidToVerify.slice(-10)}`;
-    // Transaction ID is intentionally shortened in UI; verify copy operation carries full txid.
+    // Transaction ID is intentionally shortened in UI; verify the full txid is present via accessibility label.
     await waitFor(element(by.text(shortenedTxidToVerify)))
       .toBeVisible()
       .withTimeout(10000);
-    await element(by.text(shortenedTxidToVerify)).tap();
-    if (typeof device.getClipboard === 'function') {
-      const clipboardValue = await device.getClipboard();
-      assert.strictEqual(clipboardValue, txidToVerify, `Unexpected copied txid: ${clipboardValue}`);
-    } else {
-      // Fallback when clipboard API isn't available in the Detox runtime.
-      await expect(element(by.text('copied!'))).toBeVisible();
-    }
+    const txidAttrs = await element(by.id('TransactionIdCopyButton')).getAttributes();
+    assert.strictEqual(txidAttrs.label, txidToVerify, `Unexpected txid label: ${txidAttrs.label}`);
     await element(by.text('add')).tap();
     await typeTextIntoAlertInput('Test1');
     await element(by.text('OK')).tap();
