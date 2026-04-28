@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Keyboard, LayoutAnimation, NativeSyntheticEvent, Platform, StyleSheet, UIManager, View } from 'react-native';
+import { Keyboard, LayoutAnimation, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
 
 import {
   CurrencyRate,
@@ -25,10 +25,6 @@ import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 
 dayjs.extend(calendar);
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 const MAX_DISPLAY_ITEMS = 50;
 
