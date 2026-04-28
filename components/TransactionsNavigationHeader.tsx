@@ -263,7 +263,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 const styles = StyleSheet.create({
   lineaderGradient: {
     minHeight: 140,
-    justifyContent: 'start',
+    justifyContent: 'flex-start',
   },
   contentContainer: {
     padding: 15,
