@@ -184,7 +184,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     const txs = wallet.getTransactions();
     txs.sort((a, b) => b.timestamp - a.timestamp);
     return txs;
-  }, [wallet, lastFetchTimestamp]);
+  }, [wallet]);
 
   const getTransactions = useCallback((lmt = Infinity): Transaction[] => sortedTransactions.slice(0, lmt), [sortedTransactions]);
 
