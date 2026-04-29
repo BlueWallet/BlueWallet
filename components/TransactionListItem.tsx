@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Animated, Easing, Linking, Pressable, Text, TextStyle, ViewStyle, StyleSheet, View } from 'react-native';
@@ -117,7 +117,7 @@ interface TransactionListItemProps {
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
-export const TransactionListItem: React.FC<TransactionListItemProps> = ({
+const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   item,
   itemPriceUnit = BitcoinUnit.BTC,
   walletID,
@@ -516,3 +516,5 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = ({
     </ToolTipMenu>
   );
 };
+
+export const TransactionListItem = memo(TransactionListItemComponent);

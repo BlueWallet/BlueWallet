@@ -140,6 +140,7 @@ const TransactionStatus: React.FC = () => {
 
   // Explicit width for To/ID text so Android StaticLayout can apply ellipsis (flex alone often fails on Android)
   const detailValueMaxWidth = useMemo(() => Math.max(0, Math.floor((windowWidth - 48) / 2)), [windowWidth]);
+  const detailValueWidthStyle = useMemo(() => ({ width: detailValueMaxWidth }), [detailValueMaxWidth]);
 
   // Advanced section state
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
@@ -151,127 +152,56 @@ const TransactionStatus: React.FC = () => {
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
-  const stylesHook = StyleSheet.create({
-    value: {
-      color: colors.foregroundColor,
-    },
-    valueUnit: {
-      color: colors.foregroundColor,
-    },
-    titleDate: {
-      color: colors.alternativeTextColor,
-    },
-    localCurrency: {
-      color: colors.alternativeTextColor,
-    },
-    counterpartyContainer: {
-      backgroundColor: colors.cardSectionHeaderBackground,
-    },
-    counterpartyAvatar: {
-      backgroundColor: colors.lightButton,
-    },
-    counterpartyAvatarText: {
-      color: colors.foregroundColor,
-    },
-    counterpartyName: {
-      color: colors.foregroundColor,
-    },
-    headerTitleDirection: {
-      color: colors.foregroundColor,
-    },
-    stateLabelPending: {
-      color: colors.transactionPendingColor,
-    },
-    stateLabelSent: {
-      color: colors.transactionSentColor,
-    },
-    stateLabelReceived: {
-      color: colors.transactionReceivedColor,
-    },
-    stateValuePending: {
-      color: colors.transactionPendingColor,
-    },
-    stateValueSent: {
-      color: colors.transactionSentColor,
-    },
-    stateValueReceived: {
-      color: colors.transactionReceivedColor,
-    },
-    detailLabel: {
-      color: colors.alternativeTextColor,
-    },
-    detailValue: {
-      color: colors.foregroundColor,
-    },
-    memoText: {
-      color: colors.foregroundColor,
-    },
-    addButton: {
-      backgroundColor: colors.lightButton,
-    },
-    addButtonText: {
-      color: colors.buttonTextColor,
-    },
-    explorerButton: {
-      backgroundColor: colors.lightButton,
-    },
-    explorerButtonText: {
-      color: colors.buttonTextColor,
-    },
-    stateCard: {
-      backgroundColor: colors.lightButton || colors.elevated,
-    },
-    stateCardPending: {
-      backgroundColor: colors.transactionPendingBackgroundColor,
-    },
-    stateCardSent: {
-      backgroundColor: colors.outgoingBackgroundColor,
-    },
-    stateCardReceived: {
-      backgroundColor: colors.incomingBackgroundColor,
-    },
-    card: {
-      backgroundColor: colors.elevated || colors.background,
-    },
-    sectionTitle: {
-      backgroundColor: colors.cardSectionHeaderBackground,
-    },
-    sectionTitleText: {
-      color: colors.foregroundColor,
-    },
-    detailsCard: {
-      borderColor: colors.cardBorderColor,
-    },
-    detailRow: {
-      backgroundColor: colors.cardSectionBackground,
-      borderBottomColor: colors.cardBorderColor,
-    },
-    detailRowFullWidth: {
-      backgroundColor: colors.cardSectionBackground,
-      borderBottomColor: colors.cardBorderColor,
-    },
-    speedUpButton: {
-      backgroundColor: colors.transactionStateBumpButtonBackground,
-    },
-    speedUpButtonText: {
-      color: colors.transactionPendingColor,
-    },
-    cancelButton: {
-      backgroundColor: colors.transactionStateCancelButtonBackground,
-    },
-    cancelButtonText: {
-      color: colors.transactionPendingColor,
-    },
-    advancedHeader: {
-      borderColor: colors.cardBorderColor,
-    },
-    advancedContent: {
-      borderTopColor: colors.cardBorderColor,
-    },
-    rowValue: {
-      color: colors.alternativeTextColor,
-    },
-  });
+  const stylesHook = useMemo(
+    () =>
+      StyleSheet.create({
+        value: { color: colors.foregroundColor },
+        valueUnit: { color: colors.foregroundColor },
+        titleDate: { color: colors.alternativeTextColor },
+        localCurrency: { color: colors.alternativeTextColor },
+        counterpartyContainer: { backgroundColor: colors.cardSectionHeaderBackground },
+        counterpartyAvatar: { backgroundColor: colors.lightButton },
+        counterpartyAvatarText: { color: colors.foregroundColor },
+        counterpartyName: { color: colors.foregroundColor },
+        headerTitleDirection: { color: colors.foregroundColor },
+        stateLabelPending: { color: colors.transactionPendingColor },
+        stateLabelSent: { color: colors.transactionSentColor },
+        stateLabelReceived: { color: colors.transactionReceivedColor },
+        stateValuePending: { color: colors.transactionPendingColor },
+        stateValueSent: { color: colors.transactionSentColor },
+        stateValueReceived: { color: colors.transactionReceivedColor },
+        detailLabel: { color: colors.alternativeTextColor },
+        detailValue: { color: colors.foregroundColor },
+        memoText: { color: colors.foregroundColor },
+        addButton: { backgroundColor: colors.lightButton },
+        addButtonText: { color: colors.buttonTextColor },
+        explorerButton: { backgroundColor: colors.lightButton },
+        explorerButtonText: { color: colors.buttonTextColor },
+        stateCardPending: { backgroundColor: colors.transactionPendingBackgroundColor },
+        stateCardSent: { backgroundColor: colors.outgoingBackgroundColor },
+        stateCardReceived: { backgroundColor: colors.incomingBackgroundColor },
+        card: { backgroundColor: colors.elevated || colors.background },
+        sectionTitle: { backgroundColor: colors.cardSectionHeaderBackground },
+        sectionTitleText: { color: colors.foregroundColor },
+        detailsCard: { borderColor: colors.cardBorderColor },
+        detailRow: {
+          backgroundColor: colors.cardSectionBackground,
+          borderBottomColor: colors.cardBorderColor,
+        },
+        detailRowFullWidth: {
+          backgroundColor: colors.cardSectionBackground,
+          borderBottomColor: colors.cardBorderColor,
+        },
+        speedUpButton: { backgroundColor: colors.transactionStateBumpButtonBackground },
+        speedUpButtonText: { color: colors.transactionPendingColor },
+        cancelButton: { backgroundColor: colors.transactionStateCancelButtonBackground },
+        cancelButtonText: { color: colors.transactionPendingColor },
+        advancedHeader: { borderColor: colors.cardBorderColor },
+        advancedContent: { borderTopColor: colors.cardBorderColor },
+        rowValue: { color: colors.alternativeTextColor },
+      }),
+    [colors],
+  );
 
   const setTX = (value: any) => {
     dispatch({ type: ActionType.SetTransaction, payload: value });
@@ -834,9 +764,7 @@ const TransactionStatus: React.FC = () => {
 
     for (const [index, address] of array.entries()) {
       const isWeOwnAddress = weOwnAddress(address);
-      const addressStyle = isWeOwnAddress
-        ? [styles.rowValue, styles.weOwnAddress, stylesHook.rowValue]
-        : [styles.rowValue, stylesHook.rowValue];
+      const addressStyle = isWeOwnAddress ? [styles.weOwnAddress, stylesHook.rowValue] : [stylesHook.rowValue];
 
       fromArray.push(
         <View key={address} style={styles.addressRow}>
@@ -1026,13 +954,7 @@ const TransactionStatus: React.FC = () => {
       {/* Value Section */}
       <View style={styles.valueCard}>
         <View style={styles.valueContent}>
-          <Text
-            style={[styles.value, stylesHook.value]}
-            selectable
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.55}
-          >
+          <Text style={[styles.value, stylesHook.value]} selectable numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.55}>
             {txValue !== null ? formatBalanceWithoutSuffix(txValue, preferredBalanceUnit, true) : '-'}
             {` `}
             {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
@@ -1053,7 +975,6 @@ const TransactionStatus: React.FC = () => {
       <View
         style={[
           styles.stateCard,
-          stylesHook.stateCard,
           isPending
             ? stylesHook.stateCardPending
             : txValue !== null && txValue < 0
@@ -1189,14 +1110,14 @@ const TransactionStatus: React.FC = () => {
                 <View style={styles.detailValueContainer}>
                   <View style={styles.detailValueCopyContainer}>
                     <CopyTextToClipboard
-                      containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, { width: detailValueMaxWidth }])}
+                      containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, detailValueWidthStyle])}
                       text={copyText}
                       displayText={displayText}
                       style={StyleSheet.flatten([
                         styles.detailValue,
                         stylesHook.detailValue,
                         styles.detailValueEllipsisText,
-                        { width: detailValueMaxWidth },
+                        detailValueWidthStyle,
                       ])}
                       numberOfLines={1}
                       ellipsizeMode="middle"
@@ -1215,7 +1136,7 @@ const TransactionStatus: React.FC = () => {
             <View style={styles.detailValueContainer}>
               <View style={styles.detailValueCopyContainer}>
                 <CopyTextToClipboard
-                  containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, { width: detailValueMaxWidth }])}
+                  containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, detailValueWidthStyle])}
                   text={tx.hash}
                   displayText={shortenTxHash(tx.hash)}
                   accessibilityLabel={tx.hash}
@@ -1225,7 +1146,7 @@ const TransactionStatus: React.FC = () => {
                     styles.detailValue,
                     stylesHook.detailValue,
                     styles.detailValueEllipsisText,
-                    { width: detailValueMaxWidth },
+                    detailValueWidthStyle,
                   ])}
                   numberOfLines={1}
                   ellipsizeMode="middle"
@@ -1352,9 +1273,7 @@ const TransactionStatus: React.FC = () => {
                 <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>
                   {loc.formatString(loc.transactions.details_outputs_count, { count: tx.outputs.length })}
                 </BlueText>
-                <View style={styles.detailValueFullWidth}>
-                  {to.filter(onlyUnique).length > 0 && renderSection(arrDiff(from, to.filter(onlyUnique)))}
-                </View>
+                <View style={styles.detailValueFullWidth}>{to.filter(onlyUnique).length > 0 && renderSection(to.filter(onlyUnique))}</View>
               </View>
             )}
           </View>
@@ -1385,7 +1304,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 2,
     letterSpacing: 0.15,
-    color: '#0c2550',
   },
   headerTitleDate: {
     fontSize: 13,
@@ -1500,13 +1418,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
     minHeight: 44,
   },
   speedUpButtonText: {
     fontSize: 15,
     fontWeight: '500',
-    color: '#2757C6',
     textAlign: 'center',
   },
   cancelButton: {
@@ -1516,13 +1432,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
     minHeight: 44,
   },
   cancelButtonText: {
     fontSize: 15,
     fontWeight: '500',
-    color: 'rgba(0, 0, 0, 0.6)',
     textAlign: 'center',
   },
   card: {
@@ -1545,7 +1459,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   sectionTitle: {
-    backgroundColor: '#F2F2F2',
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderTopLeftRadius: 12,
@@ -1565,7 +1478,6 @@ const styles = StyleSheet.create({
   sectionTitleText: {
     fontSize: 17,
     fontWeight: '600',
-    color: 'rgba(0, 0, 0, 0.8)',
   },
   explorerButton: {
     paddingVertical: 6,
@@ -1586,11 +1498,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 0,
     minHeight: 24,
-    backgroundColor: '#F9F9F9',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   detailRowLast: {
     borderBottomWidth: 0,
@@ -1601,11 +1511,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     marginBottom: 0,
     minHeight: 24,
-    backgroundColor: '#F9F9F9',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0, 0, 0, 0.05)',
   },
   detailLabel: {
     fontSize: 16,
@@ -1613,13 +1521,11 @@ const styles = StyleSheet.create({
     flex: 1,
     lineHeight: 22,
     paddingRight: 12,
-    color: 'rgba(0, 0, 0, 0.4)',
   },
   detailLabelFullWidth: {
     fontSize: 16,
     fontWeight: '500',
     lineHeight: 22,
-    color: 'rgba(0, 0, 0, 0.4)',
     marginBottom: 8,
   },
   detailValueContainer: {
@@ -1666,7 +1572,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     flexShrink: 1,
     minWidth: 0,
-    color: '#000000',
   },
   memoText: {
     fontSize: 15,
@@ -1695,7 +1600,6 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     minHeight: 44,
     borderWidth: 1,
-    borderColor: 'rgba(0, 0, 0, 0.05)',
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     overflow: 'hidden',
@@ -1705,7 +1609,6 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     paddingBottom: 0,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.05)',
   },
   actions: {
     alignSelf: 'center',
@@ -1713,9 +1616,6 @@ const styles = StyleSheet.create({
     marginVertical: 24,
     width: '100%',
     paddingHorizontal: 16,
-  },
-  rowValue: {
-    color: 'grey',
   },
   weOwnAddress: {
     fontWeight: '700',

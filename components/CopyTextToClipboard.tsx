@@ -4,6 +4,7 @@ import { StyleSheet, TextProps, TouchableOpacity, View, ViewStyle } from 'react-
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueText } from '../BlueComponents';
+import loc from '../loc';
 
 type CopyTextToClipboardProps = TextProps & {
   text: string;
@@ -51,7 +52,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
     const [hasTappedText, setHasTappedText] = useState(false);
     const initialDisplayText = displayTextProp || text;
     const [displayText, setDisplayText] = useState(initialDisplayText);
-    const isCopiedState = hasTappedText && displayText === 'copied!';
+    const isCopiedState = hasTappedText && displayText === loc._.copied;
 
     useEffect(() => {
       if (!hasTappedText) {
@@ -68,7 +69,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       setHasTappedText(true);
       Clipboard.setString(text);
       triggerHapticFeedback(HapticFeedbackTypes.Selection);
-      setDisplayText('copied!');
+      setDisplayText(loc._.copied);
       setTimeout(() => {
         setHasTappedText(false);
         setDisplayText(displayTextProp || text);
@@ -84,7 +85,9 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
     // width so Android constrains the Text and applies ellipsis instead of wrapping (long IDs).
     const textContent = (
       <BlueText
-        style={containerStyle && !isCopiedState ? [mergedTextStyle, styles.textFillContainer, textAlignStyle] : [mergedTextStyle, textAlignStyle]}
+        style={
+          containerStyle && !isCopiedState ? [mergedTextStyle, styles.textFillContainer, textAlignStyle] : [mergedTextStyle, textAlignStyle]
+        }
         numberOfLines={finalNumberOfLines}
         ellipsizeMode={finalEllipsizeMode}
         selectable={selectable}
