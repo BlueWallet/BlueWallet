@@ -544,22 +544,8 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const [buttonBorderRadius, setButtonBorderRadius] = useState<number>(LAYOUT.DEFAULT_BORDER_RADIUS);
   const [singleButtonBorderRadius, setSingleButtonBorderRadius] = useState<number>(LAYOUT.SINGLE_BUTTON_RADIUS);
 
-  const newWidthRef = useRef<number | undefined>(newWidth);
-  const isVerticalRef = useRef<boolean>(isVertical);
-  const buttonBorderRadiusRef = useRef<number>(buttonBorderRadius);
-  const singleButtonBorderRadiusRef = useRef<number>(singleButtonBorderRadius);
-  useEffect(() => {
-    newWidthRef.current = newWidth;
-  }, [newWidth]);
-  useEffect(() => {
-    isVerticalRef.current = isVertical;
-  }, [isVertical]);
-  useEffect(() => {
-    buttonBorderRadiusRef.current = buttonBorderRadius;
-  }, [buttonBorderRadius]);
-  useEffect(() => {
-    singleButtonBorderRadiusRef.current = singleButtonBorderRadius;
-  }, [singleButtonBorderRadius]);
+  const latest = useRef({ newWidth, isVertical, buttonBorderRadius, singleButtonBorderRadius });
+  latest.current = { newWidth, isVertical, buttonBorderRadius, singleButtonBorderRadius };
 
   const layoutWidth = useRef<number>(initialLayoutWidth);
   const layoutCalculated = useRef(false);
@@ -611,13 +597,14 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         return;
       }
 
-      const widthDelta = Math.abs((newWidthRef.current ?? 0) - calculatedWidth);
-      const buttonRadiusDelta = Math.abs(buttonRadius - buttonBorderRadiusRef.current);
-      const singleRadiusDelta = Math.abs(singleButtonRadius - singleButtonBorderRadiusRef.current);
+      const prev = latest.current;
+      const widthDelta = Math.abs((prev.newWidth ?? 0) - calculatedWidth);
+      const buttonRadiusDelta = Math.abs(buttonRadius - prev.buttonBorderRadius);
+      const singleRadiusDelta = Math.abs(singleButtonRadius - prev.singleButtonBorderRadius);
 
       const widthEps = childrenCount === 1 ? 1 : 2;
       const radiusEps = 0.5;
-      if (shouldBeVertical === isVerticalRef.current) {
+      if (shouldBeVertical === prev.isVertical) {
         if (childrenCount === 1) {
           if (widthDelta <= widthEps && singleRadiusDelta <= radiusEps) return;
         } else {
@@ -625,7 +612,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         }
       }
 
-      if (shouldBeVertical !== isVerticalRef.current || widthDelta > 1) {
+      if (shouldBeVertical !== prev.isVertical || widthDelta > 1) {
         handleBorderRadiusAnimation(buttonRadius, singleButtonRadius, shouldBeVertical, calculatedWidth);
       } else {
         setNewWidth(calculatedWidth);
