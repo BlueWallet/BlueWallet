@@ -7,10 +7,11 @@ import { useTheme } from './themes';
 interface SafeAreaProps extends ViewProps {
   floatingButtonHeight?: number;
   orientation?: 'portrait' | 'landscape';
+  ignoreTopInset?: boolean;
 }
 
 const SafeArea = (props: SafeAreaProps) => {
-  const { style, floatingButtonHeight, ...otherProps } = props;
+  const { style, floatingButtonHeight, ignoreTopInset = false, ...otherProps } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -18,16 +19,16 @@ const SafeArea = (props: SafeAreaProps) => {
     () =>
       props.orientation === 'portrait'
         ? {
-            paddingTop: insets.top,
+            paddingTop: ignoreTopInset ? 0 : insets.top,
             paddingBottom: insets.bottom,
           }
         : {
-            paddingTop: insets.top,
+            paddingTop: ignoreTopInset ? 0 : insets.top,
             paddingBottom: insets.bottom + (floatingButtonHeight ?? 0),
             paddingLeft: insets.left,
             paddingRight: insets.right,
           },
-    [insets, props.orientation, floatingButtonHeight],
+    [insets, props.orientation, floatingButtonHeight, ignoreTopInset],
   );
 
   const componentStyle = useMemo(() => {
