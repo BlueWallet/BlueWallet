@@ -53,31 +53,26 @@ const LAYOUT = {
 
 const BUTTON_ACTIVE_OPACITY = 0.82;
 
-const useFloatButtonAnimation = (height: number) => {
-  const slideAnimation = useRef(new Animated.Value(height)).current;
+const useFloatButtonAnimation = (initialHeight: number) => {
+  // Slide is a once-per-mount animation: capture height on first render and never react to subsequent
+  // height changes (Android navigation transitions can re-emit height, which would yank the buttons
+  // off-screen mid-spring).
+  const slideAnimation = useRef(new Animated.Value(isDesktop ? 0 : initialHeight)).current;
   const animatedButtonRadius = useRef(new Animated.Value(LAYOUT.DEFAULT_BORDER_RADIUS)).current;
   const animatedSingleButtonRadius = useRef(new Animated.Value(LAYOUT.SINGLE_BUTTON_RADIUS)).current;
   const [isAnimating, setIsAnimating] = useState(false);
   const animationInterrupted = useRef(false);
-  const hasStartedSlide = useRef(false);
 
   useEffect(() => {
-    if (isDesktop) {
-      slideAnimation.setValue(0);
-      return;
-    }
-    slideAnimation.setValue(height);
-
-    if (hasStartedSlide.current) return;
-    hasStartedSlide.current = true;
-
+    if (isDesktop) return;
     Animated.spring(slideAnimation, {
       toValue: 0,
       friction: 7,
       tension: 40,
       useNativeDriver: true,
     }).start();
-  }, [height, slideAnimation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const configureLayoutAnimation = useCallback(() => {
     if (isDesktop) return;
