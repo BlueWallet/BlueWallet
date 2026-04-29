@@ -4,7 +4,7 @@ import { BackHandler, LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -69,7 +69,7 @@ const PleaseBackupLNDHub = () => {
         <BlueSpacing20 />
       </View>
       <BlueSpacing20 />
-      <QRCodeComponent value={wallet.getSecret()} size={qrCodeSize} />
+      <QRCode value={wallet.getSecret()} size={qrCodeSize} />
       <CopyTextToClipboard text={wallet.getSecret()} />
       <BlueSpacing20 />
       <Button onPress={dismiss} title={loc.pleasebackup.ok_lnd} />

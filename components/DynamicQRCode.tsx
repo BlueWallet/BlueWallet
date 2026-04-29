@@ -4,7 +4,7 @@ import { Dimensions, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View }
 import { encodeUR } from '../blue_modules/ur';
 import { BlueCurrentTheme } from '../components/themes';
 import loc from '../loc';
-import QRCodeComponent from './QRCodeComponent';
+import QRCode from './QRCode';
 import { BlueSpacing20 } from './BlueSpacing';
 
 const { height, width } = Dimensions.get('window');
@@ -165,7 +165,7 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
         >
           {this.state.displayQRCode && (
             <View style={animatedQRCodeStyle.qrcodeContainer}>
-              <QRCodeComponent
+              <QRCode
                 isLogoRendered={false}
                 value={currentFragment.toUpperCase()}
                 size={this.state.qrCodeHeight}

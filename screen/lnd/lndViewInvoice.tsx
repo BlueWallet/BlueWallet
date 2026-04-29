@@ -7,7 +7,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { BlueText, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -252,7 +252,7 @@ const LNDViewInvoice = () => {
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
               <View style={styles.activeQrcode}>
-                <QRCodeComponent value={invoice.payment_request} size={qrCodeSize} />
+                <QRCode value={invoice.payment_request} size={qrCodeSize} />
               </View>
               <BlueSpacing20 />
               <BlueText>
@@ -275,7 +275,7 @@ const LNDViewInvoice = () => {
       return (
         <View style={[styles.activeRoot, stylesHook.root]}>
           <View style={styles.activeQrcode}>
-            <QRCodeComponent value={invoice} size={qrCodeSize} />
+            <QRCode value={invoice} size={qrCodeSize} />
           </View>
         </View>
       );

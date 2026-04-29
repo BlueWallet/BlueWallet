@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { BlueTextCentered } from '../../BlueComponents';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -29,7 +29,7 @@ const LNDViewAdditionalInvoicePreImage = () => {
         <BlueTextCentered>{loc.lndViewInvoice.preimage}:</BlueTextCentered>
         <BlueSpacing20 />
         <View style={styles.qrCodeContainer}>
-          <QRCodeComponent value={preImageData} size={300} logoSize={90} />
+          <QRCode value={preImageData} size={300} logoSize={90} />
         </View>
         <BlueSpacing20 />
         <CopyTextToClipboard text={preImageData} />
