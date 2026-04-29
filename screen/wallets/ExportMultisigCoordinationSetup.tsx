@@ -1,11 +1,11 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useReducer, useRef } from 'react';
-import { ActivityIndicator, InteractionManager, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BlueText } from '../../BlueComponents';
 import { TWallet } from '../../class/wallets/types';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
+import Button from '../../components/Button';
 import SaveFileButton from '../../components/SaveFileButton';
-import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -78,7 +78,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const { wallets } = useStorage();
   const { isPrivacyBlurEnabled } = useSettings();
   const wallet: TWallet | undefined = wallets.find(w => w.getID() === walletID);
-  const dynamicQRCode = useRef<any>();
+  const dynamicQRCode = useRef<any>(null);
   const { colors } = useTheme();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
@@ -89,9 +89,6 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
     },
     type: { color: colors.foregroundColor },
     secret: { color: colors.foregroundColor },
-    exportButton: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
   });
 
   const label = useMemo(() => wallet?.getLabel(), [wallet]);
@@ -104,32 +101,38 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
     useCallback(() => {
       dispatch({ type: ActionType.SET_LOADING, isLoading: true });
 
-      const task = InteractionManager.runAfterInteractions(() => {
-        if (wallet) {
-          setTimeout(async () => {
-            try {
-              const walletXpub = await wallet.getXpub();
-              if (walletXpub) {
-                const value = uint8ArrayToHex(stringToUint8Array(walletXpub));
-                dispatch({ type: ActionType.SET_XPUB, xpub: walletXpub });
-                dispatch({ type: ActionType.SET_QR_CODE_CONTENTS, qrCodeContents: value });
-              } else {
-                dispatch({ type: ActionType.SET_ERROR, error: 'xpub not found' });
-              }
-            } catch (error) {
-              const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-              dispatch({ type: ActionType.SET_ERROR, error: errorMessage });
-            }
-            dispatch({ type: ActionType.SET_CLOSE_BUTTON_STATE, closeButtonState: true });
-          }, 0);
-        } else {
+      let cancelled = false;
+
+      (async () => {
+        if (!wallet) {
           dispatch({ type: ActionType.SET_ERROR, error: 'Wallet not found' });
           dispatch({ type: ActionType.SET_CLOSE_BUTTON_STATE, closeButtonState: true });
+          return;
         }
-      });
+
+        try {
+          const walletXpub = await wallet.getXpub();
+          if (cancelled) return;
+          if (walletXpub) {
+            const value = uint8ArrayToHex(stringToUint8Array(walletXpub));
+            dispatch({ type: ActionType.SET_XPUB, xpub: walletXpub });
+            dispatch({ type: ActionType.SET_QR_CODE_CONTENTS, qrCodeContents: value });
+          } else {
+            dispatch({ type: ActionType.SET_ERROR, error: 'xpub not found' });
+          }
+        } catch (error) {
+          if (cancelled) return;
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+          dispatch({ type: ActionType.SET_ERROR, error: errorMessage });
+        } finally {
+          if (!cancelled) {
+            dispatch({ type: ActionType.SET_CLOSE_BUTTON_STATE, closeButtonState: true });
+          }
+        }
+      })();
 
       return () => {
-        task.cancel();
+        cancelled = true;
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),
@@ -178,13 +181,13 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         label &&
         xpub && (
           <SaveFileButton
-            style={[styles.exportButton, stylesHook.exportButton]}
+            style={styles.exportButton}
             fileName={`${label}.txt`}
             fileContent={xpub}
             beforeOnPress={exportTxtFileBeforeOnPress}
             afterOnPress={exportTxtFileAfterOnPress}
           >
-            <SquareButton title={loc.multisig.share} />
+            <Button title={loc.multisig.share} />
           </SaveFileButton>
         )
       )}
@@ -198,8 +201,9 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
   return (
     <ScrollView
+      testID="ExportMultisigCoordinationSetupView"
       style={stylesHook.scrollViewContent}
-      centerContent
+      contentContainerStyle={isLoading ? styles.loadingContainer : styles.contentContainer}
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       automaticallyAdjustsScrollIndicatorInsets
@@ -212,8 +216,15 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
 
 const styles = StyleSheet.create({
   scrollViewContent: {
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  contentContainer: {
+    paddingVertical: 16,
   },
   type: {
     fontSize: 17,
@@ -226,10 +237,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   exportButton: {
-    height: 48,
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
     width: '80%',
     maxWidth: 300,
   },

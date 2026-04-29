@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { forwardRef, useEffect, useState } from 'react';
-import { StyleSheet, TextProps, TouchableOpacity } from 'react-native';
+import { StyleSheet, TextProps, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueText } from '../BlueComponents';
@@ -11,8 +11,11 @@ type CopyTextToClipboardProps = TextProps & {
   truncated?: boolean;
   selectable?: boolean;
   textAlign?: 'left' | 'center' | 'right' | 'auto' | 'justify';
+  containerStyle?: ViewStyle;
+  isAddress?: boolean;
+  buttonTestID?: string;
+  textTestID?: string;
 };
-
 const styles = StyleSheet.create({
   defaultTextStyle: {
     marginVertical: 32,
@@ -20,13 +23,35 @@ const styles = StyleSheet.create({
     color: '#9aa0aa',
     textAlign: 'center',
   },
+  textFillContainer: {
+    width: '100%',
+    minWidth: 0,
+  },
 });
 
 const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(
-  ({ text, displayText: displayTextProp, truncated, style, numberOfLines, ellipsizeMode, selectable, textAlign, ...textProps }, ref) => {
+  (
+    {
+      text,
+      displayText: displayTextProp,
+      truncated,
+      style,
+      numberOfLines,
+      ellipsizeMode,
+      selectable,
+      textAlign,
+      containerStyle,
+      accessibilityLabel,
+      buttonTestID = 'CopyTextToClipboard',
+      textTestID = 'AddressValue',
+      ...textProps
+    },
+    ref,
+  ) => {
     const [hasTappedText, setHasTappedText] = useState(false);
     const initialDisplayText = displayTextProp || text;
     const [displayText, setDisplayText] = useState(initialDisplayText);
+    const isCopiedState = hasTappedText && displayText === 'copied!';
 
     useEffect(() => {
       if (!hasTappedText) {
@@ -36,7 +61,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
 
     const copyToClipboard = () => {
       // Don't copy if text is empty or just "-"
-      if (!text || text === '-') {
+      if (hasTappedText || !text || text === '-') {
         return;
       }
 
@@ -47,33 +72,41 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       setTimeout(() => {
         setHasTappedText(false);
         setDisplayText(displayTextProp || text);
-      }, 1000);
+      }, 1500);
     };
 
     const mergedTextStyle = style || styles.defaultTextStyle;
-    const finalNumberOfLines = numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
-    const finalEllipsizeMode = ellipsizeMode || (truncated ? 'middle' : undefined);
+    const textAlignStyle = textAlign ? { textAlign } : undefined;
+    const finalNumberOfLines = isCopiedState ? 1 : numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
+    const finalEllipsizeMode = isCopiedState ? undefined : ellipsizeMode || (truncated ? 'middle' : undefined);
+
+    // When containerStyle is used (e.g. fixed width for ellipsis), wrap Text in a View with that
+    // width so Android constrains the Text and applies ellipsis instead of wrapping (long IDs).
+    const textContent = (
+      <BlueText
+        style={containerStyle && !isCopiedState ? [mergedTextStyle, styles.textFillContainer, textAlignStyle] : [mergedTextStyle, textAlignStyle]}
+        numberOfLines={finalNumberOfLines}
+        ellipsizeMode={finalEllipsizeMode}
+        selectable={selectable}
+        {...textProps}
+        testID={textTestID}
+      >
+        {displayText}
+      </BlueText>
+    );
 
     return (
       <TouchableOpacity
         ref={ref}
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
         onPress={copyToClipboard}
         disabled={hasTappedText || !text || text === '-'}
-        testID="CopyTextToClipboard"
+        testID={buttonTestID}
         activeOpacity={0.7}
+        style={containerStyle}
       >
-        <BlueText
-          style={mergedTextStyle}
-          numberOfLines={finalNumberOfLines}
-          ellipsizeMode={finalEllipsizeMode}
-          selectable={selectable}
-          textAlign={textAlign}
-          {...textProps}
-          testID="AddressValue"
-        >
-          {displayText}
-        </BlueText>
+        {containerStyle ? <View style={containerStyle}>{textContent}</View> : textContent}
       </TouchableOpacity>
     );
   },

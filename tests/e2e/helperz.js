@@ -1,7 +1,31 @@
 import { sha256 } from '@noble/hashes/sha256';
 import { element } from 'detox';
 
+/**
+ * Captures a stack trace at the call site, excluding the given function from the trace.
+ * Used to make Detox errors point to the spec file line instead of helper internals.
+ */
+function captureCallsite(excludeFn) {
+  const callsite = {};
+  Error.captureStackTrace(callsite, excludeFn);
+  return callsite;
+}
+
+/**
+ * Rethrows err with the stack rewritten to point at the call site.
+ */
+function rethrowWithCallsite(err, callsite) {
+  if (err && typeof err === 'object' && callsite && callsite.stack) {
+    const name = err.name || 'Error';
+    const message = err.message || '';
+    const frames = callsite.stack.split('\n').slice(1).join('\n');
+    err.stack = `${name}: ${message}\n${frames}`;
+  }
+  throw err;
+}
+
 export async function waitForId(id, timeout = 33000) {
+  const callsite = captureCallsite(waitForId);
   try {
     await waitFor(element(by.id(id)))
       .toBeVisible()
@@ -14,14 +38,13 @@ export async function waitForId(id, timeout = 33000) {
     await waitFor(element(by.id(id)))
       .toBeVisible()
       .withTimeout(timeout / 2);
-    return true;
-  } catch (_) {
-    const msg = `Assertion failed: testID ${id} is not visible`;
-    throw new Error(msg);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
   }
 }
 
 export async function waitForText(text, timeout = 33000) {
+  const callsite = captureCallsite(waitForText);
   try {
     await waitFor(element(by.text(text)))
       .toBeVisible()
@@ -35,10 +58,8 @@ export async function waitForText(text, timeout = 33000) {
     await waitFor(element(by.text(text)))
       .toBeVisible()
       .withTimeout(timeout / 2);
-    return true;
-  } catch (_) {
-    const msg = `Assertion failed: text "${text}" is not visible`;
-    throw new Error(msg);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
   }
 }
 
@@ -67,7 +88,9 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
-  await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+  if (device.getPlatform() === 'ios') {
+    await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+  }
   if (passphrase) {
     await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
     await element(by.id('SpeedPassphraseInput')).tapReturnKey();
@@ -75,9 +98,15 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedDoImport')).tap();
 
+  try {
+    await sleep(1_000);
+    await element(by.id('SpeedDoImport')).tap(); // sometimes doesnt work the 1st time
+  } catch (_) {}
+
   // waiting for import result
   await waitForText('OK', 3 * 61000);
   await element(by.text('OK')).tap();
+  await scrollUpOnHomeScreen();
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
@@ -108,17 +137,6 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   }
   await waitForId('NoTransactionsMessage');
 }
-
-/*
-
-module.exports.helperImportWallet = helperImportWallet;
-module.exports.waitForId = waitForId;
-module.exports.waitForText = waitForText;
-module.exports.sleep = sleep;
-module.exports.hashIt = hashIt;
-module.exports.helperDeleteWallet = helperDeleteWallet;
-
-*/
 
 /**
  * Extracts element text or label using getAttributes()
@@ -159,6 +177,7 @@ export async function helperCreateWallet(walletName) {
     .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
 
   await element(by.id('PleasebackupOk')).tap();
+  await scrollUpOnHomeScreen();
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
   await sleep(200);
@@ -166,6 +185,7 @@ export async function helperCreateWallet(walletName) {
 }
 
 export async function tapAndTapAgainIfElementIsNotVisible(idToTap, idToCheckVisible) {
+  const callsite = captureCallsite(tapAndTapAgainIfElementIsNotVisible);
   // tap
   await element(by.id(idToTap)).tap();
 
@@ -181,12 +201,17 @@ export async function tapAndTapAgainIfElementIsNotVisible(idToTap, idToCheckVisi
   await element(by.id(idToTap)).tap();
 
   // check visibility again, this time no try-catch, if it fails it fails
-  await waitFor(element(by.id(idToCheckVisible)))
-    .toBeVisible()
-    .withTimeout(3_000);
+  try {
+    await waitFor(element(by.id(idToCheckVisible)))
+      .toBeVisible()
+      .withTimeout(3_000);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
 }
 
 export async function tapAndTapAgainIfTextIsNotVisible(textToTap, textToCheckVisible) {
+  const callsite = captureCallsite(tapAndTapAgainIfTextIsNotVisible);
   // tap
   await element(by.text(textToTap)).tap();
 
@@ -202,9 +227,13 @@ export async function tapAndTapAgainIfTextIsNotVisible(textToTap, textToCheckVis
   await element(by.text(textToTap)).tap();
 
   // check visibility again, this time no try-catch, if it fails it fails
-  await waitFor(element(by.text(textToCheckVisible)))
-    .toBeVisible()
-    .withTimeout(3_000);
+  try {
+    await waitFor(element(by.text(textToCheckVisible)))
+      .toBeVisible()
+      .withTimeout(3_000);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
 }
 
 export async function tapIfPresent(id) {
@@ -219,6 +248,33 @@ export async function tapIfTextPresent(text) {
     await element(by.text(text)).tap();
   } catch (_) {}
   // no need to check for visibility, just silently ignore exception if such testID is not present
+}
+
+/**
+ * Confirms password dialogs in a platform-safe way.
+ * Android must tap a visible confirmation to keep test flow deterministic.
+ * iOS can fall back between id-based and text-based buttons.
+ */
+export async function confirmPasswordDialog() {
+  if (device.getPlatform() === 'android') {
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.text('OK')).tap();
+    return;
+  }
+
+  try {
+    await waitFor(element(by.id('OKButton')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.id('OKButton')).tap();
+  } catch (_) {
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.text('OK')).tap();
+  }
 }
 
 export async function countElements(testId) {
@@ -247,8 +303,16 @@ export async function goBack() {
   if (device.getPlatform() === 'ios') {
     try {
       await element(by.id('BackButton')).atIndex(0).tap();
-    } catch (_) {
-      await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+    } catch (_backError) {
+      try {
+        await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+      } catch (_closeButtonError) {
+        try {
+          await element(by.label('Back')).atIndex(0).tap();
+        } catch (_backLabelError) {
+          await element(by.text('Close')).atIndex(0).tap();
+        }
+      }
     }
   } else {
     await device.pressBack();
@@ -261,6 +325,7 @@ export async function typeTextIntoAlertInput(text) {
   } else {
     await element(by.type('_UIAlertControllerTextField')).replaceText(text);
   }
+  await sleep(1000);
 }
 
 /**
@@ -271,10 +336,10 @@ export async function scrollUpOnHomeScreen() {
     return;
   }
   try {
-    await element(by.type('RCTCustomScrollView').withDescendant(by.type('RCTCustomScrollView'))).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView'))).swipe('down', 'slow', 0.5);
   } catch (_) {
     // if no wallets there will be just one scroll
-    await element(by.type('RCTCustomScrollView')).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTEnhancedScrollView')).swipe('down', 'slow', 0.5);
   }
   await sleep(200); // bounce animation
 }

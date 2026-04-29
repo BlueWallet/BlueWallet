@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -123,15 +123,23 @@ const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> 
 );
 
 const TransactionStatus: React.FC = () => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
+  const [state, dispatch] = useReducer(reducer, {
+    ...initialState,
+    tx: initialTx,
+    isLoading: !initialTx,
+  });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
-  const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
   const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
-  const fetchTxInterval = useRef<NodeJS.Timeout>();
+  const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  // Explicit width for To/ID text so Android StaticLayout can apply ellipsis (flex alone often fails on Android)
+  const detailValueMaxWidth = useMemo(() => Math.max(0, Math.floor((windowWidth - 48) / 2)), [windowWidth]);
 
   // Advanced section state
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
@@ -143,7 +151,6 @@ const TransactionStatus: React.FC = () => {
   const [mempoolFee, setMempoolFee] = useState<number | null>(null);
   const [counterpartyLabel, setCounterpartyLabel] = useState<string | null>(null);
   const [paymentCode, setPaymentCode] = useState<string | null>(null);
-
   const stylesHook = StyleSheet.create({
     value: {
       color: colors.foregroundColor,
@@ -259,7 +266,7 @@ const TransactionStatus: React.FC = () => {
       backgroundColor: colors.transactionStateCancelButtonBackground,
     },
     cancelButtonText: {
-      color: colors.alternativeTextColor,
+      color: colors.transactionPendingColor,
     },
     advancedHeader: {
       borderColor: colors.cardBorderColor,
@@ -535,8 +542,10 @@ const TransactionStatus: React.FC = () => {
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
           }
-          clearInterval(fetchTxInterval.current);
-          fetchTxInterval.current = undefined;
+          if (fetchTxInterval.current) {
+            clearInterval(fetchTxInterval.current);
+            fetchTxInterval.current = undefined;
+          }
           if (wallet?.getID()) {
             // Fetch and save wallet transactions, then refresh the transaction data
             fetchAndSaveWalletTransactions(wallet.getID()).then(() => {
@@ -572,8 +581,10 @@ const TransactionStatus: React.FC = () => {
     }, intervalMs);
 
     return () => {
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
   }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet, subscribedWallet]);
 
@@ -585,8 +596,10 @@ const TransactionStatus: React.FC = () => {
 
     return () => {
       subscription.remove();
-      clearInterval(fetchTxInterval.current);
-      fetchTxInterval.current = undefined;
+      if (fetchTxInterval.current) {
+        clearInterval(fetchTxInterval.current);
+        fetchTxInterval.current = undefined;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -604,9 +617,10 @@ const TransactionStatus: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!tx?.hash || !wallet) return;
     initialButtonsState().catch(error => console.error('Unhandled error in initialButtonsState:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx, wallets]);
+  }, [tx?.hash, wallet]);
 
   useEffect(() => {
     if (!tx && hash) {
@@ -660,22 +674,25 @@ const TransactionStatus: React.FC = () => {
   }, [isLoading]);
 
   const checkPossibilityOfCPFP = async () => {
+    if (!wallet || !tx?.hash) {
+      return setIsCPFPPossible(ButtonStatus.Unknown);
+    }
     if (!wallet?.allowRBF()) {
       return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
 
-    if (wallet) {
-      const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
-      if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
-        return setIsCPFPPossible(ButtonStatus.Possible);
-      } else {
-        return setIsCPFPPossible(ButtonStatus.NotPossible);
-      }
+    const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
+      return setIsCPFPPossible(ButtonStatus.Possible);
+    } else {
+      return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
-    return setIsCPFPPossible(ButtonStatus.NotPossible);
   };
 
   const checkPossibilityOfRBFBumpFee = async () => {
+    if (!wallet || !tx?.hash) {
+      return setIsRBFBumpFeePossible(ButtonStatus.Unknown);
+    }
     if (!wallet?.allowRBF()) {
       return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
@@ -694,6 +711,9 @@ const TransactionStatus: React.FC = () => {
   };
 
   const checkPossibilityOfRBFCancel = async () => {
+    if (!wallet || !tx?.hash) {
+      return setIsRBFCancelPossible(ButtonStatus.Unknown);
+    }
     if (!wallet?.allowRBF()) {
       return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
@@ -843,7 +863,12 @@ const TransactionStatus: React.FC = () => {
     if (!tx) return null;
 
     if (tx.fee !== undefined && tx.fee !== null) {
-      return tx.fee;
+      const txFee = Number(tx.fee);
+      if (Number.isFinite(txFee)) return txFee;
+    }
+    if (txFromElectrum?.fee !== undefined && txFromElectrum?.fee !== null) {
+      const electrumFee = Number(txFromElectrum.fee);
+      if (Number.isFinite(electrumFee)) return electrumFee;
     }
     if (!tx.confirmations && mempoolFee != null) {
       return mempoolFee;
@@ -854,14 +879,22 @@ const TransactionStatus: React.FC = () => {
     const outputs = txFromElectrum?.vout ?? tx.outputs;
     if (!inputs?.length || !outputs?.length) return null;
 
-    const toSats = (v: number) => (v < 1 ? Math.round(v * 100000000) : v);
+    const toSats = (raw: unknown): number | null => {
+      const parsed = Number(raw);
+      if (!Number.isFinite(parsed)) return null;
+      // Electrum tx vin/vout values are BTC-denominated (can still be whole numbers like "1"),
+      // so always convert BTC -> sats to avoid under/over-counting fees.
+      return Math.round(parsed * 100000000);
+    };
     let totalInputs = 0;
     let totalOutputs = 0;
     for (const vin of inputs) {
-      if (vin.value != null) totalInputs += toSats(vin.value);
+      const vinValue = toSats(vin.value);
+      if (vinValue !== null) totalInputs += vinValue;
     }
     for (const vout of outputs) {
-      if (vout.value != null) totalOutputs += toSats(vout.value);
+      const voutValue = toSats(vout.value);
+      if (voutValue !== null) totalOutputs += voutValue;
     }
     if (totalInputs > 0 && totalOutputs > 0) {
       const fee = totalInputs - totalOutputs;
@@ -872,9 +905,14 @@ const TransactionStatus: React.FC = () => {
 
   // Calculate fee rate
   const feeRate = calculatedFee && tx?.vsize ? Math.round(calculatedFee / tx.vsize) : null;
+  const parsedTxValue = Number(tx?.value);
+  const txValue = Number.isFinite(parsedTxValue) ? parsedTxValue : null;
+  const parsedConfirmations = Number(tx?.confirmations);
+  const isPending = Number.isFinite(parsedConfirmations) ? parsedConfirmations <= 0 : !tx?.confirmations;
+  const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
 
   // Get transaction direction and date
-  const transactionDirection = tx?.value < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
+  const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   // Get memo
@@ -883,6 +921,12 @@ const TransactionStatus: React.FC = () => {
   const shortenContactName = (name: string): string => {
     if (name.length < 20) return name;
     return name.substr(0, 10) + '...' + name.substr(name.length - 10, 10);
+  };
+
+  // Shorten tx hash for display so it fits on one line on Android (native ellipsis is unreliable for long IDs)
+  const shortenTxHash = (txHash: string): string => {
+    if (txHash.length <= 24) return txHash;
+    return txHash.slice(0, 10) + '...' + txHash.slice(-10);
   };
 
   // Derive read-only counterparty info (if any) for BIP47 counterparties
@@ -970,7 +1014,7 @@ const TransactionStatus: React.FC = () => {
     );
   }
 
-  if (isLoading || !wallet) {
+  if (isLoading && !tx) {
     return (
       <SafeAreaScrollView>
         <BlueLoading />
@@ -991,15 +1035,25 @@ const TransactionStatus: React.FC = () => {
       {/* Value Section */}
       <View style={styles.valueCard}>
         <View style={styles.valueContent}>
-          <Text style={[styles.value, stylesHook.value]} selectable>
-            {formatBalanceWithoutSuffix(tx.value, wallet.preferredBalanceUnit, true)}
+          <Text
+            style={[styles.value, stylesHook.value]}
+            selectable
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.55}
+          >
+            {txValue !== null ? formatBalanceWithoutSuffix(txValue, preferredBalanceUnit, true) : '-'}
             {` `}
-            {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-              <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{wallet.preferredBalanceUnit}</Text>
+            {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+              <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{preferredBalanceUnit}</Text>
             )}
           </Text>
-          {wallet?.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{satoshiToLocalCurrency(Math.abs(tx.value))}</Text>
+          {txValue !== null && (
+            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>
+              {preferredBalanceUnit === BitcoinUnit.LOCAL_CURRENCY
+                ? `${formatBalanceWithoutSuffix(Math.abs(txValue), BitcoinUnit.BTC, true)} ${BitcoinUnit.BTC}`
+                : satoshiToLocalCurrency(Math.abs(txValue))}
+            </Text>
           )}
         </View>
       </View>
@@ -1009,11 +1063,15 @@ const TransactionStatus: React.FC = () => {
         style={[
           styles.stateCard,
           stylesHook.stateCard,
-          !tx.confirmations ? stylesHook.stateCardPending : tx.value < 0 ? stylesHook.stateCardSent : stylesHook.stateCardReceived,
+          isPending
+            ? stylesHook.stateCardPending
+            : txValue !== null && txValue < 0
+              ? stylesHook.stateCardSent
+              : stylesHook.stateCardReceived,
         ]}
       >
         <View style={styles.stateSection}>
-          {!tx.confirmations ? (
+          {isPending ? (
             <>
               <View style={styles.stateIndicator}>
                 <TransactionPendingIcon />
@@ -1024,7 +1082,7 @@ const TransactionStatus: React.FC = () => {
                   </BlueText>
                 </View>
               </View>
-              {(isRBFBumpFeePossible === ButtonStatus.Possible || isRBFCancelPossible === ButtonStatus.Possible) && (
+              {wallet && (isRBFBumpFeePossible === ButtonStatus.Possible || isRBFCancelPossible === ButtonStatus.Possible) && (
                 <View style={styles.stateButtons}>
                   {isRBFBumpFeePossible === ButtonStatus.Possible && (
                     <TouchableOpacity
@@ -1047,14 +1105,14 @@ const TransactionStatus: React.FC = () => {
                 </View>
               )}
             </>
-          ) : tx.value < 0 ? (
+          ) : txValue !== null && txValue < 0 ? (
             <View style={styles.stateIndicator}>
               <TransactionOutgoingIcon />
               <View style={styles.stateLabelContainer}>
                 <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent]}>{loc.transactions.details_sent}</BlueText>
                 <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline]}>
                   {loc.formatString(loc.transactions.confirmations_lowercase, {
-                    confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+                    confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
                   })}
                 </BlueText>
               </View>
@@ -1066,7 +1124,7 @@ const TransactionStatus: React.FC = () => {
                 <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived]}>{loc.transactions.details_received}</BlueText>
                 <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline]}>
                   {loc.formatString(loc.transactions.confirmations_lowercase, {
-                    confirmations: tx.confirmations > 6 ? '6+' : tx.confirmations,
+                    confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
                   })}
                 </BlueText>
               </View>
@@ -1127,11 +1185,12 @@ const TransactionStatus: React.FC = () => {
           </View>
         </View>
 
-        {/* To address - sent transactions only */}
-        {tx.value < 0 &&
+        {/* To address - sent transactions only, when exactly one external output (single recipient or rest is change) */}
+        {txValue !== null &&
+          txValue < 0 &&
           (() => {
             const externalAddresses = arrDiff(from, to.filter(onlyUnique));
-            if (externalAddresses.length === 0) return null;
+            if (externalAddresses.length !== 1) return null;
             const displayText = externalAddresses.map(shortenCounterpartyName).join(', ');
             const copyText = externalAddresses.join(', ');
             return (
@@ -1140,12 +1199,17 @@ const TransactionStatus: React.FC = () => {
                 <View style={styles.detailValueContainer}>
                   <View style={styles.detailValueCopyContainer}>
                     <CopyTextToClipboard
+                      containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, { width: detailValueMaxWidth }])}
                       text={copyText}
                       displayText={displayText}
-                      style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                      style={StyleSheet.flatten([
+                        styles.detailValue,
+                        stylesHook.detailValue,
+                        styles.detailValueEllipsisText,
+                        { width: detailValueMaxWidth },
+                      ])}
                       numberOfLines={1}
                       ellipsizeMode="middle"
-                      selectable
                       textAlign="right"
                     />
                   </View>
@@ -1154,18 +1218,27 @@ const TransactionStatus: React.FC = () => {
             );
           })()}
 
-        {/* Transaction ID */}
+        {/* Transaction ID - display shortened so it stays on one line on Android; copy still gets full hash */}
         {tx.hash && (
           <View style={[styles.detailRow, stylesHook.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
               <View style={styles.detailValueCopyContainer}>
                 <CopyTextToClipboard
+                  containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, { width: detailValueMaxWidth }])}
                   text={tx.hash}
-                  style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                  displayText={shortenTxHash(tx.hash)}
+                  accessibilityLabel={tx.hash}
+                  buttonTestID="TransactionIdCopyButton"
+                  textTestID="TransactionIdDisplayText"
+                  style={StyleSheet.flatten([
+                    styles.detailValue,
+                    stylesHook.detailValue,
+                    styles.detailValueEllipsisText,
+                    { width: detailValueMaxWidth },
+                  ])}
                   numberOfLines={1}
                   ellipsizeMode="middle"
-                  selectable
                   textAlign="right"
                 />
               </View>
@@ -1198,14 +1271,15 @@ const TransactionStatus: React.FC = () => {
         <TouchableOpacity
           onPress={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
           style={[styles.advancedHeader, stylesHook.advancedHeader]}
+          activeOpacity={0.85}
         >
           <View style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRow]}>
             <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_advanced}</BlueText>
             <Icon
               name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
-              type="font-awesome-5"
+              type="font-awesome"
               size={16}
-              color={colors.foregroundColor}
+              color={colors.alternativeTextColor}
             />
           </View>
         </TouchableOpacity>
@@ -1299,7 +1373,7 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {tx.confirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
+      {wallet && parsedConfirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
     </SafeAreaScrollView>
   );
 };
@@ -1557,17 +1631,28 @@ const styles = StyleSheet.create({
   detailValueContainer: {
     flex: 1,
     minWidth: 0,
+    maxWidth: '100%',
+    flexWrap: 'nowrap',
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 8,
-    flexWrap: 'wrap',
   },
   detailValueCopyContainer: {
     flex: 1,
     minWidth: 0,
     alignItems: 'flex-end',
     justifyContent: 'center',
+  },
+  // Ellipsis container: bounded width so Text with numberOfLines + ellipsizeMode works (Repeato guide)
+  detailValueEllipsisContainer: {
+    flex: 1,
+    minWidth: 0,
+  },
+  // Text style for single-line ellipsis in row layout (flex: 1 so text adjusts to container)
+  detailValueEllipsisText: {
+    flex: 1,
+    minWidth: 0,
   },
   detailValueFullWidth: {
     width: '100%',

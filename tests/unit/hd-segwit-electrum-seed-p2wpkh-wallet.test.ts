@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class';
+import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class/wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('HDSegwitElectrumSeedP2WPKHWallet', () => {

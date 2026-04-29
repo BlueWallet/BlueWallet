@@ -2,12 +2,10 @@ import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback,
 import {
   Animated,
   LayoutAnimation,
-  Platform,
   PixelRatio,
   StyleSheet,
   Text,
   TouchableOpacity,
-  UIManager,
   useWindowDimensions,
   View,
   StyleProp,
@@ -18,10 +16,6 @@ import { useTheme } from './themes';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
 import debounce from '../blue_modules/debounce';
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 const scheduleInNextFrame = (callback: () => void): number => {
   return requestAnimationFrame(() => {
@@ -417,12 +411,15 @@ const ButtonContent = ({ icon, text, textStyle, iconStyle }: ButtonContentProps)
   if (React.isValidElement(icon)) {
     const iconElement = icon as React.ReactElement;
 
-    scaledIcon = React.cloneElement(iconElement, {
-      ...iconElement.props,
-      size: iconSize,
-      width: iconSize,
-      height: iconSize,
-    });
+    scaledIcon = React.cloneElement(
+      iconElement as React.ReactElement<any>,
+      {
+        ...(iconElement.props as Record<string, unknown>),
+        size: iconSize,
+        width: iconSize,
+        height: iconSize,
+      } as any,
+    );
   } else {
     scaledIcon = icon;
   }

@@ -13,7 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -30,7 +30,8 @@ import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } fr
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueLoading } from '../../components/BlueLoading';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
-import { LightningArkWallet, LightningCustodianWallet } from '../../class';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import assert from 'assert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
 

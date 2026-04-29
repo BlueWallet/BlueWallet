@@ -1,19 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { InteractionManager, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueCard, BlueText } from '../../BlueComponents';
-import {
-  HDAezeedWallet,
-  HDSegwitBech32Wallet,
-  LegacyWallet,
-  LightningArkWallet,
-  MultisigHDWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
-  WatchOnlyWallet,
-} from '../../class';
+import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
+import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
+import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
@@ -36,7 +34,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
-import { Icon } from '@rneui/themed';
+import Icon from '../../components/Icon';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
@@ -260,19 +258,20 @@ const WalletDetails: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      const task = InteractionManager.runAfterInteractions(() => {
-        if (isMasterFingerPrintVisible && wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
+      let cancelled = false;
+      if (isMasterFingerPrintVisible && wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()) {
+        // @ts-expect-error: Need to fix later
+        if (wallet.getMasterFingerprintHex && !cancelled) {
           // @ts-expect-error: Need to fix later
-          if (wallet.getMasterFingerprintHex) {
-            // @ts-expect-error: Need to fix later
-            setMasterFingerprint(wallet.getMasterFingerprintHex());
-          }
-        } else {
-          setMasterFingerprint(undefined);
+          setMasterFingerprint(wallet.getMasterFingerprintHex());
         }
-      });
+      } else {
+        setMasterFingerprint(undefined);
+      }
 
-      return () => task.cancel();
+      return () => {
+        cancelled = true;
+      };
     }, [isMasterFingerPrintVisible, wallet]),
   );
 
@@ -535,7 +534,7 @@ const WalletDetails: React.FC = () => {
                     {walletTransactionsLength > 0 && (
                       <ToolTipMenu
                         isButton
-                        isMenuPrimaryAction
+                        shouldOpenOnLongPress={false}
                         onPressMenuItem={toolTipOnPressMenuItem}
                         actions={transactionsBoxMenuActions}
                       >
@@ -619,7 +618,6 @@ const WalletDetails: React.FC = () => {
                   <>
                     <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.wallets.details_advanced}</Text>
                     <ListItem
-                      Component={View}
                       containerStyle={styles.listItemContainerBorderLight}
                       title={loc.wallets.details_use_with_hardware_wallet}
                       switch={{
@@ -646,7 +644,6 @@ const WalletDetails: React.FC = () => {
                   {loc.transactions.list_title}
                 </Text>
                 <ListItem
-                  Component={View}
                   containerStyle={stylesHook.listItemContainerBorder}
                   title={loc.wallets.details_display}
                   switch={{
@@ -671,7 +668,6 @@ const WalletDetails: React.FC = () => {
                   <>
                     <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.bip47.payment_code}</Text>
                     <ListItem
-                      Component={View}
                       containerStyle={stylesHook.listItemContainerBorder}
                       title={loc.bip47.purpose}
                       switch={{
@@ -746,12 +742,16 @@ const WalletDetails: React.FC = () => {
                 activeOpacity={0.8}
               >
                 <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.wallets.details_advanced}</BlueText>
-                <Icon name={isAdvancedExpanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'} size={24} color={colors.foregroundColor} />
+                <Icon
+                  name={isAdvancedExpanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
+                  type="material"
+                  size={24}
+                  color={colors.foregroundColor}
+                />
               </TouchableOpacity>
               {isAdvancedExpanded && (
                 <View style={[styles.advancedContent, stylesHook.advancedContent]}>
                   <ListItem
-                    Component={View}
                     containerStyle={stylesHook.listItemContainerBorder}
                     title={loc.wallets.details_type}
                     titleStyle={stylesHook.advancedListItemTitle}
@@ -768,7 +768,6 @@ const WalletDetails: React.FC = () => {
                   {wallet.type === MultisigHDWallet.type && (
                     <>
                       <ListItem
-                        Component={View}
                         containerStyle={stylesHook.listItemContainerBorder}
                         title={loc.wallets.details_multisig_type}
                         titleStyle={stylesHook.advancedListItemTitle}
@@ -779,7 +778,6 @@ const WalletDetails: React.FC = () => {
                         bottomDivider={!!(derivationPath || (wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()))}
                       />
                       <ListItem
-                        Component={View}
                         containerStyle={stylesHook.listItemContainerBorder}
                         title={loc.multisig.how_many_signatures_can_bluewallet_make}
                         titleStyle={stylesHook.advancedListItemTitle}
@@ -793,7 +791,6 @@ const WalletDetails: React.FC = () => {
                     <ListItem
                       containerStyle={stylesHook.listItemContainerBorder}
                       onPress={isMasterFingerPrintVisible ? undefined : onViewMasterFingerPrintPress}
-                      Component={isMasterFingerPrintVisible ? View : undefined}
                       title={loc.wallets.details_master_fingerprint}
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={
@@ -805,7 +802,6 @@ const WalletDetails: React.FC = () => {
                   )}
                   {derivationPath && (
                     <ListItem
-                      Component={View}
                       containerStyle={stylesHook.listItemContainerBorder}
                       title={loc.wallets.details_derivation_path}
                       titleStyle={stylesHook.advancedListItemTitle}

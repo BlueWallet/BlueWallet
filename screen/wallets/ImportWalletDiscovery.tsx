@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, LayoutAnimation, Platform, StyleSheet, UIManager, View } from 'react-native';
+import { ActivityIndicator, FlatList, LayoutAnimation, Platform, StyleSheet, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueButtonLink, BlueFormLabel, BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import startImport, { TImport } from '../../class/wallet-import';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
@@ -29,10 +30,6 @@ type WalletEntry = {
   subtitle: string;
   id: string;
 };
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 const ImportWalletDiscovery: React.FC = () => {
   const navigation = useExtendedNavigation<NavigationProp>();
@@ -239,8 +236,9 @@ const ImportWalletDiscovery: React.FC = () => {
         ListEmptyComponent={ListEmptyComponent}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        automaticallyAdjustContentInsets
-        contentInsetAdjustmentBehavior="always"
+        automaticallyAdjustContentInsets={Platform.OS === 'ios'}
+        contentInsetAdjustmentBehavior={Platform.OS === 'ios' ? 'always' : 'never'}
+        removeClippedSubviews={false}
       />
       <View style={[styles.center, stylesHook.center]}>
         {bip39 && (
