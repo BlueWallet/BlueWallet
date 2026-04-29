@@ -87,6 +87,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     const memoizedSwitchProps = useMemo(() => {
       return switchProps ? { ...switchProps } : undefined;
     }, [switchProps]);
+    const resolvedSwitchTestID = switchTestID ?? memoizedSwitchProps?.testID;
     const enableFeedback = !noFeedback && !!onPress && !disabled;
 
     const renderContent = () => (
@@ -130,7 +131,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         {switchProps ? (
           <Switch
             {...memoizedSwitchProps}
-            testID={switchTestID}
+            testID={resolvedSwitchTestID}
             accessibilityLabel={title}
             style={styles.margin16}
             accessible

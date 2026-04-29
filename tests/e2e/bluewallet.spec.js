@@ -265,8 +265,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and do not ask me again.`)).tap();
-      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
+      await tapIfTextPresent('No, and do not ask me again.');
+      await tapIfTextPresent('No, and do not ask me again.');
+      // Some Android system dialogs use this variant.
+      await tapIfTextPresent('ASK ME LATER.');
+      await tapIfTextPresent('ASK ME LATER.');
     } catch (_) {}
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
@@ -586,18 +589,26 @@ describe('BlueWallet UI Tests - no wallets', () => {
     try {
       // in case emulator has no google services and doesnt support pushes
       // we just dont show this popup
-      await element(by.text(`No, and do not ask me again.`)).tap();
-      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
+      await tapIfTextPresent('No, and do not ask me again.');
+      await tapIfTextPresent('No, and do not ask me again.');
+      // Some Android system dialogs use this variant.
+      await tapIfTextPresent('ASK ME LATER.');
+      await tapIfTextPresent('ASK ME LATER.');
     } catch (_) {}
 
     await waitForText('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');
     await goBack();
 
     await element(by.id('WalletDetails')).tap();
-    // Multisig type "2 / 2 (native segwit)" is inside the Advanced section (collapsed by default)
+    // Multisig type is inside the Advanced section (collapsed by default).
+    // Depending on imported key type this may be native or wrapped segwit.
     await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
     await element(by.text('Advanced')).tap();
-    await waitForText('2 / 2 (native segwit)');
+    try {
+      await waitForText('2 / 2 (native segwit)');
+    } catch (_) {
+      await waitForText('2 / 2 (wrapped segwit)');
+    }
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
