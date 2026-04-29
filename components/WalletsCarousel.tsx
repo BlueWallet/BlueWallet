@@ -160,10 +160,12 @@ const iStyles = StyleSheet.create({
   grad: {
     borderRadius: 12,
     minHeight: 164,
+    overflow: 'hidden',
   },
   gradCompact: {
     borderRadius: 10,
     minHeight: 132,
+    overflow: 'hidden',
   },
   gradContent: {
     padding: 15,
@@ -187,8 +189,6 @@ const iStyles = StyleSheet.create({
   imageCompact: {
     width: 78,
     height: 74,
-    right: 4,
-    bottom: 4,
   },
   br: {
     backgroundColor: 'transparent',
@@ -423,8 +423,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
             ]}
           >
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={[iStyles.grad, isCompact && iStyles.gradCompact]}>
+              <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
               <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact]}>
-                <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
                 <Text style={iStyles.br} />
                 {!isPlaceHolder && (
                   <>

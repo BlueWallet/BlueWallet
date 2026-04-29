@@ -12,6 +12,7 @@ import {
   helperDeleteWallet,
   scanText,
   scrollUpOnHomeScreen,
+  setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapIfTextPresent,
@@ -648,11 +649,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // setting fee rate:
     const feeRate = 3;
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText(feeRate.toString());
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(feeRate);
 
     await element(by.id('CreateTransactionButton')).tap();
 

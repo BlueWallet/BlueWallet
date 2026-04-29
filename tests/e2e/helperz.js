@@ -300,6 +300,17 @@ export async function scanText(text) {
   await element(by.id('scanQrBackdoorOkButton')).tap();
 }
 
+export async function setCustomFeeRate(feeRate) {
+  await waitForId('chooseFee');
+  await element(by.id('chooseFee')).tap();
+  await waitForId('feeCustomContainerButton');
+  await element(by.id('feeCustomContainerButton')).tap();
+  await waitForId('feeCustom');
+  await element(by.id('feeCustom')).replaceText(String(feeRate));
+  await element(by.id('feeCustom')).tapReturnKey();
+  await waitForKeyboardToClose();
+}
+
 export async function goBack() {
   if (device.getPlatform() === 'ios') {
     try {

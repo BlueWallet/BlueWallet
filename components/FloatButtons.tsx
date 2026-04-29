@@ -2,12 +2,10 @@ import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback,
 import {
   Animated,
   LayoutAnimation,
-  Platform,
   PixelRatio,
   StyleSheet,
   Text,
   TouchableOpacity,
-  UIManager,
   useWindowDimensions,
   View,
   StyleProp,
@@ -18,10 +16,6 @@ import { useTheme } from './themes';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
 import debounce from '../blue_modules/debounce';
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 const scheduleInNextFrame = (callback: () => void): number => {
   return requestAnimationFrame(() => {
@@ -56,6 +50,8 @@ const LAYOUT = {
     useNativeDriver: true,
   },
 };
+
+const BUTTON_ACTIVE_OPACITY = 0.82;
 
 const useFloatButtonAnimation = (height: number) => {
   const slideAnimation = useRef(new Animated.Value(height)).current;
@@ -497,6 +493,7 @@ export const FButton = ({
           accessibilityLabel={text}
           accessibilityRole="button"
           testID={testID}
+          activeOpacity={BUTTON_ACTIVE_OPACITY}
           style={[buttonStyles.root, buttonStyles.touchContainer]}
           {...props}
         >
@@ -511,6 +508,7 @@ export const FButton = ({
       accessibilityLabel={text}
       accessibilityRole="button"
       testID={testID}
+      activeOpacity={BUTTON_ACTIVE_OPACITY}
       style={[
         buttonStyles.root,
         customButtonStyles.root,
