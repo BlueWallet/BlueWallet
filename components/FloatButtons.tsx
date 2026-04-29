@@ -1,28 +1,10 @@
 import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import {
-  Animated,
-  LayoutAnimation,
-  PixelRatio,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-  View,
-  StyleProp,
-  TextStyle,
-} from 'react-native';
+import { Animated, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, StyleProp, TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './themes';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
 import debounce from '../blue_modules/debounce';
-
-const scheduleInNextFrame = (callback: () => void): number => {
-  return requestAnimationFrame(() => {
-    // Use a second requestAnimationFrame to ensure we're not in the same frame
-    requestAnimationFrame(callback);
-  });
-};
 
 const LAYOUT = {
   PADDINGS: 30,
@@ -39,29 +21,15 @@ const LAYOUT = {
   SINGLE_BUTTON_WIDTH_FACTOR: 0.625,
   MAX_BUTTON_FONT_SIZE: 24,
   SAFETY_MARGIN: 20,
-  ANIMATION_DURATION: 300,
-  SPRING_CONFIG: {
-    speed: 12,
-    bounciness: 4,
-    useNativeDriver: true,
-  },
-  TIMING_CONFIG: {
-    duration: 300,
-    useNativeDriver: true,
-  },
 };
 
 const BUTTON_ACTIVE_OPACITY = 0.82;
 
-const useFloatButtonAnimation = (initialHeight: number) => {
+const useSlideInAnimation = (initialHeight: number) => {
   // Slide is a once-per-mount animation: capture height on first render and never react to subsequent
   // height changes (Android navigation transitions can re-emit height, which would yank the buttons
   // off-screen mid-spring).
   const slideAnimation = useRef(new Animated.Value(isDesktop ? 0 : initialHeight)).current;
-  const animatedButtonRadius = useRef(new Animated.Value(LAYOUT.DEFAULT_BORDER_RADIUS)).current;
-  const animatedSingleButtonRadius = useRef(new Animated.Value(LAYOUT.SINGLE_BUTTON_RADIUS)).current;
-  const [isAnimating, setIsAnimating] = useState(false);
-  const animationInterrupted = useRef(false);
 
   useEffect(() => {
     if (isDesktop) return;
@@ -74,73 +42,7 @@ const useFloatButtonAnimation = (initialHeight: number) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const configureLayoutAnimation = useCallback(() => {
-    if (isDesktop) return;
-
-    LayoutAnimation.configureNext({
-      duration: 250,
-      create: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-      update: {
-        type: LayoutAnimation.Types.spring,
-        springDamping: 0.85,
-      },
-      delete: {
-        type: LayoutAnimation.Types.easeInEaseOut,
-        property: LayoutAnimation.Properties.opacity,
-      },
-    });
-  }, []);
-
-  const animateBorderRadius = useCallback(
-    (buttonRadius: number, singleRadius: number, onComplete?: () => void) => {
-      if (isDesktop) {
-        animatedButtonRadius.setValue(buttonRadius);
-        animatedSingleButtonRadius.setValue(singleRadius);
-        if (onComplete) onComplete();
-        return;
-      }
-
-      if (isAnimating) {
-        animationInterrupted.current = true;
-        return;
-      }
-
-      setIsAnimating(true);
-      animationInterrupted.current = false;
-
-      Animated.parallel([
-        Animated.timing(animatedButtonRadius, {
-          toValue: buttonRadius,
-          duration: 250,
-          useNativeDriver: false,
-        }),
-        Animated.timing(animatedSingleButtonRadius, {
-          toValue: singleRadius,
-          duration: 250,
-          useNativeDriver: false,
-        }),
-      ]).start(({ finished }) => {
-        setIsAnimating(false);
-        if (finished && !animationInterrupted.current && onComplete) {
-          onComplete();
-        }
-      });
-    },
-    [animatedButtonRadius, animatedSingleButtonRadius, isAnimating],
-  );
-
-  return {
-    slideAnimation,
-    animatedButtonRadius,
-    animatedSingleButtonRadius,
-    isAnimating: isDesktop ? false : isAnimating,
-    setIsAnimating,
-    configureLayoutAnimation,
-    animateBorderRadius,
-  };
+  return slideAnimation;
 };
 
 const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
@@ -310,10 +212,6 @@ const buttonStyles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  icon: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -321,13 +219,6 @@ const buttonStyles = StyleSheet.create({
     minHeight: 24,
     overflow: 'visible',
     alignSelf: 'center',
-  },
-  touchContainer: {
-    width: '100%',
-    height: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   centeredText: {
     textAlign: 'center',
@@ -381,9 +272,8 @@ interface FButtonProps {
   last?: boolean;
   singleChild?: boolean;
   isVertical?: boolean;
-  borderRadius?: number | Animated.Value;
+  borderRadius?: number;
   fontSize?: number;
-  isAnimating?: boolean;
   disabled?: boolean;
   testID?: string;
   onPress: () => void;
@@ -394,14 +284,13 @@ interface ButtonContentProps {
   icon: ReactNode;
   text: string;
   textStyle: StyleProp<TextStyle>;
-  iconStyle: StyleProp<any>;
 }
 
 const getScaledIconSize = (fontSize: number): number => {
   return Math.max(Math.round(fontSize * 1.2), 16);
 };
 
-const ButtonContent = ({ icon, text, textStyle, iconStyle }: ButtonContentProps) => {
+const ButtonContent = ({ icon, text, textStyle }: ButtonContentProps) => {
   const computedStyle = StyleSheet.flatten(textStyle);
   const fontSize = computedStyle.fontSize || LAYOUT.MAX_BUTTON_FONT_SIZE;
   const iconSize = getScaledIconSize(Number(fontSize));
@@ -444,7 +333,6 @@ export const FButton = ({
   isVertical,
   borderRadius = LAYOUT.DEFAULT_BORDER_RADIUS,
   fontSize = LAYOUT.MAX_BUTTON_FONT_SIZE,
-  isAnimating = false,
   testID,
   ...props
 }: FButtonProps) => {
@@ -484,39 +372,16 @@ export const FButton = ({
 
   const textStyle = [customButtonStyles.textBase, props.disabled ? customButtonStyles.textDisabled : customButtonStyles.text];
 
-  if (isAnimating && borderRadius instanceof Animated.Value) {
-    return (
-      <Animated.View style={[buttonStyles.root, customButtonStyles.root, style, additionalStyles, { borderRadius }]}>
-        <TouchableOpacity
-          accessibilityLabel={text}
-          accessibilityRole="button"
-          testID={testID}
-          activeOpacity={BUTTON_ACTIVE_OPACITY}
-          style={[buttonStyles.root, buttonStyles.touchContainer]}
-          {...props}
-        >
-          <ButtonContent icon={icon} text={text} textStyle={textStyle} iconStyle={buttonStyles.icon} />
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  }
-
   return (
     <TouchableOpacity
       accessibilityLabel={text}
       accessibilityRole="button"
       testID={testID}
       activeOpacity={BUTTON_ACTIVE_OPACITY}
-      style={[
-        buttonStyles.root,
-        customButtonStyles.root,
-        style,
-        additionalStyles,
-        { borderRadius: typeof borderRadius === 'number' ? borderRadius : LAYOUT.DEFAULT_BORDER_RADIUS },
-      ]}
+      style={[buttonStyles.root, customButtonStyles.root, style, additionalStyles, { borderRadius }]}
       {...props}
     >
-      <ButtonContent icon={icon} text={text} textStyle={textStyle} iconStyle={buttonStyles.icon} />
+      <ButtonContent icon={icon} text={text} textStyle={textStyle} />
     </TouchableOpacity>
   );
 };
@@ -533,20 +398,29 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     return Math.max(0, Math.ceil(width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
   }, [width, sizeClass]);
 
-  const [newWidth, setNewWidth] = useState<number | undefined>(undefined);
-  const [isVertical, setIsVertical] = useState(false);
+  const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
+    width,
+    sizeClass,
+  );
+
+  // Compute initial geometry synchronously so frame 1 already has the correct button width and
+  // border radius — eliminates the frame-1 → frame-2 width snap.
+  const initialGeometry = useMemo(() => {
+    const w = calculateButtonWidth(initialLayoutWidth, childrenCount);
+    const v = calculateVisualParameters(w, childrenCount);
+    return { width: w, ...v };
+  }, [calculateButtonWidth, calculateVisualParameters, initialLayoutWidth, childrenCount]);
+
+  const [newWidth, setNewWidth] = useState<number>(() => initialGeometry.width);
+  const [isVertical, setIsVertical] = useState<boolean>(() => initialGeometry.shouldBeVertical);
   const [layoutReady, setLayoutReady] = useState<boolean>(() => initialLayoutWidth > 0);
-  const [buttonBorderRadius, setButtonBorderRadius] = useState<number>(LAYOUT.DEFAULT_BORDER_RADIUS);
-  const [singleButtonBorderRadius, setSingleButtonBorderRadius] = useState<number>(LAYOUT.SINGLE_BUTTON_RADIUS);
+  const [buttonBorderRadius, setButtonBorderRadius] = useState<number>(() => initialGeometry.buttonRadius);
+  const [singleButtonBorderRadius, setSingleButtonBorderRadius] = useState<number>(() => initialGeometry.singleButtonRadius);
 
   const latest = useRef({ newWidth, isVertical, buttonBorderRadius, singleButtonBorderRadius });
   latest.current = { newWidth, isVertical, buttonBorderRadius, singleButtonBorderRadius };
 
   const layoutWidth = useRef<number>(initialLayoutWidth);
-  const layoutCalculated = useRef(false);
-  // Avoid running the animation on the very first layout calculation.
-  // Otherwise, especially when there's only one button, border-radius changes can visibly "jump".
-  const isFirstLayoutCalculation = useRef(true);
 
   const bottomInsets = useMemo(
     () => ({
@@ -555,45 +429,17 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     [insets.bottom],
   );
 
-  const { slideAnimation, animatedButtonRadius, animatedSingleButtonRadius, isAnimating } = useFloatButtonAnimation(height);
-
-  const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
-    width,
-    sizeClass,
-  );
-
-  // No borderRadius animation: the floating buttons should only slide into place.
-  // We set geometry state directly to avoid Android border-radius/layout jitter.
-  const handleBorderRadiusAnimation = useCallback(
-    (buttonRadius: number, singleRadius: number, shouldBeVertical: boolean, calculatedWidth: number) => {
-      setNewWidth(calculatedWidth);
-      setIsVertical(shouldBeVertical);
-      setButtonBorderRadius(buttonRadius);
-      setSingleButtonBorderRadius(singleRadius);
-    },
-    [],
-  );
+  const slideAnimation = useSlideInAnimation(height);
 
   const calculateLayout = useCallback(() => {
     if (!layoutReady || layoutWidth.current <= 0) return;
 
-    scheduleInNextFrame(() => {
+    requestAnimationFrame(() => {
       const calculatedWidth = calculateButtonWidth(layoutWidth.current, childrenCount);
       const { buttonRadius, singleButtonRadius, shouldBeVertical } = calculateVisualParameters(calculatedWidth, childrenCount);
 
-      if (isFirstLayoutCalculation.current) {
-        setNewWidth(calculatedWidth);
-        setIsVertical(shouldBeVertical);
-        setButtonBorderRadius(buttonRadius);
-        setSingleButtonBorderRadius(singleButtonRadius);
-
-        isFirstLayoutCalculation.current = false;
-        layoutCalculated.current = true;
-        return;
-      }
-
       const prev = latest.current;
-      const widthDelta = Math.abs((prev.newWidth ?? 0) - calculatedWidth);
+      const widthDelta = Math.abs(prev.newWidth - calculatedWidth);
       const buttonRadiusDelta = Math.abs(buttonRadius - prev.buttonBorderRadius);
       const singleRadiusDelta = Math.abs(singleButtonRadius - prev.singleButtonBorderRadius);
 
@@ -607,28 +453,12 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         }
       }
 
-      if (shouldBeVertical !== prev.isVertical || widthDelta > 1) {
-        handleBorderRadiusAnimation(buttonRadius, singleButtonRadius, shouldBeVertical, calculatedWidth);
-      } else {
-        setNewWidth(calculatedWidth);
-        setIsVertical(shouldBeVertical);
-        setButtonBorderRadius(buttonRadius);
-        setSingleButtonBorderRadius(singleButtonRadius);
-      }
-
-      layoutCalculated.current = true;
+      setNewWidth(calculatedWidth);
+      setIsVertical(shouldBeVertical);
+      setButtonBorderRadius(buttonRadius);
+      setSingleButtonBorderRadius(singleButtonRadius);
     });
-  }, [
-    layoutReady,
-    calculateButtonWidth,
-    calculateVisualParameters,
-    handleBorderRadiusAnimation,
-    childrenCount,
-    setNewWidth,
-    setIsVertical,
-    setButtonBorderRadius,
-    setSingleButtonBorderRadius,
-  ]);
+  }, [layoutReady, calculateButtonWidth, calculateVisualParameters, childrenCount]);
 
   const debouncedCalculateLayout = useMemo(() => debounce(calculateLayout, 16), [calculateLayout]);
 
@@ -642,7 +472,6 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     if (currentLayoutWidth > 0) {
       if (Math.abs(layoutWidth.current - currentLayoutWidth) > 2) {
         layoutWidth.current = currentLayoutWidth;
-        layoutCalculated.current = false;
       }
 
       if (!layoutReady) {
@@ -654,7 +483,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const renderChild = (child: ReactNode, index: number, array: ReactNode[]): ReactNode => {
     if (typeof child === 'string') {
       return (
-        <View key={index} style={[containerStyles.childWrapper, { width: effectiveNewWidth }]}>
+        <View key={index} style={[containerStyles.childWrapper, { width: newWidth }]}>
           <Text adjustsFontSizeToFit numberOfLines={1}>
             {child}
           </Text>
@@ -663,24 +492,16 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     }
 
     const isSingleChild = array.length === 1;
-    const borderRadiusToUse = isSingleChild
-      ? isAnimating
-        ? animatedSingleButtonRadius
-        : singleButtonBorderRadius
-      : isAnimating
-        ? animatedButtonRadius
-        : buttonBorderRadius;
 
     return React.cloneElement(child as React.ReactElement<any>, {
-      width: effectiveNewWidth,
+      width: newWidth,
       key: index,
       first: index === 0,
       last: index === array.length - 1,
       singleChild: isSingleChild,
       isVertical,
-      borderRadius: borderRadiusToUse,
+      borderRadius: isSingleChild ? singleButtonBorderRadius : buttonBorderRadius,
       fontSize: buttonFontSize,
-      isAnimating,
     });
   };
 
@@ -689,29 +510,22 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     [calculateContainerHeight, childrenCount, isVertical],
   );
 
-  const effectiveNewWidth = newWidth ?? layoutWidth.current;
-
-  const dynamicRoundStyle = useMemo(() => {
-    if (childrenCount === 1) {
-      return {
-        borderRadius: isAnimating ? animatedSingleButtonRadius : singleButtonBorderRadius,
-        overflow: 'hidden',
-      };
-    }
-    return null;
-  }, [childrenCount, singleButtonBorderRadius, isAnimating, animatedSingleButtonRadius]);
+  const dynamicRoundStyle = useMemo(
+    () => (childrenCount === 1 ? { borderRadius: singleButtonBorderRadius, overflow: 'hidden' as const } : null),
+    [childrenCount, singleButtonBorderRadius],
+  );
 
   const combinedStyles = useMemo(
     () => [
       containerStyles.root,
       props.inline ? containerStyles.rootInline : containerStyles.rootAbsolute,
       bottomInsets,
-      effectiveNewWidth ? (isVertical ? containerStyles.rootPostVertical : containerStyles.rootPost) : containerStyles.rootPre,
+      newWidth ? (isVertical ? containerStyles.rootPostVertical : containerStyles.rootPost) : containerStyles.rootPre,
       dynamicRoundStyle,
       isVertical ? containerHeight : null,
       { transform: [{ translateY: slideAnimation }] },
     ],
-    [props.inline, bottomInsets, effectiveNewWidth, isVertical, dynamicRoundStyle, containerHeight, slideAnimation],
+    [props.inline, bottomInsets, newWidth, isVertical, dynamicRoundStyle, containerHeight, slideAnimation],
   );
 
   return (
