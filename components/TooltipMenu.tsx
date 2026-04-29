@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 import { ToolTipMenuProps } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -73,17 +73,32 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       actions={items}
       dropdownMenuMode={!shouldOpenOnLongPress}
       style={wrapInPressable ? styles.menuFlex : visibleStyle}
-      testID={wrapInPressable ? undefined : testID}
-      accessibilityLabel={wrapInPressable ? undefined : accessibilityLabel}
-      accessibilityHint={wrapInPressable ? undefined : accessibilityHint}
-      accessibilityRole={wrapInPressable ? undefined : accessibilityRole}
-      accessibilityState={wrapInPressable ? undefined : accessibilityState}
     >
       {children}
     </ContextMenu>
   );
 
-  if (!wrapInPressable) return menu;
+  if (!wrapInPressable) {
+    // Wrap the native ContextMenu in a plain View that carries `testID` and the
+    // accessibility props. On iOS, react-native-context-menu-view propagates
+    // the accessibility identifier across multiple descendants of its native
+    // host, so attaching `testID` directly to ContextMenu makes Detox match
+    // multiple views (`Multiple elements found for "MATCHER(id == ...)"`).
+    // A plain View gives Detox a single, deterministic match and—unlike
+    // Pressable—never claims the JS responder, so it does not reintroduce the
+    // Android gesture-cancel race documented above.
+    return (
+      <View
+        testID={testID}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityRole={accessibilityRole}
+        accessibilityState={accessibilityState}
+      >
+        {menu}
+      </View>
+    );
+  }
 
   return (
     <Pressable
