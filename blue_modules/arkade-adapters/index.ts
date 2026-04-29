@@ -1,2 +1,2 @@
-export * from './realm';
+export * from './realm/realmInstance';
 export * from './background';

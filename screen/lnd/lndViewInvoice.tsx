@@ -25,11 +25,10 @@ import { LightningArkWallet, LightningCustodianWallet } from '../../class';
 type LNDViewInvoiceRouteParams = {
   walletID: string;
   invoice: LightningTransaction | string; // its first passed as string and then decoded and turned into object
-  swapId?: string; // Ark: pendingSwap id forwarded from create-invoice, used to drive waitAndClaim
 };
 
 const LNDViewInvoice = () => {
-  const { invoice, walletID, swapId } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
+  const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors, closeImage } = useTheme();
   const { direction } = useLocale();
@@ -41,7 +40,6 @@ const LNDViewInvoice = () => {
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const [arkAddress, setArkAddress] = useState<string>('');
-  const fetchInvoiceInterval = useRef<any>(null);
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
   const stylesHook = StyleSheet.create({
@@ -64,8 +62,6 @@ const LNDViewInvoice = () => {
 
     return () => {
       subscription.remove();
-      clearInterval(fetchInvoiceInterval.current);
-      fetchInvoiceInterval.current = undefined;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -102,57 +98,6 @@ const LNDViewInvoice = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [colors, isModal]);
 
-  // LN invoice polling for LNDHub. Ark wallets are handled by a separate
-  // useEffect below that awaits the SDK's waitAndClaim directly.
-  useEffect(() => {
-    if (!wallet) return;
-    if (wallet.type === LightningArkWallet.type) return;
-    if ((invoice as LightningTransaction).ispaid) return;
-
-    fetchInvoiceInterval.current = setInterval(async () => {
-      if (isFetchingInvoices) {
-        try {
-          // @ts-ignore - getUserInvoices is not set on TWallet
-          const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
-          const updatedUserInvoice = userInvoices.filter((filteredInvoice: LightningTransaction) =>
-            typeof invoice === 'object'
-              ? filteredInvoice.payment_request === invoice.payment_request
-              : filteredInvoice.payment_request === invoice,
-          )[0];
-          if (updatedUserInvoice) {
-            setInvoiceStatusChanged(true);
-            setParams({ invoice: updatedUserInvoice });
-            if (updatedUserInvoice.ispaid) {
-              setIsFetchingInvoices(false);
-              clearInterval(fetchInvoiceInterval.current);
-              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              fetchAndSaveWalletTransactions(walletID);
-            } else {
-              const currentDate = new Date();
-              const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-              const invoiceExpiration = (updatedUserInvoice.timestamp ?? 0) + (updatedUserInvoice.expire_time ?? 0);
-              if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
-                fetchAndSaveWalletTransactions(walletID);
-                setIsFetchingInvoices(false);
-                triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                clearInterval(fetchInvoiceInterval.current);
-                fetchInvoiceInterval.current = undefined;
-              }
-            }
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    }, 3000);
-
-    return () => {
-      clearInterval(fetchInvoiceInterval.current);
-      fetchInvoiceInterval.current = undefined;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   useEffect(() => {
     if (wallet && wallet.type === LightningArkWallet.type) {
       (wallet as LightningArkWallet)
@@ -174,11 +119,7 @@ const LNDViewInvoice = () => {
 
     let cancelled = false;
     (async () => {
-      const pendingSwap = swapId
-        ? await arkWallet.getPendingReverseSwapById(swapId)
-        : paymentRequest
-          ? await arkWallet.getPendingReverseSwapByInvoice(paymentRequest)
-          : undefined;
+      const pendingSwap = paymentRequest ? await arkWallet.getPendingReverseSwapByInvoice(paymentRequest) : undefined;
       if (!pendingSwap || cancelled) return;
 
       try {
@@ -339,13 +280,6 @@ const LNDViewInvoice = () => {
                 </BlueText>
               )}
               <CopyTextToClipboard truncated text={invoice.payment_request} />
-              {arkAddress ? (
-                <>
-                  <BlueSpacing20 />
-                  <BlueText>{loc.lndViewInvoice.ark_address_label}</BlueText>
-                  <CopyTextToClipboard truncated text={arkAddress} />
-                </>
-              ) : null}
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>
@@ -361,13 +295,6 @@ const LNDViewInvoice = () => {
             </View>
             <BlueSpacing20 />
             <CopyTextToClipboard truncated text={invoice} />
-            {arkAddress ? (
-              <>
-                <BlueSpacing20 />
-                <BlueText>{loc.lndViewInvoice.ark_address_label}</BlueText>
-                <CopyTextToClipboard truncated text={arkAddress} />
-              </>
-            ) : null}
             <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
           </View>
         </ScrollView>
@@ -382,7 +309,96 @@ const LNDViewInvoice = () => {
     }
   };
 
-  return <SafeAreaScrollView onLayout={onLayout}>{render()}</SafeAreaScrollView>;
+  return (
+    <SafeAreaScrollView onLayout={onLayout}>
+      {wallet && wallet.type === LightningCustodianWallet.type && (
+        <LNDHubInvoicePoller
+          wallet={wallet as LightningCustodianWallet}
+          invoice={invoice}
+          walletID={walletID}
+          isFetchingInvoices={isFetchingInvoices}
+          setIsFetchingInvoices={setIsFetchingInvoices}
+          setInvoiceStatusChanged={setInvoiceStatusChanged}
+          setParams={setParams}
+          fetchAndSaveWalletTransactions={fetchAndSaveWalletTransactions}
+        />
+      )}
+      {render()}
+    </SafeAreaScrollView>
+  );
+};
+
+interface LNDHubInvoicePollerProps {
+  wallet: LightningCustodianWallet;
+  invoice: LightningTransaction | string;
+  walletID: string;
+  isFetchingInvoices: boolean;
+  setIsFetchingInvoices: (v: boolean) => void;
+  setInvoiceStatusChanged: (v: boolean) => void;
+  setParams: (p: any) => void;
+  fetchAndSaveWalletTransactions: (id: string) => void;
+}
+
+const LNDHubInvoicePoller: React.FC<LNDHubInvoicePollerProps> = ({
+  wallet,
+  invoice,
+  walletID,
+  isFetchingInvoices,
+  setIsFetchingInvoices,
+  setInvoiceStatusChanged,
+  setParams,
+  fetchAndSaveWalletTransactions,
+}) => {
+  const fetchInvoiceInterval = useRef<any>(null);
+
+  useEffect(() => {
+    if ((invoice as LightningTransaction).ispaid) return;
+
+    fetchInvoiceInterval.current = setInterval(async () => {
+      if (isFetchingInvoices) {
+        try {
+          // @ts-ignore - getUserInvoices is not set on TWallet
+          const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
+          const updatedUserInvoice = userInvoices.filter((filteredInvoice: LightningTransaction) =>
+            typeof invoice === 'object'
+              ? filteredInvoice.payment_request === invoice.payment_request
+              : filteredInvoice.payment_request === invoice,
+          )[0];
+          if (updatedUserInvoice) {
+            setInvoiceStatusChanged(true);
+            setParams({ invoice: updatedUserInvoice });
+            if (updatedUserInvoice.ispaid) {
+              setIsFetchingInvoices(false);
+              clearInterval(fetchInvoiceInterval.current);
+              triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+              fetchAndSaveWalletTransactions(walletID);
+            } else {
+              const currentDate = new Date();
+              const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
+              const invoiceExpiration = (updatedUserInvoice.timestamp ?? 0) + (updatedUserInvoice.expire_time ?? 0);
+              if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
+                fetchAndSaveWalletTransactions(walletID);
+                setIsFetchingInvoices(false);
+                triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                clearInterval(fetchInvoiceInterval.current);
+                fetchInvoiceInterval.current = undefined;
+              }
+            }
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }, 3000);
+
+    return () => {
+      clearInterval(fetchInvoiceInterval.current);
+      fetchInvoiceInterval.current = undefined;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return null;
 };
 
 export default LNDViewInvoice;

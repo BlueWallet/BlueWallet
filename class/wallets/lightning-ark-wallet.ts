@@ -21,12 +21,9 @@ import {
   RestDelegatorProvider,
 } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
-import {
-  RealmWalletRepository,
-  RealmContractRepository,
-  RealmSwapRepository,
-  getArkadeRealm,
-} from '../../blue_modules/arkade-adapters/realm';
+import { RealmWalletRepository, RealmContractRepository } from '@arkade-os/sdk/repositories/realm';
+import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
+import { getArkadeRealm, deleteArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
 import { LightningCustodianWallet } from './lightning-custodian-wallet.ts';
 import { randomBytes } from '../rng.ts';
 import * as bip39 from 'bip39';
@@ -73,6 +70,15 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // sha256(secret), but that leaked wallet existence in plaintext
   // AsyncStorage / filesystem / keychain — undermining plausible deniability.
   private _taskNamespace: string = '';
+
+  static async onBeforeDelete(wallet: LightningArkWallet): Promise<void> {
+    const namespace = wallet.getNamespace();
+    delete staticWalletCache[namespace];
+    delete staticSwapsCache[namespace];
+    delete initLock[namespace];
+    delete boardingLock[namespace];
+    await deleteArkadeRealm(namespace);
+  }
 
   constructor() {
     super();
@@ -596,7 +602,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._wallet) await this.init();
     assert(this._arkadeSwaps, 'Ark Swaps not initialized');
     assert(amt > this._limitMin, `Minimum to receive is ${this._limitMin} sat`);
-    assert(amt < this._limitMax, `Maximum to receive is ${this._limitMin} sat`);
+    assert(amt < this._limitMax, `Maximum to receive is ${this._limitMax} sat`);
 
     // fee percentage is smth like `0.01`, but its not 1%, its one-hundredth of a percent, rounded up
     const serviceFee = Math.ceil(new BigNumber(amt).multipliedBy(this._feePercentage).dividedBy(100).toNumber());
@@ -635,9 +641,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._arkadeSwaps) await this.init();
     assert(this._arkadeSwaps, 'Ark Swaps not initialized');
     const history = await this._arkadeSwaps.getSwapHistory();
-    return history.find(
-      s => isPendingReverseSwap(s) && !isReverseFinalStatus(s.status) && s.id === swapId,
-    ) as BoltzReverseSwap | undefined;
+    return history.find(s => isPendingReverseSwap(s) && !isReverseFinalStatus(s.status) && s.id === swapId) as BoltzReverseSwap | undefined;
   }
 
   /** Fallback lookup by invoice string for entry paths without a swap ID
@@ -646,9 +650,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._arkadeSwaps) await this.init();
     assert(this._arkadeSwaps, 'Ark Swaps not initialized');
     const history = await this._arkadeSwaps.getSwapHistory();
-    return history.find(
-      s => isPendingReverseSwap(s) && !isReverseFinalStatus(s.status) && s.response.invoice === invoiceStr,
-    ) as BoltzReverseSwap | undefined;
+    return history.find(s => isPendingReverseSwap(s) && !isReverseFinalStatus(s.status) && s.response.invoice === invoiceStr) as
+      | BoltzReverseSwap
+      | undefined;
   }
 
   async getArkAddress(): Promise<string> {

@@ -1,6 +1,13 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutAnimation } from 'react-native';
-import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
+import {
+  BlueApp as BlueAppClass,
+  LegacyWallet,
+  LightningArkWallet,
+  TCounterpartyMetadata,
+  TTXMetadata,
+  WatchOnlyWallet,
+} from '../../class';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
@@ -230,22 +237,23 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       try {
         if (isNotificationsSettingsEnabled) {
           const externalAddresses = wallet.getAllExternalAddresses();
-          if (externalAddresses.length > 0) {
-            console.debug(`handleWalletDeletion: unsubscribing addresses for wallet ${walletID}`);
-            try {
-              await unsubscribe(externalAddresses, [], []);
-              console.debug(`handleWalletDeletion: unsubscribe succeeded for wallet ${walletID}`);
-            } catch (unsubscribeError) {
-              console.error(`handleWalletDeletion: unsubscribe failed for wallet ${walletID}`, unsubscribeError);
-              presentAlert({
-                title: loc.errors.error,
-                message: loc.wallets.details_delete_wallet_error_message,
-                buttons: [{ text: loc._.ok, onPress: () => {} }],
-                options: { cancelable: false },
-              });
-              return false;
-            }
+          console.debug(`handleWalletDeletion: unsubscribing addresses for wallet ${walletID}`);
+          try {
+            await unsubscribe(externalAddresses, [], []);
+            console.debug(`handleWalletDeletion: unsubscribe succeeded for wallet ${walletID}`);
+          } catch (unsubscribeError) {
+            console.error(`handleWalletDeletion: unsubscribe failed for wallet ${walletID}`, unsubscribeError);
+            presentAlert({
+              title: loc.errors.error,
+              message: loc.wallets.details_delete_wallet_error_message,
+              buttons: [{ text: loc._.ok, onPress: () => {} }],
+              options: { cancelable: false },
+            });
+            return false;
           }
+        }
+        if (wallet.type === LightningArkWallet.type) {
+          await LightningArkWallet.onBeforeDelete(wallet as LightningArkWallet);
         }
         deleteWallet(wallet);
         console.debug(`handleWalletDeletion: wallet ${walletID} deleted successfully`);
@@ -454,12 +462,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
       await w.fetchBalance();
       const externalAddresses = w.getAllExternalAddresses();
-      if (externalAddresses.length > 0) {
-        try {
-          await majorTomToGroundControl(externalAddresses, [], []);
-        } catch (error) {
-          console.warn('Failed to setup notifications:', error);
-        }
+      try {
+        await majorTomToGroundControl(externalAddresses, [], []);
+      } catch (error) {
+        console.warn('Failed to setup notifications:', error);
       }
     },
     [wallets, addWallet, saveToDisk],

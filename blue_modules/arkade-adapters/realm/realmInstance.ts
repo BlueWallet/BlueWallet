@@ -39,8 +39,7 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
     await Keychain.setGenericPassword(service, password, { service });
   }
 
-  const buf = hexToUint8Array(password);
-  const encryptionKey = Int8Array.from(buf);
+  const encryptionKey = hexToUint8Array(password);
   const path = `${cacheFolderPath}/arkade-${namespace}.realm`;
 
   // @ts-ignore schema doesn't match Realm's schema type
@@ -71,3 +70,43 @@ export function closeArkadeRealm(): void {
     realmInstances.delete(key);
   }
 }
+
+/**
+ * Delete the Realm file and Keychain entry for a given namespace.
+ * Should be called when a wallet is deleted to ensure no data is left behind.
+ */
+export async function deleteArkadeRealm(namespace: string): Promise<void> {
+  const cached = realmInstances.get(namespace);
+  if (cached && !cached.isClosed) {
+    cached.close();
+  }
+  realmInstances.delete(namespace);
+
+  const cacheFolderPath = RNFS.CachesDirectoryPath;
+  const path = `${cacheFolderPath}/arkade-${namespace}.realm`;
+  const service = `arkade_realm_${namespace}`;
+
+  try {
+    if (await RNFS.exists(path)) {
+      await RNFS.unlink(path);
+    }
+    // Also delete any lock files or management files if they exist
+    const lockPath = `${path}.lock`;
+    if (await RNFS.exists(lockPath)) {
+      await RNFS.unlink(lockPath);
+    }
+    const managementPath = `${path}.management`;
+    if (await RNFS.exists(managementPath)) {
+      await RNFS.unlink(managementPath);
+    }
+  } catch (e) {
+    console.log(`[ArkadeRealm] Failed to delete realm file for ${namespace}:`, e);
+  }
+
+  try {
+    await Keychain.resetGenericPassword({ service });
+  } catch (e) {
+    console.log(`[ArkadeRealm] Failed to reset keychain for ${namespace}:`, e);
+  }
+}
+

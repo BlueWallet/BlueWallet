@@ -276,11 +276,9 @@ const LNDCreateInvoice = () => {
       assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
 
       let invoiceRequest: string;
-      let swapId: string | undefined;
       if (wallet.current instanceof LightningArkWallet) {
         const reverseSwap = await wallet.current.createReverseSwap(+invoiceAmount, description);
         invoiceRequest = reverseSwap.invoice;
-        swapId = reverseSwap.pendingSwap.id;
       } else {
         invoiceRequest = await wallet.current.addInvoice(+invoiceAmount, description);
         // subscribe groundcontrol so we can receive push notification when our invoice is paid
@@ -319,7 +317,6 @@ const LNDCreateInvoice = () => {
       navigate('LNDViewInvoice', {
         invoice: invoiceRequest,
         walletID: wallet.current?.getID(),
-        swapId,
       });
     } catch (Err: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
