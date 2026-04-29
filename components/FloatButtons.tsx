@@ -35,6 +35,11 @@ const LAYOUT = {
 
 const BUTTON_ACTIVE_OPACITY = 0.82;
 
+const computeAvailableWidth = (width: number, sizeClass: SizeClass) => {
+  const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
+  return Math.max(0, width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2);
+};
+
 const useSlideInAnimation = (initialHeight: number) => {
   // Slide is a once-per-mount animation: capture height on first render and never react to subsequent
   // height changes (Android navigation transitions can re-emit height, which would yank the buttons
@@ -90,8 +95,7 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
     (containerWidth: number, totalChildren: number): number => {
       if (containerWidth <= 0) return 0;
 
-      const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
-      const availableWidth = width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2;
+      const availableWidth = computeAvailableWidth(width, sizeClass);
 
       const contentWidth = Math.ceil(containerWidth);
       const buttonWidth = contentWidth + LAYOUT.PADDINGS * 2;
@@ -138,8 +142,7 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
 
   const calculateVisualParameters = useCallback(
     (calculatedWidth: number, totalChildren: number) => {
-      const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
-      const availableWidth = width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2;
+      const availableWidth = computeAvailableWidth(width, sizeClass);
 
       const buttonWidth = Math.max(calculatedWidth, LAYOUT.MIN_BUTTON_WIDTH_LARGE) + LAYOUT.PADDINGS * 2;
       const totalButtonWidth = buttonWidth * totalChildren;
@@ -295,14 +298,10 @@ interface ButtonContentProps {
   textStyle: StyleProp<TextStyle>;
 }
 
-const getScaledIconSize = (fontSize: number): number => {
-  return Math.max(Math.round(fontSize * 1.2), 16);
-};
-
 const ButtonContent = ({ icon, text, textStyle }: ButtonContentProps) => {
   const computedStyle = StyleSheet.flatten(textStyle);
   const fontSize = computedStyle.fontSize || LAYOUT.MAX_BUTTON_FONT_SIZE;
-  const iconSize = getScaledIconSize(Number(fontSize));
+  const iconSize = Math.max(Math.round(Number(fontSize) * 1.2), 16);
 
   let scaledIcon;
 
@@ -393,10 +392,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   const childrenCount = React.Children.toArray(props.children).filter(Boolean).length;
 
-  const initialLayoutWidth = useMemo(() => {
-    const drawerOffset = sizeClass === SizeClass.Large ? LAYOUT.DRAWER_WIDTH : 0;
-    return Math.max(0, Math.ceil(width - drawerOffset - LAYOUT.CONTAINER_SIDE_MARGIN * 2));
-  }, [width, sizeClass]);
+  const initialLayoutWidth = useMemo(() => Math.ceil(computeAvailableWidth(width, sizeClass)), [width, sizeClass]);
 
   const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
     width,
@@ -421,13 +417,6 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   latest.current = { newWidth, isVertical, buttonBorderRadius, singleButtonBorderRadius };
 
   const layoutWidth = useRef<number>(initialLayoutWidth);
-
-  const bottomInsets = useMemo(
-    () => ({
-      bottom: insets.bottom ? insets.bottom + 10 : 30,
-    }),
-    [insets.bottom],
-  );
 
   const slideAnimation = useSlideInAnimation(height);
 
@@ -496,27 +485,17 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     });
   };
 
-  const containerHeight = useMemo(
-    () => calculateContainerHeight(childrenCount, isVertical),
-    [calculateContainerHeight, childrenCount, isVertical],
-  );
-
-  const dynamicRoundStyle = useMemo(
-    () => (childrenCount === 1 ? { borderRadius: singleButtonBorderRadius, overflow: 'hidden' as const } : null),
-    [childrenCount, singleButtonBorderRadius],
-  );
-
   const combinedStyles = useMemo(
     () => [
       containerStyles.root,
       props.inline ? containerStyles.rootInline : containerStyles.rootAbsolute,
-      bottomInsets,
+      { bottom: insets.bottom ? insets.bottom + 10 : 30 },
       newWidth ? (isVertical ? containerStyles.rootPostVertical : containerStyles.rootPost) : containerStyles.rootPre,
-      dynamicRoundStyle,
-      isVertical ? containerHeight : null,
+      childrenCount === 1 ? { borderRadius: singleButtonBorderRadius, overflow: 'hidden' as const } : null,
+      isVertical ? calculateContainerHeight(childrenCount, isVertical) : null,
       { transform: [{ translateY: slideAnimation }] },
     ],
-    [props.inline, bottomInsets, newWidth, isVertical, dynamicRoundStyle, containerHeight, slideAnimation],
+    [props.inline, insets.bottom, newWidth, isVertical, childrenCount, singleButtonBorderRadius, calculateContainerHeight, slideAnimation],
   );
 
   return (
