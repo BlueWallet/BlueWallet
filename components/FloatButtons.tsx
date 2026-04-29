@@ -303,23 +303,9 @@ const ButtonContent = ({ icon, text, textStyle }: ButtonContentProps) => {
   const fontSize = computedStyle.fontSize || LAYOUT.MAX_BUTTON_FONT_SIZE;
   const iconSize = Math.max(Math.round(Number(fontSize) * 1.2), 16);
 
-  let scaledIcon;
-
-  if (React.isValidElement(icon)) {
-    const iconElement = icon as React.ReactElement;
-
-    scaledIcon = React.cloneElement(
-      iconElement as React.ReactElement<any>,
-      {
-        ...(iconElement.props as Record<string, unknown>),
-        size: iconSize,
-        width: iconSize,
-        height: iconSize,
-      } as any,
-    );
-  } else {
-    scaledIcon = icon;
-  }
+  const scaledIcon = React.isValidElement(icon)
+    ? React.cloneElement(icon as React.ReactElement<any>, { size: iconSize, width: iconSize, height: iconSize })
+    : icon;
 
   return (
     <View style={buttonContentStaticStyles.contentContainer}>
