@@ -151,6 +151,7 @@
     "pako": "file:blue_modules/pako",
     "payjoin-client": "1.0.1",
     "prop-types": "15.8.1",
+    "qr": "0.5.5",
     "react": "19.2.3",
     "react-localization": "github:BlueWallet/react-localization#ae7969a",
     "react-native": "0.85.2",
@@ -176,7 +177,6 @@
     "react-native-notifications": "5.2.2",
     "react-native-permissions": "5.5.1",
     "react-native-prompt-android": "github:BlueWallet/react-native-prompt-android#ed168d66fed556bc2ed07cf498770f058b78a376",
-    "react-native-qrcode-svg": "6.3.21",
     "react-native-quick-actions": "0.3.13",
     "react-native-reanimated": "4.3.0",
     "react-native-safe-area-context": "5.7.0",
@@ -193,6 +193,7 @@
     "silent-payments": "github:BlueWallet/SilentPayments#59a037",
     "slip39": "github:BlueWallet/slip39-js#d316ee6",
     "stream-browserify": "3.0.0",
+    "text-encoding": "0.7.0",
     "url": "0.11.4",
     "wif": "2.0.6"
   }

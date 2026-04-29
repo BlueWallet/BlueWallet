@@ -6,7 +6,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueTextCentered } from '../../BlueComponents';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -26,7 +26,7 @@ const ViewEditMultisigShareCosignerSheet = () => {
         </BlueTextCentered>
         <BlueSpacing20 />
         <View style={styles.qrContainer}>
-          <QRCodeComponent value={cosignerXpubURv2} size={260} />
+          <QRCode value={cosignerXpubURv2} size={260} />
         </View>
         <BlueSpacing20 />
         <CopyTextToClipboard text={cosignerXpub} truncated={false} />
