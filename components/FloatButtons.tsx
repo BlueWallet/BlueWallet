@@ -268,7 +268,6 @@ interface FButtonProps {
   text: string;
   icon: ReactNode;
   width?: number;
-  first?: boolean;
   last?: boolean;
   singleChild?: boolean;
   isVertical?: boolean;
@@ -327,7 +326,6 @@ export const FButton = ({
   text,
   icon,
   width,
-  first,
   last,
   singleChild,
   isVertical,
@@ -496,7 +494,6 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     return React.cloneElement(child as React.ReactElement<any>, {
       width: newWidth,
       key: index,
-      first: index === 0,
       last: index === array.length - 1,
       singleChild: isSingleChild,
       isVertical,
