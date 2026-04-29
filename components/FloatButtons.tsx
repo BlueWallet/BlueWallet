@@ -208,10 +208,12 @@ const containerStyles = StyleSheet.create({
   rootPost: {
     flexDirection: 'row',
     overflow: 'hidden',
+    gap: LAYOUT.BUTTON_MARGIN,
   },
   rootPostVertical: {
     flexDirection: 'column',
     overflow: 'hidden',
+    gap: LAYOUT.BUTTON_MARGIN,
   },
   childWrapper: {
     width: '100%',
@@ -250,12 +252,6 @@ const buttonContentStaticStyles = StyleSheet.create({
     overflow: 'hidden',
     justifyContent: 'center',
   },
-  marginRight: {
-    marginRight: LAYOUT.BUTTON_MARGIN,
-  },
-  marginBottom: {
-    marginBottom: LAYOUT.BUTTON_MARGIN,
-  },
   textBase: {
     fontWeight: '600',
     marginLeft: LAYOUT.ICON_MARGIN,
@@ -281,7 +277,6 @@ interface FButtonProps {
   text: string;
   icon: ReactNode;
   width?: number;
-  last?: boolean;
   singleChild?: boolean;
   isVertical?: boolean;
   borderRadius?: number;
@@ -321,7 +316,6 @@ export const FButton = ({
   text,
   icon,
   width,
-  last,
   singleChild,
   isVertical,
   borderRadius = LAYOUT.DEFAULT_BORDER_RADIUS,
@@ -343,8 +337,6 @@ export const FButton = ({
               : width + LAYOUT.PADDINGS * 2,
       };
 
-  const marginStyle = last ? null : isVertical ? buttonContentStaticStyles.marginBottom : buttonContentStaticStyles.marginRight;
-
   const textStyle = [
     buttonContentStaticStyles.textBase,
     props.disabled ? { color: colors.formBorder } : { color: colors.buttonAlternativeTextColor, fontSize },
@@ -361,7 +353,6 @@ export const FButton = ({
         singleChild ? buttonContentStaticStyles.rootSingle : buttonContentStaticStyles.root,
         { backgroundColor: colors.buttonBackgroundColor },
         sizeStyle,
-        marginStyle,
         { borderRadius },
       ]}
       {...props}
@@ -447,7 +438,9 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     }
   };
 
-  const renderChild = (child: ReactNode, index: number, array: ReactNode[]): ReactNode => {
+  const isSingleChild = childrenCount === 1;
+
+  const renderChild = (child: ReactNode, index: number): ReactNode => {
     if (typeof child === 'string') {
       return (
         <View key={index} style={[containerStyles.childWrapper, { width: newWidth }]}>
@@ -458,12 +451,9 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       );
     }
 
-    const isSingleChild = array.length === 1;
-
     return React.cloneElement(child as React.ReactElement<any>, {
       width: newWidth,
       key: index,
-      last: index === array.length - 1,
       singleChild: isSingleChild,
       isVertical,
       borderRadius: isSingleChild ? singleButtonBorderRadius : buttonBorderRadius,
