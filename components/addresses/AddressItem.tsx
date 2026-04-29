@@ -8,7 +8,6 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import presentAlert from '../Alert';
-import QRCodeComponent from '../QRCodeComponent';
 import { useTheme } from '../themes';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -170,8 +169,6 @@ const AddressItem = ({
     [handleCopyPress, handleSharePress, navigateToSignVerify, handleCopyPrivkeyPress, isBiometricUseCapableAndEnabled],
   );
 
-  const renderPreview = useCallback(() => <QRCodeComponent value={item.address} isMenuAvailable={false} />, [item.address]);
-
   // Render address with highlighting if a search query is provided
   const renderAddressContent = () => {
     if (searchQuery && searchQuery.length > 0) {
@@ -201,8 +198,6 @@ const AddressItem = ({
       title={item.address}
       actions={menuActions}
       onPressMenuItem={onToolTipPress}
-      // Revisit once RNMenu has renderPreview prop
-      renderPreview={renderPreview}
       onPress={navigateToReceive}
       isButton
       buttonStyle={styles.tooltipButton}
