@@ -1,10 +1,20 @@
 import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback, useMemo } from 'react';
-import { Animated, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, StyleProp, TextStyle } from 'react-native';
+import {
+  Animated,
+  PixelRatio,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from './themes';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
-import debounce from '../blue_modules/debounce';
 
 const LAYOUT = {
   PADDINGS: 30,
@@ -336,39 +346,24 @@ export const FButton = ({
 }: FButtonProps) => {
   const { colors } = useTheme();
 
-  const customButtonStyles = useMemo(() => {
-    const baseStyles = singleChild ? { ...buttonContentStaticStyles.rootSingle } : { ...buttonContentStaticStyles.root };
-    return {
-      root: {
-        ...baseStyles,
-        backgroundColor: colors.buttonBackgroundColor,
-      },
-      text: {
-        color: colors.buttonAlternativeTextColor,
-        fontSize,
-      },
-      textDisabled: {
-        color: colors.formBorder,
-      },
-      marginRight: buttonContentStaticStyles.marginRight,
-      marginBottom: buttonContentStaticStyles.marginBottom,
-      textBase: buttonContentStaticStyles.textBase,
-    };
-  }, [colors, fontSize, singleChild]);
+  const sizeStyle: ViewStyle | null = !width
+    ? null
+    : {
+        paddingHorizontal: LAYOUT.PADDINGS,
+        width:
+          singleChild && !isVertical
+            ? width * LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR + LAYOUT.PADDINGS * 2
+            : isVertical
+              ? '100%'
+              : width + LAYOUT.PADDINGS * 2,
+      };
 
-  const style: Record<string, any> = {};
-  const additionalStyles = !last ? (isVertical ? customButtonStyles.marginBottom : customButtonStyles.marginRight) : {};
+  const marginStyle = last ? null : isVertical ? buttonContentStaticStyles.marginBottom : buttonContentStaticStyles.marginRight;
 
-  if (width) {
-    style.paddingHorizontal = LAYOUT.PADDINGS;
-    if (singleChild && !isVertical) {
-      style.width = width * LAYOUT.SINGLE_BUTTON_WIDTH_FACTOR + LAYOUT.PADDINGS * 2;
-    } else {
-      style.width = isVertical ? '100%' : width + LAYOUT.PADDINGS * 2;
-    }
-  }
-
-  const textStyle = [customButtonStyles.textBase, props.disabled ? customButtonStyles.textDisabled : customButtonStyles.text];
+  const textStyle = [
+    buttonContentStaticStyles.textBase,
+    props.disabled ? { color: colors.formBorder } : { color: colors.buttonAlternativeTextColor, fontSize },
+  ];
 
   return (
     <TouchableOpacity
@@ -376,7 +371,14 @@ export const FButton = ({
       accessibilityRole="button"
       testID={testID}
       activeOpacity={BUTTON_ACTIVE_OPACITY}
-      style={[buttonStyles.root, customButtonStyles.root, style, additionalStyles, { borderRadius }]}
+      style={[
+        buttonStyles.root,
+        singleChild ? buttonContentStaticStyles.rootSingle : buttonContentStaticStyles.root,
+        { backgroundColor: colors.buttonBackgroundColor },
+        sizeStyle,
+        marginStyle,
+        { borderRadius },
+      ]}
       {...props}
     >
       <ButtonContent icon={icon} text={text} textStyle={textStyle} />
@@ -429,10 +431,10 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   const slideAnimation = useSlideInAnimation(height);
 
-  const calculateLayout = useCallback(() => {
+  useEffect(() => {
     if (!layoutReady || layoutWidth.current <= 0) return;
 
-    requestAnimationFrame(() => {
+    const id = requestAnimationFrame(() => {
       const calculatedWidth = calculateButtonWidth(layoutWidth.current, childrenCount);
       const { buttonRadius, singleButtonRadius, shouldBeVertical } = calculateVisualParameters(calculatedWidth, childrenCount);
 
@@ -444,11 +446,8 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       const widthEps = childrenCount === 1 ? 1 : 2;
       const radiusEps = 0.5;
       if (shouldBeVertical === prev.isVertical) {
-        if (childrenCount === 1) {
-          if (widthDelta <= widthEps && singleRadiusDelta <= radiusEps) return;
-        } else {
-          if (widthDelta <= widthEps && buttonRadiusDelta <= radiusEps) return;
-        }
+        const radiusDelta = childrenCount === 1 ? singleRadiusDelta : buttonRadiusDelta;
+        if (widthDelta <= widthEps && radiusDelta <= radiusEps) return;
       }
 
       setNewWidth(calculatedWidth);
@@ -456,13 +455,8 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       setButtonBorderRadius(buttonRadius);
       setSingleButtonBorderRadius(singleButtonRadius);
     });
-  }, [layoutReady, calculateButtonWidth, calculateVisualParameters, childrenCount]);
-
-  const debouncedCalculateLayout = useMemo(() => debounce(calculateLayout, 16), [calculateLayout]);
-
-  useEffect(() => {
-    debouncedCalculateLayout();
-  }, [debouncedCalculateLayout, width, height, childrenCount, sizeClass]);
+    return () => cancelAnimationFrame(id);
+  }, [layoutReady, width, height, childrenCount, sizeClass, calculateButtonWidth, calculateVisualParameters]);
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     const { width: currentLayoutWidth } = event.nativeEvent.layout;
