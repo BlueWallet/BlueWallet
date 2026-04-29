@@ -6,6 +6,7 @@ import {
   Dimensions,
   findNodeHandle,
   FlatList,
+  Platform,
   PixelRatio,
   ScrollView,
   StyleSheet,
@@ -106,6 +107,27 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     },
     sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
     receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
+    headerBottomBar: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 12,
+      height: 12,
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      ...Platform.select({
+        ios: {
+          shadowColor: colors.shadowColor,
+          shadowOffset: { width: 0, height: -8 },
+          shadowOpacity: 0.1,
+          shadowRadius: 6,
+        },
+        android: {
+          elevation: 0.5,
+        },
+      }),
+    },
   });
 
   useFocusEffect(
@@ -543,6 +565,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             }
           }}
         />
+        <View style={styles.headerBottomBarSpacer}>
+          <View style={stylesHook.headerBottomBar} />
+        </View>
         <>
           <View style={[styles.flex, stylesHook.backgroundContainer]}>
             <View style={styles.listHeaderTextRow}>
@@ -570,6 +595,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       isUnitSwitching,
       measureHeaderHeight,
       stylesHook.backgroundContainer,
+      stylesHook.headerBottomBar,
       stylesHook.listHeaderText,
       saveToDisk,
       isBiometricUseCapableAndEnabled,
@@ -684,10 +710,11 @@ export default WalletTransactions;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  headerBottomBarSpacer: { position: 'relative', height: 12 },
   scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
   activityIndicator: { marginVertical: 20 },
-  listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
-  listHeaderText: { marginTop: 8, marginBottom: 8, fontWeight: 'bold', fontSize: 24 },
+  listHeaderTextRow: { flex: 1, marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between' },
+  listHeaderText: { marginTop: 0, marginBottom: 16, fontWeight: 'bold', fontSize: 24 },
   refreshIndicatorBackground: {
     position: 'absolute',
     top: 0,
