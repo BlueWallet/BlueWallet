@@ -182,7 +182,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const sortedTransactions = useMemo(() => {
     const txs = wallet.getTransactions();
-    txs.sort((a, b) => b.timestamp - a.timestamp + (lastFetchTimestamp - lastFetchTimestamp));
+    txs.sort((a, b) => b.timestamp - a.timestamp);
     return txs;
   }, [wallet, lastFetchTimestamp]);
 
