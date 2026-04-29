@@ -182,7 +182,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = ({
   }, [isPending, item.timestamp, language]);
 
   const formattedAmount = useMemo(() => {
-    return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+    return formatBalanceWithoutSuffix(item.value, itemPriceUnit, true).toString();
   }, [item.value, itemPriceUnit]);
 
   const rowTitle = useMemo(() => {
