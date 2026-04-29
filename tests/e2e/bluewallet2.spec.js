@@ -11,6 +11,7 @@ import {
   helperImportWallet,
   scanText,
   scrollUpOnHomeScreen,
+  setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapAndTapAgainIfTextIsNotVisible,
@@ -83,11 +84,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // setting fee rate:
     const feeRate = 2;
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText(feeRate.toString());
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(feeRate);
     await element(by.id('CreateTransactionButton')).tap();
 
     // created. verifying:
@@ -221,11 +218,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // Setting fee rate:
     const feeRate = 2;
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText(feeRate.toString());
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(feeRate);
 
     // Let's add another two outputs
     await element(by.id('HeaderMenuButton')).tap();
@@ -296,11 +289,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // set fee rate
     const feeRate = 2;
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText(feeRate.toString());
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(feeRate);
 
     // first send MAX output
     await element(by.id('AddressInput')).replaceText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
@@ -537,11 +526,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BitcoinAmountInput')).atIndex(1).replaceText('0.0002');
     await waitForKeyboardToClose();
     // setting fee rate:
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText('1');
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(1);
     await element(by.id('CreateTransactionButton')).tap();
     await waitForId('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
@@ -639,11 +624,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     // setting fee rate:
     const feeRate = 2;
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText(feeRate.toString());
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(feeRate);
     await element(by.id('CreateTransactionButton')).tap();
 
     // created. verifying:
@@ -735,11 +716,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
     // setting fee rate:
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText('1');
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(1);
     await element(by.id('CreateTransactionButton')).tap();
     await waitForId('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
@@ -766,11 +743,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Use Full Balance')).tap();
     await element(by.text('OK')).tap();
     // setting fee rate:
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText('1');
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(1);
     await element(by.id('CreateTransactionButton')).tap();
     await waitForId('TransactionDetailsButton');
     await element(by.id('TransactionDetailsButton')).tap();
