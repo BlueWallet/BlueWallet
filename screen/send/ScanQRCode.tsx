@@ -243,10 +243,13 @@ const ScanQRCode = () => {
     if (isLoadingRef.current) return;
     isLoadingRef.current = true;
     setIsLoading(true);
-    const { data } = await fs.showFilePickerAndReadFile();
-    if (data) onBarCodeRead({ data });
-    setIsLoading(false);
-    isLoadingRef.current = false;
+    try {
+      const { data } = await fs.showFilePickerAndReadFile();
+      if (data) onBarCodeRead({ data });
+    } finally {
+      setIsLoading(false);
+      isLoadingRef.current = false;
+    }
   };
 
   const onShowImagePickerButtonPress = () => {
