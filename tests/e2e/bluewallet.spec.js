@@ -980,7 +980,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(150, 'down');
-    await element(by.id('MultisigCoordinationSetup')).tap();
+    // Tap high in the row: full-width list hitboxes near the bottom edge can extend into the system nav bar on Android.
+    await element(by.id('MultisigCoordinationSetup')).tap({ x: 120, y: 18 });
     await device.disableSynchronization();
     await waitForId('ExportMultisigCoordinationSetupView');
     await element(by.id('NavigationCloseButton')).atIndex(0).tap();
@@ -1003,7 +1004,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await element(by.id('ViewEditCosigners')).tap();
+    await element(by.id('ViewEditCosigners')).tap({ x: 120, y: 18 });
     await waitForText('Vault Key 1');
     await expect(element(by.text('Vault Key 2'))).toBeVisible();
     await waitFor(element(by.text('Vault Key 3')))
@@ -1048,7 +1049,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await element(by.id('ViewEditCosigners')).tap();
+    await element(by.id('ViewEditCosigners')).tap({ x: 120, y: 18 });
     await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
       .toBeVisible()
       .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
