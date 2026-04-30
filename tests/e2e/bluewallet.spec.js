@@ -119,7 +119,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // network -> electrum server
     // change electrum server to electrum.blockstream.info and revert it back
     // skip this test on iOS. HeaderMenuButton tap triggers a keyboard open for some reason.
-    if (device.getPlatform() === 'andoid') {
+    if (device.getPlatform() === 'android') {
       await element(by.id('ElectrumSettings')).tap();
       await waitFor(element(by.id('HostInput')))
         .toBeVisible()
@@ -602,7 +602,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('WalletDetails')).tap();
     // Multisig type is inside the Advanced section (collapsed by default).
     // Depending on imported key type this may be native or wrapped segwit.
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await waitFor(element(by.text('Advanced')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(150, 'down');
     await element(by.text('Advanced')).tap();
     try {
       await waitForText('2 / 2 (native segwit)');
@@ -956,8 +959,13 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
 
-    // verify wallet details
+    // verify wallet details (multisig type lives under Advanced, collapsed by default)
     await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.text('Advanced')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(150, 'down');
+    await element(by.text('Advanced')).tap();
     await waitForText('2 / 3 (native segwit)');
 
     // test Export Coordination Setup, it has animated qrcode, that uses setInterval, so we need to disable synchronization
@@ -1116,6 +1124,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
     await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.text('Advanced')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(150, 'down');
+    await element(by.text('Advanced')).tap();
     await waitForText('2 / 2 (wrapped segwit)');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
