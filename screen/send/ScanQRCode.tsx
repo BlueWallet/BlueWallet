@@ -67,10 +67,14 @@ const styles = StyleSheet.create({
   headerButtonSpacing: {
     marginLeft: 8,
   },
+  backdoorButtonDev: {
+    opacity: 0.5,
+  },
 });
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const isLoadingRef = useRef(false);
   const navigation = useExtendedNavigation();
   const route = useRoute<RouteProps>();
   const navigationState = navigation.getState();
@@ -236,21 +240,27 @@ const ScanQRCode = () => {
   };
 
   const showFilePicker = async () => {
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setIsLoading(true);
     const { data } = await fs.showFilePickerAndReadFile();
     if (data) onBarCodeRead({ data });
     setIsLoading(false);
+    isLoadingRef.current = false;
   };
 
   const onShowImagePickerButtonPress = () => {
-    if (!isLoading) {
-      setIsLoading(true);
-      fs.showImagePickerAndReadImage()
-        .then(data => {
-          if (data) onBarCodeRead({ data });
-        })
-        .finally(() => setIsLoading(false));
-    }
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
+    setIsLoading(true);
+    fs.showImagePickerAndReadImage()
+      .then(data => {
+        if (data) onBarCodeRead({ data });
+      })
+      .finally(() => {
+        setIsLoading(false);
+        isLoadingRef.current = false;
+      });
   };
 
   useLayoutEffect(() => {
@@ -385,7 +395,7 @@ const ScanQRCode = () => {
         accessibilityRole="button"
         accessibilityLabel={loc._.qr_custom_input_button}
         testID="ScanQrBackdoorButton"
-        style={[styles.backdoorButton, __DEV__ && { opacity: 0.5 }]}
+        style={[styles.backdoorButton, __DEV__ && styles.backdoorButtonDev]}
         onPress={handleInvisibleBackdoorPress}
       />
     </View>
