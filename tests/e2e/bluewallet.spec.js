@@ -125,11 +125,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
         .toBeVisible()
         .whileElement(by.id('ElectrumSettingsScrollView'))
         .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
-      await element(by.id('HostInput')).tapReturnKey();
+      await element(by.id('HostInput')).replaceText('electrum.blockstream.info');
       await waitForKeyboardToClose();
-      await element(by.id('PortInput')).replaceText('50001\n');
-      await element(by.id('PortInput')).tapReturnKey();
+      await element(by.id('PortInput')).replaceText('50001');
       await waitForKeyboardToClose();
       await waitFor(element(by.id('Save')))
         .toBeVisible()
@@ -608,9 +606,15 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .scroll(150, 'down');
     await element(by.text('Advanced')).tap();
     try {
-      await waitForText('2 / 2 (native segwit)');
+      await waitFor(element(by.text('2 / 2 (native segwit)')))
+        .toBeVisible()
+        .whileElement(by.id('WalletDetailsScroll'))
+        .scroll(100, 'down');
     } catch (_) {
-      await waitForText('2 / 2 (wrapped segwit)');
+      await waitFor(element(by.text('2 / 2 (wrapped segwit)')))
+        .toBeVisible()
+        .whileElement(by.id('WalletDetailsScroll'))
+        .scroll(100, 'down');
     }
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
@@ -966,7 +970,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(150, 'down');
     await element(by.text('Advanced')).tap();
-    await waitForText('2 / 3 (native segwit)');
+    await waitFor(element(by.text('2 / 3 (native segwit)')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
 
     // test Export Coordination Setup, it has animated qrcode, that uses setInterval, so we need to disable synchronization
     await waitFor(element(by.id('MultisigCoordinationSetup')))
@@ -1129,7 +1136,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(150, 'down');
     await element(by.text('Advanced')).tap();
-    await waitForText('2 / 2 (wrapped segwit)');
+    await waitFor(element(by.text('2 / 2 (wrapped segwit)')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
