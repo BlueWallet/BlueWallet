@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -26,6 +26,25 @@ interface TransactionsNavigationHeaderProps {
   unitSwitching?: boolean;
 }
 
+const HeaderActionType = {
+  SetAllowOnchainAddress: 'SET_ALLOW_ONCHAIN_ADDRESS',
+} as const;
+
+type HeaderAction = { type: typeof HeaderActionType.SetAllowOnchainAddress; payload: boolean };
+
+interface HeaderState {
+  allowOnchainAddress: boolean;
+}
+
+const headerInitialState: HeaderState = { allowOnchainAddress: false };
+
+function headerReducer(state: HeaderState, action: HeaderAction): HeaderState {
+  switch (action.type) {
+    case HeaderActionType.SetAllowOnchainAddress:
+      return { ...state, allowOnchainAddress: action.payload };
+  }
+}
+
 const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
   wallet,
   onWalletUnitChange,
@@ -35,28 +54,34 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   unitSwitching = false,
 }) => {
   const { hideBalance } = wallet;
-  const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
+  const [{ allowOnchainAddress }, dispatch] = useReducer(headerReducer, headerInitialState);
   const { preferredFiatCurrency } = useSettings();
   const { direction } = useLocale();
   const balanceOpacity = useSharedValue(1);
   const balanceTranslateY = useSharedValue(0);
   const previousBalance = useRef<string | undefined>(undefined);
 
+  const walletRef = useRef(wallet);
+  useEffect(() => {
+    walletRef.current = wallet;
+  });
+
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
-    if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
-      wallet
-        .allowOnchainAddress()
-        .then((value: boolean) => setAllowOnchainAddress(value))
+    const w = walletRef.current;
+    if (w.type === LightningCustodianWallet.type || w.type === LightningArkWallet.type) {
+      w.allowOnchainAddress()
+        .then((value: boolean) => dispatch({ type: HeaderActionType.SetAllowOnchainAddress, payload: value }))
         .catch(() => {
           console.error('This LNDhub wallet does not have an onchain address API.');
-          setAllowOnchainAddress(false);
+          dispatch({ type: HeaderActionType.SetAllowOnchainAddress, payload: false });
         });
     }
-  }, [wallet]);
+  }, []);
 
+  // Run once on mount; wallet type never changes for a given wallet instance
   useEffect(() => {
     verifyIfWalletAllowsOnchainAddress();
-  }, [wallet, verifyIfWalletAllowsOnchainAddress]);
+  }, [verifyIfWalletAllowsOnchainAddress]);
 
   const handleCopyPress = useCallback(() => {
     const value = formatBalance(wallet.getBalance(), unit);
@@ -69,7 +94,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     onWalletBalanceVisibilityChange?.(!hideBalance);
   }, [onWalletBalanceVisibilityChange, hideBalance]);
 
-  const changeWalletBalanceUnit = () => {
+  const changeWalletBalanceUnit = useCallback(() => {
     let newWalletPreferredUnit = wallet.getPreferredBalanceUnit();
 
     console.debug('[UnitSwitch/UI] tap unit change', { walletID: wallet.getID?.(), current: newWalletPreferredUnit });
@@ -84,7 +109,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
     console.debug('[UnitSwitch/UI] next unit resolved', { walletID: wallet.getID?.(), next: newWalletPreferredUnit });
     onWalletUnitChange(newWalletPreferredUnit);
-  };
+  }, [wallet, onWalletUnitChange]);
 
   const handleManageFundsPressed = useCallback(
     (actionKeyID?: string) => {
@@ -121,7 +146,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     ];
   }, []);
 
-  const currentBalance = wallet ? wallet.getBalance() : 0;
+  const currentBalance = wallet.getBalance();
   const formattedBalance = useMemo(() => {
     return unit === BitcoinUnit.LOCAL_CURRENCY
       ? formatBalance(currentBalance, unit, true)
@@ -149,9 +174,10 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     previousBalance.current = safeBalance;
   }, [safeBalance, hideBalance, balanceOpacity, balanceTranslateY]);
 
+  const walletID = wallet.getID?.() ?? '';
   const balanceAnimationKey = useMemo(
-    () => `${wallet.getID?.() ?? ''}-${unit}-${hideBalance}-${safeBalance ?? ''}`,
-    [safeBalance, hideBalance, unit, wallet],
+    () => `${walletID}-${unit}-${hideBalance}-${safeBalance ?? ''}`,
+    [walletID, safeBalance, hideBalance, unit],
   );
   const balanceAnimatedStyle = useAnimateOnChange(balanceAnimationKey);
 
@@ -218,9 +244,8 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
               {hideBalance ? (
                 <BlurredBalanceView />
               ) : (
-                <View key={`wallet-balance-textwrap-${wallet.getID?.() ?? ''}-${String(balance)}`}>
+                <View>
                   <Animated.Text
-                    key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`} // force recreation on balance change for RTL correctness
                     testID="WalletBalance"
                     numberOfLines={1}
                     minimumFontScale={0.5}
