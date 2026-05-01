@@ -84,20 +84,21 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [verifyIfWalletAllowsOnchainAddress]);
 
   const handleCopyPress = useCallback(() => {
-    const value = formatBalance(wallet.getBalance(), unit);
+    const value = formatBalance(walletRef.current.getBalance(), unit);
     if (value) {
       Clipboard.setString(value);
     }
-  }, [unit, wallet]);
+  }, [unit]);
 
   const handleBalanceVisibility = useCallback(() => {
     onWalletBalanceVisibilityChange?.(!hideBalance);
   }, [onWalletBalanceVisibilityChange, hideBalance]);
 
   const changeWalletBalanceUnit = useCallback(() => {
-    let newWalletPreferredUnit = wallet.getPreferredBalanceUnit();
+    const w = walletRef.current;
+    let newWalletPreferredUnit = w.getPreferredBalanceUnit();
 
-    console.debug('[UnitSwitch/UI] tap unit change', { walletID: wallet.getID?.(), current: newWalletPreferredUnit });
+    console.debug('[UnitSwitch/UI] tap unit change', { walletID: w.getID?.(), current: newWalletPreferredUnit });
 
     if (newWalletPreferredUnit === BitcoinUnit.BTC) {
       newWalletPreferredUnit = BitcoinUnit.SATS;
@@ -107,9 +108,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
-    console.debug('[UnitSwitch/UI] next unit resolved', { walletID: wallet.getID?.(), next: newWalletPreferredUnit });
+    console.debug('[UnitSwitch/UI] next unit resolved', { walletID: w.getID?.(), next: newWalletPreferredUnit });
     onWalletUnitChange(newWalletPreferredUnit);
-  }, [wallet, onWalletUnitChange]);
+  }, [onWalletUnitChange]);
 
   const handleManageFundsPressed = useCallback(
     (actionKeyID?: string) => {
@@ -122,9 +123,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   const onPressMenuItem = useCallback(
     (id: string) => {
-      if (id === 'walletBalanceVisibility') {
+      if (id === actionKeys.WalletBalanceVisibility) {
         handleBalanceVisibility();
-      } else if (id === 'copyToClipboard') {
+      } else if (id === actionKeys.CopyToClipboard) {
         handleCopyPress();
       }
     },
@@ -172,7 +173,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     }
 
     previousBalance.current = safeBalance;
-  }, [safeBalance, hideBalance, balanceOpacity, balanceTranslateY]);
+    // balanceOpacity and balanceTranslateY are Reanimated shared values — stable object references, not reactive state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safeBalance, hideBalance]);
 
   const walletID = wallet.getID?.() ?? '';
   const balanceAnimationKey = useMemo(
@@ -190,45 +193,44 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     return hideBalance
       ? [
           {
-            id: 'walletBalanceVisibility',
+            id: actionKeys.WalletBalanceVisibility,
             text: loc.transactions.details_balance_show,
-            icon: {
-              iconValue: 'eye',
-            },
+            icon: actionIcons.Eye,
           },
         ]
       : [
           {
-            id: 'walletBalanceVisibility',
+            id: actionKeys.WalletBalanceVisibility,
             text: loc.transactions.details_balance_hide,
-            icon: {
-              iconValue: 'eye.slash',
-            },
+            icon: actionIcons.EyeSlash,
           },
           {
-            id: 'copyToClipboard',
+            id: actionKeys.CopyToClipboard,
             text: loc.transactions.details_copy,
-            icon: {
-              iconValue: 'doc.on.doc',
-            },
+            icon: actionIcons.Clipboard,
           },
         ];
   }, [hideBalance]);
 
-  useEffect(() => {
-    console.debug('[UnitSwitch/UI] render state', {
-      walletID: wallet.getID?.(),
-      unit,
-      hideBalance,
-      preferredFiat: preferredFiatCurrency?.endPointKey,
-      switching: unitSwitching,
-    });
-  }, [wallet, unit, hideBalance, preferredFiatCurrency, unitSwitching]);
+  if (__DEV__) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      console.debug('[UnitSwitch/UI] render state', {
+        walletID: wallet.getID?.(),
+        unit,
+        hideBalance,
+        preferredFiat: preferredFiatCurrency?.endPointKey,
+        switching: unitSwitching,
+      });
+    }, [wallet, unit, hideBalance, preferredFiatCurrency, unitSwitching]);
+  }
+
+  const walletLabelStyle = useMemo(() => [styles.walletLabel, { writingDirection: direction }], [direction]);
 
   return (
     <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={styles.lineaderGradient}>
       <View style={styles.contentContainer}>
-        <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
+        <Text testID="WalletLabel" numberOfLines={1} style={walletLabelStyle}>
           {wallet.getLabel()}
         </Text>
         <Animated.View style={[styles.walletBalanceAndUnitContainer, balanceAnimatedStyle]}>
