@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BackHandler, Image, ImageSourcePropType, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BackHandler, Image, ImageSourcePropType, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { Easing, Layout, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -365,8 +365,11 @@ const ReceiveDetails = () => {
   const renderHeaderRightMenu = useCallback(() => HeaderRight, [HeaderRight]);
 
   useEffect(() => {
+    const androidNoDuplicateBack = Platform.OS === 'android' ? { headerBackVisible: false as const } : {};
+
     if (wallet?.allowBIP47() && isBIP47Enabled) {
       setOptions({
+        ...androidNoDuplicateBack,
         headerLeft: renderHeaderCloseButton,
         headerRight: renderHeaderRightMenu,
       });
@@ -374,8 +377,10 @@ const ReceiveDetails = () => {
     }
 
     // When payment-code menu is hidden, move close button to the right.
+    // Android: static `navigationStyle` uses `headerBackImageSource` for left "close"; hide back so only `headerRight` shows.
     setOptions({
-      headerLeft: undefined,
+      ...androidNoDuplicateBack,
+      headerLeft: () => null,
       headerRight: renderHeaderCloseButton,
     });
   }, [isBIP47Enabled, renderHeaderCloseButton, renderHeaderRightMenu, setOptions, wallet]);

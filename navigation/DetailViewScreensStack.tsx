@@ -387,7 +387,6 @@ const DetailViewStackScreensStack = () => {
         options={navigationStyle({
           title: loc.receive.header,
           closeButtonPosition: CloseButtonPosition.Left,
-          statusBarStyle: 'light',
           headerShown: true,
           presentation: 'modal',
         })(theme)}

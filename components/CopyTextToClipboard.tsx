@@ -40,20 +40,26 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
       }
     }, [resolvedDisplayText, hasTappedText]);
 
-    const copyToClipboard = useCallback((options?: { suppressHaptic?: boolean }) => {
-      setHasTappedText(true);
-      Clipboard.setString(text);
-      if (!options?.suppressHaptic) {
-        triggerHapticFeedback(HapticFeedbackTypes.Selection);
-      }
-      setAddress(loc.wallets.xpub_copiedToClipboard);
-      setTimeout(() => {
-        setHasTappedText(false);
-        setAddress(resolvedDisplayText);
-      }, 1800);
-    }, [text, resolvedDisplayText]);
+    const copyToClipboard = useCallback(
+      (options?: { suppressHaptic?: boolean }) => {
+        setHasTappedText(true);
+        Clipboard.setString(text);
+        if (!options?.suppressHaptic) {
+          triggerHapticFeedback(HapticFeedbackTypes.Selection);
+        }
+        setAddress(loc.wallets.xpub_copiedToClipboard);
+        setTimeout(() => {
+          setHasTappedText(false);
+          setAddress(resolvedDisplayText);
+        }, 1800);
+      },
+      [text, resolvedDisplayText],
+    );
 
     useImperativeHandle(ref, () => ({ copy: copyToClipboard }), [copyToClipboard]);
+
+    /** Single-line value for screen readers / Detox `by.label` when visual text uses newlines or splits (e.g. receive address). */
+    const accessibilityLabelResolved = hasTappedText ? loc.wallets.xpub_copiedToClipboard : text;
 
     const composedTextStyle = [styles.address, textStyle];
 
@@ -127,7 +133,13 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
 
     if (!interactive) {
       return (
-        <View style={outerStyle} testID="CopyTextToClipboard">
+        <View
+          style={outerStyle}
+          testID="CopyTextToClipboard"
+          accessible
+          accessibilityRole="text"
+          accessibilityLabel={accessibilityLabelResolved}
+        >
           {content}
         </View>
       );
@@ -137,6 +149,8 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
       <View style={outerStyle}>
         <TouchableOpacity
           accessibilityRole="button"
+          accessible
+          accessibilityLabel={accessibilityLabelResolved}
           onPress={() => copyToClipboard()}
           disabled={hasTappedText}
           testID="CopyTextToClipboard"
