@@ -995,7 +995,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     const vaultReceiveAddress = await extractTextFromElementById('AddressValue');
     assert.ok(vaultReceiveAddress && vaultReceiveAddress.length > 20);
     await goBack();
+    await waitForId('ReceiveButton');
     await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.id('WalletDetailsScroll')))
+      .toBeVisible()
+      .withTimeout(20000);
 
     console.log('vaultReceiveAddress', vaultReceiveAddress);
 
@@ -1004,7 +1008,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await element(by.id('ViewEditCosigners')).tap({ x: 120, y: 18 });
+    await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
+    await element(by.id('ViewEditCosigners')).tap();
     await waitForText('Vault Key 1');
     await expect(element(by.text('Vault Key 2'))).toBeVisible();
     await waitFor(element(by.text('Vault Key 3')))
@@ -1044,12 +1049,17 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go back to manage keys, restore seed for cosigner 3, and save
     await goBack();
+    await waitForId('ReceiveButton');
     await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.id('WalletDetailsScroll')))
+      .toBeVisible()
+      .withTimeout(20000);
     await waitFor(element(by.id('ViewEditCosigners')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await element(by.id('ViewEditCosigners')).tap({ x: 120, y: 18 });
+    await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
+    await element(by.id('ViewEditCosigners')).tap();
     await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
       .toBeVisible()
       .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
