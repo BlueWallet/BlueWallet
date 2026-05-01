@@ -1,21 +1,30 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { forwardRef, useEffect, useState } from 'react';
-import { Animated, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { Animated, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
 import { useTheme } from './themes';
 
-type CopyTextToClipboardProps = {
-  text: string;
-  truncated?: boolean;
-  isAddress?: boolean;
+export type CopyTextToClipboardHandle = {
+  copy: (options?: { suppressHaptic?: boolean }) => void;
 };
 
-const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>, CopyTextToClipboardProps>(
-  ({ text, truncated, isAddress }, ref) => {
+type CopyTextToClipboardProps = {
+  text: string;
+  displayText?: string;
+  truncated?: boolean;
+  isAddress?: boolean;
+  interactive?: boolean;
+  textStyle?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
+};
+
+const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClipboardProps>(
+  ({ text, displayText, truncated, isAddress, interactive = true, textStyle, containerStyle }, ref) => {
     const [hasTappedText, setHasTappedText] = useState(false);
-    const [address, setAddress] = useState(text);
+    const resolvedDisplayText = displayText ?? text;
+    const [address, setAddress] = useState(resolvedDisplayText);
     const { colors } = useTheme();
 
     const stylesHook = StyleSheet.create({
@@ -27,26 +36,32 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
 
     useEffect(() => {
       if (!hasTappedText) {
-        setAddress(text);
+        setAddress(resolvedDisplayText);
       }
-    }, [text, hasTappedText]);
+    }, [resolvedDisplayText, hasTappedText]);
 
-    const copyToClipboard = () => {
+    const copyToClipboard = useCallback((options?: { suppressHaptic?: boolean }) => {
       setHasTappedText(true);
       Clipboard.setString(text);
-      triggerHapticFeedback(HapticFeedbackTypes.Selection);
+      if (!options?.suppressHaptic) {
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
+      }
       setAddress(loc.wallets.xpub_copiedToClipboard);
       setTimeout(() => {
         setHasTappedText(false);
-        setAddress(text);
-      }, 1000);
-    };
+        setAddress(resolvedDisplayText);
+      }, 1800);
+    }, [text, resolvedDisplayText]);
+
+    useImperativeHandle(ref, () => ({ copy: copyToClipboard }), [copyToClipboard]);
+
+    const composedTextStyle = [styles.address, textStyle];
 
     const renderHighlightedAddress = () => {
       if (address.includes(loc.wallets.xpub_copiedToClipboard)) {
         return (
           <Animated.Text
-            style={styles.address}
+            style={composedTextStyle}
             {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
             testID="AddressValue"
           >
@@ -69,7 +84,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
         const end = addrPart.slice(-6);
 
         return (
-          <Animated.Text style={styles.address} numberOfLines={truncated ? 1 : 0} ellipsizeMode="middle" testID="AddressValue">
+          <Animated.Text style={composedTextStyle} numberOfLines={truncated ? 1 : 0} ellipsizeMode="middle" testID="AddressValue">
             <Text>{prefix}</Text>
 
             <Text style={stylesHook.addressSection}>{start}</Text>
@@ -85,7 +100,7 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
 
       return (
         <Animated.Text
-          style={styles.address}
+          style={composedTextStyle}
           {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
           testID="AddressValue"
         >
@@ -96,26 +111,37 @@ const CopyTextToClipboard = forwardRef<React.ElementRef<typeof TouchableOpacity>
       );
     };
 
+    const content = isAddress ? (
+      renderHighlightedAddress()
+    ) : (
+      <Animated.Text
+        style={composedTextStyle}
+        {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
+        testID="AddressValue"
+      >
+        {address}
+      </Animated.Text>
+    );
+
+    const outerStyle = [styles.container, containerStyle];
+
+    if (!interactive) {
+      return (
+        <View style={outerStyle} testID="CopyTextToClipboard">
+          {content}
+        </View>
+      );
+    }
+
     return (
-      <View style={styles.container}>
+      <View style={outerStyle}>
         <TouchableOpacity
-          ref={ref}
           accessibilityRole="button"
-          onPress={copyToClipboard}
+          onPress={() => copyToClipboard()}
           disabled={hasTappedText}
           testID="CopyTextToClipboard"
         >
-          {isAddress ? (
-            <>{renderHighlightedAddress()}</>
-          ) : (
-            <Animated.Text
-              style={styles.address}
-              {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
-              testID="AddressValue"
-            >
-              {address}
-            </Animated.Text>
-          )}
+          {content}
         </TouchableOpacity>
       </View>
     );
