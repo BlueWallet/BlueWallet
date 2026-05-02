@@ -654,8 +654,6 @@ const ReceiveDetails = () => {
                   isAddress={isAddressTab}
                   truncated={false}
                   interactive={false}
-                  textStyle={styles.cardAddressText}
-                  containerStyle={styles.addressCopyContainer}
                 />
               </View>
             </>
@@ -918,14 +916,8 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     marginHorizontal: -CARD_INTERNAL_PADDING,
     paddingHorizontal: 16,
-  },
-  addressCopyContainer: {
-    paddingHorizontal: 0,
     minHeight: 48,
     justifyContent: 'center',
-  },
-  cardAddressText: {
-    marginVertical: 0,
   },
   bip47NotFoundContainer: {
     paddingVertical: 40,

@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
-import { Animated, StyleProp, StyleSheet, Text, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
@@ -16,12 +16,10 @@ type CopyTextToClipboardProps = {
   truncated?: boolean;
   isAddress?: boolean;
   interactive?: boolean;
-  textStyle?: StyleProp<TextStyle>;
-  containerStyle?: StyleProp<ViewStyle>;
 };
 
 const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClipboardProps>(
-  ({ text, displayText, truncated, isAddress, interactive = true, textStyle, containerStyle }, ref) => {
+  ({ text, displayText, truncated, isAddress, interactive = true }, ref) => {
     const [hasTappedText, setHasTappedText] = useState(false);
     const resolvedDisplayText = displayText ?? text;
     const [address, setAddress] = useState(resolvedDisplayText);
@@ -61,13 +59,11 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
     /** Single-line value for screen readers / Detox `by.label` when visual text uses newlines or splits (e.g. receive address). */
     const accessibilityLabelResolved = hasTappedText ? loc.wallets.xpub_copiedToClipboard : text;
 
-    const composedTextStyle = [styles.address, textStyle];
-
     const renderHighlightedAddress = () => {
       if (address.includes(loc.wallets.xpub_copiedToClipboard)) {
         return (
           <Animated.Text
-            style={composedTextStyle}
+            style={styles.address}
             {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
             testID="AddressValue"
           >
@@ -90,7 +86,7 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
         const end = addrPart.slice(-6);
 
         return (
-          <Animated.Text style={composedTextStyle} numberOfLines={truncated ? 1 : 0} ellipsizeMode="middle" testID="AddressValue">
+          <Animated.Text style={styles.address} numberOfLines={truncated ? 1 : 0} ellipsizeMode="middle" testID="AddressValue">
             <Text>{prefix}</Text>
 
             <Text style={stylesHook.addressSection}>{start}</Text>
@@ -106,7 +102,7 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
 
       return (
         <Animated.Text
-          style={composedTextStyle}
+          style={styles.address}
           {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
           testID="AddressValue"
         >
@@ -121,7 +117,7 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
       renderHighlightedAddress()
     ) : (
       <Animated.Text
-        style={composedTextStyle}
+        style={styles.address}
         {...(truncated ? { numberOfLines: 1, ellipsizeMode: 'middle' } : { numberOfLines: 0 })}
         testID="AddressValue"
       >
@@ -129,12 +125,10 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
       </Animated.Text>
     );
 
-    const outerStyle = [styles.container, containerStyle];
-
     if (!interactive) {
       return (
         <View
-          style={outerStyle}
+          style={styles.container}
           testID="CopyTextToClipboard"
           accessible
           accessibilityRole="text"
@@ -146,7 +140,7 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
     }
 
     return (
-      <View style={outerStyle}>
+      <View style={styles.container}>
         <TouchableOpacity
           accessibilityRole="button"
           accessible
@@ -165,9 +159,8 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
 export default CopyTextToClipboard;
 
 const styles = StyleSheet.create({
-  container: { justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 },
+  container: { justifyContent: 'center', alignItems: 'center' },
   address: {
-    marginVertical: 32,
     fontSize: 15,
     color: '#9aa0aa',
     textAlign: 'center',
