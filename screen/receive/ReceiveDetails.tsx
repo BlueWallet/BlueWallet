@@ -1,7 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BackHandler, Image, ImageSourcePropType, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  BackHandler,
+  Image,
+  ImageSourcePropType,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from 'react-native';
 import Animated, { Easing, Layout, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -39,10 +50,6 @@ const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_cod
 const CARD_HORIZONTAL_MARGIN = 24;
 const CARD_INTERNAL_PADDING = 6;
 const QR_CARD_PADDING = 6;
-const ADDRESS_HORIZONTAL_PADDING = 16;
-const QR_TO_ADDRESS_GAP = 24;
-const ADDRESS_AREA_MIN_HEIGHT = 48;
-const HEADER_TO_RECEIVE_CARD = 56;
 const MAX_QR_SIZE = 500;
 const MIN_QR_SIZE = 120;
 const QR_SCROLL_RESERVED_WIDTH = (CARD_HORIZONTAL_MARGIN + CARD_INTERNAL_PADDING + QR_CARD_PADDING) * 2;
@@ -177,6 +184,7 @@ const ReceiveDetails = () => {
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors, closeImage } = useTheme();
+  const isDarkTheme = useColorScheme() === 'dark';
   const [customLabel, setCustomLabel] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [customUnit, setCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
@@ -197,13 +205,8 @@ const ReceiveDetails = () => {
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
 
-  const paymentCodeString = useMemo(() => {
-    if (!wallet || !isBIP47Enabled || !('getBIP47PaymentCode' in wallet)) return '';
-    const fn = wallet.getBIP47PaymentCode;
-    return typeof fn === 'function' ? (fn.call(wallet) ?? '') : '';
-  }, [wallet, isBIP47Enabled]);
+  const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
 
-  const isDarkTheme = colors.background === '#000000';
   /** Dark: theme input surface (#262626) reads softer than pure elevated / system gray 6. Light: iOS-style grouped background. */
   const cardBackgroundColor = isDarkTheme ? colors.inputBackgroundColor : '#F2F2F7';
 
@@ -770,12 +773,7 @@ const ReceiveDetails = () => {
   };
 
   const handleShareButtonPressed = () => {
-    let message: string | false = false;
-    if (currentTab === segmentControlValues[0]) {
-      message = bip21encoded;
-    } else {
-      message = (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) ?? false;
-    }
+    const message = currentTab === segmentControlValues[0] ? bip21encoded : paymentCodeString;
 
     if (!message) {
       presentAlert({ title: loc.errors.error, message: loc.bip47.not_found });
@@ -869,7 +867,7 @@ const styles = StyleSheet.create({
   cardPressable: {
     alignSelf: 'center',
     marginHorizontal: CARD_HORIZONTAL_MARGIN,
-    marginTop: HEADER_TO_RECEIVE_CARD,
+    marginTop: 56,
     marginBottom: 8,
   },
   receiveCard: {
@@ -914,16 +912,16 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   cardSpacer: {
-    height: QR_TO_ADDRESS_GAP,
+    height: 24,
   },
   addressRow: {
     alignSelf: 'stretch',
     marginHorizontal: -CARD_INTERNAL_PADDING,
-    paddingHorizontal: ADDRESS_HORIZONTAL_PADDING,
+    paddingHorizontal: 16,
   },
   addressCopyContainer: {
     paddingHorizontal: 0,
-    minHeight: ADDRESS_AREA_MIN_HEIGHT,
+    minHeight: 48,
     justifyContent: 'center',
   },
   cardAddressText: {
