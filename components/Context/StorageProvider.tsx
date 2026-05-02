@@ -351,6 +351,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
+        if (typeof BlueApp.fetchSenderPaymentCodes !== 'function') {
+          console.warn('[refreshAllWalletTransactions] fetchSenderPaymentCodes is not available');
+        }
+
         const paymentCodesPromise =
           typeof BlueApp.fetchSenderPaymentCodes === 'function'
             ? (async () => {
