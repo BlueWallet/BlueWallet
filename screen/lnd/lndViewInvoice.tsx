@@ -7,7 +7,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { BlueText, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -20,7 +20,7 @@ import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { LightningCustodianWallet } from '../../class';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -39,7 +39,7 @@ const LNDViewInvoice = () => {
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
-  const fetchInvoiceInterval = useRef<any>();
+  const fetchInvoiceInterval = useRef<any>(null);
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
   const stylesHook = StyleSheet.create({
@@ -252,7 +252,7 @@ const LNDViewInvoice = () => {
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
               <View style={styles.activeQrcode}>
-                <QRCodeComponent value={invoice.payment_request} size={qrCodeSize} />
+                <QRCode value={invoice.payment_request} size={qrCodeSize} />
               </View>
               <BlueSpacing20 />
               <BlueText>
@@ -275,7 +275,7 @@ const LNDViewInvoice = () => {
       return (
         <View style={[styles.activeRoot, stylesHook.root]}>
           <View style={styles.activeQrcode}>
-            <QRCodeComponent value={invoice} size={qrCodeSize} />
+            <QRCode value={invoice} size={qrCodeSize} />
           </View>
         </View>
       );

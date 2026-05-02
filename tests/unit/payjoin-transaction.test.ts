@@ -2,7 +2,7 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 import { PayjoinClient } from 'payjoin-client';
 
-import { HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 

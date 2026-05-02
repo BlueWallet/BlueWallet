@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { LightningCustodianWallet } from '../../class';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { fetch } from '../../util/fetch';
 
 jest.setTimeout(200 * 1000);

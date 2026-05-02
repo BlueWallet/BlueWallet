@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
-import { NativeEventEmitter, NativeModules } from 'react-native';
+import { NativeEventEmitter } from 'react-native';
+import EventEmitterModule from '../blue_modules/NativeEventEmitter';
 import { useStorage } from '../hooks/context/useStorage';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { HandOffActivityType } from '../components/types';
@@ -13,8 +14,7 @@ interface UserActivityData {
   };
 }
 
-const EventEmitter = NativeModules.EventEmitter;
-const eventEmitter = EventEmitter ? new NativeEventEmitter(EventEmitter) : null;
+const eventEmitter = EventEmitterModule ? new NativeEventEmitter(EventEmitterModule as any) : null;
 
 const useHandoffListener = () => {
   const { walletsInitialized } = useStorage();
@@ -50,8 +50,9 @@ const useHandoffListener = () => {
 
     const activitySubscription = eventEmitter?.addListener('onUserActivityOpen', handleUserActivity);
 
-    if (EventEmitter && EventEmitter.getMostRecentUserActivity) {
-      EventEmitter.getMostRecentUserActivity()
+    if (EventEmitterModule && (EventEmitterModule as any).getMostRecentUserActivity) {
+      (EventEmitterModule as any)
+        .getMostRecentUserActivity()
         .then(handleUserActivity)
         .catch(() => console.debug('No valid user activity object received'));
     } else {

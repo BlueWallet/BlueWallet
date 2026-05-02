@@ -155,7 +155,6 @@
     "biom_conf_identity": "Παρακαλώ επιβεβαιώστε την ταυτότητα σας.",
     "currency": "Νόμισμα",
     "default_title": "Στην έναρξη",
-    "default_wallets": "Προβολή όλων των πορτοφολιών",
     "electrum_connected": "Σε σύνδεση",
     "electrum_connected_not": "Εκτός σύνδεσης",
     "lndhub_uri": "Π.χ., {example}",
@@ -213,6 +212,7 @@
     "received_with_amount": "+{amt1} ({amt2})",
     "view_wallet": "Προβολή {walletLabel}",
     "list_title": "Συναλλαγές",
+    "list_title_received": "Ελήφθη",
     "transaction": "Συναλλαγή",
     "status_cancel": "Ακύρωση συναλλαγής",
     "txid": "ID συναλλαγής"

@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
-import { MultisigHDWallet } from '../../class';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
@@ -165,10 +165,9 @@ const MultisigAdvanced: React.FC = () => {
   const [currentN, setCurrentN] = React.useState(n);
   const [currentFormat, setCurrentFormat] = React.useState(format);
 
-  // Check if there are unsaved changes
-  const hasUnsavedChanges = React.useMemo(() => {
-    return currentM !== m || currentN !== n || currentFormat !== format;
-  }, [currentM, currentN, currentFormat, m, n, format]);
+  const isValidSelection = React.useMemo(() => {
+    return currentM >= 2 && currentM <= 7 && currentN >= currentM && currentN <= 7;
+  }, [currentM, currentN]);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -189,8 +188,8 @@ const MultisigAdvanced: React.FC = () => {
   }, [onSave, currentM, currentN, currentFormat, navigation]);
 
   const SaveButton = useCallback(
-    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />,
-    [handleSave, hasUnsavedChanges],
+    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />,
+    [handleSave, isValidSelection],
   );
 
   React.useLayoutEffect(() => {
@@ -216,7 +215,7 @@ const MultisigAdvanced: React.FC = () => {
             </Pressable>
             <Text style={[styles.androidHeaderTitle, { color: colors.foregroundColor }]}>{loc.multisig.multisig_vault}</Text>
             <View style={styles.androidSaveButton}>
-              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!hasUnsavedChanges} testID="ModalDoneButton" />
+              <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />
             </View>
           </View>
         </View>

@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel from '../../components/WalletsCarousel';
+import WalletsCarousel, { getWalletCarouselItemWidth } from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -95,10 +95,10 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'Wall
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
-  const [state, dispatch] = useReducer<React.Reducer<WalletListState, WalletListAction>>(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading } = state;
   const { sizeClass, isLarge } = useSizeClass();
-  const walletsCarousel = useRef<any>();
+  const walletsCarousel = useRef<any>(null);
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
@@ -111,7 +111,7 @@ const WalletsList: React.FC = () => {
   const route = useRoute<RouteProps>();
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
-  const walletActionButtonsRef = useRef<any>();
+  const walletActionButtonsRef = useRef<any>(null);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -123,7 +123,6 @@ const WalletsList: React.FC = () => {
     },
     listHeaderText: {
       color: colors.foregroundColor,
-      flexShrink: 1,
     },
   });
 
@@ -238,10 +237,13 @@ const WalletsList: React.FC = () => {
       if (!isFocused) return;
 
       const contentOffset = e.nativeEvent.contentOffset;
-      const index = Math.ceil(contentOffset.x / width);
+      const cardWidth = getWalletCarouselItemWidth(width);
+      const snapStep = cardWidth; // keep in sync with WalletsCarousel snap interval
+      const index = Math.max(0, Math.round(contentOffset.x / snapStep));
 
       if (currentWalletIndex.current !== index) {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
           refreshWallets(index, false, false);
         }
@@ -321,17 +323,37 @@ const WalletsList: React.FC = () => {
         case WalletsListSections.TRANSACTIONS:
           return renderListHeaderComponent();
         case WalletsListSections.CAROUSEL: {
-          return isTotalBalanceEnabled ? (
+          const shouldShowTotalBalance = isTotalBalanceEnabled && wallets.length > 1;
+          return shouldShowTotalBalance ? (
             <View style={stylesHook.walletsListWrapper}>
               <TotalWalletsBalance />
             </View>
-          ) : null;
+          ) : (
+            <View style={[styles.listHeaderBack, stylesHook.listHeaderBack]}>
+              <Text
+                textBreakStrategy="simple"
+                style={[styles.listHeaderText, stylesHook.listHeaderText]}
+                numberOfLines={2}
+                adjustsFontSizeToFit={true}
+              >
+                {`${loc.wallets.wallets}${'  '}`}
+              </Text>
+            </View>
+          );
         }
         default:
           return null;
       }
     },
-    [sizeClass, isTotalBalanceEnabled, renderListHeaderComponent, stylesHook.walletsListWrapper],
+    [
+      sizeClass,
+      isTotalBalanceEnabled,
+      renderListHeaderComponent,
+      stylesHook.listHeaderBack,
+      stylesHook.listHeaderText,
+      stylesHook.walletsListWrapper,
+      wallets.length,
+    ],
   );
 
   const renderSectionFooter = useCallback(
@@ -492,6 +514,7 @@ const WalletsList: React.FC = () => {
   return (
     <>
       <SafeAreaSectionList<any | string, SectionData>
+        testID="Wallets"
         renderItem={renderSectionItem}
         keyExtractor={sectionListKeyExtractor}
         renderSectionHeader={renderSectionHeader}
@@ -525,6 +548,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginVertical: 16,
     flexWrap: 'wrap',
+    flexShrink: 1,
   },
   footerRoot: {
     top: 80,

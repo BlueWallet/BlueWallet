@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
 import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, StyleSheet, View, Platform, UIManager } from 'react-native';
-import { WatchOnlyWallet } from '../../class';
+import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import SegmentedControl from '../../components/SegmentControl';
+import SegmentedControl from '../../components/SegmentedControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -20,10 +20,6 @@ export const TABS = {
 } as const;
 
 type TabKey = keyof typeof TABS;
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
 
 interface Address {
   key: string;
@@ -138,6 +134,8 @@ const WalletAddresses: React.FC = () => {
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
+      paddingHorizontal: 12,
+      paddingBottom: 16,
     },
   });
 
@@ -207,7 +205,14 @@ const WalletAddresses: React.FC = () => {
     ({ item }: { item: Address }) => {
       const { key, ...rest } = item;
       return (
-        <AddressItem key={key} item={item} {...rest} balanceUnit={balanceUnit} walletID={walletID} allowSignVerifyMessage={allowSignVerifyMessage} />
+        <AddressItem
+          key={key}
+          item={item}
+          {...rest}
+          balanceUnit={balanceUnit}
+          walletID={walletID}
+          allowSignVerifyMessage={allowSignVerifyMessage}
+        />
       );
     },
     [balanceUnit, walletID, allowSignVerifyMessage],
@@ -238,14 +243,16 @@ const WalletAddresses: React.FC = () => {
       automaticallyAdjustsScrollIndicatorInsets
       automaticallyAdjustKeyboardInsets
       ListHeaderComponent={
-        <SegmentedControl
-          values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
-          selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
-          onChange={index => {
-            const tabKey = Object.keys(TABS)[index] as TabKey;
-            dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
-          }}
-        />
+        <View style={styles.segmentedHeader}>
+          <SegmentedControl
+            values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
+            selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
+            onChange={index => {
+              const tabKey = Object.keys(TABS)[index] as TabKey;
+              dispatch({ type: SET_CURRENT_TAB, payload: TABS[tabKey] });
+            }}
+          />
+        </View>
       }
     />
   );
@@ -256,5 +263,10 @@ export default WalletAddresses;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  segmentedHeader: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 8,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { StyleSheet, Text, View } from 'react-native';
 import Share from 'react-native-share';
@@ -8,7 +8,6 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import presentAlert from '../Alert';
-import QRCodeComponent from '../QRCodeComponent';
 import { useTheme } from '../themes';
 import { AddressTypeBadge } from './AddressTypeBadge';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,6 +17,7 @@ import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import HighlightedText from '../HighlightedText';
+import { useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
 interface AddressItemProps {
   item: any;
@@ -26,7 +26,7 @@ interface AddressItemProps {
   allowSignVerifyMessage: boolean;
   onPress?: () => void; // example: ManageWallets uses this
   searchQuery?: string;
-  renderHighlightedText?: (text: string, query: string) => JSX.Element;
+  renderHighlightedText?: (text: string, query: string) => React.ReactElement;
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
@@ -43,6 +43,9 @@ const AddressItem = ({
   const { wallets } = useStorage();
   const { colors } = useTheme();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
+  const balanceOpacity = useSharedValue(1);
+  const balanceTranslateY = useSharedValue(0);
+  const previousBalance = useRef<string | undefined>(undefined);
 
   const hasTransactions = item.transactions > 0;
 
@@ -50,6 +53,7 @@ const AddressItem = ({
     container: {
       borderBottomColor: colors.lightBorder,
       backgroundColor: colors.elevated,
+      borderBottomWidth: StyleSheet.hairlineWidth,
     },
 
     index: {
@@ -104,6 +108,17 @@ const AddressItem = ({
 
   const balance = formatBalance(item.balance, balanceUnit, true);
 
+  useEffect(() => {
+    if (previousBalance.current !== undefined && previousBalance.current !== balance) {
+      balanceOpacity.value = 0;
+      balanceTranslateY.value = 6;
+      balanceOpacity.value = withTiming(1, { duration: 180 });
+      balanceTranslateY.value = withSpring(0, { damping: 16, stiffness: 220 });
+    }
+
+    previousBalance.current = balance;
+  }, [balance, balanceOpacity, balanceTranslateY]);
+
   const handleCopyPress = useCallback(() => {
     Clipboard.setString(item.address);
   }, [item.address]);
@@ -154,8 +169,6 @@ const AddressItem = ({
     [handleCopyPress, handleSharePress, navigateToSignVerify, handleCopyPrivkeyPress, isBiometricUseCapableAndEnabled],
   );
 
-  const renderPreview = useCallback(() => <QRCodeComponent value={item.address} isMenuAvailable={false} />, [item.address]);
-
   // Render address with highlighting if a search query is provided
   const renderAddressContent = () => {
     if (searchQuery && searchQuery.length > 0) {
@@ -185,10 +198,10 @@ const AddressItem = ({
       title={item.address}
       actions={menuActions}
       onPressMenuItem={onToolTipPress}
-      // Revisit once RNMenu has renderPreview prop
-      renderPreview={renderPreview}
       onPress={navigateToReceive}
       isButton
+      buttonStyle={styles.tooltipButton}
+      shouldOpenOnLongPress
     >
       <View key={item.key} style={[styles.container, stylesHook.container]}>
         <View style={styles.row}>
@@ -223,26 +236,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginHorizontal: 4,
   },
+  tooltipButton: {
+    width: '100%',
+    alignSelf: 'stretch',
+  },
   index: {
     fontSize: 15,
+    fontWeight: '600',
   },
   balance: {
-    marginTop: 4,
+    marginTop: 6,
+    fontWeight: '600',
   },
   row: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
   },
   leftSection: {
-    marginRight: 8,
+    marginRight: 10,
+    paddingTop: 2,
   },
   middleSection: {
     flex: 1,
+    paddingRight: 12,
   },
   rightContainer: {
     justifyContent: 'center',
     alignItems: 'flex-end',
+    minWidth: 96,
+    paddingLeft: 8,
   },
 });
 

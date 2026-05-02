@@ -88,7 +88,9 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
-  await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+  if (device.getPlatform() === 'ios') {
+    await element(by.id('SpeedWalletTypeInput')).tapReturnKey();
+  }
   if (passphrase) {
     await element(by.id('SpeedPassphraseInput')).replaceText(passphrase);
     await element(by.id('SpeedPassphraseInput')).tapReturnKey();
@@ -96,9 +98,15 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   }
   await element(by.id('SpeedDoImport')).tap();
 
+  try {
+    await sleep(1_000);
+    await element(by.id('SpeedDoImport')).tap(); // sometimes doesnt work the 1st time
+  } catch (_) {}
+
   // waiting for import result
   await waitForText('OK', 3 * 61000);
   await element(by.text('OK')).tap();
+  await scrollUpOnHomeScreen();
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
@@ -170,6 +178,7 @@ export async function helperCreateWallet(walletName) {
     .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
 
   await element(by.id('PleasebackupOk')).tap();
+  await scrollUpOnHomeScreen();
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
   await sleep(200);
@@ -242,6 +251,33 @@ export async function tapIfTextPresent(text) {
   // no need to check for visibility, just silently ignore exception if such testID is not present
 }
 
+/**
+ * Confirms password dialogs in a platform-safe way.
+ * Android must tap a visible confirmation to keep test flow deterministic.
+ * iOS can fall back between id-based and text-based buttons.
+ */
+export async function confirmPasswordDialog() {
+  if (device.getPlatform() === 'android') {
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.text('OK')).tap();
+    return;
+  }
+
+  try {
+    await waitFor(element(by.id('OKButton')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.id('OKButton')).tap();
+  } catch (_) {
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(5000);
+    await element(by.text('OK')).tap();
+  }
+}
+
 export async function countElements(testId) {
   let count = 0;
   while (true) {
@@ -264,12 +300,31 @@ export async function scanText(text) {
   await element(by.id('scanQrBackdoorOkButton')).tap();
 }
 
+export async function setCustomFeeRate(feeRate) {
+  await waitForId('chooseFee');
+  await element(by.id('chooseFee')).tap();
+  await waitForId('feeCustomContainerButton');
+  await element(by.id('feeCustomContainerButton')).tap();
+  await waitForId('feeCustom');
+  await element(by.id('feeCustom')).replaceText(String(feeRate));
+  await element(by.id('feeCustom')).tapReturnKey();
+  await waitForKeyboardToClose();
+}
+
 export async function goBack() {
   if (device.getPlatform() === 'ios') {
     try {
       await element(by.id('BackButton')).atIndex(0).tap();
-    } catch (_) {
-      await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+    } catch (_backError) {
+      try {
+        await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+      } catch (_closeButtonError) {
+        try {
+          await element(by.label('Back')).atIndex(0).tap();
+        } catch (_backLabelError) {
+          await element(by.text('Close')).atIndex(0).tap();
+        }
+      }
     }
   } else {
     await device.pressBack();
@@ -282,6 +337,7 @@ export async function typeTextIntoAlertInput(text) {
   } else {
     await element(by.type('_UIAlertControllerTextField')).replaceText(text);
   }
+  await sleep(1000);
 }
 
 /**
@@ -292,10 +348,10 @@ export async function scrollUpOnHomeScreen() {
     return;
   }
   try {
-    await element(by.type('RCTCustomScrollView').withDescendant(by.type('RCTCustomScrollView'))).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView'))).swipe('down', 'slow', 0.5);
   } catch (_) {
     // if no wallets there will be just one scroll
-    await element(by.type('RCTCustomScrollView')).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTEnhancedScrollView')).swipe('down', 'slow', 0.5);
   }
   await sleep(200); // bounce animation
 }

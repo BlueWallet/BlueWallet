@@ -7,9 +7,10 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
-import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import HandOffComponent from '../../components/HandOffComponent';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import SeedWords from '../../components/SeedWords';
 import { useTheme } from '../../components/themes';
 import { HandOffActivityType } from '../../components/types';
@@ -140,7 +141,7 @@ const WalletExport: React.FC = () => {
 
   const Scroll = useCallback(
     // eslint-disable-next-line react/no-unused-prop-types
-    ({ children }: { children: React.ReactNode | React.ReactNodeArray }) => (
+    ({ children }: { children: React.ReactNode | React.ReactNode[] }) => (
       <ScrollView
         automaticallyAdjustContentInsets
         contentInsetAdjustmentBehavior="automatic"
@@ -194,7 +195,7 @@ const WalletExport: React.FC = () => {
       <BlueText style={styles.scanText}>{loc.wallets.scan_import}</BlueText>
 
       <View style={styles.qrCodeContainer}>
-        <QRCodeComponent isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
+        <QRCode isMenuAvailable={false} value={secret} size={qrCodeSize} logoSize={70} />
       </View>
 
       {/* Do not allow to copy mnemonic */}
