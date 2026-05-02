@@ -351,34 +351,36 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
-        // Restore fetch payment codes timing measurement
-        if (typeof BlueApp.fetchSenderPaymentCodes === 'function') {
-          const codesStart = Date.now();
-          console.debug('[refreshAllWalletTransactions] Fetching sender payment codes');
-          await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-          const codesEnd = Date.now();
-          console.debug('[refreshAllWalletTransactions] fetch payment codes took', (codesEnd - codesStart) / 1000, 'sec');
-        } else {
-          console.warn('[refreshAllWalletTransactions] fetchSenderPaymentCodes is not available');
-        }
+        const paymentCodesPromise =
+          typeof BlueApp.fetchSenderPaymentCodes === 'function'
+            ? (async () => {
+                const codesStart = Date.now();
+                console.debug('[refreshAllWalletTransactions] Fetching sender payment codes (parallel)');
+                await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch payment codes took', (Date.now() - codesStart) / 1000, 'sec');
+              })()
+            : Promise.resolve();
 
         console.debug('[refreshAllWalletTransactions] Fetching wallet balances and transactions');
         await Promise.race([
           (async () => {
-            const balanceStart = Date.now();
-            await BlueApp.fetchWalletBalances(lastSnappedTo);
-            const balanceEnd = Date.now();
-            console.debug('[refreshAllWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+            await Promise.all([
+              paymentCodesPromise,
+              (async () => {
+                const balanceStart = Date.now();
+                await BlueApp.fetchWalletBalances(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch balance took', (Date.now() - balanceStart) / 1000, 'sec');
 
-            const txStart = Date.now();
-            await BlueApp.fetchWalletTransactions(lastSnappedTo);
-            const txEnd = Date.now();
-            console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
+                const txStart = Date.now();
+                await BlueApp.fetchWalletTransactions(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch tx took', (Date.now() - txStart) / 1000, 'sec');
 
-            clearTimeout(refreshTimeout);
+                clearTimeout(refreshTimeout);
 
-            console.debug('[refreshAllWalletTransactions] Saving data to disk');
-            await saveToDisk();
+                console.debug('[refreshAllWalletTransactions] Saving data to disk');
+                await saveToDisk();
+              })(),
+            ]);
           })(),
           timeoutPromise,
         ]);

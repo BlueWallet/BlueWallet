@@ -95,8 +95,8 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
-  const { wallets, walletTransactionUpdateStatus } = useStorage();
-  const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
+  const { walletTransactionUpdateStatus } = useStorage();
+  const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
@@ -157,7 +157,6 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
-    const displayTitle = !isTotalBalanceEnabled || wallets.length <= 1;
     const isUpdating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
     const showOffline = isElectrumDisabled;
     // When the user explicitly pulls to refresh, we always prefer showing
@@ -200,9 +199,8 @@ const DetailViewStackScreensStack = () => {
     };
 
     return {
-      title: sizeClass === SizeClass.Large ? loc.transactions.list_title : displayTitle ? loc.wallets.wallets : '',
-      navigationBarColor: theme.colors.customHeader,
-      headerLargeTitle: displayTitle && sizeClass === SizeClass.Compact,
+      title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
+      headerLargeTitle: false,
       headerShadowVisible: false,
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
@@ -213,7 +211,6 @@ const DetailViewStackScreensStack = () => {
   }, [
     RightBarButtons,
     sizeClass,
-    isTotalBalanceEnabled,
     theme.colors.customHeader,
     theme.colors.foregroundColor,
     theme.colors.lightButton,
@@ -225,7 +222,6 @@ const DetailViewStackScreensStack = () => {
     isElectrumDisabled,
     navigateToElectrumSettings,
     walletTransactionUpdateStatus,
-    wallets,
   ]);
 
   const walletListScreenOptions = useWalletListScreenOptions;

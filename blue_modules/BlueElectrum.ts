@@ -108,6 +108,10 @@ let connectionAttempt: number = 0;
 let currentPeerIndex = hardcodedPeers.findIndex(peer => peer.host === defaultPeer.host && peer.ssl === defaultPeer.ssl);
 if (currentPeerIndex < 0) currentPeerIndex = 0;
 let latestBlock: { height: number; time: number } | { height: undefined; time: undefined } = { height: undefined, time: undefined };
+
+const WAIT_TILL_CONNECTED_TICK_MS = 100;
+const WAIT_TILL_CONNECTED_MAX_TICKS_AFTER_FIRST_CONNECT = 150;
+const WAIT_TILL_CONNECTED_MAX_TICKS_NEVER_CONNECTED = 300;
 const txhashHeightCache: Record<string, number> = {};
 let _realm: Realm | undefined;
 
@@ -1022,10 +1026,6 @@ export async function multiGetTransactionByTxid<T extends boolean>(
   return ret;
 }
 
-/**
- * Simple waiter till `mainConnected` becomes true (which means
- * it Electrum was connected in other function), or timeout 30 sec.
- */
 export const waitTillConnected = async function (): Promise<boolean> {
   let waitTillConnectedInterval: NodeJS.Timeout | undefined;
   let retriesCounter = 0;
@@ -1040,14 +1040,19 @@ export const waitTillConnected = async function (): Promise<boolean> {
         return resolve(true);
       }
 
-      if (wasConnectedAtLeastOnce && retriesCounter++ >= 150) {
-        // `wasConnectedAtLeastOnce` needed otherwise theres gona be a race condition with the code that connects
-        // electrum during app startup
+      retriesCounter += 1;
+      const maxTicks = wasConnectedAtLeastOnce
+        ? WAIT_TILL_CONNECTED_MAX_TICKS_AFTER_FIRST_CONNECT
+        : WAIT_TILL_CONNECTED_MAX_TICKS_NEVER_CONNECTED;
+
+      if (retriesCounter >= maxTicks) {
         clearInterval(waitTillConnectedInterval);
-        presentNetworkErrorAlert();
+        if (wasConnectedAtLeastOnce) {
+          presentNetworkErrorAlert();
+        }
         reject(new Error('Waiting for Electrum connection timeout'));
       }
-    }, 100);
+    }, WAIT_TILL_CONNECTED_TICK_MS);
   });
 };
 
