@@ -120,7 +120,11 @@ const WalletXpub: React.FC = () => {
             )}
             <QRCode value={xPubText || xpub} size={qrCodeSize} />
 
-            {xPubText && <CopyTextToClipboard text={xPubText} />}
+            {xPubText && (
+              <View style={styles.copyText}>
+                <CopyTextToClipboard text={xPubText} />
+              </View>
+            )}
           </View>
           <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: xPubText }} />
           <View style={styles.share}>
