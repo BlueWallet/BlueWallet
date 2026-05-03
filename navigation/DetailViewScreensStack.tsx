@@ -156,7 +156,12 @@ const DetailViewStackScreensStack = () => {
   );
 
   const navigateToElectrumSettings = useCallback(() => {
-    navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
+    const routeNames = navigation.getState()?.routeNames;
+    if (routeNames?.includes('ElectrumSettings')) {
+      navigation.navigate('ElectrumSettings');
+    } else {
+      navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
+    }
   }, [navigation]);
 
   const walletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
