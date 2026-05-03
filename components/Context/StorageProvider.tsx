@@ -387,7 +387,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
                 console.debug('[refreshAllWalletTransactions] fetch tx took', (Date.now() - txStart) / 1000, 'sec');
               })(),
             ]);
-            clearTimeout(refreshTimeout);
 
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
             await saveToDisk();
