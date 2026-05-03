@@ -324,15 +324,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       console.debug('[refreshAllWalletTransactions] Starting refresh');
       refreshingRef.current = true;
 
-      const TIMEOUT_DURATION = 30000;
-      let refreshTimeout;
-      const timeoutPromise = new Promise<never>(
-        (_resolve, reject) =>
-          (refreshTimeout = setTimeout(() => {
-            console.debug('[refreshAllWalletTransactions] Timeout reached');
-            reject(new Error('Timeout reached'));
-          }, TIMEOUT_DURATION)),
-      );
+      let refreshTimeout: ReturnType<typeof setTimeout> | undefined;
 
       try {
         if (showUpdateStatusIndicator) {
@@ -350,6 +342,21 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         }
 
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
+
+        // Race only the post-connect work. `waitTillConnected` can take up to
+        // WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER (+ a second wait); starting the timer earlier caused refresh to abort
+        // while Electrum was still legitimately connecting.
+        const REFRESH_FETCH_PHASE_TIMEOUT_MS = Math.max(
+          120_000,
+          BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER + BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_AFTER_FIRST,
+        );
+        const timeoutPromise = new Promise<never>(
+          (_resolve, reject) =>
+            (refreshTimeout = setTimeout(() => {
+              console.debug('[refreshAllWalletTransactions] Timeout reached');
+              reject(new Error('Timeout reached'));
+            }, REFRESH_FETCH_PHASE_TIMEOUT_MS)),
+        );
 
         if (typeof BlueApp.fetchSenderPaymentCodes !== 'function') {
           console.warn('[refreshAllWalletTransactions] fetchSenderPaymentCodes is not available');
@@ -392,9 +399,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       } catch (error) {
         console.error('[refreshAllWalletTransactions] Error:', error);
       } finally {
+        if (refreshTimeout !== undefined) {
+          clearTimeout(refreshTimeout);
+        }
         console.debug('[refreshAllWalletTransactions] Resetting wallet transaction status and refresh lock');
-        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         refreshingRef.current = false;
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
       }
     },
     [saveToDisk],

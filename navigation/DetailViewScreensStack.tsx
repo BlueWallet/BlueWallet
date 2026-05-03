@@ -124,7 +124,8 @@ const DetailViewStackScreensStack = () => {
     return () => subscription.remove();
   }, [isElectrumDisabled, pollConnection]);
   // When starting up in an unknown state, we optimistically rely on ping()
-  // and the disconnected retry loop below to surface connectivity issues.
+  // and the fast retry loop while disconnected. Slow health checks while connected
+  // run only from WalletsList when that screen is focused (saves idle battery).
 
   useEffect(() => {
     if (isElectrumDisabled || electrumConnected !== false) return;
@@ -162,7 +163,7 @@ const DetailViewStackScreensStack = () => {
     const isUpdating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
     const showOffline = isElectrumDisabled;
     // When the user explicitly pulls to refresh, we always prefer showing
-    // the \"Updating...\" pill over \"Not connected\" during that refresh.
+    // the "Updating..." pill over "Not connected" during that refresh.
     const showNotConnected = !isElectrumDisabled && electrumConnected === false && !isUpdating;
     const showUpdating = !isElectrumDisabled && isUpdating;
 
@@ -182,7 +183,11 @@ const DetailViewStackScreensStack = () => {
       if (showNotConnected) {
         return (
           <Pressable
-            onPress={() => BlueElectrum.presentNetworkErrorAlert(undefined, true)}
+            onPress={() => {
+              BlueElectrum.presentElectrumDisconnectedHelpAlert().catch(() => {
+                /* alert helper failed; ignore */
+              });
+            }}
             style={[styles.updatingLabelContainer, { backgroundColor: theme.colors.redBG }]}
           >
             <Text style={[styles.updatingLabelText, { color: theme.colors.redText }]}>{loc.settings.electrum_connected_not}</Text>
