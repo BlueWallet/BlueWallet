@@ -1047,9 +1047,7 @@ export const waitTillConnected = async function (): Promise<boolean> {
 
       if (retriesCounter >= maxTicks) {
         clearInterval(waitTillConnectedInterval);
-        if (wasConnectedAtLeastOnce) {
-          presentNetworkErrorAlert();
-        }
+        presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
     }, WAIT_TILL_CONNECTED_TICK_MS);
