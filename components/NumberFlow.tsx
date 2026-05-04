@@ -76,7 +76,6 @@ const CharacterList = memo(
     const targetPosition = -lineHeight * number;
 
     const animateStyle = useAnimatedStyle(() => {
-      'worklet';
       if (initialRender) {
         return {
           transform: [{ translateY: Math.round(targetPosition) }],
