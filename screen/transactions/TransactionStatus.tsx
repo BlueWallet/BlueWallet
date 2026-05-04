@@ -35,6 +35,24 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 
 dayjs.extend(relativeTime);
 
+/** Mutates Electrum `vin` entries with `value` from previous outputs so fee = sum(inputs) − sum(outputs) works. */
+async function populateVinValuesFromPrevTxs(fetchedTx: any): Promise<void> {
+  if (!fetchedTx?.vin?.length) return;
+  const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
+  if (vinTxids.length === 0) return;
+  try {
+    const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
+    for (let i = 0; i < fetchedTx.vin.length; i++) {
+      const vin = fetchedTx.vin[i];
+      if (prevTransactions[vin.txid]?.vout?.[vin.vout]) {
+        vin.value = prevTransactions[vin.txid].vout[vin.vout].value;
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching previous transactions for fee calculation:', err);
+  }
+}
+
 enum ButtonStatus {
   Possible,
   Unknown,
@@ -279,22 +297,7 @@ const TransactionStatus: React.FC = () => {
           .then(async txMap => {
             const fetchedTx = txMap[hash];
             if (fetchedTx && fetchedTx.vin) {
-              // Fetch previous transactions to populate vin.value (needed for fee calculation, especially for received transactions)
-              const vinTxids = fetchedTx.vin.map((vin: any) => vin.txid).filter((tid: string) => !!tid);
-              if (vinTxids.length > 0) {
-                try {
-                  const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(vinTxids, true, 10);
-                  // Populate vin.value from previous transaction outputs
-                  for (let i = 0; i < fetchedTx.vin.length; i++) {
-                    const vin = fetchedTx.vin[i];
-                    if (prevTransactions[vin.txid]?.vout?.[vin.vout]) {
-                      vin.value = prevTransactions[vin.txid].vout[vin.vout].value;
-                    }
-                  }
-                } catch (err) {
-                  console.error('Error fetching previous transactions for fee calculation:', err);
-                }
-              }
+              await populateVinValuesFromPrevTxs(fetchedTx);
               setTxFromElectrum(fetchedTx);
             }
           })
@@ -355,7 +358,9 @@ const TransactionStatus: React.FC = () => {
 
         console.debug('got txFromElectrum=', fetchedTx);
 
-        // Update txFromElectrum state so fee calculation can use it
+        // Same as initial load: populate vin.value before committing state, otherwise calculatedFee
+        // briefly (or permanently if mempool lookup fails) loses inputs−outputs fee vs the first fetch.
+        await populateVinValuesFromPrevTxs(fetchedTx);
         setTxFromElectrum(fetchedTx);
 
         const address = fetchedTx.vout?.[0]?.scriptPubKey?.addresses?.pop();

@@ -31,6 +31,12 @@ const styles = StyleSheet.create({
     color: '#9aa0aa',
     textAlign: 'center',
   },
+  /** Receive address row and `isAddress` paths: matches master `address` style (no large margins). */
+  addressDefaultTextStyle: {
+    fontSize: 15,
+    color: '#9aa0aa',
+    textAlign: 'center',
+  },
   textFillContainer: {
     width: '100%',
     minWidth: 0,
@@ -107,7 +113,7 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
     /** Single-line value for screen readers / Detox `by.label` when visual text uses newlines or splits (e.g. receive address). */
     const accessibilityLabelResolved = accessibilityLabel ?? (isCopiedState ? loc._.copied : text);
 
-    const mergedTextStyle = style || styles.defaultTextStyle;
+    const mergedTextStyle = style ?? (isAddress ? styles.addressDefaultTextStyle : styles.defaultTextStyle);
     const textAlignStyle = textAlign ? { textAlign } : undefined;
     const finalNumberOfLines = isCopiedState ? 1 : numberOfLines !== undefined ? numberOfLines : truncated ? 1 : 0;
     const finalEllipsizeMode = isCopiedState ? undefined : ellipsizeMode || (truncated ? 'middle' : undefined);
