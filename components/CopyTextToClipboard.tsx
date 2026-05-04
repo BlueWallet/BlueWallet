@@ -1,6 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
-import { StyleSheet, Text, TextProps, TouchableOpacity, View, ViewStyle } from 'react-native';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { StyleSheet, Text, TextProps, TextStyle, TouchableOpacity, View, ViewStyle } from 'react-native';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { BlueText } from '../BlueComponents';
@@ -31,7 +31,6 @@ const styles = StyleSheet.create({
     color: '#9aa0aa',
     textAlign: 'center',
   },
-  /** Receive address row and `isAddress` paths: matches master `address` style (no large margins). */
   addressDefaultTextStyle: {
     fontSize: 15,
     color: '#9aa0aa',
@@ -46,6 +45,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+const COPY_FEEDBACK_MS = 1500;
 
 const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClipboardProps>(
   (
@@ -73,19 +74,31 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
     const [displayText, setDisplayText] = useState(initialDisplayText);
     const isCopiedState = hasTappedText && displayText === loc._.copied;
     const { colors } = useTheme();
+    const copyResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const stylesHook = StyleSheet.create({
-      addressSection: {
+    const addressSectionStyle = useMemo<TextStyle>(
+      () => ({
         color: colors.alternativeTextColor2,
         fontWeight: '500',
-      },
-    });
+      }),
+      [colors.alternativeTextColor2],
+    );
 
     useEffect(() => {
       if (!hasTappedText) {
         setDisplayText(displayTextProp || text);
       }
     }, [text, displayTextProp, hasTappedText]);
+
+    useEffect(
+      () => () => {
+        if (copyResetTimeoutRef.current) {
+          clearTimeout(copyResetTimeoutRef.current);
+          copyResetTimeoutRef.current = null;
+        }
+      },
+      [],
+    );
 
     const copyToClipboard = useCallback(
       (options?: { suppressHaptic?: boolean }) => {
@@ -94,16 +107,22 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
           return;
         }
 
+        if (copyResetTimeoutRef.current) {
+          clearTimeout(copyResetTimeoutRef.current);
+          copyResetTimeoutRef.current = null;
+        }
+
         setHasTappedText(true);
         Clipboard.setString(text);
         if (!options?.suppressHaptic) {
           triggerHapticFeedback(HapticFeedbackTypes.Selection);
         }
         setDisplayText(loc._.copied);
-        setTimeout(() => {
+        copyResetTimeoutRef.current = setTimeout(() => {
+          copyResetTimeoutRef.current = null;
           setHasTappedText(false);
           setDisplayText(displayTextProp || text);
-        }, 1500);
+        }, COPY_FEEDBACK_MS);
       },
       [hasTappedText, text, displayTextProp],
     );
@@ -158,9 +177,9 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
             testID={textTestID}
           >
             <Text>{prefix}</Text>
-            <Text style={stylesHook.addressSection}>{start}</Text>
+            <Text style={addressSectionStyle}>{start}</Text>
             <Text>{middle}</Text>
-            <Text style={stylesHook.addressSection}>{end}</Text>
+            <Text style={addressSectionStyle}>{end}</Text>
             <Text>{queryPart}</Text>
           </BlueText>
         );
@@ -175,9 +194,9 @@ const CopyTextToClipboard = forwardRef<CopyTextToClipboardHandle, CopyTextToClip
           {...textProps}
           testID={textTestID}
         >
-          <Text style={stylesHook.addressSection}>{displayText.slice(0, 6)}</Text>
+          <Text style={addressSectionStyle}>{displayText.slice(0, 6)}</Text>
           <Text>{displayText.slice(6, -6)}</Text>
-          <Text style={stylesHook.addressSection}>{displayText.slice(-6)}</Text>
+          <Text style={addressSectionStyle}>{displayText.slice(-6)}</Text>
         </BlueText>
       );
     };
