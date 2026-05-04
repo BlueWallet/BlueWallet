@@ -28,16 +28,54 @@ import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-w
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import WalletGradient from '../class/wallet-gradient';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
-import loc, { formatBalance, transactionTimeToReadable } from '../loc';
+import loc, { formatBalanceWithoutSuffix, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
 import { Transaction, TWallet } from '../class/wallets/types';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 import { BlueSpacing10 } from './BlueSpacing';
+import AnimatedBalance from './AnimatedBalance';
+import { useSettings } from '../hooks/context/useSettings';
 import { useLocale } from '@react-navigation/native';
 
 export const WALLET_CAROUSEL_HEADER_WIDTH = 16;
 
 export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
+
+/**
+ * Min height shared by wallet cards and the “Add wallet” panel so both tiles match in the carousel.
+ * (Previously the card used 180pt while the add panel used 164/181.)
+ */
+export const WALLET_CAROUSEL_PANEL_MIN_HEIGHT = Platform.OS === 'ios' ? 164 : 181;
+
+/** Same as `WALLET_CAROUSEL_PANEL_MIN_HEIGHT` — used for scroll offsets / section layout. */
+export const WALLET_CAROUSEL_CARD_HEIGHT = WALLET_CAROUSEL_PANEL_MIN_HEIGHT;
+
+/**
+ * Extra height under the card inside the horizontal `FlatList` (`style.minHeight`).
+ * Must stay in sync with `WalletsCarousel`’s `FlatList` style.
+ */
+export const WALLET_CAROUSEL_HEIGHT_SLACK = 12;
+
+/**
+ * iOS draws `shadowContainer`’s shadow below the view; if the parent `SectionList` row is too short,
+ * the shadow is clipped at the cell boundary.
+ */
+export const WALLET_CAROUSEL_SHADOW_BOTTOM_CLEARANCE = 18;
+
+/**
+ * Space below the carousel row so card shadows read clearly above the next screen content
+ * (`contentContainerStyle.paddingBottom` + extra section list height).
+ */
+export const WALLET_CAROUSEL_BOTTOM_GAP = 14;
+
+export const WALLET_CAROUSEL_FLATLIST_MIN_HEIGHT = WALLET_CAROUSEL_CARD_HEIGHT + WALLET_CAROUSEL_HEIGHT_SLACK;
+
+/** Total vertical space the horizontal carousel `FlatList` reserves (cards + slack + gap under row). */
+export const WALLET_CAROUSEL_FLATLIST_STYLE_MIN_HEIGHT = WALLET_CAROUSEL_FLATLIST_MIN_HEIGHT + WALLET_CAROUSEL_BOTTOM_GAP;
+
+/** First section row height in `WalletsList` — must cover `FlatList` min height + shadow + bottom gap. */
+export const WALLET_CAROUSEL_SECTION_ROW_HEIGHT = WALLET_CAROUSEL_FLATLIST_STYLE_MIN_HEIGHT + WALLET_CAROUSEL_SHADOW_BOTTOM_CLEARANCE;
 
 interface NewWalletPanelProps {
   onPress: () => void;
@@ -46,7 +84,7 @@ interface NewWalletPanelProps {
 const nStyles = StyleSheet.create({
   container: {
     borderRadius: 10,
-    minHeight: Platform.OS === 'ios' ? 164 : 181,
+    minHeight: WALLET_CAROUSEL_PANEL_MIN_HEIGHT,
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
@@ -157,25 +195,28 @@ const iStyles = StyleSheet.create({
   rootLargeDevice: { marginVertical: 20 },
   grad: {
     borderRadius: 12,
-    minHeight: 164,
+    minHeight: WALLET_CAROUSEL_PANEL_MIN_HEIGHT,
     overflow: 'hidden',
   },
   gradCompact: {
     borderRadius: 10,
-    minHeight: 132,
+    minHeight: Math.round(WALLET_CAROUSEL_PANEL_MIN_HEIGHT * 0.8),
     overflow: 'hidden',
   },
   gradContent: {
-    padding: 15,
+    padding: 16,
   },
   gradContentCompact: {
     padding: 12,
+    paddingBottom: 14,
   },
   balanceContainer: {
-    height: 40,
+    minHeight: 48,
+    justifyContent: 'flex-end',
   },
   balanceContainerCompact: {
-    height: 32,
+    minHeight: 40,
+    justifyContent: 'flex-end',
   },
   image: {
     width: 99,
@@ -202,6 +243,20 @@ const iStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 36,
+    lineHeight: 44,
+    letterSpacing: -0.5,
+  },
+  balanceRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  balanceUnit: {
+    backgroundColor: 'transparent',
+    fontWeight: 'bold',
+    fontSize: 18,
+    lineHeight: 22,
+    marginLeft: 6,
+    paddingBottom: 5,
   },
   balanceCompact: {
     fontSize: 28,
@@ -277,17 +332,20 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const dragScale = useSharedValue(isDraggingActive ? dragActiveScale : 1.0);
     const opacityValue = useSharedValue(isSelectedWallet === false ? 0.5 : 1.0);
     const translateYValue = useSharedValue(isNewWallet ? 20 : 0);
-    const balanceOpacity = useSharedValue(1);
-    const balanceTranslateY = useSharedValue(0);
     const { colors } = useTheme();
+    const { preferredFiatCurrency } = useSettings();
     const { width } = useWindowDimensions();
     const itemWidth = getWalletCarouselItemWidth(width);
     const { sizeClass } = useSizeClass();
     const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
-    const previousBalance = useRef<string | undefined>(undefined);
-    const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
-    const safeBalance = balance || undefined;
+    const preferredUnit = item.getPreferredBalanceUnit();
+    const balance = useMemo(
+      () => !item.hideBalance && formatBalanceWithoutSuffix(Number(item.getBalance()), preferredUnit, true),
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- preferredFiatCurrency invalidates cached fiat formatting
+      [item, preferredUnit, preferredFiatCurrency],
+    );
+    const balanceUnit = !item.hideBalance && preferredUnit !== BitcoinUnit.LOCAL_CURRENCY ? preferredUnit : null;
 
     const animatePressScale = useCallback(
       (toValue: number) => {
@@ -333,23 +391,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     }, [isNewWallet, animationsEnabled, translateYValue, opacityValue, isSelectedWallet]);
 
     useEffect(() => {
-      if (!animationsEnabled) {
-        previousBalance.current = safeBalance;
-        return;
-      }
-
-      if (previousBalance.current !== undefined && previousBalance.current !== safeBalance) {
-        // Subtle currency-like transition on balance updates.
-        balanceOpacity.value = 0;
-        balanceTranslateY.value = 6;
-        balanceOpacity.value = withTiming(1, { duration: 180 });
-        balanceTranslateY.value = withSpring(0, { damping: 16, stiffness: 220 });
-      }
-
-      previousBalance.current = safeBalance;
-    }, [safeBalance, animationsEnabled, balanceOpacity, balanceTranslateY]);
-
-    useEffect(() => {
       if (isExiting && animationsEnabled) {
         translateYValue.value = withTiming(-20, { duration: 200 });
         opacityValue.value = withTiming(0, { duration: 200 });
@@ -359,11 +400,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const animatedCardStyle = useAnimatedStyle(() => ({
       opacity: opacityValue.value,
       transform: [{ scale: pressScale.value * dragScale.value }, { translateY: translateYValue.value }],
-    }));
-
-    const animatedBalanceStyle = useAnimatedStyle(() => ({
-      opacity: balanceOpacity.value,
-      transform: [{ translateY: balanceTranslateY.value }],
     }));
 
     let image;
@@ -420,7 +456,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={[iStyles.grad, isCompact && iStyles.gradCompact]}>
               <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
               <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact]}>
-                <Text style={iStyles.br} />
                 {!isPlaceHolder && (
                   <>
                     <Text
@@ -440,19 +475,25 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                           <BlurredBalanceView />
                         </>
                       ) : (
-                        <Animated.Text
-                          numberOfLines={1}
-                          adjustsFontSizeToFit
-                          key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                          style={[
-                            iStyles.balance,
-                            isCompact && iStyles.balanceCompact,
-                            { color: colors.inverseForegroundColor, writingDirection: direction },
-                            animatedBalanceStyle,
-                          ]}
-                        >
-                          {`${balance} `}
-                        </Animated.Text>
+                        <View style={iStyles.balanceRow}>
+                          <AnimatedBalance
+                            key={`${balance}`}
+                            formattedValue={`${balance}`}
+                            textStyle={[
+                              iStyles.balance,
+                              isCompact && iStyles.balanceCompact,
+                              { color: colors.inverseForegroundColor, writingDirection: direction },
+                            ]}
+                            variant="subtle"
+                            testID="WalletCardBalance"
+                            autoFitText
+                          />
+                          {balanceUnit && (
+                            <Text style={[iStyles.balanceUnit, { color: colors.inverseForegroundColor, writingDirection: direction }]}>
+                              {balanceUnit}
+                            </Text>
+                          )}
+                        </View>
                       )}
                     </View>
                     <Text style={iStyles.br} />
@@ -644,7 +685,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
             console.warn('[WalletsCarousel] Error scrolling to wallet:', error);
             // Fallback: try scrolling to offset
             // Use different measurement based on orientation
-            const itemSize = horizontal ? itemWidth : 195; // 195 is the approximate height of wallet card
+            const itemSize = horizontal ? itemWidth : WALLET_CAROUSEL_CARD_HEIGHT;
             flatListRef.current.scrollToOffset({
               offset: itemSize * walletIndex,
               animated,
@@ -765,8 +806,6 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
 
   const keyExtractor = useCallback((item: TWallet, index: number) => (item?.getID ? item.getID() : index.toString()), []);
 
-  const sliderHeight = 195;
-
   useEffect(() => {
     return () => {
       hasFocusedRef.current = false;
@@ -848,6 +887,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const cStyles = StyleSheet.create({
     content: {
       paddingTop: 16,
+      paddingBottom: WALLET_CAROUSEL_BOTTOM_GAP,
     },
     contentLargeScreen: {
       paddingHorizontal: sizeClass === SizeClass.Large ? 16 : 12,
@@ -878,7 +918,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       automaticallyAdjustsScrollIndicatorInsets
-      style={{ minHeight: sliderHeight + 12 }}
+      style={{ minHeight: WALLET_CAROUSEL_FLATLIST_STYLE_MIN_HEIGHT }}
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
       {...props}

@@ -214,6 +214,7 @@ const DetailViewStackScreensStack = () => {
       title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
       headerLargeTitle: false,
       headerShadowVisible: false,
+      ...(Platform.OS === 'ios' && { headerLargeTitleStyle: { fontFamily: 'SF Pro Rounded' } }),
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },

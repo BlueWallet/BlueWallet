@@ -5,6 +5,7 @@ module.exports = {
     android: {},
     ios: {},
   },
+  assets: ['./assets/fonts'],
   dependencies: {
     'react-native-context-menu-view': {
       root: path.resolve(__dirname, 'node_modules/react-native-context-menu-view'),
