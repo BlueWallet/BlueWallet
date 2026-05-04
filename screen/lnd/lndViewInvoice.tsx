@@ -263,7 +263,9 @@ const LNDViewInvoice = () => {
                   {loc.lndViewInvoice.for} {invoice.description ?? ''}
                 </BlueText>
               )}
-              <CopyTextToClipboard truncated text={invoice.payment_request} />
+              <View style={styles.copyText}>
+                <CopyTextToClipboard truncated text={invoice.payment_request} />
+              </View>
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>
@@ -333,5 +335,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,
+  },
+  copyText: {
+    marginVertical: 32,
+    paddingHorizontal: 16,
   },
 });

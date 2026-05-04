@@ -1,7 +1,7 @@
 module.exports = {
   testEnvironment: '<rootDir>/tests/custom-environment.js',
   reporters: ['default', ['<rootDir>/tests/custom-reporter.js', {}]],
-  preset: 'react-native',
+  preset: '@react-native/jest-preset',
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },

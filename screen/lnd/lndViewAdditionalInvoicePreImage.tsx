@@ -32,7 +32,9 @@ const LNDViewAdditionalInvoicePreImage = () => {
           <QRCode value={preImageData} size={300} logoSize={90} />
         </View>
         <BlueSpacing20 />
-        <CopyTextToClipboard text={preImageData} />
+        <View style={styles.copyText}>
+          <CopyTextToClipboard text={preImageData} />
+        </View>
       </View>
     </SafeArea>
   );
@@ -48,6 +50,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 16,
+  },
+  copyText: {
+    marginVertical: 32,
+    paddingHorizontal: 16,
   },
 });
 

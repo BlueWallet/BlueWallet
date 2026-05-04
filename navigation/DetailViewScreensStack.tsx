@@ -1,5 +1,5 @@
-import React, { lazy, useCallback, useMemo } from 'react';
-import { View, Platform, PlatformColor } from 'react-native';
+import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -24,7 +24,11 @@ import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
 import { DetailViewStack } from './index';
 import { withLazySuspense } from './LazyLoadingIndicator';
+import Icon from '../components/Icon';
 import SettingsButton from '../components/icons/SettingsButton';
+import { useSettings } from '../hooks/context/useSettings';
+import { useStorage } from '../hooks/context/useStorage';
+import { WalletTransactionsStatus } from '../components/Context/StorageProvider';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';
@@ -48,6 +52,8 @@ import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmatio
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
+import * as BlueElectrum from '../blue_modules/BlueElectrum';
+import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
@@ -55,10 +61,77 @@ import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
 
+const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.55,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    pulse.start();
+    return () => pulse.stop();
+  }, [opacity]);
+
+  return (
+    <View style={containerStyle}>
+      <Animated.Text style={[textStyle, { opacity }]}>{loc.transactions.updating}</Animated.Text>
+    </View>
+  );
+};
+
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
+  const { walletTransactionUpdateStatus } = useStorage();
+  const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
+  const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
+
+  const pollConnection = useCallback(async () => {
+    if (isElectrumDisabled) return;
+    const ok = await BlueElectrum.ping();
+    setElectrumConnected(ok);
+  }, [isElectrumDisabled]);
+
+  useEffect(() => {
+    if (isElectrumDisabled) {
+      setElectrumConnected(null);
+      return;
+    }
+    pollConnection();
+  }, [isElectrumDisabled, pollConnection]);
+
+  useEffect(() => {
+    if (isElectrumDisabled) return;
+    const subscription = AppState.addEventListener('change', nextState => {
+      if (nextState === 'active') {
+        pollConnection();
+      }
+    });
+    return () => subscription.remove();
+  }, [isElectrumDisabled, pollConnection]);
+  // When starting up in an unknown state, we optimistically rely on ping()
+  // and the fast retry loop while disconnected. Slow health checks while connected
+  // run only from WalletsList when that screen is focused (saves idle battery).
+
+  useEffect(() => {
+    if (isElectrumDisabled || electrumConnected !== false) return;
+    const interval = setInterval(pollConnection, 3000);
+    return () => clearInterval(interval);
+  }, [isElectrumDisabled, electrumConnected, pollConnection]);
+
+  const connectionPollContextValue = useMemo(() => ({ pollConnection }), [pollConnection]);
 
   const navigateToAddWallet = useCallback(() => {
     navigation.navigate('AddWalletRoot');
@@ -78,7 +151,61 @@ const DetailViewStackScreensStack = () => {
     [sizeClass, navigateToAddWallet],
   );
 
-  const useWalletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
+  const navigateToElectrumSettings = useCallback(() => {
+    const routeNames = navigation.getState()?.routeNames;
+    if (routeNames?.includes('ElectrumSettings')) {
+      navigation.navigate('ElectrumSettings');
+    } else {
+      navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
+    }
+  }, [navigation]);
+
+  const walletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
+    const isUpdating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
+    const showOffline = isElectrumDisabled;
+    // When the user explicitly pulls to refresh, we always prefer showing
+    // the "Updating..." pill over "Not connected" during that refresh.
+    const showNotConnected = !isElectrumDisabled && electrumConnected === false && !isUpdating;
+    const showUpdating = !isElectrumDisabled && isUpdating;
+
+    const renderHeaderLeft = () => {
+      if (showOffline) {
+        const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
+        return (
+          <Pressable
+            onPress={navigateToElectrumSettings}
+            style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor: offlineBg }]}
+          >
+            <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
+            <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
+          </Pressable>
+        );
+      }
+      if (showNotConnected) {
+        return (
+          <Pressable
+            onPress={() => {
+              BlueElectrum.presentElectrumDisconnectedHelpAlert().catch(() => {
+                /* alert helper failed; ignore */
+              });
+            }}
+            style={[styles.updatingLabelContainer, { backgroundColor: theme.colors.redBG }]}
+          >
+            <Text style={[styles.updatingLabelText, { color: theme.colors.redText }]}>{loc.settings.electrum_connected_not}</Text>
+          </Pressable>
+        );
+      }
+      if (showUpdating) {
+        return (
+          <UpdatingLabel
+            containerStyle={[styles.updatingLabelContainer, { backgroundColor: theme.colors.lightButton }]}
+            textStyle={[styles.updatingLabelText, { color: theme.colors.foregroundColor }]}
+          />
+        );
+      }
+      return null;
+    };
+
     return {
       title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
       headerLargeTitle: false,
@@ -86,11 +213,25 @@ const DetailViewStackScreensStack = () => {
       headerStyle: {
         backgroundColor: theme.colors.customHeader,
       },
+      headerLeft: renderHeaderLeft,
       headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
-  }, [RightBarButtons, sizeClass, theme.colors.customHeader]);
+  }, [
+    RightBarButtons,
+    sizeClass,
+    theme.colors.customHeader,
+    theme.colors.foregroundColor,
+    theme.colors.lightButton,
+    theme.colors.redBG,
+    theme.colors.redText,
+    theme.colors.darkGray,
+    theme.dark,
+    electrumConnected,
+    isElectrumDisabled,
+    navigateToElectrumSettings,
+    walletTransactionUpdateStatus,
+  ]);
 
-  const walletListScreenOptions = useWalletListScreenOptions;
   const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
   const settingsCardColor = theme.colors.lightButton ?? theme.colors.modal ?? theme.colors.elevated ?? theme.colors.background;
   const settingsHeaderBackgroundColor = isIOSLightMode ? settingsCardColor : theme.colors.customHeader;
@@ -120,292 +261,307 @@ const DetailViewStackScreensStack = () => {
   };
 
   return (
-    <DetailViewStack.Navigator
-      initialRouteName="WalletsList"
-      screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
-    >
-      <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-      <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
-      <DetailViewStack.Screen
-        name="WalletDetails"
-        component={WalletDetails}
-        options={navigationStyle({
-          headerTitle: loc.wallets.details_title,
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="TransactionStatus"
-        component={TransactionStatus}
-        initialParams={{
-          hash: undefined,
-          walletID: undefined,
-        }}
-        options={navigationStyle({
-          headerStyle: {
-            backgroundColor: theme.colors.customHeader,
-          },
-          headerTitle: '',
-          headerBackButtonDisplayMode: 'default',
-        })(theme)}
-      />
-      <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
-      <DetailViewStack.Screen
-        name="RBFBumpFee"
-        component={RBFBumpFee}
-        options={navigationStyle({ title: loc.transactions.rbf_title })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="RBFCancel"
-        component={RBFCancel}
-        options={navigationStyle({ title: loc.transactions.cancel_title })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="SelectWallet"
-        component={SelectWallet}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="LNDViewInvoice"
-        component={LNDViewInvoice}
-        options={navigationStyle({
-          headerTitle: loc.lndViewInvoice.lightning_invoice,
-          headerStyle: {
-            backgroundColor: theme.colors.customHeader,
-          },
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="LNDViewAdditionalInvoicePreImage"
-        component={LNDViewAdditionalInvoicePreImage}
-        options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
-      />
+    <ConnectionPollContext.Provider value={connectionPollContextValue}>
+      <DetailViewStack.Navigator
+        initialRouteName="WalletsList"
+        screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
+      >
+        <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
+        <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
+        <DetailViewStack.Screen
+          name="WalletDetails"
+          component={WalletDetails}
+          options={navigationStyle({
+            headerTitle: loc.wallets.details_title,
+          })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="TransactionStatus"
+          component={TransactionStatus}
+          initialParams={{
+            hash: undefined,
+            walletID: undefined,
+          }}
+          options={navigationStyle({
+            headerStyle: {
+              backgroundColor: theme.colors.customHeader,
+            },
+            headerTitle: '',
+            headerBackButtonDisplayMode: 'default',
+          })(theme)}
+        />
+        <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
+        <DetailViewStack.Screen
+          name="RBFBumpFee"
+          component={RBFBumpFee}
+          options={navigationStyle({ title: loc.transactions.rbf_title })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="RBFCancel"
+          component={RBFCancel}
+          options={navigationStyle({ title: loc.transactions.cancel_title })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="SelectWallet"
+          component={SelectWallet}
+          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="LNDViewInvoice"
+          component={LNDViewInvoice}
+          options={navigationStyle({
+            headerTitle: loc.lndViewInvoice.lightning_invoice,
+            headerStyle: {
+              backgroundColor: theme.colors.customHeader,
+            },
+          })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="LNDViewAdditionalInvoicePreImage"
+          component={LNDViewAdditionalInvoicePreImage}
+          options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
+        />
 
-      <DetailViewStack.Screen
-        name="Broadcast"
-        component={Broadcast}
-        options={navigationStyle(getSettingsHeaderOptions(loc.send.create_broadcast))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="IsItMyAddress"
-        component={IsItMyAddress}
-        initialParams={{ address: undefined }}
-        options={navigationStyle(getSettingsHeaderOptions(loc.is_it_my_address.title))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="GenerateWord"
-        component={GenerateWord}
-        options={navigationStyle(getSettingsHeaderOptions(loc.autofill_word.title))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="LnurlPay"
-        component={LnurlPay}
-        options={navigationStyle({
-          title: '',
-          closeButtonPosition: CloseButtonPosition.Right,
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="PaymentCodeList"
-        component={PaymentCodesListComponent}
-        options={navigationStyle({ title: loc.bip47.contacts })(theme)}
-      />
+        <DetailViewStack.Screen
+          name="Broadcast"
+          component={Broadcast}
+          options={navigationStyle(getSettingsHeaderOptions(loc.send.create_broadcast))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="IsItMyAddress"
+          component={IsItMyAddress}
+          initialParams={{ address: undefined }}
+          options={navigationStyle(getSettingsHeaderOptions(loc.is_it_my_address.title))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="GenerateWord"
+          component={GenerateWord}
+          options={navigationStyle(getSettingsHeaderOptions(loc.autofill_word.title))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="LnurlPay"
+          component={LnurlPay}
+          options={navigationStyle({
+            title: '',
+            closeButtonPosition: CloseButtonPosition.Right,
+          })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="PaymentCodeList"
+          component={PaymentCodesListComponent}
+          options={navigationStyle({ title: loc.bip47.contacts })(theme)}
+        />
 
-      <DetailViewStack.Screen
-        name="LnurlPaySuccess"
-        component={LnurlPaySuccess}
-        options={navigationStyle({
-          title: '',
-          closeButtonPosition: CloseButtonPosition.Right,
-          headerBackVisible: false,
-          gestureEnabled: false,
-        })(theme)}
-      />
-      <DetailViewStack.Screen name="LnurlAuth" component={LnurlAuth} options={navigationStyle({ title: '' })(theme)} />
-      <DetailViewStack.Screen
-        name="Success"
-        component={Success}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
-      />
-      <DetailViewStack.Screen
-        name="WalletAddresses"
-        component={WalletAddresses}
-        options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
-      />
+        <DetailViewStack.Screen
+          name="LnurlPaySuccess"
+          component={LnurlPaySuccess}
+          options={navigationStyle({
+            title: '',
+            closeButtonPosition: CloseButtonPosition.Right,
+            headerBackVisible: false,
+            gestureEnabled: false,
+          })(theme)}
+        />
+        <DetailViewStack.Screen name="LnurlAuth" component={LnurlAuth} options={navigationStyle({ title: '' })(theme)} />
+        <DetailViewStack.Screen
+          name="Success"
+          component={Success}
+          options={{
+            headerShown: false,
+            gestureEnabled: false,
+          }}
+        />
+        <DetailViewStack.Screen
+          name="WalletAddresses"
+          component={WalletAddresses}
+          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
+        />
 
-      <DetailViewStack.Screen
-        name="Settings"
-        component={Settings}
-        options={navigationStyle({
-          title: loc.settings.header,
-          headerBackButtonDisplayMode: 'minimal',
-          headerBackTitle: '',
-          headerShadowVisible: false,
-          // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
-          headerLargeTitle: Platform.OS === 'ios',
-          headerLargeTitleStyle:
-            Platform.OS === 'ios'
-              ? {
-                  color:
-                    typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
-                }
-              : undefined,
-          headerTitleStyle: {
-            color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
-          },
-          headerTransparent: false,
-          headerBlurEffect: undefined,
-          headerStyle: {
-            backgroundColor: settingsHeaderBackgroundColor,
-          },
-          animationTypeForReplace: 'push',
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="Currency"
-        component={Currency}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.currency))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="GeneralSettings"
-        component={GeneralSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.general))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="PlausibleDeniability"
-        component={PlausibleDeniability}
-        options={navigationStyle(getSettingsHeaderOptions(loc.plausibledeniability.title))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="Licensing"
-        component={Licensing}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.license))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="NetworkSettings"
-        component={NetworkSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.network))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="SettingsBlockExplorer"
-        component={SettingsBlockExplorer}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.block_explorer))(theme)}
-      />
+        <DetailViewStack.Screen
+          name="Settings"
+          component={Settings}
+          options={navigationStyle({
+            title: loc.settings.header,
+            headerBackButtonDisplayMode: 'minimal',
+            headerBackTitle: '',
+            headerShadowVisible: false,
+            // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
+            headerLargeTitle: Platform.OS === 'ios',
+            headerLargeTitleStyle:
+              Platform.OS === 'ios'
+                ? {
+                    color:
+                      typeof theme.colors.foregroundColor === 'string'
+                        ? theme.colors.foregroundColor
+                        : String(theme.colors.foregroundColor),
+                  }
+                : undefined,
+            headerTitleStyle: {
+              color: typeof theme.colors.foregroundColor === 'string' ? theme.colors.foregroundColor : String(theme.colors.foregroundColor),
+            },
+            headerTransparent: false,
+            headerBlurEffect: undefined,
+            headerStyle: {
+              backgroundColor: settingsHeaderBackgroundColor,
+            },
+            animationTypeForReplace: 'push',
+          })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="Currency"
+          component={Currency}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.currency))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="GeneralSettings"
+          component={GeneralSettings}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.general))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="PlausibleDeniability"
+          component={PlausibleDeniability}
+          options={navigationStyle(getSettingsHeaderOptions(loc.plausibledeniability.title))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="Licensing"
+          component={Licensing}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.license))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="NetworkSettings"
+          component={NetworkSettings}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.network))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="SettingsBlockExplorer"
+          component={SettingsBlockExplorer}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.block_explorer))(theme)}
+        />
 
-      <DetailViewStack.Screen
-        name="About"
-        component={About}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)}
-      />
-      {/* <DetailViewStack.Screen
+        <DetailViewStack.Screen
+          name="About"
+          component={About}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)}
+        />
+        {/* <DetailViewStack.Screen
         name="DefaultView"
         component={DefaultView}
         options={navigationStyle(getSettingsHeaderOptions(loc.settings.default_title))(theme)}
       /> */}
-      <DetailViewStack.Screen
-        name="ElectrumSettings"
-        component={ElectrumSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server))(theme)}
-        initialParams={{ server: undefined }}
-      />
-      <DetailViewStack.Screen
-        name="EncryptStorage"
-        component={EncryptStorage}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.encrypt_title))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="Language"
-        component={Language}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.language))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="LightningSettings"
-        component={LightningSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.lightning_settings))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="NotificationSettings"
-        component={NotificationSettings}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.notifications))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="SelfTest"
-        component={SelfTest}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.selfTest))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="ReleaseNotes"
-        component={ReleaseNotes}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.about_release_notes))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="SettingsTools"
-        component={SettingsTools}
-        options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
-      />
-      <DetailViewStack.Screen
-        name="PromptPasswordConfirmationSheet"
-        component={PromptPasswordConfirmationSheet}
-        options={navigationStyle({
-          title: loc.settings.password,
-          presentation: 'formSheet',
-          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-          sheetGrabberVisible: true,
-          closeButtonPosition: CloseButtonPosition.Right,
-          headerBackButtonDisplayMode: 'minimal',
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="ManageWallets"
-        component={ManageWallets}
-        options={{
-          presentation: 'fullScreenModal',
-          title: loc.wallets.manage_title,
-          headerShown: true,
-        }}
-      />
-      <DetailViewStack.Screen
-        name="ReceiveDetails"
-        component={ReceiveDetails}
-        options={navigationStyle({
-          title: loc.receive.header,
-          closeButtonPosition: CloseButtonPosition.Left,
-          statusBarStyle: 'light',
-          headerShown: true,
-          presentation: 'modal',
-        })(theme)}
-      />
-      <DetailViewStack.Screen
-        name="ReceiveCustomAmount"
-        component={ReceiveCustomAmountSheet}
-        options={navigationStyle({
-          presentation: 'formSheet',
-          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-          headerTitle: loc.receive.details_setAmount,
-          sheetGrabberVisible: true,
-          closeButtonPosition: CloseButtonPosition.Right,
-        })(theme)}
-      />
-    </DetailViewStack.Navigator>
+        <DetailViewStack.Screen
+          name="ElectrumSettings"
+          component={ElectrumSettings}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server))(theme)}
+          initialParams={{ server: undefined }}
+        />
+        <DetailViewStack.Screen
+          name="EncryptStorage"
+          component={EncryptStorage}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.encrypt_title))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="Language"
+          component={Language}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.language))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="LightningSettings"
+          component={LightningSettings}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.lightning_settings))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="NotificationSettings"
+          component={NotificationSettings}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.notifications))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="SelfTest"
+          component={SelfTest}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.selfTest))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReleaseNotes"
+          component={ReleaseNotes}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.about_release_notes))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="SettingsTools"
+          component={SettingsTools}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
+        />
+        <DetailViewStack.Screen
+          name="PromptPasswordConfirmationSheet"
+          component={PromptPasswordConfirmationSheet}
+          options={navigationStyle({
+            title: loc.settings.password,
+            presentation: 'formSheet',
+            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
+            sheetGrabberVisible: true,
+            closeButtonPosition: CloseButtonPosition.Right,
+            headerBackButtonDisplayMode: 'minimal',
+          })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ManageWallets"
+          component={ManageWallets}
+          options={{
+            presentation: 'fullScreenModal',
+            title: loc.wallets.manage_title,
+            headerShown: true,
+          }}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveDetails"
+          component={ReceiveDetails}
+          options={navigationStyle({
+            title: loc.receive.header,
+            closeButtonPosition: CloseButtonPosition.Left,
+            headerShown: true,
+            presentation: 'modal',
+          })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveCustomAmount"
+          component={ReceiveCustomAmountSheet}
+          options={navigationStyle({
+            presentation: 'formSheet',
+            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
+            headerTitle: loc.receive.details_setAmount,
+            sheetGrabberVisible: true,
+            closeButtonPosition: CloseButtonPosition.Right,
+          })(theme)}
+        />
+      </DetailViewStack.Navigator>
+    </ConnectionPollContext.Provider>
   );
 };
 
 export default DetailViewStackScreensStack;
 
-const styles = {
-  headerButtonsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 32,
-  },
+const styles = StyleSheet.create({
   width24: {
     width: 24,
   },
-  walletDetails: {
+  updatingLabelContainer: {
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     justifyContent: 'center',
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
-};
+  offlineLabelRow: {
+    flexDirection: 'row',
+  },
+  offlineLabelIcon: {
+    marginRight: 6,
+  },
+  offlineLabelText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  updatingLabelText: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+});

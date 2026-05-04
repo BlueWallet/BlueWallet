@@ -108,6 +108,16 @@ let connectionAttempt: number = 0;
 let currentPeerIndex = hardcodedPeers.findIndex(peer => peer.host === defaultPeer.host && peer.ssl === defaultPeer.ssl);
 if (currentPeerIndex < 0) currentPeerIndex = 0;
 let latestBlock: { height: number; time: number } | { height: undefined; time: undefined } = { height: undefined, time: undefined };
+
+const WAIT_TILL_CONNECTED_TICK_MS = 100;
+/** After at least one successful Electrum session: wall ~30s before timeout (slow reconnect). */
+const WAIT_TILL_CONNECTED_MAX_TICKS_AFTER_FIRST_CONNECT = 300;
+/** First-ever connect: wall ~60s before timeout (cold start / slow TLS / flaky network). */
+const WAIT_TILL_CONNECTED_MAX_TICKS_NEVER_CONNECTED = 600;
+
+/** Max wall time for one `waitTillConnected` wait (ms); derived from ticks above for callers (e.g. refresh fetch race). */
+export const WAIT_TILL_CONNECTED_MAX_WALL_MS_AFTER_FIRST = WAIT_TILL_CONNECTED_MAX_TICKS_AFTER_FIRST_CONNECT * WAIT_TILL_CONNECTED_TICK_MS;
+export const WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER = WAIT_TILL_CONNECTED_MAX_TICKS_NEVER_CONNECTED * WAIT_TILL_CONNECTED_TICK_MS;
 const txhashHeightCache: Record<string, number> = {};
 let _realm: Realm | undefined;
 
@@ -331,6 +341,7 @@ export async function connectMain(): Promise<void> {
     mainClient?.close();
     mainClient = undefined;
     if (connectionAttempt >= 5) {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define -- `presentNetworkErrorAlert` is defined below after `connectMain`
       presentNetworkErrorAlert(usingPeer);
     } else {
       console.log('reconnection attempt #', connectionAttempt);
@@ -401,7 +412,7 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
   });
 }
 
-const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
+async function presentNetworkErrorAlert(usingPeer?: Peer, allowRepeat = false) {
   if (await isDisabled()) {
     console.log(
       'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
@@ -410,7 +421,7 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
   }
 
   presentAlert({
-    allowRepeat: false,
+    allowRepeat,
     title: loc.errors.network,
     message: loc.formatString(
       usingPeer ? loc.settings.electrum_unable_to_connect : loc.settings.electrum_error_connect,
@@ -453,7 +464,14 @@ const presentNetworkErrorAlert = async (usingPeer?: Peer) => {
     ],
     options: { cancelable: false },
   });
-};
+}
+
+/**
+ * Wallets list header when Electrum looks disconnected: same actions as the internal timeout alert, with allowRepeat so the user can open it again after dismiss.
+ */
+export async function presentElectrumDisconnectedHelpAlert(): Promise<void> {
+  await presentNetworkErrorAlert(undefined, true);
+}
 
 /**
  * Returns random electrum server out of list of servers
@@ -1022,10 +1040,6 @@ export async function multiGetTransactionByTxid<T extends boolean>(
   return ret;
 }
 
-/**
- * Simple waiter till `mainConnected` becomes true (which means
- * it Electrum was connected in other function), or timeout 30 sec.
- */
 export const waitTillConnected = async function (): Promise<boolean> {
   let waitTillConnectedInterval: NodeJS.Timeout | undefined;
   let retriesCounter = 0;
@@ -1040,14 +1054,17 @@ export const waitTillConnected = async function (): Promise<boolean> {
         return resolve(true);
       }
 
-      if (wasConnectedAtLeastOnce && retriesCounter++ >= 150) {
-        // `wasConnectedAtLeastOnce` needed otherwise theres gona be a race condition with the code that connects
-        // electrum during app startup
+      retriesCounter += 1;
+      const maxTicks = wasConnectedAtLeastOnce
+        ? WAIT_TILL_CONNECTED_MAX_TICKS_AFTER_FIRST_CONNECT
+        : WAIT_TILL_CONNECTED_MAX_TICKS_NEVER_CONNECTED;
+
+      if (retriesCounter >= maxTicks) {
         clearInterval(waitTillConnectedInterval);
         presentNetworkErrorAlert();
         reject(new Error('Waiting for Electrum connection timeout'));
       }
-    }, 100);
+    }, WAIT_TILL_CONNECTED_TICK_MS);
   });
 };
 
