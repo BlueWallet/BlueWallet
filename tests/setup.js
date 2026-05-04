@@ -35,6 +35,22 @@ global.fetch = require('node-fetch');
 
 jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
 
+// Workaround for software-mansion/react-native-reanimated#8806.
+// Fixed upstream in reanimated 4.3.0; remove once we upgrade.
+// Path is held in a variable so tsc does not statically resolve into worklets'
+// src/*.ts (which has its own type errors) under allowJs.
+const workletsMockPath = 'react-native-worklets/src/mock';
+jest.mock('react-native-worklets', () => require(workletsMockPath));
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+
+jest.mock('react-native-capture-protection', () => ({
+  CaptureProtection: {
+    prevent: jest.fn(),
+    allow: jest.fn(),
+    isScreenRecording: jest.fn(() => Promise.resolve(false)),
+  },
+}));
+
 jest.mock('react-native-watch-connectivity', () => {
   return {
     getIsWatchAppInstalled: jest.fn(() => Promise.resolve(false)),

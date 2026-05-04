@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useReducer, useRef, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
-import { Alert, findNodeHandle, Image, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -16,6 +16,7 @@ import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -27,6 +28,9 @@ import { scanQrHelper } from '../../helpers/scan-qr.ts';
 import { isIOS26OrHigher } from '../../components/platform';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
+
+/** Electrum `ping` while the list is visible; detects mid-session drops without polling when user is elsewhere. */
+const ELECTRUM_HEALTH_POLL_WHILE_WALLETS_LIST_FOCUSED_MS = 30_000;
 
 type SectionData = {
   key: string;
@@ -99,6 +103,7 @@ const WalletsList: React.FC = () => {
   const { isLoading } = state;
   const { sizeClass, isLarge } = useSizeClass();
   const walletsCarousel = useRef<any>(null);
+  const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
@@ -135,17 +140,20 @@ const WalletsList: React.FC = () => {
         console.error(error);
       } finally {
         dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+        // After a native Electrum error alert, the first `refreshing={false}` can fail to repaint until the
+        // alert is dismissed; run again once interactions finish so pull-to-refresh does not appear stuck.
+        InteractionManager.runAfterInteractions(() => {
+          dispatch({ type: ActionTypes.SET_LOADING, payload: false });
+        });
       }
     },
     [isElectrumDisabled, refreshAllWalletTransactions],
   );
 
-  /**
-   * Forcefully fetches TXs and balance for ALL wallets.
-   * Triggered manually by user on pull-to-refresh.
-   */
   const refreshTransactions = useCallback(() => {
-    refreshWallets(undefined, true, true);
+    // Manual pull-to-refresh already has its own loading UI, so we
+    // don't surface the global "Updating..." header pill here.
+    return refreshWallets(undefined, true, false);
   }, [refreshWallets]);
 
   useEffect(() => {
@@ -165,7 +173,7 @@ const WalletsList: React.FC = () => {
 
   const onRefresh = useCallback(() => {
     console.debug('WalletsList onRefresh');
-    refreshTransactions();
+    return refreshTransactions();
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
@@ -183,6 +191,7 @@ const WalletsList: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
+      connectionPoll?.pollConnection();
       const screenKey = route.name;
 
       return () => {
@@ -190,8 +199,16 @@ const WalletsList: React.FC = () => {
         unregisterTransactionsHandler(screenKey);
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [unregisterTransactionsHandler]),
+    }, [connectionPoll, unregisterTransactionsHandler]),
   );
+
+  useEffect(() => {
+    if (!isFocused || isElectrumDisabled || !connectionPoll) return;
+    const interval = setInterval(() => {
+      connectionPoll.pollConnection();
+    }, ELECTRUM_HEALTH_POLL_WHILE_WALLETS_LIST_FOCUSED_MS);
+    return () => clearInterval(interval);
+  }, [isFocused, isElectrumDisabled, connectionPoll]);
 
   useEffect(() => {
     // new wallet added - no longer auto-scrolls

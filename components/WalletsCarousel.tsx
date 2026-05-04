@@ -31,8 +31,6 @@ import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
-import { useStorage } from '../hooks/context/useStorage';
-import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
@@ -160,10 +158,12 @@ const iStyles = StyleSheet.create({
   grad: {
     borderRadius: 12,
     minHeight: 164,
+    overflow: 'hidden',
   },
   gradCompact: {
     borderRadius: 10,
     minHeight: 132,
+    overflow: 'hidden',
   },
   gradContent: {
     padding: 15,
@@ -187,8 +187,6 @@ const iStyles = StyleSheet.create({
   imageCompact: {
     width: 78,
     height: 74,
-    right: 4,
-    bottom: 4,
   },
   br: {
     backgroundColor: 'transparent',
@@ -282,7 +280,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const balanceOpacity = useSharedValue(1);
     const balanceTranslateY = useSharedValue(0);
     const { colors } = useTheme();
-    const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = getWalletCarouselItemWidth(width);
     const { sizeClass } = useSizeClass();
@@ -384,9 +381,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     let latestTransactionText;
 
-    if (walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()) {
-      latestTransactionText = loc.transactions.updating;
-    } else if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
+    if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
     } else if (item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)) {
       latestTransactionText = loc.transactions.pending;
@@ -423,8 +418,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
             ]}
           >
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={[iStyles.grad, isCompact && iStyles.gradCompact]}>
+              <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
               <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact]}>
-                <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
                 <Text style={iStyles.br} />
                 {!isPlaceHolder && (
                   <>

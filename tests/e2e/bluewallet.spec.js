@@ -12,12 +12,14 @@ import {
   helperDeleteWallet,
   scanText,
   scrollUpOnHomeScreen,
+  setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapIfTextPresent,
   waitForId,
   waitForKeyboardToClose,
   waitForText,
+  waitForLabel,
 } from './helperz';
 
 // if loglevel is set to `error`, this kind of logging will still get through
@@ -589,7 +591,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
     } catch (_) {}
 
-    await waitForText('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');
+    await waitForLabel('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');
     await goBack();
 
     await element(by.id('WalletDetails')).tap();
@@ -648,11 +650,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // setting fee rate:
     const feeRate = 3;
-    await element(by.id('chooseFee')).tap();
-    await element(by.id('feeCustomContainerButton')).tap();
-    await element(by.id('feeCustom')).typeText(feeRate.toString());
-    await element(by.id('feeCustom')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await setCustomFeeRate(feeRate);
 
     await element(by.id('CreateTransactionButton')).tap();
 

@@ -63,6 +63,27 @@ export async function waitForText(text, timeout = 33000) {
   }
 }
 
+/** Waits for `accessibilityLabel` (Detox `by.label`), e.g. full address while UI text is multiline. */
+export async function waitForLabel(label, timeout = 33000) {
+  const callsite = captureCallsite(waitForLabel);
+  try {
+    await waitFor(element(by.label(label)))
+      .toBeVisible()
+      .withTimeout(timeout / 2);
+    return true;
+  } catch (_) {
+    // nop
+  }
+
+  try {
+    await waitFor(element(by.label(label)))
+      .toBeVisible()
+      .withTimeout(timeout / 2);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
+}
+
 export async function getSwitchValue(switchId) {
   try {
     await expect(element(by.id(switchId))).toHaveToggleValue(true);
@@ -298,6 +319,17 @@ export async function scanText(text) {
   }
   await element(by.id('scanQrBackdoorInput')).replaceText(text);
   await element(by.id('scanQrBackdoorOkButton')).tap();
+}
+
+export async function setCustomFeeRate(feeRate) {
+  await waitForId('chooseFee');
+  await element(by.id('chooseFee')).tap();
+  await waitForId('feeCustomContainerButton');
+  await element(by.id('feeCustomContainerButton')).tap();
+  await waitForId('feeCustom');
+  await element(by.id('feeCustom')).replaceText(String(feeRate));
+  await element(by.id('feeCustom')).tapReturnKey();
+  await waitForKeyboardToClose();
 }
 
 export async function goBack() {
