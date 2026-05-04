@@ -1,6 +1,6 @@
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable } from 'react-native';
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -61,9 +61,6 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import { isIOS26OrHigher } from '../components/platform';
 
-// Derive the header item type from the options interface so we don't depend on a
-// specific named export (`NativeStackHeaderItem`) which could be renamed across
-// versions of @react-navigation/native-stack.
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
@@ -148,9 +145,6 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const navigateToSettings = useCallback(() => {
-    // From this component, `useNavigation()` returns the Drawer's navigation, not the
-    // inner DetailViewStack's. `Settings` lives inside DrawerRoot -> DetailViewStackScreensStack
-    // -> (inner) DetailViewStack, so we need the explicit nested form to reach it.
     navigation.navigate('DrawerRoot', {
       screen: 'DetailViewStackScreensStack',
       params: {
@@ -229,20 +223,19 @@ const DetailViewStackScreensStack = () => {
     };
 
     if (isIOS26OrHigher) {
-      // On iOS 26, render each header button as a native UIBarButtonItem via
-      // `unstable_headerRightItems` with `type: 'button'` (default plain variant).
-      // `sharesBackground: false` opts each item out of the shared capsule so we get
-      // one circular glass button per icon at the system default size. We avoid
-      // `variant: 'prominent'`, which fills the button with the system tint color
-      // (solid blue) instead of the glass material we want. The legacy long-press
-      // secondary menus (Import Wallet / Manage Wallets) are intentionally not
-      // exposed on iOS 26 since native bar buttons can't combine a primary tap
-      // action with a long-press menu.
+      // Status pills: `unstable_headerLeftItems` + `hidesSharedBackground` avoids the
+      // navigation bar's shared liquid-glass chrome on the pill (solid colors only).
       return {
         title: sizeClass === SizeClass.Large ? loc.wallets.list_title : '',
         headerLargeTitle: false,
         headerTransparent: true,
-        headerLeft: renderHeaderLeft,
+        unstable_headerLeftItems: (): NativeStackHeaderItem[] => {
+          const element = renderHeaderLeft();
+          if (element == null) {
+            return [];
+          }
+          return [{ type: 'custom', element, hidesSharedBackground: true }];
+        },
         unstable_headerRightItems: () => {
           if (isDesktop) {
             return [];
@@ -336,8 +329,6 @@ const DetailViewStackScreensStack = () => {
     };
   };
 
-  // On iOS 26+, bypass navigationStyle so its `headerShadowVisible: false` default
-  // doesn't interfere with the native large-title shadow (`headerLargeTitleShadowVisible`).
   const settingsScreenOptions = (title: string) =>
     isIOS26OrHigher ? getSettingsHeaderOptions(title) : navigationStyle(getSettingsHeaderOptions(title))(theme);
 
