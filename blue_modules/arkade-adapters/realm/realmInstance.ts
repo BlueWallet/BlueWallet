@@ -26,7 +26,7 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
     return cached;
   }
 
-  const cacheFolderPath = RNFS.DocumentDirectoryPath;
+  const documentFolderPath = RNFS.DocumentDirectoryPath;
   const service = `arkade_realm_${namespace}`;
   let password: string;
 
@@ -40,7 +40,7 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
   }
 
   const encryptionKey = hexToUint8Array(password);
-  const path = `${cacheFolderPath}/arkade-${namespace}.realm`;
+  const path = `${documentFolderPath}/arkade-${namespace}.realm`;
 
   // @ts-ignore schema doesn't match Realm's schema type
   const realm = await Realm.open({
