@@ -197,6 +197,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
+  static stopPolling(): void {
+    stopPolling();
+  }
+
   private static _buildDeps = async (): Promise<Map<string, SwapProcessorDeps>> => {
     const depsMap = new Map<string, SwapProcessorDeps>();
     const wallets = LightningArkWallet._walletsProvider?.() ?? [];
