@@ -5,7 +5,7 @@ import { StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native'
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
-import WalletsCarousel from '../../components/WalletsCarousel';
+import WalletsCarousel, { WALLET_CAROUSEL_CARD_HEIGHT } from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
@@ -142,8 +142,7 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
             if (scrollViewRef.current && lastAddedWalletId.current !== null) {
               const walletIndex = currentWalletIds.indexOf(lastAddedWalletId.current);
               if (walletIndex !== -1) {
-                const WALLET_CARD_HEIGHT = 195;
-                const scrollPosition = walletIndex * WALLET_CARD_HEIGHT;
+                const scrollPosition = walletIndex * WALLET_CAROUSEL_CARD_HEIGHT;
 
                 scrollViewRef.current.scrollTo({ y: scrollPosition, animated: true });
               }

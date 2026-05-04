@@ -176,8 +176,13 @@ const NumberFlow: React.FC<NumberFlowProps> = ({
   }, [autoFitText, ascender, styleFontSize]);
 
   const lineHeight = useMemo(() => {
+    const fromStyle = style?.lineHeight;
+    const parsed = typeof fromStyle === 'number' ? fromStyle : Number(fromStyle);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return Math.round(parsed);
+    }
     return Math.round(fontSize * 1.2);
-  }, [fontSize]);
+  }, [fontSize, style?.lineHeight]);
 
   const charStyle = useMemo(() => {
     return {
@@ -213,10 +218,11 @@ const NumberFlow: React.FC<NumberFlowProps> = ({
   );
 
   return (
-    <>
+    <View style={styles.root} collapsable={false}>
       {autoFitText && (
         <Character
           aria-hidden
+          pointerEvents="none"
           onTextLayout={handleTextLayout}
           numberOfLines={1}
           adjustsFontSizeToFit
@@ -277,18 +283,27 @@ const NumberFlow: React.FC<NumberFlowProps> = ({
           );
         })}
       </View>
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  root: {
+    position: 'relative',
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+    overflow: 'hidden',
+  },
   counterContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
   },
   hiddenCounter: {
     position: 'absolute',
     opacity: 0,
+    left: 0,
+    top: 0,
+    right: 0,
     color: 'red',
   },
   characterList: {

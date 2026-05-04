@@ -44,6 +44,41 @@ export const WALLET_CAROUSEL_HEADER_WIDTH = 16;
 
 export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
 
+/**
+ * Min height shared by wallet cards and the “Add wallet” panel so both tiles match in the carousel.
+ * (Previously the card used 180pt while the add panel used 164/181.)
+ */
+export const WALLET_CAROUSEL_PANEL_MIN_HEIGHT = Platform.OS === 'ios' ? 164 : 181;
+
+/** Same as `WALLET_CAROUSEL_PANEL_MIN_HEIGHT` — used for scroll offsets / section layout. */
+export const WALLET_CAROUSEL_CARD_HEIGHT = WALLET_CAROUSEL_PANEL_MIN_HEIGHT;
+
+/**
+ * Extra height under the card inside the horizontal `FlatList` (`style.minHeight`).
+ * Must stay in sync with `WalletsCarousel`’s `FlatList` style.
+ */
+export const WALLET_CAROUSEL_HEIGHT_SLACK = 12;
+
+/**
+ * iOS draws `shadowContainer`’s shadow below the view; if the parent `SectionList` row is too short,
+ * the shadow is clipped at the cell boundary.
+ */
+export const WALLET_CAROUSEL_SHADOW_BOTTOM_CLEARANCE = 18;
+
+/**
+ * Space below the carousel row so card shadows read clearly above the next screen content
+ * (`contentContainerStyle.paddingBottom` + extra section list height).
+ */
+export const WALLET_CAROUSEL_BOTTOM_GAP = 14;
+
+export const WALLET_CAROUSEL_FLATLIST_MIN_HEIGHT = WALLET_CAROUSEL_CARD_HEIGHT + WALLET_CAROUSEL_HEIGHT_SLACK;
+
+/** Total vertical space the horizontal carousel `FlatList` reserves (cards + slack + gap under row). */
+export const WALLET_CAROUSEL_FLATLIST_STYLE_MIN_HEIGHT = WALLET_CAROUSEL_FLATLIST_MIN_HEIGHT + WALLET_CAROUSEL_BOTTOM_GAP;
+
+/** First section row height in `WalletsList` — must cover `FlatList` min height + shadow + bottom gap. */
+export const WALLET_CAROUSEL_SECTION_ROW_HEIGHT = WALLET_CAROUSEL_FLATLIST_STYLE_MIN_HEIGHT + WALLET_CAROUSEL_SHADOW_BOTTOM_CLEARANCE;
+
 interface NewWalletPanelProps {
   onPress: () => void;
 }
@@ -51,7 +86,7 @@ interface NewWalletPanelProps {
 const nStyles = StyleSheet.create({
   container: {
     borderRadius: 10,
-    minHeight: Platform.OS === 'ios' ? 164 : 181,
+    minHeight: WALLET_CAROUSEL_PANEL_MIN_HEIGHT,
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
@@ -162,25 +197,28 @@ const iStyles = StyleSheet.create({
   rootLargeDevice: { marginVertical: 20 },
   grad: {
     borderRadius: 12,
-    minHeight: 164,
+    minHeight: WALLET_CAROUSEL_PANEL_MIN_HEIGHT,
     overflow: 'hidden',
   },
   gradCompact: {
     borderRadius: 10,
-    minHeight: 132,
+    minHeight: Math.round(WALLET_CAROUSEL_PANEL_MIN_HEIGHT * 0.8),
     overflow: 'hidden',
   },
   gradContent: {
-    padding: 15,
+    padding: 16,
   },
   gradContentCompact: {
     padding: 12,
+    paddingBottom: 14,
   },
   balanceContainer: {
-    height: 40,
+    minHeight: 48,
+    justifyContent: 'flex-end',
   },
   balanceContainerCompact: {
-    height: 32,
+    minHeight: 40,
+    justifyContent: 'flex-end',
   },
   image: {
     width: 99,
@@ -207,17 +245,20 @@ const iStyles = StyleSheet.create({
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 36,
+    lineHeight: 44,
     letterSpacing: -0.5,
   },
   balanceRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'flex-end',
   },
   balanceUnit: {
     backgroundColor: 'transparent',
     fontWeight: 'bold',
     fontSize: 18,
-    marginLeft: 4,
+    lineHeight: 22,
+    marginLeft: 6,
+    paddingBottom: 5,
   },
   balanceCompact: {
     fontSize: 28,
@@ -420,7 +461,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={[iStyles.grad, isCompact && iStyles.gradCompact]}>
               <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
               <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact]}>
-                <Text style={iStyles.br} />
                 {!isPlaceHolder && (
                   <>
                     <Text
@@ -650,7 +690,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
             console.warn('[WalletsCarousel] Error scrolling to wallet:', error);
             // Fallback: try scrolling to offset
             // Use different measurement based on orientation
-            const itemSize = horizontal ? itemWidth : 195; // 195 is the approximate height of wallet card
+            const itemSize = horizontal ? itemWidth : WALLET_CAROUSEL_CARD_HEIGHT;
             flatListRef.current.scrollToOffset({
               offset: itemSize * walletIndex,
               animated,
@@ -771,8 +811,6 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
 
   const keyExtractor = useCallback((item: TWallet, index: number) => (item?.getID ? item.getID() : index.toString()), []);
 
-  const sliderHeight = 195;
-
   useEffect(() => {
     return () => {
       hasFocusedRef.current = false;
@@ -854,6 +892,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const cStyles = StyleSheet.create({
     content: {
       paddingTop: 16,
+      paddingBottom: WALLET_CAROUSEL_BOTTOM_GAP,
     },
     contentLargeScreen: {
       paddingHorizontal: sizeClass === SizeClass.Large ? 16 : 12,
@@ -884,7 +923,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
       automaticallyAdjustsScrollIndicatorInsets
-      style={{ minHeight: sliderHeight + 12 }}
+      style={{ minHeight: WALLET_CAROUSEL_FLATLIST_STYLE_MIN_HEIGHT }}
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
       {...props}

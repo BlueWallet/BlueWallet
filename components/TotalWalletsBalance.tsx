@@ -126,22 +126,25 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    marginBottom: 2,
+    marginBottom: 6,
     color: '#9BA0A9',
   },
   balance: {
     fontSize: 32,
+    lineHeight: 40,
     fontWeight: 'bold',
     marginRight: -1,
   },
   balanceRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'flex-end',
   },
   currency: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginLeft: 4,
+    lineHeight: 22,
+    marginLeft: 6,
+    paddingBottom: 3,
   },
 });
 

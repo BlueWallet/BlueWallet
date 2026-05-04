@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel, { getWalletCarouselItemWidth } from '../../components/WalletsCarousel';
+import WalletsCarousel, { getWalletCarouselItemWidth, WALLET_CAROUSEL_SECTION_ROW_HEIGHT } from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -464,7 +464,6 @@ const WalletsList: React.FC = () => {
 
   // Constants for layout calculations
   const TRANSACTION_ITEM_HEIGHT = 80;
-  const CAROUSEL_HEIGHT = 195;
   const SECTION_HEADER_HEIGHT = 56; // Base height
   const LARGE_TITLE_EXTRA_HEIGHT = 20; // Additional height for large titles
 
@@ -488,7 +487,7 @@ const WalletsList: React.FC = () => {
         // First section: Carousel
         if (index === 0) {
           return {
-            length: CAROUSEL_HEIGHT,
+            length: WALLET_CAROUSEL_SECTION_ROW_HEIGHT,
             offset: 0,
             index,
           };
@@ -502,7 +501,7 @@ const WalletsList: React.FC = () => {
         const transactionIndex = index - 1; // Adjust index to account for carousel
         return {
           length: TRANSACTION_ITEM_HEIGHT,
-          offset: CAROUSEL_HEIGHT + headerHeight + TRANSACTION_ITEM_HEIGHT * transactionIndex,
+          offset: WALLET_CAROUSEL_SECTION_ROW_HEIGHT + headerHeight + TRANSACTION_ITEM_HEIGHT * transactionIndex,
           index,
         };
       }

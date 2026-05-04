@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
@@ -37,6 +38,18 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(false);
   const { preferredFiatCurrency } = useSettings();
   const { direction } = useLocale();
+  const insets = useSafeAreaInsets();
+
+  const headerInnerStyle = useMemo(
+    () => [
+      styles.headerInner,
+      {
+        paddingLeft: 15 + insets.left,
+        paddingRight: 15 + insets.right,
+      },
+    ],
+    [insets.left, insets.right],
+  );
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
     if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
@@ -155,34 +168,46 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   return (
     <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={styles.lineaderGradient}>
-      <View style={styles.contentContainer}>
-        <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
-          {wallet.getLabel()}
-        </Text>
-        <View style={styles.walletBalanceAndUnitContainer}>
-          <ToolTipMenu
-            shouldOpenOnLongPress
-            isButton
-            enableAndroidRipple={false}
-            buttonStyle={styles.walletBalance}
-            onPressMenuItem={onPressMenuItem}
-            actions={toolTipWalletBalanceActions}
-          >
-            <View style={styles.walletBalance}>
-              {hideBalance ? (
-                <BlurredBalanceView />
-              ) : (
-                <View testID="WalletBalance" accessible accessibilityLabel={String(balance)}>
-                  <AnimatedBalance formattedValue={String(balance)} textStyle={styles.walletBalanceText} variant="prominent" autoFitText />
+      <View style={headerInnerStyle}>
+        <View style={styles.titleBlock}>
+          <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
+            {wallet.getLabel()}
+          </Text>
+        </View>
+
+        <View style={styles.balanceDock} collapsable={false}>
+          <View style={styles.balanceDockInner}>
+            <View style={styles.balanceMenuSlot}>
+              <ToolTipMenu
+                shouldOpenOnLongPress
+                isButton={false}
+                enableAndroidRipple={false}
+                style={styles.balanceMenuTrigger}
+                onPressMenuItem={onPressMenuItem}
+                actions={toolTipWalletBalanceActions}
+              >
+                <View style={styles.balanceMenuContent}>
+                  {hideBalance ? (
+                    <BlurredBalanceView />
+                  ) : (
+                    <View testID="WalletBalance" accessible accessibilityLabel={String(balance)} style={styles.balanceNumberHost}>
+                      <AnimatedBalance
+                        formattedValue={String(balance)}
+                        textStyle={styles.walletBalanceText}
+                        variant="prominent"
+                        autoFitText={false}
+                      />
+                    </View>
+                  )}
                 </View>
-              )}
+              </ToolTipMenu>
             </View>
-          </ToolTipMenu>
-          <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit} disabled={unitSwitching}>
-            <Text style={styles.walletPreferredUnitText}>
-              {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit} disabled={unitSwitching}>
+              <Text style={styles.walletPreferredUnitText}>
+                {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
           <ToolTipMenu
@@ -210,17 +235,48 @@ const styles = StyleSheet.create({
     minHeight: 140,
     justifyContent: 'flex-start',
   },
-  contentContainer: {
-    padding: 15,
+  headerInner: {
+    paddingVertical: 15,
+  },
+  titleBlock: {
+    alignSelf: 'stretch',
   },
   walletLabel: {
     backgroundColor: 'transparent',
     fontSize: 19,
+    lineHeight: 24,
     color: '#fff',
-    marginBottom: 10,
   },
-  walletBalance: {
+  balanceDock: {
+    alignSelf: 'stretch',
+    marginTop: 6,
+    overflow: 'hidden',
+  },
+  balanceDockInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+  },
+  balanceMenuSlot: {
     marginRight: 6,
+    justifyContent: 'center',
+    flexShrink: 0,
+    alignSelf: 'flex-start',
+  },
+  balanceMenuTrigger: {
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+  },
+  balanceMenuContent: {
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  balanceNumberHost: {
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   manageFundsButton: {
     marginTop: 14,
@@ -238,15 +294,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     padding: 12,
   },
-  walletBalanceAndUnitContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingRight: 10, // Ensure there's some padding to the right
-  },
   walletBalanceText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 36,
+    lineHeight: 44,
     letterSpacing: -0.5,
   },
   walletPreferredUnitView: {
