@@ -1,6 +1,7 @@
 import assert from 'assert';
 
-import { HDAezeedWallet, WatchOnlyWallet } from '../../class';
+import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('HDAezeedWallet', () => {

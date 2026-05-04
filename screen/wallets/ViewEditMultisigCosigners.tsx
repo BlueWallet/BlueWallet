@@ -15,7 +15,9 @@ import Badge from '../../components/Badge';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
 import { BlueCard } from '../../BlueComponents';
-import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import { MultisigCosigner } from '../../class/multisig-cosigner';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import MultipleStepsListItem, {

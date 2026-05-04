@@ -1,7 +1,7 @@
 module.exports = {
   testEnvironment: '<rootDir>/tests/custom-environment.js',
   reporters: ['default', ['<rootDir>/tests/custom-reporter.js', {}]],
-  preset: 'react-native',
+  preset: '@react-native/jest-preset',
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
@@ -14,6 +14,7 @@ module.exports = {
     '^@arkade-os/boltz-swap/repositories/realm$': '<rootDir>/node_modules/@arkade-os/boltz-swap/dist/repositories/realm/index.cjs',
     '^@noble/hashes/(.*)\\.js$': '<rootDir>/node_modules/@bitcoinerlab/descriptors-scure/node_modules/@noble/hashes/$1.js',
     '^@react-native-vector-icons/(.*)$': '<rootDir>/tests/mocks/vector-icons.js',
+    '^react-native-svg$': '<rootDir>/tests/mocks/react-native-svg.js',
   },
   setupFiles: ['./tests/setup.js'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules'],

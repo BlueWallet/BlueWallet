@@ -15,7 +15,7 @@ import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.modules.i18nmanager.I18nUtil
-import io.bluewallet.bluewallet.components.segmentedcontrol.CustomSegmentedControlPackage
+import io.bluewallet.bluewallet.components.segmentedcontrol.SegmentedControlPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -69,7 +69,7 @@ class MainApplication : Application(), ReactApplication {
                 PackageList(this).packages.apply {
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // add(MyReactNativePackage())
-                    add(CustomSegmentedControlPackage())
+                    add(SegmentedControlPackage())
                     add(SettingsPackage())
                 }
 

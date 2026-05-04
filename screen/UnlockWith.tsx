@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   ActivityIndicator,
+  Animated,
+  Dimensions,
+  Easing,
   Image,
   Keyboard,
-  KeyboardAvoidingView,
   Platform,
   StyleSheet,
   TouchableWithoutFeedback,
@@ -80,6 +82,7 @@ function reducer(state: State, action: Action): State {
 const UnlockWith: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const isUnlockingWallets = useRef(false);
+  const keyboardOffset = useRef(new Animated.Value(0)).current;
   const passwordInputRef = useRef<PasswordInputHandle>(null);
   const passwordResolveRef = useRef<((password: string | undefined) => void) | null>(null);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
@@ -88,6 +91,44 @@ const UnlockWith: React.FC = () => {
   useEffect(() => {
     setWalletsInitialized(false);
   }, [setWalletsInitialized]);
+
+  useEffect(() => {
+    const windowHeight = Dimensions.get('window').height;
+
+    const animateToKeyboardPosition = (event: any, fallbackDuration = 220) => {
+      const keyboardTop = event?.endCoordinates?.screenY ?? windowHeight;
+      const keyboardHeight = Math.max(0, windowHeight - keyboardTop);
+      const target = -Math.min(Math.max(keyboardHeight * 0.28, 0), 96);
+
+      Animated.timing(keyboardOffset, {
+        toValue: target,
+        duration: event?.duration ?? fallbackDuration,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const resetPosition = (event?: any) => {
+      Animated.timing(keyboardOffset, {
+        toValue: 0,
+        duration: event?.duration ?? 220,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const subscriptions =
+      Platform.OS === 'ios'
+        ? [
+            Keyboard.addListener('keyboardWillChangeFrame', animateToKeyboardPosition),
+            Keyboard.addListener('keyboardWillHide', resetPosition),
+          ]
+        : [Keyboard.addListener('keyboardDidShow', animateToKeyboardPosition), Keyboard.addListener('keyboardDidHide', resetPosition)];
+
+    return () => {
+      subscriptions.forEach(sub => sub.remove());
+    };
+  }, [keyboardOffset]);
 
   const successfullyAuthenticated = useCallback(() => {
     setWalletsInitialized(true);
@@ -244,14 +285,14 @@ const UnlockWith: React.FC = () => {
   return (
     <SafeArea style={styles.root}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <KeyboardAvoidingView style={styles.keyboardAvoidingView} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <View style={styles.contentContainer}>
+        <View style={styles.keyboardAvoidingView}>
+          <Animated.View style={[styles.contentContainer, { transform: [{ translateY: keyboardOffset }] }]}>
             <View style={styles.logoContainer}>
               <Image source={require('../img/icon.png')} style={styles.logoImage} resizeMode="contain" />
             </View>
             <View style={styles.biometricRow}>{renderUnlockOptions()}</View>
-          </View>
-        </KeyboardAvoidingView>
+          </Animated.View>
+        </View>
       </TouchableWithoutFeedback>
     </SafeArea>
   );

@@ -6,7 +6,7 @@ import { BlueText } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import SafeArea from '../../components/SafeArea';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
@@ -15,7 +15,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { HDTaprootWallet } from '../../class';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
 
 type WalletXpubRouteProp = RouteProp<{ params: { walletID: string; xpub: string } }, 'params'>;
@@ -118,9 +118,13 @@ const WalletXpub: React.FC = () => {
                 <BlueSpacing20 />
               </>
             )}
-            <QRCodeComponent value={xPubText || xpub} size={qrCodeSize} />
+            <QRCode value={xPubText || xpub} size={qrCodeSize} />
 
-            {xPubText && <CopyTextToClipboard text={xPubText} />}
+            {xPubText && (
+              <View style={styles.copyText}>
+                <CopyTextToClipboard text={xPubText} />
+              </View>
+            )}
           </View>
           <HandOffComponent title={loc.wallets.xpub_title} type={HandOffActivityType.Xpub} userInfo={{ xpub: xPubText }} />
           <View style={styles.share}>

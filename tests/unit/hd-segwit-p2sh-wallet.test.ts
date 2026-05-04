@@ -1,6 +1,10 @@
 import assert from 'assert';
 
-import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
+import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
+import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('P2SH Segwit HD (BIP49)', () => {

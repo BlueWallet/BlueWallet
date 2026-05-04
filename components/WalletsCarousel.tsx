@@ -23,20 +23,21 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningArkWallet, LightningCustodianWallet, MultisigHDWallet } from '../class';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import WalletGradient from '../class/wallet-gradient';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
-import { useStorage } from '../hooks/context/useStorage';
-import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
 
-// Horizontal carousel shows a small peek of the next card; adjust overlap to control that spacing.
-const CARD_OVERLAP = 24;
+export const WALLET_CAROUSEL_HEADER_WIDTH = 16;
+
+export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
 
 interface NewWalletPanelProps {
   onPress: () => void;
@@ -72,7 +73,7 @@ const nStyles = StyleSheet.create({
 const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
-  const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
+  const itemWidth = getWalletCarouselItemWidth(width);
   const { isLarge } = useSizeClass();
   const nStylesHooks = StyleSheet.create({
     container: isLarge
@@ -116,7 +117,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
         style={[
           nStyles.container,
           nStylesHooks.container,
-          { backgroundColor: colors.borderTopColor },
+          { backgroundColor: colors.lightButton },
           isLarge ? {} : { width: itemWidth },
           animatedScaleStyle,
         ]}
@@ -157,10 +158,12 @@ const iStyles = StyleSheet.create({
   grad: {
     borderRadius: 12,
     minHeight: 164,
+    overflow: 'hidden',
   },
   gradCompact: {
     borderRadius: 10,
     minHeight: 132,
+    overflow: 'hidden',
   },
   gradContent: {
     padding: 15,
@@ -184,8 +187,6 @@ const iStyles = StyleSheet.create({
   imageCompact: {
     width: 78,
     height: 74,
-    right: 4,
-    bottom: 4,
   },
   br: {
     backgroundColor: 'transparent',
@@ -279,9 +280,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const balanceOpacity = useSharedValue(1);
     const balanceTranslateY = useSharedValue(0);
     const { colors } = useTheme();
-    const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
-    const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
+    const itemWidth = getWalletCarouselItemWidth(width);
     const { sizeClass } = useSizeClass();
     const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
@@ -381,9 +381,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     let latestTransactionText;
 
-    if (walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()) {
-      latestTransactionText = loc.transactions.updating;
-    } else if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
+    if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
     } else if (
       item.getTransactions().reduce((latest: Transaction | null, tx: Transaction) => {
@@ -425,8 +423,8 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
             ]}
           >
             <LinearGradient colors={WalletGradient.gradientsFor(item.type)} style={[iStyles.grad, isCompact && iStyles.gradCompact]}>
+              <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
               <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact]}>
-                <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
                 <Text style={iStyles.br} />
                 {!isPlaceHolder && (
                   <>
@@ -520,7 +518,7 @@ type FlatListRefType = FlatList<any> & {
 
 const styles = StyleSheet.create({
   listHeaderSeparator: {
-    width: 16,
+    width: WALLET_CAROUSEL_HEADER_WIDTH,
     height: 20,
   },
 });
@@ -543,7 +541,14 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   } = props;
 
   const { width } = useWindowDimensions();
-  const itemWidth = React.useMemo(() => (width * 0.82 > 375 ? 375 : width * 0.82), [width]);
+  const itemWidth = React.useMemo(() => getWalletCarouselItemWidth(width), [width]);
+  const snapInterval = React.useMemo(() => itemWidth, [itemWidth]);
+  const snapOffsets = React.useMemo(() => {
+    if (!horizontal) return undefined;
+    const cardsCount = data.length + (onNewWalletPress ? 1 : 0);
+    // Keep every card aligned with the first card's resting position.
+    return Array.from({ length: cardsCount }, (_, index) => index * snapInterval);
+  }, [horizontal, data.length, onNewWalletPress, snapInterval]);
   const layoutTransition = useMemo(() => LinearTransition.duration(240).easing(Easing.inOut(Easing.quad)), []);
   const enteringTransition = useMemo(() => FadeIn.duration(180), []);
   const exitingTransition = useMemo(() => FadeOut.duration(150), []);
@@ -861,9 +866,11 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
-      pagingEnabled={horizontal}
+      pagingEnabled={false}
       disableIntervalMomentum={horizontal}
-      snapToInterval={horizontal ? itemWidth - CARD_OVERLAP : undefined}
+      snapToInterval={undefined}
+      snapToOffsets={snapOffsets}
+      snapToAlignment={horizontal ? 'start' : undefined}
       decelerationRate="fast"
       contentContainerStyle={cStyles.content}
       directionalLockEnabled
