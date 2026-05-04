@@ -26,7 +26,7 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
     return cached;
   }
 
-  const cacheFolderPath = RNFS.CachesDirectoryPath;
+  const cacheFolderPath = RNFS.DocumentDirectoryPath;
   const service = `arkade_realm_${namespace}`;
   let password: string;
 
@@ -82,7 +82,7 @@ export async function deleteArkadeRealm(namespace: string): Promise<void> {
   }
   realmInstances.delete(namespace);
 
-  const cacheFolderPath = RNFS.CachesDirectoryPath;
+  const cacheFolderPath = RNFS.DocumentDirectoryPath;
   const path = `${cacheFolderPath}/arkade-${namespace}.realm`;
   const service = `arkade_realm_${namespace}`;
 
