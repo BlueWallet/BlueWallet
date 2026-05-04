@@ -31,8 +31,6 @@ import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
-import { useStorage } from '../hooks/context/useStorage';
-import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
@@ -282,7 +280,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const balanceOpacity = useSharedValue(1);
     const balanceTranslateY = useSharedValue(0);
     const { colors } = useTheme();
-    const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = getWalletCarouselItemWidth(width);
     const { sizeClass } = useSizeClass();
@@ -384,9 +381,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     let latestTransactionText;
 
-    if (walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()) {
-      latestTransactionText = loc.transactions.updating;
-    } else if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
+    if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
     } else if (item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)) {
       latestTransactionText = loc.transactions.pending;

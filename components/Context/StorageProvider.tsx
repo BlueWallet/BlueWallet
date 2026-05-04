@@ -324,15 +324,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       console.debug('[refreshAllWalletTransactions] Starting refresh');
       refreshingRef.current = true;
 
-      const TIMEOUT_DURATION = 30000;
-      let refreshTimeout;
-      const timeoutPromise = new Promise<never>(
-        (_resolve, reject) =>
-          (refreshTimeout = setTimeout(() => {
-            console.debug('[refreshAllWalletTransactions] Timeout reached');
-            reject(new Error('Timeout reached'));
-          }, TIMEOUT_DURATION)),
-      );
+      let refreshTimeout: ReturnType<typeof setTimeout> | undefined;
 
       try {
         if (showUpdateStatusIndicator) {
@@ -351,31 +343,50 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
-        // Restore fetch payment codes timing measurement
-        if (typeof BlueApp.fetchSenderPaymentCodes === 'function') {
-          const codesStart = Date.now();
-          console.debug('[refreshAllWalletTransactions] Fetching sender payment codes');
-          await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-          const codesEnd = Date.now();
-          console.debug('[refreshAllWalletTransactions] fetch payment codes took', (codesEnd - codesStart) / 1000, 'sec');
-        } else {
+        // Race only the post-connect work. `waitTillConnected` can take up to
+        // WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER (+ a second wait); starting the timer earlier caused refresh to abort
+        // while Electrum was still legitimately connecting.
+        const REFRESH_FETCH_PHASE_TIMEOUT_MS = Math.max(
+          120_000,
+          BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER + BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_AFTER_FIRST,
+        );
+        const timeoutPromise = new Promise<never>(
+          (_resolve, reject) =>
+            (refreshTimeout = setTimeout(() => {
+              console.debug('[refreshAllWalletTransactions] Timeout reached');
+              reject(new Error('Timeout reached'));
+            }, REFRESH_FETCH_PHASE_TIMEOUT_MS)),
+        );
+
+        if (typeof BlueApp.fetchSenderPaymentCodes !== 'function') {
           console.warn('[refreshAllWalletTransactions] fetchSenderPaymentCodes is not available');
         }
+
+        const paymentCodesPromise =
+          typeof BlueApp.fetchSenderPaymentCodes === 'function'
+            ? (async () => {
+                const codesStart = Date.now();
+                console.debug('[refreshAllWalletTransactions] Fetching sender payment codes (parallel)');
+                await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch payment codes took', (Date.now() - codesStart) / 1000, 'sec');
+              })()
+            : Promise.resolve();
 
         console.debug('[refreshAllWalletTransactions] Fetching wallet balances and transactions');
         await Promise.race([
           (async () => {
-            const balanceStart = Date.now();
-            await BlueApp.fetchWalletBalances(lastSnappedTo);
-            const balanceEnd = Date.now();
-            console.debug('[refreshAllWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+            await Promise.all([
+              paymentCodesPromise,
+              (async () => {
+                const balanceStart = Date.now();
+                await BlueApp.fetchWalletBalances(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch balance took', (Date.now() - balanceStart) / 1000, 'sec');
 
-            const txStart = Date.now();
-            await BlueApp.fetchWalletTransactions(lastSnappedTo);
-            const txEnd = Date.now();
-            console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
-
-            clearTimeout(refreshTimeout);
+                const txStart = Date.now();
+                await BlueApp.fetchWalletTransactions(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch tx took', (Date.now() - txStart) / 1000, 'sec');
+              })(),
+            ]);
 
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
             await saveToDisk();
@@ -386,9 +397,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       } catch (error) {
         console.error('[refreshAllWalletTransactions] Error:', error);
       } finally {
+        if (refreshTimeout !== undefined) {
+          clearTimeout(refreshTimeout);
+        }
         console.debug('[refreshAllWalletTransactions] Resetting wallet transaction status and refresh lock');
-        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         refreshingRef.current = false;
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
       }
     },
     [saveToDisk],
