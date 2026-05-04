@@ -45,27 +45,27 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
         // macOS-style shake animation - quick and snappy
         Animated.sequence([
           Animated.timing(shakeAnimation, {
-            toValue: 20,
-            duration: 80,
-            easing: Easing.linear,
+            toValue: 10,
+            duration: 50,
+            easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
           Animated.timing(shakeAnimation, {
-            toValue: -20,
-            duration: 80,
-            easing: Easing.linear,
+            toValue: -10,
+            duration: 50,
+            easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
           Animated.timing(shakeAnimation, {
-            toValue: 20,
-            duration: 80,
-            easing: Easing.linear,
+            toValue: 8,
+            duration: 45,
+            easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
           Animated.timing(shakeAnimation, {
             toValue: 0,
-            duration: 80,
-            easing: Easing.linear,
+            duration: 45,
+            easing: Easing.out(Easing.quad),
             useNativeDriver: true,
           }),
         ]).start(() => {

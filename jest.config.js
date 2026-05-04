@@ -1,7 +1,7 @@
 module.exports = {
   testEnvironment: '<rootDir>/tests/custom-environment.js',
   reporters: ['default', ['<rootDir>/tests/custom-reporter.js', {}]],
-  preset: 'react-native',
+  preset: '@react-native/jest-preset',
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
@@ -10,6 +10,7 @@ module.exports = {
   moduleNameMapper: {
     '^expo/fetch$': '<rootDir>/util/expo-fetch-nodejs.js',
     '^@react-native-vector-icons/(.*)$': '<rootDir>/tests/mocks/vector-icons.js',
+    '^react-native-svg$': '<rootDir>/tests/mocks/react-native-svg.js',
   },
   setupFiles: ['./tests/setup.js'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules'],

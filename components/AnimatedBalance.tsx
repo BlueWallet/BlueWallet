@@ -10,6 +10,7 @@ interface AnimatedBalanceProps {
   separatorStyle?: StyleProp<TextStyle>;
   variant?: AnimatedBalanceVariant;
   autoFitText?: boolean;
+  testID?: string;
 }
 
 const prominentAnimationConfig = {
@@ -36,6 +37,7 @@ const AnimatedBalance: React.FC<AnimatedBalanceProps> = ({
   separatorStyle,
   variant = 'prominent',
   autoFitText,
+  testID,
 }) => {
   const animationConfig = useMemo(() => {
     return variant === 'subtle' ? subtleAnimationConfig : prominentAnimationConfig;
@@ -57,6 +59,7 @@ const AnimatedBalance: React.FC<AnimatedBalanceProps> = ({
       animationConfig={animationConfig}
       autoFitText={autoFitText}
       useTabularNumbers={false}
+      testID={testID}
     />
   );
 };

@@ -2,12 +2,8 @@ import Foundation
 import React
 
 @objc(EventEmitter)
-class EventEmitter: RCTEventEmitter {
+class EventEmitter: RCTEventEmitter, NativeEventEmitterSpec {
     static let sharedInstance = EventEmitter()
-    
-    override class func requiresMainQueueSetup() -> Bool {
-        return true
-    }
     
     @objc static func shared() -> EventEmitter {
         return sharedInstance
@@ -15,6 +11,14 @@ class EventEmitter: RCTEventEmitter {
     
     override func supportedEvents() -> [String]! {
         return ["onUserActivityOpen"]
+    }
+    
+    override func addListener(_ eventName: String!) {
+        // Required for TurboModule event emitters; no-op handled by JS side
+    }
+
+    override func removeListeners(_ count: Double) {
+        // Required for TurboModule event emitters; no-op handled by JS side
     }
     
     @objc func sendUserActivity(_ userInfo: [String: Any]) {

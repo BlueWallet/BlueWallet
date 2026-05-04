@@ -1,159 +1,129 @@
-import React, { useCallback, useMemo, useRef } from 'react';
-import { Animated, Platform, TouchableOpacity } from 'react-native';
-import { MenuView, MenuAction, NativeActionEvent } from '@react-native-menu/menu';
-import { ToolTipMenuProps, Action } from './types';
+import React, { useCallback, useMemo } from 'react';
+import { NativeSyntheticEvent, Platform, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
+import { ToolTipMenuProps } from './types';
 import { useSettings } from '../hooks/context/useSettings';
+import { buildMenu, lookupId } from './TooltipMenu.helpers';
 
 const ToolTipMenu = (props: ToolTipMenuProps) => {
   const {
     title = '',
-    isMenuPrimaryAction = false,
+    shouldOpenOnLongPress = true,
     disabled = false,
     onPress,
+    isButton = false,
     buttonStyle,
     onPressMenuItem,
     children,
-    isButton = false,
-    ...restProps
+    actions,
+    accessibilityLabel,
+    accessibilityHint,
+    accessibilityRole,
+    accessibilityState,
+    testID,
+    style,
+    enableAndroidRipple = true,
   } = props;
 
   const { language } = useSettings();
-  const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const handlePressIn = useCallback(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.98,
-      useNativeDriver: true,
-    }).start();
-  }, [scaleAnim]);
+  const { items, ids } = useMemo(() => buildMenu(actions, Platform.OS as 'ios' | 'android'), [actions]);
 
-  const handlePressOut = useCallback(() => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
-  }, [scaleAnim]);
-
-  // Map Menu Items for RN Menu (supports subactions and displayInline)
-  const mapMenuItemForMenuView = useCallback((action: Action): MenuAction | null => {
-    if (!action.id) return null;
-
-    // Check for subactions
-    const subactions =
-      action.subactions?.map(subaction => {
-        const subMenuItem: MenuAction = {
-          id: subaction.id.toString(),
-          title: subaction.text,
-          subtitle: subaction.subtitle,
-          image: subaction.icon?.iconValue ? subaction.icon.iconValue : undefined,
-          attributes: { disabled: subaction.disabled, destructive: subaction.destructive, hidden: subaction.hidden },
-        };
-        if ('menuState' in subaction) {
-          subMenuItem.state = subaction.menuState ? 'on' : 'off';
-        }
-        if (subaction.subactions && subaction.subactions.length > 0) {
-          const deepSubactions = subaction.subactions.map(deepSub => {
-            const deepMenuItem: MenuAction = {
-              id: deepSub.id.toString(),
-              title: deepSub.text,
-              subtitle: deepSub.subtitle,
-              image: deepSub.icon?.iconValue ? deepSub.icon.iconValue : undefined,
-              attributes: { disabled: deepSub.disabled, destructive: deepSub.destructive, hidden: deepSub.hidden },
-            };
-            if ('menuState' in deepSub) {
-              deepMenuItem.state = deepSub.menuState ? 'on' : 'off';
-            }
-            return deepMenuItem;
-          });
-          subMenuItem.subactions = deepSubactions;
-        }
-        return subMenuItem;
-      }) || [];
-
-    const menuItem: MenuAction = {
-      id: action.id.toString(),
-      title: action.text,
-      subtitle: action.subtitle,
-      image: action.icon?.iconValue ? action.icon.iconValue : undefined,
-      attributes: { disabled: action.disabled, destructive: action.destructive, hidden: action.hidden },
-      displayInline: action.displayInline || false,
-    };
-    if ('menuState' in action) {
-      menuItem.state = action.menuState ? 'on' : 'off';
-    }
-    if (subactions.length > 0) {
-      menuItem.subactions = subactions;
-    }
-    return menuItem;
-  }, []);
-
-  const menuViewItemsIOS = useMemo(() => {
-    return props.actions
-      .map(actionGroup => {
-        if (Array.isArray(actionGroup) && actionGroup.length > 0) {
-          return {
-            id: actionGroup[0].id.toString(),
-            title: '',
-            subactions: actionGroup
-              .filter(action => action.id)
-              .map(mapMenuItemForMenuView)
-              .filter(item => item !== null) as MenuAction[],
-            displayInline: true,
-          };
-        } else if (!Array.isArray(actionGroup) && actionGroup.id) {
-          return mapMenuItemForMenuView(actionGroup);
-        }
-        return null;
-      })
-      .filter(item => item !== null) as MenuAction[];
-  }, [props.actions, mapMenuItemForMenuView]);
-
-  const menuViewItemsAndroid = useMemo(() => {
-    const mergedActions = props.actions.flat().filter(action => action.id);
-    return mergedActions.map(mapMenuItemForMenuView).filter(item => item !== null) as MenuAction[];
-  }, [props.actions, mapMenuItemForMenuView]);
-
-  const handlePressMenuItemForMenuView = useCallback(
-    ({ nativeEvent }: NativeActionEvent) => {
-      onPressMenuItem(nativeEvent.event);
+  const handlePressMenuItem = useCallback(
+    (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+      const { name, indexPath, index } = e.nativeEvent;
+      const path = indexPath?.length ? indexPath : typeof index === 'number' ? [index] : [];
+      const id = lookupId(ids, path);
+      if (id !== undefined) onPressMenuItem(id);
+      else if (name) onPressMenuItem(name); // last-resort fallback
     },
-    [onPressMenuItem],
+    [ids, onPressMenuItem],
   );
 
-  const renderMenuView = () => {
-    return (
-      <MenuView
-        title={title}
-        isAnchoredToRight
-        onPressAction={handlePressMenuItemForMenuView}
-        actions={Platform.OS === 'ios' ? menuViewItemsIOS : menuViewItemsAndroid}
-        shouldOpenOnLongPress={!isMenuPrimaryAction}
-        // @ts-ignore: Not exposed in types
-        accessibilityLabel={props.accessibilityLabel}
-        accessibilityHint={props.accessibilityHint}
-        accessibilityRole={props.accessibilityRole}
-        accessibilityLanguage={language}
-      >
-        {isMenuPrimaryAction || isButton ? (
-          <TouchableOpacity
-            style={buttonStyle}
-            disabled={disabled}
-            onPress={onPress}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-            activeOpacity={1}
-            {...restProps}
-          >
-            <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>{children}</Animated.View>
-          </TouchableOpacity>
-        ) : (
-          children
-        )}
-      </MenuView>
-    );
-  };
+  if (disabled || actions.length === 0) return null;
 
-  return props.actions.length > 0 ? renderMenuView() : null;
+  // The native ContextMenu is the single source of truth for opening the menu:
+  // - Android: ContextMenuView's GestureDetector handles tap (dropdown mode)
+  //   and long-press, then opens the popup itself.
+  // - iOS: UIContextMenuInteraction is attached to the first React child, with
+  //   `showsMenuAsPrimaryAction` for tap-to-open in dropdown mode.
+  //
+  // We wrap in a Pressable ONLY when the caller wants a separate `onPress`
+  // (a short-tap action that does something OTHER than open the menu). Adding
+  // any extra Pressable handler is unnecessary and on Android races with the
+  // native gesture detector — usePressability always returns true from
+  // onStartShouldSetResponder, so the JS responder system claims the touch
+  // and dispatches ACTION_CANCEL to the child native view, leaving the menu
+  // unopened. There is no escape hatch for that — Pressable cannot be
+  // configured to skip responder claiming.
+  //
+  // Trade-off: dropdown buttons without onPress (HeaderMenuButton et al.)
+  // get no Android ripple. The menu opening (≈100ms) is the feedback. We
+  // accept this rather than reintroduce the gesture-cancel race.
+  const wrapInPressable = Boolean(onPress);
+
+  const buttonShellStyle: StyleProp<ViewStyle> = isButton ? styles.button : undefined;
+  const visibleStyle = StyleSheet.flatten([buttonShellStyle, style, buttonStyle]);
+
+  const menu = (
+    <ContextMenu
+      title={title}
+      previewBackgroundColor="transparent"
+      onPress={handlePressMenuItem}
+      actions={items}
+      dropdownMenuMode={!shouldOpenOnLongPress}
+      style={wrapInPressable ? styles.menuFlex : visibleStyle}
+    >
+      {children}
+    </ContextMenu>
+  );
+
+  if (!wrapInPressable) {
+    // Wrap the native ContextMenu in a plain View that carries `testID` and the
+    // accessibility props. On iOS, react-native-context-menu-view propagates
+    // the accessibility identifier across multiple descendants of its native
+    // host, so attaching `testID` directly to ContextMenu makes Detox match
+    // multiple views (`Multiple elements found for "MATCHER(id == ...)"`).
+    // A plain View gives Detox a single, deterministic match and—unlike
+    // Pressable—never claims the JS responder, so it does not reintroduce the
+    // Android gesture-cancel race documented above.
+    return (
+      <View
+        testID={testID}
+        accessibilityLabel={accessibilityLabel}
+        accessibilityHint={accessibilityHint}
+        accessibilityRole={accessibilityRole}
+        accessibilityState={accessibilityState}
+      >
+        {menu}
+      </View>
+    );
+  }
+
+  return (
+    <Pressable
+      onPress={onPress}
+      android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}
+      style={({ pressed }) =>
+        StyleSheet.flatten([visibleStyle, pressed && enableAndroidRipple && Platform.OS === 'android' ? styles.pressed : null])
+      }
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
+      accessibilityRole={accessibilityRole}
+      accessibilityState={accessibilityState}
+      accessibilityLanguage={language}
+      testID={testID}
+      hitSlop={8}
+    >
+      {menu}
+    </Pressable>
+  );
 };
 
 export default ToolTipMenu;
+
+const styles = StyleSheet.create({
+  button: { alignSelf: 'center' },
+  menuFlex: { flex: 1 },
+  pressed: { opacity: 0.6 },
+});

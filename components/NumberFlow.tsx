@@ -8,13 +8,7 @@ import {
   type NativeSyntheticEvent,
   type TextLayoutEventData,
 } from 'react-native';
-import Reanimated, {
-  LinearTransition,
-  ReduceMotion,
-  useAnimatedStyle,
-  withDelay,
-  withSpring,
-} from 'react-native-reanimated';
+import Reanimated, { LinearTransition, ReduceMotion, useAnimatedStyle, withDelay, withSpring } from 'react-native-reanimated';
 
 interface AnimationConfig {
   enabled?: boolean;
@@ -37,29 +31,28 @@ interface NumberFlowProps {
    * Defaults to true to preserve upstream behaviour.
    */
   useTabularNumbers?: boolean;
+  testID?: string;
 }
 
 const DIGITS = [...Array(10).keys()];
 
-const Character = memo(
-  ({ children, style, useTabularNumbers, ...rest }: ComponentProps<typeof Text> & { useTabularNumbers?: boolean }) => {
-    const charStyle = typeof style === 'object' ? style : {};
+const Character = memo(({ children, style, useTabularNumbers, ...rest }: ComponentProps<typeof Text> & { useTabularNumbers?: boolean }) => {
+  const charStyle = typeof style === 'object' ? style : {};
 
-    return (
-      <Text
-        style={[
-          charStyle,
-          useTabularNumbers && {
-            fontVariant: ['tabular-nums'],
-          },
-        ]}
-        {...rest}
-      >
-        {children}
-      </Text>
-    );
-  },
-);
+  return (
+    <Text
+      style={[
+        charStyle,
+        useTabularNumbers && {
+          fontVariant: ['tabular-nums'],
+        },
+      ]}
+      {...rest}
+    >
+      {children}
+    </Text>
+  );
+});
 
 const CharacterList = memo(
   ({
@@ -82,36 +75,31 @@ const CharacterList = memo(
 
     const targetPosition = -lineHeight * number;
 
-    const animateStyle = useAnimatedStyle(
-      () => {
-        'worklet';
-        if (initialRender) {
-          return {
-            transform: [{ translateY: Math.round(targetPosition) }],
-          };
-        }
-
+    const animateStyle = useAnimatedStyle(() => {
+      'worklet';
+      if (initialRender) {
         return {
-          transform: [
-            {
-              translateY: withDelay(
-                index,
-                withSpring(targetPosition, {
-                  mass,
-                  stiffness,
-                  damping,
-                  reduceMotion,
-                  restSpeedThreshold: 0.01,
-                  restDisplacementThreshold: 0.01,
-                }),
-                reduceMotion,
-              ),
-            },
-          ],
+          transform: [{ translateY: Math.round(targetPosition) }],
         };
-      },
-      [number, index, lineHeight, mass, stiffness, damping, reduceMotion, initialRender, targetPosition],
-    );
+      }
+
+      return {
+        transform: [
+          {
+            translateY: withDelay(
+              index,
+              withSpring(targetPosition, {
+                mass,
+                stiffness,
+                damping,
+                reduceMotion,
+              }),
+              reduceMotion,
+            ),
+          },
+        ],
+      };
+    }, [number, index, lineHeight, mass, stiffness, damping, reduceMotion, initialRender, targetPosition]);
 
     const characterListStyle = useMemo(() => {
       if (number === 1) {
@@ -152,6 +140,7 @@ const NumberFlow: React.FC<NumberFlowProps> = ({
   animationConfig = {},
   autoFitText = false,
   useTabularNumbers = true,
+  testID,
 }) => {
   const [textLayout, setTextLayout] = useState<TextLayoutLine>();
   const [isMounted, setIsMounted] = useState(false);
@@ -176,13 +165,15 @@ const NumberFlow: React.FC<NumberFlowProps> = ({
   const shouldAnimate = enabled && (isMounted ? true : animateOnMount);
   const isInitialRender = !animateOnMount && !isMounted;
 
+  const ascender = textLayout?.ascender;
+  const styleFontSize = style?.fontSize;
   const fontSize = useMemo(() => {
-    if (autoFitText && textLayout?.ascender) {
-      return Math.round(textLayout.ascender);
+    if (autoFitText && ascender) {
+      return Math.round(ascender);
     }
 
-    return Math.round(Number(style?.fontSize || 16));
-  }, [autoFitText, textLayout?.ascender, style?.fontSize]);
+    return Math.round(Number(styleFontSize || 16));
+  }, [autoFitText, ascender, styleFontSize]);
 
   const lineHeight = useMemo(() => {
     return Math.round(fontSize * 1.2);
@@ -242,6 +233,7 @@ const NumberFlow: React.FC<NumberFlowProps> = ({
         accessibilityHint={accessibleValue}
         accessibilityLiveRegion="polite"
         style={styles.counterContainer}
+        testID={testID}
       >
         {splitValue.map((char, index) => {
           if (char === ' ') {
@@ -313,4 +305,3 @@ const styles = StyleSheet.create({
 });
 
 export default React.memo(NumberFlow);
-

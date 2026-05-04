@@ -22,6 +22,7 @@ import {
   Text,
   TextInput,
   Pressable,
+  ScrollView,
   View,
 } from 'react-native';
 import RNFS from 'react-native-fs';
@@ -29,7 +30,9 @@ import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Wallet, MultisigHDWallet, WatchOnlyWallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { ContactList } from '../../class/contact-list';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
@@ -78,7 +81,7 @@ const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
   const { direction } = useLocale();
-  const selectedDataProcessor = useRef<ToolTipAction | undefined>();
+  const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
   const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
@@ -982,7 +985,11 @@ const SendDetails = () => {
   }, [addresses, amountUnit]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
+    scrollIndex.current = 0;
     setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
+    setTimeout(() => {
+      scrollView.current?.scrollToOffset({ offset: 0, animated: false });
+    }, 0);
   }, [amountUnit]);
 
   const handleRemoveAllRecipients = useCallback(() => {
@@ -1362,7 +1369,7 @@ const SendDetails = () => {
   const renderBitcoinTransactionInfoFields = (params: { item: IPaymentDestinations; index: number }) => {
     const { item, index } = params;
     return (
-      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index}>
+      <View style={[styles.transactionItemContainer, { width: dimensions.width }]} testID={'Transaction' + index} collapsable={false}>
         <View style={styles.amountInputContainer}>
           <AmountInput.AmountInput
             isLoading={isLoading}
@@ -1435,18 +1442,28 @@ const SendDetails = () => {
         <View style={styles.addressInputContainer}>
           <AddressInput
             onChangeText={text => {
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(text.trim());
+              const trimmedText = text.trim();
+              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
+              const hasPositiveAmount = Number(amount) > 0;
               setAddresses(addrs => {
-                item.address = address || text.trim();
-                item.amount = amount || item.amount;
-                addrs[index] = item;
-                return [...addrs];
+                const updatedAddresses = [...addrs];
+                const updatedItem = { ...updatedAddresses[index] };
+                updatedItem.address = address || trimmedText;
+
+                if (hasPositiveAmount) {
+                  updatedItem.amount = amount;
+                  updatedItem.amountSats = btcToSatoshi(amount!);
+                  updatedItem.unit = BitcoinUnit.BTC;
+                }
+
+                updatedAddresses[index] = updatedItem;
+                return updatedAddresses;
               });
               if (memo) {
                 setParams({ transactionMemo: memo });
               }
               setIsLoading(false);
-              setParams({ payjoinUrl: pjUrl });
+              setParams(hasPositiveAmount ? { payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: pjUrl });
             }}
             address={item.address}
             isLoading={isLoading}
@@ -1483,71 +1500,79 @@ const SendDetails = () => {
   });
 
   return (
-    <SafeArea style={[styles.root, stylesHook.root]}>
-      <View>
-        <FlatList
-          onLayout={handleLayout}
-          keyboardShouldPersistTaps="always"
-          scrollEnabled={addresses.length > 1}
-          data={addresses}
-          renderItem={renderBitcoinTransactionInfoFields}
-          horizontal
-          ref={scrollView}
-          automaticallyAdjustKeyboardInsets
-          pagingEnabled
-          removeClippedSubviews={false}
-          onMomentumScrollBegin={Keyboard.dismiss}
-          onScroll={handleRecipientsScroll}
-          scrollEventThrottle={16}
-          scrollIndicatorInsets={styles.scrollViewIndicator}
-          contentContainerStyle={styles.scrollViewContent}
-          getItemLayout={getItemLayout}
-        />
-        <View style={[styles.memo, stylesHook.memo]}>
-          <TextInput
-            onChangeText={setTransactionMemo}
-            placeholder={loc.send.details_note_placeholder}
-            placeholderTextColor="#81868e"
-            value={transactionMemo}
-            numberOfLines={1}
-            style={styles.memoText}
-            editable={!isLoading}
-            onSubmitEditing={Keyboard.dismiss}
-            inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+    <SafeArea style={[styles.root, stylesHook.root]} ignoreTopInset>
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.screenContent}
+        automaticallyAdjustKeyboardInsets
+        contentInsetAdjustmentBehavior="never"
+      >
+        <View>
+          <FlatList
+            onLayout={handleLayout}
+            keyboardShouldPersistTaps="always"
+            scrollEnabled={addresses.length > 1}
+            data={addresses}
+            renderItem={renderBitcoinTransactionInfoFields}
+            horizontal
+            ref={scrollView}
+            automaticallyAdjustKeyboardInsets
+            pagingEnabled
+            removeClippedSubviews={false}
+            onMomentumScrollBegin={Keyboard.dismiss}
+            onScroll={handleRecipientsScroll}
+            scrollEventThrottle={16}
+            scrollIndicatorInsets={styles.scrollViewIndicator}
+            contentContainerStyle={styles.scrollViewContent}
+            getItemLayout={getItemLayout}
           />
-        </View>
-        <Pressable
-          testID="chooseFee"
-          accessibilityRole="button"
-          onPress={() => {
-            Keyboard.dismiss();
-            navigation.navigate('SelectFee', {
-              networkTransactionFees,
-              feePrecalc,
-              feeRate,
-              feeUnit,
-              walletID: wallet?.getID() || '',
-              customFee,
-            });
-          }}
-          disabled={isLoading}
-          style={({ pressed }) => [pressed && styles.pressed, styles.fee]}
-        >
-          <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
+          <View style={[styles.memo, stylesHook.memo]}>
+            <TextInput
+              onChangeText={setTransactionMemo}
+              placeholder={loc.send.details_note_placeholder}
+              placeholderTextColor="#81868e"
+              value={transactionMemo}
+              numberOfLines={1}
+              style={styles.memoText}
+              editable={!isLoading}
+              onSubmitEditing={Keyboard.dismiss}
+              inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+            />
+          </View>
+          <Pressable
+            testID="chooseFee"
+            accessibilityRole="button"
+            onPress={() => {
+              Keyboard.dismiss();
+              const selectedRecipientUnit = addresses[scrollIndex.current]?.unit || amountUnit;
+              navigation.navigate('SelectFee', {
+                networkTransactionFees,
+                feePrecalc,
+                feeRate,
+                feeUnit: selectedRecipientUnit,
+                walletID: wallet?.getID() || '',
+                customFee,
+              });
+            }}
+            disabled={isLoading}
+            style={({ pressed }) => [pressed && styles.pressed, styles.fee]}
+          >
+            <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
-          {networkTransactionFeesIsLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <View style={[styles.feeRow, stylesHook.feeRow]}>
-              <Text style={stylesHook.feeValue}>
-                {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
-              </Text>
-            </View>
-          )}
-        </Pressable>
-        {renderCustomFeeWarning()}
-        {renderCreateButton()}
-      </View>
+            {networkTransactionFeesIsLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <View style={[styles.feeRow, stylesHook.feeRow]}>
+                <Text style={stylesHook.feeValue}>
+                  {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+          {renderCustomFeeWarning()}
+          {renderCreateButton()}
+        </View>
+      </ScrollView>
       <DismissKeyboardInputAccessory />
       {Platform.select({
         ios: <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />,
@@ -1555,7 +1580,6 @@ const SendDetails = () => {
           <InputAccessoryAllFunds canUseAll={balance > 0} onUseAllPressed={onUseAllPressed} balance={String(allBalance)} />
         ),
       })}
-
       {renderWalletSelectionOrCoinsSelected()}
     </SafeArea>
   );
@@ -1566,7 +1590,10 @@ export default SendDetails;
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+  },
+  screenContent: {
+    paddingBottom: 16,
   },
   scrollViewContent: {
     flexDirection: 'row',

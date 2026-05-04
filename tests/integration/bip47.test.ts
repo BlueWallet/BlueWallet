@@ -6,7 +6,8 @@ import { ECPairFactory } from 'ecpair';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 
 const ECPair = ECPairFactory(ecc);
 
