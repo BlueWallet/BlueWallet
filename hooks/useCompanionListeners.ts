@@ -47,7 +47,6 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     setSharedCosigner,
     walletsInitialized,
   } = useStorage();
-  const appState = useRef<AppStateStatus>(AppState.currentState);
   // True only if the app actually went to 'background' (another app foregrounded). Lets us
   // distinguish a real resume from active→inactive→active blips (biometric, Control Center,
   // notifications) which would otherwise trigger the iOS paste permission prompt.
@@ -319,9 +318,6 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           showClipboardAlert({ contentType });
         }
         clipboardContent.current = clipboard;
-      }
-      if (nextAppState) {
-        appState.current = nextAppState;
       }
     },
     [processPushNotifications, showClipboardAlert, wallets, shouldActivateListeners],
