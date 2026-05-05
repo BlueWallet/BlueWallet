@@ -633,24 +633,11 @@ const ReceiveDetails = () => {
             </View>
           )}
 
-          {qrValue ? (
+          {qrValue && (
             <View style={styles.qrCardWrapper}>
               <QrStaggerReveal size={qrCodeSize} maskColor="#FFFFFF" runKey={`${currentTab}|${qrValue}`}>
                 <QRCode value={qrValue} size={qrCodeSize} />
               </QrStaggerReveal>
-            </View>
-          )}
-        </View>
-      );
-    } else if (wallet && isBIP47Enabled) {
-      // wallet is always defined here
-      const qrValue = (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) ?? undefined;
-      return (
-        <View style={styles.container}>
-          {qrValue ? (
-          ) : (
-            <View style={styles.bip47NotFoundContainer}>
-              <Text style={stylesHook.bip47NotFound}>{loc.bip47.not_found}</Text>
             </View>
           )}
 
