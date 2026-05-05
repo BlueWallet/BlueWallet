@@ -9,13 +9,13 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.uimanager.events.Event
 import com.facebook.react.uimanager.UIManagerHelper
+import com.facebook.react.uimanager.events.Event
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import io.bluewallet.bluewallet.R
 
-class CustomSegmentedControl @JvmOverloads constructor(
+class SegmentedControl @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -48,10 +48,13 @@ class CustomSegmentedControl @JvmOverloads constructor(
             isSingleSelection = true
             isSelectionRequired = true
         }
-        addView(toggleGroup, LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ))
+        addView(
+            toggleGroup,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ),
+        )
 
         toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
@@ -69,29 +72,29 @@ class CustomSegmentedControl @JvmOverloads constructor(
 
     private fun updateSegments() {
         toggleGroup.removeAllViews()
-        
+
         values.forEachIndexed { index, title ->
             val button = MaterialButton(
                 context,
                 null,
-                com.google.android.material.R.attr.materialButtonOutlinedStyle
+                com.google.android.material.R.attr.materialButtonOutlinedStyle,
             ).apply {
                 text = title
                 id = generateViewId()
                 layoutParams = LinearLayout.LayoutParams(
                     0,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f
+                    1f,
                 )
                 isCheckable = true
-                
+
                 strokeWidth = 2
                 applyEnabledState()
-                
+
                 val cornerRadius = resources.getDimensionPixelSize(
-                    com.google.android.material.R.dimen.mtrl_btn_corner_radius
+                    com.google.android.material.R.dimen.mtrl_btn_corner_radius,
                 )
-                
+
                 when {
                     values.size == 1 -> {
                         this.cornerRadius = cornerRadius
@@ -107,10 +110,10 @@ class CustomSegmentedControl @JvmOverloads constructor(
                     }
                 }
             }
-            
+
             toggleGroup.addView(button)
         }
-        
+
         updateButtonColors()
         updateSelectedSegment()
     }
@@ -118,7 +121,7 @@ class CustomSegmentedControl @JvmOverloads constructor(
     private fun updateButtonColors() {
         for (i in 0 until toggleGroup.childCount) {
             val button = toggleGroup.getChildAt(i) as? MaterialButton ?: continue
-            
+
             val selectedBgColor = tintColorProp ?: ContextCompat.getColor(context, R.color.button_background_color)
             val unselectedBgColor = backgroundColorProp ?: ContextCompat.getColor(context, R.color.button_disabled_background_color)
             val resolvedTextColor = textColorProp ?: ContextCompat.getColor(context, R.color.button_text_color)
@@ -127,39 +130,39 @@ class CustomSegmentedControl @JvmOverloads constructor(
             val borderColor = ContextCompat.getColor(context, R.color.form_border_color)
             val rippleColor = ContextCompat.getColor(context, R.color.ripple_color)
             val rippleColorSelected = ContextCompat.getColor(context, R.color.ripple_color_selected)
-            
+
             val bgColorStateList = ColorStateList(
                 arrayOf(
                     intArrayOf(android.R.attr.state_checked),
-                    intArrayOf(-android.R.attr.state_checked)  
+                    intArrayOf(-android.R.attr.state_checked),
                 ),
-                intArrayOf(selectedBgColor, unselectedBgColor)
+                intArrayOf(selectedBgColor, unselectedBgColor),
             )
-            
+
             val textColorStateList = ColorStateList(
                 arrayOf(
-                    intArrayOf(android.R.attr.state_checked),  
-                    intArrayOf(-android.R.attr.state_checked)  
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked),
                 ),
-                intArrayOf(selectedTextColor, unselectedTextColor)
+                intArrayOf(selectedTextColor, unselectedTextColor),
             )
-            
+
             val strokeColorStateList = ColorStateList(
                 arrayOf(
-                    intArrayOf(android.R.attr.state_checked),  
-                    intArrayOf(-android.R.attr.state_checked)  
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked),
                 ),
-                intArrayOf(borderColor, borderColor)
+                intArrayOf(borderColor, borderColor),
             )
-            
+
             val rippleColorStateList = ColorStateList(
                 arrayOf(
-                    intArrayOf(android.R.attr.state_checked),  
-                    intArrayOf(-android.R.attr.state_checked)  
+                    intArrayOf(android.R.attr.state_checked),
+                    intArrayOf(-android.R.attr.state_checked),
                 ),
-                intArrayOf(rippleColorSelected, rippleColor)
+                intArrayOf(rippleColorSelected, rippleColor),
             )
-            
+
             button.backgroundTintList = bgColorStateList
             button.setTextColor(textColorStateList)
             button.strokeColor = strokeColorStateList
@@ -224,11 +227,11 @@ class CustomSegmentedControl @JvmOverloads constructor(
         val reactContext = context as? ReactContext ?: return
         val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
         val eventDispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
-        
+
         val event = Arguments.createMap().apply {
             putInt("selectedIndex", selectedIndex)
         }
-        
+
         eventDispatcher?.dispatchEvent(ChangeEvent(surfaceId, id, event))
     }
 
@@ -250,11 +253,11 @@ class CustomSegmentedControl @JvmOverloads constructor(
     private inner class ChangeEvent(
         surfaceId: Int,
         viewId: Int,
-        private val eventData: WritableMap
+        private val eventData: WritableMap,
     ) : Event<ChangeEvent>(surfaceId, viewId) {
-        
+
         override fun getEventName(): String = "topChange"
-        
+
         override fun getEventData(): WritableMap = eventData
     }
 }

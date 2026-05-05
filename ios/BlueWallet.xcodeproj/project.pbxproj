@@ -148,8 +148,10 @@
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
 		B4B1A4642BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
-		B4B3EC222D69FF6C00327F3D /* CustomSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */; };
+		B4B3EC222D69FF6C00327F3D /* SegmentedControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EC202D69FF6C00327F3D /* SegmentedControlView.swift */; };
 		B4B3EC252D69FF8700327F3D /* EventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EC232D69FF8700327F3D /* EventEmitter.swift */; };
+		B4B3EF102D6AFF6C003270A0 /* SegmentedControlManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EF002D6AFF6C003270A0 /* SegmentedControlManager.swift */; };
+		B4B3EF202D6CFF6C003270A0 /* SegmentedControlBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EF1F2D6CFF6C003270A0 /* SegmentedControlBridge.m */; };
 		B4D0B2622C1DEA11006B6B1B /* ReceivePageInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */; };
 		B4D0B2642C1DEA99006B6B1B /* ReceiveType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */; };
 		B4D0B2662C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */; };
@@ -159,7 +161,6 @@
 		B4D59C1E2D8BAFE300B7025B /* BugsnagNetworkRequestPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = B4D59C1D2D8BAFE300B7025B /* BugsnagNetworkRequestPlugin */; };
 		B4D59C212D8BB42100B7025B /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C202D8BB41F00B7025B /* File.swift */; };
 		B4D59C272D8C5D6F00B7025B /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4D59C262D8C5D6E00B7025B /* main.swift */; };
-		B4D899942DCAE67700B959AA /* CustomSegmentedControl.m in Sources */ = {isa = PBXBuildFile; fileRef = B4D899932DCAE67700B959AA /* CustomSegmentedControl.m */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
 		B4EFF73B2C3F6C5E0095D655 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4EFF73A2C3F6C5E0095D655 /* MockData.swift */; };
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
@@ -366,8 +367,10 @@
 		B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParserDelegate.swift; sourceTree = "<group>"; };
 		B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetHelper.swift; sourceTree = "<group>"; };
 		B4B31A352C77BBA000663334 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Interface.strings; sourceTree = "<group>"; };
-		B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CustomSegmentedControl.swift; path = SegmentedControl/CustomSegmentedControl.swift; sourceTree = "<group>"; };
+		B4B3EC202D69FF6C00327F3D /* SegmentedControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SegmentedControlView.swift; path = ../blue_modules/Views/SegmentedControl/ios/SegmentedControlView.swift; sourceTree = SOURCE_ROOT; };
 		B4B3EC232D69FF8700327F3D /* EventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEmitter.swift; sourceTree = "<group>"; };
+		B4B3EF002D6AFF6C003270A0 /* SegmentedControlManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SegmentedControlManager.swift; path = ../blue_modules/Views/SegmentedControl/ios/SegmentedControlManager.swift; sourceTree = SOURCE_ROOT; };
+		B4B3EF1F2D6CFF6C003270A0 /* SegmentedControlBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SegmentedControlBridge.m; path = ../blue_modules/Views/SegmentedControl/ios/SegmentedControlBridge.m; sourceTree = SOURCE_ROOT; };
 		B4D0B2612C1DEA11006B6B1B /* ReceivePageInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceivePageInterfaceController.swift; sourceTree = "<group>"; };
 		B4D0B2632C1DEA99006B6B1B /* ReceiveType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveType.swift; sourceTree = "<group>"; };
 		B4D0B2652C1DEB7F006B6B1B /* ReceiveInterfaceMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveInterfaceMode.swift; sourceTree = "<group>"; };
@@ -375,7 +378,6 @@
 		B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCSlider.a; sourceTree = "<group>"; };
 		B4D59C202D8BB41F00B7025B /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		B4D59C262D8C5D6E00B7025B /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		B4D899932DCAE67700B959AA /* CustomSegmentedControl.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomSegmentedControl.m; sourceTree = "<group>"; };
 		B4EFF73A2C3F6C5E0095D655 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WidgetHelper.mm; sourceTree = "<group>"; };
 		B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = EventEmitter.mm; sourceTree = "<group>"; };
@@ -746,12 +748,13 @@
 		B45010A12C1504E900619044 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				B4D899932DCAE67700B959AA /* CustomSegmentedControl.m */,
 				B4AA75232DAA339E00CF5CBE /* MenuElementsEmitter.m */,
 				B4B3EC232D69FF8700327F3D /* EventEmitter.swift */,
 				B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */,
 				B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */,
-				B4B3EC202D69FF6C00327F3D /* CustomSegmentedControl.swift */,
+				B4B3EC202D69FF6C00327F3D /* SegmentedControlView.swift */,
+				B4B3EF002D6AFF6C003270A0 /* SegmentedControlManager.swift */,
+				B4B3EF1F2D6CFF6C003270A0 /* SegmentedControlBridge.m */,
 				B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */,
 				B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */,
 			);
@@ -1162,10 +1165,11 @@
 				B48630EE2CCEEEE900A8425C /* PriceIntent.swift in Sources */,
 				B44034072BCC38A000162242 /* FiatUnit.swift in Sources */,
 				B44034002BCC37F800162242 /* Bundle+decode.swift in Sources */,
-				B4D899942DCAE67700B959AA /* CustomSegmentedControl.m in Sources */,
 				B44033E22BCC36CB00162242 /* Placeholders.swift in Sources */,
 				B4793DBB2CEDACBD00C92C2E /* Chain.swift in Sources */,
-				B4B3EC222D69FF6C00327F3D /* CustomSegmentedControl.swift in Sources */,
+				B4B3EC222D69FF6C00327F3D /* SegmentedControlView.swift in Sources */,
+				B4B3EF102D6AFF6C003270A0 /* SegmentedControlManager.swift in Sources */,
+				B4B3EF202D6CFF6C003270A0 /* SegmentedControlBridge.m in Sources */,
 				B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */,
 				B48630E12CCEE7C800A8425C /* PriceWidgetEntryView.swift in Sources */,
@@ -1719,13 +1723,20 @@
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CFLAGS = "$(inherited)";
-				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
 				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_VERSION = 5.0;
 				USE_HERMES = true;
 				WATCHOS_DEPLOYMENT_TARGET = 7.0;
@@ -1784,13 +1795,20 @@
 				LDPLUSPLUS = "";
 				LIBRARY_SEARCH_PATHS = "$(SDKROOT)/usr/lib/swift\"$(inherited)\"";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_CFLAGS = "$(inherited)";
-				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(inherited)",
+					"-DRCT_REMOVE_LEGACY_ARCH=1",
+				);
 				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_ENABLE_EXPLICIT_MODULES = NO;
 				SWIFT_VERSION = 5.0;
 				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;

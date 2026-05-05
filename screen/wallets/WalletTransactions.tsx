@@ -6,6 +6,7 @@ import {
   Dimensions,
   findNodeHandle,
   FlatList,
+  Platform,
   PixelRatio,
   ScrollView,
   StyleSheet,
@@ -13,7 +14,6 @@ import {
   View,
   RefreshControl,
 } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
@@ -81,6 +81,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [balance, setBalance] = useState(wallet.getBalance());
   const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
   const [isUnitSwitching, setIsUnitSwitching] = useState(false);
+  const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
+    return wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible;
+  });
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
@@ -106,6 +109,27 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     },
     sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
     receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
+    headerBottomBar: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 12,
+      height: 12,
+      backgroundColor: colors.background,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      ...Platform.select({
+        ios: {
+          shadowColor: colors.shadowColor,
+          shadowOffset: { width: 0, height: -8 },
+          shadowOpacity: 0.1,
+          shadowRadius: 6,
+        },
+        android: {
+          elevation: 0.5,
+        },
+      }),
+    },
   });
 
   useFocusEffect(
@@ -146,6 +170,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     console.debug('[UnitSwitch] sync from wallet preferred unit', { walletID, preferred: wallet.preferredBalanceUnit });
     setDisplayUnit(wallet.preferredBalanceUnit);
   }, [wallet, walletID]);
+
+  useEffect(() => {
+    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletID]);
 
   useEffect(() => {
     console.debug('[UnitSwitch] display unit state changed', { walletID, displayUnit, switching: isUnitSwitching });
@@ -543,6 +572,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             }
           }}
         />
+        <View style={styles.headerBottomBarSpacer}>
+          <View style={stylesHook.headerBottomBar} />
+        </View>
         <>
           <View style={[styles.flex, stylesHook.backgroundContainer]}>
             <View style={styles.listHeaderTextRow}>
@@ -550,15 +582,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             </View>
           </View>
           <View style={stylesHook.backgroundContainer}>
-            {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
-              <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
-                <WatchOnlyWarning
-                  handleDismiss={() => {
-                    wallet.isWatchOnlyWarningVisible = false;
-                    saveToDisk();
-                  }}
-                />
-              </Animated.View>
+            {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
+              <WatchOnlyWarning
+                handleDismiss={() => {
+                  setIsWatchOnlyWarningVisible(false);
+                  wallet.isWatchOnlyWarningVisible = false;
+                  saveToDisk();
+                }}
+              />
             )}
           </View>
         </>
@@ -570,6 +601,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       isUnitSwitching,
       measureHeaderHeight,
       stylesHook.backgroundContainer,
+      stylesHook.headerBottomBar,
       stylesHook.listHeaderText,
       saveToDisk,
       isBiometricUseCapableAndEnabled,
@@ -577,6 +609,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       onManageFundsPressed,
       navigate,
       walletID,
+      isWatchOnlyWarningVisible,
     ],
   );
 
@@ -684,10 +717,11 @@ export default WalletTransactions;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  headerBottomBarSpacer: { position: 'relative', height: 12 },
   scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
   activityIndicator: { marginVertical: 20 },
-  listHeaderTextRow: { flex: 1, margin: 16, flexDirection: 'row', justifyContent: 'space-between' },
-  listHeaderText: { marginTop: 8, marginBottom: 8, fontWeight: 'bold', fontSize: 24 },
+  listHeaderTextRow: { flex: 1, marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between' },
+  listHeaderText: { marginTop: 0, marginBottom: 16, fontWeight: 'bold', fontSize: 24 },
   refreshIndicatorBackground: {
     position: 'absolute',
     top: 0,

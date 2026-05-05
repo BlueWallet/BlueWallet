@@ -17,6 +17,10 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     width: '40%',
   },
+  copyText: {
+    marginVertical: 32,
+    paddingHorizontal: 16,
+  },
 });
 
 export const useDynamicStyles = () => {

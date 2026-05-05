@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
@@ -189,18 +189,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ];
   }, [hideBalance]);
 
-  const imageSource = useMemo(() => {
-    switch (wallet.type) {
-      case LightningCustodianWallet.type:
-      case LightningArkWallet.type:
-        return direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
-      case MultisigHDWallet.type:
-        return direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
-      default:
-        return direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
-    }
-  }, [direction, wallet.type]);
-
   useEffect(() => {
     console.debug('[UnitSwitch/UI] render state', {
       walletID: wallet.getID?.(),
@@ -213,8 +201,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   return (
     <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={styles.lineaderGradient}>
-      <ImageBackground source={imageSource} style={styles.chainIcon} />
-
       <View style={styles.contentContainer}>
         <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
           {wallet.getLabel()}
@@ -277,17 +263,10 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 const styles = StyleSheet.create({
   lineaderGradient: {
     minHeight: 140,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   contentContainer: {
     padding: 15,
-  },
-  chainIcon: {
-    width: 99,
-    height: 94,
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
   },
   walletLabel: {
     backgroundColor: 'transparent',

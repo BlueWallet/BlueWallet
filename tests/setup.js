@@ -35,6 +35,22 @@ global.fetch = require('node-fetch');
 
 jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
 
+// Workaround for software-mansion/react-native-reanimated#8806.
+// Fixed upstream in reanimated 4.3.0; remove once we upgrade.
+// Path is held in a variable so tsc does not statically resolve into worklets'
+// src/*.ts (which has its own type errors) under allowJs.
+const workletsMockPath = 'react-native-worklets/src/mock';
+jest.mock('react-native-worklets', () => require(workletsMockPath));
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+
+jest.mock('react-native-capture-protection', () => ({
+  CaptureProtection: {
+    prevent: jest.fn(),
+    allow: jest.fn(),
+    isScreenRecording: jest.fn(() => Promise.resolve(false)),
+  },
+}));
+
 jest.mock('react-native-watch-connectivity', () => {
   return {
     getIsWatchAppInstalled: jest.fn(() => Promise.resolve(false)),
@@ -230,12 +246,12 @@ jest.mock('realm', () => {
   };
 });
 
-jest.mock('rn-qr-generator', () => ({
-  detect: jest.fn(uri => {
-    if (uri === 'invalid-image') {
-      return Promise.reject(new Error('Failed to decode QR code'));
+jest.mock('react-native-camera-kit-no-google', () => ({
+  detectQRCodeInImage: jest.fn(base64 => {
+    if (base64 === 'invalid-image') {
+      return Promise.reject(new Error('Invalid image data'));
     }
-    return Promise.resolve({ values: ['mocked-qr-code'] });
+    return Promise.resolve('mocked-qr-code');
   }),
 }));
 
