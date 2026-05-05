@@ -405,6 +405,22 @@ export async function waitForKeyboardToClose() {
   await sleep(500);
 }
 
+// Bundle id used by simctl/applesimutils on iOS. Mirrors `javaPackageName` in package.json
+// and the iOS Info.plist; if either is renamed, update here too.
+const IOS_BUNDLE_ID = 'io.bluewallet.bluewallet';
+
+// Force-kill the booted iOS simulator app. Used by tests that put the app into a state where
+// graceful teardown would itself trigger a biometric prompt (and thus hang). No-op on non-iOS
+// and silently swallows simctl errors so a missing/already-dead process doesn't fail teardown.
+export function terminateBootedApp() {
+  if (device.getPlatform() !== 'ios') return;
+  try {
+    require('child_process').execSync(`xcrun simctl terminate booted ${IOS_BUNDLE_ID}`, { stdio: 'ignore' });
+  } catch (_) {
+    // intentionally ignored — best-effort teardown
+  }
+}
+
 // Biometric helpers. iOS-only today; android support pending ADB wiring.
 
 export async function setupBiometricEnrollment() {
@@ -414,9 +430,8 @@ export async function setupBiometricEnrollment() {
 
 // Bypass detox.device.matchFace() because it post-awaits waitForActive(), which hangs forever
 // whenever the underlying applesimutils signal was fired before the iOS Face ID prompt appeared
-// (prompt shows async, match signal is not queued). We send the raw applesimutils flag several
-// times with gaps — at least one call lands after the prompt is up and resolves it. Skipping
-// waitForActive means the test must rely on its own subsequent waitFor*/expect to re-sync state.
+// (wix/Detox#2981, unresolved). Skipping waitForActive means callers must rely on their own
+// subsequent waitFor*/expect to re-sync state.
 async function rawBiometric(flag) {
   const { exec } = require('child_process');
   await new Promise((resolve, reject) => {
@@ -424,27 +439,28 @@ async function rawBiometric(flag) {
   });
 }
 
-// How long to wait for iOS to present the Face ID prompt before firing applesimutils. Debug-
-// build React Native can take >1s between the tap and the native prompt appearing; too short
-// and the signal is dropped.
-const BIOMETRIC_PROMPT_WAIT_MS = 1500;
+// The Face ID system prompt exposes its `promptMessage` as an accessibility label that Detox's
+// iOS bridge can reach via plain by.label(). Mirror loc.settings.biom_conf_identity from
+// hooks/useBiometrics.ts; tests assume the default (English) locale.
+const BIOMETRIC_PROMPT_LABEL = 'Please confirm your identity.';
+const BIOMETRIC_PROMPT_TIMEOUT_MS = 8000;
 
-async function fireBiometricSignal(flag) {
-  // Six attempts over ~7s covers slow debug-build RN cold launch + UnlockWith render.
-  for (let i = 0; i < 6; i++) {
-    await sleep(i === 0 ? BIOMETRIC_PROMPT_WAIT_MS : 1000);
-    await rawBiometric(flag);
-  }
+async function waitForBiometricPrompt() {
+  await waitFor(element(by.label(BIOMETRIC_PROMPT_LABEL)).atIndex(0))
+    .toBeVisible()
+    .withTimeout(BIOMETRIC_PROMPT_TIMEOUT_MS);
 }
 
 export async function matchBiometric() {
   if (device.getPlatform() !== 'ios') throw new Error('matchBiometric: android not yet supported');
-  await fireBiometricSignal('--biometricMatch');
+  await waitForBiometricPrompt();
+  await rawBiometric('--biometricMatch');
 }
 
 export async function failBiometric() {
   if (device.getPlatform() !== 'ios') throw new Error('failBiometric: android not yet supported');
-  await fireBiometricSignal('--biometricNonmatch');
+  await waitForBiometricPrompt();
+  await rawBiometric('--biometricNonmatch');
 }
 
 // Navigate Settings → Security and flip the biometric switch ON. Idempotent: skips the toggle
@@ -471,10 +487,12 @@ export async function enableBiometric({ returnHome = true } = {}) {
 // recovery paths of whatever unlockWithBiometrics() gate we're passing through.
 export async function rejectThenMatchBiometric() {
   if (device.getPlatform() !== 'ios') throw new Error('rejectThenMatchBiometric: android not yet supported');
-  await sleep(BIOMETRIC_PROMPT_WAIT_MS);
+  await waitForBiometricPrompt();
   await rawBiometric('--biometricNonmatch');
-  await sleep(1500);
-  await fireBiometricSignal('--biometricMatch');
+  // The prompt stays on screen and re-arms for a retry; no observable state change to wait
+  // on, so a brief fixed gap before firing the match signal.
+  await sleep(1000);
+  await rawBiometric('--biometricMatch');
 }
 
 /**

@@ -21,6 +21,7 @@ import {
   tapGatedByBiometric,
   tapIfPresent,
   tapIfTextPresent,
+  terminateBootedApp,
   waitForId,
   waitForKeyboardToClose,
   waitForText,
@@ -1155,9 +1156,7 @@ describe('BlueWallet UI Tests - biometric gates', () => {
     await element(by.id('BiometricSwitch')).tap();
     await failBiometric();
     await expect(element(by.id('BiometricSwitch'))).toHaveToggleValue(true);
-    try {
-      require('child_process').execSync('xcrun simctl terminate booted io.bluewallet.bluewallet', { stdio: 'ignore' });
-    } catch (_) {}
+    terminateBootedApp();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });

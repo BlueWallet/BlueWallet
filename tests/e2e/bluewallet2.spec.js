@@ -21,6 +21,7 @@ import {
   tapAndTapAgainIfTextIsNotVisible,
   tapGatedByBiometric,
   tapIfTextPresent,
+  terminateBootedApp,
   typeTextIntoAlertInput,
   waitForId,
   waitForKeyboardToClose,
@@ -671,9 +672,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Send now')).tap();
     await failBiometric();
     await expect(element(by.id('TransactionValue'))).toBeVisible();
-    try {
-      require('child_process').execSync('xcrun simctl terminate booted io.bluewallet.bluewallet', { stdio: 'ignore' });
-    } catch (_) {}
+    terminateBootedApp();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
