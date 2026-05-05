@@ -7,7 +7,7 @@ import {
   useReachability,
   watchEvents,
 } from 'react-native-watch-connectivity';
-import { MultisigHDWallet } from '../class';
+import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { FiatUnit } from '../models/fiatUnit';

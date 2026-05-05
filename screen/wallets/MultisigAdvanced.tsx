@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
-import { MultisigHDWallet } from '../../class';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';

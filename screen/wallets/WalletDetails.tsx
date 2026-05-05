@@ -4,16 +4,14 @@ import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueCard, BlueText } from '../../BlueComponents';
-import {
-  HDAezeedWallet,
-  HDSegwitBech32Wallet,
-  LegacyWallet,
-  LightningArkWallet,
-  MultisigHDWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
-  WatchOnlyWallet,
-} from '../../class';
+import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
+import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
+import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';

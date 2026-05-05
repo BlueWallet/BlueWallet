@@ -2,23 +2,20 @@ import assert from 'assert';
 import fs from 'fs';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import {
-  HDAezeedWallet,
-  HDLegacyBreadwalletWallet,
-  HDLegacyElectrumSeedP2PKHWallet,
-  HDLegacyP2PKHWallet,
-  HDSegwitBech32Wallet,
-  HDSegwitElectrumSeedP2WPKHWallet,
-  HDSegwitP2SHWallet,
-  HDTaprootWallet,
-  LegacyWallet,
-  LightningArkWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
-  SLIP39SegwitBech32Wallet,
-  SLIP39SegwitP2SHWallet,
-  WatchOnlyWallet,
-} from '../../class';
+import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
+import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
+import { HDLegacyElectrumSeedP2PKHWallet } from '../../class/wallets/hd-legacy-electrum-seed-p2pkh-wallet';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class/wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
+import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
+import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
+import { SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from '../../class/wallets/slip39-wallets';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import startImport from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
 

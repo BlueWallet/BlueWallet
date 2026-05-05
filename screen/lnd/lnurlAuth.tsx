@@ -17,7 +17,8 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import assert from 'assert';
-import { LightningArkWallet, LightningCustodianWallet } from '../../class';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 
 const AuthState = {
   USER_PROMPT: 0,

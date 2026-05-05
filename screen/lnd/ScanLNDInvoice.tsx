@@ -26,7 +26,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
-import { LightningArkWallet } from '../../class';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;

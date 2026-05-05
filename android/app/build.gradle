@@ -19,9 +19,9 @@ react {
 
     /* Variants */
     //   The list of variants to that are debuggable. For those we're going to
-    //   skip the bundling of the JS bundle and the assets. By default is just 'debug'.
+    //   skip the bundling of the JS bundle and the assets. Default is "debug", "debugOptimized".
     //   If you add flavors like lite, prod, etc. you'll have to list your debuggableVariants.
-    // debuggableVariants = ["liteDebug", "prodDebug"]
+    // debuggableVariants = ["liteDebug", "liteDebugOptimized", "prodDebug", "prodDebugOptimized"]
 
     /* Bundling */
     //   A list containing the node command and its flags. Default is just 'node'.
@@ -102,6 +102,7 @@ android {
     sourceSets {
         main {
             assets.srcDirs = ['src/main/assets', 'src/main/res/assets']
+            java.srcDirs = ['src/main/java', '../../blue_modules/Views/SegmentedControl/android']
         }
     }
 
@@ -138,7 +139,7 @@ dependencies {
     androidTestImplementation('com.wix:detox:20.50.1')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.core:core-ktx:1.18.0'
     implementation 'androidx.work:work-runtime-ktx:2.11.2'
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.compose.ui:ui:1.10.6'

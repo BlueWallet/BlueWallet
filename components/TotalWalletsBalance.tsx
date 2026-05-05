@@ -93,7 +93,7 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
   if (!isTotalBalanceEnabled) return null;
 
   return (
-    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress>
+    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress style={styles.menuContainer}>
       <View style={styles.container}>
         <Text style={styles.label}>{loc.wallets.total_balance}</Text>
         <TouchableOpacity onPress={handleBalanceOnPress}>
@@ -110,14 +110,18 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
 });
 
 const styles = StyleSheet.create({
+  menuContainer: {
+    alignSelf: 'stretch',
+  },
   container: {
     flexDirection: 'column',
     alignItems: 'flex-start',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   label: {
     fontSize: 14,
-    marginBottom: 4,
+    marginBottom: 2,
     color: '#9BA0A9',
   },
   balance: {

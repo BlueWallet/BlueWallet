@@ -7,7 +7,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { BlueText, BlueTextCentered } from '../../BlueComponents';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -20,7 +20,7 @@ import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { LightningCustodianWallet } from '../../class';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -252,7 +252,7 @@ const LNDViewInvoice = () => {
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
               <View style={styles.activeQrcode}>
-                <QRCodeComponent value={invoice.payment_request} size={qrCodeSize} />
+                <QRCode value={invoice.payment_request} size={qrCodeSize} />
               </View>
               <BlueSpacing20 />
               <BlueText>
@@ -263,7 +263,9 @@ const LNDViewInvoice = () => {
                   {loc.lndViewInvoice.for} {invoice.description ?? ''}
                 </BlueText>
               )}
-              <CopyTextToClipboard truncated text={invoice.payment_request} />
+              <View style={styles.copyText}>
+                <CopyTextToClipboard truncated text={invoice.payment_request} />
+              </View>
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>
@@ -275,7 +277,7 @@ const LNDViewInvoice = () => {
       return (
         <View style={[styles.activeRoot, stylesHook.root]}>
           <View style={styles.activeQrcode}>
-            <QRCodeComponent value={invoice} size={qrCodeSize} />
+            <QRCode value={invoice} size={qrCodeSize} />
           </View>
         </View>
       );
@@ -332,5 +334,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,
+  },
+  copyText: {
+    marginVertical: 32,
+    paddingHorizontal: 16,
   },
 });

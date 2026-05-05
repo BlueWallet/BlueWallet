@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import { pick, types, keepLocalCopy, errorCodes } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
-import RNQRGenerator from 'rn-qr-generator';
+import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import Share from 'react-native-share';
 
 import presentAlert from '../components/Alert';
@@ -113,6 +113,7 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
       maxHeight: 800,
       maxWidth: 600,
       selectionLimit: 1,
+      includeBase64: true,
     });
 
     if (response.didCancel) {
@@ -120,19 +121,12 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
     } else if (response.errorCode) {
       throw new Error(response.errorMessage);
     } else if (response.assets) {
-      try {
-        const uri = response.assets[0].uri;
-        if (uri) {
-          const result = await RNQRGenerator.detect({ uri: decodeURI(uri.toString()) });
-          if (result?.values.length > 0) {
-            return result?.values[0];
-          }
-        }
-        throw new Error(loc.send.qr_error_no_qrcode);
-      } catch (error) {
-        console.error(error);
-        presentAlert({ message: loc.send.qr_error_no_qrcode });
+      const base64 = response.assets[0].base64;
+      if (base64) {
+        const result = await detectQRCodeInImage(base64);
+        if (result) return result;
       }
+      throw new Error(loc.send.qr_error_no_qrcode);
     }
 
     return undefined;
@@ -186,31 +180,21 @@ export const showFilePickerAndReadFile = async function (): Promise<{ data: stri
   }
 };
 
-const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | false; uri: string | false }> => {
+const readFileAsBase64 = async (uri: string): Promise<string> => {
   try {
-    const exists = await RNFS.exists(fileCopyUri);
-    if (!exists) {
-      presentAlert({ message: 'File does not exist' });
-      return { data: false, uri: false };
-    }
-    // First attempt: use original URI
-    let result = await RNQRGenerator.detect({ uri: decodeURI(fileCopyUri) });
-    if (result?.values && result.values.length > 0) {
-      return { data: result.values[0], uri: fileCopyUri };
-    }
-    // Second attempt: remove file:// prefix and try again
-    const altUri = fileCopyUri.replace(/^file:\/\//, '');
-    result = await RNQRGenerator.detect({ uri: decodeURI(altUri) });
-    if (result?.values && result.values.length > 0) {
-      return { data: result.values[0], uri: fileCopyUri };
-    }
-    presentAlert({ message: loc.send.qr_error_no_qrcode });
-    return { data: false, uri: false };
-  } catch (error: any) {
-    console.error(error);
-    presentAlert({ message: loc.send.qr_error_no_qrcode });
-    return { data: false, uri: false };
+    return await RNFS.readFile(uri, 'base64');
+  } catch {
+    return await RNFS.readFile(uri.replace(/^file:\/\//, ''), 'base64');
   }
+};
+
+const handleImageFile = async (fileCopyUri: string): Promise<{ data: string | false; uri: string | false }> => {
+  const base64 = await readFileAsBase64(fileCopyUri);
+  const result = await detectQRCodeInImage(base64);
+  if (result) {
+    return { data: result, uri: fileCopyUri };
+  }
+  throw new Error(loc.send.qr_error_no_qrcode);
 };
 
 export const readFileOutsideSandbox = (filePath: string) => {

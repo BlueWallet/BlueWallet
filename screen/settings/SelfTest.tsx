@@ -14,15 +14,13 @@ import * as fs from '../../blue_modules/fs';
 import ecc from '../../blue_modules/noble_ecc';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueText } from '../../BlueComponents';
-import {
-  HDAezeedWallet,
-  HDSegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  LegacyWallet,
-  SegwitP2SHWallet,
-  SLIP39LegacyP2PKHWallet,
-  TaprootWallet,
-} from '../../class';
+import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
+import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
+import { SLIP39LegacyP2PKHWallet } from '../../class/wallets/slip39-wallets';
+import { TaprootWallet } from '../../class/wallets/taproot-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SaveFileButton from '../../components/SaveFileButton';

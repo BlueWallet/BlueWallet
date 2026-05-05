@@ -1,7 +1,9 @@
 import assert from 'assert';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
+import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 
 jest.setTimeout(30 * 1000);
 

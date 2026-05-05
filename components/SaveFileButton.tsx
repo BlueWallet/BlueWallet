@@ -14,20 +14,9 @@ interface SaveFileButtonProps extends TouchableOpacityProps {
   style?: StyleProp<ViewStyle>;
   afterOnPress?: () => void;
   beforeOnPress?: (() => Promise<void>) | (() => void);
-  onMenuWillHide?: () => void;
-  onMenuWillShow?: () => void;
 }
 
-const SaveFileButton: React.FC<SaveFileButtonProps> = ({
-  fileName,
-  fileContent,
-  children,
-  style,
-  beforeOnPress,
-  afterOnPress,
-  onMenuWillHide,
-  onMenuWillShow,
-}) => {
+const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, children, style, beforeOnPress, afterOnPress }) => {
   const handlePressMenuItem = useCallback(
     async (actionId: string) => {
       if (beforeOnPress) {
@@ -50,14 +39,11 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({
 
   return (
     <ToolTipMenu
-      onMenuWillHide={onMenuWillHide}
-      onMenuWillShow={onMenuWillShow}
       isButton
       shouldOpenOnLongPress={false}
       actions={actions}
       onPressMenuItem={handlePressMenuItem}
-      buttonStyle={style as ViewStyle} // Type assertion to match ViewStyle
-      {...{ children }}
+      buttonStyle={style as ViewStyle}
     >
       {children}
     </ToolTipMenu>
