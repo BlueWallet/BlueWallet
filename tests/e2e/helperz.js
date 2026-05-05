@@ -428,10 +428,24 @@ export async function setupBiometricEnrollment() {
   await device.setBiometricEnrollment(true);
 }
 
-// Bypass detox.device.matchFace() because it post-awaits waitForActive(), which hangs forever
-// whenever the underlying applesimutils signal was fired before the iOS Face ID prompt appeared
-// (wix/Detox#2981, unresolved). Skipping waitForActive means callers must rely on their own
-// subsequent waitFor*/expect to re-sync state.
+// Resolving the iOS-sim Face ID prompt is a two-step dance with no reliable observability:
+//
+//   1. We can't detect when the prompt is on screen. The system overlay is drawn by a separate
+//      process; Detox's in-app `by.label()` can't reach it, and `idb ui describe-all` returns
+//      only the status bar layer in this iOS 26 sim setup (verified empirically — only XCUITest-
+//      based tools like mobile-mcp can see it). So we just sleep long enough for LAContext to
+//      have presented the prompt before firing the signal.
+//
+//   2. We can't use `device.matchFace()` because it post-awaits `waitForActive`, which hangs
+//      indefinitely on a still-busy main queue (wix/Detox#2981). We shell out to applesimutils
+//      directly and skip the wait — callers must rely on their own subsequent waitFor*/expect
+//      to re-sync app state.
+//
+// Tune BIOMETRIC_PROMPT_DELAY_MS up if a slower machine drops the signal (signal must land
+// after the prompt is on screen). 2.5s gives margin over local-sim ~1s while staying well
+// under iOS LAContext's ~30s prompt timeout.
+const BIOMETRIC_PROMPT_DELAY_MS = 2500;
+
 async function rawBiometric(flag) {
   const { exec } = require('child_process');
   await new Promise((resolve, reject) => {
@@ -439,27 +453,15 @@ async function rawBiometric(flag) {
   });
 }
 
-// The Face ID system prompt exposes its `promptMessage` as an accessibility label that Detox's
-// iOS bridge can reach via plain by.label(). Mirror loc.settings.biom_conf_identity from
-// hooks/useBiometrics.ts; tests assume the default (English) locale.
-const BIOMETRIC_PROMPT_LABEL = 'Please confirm your identity.';
-const BIOMETRIC_PROMPT_TIMEOUT_MS = 8000;
-
-async function waitForBiometricPrompt() {
-  await waitFor(element(by.label(BIOMETRIC_PROMPT_LABEL)).atIndex(0))
-    .toBeVisible()
-    .withTimeout(BIOMETRIC_PROMPT_TIMEOUT_MS);
-}
-
 export async function matchBiometric() {
   if (device.getPlatform() !== 'ios') throw new Error('matchBiometric: android not yet supported');
-  await waitForBiometricPrompt();
+  await sleep(BIOMETRIC_PROMPT_DELAY_MS);
   await rawBiometric('--biometricMatch');
 }
 
 export async function failBiometric() {
   if (device.getPlatform() !== 'ios') throw new Error('failBiometric: android not yet supported');
-  await waitForBiometricPrompt();
+  await sleep(BIOMETRIC_PROMPT_DELAY_MS);
   await rawBiometric('--biometricNonmatch');
 }
 
@@ -472,9 +474,17 @@ export async function enableBiometric({ returnHome = true } = {}) {
   await element(by.id('SecurityButton')).tap();
   await waitForId('BiometricSwitch');
   if (!(await getSwitchValue('BiometricSwitch'))) {
+    // Sync stays disabled across the whole post-tap flow: tapping the switch triggers
+    // simplePrompt() which pins the main queue in "busy" (Detox's idle-wait would hang on
+    // the tap), and even after the Face ID signal lands, post-auth RN work keeps the main
+    // queue non-idle for several seconds — long enough that an `expect()` from
+    // waitForSwitchValue would also block. Re-enable sync only after we've confirmed the
+    // switch value, by which point the app has settled.
+    await device.disableSynchronization();
     await element(by.id('BiometricSwitch')).tap();
     await matchBiometric();
     await waitForSwitchValue('BiometricSwitch', true);
+    await device.enableSynchronization();
   }
   if (returnHome) {
     await goBack();
@@ -487,12 +497,8 @@ export async function enableBiometric({ returnHome = true } = {}) {
 // recovery paths of whatever unlockWithBiometrics() gate we're passing through.
 export async function rejectThenMatchBiometric() {
   if (device.getPlatform() !== 'ios') throw new Error('rejectThenMatchBiometric: android not yet supported');
-  await waitForBiometricPrompt();
-  await rawBiometric('--biometricNonmatch');
-  // The prompt stays on screen and re-arms for a retry; no observable state change to wait
-  // on, so a brief fixed gap before firing the match signal.
-  await sleep(1000);
-  await rawBiometric('--biometricMatch');
+  await failBiometric();
+  await matchBiometric();
 }
 
 /**
