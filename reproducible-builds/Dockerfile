@@ -44,7 +44,7 @@ RUN yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses \
     && sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
     "platforms;android-36" \
     "build-tools;36.0.0" \
-    "ndk;27.1.12297006" \
+    "ndk;28.2.13676358" \
     "ndk;27.0.12077973" \
     "cmake;3.22.1" \
     "platform-tools" \
