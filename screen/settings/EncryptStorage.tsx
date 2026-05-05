@@ -159,6 +159,7 @@ const EncryptStorage = () => {
               value: biometricEnabled,
               onValueChange: onUseBiometricSwitch,
               disabled: state.currentLoadingSwitch !== null,
+              testID: 'BiometricSwitch',
             }}
             isLoading={state.currentLoadingSwitch === 'biometric' && state.isLoading}
             containerStyle={[styles.row, styleHooks.root]}

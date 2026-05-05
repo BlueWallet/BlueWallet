@@ -93,6 +93,24 @@ export async function getSwitchValue(switchId) {
   }
 }
 
+// Detox's waitFor() doesn't expose toHaveToggleValue, so poll expect() until the switch reaches
+// the expected state (or throw after timeoutMs).
+export async function waitForSwitchValue(switchId, expectedValue, timeoutMs = 8000) {
+  const callsite = captureCallsite(waitForSwitchValue);
+  const deadline = Date.now() + timeoutMs;
+  let lastErr;
+  while (Date.now() < deadline) {
+    try {
+      await expect(element(by.id(switchId))).toHaveToggleValue(expectedValue);
+      return;
+    } catch (err) {
+      lastErr = err;
+      await sleep(250);
+    }
+  }
+  rethrowWithCallsite(lastErr || new Error(`Timed out waiting for ${switchId} == ${expectedValue}`), callsite);
+}
+
 export async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
   await waitForId('WalletsList');
   await waitFor(element(by.id('CreateAWallet')))
@@ -385,4 +403,105 @@ export async function waitForKeyboardToClose() {
     return;
   }
   await sleep(500);
+}
+
+// Biometric helpers. iOS-only today; android support pending ADB wiring.
+
+export async function setupBiometricEnrollment() {
+  if (device.getPlatform() !== 'ios') return;
+  await device.setBiometricEnrollment(true);
+}
+
+// Bypass detox.device.matchFace() because it post-awaits waitForActive(), which hangs forever
+// whenever the underlying applesimutils signal was fired before the iOS Face ID prompt appeared
+// (prompt shows async, match signal is not queued). We send the raw applesimutils flag several
+// times with gaps — at least one call lands after the prompt is up and resolves it. Skipping
+// waitForActive means the test must rely on its own subsequent waitFor*/expect to re-sync state.
+async function rawBiometric(flag) {
+  const { exec } = require('child_process');
+  await new Promise((resolve, reject) => {
+    exec(`applesimutils --booted ${flag}`, err => (err ? reject(err) : resolve()));
+  });
+}
+
+// How long to wait for iOS to present the Face ID prompt before firing applesimutils. Debug-
+// build React Native can take >1s between the tap and the native prompt appearing; too short
+// and the signal is dropped.
+const BIOMETRIC_PROMPT_WAIT_MS = 1500;
+
+async function fireBiometricSignal(flag) {
+  // Six attempts over ~7s covers slow debug-build RN cold launch + UnlockWith render.
+  for (let i = 0; i < 6; i++) {
+    await sleep(i === 0 ? BIOMETRIC_PROMPT_WAIT_MS : 1000);
+    await rawBiometric(flag);
+  }
+}
+
+export async function matchBiometric() {
+  if (device.getPlatform() !== 'ios') throw new Error('matchBiometric: android not yet supported');
+  await fireBiometricSignal('--biometricMatch');
+}
+
+export async function failBiometric() {
+  if (device.getPlatform() !== 'ios') throw new Error('failBiometric: android not yet supported');
+  await fireBiometricSignal('--biometricNonmatch');
+}
+
+// Navigate Settings → Security and flip the biometric switch ON. Idempotent: skips the toggle
+// if biometric is already enabled. iOS-only (android: no-op). With returnHome=true (default),
+// goes back twice to return to WalletsList; pass false when the caller wants to stay in Security.
+export async function enableBiometric({ returnHome = true } = {}) {
+  if (device.getPlatform() !== 'ios') return;
+  await element(by.id('SettingsButton')).tap();
+  await element(by.id('SecurityButton')).tap();
+  await waitForId('BiometricSwitch');
+  if (!(await getSwitchValue('BiometricSwitch'))) {
+    await element(by.id('BiometricSwitch')).tap();
+    await matchBiometric();
+    await waitForSwitchValue('BiometricSwitch', true);
+  }
+  if (returnHome) {
+    await goBack();
+    await goBack();
+  }
+}
+
+// Common at-the-gate pattern: user fails Face ID once (app flow must not break — iOS shows
+// "Not recognized, try again"), then succeeds on retry. Exercises both the failure and
+// recovery paths of whatever unlockWithBiometrics() gate we're passing through.
+export async function rejectThenMatchBiometric() {
+  if (device.getPlatform() !== 'ios') throw new Error('rejectThenMatchBiometric: android not yet supported');
+  await sleep(BIOMETRIC_PROMPT_WAIT_MS);
+  await rawBiometric('--biometricNonmatch');
+  await sleep(1500);
+  await fireBiometricSignal('--biometricMatch');
+}
+
+/**
+ * Tap a button whose onPress triggers unlockWithBiometrics(), then resolve the Face ID prompt.
+ *
+ * Why disable synchronization: when an RN button's onPress chains into simplePrompt(), the
+ * native Face ID prompt pins the main dispatch queue in "busy". Detox's default idle-sync
+ * then waits forever for `tap()` to return. Disabling sync around the tap lets Detox send the
+ * action without waiting; we re-enable once the biometric is resolved.
+ *
+ * Default auth strategy: 'rejectThenMatch' — user fails once, then succeeds on retry.
+ * Covers the end-to-end "rejection doesn't break flow" behavior users actually hit. Use
+ * 'match' for gates that appear multiple times in one test (faster; rejection path is
+ * already covered by whatever earlier gate used the default).
+ *
+ * Non-iOS: falls through to a plain tap (android biometric support is pending).
+ */
+export async function tapGatedByBiometric(matcher, { auth = 'rejectThenMatch' } = {}) {
+  const isIOS = device.getPlatform() === 'ios';
+  if (isIOS) await device.disableSynchronization();
+  await element(matcher).tap();
+  if (isIOS) {
+    if (auth === 'match') {
+      await matchBiometric();
+    } else {
+      await rejectThenMatchBiometric();
+    }
+    await device.enableSynchronization();
+  }
 }

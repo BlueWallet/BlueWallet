@@ -4,17 +4,22 @@ import { element, waitFor } from 'detox';
 
 import {
   confirmPasswordDialog,
+  enableBiometric,
   expectToBeVisible,
   extractTextFromElementById,
+  failBiometric,
   goBack,
   hashIt,
   helperCreateWallet,
-  helperDeleteWallet,
+  matchBiometric,
   scanText,
   scrollUpOnHomeScreen,
   setCustomFeeRate,
+  setupBiometricEnrollment,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
+  tapGatedByBiometric,
+  tapIfPresent,
   tapIfTextPresent,
   waitForId,
   waitForKeyboardToClose,
@@ -874,17 +879,32 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can create wallet and delete wallet', async () => {
+  it('can create wallet, enable biometric, and delete wallet with biometric auth', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t9');
     if (process.env.CI) {
-      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t8'), 'as it previously passed on Travis');
+      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t9'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    const permissions = device.getPlatform() === 'ios' ? { faceid: 'YES' } : {};
+    if (device.getPlatform() === 'ios') await setupBiometricEnrollment();
+    await device.launchApp({ delete: true, permissions });
     await waitForId('WalletsList');
     await helperCreateWallet();
-    // nop
-    await helperDeleteWallet('cr34t3d');
+
+    await enableBiometric();
+
+    await element(by.text('cr34t3d')).tap();
+    await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.id('HeaderMenuButton')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(500, 'down');
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Delete')).tap();
+    await waitForText('Yes, delete');
+    await tapGatedByBiometric(by.text('Yes, delete'));
+
+    await waitForId('NoTransactionsMessage');
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -894,8 +914,15 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t10'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } });
+    const isIOS = device.getPlatform() === 'ios';
+    if (isIOS) await setupBiometricEnrollment();
+    const perms = { camera: 'YES', notifications: 'YES' };
+    if (isIOS) perms.faceid = 'YES';
+    await device.launchApp({ delete: true, permissions: perms });
     await waitForId('WalletsList');
+
+    await enableBiometric();
+
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()
       .whileElement(by.id('WalletsList'))
@@ -944,12 +971,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('WalletDetails')).tap();
     await waitForText('2 / 3 (native segwit)');
 
-    // test Export Coordination Setup, it has animated qrcode, that uses setInterval, so we need to disable synchronization
+    // Animated QR on the destination screen uses setInterval, so keep sync disabled afterwards.
     await waitFor(element(by.id('MultisigCoordinationSetup')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(150, 'down');
-    await element(by.id('MultisigCoordinationSetup')).tap();
+    await tapGatedByBiometric(by.id('MultisigCoordinationSetup'));
     await device.disableSynchronization();
     await waitForId('ExportMultisigCoordinationSetupView');
     await element(by.id('NavigationCloseButton')).atIndex(0).tap();
@@ -967,12 +994,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     console.log('vaultReceiveAddress', vaultReceiveAddress);
 
-    // test View/Edit Cosigners
     await waitFor(element(by.id('ViewEditCosigners')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await element(by.id('ViewEditCosigners')).tap();
+    await tapGatedByBiometric(by.id('ViewEditCosigners'), { auth: 'match' });
     await waitForText('Vault Key 1');
     await expect(element(by.text('Vault Key 2'))).toBeVisible();
     await waitFor(element(by.text('Vault Key 3')))
@@ -992,11 +1018,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
       .scroll(100, 'down');
 
-    // save changes
     await waitFor(element(by.id('VaultCosignersSave')))
       .toBeVisible()
       .withTimeout(33000);
-    await element(by.id('VaultCosignersSave')).tap();
+    await tapGatedByBiometric(by.id('VaultCosignersSave'), { auth: 'match' });
     await waitForId('WalletsList');
 
     // verify receive address remains unchanged after forgetting cosigner 3 seed
@@ -1010,14 +1035,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     const vaultReceiveAddressAfterCosignerSave = await extractTextFromElementById('AddressValue');
     assert.strictEqual(vaultReceiveAddressAfterCosignerSave, vaultReceiveAddress);
 
-    // go back to manage keys, restore seed for cosigner 3, and save
+    // go back to manage keys, restore seed for cosigner 3, and save.
     await goBack();
     await element(by.id('WalletDetails')).tap();
     await waitFor(element(by.id('ViewEditCosigners')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await element(by.id('ViewEditCosigners')).tap();
+    await tapGatedByBiometric(by.id('ViewEditCosigners'), { auth: 'match' });
     await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
       .toBeVisible()
       .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
@@ -1031,7 +1056,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.id('VaultCosignersSave')))
       .toBeVisible()
       .withTimeout(33000);
-    await element(by.id('VaultCosignersSave')).tap();
+    await tapGatedByBiometric(by.id('VaultCosignersSave'), { auth: 'match' });
     await waitForId('WalletsList');
 
     // verify receive address remains unchanged after restoring cosigner 3 seed
@@ -1101,6 +1126,120 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ReceiveButton');
     await element(by.id('WalletDetails')).tap();
     await waitForText('2 / 2 (wrapped segwit)');
+
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+});
+
+describe('BlueWallet UI Tests - biometric gates', () => {
+  // iOS-only today (Detox biometric APIs). Android helpers throw; gate each test.
+
+  it('biometric settings toggle is gated by biometric auth (enable + disable)', async () => {
+    if (device.getPlatform() !== 'ios') return;
+    const lockFile = '/tmp/travislock.' + hashIt('bio_toggle');
+    if (process.env.CI && require('fs').existsSync(lockFile)) {
+      return console.warn('skipping bio_toggle as it previously passed on Travis');
+    }
+
+    await device.clearKeychain();
+    await setupBiometricEnrollment();
+    await device.launchApp({ delete: true, permissions: { faceid: 'YES' } });
+    await waitForId('WalletsList');
+
+    await helperCreateWallet('bio_wallet');
+
+    await enableBiometric({ returnHome: false });
+
+    // Disable attempt with a failed Face ID → switch must stay ON.
+    await device.disableSynchronization();
+    await element(by.id('BiometricSwitch')).tap();
+    await failBiometric();
+    await expect(element(by.id('BiometricSwitch'))).toHaveToggleValue(true);
+    try {
+      require('child_process').execSync('xcrun simctl terminate booted io.bluewallet.bluewallet', { stdio: 'ignore' });
+    } catch (_) {}
+
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('encrypted storage unlocks on relaunch via biometric', async () => {
+    if (device.getPlatform() !== 'ios') return;
+    const lockFile = '/tmp/travislock.' + hashIt('bio_unlock');
+    if (process.env.CI && require('fs').existsSync(lockFile)) {
+      return console.warn('skipping bio_unlock as it previously passed on Travis');
+    }
+
+    await device.clearKeychain();
+    await setupBiometricEnrollment();
+    await device.launchApp({ delete: true, permissions: { faceid: 'YES' } });
+    await waitForId('WalletsList');
+    await helperCreateWallet('bio_unlock_wallet');
+
+    await enableBiometric({ returnHome: false });
+
+    await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    await waitForId('IUnderstandButton');
+    await element(by.id('IUnderstandButton')).tap();
+    await waitForId('PasswordInput');
+    await element(by.id('PasswordInput')).replaceText('biopass');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await element(by.id('ConfirmPasswordInput')).replaceText('biopass');
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await element(by.id('OKButton')).tap();
+    await tapIfPresent('OKButton');
+
+    const launchPromise = device.launchApp({ newInstance: true });
+    await matchBiometric();
+    await launchPromise;
+    await waitForId('WalletsList');
+    await expect(element(by.id('bio_unlock_wallet'))).toBeVisible();
+
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
+  it('shows keychain wipe alert after 10 failed password attempts (iOS)', async () => {
+    if (device.getPlatform() !== 'ios') return;
+    const lockFile = '/tmp/travislock.' + hashIt('bio_10fails');
+    if (process.env.CI && require('fs').existsSync(lockFile)) {
+      return console.warn('skipping bio_10fails as it previously passed on Travis');
+    }
+
+    await device.clearKeychain();
+    await device.launchApp({ delete: true });
+    await waitForId('WalletsList');
+    await helperCreateWallet('wipe_wallet');
+
+    await element(by.id('SettingsButton')).tap();
+    await element(by.id('SecurityButton')).tap();
+    await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    await element(by.id('IUnderstandButton')).tap();
+    await element(by.id('PasswordInput')).clearText();
+    await element(by.id('PasswordInput')).replaceText('correctpass');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await element(by.id('ConfirmPasswordInput')).clearText();
+    await element(by.id('ConfirmPasswordInput')).replaceText('correctpass');
+    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await element(by.id('OKButton')).tap();
+    await tapIfPresent('OKButton');
+    await sleep(1000);
+
+    await device.launchApp({ newInstance: true });
+    await waitForId('PasswordInput');
+
+    for (let i = 0; i < 10; i++) {
+      await element(by.id('PasswordInput')).typeText('wrong\n');
+      await waitForKeyboardToClose();
+    }
+
+    await waitForText(
+      'You have attempted to enter your password 10 times. Would you like to reset your storage? This will remove all wallets and decrypt your storage.',
+      5000,
+    );
+    await tapIfTextPresent('Cancel');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });

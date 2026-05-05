@@ -48,6 +48,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     walletsInitialized,
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
+  // True only if the app actually went to 'background' (another app foregrounded). Lets us
+  // distinguish a real resume from active→inactive→active blips (biometric, Control Center,
+  // notifications) which would otherwise trigger the iOS paste permission prompt.
+  const wasInBackground = useRef<boolean>(false);
   const clipboardContent = useRef<undefined | string>(undefined);
   const navigation = useExtendedNavigation();
 
@@ -274,7 +278,15 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     async (nextAppState: AppStateStatus | undefined) => {
       if (!shouldActivateListeners || wallets.length === 0) return;
 
-      if ((appState.current.match(/inactive|background/) && nextAppState === 'active') || nextAppState === undefined) {
+      if (nextAppState === 'background') {
+        wasInBackground.current = true;
+      }
+
+      // Real resume from another app (tolerates the intermediate 'inactive' iOS emits);
+      // `undefined` is the initial mount call.
+      const isResume = nextAppState === 'active' && wasInBackground.current;
+      if (isResume || nextAppState === undefined) {
+        if (isResume) wasInBackground.current = false;
         updateExchangeRate();
         const processed = await processPushNotifications();
         if (processed) return;

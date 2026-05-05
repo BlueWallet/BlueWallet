@@ -4,17 +4,22 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import {
   countElements,
+  enableBiometric,
   extractTextFromElementById,
+  failBiometric,
   getSwitchValue,
   goBack,
   hashIt,
   helperImportWallet,
+  matchBiometric,
   scanText,
   scrollUpOnHomeScreen,
   setCustomFeeRate,
+  setupBiometricEnrollment,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapAndTapAgainIfTextIsNotVisible,
+  tapGatedByBiometric,
   tapIfTextPresent,
   typeTextIntoAlertInput,
   waitForId,
@@ -554,6 +559,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     await device.launchApp({ newInstance: true });
 
+    const isIOS = device.getPlatform() === 'ios';
+    if (isIOS) await setupBiometricEnrollment();
+    await enableBiometric();
+
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -579,29 +588,29 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.id('WalletDetails')).tap();
 
-    // wallet export
     await waitFor(element(by.id('WalletExport')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(500, 'down');
-    await tapAndTapAgainIfElementIsNotVisible('WalletExport', 'WalletExportScroll');
+    await tapGatedByBiometric(by.id('WalletExport'));
+    await waitForId('WalletExportScroll');
     await element(by.id('WalletExportScroll')).swipe('up', 'fast', 1);
     await sleep(200); // bounce animation
     await expect(element(by.id('Secret'))).toHaveText(process.env.HD_MNEMONIC_BIP84);
     await goBack();
 
-    // XPUB
     await waitFor(element(by.id('XpubButton')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(500, 'down');
-    await tapAndTapAgainIfElementIsNotVisible('XpubButton', 'CopyTextToClipboard');
+    await tapGatedByBiometric(by.id('XpubButton'), { auth: 'match' });
+    await waitForId('CopyTextToClipboard');
     await goBack();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('should handle URL successfully', async () => {
+  it('handles bitcoin URL deeplink and broadcast is blocked when biometric auth is rejected', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t22');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t22'), 'as it previously passed on Travis');
@@ -610,27 +619,61 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    const isIOS = device.getPlatform() === 'ios';
+    if (isIOS) await setupBiometricEnrollment();
 
-    await device.launchApp({ newInstance: true });
-
-    await device.launchApp({
+    // Part 1: bitcoin: URL deeplink routes into the send flow with prefilled address+amount.
+    const launchPromise = device.launchApp({
       newInstance: true,
       url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo',
     });
+    if (isIOS) await matchBiometric();
+    await launchPromise;
     await waitForId('chooseFee');
 
-    // Wait for the send screen to load after deep link
-    await waitForId('chooseFee');
-
-    // setting fee rate:
     const feeRate = 2;
     await setCustomFeeRate(feeRate);
     await element(by.id('CreateTransactionButton')).tap();
 
-    // created. verifying:
     await waitForId('TransactionValue');
     await expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     await expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
+
+    // Part 2 — iOS only: rebuild the tx manually, then verify that tapping
+    // "Send now" + a rejected Face ID leaves us on Confirm (broadcast blocked).
+    if (!isIOS) {
+      process.env.CI && require('fs').writeFileSync(lockFile, '1');
+      return;
+    }
+
+    const relaunchPromise = device.launchApp({ newInstance: true });
+    await matchBiometric();
+    await relaunchPromise;
+
+    await enableBiometric();
+
+    await scrollUpOnHomeScreen();
+    await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await waitForId('SendButton');
+    await element(by.id('SendButton')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0001');
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).typeText('1');
+    await element(by.id('feeCustom')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await element(by.id('CreateTransactionButton')).tap();
+    await waitForId('TransactionValue');
+
+    await device.disableSynchronization();
+    await element(by.text('Send now')).tap();
+    await failBiometric();
+    await expect(element(by.id('TransactionValue'))).toBeVisible();
+    try {
+      require('child_process').execSync('xcrun simctl terminate booted io.bluewallet.bluewallet', { stdio: 'ignore' });
+    } catch (_) {}
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
