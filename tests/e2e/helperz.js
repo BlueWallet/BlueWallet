@@ -469,6 +469,16 @@ export async function failBiometric() {
   if (device.getPlatform() !== 'ios') throw new Error('failBiometric: android not yet supported');
   await sleep(BIOMETRIC_PROMPT_DELAY_MS);
   await rawBiometric('--biometricNonmatch');
+  // iOS 26 sim shows a "Face Not Recognised / Try Again / Cancel" retry dialog after the
+  // first nonmatch. Tap Cancel via idb (Detox can't reach system-overlay buttons) so the
+  // simplePrompt promise actually rejects and JS-side onError handlers run.
+  await sleep(500);
+  try {
+    require('child_process').execSync(`idb ui tap --udid ${device.id} 200 513`, { stdio: 'ignore' });
+  } catch (_) {
+    /* best-effort — dialog may have auto-dismissed */
+  }
+  await sleep(500);
 }
 
 // Navigate Settings → Security and flip the biometric switch ON. Idempotent: skips the toggle
@@ -535,7 +545,16 @@ export async function tapGatedByBiometric(matcher, { reopen } = {}) {
   }
   await sleep(500);
   if (reopen) await reopen();
-  await element(matcher).tap();
+  try {
+    await element(matcher).tap();
+  } catch (err) {
+    try {
+      const path = `/tmp/bio-retap-fail-${Date.now()}.png`;
+      require('child_process').execSync(`xcrun simctl io ${device.id} screenshot "${path}"`, { stdio: 'ignore' });
+      console.warn('DIAG retap-fail screenshot:', path);
+    } catch (_) {}
+    throw err;
+  }
   await matchBiometric();
   // Same iOS-26 sim quirk applies after match — foreground the app once more so the caller's
   // subsequent waitFor*/expect can see the post-auth UI.

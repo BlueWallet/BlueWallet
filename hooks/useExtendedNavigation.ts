@@ -97,7 +97,8 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
               proceedWithNavigation();
               return;
             } else {
-              console.error('Biometric authentication failed');
+              // User-cancelled / failed Face ID isn't an app error — log without firing LogBox.
+              console.log('Biometric authentication failed; navigation aborted');
               return;
             }
           }

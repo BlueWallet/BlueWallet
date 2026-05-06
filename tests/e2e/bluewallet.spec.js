@@ -988,14 +988,36 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .scroll(150, 'down');
     // Bio-gated by useExtendedNavigation (route: ExportMultisigCoordinationSetupRoot).
     await tapGatedByBiometric(by.id('MultisigCoordinationSetup'));
+    await tapIfTextPresent('OK'); // dismiss any "Canceled by another authentication" residual
     await device.disableSynchronization();
-    await waitForId('ExportMultisigCoordinationSetupView');
+    try {
+      await waitForId('ExportMultisigCoordinationSetupView');
+    } catch (err) {
+      try {
+        const path = `/tmp/multisig-fail-${Date.now()}.png`;
+        require('child_process').execSync(`xcrun simctl io ${device.id} screenshot "${path}"`, { stdio: 'ignore' });
+        console.warn('DIAG screenshot:', path);
+      } catch (_) {}
+      throw err;
+    }
     await element(by.id('NavigationCloseButton')).atIndex(0).tap();
     await device.enableSynchronization();
 
     // go to receive screen and capture current receive address
     await goBack();
-    await waitForId('ReceiveButton');
+    // The earlier bio rejection leaves a "Biometric authentication failed" toast that
+    // covers the bottom-of-screen wallet buttons until it auto-dismisses.
+    await sleep(5000);
+    try {
+      await waitForId('ReceiveButton');
+    } catch (err) {
+      try {
+        const path = `/tmp/multisig-fail-${Date.now()}.png`;
+        require('child_process').execSync(`xcrun simctl io ${device.id} screenshot "${path}"`, { stdio: 'ignore' });
+        console.warn('DIAG screenshot:', path);
+      } catch (_) {}
+      throw err;
+    }
     await element(by.id('ReceiveButton')).tap();
     await waitForId('AddressValue');
     const vaultReceiveAddress = await extractTextFromElementById('AddressValue');
@@ -1011,8 +1033,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .scroll(100, 'down');
     // Bio-gated by useExtendedNavigation (route: ViewEditMultisigCosigners).
     await tapGatedByBiometric(by.id('ViewEditCosigners'));
+    await tapIfTextPresent('OK'); // dismiss any residual "Canceled by another authentication"
     await waitForText('Vault Key 1');
-    await expect(element(by.text('Vault Key 2'))).toBeVisible();
+    await waitFor(element(by.text('Vault Key 2')))
+      .toBeVisible()
+      .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
+      .scroll(100, 'down');
     await waitFor(element(by.text('Vault Key 3')))
       .toBeVisible()
       .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
