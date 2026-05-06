@@ -506,8 +506,10 @@ const BIOMETRIC_REJECTION_SETTLE_MS = 500;
  * Tap a button whose onPress triggers unlockWithBiometrics(), then exercise both the
  * rejection and the match paths of the gate:
  *   1. tap → first simplePrompt → fail Face ID → RN promise rejects, app's onError/catch
- *      runs and (per current UX) leaves the gate button tappable.
- *   2. re-tap → second simplePrompt → match Face ID → promise resolves, flow proceeds.
+ *      runs.
+ *   2. (optional `reopen` callback for gates that close on rejection — e.g. iOS alerts that
+ *      dismiss when the bio prompt rejects)
+ *   3. re-tap → second simplePrompt → match Face ID → promise resolves, flow proceeds.
  *
  * Why disable synchronization: when an RN button's onPress chains into simplePrompt(), the
  * native Face ID prompt pins the main dispatch queue in "busy". Detox's default idle-sync
@@ -516,7 +518,7 @@ const BIOMETRIC_REJECTION_SETTLE_MS = 500;
  *
  * Non-iOS: falls through to a plain tap (android biometric support is pending).
  */
-export async function tapGatedByBiometric(matcher) {
+export async function tapGatedByBiometric(matcher, { reopen } = {}) {
   const isIOS = device.getPlatform() === 'ios';
   if (isIOS) await device.disableSynchronization();
   await element(matcher).tap();
@@ -527,12 +529,21 @@ export async function tapGatedByBiometric(matcher) {
   // backgrounds the app to home. `simctl launch` (without --terminate-running-process) just
   // foregrounds the existing app process — state preserved.
   try {
-    require('child_process').execSync(`xcrun simctl launch booted ${IOS_BUNDLE_ID}`, { stdio: 'ignore' });
+    require('child_process').execSync(`xcrun simctl launch ${device.id} ${IOS_BUNDLE_ID}`, { stdio: 'ignore' });
   } catch (_) {
     /* best-effort */
   }
   await sleep(500);
+  if (reopen) await reopen();
   await element(matcher).tap();
   await matchBiometric();
+  // Same iOS-26 sim quirk applies after match — foreground the app once more so the caller's
+  // subsequent waitFor*/expect can see the post-auth UI.
+  try {
+    require('child_process').execSync(`xcrun simctl launch ${device.id} ${IOS_BUNDLE_ID}`, { stdio: 'ignore' });
+  } catch (_) {
+    /* best-effort */
+  }
+  await sleep(500);
   await device.enableSynchronization();
 }

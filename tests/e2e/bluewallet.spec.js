@@ -882,9 +882,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // TODO: re-tap path of `tapGatedByBiometric` cannot reach "Yes, delete" because the iOS
-  // alert closes when bio rejects. Needs a `reopen` callback to re-trigger the alert before
-  // the second tap.
   it('can create wallet, enable biometric, and delete wallet with biometric auth', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t9');
     if (process.env.CI) {
@@ -904,11 +901,17 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(500, 'down');
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Delete')).tap();
-    await waitForText('Yes, delete');
-    await tapGatedByBiometric(by.text('Yes, delete'));
-
+    const openDeleteAlert = async () => {
+      await element(by.id('HeaderMenuButton')).tap();
+      await element(by.text('Delete')).tap();
+      await waitForText('Yes, delete');
+    };
+    await openDeleteAlert();
+    // Bio rejection dismisses the iOS alert; reopen it before the match retry.
+    await tapGatedByBiometric(by.text('Yes, delete'), { reopen: openDeleteAlert });
+    // Dismiss any "Canceled by another authentication" residual alert from the back-to-back
+    // simplePrompt calls before checking the empty WalletsList state.
+    await tapIfTextPresent('OK');
     await waitForId('NoTransactionsMessage');
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
