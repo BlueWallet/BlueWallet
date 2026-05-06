@@ -886,9 +886,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t9'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    const permissions = device.getPlatform() === 'ios' ? { faceid: 'YES' } : {};
-    if (device.getPlatform() === 'ios') await setupBiometricEnrollment();
-    await device.launchApp({ delete: true, permissions });
+    await setupBiometricEnrollment();
+    await device.launchApp({ delete: true, permissions: { faceid: 'YES' } });
     await waitForId('WalletsList');
     await helperCreateWallet();
 
@@ -915,11 +914,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t10'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    const isIOS = device.getPlatform() === 'ios';
-    if (isIOS) await setupBiometricEnrollment();
-    const perms = { camera: 'YES', notifications: 'YES' };
-    if (isIOS) perms.faceid = 'YES';
-    await device.launchApp({ delete: true, permissions: perms });
+    await setupBiometricEnrollment();
+    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES', faceid: 'YES' } });
     await waitForId('WalletsList');
 
     await enableBiometric();
@@ -999,7 +995,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await tapGatedByBiometric(by.id('ViewEditCosigners'), { auth: 'match' });
+    await tapGatedByBiometric(by.id('ViewEditCosigners'));
     await waitForText('Vault Key 1');
     await expect(element(by.text('Vault Key 2'))).toBeVisible();
     await waitFor(element(by.text('Vault Key 3')))
@@ -1022,7 +1018,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.id('VaultCosignersSave')))
       .toBeVisible()
       .withTimeout(33000);
-    await tapGatedByBiometric(by.id('VaultCosignersSave'), { auth: 'match' });
+    await tapGatedByBiometric(by.id('VaultCosignersSave'));
     await waitForId('WalletsList');
 
     // verify receive address remains unchanged after forgetting cosigner 3 seed
@@ -1043,7 +1039,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await tapGatedByBiometric(by.id('ViewEditCosigners'), { auth: 'match' });
+    await tapGatedByBiometric(by.id('ViewEditCosigners'));
     await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
       .toBeVisible()
       .whileElement(by.id('ViewEditMultisigCosignersFlatList'))
@@ -1057,7 +1053,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.id('VaultCosignersSave')))
       .toBeVisible()
       .withTimeout(33000);
-    await tapGatedByBiometric(by.id('VaultCosignersSave'), { auth: 'match' });
+    await tapGatedByBiometric(by.id('VaultCosignersSave'));
     await waitForId('WalletsList');
 
     // verify receive address remains unchanged after restoring cosigner 3 seed

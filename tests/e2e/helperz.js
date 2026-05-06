@@ -497,37 +497,27 @@ export async function enableBiometric({ returnHome = true } = {}) {
 const BIOMETRIC_REJECTION_SETTLE_MS = 500;
 
 /**
- * Tap a button whose onPress triggers unlockWithBiometrics(), then resolve the Face ID prompt.
+ * Tap a button whose onPress triggers unlockWithBiometrics(), then exercise both the
+ * rejection and the match paths of the gate:
+ *   1. tap → first simplePrompt → fail Face ID → RN promise rejects, app's onError/catch
+ *      runs and (per current UX) leaves the gate button tappable.
+ *   2. re-tap → second simplePrompt → match Face ID → promise resolves, flow proceeds.
  *
  * Why disable synchronization: when an RN button's onPress chains into simplePrompt(), the
  * native Face ID prompt pins the main dispatch queue in "busy". Detox's default idle-sync
  * then waits forever for `tap()` to return. Disabling sync around the tap lets Detox send the
  * action without waiting; we re-enable once the biometric is resolved.
  *
- * Auth strategies:
- *   'match'           — single tap, single Face ID match. Use when the rejection path was
- *                        already exercised by an earlier gate in the same test (faster).
- *   'rejectThenMatch' — tap, fail Face ID (forces simplePrompt's promise to *reject* —
- *                        exercises the app's rejection-handling code), then re-tap and pass
- *                        Face ID. Default; mirrors what users hit when Face ID misreads.
- *
  * Non-iOS: falls through to a plain tap (android biometric support is pending).
  */
-export async function tapGatedByBiometric(matcher, { auth = 'rejectThenMatch' } = {}) {
+export async function tapGatedByBiometric(matcher) {
   const isIOS = device.getPlatform() === 'ios';
   if (isIOS) await device.disableSynchronization();
   await element(matcher).tap();
   if (!isIOS) return;
-
-  if (auth === 'match') {
-    await matchBiometric();
-  } else {
-    // First tap → first simplePrompt → reject. App's onError/catch runs and (per current UX)
-    // leaves the gate button tappable. Re-tap → second simplePrompt → match.
-    await failBiometric();
-    await sleep(BIOMETRIC_REJECTION_SETTLE_MS);
-    await element(matcher).tap();
-    await matchBiometric();
-  }
+  await failBiometric();
+  await sleep(BIOMETRIC_REJECTION_SETTLE_MS);
+  await element(matcher).tap();
+  await matchBiometric();
   await device.enableSynchronization();
 }

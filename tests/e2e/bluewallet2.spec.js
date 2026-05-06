@@ -560,8 +560,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     await device.launchApp({ newInstance: true });
 
-    const isIOS = device.getPlatform() === 'ios';
-    if (isIOS) await setupBiometricEnrollment();
+    await setupBiometricEnrollment();
     await enableBiometric();
 
     // go inside the wallet
@@ -604,7 +603,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(500, 'down');
-    await tapGatedByBiometric(by.id('XpubButton'), { auth: 'match' });
+    await tapGatedByBiometric(by.id('XpubButton'));
     await waitForId('CopyTextToClipboard');
     await goBack();
 
@@ -621,7 +620,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
     const isIOS = device.getPlatform() === 'ios';
-    if (isIOS) await setupBiometricEnrollment();
+    await setupBiometricEnrollment();
 
     // Part 1: bitcoin: URL deeplink routes into the send flow with prefilled address+amount.
     const launchPromise = device.launchApp({
