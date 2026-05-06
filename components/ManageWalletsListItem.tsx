@@ -1,31 +1,17 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import {
-  StyleSheet,
-  ViewStyle,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  Animated,
-  View,
-  Text,
-  TextStyle,
-  ImageBackground,
-} from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import loc, { formatBalance } from '../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { AddressItem } from './addresses/AddressItem';
 import { ItemType, AddressItemData } from '../models/itemTypes';
-import WalletGradient from '../class/wallet-gradient';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
-import { BlurredBalanceView } from './BlurredBalanceView';
+import WalletListItem from './WalletListItem';
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -111,10 +97,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 
   if (item.type === ItemType.WalletSection) {
     const wallet = item.data;
-    const walletLabel = wallet.getLabel ? wallet.getLabel() : '';
-    const balance = !wallet.hideBalance && formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true);
-    const gradientColors = WalletGradient.gradientsFor(wallet.type);
-    const titleColor = dark ? colors.foregroundColor : colors.alternativeTextColor;
+    const titleColor = dark ? colors.foregroundColor : colors.darkGray;
 
     let iconImage;
     switch (wallet.type) {
@@ -130,39 +113,18 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     }
 
     return (
-      <TouchableOpacity
-        style={[
-          styles.listItem,
-          {
-            backgroundColor: isActive ? colors.lightButton : colors.background,
-            borderBottomColor: colors.lightBorder,
-          },
-        ]}
+      <WalletListItem
+        wallet={wallet}
+        iconImage={iconImage}
         onPress={onPress}
         onLongPress={isDraggingDisabled ? undefined : startDrag}
         delayLongPress={120}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        activeOpacity={0.7}
-        accessibilityRole="button"
-        testID={walletLabel}
-      >
-        <LinearGradient colors={gradientColors} style={styles.iconBox}>
-          <ImageBackground source={iconImage} style={styles.iconImage} />
-        </LinearGradient>
-        <View style={styles.listItemContent}>
-          <Text numberOfLines={1} style={[styles.listItemLabel, { color: titleColor, writingDirection: direction }]}>
-            {renderHighlightedText ? renderHighlightedText(walletLabel, state.searchQuery || '') : walletLabel}
-          </Text>
-          {wallet.hideBalance ? (
-            <BlurredBalanceView />
-          ) : (
-            <Text numberOfLines={1} style={[styles.listItemBalance, { color: colors.alternativeTextColor, writingDirection: direction }]}>
-              {balance}
-            </Text>
-          )}
-        </View>
-      </TouchableOpacity>
+        searchQuery={state.searchQuery || ''}
+        isActive={isActive}
+        borderBottomColor={colors.lightBorder}
+        backgroundColor={colors.background}
+        titleColor={titleColor}
+      />
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
     try {
@@ -251,8 +213,6 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
     }).start();
   }, [fadeAnim]);
 
-  const walletGradientColors = WalletGradient.gradientsFor(wallet.type);
-
   const cardRadius = 16;
   const cardShadowStyle: ViewStyle = {
     marginHorizontal: 16,
@@ -261,9 +221,9 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.08,
-        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
       },
       android: {
         elevation: 2,
@@ -291,30 +251,13 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
 
   const walletHeaderBackgroundColor = colors.background === '#FFFFFF' ? '#F9F9F9' : colors.elevated;
 
-  const sectionHeaderStyle: ViewStyle = {
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    backgroundColor: colors.elevated,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: cardBorderColor,
-  };
-
-  const sectionHeaderTextStyle: TextStyle = {
-    color: colors.alternativeTextColor,
-    fontWeight: '500' as const,
-    fontSize: 13,
-  };
-
   const dividerStyle = [styles.itemDivider, { backgroundColor: cardBorderColor }];
 
   const onWalletPress = useCallback(() => {
     navigateToWallet(wallet);
   }, [navigateToWallet, wallet]);
 
-  const walletLabel = wallet.getLabel ? wallet.getLabel() : '';
-  const balance = !wallet.hideBalance && formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true);
-  const titleColor = dark ? colors.foregroundColor : colors.alternativeTextColor;
+  const titleColor = dark ? colors.foregroundColor : colors.darkGray;
 
   let iconImage;
   switch (wallet.type) {
@@ -333,48 +276,20 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
     <Animated.View style={{ opacity: fadeAnim }}>
       <View style={cardShadowStyle}>
         <View style={cardInnerStyle}>
-          <TouchableOpacity
-            style={[
-              styles.listItem,
-              {
-                backgroundColor: walletHeaderBackgroundColor,
-                borderBottomColor: cardBorderColor,
-              },
-            ]}
+          <WalletListItem
+            wallet={wallet}
+            iconImage={iconImage}
             onPress={onWalletPress}
-            delayLongPress={120}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-          >
-            <LinearGradient colors={walletGradientColors} style={styles.iconBox}>
-              <ImageBackground source={iconImage} style={styles.iconImage} />
-            </LinearGradient>
-            <View style={styles.listItemContent}>
-              <Text numberOfLines={1} style={[styles.listItemLabel, { color: titleColor, writingDirection: direction }]}>
-                {renderHighlightedText ? renderHighlightedText(walletLabel, state.searchQuery || '') : walletLabel}
-              </Text>
-              {wallet.hideBalance ? (
-                <BlurredBalanceView />
-              ) : (
-                <Text
-                  numberOfLines={1}
-                  style={[styles.listItemBalance, { color: colors.alternativeTextColor, writingDirection: direction }]}
-                >
-                  {balance}
-                </Text>
-              )}
-            </View>
-          </TouchableOpacity>
+            searchQuery={state.searchQuery || ''}
+            borderBottomColor={cardBorderColor}
+            backgroundColor={walletHeaderBackgroundColor}
+            titleColor={titleColor}
+          />
 
           {expanded && (
             <View style={childItemsContainerStyle}>
               {transactions.length > 0 && (
                 <>
-                  <View style={sectionHeaderStyle}>
-                    <Text style={sectionHeaderTextStyle}>
-                      {loc.addresses.transactions} ({transactions.length})
-                    </Text>
-                  </View>
                   {transactions.map((transaction, index) => (
                     <View key={`tx-${index}`}>
                       <View style={childItemStyle()}>
@@ -394,11 +309,6 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
 
               {addresses.length > 0 && (
                 <>
-                  <View style={sectionHeaderStyle}>
-                    <Text style={sectionHeaderTextStyle}>
-                      {loc.addresses.addresses_title} ({addresses.length})
-                    </Text>
-                  </View>
                   {addresses.map((address, index) => {
                     const walletInstance: any = (wallet as any)?._hdWalletInstance ?? wallet;
                     let computedBalance = 0;
@@ -446,39 +356,6 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
 };
 
 const styles = StyleSheet.create({
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  iconBox: {
-    width: 46,
-    height: 46,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  iconImage: {
-    width: 46,
-    height: 46,
-    resizeMode: 'center',
-  },
-  listItemContent: {
-    flex: 1,
-    marginLeft: 14,
-    justifyContent: 'center',
-  },
-  listItemLabel: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  listItemBalance: {
-    fontSize: 14,
-  },
   itemDivider: {
     height: 1,
     width: '100%',
