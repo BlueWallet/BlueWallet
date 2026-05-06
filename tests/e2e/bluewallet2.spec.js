@@ -551,7 +551,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   // TODO: same iOS 26 navigation-gate quirk as multisig vault test —
   // tapGatedByBiometric on WalletExport / XpubButton (both in useExtendedNavigation's
   // requiresBiometrics) doesn't recover after rejection.
-  it.skip('can do basic wallet-details operations', async () => {
+  it('can do basic wallet-details operations', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_walletdetails');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
@@ -681,7 +681,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
   // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
   // to bio work).
-  it.skip('can manage UTXO', async () => {
+  it('can manage UTXO', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t23');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t23'), 'as it previously passed on Travis');
@@ -802,7 +802,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
   // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
   // to bio work).
-  it.skip('can purge txs and balance, then refetch data from tx list screen and see data on screen update', async () => {
+  it('can purge txs and balance, then refetch data from tx list screen and see data on screen update', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t24');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t24'), 'as it previously passed on Travis');
@@ -847,7 +847,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
   // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
   // to bio work).
-  it.skip('can purge txs and balance, then restart the app and witness it to refetch tx list screen and balance', async () => {
+  it('can purge txs and balance, then restart the app and witness it to refetch tx list screen and balance', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t25');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t25'), 'as it previously passed on Travis');
