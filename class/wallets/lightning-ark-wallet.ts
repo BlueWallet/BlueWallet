@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeSwaps, BoltzSwap, BoltzSwapProvider, decodeInvoice } from '@arkade-os/boltz-swap';
 import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
-import { SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
+import { RestDelegatorProvider, SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 
@@ -55,8 +55,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _arkadeSwaps: ArkadeSwaps | undefined;
 
   private _arkServerUrl: string = 'https://arkade.computer';
-  private _arkServerPublicKey: string = '022b74c2011af089c849383ee527c72325de52df6a788428b68d49e9174053aaba';
-  private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
+  // Mainnet delegate URL the canonical Arkade wallet uses by default
+  // (see ../master/wallet/src/lib/constants.ts:27). Without this, Wallet.create
+  // builds a non-delegate offchain tapscript and registers only the `default`
+  // contract, so funds previously sent by the canonical wallet to its delegate
+  // address are invisible to the indexer query and the wallet shows zero
+  // balance after restore. The SDK ships no built-in fallback — every consumer
+  // wires the URL itself.
+  private _delegatorUrl: string = 'https://delegate.arkade.money';
 
   private _swapHistory: BoltzSwap[] = [];
   private _transactionsHistory: ArkTransaction[] = [];
@@ -134,16 +140,15 @@ export class LightningArkWallet extends LightningCustodianWallet {
             identity: this._getIdentity(),
             arkProvider: new ExpoArkProvider(this._arkServerUrl),
             indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
-            arkServerPublicKey: this._arkServerPublicKey,
             storage: { walletRepository, contractRepository },
+            delegatorProvider: new RestDelegatorProvider(this._delegatorUrl),
           }));
         staticWalletCache[namespace] = wallet;
         mm.end();
 
-        const swapProvider = new BoltzSwapProvider({
-          apiUrl: this._boltzApiUrl,
-          network: 'bitcoin',
-        });
+        // apiUrl omitted: @arkade-os/boltz-swap defaults to the production
+        // mainnet URL (https://api.ark.boltz.exchange) when network is 'bitcoin'.
+        const swapProvider = new BoltzSwapProvider({ network: 'bitcoin' });
 
         const arkadeSwaps =
           staticSwapsCache[namespace] ??
@@ -358,7 +363,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     );
   }
 
-  async fetchBalance(noRetry?: boolean): Promise<void> {
+  async fetchBalance(): Promise<void> {
     if (!this._wallet) await this.init();
     if (!this._wallet) throw new Error('Ark wallet not initialized');
 
@@ -371,10 +376,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
     const balance = await this._wallet.getBalance();
     this._lastBalanceFetch = +new Date();
     this.balance = balance.available;
-  }
-
-  getBalance() {
-    return this.balance;
   }
 
   async payInvoice(invoice: string, freeAmount: number = 0) {
@@ -409,7 +410,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Transaction ID:', paymentResult.txid);
   }
 
-  async getUserInvoices(limit: number | false = false): Promise<LightningTransaction[]> {
+  async getUserInvoices(): Promise<LightningTransaction[]> {
     if (this._arkadeSwaps) {
       await this._attemptToClaimPendingVHTLCs();
     }
@@ -486,7 +487,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return this.getTransactions().some(tx => tx.payment_request === paymentRequest && typeof tx.value !== 'undefined' && tx?.value >= 0);
   }
 
-  async createAccount(isTest: boolean = false) {
+  async createAccount() {
     // nop
   }
 
