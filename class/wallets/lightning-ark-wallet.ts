@@ -16,7 +16,7 @@ import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-
 import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
-import { getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
+import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
 const { bech32m } = require('bech32');
 
 const bip32 = BIP32Factory(ecc);
@@ -25,6 +25,15 @@ const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapsCache: Record<string, ArkadeSwaps> = {};
 const initInFlight: Map<string, Promise<{ wallet: Wallet; arkadeSwaps: ArkadeSwaps }>> = new Map();
 const boardingLock: Record<string, boolean> = {};
+
+// Test-only: exposes module-private caches so unit tests can observe / reset
+// them and verify deletion-vs-init race behavior. Not part of the public API.
+export const __testing__ = {
+  staticWalletCache,
+  staticSwapsCache,
+  initInFlight,
+  boardingLock,
+};
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
@@ -35,8 +44,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // @ts-ignore: override
   public readonly typeReadable = LightningArkWallet.typeReadable;
 
+  // Runtime SDK objects. The constructor re-defines these as non-enumerable so
+  // saveToDisk's `Object.assign({}, key)` skips them and JSON.stringify never
+  // sees a partially-initialized SDK snapshot — this replaces the Phase 1
+  // prepareForSerialization nuke-and-rebuild churn. We avoid the `declare`
+  // modifier here because @babel/preset-typescript in the React Native pipeline
+  // requires `allowDeclareFields: true` for it, and tightening that setting is
+  // out of scope for this phase.
   private _wallet: Wallet | undefined;
-  private _arkadeSwaps: ArkadeSwaps | undefined = undefined;
+  private _arkadeSwaps: ArkadeSwaps | undefined;
+
   private _arkServerUrl: string = 'https://arkade.computer';
   private _arkServerPublicKey: string = '022b74c2011af089c849383ee527c72325de52df6a788428b68d49e9174053aaba';
   private _boltzApiUrl: string = 'https://api.ark.boltz.exchange';
@@ -52,14 +69,15 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _limitMax: number = 0;
   private _feePercentage: number = 0;
 
+  constructor() {
+    super();
+    Object.defineProperty(this, '_wallet', { value: undefined, writable: true, enumerable: false, configurable: true });
+    Object.defineProperty(this, '_arkadeSwaps', { value: undefined, writable: true, enumerable: false, configurable: true });
+  }
+
   hashIt = (s: string): string => {
     return uint8ArrayToHex(sha256(s));
   };
-
-  prepareForSerialization() {
-    this._wallet = undefined;
-    this._arkadeSwaps = undefined;
-  }
 
   _getIdentity() {
     assert(this.secret, 'No secret provided');
@@ -516,6 +534,50 @@ export class LightningArkWallet extends LightningCustodianWallet {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  /**
+   * Cleanup hook invoked when the wallet is removed from BlueWallet storage.
+   * Drains any in-flight init so its post-await tail can no longer repopulate
+   * staticWalletCache / staticSwapsCache / realmInstances after we've cleared
+   * them, then closes the per-wallet Realm, deletes the Realm files, and
+   * resets the Keychain entry. Errors are scoped here and never thrown to the
+   * deletion path (Invariant 9).
+   */
+  async onDelete(): Promise<void> {
+    if (!this.secret) return; // nothing to clean
+    const namespace = this.getNamespace();
+
+    delete boardingLock[namespace];
+
+    // If init() is racing with us, await its settlement before clearing caches.
+    // Without this drain, the IIFE in init() would write to staticWalletCache /
+    // staticSwapsCache after our delete and the realm adapter would re-cache the
+    // open Realm, resurrecting state for an already-deleted wallet. Note that
+    // the racing init's `await inFlight` continuation runs *before* ours (it
+    // was registered earlier), so when we resume here, init has already
+    // re-assigned this._wallet / this._arkadeSwaps and populated the caches.
+    // We then clear everything in one pass.
+    const inFlightInit = initInFlight.get(namespace);
+    if (inFlightInit) {
+      try {
+        await inFlightInit;
+      } catch {
+        // init's caller already received the rejection; we just need it to settle.
+      }
+    }
+
+    this._wallet = undefined;
+    this._arkadeSwaps = undefined;
+    delete staticWalletCache[namespace];
+    delete staticSwapsCache[namespace];
+    initInFlight.delete(namespace);
+
+    try {
+      await deleteArkadeRealm(namespace);
+    } catch (e: any) {
+      console.log(`[LightningArkWallet] onDelete cleanup failed for ${namespace}:`, e?.message ?? e);
     }
   }
 }

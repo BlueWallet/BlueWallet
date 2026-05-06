@@ -168,22 +168,32 @@ jest.mock('react-native-default-preference', () => {
 });
 
 jest.mock('react-native-fs', () => {
+  // Track existence per absolute path so the Arkade Realm adapter's
+  // ensureArkadeDir() / unlink() round trips behave coherently in tests.
+  const mockFsExisting = new Set();
+  const setExists = p => mockFsExisting.add(p);
+  const clearExists = p => mockFsExisting.delete(p);
+
   return {
-    mkdir: jest.fn(),
+    mkdir: jest.fn(async p => {
+      setExists(p);
+    }),
     moveFile: jest.fn(),
     copyFile: jest.fn(),
     pathForBundle: jest.fn(),
     pathForGroup: jest.fn(),
     getFSInfo: jest.fn(),
     getAllExternalFilesDirs: jest.fn(),
-    unlink: jest.fn(),
-    exists: jest.fn(),
+    unlink: jest.fn(async p => {
+      clearExists(p);
+    }),
+    exists: jest.fn(async p => mockFsExisting.has(p)),
     stopDownload: jest.fn(),
     resumeDownload: jest.fn(),
     isResumable: jest.fn(),
     stopUpload: jest.fn(),
     completeHandlerIOS: jest.fn(),
-    readDir: jest.fn(),
+    readDir: jest.fn(async () => []),
     readDirAssets: jest.fn(),
     existsAssets: jest.fn(),
     readdir: jest.fn(),
@@ -202,14 +212,15 @@ jest.mock('react-native-fs', () => {
     downloadFile: jest.fn(),
     uploadFiles: jest.fn(),
     touch: jest.fn(),
-    MainBundlePath: jest.fn(),
-    CachesDirectoryPath: jest.fn(),
-    DocumentDirectoryPath: jest.fn(),
-    ExternalDirectoryPath: jest.fn(),
-    ExternalStorageDirectoryPath: jest.fn(),
-    TemporaryDirectoryPath: jest.fn(),
-    LibraryDirectoryPath: jest.fn(),
-    PicturesDirectoryPath: jest.fn(),
+    MainBundlePath: '/mock/MainBundle',
+    CachesDirectoryPath: '/mock/Caches',
+    DocumentDirectoryPath: '/mock/Documents',
+    ExternalDirectoryPath: '/mock/External',
+    ExternalStorageDirectoryPath: '/mock/ExternalStorage',
+    TemporaryDirectoryPath: '/mock/Temporary',
+    LibraryDirectoryPath: '/mock/Library',
+    PicturesDirectoryPath: '/mock/Pictures',
+    __mockFsHelpers: { setExists, clearExists, reset: () => mockFsExisting.clear() },
   };
 });
 
@@ -217,32 +228,79 @@ jest.mock('@react-native-documents/picker', () => ({}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
 
-const realmInstanceMock = {
-  create: function () {},
-  delete: function () {},
-  close: function () {},
-  write: function (transactionFn) {
-    if (typeof transactionFn === 'function') {
-      // to test if something is not right in Realm transactional database write
-      transactionFn();
-    }
-  },
-  objectForPrimaryKey: function () {
-    return {};
-  },
-  objects: function () {
-    const wallets = {
-      filtered: function () {
-        return [];
-      },
-    };
-    return wallets;
-  },
-};
+// Per-path Realm mock so the Arkade Realm adapter (one encrypted file per Ark wallet)
+// can be exercised in unit tests. Each `Realm.open({ path })` returns a stable
+// instance for that path until it is closed or deleted; concurrent opens for the
+// same path observe the same instance.
 jest.mock('realm', () => {
+  const mockRealmStore = new Map();
+  // Persisted-on-disk view: paths that have been opened at least once and not
+  // yet deleted. Realm.exists / Realm.deleteFile read this rather than the
+  // live (memory-cached, possibly-closed) instance map so deleteArkadeRealm
+  // can realistically test the file-cleanup path.
+  const mockRealmFiles = new Set();
+  const makeRealmInstance = path => {
+    let isClosed = false;
+    return {
+      path,
+      get isClosed() {
+        return isClosed;
+      },
+      create: function () {},
+      delete: function () {},
+      write: function (transactionFn) {
+        if (typeof transactionFn === 'function') {
+          transactionFn();
+        }
+      },
+      objectForPrimaryKey: function () {
+        return {};
+      },
+      objects: function () {
+        return {
+          filtered: function () {
+            return [];
+          },
+          length: 0,
+          [Symbol.iterator]: function* () {},
+        };
+      },
+      close: function () {
+        isClosed = true;
+      },
+      addListener: jest.fn(),
+      removeAllListeners: jest.fn(),
+    };
+  };
   return {
     UpdateMode: { Modified: 1 },
-    open: jest.fn(() => realmInstanceMock),
+    open: jest.fn(async config => {
+      const path = (config && config.path) || '__default__';
+      const existing = mockRealmStore.get(path);
+      if (existing && !existing.isClosed) return existing;
+      const inst = makeRealmInstance(path);
+      mockRealmStore.set(path, inst);
+      mockRealmFiles.add(path);
+      return inst;
+    }),
+    // Real Realm.exists / Realm.deleteFile are synchronous in this version.
+    exists: jest.fn(arg => {
+      const path = typeof arg === 'string' ? arg : (arg && arg.path) || '__default__';
+      return mockRealmFiles.has(path);
+    }),
+    deleteFile: jest.fn(config => {
+      const path = (config && config.path) || '__default__';
+      mockRealmStore.delete(path);
+      mockRealmFiles.delete(path);
+    }),
+    __mockRealmHelpers: {
+      reset: () => {
+        mockRealmStore.clear();
+        mockRealmFiles.clear();
+      },
+      store: mockRealmStore,
+      files: mockRealmFiles,
+    },
   };
 });
 
@@ -273,16 +331,61 @@ jest.mock('react-native-share', () => {
   };
 });
 
-const mockKeychain = {
-  SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
-  SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',
-  SECURITY_LEVEL_SECURE_HARDWARE: 'MOCK_SECURITY_LEVEL_SECURE_HARDWARE',
-  setGenericPassword: jest.fn().mockResolvedValue(),
-  getGenericPassword: jest.fn().mockResolvedValue(),
-  resetGenericPassword: jest.fn().mockResolvedValue(),
-};
-jest.mock('react-native-keychain', () => mockKeychain);
+// Service-keyed Keychain mock so Arkade adapter tests can exercise the per-wallet
+// encryption-key lifecycle (load-or-create, then read on subsequent open). Defined
+// inside the factory because Jest hoists `jest.mock` above module scope and refuses
+// out-of-scope captures (only names matching /mock/i are allowed through).
+jest.mock('react-native-keychain', () => {
+  const mockKeychainCreds = new Map();
+  return {
+    SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
+    SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',
+    SECURITY_LEVEL_SECURE_HARDWARE: 'MOCK_SECURITY_LEVEL_SECURE_HARDWARE',
+    ACCESSIBLE: {
+      WHEN_UNLOCKED: 'AccessibleWhenUnlocked',
+      AFTER_FIRST_UNLOCK: 'AccessibleAfterFirstUnlock',
+      ALWAYS: 'AccessibleAlways',
+      WHEN_PASSCODE_SET_THIS_DEVICE_ONLY: 'AccessibleWhenPasscodeSetThisDeviceOnly',
+      WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'AccessibleWhenUnlockedThisDeviceOnly',
+      AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: 'AccessibleAfterFirstUnlockThisDeviceOnly',
+    },
+    SECURITY_LEVEL: {
+      SECURE_SOFTWARE: 'SECURE_SOFTWARE',
+      SECURE_HARDWARE: 'SECURE_HARDWARE',
+      ANY: 'ANY',
+    },
+    setGenericPassword: jest.fn(async (username, password, options) => {
+      const svc = (options && options.service) || '__default__';
+      mockKeychainCreds.set(svc, { username, password, service: svc });
+      return true;
+    }),
+    getGenericPassword: jest.fn(async options => {
+      const svc = (options && options.service) || '__default__';
+      return mockKeychainCreds.get(svc) || false;
+    }),
+    resetGenericPassword: jest.fn(async options => {
+      const svc = (options && options.service) || '__default__';
+      return mockKeychainCreds.delete(svc);
+    }),
+    // Default to the strongest level so the adapter's preflight selects
+    // SECURE_HARDWARE in the happy path. Tests override per-case via
+    // mockResolvedValueOnce when they need a downgrade scenario.
+    getSecurityLevel: jest.fn(async () => 'SECURE_HARDWARE'),
+    __mockKeychainHelpers: { reset: () => mockKeychainCreds.clear(), store: mockKeychainCreds },
+  };
+});
 
-jest.mock('react-native-tcp-socket', () => mockKeychain);
+// Historic copy-paste: react-native-tcp-socket pulled the Keychain mock. Keep the
+// same surface so existing tests continue to mount, just with a fresh map.
+jest.mock('react-native-tcp-socket', () => {
+  return {
+    SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
+    SECURITY_LEVEL_SECURE_SOFTWARE: 'MOCK_SECURITY_LEVEL_SECURE_SOFTWARE',
+    SECURITY_LEVEL_SECURE_HARDWARE: 'MOCK_SECURITY_LEVEL_SECURE_HARDWARE',
+    setGenericPassword: jest.fn().mockResolvedValue(true),
+    getGenericPassword: jest.fn().mockResolvedValue(false),
+    resetGenericPassword: jest.fn().mockResolvedValue(true),
+  };
+});
 
 global.alert = () => {};
