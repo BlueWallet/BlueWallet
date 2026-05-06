@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -24,7 +25,36 @@ import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
-import { scanQrHelper } from '../../helpers/scan-qr.ts';
+import { scanQrHelper } from '../../helpers/scan-qr';
+import LinearGradient from 'react-native-linear-gradient';
+
+const withAlpha = (color: string, alpha: number): string => {
+  const a = Math.max(0, Math.min(1, alpha));
+
+  // #RGB, #RRGGBB, #RRGGBBAA
+  if (color.startsWith('#')) {
+    const hex = color.slice(1);
+    const normalized =
+      hex.length === 3
+        ? hex
+            .split('')
+            .map(c => c + c)
+            .join('')
+        : hex.length === 8
+          ? hex.slice(0, 6)
+          : hex;
+
+    if (normalized.length === 6) {
+      const r = parseInt(normalized.slice(0, 2), 16);
+      const g = parseInt(normalized.slice(2, 4), 16);
+      const b = parseInt(normalized.slice(4, 6), 16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+  }
+
+  // For non-hex theme values, fall back to transparent.
+  return 'transparent';
+};
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -109,6 +139,7 @@ const WalletsList: React.FC = () => {
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
+  const insets = useSafeAreaInsets();
   const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const route = useRoute<RouteProps>();
@@ -128,6 +159,18 @@ const WalletsList: React.FC = () => {
       color: colors.foregroundColor,
     },
   });
+
+  const bottomButtonsGradientStyle = useMemo(
+    () => ({
+      position: 'absolute' as const,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      // extend into safe-area so it visually touches bottom edge
+      height: 50 + insets.bottom,
+    }),
+    [insets.bottom],
+  );
 
   const refreshWallets = useCallback(
     async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
@@ -396,15 +439,25 @@ const WalletsList: React.FC = () => {
   const renderScanButton = useCallback(() => {
     if (wallets.length > 0) {
       return (
-        <FContainer ref={walletActionButtonsRef.current}>
-          <FButton
-            onPress={onScanButtonPressed}
-            onLongPress={sendButtonLongPress}
-            icon={<Image resizeMode="stretch" source={scanImage} />}
-            text={loc.send.details_scan}
-            testID="HomeScreenScanButton"
-          />
-        </FContainer>
+        <>
+          <View pointerEvents="none" style={bottomButtonsGradientStyle}>
+            <LinearGradient
+              colors={[colors.background, withAlpha(colors.background, 0)]}
+              start={{ x: 0.5, y: 1 }}
+              end={{ x: 0.5, y: 0 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </View>
+          <FContainer ref={walletActionButtonsRef.current}>
+            <FButton
+              onPress={onScanButtonPressed}
+              onLongPress={sendButtonLongPress}
+              icon={<Image resizeMode="stretch" source={scanImage} />}
+              text={loc.send.details_scan}
+              testID="HomeScreenScanButton"
+            />
+          </FContainer>
+        </>
       );
     } else {
       return null;

@@ -34,7 +34,7 @@ const LAYOUT = {
   BUTTON_HEIGHT: 52,
   SINGLE_BUTTON_HEIGHT: 58,
   CONTAINER_SIDE_MARGIN: 16,
-  DEFAULT_BORDER_RADIUS: 8,
+  DEFAULT_BORDER_RADIUS: 100,
   SINGLE_BUTTON_RADIUS: 29,
   SINGLE_BUTTON_WIDTH_FACTOR: 0.625,
   MAX_BUTTON_FONT_SIZE: 24,
@@ -51,17 +51,14 @@ const LAYOUT = {
   },
 };
 
-const BUTTON_ACTIVE_OPACITY = 0.82;
+const BUTTON_SCALE_PRESSED = 0.96;
+const BUTTON_SCALE_ANIMATION_DURATION_MS = 110;
 
 const useFloatButtonAnimation = (initialHeight: number) => {
   // Slide is a once-per-mount animation: capture height on first render and never react to subsequent
   // height changes (Android navigation transitions can re-emit height, which would yank the buttons
   // off-screen mid-spring).
   const slideAnimation = useRef(new Animated.Value(isDesktop ? 0 : initialHeight)).current;
-  const animatedButtonRadius = useRef(new Animated.Value(LAYOUT.DEFAULT_BORDER_RADIUS)).current;
-  const animatedSingleButtonRadius = useRef(new Animated.Value(LAYOUT.SINGLE_BUTTON_RADIUS)).current;
-  const [isAnimating, setIsAnimating] = useState(false);
-  const animationInterrupted = useRef(false);
 
   useEffect(() => {
     if (isDesktop) return;
@@ -94,52 +91,9 @@ const useFloatButtonAnimation = (initialHeight: number) => {
     });
   }, []);
 
-  const animateBorderRadius = useCallback(
-    (buttonRadius: number, singleRadius: number, onComplete?: () => void) => {
-      if (isDesktop) {
-        animatedButtonRadius.setValue(buttonRadius);
-        animatedSingleButtonRadius.setValue(singleRadius);
-        if (onComplete) onComplete();
-        return;
-      }
-
-      if (isAnimating) {
-        animationInterrupted.current = true;
-        return;
-      }
-
-      setIsAnimating(true);
-      animationInterrupted.current = false;
-
-      Animated.parallel([
-        Animated.timing(animatedButtonRadius, {
-          toValue: buttonRadius,
-          duration: 250,
-          useNativeDriver: false,
-        }),
-        Animated.timing(animatedSingleButtonRadius, {
-          toValue: singleRadius,
-          duration: 250,
-          useNativeDriver: false,
-        }),
-      ]).start(({ finished }) => {
-        setIsAnimating(false);
-        if (finished && !animationInterrupted.current && onComplete) {
-          onComplete();
-        }
-      });
-    },
-    [animatedButtonRadius, animatedSingleButtonRadius, isAnimating],
-  );
-
   return {
     slideAnimation,
-    animatedButtonRadius,
-    animatedSingleButtonRadius,
-    isAnimating: isDesktop ? false : isAnimating,
-    setIsAnimating,
     configureLayoutAnimation,
-    animateBorderRadius,
   };
 };
 
@@ -236,17 +190,9 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
 
       const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, availableWidth, totalChildren);
 
-      let buttonRadius;
-      if (totalChildren === 1) {
-        buttonRadius = LAYOUT.SINGLE_BUTTON_RADIUS;
-      } else {
-        buttonRadius = Math.min(LAYOUT.DEFAULT_BORDER_RADIUS * 1.5, calculatedWidth / 12);
-      }
+      const buttonRadius = LAYOUT.DEFAULT_BORDER_RADIUS;
 
-      const multiButtonRadius = Math.max(LAYOUT.DEFAULT_BORDER_RADIUS, Math.floor(buttonRadius));
-      const singleButtonRadius = LAYOUT.SINGLE_BUTTON_RADIUS;
-
-      return { buttonRadius: multiButtonRadius, singleButtonRadius, shouldBeVertical };
+      return { buttonRadius, singleButtonRadius: buttonRadius, shouldBeVertical };
     },
     [width, sizeClass, shouldUseVerticalLayout],
   );
@@ -381,9 +327,8 @@ interface FButtonProps {
   last?: boolean;
   singleChild?: boolean;
   isVertical?: boolean;
-  borderRadius?: number | Animated.Value;
+  borderRadius?: number;
   fontSize?: number;
-  isAnimating?: boolean;
   disabled?: boolean;
   testID?: string;
   onPress: () => void;
@@ -444,11 +389,22 @@ export const FButton = ({
   isVertical,
   borderRadius = LAYOUT.DEFAULT_BORDER_RADIUS,
   fontSize = LAYOUT.MAX_BUTTON_FONT_SIZE,
-  isAnimating = false,
   testID,
   ...props
 }: FButtonProps) => {
   const { colors } = useTheme();
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const animateScaleTo = useCallback(
+    (toValue: number) => {
+      Animated.timing(scale, {
+        toValue,
+        duration: BUTTON_SCALE_ANIMATION_DURATION_MS,
+        useNativeDriver: true,
+      }).start();
+    },
+    [scale],
+  );
 
   const customButtonStyles = useMemo(() => {
     const baseStyles = singleChild ? { ...buttonContentStaticStyles.rootSingle } : { ...buttonContentStaticStyles.root };
@@ -484,40 +440,36 @@ export const FButton = ({
 
   const textStyle = [customButtonStyles.textBase, props.disabled ? customButtonStyles.textDisabled : customButtonStyles.text];
 
-  if (isAnimating && borderRadius instanceof Animated.Value) {
-    return (
-      <Animated.View style={[buttonStyles.root, customButtonStyles.root, style, additionalStyles, { borderRadius }]}>
-        <TouchableOpacity
-          accessibilityLabel={text}
-          accessibilityRole="button"
-          testID={testID}
-          activeOpacity={BUTTON_ACTIVE_OPACITY}
-          style={[buttonStyles.root, buttonStyles.touchContainer]}
-          {...props}
-        >
-          <ButtonContent icon={icon} text={text} textStyle={textStyle} iconStyle={buttonStyles.icon} />
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  }
+  const handlePressIn = useCallback(() => {
+    if (props.disabled) return;
+    animateScaleTo(BUTTON_SCALE_PRESSED);
+  }, [animateScaleTo, props.disabled]);
+
+  const handlePressOut = useCallback(() => {
+    animateScaleTo(1);
+  }, [animateScaleTo]);
 
   return (
-    <TouchableOpacity
-      accessibilityLabel={text}
-      accessibilityRole="button"
-      testID={testID}
-      activeOpacity={BUTTON_ACTIVE_OPACITY}
-      style={[
-        buttonStyles.root,
-        customButtonStyles.root,
-        style,
-        additionalStyles,
-        { borderRadius: typeof borderRadius === 'number' ? borderRadius : LAYOUT.DEFAULT_BORDER_RADIUS },
-      ]}
-      {...props}
-    >
-      <ButtonContent icon={icon} text={text} textStyle={textStyle} iconStyle={buttonStyles.icon} />
-    </TouchableOpacity>
+    <Animated.View style={[{ transform: [{ scale }] }]}>
+      <TouchableOpacity
+        accessibilityLabel={text}
+        accessibilityRole="button"
+        testID={testID}
+        activeOpacity={1}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={[
+          buttonStyles.root,
+          customButtonStyles.root,
+          style,
+          additionalStyles,
+          { borderRadius },
+        ]}
+        {...props}
+      >
+        <ButtonContent icon={icon} text={text} textStyle={textStyle} iconStyle={buttonStyles.icon} />
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 
@@ -555,7 +507,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     [insets.bottom],
   );
 
-  const { slideAnimation, animatedButtonRadius, animatedSingleButtonRadius, isAnimating } = useFloatButtonAnimation(height);
+  const { slideAnimation } = useFloatButtonAnimation(height);
 
   const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
     width,
@@ -663,13 +615,6 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     }
 
     const isSingleChild = array.length === 1;
-    const borderRadiusToUse = isSingleChild
-      ? isAnimating
-        ? animatedSingleButtonRadius
-        : singleButtonBorderRadius
-      : isAnimating
-        ? animatedButtonRadius
-        : buttonBorderRadius;
 
     return React.cloneElement(child as React.ReactElement<any>, {
       width: effectiveNewWidth,
@@ -678,9 +623,8 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       last: index === array.length - 1,
       singleChild: isSingleChild,
       isVertical,
-      borderRadius: borderRadiusToUse,
+      borderRadius: buttonBorderRadius,
       fontSize: buttonFontSize,
-      isAnimating,
     });
   };
 
@@ -691,27 +635,16 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   const effectiveNewWidth = newWidth ?? layoutWidth.current;
 
-  const dynamicRoundStyle = useMemo(() => {
-    if (childrenCount === 1) {
-      return {
-        borderRadius: isAnimating ? animatedSingleButtonRadius : singleButtonBorderRadius,
-        overflow: 'hidden',
-      };
-    }
-    return null;
-  }, [childrenCount, singleButtonBorderRadius, isAnimating, animatedSingleButtonRadius]);
-
   const combinedStyles = useMemo(
     () => [
       containerStyles.root,
       props.inline ? containerStyles.rootInline : containerStyles.rootAbsolute,
       bottomInsets,
       effectiveNewWidth ? (isVertical ? containerStyles.rootPostVertical : containerStyles.rootPost) : containerStyles.rootPre,
-      dynamicRoundStyle,
       isVertical ? containerHeight : null,
       { transform: [{ translateY: slideAnimation }] },
     ],
-    [props.inline, bottomInsets, effectiveNewWidth, isVertical, dynamicRoundStyle, containerHeight, slideAnimation],
+    [props.inline, bottomInsets, effectiveNewWidth, isVertical, containerHeight, slideAnimation],
   );
 
   return (
