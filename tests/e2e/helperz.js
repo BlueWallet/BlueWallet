@@ -492,14 +492,9 @@ export async function enableBiometric({ returnHome = true } = {}) {
   }
 }
 
-// Common at-the-gate pattern: user fails Face ID once (app flow must not break — iOS shows
-// "Not recognized, try again"), then succeeds on retry. Exercises both the failure and
-// recovery paths of whatever unlockWithBiometrics() gate we're passing through.
-export async function rejectThenMatchBiometric() {
-  if (device.getPlatform() !== 'ios') throw new Error('rejectThenMatchBiometric: android not yet supported');
-  await failBiometric();
-  await matchBiometric();
-}
+// Brief wait after a Face ID rejection so the app's RN code can finish handling the rejected
+// simplePrompt promise (close the prompt, restore button state) before we re-tap.
+const BIOMETRIC_REJECTION_SETTLE_MS = 500;
 
 /**
  * Tap a button whose onPress triggers unlockWithBiometrics(), then resolve the Face ID prompt.
@@ -509,10 +504,12 @@ export async function rejectThenMatchBiometric() {
  * then waits forever for `tap()` to return. Disabling sync around the tap lets Detox send the
  * action without waiting; we re-enable once the biometric is resolved.
  *
- * Default auth strategy: 'rejectThenMatch' — user fails once, then succeeds on retry.
- * Covers the end-to-end "rejection doesn't break flow" behavior users actually hit. Use
- * 'match' for gates that appear multiple times in one test (faster; rejection path is
- * already covered by whatever earlier gate used the default).
+ * Auth strategies:
+ *   'match'           — single tap, single Face ID match. Use when the rejection path was
+ *                        already exercised by an earlier gate in the same test (faster).
+ *   'rejectThenMatch' — tap, fail Face ID (forces simplePrompt's promise to *reject* —
+ *                        exercises the app's rejection-handling code), then re-tap and pass
+ *                        Face ID. Default; mirrors what users hit when Face ID misreads.
  *
  * Non-iOS: falls through to a plain tap (android biometric support is pending).
  */
@@ -520,12 +517,17 @@ export async function tapGatedByBiometric(matcher, { auth = 'rejectThenMatch' } 
   const isIOS = device.getPlatform() === 'ios';
   if (isIOS) await device.disableSynchronization();
   await element(matcher).tap();
-  if (isIOS) {
-    if (auth === 'match') {
-      await matchBiometric();
-    } else {
-      await rejectThenMatchBiometric();
-    }
-    await device.enableSynchronization();
+  if (!isIOS) return;
+
+  if (auth === 'match') {
+    await matchBiometric();
+  } else {
+    // First tap → first simplePrompt → reject. App's onError/catch runs and (per current UX)
+    // leaves the gate button tappable. Re-tap → second simplePrompt → match.
+    await failBiometric();
+    await sleep(BIOMETRIC_REJECTION_SETTLE_MS);
+    await element(matcher).tap();
+    await matchBiometric();
   }
+  await device.enableSynchronization();
 }
