@@ -606,7 +606,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // TODO: pre-existing flake — `AddressInput` matcher not found on send screen (regression
+  // TODO: pre-existing flake — `AddressInput` not found on send screen (regression
   // unrelated to bio work).
   it.skip('can import multisig setup from UR, and create tx, and sign on hw devices', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t6');

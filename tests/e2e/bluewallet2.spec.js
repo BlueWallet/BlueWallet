@@ -679,7 +679,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // TODO: pre-existing flake — wallet text not found after relaunch (regression unrelated
+  // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
   // to bio work).
   it.skip('can manage UTXO', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t23');
@@ -800,7 +800,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // TODO: pre-existing flake — wallet text not found after relaunch (regression unrelated
+  // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
   // to bio work).
   it.skip('can purge txs and balance, then refetch data from tx list screen and see data on screen update', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t24');
@@ -845,7 +845,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.ok((await countElements('TransactionListItem')) >= 3); // 3 is arbitrary, real txs on screen depend on screen size
   });
 
-  // TODO: pre-existing flake — wallet text not found after relaunch (regression unrelated
+  // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
   // to bio work).
   it.skip('can purge txs and balance, then restart the app and witness it to refetch tx list screen and balance', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t25');
