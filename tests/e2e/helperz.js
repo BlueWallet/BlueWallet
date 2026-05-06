@@ -517,6 +517,15 @@ export async function tapGatedByBiometric(matcher) {
   if (!isIOS) return;
   await failBiometric();
   await sleep(BIOMETRIC_REJECTION_SETTLE_MS);
+  // iOS-26 sim quirk (AppleSimulatorUtils#65): applesimutils --biometricNonmatch sometimes
+  // backgrounds the app to home. `simctl launch` (without --terminate-running-process) just
+  // foregrounds the existing app process — state preserved.
+  try {
+    require('child_process').execSync(`xcrun simctl launch booted ${IOS_BUNDLE_ID}`, { stdio: 'ignore' });
+  } catch (_) {
+    /* best-effort */
+  }
+  await sleep(500);
   await element(matcher).tap();
   await matchBiometric();
   await device.enableSynchronization();
