@@ -268,13 +268,6 @@ const buttonStyles = StyleSheet.create({
     overflow: 'visible',
     alignSelf: 'center',
   },
-  touchContainer: {
-    width: '100%',
-    height: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   centeredText: {
     textAlign: 'center',
     textAlignVertical: 'center',
@@ -450,7 +443,7 @@ export const FButton = ({
   }, [animateScaleTo]);
 
   return (
-    <Animated.View style={[{ transform: [{ scale }] }]}>
+    <Animated.View style={{ transform: [{ scale }] }}>
       <TouchableOpacity
         accessibilityLabel={text}
         accessibilityRole="button"
@@ -458,13 +451,7 @@ export const FButton = ({
         activeOpacity={1}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[
-          buttonStyles.root,
-          customButtonStyles.root,
-          style,
-          additionalStyles,
-          { borderRadius },
-        ]}
+        style={[buttonStyles.root, customButtonStyles.root, style, additionalStyles, { borderRadius }]}
         {...props}
       >
         <ButtonContent icon={icon} text={text} textStyle={textStyle} iconStyle={buttonStyles.icon} />
