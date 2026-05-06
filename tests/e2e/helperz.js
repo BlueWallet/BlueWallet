@@ -374,7 +374,13 @@ export async function typeTextIntoAlertInput(text) {
   if (device.getPlatform() === 'android') {
     await element(by.type('android.widget.EditText')).replaceText(text);
   } else {
-    await element(by.type('_UIAlertControllerTextField')).replaceText(text);
+    // iOS 26 dropped the private `_UIAlertControllerTextField` class — fall back to
+    // public `UITextField` (alert text fields inherit from it).
+    try {
+      await element(by.type('_UIAlertControllerTextField')).replaceText(text);
+    } catch (_) {
+      await element(by.type('UITextField')).atIndex(0).replaceText(text);
+    }
   }
   await sleep(1000);
 }
