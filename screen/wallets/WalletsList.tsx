@@ -27,34 +27,7 @@ import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import LinearGradient from 'react-native-linear-gradient';
-
-const withAlpha = (color: string, alpha: number): string => {
-  const a = Math.max(0, Math.min(1, alpha));
-
-  // #RGB, #RRGGBB, #RRGGBBAA
-  if (color.startsWith('#')) {
-    const hex = color.slice(1);
-    const normalized =
-      hex.length === 3
-        ? hex
-            .split('')
-            .map(c => c + c)
-            .join('')
-        : hex.length === 8
-          ? hex.slice(0, 6)
-          : hex;
-
-    if (normalized.length === 6) {
-      const r = parseInt(normalized.slice(0, 2), 16);
-      const g = parseInt(normalized.slice(2, 4), 16);
-      const b = parseInt(normalized.slice(4, 6), 16);
-      return `rgba(${r},${g},${b},${a})`;
-    }
-  }
-
-  // For non-hex theme values, fall back to transparent.
-  return 'transparent';
-};
+import { withAlpha } from '../../components/color';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -436,39 +409,6 @@ const WalletsList: React.FC = () => {
     [dataSource.length, isLoading],
   );
 
-  const renderScanButton = useCallback(() => {
-    if (wallets.length > 0) {
-      return (
-        <>
-          <View pointerEvents="none" style={bottomButtonsGradientStyle}>
-            <LinearGradient
-              colors={[colors.background, withAlpha(colors.background, 0)]}
-              start={{ x: 0.5, y: 1 }}
-              end={{ x: 0.5, y: 0 }}
-              style={StyleSheet.absoluteFill}
-            />
-          </View>
-          <FContainer ref={walletActionButtonsRef.current}>
-            <FButton
-              onPress={onScanButtonPressed}
-              onLongPress={sendButtonLongPress}
-              icon={<Image resizeMode="stretch" source={scanImage} />}
-              text={loc.send.details_scan}
-              testID="HomeScreenScanButton"
-            />
-          </FContainer>
-        </>
-      );
-    } else {
-      return null;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanImage, wallets.length]);
-
-  const sectionListKeyExtractor = useCallback((item: any, index: any) => {
-    return `${item}${index}}`;
-  }, []);
-
   const onScanButtonPressed = useCallback(() => {
     scanQrHelper().then(onBarScanned);
   }, [onBarScanned]);
@@ -516,6 +456,38 @@ const WalletsList: React.FC = () => {
       }
     });
   }, [onBarScanned, pasteFromClipboard]);
+
+  const renderScanButton = useCallback(() => {
+    if (wallets.length > 0) {
+      return (
+        <>
+          <View pointerEvents="none" style={bottomButtonsGradientStyle}>
+            <LinearGradient
+              colors={[colors.background, withAlpha(colors.background, 0)]}
+              start={{ x: 0.5, y: 1 }}
+              end={{ x: 0.5, y: 0 }}
+              style={StyleSheet.absoluteFill}
+            />
+          </View>
+          <FContainer ref={walletActionButtonsRef.current}>
+            <FButton
+              onPress={onScanButtonPressed}
+              onLongPress={sendButtonLongPress}
+              icon={<Image resizeMode="stretch" source={scanImage} />}
+              text={loc.send.details_scan}
+              testID="HomeScreenScanButton"
+            />
+          </FContainer>
+        </>
+      );
+    } else {
+      return null;
+    }
+  }, [bottomButtonsGradientStyle, colors.background, onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
+
+  const sectionListKeyExtractor = useCallback((item: any, index: any) => {
+    return `${item}${index}}`;
+  }, []);
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
