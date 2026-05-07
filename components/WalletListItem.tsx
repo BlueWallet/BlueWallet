@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ImageBackground, StyleSheet, Text, View, ViewStyle, TextStyle, Pressable } from 'react-native';
+import { ImageBackground, ImageSourcePropType, StyleSheet, Text, View, ViewStyle, TextStyle, Pressable } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useLocale } from '@react-navigation/native';
 import { useTheme } from './themes';
@@ -10,18 +10,18 @@ import { formatBalance } from '../loc';
 
 type Props = {
   wallet: TWallet;
-  iconImage: number;
+  iconImage: ImageSourcePropType;
   onPress: () => void;
+  searchQuery: string;
+  borderBottomColor: string;
+  backgroundColor: string;
+  titleColor: string;
   onLongPress?: () => void;
   delayLongPress?: number;
   onPressIn?: () => void;
   onPressOut?: () => void;
-  searchQuery?: string;
   isActive?: boolean;
   containerStyle?: ViewStyle;
-  borderBottomColor?: string;
-  backgroundColor?: string;
-  titleColor?: string;
   balanceColor?: string;
 };
 

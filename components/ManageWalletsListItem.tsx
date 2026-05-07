@@ -35,18 +35,18 @@ type Item = WalletItem | TransactionItem | AddressItem;
 interface ManageWalletsListItemProps {
   item: Item;
   isDraggingDisabled: boolean;
+  handleToggleHideBalance: (wallet: TWallet) => void;
+  state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
+  navigateToWallet: (wallet: TWallet) => void;
+  navigateToAddress: (address: string, walletID: string) => void;
+  renderHighlightedText: (text: string, query: string) => React.ReactElement;
+  isActive: boolean;
+  globalDragActive: boolean;
   drag?: () => void;
   isPlaceHolder?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
-  handleToggleHideBalance?: (wallet: TWallet) => void;
-  state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
-  navigateToWallet: (wallet: TWallet) => void;
-  navigateToAddress?: (address: string, walletID: string) => void;
-  renderHighlightedText: (text: string, query: string) => React.ReactElement;
-  isActive?: boolean;
   style?: ViewStyle;
-  globalDragActive?: boolean;
 }
 
 const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
@@ -86,7 +86,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       setIsLoading(true);
       navigateToWallet(item.data);
       setIsLoading(false);
-    } else if (item.type === ItemType.AddressSection && navigateToAddress) {
+    } else if (item.type === ItemType.AddressSection) {
       navigateToAddress(item.data.address, item.data.walletID);
     }
   }, [item, navigateToWallet, navigateToAddress]);
@@ -123,11 +123,10 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         iconImage = direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
     }
 
-    const canSwipe = !!handleToggleHideBalance && !isActive && !globalDragActive;
+    const canSwipe = !isActive && !globalDragActive;
     const isHidden = !!wallet.hideBalance;
 
     const onToggle = () => {
-      if (!handleToggleHideBalance) return;
       handleToggleHideBalance(wallet);
       swipeableRef.current?.close?.();
     };
@@ -234,7 +233,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
       walletID: item.data.walletID,
       allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
-      onPress: navigateToAddress ? () => navigateToAddress(item.data.address, item.data.walletID) : undefined,
+      onPress: () => navigateToAddress(item.data.address, item.data.walletID),
       searchQuery: state.searchQuery,
       renderHighlightedText,
     };
@@ -252,7 +251,7 @@ interface WalletGroupProps {
   addresses: AddressItem[];
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
-  navigateToAddress?: (address: string, walletID: string) => void;
+  navigateToAddress: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => React.ReactElement;
 }
 
@@ -396,7 +395,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
                       balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
                       walletID: address.data.walletID,
                       allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
-                      onPress: navigateToAddress ? () => navigateToAddress(address.data.address, address.data.walletID) : undefined,
+                      onPress: () => navigateToAddress(address.data.address, address.data.walletID),
                       searchQuery: state.searchQuery,
                       renderHighlightedText,
                     };
