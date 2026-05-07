@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeSwaps, BoltzSwap, BoltzSwapProvider, decodeInvoice } from '@arkade-os/boltz-swap';
 import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
-import { RestDelegatorProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
+import { RestDelegatorProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 
@@ -267,71 +267,197 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return this.secret;
   }
 
+  /**
+   * Phase 5 mapping spec — single source of activity for the BlueWallet
+   * transaction list, coalesced from three feeds:
+   *
+   * 1. `_swapHistory` (Boltz). Branch on the `swap.type` discriminator:
+   *    - `reverse`   → Lightning RECEIVE (`user_invoice`).
+   *    - `submarine` → Lightning SEND (`payment_request` while pending,
+   *      `paid_invoice` once `transaction.claimed`).
+   *    - `chain`     → not surfaced (no LN-shaped UX entry point yet).
+   *    Settlement signal is `LightningTransaction.ispaid` per Invariant 13;
+   *    we never invent a `confirmations` field for an LN/Ark row.
+   *
+   * 2. `_transactionsHistory` (Ark SDK):
+   *    - `key.boardingTxid && type==='RECEIVED' && settled` → "Refill" row.
+   *    - `key.boardingTxid` (other types/statuses) → suppressed.
+   *    - no `boardingTxid` → native Ark transfer; SENT renders negative,
+   *      RECEIVED renders positive.
+   *
+   * 3. `_boardingUtxos` → "Pending refill" rows (boarding UTXO not yet swept).
+   *
+   * Coalescing (Invariant 12 / task 8): a settled swap always produces an
+   * Ark-side tx in `_transactionsHistory` — reverse `invoice.settled` is
+   * Boltz claiming into our address, submarine `transaction.claimed` is
+   * our lockup being claimed by Boltz. The native-Ark pass therefore drops
+   * any history entry whose `(direction, |amount|)` matches a *settled*
+   * swap within ±30 minutes of `swap.createdAt`. We do NOT dedupe against
+   * pending/failed/refunded swaps — those don't guarantee an Ark-side leg
+   * and matching against them would hide unrelated native transfers of the
+   * same amount.
+   *
+   * Stable row ids (task 11): every row sets `txid` to a logical id that
+   * survives status transitions — `swap-<id>`, `boarding-<txid>`,
+   * `boarding-utxo-<txid>:<vout>`, `ark-<arkTxid|commitmentTxid>`. FlatList
+   * still keys by index today, but the field is the canonical key for any
+   * future consumer.
+   *
+   * Hidden states (task 9–10):
+   * - Submarine `invoice.set` → dropped (no funds at risk yet).
+   * - Submarine `swap.expired` / `invoice.expired` → kept with a `Failed: `
+   *   prefix; SDK classifies them as refundable so the user needs the row
+   *   to recover an on-chain lockup.
+   * - Reverse expired-unpaid invoices (`type === 'reverse'` AND `!ispaid`
+   *   AND `!memoPrefix` AND `expiry+timestamp < now`) are dropped. The
+   *   expiry guard is gated to (a) reverse only — submarine pending rows
+   *   may have on-chain locked funds that need recovery visibility — and
+   *   (b) non-terminal rows so a `Failed: ` / `Refunded: ` row whose
+   *   BOLT11 has since expired is still preserved for diagnosis.
+   * - Failed/refunded swaps stay visible with `ispaid:false` and a
+   *   `Failed: ` / `Refunded: ` memo prefix so support can diagnose them.
+   */
   getTransactions(): (Transaction & LightningTransaction)[] {
     const walletID = this.getID();
-    const ret: LightningTransaction[] = [];
+    const ret: any[] = [];
+    const nowSec = Math.floor(Date.now() / 1000);
+    const DEDUP_WINDOW_SEC = 30 * 60;
+
+    type SwapFingerprint = { type: TxType; amount: number; createdAtSec: number };
+    const swapFingerprints: SwapFingerprint[] = [];
+
     for (const swap of this._swapHistory) {
       let memo = '';
       let value = 0;
-      let timestamp = 0;
-      let payment_hash = '';
       let bolt11invoice = '';
-      let direction = 1;
-      let ispaid = false;
-      let expiry = 3600;
+      let payment_hash = '';
+      let expiry: number | undefined;
+      const timestamp = swap.createdAt;
 
       try {
-        // @ts-ignore properties do exist
-        bolt11invoice = swap.request.invoice || swap.response.invoice;
-        const invoiceDetails = this.decodeInvoice(bolt11invoice);
-        value = invoiceDetails.num_satoshis;
-        memo = invoiceDetails.description;
-        payment_hash = invoiceDetails.payment_hash;
-        expiry = invoiceDetails.expiry;
+        // @ts-ignore: present on reverse and submarine variants
+        bolt11invoice = swap.request.invoice || swap.response.invoice || '';
+        if (bolt11invoice) {
+          const invoiceDetails = this.decodeInvoice(bolt11invoice);
+          value = invoiceDetails.num_satoshis;
+          memo = invoiceDetails.description;
+          payment_hash = invoiceDetails.payment_hash;
+          expiry = invoiceDetails.expiry;
+        }
       } catch {}
 
-      timestamp = swap.createdAt;
+      let direction: -1 | 1;
+      let ispaid = false;
+      let type: 'user_invoice' | 'payment_request' | 'paid_invoice';
+      let memoPrefix = '';
 
-      switch (swap.status) {
-        case 'transaction.claimed':
-          direction = -1;
-          ispaid = true;
-          break;
-        case 'invoice.settled':
-          direction = 1;
-          ispaid = true;
-          break;
-        case 'swap.created':
-          // nop, this is invoice that we created
-          break;
-        case 'invoice.set':
-          // dont return it, its an invoice we trief to pay but could not
-          continue;
+      if (swap.type === 'reverse') {
+        direction = 1;
+        type = 'user_invoice';
+        switch (swap.status) {
+          case 'invoice.settled':
+            ispaid = true;
+            break;
+          case 'transaction.failed':
+          case 'transaction.lockupFailed':
+          case 'transaction.refunded':
+            memoPrefix = 'Failed: ';
+            break;
+          // swap.created / transaction.mempool / transaction.confirmed → pending receive
+          // invoice.expired / swap.expired → handled by the unpaid-expired filter below
+        }
+      } else if (swap.type === 'submarine') {
+        direction = -1;
+        switch (swap.status) {
+          case 'transaction.claimed':
+            ispaid = true;
+            type = 'paid_invoice';
+            break;
+          case 'invoice.set':
+            // No funds at risk yet — user hasn't broadcast the lockup.
+            continue;
+          case 'transaction.refunded':
+            memoPrefix = 'Refunded: ';
+            type = 'payment_request';
+            break;
+          case 'invoice.failedToPay':
+          case 'transaction.failed':
+          case 'transaction.lockupFailed':
+          case 'swap.expired':
+          case 'invoice.expired':
+            // SDK classifies swap.expired as a refundable submarine failure
+            // (lockup is still on-chain). Keep the row visible so users can
+            // recover funds. invoice.expired is not reachable per the SDK
+            // lifecycle today; treated as failed for safety.
+            memoPrefix = 'Failed: ';
+            type = 'payment_request';
+            break;
+          default:
+            // swap.created / invoice.pending / invoice.paid → pending send
+            type = 'payment_request';
+        }
+      } else {
+        // 'chain' — no LN-shaped UX surface yet.
+        continue;
       }
 
-      // @ts-ignore properties do exist
-      value = swap.response.onchainAmount || swap.response.expectedAmount || value || swap.request.invoiceAmount || 0;
-      value = value * direction;
+      // Resolve effective amount: prefer the on-chain (Ark) leg, fall back to
+      // the invoice amount, then to the swap-request invoiceAmount.
+      // @ts-ignore properties exist on the variant union
+      const rawValue = swap.response.onchainAmount || swap.response.expectedAmount || value || swap.request.invoiceAmount || 0;
+      const absValue = Math.abs(rawValue);
+      value = absValue * direction;
+
+      // Hide expired unpaid reverse invoices only. Three exclusions:
+      // 1. Terminal rows (`Failed: ` / `Refunded: `) carry diagnostic value
+      //    beyond the BOLT11 lifetime — we keep them.
+      // 2. Submarine pending rows are NEVER hidden: by the time a submarine
+      //    swap reaches `invoice.pending` / `invoice.paid` /
+      //    `transaction.claim.pending`, the user's lockup is on-chain.
+      //    Hiding the row before the SDK transitions it to swap.expired or
+      //    transaction.refunded would lose visibility into recoverable
+      //    locked funds.
+      // 3. Without a decoded expiry we can't reason about freshness, so the
+      //    row stays visible.
+      if (swap.type === 'reverse' && !ispaid && !memoPrefix && expiry !== undefined && expiry > 0 && timestamp + expiry < nowSec) continue;
+
+      // Pre-record the fingerprint so the native-Ark pass below can suppress
+      // the matching SDK history entry (Invariant 12). Only settled swaps
+      // are guaranteed to have an Ark-side counterpart: reverse settles by
+      // Boltz claiming into our address, submarine settles by our lockup
+      // being claimed by Boltz. Pending/failed/refunded rows aren't
+      // guaranteed to produce an Ark leg, and recording their fingerprints
+      // would hide unrelated same-amount native transfers in the ±30 min
+      // window.
+      if (ispaid) {
+        swapFingerprints.push({
+          type: direction < 0 ? TxType.TxSent : TxType.TxReceived,
+          amount: absValue,
+          createdAtSec: timestamp,
+        });
+      }
 
       ret.push({
-        type: direction < 0 ? 'paid_invoice' : 'user_invoice',
+        txid: `swap-${swap.id}`,
+        type,
         walletID,
-        description: memo,
-        memo,
+        description: memoPrefix + memo,
+        memo: memoPrefix + memo,
         value,
         timestamp,
         ispaid,
         payment_hash,
         payment_request: bolt11invoice,
         amt: value,
-        // @ts-ignore preimage is required for reverse, optional for submarine, hex for chain
+        // @ts-ignore preimage is required for reverse, optional for submarine
         payment_preimage: swap.preimage,
-        expire_time: expiry,
+        expire_time: expiry ?? 3600,
       });
     }
 
     for (const boardingTx of this._boardingUtxos) {
       ret.push({
+        txid: `boarding-utxo-${boardingTx.txid}:${boardingTx.vout}`,
         type: 'bitcoind_tx',
         walletID,
         description: 'Pending refill',
@@ -342,20 +468,48 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
 
     for (const histTx of this._transactionsHistory) {
-      if (histTx.key.boardingTxid && histTx.type === 'RECEIVED' && histTx.settled) {
-        // for now putting on the list only onchain top-up transactions:
-        ret.push({
-          type: 'bitcoind_tx',
-          walletID,
-          description: 'Refill',
-          memo: 'Refill',
-          value: histTx.amount,
-          timestamp: Math.floor(histTx.createdAt / 1000),
-        });
+      if (histTx.key.boardingTxid) {
+        // Boarding leg: keep the existing "settled refill only" rule.
+        if (histTx.type === TxType.TxReceived && histTx.settled) {
+          ret.push({
+            txid: `boarding-${histTx.key.boardingTxid}`,
+            type: 'bitcoind_tx',
+            walletID,
+            description: 'Refill',
+            memo: 'Refill',
+            value: histTx.amount,
+            timestamp: Math.floor(histTx.createdAt / 1000),
+          });
+        }
+        continue;
       }
+
+      // Native Ark transfer. Skip the swap-side leg of any settlement we
+      // already rendered as a Lightning row.
+      const histAmount = Math.abs(histTx.amount);
+      const histCreatedAtSec = Math.floor(histTx.createdAt / 1000);
+      const matchesSwap = swapFingerprints.some(
+        fp =>
+          fp.type === histTx.type &&
+          fp.amount === histAmount &&
+          Math.abs(fp.createdAtSec - histCreatedAtSec) <= DEDUP_WINDOW_SEC,
+      );
+      if (matchesSwap) continue;
+
+      const idKey = histTx.key.arkTxid || histTx.key.commitmentTxid || `${histTx.type}-${histCreatedAtSec}-${histAmount}`;
+      const direction = histTx.type === TxType.TxSent ? -1 : 1;
+      const description = histTx.type === TxType.TxSent ? 'Sent' : 'Received';
+      ret.push({
+        txid: `ark-${idKey}`,
+        type: 'bitcoind_tx',
+        walletID,
+        description,
+        memo: description,
+        value: histAmount * direction,
+        timestamp: histCreatedAtSec,
+      });
     }
 
-    // @ts-ignore meh
     return ret;
   }
 
