@@ -251,6 +251,25 @@ export class WatchOnlyWallet extends LegacyWallet {
     );
   }
 
+  setMasterFingerprintHex(hex: string) {
+    if (typeof hex !== 'string') {
+      throw new Error('Fingerprint must be a hex string');
+    }
+
+    // remove 0x
+    hex = hex.replace(/^0x/, '');
+
+    // must 8 hex characters
+    if (!/^[0-9a-fA-F]{8}$/.test(hex)) {
+      throw new Error('Master fingerprint must be exactly 8 hex characters');
+    }
+
+    // reverse byte order to match getMasterFingerprintHex
+    const reversed = hex.slice(6, 8) + hex.slice(4, 6) + hex.slice(2, 4) + hex.slice(0, 2);
+
+    this.masterFingerprint = parseInt(reversed, 16);
+  }
+
   isHd() {
     return this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub');
   }

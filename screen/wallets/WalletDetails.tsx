@@ -415,8 +415,35 @@ const WalletDetails: React.FC = () => {
     }
   }, [wallet, walletName, saveToDisk]);
 
+  const walletMasterFingerprintInputOnBlur = useCallback(async () => {
+    const mfp = masterFingerprint?.trim();
+
+    if (wallet.type === WatchOnlyWallet.type) {
+      // masterfingerprint before editing started
+      const currentMasterFingerprint = wallet.getMasterFingerprintHex();
+
+      if (!mfp) {
+        setMasterFingerprint(currentMasterFingerprint);
+        return;
+      }
+
+      if (mfp.length === 8 && mfp !== currentMasterFingerprint) {
+        try {
+          console.warn('saving wallet name:', mfp);
+          wallet.setMasterFingerprintHex(mfp);
+          await saveToDisk();
+        } catch (error) {
+          console.error((error as Error).message);
+        }
+      } else {
+        setMasterFingerprint(currentMasterFingerprint);
+      }
+    }
+  }, [wallet, masterFingerprint, saveToDisk]);
+
   usePreventRemove(false, () => {
     walletNameTextInputOnBlur();
+    walletMasterFingerprintInputOnBlur();
   });
 
   const onViewMasterFingerPrintPress = () => {
@@ -607,7 +634,31 @@ const WalletDetails: React.FC = () => {
                     <View style={styles.marginRight16}>
                       <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_master_fingerprint.toLowerCase()}</Text>
                       {isMasterFingerPrintVisible ? (
-                        <BlueText selectable>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
+                        <View>
+                          {wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd() ? (
+                            <View style={[styles.input, stylesHook.input]}>
+                              <TextInput
+                                value={masterFingerprint}
+                                onChangeText={(text: string) => {
+                                  setMasterFingerprint(text);
+                                }}
+                                onChange={event => {
+                                  const text = event.nativeEvent.text;
+                                  setMasterFingerprint(text);
+                                }}
+                                onBlur={walletMasterFingerprintInputOnBlur}
+                                numberOfLines={1}
+                                placeholderTextColor="#81868e"
+                                style={[styles.inputText, { writingDirection: direction }]}
+                                editable={!isLoading}
+                                underlineColorAndroid="transparent"
+                                testID="WalletNameInput"
+                              />
+                            </View>
+                          ) : (
+                            <BlueText selectable>{masterFingerprint ?? <ActivityIndicator />}</BlueText>
+                          )}
+                        </View>
                       ) : (
                         <TouchableOpacity onPress={onViewMasterFingerPrintPress}>
                           <BlueText>{loc.multisig.view}</BlueText>
