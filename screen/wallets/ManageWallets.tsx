@@ -12,7 +12,6 @@ import {
   ListRenderItemInfo,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -498,8 +497,8 @@ const ManageWallets: React.FC = () => {
     [state.walletsCopy, setWalletsWithNewOrder],
   );
 
-  const renderItem = useCallback(
-    ({ item, drag, isActive }: RenderItemParams<Item>) => {
+  const renderListItem = useCallback(
+    (item: Item, drag: (() => void) | undefined, isActive: boolean) => {
       const compatibleState = {
         wallets: state.walletsCopy,
         searchQuery: state.searchQuery,
@@ -523,8 +522,6 @@ const ManageWallets: React.FC = () => {
       return (
         <ManageWalletsListItem
           item={item}
-          onPressIn={undefined}
-          onPressOut={undefined}
           isDraggingDisabled={isDragDisabled}
           handleToggleHideBalance={handleToggleHideBalance}
           state={compatibleState}
@@ -550,16 +547,14 @@ const ManageWallets: React.FC = () => {
     ],
   );
 
+  const renderDraggableItem = useCallback(
+    ({ item, drag, isActive }: RenderItemParams<Item>) => renderListItem(item, drag, isActive),
+    [renderListItem],
+  );
+
   const renderPlainListItem = useCallback(
-    (info: ListRenderItemInfo<Item>) =>
-      renderItem({
-        item: info.item,
-        index: info.index,
-        separators: info.separators,
-        drag: () => {},
-        isActive: false,
-      } as RenderItemParams<Item>),
-    [renderItem],
+    (info: ListRenderItemInfo<Item>) => renderListItem(info.item, undefined, false),
+    [renderListItem],
   );
 
   const keyExtractor = useCallback((item: Item, index: number) => {
@@ -657,48 +652,46 @@ const ManageWallets: React.FC = () => {
 
   return (
     <SafeAreaView style={[{ backgroundColor: colors.background }, styles.root]} edges={['top', 'left', 'right']}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <KeyboardAvoidingView style={styles.gestureRoot} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <GestureHandlerRootView style={styles.gestureRoot}>
-            {isDragDisabled ? (
-              <FlatList<Item> {...listSharedProps} style={styles.listContainer} renderItem={renderPlainListItem} />
-            ) : (
-              <DraggableFlatList<Item>
-                {...listSharedProps}
-                renderItem={renderItem}
-                containerStyle={styles.listContainer}
-                onDragBegin={() => {
-                  setDragging(true);
-                }}
-                onDragEnd={({ from, to, data }: DragEndParams<Item>) => {
-                  setDragging(false);
+      <KeyboardAvoidingView style={styles.gestureRoot} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <GestureHandlerRootView style={styles.gestureRoot}>
+          {isDragDisabled ? (
+            <FlatList<Item> {...listSharedProps} style={styles.listContainer} renderItem={renderPlainListItem} />
+          ) : (
+            <DraggableFlatList<Item>
+              {...listSharedProps}
+              renderItem={renderDraggableItem}
+              containerStyle={styles.listContainer}
+              onDragBegin={() => {
+                setDragging(true);
+              }}
+              onDragEnd={({ from, to, data }: DragEndParams<Item>) => {
+                setDragging(false);
 
-                  if (state.searchQuery.length > 0 || state.isSearchFocused) {
-                    return;
-                  }
+                if (state.searchQuery.length > 0 || state.isSearchFocused) {
+                  return;
+                }
 
-                  if (from === to) {
-                    return;
-                  }
+                if (from === to) {
+                  return;
+                }
 
-                  const reorderedWallets = data
-                    .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
-                    .map(item => item.data);
-                  setWalletsWithNewOrder(reorderedWallets);
-                  dispatch({ type: SAVE_CHANGES, payload: reorderedWallets });
-                  initialWalletsRef.current = deepCopyWallets(reorderedWallets);
-                  triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-                }}
-                activationDistance={8}
-                autoscrollThreshold={32}
-                autoscrollSpeed={16}
-                dragItemOverflow
-                animationConfig={{ damping: 26, mass: 0.6, stiffness: 260, overshootClamping: true }}
-              />
-            )}
-          </GestureHandlerRootView>
-        </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
+                const reorderedWallets = data
+                  .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
+                  .map(item => item.data);
+                setWalletsWithNewOrder(reorderedWallets);
+                dispatch({ type: SAVE_CHANGES, payload: reorderedWallets });
+                initialWalletsRef.current = deepCopyWallets(reorderedWallets);
+                triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+              }}
+              activationDistance={8}
+              autoscrollThreshold={32}
+              autoscrollSpeed={16}
+              dragItemOverflow
+              animationConfig={{ damping: 26, mass: 0.6, stiffness: 260, overshootClamping: true }}
+            />
+          )}
+        </GestureHandlerRootView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
