@@ -482,6 +482,23 @@ const ManageWallets: React.FC = () => {
     [navigate],
   );
 
+  const handleToggleHideBalance = useCallback(
+    (wallet: TWallet) => {
+      const walletID = wallet.getID();
+      const updatedWallets = deepCopyWallets(persistedWallets).map(w => {
+        if (w.getID() === walletID) {
+          w.hideBalance = !w.hideBalance;
+        }
+        return w;
+      });
+
+      setWalletsWithNewOrder(updatedWallets);
+      initialWalletsRef.current = deepCopyWallets(updatedWallets);
+      dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
+    },
+    [persistedWallets, setWalletsWithNewOrder],
+  );
+
   const renderItem = useCallback(
     ({ item, drag, isActive }: RenderItemParams<Item>) => {
       const compatibleState = {
@@ -510,6 +527,7 @@ const ManageWallets: React.FC = () => {
           onPressIn={undefined}
           onPressOut={undefined}
           isDraggingDisabled={isDragDisabled}
+          handleToggleHideBalance={handleToggleHideBalance}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
           navigateToAddress={navigateToAddress}
@@ -521,6 +539,7 @@ const ManageWallets: React.FC = () => {
       );
     },
     [
+      handleToggleHideBalance,
       state.walletsCopy,
       state.searchQuery,
       state.isSearchFocused,

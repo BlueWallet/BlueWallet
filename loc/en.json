@@ -435,6 +435,8 @@
     "details_show_addresses": "Show addresses",
     "details_title": "Wallet",
     "wallets": "Wallets",
+    "swipe_balance_hide": "Hide",
+    "swipe_balance_show": "Show",
     "details_type": "Type",
     "details_use_with_hardware_wallet": "Use with Hardware Wallet",
     "details_yes_delete": "Yes, delete",

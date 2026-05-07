@@ -134,6 +134,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
 
 interface WalletCarouselItemProps {
   item: TWallet;
+  hideBalance: boolean;
   onPress: (item: TWallet) => void;
   handleLongPress?: () => void;
   isSelectedWallet?: boolean;
@@ -255,6 +256,7 @@ const iStyles = StyleSheet.create({
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
   ({
     item,
+    hideBalance,
     onPress,
     handleLongPress,
     isSelectedWallet,
@@ -286,7 +288,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
     const previousBalance = useRef<string | undefined>(undefined);
-    const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+    const balance = !hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
     const safeBalance = balance || undefined;
 
     const animatePressScale = useCallback(
@@ -434,7 +436,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                       {renderHighlightedText ? renderHighlightedText(walletLabel, searchQuery || '') : walletLabel}
                     </Text>
                     <View style={[iStyles.balanceContainer, isCompact && iStyles.balanceContainerCompact]}>
-                      {item.hideBalance ? (
+                      {hideBalance ? (
                         <>
                           <BlueSpacing10 />
                           <BlurredBalanceView />
@@ -731,6 +733,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
         <WalletCarouselItem
           isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
           item={item}
+          hideBalance={item.hideBalance}
           handleLongPress={handleLongPress}
           onPress={onPress}
           horizontal={horizontal}
@@ -798,6 +801,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           <WalletCarouselItem
             isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
             item={item}
+            hideBalance={item.hideBalance}
             handleLongPress={handleLongPress}
             onPress={onPress}
             searchQuery={props.searchQuery}

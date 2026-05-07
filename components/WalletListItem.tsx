@@ -7,7 +7,6 @@ import HighlightedText from './HighlightedText';
 import { TWallet } from '../class/wallets/types';
 import WalletGradient from '../class/wallet-gradient';
 import { formatBalance } from '../loc';
-import { BlurredBalanceView } from './BlurredBalanceView';
 
 type Props = {
   wallet: TWallet;
@@ -15,6 +14,8 @@ type Props = {
   onPress: () => void;
   onLongPress?: () => void;
   delayLongPress?: number;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
   searchQuery?: string;
   isActive?: boolean;
   containerStyle?: ViewStyle;
@@ -30,6 +31,8 @@ const WalletListItem: React.FC<Props> = ({
   onPress,
   onLongPress,
   delayLongPress = 120,
+  onPressIn,
+  onPressOut,
   searchQuery,
   isActive,
   containerStyle,
@@ -74,17 +77,20 @@ const WalletListItem: React.FC<Props> = ({
 
   return (
     <Pressable
-      style={[
+      style={({ pressed }) => [
         styles.listItem,
         {
           backgroundColor: isActive ? colors.lightButton : resolvedBackgroundColor,
           borderBottomColor: resolvedBorderBottomColor,
         },
+        pressed && styles.pressed,
         containerStyle,
       ]}
       onPress={onPress}
       onLongPress={onLongPress}
       delayLongPress={onLongPress ? delayLongPress : undefined}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       accessibilityRole="button"
       testID={walletLabel}
     >
@@ -101,7 +107,9 @@ const WalletListItem: React.FC<Props> = ({
         )}
 
         {wallet.hideBalance ? (
-          <BlurredBalanceView />
+          <View style={styles.hiddenBalance}>
+            <View style={styles.hiddenBalanceBar} />
+          </View>
         ) : (
           <Text numberOfLines={1} style={balanceTextStyle}>
             {balance}
@@ -145,6 +153,20 @@ const styles = StyleSheet.create({
   },
   listItemBalance: {
     fontSize: 14,
+  },
+  pressed: {
+    opacity: 0.85,
+  },
+  hiddenBalance: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  hiddenBalanceBar: {
+    backgroundColor: 'rgba(150, 150, 150, 0.25)',
+    height: 10,
+    width: 66,
+    borderRadius: 5,
   },
   highlightDark: {
     backgroundColor: 'rgba(255, 245, 192, 0.22)',
