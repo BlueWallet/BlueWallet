@@ -44,7 +44,7 @@ const WalletListItem: React.FC<Props> = ({
   const { colors, dark } = useTheme();
   const { direction } = useLocale();
 
-  const walletLabel = wallet.getLabel ? wallet.getLabel() : '';
+  const walletLabel = wallet.getLabel();
   const gradientColors = WalletGradient.gradientsFor(wallet.type);
 
   const resolvedTitleColor = titleColor ?? (dark ? colors.foregroundColor : colors.darkGray);

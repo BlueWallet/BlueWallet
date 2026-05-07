@@ -15,6 +15,18 @@ import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import WalletListItem from './WalletListItem';
 
+const getWalletIconImage = (walletType: string, direction: string) => {
+  switch (walletType) {
+    case LightningCustodianWallet.type:
+    case LightningArkWallet.type:
+      return direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+    case MultisigHDWallet.type:
+      return direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
+    default:
+      return direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
+  }
+};
+
 interface WalletItem {
   type: ItemType.WalletSection;
   data: TWallet;
@@ -109,19 +121,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   if (item.type === ItemType.WalletSection) {
     const wallet = item.data;
     const titleColor = dark ? colors.foregroundColor : colors.darkGray;
-
-    let iconImage;
-    switch (wallet.type) {
-      case LightningCustodianWallet.type:
-      case LightningArkWallet.type:
-        iconImage = direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
-        break;
-      case MultisigHDWallet.type:
-        iconImage = direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
-        break;
-      default:
-        iconImage = direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
-    }
+    const iconImage = getWalletIconImage(wallet.type, direction);
 
     const canSwipe = !isActive && !globalDragActive;
     const isHidden = !!wallet.hideBalance;
@@ -232,7 +232,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       },
       balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
       walletID: item.data.walletID,
-      allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
+      allowSignVerifyMessage: wallet.allowSignVerifyMessage(),
       onPress: () => navigateToAddress(item.data.address, item.data.walletID),
       searchQuery: state.searchQuery,
       renderHighlightedText,
@@ -322,19 +322,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   }, [navigateToWallet, wallet]);
 
   const titleColor = dark ? colors.foregroundColor : colors.darkGray;
-
-  let iconImage;
-  switch (wallet.type) {
-    case LightningCustodianWallet.type:
-    case LightningArkWallet.type:
-      iconImage = direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
-      break;
-    case MultisigHDWallet.type:
-      iconImage = direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
-      break;
-    default:
-      iconImage = direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
-  }
+  const iconImage = getWalletIconImage(wallet.type, direction);
 
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
@@ -394,7 +382,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
                       },
                       balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
                       walletID: address.data.walletID,
-                      allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
+                      allowSignVerifyMessage: wallet.allowSignVerifyMessage(),
                       onPress: () => navigateToAddress(address.data.address, address.data.walletID),
                       searchQuery: state.searchQuery,
                       renderHighlightedText,

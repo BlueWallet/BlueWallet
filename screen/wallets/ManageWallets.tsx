@@ -409,20 +409,19 @@ const ManageWallets: React.FC = () => {
     }
   }, [listData.length, state.searchQuery, noResultsOpacity]);
 
-  const buttonOpacity = useMemo(() => ({ opacity: 1 }), []);
   const HeaderLeftButton = useMemo(
     () => (
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={loc._.close}
-        style={[styles.button, buttonOpacity]}
+        style={styles.button}
         onPress={goBack}
         testID="NavigationCloseButton"
       >
         <Image source={closeImage} />
       </TouchableOpacity>
     ),
-    [buttonOpacity, goBack, closeImage],
+    [goBack, closeImage],
   );
 
   useLayoutEffect(() => {
