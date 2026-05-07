@@ -314,7 +314,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
     backgroundColor: colors.elevated,
   });
 
-  const walletHeaderBackgroundColor = colors.background === '#FFFFFF' ? '#F9F9F9' : colors.elevated;
+  const walletHeaderBackgroundColor = dark ? colors.elevated : '#F9F9F9';
 
   const dividerStyle = [styles.itemDivider, { backgroundColor: cardBorderColor }];
 
