@@ -21,6 +21,9 @@ import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import presentAlert from '../../components/Alert';
+import type { BoltzSwap, BoltzReverseSwap, BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -36,11 +39,73 @@ const LNDViewInvoice = () => {
   const navigation = useNavigation();
 
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
+  const arkWallet =
+    wallet && (wallet as { type?: string }).type === LightningArkWallet.type ? (wallet as unknown as LightningArkWallet) : undefined;
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const fetchInvoiceInterval = useRef<any>(null);
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
+
+  // Phase 6: per-swap claim/refund. Lookup is by the `swap-${id}` prefix
+  // mapped onto the row's `txid` field by lightning-ark-wallet
+  // getTransactions(). The route param is typed as LightningTransaction
+  // (which doesn't declare txid) but at runtime carries the merged
+  // `Transaction & LightningTransaction` shape, so we read txid through
+  // a narrow local cast. For non-Ark wallets and non-swap rows this
+  // resolves to undefined and the UI falls through to the existing
+  // branches.
+  const invoiceTxid = typeof invoice === 'object' ? (invoice as { txid?: unknown }).txid : undefined;
+  const swapId = typeof invoiceTxid === 'string' && invoiceTxid.startsWith('swap-') ? invoiceTxid.slice('swap-'.length) : undefined;
+  const swap = swapId && arkWallet ? arkWallet.getSwapById(swapId) : undefined;
+  const [isActioning, setIsActioning] = useState<boolean>(false);
+  const claimable = arkWallet && swap ? arkWallet.isSwapClaimable(swap) : false;
+  const refundable = arkWallet && swap ? arkWallet.isSwapRefundable(swap) : false;
+
+  const refreshAfterAction = async () => {
+    if (!arkWallet || !swapId) return;
+    const updatedRow = arkWallet.getTransactions().find(tx => tx.txid === `swap-${swapId}`);
+    if (updatedRow) setParams({ invoice: updatedRow });
+    setInvoiceStatusChanged(true);
+    fetchAndSaveWalletTransactions(walletID);
+  };
+
+  const onClaimPressed = async () => {
+    if (!arkWallet || !swap || isActioning) return;
+    setIsActioning(true);
+    try {
+      await arkWallet.claimSwap(swap as BoltzReverseSwap);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      await refreshAfterAction();
+    } catch (e: any) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: e?.message ?? String(e) });
+    } finally {
+      setIsActioning(false);
+    }
+  };
+
+  const onRefundPressed = async () => {
+    if (!arkWallet || !swap || isActioning) return;
+    setIsActioning(true);
+    try {
+      const outcome = await arkWallet.refundSwap(swap as BoltzSubmarineSwap);
+      if (outcome.swept === 0) {
+        // Lockup not yet refundable (CLTV not reached / Boltz declined to
+        // co-sign). Surface as info, not an error: the row stays refundable
+        // and the user can retry later.
+        presentAlert({ message: loc.lndViewInvoice.refund_deferred });
+      } else {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      }
+      await refreshAfterAction();
+    } catch (e: any) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: e?.message ?? String(e) });
+    } finally {
+      setIsActioning(false);
+    }
+  };
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -187,6 +252,46 @@ const LNDViewInvoice = () => {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = invoice?.timestamp && invoice?.expire_time ? invoice.timestamp + invoice.expire_time : undefined;
+
+      // Phase 6: per-swap claim/refund CTA. When the SDK reports the
+      // underlying swap is claimable (reverse: Boltz funded the VHTLC, we
+      // haven't claimed yet) or refundable (submarine: payment failed,
+      // VTXO lockup recoverable), render a primary CTA in place of the
+      // QR/expired branches below. Once the action succeeds, the swap
+      // status transitions and these predicates flip false, so the next
+      // render falls through to the existing ispaid/expired branches.
+      if (claimable) {
+        const amount = (invoice.amt as number | undefined) ?? (invoice.value as number | undefined) ?? 0;
+        return (
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <BlueTextCentered>
+              {loc.lndViewInvoice.please_pay} {amount} {loc.lndViewInvoice.sats}
+            </BlueTextCentered>
+            <BlueSpacing20 />
+            <Button
+              onPress={onClaimPressed}
+              title={loc.lndViewInvoice.claim_funds}
+              disabled={isActioning}
+              showActivityIndicator={isActioning}
+            />
+          </View>
+        );
+      }
+      if (refundable) {
+        return (
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <BlueTextCentered>{invoice.description ?? invoice.memo ?? ''}</BlueTextCentered>
+            <BlueSpacing20 />
+            <Button
+              onPress={onRefundPressed}
+              title={loc.lndViewInvoice.refund_funds}
+              disabled={isActioning}
+              showActivityIndicator={isActioning}
+            />
+          </View>
+        );
+      }
+
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         let amount = 0;
         let description;

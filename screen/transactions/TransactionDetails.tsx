@@ -92,7 +92,12 @@ const TransactionDetails = () => {
 
   const saveTransactionDetails = useCallback(() => {
     if (tx) {
-      txMetadata[tx.hash] = { memo };
+      // Ark wallet rows have no on-chain hash; key memo by their synthetic
+      // `txid` so we don't write a `txMetadata[undefined]` entry.
+      const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
+      if (metadataKey) {
+        txMetadata[metadataKey] = { memo };
+      }
       if (counterpartyLabel && paymentCode) {
         counterpartyMetadata[paymentCode] = { label: counterpartyLabel };
       }
@@ -113,12 +118,17 @@ const TransactionDetails = () => {
         let newFrom: string[] = [];
         let newTo: string[] = [];
         for (const transaction of getTransactions(undefined, Infinity, true)) {
-          if (transaction.hash === hash) {
+          // Ark wallet rows (refills, native Ark transfers, boarding UTXOs)
+          // are surfaced from `lightning-ark-wallet.getTransactions()` with
+          // only a synthetic `txid` (e.g. `ark-…`, `boarding-…`) and no
+          // on-chain `hash`. Match either so they resolve here instead of
+          // tripping the assertion below.
+          if (transaction.hash === hash || (transaction as { txid?: string }).txid === hash) {
             foundTx = transaction;
-            for (const input of foundTx.inputs) {
+            for (const input of foundTx.inputs ?? []) {
               newFrom = newFrom.concat(input?.addresses ?? []);
             }
-            for (const output of foundTx.outputs) {
+            for (const output of foundTx.outputs ?? []) {
               if (output?.scriptPubKey?.addresses) newTo = newTo.concat(output.scriptPubKey.addresses);
             }
           }
@@ -139,7 +149,8 @@ const TransactionDetails = () => {
         }
 
         if (cancelled) return;
-        setMemo(txMetadata[foundTx.hash]?.memo ?? '');
+        const metadataKey = foundTx.hash ?? (foundTx as { txid?: string }).txid;
+        setMemo((metadataKey && txMetadata[metadataKey]?.memo) || '');
         setTX(foundTx);
         setFrom(newFrom);
         setTo(newTo);
@@ -250,11 +261,13 @@ const TransactionDetails = () => {
 
   return (
     <SafeAreaScrollView>
-      <HandOffComponent
-        title={loc.transactions.details_title}
-        type={HandOffActivityType.ViewInBlockExplorer}
-        url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
-      />
+      {tx.hash ? (
+        <HandOffComponent
+          title={loc.transactions.details_title}
+          type={HandOffActivityType.ViewInBlockExplorer}
+          url={`${selectedBlockExplorer.url}/tx/${tx.hash}`}
+        />
+      ) : null}
       <BlueCard>
         <View>
           <TextInput
@@ -347,16 +360,18 @@ const TransactionDetails = () => {
             <View style={styles.marginBottom18} />
           </>
         )}
-        <ToolTipMenu
-          isButton
-          actions={toolTipMenuActions}
-          onPressMenuItem={handleCopyPress}
-          onPress={handleOnOpenTransactionOnBlockExplorerTapped}
-          shouldOpenOnLongPress
-          buttonStyle={StyleSheet.flatten([styles.greyButton, stylesHooks.greyButton])}
-        >
-          <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_view_in_browser}</Text>
-        </ToolTipMenu>
+        {tx.hash ? (
+          <ToolTipMenu
+            isButton
+            actions={toolTipMenuActions}
+            onPressMenuItem={handleCopyPress}
+            onPress={handleOnOpenTransactionOnBlockExplorerTapped}
+            shouldOpenOnLongPress
+            buttonStyle={StyleSheet.flatten([styles.greyButton, stylesHooks.greyButton])}
+          >
+            <Text style={[styles.Link, stylesHooks.Link]}>{loc.transactions.details_view_in_browser}</Text>
+          </ToolTipMenu>
+        ) : null}
       </BlueCard>
     </SafeAreaScrollView>
   );

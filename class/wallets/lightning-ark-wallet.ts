@@ -1,6 +1,18 @@
 import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
-import { ArkadeSwaps, BoltzSwap, BoltzSwapProvider, decodeInvoice } from '@arkade-os/boltz-swap';
+import {
+  ArkadeSwaps,
+  BoltzReverseSwap,
+  BoltzSubmarineSwap,
+  BoltzSwap,
+  BoltzSwapProvider,
+  SubmarineRefundOutcome,
+  decodeInvoice,
+  isChainSwapClaimable,
+  isChainSwapRefundable,
+  isReverseSwapClaimable,
+  isSubmarineSwapRefundable,
+} from '@arkade-os/boltz-swap';
 import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
 import { RestDelegatorProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
@@ -39,6 +51,10 @@ const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapsCache: Record<string, ArkadeSwaps> = {};
 const initInFlight: Map<string, Promise<{ wallet: Wallet; arkadeSwaps: ArkadeSwaps }>> = new Map();
 const boardingLock: Record<string, boolean> = {};
+// Coalesce concurrent restoreSwaps() calls per namespace so a manual tap
+// during init (or two screens triggering it together) does not double-fetch
+// from Boltz.
+const restoreInFlight: Map<string, Promise<void>> = new Map();
 
 // Test-only: exposes module-private caches so unit tests can observe / reset
 // them and verify deletion-vs-init race behavior. Not part of the public API.
@@ -47,6 +63,7 @@ export const __testing__ = {
   staticSwapsCache,
   initInFlight,
   boardingLock,
+  restoreInFlight,
 };
 
 export class LightningArkWallet extends LightningCustodianWallet {
@@ -166,27 +183,18 @@ export class LightningArkWallet extends LightningCustodianWallet {
           indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
           storage: { walletRepository, contractRepository },
           delegatorProvider,
-          // Hand VTXO-renewal + boarding-UTXO settlement to the SDK's
-          // VtxoManager (defaults: 3-day vtxoThreshold, boardingUtxoSweep on,
-          // 60s pollIntervalMs). Replaces the previous setTimeout-driven
-          // renewVtxos shim and the foreground Ramps.onboard call.
-          settlementConfig: {},
         });
         staticWalletCache[namespace] = wallet;
         mm.end();
 
         // apiUrl omitted: @arkade-os/boltz-swap defaults to the production
-        // mainnet URL (https://api.ark.boltz.exchange) when network is 'bitcoin'.
+        // mainnet URL when network is 'bitcoin'.
         const swapProvider = new BoltzSwapProvider({ network: 'bitcoin' });
 
         const arkadeSwaps = new ArkadeSwaps({
           wallet,
           swapProvider,
           swapRepository,
-          // SwapManager owns auto-claim/auto-refund via WebSocket+poll fallback.
-          // Replaces the pre-Phase-4 _attemptToClaimPendingVHTLCs loop driven
-          // by fetchBalance().
-          swapManager: true,
         });
         staticSwapsCache[namespace] = arkadeSwaps;
 
@@ -489,10 +497,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const histAmount = Math.abs(histTx.amount);
       const histCreatedAtSec = Math.floor(histTx.createdAt / 1000);
       const matchesSwap = swapFingerprints.some(
-        fp =>
-          fp.type === histTx.type &&
-          fp.amount === histAmount &&
-          Math.abs(fp.createdAtSec - histCreatedAtSec) <= DEDUP_WINDOW_SEC,
+        fp => fp.type === histTx.type && fp.amount === histAmount && Math.abs(fp.createdAtSec - histCreatedAtSec) <= DEDUP_WINDOW_SEC,
       );
       if (matchesSwap) continue;
 
@@ -535,7 +540,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     const balance = await this._wallet.getBalance();
     this._lastBalanceFetch = +new Date();
-    this.balance = balance.available;
+    // Use SDK `total` (offchain available + recoverable + boarding) so the
+    // headline balance reflects everything the user holds, including pending
+    // refills. `available` alone hides boarding deposits until they swap.
+    this.balance = balance.total;
   }
 
   async payInvoice(invoice: string, freeAmount: number = 0) {
@@ -683,6 +691,75 @@ export class LightningArkWallet extends LightningCustodianWallet {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  // Phase 6: per-swap claim/refund + import-time restore.
+  // These are thin wrappers over `ArkadeSwaps`. We do not add app-side polling
+  // or reliability layers — the SDK owns swap reliability internally
+  // (claimVHTLC waits for VTXO availability; refundVHTLC reports
+  // swept/skipped). UI code calls these from the swap detail screen.
+
+  getSwapById(id: string): BoltzSwap | undefined {
+    return this._swapHistory.find(swap => swap.id === id);
+  }
+
+  isSwapClaimable(swap: BoltzSwap): boolean {
+    return isReverseSwapClaimable(swap) || isChainSwapClaimable(swap);
+  }
+
+  isSwapRefundable(swap: BoltzSwap): boolean {
+    return isSubmarineSwapRefundable(swap) || isChainSwapRefundable(swap);
+  }
+
+  async claimSwap(swap: BoltzReverseSwap): Promise<void> {
+    if (!this._wallet) await this.init();
+    if (!this._arkadeSwaps) throw new Error('ArkadeSwaps not initialized');
+    await this._arkadeSwaps.claimVHTLC(swap);
+    await this.fetchTransactions();
+    await this.fetchBalance();
+  }
+
+  async refundSwap(swap: BoltzSubmarineSwap): Promise<SubmarineRefundOutcome> {
+    if (!this._wallet) await this.init();
+    if (!this._arkadeSwaps) throw new Error('ArkadeSwaps not initialized');
+    const outcome = await this._arkadeSwaps.refundVHTLC(swap);
+    await this.fetchTransactions();
+    await this.fetchBalance();
+    return outcome;
+  }
+
+  async restoreSwaps(): Promise<void> {
+    const namespace = this.getNamespace();
+    let inFlight = restoreInFlight.get(namespace);
+    if (!inFlight) {
+      inFlight = (async () => {
+        if (!this._wallet) await this.init();
+        if (!this._arkadeSwaps) throw new Error('ArkadeSwaps not initialized');
+        await this._arkadeSwaps.restoreSwaps();
+        this._swapHistory = await this._arkadeSwaps.getSwapHistory();
+        this._lastTxFetch = +new Date();
+      })();
+      restoreInFlight.set(namespace, inFlight);
+      inFlight
+        .finally(() => {
+          if (restoreInFlight.get(namespace) === inFlight) restoreInFlight.delete(namespace);
+        })
+        .catch(() => {
+          // Same rejection is delivered to the awaiting caller below; silence
+          // the cleanup chain so it isn't an unhandled rejection.
+        });
+    await inFlight;
+    } else {
+      // Join an in-flight restore. The IIFE only writes to the instance that
+      // created it, so pull results into this instance once the shared work
+      // completes.
+      await inFlight;
+      const cachedSwaps = staticSwapsCache[namespace];
+      if (cachedSwaps) {
+        this._swapHistory = await cachedSwaps.getSwapHistory();
+        this._lastTxFetch = +new Date();
+      }
     }
   }
 

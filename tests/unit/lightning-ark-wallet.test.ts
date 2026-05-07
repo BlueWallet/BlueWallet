@@ -768,8 +768,7 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
   });
 
   it('payInvoice routes a valid Ark address through Wallet.sendBitcoin', async () => {
-    const arkAddress =
-      'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t5z8sz5n95k570z5r004szc9h2q3qprkzdd5zveujdpx24srcrqg8hf6j4v';
+    const arkAddress = 'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t5z8sz5n95k570z5r004szc9h2q3qprkzdd5zveujdpx24srcrqg8hf6j4v';
 
     await w.payInvoice(arkAddress, 12_345);
 
@@ -778,10 +777,141 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
       address: arkAddress,
       amount: 12_345,
     });
-    assert.strictEqual(
-      fakeArkadeSwaps.sendLightningPayment.mock.calls.length,
-      0,
-      'Lightning swap must not run for native Ark transfers',
+    assert.strictEqual(fakeArkadeSwaps.sendLightningPayment.mock.calls.length, 0, 'Lightning swap must not run for native Ark transfers');
+  });
+});
+
+describe('LightningArkWallet — Phase 6 per-swap claim/refund + restore', () => {
+  // Like the addInvoice/payInvoice block, we bypass init() and inject the SDK
+  // runtime objects. These tests assert the wiring (delegation + post-action
+  // refresh + concurrent-call coalescing), not SDK network behavior.
+  let w: LightningArkWallet;
+  const fakeArkadeSwaps: {
+    claimVHTLC: jest.Mock;
+    refundVHTLC: jest.Mock;
+    restoreSwaps: jest.Mock;
+    getSwapHistory: jest.Mock;
+  } = {
+    claimVHTLC: jest.fn(),
+    refundVHTLC: jest.fn(),
+    restoreSwaps: jest.fn(),
+    getSwapHistory: jest.fn(),
+  };
+
+  beforeEach(() => {
+    w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    fakeArkadeSwaps.claimVHTLC.mockReset().mockResolvedValue(undefined);
+    fakeArkadeSwaps.refundVHTLC.mockReset().mockResolvedValue({ swept: 0, skipped: 0 });
+    fakeArkadeSwaps.restoreSwaps.mockReset().mockResolvedValue({ chainSwaps: [], reverseSwaps: [], submarineSwaps: [] });
+    fakeArkadeSwaps.getSwapHistory.mockReset().mockResolvedValue([]);
+    // presence is enough; refresh helpers are stubbed below
+    (w as any)._wallet = {};
+    (w as any)._arkadeSwaps = fakeArkadeSwaps;
+    jest.spyOn(w, 'fetchTransactions').mockResolvedValue();
+    jest.spyOn(w, 'fetchBalance').mockResolvedValue();
+  });
+
+  it('getSwapById returns the matching swap, undefined for unknown id', () => {
+    (w as any)._swapHistory = [
+      { id: 'swap-A', type: 'reverse' },
+      { id: 'swap-B', type: 'submarine' },
+    ];
+    assert.deepStrictEqual(w.getSwapById('swap-A'), { id: 'swap-A', type: 'reverse' });
+    assert.deepStrictEqual(w.getSwapById('swap-B'), { id: 'swap-B', type: 'submarine' });
+    assert.strictEqual(w.getSwapById('nope'), undefined);
+  });
+
+  it('isSwapClaimable / isSwapRefundable use the SDK status predicates', () => {
+    // The SDK predicates branch on swap.type + status. Use real swap shapes
+    // with the right status (per node_modules/@arkade-os/boltz-swap status
+    // tables) to verify the wiring without re-stubbing the predicates.
+    const claimableReverse: any = { id: 'r1', type: 'reverse', status: 'transaction.confirmed' };
+    const refundableSubmarine: any = { id: 's1', type: 'submarine', status: 'swap.expired' };
+    const settledReverse: any = { id: 'r2', type: 'reverse', status: 'invoice.settled' };
+
+    assert.strictEqual(w.isSwapClaimable(claimableReverse), true);
+    assert.strictEqual(w.isSwapClaimable(refundableSubmarine), false);
+    assert.strictEqual(w.isSwapClaimable(settledReverse), false);
+
+    assert.strictEqual(w.isSwapRefundable(refundableSubmarine), true);
+    assert.strictEqual(w.isSwapRefundable(claimableReverse), false);
+    assert.strictEqual(w.isSwapRefundable(settledReverse), false);
+  });
+
+  it('claimSwap delegates to ArkadeSwaps.claimVHTLC and refreshes balance + transactions', async () => {
+    const swap: any = { id: 'r1', type: 'reverse', status: 'transaction.confirmed' };
+
+    await w.claimSwap(swap);
+
+    assert.strictEqual(fakeArkadeSwaps.claimVHTLC.mock.calls.length, 1);
+    assert.strictEqual(fakeArkadeSwaps.claimVHTLC.mock.calls[0][0], swap);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchTransactions.mock.calls.length, 1);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchBalance.mock.calls.length, 1);
+  });
+
+  it('refundSwap delegates to ArkadeSwaps.refundVHTLC and forwards the SubmarineRefundOutcome', async () => {
+    fakeArkadeSwaps.refundVHTLC.mockResolvedValue({ swept: 1, skipped: 0 });
+    const swap: any = { id: 's1', type: 'submarine', status: 'swap.expired' };
+
+    const outcome = await w.refundSwap(swap);
+
+    assert.deepStrictEqual(outcome, { swept: 1, skipped: 0 });
+    assert.strictEqual(fakeArkadeSwaps.refundVHTLC.mock.calls.length, 1);
+    assert.strictEqual(fakeArkadeSwaps.refundVHTLC.mock.calls[0][0], swap);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchTransactions.mock.calls.length, 1);
+    // @ts-expect-error spy
+    assert.strictEqual(w.fetchBalance.mock.calls.length, 1);
+  });
+
+  it('refundSwap with swept=0 still resolves and reports the deferred outcome', async () => {
+    fakeArkadeSwaps.refundVHTLC.mockResolvedValue({ swept: 0, skipped: 2 });
+    const swap: any = { id: 's2', type: 'submarine', status: 'swap.expired' };
+
+    const outcome = await w.refundSwap(swap);
+    assert.deepStrictEqual(outcome, { swept: 0, skipped: 2 });
+  });
+
+  it('restoreSwaps delegates to ArkadeSwaps.restoreSwaps and refreshes the local swap history', async () => {
+    fakeArkadeSwaps.getSwapHistory.mockResolvedValue([{ id: 'restored', type: 'reverse' }]);
+
+    await w.restoreSwaps();
+
+    assert.strictEqual(fakeArkadeSwaps.restoreSwaps.mock.calls.length, 1);
+    assert.strictEqual(fakeArkadeSwaps.getSwapHistory.mock.calls.length, 1);
+    assert.deepStrictEqual((w as any)._swapHistory, [{ id: 'restored', type: 'reverse' }]);
+  });
+
+  it('restoreSwaps coalesces concurrent calls into a single in-flight SDK request', async () => {
+    let resolveRestore!: () => void;
+    fakeArkadeSwaps.restoreSwaps.mockImplementation(
+      () =>
+        new Promise<{ chainSwaps: any[]; reverseSwaps: any[]; submarineSwaps: any[] }>(resolve => {
+          resolveRestore = () => resolve({ chainSwaps: [], reverseSwaps: [], submarineSwaps: [] });
+        }),
     );
+
+    const a = w.restoreSwaps();
+    const b = w.restoreSwaps();
+    const c = w.restoreSwaps();
+    resolveRestore();
+    await Promise.all([a, b, c]);
+
+    // Three callers, one underlying SDK request.
+    assert.strictEqual(fakeArkadeSwaps.restoreSwaps.mock.calls.length, 1);
+    assert.strictEqual(fakeArkadeSwaps.getSwapHistory.mock.calls.length, 1);
+  });
+
+  it('restoreSwaps clears the in-flight entry on rejection so the next call can retry', async () => {
+    fakeArkadeSwaps.restoreSwaps.mockRejectedValueOnce(new Error('boom'));
+    await assert.rejects(() => w.restoreSwaps(), /boom/);
+
+    // Next call should issue a fresh SDK request, not surface the cached rejection.
+    fakeArkadeSwaps.restoreSwaps.mockResolvedValueOnce({ chainSwaps: [], reverseSwaps: [], submarineSwaps: [] });
+    await w.restoreSwaps();
+    assert.strictEqual(fakeArkadeSwaps.restoreSwaps.mock.calls.length, 2);
   });
 });

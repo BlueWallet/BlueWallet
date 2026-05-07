@@ -75,7 +75,10 @@
     "preimage": "Pre-image",
     "sats": "sats.",
     "date_time": "Date and Time",
-    "wasnt_paid_and_expired": "This invoice was not paid and has expired."
+    "wasnt_paid_and_expired": "This invoice was not paid and has expired.",
+    "claim_funds": "Claim funds",
+    "refund_funds": "Refund funds",
+    "refund_deferred": "Funds aren't refundable yet. Try again after the swap timelock expires."
   },
   "plausibledeniability": {
     "create_fake_storage": "Create Encrypted Storage",
@@ -434,6 +437,8 @@
     "details_show_xpub": "Show Wallet XPUB",
     "details_show_addresses": "Show addresses",
     "details_title": "Wallet",
+    "restore_swap_activity": "Restore swap activity",
+    "restore_swap_activity_done": "Swap activity restored.",
     "wallets": "Wallets",
     "details_type": "Type",
     "details_use_with_hardware_wallet": "Use with Hardware Wallet",

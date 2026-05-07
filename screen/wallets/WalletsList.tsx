@@ -290,7 +290,14 @@ const WalletsList: React.FC = () => {
 
   const renderTransactionListsRow = useCallback(
     (item: ExtendedTransaction) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
+      // Ark wallet rows have no on-chain `hash` — fall back to their
+      // synthetic `txid` so each row gets a unique React key.
+      <TransactionListItem
+        key={item.hash ?? (item as { txid?: string }).txid}
+        item={item}
+        itemPriceUnit={item.walletPreferredBalanceUnit}
+        walletID={item.walletID}
+      />
     ),
     [],
   );
@@ -413,7 +420,8 @@ const WalletsList: React.FC = () => {
   }, [scanImage, wallets.length]);
 
   const sectionListKeyExtractor = useCallback((item: any, index: any) => {
-    return `${item}${index}}`;
+    if (typeof item === 'string') return item;
+    return item?.hash || item?.txid || `${item}${index}`;
   }, []);
 
   const onScanButtonPressed = useCallback(() => {

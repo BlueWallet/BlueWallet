@@ -21,11 +21,10 @@
 import { closeAllArkadeRealms, __testing__ as realmTesting } from '../../blue_modules/arkade-adapters/realm/realmInstance';
 import { __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Realm = require('realm');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const Keychain = require('react-native-keychain');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+
 const RNFS = require('react-native-fs');
 
 /**
@@ -53,6 +52,7 @@ export function resetArkadeTestState(): void {
   for (const k of Object.keys(walletTesting.staticWalletCache)) delete walletTesting.staticWalletCache[k];
   for (const k of Object.keys(walletTesting.staticSwapsCache)) delete walletTesting.staticSwapsCache[k];
   walletTesting.initInFlight.clear();
+  walletTesting.restoreInFlight.clear();
   for (const k of Object.keys(walletTesting.boardingLock)) delete walletTesting.boardingLock[k];
 }
 
@@ -75,8 +75,7 @@ export function clearArkadeMockCallHistory(): void {
 export const arkadeMockState = {
   realmFiles: () => Realm.__mockRealmHelpers.files as Set<string>,
   realmInstances: () => Realm.__mockRealmHelpers.store as Map<string, unknown>,
-  keychainStore: () =>
-    Keychain.__mockKeychainHelpers.store as Map<string, { username: string; password: string; service: string }>,
+  keychainStore: () => Keychain.__mockKeychainHelpers.store as Map<string, { username: string; password: string; service: string }>,
   /** Seed a Keychain entry directly, e.g. to simulate a leaked-from-previous-run state. */
   seedKeychain(service: string, password: string): void {
     Keychain.__mockKeychainHelpers.store.set(service, { username: service, password, service });
