@@ -491,7 +491,6 @@ const ManageWallets: React.FC = () => {
       });
 
       setWalletsWithNewOrder(updatedWallets);
-      initialWalletsRef.current = deepCopyWallets(updatedWallets);
       dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
     },
     [state.walletsCopy, setWalletsWithNewOrder],
@@ -680,7 +679,6 @@ const ManageWallets: React.FC = () => {
                   .map(item => item.data);
                 setWalletsWithNewOrder(reorderedWallets);
                 dispatch({ type: SAVE_CHANGES, payload: reorderedWallets });
-                initialWalletsRef.current = deepCopyWallets(reorderedWallets);
                 triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
               }}
               activationDistance={8}
