@@ -13,7 +13,19 @@ import { ItemType, AddressItemData } from '../models/itemTypes';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
+import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-wallet';
+import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import WalletListItem from './WalletListItem';
+
+const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefined => {
+  const w: unknown = wallet;
+  if (w instanceof AbstractHDElectrumWallet) return w;
+  if (w instanceof WatchOnlyWallet) {
+    const inner: unknown = w._hdWalletInstance;
+    if (inner instanceof AbstractHDElectrumWallet) return inner;
+  }
+  return undefined;
+};
 
 const getWalletIconImage = (walletType: string, direction: string) => {
   switch (walletType) {
@@ -268,6 +280,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   const { direction } = useLocale();
   const [expanded] = useState(true);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const hdElectrum = getHdElectrumWallet(wallet);
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -324,6 +337,35 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   const titleColor = dark ? colors.foregroundColor : colors.darkGray;
   const iconImage = getWalletIconImage(wallet.type, direction);
 
+  const renderAddress = (address: AddressItem, index: number) => {
+    const computedBalance = hdElectrum?.getBalanceForExternalIndex(address.data.index) ?? 0;
+    const computedTransactions = hdElectrum?.getTransactionCountForExternalIndex(address.data.index) ?? 0;
+
+    return (
+      <View key={`addr-${index}`}>
+        <View style={childItemStyle()}>
+          <AddressItem
+            item={{
+              key: address.data.address,
+              index: address.data.index,
+              address: address.data.address,
+              isInternal: address.data.isInternal,
+              balance: computedBalance,
+              transactions: computedTransactions,
+            }}
+            balanceUnit={wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC}
+            walletID={address.data.walletID}
+            allowSignVerifyMessage={wallet.allowSignVerifyMessage()}
+            onPress={() => navigateToAddress(address.data.address, address.data.walletID)}
+            searchQuery={state.searchQuery}
+            renderHighlightedText={renderHighlightedText}
+          />
+        </View>
+        {index < addresses.length - 1 && <View style={dividerStyle} />}
+      </View>
+    );
+  };
+
   return (
     <Animated.View style={{ opacity: fadeAnim }}>
       <View style={cardShadowStyle}>
@@ -359,46 +401,7 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
                 </>
               )}
 
-              {addresses.length > 0 && (
-                <>
-                  {addresses.map((address, index) => {
-                    const walletInstance: any = (wallet as any)?._hdWalletInstance ?? wallet;
-                    let computedBalance = 0;
-                    let computedTransactions = 0;
-                    try {
-                      const bal = walletInstance?._balances_by_external_index?.[address.data.index];
-                      computedBalance = (bal?.c || 0) + (bal?.u || 0);
-                      computedTransactions = walletInstance?._txs_by_external_index?.[address.data.index]?.length ?? 0;
-                    } catch (_) {}
-
-                    const addressItemProps = {
-                      item: {
-                        key: address.data.address,
-                        index: address.data.index,
-                        address: address.data.address,
-                        isInternal: address.data.isInternal,
-                        balance: computedBalance,
-                        transactions: computedTransactions,
-                      },
-                      balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
-                      walletID: address.data.walletID,
-                      allowSignVerifyMessage: wallet.allowSignVerifyMessage(),
-                      onPress: () => navigateToAddress(address.data.address, address.data.walletID),
-                      searchQuery: state.searchQuery,
-                      renderHighlightedText,
-                    };
-
-                    return (
-                      <View key={`addr-${index}`}>
-                        <View style={childItemStyle()}>
-                          <AddressItem {...addressItemProps} />
-                        </View>
-                        {index < addresses.length - 1 && <View style={dividerStyle} />}
-                      </View>
-                    );
-                  })}
-                </>
-              )}
+              {addresses.length > 0 && <>{addresses.map(renderAddress)}</>}
             </View>
           )}
         </View>
