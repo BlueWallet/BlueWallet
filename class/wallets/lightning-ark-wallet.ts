@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
 import { ArkadeSwaps, BoltzSwap, BoltzSwapProvider, decodeInvoice } from '@arkade-os/boltz-swap';
 import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
-import { RestDelegatorProvider, SingleKey, VtxoManager, Ramps, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
+import { RestDelegatorProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction } from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 
@@ -20,6 +20,20 @@ import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-ada
 const { bech32m } = require('bech32');
 
 const bip32 = BIP32Factory(ecc);
+
+// Delegate-service URL per Ark network. Mirrors the canonical wallet's map
+// (../master/wallet/src/lib/constants.ts:27): mainnet has a delegator,
+// mutinynet/regtest each have their own, and signet/testnet have none — for
+// those we must skip `delegatorProvider` on Wallet.create entirely instead of
+// falling back to the mainnet URL, which would build the wrong offchain
+// tapscript and hide funds from the indexer.
+const DELEGATOR_URLS = {
+  bitcoin: 'https://delegate.arkade.money',
+  mutinynet: 'https://delegator.mutinynet.arkade.sh',
+  regtest: 'http://localhost:7012',
+  signet: null,
+  testnet: null,
+} as const;
 
 const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapsCache: Record<string, ArkadeSwaps> = {};
@@ -55,18 +69,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _arkadeSwaps: ArkadeSwaps | undefined;
 
   private _arkServerUrl: string = 'https://arkade.computer';
-  // Mainnet delegate URL the canonical Arkade wallet uses by default
-  // (see ../master/wallet/src/lib/constants.ts:27). Without this, Wallet.create
-  // builds a non-delegate offchain tapscript and registers only the `default`
-  // contract, so funds previously sent by the canonical wallet to its delegate
-  // address are invisible to the indexer query and the wallet shows zero
-  // balance after restore. The SDK ships no built-in fallback — every consumer
-  // wires the URL itself.
-  private _delegatorUrl: string = 'https://delegate.arkade.money';
+  // Network this wallet speaks. Drives the delegator URL lookup below; today
+  // the Ark server URL is fixed to mainnet, so this is always 'bitcoin', but
+  // the indirection keeps a future testnet/mutinynet/regtest switch from
+  // silently shipping the mainnet delegator URL to the wrong network.
+  private _network: keyof typeof DELEGATOR_URLS = 'bitcoin';
 
   private _swapHistory: BoltzSwap[] = [];
   private _transactionsHistory: ArkTransaction[] = [];
-  private _claimedSwaps: Record<string, boolean> = {};
   private _privateKeyCache = '';
   private _boardingUtxos: ExtendedCoin[] = [];
 
@@ -133,16 +143,35 @@ export class LightningArkWallet extends LightningCustodianWallet {
         const contractRepository = new RealmContractRepository(realm as any);
         const swapRepository = new RealmSwapRepository(realm as any);
 
+        // Resolve the delegator URL up front and preflight it. A mismatched
+        // URL silently builds the wrong offchain tapscript, and a flaky
+        // delegator turns into a generic mid-init Wallet.create rejection
+        // (Phase 4 task 11). Networks with no delegator (signet/testnet)
+        // skip the provider entirely.
+        const delegatorUrl = DELEGATOR_URLS[this._network];
+        let delegatorProvider: RestDelegatorProvider | undefined;
+        if (delegatorUrl !== null) {
+          delegatorProvider = new RestDelegatorProvider(delegatorUrl);
+          try {
+            await delegatorProvider.getDelegateInfo();
+          } catch (e: any) {
+            throw new Error(`Delegate service unreachable (${delegatorUrl}): ${e?.message ?? e}`);
+          }
+        }
+
         const mm = new Measure('Wallet.create()');
-        const wallet =
-          staticWalletCache[namespace] ??
-          (await Wallet.create({
-            identity: this._getIdentity(),
-            arkProvider: new ExpoArkProvider(this._arkServerUrl),
-            indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
-            storage: { walletRepository, contractRepository },
-            delegatorProvider: new RestDelegatorProvider(this._delegatorUrl),
-          }));
+        const wallet = await Wallet.create({
+          identity: this._getIdentity(),
+          arkProvider: new ExpoArkProvider(this._arkServerUrl),
+          indexerProvider: new ExpoIndexerProvider(this._arkServerUrl),
+          storage: { walletRepository, contractRepository },
+          delegatorProvider,
+          // Hand VTXO-renewal + boarding-UTXO settlement to the SDK's
+          // VtxoManager (defaults: 3-day vtxoThreshold, boardingUtxoSweep on,
+          // 60s pollIntervalMs). Replaces the previous setTimeout-driven
+          // renewVtxos shim and the foreground Ramps.onboard call.
+          settlementConfig: {},
+        });
         staticWalletCache[namespace] = wallet;
         mm.end();
 
@@ -150,17 +179,21 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // mainnet URL (https://api.ark.boltz.exchange) when network is 'bitcoin'.
         const swapProvider = new BoltzSwapProvider({ network: 'bitcoin' });
 
-        const arkadeSwaps =
-          staticSwapsCache[namespace] ??
-          new ArkadeSwaps({
-            wallet,
-            swapProvider,
-            swapRepository,
-            // SwapManager belongs to Phase 4. Keep it disabled in Phase 1 so the
-            // foreground claim/refund path stays driven by fetchBalance().
-            swapManager: false,
-          });
+        const arkadeSwaps = new ArkadeSwaps({
+          wallet,
+          swapProvider,
+          swapRepository,
+          // SwapManager owns auto-claim/auto-refund via WebSocket+poll fallback.
+          // Replaces the pre-Phase-4 _attemptToClaimPendingVHTLCs loop driven
+          // by fetchBalance().
+          swapManager: true,
+        });
         staticSwapsCache[namespace] = arkadeSwaps;
+
+        // Push refresh on swap lifecycle events so balance and history
+        // reflect SwapManager's autonomous claim/refund actions without
+        // waiting for the next user-driven fetchBalance tick.
+        this._subscribeToSwapEvents(arkadeSwaps);
 
         return { wallet, arkadeSwaps };
       })();
@@ -181,23 +214,31 @@ export class LightningArkWallet extends LightningCustodianWallet {
     this._arkadeSwaps = arkadeSwaps;
 
     if (!this._limitMin || !this._limitMax) await this._fetchLightningFeesAndLimits();
+  }
 
-    // Renew expiring VTXOs in the background so init() returns quickly.
-    setTimeout(async () => {
-      const cached = staticWalletCache[namespace];
-      if (!cached) return;
-      const manager = new VtxoManager(cached, { enabled: true });
+  private _subscribeToSwapEvents(arkadeSwaps: ArkadeSwaps) {
+    const swapManager = arkadeSwaps.getSwapManager();
+    if (!swapManager) return;
+
+    const refresh = async () => {
       try {
-        const expiringVtxos = await manager.getExpiringVtxos();
-        if (expiringVtxos.length > 0) {
-          console.log(`ARK renewing ${expiringVtxos.length} expiring VTXOs...`);
-          const renewTxid = await manager.renewVtxos();
-          console.log('ARK VTXO renewed:', renewTxid);
+        if (this._arkadeSwaps !== arkadeSwaps) return; // stale subscription after onDelete
+        this._swapHistory = await arkadeSwaps.getSwapHistory();
+        if (this._wallet) {
+          this._transactionsHistory = await this._wallet.getTransactionHistory();
+          const balance = await this._wallet.getBalance();
+          this.balance = balance.available;
         }
-      } catch (error: any) {
-        console.log('ARK Error renewing VTXOs:', error.message);
+        this._lastBalanceFetch = +new Date();
+        this._lastTxFetch = +new Date();
+      } catch (e: any) {
+        console.log('[ARK] swap-event refresh failed:', e?.message ?? e);
       }
-    }, 1_000);
+    };
+
+    swapManager.onSwapCompleted(refresh).catch(() => {});
+    swapManager.onSwapFailed(refresh).catch(() => {});
+    swapManager.onActionExecuted(refresh).catch(() => {});
   }
 
   private async _fetchLightningFeesAndLimits() {
@@ -268,9 +309,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
           continue;
       }
 
-      if (this._claimedSwaps[swap.id]) {
-        ispaid = true;
-      }
       // @ts-ignore properties do exist
       value = swap.response.onchainAmount || swap.response.expectedAmount || value || swap.request.invoiceAmount || 0;
       value = value * direction;
@@ -335,41 +373,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
     this._lastTxFetch = +new Date();
   }
 
-  async _attemptToClaimPendingVHTLCs() {
-    assert(this._wallet, 'Ark wallet not initialized');
-    assert(this._arkadeSwaps, 'ArkadeSwaps not initialized');
-    const arkadeSwaps = this._arkadeSwaps;
-
-    const pendingReverseSwaps = await arkadeSwaps.getPendingReverseSwaps();
-    if ((pendingReverseSwaps ?? []).length > 0) console.log('got', pendingReverseSwaps?.length ?? 0, 'pending swaps');
-
-    await Promise.all(
-      (pendingReverseSwaps ?? []).map(async swap => {
-        if (this._claimedSwaps[swap.id]) return;
-
-        console.log(`claiming ${swap.id}...`);
-        if (swap?.response?.timeoutBlockHeights?.refund && swap?.response?.timeoutBlockHeights?.refund <= Date.now() / 1000) {
-          console.log(`skipping ${swap.id} (too old)`);
-          return;
-        }
-        try {
-          await arkadeSwaps.claimVHTLC(swap);
-          console.log('claimed!');
-          this._claimedSwaps[swap.id] = true;
-        } catch (error: any) {
-          console.log(`could not claim ${swap.id}:`, error.message);
-        }
-      }),
-    );
-  }
-
   async fetchBalance(): Promise<void> {
     if (!this._wallet) await this.init();
     if (!this._wallet) throw new Error('Ark wallet not initialized');
-
-    if (this._arkadeSwaps) {
-      await this._attemptToClaimPendingVHTLCs();
-    }
 
     await this._attemptBoardUtxos();
 
@@ -411,9 +417,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   async getUserInvoices(): Promise<LightningTransaction[]> {
-    if (this._arkadeSwaps) {
-      await this._attemptToClaimPendingVHTLCs();
-    }
     await this.fetchTransactions();
     const txs = this.getTransactions();
     return txs.filter(tx => tx.value! > 0);
@@ -500,30 +503,21 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   private async _attemptBoardUtxos() {
-    // executing in background since it can take a lot of time, but setting the lock so there wont be any races
-    // (for example, during another pull-to-refresh)
+    // Refresh the boarding UTXO list so getTransactions() can render "Pending
+    // refill" rows. The actual onboard intent is now driven by the SDK's
+    // VtxoManager polling loop (enabled via settlementConfig on Wallet.create);
+    // running Ramps.onboard here in parallel would double-submit the same
+    // inputs and race the SDK's per-input cooldown bookkeeping.
     const namespace = this.getNamespace();
     if (boardingLock[namespace]) return;
-
     if (!this._wallet) return;
 
     boardingLock[namespace] = true;
-    this._boardingUtxos = await this._wallet.getBoardingUtxos(); // calling it here so fetchBalance will pick it up and then `getTransactions` will show it in tx list
-    (async () => {
-      if (this._boardingUtxos.length > 0) {
-        if (!this._wallet) return;
-        // not instantiating, this is supposed to be called inside `fetchBalance`
-        console.log('attempting to board ', this._boardingUtxos.length, 'UTXOs...');
-        const info = await this._wallet.arkProvider.getInfo();
-        const feeInfo = info.fees;
-        await new Ramps(this._wallet).onboard(feeInfo, this._boardingUtxos);
-        this._boardingUtxos = await this._wallet.getBoardingUtxos(); // refetch UTXOs, if we succeeded boarding previosuly the set should be reduced
-      }
-    })()
-      .catch(e => console.log('ark boarding failed:', e.message))
-      .finally(() => {
-        boardingLock[namespace] = false;
-      });
+    try {
+      this._boardingUtxos = await this._wallet.getBoardingUtxos();
+    } finally {
+      boardingLock[namespace] = false;
+    }
   }
 
   isAddressValid(address: string): boolean {
@@ -569,11 +563,29 @@ export class LightningArkWallet extends LightningCustodianWallet {
       }
     }
 
+    // Stop SwapManager + VtxoManager loops before tearing down storage so
+    // their background timers / WebSocket / settlement polls don't keep
+    // running against a wallet whose Realm we're about to delete.
+    const cachedSwaps = staticSwapsCache[namespace];
+    const cachedWallet = staticWalletCache[namespace];
+
     this._wallet = undefined;
     this._arkadeSwaps = undefined;
     delete staticWalletCache[namespace];
     delete staticSwapsCache[namespace];
     initInFlight.delete(namespace);
+
+    // Type guards: real SDK objects always have dispose; unit-test stubs may not.
+    try {
+      if (typeof cachedSwaps?.dispose === 'function') await cachedSwaps.dispose();
+    } catch (e: any) {
+      console.log(`[LightningArkWallet] arkadeSwaps.dispose failed for ${namespace}:`, e?.message ?? e);
+    }
+    try {
+      if (typeof cachedWallet?.dispose === 'function') await cachedWallet.dispose();
+    } catch (e: any) {
+      console.log(`[LightningArkWallet] wallet.dispose failed for ${namespace}:`, e?.message ?? e);
+    }
 
     try {
       await deleteArkadeRealm(namespace);

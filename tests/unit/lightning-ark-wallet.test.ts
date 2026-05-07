@@ -174,22 +174,6 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.deepStrictEqual(w.getTransactions(), []);
   });
 
-  it('lifts an explicitly-claimed swap to paid even when the swap.status is not yet final', () => {
-    const swap = {
-      id: 'racy-claim',
-      status: 'swap.created',
-      createdAt: 1700004000,
-      request: { invoice: 'lnbc1u1pjracy', invoiceAmount: 200 },
-      response: { invoice: 'lnbc1u1pjracy', onchainAmount: 200 },
-    } as any;
-    (w as any)._swapHistory = [swap];
-    (w as any)._claimedSwaps = { 'racy-claim': true };
-
-    const txs = w.getTransactions();
-    assert.strictEqual(txs.length, 1);
-    assert.strictEqual(txs[0].ispaid, true);
-  });
-
   it('maps a pending boarding UTXO as a "Pending refill" bitcoind_tx row', () => {
     (w as any)._boardingUtxos = [{ value: 50000, status: { block_time: 1700005000 } }];
 
