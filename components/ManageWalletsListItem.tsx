@@ -92,6 +92,10 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   }, [item, navigateToWallet, navigateToAddress]);
 
   const startDrag = useCallback(() => {
+    if (swipeInProgressRef.current) {
+      swipeableRef.current?.close?.();
+      return;
+    }
     triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     if (drag) {
       drag();
@@ -152,7 +156,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         iconImage={iconImage}
         onPress={onPress}
         onLongPress={isDraggingDisabled ? undefined : startDrag}
-        delayLongPress={120}
+        delayLongPress={500}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
         searchQuery={state.searchQuery || ''}
