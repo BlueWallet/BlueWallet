@@ -740,12 +740,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('OutputMemo')).typeText('Test2');
     await element(by.id('OutputMemo')).tapReturnKey();
     await waitForKeyboardToClose();
-    if (device.getPlatform() === 'ios') {
-      // FIXME. Add testId to freez switch
-      await element(by.type('UISwitchModernVisualElement')).tap(); // freeze switch
-    } else {
-      await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
-    }
+    await element(by.id('FreezeSwitch')).tap(); // freeze switch
     await element(by.id('CoinControlOutputDone')).tap();
     await expect(element(by.text('Test2')).atIndex(0)).toBeVisible();
     await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
