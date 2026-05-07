@@ -679,8 +679,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
-  // to bio work).
   it('can manage UTXO', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t23');
     if (process.env.CI) {
@@ -691,7 +689,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
 
-    await device.launchApp({ newInstance: true });
+    // The earlier wallet-details test enabled biometric; resolve UnlockWith on relaunch.
+    const launchPromise = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await launchPromise;
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -800,8 +801,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
-  // to bio work).
   it('can purge txs and balance, then refetch data from tx list screen and see data on screen update', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t24');
     if (process.env.CI) {
@@ -812,7 +811,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
 
-    await device.launchApp({ newInstance: true });
+    const launchPromise = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await launchPromise;
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -845,8 +846,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.ok((await countElements('TransactionListItem')) >= 3); // 3 is arbitrary, real txs on screen depend on screen size
   });
 
-  // TODO: pre-existing flake — wallet text not visible after relaunch (regression unrelated
-  // to bio work).
   it('can purge txs and balance, then restart the app and witness it to refetch tx list screen and balance', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t25');
     if (process.env.CI) {
@@ -857,7 +856,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
 
-    await device.launchApp({ newInstance: true });
+    const launchPromise = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await launchPromise;
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -879,7 +880,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(await countElements('TransactionListItem'), 0);
 
     // now, restarting the app:
-    await device.launchApp({ newInstance: true });
+    const relaunch = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await relaunch;
     // ^^^ its supposed to refetch txs and balance
 
     // asserting balance and txs loaded:
