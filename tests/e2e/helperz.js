@@ -351,23 +351,38 @@ export async function setCustomFeeRate(feeRate) {
 }
 
 export async function goBack() {
-  if (device.getPlatform() === 'ios') {
-    try {
-      await element(by.id('BackButton')).atIndex(0).tap();
-    } catch (_backError) {
-      try {
-        await element(by.id('NavigationCloseButton')).atIndex(0).tap();
-      } catch (_closeButtonError) {
-        try {
-          await element(by.label('Back')).atIndex(0).tap();
-        } catch (_backLabelError) {
-          await element(by.text('Close')).atIndex(0).tap();
-        }
-      }
-    }
-  } else {
+  if (device.getPlatform() !== 'ios') {
     await device.pressBack();
+    return;
   }
+
+  const callsite = captureCallsite(goBack);
+
+  // Race the candidate matchers in parallel — first one to become visible wins.
+  const candidates = [
+    ['id=BackButton', by.id('BackButton')],
+    ['id=NavigationCloseButton', by.id('NavigationCloseButton')],
+    ['label=Back', by.label('Back')],
+    ['text=Close', by.text('Close')],
+  ];
+  const races = candidates.map(([, matcher]) =>
+    waitFor(element(matcher).atIndex(0))
+      .toBeVisible()
+      .withTimeout(20000)
+      .then(() => matcher),
+  );
+
+  let winner;
+  try {
+    winner = await Promise.any(races);
+  } catch (aggErr) {
+    const errs = (aggErr && aggErr.errors) || [];
+    const detail = errs.map((e, i) => `${candidates[i][0]}: ${e && e.message ? e.message.split('\n')[0] : String(e)}`).join('\n  ');
+    rethrowWithCallsite(new Error('goBack: no back/close affordance visible after 20s.\n  ' + detail), callsite);
+    return;
+  }
+
+  await element(winner).atIndex(0).tap();
 }
 
 export async function typeTextIntoAlertInput(text) {
