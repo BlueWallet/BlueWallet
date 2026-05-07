@@ -545,16 +545,7 @@ export async function tapGatedByBiometric(matcher, { reopen } = {}) {
   }
   await sleep(500);
   if (reopen) await reopen();
-  try {
-    await element(matcher).tap();
-  } catch (err) {
-    try {
-      const path = `/tmp/bio-retap-fail-${Date.now()}.png`;
-      require('child_process').execSync(`xcrun simctl io ${device.id} screenshot "${path}"`, { stdio: 'ignore' });
-      console.warn('DIAG retap-fail screenshot:', path);
-    } catch (_) {}
-    throw err;
-  }
+  await element(matcher).tap();
   await matchBiometric();
   // Same iOS-26 sim quirk applies after match — foreground the app once more so the caller's
   // subsequent waitFor*/expect can see the post-auth UI.

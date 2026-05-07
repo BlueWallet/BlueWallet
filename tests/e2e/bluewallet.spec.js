@@ -990,34 +990,13 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapGatedByBiometric(by.id('MultisigCoordinationSetup'));
     await tapIfTextPresent('OK'); // dismiss any "Canceled by another authentication" residual
     await device.disableSynchronization();
-    try {
-      await waitForId('ExportMultisigCoordinationSetupView');
-    } catch (err) {
-      try {
-        const path = `/tmp/multisig-fail-${Date.now()}.png`;
-        require('child_process').execSync(`xcrun simctl io ${device.id} screenshot "${path}"`, { stdio: 'ignore' });
-        console.warn('DIAG screenshot:', path);
-      } catch (_) {}
-      throw err;
-    }
+    await waitForId('ExportMultisigCoordinationSetupView');
     await element(by.id('NavigationCloseButton')).atIndex(0).tap();
     await device.enableSynchronization();
 
     // go to receive screen and capture current receive address
     await goBack();
-    // The earlier bio rejection leaves a "Biometric authentication failed" toast that
-    // covers the bottom-of-screen wallet buttons until it auto-dismisses.
-    await sleep(5000);
-    try {
-      await waitForId('ReceiveButton');
-    } catch (err) {
-      try {
-        const path = `/tmp/multisig-fail-${Date.now()}.png`;
-        require('child_process').execSync(`xcrun simctl io ${device.id} screenshot "${path}"`, { stdio: 'ignore' });
-        console.warn('DIAG screenshot:', path);
-      } catch (_) {}
-      throw err;
-    }
+    await waitForId('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
     await waitForId('AddressValue');
     const vaultReceiveAddress = await extractTextFromElementById('AddressValue');
