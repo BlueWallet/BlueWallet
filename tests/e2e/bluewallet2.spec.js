@@ -710,7 +710,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForKeyboardToClose();
 
     // Terminate and reopen the app to confirm the note is persisted
-    await device.launchApp({ newInstance: true });
+    const relaunchUtxo = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await relaunchUtxo;
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await waitForId('SendButton');

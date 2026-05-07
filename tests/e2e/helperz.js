@@ -374,13 +374,23 @@ export async function typeTextIntoAlertInput(text) {
   if (device.getPlatform() === 'android') {
     await element(by.type('android.widget.EditText')).replaceText(text);
   } else {
-    // iOS 26 dropped the private `_UIAlertControllerTextField` class — fall back to
-    // public `UITextField` (alert text fields inherit from it).
-    try {
-      await element(by.type('_UIAlertControllerTextField')).replaceText(text);
-    } catch (_) {
-      await element(by.type('UITextField')).atIndex(0).replaceText(text);
+    // Try multiple iOS class names: pre-26 was the private `_UIAlertControllerTextField`,
+    // iOS 26 dropped that. The public `UIAlertControllerTextField` works on some iOS versions.
+    // Last resort: any UITextField — but this picks ANY iOS UITextField including RN's
+    // RCTUITextField (which inherits from UITextField), so atIndex(0) can match the wrong
+    // field if an RN text input is on screen.
+    const candidates = ['_UIAlertControllerTextField', 'UIAlertControllerTextField', 'UITextField'];
+    let matched = false;
+    for (const className of candidates) {
+      try {
+        await element(by.type(className)).atIndex(0).replaceText(text);
+        matched = true;
+        break;
+      } catch (_) {
+        /* try next */
+      }
     }
+    if (!matched) throw new Error('typeTextIntoAlertInput: no alert text field matched on iOS');
   }
   await sleep(1000);
 }
