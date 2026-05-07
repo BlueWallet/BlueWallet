@@ -78,7 +78,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     }
     prevIsActive.current = isActive;
-  }, [isActive, globalDragActive]);
+  }, [isActive]);
 
   const onPress = useCallback(() => {
     if (swipeInProgressRef.current) return;

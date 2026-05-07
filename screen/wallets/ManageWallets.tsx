@@ -29,7 +29,7 @@ import { ItemType, AddressItemData } from '../../models/itemTypes';
 import ManageWalletsListItem, { WalletGroupComponent } from '../../components/ManageWalletsListItem';
 import HighlightedText from '../../components/HighlightedText';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import Svg, { Path } from 'react-native-svg';
+import DragIcon from '../../img/Search/drag';
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -485,7 +485,7 @@ const ManageWallets: React.FC = () => {
   const handleToggleHideBalance = useCallback(
     (wallet: TWallet) => {
       const walletID = wallet.getID();
-      const updatedWallets = deepCopyWallets(persistedWallets).map(w => {
+      const updatedWallets = deepCopyWallets(state.walletsCopy).map(w => {
         if (w.getID() === walletID) {
           w.hideBalance = !w.hideBalance;
         }
@@ -496,7 +496,7 @@ const ManageWallets: React.FC = () => {
       initialWalletsRef.current = deepCopyWallets(updatedWallets);
       dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
     },
-    [persistedWallets, setWalletsWithNewOrder],
+    [state.walletsCopy, setWalletsWithNewOrder],
   );
 
   const renderItem = useCallback(
@@ -598,16 +598,13 @@ const ManageWallets: React.FC = () => {
     return (
       <Pressable accessibilityRole="text" style={styles.reorderHintContainer}>
         <View style={styles.reorderHintIcon}>
-          <Svg width={19} height={38} viewBox="0 0 19 38" fill="none">
-            <Path
-              d="M12.6667 35.4667V33.8441L10.1333 35.8726V31.6667H8.86667V35.872L6.33333 33.8441V35.4667L9.5 38L12.6667 35.4667ZM6.33333 2.53333V4.15593L8.86667 2.128V6.33333H10.1333V2.12863L12.6667 4.15593V2.53333L9.49873 0L6.33333 2.53333ZM14.6275 25.4302C14.5185 17.8359 13.2873 14.5667 9.5 14.5667C5.7114 14.5667 4.48147 17.8359 4.37127 25.4302C2.4814 23.921 1.26667 21.6011 1.26667 19C1.26667 14.4596 4.96027 10.7667 9.5 10.7667C14.0397 10.7667 17.7333 14.4596 17.7333 19C17.7333 21.6011 16.5173 23.921 14.6275 25.4302ZM9.48733 22.1597C5.67593 22.1597 6.24023 17.53 6.24023 17.53C6.24023 17.53 6.89067 16.0632 9.48733 16.0632C12.0853 16.0632 12.7617 17.53 12.7617 17.53C12.7617 17.53 13.2975 22.1597 9.48733 22.1597ZM9.5 9.5C4.2617 9.5 0 13.7617 0 19C0 24.2383 4.2617 28.5 9.5 28.5C14.7377 28.5 19 24.2383 19 19C19 13.7617 14.7377 9.5 9.5 9.5Z"
-              fill={hintTextColor}
-            />
-          </Svg>
+          <DragIcon color={hintTextColor} />
         </View>
         <View style={styles.reorderHintTextContainer}>
           <Text style={[styles.reorderHintTitle, { color: hintTextColor, writingDirection: direction }]}>{loc.wallets.wallets}</Text>
-          <Text style={[styles.reorderHintSubtitle, { color: hintTextColor, writingDirection: direction }]}>Drag to reorder</Text>
+          <Text style={[styles.reorderHintSubtitle, { color: hintTextColor, writingDirection: direction }]}>
+            {loc.wallets.drag_to_reorder}
+          </Text>
         </View>
       </Pressable>
     );
@@ -620,7 +617,7 @@ const ManageWallets: React.FC = () => {
         <Animated.Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Animated.Text>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Clear search"
+          accessibilityLabel={loc.wallets.clear_search}
           style={({ pressed }) => [styles.clearSearchButton, stylesHook.clearSearchButton, pressed && styles.clearSearchButtonPressed]}
           android_ripple={{ color: colors.buttonDisabledTextColor, borderless: false }}
           onPress={() => {
@@ -628,7 +625,7 @@ const ManageWallets: React.FC = () => {
             dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
           }}
         >
-          <Text style={[styles.clearSearchText, { color: colors.buttonTextColor }]}>Clear search</Text>
+          <Text style={[styles.clearSearchText, { color: colors.buttonTextColor }]}>{loc.wallets.clear_search}</Text>
         </Pressable>
       </Animated.View>
     );
