@@ -118,7 +118,7 @@ const WalletsList: React.FC = () => {
   const route = useRoute<RouteProps>();
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
-  const walletActionButtonsRef = useRef<any>(null);
+  const walletActionButtonsRef = useRef<View>(null);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -469,7 +469,7 @@ const WalletsList: React.FC = () => {
               style={StyleSheet.absoluteFill}
             />
           </View>
-          <FContainer ref={walletActionButtonsRef.current}>
+          <FContainer ref={walletActionButtonsRef}>
             <FButton
               onPress={onScanButtonPressed}
               onLongPress={sendButtonLongPress}
