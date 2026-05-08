@@ -115,22 +115,11 @@ export default class SelfTest extends Component {
         const spkw = new LightningArkWallet();
         spkw.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
         await spkw.init();
-        const arkAddress = await spkw.getArkAddress();
-        // Address tail (the vtxo tapscript hash) depends on the production
-        // delegator's current pubkey, which the SDK fetches at runtime — we
-        // cannot pin a full address here without coupling SelfTest to a
-        // delegate value that the service may rotate. The prefix encodes
-        // version + ASP serverPubkey, which is stable as long as the wallet
-        // points at https://arkade.computer with the hardcoded signerPubkey.
-        // The delegate-flavored full-address fixture for the same mnemonic
-        // (against canned inputs) is locked in
-        // tests/unit/lightning-ark-derivation.test.ts.
-        const ARK_ADDRESS_STABLE_PREFIX = 'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t';
-        if (!arkAddress.startsWith(ARK_ADDRESS_STABLE_PREFIX)) {
-          throw new Error(
-            `Ark address prefix mismatch — expected '${ARK_ADDRESS_STABLE_PREFIX}…', got '${arkAddress}'`,
-          );
-        }
+        assertStrictEqual(
+          await spkw.getArkAddress(),
+          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t4damkjtcm90w43zn6f90ermjhr9d2qxmsw75r7daanhmasp6avmstu5est',
+          'Ark failed',
+        );
       } else {
         // skipping RN-specific test
       }
