@@ -463,7 +463,7 @@ const WalletsList: React.FC = () => {
   }, [onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
 
   const sectionListKeyExtractor = useCallback((item: any, index: any) => {
-    return `${item}${index}}`;
+    return `${item}${index}`;
   }, []);
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
