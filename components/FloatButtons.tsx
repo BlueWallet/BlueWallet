@@ -24,7 +24,7 @@ const LAYOUT = {
   DRAWER_WIDTH: 320,
   BUTTON_HEIGHT: 52,
   CONTAINER_SIDE_MARGIN: 16,
-  DEFAULT_BORDER_RADIUS: 100,
+  PILL_BORDER_RADIUS: 100,
   SINGLE_BUTTON_WIDTH_FACTOR: 0.625,
   MAX_BUTTON_FONT_SIZE: 24,
   SAFETY_MARGIN: 20,
@@ -145,7 +145,7 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
 
       const shouldBeVertical = shouldUseVerticalLayout(totalWidthNeeded, availableWidth, totalChildren);
 
-      const buttonRadius = LAYOUT.DEFAULT_BORDER_RADIUS;
+      const buttonRadius = LAYOUT.PILL_BORDER_RADIUS;
 
       return { buttonRadius, shouldBeVertical };
     },
@@ -323,7 +323,7 @@ export const FButton = ({
   last,
   singleChild,
   isVertical,
-  borderRadius = LAYOUT.DEFAULT_BORDER_RADIUS,
+  borderRadius = LAYOUT.PILL_BORDER_RADIUS,
   fontSize = LAYOUT.MAX_BUTTON_FONT_SIZE,
   testID,
   ...props
@@ -386,7 +386,7 @@ export const FButton = ({
   }, [animateScaleTo]);
 
   return (
-    <Animated.View style={{ transform: [{ scale }] }}>
+    <Animated.View style={[additionalStyles, { transform: [{ scale }] }]}>
       <TouchableOpacity
         accessibilityLabel={text}
         accessibilityRole="button"
@@ -394,7 +394,7 @@ export const FButton = ({
         activeOpacity={1}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={[buttonStyles.root, customButtonStyles.root, style, additionalStyles, { borderRadius }]}
+        style={[buttonStyles.root, customButtonStyles.root, style, { borderRadius }]}
         {...props}
       >
         <ButtonContent icon={icon} text={text} textStyle={textStyle} />
@@ -428,7 +428,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       return {
         calculatedWidth: undefined as number | undefined,
         shouldBeVertical: false,
-        buttonRadius: LAYOUT.DEFAULT_BORDER_RADIUS,
+        buttonRadius: LAYOUT.PILL_BORDER_RADIUS,
       };
     }
     const calculatedWidth = calculateButtonWidth(initialLayoutWidth, childrenCount);
@@ -485,7 +485,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
         if (widthDelta <= widthEps && buttonRadiusDelta <= radiusEps) return;
       }
 
-      if (shouldBeVertical !== prev.isVertical || widthDelta > 1) {
+      if (shouldBeVertical !== prev.isVertical || widthDelta > widthEps) {
         handleBorderRadiusAnimation(buttonRadius, shouldBeVertical, calculatedWidth);
       } else {
         setNewWidth(calculatedWidth);
