@@ -526,7 +526,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return () => clearTimeout(timer);
   }, [walletID, measureHeaderHeight]);
 
-  const ListHeaderComponent = useCallback(
+  const ListHeaderComponent = useMemo(
     () => (
       <View ref={headerRef} onLayout={measureHeaderHeight}>
         <TransactionsNavigationHeader
