@@ -380,7 +380,7 @@ const ManageWallets: React.FC = () => {
     }
 
     return walletsSource.map(wallet => ({
-      type: ItemType.WalletSection as const,
+      type: ItemType.WalletSection,
       data: wallet,
     }));
   }, []);
@@ -583,7 +583,10 @@ const ManageWallets: React.FC = () => {
     [state.searchQuery, state.isSearchFocused],
   );
 
-  const shouldShowReorderHint = useMemo(() => state.searchQuery.length === 0, [state.searchQuery.length]);
+  const shouldShowReorderHint = useMemo(
+    () => state.searchQuery.length === 0 && state.walletsCopy.length > 1,
+    [state.searchQuery.length, state.walletsCopy.length],
+  );
 
   const ListHeaderComponent = useMemo(() => {
     if (!shouldShowReorderHint) return null;
@@ -632,8 +635,6 @@ const ManageWallets: React.FC = () => {
     stylesHook.noResultsText,
   ]);
 
-  const contentInsetAdjustmentBehavior = useMemo(() => 'automatic' as const, []);
-
   const listSharedProps = {
     data: listData,
     keyExtractor,
@@ -642,7 +643,7 @@ const ManageWallets: React.FC = () => {
     ListHeaderComponent,
     ListEmptyComponent,
     automaticallyAdjustContentInsets: true,
-    contentInsetAdjustmentBehavior,
+    contentInsetAdjustmentBehavior: 'automatic' as const,
     keyboardShouldPersistTaps: 'handled' as const,
     keyboardDismissMode: 'on-drag' as const,
   };
