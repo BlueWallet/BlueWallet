@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
@@ -9,7 +8,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
-import { FButton, FContainer } from '../../components/FloatButtons';
+import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import WalletsCarousel, { getWalletCarouselItemWidth } from '../../components/WalletsCarousel';
@@ -26,8 +25,6 @@ import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import LinearGradient from 'react-native-linear-gradient';
-import { withAlpha } from '../../components/color';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -112,7 +109,6 @@ const WalletsList: React.FC = () => {
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
-  const insets = useSafeAreaInsets();
   const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const route = useRoute<RouteProps>();
@@ -132,18 +128,6 @@ const WalletsList: React.FC = () => {
       color: colors.foregroundColor,
     },
   });
-
-  const bottomButtonsGradientStyle = useMemo(
-    () => ({
-      position: 'absolute' as const,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      // extend into safe-area so it visually touches bottom edge
-      height: 50 + insets.bottom,
-    }),
-    [insets.bottom],
-  );
 
   const refreshWallets = useCallback(
     async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
@@ -461,14 +445,7 @@ const WalletsList: React.FC = () => {
     if (wallets.length > 0) {
       return (
         <>
-          <View pointerEvents="none" style={bottomButtonsGradientStyle}>
-            <LinearGradient
-              colors={[colors.background, withAlpha(colors.background, 0)]}
-              start={{ x: 0.5, y: 1 }}
-              end={{ x: 0.5, y: 0 }}
-              style={StyleSheet.absoluteFill}
-            />
-          </View>
+          <FloatButtonsBottomFade />
           <FContainer ref={walletActionButtonsRef}>
             <FButton
               onPress={onScanButtonPressed}
@@ -483,7 +460,7 @@ const WalletsList: React.FC = () => {
     } else {
       return null;
     }
-  }, [bottomButtonsGradientStyle, colors.background, onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
+  }, [onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
 
   const sectionListKeyExtractor = useCallback((item: any, index: any) => {
     return `${item}${index}}`;

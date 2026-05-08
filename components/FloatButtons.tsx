@@ -1,10 +1,12 @@
 import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Animated, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, StyleProp, TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from './themes';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
 import debounce from '../blue_modules/debounce';
+import { withAlpha } from './color';
 
 const scheduleInNextFrame = (callback: () => void): number => {
   return requestAnimationFrame(() => {
@@ -569,5 +571,38 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
     <Animated.View ref={ref} onLayout={onLayout} style={combinedStyles}>
       {layoutReady ? React.Children.toArray(props.children).filter(Boolean).map(renderChild) : props.children}
     </Animated.View>
+  );
+});
+
+const BOTTOM_FADE_HEIGHT = 50;
+
+const bottomFadeStyles = StyleSheet.create({
+  wrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+});
+
+const BOTTOM_FADE_GRADIENT_START = { x: 0.5, y: 1 };
+const BOTTOM_FADE_GRADIENT_END = { x: 0.5, y: 0 };
+
+export const FloatButtonsBottomFade = React.memo(() => {
+  const insets = useSafeAreaInsets();
+  const { colors } = useTheme();
+
+  const heightStyle = useMemo(() => ({ height: BOTTOM_FADE_HEIGHT + insets.bottom }), [insets.bottom]);
+  const gradientColors = useMemo(() => [colors.background, withAlpha(colors.background, 0)], [colors.background]);
+
+  return (
+    <View pointerEvents="none" style={[bottomFadeStyles.wrapper, heightStyle]}>
+      <LinearGradient
+        colors={gradientColors}
+        start={BOTTOM_FADE_GRADIENT_START}
+        end={BOTTOM_FADE_GRADIENT_END}
+        style={StyleSheet.absoluteFill}
+      />
+    </View>
   );
 });

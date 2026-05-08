@@ -14,7 +14,6 @@ import {
   View,
   RefreshControl,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
@@ -25,7 +24,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
-import { FButton, FContainer } from '../../components/FloatButtons';
+import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
@@ -50,8 +49,6 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
-import LinearGradient from 'react-native-linear-gradient';
-import { withAlpha } from '../../components/color';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -77,7 +74,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const navigation = useExtendedNavigation();
   const { setOptions, navigate } = navigation;
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   const { isElectrumDisabled } = useSettings();
   const walletActionButtonsRef = useRef<View>(null);
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet._lastTxFetch || 0);
@@ -135,18 +131,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       }),
     },
   });
-
-  const bottomButtonsGradientStyle = useMemo(
-    () => ({
-      position: 'absolute' as const,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      // extend into safe-area so it visually touches bottom edge
-      height: 100 + insets.bottom,
-    }),
-    [insets.bottom],
-  );
 
   useFocusEffect(
     useCallback(() => {
@@ -673,14 +657,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         }
       />
 
-      <View pointerEvents="none" style={bottomButtonsGradientStyle}>
-        <LinearGradient
-          colors={[colors.background, withAlpha(colors.background, 0)]}
-          start={{ x: 0.5, y: 1 }}
-          end={{ x: 0.5, y: 0 }}
-          style={StyleSheet.absoluteFill}
-        />
-      </View>
+      <FloatButtonsBottomFade />
       <FContainer ref={walletActionButtonsRef}>
         {wallet.allowReceive() && (
           <FButton
