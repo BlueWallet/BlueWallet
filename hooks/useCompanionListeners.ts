@@ -1,6 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
+import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
 import { getClipboardContent } from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -277,6 +278,12 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
       if ((appState.current.match(/inactive|background/) && nextAppState === 'active') || nextAppState === undefined) {
         updateExchangeRate();
         const processed = await processPushNotifications();
+        // Reconcile in-process Ark background task results before the
+        // notification-handled early return: if the background task observed
+        // status changes while the app was backgrounded, the affected
+        // wallets need a transactions refresh whether or not a notification
+        // also fired.
+        reconcileArkBackgroundTaskResults(fetchAndSaveWalletTransactions);
         if (processed) return;
         const clipboard = await getClipboardContent();
         if (!clipboard) return;
@@ -312,7 +319,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         appState.current = nextAppState;
       }
     },
-    [processPushNotifications, showClipboardAlert, wallets, shouldActivateListeners],
+    [processPushNotifications, fetchAndSaveWalletTransactions, showClipboardAlert, wallets, shouldActivateListeners],
   );
 
   const addListeners = useCallback(() => {

@@ -1,0 +1,332 @@
+// Phase 8 background task module.
+//
+// Passive monitoring only: poll Boltz swap status for non-terminal swaps in
+// every Ark wallet's per-wallet Realm and persist remote changes through the
+// SDK update helpers. No claim, refund, recover, signing, or local
+// notification — those are foreground-only (Phase 1A) and Phase 9 work.
+//
+// State here is in-process: it survives configure→fetch→fetch ticks within a
+// single JS runtime but is gone after process kill. Realm remains the
+// durable source of truth for swap status.
+import BackgroundFetch from 'react-native-background-fetch';
+
+import {
+  BoltzSwapProvider,
+  isChainFinalStatus,
+  isReverseFinalStatus,
+  isSubmarineFinalStatus,
+  updateChainSwapStatus,
+  updateReverseSwapStatus,
+  updateSubmarineSwapStatus,
+} from '@arkade-os/boltz-swap';
+import type { BoltzChainSwap, BoltzReverseSwap, BoltzSubmarineSwap, BoltzSwap } from '@arkade-os/boltz-swap';
+import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
+
+import { BlueApp as BlueAppClass } from '../class/blue-app';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+import { getArkadeRealm } from './arkade-adapters/realm/realmInstance';
+
+const BlueApp = BlueAppClass.getInstance();
+
+// Single shared provider. The constructor only stores config; it does not
+// open sockets. Re-using one instance avoids per-poll allocation.
+const swapProvider = new BoltzSwapProvider({ network: 'bitcoin' });
+const DEFAULT_MAX_RUN_MS = 25_000;
+let maxRunMs = DEFAULT_MAX_RUN_MS;
+
+interface ArkTaskState {
+  lastRegisteredAt: number | null;
+  lastUnregisteredAt: number | null;
+  lastRunStartedAt: number | null;
+  lastRunFinishedAt: number | null;
+  walletsScanned: number;
+  swapsPolled: number;
+  swapsUpdated: number;
+  lastError: string | null;
+  exitedDueToUnavailableStorage: boolean;
+  availability: 'unknown' | 'available' | 'denied' | 'restricted';
+  // Set whenever swapsUpdated is incremented. Used by reconcile() to detect
+  // updates that crossed run boundaries (per-run swapsUpdated is reset).
+  lastSwapUpdateAt: number;
+  lastReconciledAt: number;
+}
+
+const state: ArkTaskState = {
+  lastRegisteredAt: null,
+  lastUnregisteredAt: null,
+  lastRunStartedAt: null,
+  lastRunFinishedAt: null,
+  walletsScanned: 0,
+  swapsPolled: 0,
+  swapsUpdated: 0,
+  lastError: null,
+  exitedDueToUnavailableStorage: false,
+  availability: 'unknown',
+  lastSwapUpdateAt: 0,
+  lastReconciledAt: 0,
+};
+
+// Per-wallet last-seen status cache. Outer key: wallet namespace; inner key:
+// swap ID; value: last status this background module observed. Diagnostic +
+// reconciliation hint only — Realm is durable.
+const swapStatusCache: Map<string, Map<string, string>> = new Map();
+
+let configured = false;
+let running = false;
+let cancelRequested = false;
+let runDeadline: number | null = null;
+
+export function getArkTaskState(): Readonly<ArkTaskState> {
+  return Object.freeze({ ...state });
+}
+
+function recordError(message: string): void {
+  state.lastError = message;
+}
+
+function shouldStopRun(): boolean {
+  return cancelRequested || (runDeadline !== null && Date.now() >= runDeadline);
+}
+
+function remainingRunMs(): number {
+  if (runDeadline === null) return maxRunMs;
+  return Math.max(runDeadline - Date.now(), 0);
+}
+
+async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_resolve, reject) => {
+        timer = setTimeout(() => reject(new Error('deadline exceeded')), ms);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+function isFinalStatus(swap: BoltzSwap): boolean {
+  switch (swap.type) {
+    case 'reverse':
+      return isReverseFinalStatus(swap.status);
+    case 'submarine':
+      return isSubmarineFinalStatus(swap.status);
+    case 'chain':
+      return isChainFinalStatus(swap.status);
+  }
+}
+
+async function persistStatusChange(swap: BoltzSwap, newStatus: BoltzSwap['status'], repo: RealmSwapRepository): Promise<void> {
+  if (swap.type === 'reverse') {
+    await updateReverseSwapStatus(swap as BoltzReverseSwap, newStatus, s => repo.saveSwap(s));
+  } else if (swap.type === 'submarine') {
+    await updateSubmarineSwapStatus(swap as BoltzSubmarineSwap, newStatus, s => repo.saveSwap(s));
+  } else {
+    await updateChainSwapStatus(swap as BoltzChainSwap, newStatus, s => repo.saveSwap(s));
+  }
+}
+
+async function pollSwap(swap: BoltzSwap, namespace: string, repo: RealmSwapRepository): Promise<void> {
+  if (shouldStopRun()) return;
+
+  state.swapsPolled += 1;
+  let response;
+  try {
+    response = await withTimeout(swapProvider.getSwapStatus(swap.id), remainingRunMs());
+  } catch (e: any) {
+    recordError(`getSwapStatus(${swap.id}): ${e?.message ?? e}`);
+    if (remainingRunMs() <= 0) cancelRequested = true;
+    return;
+  }
+
+  if (shouldStopRun()) return;
+
+  const remoteStatus = response.status;
+  if (remoteStatus === swap.status) return;
+
+  try {
+    await persistStatusChange(swap, remoteStatus, repo);
+  } catch (e: any) {
+    recordError(`persistStatusChange(${swap.id}): ${e?.message ?? e}`);
+    return;
+  }
+
+  state.swapsUpdated += 1;
+  state.lastSwapUpdateAt = Date.now();
+  let perWallet = swapStatusCache.get(namespace);
+  if (!perWallet) {
+    perWallet = new Map();
+    swapStatusCache.set(namespace, perWallet);
+  }
+  perWallet.set(swap.id, remoteStatus);
+}
+
+async function processWallet(wallet: LightningArkWallet): Promise<void> {
+  state.walletsScanned += 1;
+  const namespace = wallet.getNamespace();
+
+  let realm;
+  try {
+    realm = await getArkadeRealm(namespace);
+  } catch (e: any) {
+    // Most likely the Keychain is locked (WHEN_UNLOCKED_THIS_DEVICE_ONLY) or
+    // the Realm file is unreachable. Either way the background task no-ops
+    // for this wallet — claim/refund is foreground-only anyway.
+    state.exitedDueToUnavailableStorage = true;
+    recordError(`getArkadeRealm(${namespace}): ${e?.message ?? e}`);
+    return;
+  }
+
+  let swaps: BoltzSwap[];
+  const repo = new RealmSwapRepository(realm);
+  try {
+    swaps = await repo.getAllSwaps<BoltzSwap>();
+  } catch (e: any) {
+    recordError(`getAllSwaps(${namespace}): ${e?.message ?? e}`);
+    return;
+  }
+
+  for (const swap of swaps) {
+    if (isFinalStatus(swap)) continue;
+    if (shouldStopRun()) return;
+    await pollSwap(swap, namespace, repo);
+  }
+}
+
+export async function runArkBackgroundTask(taskId: string): Promise<void> {
+  if (running) {
+    BackgroundFetch.finish(taskId);
+    return;
+  }
+
+  running = true;
+  cancelRequested = false;
+  runDeadline = Date.now() + maxRunMs;
+  state.lastRunStartedAt = Date.now();
+  state.walletsScanned = 0;
+  state.swapsPolled = 0;
+  state.swapsUpdated = 0;
+  state.exitedDueToUnavailableStorage = false;
+
+  try {
+    const wallets = BlueApp.getWallets().filter((w): w is LightningArkWallet => w instanceof LightningArkWallet);
+    if (wallets.length === 0) return;
+
+    for (const wallet of wallets) {
+      if (shouldStopRun()) break;
+      try {
+        await processWallet(wallet);
+      } catch (e: any) {
+        recordError(`processWallet: ${e?.message ?? e}`);
+      }
+    }
+  } finally {
+    state.lastRunFinishedAt = Date.now();
+    runDeadline = null;
+    cancelRequested = false;
+    running = false;
+    BackgroundFetch.finish(taskId);
+  }
+}
+
+export function onArkBackgroundTaskTimeout(taskId: string): void {
+  cancelRequested = true;
+  state.lastError = 'timeout';
+  state.lastRunFinishedAt = Date.now();
+  BackgroundFetch.finish(taskId);
+}
+
+function availabilityFromStatus(status: number): ArkTaskState['availability'] {
+  if (status === BackgroundFetch.STATUS_AVAILABLE) return 'available';
+  if (status === BackgroundFetch.STATUS_DENIED) return 'denied';
+  if (status === BackgroundFetch.STATUS_RESTRICTED) return 'restricted';
+  return 'unknown';
+}
+
+export async function registerArkBackgroundTask(): Promise<void> {
+  if (configured) {
+    await BackgroundFetch.start();
+    state.lastRegisteredAt = Date.now();
+    return;
+  }
+
+  const config: Parameters<typeof BackgroundFetch.configure>[0] = {
+    minimumFetchInterval: 15,
+    stopOnTerminate: false,
+    startOnBoot: true,
+    enableHeadless: true,
+    requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
+  };
+
+  try {
+    const status = await BackgroundFetch.configure(config, runArkBackgroundTask, onArkBackgroundTaskTimeout);
+    state.availability = availabilityFromStatus(status);
+    if (state.availability === 'available') {
+      configured = true;
+      state.lastRegisteredAt = Date.now();
+    } else {
+      console.warn(`[ArkBackground] Background fetch unavailable: ${state.availability}`);
+    }
+  } catch (e: any) {
+    recordError(`configure: ${e?.message ?? e}`);
+  }
+}
+
+export async function stopArkBackgroundTask(): Promise<void> {
+  try {
+    await BackgroundFetch.stop();
+  } catch (e: any) {
+    recordError(`stop: ${e?.message ?? e}`);
+  }
+  swapStatusCache.clear();
+  state.lastUnregisteredAt = Date.now();
+}
+
+export function reconcileArkBackgroundTaskResults(triggerRefreshForWallet: (walletId: string) => void): void {
+  if (state.lastSwapUpdateAt <= state.lastReconciledAt) return;
+
+  const wallets = BlueApp.getWallets().filter((w): w is LightningArkWallet => w instanceof LightningArkWallet);
+  for (const wallet of wallets) {
+    const namespace = wallet.getNamespace();
+    const perWallet = swapStatusCache.get(namespace);
+    if (perWallet && perWallet.size > 0) {
+      triggerRefreshForWallet(wallet.getID());
+    }
+  }
+
+  state.lastReconciledAt = Date.now();
+}
+
+// Exported for tests only.
+export const __testing__ = {
+  state,
+  swapStatusCache,
+  resetConfigured: (): void => {
+    configured = false;
+  },
+  setMaxRunMs: (ms: number): void => {
+    maxRunMs = ms;
+  },
+  reset: (): void => {
+    state.lastRegisteredAt = null;
+    state.lastUnregisteredAt = null;
+    state.lastRunStartedAt = null;
+    state.lastRunFinishedAt = null;
+    state.walletsScanned = 0;
+    state.swapsPolled = 0;
+    state.swapsUpdated = 0;
+    state.lastError = null;
+    state.exitedDueToUnavailableStorage = false;
+    state.availability = 'unknown';
+    state.lastSwapUpdateAt = 0;
+    state.lastReconciledAt = 0;
+    swapStatusCache.clear();
+    configured = false;
+    running = false;
+    cancelRequested = false;
+    runDeadline = null;
+    maxRunMs = DEFAULT_MAX_RUN_MS;
+  },
+};

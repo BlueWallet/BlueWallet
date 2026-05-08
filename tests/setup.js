@@ -67,6 +67,34 @@ jest.mock('react-native-notifications', () => {
   return {};
 });
 
+jest.mock('react-native-background-fetch', () => {
+  // The real module instantiates `new NativeEventEmitter(...)` at module
+  // load, which throws under jest because the underlying native module is
+  // null. Test files that don't drive scheduler behavior (i.e. anything
+  // that transitively imports `blue_modules/arkade-background`) just need a
+  // safe default. Tests that exercise registration/run paths jest.mock this
+  // module locally with their own factory.
+  const noop = jest.fn();
+  const noopAsync = jest.fn().mockResolvedValue(undefined);
+  const stub = {
+    configure: noopAsync,
+    start: noopAsync,
+    stop: jest.fn().mockResolvedValue(true),
+    finish: noop,
+    scheduleTask: noopAsync,
+    registerHeadlessTask: noop,
+    STATUS_RESTRICTED: 0,
+    STATUS_DENIED: 1,
+    STATUS_AVAILABLE: 2,
+    NETWORK_TYPE_NONE: 0,
+    NETWORK_TYPE_ANY: 1,
+    NETWORK_TYPE_CELLULAR: 2,
+    NETWORK_TYPE_UNMETERED: 3,
+    NETWORK_TYPE_NOT_ROAMING: 4,
+  };
+  return { __esModule: true, default: stub, ...stub };
+});
+
 jest.mock('react-native-permissions', () => require('react-native-permissions/mock'));
 
 jest.mock('react-native-device-info', () => {
