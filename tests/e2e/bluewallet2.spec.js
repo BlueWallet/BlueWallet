@@ -25,6 +25,7 @@ import {
   typeTextIntoAlertInput,
   waitForId,
   waitForKeyboardToClose,
+  waitForSwitchValue,
   waitForText,
 } from './helperz';
 
@@ -741,6 +742,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('OutputMemo')).tapReturnKey();
     await waitForKeyboardToClose();
     await element(by.id('FreezeSwitch')).tap(); // freeze switch
+    await waitForSwitchValue('FreezeSwitch', true);
     await element(by.id('CoinControlOutputDone')).tap();
     await waitFor(element(by.id('CoinControlOutputDone'))).not.toBeVisible();
     await expect(element(by.id('OutputMemoLabel').and(by.text('Test2')))).toBeVisible();
