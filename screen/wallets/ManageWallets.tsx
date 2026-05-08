@@ -583,10 +583,11 @@ const ManageWallets: React.FC = () => {
     [state.searchQuery, state.isSearchFocused],
   );
 
-  const shouldShowReorderHint = useMemo(() => !isDragDisabled, [isDragDisabled]);
+  const shouldShowReorderHint = useMemo(() => state.searchQuery.length === 0, [state.searchQuery.length]);
 
   const ListHeaderComponent = useMemo(() => {
     if (!shouldShowReorderHint) return null;
+
     const hintTextColor = dark ? colors.foregroundColor : colors.alternativeTextColor;
     return (
       <Pressable accessibilityRole="text" style={styles.reorderHintContainer}>
@@ -631,10 +632,7 @@ const ManageWallets: React.FC = () => {
     stylesHook.noResultsText,
   ]);
 
-  const contentInsetAdjustmentBehavior = useMemo(() => {
-    if (Platform.OS === 'ios' && state.isSearchFocused) return 'never' as const;
-    return 'automatic' as const;
-  }, [state.isSearchFocused]);
+  const contentInsetAdjustmentBehavior = useMemo(() => 'automatic' as const, []);
 
   const listSharedProps = {
     data: listData,
@@ -643,7 +641,7 @@ const ManageWallets: React.FC = () => {
     extraData: listExtraData,
     ListHeaderComponent,
     ListEmptyComponent,
-    automaticallyAdjustContentInsets: !(Platform.OS === 'ios' && state.isSearchFocused),
+    automaticallyAdjustContentInsets: true,
     contentInsetAdjustmentBehavior,
     keyboardShouldPersistTaps: 'handled' as const,
     keyboardDismissMode: 'on-drag' as const,
