@@ -1,13 +1,15 @@
-// Phase 8 background task module.
+// Phase 8/9 background task module.
 //
-// Passive monitoring only: poll Boltz swap status for non-terminal swaps in
-// every Ark wallet's per-wallet Realm and persist remote changes through the
-// SDK update helpers. No claim, refund, recover, signing, or local
-// notification — those are foreground-only (Phase 1A) and Phase 9 work.
+// Phase 8: passive monitoring — poll Boltz swap status for non-terminal swaps
+// in every Ark wallet's per-wallet Realm and persist remote changes through
+// the SDK update helpers.
+// Phase 9: post a local notification when an SDK predicate flags a swap as
+// claimable/refundable. No claim, refund, recover, or signing in background
+// — those remain foreground-only (Phase 1A).
 //
 // State here is in-process: it survives configure→fetch→fetch ticks within a
 // single JS runtime but is gone after process kill. Realm remains the
-// durable source of truth for swap status.
+// durable source of truth for swap status and notification suppression.
 import BackgroundFetch from 'react-native-background-fetch';
 
 import {
@@ -25,6 +27,11 @@ import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
 import { BlueApp as BlueAppClass } from '../class/blue-app';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { getArkadeRealm } from './arkade-adapters/realm/realmInstance';
+import {
+  RealmNotificationSuppressionRepository,
+  type ArkSwapNotificationAction,
+} from './arkade-adapters/realm/notificationSuppressionRepository';
+import { notifyArkSwapActionable, resolveActionableAction } from './arkade-notifications';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -70,6 +77,14 @@ const state: ArkTaskState = {
 // swap ID; value: last status this background module observed. Diagnostic +
 // reconciliation hint only — Realm is durable.
 const swapStatusCache: Map<string, Map<string, string>> = new Map();
+
+// Per-poll last-seen actionable action keyed by `${namespace}:${swapId}`.
+// Used to detect predicate flips (true → false or claim ↔ refund) so we can
+// clear the corresponding Realm suppression row even when the swap status
+// has not yet reached a terminal state. In-process only; cleared by
+// stopArkBackgroundTask so a later run does not falsely diagnose a flip on
+// the first poll after restart.
+const lastSeenActionMap: Map<string, ArkSwapNotificationAction> = new Map();
 
 let configured = false;
 let running = false;
@@ -128,7 +143,14 @@ async function persistStatusChange(swap: BoltzSwap, newStatus: BoltzSwap['status
   }
 }
 
-async function pollSwap(swap: BoltzSwap, namespace: string, repo: RealmSwapRepository): Promise<void> {
+async function pollSwap(
+  swap: BoltzSwap,
+  namespace: string,
+  repo: RealmSwapRepository,
+  suppression: RealmNotificationSuppressionRepository,
+  walletID: string,
+  walletLabel: string,
+): Promise<void> {
   if (shouldStopRun()) return;
 
   state.swapsPolled += 1;
@@ -144,28 +166,79 @@ async function pollSwap(swap: BoltzSwap, namespace: string, repo: RealmSwapRepos
   if (shouldStopRun()) return;
 
   const remoteStatus = response.status;
-  if (remoteStatus === swap.status) return;
+  const statusChanged = remoteStatus !== swap.status;
+  // The SDK update helpers (updateReverseSwapStatus etc.) save a copy and do
+  // not mutate `swap`, so any post-persist predicate or terminal check on
+  // `swap` would read the pre-update status. effectiveSwap carries the
+  // status we want subsequent checks to evaluate against.
+  const effectiveSwap: BoltzSwap = statusChanged ? ({ ...swap, status: remoteStatus } as BoltzSwap) : swap;
 
-  try {
-    await persistStatusChange(swap, remoteStatus, repo);
-  } catch (e: any) {
-    recordError(`persistStatusChange(${swap.id}): ${e?.message ?? e}`);
+  if (statusChanged) {
+    try {
+      await persistStatusChange(swap, remoteStatus, repo);
+    } catch (e: any) {
+      recordError(`persistStatusChange(${swap.id}): ${e?.message ?? e}`);
+      return;
+    }
+
+    state.swapsUpdated += 1;
+    state.lastSwapUpdateAt = Date.now();
+    let perWallet = swapStatusCache.get(namespace);
+    if (!perWallet) {
+      perWallet = new Map();
+      swapStatusCache.set(namespace, perWallet);
+    }
+    perWallet.set(swap.id, remoteStatus);
+  }
+
+  // Actionable evaluation runs on every non-terminal poll, NOT only after a
+  // status change. Otherwise a swap that became actionable in a previous run
+  // but never received a successful post (notify failed mid-run, OS-level
+  // drop, permission-denied skip, app cold-started with already-actionable
+  // Realm state) would never be re-checked because subsequent polls observe
+  // remoteStatus === swap.status and would otherwise exit. The Realm
+  // suppression repo is the dedup layer.
+  const lastKey = `${namespace}:${effectiveSwap.id}`;
+  if (isFinalStatus(effectiveSwap)) {
+    try {
+      suppression.clearForSwap(effectiveSwap.id);
+    } catch (e: any) {
+      recordError(`suppression.clearForSwap(${effectiveSwap.id}): ${e?.message ?? e}`);
+    }
+    lastSeenActionMap.delete(lastKey);
     return;
   }
 
-  state.swapsUpdated += 1;
-  state.lastSwapUpdateAt = Date.now();
-  let perWallet = swapStatusCache.get(namespace);
-  if (!perWallet) {
-    perWallet = new Map();
-    swapStatusCache.set(namespace, perWallet);
+  const action = resolveActionableAction(effectiveSwap);
+  const lastSeen = lastSeenActionMap.get(lastKey);
+  if (lastSeen && lastSeen !== action) {
+    // Predicate flipped out of `lastSeen` (either to null or to the other
+    // action). Clear the stale suppression so the next observed flip back
+    // re-fires.
+    try {
+      suppression.clearForSwapAction(effectiveSwap.id, lastSeen);
+    } catch (e: any) {
+      recordError(`suppression.clearForSwapAction(${effectiveSwap.id}): ${e?.message ?? e}`);
+    }
   }
-  perWallet.set(swap.id, remoteStatus);
+
+  if (action) {
+    try {
+      await notifyArkSwapActionable(effectiveSwap, suppression, walletID, walletLabel);
+    } catch (e: any) {
+      recordError(`notifyArkSwapActionable(${effectiveSwap.id}): ${e?.message ?? e}`);
+    }
+    lastSeenActionMap.set(lastKey, action);
+  } else {
+    lastSeenActionMap.delete(lastKey);
+  }
 }
 
 async function processWallet(wallet: LightningArkWallet): Promise<void> {
   state.walletsScanned += 1;
   const namespace = wallet.getNamespace();
+  const walletID = wallet.getID();
+  const walletLabel = wallet.getLabel();
 
   let realm;
   try {
@@ -181,6 +254,7 @@ async function processWallet(wallet: LightningArkWallet): Promise<void> {
 
   let swaps: BoltzSwap[];
   const repo = new RealmSwapRepository(realm);
+  const suppression = new RealmNotificationSuppressionRepository(realm);
   try {
     swaps = await repo.getAllSwaps<BoltzSwap>();
   } catch (e: any) {
@@ -191,7 +265,7 @@ async function processWallet(wallet: LightningArkWallet): Promise<void> {
   for (const swap of swaps) {
     if (isFinalStatus(swap)) continue;
     if (shouldStopRun()) return;
-    await pollSwap(swap, namespace, repo);
+    await pollSwap(swap, namespace, repo, suppression, walletID, walletLabel);
   }
 }
 
@@ -281,6 +355,10 @@ export async function stopArkBackgroundTask(): Promise<void> {
     recordError(`stop: ${e?.message ?? e}`);
   }
   swapStatusCache.clear();
+  // Clear in-process predicate-flip tracker so a later run does not
+  // diagnose a flip on the first poll after restart. Persistent suppression
+  // (Realm) is intentionally untouched — re-registering must keep history.
+  lastSeenActionMap.clear();
   state.lastUnregisteredAt = Date.now();
 }
 
@@ -303,6 +381,7 @@ export function reconcileArkBackgroundTaskResults(triggerRefreshForWallet: (wall
 export const __testing__ = {
   state,
   swapStatusCache,
+  lastSeenActionMap,
   resetConfigured: (): void => {
     configured = false;
   },
@@ -323,6 +402,7 @@ export const __testing__ = {
     state.lastSwapUpdateAt = 0;
     state.lastReconciledAt = 0;
     swapStatusCache.clear();
+    lastSeenActionMap.clear();
     configured = false;
     running = false;
     cancelRequested = false;

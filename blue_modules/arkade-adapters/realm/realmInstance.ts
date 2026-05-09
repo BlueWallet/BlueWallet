@@ -6,8 +6,16 @@ import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION, runArkRealmMigrations } from
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
+import { ArkSwapNotificationSuppressionSchema } from './notificationSuppressionRepository';
 
-const AllArkadeSchemas = [...ArkRealmSchemas, ...BoltzRealmSchemas];
+const AllArkadeSchemas = [...ArkRealmSchemas, ...BoltzRealmSchemas, ArkSwapNotificationSuppressionSchema];
+
+// App-owned schemas added on top of the SDK's. Bump when an app-owned schema
+// changes; SDK bumps are handled by ARK_REALM_SCHEMA_VERSION. Realm requires
+// a strictly increasing schemaVersion when objects are added; computing
+// `SDK + offset` keeps the local additions ahead of any future SDK bump.
+const LOCAL_ARK_SCHEMA_OFFSET = 1;
+const ARKADE_REALM_SCHEMA_VERSION = ARK_REALM_SCHEMA_VERSION + LOCAL_ARK_SCHEMA_OFFSET;
 
 const realmInstances: Map<string, Realm> = new Map();
 const openInFlight: Map<string, Promise<Realm>> = new Map();
@@ -84,7 +92,7 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
 
     const realm = await Realm.open({
       schema: AllArkadeSchemas as unknown as Realm.ObjectSchema[],
-      schemaVersion: ARK_REALM_SCHEMA_VERSION,
+      schemaVersion: ARKADE_REALM_SCHEMA_VERSION,
       onMigration: (oldRealm, newRealm) => {
         runArkRealmMigrations(oldRealm, newRealm);
       },

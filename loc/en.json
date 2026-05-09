@@ -78,7 +78,10 @@
     "wasnt_paid_and_expired": "This invoice was not paid and has expired.",
     "claim_funds": "Claim funds",
     "refund_funds": "Refund funds",
-    "refund_deferred": "Funds aren't refundable yet. Try again after the swap timelock expires."
+    "refund_deferred": "Funds aren't refundable yet. Try again after the swap timelock expires.",
+    "notification_action_title": "Action needed",
+    "notification_claim_body": "{walletLabel}: tap to claim your incoming Lightning payment.",
+    "notification_refund_body": "{walletLabel}: tap to refund your stuck Lightning payment."
   },
   "plausibledeniability": {
     "create_fake_storage": "Create Encrypted Storage",

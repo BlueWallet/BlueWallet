@@ -68,6 +68,42 @@ jest.mock('../../blue_modules/arkade-adapters/realm/realmInstance', () => {
   return { getArkadeRealm: jest.fn() };
 });
 
+jest.mock('../../blue_modules/arkade-adapters/realm/notificationSuppressionRepository', () => {
+  // Single shared instance backed by an in-memory map so the test can
+  // observe the same state pollSwap manipulates. Repo construction
+  // happens inside processWallet, so we surface mocked methods through
+  // the constructor.
+  const store = new Map<string, true>();
+  const has = jest.fn((swapId: string, action: string) => store.has(`${swapId}:${action}`));
+  const record = jest.fn((swapId: string, action: string) => {
+    store.set(`${swapId}:${action}`, true);
+  });
+  const clearForSwap = jest.fn((swapId: string) => {
+    for (const k of Array.from(store.keys())) if (k.startsWith(`${swapId}:`)) store.delete(k);
+  });
+  const clearForSwapAction = jest.fn((swapId: string, action: string) => {
+    store.delete(`${swapId}:${action}`);
+  });
+  const Repo = jest.fn().mockImplementation(() => ({ has, record, clearForSwap, clearForSwapAction }));
+  (Repo as any).__store = store;
+  (Repo as any).__has = has;
+  (Repo as any).__record = record;
+  (Repo as any).__clearForSwap = clearForSwap;
+  (Repo as any).__clearForSwapAction = clearForSwapAction;
+  return { RealmNotificationSuppressionRepository: Repo, ArkSwapNotificationSuppressionSchema: {} };
+});
+
+jest.mock('../../blue_modules/arkade-notifications', () => {
+  const notifyArkSwapActionable = jest.fn().mockResolvedValue(undefined);
+  const resolveActionableAction = jest.fn().mockReturnValue(null);
+  return {
+    notifyArkSwapActionable,
+    resolveActionableAction,
+    ARK_SWAP_NOTIFICATION_TYPE: 100,
+    ensureArkNotificationChannel: jest.fn(),
+  };
+});
+
 const configureMock = BackgroundFetch.configure as unknown as jest.Mock;
 const startMock = BackgroundFetch.start as unknown as jest.Mock;
 const stopMock = BackgroundFetch.stop as unknown as jest.Mock;
@@ -80,6 +116,17 @@ const updateChainSwapStatusMock = updateChainSwapStatus as unknown as jest.Mock;
 
 const getAllSwapsMock = (RealmSwapRepository as any).__getAllSwaps as jest.Mock;
 const getArkadeRealmMock = getArkadeRealm as unknown as jest.Mock;
+
+const suppressionMockModule = jest.requireMock('../../blue_modules/arkade-adapters/realm/notificationSuppressionRepository') as any;
+const suppressionStore: Map<string, true> = suppressionMockModule.RealmNotificationSuppressionRepository.__store;
+const suppressionHasMock = suppressionMockModule.RealmNotificationSuppressionRepository.__has as jest.Mock;
+const suppressionRecordMock = suppressionMockModule.RealmNotificationSuppressionRepository.__record as jest.Mock;
+const suppressionClearForSwapMock = suppressionMockModule.RealmNotificationSuppressionRepository.__clearForSwap as jest.Mock;
+const suppressionClearForSwapActionMock = suppressionMockModule.RealmNotificationSuppressionRepository.__clearForSwapAction as jest.Mock;
+
+const notificationsMockModule = jest.requireMock('../../blue_modules/arkade-notifications') as any;
+const notifyArkSwapActionableMock = notificationsMockModule.notifyArkSwapActionable as jest.Mock;
+const resolveActionableActionMock = notificationsMockModule.resolveActionableAction as jest.Mock;
 
 const TEST_SECRET_A = 'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 const TEST_SECRET_B = 'arkade://about above absent absorb abstract absurd abuse access accident account accuse achieve';
@@ -114,6 +161,17 @@ beforeEach(() => {
 
   getArkadeRealmMock.mockReset();
   getArkadeRealmMock.mockResolvedValue(stubRealm);
+
+  suppressionStore.clear();
+  suppressionHasMock.mockClear();
+  suppressionRecordMock.mockClear();
+  suppressionClearForSwapMock.mockClear();
+  suppressionClearForSwapActionMock.mockClear();
+
+  notifyArkSwapActionableMock.mockReset();
+  notifyArkSwapActionableMock.mockResolvedValue(undefined);
+  resolveActionableActionMock.mockReset();
+  resolveActionableActionMock.mockReturnValue(null);
 
   BlueApp.getInstance().wallets = [];
   backgroundTesting.reset();
@@ -428,5 +486,141 @@ describe('reconcileArkBackgroundTaskResults', () => {
     const cb2 = jest.fn();
     reconcileArkBackgroundTaskResults(cb2);
     assert.strictEqual(cb2.mock.calls.length, 0);
+  });
+});
+
+describe('Phase 9 — actionable swap notifications', () => {
+  it('calls notifyArkSwapActionable with an updatedSwap (status === remoteStatus) on transition into actionable', async () => {
+    const w = makeArkWallet(TEST_SECRET_A);
+    BlueApp.getInstance().wallets = [w as any];
+
+    const swap = { id: 'r1', type: 'reverse', status: 'swap.created' };
+    getAllSwapsMock.mockResolvedValue([swap]);
+    getSwapStatusMock.mockResolvedValue({ status: 'transaction.confirmed' });
+    resolveActionableActionMock.mockReturnValue('claim');
+
+    await runArkBackgroundTask('task-actionable');
+
+    assert.strictEqual(notifyArkSwapActionableMock.mock.calls.length, 1);
+    const [passedSwap, , walletID, walletLabel] = notifyArkSwapActionableMock.mock.calls[0];
+    // Regression guard for the SDK-non-mutation issue: the first arg must
+    // carry remoteStatus, not the pre-update status. updateReverseSwapStatus
+    // saves a copy and does not mutate the input, so passing `swap` here
+    // would silently evaluate predicates against the old status.
+    assert.strictEqual(passedSwap.status, 'transaction.confirmed');
+    assert.strictEqual(passedSwap.id, 'r1');
+    assert.strictEqual(walletID, w.getID());
+    assert.strictEqual(typeof walletLabel, 'string');
+  });
+
+  it('clears suppression and skips notify on transition into terminal status', async () => {
+    const w = makeArkWallet(TEST_SECRET_A);
+    BlueApp.getInstance().wallets = [w as any];
+
+    const swap = { id: 'r1', type: 'reverse', status: 'transaction.confirmed' };
+    getAllSwapsMock.mockResolvedValue([swap]);
+    getSwapStatusMock.mockResolvedValue({ status: 'invoice.settled' });
+
+    await runArkBackgroundTask('task-terminal-clear');
+
+    assert.strictEqual(suppressionClearForSwapMock.mock.calls.length, 1);
+    assert.strictEqual(suppressionClearForSwapMock.mock.calls[0][0], 'r1');
+    assert.strictEqual(notifyArkSwapActionableMock.mock.calls.length, 0);
+  });
+
+  it('clears the previous-action suppression on predicate flip out of actionable', async () => {
+    const w = makeArkWallet(TEST_SECRET_A);
+    BlueApp.getInstance().wallets = [w as any];
+
+    // Run 1: swap is actionable (claim) — populates lastSeenActionMap.
+    const swap1 = { id: 'r1', type: 'reverse', status: 'swap.created' };
+    getAllSwapsMock.mockResolvedValueOnce([swap1]);
+    getSwapStatusMock.mockResolvedValueOnce({ status: 'transaction.confirmed' });
+    resolveActionableActionMock.mockReturnValueOnce('claim');
+    await runArkBackgroundTask('task-flip-1');
+
+    // Run 2: same swap, status moved to a non-terminal but no-longer-actionable
+    // state (predicate flipped false). Realm reflects the prior persisted
+    // status, so the swap presented to processWallet has status 'transaction.confirmed'.
+    const swap2 = { id: 'r1', type: 'reverse', status: 'transaction.confirmed' };
+    getAllSwapsMock.mockResolvedValueOnce([swap2]);
+    getSwapStatusMock.mockResolvedValueOnce({ status: 'transaction.mempool' });
+    resolveActionableActionMock.mockReturnValueOnce(null);
+    notifyArkSwapActionableMock.mockClear();
+    suppressionClearForSwapActionMock.mockClear();
+    await runArkBackgroundTask('task-flip-2');
+
+    assert.strictEqual(suppressionClearForSwapActionMock.mock.calls.length, 1);
+    assert.strictEqual(suppressionClearForSwapActionMock.mock.calls[0][0], 'r1');
+    assert.strictEqual(suppressionClearForSwapActionMock.mock.calls[0][1], 'claim');
+    assert.strictEqual(notifyArkSwapActionableMock.mock.calls.length, 0);
+  });
+
+  it('re-evaluates actionable on a poll where remoteStatus === swap.status (regression guard)', async () => {
+    const w = makeArkWallet(TEST_SECRET_A);
+    BlueApp.getInstance().wallets = [w as any];
+
+    // Realm already reflects an actionable status. The remote returns the
+    // same status. Old behavior would early-return; new behavior must still
+    // run the actionable evaluation because a previous wake may have failed
+    // to post.
+    const swap = { id: 'r1', type: 'reverse', status: 'transaction.confirmed' };
+    getAllSwapsMock.mockResolvedValue([swap]);
+    getSwapStatusMock.mockResolvedValue({ status: 'transaction.confirmed' });
+    resolveActionableActionMock.mockReturnValue('claim');
+
+    await runArkBackgroundTask('task-stable-actionable');
+
+    // No persistence — status didn't change.
+    assert.strictEqual(getArkTaskState().swapsUpdated, 0);
+    assert.strictEqual(updateReverseSwapStatusMock.mock.calls.length, 0);
+    // But notify is still invoked.
+    assert.strictEqual(notifyArkSwapActionableMock.mock.calls.length, 1);
+  });
+
+  it('survives notify failure: pollSwap completes, BackgroundFetch.finish is called, run continues', async () => {
+    const w = makeArkWallet(TEST_SECRET_A);
+    BlueApp.getInstance().wallets = [w as any];
+
+    getAllSwapsMock.mockResolvedValue([
+      { id: 'r1', type: 'reverse', status: 'swap.created' },
+      { id: 'r2', type: 'reverse', status: 'swap.created' },
+    ]);
+    getSwapStatusMock.mockResolvedValue({ status: 'transaction.confirmed' });
+    resolveActionableActionMock.mockReturnValue('claim');
+    notifyArkSwapActionableMock.mockRejectedValue(new Error('notify exploded'));
+
+    await runArkBackgroundTask('task-notify-throw');
+
+    assert.strictEqual(getArkTaskState().swapsPolled, 2);
+    assert.strictEqual(notifyArkSwapActionableMock.mock.calls.length, 2);
+    assert.strictEqual(finishMock.mock.calls.length, 1);
+    assert.ok(getArkTaskState().lastError && getArkTaskState().lastError!.includes('notify exploded'));
+  });
+
+  it('survives suppression-write failure: pollSwap completes, subsequent polls run', async () => {
+    const w = makeArkWallet(TEST_SECRET_A);
+    BlueApp.getInstance().wallets = [w as any];
+
+    getAllSwapsMock.mockResolvedValue([
+      { id: 'r1', type: 'reverse', status: 'transaction.confirmed' },
+      { id: 'r2', type: 'reverse', status: 'transaction.confirmed' },
+    ]);
+    getSwapStatusMock.mockResolvedValue({ status: 'invoice.settled' });
+    suppressionClearForSwapMock.mockImplementationOnce(() => {
+      throw new Error('realm closed');
+    });
+
+    await runArkBackgroundTask('task-suppression-throw');
+
+    // Both polls still happen.
+    assert.strictEqual(getArkTaskState().swapsPolled, 2);
+    assert.strictEqual(finishMock.mock.calls.length, 1);
+  });
+
+  it('stopArkBackgroundTask clears the in-process lastSeenActionMap', async () => {
+    backgroundTesting.lastSeenActionMap.set('ns-x:r1', 'claim');
+    await stopArkBackgroundTask();
+    assert.strictEqual(backgroundTesting.lastSeenActionMap.size, 0);
   });
 });
