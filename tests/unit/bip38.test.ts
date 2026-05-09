@@ -30,8 +30,7 @@ it.skip('bip38 decodes slow', async () => {
   const encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let callbackWasCalled = false;
   const decryptedKey = await bip38.decryptAsync(encryptedKey, 'qwerty', () => {
-    // callbacks make sense only with pure js scrypt implementation (nodejs and browsers).
-    // on RN scrypt is handled by native module and takes ~4 secs
+    // callbacks come from the pure JS noble-hashes scrypt implementation.
     callbackWasCalled = true;
   });
 
