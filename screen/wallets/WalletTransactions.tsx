@@ -24,7 +24,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
-import { FButton, FContainer } from '../../components/FloatButtons';
+import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
@@ -657,6 +657,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         }
       />
 
+      <FloatButtonsBottomFade />
       <FContainer ref={walletActionButtonsRef}>
         {wallet.allowReceive() && (
           <FButton
