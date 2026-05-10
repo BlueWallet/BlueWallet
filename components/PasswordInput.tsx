@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, TextInput, View } from 'react-native';
+import IncognitoKeyboardTextInput from './IncognitoKeyboardTextInput';
 import { useTheme } from './themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
@@ -136,8 +137,9 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           },
         ]}
       >
-        <TextInput
+        <IncognitoKeyboardTextInput
           ref={inputRef}
+          incognitoKeyboard
           testID="PasswordInput"
           style={[styles.input, stylesHook.input]}
           value={password}

@@ -44,6 +44,11 @@ interface SettingsModuleInterface {
    * This opens the app's settings screen
    */
   openSettings(): Promise<boolean>;
+
+  /**
+   * Request Android IME incognito mode for the currently focused input
+   */
+  requestKeyboardIncognitoMode(): Promise<boolean>;
 }
 
 // Only available on Android

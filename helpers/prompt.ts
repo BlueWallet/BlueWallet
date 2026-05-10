@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import prompt from 'react-native-prompt-android';
 import loc from '../loc';
+import requestKeyboardIncognitoMode from '../blue_modules/requestKeyboardIncognitoMode';
 
 export default (
   title: string,
@@ -52,5 +53,9 @@ export default (
       // @ts-ignore suppressed because its supported only on ios and is absent from type definitions
       keyboardType,
     });
+
+    if (Platform.OS === 'android' && type === 'secure-text') {
+      setTimeout(requestKeyboardIncognitoMode, 250);
+    }
   });
 };

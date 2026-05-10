@@ -7,6 +7,7 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import IncognitoKeyboardTextInput from '../../components/IncognitoKeyboardTextInput';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -93,7 +94,14 @@ const ImportSpeed = () => {
       <BlueFormLabel>Wallet type</BlueFormLabel>
       <TextInput testID="SpeedWalletTypeInput" value={walletType} style={styles.pathInput} onChangeText={setWalletType} />
       <BlueFormLabel>Passphrase</BlueFormLabel>
-      <TextInput testID="SpeedPassphraseInput" value={passphrase} style={styles.pathInput} onChangeText={setPassphrase} />
+      <IncognitoKeyboardTextInput
+        testID="SpeedPassphraseInput"
+        incognitoKeyboard
+        secureTextEntry
+        value={passphrase}
+        style={styles.pathInput}
+        onChangeText={setPassphrase}
+      />
       <BlueSpacing20 />
       <View style={styles.center}>
         {loading ? <ActivityIndicator /> : <Button testID="SpeedDoImport" title="Import" onPress={importMnemonic} />}
