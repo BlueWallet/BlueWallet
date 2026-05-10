@@ -519,11 +519,14 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ManageWallets"
           component={ManageWallets}
-          options={{
+          options={navigationStyle({
             presentation: 'fullScreenModal',
             title: loc.wallets.manage_title,
             headerShown: true,
-          }}
+            headerStyle: {
+              backgroundColor: theme.colors.customHeader,
+            },
+          })(theme)}
         />
         <DetailViewStack.Screen
           name="ReceiveDetails"
