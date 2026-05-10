@@ -47,14 +47,13 @@ const LNDViewInvoice = () => {
   const fetchInvoiceInterval = useRef<any>(null);
   const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
 
-  // Phase 6: per-swap claim/refund. Lookup is by the `swap-${id}` prefix
-  // mapped onto the row's `txid` field by lightning-ark-wallet
-  // getTransactions(). The route param is typed as LightningTransaction
-  // (which doesn't declare txid) but at runtime carries the merged
-  // `Transaction & LightningTransaction` shape, so we read txid through
-  // a narrow local cast. For non-Ark wallets and non-swap rows this
-  // resolves to undefined and the UI falls through to the existing
-  // branches.
+  // Per-swap claim/refund lookup, by the `swap-${id}` prefix mapped onto
+  // the row's `txid` field by lightning-ark-wallet getTransactions(). The
+  // route param is typed as LightningTransaction (which doesn't declare
+  // txid) but at runtime carries the merged `Transaction & LightningTransaction`
+  // shape, so we read txid through a narrow local cast. For non-Ark wallets
+  // and non-swap rows this resolves to undefined and the UI falls through
+  // to the existing branches.
   const invoiceTxid = typeof invoice === 'object' ? (invoice as { txid?: unknown }).txid : undefined;
   const swapId = typeof invoiceTxid === 'string' && invoiceTxid.startsWith('swap-') ? invoiceTxid.slice('swap-'.length) : undefined;
   const swap = swapId && arkWallet ? arkWallet.getSwapById(swapId) : undefined;
@@ -253,13 +252,13 @@ const LNDViewInvoice = () => {
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = invoice?.timestamp && invoice?.expire_time ? invoice.timestamp + invoice.expire_time : undefined;
 
-      // Phase 6: per-swap claim/refund CTA. When the SDK reports the
-      // underlying swap is claimable (reverse: Boltz funded the VHTLC, we
-      // haven't claimed yet) or refundable (submarine: payment failed,
-      // VTXO lockup recoverable), render a primary CTA in place of the
-      // QR/expired branches below. Once the action succeeds, the swap
-      // status transitions and these predicates flip false, so the next
-      // render falls through to the existing ispaid/expired branches.
+      // Per-swap claim/refund CTA. When the SDK reports the underlying swap
+      // is claimable (reverse: Boltz funded the VHTLC, we haven't claimed
+      // yet) or refundable (submarine: payment failed, VTXO lockup
+      // recoverable), render a primary CTA in place of the QR/expired
+      // branches below. Once the action succeeds, the swap status
+      // transitions and these predicates flip false, so the next render
+      // falls through to the existing ispaid/expired branches.
       if (claimable) {
         const amount = (invoice.amt as number | undefined) ?? (invoice.value as number | undefined) ?? 0;
         return (

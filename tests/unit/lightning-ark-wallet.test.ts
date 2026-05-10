@@ -415,7 +415,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
   it('dedupes the Ark-history leg of a swap whose Lightning row we already render', () => {
     // A reverse swap that settled — Boltz claimed 1000 sat into our wallet.
     // The SDK history will also contain the matching RECEIVED entry; we must
-    // not show it as a second native-Ark row (Invariant 12).
+    // not show it as a second native-Ark row.
     (w as any)._swapHistory = [
       {
         id: 'rev1',
@@ -595,10 +595,10 @@ describe('LightningArkWallet — getTransactions mapping', () => {
 
 describe('LightningArkWallet — Realm schema integration', () => {
   it('combines Ark + Boltz schemas into a single open() schema list', () => {
-    // Phase 2 task 4 / Phase 3 task 3: opening a per-wallet Realm against
-    // [...ArkRealmSchemas, ...BoltzRealmSchemas] is the integration that lets
-    // the SDK and Boltz repositories share one encrypted file. Pin both
-    // halves so a partial drop doesn't silently lose one repository's data.
+    // Opening a per-wallet Realm against [...ArkRealmSchemas, ...BoltzRealmSchemas]
+    // is the integration that lets the SDK and Boltz repositories share one
+    // encrypted file. Pin both halves so a partial drop doesn't silently lose
+    // one repository's data.
     const arkNames = ArkRealmSchemas.map((s: any) => s.name);
     const boltzNames = BoltzRealmSchemas.map((s: any) => s.name);
 
@@ -623,10 +623,9 @@ describe('LightningArkWallet — Realm schema integration', () => {
 
 describe('LightningArkWallet — runtime SDK fields are non-enumerable', () => {
   it('saveToDisk-style Object.assign({}, wallet) skips _wallet and _arkadeSwaps', () => {
-    // Phase 2 task 8 invariant. The constructor installs both fields as
-    // non-enumerable so saveToDisk can't try to serialise a half-built SDK
-    // graph through JSON.stringify, and the wallet stays initialised across
-    // saves (no nuke-and-rebuild churn that the Phase 1 path triggered).
+    // The constructor installs both runtime SDK fields as non-enumerable so
+    // saveToDisk can't try to serialise a half-built SDK graph through
+    // JSON.stringify, and the wallet stays initialised across saves.
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     (w as any)._wallet = { fake: 'wallet' };
@@ -675,8 +674,8 @@ describe('LightningArkWallet — runtime SDK fields are non-enumerable', () => {
   });
 
   it('exposes module-private caches via __testing__ for tests only', () => {
-    // Phase 2 added these for the deletion-vs-init race test. Pin the shape
-    // so a future refactor doesn't silently drop the test surface.
+    // These caches are exposed for the deletion-vs-init race test. Pin the
+    // shape so a future refactor doesn't silently drop the test surface.
     assert.ok('staticWalletCache' in walletTesting);
     assert.ok('staticSwapsCache' in walletTesting);
     assert.ok('initInFlight' in walletTesting);
@@ -733,9 +732,9 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
     // Wire the wallet up as if init() had already completed.
     (w as any)._wallet = fakeWallet;
     (w as any)._arkadeSwaps = fakeArkadeSwaps;
-    // Phase 1's _fetchLightningFeesAndLimits seeds these from Boltz; bypass
-    // by setting them directly so the assertion guards inside addInvoice /
-    // payInvoice pass.
+    // _fetchLightningFeesAndLimits seeds these from Boltz; bypass by setting
+    // them directly so the assertion guards inside addInvoice / payInvoice
+    // pass.
     (w as any)._limitMin = 100;
     (w as any)._limitMax = 1_000_000;
     (w as any)._feePercentage = 0;
@@ -809,7 +808,7 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
   });
 });
 
-describe('LightningArkWallet — Phase 6 per-swap claim/refund + restore', () => {
+describe('LightningArkWallet — per-swap claim/refund + restore', () => {
   // Like the addInvoice/payInvoice block, we bypass init() and inject the SDK
   // runtime objects. These tests assert the wiring (delegation + post-action
   // refresh + concurrent-call coalescing), not SDK network behavior.

@@ -1,11 +1,12 @@
-// Phase 8/9 background task module.
+// Background task module for Ark swap monitoring.
 //
-// Phase 8: passive monitoring — poll Boltz swap status for non-terminal swaps
-// in every Ark wallet's per-wallet Realm and persist remote changes through
-// the SDK update helpers.
-// Phase 9: post a local notification when an SDK predicate flags a swap as
-// claimable/refundable. No claim, refund, recover, or signing in background
-// — those remain foreground-only (Phase 1A).
+// Responsibilities:
+// - Passive monitoring: poll Boltz swap status for non-terminal swaps in
+//   every Ark wallet's per-wallet Realm and persist remote changes through
+//   the SDK update helpers.
+// - Post a local notification when an SDK predicate flags a swap as
+//   claimable/refundable. No claim, refund, recover, or signing happens in
+//   background — those remain foreground-only.
 //
 // State here is in-process: it survives configure→fetch→fetch ticks within a
 // single JS runtime but is gone after process kill. Realm remains the

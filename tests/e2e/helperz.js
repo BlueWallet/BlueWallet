@@ -149,7 +149,7 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   // that has been opened before, this navigates to WalletTransactions
   // immediately. On a freshly-created wallet (t10) the carousel
   // Pressable's first onPress is swallowed before navigation fires —
-  // that case is documented as a known limitation; see TASKS.md Phase 7.
+  // that case is a known limitation of the e2e harness.
   await element(by.text(label)).tap();
   await waitForId('WalletDetails');
   await element(by.id('WalletDetails')).tap();

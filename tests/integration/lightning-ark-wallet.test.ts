@@ -3,13 +3,10 @@ import assert from 'assert';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 
-// Phase 1 moved Ark storage from AsyncStorage to Realm. The previous
-// fs-backed AsyncStorage harness this file used to install at module scope is
-// dead — the wallet never reads through that path anymore. Realm + Keychain
-// are now mocked globally by tests/setup.js (per-path Realm + service-keyed
-// Keychain), and pure unit-level coverage lives in
-// tests/unit/lightning-ark-wallet.test.ts and
-// tests/unit/lightning-ark-derivation.test.ts. What remains here are the
+// Ark storage lives in Realm, not AsyncStorage. Realm + Keychain are mocked
+// globally by tests/setup.js (per-path Realm + service-keyed Keychain), and
+// pure unit-level coverage lives in tests/unit/lightning-ark-wallet.test.ts
+// and tests/unit/lightning-ark-derivation.test.ts. What remains here are the
 // env-gated tests that exercise the real init pipeline against the
 // production ASP / delegator using a real mnemonic.
 

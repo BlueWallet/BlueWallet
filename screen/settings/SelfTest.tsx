@@ -96,8 +96,7 @@ export default class SelfTest extends Component {
     try {
       // Drain any Ark background-fetch listener before running the self-test.
       // A live background-fetch timer keeps Detox's FabricTimersIdlingResource
-      // busy and disconnects the JS bridge before SelfTestOk can be observed
-      // (Phase 7 first-run failure mode, Invariant 19).
+      // busy and disconnects the JS bridge before SelfTestOk can be observed.
       await stopArkBackgroundTask();
 
       await new Promise(resolve => setTimeout(resolve, 1_000)); // propagate ui

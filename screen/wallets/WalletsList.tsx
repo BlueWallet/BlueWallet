@@ -451,21 +451,23 @@ const WalletsList: React.FC = () => {
   const renderScanButton = useCallback(() => {
     if (wallets.length > 0) {
       return (
-          <FContainer ref={walletActionButtonsRef.current}>
+        <>
+          <FloatButtonsBottomFade />
+          <FContainer ref={walletActionButtonsRef}>
             <FButton
-                onPress={onScanButtonPressed}
-                onLongPress={sendButtonLongPress}
-                icon={<Image resizeMode="stretch" source={scanImage} />}
-                text={loc.send.details_scan}
-                testID="HomeScreenScanButton"
+              onPress={onScanButtonPressed}
+              onLongPress={sendButtonLongPress}
+              icon={<Image resizeMode="stretch" source={scanImage} />}
+              text={loc.send.details_scan}
+              testID="HomeScreenScanButton"
             />
           </FContainer>
+        </>
       );
     } else {
       return null;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanImage, wallets.length]);
+  }, [onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
 
   const sectionListKeyExtractor = useCallback((item: any, index: any) => {
     if (typeof item === 'string') return item;

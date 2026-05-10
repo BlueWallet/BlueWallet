@@ -3,8 +3,8 @@
 // Lives inside the per-wallet Arkade Realm so suppression state is
 // bucket-scoped, encrypted by the wallet's existing Realm key, and removed
 // automatically when the wallet is deleted (deleteArkadeRealm tears down the
-// whole file). Avoids leaking namespace handles into a global AsyncStorage
-// key (TASKS.md lesson 11).
+// whole file). Avoids leaking a stable per-wallet handle into a global
+// AsyncStorage key.
 
 export type ArkSwapNotificationAction = 'claim' | 'refund';
 

@@ -24,7 +24,7 @@ const openInFlight: Map<string, Promise<Realm>> = new Map();
 // — which sweeps top-level *.realm files from Documents into the OS-purgeable cache
 // — never sees them. RNFS.readDir is non-recursive, so the subdirectory is invisible
 // to that scan. Ark Realm holds non-recoverable swap/claim data and must stay in
-// Documents (Invariant 9).
+// Documents.
 const arkadeDir = (): string => `${RNFS.DocumentDirectoryPath}/arkade`;
 const realmPathFor = (namespace: string): string => `${arkadeDir()}/arkade-${namespace}.realm`;
 const keychainServiceFor = (namespace: string): string => `arkade_realm_${namespace}`;
@@ -45,8 +45,7 @@ async function loadOrCreateEncryptionKey(namespace: string): Promise<Uint8Array>
 
   // Accessibility: match the rest of the app's secret accessibility. RNSecureKeyStore
   // in class/blue-app.ts and hooks/useBiometrics.ts both use WHEN_UNLOCKED_THIS_DEVICE_ONLY;
-  // the default of AFTER_FIRST_UNLOCK would expose the Realm key while the device is locked
-  // (Phase 1A finding).
+  // the default of AFTER_FIRST_UNLOCK would expose the Realm key while the device is locked.
   //
   // Security level: preflight via getSecurityLevel() rather than try/catch around
   // SECURE_HARDWARE. getSecurityLevel returns null on iOS (where the option is moot)
@@ -139,8 +138,7 @@ export function closeAllArkadeRealms(): void {
  * Delete the Realm file and the Keychain entry for `namespace`. Used when
  * an Ark wallet is removed. Failures are logged but do not throw — leaving
  * an orphan file or Keychain entry is preferable to crashing the app's
- * delete path (Invariant 9: Ark Realm failures stay scoped to the Ark
- * wallet path).
+ * delete path. Ark Realm failures stay scoped to the Ark wallet path.
  *
  * The Keychain encryption key is reset only when the Realm file is gone
  * (or never existed). Resetting the key while the encrypted file remains

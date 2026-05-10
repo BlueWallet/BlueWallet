@@ -145,7 +145,8 @@ describe('notifyArkSwapActionable', () => {
     assert.strictEqual(notif.payload.swapId, 'r1');
     assert.strictEqual(notif.payload.action, 'claim');
     // Regression guard: namespace is intentionally absent from the OS payload
-    // (TASKS.md plausible-deniability decision).
+    // so the persistent notification record never carries a stable per-wallet
+    // handle outside the encryption boundary.
     assert.strictEqual(Object.prototype.hasOwnProperty.call(notif.payload, 'namespace'), false);
 
     assert.strictEqual(suppression.record.mock.calls.length, 1);

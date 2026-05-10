@@ -489,7 +489,7 @@ describe('reconcileArkBackgroundTaskResults', () => {
   });
 });
 
-describe('Phase 9 — actionable swap notifications', () => {
+describe('actionable swap notifications', () => {
   it('calls notifyArkSwapActionable with an updatedSwap (status === remoteStatus) on transition into actionable', async () => {
     const w = makeArkWallet(TEST_SECRET_A);
     BlueApp.getInstance().wallets = [w as any];

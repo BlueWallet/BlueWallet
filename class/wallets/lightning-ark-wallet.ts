@@ -77,11 +77,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   // Runtime SDK objects. The constructor re-defines these as non-enumerable so
   // saveToDisk's `Object.assign({}, key)` skips them and JSON.stringify never
-  // sees a partially-initialized SDK snapshot — this replaces the Phase 1
-  // prepareForSerialization nuke-and-rebuild churn. We avoid the `declare`
-  // modifier here because @babel/preset-typescript in the React Native pipeline
-  // requires `allowDeclareFields: true` for it, and tightening that setting is
-  // out of scope for this phase.
+  // sees a partially-initialized SDK snapshot. We avoid the `declare` modifier
+  // here because @babel/preset-typescript in the React Native pipeline requires
+  // `allowDeclareFields: true` for it, and tightening that setting is out of
+  // scope.
   private _wallet: Wallet | undefined;
   private _arkadeSwaps: ArkadeSwaps | undefined;
   // sha256(secret) is cheap but getNamespace is called on every init, delete,
@@ -172,9 +171,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
         // Resolve the delegator URL up front and preflight it. A mismatched
         // URL silently builds the wrong offchain tapscript, and a flaky
-        // delegator turns into a generic mid-init Wallet.create rejection
-        // (Phase 4 task 11). Networks with no delegator (signet/testnet)
-        // skip the provider entirely.
+        // delegator turns into a generic mid-init Wallet.create rejection.
+        // Networks with no delegator (signet/testnet) skip the provider
+        // entirely.
         const delegatorUrl = DELEGATOR_URLS[this._network];
         let delegatorProvider: RestDelegatorProvider | undefined;
         if (delegatorUrl !== null) {
@@ -286,16 +285,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   /**
-   * Phase 5 mapping spec — single source of activity for the BlueWallet
-   * transaction list, coalesced from three feeds:
+   * Single source of activity for the BlueWallet transaction list,
+   * coalesced from three feeds:
    *
    * 1. `_swapHistory` (Boltz). Branch on the `swap.type` discriminator:
    *    - `reverse`   → Lightning RECEIVE (`user_invoice`).
    *    - `submarine` → Lightning SEND (`payment_request` while pending,
    *      `paid_invoice` once `transaction.claimed`).
    *    - `chain`     → not surfaced (no LN-shaped UX entry point yet).
-   *    Settlement signal is `LightningTransaction.ispaid` per Invariant 13;
-   *    we never invent a `confirmations` field for an LN/Ark row.
+   *    Settlement signal is `LightningTransaction.ispaid`; we never invent
+   *    a `confirmations` field for an LN/Ark row.
    *
    * 2. `_transactionsHistory` (Ark SDK):
    *    - `key.boardingTxid && type==='RECEIVED' && settled` → "Refill" row.
@@ -305,23 +304,23 @@ export class LightningArkWallet extends LightningCustodianWallet {
    *
    * 3. `_boardingUtxos` → "Pending refill" rows (boarding UTXO not yet swept).
    *
-   * Coalescing (Invariant 12 / task 8): a settled swap always produces an
-   * Ark-side tx in `_transactionsHistory` — reverse `invoice.settled` is
-   * Boltz claiming into our address, submarine `transaction.claimed` is
-   * our lockup being claimed by Boltz. The native-Ark pass therefore drops
-   * any history entry whose `(direction, |amount|)` matches a *settled*
-   * swap within ±30 minutes of `swap.createdAt`. We do NOT dedupe against
+   * Coalescing: a settled swap always produces an Ark-side tx in
+   * `_transactionsHistory` — reverse `invoice.settled` is Boltz claiming
+   * into our address, submarine `transaction.claimed` is our lockup being
+   * claimed by Boltz. The native-Ark pass therefore drops any history
+   * entry whose `(direction, |amount|)` matches a *settled* swap within
+   * ±30 minutes of `swap.createdAt`. We do NOT dedupe against
    * pending/failed/refunded swaps — those don't guarantee an Ark-side leg
-   * and matching against them would hide unrelated native transfers of the
-   * same amount.
+   * and matching against them would hide unrelated native transfers of
+   * the same amount.
    *
-   * Stable row ids (task 11): every row sets `txid` to a logical id that
-   * survives status transitions — `swap-<id>`, `boarding-<txid>`,
+   * Stable row ids: every row sets `txid` to a logical id that survives
+   * status transitions — `swap-<id>`, `boarding-<txid>`,
    * `boarding-utxo-<txid>:<vout>`, `ark-<arkTxid|commitmentTxid>`. FlatList
    * still keys by index today, but the field is the canonical key for any
    * future consumer.
    *
-   * Hidden states (task 9–10):
+   * Hidden states:
    * - Submarine `invoice.set` → dropped (no funds at risk yet).
    * - Submarine `swap.expired` / `invoice.expired` → kept with a `Failed: `
    *   prefix; SDK classifies them as refundable so the user needs the row
@@ -440,8 +439,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (swap.type === 'reverse' && !ispaid && !memoPrefix && expiry !== undefined && expiry > 0 && timestamp + expiry < nowSec) continue;
 
       // Pre-record the fingerprint so the native-Ark pass below can suppress
-      // the matching SDK history entry (Invariant 12). Only settled swaps
-      // are guaranteed to have an Ark-side counterpart: reverse settles by
+      // the matching SDK history entry. Only settled swaps are guaranteed to
+      // have an Ark-side counterpart: reverse settles by
       // Boltz claiming into our address, submarine settles by our lockup
       // being claimed by Boltz. Pending/failed/refunded rows aren't
       // guaranteed to produce an Ark leg, and recording their fingerprints
@@ -704,7 +703,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
-  // Phase 6: per-swap claim/refund + import-time restore.
+  // Per-swap claim/refund + import-time restore.
   // These are thin wrappers over `ArkadeSwaps`. We do not add app-side polling
   // or reliability layers — the SDK owns swap reliability internally
   // (claimVHTLC waits for VTXO availability; refundVHTLC reports
@@ -779,7 +778,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
    * staticWalletCache / staticSwapsCache / realmInstances after we've cleared
    * them, then closes the per-wallet Realm, deletes the Realm files, and
    * resets the Keychain entry. Errors are scoped here and never thrown to the
-   * deletion path (Invariant 9).
+   * deletion path.
    */
   async onDelete(): Promise<void> {
     if (!this.secret) return; // nothing to clean

@@ -384,9 +384,9 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     let latestTransactionText;
 
     // Lightning / Ark wallets do not have on-chain confirmations — settlement is
-    // signaled by `ispaid` (Invariant 13). Bitcoin/on-chain wallets keep the
-    // existing `confirmations === 0` rule unchanged so their pending-pill
-    // semantics never depend on a Lightning shape.
+    // signaled by `ispaid`. Bitcoin/on-chain wallets keep the existing
+    // `confirmations === 0` rule unchanged so their pending-pill semantics
+    // never depend on a Lightning shape.
     const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
     const hasPendingTx = isLightningShaped
       ? item.getTransactions().some((tx: any) => tx.ispaid === false)

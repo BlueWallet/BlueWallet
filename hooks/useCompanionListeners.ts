@@ -89,9 +89,9 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
         console.log('processing push notification:', payload);
 
-        // Phase 9 local notification for actionable Ark swaps. Routed by
-        // walletID rather than address/txid because the payload is locally
-        // generated; see blue_modules/arkade-notifications.ts.
+        // Local notification for actionable Ark swaps. Routed by walletID
+        // rather than address/txid because the payload is locally generated;
+        // see blue_modules/arkade-notifications.ts.
         if (+payload.type === 100) {
           const arkWallet = wallets.find(w => w.getID() === payload.walletID);
           if (!arkWallet || !(arkWallet instanceof LightningArkWallet)) {

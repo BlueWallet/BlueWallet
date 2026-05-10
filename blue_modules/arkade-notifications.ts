@@ -4,8 +4,8 @@
 // Design notes:
 // - Suppression state lives per-wallet in the Arkade Realm
 //   (RealmNotificationSuppressionRepository), not in a global AsyncStorage
-//   key — bucket-scoped and encrypted; satisfies plausible-deniability
-//   (TASKS.md lesson 11).
+//   key — bucket-scoped and encrypted, so the suppression record never
+//   leaks a stable handle outside the wallet's encryption boundary.
 // - Permission and app-level opt-out are checked read-only before each post
 //   (no prompting from headless context). Suppression is NOT recorded when
 //   the post is skipped, so a later state where the user grants permission

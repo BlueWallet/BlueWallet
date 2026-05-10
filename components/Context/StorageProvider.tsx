@@ -180,7 +180,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     if (wallet.type === LightningArkWallet.type) {
       // Fire-and-forget: cleans up the per-wallet Arkade Realm (close + delete files)
       // and the Keychain encryption key. Errors stay scoped to the Ark wallet path
-      // (Invariant 9) and never block deletion.
+      // and never block deletion.
       void (wallet as LightningArkWallet)
         .onDelete()
         .catch(e => console.warn('[StorageProvider] Ark wallet cleanup failed:', e?.message ?? e));
