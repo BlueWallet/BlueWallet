@@ -199,7 +199,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
         // apiUrl omitted: @arkade-os/boltz-swap defaults to the production
         // mainnet URL when network is 'bitcoin'.
-        const swapProvider = new BoltzSwapProvider({ network: 'bitcoin' });
+        const swapProvider = new BoltzSwapProvider({ network: 'bitcoin', referralId: 'arkade-blue-wallet' });
 
         const arkadeSwaps = new ArkadeSwaps({
           wallet,
