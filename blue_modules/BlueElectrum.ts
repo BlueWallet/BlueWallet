@@ -560,6 +560,7 @@ export const getMempoolTransactionsByAddress = async function (address: string):
 
 export const ping = async function () {
   try {
+    if (!mainClient) return false;
     await mainClient.server_ping();
     return true;
   } catch (_) {}
@@ -567,6 +568,22 @@ export const ping = async function () {
   mainConnected = false;
   return false;
 };
+
+/**
+ * Verifies Electrum with server_ping. If the TCP socket died while the app was backgrounded,
+ * JS may still think we are connected — ping fails, so we tear down the client and reconnect.
+ */
+export async function ensureElectrumConnection(): Promise<boolean> {
+  if (await isDisabled()) return true;
+  if (await ping()) return true;
+  console.log('ensureElectrumConnection: ping failed, forcing reconnect');
+  mainClient?.close();
+  mainClient = undefined;
+  mainConnected = false;
+  connectionAttempt = 0;
+  await connectMain();
+  return ping();
+}
 
 // exported only to be used in unit tests
 export function txhexToElectrumTransaction(txhex: string): ElectrumTransactionWithHex {
@@ -1242,6 +1259,8 @@ export const testConnection = async function (host: string, tcpPort?: number, ss
 
 export const forceDisconnect = (): void => {
   mainClient?.close();
+  mainClient = undefined;
+  mainConnected = false;
 };
 
 export const setBatchingDisabled = () => {

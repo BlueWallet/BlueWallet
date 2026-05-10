@@ -102,7 +102,7 @@ const DetailViewStackScreensStack = () => {
 
   const pollConnection = useCallback(async () => {
     if (isElectrumDisabled) return;
-    const ok = await BlueElectrum.ping();
+    const ok = await BlueElectrum.ensureElectrumConnection();
     setElectrumConnected(ok);
   }, [isElectrumDisabled]);
 
@@ -123,7 +123,8 @@ const DetailViewStackScreensStack = () => {
     });
     return () => subscription.remove();
   }, [isElectrumDisabled, pollConnection]);
-  // When starting up in an unknown state, we optimistically rely on ping()
+  // When starting up in an unknown state, we optimistically rely on ping via
+  // ensureElectrumConnection() (reconnects if the socket died in the background)
   // and the fast retry loop while disconnected. Slow health checks while connected
   // run only from WalletsList when that screen is focused (saves idle battery).
 
