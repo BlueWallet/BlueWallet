@@ -84,6 +84,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
   // out of scope for this phase.
   private _wallet: Wallet | undefined;
   private _arkadeSwaps: ArkadeSwaps | undefined;
+  // sha256(secret) is cheap but getNamespace is called on every init, delete,
+  // boarding poll, and background-task pass. Memoize keyed by `secret` so a
+  // future setSecret() with a different mnemonic self-invalidates without us
+  // having to override the inherited setter. Defined non-enumerable in the
+  // constructor for the same saveToDisk serialization reason as the SDK refs.
+  private _namespaceCache: { secret: string; namespace: string } | undefined;
 
   private _arkServerUrl: string = 'https://arkade.computer';
   // Network this wallet speaks. Drives the delegator URL lookup below; today
@@ -106,6 +112,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     super();
     Object.defineProperty(this, '_wallet', { value: undefined, writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_arkadeSwaps', { value: undefined, writable: true, enumerable: false, configurable: true });
+    Object.defineProperty(this, '_namespaceCache', { value: undefined, writable: true, enumerable: false, configurable: true });
   }
 
   hashIt = (s: string): string => {
@@ -135,7 +142,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   getNamespace(): string {
     assert(this.secret, 'No secret provided');
-    return this.hashIt(this.secret);
+    if (this._namespaceCache?.secret === this.secret) return this._namespaceCache.namespace;
+    const namespace = this.hashIt(this.secret);
+    this._namespaceCache = { secret: this.secret, namespace };
+    return namespace;
   }
 
   async init() {
@@ -588,7 +598,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._wallet) await this.init();
     assert(this._arkadeSwaps, 'ArkadeSwaps not initialized');
     assert(amt > this._limitMin, `Minimum to receive is ${this._limitMin} sat`);
-    assert(amt < this._limitMax, `Maximum to receive is ${this._limitMin} sat`);
+    assert(amt < this._limitMax, `Maximum to receive is ${this._limitMax} sat`);
 
     // fee percentage is smth like `0.01`, but its not 1%, its one-hundredth of a percent, rounded up
     const serviceFee = Math.ceil(new BigNumber(amt).multipliedBy(this._feePercentage).dividedBy(100).toNumber());

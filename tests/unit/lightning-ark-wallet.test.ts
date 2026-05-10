@@ -632,9 +632,13 @@ describe('LightningArkWallet — runtime SDK fields are non-enumerable', () => {
     (w as any)._wallet = { fake: 'wallet' };
     (w as any)._arkadeSwaps = { fake: 'swaps' };
 
+    // Touch the namespace cache so we can assert it stays non-enumerable too.
+    w.getNamespace();
+
     const cloned = Object.assign({}, w) as unknown as Record<string, unknown>;
     assert.ok(!('_wallet' in cloned), '_wallet must not be enumerable');
     assert.ok(!('_arkadeSwaps' in cloned), '_arkadeSwaps must not be enumerable');
+    assert.ok(!('_namespaceCache' in cloned), '_namespaceCache must not be enumerable');
 
     // The values are still present on the instance itself.
     assert.deepStrictEqual((w as any)._wallet, { fake: 'wallet' });
@@ -644,6 +648,30 @@ describe('LightningArkWallet — runtime SDK fields are non-enumerable', () => {
   it('getNamespace requires a secret', () => {
     const w = new LightningArkWallet();
     assert.throws(() => w.getNamespace(), /No secret provided/);
+  });
+
+  it('getNamespace memoizes per secret and self-invalidates on secret change', () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+
+    const first = w.getNamespace();
+    assert.strictEqual(w.getNamespace(), first, 'second call must return cached value');
+
+    // Spy on the hash function to confirm we don't recompute on cache hits.
+    let hashCalls = 0;
+    const originalHashIt = (w as any).hashIt;
+    (w as any).hashIt = (s: string) => {
+      hashCalls += 1;
+      return originalHashIt.call(w, s);
+    };
+    w.getNamespace();
+    assert.strictEqual(hashCalls, 0, 'cached path must skip hashIt');
+
+    // A different secret must produce a different namespace (cache invalidates).
+    w.setSecret('arkade://legal winner thank year wave sausage worth useful legal winner thank yellow');
+    const second = w.getNamespace();
+    assert.notStrictEqual(second, first, 'namespace must change when secret changes');
+    assert.strictEqual(hashCalls, 1, 'cache miss must recompute exactly once');
   });
 
   it('exposes module-private caches via __testing__ for tests only', () => {
