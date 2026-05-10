@@ -8,7 +8,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
-import { FButton, FContainer } from '../../components/FloatButtons';
+import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import WalletsCarousel, { getWalletCarouselItemWidth } from '../../components/WalletsCarousel';
@@ -24,7 +24,7 @@ import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
-import { scanQrHelper } from '../../helpers/scan-qr.ts';
+import { scanQrHelper } from '../../helpers/scan-qr';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -114,7 +114,7 @@ const WalletsList: React.FC = () => {
   const route = useRoute<RouteProps>();
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
-  const walletActionButtonsRef = useRef<any>(null);
+  const walletActionButtonsRef = useRef<View>(null);
 
   const stylesHook = StyleSheet.create({
     walletsListWrapper: {
@@ -393,29 +393,6 @@ const WalletsList: React.FC = () => {
     [dataSource.length, isLoading],
   );
 
-  const renderScanButton = useCallback(() => {
-    if (wallets.length > 0) {
-      return (
-        <FContainer ref={walletActionButtonsRef.current}>
-          <FButton
-            onPress={onScanButtonPressed}
-            onLongPress={sendButtonLongPress}
-            icon={<Image resizeMode="stretch" source={scanImage} />}
-            text={loc.send.details_scan}
-            testID="HomeScreenScanButton"
-          />
-        </FContainer>
-      );
-    } else {
-      return null;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanImage, wallets.length]);
-
-  const sectionListKeyExtractor = useCallback((item: any, index: any) => {
-    return `${item}${index}}`;
-  }, []);
-
   const onScanButtonPressed = useCallback(() => {
     scanQrHelper().then(onBarScanned);
   }, [onBarScanned]);
@@ -463,6 +440,31 @@ const WalletsList: React.FC = () => {
       }
     });
   }, [onBarScanned, pasteFromClipboard]);
+
+  const renderScanButton = useCallback(() => {
+    if (wallets.length > 0) {
+      return (
+        <>
+          <FloatButtonsBottomFade />
+          <FContainer ref={walletActionButtonsRef}>
+            <FButton
+              onPress={onScanButtonPressed}
+              onLongPress={sendButtonLongPress}
+              icon={<Image resizeMode="stretch" source={scanImage} />}
+              text={loc.send.details_scan}
+              testID="HomeScreenScanButton"
+            />
+          </FContainer>
+        </>
+      );
+    } else {
+      return null;
+    }
+  }, [onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
+
+  const sectionListKeyExtractor = useCallback((item: any, index: any) => {
+    return `${item}${index}`;
+  }, []);
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
