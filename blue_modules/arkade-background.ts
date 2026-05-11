@@ -160,7 +160,7 @@ async function pollSwap(
     response = await withTimeout(swapProvider.getSwapStatus(swap.id), remainingRunMs());
   } catch (e: any) {
     recordError(`getSwapStatus(${swap.id}): ${e?.message ?? e}`);
-    if (remainingRunMs() <= 0) cancelRequested = true;
+    if (e?.message === 'deadline exceeded' || remainingRunMs() <= 0) cancelRequested = true;
     return;
   }
 
