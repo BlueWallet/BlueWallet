@@ -95,7 +95,6 @@ const WalletDetails: React.FC = () => {
       if (wallet.type === LightningArkWallet.type && wallet.getArkAddress) {
         try {
           const address = await wallet.getArkAddress();
-          console.log('ark address:', address);
           setArkAddress(address);
         } catch (error: any) {
           setArkAddress(error.message);
@@ -286,6 +285,10 @@ const WalletDetails: React.FC = () => {
     },
     textValue: {
       color: colors.outputValue,
+    },
+    walletNameText: {
+      color: colors.outputValue,
+      writingDirection: direction,
     },
     nameRow: {
       flexDirection: direction === 'rtl' ? 'row-reverse' : 'row',
@@ -478,7 +481,7 @@ const WalletDetails: React.FC = () => {
               <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.add_wallet_name}</Text>
               <View style={[styles.nameRow, stylesHook.nameRow]}>
                 <Text
-                  style={[styles.nameValue, stylesHook.textValue, { writingDirection: direction }]}
+                  style={[styles.nameValue, stylesHook.walletNameText]}
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   testID="WalletNameDisplay"
@@ -762,14 +765,14 @@ const WalletDetails: React.FC = () => {
               <TouchableOpacity
                 onPress={() => setIsAdvancedExpanded(prev => !prev)}
                 style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRowContainer]}
-                activeOpacity={0.8}
+                activeOpacity={0.85}
               >
                 <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.wallets.details_advanced}</BlueText>
                 <Icon
-                  name={isAdvancedExpanded ? 'keyboard-arrow-up' : 'keyboard-arrow-down'}
-                  type="material"
-                  size={24}
-                  color={colors.foregroundColor}
+                  name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
+                  type="font-awesome"
+                  size={16}
+                  color={colors.alternativeTextColor}
                 />
               </TouchableOpacity>
               {isAdvancedExpanded && (
