@@ -277,11 +277,11 @@ const WalletDetails: React.FC = () => {
 
   const stylesHook = StyleSheet.create({
     textLabel1: {
-      color: colors.feeText,
+      color: colors.alternativeTextColor,
       writingDirection: direction,
     },
     textLabel2: {
-      color: colors.feeText,
+      color: colors.alternativeTextColor,
       writingDirection: direction,
     },
     textValue: {
@@ -298,6 +298,9 @@ const WalletDetails: React.FC = () => {
     },
     editButtonText: {
       color: colors.buttonTextColor,
+    },
+    optionsSectionHeader: {
+      borderColor: colors.cardBorderColor,
     },
     detailsCard: {
       borderColor: colors.cardBorderColor,
@@ -329,6 +332,9 @@ const WalletDetails: React.FC = () => {
     },
     statsBox: {
       backgroundColor: colors.cardSectionHeaderBackground,
+    },
+    statsBoxNumber: {
+      color: colors.foregroundColor,
     },
     listItemContainerBorder: {
       backgroundColor: 'transparent',
@@ -485,6 +491,7 @@ const WalletDetails: React.FC = () => {
                   disabled={isLoading}
                   accessibilityRole="button"
                   testID="WalletNameEditButton"
+                  activeOpacity={0.7}
                 >
                   <BlueText style={[styles.editButtonText, stylesHook.editButtonText]}>{loc.wallets.details_edit}</BlueText>
                 </TouchableOpacity>
@@ -538,11 +545,11 @@ const WalletDetails: React.FC = () => {
                         onPressMenuItem={toolTipOnPressMenuItem}
                         actions={transactionsBoxMenuActions}
                       >
-                        <Icon name="more-horiz" type="material" size={20} color={colors.feeText} />
+                        <Icon name="more-horiz" type="material" size={20} color={colors.alternativeTextColor} />
                       </ToolTipMenu>
                     )}
                   </View>
-                  <BlueText style={styles.statsBoxNumber}>{wallet.getTransactions().length}</BlueText>
+                  <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{wallet.getTransactions().length}</BlueText>
                 </View>
                 {hasCoinControl && utxoCount !== null && utxoCount > 0 ? (
                   <TouchableOpacity
@@ -551,13 +558,21 @@ const WalletDetails: React.FC = () => {
                     activeOpacity={0.8}
                     testID="CoinsStatsBox"
                   >
-                    <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_stats_coins}</Text>
-                    <BlueText style={styles.statsBoxNumber}>{utxoCount}</BlueText>
+                    <View style={styles.statsBoxTitleRow}>
+                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_stats_coins}</Text>
+                      <View style={styles.statsBoxTitleRowSpacer} />
+                    </View>
+                    <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{utxoCount}</BlueText>
                   </TouchableOpacity>
                 ) : (
                   <View style={[styles.statsBox, stylesHook.statsBox]} testID="CoinsStatsBox">
-                    <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_stats_coins}</Text>
-                    <BlueText style={styles.statsBoxNumber}>{hasCoinControl && utxoCount !== null ? utxoCount : '—'}</BlueText>
+                    <View style={styles.statsBoxTitleRow}>
+                      <Text style={[styles.textLabel2, stylesHook.textLabel2]}>{loc.wallets.details_stats_coins}</Text>
+                      <View style={styles.statsBoxTitleRowSpacer} />
+                    </View>
+                    <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>
+                      {hasCoinControl && utxoCount !== null ? utxoCount : '—'}
+                    </BlueText>
                   </View>
                 )}
               </View>
@@ -608,9 +623,17 @@ const WalletDetails: React.FC = () => {
               </View>
             )}
 
-            {/* Options container */}
+            {/* Options container — header full width (single row so section background spans the card) */}
             <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-              <View style={[styles.sectionTitle, stylesHook.sectionTitle]}>
+              <View
+                style={[
+                  styles.sectionTitle,
+                  stylesHook.sectionTitle,
+                  styles.sectionTitleRowContainer,
+                  styles.optionsSectionHeader,
+                  stylesHook.optionsSectionHeader,
+                ]}
+              >
                 <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.wallets.details_options}</BlueText>
               </View>
               <View style={stylesHook.optionsContent}>
@@ -925,6 +948,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  statsBoxTitleRowSpacer: {
+    width: 20,
+    height: 20,
+  },
+  optionsSectionHeader: {
+    width: '100%',
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 0,
+    minHeight: 44,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    overflow: 'hidden',
   },
   statsBoxNumber: {
     fontSize: 32,
