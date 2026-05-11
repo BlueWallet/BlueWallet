@@ -44,6 +44,7 @@ const CoinControlOutputSheet: React.FC = () => {
   const switchValue = useMemo(
     () => ({
       value: frozen,
+      testID: 'FreezeSwitch',
       onValueChange: async (value: boolean) => {
         if (!wallet) return;
         setFrozen(value);
