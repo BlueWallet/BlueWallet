@@ -575,12 +575,15 @@ export const ping = async function () {
  */
 export async function ensureElectrumConnection(): Promise<boolean> {
   if (await isDisabled()) return true;
+  const believedConnected = mainConnected;
   if (await ping()) return true;
   console.log('ensureElectrumConnection: ping failed, forcing reconnect');
   mainClient?.close();
   mainClient = undefined;
   mainConnected = false;
-  connectionAttempt = 0;
+  if (believedConnected) {
+    connectionAttempt = 0;
+  }
   await connectMain();
   return ping();
 }

@@ -409,20 +409,31 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   useEffect(() => {
     if (!walletsInitialized) return;
 
-    let appState = AppState.currentState;
+    let wasInBackground = false;
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     const DEBOUNCE_MS = 1200;
 
     const onAppStateChange = (next: AppStateStatus) => {
-      const previous = appState;
-      appState = next;
-      const cameToForeground = next === 'active' && previous.match(/inactive|background/) !== null;
-      if (!cameToForeground) return;
+      if (next === 'background') {
+        wasInBackground = true;
+      }
+
+      if (next !== 'active') {
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+          debounceTimer = null;
+        }
+        return;
+      }
+
+      if (!wasInBackground) return;
+      wasInBackground = false;
 
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         debounceTimer = null;
         (async () => {
+          if (AppState.currentState !== 'active') return;
           if (await BlueElectrum.isDisabled()) return;
           await refreshAllWalletTransactionsRef.current(undefined, false);
         })().catch(() => {

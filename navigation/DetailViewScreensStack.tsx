@@ -102,7 +102,7 @@ const DetailViewStackScreensStack = () => {
 
   const pollConnection = useCallback(async () => {
     if (isElectrumDisabled) return;
-    const ok = await BlueElectrum.ensureElectrumConnection();
+    const ok = await BlueElectrum.ping();
     setElectrumConnected(ok);
   }, [isElectrumDisabled]);
 
@@ -118,14 +118,16 @@ const DetailViewStackScreensStack = () => {
     if (isElectrumDisabled) return;
     const subscription = AppState.addEventListener('change', nextState => {
       if (nextState === 'active') {
-        pollConnection();
+        BlueElectrum.ensureElectrumConnection()
+          .then(ok => setElectrumConnected(ok))
+          .catch(() => setElectrumConnected(false));
       }
     });
     return () => subscription.remove();
-  }, [isElectrumDisabled, pollConnection]);
-  // When starting up in an unknown state, we optimistically rely on ping via
-  // ensureElectrumConnection() (reconnects if the socket died in the background)
-  // and the fast retry loop while disconnected. Slow health checks while connected
+  }, [isElectrumDisabled]);
+  // When starting up in an unknown state, we optimistically rely on ping(); on resume we
+  // call ensureElectrumConnection() (reconnect if the socket died in the background).
+  // Fast retry loop while disconnected uses ping only. Slow health checks while connected
   // run only from WalletsList when that screen is focused (saves idle battery).
 
   useEffect(() => {
