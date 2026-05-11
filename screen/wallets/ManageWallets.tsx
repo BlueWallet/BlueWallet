@@ -1,8 +1,21 @@
-import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState, lazy, Suspense } from 'react';
-import { StyleSheet, TouchableOpacity, Image, Alert, Animated, ActivityIndicator, Keyboard, Text, Pressable } from 'react-native';
+import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState, startTransition } from 'react';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  Animated,
+  Keyboard,
+  Text,
+  Pressable,
+  View,
+  FlatList,
+  ListRenderItemInfo,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocale, usePreventRemove } from '@react-navigation/native';
+import { useLocale } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -10,14 +23,12 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { TTXMetadata } from '../../class/blue-app';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
-import HeaderRightButton from '../../components/HeaderRightButton';
 import DraggableFlatList, { RenderItemParams, DragEndParams } from 'react-native-draggable-flatlist';
 import { ItemType, AddressItemData } from '../../models/itemTypes';
-import { WalletGroupComponent } from '../../components/ManageWalletsListItem';
+import ManageWalletsListItem, { WalletGroupComponent } from '../../components/ManageWalletsListItem';
 import HighlightedText from '../../components/HighlightedText';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-
-const ManageWalletsListItem = lazy(() => import('../../components/ManageWalletsListItem'));
+import DragIcon from '../../img/Search/drag';
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -46,7 +57,6 @@ type Item = WalletItem | TransactionItem | AddressItem | WalletGroupItem;
 const SET_SEARCH_QUERY = 'SET_SEARCH_QUERY';
 const SET_IS_SEARCH_FOCUSED = 'SET_IS_SEARCH_FOCUSED';
 const SET_INITIAL_DATA = 'SET_INITIAL_DATA';
-const SET_MANAGED_DATA = 'SET_MANAGED_DATA';
 const SAVE_CHANGES = 'SAVE_CHANGES';
 
 interface SaveChangesAction {
@@ -69,28 +79,19 @@ interface SetInitialDataAction {
   payload: { wallets: TWallet[]; txMetadata: TTXMetadata };
 }
 
-interface SetManagedDataAction {
-  type: typeof SET_MANAGED_DATA;
-  payload: Item[];
-}
-
-type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetInitialDataAction | SetManagedDataAction | SaveChangesAction;
+type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetInitialDataAction | SaveChangesAction;
 
 interface State {
   searchQuery: string;
   isSearchFocused: boolean;
-  originalWallets: TWallet[]; // Only used for verifying unsaved changes
   walletsCopy: TWallet[]; // Copy used for display and filtering
-  managedWalletsData: Item[];
   txMetadata: TTXMetadata;
 }
 
 const initialState: State = {
   searchQuery: '',
   isSearchFocused: false,
-  originalWallets: [],
   walletsCopy: [],
-  managedWalletsData: [],
   txMetadata: {},
 };
 
@@ -106,34 +107,15 @@ const reducer = (state: State, action: Action): State => {
       return { ...state, isSearchFocused: action.payload };
     case SET_INITIAL_DATA: {
       const walletsCopy = deepCopyWallets(action.payload.wallets);
-      const managedWalletsData: WalletItem[] = walletsCopy.map(wallet => ({
-        type: ItemType.WalletSection,
-        data: wallet,
-      }));
-
       return {
         ...state,
-        originalWallets: deepCopyWallets(action.payload.wallets),
         walletsCopy,
         txMetadata: action.payload.txMetadata,
-        managedWalletsData,
-      };
-    }
-    case SET_MANAGED_DATA: {
-      const updatedWalletsCopy = action.payload
-        .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
-        .map(item => item.data);
-
-      return {
-        ...state,
-        walletsCopy: updatedWalletsCopy.length > 0 ? updatedWalletsCopy : state.walletsCopy,
-        managedWalletsData: action.payload,
       };
     }
     case SAVE_CHANGES: {
       return {
         ...state,
-        originalWallets: deepCopyWallets(action.payload),
         walletsCopy: deepCopyWallets(action.payload),
       };
     }
@@ -143,132 +125,188 @@ const reducer = (state: State, action: Action): State => {
 };
 
 const ManageWallets: React.FC = () => {
-  const { colors, closeImage } = useTheme();
+  const { colors, closeImage, dark } = useTheme();
   const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
-  const { navigate, setOptions, goBack, dispatch: navigationDispatch } = useExtendedNavigation();
+  const { navigate, setOptions, goBack } = useExtendedNavigation();
   const { direction } = useLocale();
   const [state, dispatch] = useReducer(reducer, initialState);
   const bounceAnim = useBounceAnimation(state.searchQuery);
   const stylesHook = {
-    root: {
-      backgroundColor: colors.elevated,
-    },
     noResultsText: {
       color: colors.foregroundColor,
       writingDirection: direction,
+    },
+    clearSearchButton: {
+      backgroundColor: colors.buttonBackgroundColor,
     },
   };
   const [noResultsOpacity] = useState(new Animated.Value(0));
 
   const [dragging, setDragging] = useState(false);
-  const [dragSnapshot, setDragSnapshot] = useState<Item[] | null>(null);
-  const [saveInProgress, setSaveInProgress] = useState(false);
-  const pendingNavigationRef = useRef<{ walletID: string; walletType: string } | null>(null);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const debouncedSearch = useCallback((text: string) => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (text.length === 0) {
+      dispatch({ type: SET_SEARCH_QUERY, payload: '' });
+      return;
+    }
+    searchTimerRef.current = setTimeout(() => {
+      startTransition(() => {
+        dispatch({ type: SET_SEARCH_QUERY, payload: text });
+      });
+    }, 300);
+  }, []);
 
-  const getFilteredWalletsData = useCallback(
-    (search: string, walletsSource: TWallet[], metadataSource: TTXMetadata): Item[] => {
-      if (search) {
-        const lowerQuery = search.toLowerCase();
+  useEffect(() => {
+    return () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    };
+  }, []);
 
-        const walletsWithMatches = new Map<
-          string,
-          {
-            wallet: TWallet;
-            transactions: TransactionItem[];
-            addresses: AddressItem[];
-          }
-        >();
+  const getFilteredWalletsData = useCallback((search: string, walletsSource: TWallet[], metadataSource: TTXMetadata): Item[] => {
+    if (search) {
+      const lowerQuery = search.toLowerCase();
 
-        const walletIdSet = new Set(walletsSource.map(wallet => wallet.getID()));
-
-        const matchingTxids = Object.entries(metadataSource).filter(
-          ([_, metadata]) => metadata.memo && metadata.memo.toLowerCase().includes(lowerQuery),
-        );
-
-        if (matchingTxids.length > 0) {
-          const txidToWalletMap = new Map<string, string>();
-
-          walletsSource.forEach(wallet => {
-            try {
-              const transactions = wallet.getTransactions();
-              if (transactions && transactions.length) {
-                const walletID = wallet.getID();
-                transactions.forEach((tx: Transaction) => {
-                  const txid = tx.hash || tx.txid;
-                  if (txid) {
-                    txidToWalletMap.set(txid, walletID);
-                  }
-                });
-              }
-            } catch (e) {}
-          });
-
-          matchingTxids.forEach(([txid]) => {
-            const walletID = txidToWalletMap.get(txid);
-            if (walletID && walletIdSet.has(walletID)) {
-              const wallet = walletsSource.find(w => w.getID() === walletID);
-              if (wallet) {
-                if (!walletsWithMatches.has(walletID)) {
-                  walletsWithMatches.set(walletID, {
-                    wallet,
-                    transactions: [],
-                    addresses: [],
-                  });
-                }
-
-                try {
-                  const tx = wallet.getTransactions().find((t: Transaction) => t.hash === txid || t.txid === txid);
-                  if (tx) {
-                    const group = walletsWithMatches.get(walletID)!;
-                    const txExists = group.transactions.some(item => item.data.hash === txid || item.data.txid === txid);
-
-                    if (!txExists) {
-                      group.transactions.push({
-                        type: ItemType.TransactionSection,
-                        data: tx as ExtendedTransaction & LightningTransaction,
-                      });
-                    }
-                  }
-                } catch (e) {}
-              }
-            }
-          });
+      const walletsWithMatches = new Map<
+        string,
+        {
+          wallet: TWallet;
+          transactions: TransactionItem[];
+          addresses: AddressItem[];
         }
+      >();
+
+      const walletIdSet = new Set(walletsSource.map(wallet => wallet.getID()));
+
+      const matchingTxids = Object.entries(metadataSource).filter(
+        ([_, metadata]) => metadata.memo && metadata.memo.toLowerCase().includes(lowerQuery),
+      );
+
+      if (matchingTxids.length > 0) {
+        const txidToWalletMap = new Map<string, string>();
 
         walletsSource.forEach(wallet => {
-          const walletID = wallet.getID();
-          const walletLabel = wallet.getLabel() || '';
-
-          if (walletLabel.toLowerCase().includes(lowerQuery) && !walletsWithMatches.has(walletID)) {
-            walletsWithMatches.set(walletID, {
-              wallet,
-              transactions: [],
-              addresses: [],
-            });
-          }
+          try {
+            const transactions = wallet.getTransactions();
+            if (transactions && transactions.length) {
+              const walletID = wallet.getID();
+              transactions.forEach((tx: Transaction) => {
+                const txid = tx.hash || tx.txid;
+                if (txid) {
+                  txidToWalletMap.set(txid, walletID);
+                }
+              });
+            }
+          } catch (e) {}
         });
 
-        if (walletsWithMatches.size < 10) {
-          walletsSource.forEach(wallet => {
-            const walletID = wallet.getID();
+        matchingTxids.forEach(([txid]) => {
+          const walletID = txidToWalletMap.get(txid);
+          if (walletID && walletIdSet.has(walletID)) {
+            const wallet = walletsSource.find(w => w.getID() === walletID);
+            if (wallet) {
+              if (!walletsWithMatches.has(walletID)) {
+                walletsWithMatches.set(walletID, {
+                  wallet,
+                  transactions: [],
+                  addresses: [],
+                });
+              }
 
-            if (walletsWithMatches.has(walletID)) return;
+              try {
+                const tx = wallet.getTransactions().find((t: Transaction) => t.hash === txid || t.txid === txid);
+                if (tx) {
+                  const group = walletsWithMatches.get(walletID)!;
+                  const txExists = group.transactions.some(item => item.data.hash === txid || item.data.txid === txid);
 
+                  if (!txExists) {
+                    group.transactions.push({
+                      type: ItemType.TransactionSection,
+                      data: tx as ExtendedTransaction & LightningTransaction,
+                    });
+                  }
+                }
+              } catch (e) {}
+            }
+          }
+        });
+      }
+
+      walletsSource.forEach(wallet => {
+        const walletID = wallet.getID();
+        const walletLabel = wallet.getLabel() || '';
+
+        if (walletLabel.toLowerCase().includes(lowerQuery) && !walletsWithMatches.has(walletID)) {
+          walletsWithMatches.set(walletID, {
+            wallet,
+            transactions: [],
+            addresses: [],
+          });
+        }
+      });
+
+      if (walletsWithMatches.size < 10) {
+        walletsSource.forEach(wallet => {
+          const walletID = wallet.getID();
+
+          if (walletsWithMatches.has(walletID)) return;
+
+          try {
+            const transactions = wallet.getTransactions();
+            if (transactions && transactions.length) {
+              const txToProcess = Math.min(transactions.length, 100);
+
+              for (let i = 0; i < txToProcess; i++) {
+                const tx = transactions[i];
+                const txid = tx.hash || tx.txid;
+
+                const txAmount = tx.value?.toString() || '';
+                const txIdMatches = typeof txid === 'string' && txid.length > 0 ? txid.toLowerCase().includes(lowerQuery) : false;
+                const txDataMatches = txAmount.includes(lowerQuery);
+
+                if (txIdMatches || txDataMatches) {
+                  if (!walletsWithMatches.has(walletID)) {
+                    walletsWithMatches.set(walletID, {
+                      wallet,
+                      transactions: [],
+                      addresses: [],
+                    });
+                  }
+
+                  const group = walletsWithMatches.get(walletID)!;
+                  if (!group.transactions.some(item => item.data.hash === txid || item.data.txid === txid)) {
+                    group.transactions.push({
+                      type: ItemType.TransactionSection,
+                      data: tx as ExtendedTransaction & LightningTransaction,
+                    });
+                  }
+
+                  break;
+                }
+              }
+            }
+          } catch (e) {}
+
+          if (walletsWithMatches.size < 20) {
             try {
-              const transactions = wallet.getTransactions();
-              if (transactions && transactions.length) {
-                const txToProcess = Math.min(transactions.length, 100);
+              const addresses = wallet.getAllExternalAddresses();
+              if (addresses && addresses.length) {
+                const addressLimit = Math.min(addresses.length, 50);
 
-                for (let i = 0; i < txToProcess; i++) {
-                  const tx = transactions[i];
-                  const txid = tx.hash || tx.txid;
+                for (let i = 0; i < addressLimit; i++) {
+                  const address = addresses[i];
+                  const addressValue =
+                    typeof address === 'string'
+                      ? address
+                      : address &&
+                          typeof address === 'object' &&
+                          'address' in (address as any) &&
+                          typeof (address as any).address === 'string'
+                        ? ((address as any).address as string)
+                        : '';
 
-                  const txAmount = tx.value?.toString() || '';
-                  const txIdMatches = txid.toLowerCase().includes(lowerQuery);
-                  const txDataMatches = txAmount.includes(lowerQuery);
-
-                  if (txIdMatches || txDataMatches) {
+                  if (addressValue.toLowerCase().includes(lowerQuery)) {
                     if (!walletsWithMatches.has(walletID)) {
                       walletsWithMatches.set(walletID, {
                         wallet,
@@ -278,11 +316,18 @@ const ManageWallets: React.FC = () => {
                     }
 
                     const group = walletsWithMatches.get(walletID)!;
-                    if (!group.transactions.some(item => item.data.hash === txid || item.data.txid === txid)) {
-                      group.transactions.push({
-                        type: ItemType.TransactionSection,
-                        data: tx as ExtendedTransaction & LightningTransaction,
-                      });
+                    const addressItem: AddressItem = {
+                      type: ItemType.AddressSection,
+                      data: {
+                        address: addressValue,
+                        walletID,
+                        index: i,
+                        isInternal: false,
+                      },
+                    };
+
+                    if (!group.addresses.some(item => item.data.address === addressValue)) {
+                      group.addresses.push(addressItem);
                     }
 
                     break;
@@ -290,99 +335,61 @@ const ManageWallets: React.FC = () => {
                 }
               }
             } catch (e) {}
-
-            if (walletsWithMatches.size < 20) {
-              try {
-                const addresses = wallet.getAllExternalAddresses();
-                if (addresses && addresses.length) {
-                  const addressLimit = Math.min(addresses.length, 50);
-
-                  for (let i = 0; i < addressLimit; i++) {
-                    const address = addresses[i];
-                    const addressValue = typeof address === 'string' ? address : (address as { address: string }).address || '';
-
-                    if (addressValue.toLowerCase().includes(lowerQuery)) {
-                      if (!walletsWithMatches.has(walletID)) {
-                        walletsWithMatches.set(walletID, {
-                          wallet,
-                          transactions: [],
-                          addresses: [],
-                        });
-                      }
-
-                      const group = walletsWithMatches.get(walletID)!;
-                      const addressItem: AddressItem = {
-                        type: ItemType.AddressSection,
-                        data: {
-                          address: addressValue,
-                          walletID,
-                          index: i,
-                          isInternal: false,
-                        },
-                      };
-
-                      if (!group.addresses.some(item => item.data.address === addressValue)) {
-                        group.addresses.push(addressItem);
-                      }
-
-                      break;
-                    }
-                  }
-                }
-              } catch (e) {}
-            }
-          });
-        }
-
-        const resultItems = Array.from(walletsWithMatches.values());
-        const result: Item[] = [];
-
-        resultItems.sort((a, b) => {
-          const aMatches = a.transactions.length + a.addresses.length;
-          const bMatches = b.transactions.length + b.addresses.length;
-          return bMatches - aMatches;
-        });
-
-        resultItems.forEach(matchData => {
-          const { wallet, transactions, addresses } = matchData;
-
-          if (transactions.length > 0 || addresses.length > 0) {
-            transactions.sort((a, b) => {
-              if (a.data.timestamp && b.data.timestamp) {
-                return b.data.timestamp - a.data.timestamp;
-              }
-              return 0;
-            });
-
-            const limitedTransactions = transactions.slice(0, 15);
-            const limitedAddresses = addresses.slice(0, 10);
-
-            result.push({
-              type: ItemType.WalletGroupSection,
-              wallet,
-              transactions: limitedTransactions,
-              addresses: limitedAddresses,
-            });
-          } else {
-            result.push({
-              type: ItemType.WalletSection,
-              data: wallet,
-            });
           }
         });
-
-        return result;
       }
 
-      return state.managedWalletsData;
-    },
-    [state.managedWalletsData],
-  );
+      const resultItems = Array.from(walletsWithMatches.values());
+      const result: Item[] = [];
+
+      resultItems.sort((a, b) => {
+        const aMatches = a.transactions.length + a.addresses.length;
+        const bMatches = b.transactions.length + b.addresses.length;
+        return bMatches - aMatches;
+      });
+
+      resultItems.forEach(matchData => {
+        const { wallet, transactions, addresses } = matchData;
+
+        if (transactions.length > 0 || addresses.length > 0) {
+          transactions.sort((a, b) => {
+            if (a.data.timestamp && b.data.timestamp) {
+              return b.data.timestamp - a.data.timestamp;
+            }
+            return 0;
+          });
+
+          const limitedTransactions = transactions.slice(0, 15);
+          const limitedAddresses = addresses.slice(0, 10);
+
+          result.push({
+            type: ItemType.WalletGroupSection,
+            wallet,
+            transactions: limitedTransactions,
+            addresses: limitedAddresses,
+          });
+        } else {
+          result.push({
+            type: ItemType.WalletSection,
+            data: wallet,
+          });
+        }
+      });
+
+      return result;
+    }
+
+    return walletsSource.map(wallet => ({
+      type: ItemType.WalletSection,
+      data: wallet,
+    }));
+  }, []);
 
   const listData = useMemo(
     () => getFilteredWalletsData(state.searchQuery, state.walletsCopy, state.txMetadata),
     [getFilteredWalletsData, state.searchQuery, state.walletsCopy, state.txMetadata],
   );
+  /** When true, use FlatList instead of DraggableFlatList (search/focus churn + drag list stresses Fabric). */
   const isDragDisabled = state.walletsCopy.length <= 1 || state.searchQuery.length > 0 || state.isSearchFocused;
 
   useEffect(() => {
@@ -401,175 +408,56 @@ const ManageWallets: React.FC = () => {
     }
   }, [listData.length, state.searchQuery, noResultsOpacity]);
 
-  const hasUnsavedChanges = useMemo(() => {
-    if (state.searchQuery.length > 0 || state.isSearchFocused) {
-      return false;
-    }
-
-    const currentWalletIds = state.managedWalletsData
-      .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
-      .map(item => item.data.getID());
-
-    const originalWalletIds = state.originalWallets.map(wallet => wallet.getID());
-
-    if (currentWalletIds.length !== originalWalletIds.length) {
-      return true;
-    }
-
-    for (let i = 0; i < currentWalletIds.length; i++) {
-      if (currentWalletIds[i] !== originalWalletIds[i]) {
-        return true;
-      }
-    }
-
-    const modifiedWallets = state.managedWalletsData
-      .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
-      .map(item => item.data);
-
-    for (const modifiedWallet of modifiedWallets) {
-      const originalWallet = state.originalWallets.find(w => w.getID() === modifiedWallet.getID());
-      if (originalWallet && originalWallet.hideBalance !== modifiedWallet.hideBalance) {
-        return true;
-      }
-    }
-
-    return false;
-  }, [state.managedWalletsData, state.originalWallets, state.searchQuery, state.isSearchFocused]);
-
-  usePreventRemove(
-    hasUnsavedChanges && !saveInProgress,
-    useCallback(
-      ({ data: preventRemoveData }) => {
-        Alert.alert(loc._.discard_changes, loc._.discard_changes_explain, [
-          {
-            text: loc._.cancel,
-            style: 'cancel',
-            onPress: () => {
-              pendingNavigationRef.current = null;
-            },
-          },
-          {
-            text: loc._.ok,
-            style: 'destructive',
-            onPress: () => {
-              navigationDispatch(preventRemoveData.action);
-
-              const pending = pendingNavigationRef.current;
-              pendingNavigationRef.current = null;
-
-              if (pending) {
-                setTimeout(() => {
-                  navigate('WalletTransactions', {
-                    walletID: pending.walletID,
-                    walletType: pending.walletType,
-                  });
-                }, 0);
-              }
-            },
-          },
-        ]);
-      },
-      [navigationDispatch, navigate],
-    ),
-  );
-
-  useEffect(() => {
-    if (saveInProgress) {
-      goBack();
-      setSaveInProgress(false);
-    }
-  }, [saveInProgress, goBack]);
-
-  const handleClose = useCallback(() => {
-    if (state.searchQuery.length === 0 && !state.isSearchFocused) {
-      const reorderedWallets = state.managedWalletsData
-        .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
-        .map(item => item.data);
-
-      setWalletsWithNewOrder(reorderedWallets);
-      dispatch({ type: SAVE_CHANGES, payload: reorderedWallets });
-      initialWalletsRef.current = deepCopyWallets(reorderedWallets);
-
-      setSaveInProgress(true);
-    } else {
-      dispatch({ type: SET_SEARCH_QUERY, payload: '' });
-      dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
-    }
-  }, [setWalletsWithNewOrder, state.searchQuery, state.isSearchFocused, state.managedWalletsData]);
-
-  const buttonOpacity = useMemo(() => ({ opacity: saveInProgress ? 0.5 : 1 }), [saveInProgress]);
   const HeaderLeftButton = useMemo(
     () => (
       <TouchableOpacity
         accessibilityRole="button"
         accessibilityLabel={loc._.close}
-        style={[styles.button, buttonOpacity]}
+        style={styles.button}
         onPress={goBack}
-        disabled={saveInProgress}
         testID="NavigationCloseButton"
       >
         <Image source={closeImage} />
       </TouchableOpacity>
     ),
-    [buttonOpacity, goBack, saveInProgress, closeImage],
-  );
-
-  const SaveButton = useMemo(
-    () => <HeaderRightButton disabled={!hasUnsavedChanges} title={loc.send.input_done} onPress={handleClose} />,
-    [handleClose, hasUnsavedChanges],
+    [goBack, closeImage],
   );
 
   useLayoutEffect(() => {
     const searchBarOptions = {
       hideWhenScrolling: false,
-      onChangeText: (event: { nativeEvent: { text: any } }) => dispatch({ type: SET_SEARCH_QUERY, payload: event.nativeEvent.text }),
-      onClear: () => dispatch({ type: SET_SEARCH_QUERY, payload: '' }),
+      onChangeText: (event: { nativeEvent: { text: any } }) => debouncedSearch(event.nativeEvent.text),
+      onClear: () => debouncedSearch(''),
       onFocus: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true }),
       onBlur: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false }),
       placeholder: loc.wallets.manage_wallets_search_placeholder,
     };
     setOptions({
       headerLeft: () => HeaderLeftButton,
-      headerRight: () => SaveButton,
+      headerRight: undefined,
       headerSearchBarOptions: searchBarOptions,
     });
-  }, [setOptions, HeaderLeftButton, SaveButton]);
+  }, [setOptions, HeaderLeftButton, debouncedSearch]);
 
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {
-      return <HighlightedText text={text} query={query} bounceAnim={bounceAnim} />;
+      return (
+        <HighlightedText
+          text={text}
+          query={query}
+          bounceAnim={bounceAnim}
+          style={{ color: colors.foregroundColor }}
+          highlightStyle={dark ? StyleSheet.flatten([styles.searchHighlightDark, { color: colors.foregroundColor }]) : undefined}
+        />
+      );
     },
-    [bounceAnim],
-  );
-
-  const handleToggleHideBalance = useCallback(
-    (wallet: TWallet) => {
-      const updatedOrder = state.managedWalletsData.map(item => {
-        if (item.type === ItemType.WalletSection && item.data.getID() === wallet.getID()) {
-          item.data.hideBalance = !item.data.hideBalance;
-          return {
-            ...item,
-            data: item.data,
-          };
-        }
-        return item;
-      });
-
-      dispatch({ type: SET_MANAGED_DATA, payload: updatedOrder });
-    },
-    [state.managedWalletsData],
+    [bounceAnim, colors.foregroundColor, dark],
   );
 
   const navigateToWallet = useCallback(
     (wallet: TWallet) => {
       Keyboard.dismiss();
       const walletID = wallet.getID();
-      if (hasUnsavedChanges && !saveInProgress) {
-        pendingNavigationRef.current = { walletID, walletType: wallet.type };
-        goBack();
-        return;
-      }
-
       goBack();
       setTimeout(() => {
         navigate('WalletTransactions', {
@@ -578,7 +466,7 @@ const ManageWallets: React.FC = () => {
         });
       }, 0);
     },
-    [navigate, goBack, hasUnsavedChanges, saveInProgress],
+    [navigate, goBack],
   );
 
   const navigateToAddress = useCallback(
@@ -592,8 +480,24 @@ const ManageWallets: React.FC = () => {
     [navigate],
   );
 
-  const renderItem = useCallback(
-    ({ item, drag, isActive }: RenderItemParams<Item>) => {
+  const handleToggleHideBalance = useCallback(
+    (wallet: TWallet) => {
+      const walletID = wallet.getID();
+      const updatedWallets = deepCopyWallets(state.walletsCopy).map(w => {
+        if (w.getID() === walletID) {
+          w.hideBalance = !w.hideBalance;
+        }
+        return w;
+      });
+
+      setWalletsWithNewOrder(updatedWallets);
+      dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
+    },
+    [state.walletsCopy, setWalletsWithNewOrder],
+  );
+
+  const renderListItem = useCallback(
+    (item: Item, drag: (() => void) | undefined, isActive: boolean) => {
       const compatibleState = {
         wallets: state.walletsCopy,
         searchQuery: state.searchQuery,
@@ -610,41 +514,46 @@ const ManageWallets: React.FC = () => {
             navigateToWallet={navigateToWallet}
             navigateToAddress={navigateToAddress}
             renderHighlightedText={renderHighlightedText}
-            isSearching={state.searchQuery.length > 0}
           />
         );
       }
 
-      const draggingDisabled = isDragDisabled;
-
       return (
         <ManageWalletsListItem
           item={item}
-          onPressIn={undefined}
-          onPressOut={undefined}
-          isDraggingDisabled={draggingDisabled}
+          isDraggingDisabled={isDragDisabled}
+          handleToggleHideBalance={handleToggleHideBalance}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
           navigateToAddress={navigateToAddress}
           renderHighlightedText={renderHighlightedText}
-          handleToggleHideBalance={handleToggleHideBalance}
           isActive={isActive}
-          drag={draggingDisabled ? undefined : drag}
+          drag={isDragDisabled ? undefined : drag}
           globalDragActive={dragging}
         />
       );
     },
     [
+      handleToggleHideBalance,
       state.walletsCopy,
       state.searchQuery,
       state.isSearchFocused,
       navigateToWallet,
       navigateToAddress,
       renderHighlightedText,
-      handleToggleHideBalance,
       dragging,
       isDragDisabled,
     ],
+  );
+
+  const renderDraggableItem = useCallback(
+    ({ item, drag, isActive }: RenderItemParams<Item>) => renderListItem(item, drag, isActive),
+    [renderListItem],
+  );
+
+  const renderPlainListItem = useCallback(
+    (info: ListRenderItemInfo<Item>) => renderListItem(info.item, undefined, false),
+    [renderListItem],
   );
 
   const keyExtractor = useCallback((item: Item, index: number) => {
@@ -668,48 +577,93 @@ const ManageWallets: React.FC = () => {
     return index.toString();
   }, []);
 
-  const renderData = dragSnapshot ?? listData;
-
   const listContentStyle = useMemo(() => [styles.listContentContainer], []);
   const listExtraData = useMemo(
     () => ({ searchQuery: state.searchQuery, isSearchFocused: state.isSearchFocused }),
     [state.searchQuery, state.isSearchFocused],
   );
 
+  const shouldShowReorderHint = useMemo(
+    () => state.searchQuery.length === 0 && state.walletsCopy.length > 1,
+    [state.searchQuery.length, state.walletsCopy.length],
+  );
+
+  const ListHeaderComponent = useMemo(() => {
+    if (!shouldShowReorderHint) return null;
+
+    const hintTextColor = dark ? colors.foregroundColor : colors.alternativeTextColor;
+    return (
+      <Pressable accessibilityRole="text" style={styles.reorderHintContainer}>
+        <View style={styles.reorderHintIcon}>
+          <DragIcon color={hintTextColor} />
+        </View>
+        <View style={styles.reorderHintTextContainer}>
+          <Text style={[styles.reorderHintTitle, { color: hintTextColor, writingDirection: direction }]}>{loc.wallets.wallets}</Text>
+          <Text style={[styles.reorderHintSubtitle, { color: hintTextColor, writingDirection: direction }]}>
+            {loc.wallets.drag_to_reorder}
+          </Text>
+        </View>
+      </Pressable>
+    );
+  }, [colors.alternativeTextColor, colors.foregroundColor, dark, direction, shouldShowReorderHint]);
+
+  const ListEmptyComponent = useMemo(() => {
+    if (!state.searchQuery) return null;
+    return (
+      <Animated.View style={[styles.noResultsContainer, { opacity: noResultsOpacity }]}>
+        <Animated.Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Animated.Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc.wallets.clear_search}
+          style={({ pressed }) => [styles.clearSearchButton, stylesHook.clearSearchButton, pressed && styles.clearSearchButtonPressed]}
+          android_ripple={{ color: colors.buttonDisabledTextColor, borderless: false }}
+          onPress={() => {
+            dispatch({ type: SET_SEARCH_QUERY, payload: '' });
+            dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
+          }}
+        >
+          <Text style={[styles.clearSearchText, { color: colors.buttonTextColor }]}>{loc.wallets.clear_search}</Text>
+        </Pressable>
+      </Animated.View>
+    );
+  }, [
+    colors.buttonDisabledTextColor,
+    colors.buttonTextColor,
+    noResultsOpacity,
+    state.searchQuery,
+    stylesHook.clearSearchButton,
+    stylesHook.noResultsText,
+  ]);
+
+  const listSharedProps = {
+    data: listData,
+    keyExtractor,
+    contentContainerStyle: listContentStyle,
+    extraData: listExtraData,
+    ListHeaderComponent,
+    ListEmptyComponent,
+    automaticallyAdjustContentInsets: true,
+    contentInsetAdjustmentBehavior: 'automatic' as const,
+    keyboardShouldPersistTaps: 'handled' as const,
+    keyboardDismissMode: 'on-drag' as const,
+  };
+
   return (
-    <Suspense fallback={<ActivityIndicator size="large" color={colors.brandingColor} />}>
-      <SafeAreaView style={[{ backgroundColor: colors.background }, styles.root]} edges={['left', 'right']}>
+    <SafeAreaView style={[{ backgroundColor: colors.background }, styles.root]} edges={['top', 'left', 'right']}>
+      <KeyboardAvoidingView style={styles.gestureRoot} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <GestureHandlerRootView style={styles.gestureRoot}>
-          {state.searchQuery && renderData.length === 0 ? (
-            <Animated.View style={[styles.noResultsContainer, { opacity: noResultsOpacity }]}>
-              <Animated.Text style={[styles.noResultsText, stylesHook.noResultsText]}>{loc.wallets.no_results_found}</Animated.Text>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Clear search"
-                style={({ pressed }) => [styles.clearSearchButton, pressed && { opacity: 0.8 }]}
-                android_ripple={{ color: colors.buttonDisabledTextColor, borderless: false }}
-                onPress={() => {
-                  dispatch({ type: SET_SEARCH_QUERY, payload: '' });
-                  dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
-                }}
-              >
-                <Text style={[styles.clearSearchText, { color: colors.brandingColor }]}>Clear search</Text>
-              </Pressable>
-            </Animated.View>
+          {isDragDisabled ? (
+            <FlatList<Item> {...listSharedProps} style={styles.listContainer} renderItem={renderPlainListItem} />
           ) : (
-            <DraggableFlatList
-              data={renderData}
-              keyExtractor={keyExtractor}
-              renderItem={renderItem}
+            <DraggableFlatList<Item>
+              {...listSharedProps}
+              renderItem={renderDraggableItem}
+              containerStyle={styles.listContainer}
               onDragBegin={() => {
-                if (!dragSnapshot) {
-                  setDragSnapshot([...listData]);
-                }
                 setDragging(true);
               }}
               onDragEnd={({ from, to, data }: DragEndParams<Item>) => {
                 setDragging(false);
-                setDragSnapshot(data);
 
                 if (state.searchQuery.length > 0 || state.isSearchFocused) {
                   return;
@@ -719,30 +673,23 @@ const ManageWallets: React.FC = () => {
                   return;
                 }
 
-                dispatch({ type: SET_MANAGED_DATA, payload: data });
+                const reorderedWallets = data
+                  .filter((item): item is WalletItem => item.type === ItemType.WalletSection)
+                  .map(item => item.data);
+                setWalletsWithNewOrder(reorderedWallets);
+                dispatch({ type: SAVE_CHANGES, payload: reorderedWallets });
                 triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-
-                // Clear snapshot after state has re-rendered with new order.
-                setTimeout(() => {
-                  setDragSnapshot(null);
-                }, 0);
               }}
-              containerStyle={styles.listContainer}
-              contentContainerStyle={listContentStyle}
               activationDistance={8}
               autoscrollThreshold={32}
-              automaticallyAdjustContentInsets
-              contentInsetAdjustmentBehavior="automatic"
               autoscrollSpeed={16}
               dragItemOverflow
               animationConfig={{ damping: 26, mass: 0.6, stiffness: 260, overshootClamping: true }}
-              disableVirtualization={dragging}
-              extraData={listExtraData}
             />
           )}
         </GestureHandlerRootView>
-      </SafeAreaView>
-    </Suspense>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -759,14 +706,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContentContainer: {
-    paddingHorizontal: 4,
+    paddingBottom: 20,
   },
   clearSearchButton: {
     marginTop: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
     borderRadius: 8,
-    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 160,
+  },
+  clearSearchButtonPressed: {
+    opacity: 0.85,
   },
   clearSearchText: {
     fontWeight: '600',
@@ -786,5 +738,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
+  },
+  reorderHintContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 24,
+  },
+  reorderHintIcon: {
+    marginRight: 12,
+  },
+  reorderHintTextContainer: {
+    flex: 1,
+  },
+  reorderHintTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    lineHeight: 22,
+  },
+  reorderHintSubtitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    lineHeight: 20,
+    opacity: 0.55,
+  },
+  searchHighlightDark: {
+    backgroundColor: 'rgba(255, 245, 192, 0.22)',
+    borderColor: 'rgba(255, 255, 255, 0.25)',
   },
 });

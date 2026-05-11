@@ -41,7 +41,7 @@ const AddressItem = ({
   renderHighlightedText,
 }: AddressItemProps) => {
   const { wallets } = useStorage();
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const balanceOpacity = useSharedValue(1);
   const balanceTranslateY = useSharedValue(0);
@@ -63,7 +63,7 @@ const AddressItem = ({
       color: colors.alternativeTextColor,
     },
     address: {
-      color: hasTransactions ? colors.darkGray : colors.buttonTextColor,
+      color: dark ? colors.foregroundColor : colors.darkGray,
     },
   });
 

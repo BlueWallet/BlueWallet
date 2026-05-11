@@ -1,0 +1,152 @@
+name: Tests e2e Android
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+    - name: Free disk space (Ubuntu)
+      run: |
+        echo "Disk before cleanup:" && df -h
+        sudo rm -rf /usr/share/dotnet /opt/ghc
+        sudo apt-get clean
+        sudo rm -rf /opt/ghc || true
+        sudo rm -rf /usr/local/share/boost || true
+        sudo rm -rf /usr/local/lib/android/sdk/ndk || true
+        sudo docker system prune -af || true
+        sudo rm -rf /usr/local/lib/android/sdk/system-images || true
+        sudo rm -rf /usr/local/lib/android/sdk/emulator || true
+        rm -rf ~/.gradle/caches/modules-2/files-2.1 || true
+        rm -rf ~/.gradle/caches/build-cache || true
+        rm -rf ~/.npm/_cacache ~/.cache || true
+        sudo rm -rf /home/runner/work/_temp || true
+        echo "Disk after cleanup:" && df -h
+
+    - name: Specify node version
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      with:
+        node-version: 24
+        cache: 'npm'
+
+    - name: Use gradle caches
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle', 'android/**/*.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Install node_modules
+      run: npm ci || npm ci
+
+    - name: Use specific Java version for sdkmanager to work
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Build
+      run: npm run e2e:release-build || npm run e2e:release-build
+
+    - name: Package APKs
+      run: |
+        tar -czf bluewallet-android-apks.tar.gz \
+          android/app/build/outputs/apk/release/app-release.apk \
+          android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
+
+    - name: Upload APKs
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      with:
+        name: bluewallet-android-apks
+        path: bluewallet-android-apks.tar.gz
+        retention-days: 3
+        compression-level: 0
+        if-no-files-found: error
+
+  test:
+    runs-on: ubuntu-24.04
+    needs: build
+    env:
+      HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+      HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+    - name: Free disk space (Ubuntu)
+      run: |
+        echo "Disk before cleanup:" && df -h
+        sudo rm -rf /usr/share/dotnet /opt/ghc
+        sudo apt-get clean
+        sudo rm -rf /opt/ghc || true
+        sudo rm -rf /usr/local/share/boost || true
+        sudo rm -rf /usr/local/lib/android/sdk/ndk || true
+        sudo docker system prune -af || true
+        rm -rf ~/.npm/_cacache ~/.cache || true
+        sudo rm -rf /home/runner/work/_temp || true
+        echo "Disk after cleanup:" && df -h
+
+    - name: Ensure artifacts directory
+      run: mkdir -p ${{ github.workspace }}/artifacts
+
+    - name: Specify node version
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      with:
+        node-version: 24
+        cache: 'npm'
+
+    - name: Install node_modules
+      run: npm ci || npm ci
+
+    - name: Use specific Java version for sdkmanager to work
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Enable KVM group perms
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+
+    - name: Download APKs
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        name: bluewallet-android-apks
+
+    - name: Restore APKs
+      run: tar -xzf bluewallet-android-apks.tar.gz
+
+    - name: Run tests
+      uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
+      with:
+        api-level: 36
+        profile: pixel
+        avd-name: Pixel_API_29_AOSP
+        force-avd-creation: true
+        enable-hw-keyboard: true
+        emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
+        arch: x86_64
+        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
+
+    - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      if: failure()
+      with:
+        name: e2e-android-videos
+        path: ${{ github.workspace }}/artifacts

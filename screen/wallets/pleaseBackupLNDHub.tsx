@@ -41,6 +41,10 @@ const PleaseBackupLNDHub = () => {
       padding: 20,
       paddingHorizontal: 30, // Added additional horizontal padding
     },
+    copyText: {
+      marginVertical: 32,
+      paddingHorizontal: 16,
+    },
   });
 
   useEffect(() => {
@@ -70,7 +74,9 @@ const PleaseBackupLNDHub = () => {
       </View>
       <BlueSpacing20 />
       <QRCode value={wallet.getSecret()} size={qrCodeSize} />
-      <CopyTextToClipboard text={wallet.getSecret()} />
+      <View style={styles.copyText}>
+        <CopyTextToClipboard text={wallet.getSecret()} />
+      </View>
       <BlueSpacing20 />
       <Button onPress={dismiss} title={loc.pleasebackup.ok_lnd} />
     </SafeAreaScrollView>

@@ -31,8 +31,6 @@ import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useTheme } from './themes';
-import { useStorage } from '../hooks/context/useStorage';
-import { WalletTransactionsStatus } from './Context/StorageProvider';
 import { Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
@@ -136,6 +134,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
 
 interface WalletCarouselItemProps {
   item: TWallet;
+  hideBalance: boolean;
   onPress: (item: TWallet) => void;
   handleLongPress?: () => void;
   isSelectedWallet?: boolean;
@@ -257,6 +256,7 @@ const iStyles = StyleSheet.create({
 export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
   ({
     item,
+    hideBalance,
     onPress,
     handleLongPress,
     isSelectedWallet,
@@ -282,14 +282,13 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const balanceOpacity = useSharedValue(1);
     const balanceTranslateY = useSharedValue(0);
     const { colors } = useTheme();
-    const { walletTransactionUpdateStatus } = useStorage();
     const { width } = useWindowDimensions();
     const itemWidth = getWalletCarouselItemWidth(width);
     const { sizeClass } = useSizeClass();
     const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
     const previousBalance = useRef<string | undefined>(undefined);
-    const balance = !item.hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
+    const balance = !hideBalance && formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true);
     const safeBalance = balance || undefined;
 
     const animatePressScale = useCallback(
@@ -384,9 +383,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     let latestTransactionText;
 
-    if (walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === item.getID()) {
-      latestTransactionText = loc.transactions.updating;
-    } else if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
+    if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
     } else if (item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)) {
       latestTransactionText = loc.transactions.pending;
@@ -439,7 +436,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                       {renderHighlightedText ? renderHighlightedText(walletLabel, searchQuery || '') : walletLabel}
                     </Text>
                     <View style={[iStyles.balanceContainer, isCompact && iStyles.balanceContainerCompact]}>
-                      {item.hideBalance ? (
+                      {hideBalance ? (
                         <>
                           <BlueSpacing10 />
                           <BlurredBalanceView />
@@ -736,6 +733,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
         <WalletCarouselItem
           isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
           item={item}
+          hideBalance={item.hideBalance}
           handleLongPress={handleLongPress}
           onPress={onPress}
           horizontal={horizontal}
@@ -803,6 +801,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           <WalletCarouselItem
             isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
             item={item}
+            hideBalance={item.hideBalance}
             handleLongPress={handleLongPress}
             onPress={onPress}
             searchQuery={props.searchQuery}

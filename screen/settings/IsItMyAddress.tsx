@@ -202,6 +202,7 @@ const IsItMyAddress: React.FC = () => {
               <View style={styles.walletCardContainer}>
                 <WalletCarouselItem
                   item={wallet}
+                  hideBalance={wallet.hideBalance}
                   onPress={item => {
                     navigate('WalletTransactions', {
                       walletID: item.getID(),
