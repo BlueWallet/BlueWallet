@@ -3,6 +3,31 @@ import prompt from 'react-native-prompt-android';
 import loc from '../loc';
 import requestKeyboardIncognitoMode from '../blue_modules/requestKeyboardIncognitoMode';
 
+const startKeyboardIncognitoRetry = (): (() => void) => {
+  const retryDelayMs = 100;
+  const maxDurationMs = 1500;
+  const startedAt = Date.now();
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  let stopped = false;
+
+  const attempt = () => {
+    if (stopped) return;
+
+    requestKeyboardIncognitoMode().then(applied => {
+      if (stopped || applied || Date.now() - startedAt >= maxDurationMs) return;
+
+      timeout = setTimeout(attempt, retryDelayMs);
+    });
+  };
+
+  timeout = setTimeout(attempt, retryDelayMs);
+
+  return () => {
+    stopped = true;
+    if (timeout) clearTimeout(timeout);
+  };
+};
+
 export default (
   title: string,
   text: string,
@@ -19,11 +44,13 @@ export default (
   }
 
   return new Promise((resolve, reject) => {
+    let stopKeyboardIncognitoRetry = () => {};
     const buttons: Array<PromptButton> = isCancelable
       ? [
           {
             text: loc._.cancel,
             onPress: () => {
+              stopKeyboardIncognitoRetry();
               reject(Error('Cancel Pressed'));
             },
             style: 'cancel',
@@ -31,6 +58,7 @@ export default (
           {
             text: continueButtonText,
             onPress: password => {
+              stopKeyboardIncognitoRetry();
               console.log('OK Pressed');
               resolve(password);
             },
@@ -41,6 +69,7 @@ export default (
           {
             text: continueButtonText,
             onPress: password => {
+              stopKeyboardIncognitoRetry();
               console.log('OK Pressed');
               resolve(password);
             },
@@ -55,7 +84,7 @@ export default (
     });
 
     if (Platform.OS === 'android' && type === 'secure-text') {
-      setTimeout(requestKeyboardIncognitoMode, 250);
+      stopKeyboardIncognitoRetry = startKeyboardIncognitoRetry();
     }
   });
 };

@@ -8,7 +8,7 @@ export type IncognitoKeyboardTextInputProps = TextInputProps & {
 };
 
 const IncognitoKeyboardTextInput = forwardRef<TextInput, IncognitoKeyboardTextInputProps>(
-  ({ autoCapitalize, autoCorrect, importantForAutofill, incognitoKeyboard = false, onFocus, spellCheck, ...props }, ref) => {
+  ({ autoCapitalize, autoCorrect, incognitoKeyboard = false, onFocus, spellCheck, ...props }, ref) => {
     const handleFocus = useCallback<NonNullable<TextInputProps['onFocus']>>(
       event => {
         if (incognitoKeyboard) {
@@ -25,7 +25,6 @@ const IncognitoKeyboardTextInput = forwardRef<TextInput, IncognitoKeyboardTextIn
         ref={ref}
         autoCapitalize={incognitoKeyboard ? (autoCapitalize ?? 'none') : autoCapitalize}
         autoCorrect={incognitoKeyboard ? (autoCorrect ?? false) : autoCorrect}
-        importantForAutofill={incognitoKeyboard ? (importantForAutofill ?? 'no') : importantForAutofill}
         onFocus={handleFocus}
         spellCheck={incognitoKeyboard ? (spellCheck ?? false) : spellCheck}
         {...props}
