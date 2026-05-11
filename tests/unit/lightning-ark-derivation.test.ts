@@ -5,12 +5,7 @@ import { DelegateVtxo, networks } from '@arkade-os/sdk';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
-import {
-  FAKE_ASP_INFO,
-  FAKE_DELEGATE_PUBKEY,
-  installSdkProviderSpies,
-  restoreSdkProviderSpies,
-} from '../helpers/sdkProviderMocks';
+import { FAKE_ASP_INFO, FAKE_DELEGATE_PUBKEY, installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
@@ -85,7 +80,9 @@ describe('LightningArkWallet derivation regression', () => {
       serverPubKey,
       delegatePubKey: hexToUint8Array(FAKE_DELEGATE_PUBKEY).slice(1),
       csvTimelock,
-    }).address(networks.bitcoin.hrp, serverPubKey).encode();
+    })
+      .address(networks.bitcoin.hrp, serverPubKey)
+      .encode();
 
     // 2*G in compressed form — a different on-curve pubkey.
     const altDelegate = hexToUint8Array('02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5').slice(1);
@@ -94,7 +91,9 @@ describe('LightningArkWallet derivation regression', () => {
       serverPubKey,
       delegatePubKey: altDelegate,
       csvTimelock,
-    }).address(networks.bitcoin.hrp, serverPubKey).encode();
+    })
+      .address(networks.bitcoin.hrp, serverPubKey)
+      .encode();
 
     assert.notStrictEqual(withDelegateG, withDelegate2G);
   });

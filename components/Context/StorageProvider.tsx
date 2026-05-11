@@ -181,11 +181,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       // Fire-and-forget: cleans up the per-wallet Arkade Realm (close + delete files)
       // and the Keychain encryption key. Errors stay scoped to the Ark wallet path
       // and never block deletion.
-      void (wallet as LightningArkWallet)
-        .onDelete()
-        .catch(e => console.warn('[StorageProvider] Ark wallet cleanup failed:', e?.message ?? e));
+      (wallet as LightningArkWallet).onDelete().catch(e => console.warn('[StorageProvider] Ark wallet cleanup failed:', e?.message ?? e));
       if (!BlueApp.getWallets().some(w => w.type === LightningArkWallet.type)) {
-        void stopArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task stop failed:', e?.message ?? e));
+        stopArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task stop failed:', e?.message ?? e));
       }
     }
   }, []);
@@ -324,9 +322,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
       if (loaded.some(w => w.type === LightningArkWallet.type)) {
-        void registerArkBackgroundTask().catch(e =>
-          console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e),
-        );
+        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
       }
     }
   }, [walletsInitialized]);
@@ -473,9 +469,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       w.setUserHasSavedExport(true);
       addWallet(w);
       if (w instanceof LightningArkWallet) {
-        void registerArkBackgroundTask().catch(e =>
-          console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e),
-        );
+        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
       }
       if (getScanWasBBQR()) {
         // to avoid proxying `useBBQR` through a bunch of screens during import procedure, we use a trick:

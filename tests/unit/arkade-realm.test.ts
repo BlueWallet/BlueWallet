@@ -59,8 +59,14 @@ describe('arkade realm adapter', () => {
     const config = Realm.open.mock.calls[0][0];
     assert.ok(Array.isArray(config.schema), 'schema is array');
     assert.ok(config.schema.length > 0, 'schema is non-empty');
-    assert.ok(config.schema.some((s: any) => s.name === 'BoltzSwap'), 'has BoltzSwap schema');
-    assert.ok(config.schema.some((s: any) => s.name === 'ArkVtxo'), 'has ArkVtxo schema');
+    assert.ok(
+      config.schema.some((s: any) => s.name === 'BoltzSwap'),
+      'has BoltzSwap schema',
+    );
+    assert.ok(
+      config.schema.some((s: any) => s.name === 'ArkVtxo'),
+      'has ArkVtxo schema',
+    );
     assert.ok(typeof config.schemaVersion === 'number', 'schemaVersion is a number');
     assert.ok(config.encryptionKey instanceof Uint8Array, 'encryptionKey is Uint8Array');
     assert.strictEqual(config.encryptionKey.length, 64, 'encryption key is 64 bytes');
@@ -109,10 +115,7 @@ describe('arkade realm adapter', () => {
 
     assert.strictEqual(Realm.deleteFile.mock.calls.length, 1, 'Realm.deleteFile invoked');
     assert.strictEqual(Realm.deleteFile.mock.calls[0][0].path, __testing__.realmPathFor('ns'));
-    assert.ok(
-      !Keychain.__mockKeychainHelpers.store.has(__testing__.keychainServiceFor('ns')),
-      'keychain entry removed',
-    );
+    assert.ok(!Keychain.__mockKeychainHelpers.store.has(__testing__.keychainServiceFor('ns')), 'keychain entry removed');
     assert.strictEqual(Keychain.resetGenericPassword.mock.calls.length, 1);
 
     // Subsequent open creates a fresh keychain entry (rather than reusing the deleted one).
@@ -130,10 +133,7 @@ describe('arkade realm adapter', () => {
     await deleteArkadeRealm('ns');
 
     assert.strictEqual(Keychain.resetGenericPassword.mock.calls.length, 0, 'keychain key preserved');
-    assert.ok(
-      Keychain.__mockKeychainHelpers.store.has(__testing__.keychainServiceFor('ns')),
-      'keychain entry still present',
-    );
+    assert.ok(Keychain.__mockKeychainHelpers.store.has(__testing__.keychainServiceFor('ns')), 'keychain entry still present');
   });
 
   it('skips Realm.deleteFile when no realm file exists but still resets keychain', async () => {

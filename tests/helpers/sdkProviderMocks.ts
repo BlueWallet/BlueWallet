@@ -86,9 +86,7 @@ export function installSdkProviderSpies(): void {
   // runs Wallet.create through to completion hangs after the test asserts.
   // Stub the entry point to a resolved no-op; the wallet's address-derivation
   // path doesn't need either side effect.
-  jest
-    .spyOn(VtxoManager.prototype as any, 'initializeSubscription')
-    .mockResolvedValue(undefined);
+  jest.spyOn(VtxoManager.prototype as any, 'initializeSubscription').mockResolvedValue(undefined);
 }
 
 export function restoreSdkProviderSpies(): void {

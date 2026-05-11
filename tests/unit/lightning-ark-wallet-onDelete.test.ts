@@ -54,8 +54,8 @@ describe('LightningArkWallet.onDelete', () => {
 
     // Inject a controlled in-flight init so we can interleave onDelete with its tail.
     let resolveInit!: (v: { wallet: any; arkadeSwaps: any }) => void;
-    const inFlight = new Promise<{ wallet: any; arkadeSwaps: any }>(r => {
-      resolveInit = r;
+    const inFlight = new Promise<{ wallet: any; arkadeSwaps: any }>(resolve => {
+      resolveInit = resolve;
     });
 
     // Simulate the init IIFE's tail: when Wallet.create resolves, the IIFE
@@ -79,11 +79,7 @@ describe('LightningArkWallet.onDelete', () => {
     const onDeletePromise = w.onDelete();
     await Promise.resolve();
     await Promise.resolve();
-    assert.strictEqual(
-      Realm.deleteFile.mock.calls.length,
-      0,
-      'deleteArkadeRealm must not run before in-flight init settles',
-    );
+    assert.strictEqual(Realm.deleteFile.mock.calls.length, 0, 'deleteArkadeRealm must not run before in-flight init settles');
 
     // Resolve inFlight: simulated IIFE tail writes caches, simulated init outer
     // continuation re-assigns this._wallet, then onDelete continues.
@@ -92,16 +88,8 @@ describe('LightningArkWallet.onDelete', () => {
     await onDeletePromise;
 
     // The drain ensures caches are cleared after the resurrection, not before.
-    assert.strictEqual(
-      walletTesting.staticWalletCache[namespace],
-      undefined,
-      'staticWalletCache cleared after drain',
-    );
-    assert.strictEqual(
-      walletTesting.staticSwapsCache[namespace],
-      undefined,
-      'staticSwapsCache cleared after drain',
-    );
+    assert.strictEqual(walletTesting.staticWalletCache[namespace], undefined, 'staticWalletCache cleared after drain');
+    assert.strictEqual(walletTesting.staticSwapsCache[namespace], undefined, 'staticSwapsCache cleared after drain');
     assert.strictEqual((w as any)._wallet, undefined, 'wallet instance _wallet cleared after drain');
     assert.strictEqual((w as any)._arkadeSwaps, undefined, 'wallet instance _arkadeSwaps cleared after drain');
     assert.ok(!walletTesting.initInFlight.has(namespace), 'in-flight entry removed');

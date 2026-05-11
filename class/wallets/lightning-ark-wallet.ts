@@ -758,7 +758,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
           // Same rejection is delivered to the awaiting caller below; silence
           // the cleanup chain so it isn't an unhandled rejection.
         });
-    await inFlight;
+      await inFlight;
     } else {
       // Join an in-flight restore. The IIFE only writes to the instance that
       // created it, so pull results into this instance once the shared work

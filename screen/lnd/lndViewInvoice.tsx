@@ -23,7 +23,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import presentAlert from '../../components/Alert';
-import type { BoltzSwap, BoltzReverseSwap, BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
+import type { BoltzReverseSwap, BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
