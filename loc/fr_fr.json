@@ -368,6 +368,7 @@
     "rbf_title": "Frais de propulsion (RBF)",
     "status_bump": "Frais de propulsion",
     "status_cancel": "Annuler la transaction",
+    "transactions_count": "Nombre de transactions",
     "txid": "ID de transaction",
     "from": "De: {counterparty}",
     "to": "A: {counterparty}",

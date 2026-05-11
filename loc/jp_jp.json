@@ -379,6 +379,7 @@
     "rbf_title": "手数料をバンプ (RBF)",
     "status_bump": "手数料をバンプ",
     "status_cancel": "トランザクションをキャンセル",
+    "transactions_count": "トランザクションカウント",
     "txid": "トランザクションID",
     "from": "From: {counterparty}",
     "to": "To: {counterparty}",

@@ -365,6 +365,7 @@
     "rbf_title": "העלאת עמלה (RBF)",
     "status_bump": "העלאת עמלה",
     "status_cancel": "ביטול פעולה",
+    "transactions_count": "מספר תנועות",
     "txid": "מזהה פעולה",
     "from": "מאת: {counterparty}",
     "to": "עבור: {counterparty}",

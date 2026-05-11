@@ -283,6 +283,7 @@
     "rbf_title": "Kiváltási díj (RBF)",
     "status_bump": "Kiváltási díj",
     "status_cancel": "Tranzakció törlése",
+    "transactions_count": "Tranzakciók száma",
     "txid": "Tranzakció azonosító",
     "updating": "Frissítés..."
   },

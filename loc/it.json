@@ -300,6 +300,7 @@
     "rbf_title": "Aumenta la commissione (RBF)",
     "status_bump": "Aumenta la commissione",
     "status_cancel": "Annulla transazione",
+    "transactions_count": "Conteggio transazioni",
     "txid": "ID della transazione",
     "updating": "Aggiornamento..."
   },

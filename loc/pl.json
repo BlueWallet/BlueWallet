@@ -379,6 +379,7 @@
     "rbf_title": "Zwiększ opłatę (RBF)",
     "status_bump": "Zwiększ opłatę",
     "status_cancel": "Anuluj transakcję",
+    "transactions_count": "Ilość transakcji",
     "txid": "ID Transakcji",
     "from": "Od: {counterparty}",
     "to": "Do: {counterparty}",

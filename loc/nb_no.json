@@ -274,6 +274,7 @@
     "rbf_title": "Betal en høyere avgift (RBF)",
     "status_bump": "Betal en høyere avgift",
     "status_cancel": "Avbryt transaksjon",
+    "transactions_count": "Antall Transaksjoner",
     "txid": "Transaksjons-ID",
     "updating": "Oppdaterer..."
   },

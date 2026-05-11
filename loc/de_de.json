@@ -373,6 +373,7 @@
     "rbf_title": "TRX-Gebühr erhöhen (RBF)",
     "status_bump": "TRX-Gebühr erhöhen",
     "status_cancel": "Transaktion abbrechen",
+    "transactions_count": "Anzahl Transaktionen",
     "txid": "Transaktions-ID",
     "from": "Von: {counterparty}",
     "to": "Zu: {counterparty}",

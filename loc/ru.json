@@ -373,6 +373,7 @@
     "rbf_title": "Повысить комиссию (RBF)",
     "status_bump": "Повысить комиссию",
     "status_cancel": "Отменить",
+    "transactions_count": "Всего транзакций",
     "txid": "TXID",
     "from": "От: {counterparty}",
     "to": "Кому: {counterparty}",

@@ -361,6 +361,7 @@
     "rbf_title": "Aumentar Taxa (RBF)",
     "status_bump": "Aumentar Taxa",
     "status_cancel": "Cancelar Transação",
+    "transactions_count": "Contagem das Transações",
     "txid": "ID da transação",
     "from": "De:{counterparty}",
     "to": "Para:{counterparty}",

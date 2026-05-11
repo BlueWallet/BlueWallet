@@ -379,6 +379,7 @@
     "rbf_title": "Poplatek za popostrčení (RBF)",
     "status_bump": "Poplatek za popostrčení",
     "status_cancel": "Zrušit transakci",
+    "transactions_count": "Počet transakcí",
     "txid": "ID transakce",
     "from": "Od: {counterparty}",
     "to": "Pro: {counterparty}",

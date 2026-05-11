@@ -231,6 +231,7 @@
     "rbf_title": "對碰費用（RBF）",
     "status_bump": "對碰費用",
     "status_cancel": "取消交易",
+    "transactions_count": "交易記數",
     "txid": "交易ID",
     "updating": "更新中..."
   },

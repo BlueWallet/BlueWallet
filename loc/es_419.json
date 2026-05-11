@@ -379,6 +379,7 @@
     "rbf_title": "Aumentar Comisión (RBF)",
     "status_bump": "Aumentar Comisión",
     "status_cancel": "Cancelar Transacción",
+    "transactions_count": "Número de Transacciones",
     "txid": "ID de Transacción",
     "from": "De: {counterparty}",
     "to": "A: {counterparty}",
