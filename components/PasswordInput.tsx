@@ -139,7 +139,6 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
       >
         <IncognitoKeyboardTextInput
           ref={inputRef}
-          incognitoKeyboard
           testID="PasswordInput"
           style={[styles.input, stylesHook.input]}
           value={password}
@@ -151,8 +150,6 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           placeholder={placeholder}
           placeholderTextColor={colors.alternativeTextColor}
           secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
           editable={!isSuccess}
           onSubmitEditing={handleSubmit}
           returnKeyType="done"

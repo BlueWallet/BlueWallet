@@ -95,7 +95,6 @@ export const BlueFormMultiInput: React.FC<TextInputProps> = props => {
   return (
     <IncognitoKeyboardTextInput
       multiline
-      incognitoKeyboard
       underlineColorAndroid="transparent"
       numberOfLines={4}
       editable={editable}
@@ -109,9 +108,6 @@ export const BlueFormMultiInput: React.FC<TextInputProps> = props => {
         },
         style,
       ]}
-      autoCorrect={false}
-      autoCapitalize="none"
-      spellCheck={false}
       {...restProps}
       selectTextOnFocus={false}
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}

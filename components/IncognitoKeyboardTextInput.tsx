@@ -3,30 +3,26 @@ import { TextInput, TextInputProps } from 'react-native';
 
 import requestKeyboardIncognitoMode from '../blue_modules/requestKeyboardIncognitoMode';
 
-export type IncognitoKeyboardTextInputProps = TextInputProps & {
-  incognitoKeyboard?: boolean;
-};
+export type IncognitoKeyboardTextInputProps = TextInputProps;
 
 const IncognitoKeyboardTextInput = forwardRef<TextInput, IncognitoKeyboardTextInputProps>(
-  ({ autoCapitalize, autoCorrect, incognitoKeyboard = false, onFocus, spellCheck, ...props }, ref) => {
+  ({ autoCapitalize, autoCorrect, onFocus, spellCheck, ...props }, ref) => {
     const handleFocus = useCallback<NonNullable<TextInputProps['onFocus']>>(
       event => {
-        if (incognitoKeyboard) {
-          requestKeyboardIncognitoMode();
-        }
+        requestKeyboardIncognitoMode();
 
         onFocus?.(event);
       },
-      [incognitoKeyboard, onFocus],
+      [onFocus],
     );
 
     return (
       <TextInput
         ref={ref}
-        autoCapitalize={incognitoKeyboard ? (autoCapitalize ?? 'none') : autoCapitalize}
-        autoCorrect={incognitoKeyboard ? (autoCorrect ?? false) : autoCorrect}
+        autoCapitalize={autoCapitalize ?? 'none'}
+        autoCorrect={autoCorrect ?? false}
         onFocus={handleFocus}
-        spellCheck={incognitoKeyboard ? (spellCheck ?? false) : spellCheck}
+        spellCheck={spellCheck ?? false}
         {...props}
       />
     );

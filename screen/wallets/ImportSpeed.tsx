@@ -96,7 +96,6 @@ const ImportSpeed = () => {
       <BlueFormLabel>Passphrase</BlueFormLabel>
       <IncognitoKeyboardTextInput
         testID="SpeedPassphraseInput"
-        incognitoKeyboard
         secureTextEntry
         value={passphrase}
         style={styles.pathInput}

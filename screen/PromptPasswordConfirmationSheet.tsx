@@ -225,13 +225,10 @@ const PromptPasswordConfirmationSheet = () => {
                 <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
                   <IncognitoKeyboardTextInput
                     testID="PasswordInput"
-                    incognitoKeyboard
                     secureTextEntry
                     placeholder="Password"
                     value={password}
-                    autoCapitalize="none"
                     autoComplete="off"
-                    autoCorrect={false}
                     onChangeText={setPassword}
                     style={[styles.input, stylesHook.input]}
                     clearTextOnFocus
@@ -243,14 +240,11 @@ const PromptPasswordConfirmationSheet = () => {
                   <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
                     <IncognitoKeyboardTextInput
                       testID="ConfirmPasswordInput"
-                      incognitoKeyboard
                       secureTextEntry
                       placeholder="Confirm Password"
                       value={confirmPassword}
                       clearTextOnFocus
-                      autoCorrect={false}
                       autoComplete="off"
-                      autoCapitalize="none"
                       clearButtonMode="while-editing"
                       onChangeText={setConfirmPassword}
                       style={[styles.input, stylesHook.input]}
