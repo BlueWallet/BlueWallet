@@ -224,6 +224,53 @@ export class LightningCustodianWallet extends LegacyWallet {
     return json.pay_req;
   }
 
+  async getLnurlPayInfo(): Promise<{ username: string | false; url?: string; lnurl?: string }> {
+    await this.checkLogin();
+
+    const response = await fetch(this.baseURI + '/lnurlpay', {
+      method: 'GET',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
+    }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    return json;
+  }
+
+  async claimLnurlPayUsername(username: string): Promise<{ username: string | false; url?: string; lnurl?: string }> {
+    await this.checkLogin();
+
+    const response = await fetch(this.baseURI + '/lnurlpay/username', {
+      method: 'POST',
+      body: JSON.stringify({ username }),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
+    const json = await response.json();
+    if (!json) {
+      throw new Error('API failure: ' + response.statusText);
+    }
+
+    if (json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    return json;
+  }
+
   /**
    * Uses login & pass stored in `this.secret` to authorize
    * and set internal `access_token` & `refresh_token`
