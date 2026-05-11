@@ -29,7 +29,9 @@ const ViewEditMultisigShareCosignerSheet = () => {
           <QRCode value={cosignerXpubURv2} size={260} />
         </View>
         <BlueSpacing20 />
-        <CopyTextToClipboard text={cosignerXpub} truncated={false} />
+        <View style={styles.copyText}>
+          <CopyTextToClipboard text={cosignerXpub} truncated={false} />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -47,6 +49,10 @@ const styles = StyleSheet.create({
   },
   qrContainer: {
     alignItems: 'center',
+  },
+  copyText: {
+    marginVertical: 32,
+    paddingHorizontal: 16,
   },
 });
 

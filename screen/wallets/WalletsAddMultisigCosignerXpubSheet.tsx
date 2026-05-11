@@ -32,7 +32,9 @@ const WalletsAddMultisigCosignerXpubSheet = () => {
           <QRCode value={cosignerXpubURv2} size={260} />
         </View>
         <BlueSpacing20 />
-        <CopyTextToClipboard text={cosignerXpub} truncated={false} />
+        <View style={styles.copyText}>
+          <CopyTextToClipboard text={cosignerXpub} truncated={false} />
+        </View>
       </View>
       <View style={styles.footer}>
         <Button title={loc.send.success_done} onPress={() => navigation.goBack()} />
@@ -57,6 +59,10 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 22,
     paddingVertical: 16,
+  },
+  copyText: {
+    marginVertical: 32,
+    paddingHorizontal: 16,
   },
 });
 

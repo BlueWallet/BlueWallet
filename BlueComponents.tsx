@@ -64,6 +64,7 @@ export const BlueText: React.FC<BlueTextProps> = ({ bold = false, h1, h2, h3, h4
   }
 
   const hasHeading = h1 || h2 || h3 || h4;
+  const resolvedPassedStyle = passedStyle == null ? undefined : Array.isArray(passedStyle) ? StyleSheet.flatten(passedStyle) : passedStyle;
   const style = StyleSheet.compose(
     {
       color: colors.foregroundColor,
@@ -71,7 +72,7 @@ export const BlueText: React.FC<BlueTextProps> = ({ bold = false, h1, h2, h3, h4
       fontWeight: hasHeading ? undefined : bold ? 'bold' : 'normal',
       ...headingStyle,
     },
-    passedStyle,
+    resolvedPassedStyle,
   );
   return <Text style={style} {...props} />;
 };

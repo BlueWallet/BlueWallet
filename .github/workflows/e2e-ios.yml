@@ -1,0 +1,229 @@
+name: Tests e2e iOS
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    env:
+      BUILD_CONFIGURATION: Release
+      CCACHE_MAXSIZE: "2G"
+      CCACHE_DIR: /Users/runner/.ccache
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
+        with:
+          ruby-version: "3.4.8"
+          bundler-cache: true
+
+      - name: Install Node dependencies
+        run: npm ci || npm ci
+
+      - name: Cache CocoaPods
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods/repos
+          key: ${{ runner.os }}-pods-prebuilt-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-prebuilt-
+
+      - name: Install ccache
+        run: brew install ccache
+
+      - name: Cache ccache
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
+
+      - name: Delete extension and watch targets
+        run: |
+          bundle exec ruby <<'RUBY'
+          require 'xcodeproj'
+
+          project_path = 'ios/BlueWallet.xcodeproj'
+          project = Xcodeproj::Project.open(project_path)
+
+          target_names = %w[BlueWalletWatch WidgetsExtension Stickers]
+          embed_phase_names = ['Embed Watch Content', 'Embed Foundation Extensions']
+          removed_any = false
+
+          target_names.each do |target_name|
+            target = project.targets.find { |t| t.name == target_name }
+            next unless target
+
+            puts "Removing target #{target_name}"
+            target.dependencies.each(&:remove_from_project)
+            target.build_phases.each(&:remove_from_project)
+            project.targets.delete(target)
+            removed_any = true
+          end
+
+          main_target = project.targets.find { |t| t.name == 'BlueWallet' }
+          if main_target
+            main_target.build_phases.select { |phase| embed_phase_names.include?(phase.display_name) }.each do |phase|
+              puts "Removing build phase #{phase.display_name}"
+              phase.remove_from_project
+              main_target.build_phases.delete(phase)
+              removed_any = true
+            end
+          end
+
+          if removed_any
+            project.save
+            puts 'Extension and watch target references removed'
+          else
+            puts 'No extension or watch targets found'
+          end
+          RUBY
+
+      - name: Remove extension and watch schemes
+        run: |
+          rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/BlueWalletWatch.xcscheme
+          rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/WidgetsExtension.xcscheme
+          rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/Stickers.xcscheme
+
+      - name: Install CocoaPods dependencies
+        env:
+          RCT_USE_RN_DEP: "1"
+          RCT_USE_PREBUILT_RNCORE: "1"
+          USE_CCACHE: "1"
+        run: bundle exec fastlane ios install_pods || bundle exec fastlane ios install_pods
+
+      - name: Reset ccache stats
+        run: ccache -z || true
+
+      - name: Build iOS simulator app
+        working-directory: ios
+        env:
+          RCT_NO_LAUNCH_PACKAGER: "1"
+          CCACHE_BINARY: /opt/homebrew/bin/ccache
+        run: |
+          set -eo pipefail
+          build() {
+            xcodebuild \
+              -workspace BlueWallet.xcworkspace \
+              -scheme BlueWallet \
+              -configuration "${BUILD_CONFIGURATION}" \
+              -sdk iphonesimulator \
+              -destination 'generic/platform=iOS Simulator' \
+              -derivedDataPath build \
+              CLANG_ENABLE_EXPLICIT_MODULES=NO \
+              SWIFT_ENABLE_EXPLICIT_MODULES=NO \
+              build
+          }
+          build || build
+
+      - name: ccache stats
+        if: always()
+        run: ccache -s || true
+
+      - name: Package simulator app
+        run: |
+          APP_DIR="ios/build/Build/Products/${BUILD_CONFIGURATION}-iphonesimulator/BlueWallet.app"
+          if [ ! -d "$APP_DIR" ]; then
+            echo "Simulator app not found at $APP_DIR"
+            find ios/build -maxdepth 5 -name '*.app' || true
+            exit 1
+          fi
+          tar -czf BlueWallet.app.tar.gz -C "$(dirname "$APP_DIR")" "$(basename "$APP_DIR")"
+
+      - name: Upload simulator app
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: bluewallet-ios-app
+          path: BlueWallet.app.tar.gz
+          retention-days: 3
+          compression-level: 0
+          if-no-files-found: error
+
+  test:
+    runs-on: macos-26
+    needs: build
+    env:
+      HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
+      HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci || npm ci
+
+      - name: Install applesimutils
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+
+      - name: Download simulator app
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: bluewallet-ios-app
+
+      - name: Restore simulator app
+        run: |
+          mkdir -p ios/build/Build/Products/Release-iphonesimulator
+          tar -xzf BlueWallet.app.tar.gz -C ios/build/Build/Products/Release-iphonesimulator
+
+      - name: Disable simulator animations
+        run: defaults write com.apple.iphonesimulator SlowMotionAnimation -bool NO
+
+      # Pre-boot simulator so first detox launchApp lands warm.
+      - name: Pre-boot iOS simulator
+        run: |
+          DEVICE_TYPE=$(jq -r '.devices.simulator.device.type' .detoxrc.json)
+          UDID=$(applesimutils --list --byType "$DEVICE_TYPE" | jq -r '.[0].udid // empty')
+          if [ -z "$UDID" ]; then
+            echo "ERROR: no simulator of type '$DEVICE_TYPE' found"
+            exit 1
+          fi
+          xcrun simctl boot "$UDID" 2>/dev/null || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
+
+      - name: Run detox tests
+        timeout-minutes: 360
+        run: |
+          npm run e2e:test:ios-release -- \
+            --record-videos failing \
+            --record-logs failing \
+            --take-screenshots failing \
+            --headless \
+            --retries 3 \
+            --reuse \
+            --artifacts-location ./artifacts
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure()
+        with:
+          name: e2e-ios-videos
+          path: ./artifacts/

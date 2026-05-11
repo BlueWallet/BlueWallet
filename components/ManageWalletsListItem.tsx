@@ -1,17 +1,43 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { StyleSheet, ViewStyle, TouchableOpacity, ActivityIndicator, Platform, Animated, View, Text, TextStyle } from 'react-native';
+import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View, Text, Pressable } from 'react-native';
+import { useLocale } from '@react-navigation/native';
 import { Swipeable } from 'react-native-gesture-handler';
-import Icon from './Icon';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
-import { WalletCarouselItem } from './WalletsCarousel';
+import loc from '../loc';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import loc from '../loc';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { AddressItem } from './addresses/AddressItem';
 import { ItemType, AddressItemData } from '../models/itemTypes';
-import WalletGradient from '../class/wallet-gradient';
+import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
+import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-wallet';
+import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
+import WalletListItem from './WalletListItem';
+
+const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefined => {
+  const w: unknown = wallet;
+  if (w instanceof AbstractHDElectrumWallet) return w;
+  if (w instanceof WatchOnlyWallet) {
+    const inner: unknown = w._hdWalletInstance;
+    if (inner instanceof AbstractHDElectrumWallet) return inner;
+  }
+  return undefined;
+};
+
+const getWalletIconImage = (walletType: string, direction: string) => {
+  switch (walletType) {
+    case LightningCustodianWallet.type:
+    case LightningArkWallet.type:
+      return direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+    case MultisigHDWallet.type:
+      return direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
+    default:
+      return direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
+  }
+};
 
 interface WalletItem {
   type: ItemType.WalletSection;
@@ -33,39 +59,19 @@ type Item = WalletItem | TransactionItem | AddressItem;
 interface ManageWalletsListItemProps {
   item: Item;
   isDraggingDisabled: boolean;
+  handleToggleHideBalance: (wallet: TWallet) => void;
+  state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
+  navigateToWallet: (wallet: TWallet) => void;
+  navigateToAddress: (address: string, walletID: string) => void;
+  renderHighlightedText: (text: string, query: string) => React.ReactElement;
+  isActive: boolean;
+  globalDragActive: boolean;
   drag?: () => void;
   isPlaceHolder?: boolean;
   onPressIn?: () => void;
   onPressOut?: () => void;
-  state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
-  navigateToWallet: (wallet: TWallet) => void;
-  navigateToAddress?: (address: string, walletID: string) => void;
-  renderHighlightedText: (text: string, query: string) => React.ReactElement;
-  handleToggleHideBalance: (wallet: TWallet) => void;
-  isActive?: boolean;
   style?: ViewStyle;
-  globalDragActive?: boolean;
 }
-
-interface SwipeContentProps {
-  onPress: () => void;
-  hideBalance?: boolean;
-  colors: any;
-}
-
-const LeftSwipeContent: React.FC<SwipeContentProps> = ({ onPress, hideBalance, colors }) => (
-  <TouchableOpacity
-    onPress={onPress}
-    style={[styles.leftButtonContainer, { backgroundColor: colors.buttonAlternativeTextColor } as ViewStyle]}
-    accessibilityRole="button"
-    accessibilityLabel={hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
-  >
-    <Icon name={hideBalance ? 'visibility' : 'visibility-off'} color={colors.brandingColor} type="material" />
-    <Text style={[styles.leftButtonText, { color: colors.brandingColor }]}>
-      {hideBalance ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
-    </Text>
-  </TouchableOpacity>
-);
 
 const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   item,
@@ -76,136 +82,125 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   navigateToWallet,
   navigateToAddress,
   renderHighlightedText,
-  handleToggleHideBalance,
   onPressIn,
   onPressOut,
+  handleToggleHideBalance,
   isActive,
   globalDragActive,
   style,
 }) => {
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
+  const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
-  const [isSwipeActive, setIsSwipeActive] = useState(false);
-  const resetFunctionRef = useRef<(() => void) | null>(null);
-  const swipeableRef = useRef<Swipeable | null>(null);
 
-  const CARD_SORT_ACTIVE = 1.0;
-  const scaleValue = useRef(new Animated.Value(1)).current;
-  const handleOpacity = useRef(new Animated.Value(1)).current;
   const prevIsActive = useRef(isActive);
-
-  const DEFAULT_VERTICAL_MARGIN = 0;
-  const searchLocked = state.searchQuery.length > 0 || state.isSearchFocused === true;
-  const swipeDisabled = item.type === ItemType.WalletSection ? isActive || globalDragActive || searchLocked : true;
-  const hideHandle = item.type === ItemType.WalletSection ? swipeDisabled || isDraggingDisabled : true;
-
-  const animateItemIn = useCallback(() => {
-    Animated.spring(scaleValue, {
-      toValue: isActive ? CARD_SORT_ACTIVE : 1,
-      friction: 7,
-      tension: 80,
-      useNativeDriver: true,
-    }).start();
-  }, [isActive, scaleValue, CARD_SORT_ACTIVE]);
+  const swipeableRef = useRef<Swipeable | null>(null);
+  const swipeInProgressRef = useRef(false);
 
   useEffect(() => {
     if (isActive !== prevIsActive.current) {
       triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     }
     prevIsActive.current = isActive;
-
-    animateItemIn();
-  }, [isActive, globalDragActive, animateItemIn]);
-
-  useEffect(() => {
-    Animated.timing(handleOpacity, {
-      toValue: hideHandle ? 0 : 1,
-      duration: 140,
-      useNativeDriver: true,
-    }).start();
-  }, [hideHandle, handleOpacity]);
+  }, [isActive]);
 
   const onPress = useCallback(() => {
+    if (swipeInProgressRef.current) return;
     if (item.type === ItemType.WalletSection) {
       setIsLoading(true);
       navigateToWallet(item.data);
       setIsLoading(false);
-    } else if (item.type === ItemType.AddressSection && navigateToAddress) {
+    } else if (item.type === ItemType.AddressSection) {
       navigateToAddress(item.data.address, item.data.walletID);
     }
   }, [item, navigateToWallet, navigateToAddress]);
 
-  const handleLeftPress = (reset: () => void) => {
-    handleToggleHideBalance(item.data as TWallet);
-    reset();
-  };
-
-  const leftContent = (reset: () => void) => {
-    resetFunctionRef.current = reset;
-    return <LeftSwipeContent onPress={() => handleLeftPress(reset)} hideBalance={(item.data as TWallet).hideBalance} colors={colors} />;
-  };
-
   const startDrag = useCallback(() => {
-    if (isSwipeActive) {
+    if (swipeInProgressRef.current) {
+      swipeableRef.current?.close?.();
       return;
     }
-
-    if (resetFunctionRef.current) {
-      resetFunctionRef.current();
-    }
-
     triggerHapticFeedback(HapticFeedbackTypes.ImpactMedium);
     if (drag) {
       drag();
     }
-  }, [drag, isSwipeActive]);
+  }, [drag]);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.brandingColor} />;
   }
 
   if (item.type === ItemType.WalletSection) {
-    const animatedStyle = {
-      marginVertical: DEFAULT_VERTICAL_MARGIN,
-      minHeight: 110,
-      paddingHorizontal: 6,
-      transform: [{ scale: scaleValue }],
+    const wallet = item.data;
+    const titleColor = dark ? colors.foregroundColor : colors.darkGray;
+    const iconImage = getWalletIconImage(wallet.type, direction);
+
+    const canSwipe = !isActive && !globalDragActive;
+    const isHidden = !!wallet.hideBalance;
+
+    const onToggle = () => {
+      handleToggleHideBalance(wallet);
+      swipeableRef.current?.close?.();
     };
 
-    const backgroundColor = isActive ? colors.brandingColor : colors.background;
-    const content = (
-      <View style={[style, { backgroundColor }, swipeDisabled ? styles.transparentBackground : {}]}>
-        <WalletCarouselItem
-          item={item.data}
-          handleLongPress={isDraggingDisabled || isSwipeActive ? undefined : startDrag}
-          onPress={onPress}
-          onPressIn={onPressIn}
-          onPressOut={onPressOut}
-          animationsEnabled={false}
-          searchQuery={state.searchQuery}
-          isPlaceHolder={isPlaceHolder}
-          renderHighlightedText={renderHighlightedText}
-          customStyle={styles.carouselItem}
-        />
+    const renderRightActions = () => (
+      <View style={styles.rightActionsContainer}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.rightAction,
+            { backgroundColor: colors.buttonBackgroundColor },
+            pressed && styles.rightActionPressed,
+          ]}
+          onPress={onToggle}
+          accessibilityRole="button"
+        >
+          <Text style={[styles.rightActionText, { color: colors.buttonTextColor }]}>
+            {isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
+          </Text>
+        </Pressable>
       </View>
     );
 
+    const content = (
+      <WalletListItem
+        wallet={wallet}
+        iconImage={iconImage}
+        onPress={onPress}
+        onLongPress={isDraggingDisabled ? undefined : startDrag}
+        delayLongPress={500}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        searchQuery={state.searchQuery || ''}
+        isActive={isActive}
+        borderBottomColor={colors.lightBorder}
+        backgroundColor={colors.background}
+        titleColor={titleColor}
+      />
+    );
+
+    if (!canSwipe) return content;
+
     return (
-      <Animated.View style={animatedStyle}>
-        {swipeDisabled ? (
-          content
-        ) : (
-          <Swipeable
-            ref={swipeableRef}
-            renderLeftActions={() => leftContent(() => swipeableRef.current?.close())}
-            leftThreshold={40}
-            onSwipeableWillOpen={() => setIsSwipeActive(true)}
-            onSwipeableWillClose={() => setIsSwipeActive(false)}
-          >
-            {content}
-          </Swipeable>
-        )}
-      </Animated.View>
+      <Swipeable
+        ref={r => {
+          swipeableRef.current = r;
+        }}
+        onSwipeableWillOpen={() => {
+          swipeInProgressRef.current = true;
+        }}
+        onSwipeableWillClose={() => {
+          swipeInProgressRef.current = false;
+        }}
+        onSwipeableClose={() => {
+          swipeInProgressRef.current = false;
+        }}
+        renderRightActions={renderRightActions}
+        friction={2}
+        rightThreshold={40}
+        overshootRight={false}
+      >
+        {content}
+      </Swipeable>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
     try {
@@ -221,24 +216,14 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       };
 
       return (
-        <Animated.View
-          style={{
-            transform: [{ scale: scaleValue }],
-            opacity: scaleValue.interpolate({
-              inputRange: [0.9, 1],
-              outputRange: [0.7, 1],
-            }),
-          }}
-        >
-          <TransactionListItem
-            item={item.data}
-            itemPriceUnit={w?.getPreferredBalanceUnit() || BitcoinUnit.BTC}
-            walletID={walletID}
-            searchQuery={state.searchQuery}
-            renderHighlightedText={renderHighlightedText}
-            style={transactionStyle}
-          />
-        </Animated.View>
+        <TransactionListItem
+          item={item.data}
+          itemPriceUnit={w?.getPreferredBalanceUnit() || BitcoinUnit.BTC}
+          walletID={walletID}
+          searchQuery={state.searchQuery}
+          renderHighlightedText={renderHighlightedText}
+          style={transactionStyle}
+        />
       );
     } catch (e) {
       console.warn('Error rendering transaction item:', e);
@@ -259,25 +244,13 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       },
       balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
       walletID: item.data.walletID,
-      allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
-      onPress: navigateToAddress ? () => navigateToAddress(item.data.address, item.data.walletID) : undefined,
+      allowSignVerifyMessage: wallet.allowSignVerifyMessage(),
+      onPress: () => navigateToAddress(item.data.address, item.data.walletID),
       searchQuery: state.searchQuery,
       renderHighlightedText,
     };
 
-    return (
-      <Animated.View
-        style={{
-          transform: [{ scale: scaleValue }],
-          opacity: scaleValue.interpolate({
-            inputRange: [0.9, 1],
-            outputRange: [0.7, 1],
-          }),
-        }}
-      >
-        <AddressItem {...addressItemProps} />
-      </Animated.View>
-    );
+    return <AddressItem {...addressItemProps} />;
   }
 
   return null;
@@ -290,9 +263,8 @@ interface WalletGroupProps {
   addresses: AddressItem[];
   state: { wallets: TWallet[]; searchQuery: string };
   navigateToWallet: (wallet: TWallet) => void;
-  navigateToAddress?: (address: string, walletID: string) => void;
+  navigateToAddress: (address: string, walletID: string) => void;
   renderHighlightedText: (text: string, query: string) => React.ReactElement;
-  isSearching: boolean;
 }
 
 const WalletGroupComponent: React.FC<WalletGroupProps> = ({
@@ -303,11 +275,12 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
   navigateToWallet,
   navigateToAddress,
   renderHighlightedText,
-  isSearching,
 }) => {
-  const { colors } = useTheme();
-  const [expanded] = useState(true); // Always show child items when searching
+  const { colors, dark } = useTheme();
+  const { direction } = useLocale();
+  const [expanded] = useState(true);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const hdElectrum = getHdElectrumWallet(wallet);
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -317,189 +290,149 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
     }).start();
   }, [fadeAnim]);
 
-  const walletGradientColors = WalletGradient.gradientsFor(wallet.type);
-  const primaryColor = walletGradientColors[0];
-
-  const containerStyle: ViewStyle = {
-    marginHorizontal: 8,
+  const cardRadius = 16;
+  const cardShadowStyle: ViewStyle = {
+    marginHorizontal: 16,
     marginVertical: 10,
-    borderRadius: 10,
-    overflow: 'hidden' as const,
-    backgroundColor: colors.elevated,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: primaryColor + '30',
+    borderRadius: cardRadius,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   };
 
-  const headerStyle: ViewStyle = {
-    padding: 12,
-    backgroundColor: primaryColor + '15', // Using translucent primary color as background
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    borderTopWidth: Platform.OS === 'ios' ? 4 : 2,
-    borderTopColor: primaryColor,
-    paddingVertical: 12,
+  const cardBorderColor = dark ? colors.lightBorder : colors.borderTopColor;
+
+  const cardInnerStyle: ViewStyle = {
+    borderRadius: cardRadius,
+    overflow: 'hidden' as const,
+    backgroundColor: colors.elevated,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: cardBorderColor,
   };
 
   const childItemsContainerStyle = {
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
     backgroundColor: colors.elevated,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: primaryColor + '20',
   };
 
   const childItemStyle = (): ViewStyle => ({
-    borderLeftWidth: 3,
-    borderLeftColor: primaryColor,
-    backgroundColor: colors.inputBackgroundColor,
+    backgroundColor: colors.elevated,
   });
 
-  const sectionHeaderStyle: ViewStyle = {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: primaryColor + '10',
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: primaryColor + '30',
-  };
+  const walletHeaderBackgroundColor = dark ? colors.elevated : '#F9F9F9';
 
-  const sectionHeaderTextStyle: TextStyle = {
-    color: colors.foregroundColor,
-    fontWeight: '600' as const,
-    fontSize: 14,
-  };
-
-  const dividerStyle = [styles.itemDivider, { backgroundColor: primaryColor + '20' }];
+  const dividerStyle = [styles.itemDivider, { backgroundColor: cardBorderColor }];
 
   const onWalletPress = useCallback(() => {
     navigateToWallet(wallet);
   }, [navigateToWallet, wallet]);
 
-  return (
-    <Animated.View style={{ opacity: fadeAnim }}>
-      <View style={containerStyle}>
-        {/* Wallet Header */}
-        <View style={headerStyle}>
-          <WalletCarouselItem
-            item={wallet}
-            handleLongPress={undefined}
-            onPress={onWalletPress}
-            animationsEnabled={false}
+  const titleColor = dark ? colors.foregroundColor : colors.darkGray;
+  const iconImage = getWalletIconImage(wallet.type, direction);
+
+  const renderAddress = (address: AddressItem, index: number) => {
+    const computedBalance = hdElectrum?.getBalanceForExternalIndex(address.data.index) ?? 0;
+    const computedTransactions = hdElectrum?.getTransactionCountForExternalIndex(address.data.index) ?? 0;
+
+    return (
+      <View key={`addr-${index}`}>
+        <View style={childItemStyle()}>
+          <AddressItem
+            item={{
+              key: address.data.address,
+              index: address.data.index,
+              address: address.data.address,
+              isInternal: address.data.isInternal,
+              balance: computedBalance,
+              transactions: computedTransactions,
+            }}
+            balanceUnit={wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC}
+            walletID={address.data.walletID}
+            allowSignVerifyMessage={wallet.allowSignVerifyMessage()}
+            onPress={() => navigateToAddress(address.data.address, address.data.walletID)}
             searchQuery={state.searchQuery}
-            isPlaceHolder={false}
             renderHighlightedText={renderHighlightedText}
-            customStyle={styles.carouselItem}
-            sizeVariant="compact"
           />
         </View>
+        {index < addresses.length - 1 && <View style={dividerStyle} />}
+      </View>
+    );
+  };
 
-        {/* Search results container */}
-        {expanded && (
-          <View style={childItemsContainerStyle}>
-            {/* Transactions section */}
-            {transactions.length > 0 && (
-              <>
-                <View style={sectionHeaderStyle}>
-                  <Text style={sectionHeaderTextStyle}>
-                    {loc.addresses.transactions} ({transactions.length})
-                  </Text>
-                </View>
-                {transactions.map((transaction, index) => (
-                  <View key={`tx-${index}`}>
-                    <View style={childItemStyle()}>
-                      <TransactionListItem
-                        item={transaction.data}
-                        itemPriceUnit={wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC}
-                        walletID={wallet.getID()}
-                        searchQuery={state.searchQuery}
-                        renderHighlightedText={renderHighlightedText}
-                      />
-                    </View>
-                    {index < transactions.length - 1 && <View style={dividerStyle} />}
-                  </View>
-                ))}
-              </>
-            )}
+  return (
+    <Animated.View style={{ opacity: fadeAnim }}>
+      <View style={cardShadowStyle}>
+        <View style={cardInnerStyle}>
+          <WalletListItem
+            wallet={wallet}
+            iconImage={iconImage}
+            onPress={onWalletPress}
+            searchQuery={state.searchQuery || ''}
+            borderBottomColor={cardBorderColor}
+            backgroundColor={walletHeaderBackgroundColor}
+            titleColor={titleColor}
+          />
 
-            {/* Addresses section */}
-            {addresses.length > 0 && (
-              <>
-                <View style={sectionHeaderStyle}>
-                  <Text style={sectionHeaderTextStyle}>
-                    {loc.addresses.addresses_title} ({addresses.length})
-                  </Text>
-                </View>
-                {addresses.map((address, index) => {
-                  const addressItemProps = {
-                    item: {
-                      key: address.data.address,
-                      index: address.data.index,
-                      address: address.data.address,
-                      isInternal: address.data.isInternal,
-                      balance: 0,
-                      transactions: 0,
-                    },
-                    balanceUnit: wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC,
-                    walletID: address.data.walletID,
-                    allowSignVerifyMessage: wallet.allowSignVerifyMessage ? wallet.allowSignVerifyMessage() : false,
-                    // Use the onPress function returned by navigateToAddress instead of calling it directly
-                    onPress: navigateToAddress ? () => navigateToAddress(address.data.address, address.data.walletID) : undefined,
-                    searchQuery: state.searchQuery,
-                    renderHighlightedText,
-                  };
-
-                  return (
-                    <View key={`addr-${index}`}>
+          {expanded && (
+            <View style={childItemsContainerStyle}>
+              {transactions.length > 0 && (
+                <>
+                  {transactions.map((transaction, index) => (
+                    <View key={`tx-${index}`}>
                       <View style={childItemStyle()}>
-                        <AddressItem {...addressItemProps} />
+                        <TransactionListItem
+                          item={transaction.data}
+                          itemPriceUnit={wallet.getPreferredBalanceUnit() || BitcoinUnit.BTC}
+                          walletID={wallet.getID()}
+                          searchQuery={state.searchQuery}
+                          renderHighlightedText={renderHighlightedText}
+                        />
                       </View>
-                      {index < addresses.length - 1 && <View style={dividerStyle} />}
+                      {index < transactions.length - 1 && <View style={dividerStyle} />}
                     </View>
-                  );
-                })}
-              </>
-            )}
-          </View>
-        )}
+                  ))}
+                </>
+              )}
+
+              {addresses.length > 0 && <>{addresses.map(renderAddress)}</>}
+            </View>
+          )}
+        </View>
       </View>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
-  leftButtonContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  leftButtonText: {
-    marginTop: 6,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  carouselItem: {
-    flex: 1,
-    flexBasis: 0,
-    flexShrink: 1,
-    maxWidth: '100%',
-    alignSelf: 'stretch',
-    overflow: 'hidden',
-  },
-  transparentBackground: {
-    backgroundColor: 'transparent',
-  },
   itemDivider: {
     height: 1,
     width: '100%',
   },
+  rightActionsContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  rightAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    height: '100%',
+  },
+  rightActionPressed: {
+    opacity: 0.85,
+  },
+  rightActionText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
 });
 
-export { LeftSwipeContent, WalletGroupComponent };
+export { WalletGroupComponent };
 export default ManageWalletsListItem;

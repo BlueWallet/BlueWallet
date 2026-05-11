@@ -1,7 +1,8 @@
 import type { HostComponent } from 'react-native';
 import type { ViewProps } from 'react-native';
 import type { BubblingEventHandler, Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
-import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+import { codegenNativeComponent } from 'react-native';
+
 
 type SegmentedControlChangeEvent = Readonly<{
   selectedIndex: Int32;
