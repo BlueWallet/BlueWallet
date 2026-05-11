@@ -365,7 +365,6 @@
     "rbf_title": "Nosta siirtomaksua (RBF)",
     "status_bump": "Nosta siirtomaksua",
     "status_cancel": "Peruuta Siirtotapahtuma",
-    "transactions_count": "Siirtotapahtumien määrä",
     "txid": "Siirtotapahtuman tunnus",
     "from": "Lähettäjä: {counterparty}",
     "to": "Vastaanottaja: {counterparty}",

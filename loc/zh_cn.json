@@ -379,7 +379,6 @@
     "rbf_title": "追加矿工费（RBF）",
     "status_bump": "追加矿工费",
     "status_cancel": "取消交易",
-    "transactions_count": "交易数量",
     "txid": "交易 ID",
     "from": "从：{counterparty}",
     "to": "到：{counterparty}",

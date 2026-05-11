@@ -203,7 +203,6 @@
     "received_with_amount": "+{amt1} ({amt2})",
     "list_title": "Транзакції",
     "transaction": "Деталі транзакції",
-    "transactions_count": "Кількість Транзакцій",
     "updating": "Оновлення..."
   },
   "wallets": {

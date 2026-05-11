@@ -379,7 +379,6 @@
     "rbf_title": "급행 수수료(CPFP)",
     "status_bump": "급행 수수료",
     "status_cancel": "트랜잭션 취소",
-    "transactions_count": "거래 건수",
     "txid": "트랜잭션 아이디",
     "from": "보낸 대상: {counterparty}",
     "to": "받는 대상: {counterparty}",

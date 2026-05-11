@@ -197,8 +197,7 @@
     "transaction": "ธุรกรรม",
     "rbf_title": "เพิ่มค่าธรรมเนียม (RBF)",
     "status_bump": "เพิ่มค่าธรรมเนียม",
-    "status_cancel": "ยกเลิกธุรกรรม",
-    "transactions_count": "จำนวนธุรกรรม"
+    "status_cancel": "ยกเลิกธุรกรรม"
   },
   "wallets": {
     "add_bitcoin": "บิตคอยน์",

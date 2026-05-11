@@ -158,8 +158,7 @@
     "transaction": "Transakcia",
     "rbf_title": "Navýšiť poplatok za transakciu (RBF)",
     "status_bump": "Navýšiť poplatok",
-    "status_cancel": "Zrušiť transakciu",
-    "transactions_count": "počet transakcií"
+    "status_cancel": "Zrušiť transakciu"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",

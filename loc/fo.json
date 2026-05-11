@@ -379,7 +379,6 @@
     "rbf_title": "Hækka avgjald (RBF)",
     "status_bump": "Hækka avgjald",
     "status_cancel": "Avlýs flyting",
-    "transactions_count": "Flytingar",
     "txid": "Flytingareyðmerki",
     "from": "Frá: {counterparty}",
     "to": "Til: {counterparty}",
