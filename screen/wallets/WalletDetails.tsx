@@ -368,6 +368,7 @@ const WalletDetails: React.FC = () => {
           false,
           loc.lnd.lnurlpay_tipping_claim_button,
         );
+        if (!username) return;
         info = await wallet.claimLnurlPayUsername(username);
         setLnurlPayInfo(info);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -375,7 +376,7 @@ const WalletDetails: React.FC = () => {
 
       const message = info?.lnurl ? 'lightning:' + info.lnurl : info?.url;
       if (message) {
-        await Share.open({ message });
+        await Share.open({ message }).catch(error => console.log('LNURL-pay tipping share canceled:', error.message));
       }
     } catch (error: any) {
       if (error.message !== 'Cancel Pressed') {
