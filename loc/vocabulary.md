@@ -275,6 +275,39 @@ Each locale lives in its own file under [`vocabulary/`](vocabulary/). One Markdo
 - **ko** `transactions/rbf_title`: `급행 수수료(CPFP)` references CPFP but feature is RBF — fix the acronym.
 - **ar** `cc.change`: `تغيير` (alteration) → `الباقي` (remainder/change).
 - **ar** Azteco strings reference `Atze.co` → `Azte.co`.
+- **pl** `send/broadcastNone`: contains `postaci szestnastkowej` — typo; should be `postaci szesnastkowej`.
+- **pl** `azteco/redeem`: ships `Odbierz` ("collect") for Redeem — recommended is `Zrealizuj` / `Aktywuj` per Bitcoin Core pl / Cake pl.
+- **th** Mnemonic: shipped English passthrough `backup phrase` — should be localised (e.g. `วลีนีโมนิก` / `วลีกู้คืน`).
+- **th** Biometrics: shipped English passthrough `Biometrics` — should be localised (e.g. `ไบโอเมตริก` / `การยืนยันตัวตนทางชีวภาพ`).
+- **th** `send/details_adv_fee_bump`: shipped `อนุญาติให้เพิ่มธรรมเนียมได้` has typo `อนุญาติ` → should be `อนุญาต`.
+- **vi_vn** Vault: shipped UI uses Latin `Vault` — should be Vietnamese `két` / `két an toàn`.
+- **vi_vn** Passphrase: shipped UI keeps Latin `Passphrase` — should be `cụm mật khẩu`.
+- **vi_vn** Derivation path: shipped `Đường dẫn xuất` is incomplete — should be `đường dẫn dẫn xuất`.
+- **vi_vn** Pending: shipped `Đang chờ giải quyết` is wordy — prefer `đang chờ`.
+- **vi_vn** Confirmed: shipped `xác nhận` is verb — should be adjective `đã xác nhận`.
+- **vi_vn** Block explorer: shipped Latin `Block Explorer` — should be `trình khám phá khối`.
+- **vi_vn** Broadcast: shipped `Phát sóng` literally = radio broadcast — prefer `phát đi mạng` / `truyền tải`.
+- **vi_vn** Speed Up: shipped `Tăng phí` collides with Fee Bump — should be `tăng tốc`.
+- **vi_vn** Memo: shipped `Ghi nhớ` (= "remember") is wrong sense — should be `ghi chú`.
+- **vi_vn** Label: shipped `dán nhãn` is verb ("to label") — should be noun `nhãn`.
+- **ms** `settings.groundcontrol_explanation`: body has typo `GrounControl` → `GroundControl`.
+- **ms** mnemonic strings ship misspelling `nemonik` → standard ms `mnemonik`.
+- **ms** `sat/vBait` / `vBait` localise "byte"→"bait" — per convention keep Latin `sat/vByte` / `vByte`.
+- **ms** wallet/vault/hardware-wallet/master-fingerprint/plausible-deniability strings ship Title Case (`Dompet`, `Dompet Perkakas`, `Cap Jari Induk`, etc.) — should be lowercase.
+- **ms** `XPUB` shipped uppercase; convention prefers lowercase `xpub`.
+- **ms** `transactions/output` UI uses `Kepada` (= "To:" preposition) for transaction-output noun — must be a noun (`keluaran`).
+- **ms** `cc.change`: shipped `Ubah` (verb "to change/modify") → noun form (`baki` / `duit baki`).
+- **ms** `unconfirmed`: shipped `tak terperaku` uses uncommon root `peraku` — prefer standard root `sah` (`belum disahkan` / `tidak disahkan`).
+- **ms** `confirmed`: shipped `perakuan` is a noun using non-standard `peraku` — prefer `disahkan` (adj).
+- **ms** `cpfp_exp`: glosses CPFP as `Cabang Pembayar Fi Pokok` (creative backronym, not standard) — use plain gloss "anak bayar untuk induk".
+- **ms** Payment shipped `Bayar` is a verb — should be noun (`bayaran` / `pembayaran`).
+- **ms** Frozen shipped `Bekukan` is a verb ("freeze!") — should be adj/state (`dibekukan` / `beku`).
+- **ms** Passcode shipped `Kata Laluan` collides with password term — use `kod laluan`.
+- **ms** Restore shipped `mengembalikan` is gerund — prefer base verb `kembalikan`.
+- **ms** Confirm shipped `Pasti` (= "sure/certain") is awkward — use `sahkan`.
+- **ms** Clipboard shipped `Papan Sepit` (= "pinching board") is non-standard — prefer `papan klip`.
+- **ms** Label shipped `melabel` is verb form — should be noun (`label` / `tanda`).
+- **ms** Coin Control shipped Title Case — should be lowercase `kawalan UTXO` / `kawalan duit`.
 
 ### Ambiguity / consistency issues
 
@@ -287,6 +320,17 @@ Each locale lives in its own file under [`vocabulary/`](vocabulary/). One Markdo
 - **zh_cn** `sat/vByte` rendered `聪/字节` drops the "v" prefix; technically incorrect vs SegWit-aware vByte.
 - **jp** `wallets/details_derivation_path`: drop redundant English `(derivation path)` parenthetical.
 - **ar** `wallets/details_derivation_path`: drop redundant English `(derivation path)` parenthetical.
+- **da** shipped UI: `XPUB` uppercase — vocabulary prefers lowercase `xpub`.
+- **th** shipped UI: `XPUB` uppercase — vocabulary prefers lowercase `xpub`.
+- **th** Confirmed: shipped `ยืนยัน` is verb form — prefer adj/state `ยืนยันแล้ว`.
+- **th** `wallets/import_passphrase` Passcode: shipped `รหัสผ่าน` collides with "password" — use distinct form (e.g. `รหัสผ่านอุปกรณ์` / `PIN`).
+- **id** shipped UI: `LNDHub` casing — vocabulary prefers `LNDhub` per glossary casing.
+- **id** shipped UI: `XPUB` uppercase — vocabulary prefers lowercase `xpub`.
+- **id** shipped UI mixes `backup` Latin — prefer `cadangan` per Bitcoin Core id + Cake id.
+- **id** shipped UI: `setting` is an anglicism — fix to `pengaturan` per Bitcoin Core id + Cake id.
+- **id** shipped UI: `Tarif` for Fee (= tariff/rate) is misleading — prefer `biaya` per id.wikipedia.org/wiki/Bitcoin.
+- **vi_vn** shipped UI: `XPUB` uppercase — vocabulary prefers lowercase `xpub`.
+- **vi_vn** Passcode: shipped `Mật khẩu` collides with "password" — should be `mã PIN` / `mã mở khóa`.
 
 ---
 
