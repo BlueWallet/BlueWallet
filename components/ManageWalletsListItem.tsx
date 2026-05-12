@@ -1,4 +1,5 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
+import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { TransactionListItem } from './TransactionListItem';
