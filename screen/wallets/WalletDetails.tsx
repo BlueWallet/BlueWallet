@@ -37,8 +37,18 @@ import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
+
+function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: number | null } {
+  if (typeof w.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null };
+  try {
+    return { hasCoinControl: true, utxoCount: w.getUtxo().length };
+  } catch {
+    return { hasCoinControl: false, utxoCount: null };
+  }
+}
+
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, txMetadata, handleWalletDeletion } = useStorage();
+  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, sleep } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -64,15 +74,38 @@ const WalletDetails: React.FC = () => {
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
-  const { hasCoinControl, utxoCount } = useMemo(() => {
-    if (typeof wallet.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null as number | null };
-    try {
-      const count = wallet.getUtxo().length;
-      return { hasCoinControl: true, utxoCount: count };
-    } catch {
-      return { hasCoinControl: false, utxoCount: null };
-    }
-  }, [wallet]);
+  const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
+
+  useEffect(() => {
+    const w = wallets.find(x => x.getID() === walletID);
+    if (w) setCoinControlStats(getCoinControlStats(w));
+  }, [wallets, walletID]);
+
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      const w = wallets.find(x => x.getID() === walletID);
+      if (!w || typeof w.getUtxo !== 'function') return;
+
+      const refresh = async () => {
+        if (typeof w.fetchUtxo === 'function') {
+          try {
+            await Promise.race([w.fetchUtxo(), sleep(12000)]);
+          } catch {
+            // Same pattern as CoinControl: timeout or network errors; still re-read getUtxo() below.
+          }
+        }
+        if (!cancelled) setCoinControlStats(getCoinControlStats(w));
+      };
+
+      refresh().catch(() => {});
+      return () => {
+        cancelled = true;
+      };
+    }, [wallets, walletID, sleep]),
+  );
+
+  const { hasCoinControl, utxoCount } = coinControlStats;
   const derivationPath = useMemo<string | null>(() => {
     try {
       // @ts-expect-error: Need to fix later
