@@ -25,6 +25,7 @@ import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from 
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import DraggableFlatList, { RenderItemParams, DragEndParams } from 'react-native-draggable-flatlist';
 import { ItemType, AddressItemData } from '../../models/itemTypes';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import ManageWalletsListItem, { WalletGroupComponent } from '../../components/ManageWalletsListItem';
 import HighlightedText from '../../components/HighlightedText';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -414,7 +415,10 @@ const ManageWallets: React.FC = () => {
         accessibilityRole="button"
         accessibilityLabel={loc._.close}
         style={styles.button}
-        onPress={goBack}
+        onPress={() => {
+          triggerHapticFeedback(HapticFeedbackTypes.Selection);
+          goBack();
+        }}
         testID="NavigationCloseButton"
       >
         <Image source={closeImage} />
@@ -427,8 +431,14 @@ const ManageWallets: React.FC = () => {
     const searchBarOptions = {
       hideWhenScrolling: false,
       onChangeText: (event: { nativeEvent: { text: any } }) => debouncedSearch(event.nativeEvent.text),
-      onClear: () => debouncedSearch(''),
-      onFocus: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true }),
+      onClear: () => {
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
+        debouncedSearch('');
+      },
+      onFocus: () => {
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
+        dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true });
+      },
       onBlur: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false }),
       placeholder: loc.wallets.manage_wallets_search_placeholder,
     };
@@ -496,6 +506,31 @@ const ManageWallets: React.FC = () => {
     [state.walletsCopy, setWalletsWithNewOrder],
   );
 
+  const handleChangeWalletUnit = useCallback(
+    (wallet: TWallet) => {
+      const current = wallet.getPreferredBalanceUnit();
+      let next: BitcoinUnit;
+      if (current === BitcoinUnit.BTC) {
+        next = BitcoinUnit.SATS;
+      } else if (current === BitcoinUnit.SATS) {
+        next = BitcoinUnit.LOCAL_CURRENCY;
+      } else {
+        next = BitcoinUnit.BTC;
+      }
+      const walletID = wallet.getID();
+      const updatedWallets = deepCopyWallets(state.walletsCopy).map(w => {
+        if (w.getID() === walletID) {
+          w.setPreferredBalanceUnit(next);
+        }
+        return w;
+      });
+      setWalletsWithNewOrder(updatedWallets);
+      dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
+    },
+    [state.walletsCopy, setWalletsWithNewOrder],
+  );
+
   const renderListItem = useCallback(
     (item: Item, drag: (() => void) | undefined, isActive: boolean) => {
       const compatibleState = {
@@ -523,6 +558,7 @@ const ManageWallets: React.FC = () => {
           item={item}
           isDraggingDisabled={isDragDisabled}
           handleToggleHideBalance={handleToggleHideBalance}
+          handleChangeWalletUnit={handleChangeWalletUnit}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
           navigateToAddress={navigateToAddress}
@@ -535,6 +571,7 @@ const ManageWallets: React.FC = () => {
     },
     [
       handleToggleHideBalance,
+      handleChangeWalletUnit,
       state.walletsCopy,
       state.searchQuery,
       state.isSearchFocused,
@@ -618,6 +655,7 @@ const ManageWallets: React.FC = () => {
           style={({ pressed }) => [styles.clearSearchButton, stylesHook.clearSearchButton, pressed && styles.clearSearchButtonPressed]}
           android_ripple={{ color: colors.buttonDisabledTextColor, borderless: false }}
           onPress={() => {
+            triggerHapticFeedback(HapticFeedbackTypes.Selection);
             dispatch({ type: SET_SEARCH_QUERY, payload: '' });
             dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
           }}
