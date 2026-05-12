@@ -224,8 +224,6 @@
     "about_selftest_ok": "Todos os testes internos foram aprovados com sucesso. A carteira funciona bem.",
     "about_sm_github": "GitHub",
     "about_sm_telegram": "Canal Telegram",
-    "privacy_temporary_screenshots": "Permitir captura de ecrã",
-    "privacy_temporary_screenshots_instructions": "A proteção contra captura de ecrã será temporariamente desativada, permitindo capturas e gravaç de ecrã e gravações de ecrã. A proteção será reativada automaticamente quando fechar e reabrir o BlueWallet.",
     "biometrics": "Biometria",
     "biometrics_no_longer_available": "As configurações do seu dispositivo foram alteradas e já não correspondem às configurações de segurança selecionadas na aplicação. Reative a biometria ou a senha e reinicie a aplicação para aplicar essas alterações.",
     "biom_10times": "Tentou introduzir a sua palavra-passe 10 vezes. Deseja redefinir o seu armazenamento? Isto irá remover todas as carteiras e desencriptar o seu armazenamento.",

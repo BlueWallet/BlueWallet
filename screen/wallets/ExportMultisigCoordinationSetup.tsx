@@ -10,8 +10,6 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { ExportMultisigCoordinationSetupStackRootParamList } from '../../navigation/ExportMultisigCoordinationSetupStack';
-import { useSettings } from '../../hooks/context/useSettings';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeArea from '../../components/SafeArea';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { stringToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -76,11 +74,9 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   const { params } = useRoute<RouteProp<ExportMultisigCoordinationSetupStackRootParamList, 'ExportMultisigCoordinationSetup'>>();
   const walletID = params.walletID;
   const { wallets } = useStorage();
-  const { isPrivacyBlurEnabled } = useSettings();
   const wallet: TWallet | undefined = wallets.find(w => w.getID() === walletID);
   const dynamicQRCode = useRef<any>(null);
   const { colors } = useTheme();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
   const navigation = useNavigation();
   const stylesHook = StyleSheet.create({
@@ -136,17 +132,6 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
       };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      if (isPrivacyBlurEnabled) {
-        enableScreenProtect();
-      }
-      return () => {
-        disableScreenProtect();
-      };
-    }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]),
   );
 
   useFocusEffect(

@@ -16,8 +16,6 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { useSettings } from '../../hooks/context/useSettings';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CreateTransactionTarget } from '../../class/wallets/types';
@@ -34,7 +32,6 @@ const SendCreate = () => {
   } = useRoute<RouteProp<SendDetailsStackParamList, 'CreateTransaction'>>().params;
   const transaction = bitcoin.Transaction.fromHex(tx);
   const size = transaction.virtualSize();
-  const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
   const { setOptions } = useNavigation();
 
@@ -55,18 +52,6 @@ const SendCreate = () => {
       color: colors.foregroundColor,
     },
   });
-
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-
-  useEffect(() => {
-    console.log('send/create - useEffect');
-    if (isPrivacyBlurEnabled) {
-      enableScreenProtect();
-    }
-    return () => {
-      disableScreenProtect();
-    };
-  }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
 
   const exportTXN = useCallback(async () => {
     const fileName = `${Date.now()}.txn`;

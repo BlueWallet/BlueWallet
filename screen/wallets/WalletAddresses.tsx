@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
-import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { AddressItem } from '../../components/addresses/AddressItem';
@@ -11,8 +11,6 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import SegmentedControl from '../../components/SegmentedControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { useSettings } from '../../hooks/context/useSettings';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 
 export const TABS = {
   EXTERNAL: 'receive',
@@ -127,8 +125,6 @@ const WalletAddresses: React.FC = () => {
   const allowSignVerifyMessage = (wallet && 'allowSignVerifyMessage' in wallet && wallet.allowSignVerifyMessage()) ?? false;
 
   const { colors } = useTheme();
-  const { isPrivacyBlurEnabled } = useSettings();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { setOptions } = useExtendedNavigation<NavigationProps>();
 
   const stylesHook = StyleSheet.create({
@@ -138,15 +134,6 @@ const WalletAddresses: React.FC = () => {
       paddingBottom: 16,
     },
   });
-
-  useFocusEffect(
-    useCallback(() => {
-      if (isPrivacyBlurEnabled) enableScreenProtect();
-      return () => {
-        disableScreenProtect();
-      };
-    }, [disableScreenProtect, enableScreenProtect, isPrivacyBlurEnabled]),
-  );
 
   const getAddresses = useMemo(() => {
     if (!walletInstance) return [];

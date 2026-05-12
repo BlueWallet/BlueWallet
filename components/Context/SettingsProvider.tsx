@@ -79,8 +79,6 @@ interface SettingsContextType {
   setLanguageStorage: (language: string) => Promise<void>;
   isHandOffUseEnabled: boolean;
   setIsHandOffUseEnabledAsyncStorage: (value: boolean) => Promise<void>;
-  isPrivacyBlurEnabled: boolean;
-  setIsPrivacyBlurEnabled: (value: boolean) => void;
   isDoNotTrackEnabled: boolean;
   setDoNotTrackStorage: (value: boolean) => Promise<void>;
   isWidgetBalanceDisplayAllowed: boolean;
@@ -108,8 +106,6 @@ const defaultSettingsContext: SettingsContextType = {
   setLanguageStorage: async () => {},
   isHandOffUseEnabled: false,
   setIsHandOffUseEnabledAsyncStorage: async () => {},
-  isPrivacyBlurEnabled: true,
-  setIsPrivacyBlurEnabled: () => {},
   isDoNotTrackEnabled: false,
   setDoNotTrackStorage: async () => {},
   isWidgetBalanceDisplayAllowed: true,
@@ -136,7 +132,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [preferredFiatCurrency, setPreferredFiatCurrencyState] = useState<TFiatUnit>(FiatUnit.USD);
   const [language, setLanguage] = useState<string>('en');
   const [isHandOffUseEnabled, setIsHandOffUseEnabledState] = useState<boolean>(false);
-  const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState<boolean>(true);
   const [isDoNotTrackEnabled, setIsDoNotTrackEnabled] = useState<boolean>(false);
   const [isWidgetBalanceDisplayAllowed, setIsWidgetBalanceDisplayAllowed] = useState<boolean>(true);
   const [isLegacyURv1Enabled, setIsLegacyURv1Enabled] = useState<boolean>(false);
@@ -344,8 +339,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setLanguageStorage,
       isHandOffUseEnabled,
       setIsHandOffUseEnabledAsyncStorage,
-      isPrivacyBlurEnabled,
-      setIsPrivacyBlurEnabled,
       isDoNotTrackEnabled,
       setDoNotTrackStorage,
       isWidgetBalanceDisplayAllowed,
@@ -372,8 +365,6 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setLanguageStorage,
       isHandOffUseEnabled,
       setIsHandOffUseEnabledAsyncStorage,
-      isPrivacyBlurEnabled,
-      setIsPrivacyBlurEnabled,
       isDoNotTrackEnabled,
       setDoNotTrackStorage,
       isWidgetBalanceDisplayAllowed,

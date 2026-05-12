@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import Icon from '../../components/Icon';
 import { LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'react-native';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { BlueText } from '../../BlueComponents';
@@ -14,9 +13,8 @@ import QRCode from '../../components/QRCode';
 import SeedWords from '../../components/SeedWords';
 import { useTheme } from '../../components/themes';
 import { HandOffActivityType } from '../../components/types';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
-import useAppState from '../../hooks/useAppState';
+import { useScreenshotWarning } from '../../hooks/useScreenshotWarning';
 import loc from '../../loc';
 import { WalletExportStackParamList } from '../../navigation/WalletExportStack';
 import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
@@ -59,13 +57,9 @@ const DoNotDisclose: React.FC = () => {
 const WalletExport: React.FC = () => {
   const { wallets } = useStorage();
   const { walletID } = useRoute<RouteProps>().params;
-  const navigation = useNavigation();
-  const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
   const wallet = wallets.find(w => w.getID() === walletID)!;
   const [qrCodeSize, setQRCodeSize] = useState(90);
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { currentAppState, previousAppState } = useAppState();
   const stylesHook = StyleSheet.create({
     root: { backgroundColor: colors.elevated },
   });
@@ -96,26 +90,7 @@ const WalletExport: React.FC = () => {
     return validateMnemonic(wallet.getSecret());
   }, [wallet]);
 
-  useEffect(() => {
-    if (previousAppState === 'active' && currentAppState !== 'active') {
-      disableScreenProtect();
-      const timer = setTimeout(() => {
-        navigation.goBack();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentAppState, previousAppState]);
-
-  useEffect(() => {
-    if (isPrivacyBlurEnabled) {
-      enableScreenProtect();
-    }
-    return () => {
-      disableScreenProtect();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPrivacyBlurEnabled]);
+  useScreenshotWarning(secretIsMnemonic);
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;

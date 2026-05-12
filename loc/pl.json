@@ -224,8 +224,6 @@
     "about_selftest_ok": "Wszystkie testy wewnętrzne przebiegły pomyślnie. Portfel działa dobrze.",
     "about_sm_github": "GitHub",
     "about_sm_telegram": "Chat na Telegramie",
-    "privacy_temporary_screenshots": "Zezwól na przechwytywanie ekranu",
-    "privacy_temporary_screenshots_instructions": "Ochrona przed przechwytywaniem ekranu zostanie tymczasowo wyłączona, umożliwiając wykonywanie zrzutów ekranu i nagrań ekranu. Ochrona automatycznie włączy się ponownie po zamknięciu i ponownym uruchomieniu BlueWallet.",
     "biometrics": "Biometria",
     "biometrics_no_longer_available": "Ustawienia twojego urządzenia zostały zmienione i nie są już zgodne z wybranymi ustawieniami bezpieczeństwa w aplikacji. Proszę ponownie włączyć biometrię lub kod dostępu, a następnie uruchomić ponownie aplikację, aby zastosować te zmiany.",
     "biom_10times": "Próbowałeś podać hasło 10 razy. Czy chcesz zresetować magazyn danych? To usunie wszystkie portfele i odszyfruje dane.",

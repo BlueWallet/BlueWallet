@@ -10,7 +10,6 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useTheme } from '../../components/themes';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import loc from '../../loc';
@@ -18,7 +17,6 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
@@ -37,8 +35,6 @@ const ImportWallet = () => {
   const [searchAccountsMenuState, setSearchAccountsMenuState] = useState<boolean>(false);
   const [askPassphraseMenuState, setAskPassphraseMenuState] = useState<boolean>(false);
   const [clearClipboardMenuState, setClearClipboardMenuState] = useState<boolean>(true);
-  const { isPrivacyBlurEnabled } = useSettings();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const styles = StyleSheet.create({
     root: {
       paddingTop: 10,
@@ -155,15 +151,6 @@ const ImportWallet = () => {
     () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} />,
     [toolTipOnPressMenuItem, toolTipActions],
   );
-
-  useEffect(() => {
-    if (isPrivacyBlurEnabled) {
-      enableScreenProtect();
-    }
-    return () => {
-      disableScreenProtect();
-    };
-  }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
 
   useEffect(() => {
     if (triggerImport) handleImport();

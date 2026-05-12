@@ -28,7 +28,6 @@ import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -47,8 +46,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
+  const { isElectrumDisabled } = useSettings();
   const { dispatch, setOptions, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
@@ -152,8 +150,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (isPrivacyBlurEnabled) enableScreenProtect();
-
       // useFocusEffect is called on willAppear (example: when camera dismisses). we want to avoid this.
       if (!hasLoaded.current) {
         setIsLoading(true);
@@ -174,13 +170,9 @@ const ViewEditMultisigCosigners: React.FC = () => {
           if (!cancelled) setIsLoading(false);
         })();
         return () => {
-          disableScreenProtect();
           cancelled = true;
         };
       }
-      return () => {
-        disableScreenProtect();
-      };
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [walletID]),
   );

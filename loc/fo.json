@@ -224,8 +224,6 @@
     "about_selftest_ok": "Allar innankerviskanningarnar eydnaðust. Tí koyrur appin álítandi.",
     "about_sm_github": "GitHub",
     "about_sm_telegram": "Telegram rás",
-    "privacy_temporary_screenshots": "Loyv skíggjaavmyndan",
-    "privacy_temporary_screenshots_instructions": "Skíggjaavmyndan verður fyribils loyvd, soleiðis at skíggjamyndir og upptøkur kunnu takast. Verndin verður sjálvvirkandi virkja aftur, undir næstu koyring av BlueWallet.",
     "biometrics": "Lívmátilig atgongd",
     "biometrics_no_longer_available": "Kervisstillingarnar á tíni eind eru broyttar og samsvara ikki longur við trygdarstillingarnar í appini. Vanliga áset lívmátiliga atgongd ella atgonguloynital aftur, og endurbyrja appina fyri at virkja stillingarnar.",
     "biom_10times": "Tú hevur roynt títt loyniorð 10 ferðir, uttan at tað eydnaðist. Ynskir tú at tómstilla goymsluna? Tað strikar allar mappurnar og avbronglar goymsluna.",
