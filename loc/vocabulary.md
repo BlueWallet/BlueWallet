@@ -18,6 +18,68 @@ Sources: `loc/en.json` (canonical) + each locale file. Strings quoted verbatim w
 
 ---
 
+## External reference translations
+
+When picking or vetting a translation for a new term, cross-check how mature Bitcoin/Lightning wallets render the same term. Cite the source in the Notes column when borrowing a rendering. Do **not** blindly copy — verify the term still matches BlueWallet's UX context first.
+
+### Wallet sources (primary)
+
+| Project | Format | Path / URL | Coverage |
+|---------|--------|------------|----------|
+| **Bitcoin Core** — reference Bitcoin client | Qt `.ts` / `.xlf` per locale | <https://github.com/bitcoin/bitcoin/tree/master/src/qt/locale> (`bitcoin_<locale>.ts`) | Authoritative on-chain vocabulary (transaction, address, fee, mempool, PSBT, RBF, descriptor, UTXO). Most widely-translated. |
+| **Electrum** — long-running reference SPV wallet | gettext `.po` per locale | <https://github.com/spesmilo/electrum-locale/tree/master/locale> (`<locale>/electrum.po`) | Decades of translator polish for on-chain + advanced UX (descriptors, fee bumping, hardware, Lightning). 60+ locales. |
+| **Phoenix** (ACINQ) — Lightning wallet | Android XML `strings.xml` per locale | <https://github.com/ACINQ/phoenix/tree/master/phoenix-android/src/main/res/> (`values-<locale>/strings.xml`) | Strong Lightning vocabulary (invoice, channel, liquidity, swap, BOLT11/12). |
+| **Zeus** (ZeusLN) — Lightning mobile wallet | JSON per locale | <https://github.com/ZeusLN/zeus/tree/master/locales> (`<locale>.json`) | Lightning + node management terms; similar JSON layout to BlueWallet's own files. |
+| **Trezor Suite** — hardware-wallet companion | JSON `messages.json` per locale | <https://github.com/trezor/trezor-suite/tree/develop/packages/suite-data/files/translations> | Multisig / passphrase / derivation / Coinjoin vocabulary; precise hardware-wallet terms. |
+| **Green** (Blockstream) — Bitcoin + Liquid wallet | Compose MP string resources per locale | <https://github.com/Blockstream/green_android/tree/master/compose/src/commonMain/composeResources> (`values-<locale>/strings.xml`) | Multisig, hardware, Lightning + Liquid asset vocabulary. |
+| **Bisq** — P2P Bitcoin exchange | Java `.properties` per locale | <https://github.com/bisq-network/bisq/tree/master/core/src/main/resources/i18n> (`displayStrings_<locale>.properties`) | Trade, fee, escrow, deposit terminology; mature for ~30 languages. |
+| **Cake Wallet** — multi-currency mobile wallet | Flutter `.arb` per locale | <https://github.com/cake-tech/cake_wallet/tree/main/res/values> (`strings_<locale>.arb`) | 25+ languages including non-Latin (Burmese, Hausa, Yoruba, Urdu). Useful when other refs don't cover a locale. |
+| **Mycelium** — Android Bitcoin wallet | Android XML per locale | <https://github.com/mycelium-com/wallet-android/tree/master/mbw/src/main/res> (`values-<locale>/strings.xml`) | Long-standing Android-Bitcoin idioms (legacy mobile vocabulary). |
+| **Samourai Wallet** (archived) — Android privacy wallet | Android XML per locale | <https://github.com/Samourai-Wallet/samourai-wallet-android/tree/develop/app/src/main/res> (`values-<locale>/strings.xml`) | Coin control, mixing, fee bumping. Archive only — verify terms still current. |
+| **Breez** — Lightning self-custodial mobile | Dart i18n | <https://github.com/breez/Breez-Translations> | Lightning UX terms (send, receive, swap, channel state) for the mobile flow. |
+
+### Wikipedia (native-script references)
+
+For locales where wallet projects don't cover the language well, or to validate a culturally-natural rendering of a concept, fetch the **Wikipedia article in that language** for the underlying term. Wikipedia article titles + opening paragraphs are often the most-cited native rendering of a technical concept.
+
+Useful interwiki anchors (English title → follow the language switcher in the left sidebar):
+
+| English term | Wikipedia anchor |
+|--------------|------------------|
+| Bitcoin | <https://en.wikipedia.org/wiki/Bitcoin> |
+| Lightning Network | <https://en.wikipedia.org/wiki/Lightning_Network> |
+| Bitcoin Core | <https://en.wikipedia.org/wiki/Bitcoin_Core> |
+| Cryptographic hash function | <https://en.wikipedia.org/wiki/Cryptographic_hash_function> |
+| Public-key cryptography | <https://en.wikipedia.org/wiki/Public-key_cryptography> |
+| Mnemonic phrase / BIP39 | <https://en.wikipedia.org/wiki/BIP39> |
+| Multi-signature | <https://en.wikipedia.org/wiki/Multisignature> |
+| QR code | <https://en.wikipedia.org/wiki/QR_code> |
+| Hexadecimal | <https://en.wikipedia.org/wiki/Hexadecimal> |
+| Plausible deniability | <https://en.wikipedia.org/wiki/Plausible_deniability> |
+| Tor (network) | <https://en.wikipedia.org/wiki/Tor_(network)> |
+
+Use Wikipedia only as a tie-breaker / cultural validator. Wallet UI prefers a shorter, terser rendering than Wikipedia's article title (e.g. `Адреса` not `Криптовалютна адреса`).
+
+### How to use these
+
+1. Identify the term and target locale (e.g. "derivation path" in Czech).
+2. Open the matching upstream file (Bitcoin Core's `bitcoin_cs.ts`, Electrum's `cs/electrum.po`, etc.).
+3. Search for the English term; copy the established translation if it fits BlueWallet's screen.
+4. If sources disagree, fall back to the Wikipedia article in the target language to see which form is most idiomatic.
+5. Update `loc/<locale>.json` and the corresponding row in `loc/vocabulary/<locale>.md`; in **Notes**, cite the source, e.g. `Notes: matches Bitcoin Core cs` or `Notes: per cs.wikipedia.org/wiki/Lightning_Network`.
+
+### Priority when sources disagree
+
+1. **Bitcoin Core** — on-chain terms (transaction, address, fee, PSBT, RBF, descriptor, UTXO).
+2. **Electrum** — fallback on-chain + early Lightning + hardware.
+3. **Phoenix** / **Zeus** / **Breez** — Lightning-specific (invoice, channel, swap, liquidity).
+4. **Trezor Suite** — multisig, hardware, passphrase, Coinjoin.
+5. **Green** / **Bisq** — tie-breakers; Bisq is good for trade/fee terms.
+6. **Cake** / **Mycelium** / **Samourai** — mobile UX + locales the others miss.
+7. **Wikipedia** in the target language — cultural fit / native rendering.
+
+---
+
 ## Categories
 
 Terms are grouped into 10 categories. Same order is used in the glossary and in every per-language section.
