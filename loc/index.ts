@@ -1,3 +1,6 @@
+// Translation glossary: see ./vocabulary.md for canonical Bitcoin/Lightning term renderings per language.
+// Update vocabulary.md whenever you add a new term or change a shipped translation in a locale .json.
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
