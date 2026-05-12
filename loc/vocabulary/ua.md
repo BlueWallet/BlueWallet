@@ -60,7 +60,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | **_Lightning_** | | |
 | Invoice | інвойс / рахунок | noun · technical / mainstream. |
 | Lightning Invoice | інвойс Lightning / платіжний запит Lightning | noun · technical / mainstream. |
-| Preimage | прообраз | noun · math term; LN context: прообраз платежу. |
+| Preimage | преімідж | noun · transliteration of English "preimage". |
 | Payment | платіж | noun · ⚠️ NOT verb "Оплатити". |
 | Expired | прострочено / термін дії закінчився | adj · short / explanatory. |
 | **_Multisig & advanced addressing_** | | |
