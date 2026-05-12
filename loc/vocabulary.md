@@ -97,137 +97,152 @@ Terms are grouped into 10 categories. Same order is used in the glossary and in 
 
 ---
 
+## Vocabulary entry conventions
+
+These rules apply to every per-language file. The English glossary below uses the same conventions.
+
+1. **POS column.** Every term carries a part-of-speech: `noun` / `verb` / `adj` / `acronym` / `brand`. The Translation in per-language files **must** match the POS. If the English term is a noun, store a noun in the target language. If a UI string actually uses the verb, list both forms (see rule 4).
+2. **Canonical form = noun unless UI uses verb.** Default to the noun form (e.g. *Payment* → noun *Платіж*, **not** verb *Оплатити*). Add the verb form as a secondary entry only when at least one shipped UI string uses it.
+3. **Target-locale natural casing.** Do **not** mirror English Title Case. Use the casing the target locale uses for ordinary nouns (Cyrillic, Greek, Arabic, etc. are usually lowercase). Brand rows are the only exception.
+4. **Multi-form syntax: `compact / explanatory` (or `noun / verb`), leftmost = preferred.** When two valid forms exist (chip-label vs body-text, technical vs mainstream, noun vs verb), list them slash-separated in the Translation column. The Notes column tags them, e.g. `chip / body` or `noun / verb` or `technical / mainstream`. Translator picks the form that fits the screen.
+5. **Brand rows are not translated.** Rows marked `brand` in the POS column keep the English spelling unless the target locale has an established Cyrillic/Hangul/Devanagari/etc. transliteration in widespread use. When in doubt, keep Latin.
+6. **Acronyms stay as-is; gloss is optional.** Rows marked `acronym` keep the English letters (RBF, CPFP, PSBT, WIF, BIP38, BIP47, xpub, UTXO, LNURL). A target-locale explanatory gloss may appear in Notes, never as the Translation value.
+7. **Anti-meaning callouts.** If a term has a dangerous look-alike in many locales (verb-vs-noun, modify-vs-leftover, etc.), the Notes column starts with `⚠️ NOT <wrong meaning>`. Don't drop these callouts when filling.
+8. **Source citation.** When you fill a row from an upstream wallet or Wikipedia, append the source: `Notes: <meaning> · Bitcoin Core cs` or `· uk.wikipedia.org/wiki/<Article>`.
+
+---
+
 ## Glossary of terms
 
 ### 1. Brand & protocol
 
-| Term | Meaning |
-|------|---------|
-| **Bitcoin** | The network/protocol. Capitalised. As the unit, lowercase "bitcoin" or `BTC`. |
-| **Lightning / Lightning Network** | Layer-2 payment network on top of Bitcoin. Brand-style term; usually left in English. |
-| **Electrum (server)** | Electrum protocol server BlueWallet uses for on-chain data. Brand. |
-| **LNDhub** | Custodial Lightning backend service. Brand/proper noun. |
-| **LND** | Lightning Network Daemon. Brand. |
-| **LNURL** | URL-based Lightning protocol family (LNURL-pay, LNURL-withdraw). Brand. |
-| **Tor** | The Tor anonymity network. Brand. |
-| **Orbot** | Tor proxy app on Android required for routing BlueWallet over Tor. Brand. |
-| **GroundControl** | BlueWallet's open-source push-notification server. Brand. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Bitcoin** | brand | The network/protocol. Capitalised. As the unit, lowercase "bitcoin" or `BTC`. |
+| **Lightning / Lightning Network** | brand | Layer-2 payment network on top of Bitcoin. Usually left in English. |
+| **Electrum (server)** | brand | Electrum protocol server BlueWallet uses for on-chain data. |
+| **LNDhub** | brand | Custodial Lightning backend service. |
+| **LND** | brand | Lightning Network Daemon. |
+| **LNURL** | brand | URL-based Lightning protocol family (LNURL-pay, LNURL-withdraw). |
+| **Tor** | brand | The Tor anonymity network. |
+| **Orbot** | brand | Tor proxy app on Android required for routing BlueWallet over Tor. |
+| **GroundControl** | brand | BlueWallet's open-source push-notification server. |
 
 ### 2. Units & amounts
 
-| Term | Meaning |
-|------|---------|
-| **bitcoin / BTC** | Unit of currency. 1 BTC = 100,000,000 sats. |
-| **sats / satoshis** | Smallest Bitcoin unit (1 sat = 0.00000001 BTC). Lowercase. |
-| **sat/vByte** | Fee rate unit: satoshis per virtual byte. Casing matters (lowercase `sat`, capital `B` in `vByte`). |
-| **vByte** | Virtual byte — SegWit-discounted size unit. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **bitcoin / BTC** | noun | Unit of currency. 1 BTC = 100,000,000 sats. `BTC` is the ticker; `bitcoin` is the unit name. |
+| **sats / satoshis** | noun | Smallest Bitcoin unit (1 sat = 0.00000001 BTC). Lowercase. |
+| **sat/vByte** | noun | Fee rate unit: satoshis per virtual byte. Casing matters: lowercase `sat`, capital `B` in `vByte`. |
+| **vByte** | noun | Virtual byte — SegWit-discounted size unit. |
 
 ### 3. Wallet, keys & seeds
 
-| Term | Meaning |
-|------|---------|
-| **Wallet** | A keyset + UI for managing funds. BlueWallet supports many wallet types (HD, SegWit, Taproot, Multisig, Lightning, Watch-only). |
-| **Vault** | BlueWallet's user-facing name for a multisig wallet. |
-| **Watch-only** | Wallet that holds only public keys; can view but not spend. |
-| **Hardware wallet** | External signing device (Coldcard, Trezor, Ledger, etc.). |
-| **Seed** | Often used interchangeably with mnemonic in the UI. |
-| **Mnemonic / Seed phrase** | BIP39 word list that encodes the wallet's master seed. |
-| **Passphrase** | BIP39 optional 25th word. Distinct from device "passcode" or app "password". |
-| **Public key** | Asymmetric pubkey; derives addresses. |
-| **Private key** | Asymmetric privkey; signs transactions. |
-| **WIF** | Wallet Import Format — base58-encoded private key. Acronym kept. |
-| **xpub / extended public key** | BIP32 extended public key. Acronym kept. |
-| **Descriptor** | Output descriptor — script template describing how to spend an output (`wpkh(...)`, `wsh(multi(...))`). |
-| **Derivation path** | BIP32 path describing how a key is derived from the master seed (e.g. `m/84'/0'/0'`). |
-| **Master fingerprint** | First 4 bytes of HASH160(master pubkey). Identifies a wallet's root key. |
-| **BIP38** | Password-protected private-key encoding. Acronym kept. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Wallet** | noun | A keyset + UI for managing funds. Use target-locale lowercase. |
+| **Vault** | noun | BlueWallet's user-facing name for a multisig wallet. **NOT** a brand — translate using target-locale word for "safe / strongbox" (e.g. `сейф`, `Tresor`, `coffre-fort`). |
+| **Watch-only** | adj | Wallet that holds only public keys; can view but not spend. ⚠️ NOT "view mode" / "read mode" — it's specifically a wallet type. |
+| **Hardware wallet** | noun | External signing device (Coldcard, Trezor, Ledger). |
+| **Seed** | noun | The BIP39 mnemonic. In mainstream UI prefer the locale's word for "recovery phrase" over a transliteration of "seed". List both forms when applicable (`seed-фраза / фраза відновлення`). |
+| **Mnemonic / Seed phrase** | noun | BIP39 word list that encodes the wallet's master seed. |
+| **Passphrase** | noun | BIP39 optional 25th word. ⚠️ NOT the device "passcode" and NOT the app "password" — use a distinct word (e.g. `Кодова фраза`, not `Пароль`). |
+| **Public key** | noun | Asymmetric pubkey; derives addresses. Target-locale lowercase. |
+| **Private key** | noun | Asymmetric privkey; signs transactions. Target-locale lowercase. |
+| **WIF** | acronym | Wallet Import Format — base58-encoded private key. Letters kept; gloss in Notes if helpful. |
+| **xpub / extended public key** | acronym | BIP32 extended public key. Letters kept; prefer lowercase `xpub` (only force `XPUB` if the locale's convention does). |
+| **Descriptor** | noun | Output descriptor — script template describing how to spend an output (`wpkh(...)`, `wsh(multi(...))`). |
+| **Derivation path** | noun | BIP32 path (e.g. `m/84'/0'/0'`). |
+| **Master fingerprint** | noun | First 4 bytes of HASH160(master pubkey). Identifies a wallet's root key. |
+| **BIP38** | acronym | Password-protected private-key encoding. Letters kept. ⚠️ NOT a verb / NOT "password" alone — keep `BIP38` as the term. |
 
 ### 4. On-chain transactions
 
-| Term | Meaning |
-|------|---------|
-| **Transaction (tx)** | An on-chain Bitcoin transaction. |
-| **Address** | A destination for receiving on-chain bitcoin. |
-| **Input** | A tx input — spends a previous UTXO. |
-| **Output** | A tx output — creates a spendable UTXO. |
-| **UTXO** | Unspent Transaction Output. Acronym kept. |
-| **Change (output)** | The leftover output that returns to the sender's wallet. |
-| **Hex** | Hexadecimal-encoded transaction blob. |
-| **Pending** | Tx broadcast but not yet in a block. |
-| **Unconfirmed** | Tx in mempool, no confirmations. |
-| **Confirmed** | Tx mined with ≥1 confirmation. |
-| **Mempool** | Pool of unconfirmed transactions. |
-| **Broadcast** | Verb: to submit a signed tx to the network. |
-| **Block explorer** | Web service for viewing on-chain data. |
-| **Onchain** | Layer-1 Bitcoin filter chip. One word in UI. |
-| **Offchain** | Lightning (L2) filter chip. One word in UI. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Transaction (tx)** | noun | An on-chain Bitcoin transaction. |
+| **Address** | noun | A destination for receiving on-chain bitcoin. |
+| **Input** | noun | A tx input — spends a previous UTXO. ⚠️ NOT "login / entrance" — pair with `вихід` / `output` if the locale's "вхід"-like word is ambiguous; list `<short> / <full>` (e.g. `вхід / вхід транзакції`). |
+| **Output** | noun | A tx output — creates a spendable UTXO. ⚠️ NOT the UI recipient label "To:" (that is a separate UI string). |
+| **UTXO** | acronym | Unspent Transaction Output. Letters kept. |
+| **Change (output)** | noun | The leftover output that returns to the sender's wallet. ⚠️ NOT the verb "to change/modify" — must be a noun (e.g. `здача`, `Wechselgeld`, `Resto`). |
+| **Hex** | noun | Hexadecimal-encoded transaction blob. List as `hex / hex-дані / шістнадцяткові дані` style: short form first, explanatory form second. ⚠️ NOT "hash" and NOT "transaction data". |
+| **Pending** | adj | Tx broadcast but not yet in a block. Adjective/state form; **not** the noun "expectation/waiting". |
+| **Unconfirmed** | adj | Tx in mempool, no confirmations. Use the adjective state form. |
+| **Confirmed** | adj | Tx mined with ≥1 confirmation. Adjective state form. |
+| **Mempool** | noun | Pool of unconfirmed transactions. |
+| **Broadcast** | verb / noun | Verb: to submit a signed tx to the network. List both `verb / noun` if both are used in the UI (button vs status). |
+| **Block explorer** | noun | Web service for viewing on-chain data. |
+| **Onchain** | adj | Layer-1 Bitcoin filter chip. List `compact / explanatory` (e.g. `он-чейн / у блокчейні`). |
+| **Offchain** | adj | Lightning (L2) filter chip. List `compact / explanatory` (e.g. `оф-чейн / поза блокчейном`). |
 
 ### 5. Fees & fee bumping
 
-| Term | Meaning |
-|------|---------|
-| **Fee / Network fee / Mining fee** | The miner/network fee paid for an on-chain tx. |
-| **Fee Bump** | Action of raising a tx's fee post-broadcast (umbrella for RBF + CPFP). |
-| **RBF (Replace-by-fee)** | BIP125. Rebroadcasting a tx with a higher fee. Acronym kept; full term often translated. |
-| **CPFP (Child-pays-for-parent)** | Fee-bumping by attaching a high-fee child tx. Acronym kept. |
-| **Speed Up** | User-facing label for RBF in BlueWallet's tx detail screen. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Fee / Network fee / Mining fee** | noun | The miner/network fee paid for an on-chain tx. |
+| **Fee Bump** | noun | Action of raising a tx's fee post-broadcast (umbrella for RBF + CPFP). |
+| **RBF (Replace-by-fee)** | acronym | BIP125. Acronym kept; gloss optional in Notes (e.g. "замінити за комісією"). |
+| **CPFP (Child-pays-for-parent)** | acronym | Fee-bumping by attaching a high-fee child tx. Acronym kept. ⚠️ NOT a verb like "Create" — `CPFP` stays as `CPFP`. |
+| **Speed Up** | verb | User-facing label for RBF in tx detail screen. Verb form (button label). |
 
 ### 6. Lightning
 
-| Term | Meaning |
-|------|---------|
-| **Invoice** | A payment request. In BlueWallet context almost always a Lightning invoice (BOLT11), but the bare word `Invoice` is also used for on-chain payment requests. |
-| **Lightning Invoice** | BOLT11 payment request encoded as `lnbc…`. |
-| **Preimage** | The 32-byte secret that, when hashed, equals the payment hash; revealing it settles a Lightning payment. Proof of payment. |
-| **Payment** | A Lightning payment (distinct from on-chain "Transaction"). |
-| **Expired** | Invoice/state that passed its validity window. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Invoice** | noun | A payment request. List `technical / mainstream` (e.g. `інвойс / рахунок` or `інвойс / платіжний запит`). |
+| **Lightning Invoice** | noun | BOLT11 payment request encoded as `lnbc…`. Pair "Lightning" (brand) with the localised noun: `інвойс Lightning / платіжний запит Lightning`. |
+| **Preimage** | noun | The 32-byte secret that, when hashed, equals the payment hash; revealing it settles a Lightning payment. Math term `preimage` (e.g. `прообраз`). |
+| **Payment** | noun | A Lightning payment (distinct from on-chain "Transaction"). ⚠️ NOT the verb "to pay" — must be a noun (e.g. `Платіж`, **not** `Оплатити`). |
+| **Expired** | adj | Invoice/state that passed its validity window. Adjective/state form. |
 
 ### 7. Multisig & advanced addressing
 
-| Term | Meaning |
-|------|---------|
-| **Co-signer / Signer** | Participant in a multisig setup who provides a signature. |
-| **Quorum** | The m-of-n threshold required to spend from a multisig. |
-| **PSBT** | Partially Signed Bitcoin Transaction (BIP174). Acronym kept. |
-| **Provide signature** | Action: sign a PSBT as one of the multisig co-signers. |
-| **BIP47 / Payment Code** | Reusable, shareable payment code that derives unique addresses per sender. Acronym kept. |
-| **Notification transaction** | BIP47-specific 0-value tx that announces a payment code to the recipient. |
-| **SilentPayment** | BIP352 reusable static address scheme. Spelled as one word in BlueWallet UI. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Co-signer / Signer** | noun | Participant in a multisig setup who provides a signature. ⚠️ NOT "co-owner" — must be a signer noun (e.g. `співпідписант`, **not** `співвласник`). |
+| **Quorum** | noun | The m-of-n threshold required to spend from a multisig. List `<canonical> / <UI alternative>` (e.g. `кворум / поріг підписів`). |
+| **PSBT** | acronym | Partially Signed Bitcoin Transaction (BIP174). Letters kept. |
+| **Provide signature** | verb | Action: sign a PSBT as one of the multisig co-signers. |
+| **BIP47 / Payment Code** | acronym + noun | `BIP47` is an acronym (kept as-is). `Payment Code` is a translatable noun (e.g. `платіжний код`). |
+| **Notification transaction** | noun | BIP47-specific 0-value tx that announces a payment code to the recipient. |
+| **SilentPayment** | brand + noun | BIP352 reusable static address scheme. The protocol name `Silent Payments` (note plural) stays in English; an optional explanatory locale gloss may follow (e.g. `Silent Payments / тихі платежі`). |
 
 ### 8. Coin control
 
-| Term | Meaning |
-|------|---------|
-| **Coin Control** | Per-UTXO selection feature. Branded as "Coin Control" in BlueWallet UI. |
-| **Frozen** | UTXO marked unspendable by the user (won't be auto-selected). |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Coin Control** | noun | Per-UTXO selection feature. ⚠️ NOT Title Case in target locale. Prefer the technical UTXO form when possible (e.g. `керування UTXO / керування монетами`). |
+| **Frozen** | adj | UTXO marked unspendable by the user. ⚠️ NOT the verb "to freeze" — must be an adjective/state form (e.g. `заморожено`, **not** `заморозити`). |
 
 ### 9. Security & storage
 
-| Term | Meaning |
-|------|---------|
-| **Encrypted storage / Storage encryption** | Whole-app encryption of the wallet store with a password. |
-| **Plausible Deniability** | Feature creating a fake encrypted storage with a different password, to disclose under coercion. |
-| **Biometrics** | Face ID / Touch ID / fingerprint unlock. |
-| **Passcode** | Device-level unlock code (iOS/Android). Distinct from BIP39 passphrase and app password. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Encrypted storage / Storage encryption** | noun | Whole-app encryption of the wallet store with a password. ⚠️ NOT Title Case in target locale. |
+| **Plausible Deniability** | noun | Feature creating a fake encrypted storage with a different password, to disclose under coercion. ⚠️ NOT Title Case in target locale. |
+| **Biometrics** | noun | Face ID / Touch ID / fingerprint unlock. |
+| **Passcode** | noun | Device-level unlock code (iOS/Android). ⚠️ NOT the same as app "password" — use a distinct word (e.g. `код доступу`, **not** `пароль`). |
 
 ### 10. Backup, import & UX
 
-| Term | Meaning |
-|------|---------|
-| **Backup / Export** | Saving wallet data (mnemonic, descriptor, file) outside the app. |
-| **Restore** | Recreate a wallet from its backup/mnemonic. |
-| **Import** | Loading a wallet from a backup or external source. |
-| **Voucher** | Azte.co prepaid bitcoin voucher. |
-| **Redeem** | Action: convert a voucher into wallet balance. |
-| **Send** | Primary user action: spend funds. |
-| **Receive** | Primary user action: get an address/invoice. |
-| **Settings** | App preferences screen. |
-| **Confirm** | User action (also "confirmations" = blocks on a tx). |
-| **QR Code** | Square barcode used to share addresses / invoices / PSBTs. |
-| **Clipboard** | OS clipboard. |
-| **Memo** | Sender note on outgoing tx. |
-| **Description** | Free-text label on a receive invoice. |
-| **Label** | Free-text annotation on a wallet or address. |
+| Term | POS | Meaning |
+|------|-----|---------|
+| **Backup / Export** | noun / verb | Saving wallet data outside the app. List `noun / verb` (e.g. `резервна копія / зробити резервну копію`). |
+| **Restore** | verb / noun | Recreate a wallet from its backup/mnemonic. List `verb / noun` (e.g. `відновити / відновлення`). |
+| **Import** | verb / noun | Loading a wallet from a backup or external source. List `verb / noun`. |
+| **Voucher** | noun | Azte.co prepaid bitcoin voucher. |
+| **Redeem** | verb | Convert a voucher into wallet balance. ⚠️ NOT "buy to wallet" / NOT "transfer" — use the locale's word for *activate* or *cash in* (e.g. `активувати / погасити`). |
+| **Send** | verb | Primary user action: spend funds. |
+| **Receive** | verb | Primary user action: get an address/invoice. |
+| **Settings** | noun | App preferences screen. |
+| **Confirm** | verb / noun | User action. Also: "confirmations" = blocks on a tx (noun, plural). |
+| **QR Code** | noun | Square barcode used to share addresses / invoices / PSBTs. |
+| **Clipboard** | noun | OS clipboard. |
+| **Memo** | noun | Sender note on outgoing tx. |
+| **Description** | noun | Free-text label on a receive invoice. |
+| **Label** | noun | Free-text annotation on a wallet or address. |
 
 ---
 
