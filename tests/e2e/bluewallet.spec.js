@@ -127,10 +127,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
         .whileElement(by.id('ElectrumSettingsScrollView'))
         .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
       await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
-      await element(by.id('HostInput')).tapReturnKey();
       await waitForKeyboardToClose();
       await element(by.id('PortInput')).replaceText('50001\n');
-      await element(by.id('PortInput')).tapReturnKey();
       await waitForKeyboardToClose();
       await waitFor(element(by.id('Save')))
         .toBeVisible()
