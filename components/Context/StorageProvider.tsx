@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LayoutAnimation } from 'react-native';
+import { AppState, AppStateStatus, LayoutAnimation } from 'react-native';
 import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
@@ -331,15 +331,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           console.debug('[refreshAllWalletTransactions] Setting wallet transaction status to ALL');
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
         }
+        console.debug('[refreshAllWalletTransactions] Ensuring Electrum connection (ping / reconnect if stale)...');
+        await BlueElectrum.ensureElectrumConnection();
         console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
         await BlueElectrum.waitTillConnected();
-        if (!(await BlueElectrum.ping())) {
-          // above `waitTillConnected` is not reliable, as app might have returned from long sleep, so it thinks its
-          // connected but actually socket is closed. thus, we ping, and if it fails - we wait again (reconnection code
-          // should pick up)
-          console.log('[refreshAllWalletTransactions] ping failed, waiting for connection...');
-          await BlueElectrum.waitTillConnected();
-        }
 
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
@@ -408,6 +403,52 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     [saveToDisk],
   );
 
+  const refreshAllWalletTransactionsRef = useRef(refreshAllWalletTransactions);
+  refreshAllWalletTransactionsRef.current = refreshAllWalletTransactions;
+
+  useEffect(() => {
+    if (!walletsInitialized) return;
+
+    let wasInBackground = false;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    const DEBOUNCE_MS = 1200;
+
+    const onAppStateChange = (next: AppStateStatus) => {
+      if (next === 'background') {
+        wasInBackground = true;
+      }
+
+      if (next !== 'active') {
+        if (debounceTimer) {
+          clearTimeout(debounceTimer);
+          debounceTimer = null;
+        }
+        return;
+      }
+
+      if (!wasInBackground) return;
+      wasInBackground = false;
+
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        debounceTimer = null;
+        (async () => {
+          if (AppState.currentState !== 'active') return;
+          if (await BlueElectrum.isDisabled()) return;
+          await refreshAllWalletTransactionsRef.current(undefined, false);
+        })().catch(() => {
+          /* refresh logs errors internally */
+        });
+      }, DEBOUNCE_MS);
+    };
+
+    const subscription = AppState.addEventListener('change', onAppStateChange);
+    return () => {
+      subscription.remove();
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [walletsInitialized]);
+
   const fetchAndSaveWalletTransactions = useCallback(
     async (walletID: string) => {
       const index = wallets.findIndex(wallet => wallet.getID() === walletID);
@@ -419,6 +460,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         }
         _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
+        await BlueElectrum.ensureElectrumConnection();
         await BlueElectrum.waitTillConnected();
         setWalletTransactionUpdateStatus(walletID);
 
