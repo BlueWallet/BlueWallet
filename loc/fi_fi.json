@@ -109,7 +109,7 @@
     "minSats": "Vähimmäismäärä on {min} satsia",
     "minSatsFull": "Vähimmäismäärä on {min} satsia tai {currency}",
     "qrcode_for_the_address": "QR-koodi osoitteelle",
-    "bip47_explanation": "Maksukoodit ovat yleisluonteinen osoite, joka ei paljasta lompakkosi osoitteita. Kaikki palvelut eivät tue niitä."
+    "bip47_explanation": "Maksukoodit ovat yleisosoitteita, jotka eivät paljasta lompakkosi osoitteita. Kaikki palvelut eivät tue niitä."
   },
   "send": {
     "provided_address_is_invoice": "Tämä osoite vaikuttaa olevan Salamalasku. Maksun suorittamiseksi, siirry Salamalompakkoosi.",
@@ -440,7 +440,7 @@
     "details_del_wb_q": "Lompakossa on varoja. Ennen kuin jatkat, ymmärrä että tarvitset lompakon palautukseen tulevaisuudessa palautuslauseen. Varmistaaksemme ettet tuhoa lompakkoa vahingossa, tulee sinun syöttää saldosi {balance} satosheina.",
     "details_delete": "Poista",
     "details_delete_wallet": "Poista lompakko",
-    "details_derivation_path": "johdantopolku",
+    "details_derivation_path": "johtamispolku",
     "details_display": "Näytä kotinäkymässä",
     "details_export_backup": "Vie / varmuuskopioi",
     "details_export_history": "Vie historia CSV:ksi",
@@ -565,7 +565,7 @@
     "what_is_vault_numberOfWallets": "{m} {n} multisig",
     "what_is_vault_wallet": "lompakko",
     "vault_advanced_customize": "Vault-asetukset...",
-    "needs": "Tarpeet",
+    "needs": "Se tarvitsee",
     "what_is_vault_description_number_of_vault_keys": "{m} vault-avaimet",
     "what_is_vault_description_to_spend": "kuluttaa ja kolmas sinulle\nvoidaan käyttää varmuuskopiona.",
     "what_is_vault_description_to_spend_other": "kuluttaa.",
@@ -601,7 +601,7 @@
     "ms_help_2": "Voit luoda holvi-avaimia tässä laitteessa. Ja sitten myöhemmin poistaa ja muokata niitä. Kaikkien avaimien pitäminen samassa laitteessa on yhtä turvallista kuin tavallisessa Bitcoin-lompakossakin.",
     "ms_help_title3": "Vault-varmuuskopiot",
     "ms_help_3": "Holvi- ja katseluvarmuuskopiot löydät lompakon asetuksista. Tämä varmuuskopio on kartta lompakollesi. Se on välttämätön lompakon palauttamiseksi, mikäli olet hukannut yhdenkään siemensanan tai lauseen.",
-    "ms_help_title4": "Tuodaan Vault:ia",
+    "ms_help_title4": "Vaultin tuonti",
     "ms_help_4": "Voit tuoda multisigin käyttämällä varmuuskopiotiedostoasi ja Tuo-ominaisuutta. Jos sinulla on vain laajennettuja avaimia ja siemensanoja, voit käyttää yksittäistä Tuo-näppäintä, kun luot Vault-avaimia.",
     "ms_help_title5": "Lisäasetukset",
     "ms_help_5": "Oletuksena BlueWallet luo 2/3 Vaultin. Jos haluat luoda erilaisen päätösvallan tai muuttaa osoitetyyppiä, aktivoi Lisäasetukset Asetuksista.",

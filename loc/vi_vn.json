@@ -589,7 +589,7 @@
     "ms_help_title2": "Đang chỉnh sửa những khoá",
     "ms_help_2": "Bạn có thể tạo tất cả các khóa Vault trong thiết bị này để xóa hoặc chỉnh sửa sau. Có tất cả các phím trên cùng một thiết bị có an toàn giống như ví bitcoin thông thường.",
     "ms_help_title3": "Các bản sao lưu Vault",
-    "ms_help_3": "Trên các tùy chọn ví, bạn sẽ thấy bản sao lưu Vault và bản sao lưu “chỉ xem”. Bản sao lưu này giống như một bản đồ vào ví của bạn. Nó cần thiết cho việc phục hồi ví trong trường hợp bạn mất một trong những hạt giống của mình.",
+    "ms_help_3": "Trên các tùy chọn ví, bạn sẽ thấy bản sao lưu Vault và bản sao lưu “chỉ xem”. Bản sao lưu này giống như một bản đồ vào ví của bạn. Nó cần thiết cho việc phục hồi ví trong trường hợp bạn mất một trong những seed của mình.",
     "ms_help_title4": "Đang nhập các Vault",
     "ms_help_4": "Để nhập một Multisig, hãy sử dụng tệp sao lưu của bạn và tính năng nhập. Nếu bạn chỉ có những seed và XPUB, bạn có thể sử dụng nút Nhập riêng lẻ khi tạo các khoá Vault.",
     "ms_help_title5": "Chế độ nâng cao",
