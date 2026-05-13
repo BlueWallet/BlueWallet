@@ -64,6 +64,11 @@
     "refill_create": "In order to proceed, please create a Bitcoin wallet to refill with.",
     "refill_external": "Refill with External Wallet",
     "refill_lnd_balance": "Refill Lightning Wallet Balance",
+    "lnurlpay_tipping": "LNURL-pay tipping",
+    "lnurlpay_tipping_claim": "Choose a public username for receiving tips. Use 3-32 letters, numbers, underscores, or hyphens.",
+    "lnurlpay_tipping_claim_button": "Claim",
+    "lnurlpay_tipping_no_username": "Tap to claim a public tipping username",
+    "lnurlpay_tipping_share": "Tap to share your tipping link",
     "sameWalletAsInvoiceError": "You cannot pay an invoice with the same wallet used to create it.",
     "title": "Manage Funds"
   },

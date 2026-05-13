@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, LayoutAnimation, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Share from 'react-native-share';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -36,6 +37,8 @@ import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
+type LnurlPayInfo = { username: string | false; url?: string; lnurl?: string };
+
 const WalletDetails: React.FC = () => {
   const { saveToDisk, wallets, txMetadata, handleWalletDeletion } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
@@ -63,6 +66,8 @@ const WalletDetails: React.FC = () => {
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
+  const [lnurlPayInfo, setLnurlPayInfo] = useState<LnurlPayInfo | undefined>();
+  const [isLnurlPayLoading, setIsLnurlPayLoading] = useState<boolean>(false);
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const derivationPath = useMemo<string | null>(() => {
     try {
@@ -94,6 +99,20 @@ const WalletDetails: React.FC = () => {
     };
 
     fetchArkAddress();
+  }, [wallet]);
+
+  useEffect(() => {
+    const fetchLnurlPayInfo = async () => {
+      if (!(wallet instanceof LightningCustodianWallet)) return;
+
+      try {
+        setLnurlPayInfo(await wallet.getLnurlPayInfo());
+      } catch (error: any) {
+        console.log('LNURL-pay tipping is not available on this LNDHub instance:', error.message);
+      }
+    };
+
+    fetchLnurlPayInfo();
   }, [wallet]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
@@ -333,6 +352,41 @@ const WalletDetails: React.FC = () => {
     });
 
   const navigateToContacts = () => navigate('PaymentCodeList', { walletID });
+
+  const handleLnurlPayPress = useCallback(async () => {
+    if (!(wallet instanceof LightningCustodianWallet)) return;
+
+    setIsLnurlPayLoading(true);
+    try {
+      let info = lnurlPayInfo;
+      if (!info?.username) {
+        const username = await prompt(
+          loc.lnd.lnurlpay_tipping,
+          loc.lnd.lnurlpay_tipping_claim,
+          true,
+          'plain-text',
+          false,
+          loc.lnd.lnurlpay_tipping_claim_button,
+        );
+        if (!username) return;
+        info = await wallet.claimLnurlPayUsername(username);
+        setLnurlPayInfo(info);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      }
+
+      const message = info?.lnurl ? 'lightning:' + info.lnurl : info?.url;
+      if (message) {
+        await Share.open({ message }).catch(error => console.log('LNURL-pay tipping share canceled:', error.message));
+      }
+    } catch (error: any) {
+      if (error.message !== 'Cancel Pressed') {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: error.message });
+      }
+    } finally {
+      setIsLnurlPayLoading(false);
+    }
+  }, [lnurlPayInfo, wallet]);
 
   const exportInternals = async () => {
     if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
@@ -631,6 +685,16 @@ const WalletDetails: React.FC = () => {
               <ListItem onPress={navigateToAddresses} title={loc.wallets.details_show_addresses} chevron />
             )}
             {isContactsVisible ? <ListItem onPress={navigateToContacts} title={loc.bip47.contacts} chevron /> : null}
+            {wallet.type === LightningCustodianWallet.type && lnurlPayInfo ? (
+              <ListItem
+                onPress={handleLnurlPayPress}
+                disabled={isLnurlPayLoading}
+                title={loc.lnd.lnurlpay_tipping}
+                subtitle={lnurlPayInfo.username ? loc.lnd.lnurlpay_tipping_share : loc.lnd.lnurlpay_tipping_no_username}
+                rightTitle={lnurlPayInfo.username ? '@' + lnurlPayInfo.username : undefined}
+                chevron
+              />
+            ) : null}
             <BlueCard style={styles.address}>
               <View>
                 <BlueSpacing20 />
