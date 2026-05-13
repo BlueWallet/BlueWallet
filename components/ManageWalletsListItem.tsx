@@ -156,13 +156,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
           accessibilityRole="button"
           accessibilityLabel={isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
         >
-          <Icon
-            type="material"
-            name={isHidden ? 'visibility' : 'visibility-off'}
-            size={24}
-            color={colors.buttonTextColor}
-            accessibilityLabel={isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
-          />
+          <Icon type="material" name={isHidden ? 'visibility' : 'visibility-off'} size={24} color={colors.buttonTextColor} />
         </Pressable>
       </View>
     );
