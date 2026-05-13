@@ -77,14 +77,14 @@ const WalletDetails: React.FC = () => {
   const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
 
   useEffect(() => {
-    const w = wallets.find(x => x.getID() === walletID);
+    const w = walletRef.current;
     if (w) setCoinControlStats(getCoinControlStats(w));
-  }, [wallets, walletID]);
+  }, [walletID]);
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      const w = wallets.find(x => x.getID() === walletID);
+      const w = walletRef.current;
       if (!w || typeof w.getUtxo !== 'function') return;
 
       const refresh = async () => {
@@ -102,7 +102,7 @@ const WalletDetails: React.FC = () => {
       return () => {
         cancelled = true;
       };
-    }, [wallets, walletID, sleep]),
+    }, [sleep]),
   );
 
   const { hasCoinControl, utxoCount } = coinControlStats;
