@@ -10,7 +10,7 @@
     "yes": "ٱ",
     "no": "ن",
     "seed": "سید",
-    "success": "مۏوفق بی",
+    "success": "مووفق بی",
     "wallet_key": "کلٛیل کیف پیلٛ",
     "close": "بستن",
     "refresh": "وانۊ کردن",
@@ -28,19 +28,19 @@
     "errorSomething": "موشکلؽ پؽش اوما. اؽ کود تخفیف هنی قوۊل هؽ؟",
     "redeem": "ازاف کردن و کیف پیلٛ",
     "redeemButton": "فعال کردن",
-    "success": "مۏوفق بی",
+    "success": "مووفق بی",
     "title": "فعال کردن کود تخفیف Azte.co",
-    "errorBeforeRefeem": "ویر د فعال کردن، اوول باید ی کیف پیلٛ بیت کوین ازاف بکوݩ."
+    "errorBeforeRefeem": "پؽش ز فعال کردن، ٱول وا ی کیف پیلٛ بیت کوین ازاف بکوݩ."
   },
   "entropy": {
     "title": "آنتروپی",
     "save": "زخیره",
-    "undo": "بارگشت"
+    "undo": "وورگشت و هالت پؽشی"
   },
   "errors": {
     "error": "ختا",
     "network": "ختا شبکه",
-    "broadcast": "مونتشر کردن شکست هرد."
+    "broadcast": "انتشار نا مووفق بی."
   },
   "lnd": {
     "errorInvoiceExpired": "سۊرت هساو مونقزی بیه.",
@@ -81,7 +81,7 @@
   },
   "send": {
     "broadcastError": "ختا",
-    "broadcastSuccess": "مۏوفق بی",
+    "broadcastSuccess": "مووفق بی",
     "confirm_header": "تایید",
     "confirm_sendNow": "هه ایسه کلٛ بکو",
     "create_amount": "مقدار",
@@ -135,7 +135,7 @@
     "details_adv_import_qr": "و مؽن اووردن تراکونش (QR)",
     "details_create": "ساتن سۊرت هساو",
     "details_frozen": "{amount} BTC مسدۊد بیه.",
-    "details_error_decode": "ناتوان د واز کردن آدرس بیت کوین",
+    "details_error_decode": "نا مووفق د رزم گوشایی آدرس بیت کوین",
     "fee_satvbyte": "د ساتۊشی/بایت مجازی",
     "insert_custom_fee": "کارمزدن بزݩ",
     "open_settings": "واز کردن سامونیا",
@@ -151,7 +151,7 @@
   },
   "settings": {
     "about": "دبار",
-    "about_selftest": "ر ونن خوش آزمایی",
+    "about_selftest": "روونن خۊ ٱزمایی",
     "about_selftest_electrum_disabled": "خوش آزمایی د هالت آفلاین د دسرس نؽ. هالت آفلاینن قیر فعال بکو ۉ دۏورته تفره بکو.",
     "about_sm_github": "گیت هاب",
     "about_sm_telegram": "تورگه تلگرام",
@@ -196,7 +196,7 @@
     "about_license": "موجوز MIT",
     "about_release_notes": "ویرداشتیا انتشار",
     "about_review": "ی بازبینی سی ما بنیر",
-    "about_backup": "ای میشه د کلٛیلیات نۏسخه لادرار بساز!",
+    "about_backup": "هؽمیشه ز کلٛیلیا خوت نوسخه لادرار بگیر!",
     "network_broadcast": "مونتشر کردن تراکونش",
     "open_link_in_explorer": "واز کردن لینگ د گشت گر",
     "not_a_valid_uri": "URI مۊعتبر نؽ",
@@ -208,7 +208,7 @@
     "lightning_saved": "آلشتیا تو وا مووفقیت زخیره بین.",
     "electrum_reset": "آلشت و پؽش فرز",
     "encrypt_tstorage": "زخیره آلشتیا",
-    "encrypt_decrypt": "د رزم وان زخیره آلشتیا",
+    "encrypt_decrypt": "رزم گوشایی جاگه زفت کردنی",
     "performance_score": "نمره عملکرد: {num}",
     "run_performance_test": "آزمایش عملکرد"
   },
@@ -332,7 +332,7 @@
     "add_lightning_explain": "سی خرج کردن وا تراکونشیا فۊری",
     "add_lndhub": "وصل بیؽن و LNDhub خوت",
     "add_lndhub_placeholder": "نشونی گرهٛ خوت",
-    "add_placeholder": "اوولین کیف پیلٛم",
+    "add_placeholder": "اولین کیف پیلٛ مه",
     "add_import_wallet": "و مؽن اووردن کیف پیلٛ",
     "add_entropy_reset_title": "آلشت و ٱول آنتروپی",
     "drag_to_reorder": "بکش سی آلشت ترتیب",
@@ -352,7 +352,7 @@
     "wallet_type_this": "نوع اؽ کیف پیلٛ {type} ئه.",
     "share_number": "یک رسونی {number}",
     "identity_pubkey": "کلٛیل عمومی هوویتی",
-    "add_ln_wallet_first": "اوول باید ی کیف پیلٛ لایتنینگ ازاف کوݩ.",
+    "add_ln_wallet_first": "ٱول وا ی کیف پیلٛ لایتنینگ ازاف بکوݩ.",
     "looks_like_bip38": "اؽ شبیه ی کلٛیل خصوصی رزم دار (BIP38) ئه.",
     "details_delete_anyway": "د هر هال پاک بکو"
   },
@@ -364,7 +364,7 @@
     "view": "سلٛ",
     "shared_key_detected": "امزا کوݩ هومبهر",
     "scan_or_import_file": "اسکن یا و مؽن اووردن فایل",
-    "export_coordination_setup": "ر ونن هماهنگی و در کشین",
+    "export_coordination_setup": "و در کشیئن ساموݩ هماهنگی",
     "cosign_this_transaction": "اؽ تراکونشن و جۊر هومبهر امزا مؽکؽتوݩ؟",
     "legacy_title": "Legacy",
     "co_sign_transaction": "امزا کردن تراکونش",
@@ -442,7 +442,7 @@
     "sign_sign": "امزا کردن",
     "sign_verify": "دۏرۏسی سنجی",
     "sign_signature_correct": "دۏرۏسی سنجی مووفق بی!",
-    "sign_signature_incorrect": "دۏرۏسی سنجی شکست هرد!",
+    "sign_signature_incorrect": "دۏرۏسی سنجی شکست خوارد!",
     "sign_placeholder_address": "آدرس",
     "sign_placeholder_message": "پیوم",
     "sign_placeholder_signature": "امزا",

@@ -28,7 +28,7 @@
     "refill": "Қайта толтыру"
   },
   "lndViewInvoice": {
-    "lightning_invoice": "Lightning шоты",
+    "lightning_invoice": "Lightning инвойсы",
     "sats": "сат."
   },
   "receive": {
@@ -72,7 +72,7 @@
     "language": "Тіл",
     "network_broadcast": "Транзакцияны тарату",
     "network_electrum": "Electrum сервері",
-    "notifications": "Хабарландырулар",
+    "notifications": "Хабарламалар",
     "password": "Құпиясөз",
     "save": "Сақтау"
   },
@@ -82,8 +82,8 @@
     "details_outputs": "Шығыстар",
     "details_title": "Транзакция",
     "details_to": "Шығыс",
-    "offchain": "Оф-чейн",
-    "onchain": "Он-чейн",
+    "offchain": "Off-chain",
+    "onchain": "On-chain",
     "pending": "Күтілуде",
     "rbf_title": "Комиссияны арттыру (RBF)",
     "status_bump": "Комиссияны арттыру",
@@ -95,7 +95,7 @@
     "add_bitcoin": "Bitcoin",
     "add_lightning": "Lightning",
     "details_address": "Адрес",
-    "details_derivation_path": "шығару жолы",
+    "details_derivation_path": "туынды жолы",
     "details_master_fingerprint": "Негізгі саусақ ізі",
     "details_title": "Әмиян",
     "details_type": "Түрі",
@@ -127,7 +127,7 @@
     "contacts": "Контактілер",
     "copy_payment_code": "Төлем кодын көшіру",
     "invalid_pc": "Жарамсыз төлем коды",
-    "notif_tx": "Хабарландыру транзакциясы",
+    "notif_tx": "Хабарлама транзакциясы",
     "not_found": "Төлем коды табылмады"
   },
   "units": {

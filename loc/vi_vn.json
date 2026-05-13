@@ -199,7 +199,7 @@
     "details_frozen": "{amount} BTC đã bị đóng băng.",
     "details_no_signed_tx": "Tệp đã chọn không chứa giao dịch có thể nhập.",
     "details_scan_error": "Lỗi quét",
-    "insert_custom_fee": "Chèn phí",
+    "insert_custom_fee": "Nhập phí",
     "invalid_psbt": "PSBT được cung cấp không hợp lệ.",
     "qr_error_no_qrcode": "Chúng tôi không thể tìm thấy mã QR hợp lệ trong hình ảnh đã chọn. Hãy đảm bảo hình ảnh chỉ chứa mã QR và không có nội dung bổ sung như văn bản hoặc nút bấm.",
     "txSaved": "Tệp giao dịch ({filePath}) đã được lưu.",

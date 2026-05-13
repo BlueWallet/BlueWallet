@@ -104,10 +104,10 @@
     "header": "Fogadás",
     "address_not_found": "Nem sikerült fogadó címet generálni.",
     "reset": "Visszaállítás",
-    "maxSats": "A maximális összeg {max} sats",
-    "maxSatsFull": "A maximális összeg {max} sats vagy {currency}",
-    "minSats": "A minimális összeg {min} sats",
-    "minSatsFull": "A minimális összeg {min} sats vagy {currency}",
+    "maxSats": "Maximális összeg {max} sat",
+    "maxSatsFull": "Maximális összeg {max} sat vagy {currency}",
+    "minSats": "Minimális összeg {min} sat",
+    "minSatsFull": "Minimális összeg {min} sat vagy {currency}",
     "qrcode_for_the_address": "QR-kód a címhez",
     "bip47_explanation": "A fizetési kódok olyan univerzális címek, amelyek elkerülik a tárcacímek felfedését. Nem minden szolgáltatás támogatja őket."
   },
@@ -526,7 +526,7 @@
     "title": "Teljes egyenleg",
     "display_in_bitcoin": "Megjelenítés Bitcoinban",
     "hide": "Elrejtés",
-    "display_in_sats": "Megjelenítés sats-ban",
+    "display_in_sats": "Megjelenítés sat-ban",
     "display_in_fiat": "Megjelenítés {currency}-ban",
     "explanation": "Tekintsd meg az összes tárcád teljes egyenlegét az áttekintő képernyőn."
   },

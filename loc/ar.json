@@ -380,8 +380,8 @@
     "outgoing_transaction": "معاملة صادرة",
     "expired_transaction": "معاملة منتهية الصلاحية",
     "pending_transaction": "معاملة قيد الانتظار",
-    "offchain": "أوف-تشين",
-    "onchain": "أون-تشين",
+    "offchain": "خارج السلسلة",
+    "onchain": "على السلسلة",
     "list_title_sent": "مرسلة",
     "watchOnlyWarningTitle": "تحذير أمني",
     "custom_fee_warning_title": "تحذير",
@@ -701,7 +701,7 @@
     "invalid_pc": "رمز دفع غير صالح",
     "notification_tx_unconfirmed": "معاملة الإشعار غير مؤكدة بعد، يُرجى الانتظار",
     "failed_create_notif_tx": "فشل إنشاء المعاملة على السلسلة",
-    "onchain_tx_needed": "مطلوب معاملة على السلسلة",
+    "onchain_tx_needed": "معاملة على السلسلة مطلوبة",
     "notif_tx_sent": "تم إرسال معاملة الإشعار. يُرجى الانتظار حتى يتم تأكيدها",
     "notif_tx": "معاملة الإشعار"
   }
