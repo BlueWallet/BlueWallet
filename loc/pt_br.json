@@ -207,7 +207,7 @@
     "please_complete_recipient_details": "Por favor, complete os detalhes do destinatário #{number} antes de adicionar um novo destinatário.",
     "details_scan_error": "Erro na leitura",
     "insert_custom_fee": "Insira a taxa",
-    "invalid_psbt": "PSBT inválida."
+    "invalid_psbt": "PSBT inválido fornecido."
   },
   "settings": {
     "about": "Sobre",
@@ -320,7 +320,7 @@
     "electrum_error_connect_tor": "Não foi possível conectar ao servidor Electrum fornecido. Por favor, certifique-se de que o aplicativo Orbot está conectado e tente novamente.",
     "encrypt_enc_and_pass": "Protegido por senha",
     "encrypt_use_expl": "{type} será usada para confirmar sua identidade antes de fazer uma transação, desbloquear, exportar ou apagar uma carteira.",
-    "lightning_error_lndhub_uri_tor": "URI LNDhub inválida. Por favor, certifique-se de que o aplicativo Orbot está conectado e tente novamente.",
+    "lightning_error_lndhub_uri_tor": "URI LNDhub inválido. Verifique se o Orbot está conectado e tente novamente.",
     "lndhub_github": "Repositório no GitHub"
   },
   "notifications": {

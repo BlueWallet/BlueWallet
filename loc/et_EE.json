@@ -35,7 +35,7 @@
     "codeIs": "Sinu vautšeri kood on",
     "errorBeforeRefeem": "Enne lunastamist on vajalik lisada uus Bitcoini rahakott.",
     "errorSomething": "Midagi läks valesti. Kas see vautšer on endiselt kehtiv?",
-    "redeem": "Lunasta rahakotti.",
+    "redeem": "Lunasta rahakotti",
     "redeemButton": "Lunasta",
     "success": "Toiming õnnestus",
     "successMessage": "Vautšer edukalt lunastatud! Vahendid peaksid varsti sinu Bitcoini rahakotti saabuma.",

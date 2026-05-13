@@ -388,7 +388,7 @@
     "watchOnlyWarningTitle": "Ostrzeżenie bezpieczeństwa",
     "watchOnlyWarningDescription": "Zachowaj ostrożność wobec oszustów, którzy często używają portfeli „tylko do odczytu” do wprowadzania użytkowników w błąd. Te portfele nie pozwalają na kontrolowanie ani wysyłanie środków; umożliwiają jedynie przeglądanie salda.",
     "custom_fee_warning_title": "Ostrzeżenie",
-    "custom_fee_warning_description": "Opłaty poniżej 1 sat/vB są prawidłowe, ale mogą nie zostać przekazane dalej z powodu konfiguracji policy węzłów.",
+    "custom_fee_warning_description": "Opłaty poniżej 1 sat/vB są prawidłowe, ale mogą nie zostać przekazane dalej z powodu konfiguracji zasad (policy) węzłów.",
     "details_eta_analyzing": "Analizuję...",
     "details_sent": "Wysłano",
     "details_section": "Szczegóły",

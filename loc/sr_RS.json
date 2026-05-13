@@ -520,7 +520,7 @@
     "details_delete_anyway": "Obriši svejedno"
   },
   "total_balance_view": {
-    "display_in_bitcoin": "Prikaži u Bitcoin",
+    "display_in_bitcoin": "Prikaži u Bitcoin-u",
     "hide": "Sakrij",
     "display_in_sats": "Prikaži u sats",
     "display_in_fiat": "Prikaži u {currency}",
@@ -697,7 +697,7 @@
     "notification_tx_unconfirmed": "Transakcija obaveštenja još nije potvrđena, molimo sačekajte",
     "failed_create_notif_tx": "Kreiranje on-chain transakcije nije uspelo",
     "onchain_tx_needed": "Potrebna je on-chain transakcija",
-    "notif_tx_sent" : "Transakcija obaveštenja poslata. Sačekajte da bude potvrđena",
+    "notif_tx_sent": "Transakcija obaveštenja poslata. Sačekajte da bude potvrđena",
     "notif_tx": "Transakcija obaveštenja",
     "not_found": "Payment kod nije pronađen"
   }
