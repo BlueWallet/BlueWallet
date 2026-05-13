@@ -533,7 +533,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             text: loc.wallets.details_delete,
             onPress: () => {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               onConfirmed();
             },
             style: 'destructive',
