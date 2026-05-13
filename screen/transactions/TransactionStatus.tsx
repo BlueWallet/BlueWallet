@@ -1088,7 +1088,7 @@ const TransactionStatus: React.FC = () => {
             <CopyTextToClipboard
               text={
                 calculatedFee !== null && calculatedFee !== undefined
-                  ? `${formatBalanceWithoutSuffix(calculatedFee, BitcoinUnit.SATS, false)} sats / ${satoshiToLocalCurrency(calculatedFee)}`
+                  ? `${formatBalanceWithoutSuffix(calculatedFee, BitcoinUnit.SATS, true)} sats / ${satoshiToLocalCurrency(calculatedFee)}`
                   : '-'
               }
               style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
