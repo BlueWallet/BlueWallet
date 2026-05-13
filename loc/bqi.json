@@ -284,6 +284,26 @@
     "date": "ویرگار",
     "details_received": "گرؽڌه وابیڌه",
     "details_title": "تراکونش",
+    "details_inputs": "وۊرۊڌیا",
+    "details_outputs": "خروجیا",
+    "details_to": "خروجی",
+    "details_to_address": "وه",
+    "details_network_fee": "کارمزد شبکه",
+    "details_section": "جۊزیات",
+    "details_explorer": "گشت گر",
+    "details_size": "هندا",
+    "details_virtual_size": "هندا مجازی",
+    "details_tx_hex": "هگزادسیمال تراکونش",
+    "details_inputs_count": "وۊرۊڌیا ({count})",
+    "details_outputs_count": "خروجیا ({count})",
+    "expired_transaction": "تراکونش مونقزی وابیڌه",
+    "pending_transaction": "تراکونش مندیر سی زفت",
+    "pending_with_amount": "مندیر سی زفت {amt1} ({amt2})",
+    "received_with_amount": "+{amt1} ({amt2})",
+    "list_title": "تراکونشا",
+    "rbf_title": "تسریع (RBF)",
+    "status_bump": "تسریع",
+    "status_cancel": "لقو",
     "offchain": "آفچین",
     "onchain": "آنچین",
     "pending": "مندیر سی زفت",
@@ -345,12 +365,16 @@
     "list_title": "کیف پیلا",
     "list_tryagain": "ز نۊ تفره کوݩ",
     "more_info": "دووسمندیا قلوه",
-    "details_delete_anyway": "و هر هال پاک بۊ"
+    "details_delete_anyway": "و هر هال پاک بۊ",
+    "add_lightning": "لایتنینگ",
+    "swipe_balance_hide": "بؽڌار",
+    "details_delete": "پاک کردن"
   },
   "total_balance_view": {
     "display_in_bitcoin": "نشووݩ داڌن من بیت کوین",
     "hide": "بؽڌار",
     "display_in_sats": "نشووݩ داڌن و ری ساتۊشی",
+    "display_in_fiat": "نشووݩ داڌن من {currency}",
     "title": "پوی مۉجۊدی"
   },
   "multisig": {
@@ -359,13 +383,45 @@
     "share": "یک رسۊوی...",
     "create": "وورکل",
     "co_sign_transaction": "امزا کردن تراکونش",
-    "ms_help_title5": "هالت پؽش رئڌه"
+    "ms_help_title5": "هالت پؽش رئڌه",
+    "multisig_vault": "گاوصندوق چند امزایی",
+    "default_label": "گاوصندوق چند امزایی",
+    "provide_signature": "دین امزا",
+    "vault_key": "کیلیت گاوصندوق {number}",
+    "fee": "کارمزد: {number}",
+    "fee_btc": "{number} BTC",
+    "quorum": "{m} ز {n} حد نصاب",
+    "quorum_header": "حد نصاب",
+    "of": "ز",
+    "wallet_type": "نوع کیف پیل",
+    "vault_advanced_customize": "سامووا گاوصندوق"
   },
   "cc": {
-    "sort_status": "وزیت"
+    "sort_status": "وزیت",
+    "change": "باقی‌مانده",
+    "header": "مدیریت UTXO",
+    "selected_summ": "{value} پسند بیڌه",
+    "sort_label": "برچسب"
   },
   "addresses": {
     "sign_placeholder_address": "آدرس",
-    "type_receive": "گرؽڌن"
+    "type_receive": "گرؽڌن",
+    "type_change": "باقی‌مانده",
+    "addresses_title": "آدرسا",
+    "transactions": "تراکونشا"
+  },
+  "units": {
+    "BTC": "BTC",
+    "sat_vbyte": "ساتۊشی سی هر بایت مجازی",
+    "sats": "ساتۊشی"
+  },
+  "bip47": {
+    "payment_code": "کود پرداخت",
+    "contacts": "هومدنگا",
+    "bip47_explain_subtitle": "BIP47",
+    "copy_payment_code": "لف گیری کود پرداخت",
+    "add_contact": "ٱووردن هومدنگ",
+    "invalid_pc": "کود پرداخت زبال نؽ",
+    "not_found": "کود پرداخت نجۊرست"
   }
 }

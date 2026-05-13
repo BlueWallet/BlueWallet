@@ -28,7 +28,8 @@
     "unlock": "Desbloquear",
     "port": "Porta",
     "ssl_port": "Porta SSL",
-    "suggested": "Sugerido"
+    "suggested": "Sugerido",
+    "copied": "Copiado!"
   },
   "azteco": {
     "codeIs": "Seu código voucher é",
@@ -37,7 +38,8 @@
     "redeem": "Resgatar para carteira",
     "redeemButton": "Resgatar",
     "success": "Sucesso",
-    "title": "Resgatar voucher Azte.co"
+    "title": "Resgatar voucher Azte.co",
+    "successMessage": "Voucher resgatado com sucesso! Seus fundos devem chegar à sua carteira Bitcoin em breve."
   },
   "entropy": {
     "save": "Salvar",
@@ -106,7 +108,8 @@
     "minSats": "O valor mínimo é de {min} sats",
     "minSatsFull": "O valor mínimo é de {min} sats ou {currency}",
     "qrcode_for_the_address": "QR Code para o Endereço",
-    "bip47_explanation": "Os Payment Codes são um tipo de endereço universal que evita a divulgação dos endereços da sua carteira. Nem todos os serviços irão suportar envio."
+    "bip47_explanation": "Os Payment Codes são um tipo de endereço universal que evita a divulgação dos endereços da sua carteira. Nem todos os serviços irão suportar envio.",
+    "address_not_found": "Não foi possível gerar o endereço de recebimento."
   },
   "send": {
     "provided_address_is_invoice": "Esse tipo de endereço se parece com uma fatura da Lightning. Por favor, acesse a sua carteira Lightning para realizar o pagamento dessa fatura.",
@@ -198,7 +201,13 @@
     "cant_send_to_silentpayment_adress": "Esta carteira não pode enviar para endereços SilentPayment",
     "cant_send_to_bip47": "Esta carteira não pode enviar para Payment Codes BIP47",
     "cant_find_bip47_notification": "Adicione este Payment Code aos contatos primeiro",
-    "problem_with_psbt": "Problema com a PSBT"
+    "problem_with_psbt": "Problema com a PSBT",
+    "details_recipient_title": "Destinatário #{number} de #{total}",
+    "please_complete_recipient_title": "Destinatário incompleto",
+    "please_complete_recipient_details": "Por favor, complete os detalhes do destinatário #{number} antes de adicionar um novo destinatário.",
+    "details_scan_error": "Erro na leitura",
+    "insert_custom_fee": "Insira a taxa",
+    "invalid_psbt": "PSBT inválida."
   },
   "settings": {
     "about": "Sobre",
@@ -303,7 +312,16 @@
     "total_balance": "Saldo total",
     "total_balance_explanation": "Exibir o saldo total de todas suas carteiras nos seus widgets da tela inicial.",
     "widgets": "Widgets",
-    "tools": "Ferramentas"
+    "tools": "Ferramentas",
+    "privacy_temporary_screenshots": "Permitir captura de tela",
+    "privacy_temporary_screenshots_instructions": "A proteção contra captura de tela será temporariamente desativada, permitindo capturas de tela e gravações de tela. A proteção será reativada automaticamente quando você fechar e reabrir o BlueWallet.",
+    "donate": "Doar",
+    "donate_description": "Ajude-nos a manter o Blue gratuito!",
+    "electrum_error_connect_tor": "Não foi possível conectar ao servidor Electrum fornecido. Por favor, certifique-se de que o aplicativo Orbot está conectado e tente novamente.",
+    "encrypt_enc_and_pass": "Protegido por senha",
+    "encrypt_use_expl": "{type} será usada para confirmar sua identidade antes de fazer uma transação, desbloquear, exportar ou apagar uma carteira.",
+    "lightning_error_lndhub_uri_tor": "URI LNDhub inválida. Por favor, certifique-se de que o aplicativo Orbot está conectado e tente novamente.",
+    "lndhub_github": "Repositório no GitHub"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Gostaria de receber notificações quando receber pagamentos?",
@@ -367,7 +385,26 @@
     "to": "Para:{counterparty}",
     "updating": "Atualizando...",
     "watchOnlyWarningTitle": "Alerta de segurança",
-    "watchOnlyWarningDescription": "Tenha cuidado com golpistas que costumam usar carteiras “watch-only (somente para assistir)” para enganar os usuários. Essas carteiras não permitem controlar ou enviar fundos; eles apenas permitem que você visualize o saldo."
+    "watchOnlyWarningDescription": "Tenha cuidado com golpistas que costumam usar carteiras “watch-only (somente para assistir)” para enganar os usuários. Essas carteiras não permitem controlar ou enviar fundos; eles apenas permitem que você visualize o saldo.",
+    "list_title_sent": "Enviado",
+    "custom_fee_warning_title": "Aviso",
+    "custom_fee_warning_description": "Taxas abaixo de 1 sat/vB são válidas, mas podem não ser propagadas devido às políticas dos nós.",
+    "details_eta_analyzing": "Analisando...",
+    "details_sent": "Enviado",
+    "details_section": "Detalhes",
+    "details_explorer": "explorador",
+    "details_network_fee": "Taxa de rede",
+    "details_to_address": "Para",
+    "details_id": "ID",
+    "details_note": "Nota",
+    "details_add_note": "adicionar",
+    "details_advanced": "Avançado",
+    "details_fee_rate": "Taxa",
+    "details_size": "Tamanho",
+    "details_virtual_size": "Tamanho virtual",
+    "details_tx_hex": "Hex da transação",
+    "details_inputs_count": "Entradas ({count})",
+    "details_outputs_count": "Saídas ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -482,7 +519,12 @@
     "xpub_title": "XPUB da Carteira",
     "more_info": "Mais informações",
     "details_delete_wallet_error_message": "Houve um problema ao confirmar se esta carteira foi removida das notificações — isso pode ser devido a um problema de rede ou conexão ruim. Se você continuar, ainda poderá receber notificações de transações relacionadas a esta carteira, mesmo depois que ela for excluída.",
-    "details_delete_anyway": "Apagar mesmo assim"
+    "details_delete_anyway": "Apagar mesmo assim",
+    "swipe_balance_hide": "Ocultar",
+    "swipe_balance_show": "Mostrar",
+    "drag_to_reorder": "Arraste para reordenar",
+    "clear_search": "Limpar busca",
+    "manage_wallets_search_placeholder": "Buscar carteiras, endereços, transações e notas"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar em Bitcoin",
@@ -581,7 +623,8 @@
   "autofill_word": {
     "enter": "Forneça sua seed mnemônica parcial",
     "generate_word": "Gerar última palavra",
-    "error": "Não foi fornecida seed mnemônica parcial no formato de 11 OU 23 palavras. Por favor, tente novamente."
+    "error": "Não foi fornecida seed mnemônica parcial no formato de 11 OU 23 palavras. Por favor, tente novamente.",
+    "title": "Última palavra da seed"
   },
   "cc": {
     "change": "Troco",

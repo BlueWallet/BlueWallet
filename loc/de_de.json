@@ -28,7 +28,8 @@
     "unlock": "Entsperren",
     "port": "Port",
     "ssl_port": "SSL Port",
-    "suggested": "Vorgeschlagen"
+    "suggested": "Vorgeschlagen",
+    "copied": "Kopiert!"
   },
   "azteco": {
     "codeIs": "Dein Gutscheincode lautet",
@@ -315,7 +316,12 @@
     "total_balance": "Gesamtes Guthaben",
     "total_balance_explanation": "Zeigt das Wallet Guthaben auf dem Widget deiner Homepage",
     "widgets": "Widgets",
-    "tools": "Werkzeuge"
+    "tools": "Werkzeuge",
+    "donate": "Spenden",
+    "donate_description": "Hilf uns Blue kostenlos zu halten!",
+    "encrypt_enc_and_pass": "Passwortgeschützt",
+    "encrypt_use_expl": "{type} wird zur Identitätsbestätigung verwendet, bevor eine Transaktion gesendet, ein Wallet entsperrt, exportiert oder gelöscht wird.",
+    "lndhub_github": "GitHub-Repository"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Soll bei Zahlungseingängen eine Benachrichtigung zugestellt werden?",
@@ -381,7 +387,24 @@
     "watchOnlyWarningTitle": "Sicherheitswarnung",
     "watchOnlyWarningDescription": "Achtung. Betrüger verwenden „Watch-only“-Wallets um Nutzern echte Wallet vorzutäsuchen. Sie können mit diesem Wallet keine Gelder kontrollieren oder senden, sondern nur den Kontostand einsehen.",
     "custom_fee_warning_title": "Warnung",
-    "custom_fee_warning_description": "Gebühren unter 1 sat/vB sind gültig, aber werden ggf. nicht weitergeleitet."
+    "custom_fee_warning_description": "Gebühren unter 1 sat/vB sind gültig, aber werden ggf. nicht weitergeleitet.",
+    "list_title_sent": "Gesendet",
+    "details_eta_analyzing": "Analysiere...",
+    "details_sent": "Gesendet",
+    "details_section": "Details",
+    "details_explorer": "Explorer",
+    "details_network_fee": "Netzwerkgebühr",
+    "details_to_address": "An",
+    "details_id": "ID",
+    "details_note": "Notiz",
+    "details_add_note": "Hinzufügen",
+    "details_advanced": "Fortgeschritten",
+    "details_fee_rate": "Gebührenrate",
+    "details_size": "Größe",
+    "details_virtual_size": "Virtuelle Größe",
+    "details_tx_hex": "Tx Hex",
+    "details_inputs_count": "Eingänge ({count})",
+    "details_outputs_count": "Ausgänge ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -497,7 +520,11 @@
     "manage_wallets_search_placeholder": "Wallets, Adressen, Transaktionen und Memos suchen",
     "more_info": "Mehr Infos",
     "details_delete_wallet_error_message": "Problem beim Entfernen der Wallet aus Benachrichtigungen – evtl. Netzwerkproblem oder schlechte Verbindung. Bei Fortfahren könnten Transaktions-Benachrichtigungen für diese Wallet weiterhin ankommen, selbst nach dessen Löschung.",
-    "details_delete_anyway": "Trotzdem löschen"
+    "details_delete_anyway": "Trotzdem löschen",
+    "swipe_balance_hide": "Verbergen",
+    "swipe_balance_show": "Anzeigen",
+    "drag_to_reorder": "Ziehen zum Neuanordnen",
+    "clear_search": "Suche löschen"
   },
   "total_balance_view": {
     "display_in_bitcoin": "In bitcoin anzeigen",
@@ -596,7 +623,8 @@
   "autofill_word": {
     "enter": "Die unvollendete mnemonische Phrase eingeben",
     "generate_word": "Erzeuge das letzte Word",
-    "error": "Die Eingabe ist keine unvollendete 11- oder 23 Wort Phrase. Bitte erneut versuchen."
+    "error": "Die Eingabe ist keine unvollendete 11- oder 23 Wort Phrase. Bitte erneut versuchen.",
+    "title": "Letztes Seed-Wort"
   },
   "cc": {
     "change": "Ändern",

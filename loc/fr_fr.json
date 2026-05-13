@@ -28,7 +28,8 @@
     "unlock": "Deverouiller",
     "port": "Port",
     "ssl_port": "Port SSL",
-    "suggested": "Suggéré"
+    "suggested": "Suggéré",
+    "copied": "Copié !"
   },
   "azteco": {
     "codeIs": "Votre code promo est",
@@ -37,7 +38,8 @@
     "redeem": "Collecter vers le portefeuille",
     "redeemButton": "Collecter",
     "success": "Succès",
-    "title": "Utiliser le bon Azte.com"
+    "title": "Utiliser le bon Azte.com",
+    "successMessage": "Bon utilisé avec succès ! Vos fonds devraient arriver dans votre portefeuille Bitcoin sous peu."
   },
   "entropy": {
     "save": "Enregistrer",
@@ -106,7 +108,8 @@
     "minSats": "Le montant minimalest de {min} sats",
     "minSatsFull": "Le montant minimal est de {min} sats ou {currency}",
     "qrcode_for_the_address": "Code QR pour l'adresse",
-    "bip47_explanation": "Les codes de paiement sont une adresse universelle qui évite de divulguer vos adresses de portefeuille. Tous les services ne les prennent pas en charge."
+    "bip47_explanation": "Les codes de paiement sont une adresse universelle qui évite de divulguer vos adresses de portefeuille. Tous les services ne les prennent pas en charge.",
+    "address_not_found": "Impossible de générer l'adresse de réception."
   },
   "send": {
     "provided_address_is_invoice": "Cette adresse semble correspondre à une facture Lightning. Veuillez utiliser votre portefeuille Lightning pour payer cette facture.",
@@ -203,7 +206,8 @@
     "cant_send_to_silentpayment_adress": "Ce portefeuille ne peut pas envoyer a des adresses SilentPayment",
     "cant_send_to_bip47": "Ce portefeuille ne peut pas envoyer a des codes de paiement BIP47",
     "cant_find_bip47_notification": "Ajoutez ce Code paiement au contact d'abord",
-    "problem_with_psbt": "Problème avec PSBT"
+    "problem_with_psbt": "Problème avec PSBT",
+    "details_scan_error": "Erreur de scan"
   },
   "settings": {
     "about": "À propos",
@@ -310,7 +314,14 @@
     "total_balance": "Solde total",
     "total_balance_explanation": "Afficher le solde total de tous vos portefeuilles sur l'écran d'accueil.",
     "widgets": "Widgets",
-    "tools": "Outils"
+    "tools": "Outils",
+    "privacy_temporary_screenshots": "Autoriser la capture d'écran",
+    "privacy_temporary_screenshots_instructions": "La protection contre la capture d'écran sera temporairement désactivée, permettant les captures et les enregistrements d'écran. La protection sera automatiquement réactivée lorsque vous fermerez et rouvrirez BlueWallet.",
+    "donate": "Faire un don",
+    "donate_description": "Aidez-nous à garder Blue gratuit !",
+    "encrypt_enc_and_pass": "Protégé par mot de passe",
+    "encrypt_use_expl": "{type} sera utilisé pour confirmer votre identité avant d'effectuer une transaction, de déverrouiller, d'exporter ou de supprimer un portefeuille.",
+    "lndhub_github": "Dépôt GitHub"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Voulez vous recevoir les notifications quand vous recevez des paiements entrants ?",
@@ -374,7 +385,26 @@
     "to": "A: {counterparty}",
     "updating": "Chargement...",
     "watchOnlyWarningTitle": "Avertissement de sécurité",
-    "watchOnlyWarningDescription": "Méfiez-vous des fraudeurs qui utilisent souvent des portefeuilles « lecture seul» pour tromper les utilisateurs. Ces portefeuilles ne vous permettent pas de contrôler ou d’envoyer des fonds ; ils vous permettent uniquement de consulter le solde."
+    "watchOnlyWarningDescription": "Méfiez-vous des fraudeurs qui utilisent souvent des portefeuilles « lecture seul» pour tromper les utilisateurs. Ces portefeuilles ne vous permettent pas de contrôler ou d’envoyer des fonds ; ils vous permettent uniquement de consulter le solde.",
+    "list_title_sent": "Envoyé",
+    "custom_fee_warning_title": "Avertissement",
+    "custom_fee_warning_description": "Les frais inférieurs à 1 sat/vB sont valides, mais peuvent ne pas être relayés en raison des politiques des nœuds.",
+    "details_eta_analyzing": "Analyse en cours...",
+    "details_sent": "Envoyé",
+    "details_section": "Détails",
+    "details_explorer": "explorateur",
+    "details_network_fee": "Frais de réseau",
+    "details_to_address": "À",
+    "details_id": "ID",
+    "details_note": "Note",
+    "details_add_note": "ajouter",
+    "details_advanced": "Avancé",
+    "details_fee_rate": "Taux de frais",
+    "details_size": "Taille",
+    "details_virtual_size": "Taille virtuelle",
+    "details_tx_hex": "Hex de la transaction",
+    "details_inputs_count": "Entrées ({count})",
+    "details_outputs_count": "Sorties ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -490,7 +520,11 @@
     "manage_wallets_search_placeholder": "Chercher portefeuilles, adresses, transactions et memos",
     "more_info": "Plus d'information",
     "details_delete_wallet_error_message": "Un problème est survenu lors de la confirmation de la suppression de ce portefeuille des notifications. Cela pourrait être dû à un problème de réseau ou à une mauvaise connexion. Si vous continuez, vous pourriez continuer à recevoir des notifications pour les transactions liées à ce portefeuille, même après sa suppression.",
-    "details_delete_anyway": "Supprimer quand même"
+    "details_delete_anyway": "Supprimer quand même",
+    "swipe_balance_hide": "Cacher",
+    "swipe_balance_show": "Montrer",
+    "drag_to_reorder": "Glisser pour réorganiser",
+    "clear_search": "Effacer la recherche"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Afficher en Bitcoin",
@@ -589,7 +623,8 @@
   "autofill_word": {
     "enter": "Entrez votre phrase mnémonique partielle",
     "generate_word": "Générez le dernier mot",
-    "error": "L'entrée n'est pas un mnémonique partiel de 11 ou 23 mots. Veuillez réessayer."
+    "error": "L'entrée n'est pas un mnémonique partiel de 11 ou 23 mots. Veuillez réessayer.",
+    "title": "Dernier mot de la graine"
   },
   "cc": {
     "change": "monnaie rendu",

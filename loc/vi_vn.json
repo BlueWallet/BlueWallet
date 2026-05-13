@@ -18,7 +18,18 @@
     "change_input_currency": "Thay tiền tệ đầu vào",
     "refresh": "Làm mới",
     "enter_amount": "Nhập số tiền",
-    "qr_custom_input_button": "Chạm 10 lần để nhập đầu vào tùy chỉnh"
+    "qr_custom_input_button": "Chạm 10 lần để nhập đầu vào tùy chỉnh",
+    "copied": "Đã sao chép!",
+    "discard_changes": "Bỏ các thay đổi?",
+    "discard_changes_explain": "Bạn có những thay đổi chưa được lưu. Bạn có chắc muốn bỏ chúng và rời khỏi màn hình này?",
+    "enter_url": "Nhập URL",
+    "save": "Lưu...",
+    "pick_image": "Chọn từ thư viện",
+    "pick_file": "Chọn tệp",
+    "unlock": "Mở khoá",
+    "port": "Cổng",
+    "ssl_port": "Cổng SSL",
+    "suggested": "Đề xuất"
   },
   "azteco": {
     "codeIs": "Mã voucher của bạn là",
@@ -27,12 +38,14 @@
     "redeem": "Đổi phiếu vào ví",
     "redeemButton": "Đổi phiếu",
     "success": "Thành công",
-    "title": "Đồi phiếu voucher Azte.co"
+    "title": "Đồi phiếu voucher Azte.co",
+    "successMessage": "Đã đổi phiếu thành công! Tiền của bạn sẽ sớm đến ví Bitcoin của bạn."
   },
   "entropy": {
     "save": "Lưu",
     "title": "Entropy",
-    "undo": "Hoàn tác"
+    "undo": "Hoàn tác",
+    "amountOfEntropy": "{bits} trong {limit} bit"
   },
   "errors": {
     "broadcast": "Phát sóng giao dịch đã thất bại.",
@@ -48,7 +61,11 @@
     "refill_create": "Để tiếp tục, vui lòng tạo một ví Bitcoin để nạp tiền. ",
     "refill_external": "Nạp lại với ví bên ngoài",
     "refill_lnd_balance": "Nạp lại số dư ví Lightning",
-    "title": "Quản lý quỹ"
+    "title": "Quản lý quỹ",
+    "errorInvoiceExpired": "Hoá đơn đã hết hạn.",
+    "payment": "Khoản thanh toán",
+    "potentialFee": "Phí dự kiến: {fee}",
+    "sameWalletAsInvoiceError": "Bạn không thể thanh toán một hoá đơn bằng chính ví đã tạo ra nó."
   },
   "lndViewInvoice": {
     "additional_info": "Thông tin thêm",
@@ -57,7 +74,9 @@
     "please_pay_between_and": "Vui lòng thanh toán từ {min} đến {max}",
     "please_pay": "Vui lòng thanh toán",
     "sats": "sats.",
-    "wasnt_paid_and_expired": "Hoá đơn này chưa được thanh toán và đã hết hạn. "
+    "wasnt_paid_and_expired": "Hoá đơn này chưa được thanh toán và đã hết hạn. ",
+    "preimage": "Nghịch ảnh",
+    "date_time": "Ngày và giờ"
   },
   "plausibledeniability": {
     "create_fake_storage": "Tạo lưu trữ được mã hoá",
@@ -70,7 +89,12 @@
   "pleasebackup": {
     "ask": "Bán đã lưu cụm từ sao lưu của ví chưa? Cụm từ này sẽ được yêu cầu để truy cập tiền của bạn trong trường hợp mất thiết bị này. Nếu không có cụm từ sao lưu thì tiền của bạn sẽ bị mất vĩnh viễn.",
     "text": "Vui lòng dành một chút thời gian để viết ra cụm từ ghi nhớ này trên một tờ giấy.\nBản sao lưu này có thể sử dùng để khôi phục ví của bạn.",
-    "text_lnd": "Vui lòng lưu bản sao lưu ví này dể bạn khôi phục ví trong trường hợp mất."
+    "text_lnd": "Vui lòng lưu bản sao lưu ví này dể bạn khôi phục ví trong trường hợp mất.",
+    "ask_no": "Chưa, tôi chưa lưu.",
+    "ask_yes": "Rồi, tôi đã lưu.",
+    "ok": "OK, tôi đã ghi lại.",
+    "ok_lnd": "OK, tôi đã lưu lại.",
+    "title": "Ví của bạn đã được tạo."
   },
   "receive": {
     "details_create": "Tạo ",
@@ -80,7 +104,12 @@
     "maxSats": "Số tiền tối đa là {max} sats",
     "maxSatsFull": "Số tiền tối đa là {max} sats hoặc {currency} ",
     "minSats": "Số tiền tối thiểu là {min} sats",
-    "minSatsFull": "Số tiền tối thiểu là {min} sats hoặc {currency} "
+    "minSatsFull": "Số tiền tối thiểu là {min} sats hoặc {currency} ",
+    "details_share": "Chia sẻ...",
+    "address_not_found": "Không thể tạo địa chỉ nhận.",
+    "reset": "Đặt lại",
+    "qrcode_for_the_address": "Mã QR cho địa chỉ",
+    "bip47_explanation": "Mã thanh toán là một địa chỉ phổ quát giúp tránh tiết lộ các địa chỉ ví của bạn. Không phải tất cả các dịch vụ đều hỗ trợ chúng."
   },
   "send": {
     "provided_address_is_invoice": "Địa chỉ này dường như là cho một hóa đơn Lightning. Vui lòng sử dụng ví Lightning của bạn để thanh toán hoá đơn này.",
@@ -159,7 +188,25 @@
     "reset_amount": "Đặt lại số tiền",
     "reset_amount_confirm": "Bạn có muốn đặt lại số tiền không?",
     "success_done": "Đã xong",
-    "problem_with_psbt": "PSBT có lỗi"
+    "problem_with_psbt": "PSBT có lỗi",
+    "details_insert_contact": "Chèn liên hệ",
+    "details_add_recc_rem_all_alert_description": "Bạn có chắc muốn loại bỏ tất cả người nhận?",
+    "details_add_rec_rem_all": "Loại bỏ tất cả người nhận",
+    "details_recipients_title": "Người nhận",
+    "details_recipient_title": "Người nhận #{number} của #{total}",
+    "please_complete_recipient_title": "Người nhận chưa đầy đủ",
+    "please_complete_recipient_details": "Vui lòng điền đầy đủ thông tin của người nhận #{number} trước khi thêm người nhận mới.",
+    "details_frozen": "{amount} BTC đã bị đóng băng.",
+    "details_no_signed_tx": "Tệp đã chọn không chứa giao dịch có thể nhập.",
+    "details_scan_error": "Lỗi quét",
+    "insert_custom_fee": "Chèn phí",
+    "invalid_psbt": "PSBT được cung cấp không hợp lệ.",
+    "qr_error_no_qrcode": "Chúng tôi không thể tìm thấy mã QR hợp lệ trong hình ảnh đã chọn. Hãy đảm bảo hình ảnh chỉ chứa mã QR và không có nội dung bổ sung như văn bản hoặc nút bấm.",
+    "txSaved": "Tệp giao dịch ({filePath}) đã được lưu.",
+    "file_saved_at_path": "Tệp ({filePath}) đã được lưu.",
+    "cant_send_to_silentpayment_adress": "Ví này không thể gửi đến các địa chỉ SilentPayment",
+    "cant_send_to_bip47": "Ví này không thể gửi đến các mã thanh toán BIP47",
+    "cant_find_bip47_notification": "Trước tiên hãy thêm mã thanh toán này vào danh bạ"
   },
   "settings": {
     "about": "Giới thiệu",
@@ -234,10 +281,52 @@
     "total_balance": "Tổng số dư",
     "total_balance_explanation": "Hiển thị tổng số dư của các ví của bạn trong widget màn hình Home. ",
     "widgets": "Các widgets",
-    "tools": "Các tools"
+    "tools": "Các tools",
+    "block_explorer_invalid_custom_url": "URL được cung cấp không hợp lệ. Vui lòng nhập một URL hợp lệ bắt đầu bằng http:// hoặc https://.",
+    "privacy_temporary_screenshots": "Cho phép chụp màn hình",
+    "privacy_temporary_screenshots_instructions": "Bảo vệ chụp màn hình sẽ bị tắt tạm thời, cho phép chụp ảnh màn hình và quay video màn hình. Bảo vệ sẽ tự động kích hoạt lại khi bạn đóng và mở lại BlueWallet.",
+    "biometrics_no_longer_available": "Cài đặt thiết bị của bạn đã thay đổi và không còn khớp với cài đặt bảo mật đã chọn trong ứng dụng. Vui lòng kích hoạt lại sinh trắc học hoặc mã PIN, sau đó khởi động lại ứng dụng để áp dụng các thay đổi này.",
+    "biom_no_passcode": "Thiết bị của bạn chưa có mã PIN hoặc sinh trắc học được bật. Để tiếp tục, vui lòng thiết lập mã PIN hoặc sinh trắc học trong ứng dụng Cài đặt.",
+    "currency_source": "Tỷ giá được lấy từ",
+    "donate": "Quyên góp",
+    "donate_description": "Hãy giúp chúng tôi giữ cho Blue miễn phí!",
+    "electrum_error_connect": "Không thể kết nối đến máy chủ Electrum được cung cấp",
+    "electrum_error_connect_tor": "Không thể kết nối đến máy chủ Electrum được cung cấp. Vui lòng đảm bảo ứng dụng Orbot đã được kết nối và thử lại.",
+    "set_lndhub_as_default": "Đặt {url} làm máy chủ LNDhub mặc định?",
+    "electrum_preferred_server": "Máy chủ ưu tiên",
+    "electrum_preferred_server_description": "Nhập máy chủ bạn muốn ví của mình sử dụng cho tất cả các hoạt động Bitcoin. Sau khi đã đặt, ví của bạn sẽ chỉ sử dụng máy chủ này để kiểm tra số dư, gửi giao dịch và lấy dữ liệu mạng. Hãy đảm bảo bạn tin cậy máy chủ này trước khi đặt.",
+    "electrum_history": "Lịch sử",
+    "electrum_reset_to_default": "Điều này sẽ cho phép BlueWallet chọn ngẫu nhiên một máy chủ từ danh sách máy chủ.",
+    "electrum_reset_to_default_and_clear_history": "Đặt lại về mặc định và xoá lịch sử",
+    "encrypt_enc_and_pass": "Được bảo vệ bằng mật khẩu",
+    "encrypt_storage_explanation_headline": "Bật mã hoá lưu trữ",
+    "encrypt_storage_explanation_description_line1": "Bật mã hoá lưu trữ sẽ thêm một lớp bảo vệ cho ứng dụng của bạn bằng cách bảo mật cách dữ liệu được lưu trên thiết bị. Điều này khiến người khác khó truy cập thông tin của bạn nếu không có quyền.",
+    "encrypt_storage_explanation_description_line2": "Tuy nhiên, cần lưu ý rằng việc mã hoá này chỉ bảo vệ quyền truy cập vào các ví được lưu trong keychain của thiết bị. Nó không đặt mật khẩu hay bất kỳ bảo vệ bổ sung nào lên chính các ví.",
+    "i_understand": "Tôi hiểu",
+    "block_explorer": "Trình khám phá khối",
+    "block_explorer_preferred": "Sử dụng trình khám phá khối ưu tiên",
+    "block_explorer_error_saving_custom": "Lỗi khi lưu trình khám phá khối ưu tiên",
+    "set_as_preferred": "Đặt làm ưu tiên",
+    "set_as_preferred_electrum": "Đặt {host}:{port} làm máy chủ ưu tiên sẽ vô hiệu hoá việc kết nối ngẫu nhiên đến máy chủ được đề xuất.",
+    "encrypted_feature_disabled": "Tính năng này không thể được sử dụng khi mã hoá lưu trữ đã được bật.",
+    "encrypt_use_expl": "{type} sẽ được sử dụng để xác nhận danh tính của bạn trước khi thực hiện giao dịch, mở khoá, xuất hoặc xoá ví.",
+    "biometrics_fail": "Nếu {type} không được bật, hoặc không mở khoá được, bạn có thể sử dụng mã PIN của thiết bị làm phương án thay thế.",
+    "license": "Giấy phép",
+    "lightning_error_lndhub_uri": "URI LNDhub không hợp lệ",
+    "lightning_error_lndhub_uri_tor": "URI LNDhub không hợp lệ. Vui lòng đảm bảo ứng dụng Orbot đã được kết nối và thử lại.",
+    "lightning_settings_explain": "Để kết nối với node LND của riêng bạn, vui lòng cài đặt LNDhub và đặt URL của nó tại đây trong cài đặt. Lưu ý rằng chỉ những ví được tạo sau khi lưu các thay đổi mới kết nối với LNDhub đã chỉ định.",
+    "lndhub_github": "Kho lưu trữ GitHub",
+    "electrum_suggested_description": "Khi không đặt máy chủ ưu tiên, một máy chủ được đề xuất sẽ được chọn để sử dụng ngẫu nhiên.",
+    "password_explain": "Nhập mật khẩu mà bạn sẽ dùng để mở khoá lưu trữ.",
+    "privacy_quickactions_explanation": "Chạm và giữ biểu tượng ứng dụng BlueWallet để xem nhanh số dư của ví.",
+    "push_notifications_explanation": "Bằng cách bật thông báo, mã token thiết bị của bạn sẽ được gửi đến máy chủ, cùng với các địa chỉ ví và ID giao dịch cho tất cả các ví và giao dịch được thực hiện sau khi bật thông báo. Mã token thiết bị được dùng để gửi thông báo, và thông tin ví cho phép chúng tôi thông báo cho bạn về Bitcoin đến hoặc xác nhận giao dịch.\n\nChỉ thông tin từ sau khi bạn bật thông báo mới được truyền — không có gì từ trước đó được thu thập.\n\nTắt thông báo sẽ xoá tất cả thông tin này khỏi máy chủ. Ngoài ra, xoá một ví khỏi ứng dụng cũng sẽ xoá thông tin liên quan của nó khỏi máy chủ.",
+    "success_transaction_broadcasted": "Giao dịch của bạn đã được truyền tải thành công!"
   },
   "notifications": {
-    "would_you_like_to_receive_notifications": "Bạn có muốn được thông báo khi nào nhận thanh toán đến không?"
+    "would_you_like_to_receive_notifications": "Bạn có muốn được thông báo khi nào nhận thanh toán đến không?",
+    "notifications_subtitle": "Khoản thanh toán đến và xác nhận giao dịch",
+    "no_and_dont_ask": "Không, và đừng hỏi tôi nữa.",
+    "permission_denied_message": "Bạn đã từ chối quyền gửi thông báo. Nếu bạn muốn nhận thông báo, vui lòng bật chúng trong cài đặt thiết bị."
   },
   "transactions": {
     "cancel_explain": "Chúng tôi sẽ thay thế giao dịch này với một cái có thanh toán cho bạn và có phí lớn hơn. Điều này hiệu quả hủy bỏ giao dịch hiện tại. Đây là RBF: Replace By Fee - Thay thế bằng phí.",
@@ -282,7 +371,37 @@
     "status_cancel": "Huỷ giao dịch",
     "transactions_count": "Số lượng giao dịch ",
     "txid": "ID giao dịch",
-    "updating": "Đang cập nhật..."
+    "updating": "Đang cập nhật...",
+    "transaction_loading_error": "Đã có sự cố khi tải giao dịch. Vui lòng thử lại sau.",
+    "transaction_not_available": "Giao dịch không có sẵn",
+    "details_view_in_browser": "Xem trong trình duyệt",
+    "incoming_transaction": "Giao dịch đến",
+    "outgoing_transaction": "Giao dịch đi",
+    "expired_transaction": "Giao dịch đã hết hạn",
+    "pending_transaction": "Giao dịch đang chờ",
+    "offchain": "Offchain",
+    "onchain": "Onchain",
+    "list_title_sent": "Đã gửi",
+    "watchOnlyWarningTitle": "Cảnh báo bảo mật",
+    "watchOnlyWarningDescription": "Hãy cẩn trọng với những kẻ lừa đảo thường sử dụng ví “chỉ xem” để đánh lừa người dùng. Các ví này không cho phép bạn kiểm soát hoặc gửi tiền; chúng chỉ cho phép bạn xem số dư.",
+    "custom_fee_warning_title": "Cảnh báo",
+    "custom_fee_warning_description": "Các mức phí dưới 1 sat/vB là hợp lệ, nhưng có thể không được chuyển tiếp do chính sách của node.",
+    "details_eta_analyzing": "Đang phân tích...",
+    "details_sent": "Đã gửi",
+    "details_section": "Chi tiết",
+    "details_explorer": "trình khám phá",
+    "details_network_fee": "Phí mạng",
+    "details_to_address": "Đến",
+    "details_id": "ID",
+    "details_note": "Ghi chú",
+    "details_add_note": "thêm",
+    "details_advanced": "Nâng cao",
+    "details_fee_rate": "Mức phí",
+    "details_size": "Kích cỡ",
+    "details_virtual_size": "Kích cỡ ảo",
+    "details_tx_hex": "Hex giao dịch",
+    "details_inputs_count": "Đầu vào ({count})",
+    "details_outputs_count": "Đầu ra ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -363,10 +482,54 @@
     "pull_to_refresh": "Kéo để làm mới",
     "add_ln_wallet_first": "Đầu tiên bạn phải thêm một ví Lightning.",
     "identity_pubkey": "PubKey danh tính",
-    "xpub_title": "XPUB của ví"
+    "xpub_title": "XPUB của ví",
+    "add_entropy_reset_title": "Đặt lại entropy",
+    "add_entropy_reset_message": "Thay đổi loại ví sẽ đặt lại entropy hiện tại. Bạn có muốn tiếp tục?",
+    "add_entropy_bytes": "{bytes} byte entropy",
+    "add_lndhub": "Kết nối đến LNDhub của bạn",
+    "add_lndhub_error": "Địa chỉ node được cung cấp không phải là một node LNDhub hợp lệ.",
+    "add_wallet_seed_length": "Độ dài cụm từ khôi phục",
+    "add_wallet_seed_length_12": "12 từ",
+    "add_wallet_seed_length_24": "24 từ",
+    "clear_clipboard_on_import": "Xoá bảng tạm khi nhập",
+    "details_del_wb_err": "Số dư được cung cấp không khớp với số dư của ví này. Vui lòng thử lại.",
+    "details_display": "Hiển thị ở màn hình chính",
+    "swipe_balance_hide": "Ẩn",
+    "swipe_balance_show": "Hiển thị",
+    "drag_to_reorder": "Kéo để sắp xếp lại",
+    "clear_search": "Xoá tìm kiếm",
+    "learn_more": "Tìm hiểu thêm",
+    "import_discovery_offline": "BlueWallet hiện đang ở chế độ ngoại tuyến. Ở chế độ này, ứng dụng không thể xác minh sự tồn tại của ví, vì vậy bạn cần chọn ví đúng theo cách thủ công",
+    "import_derivation_found": "Đã tìm thấy",
+    "import_derivation_found_not": "Không tìm thấy",
+    "import_derivation_loading": "Đang tải...",
+    "import_derivation_subtitle": "Nhập đường dẫn dẫn xuất tuỳ chỉnh, và chúng tôi sẽ thử khám phá ví của bạn.",
+    "import_derivation_unknown": "Không xác định",
+    "import_wrong_path": "Đường dẫn dẫn xuất sai",
+    "list_create_a_wallet_text": "Miễn phí, và bạn có thể tạo \nbao nhiêu tuỳ thích.",
+    "import_file": "Nhập tệp",
+    "manage_title": "Quản lý ví",
+    "no_results_found": "Không tìm thấy kết quả.",
+    "warning_do_not_disclose": "Không bao giờ chia sẻ thông tin bên dưới",
+    "scan_import": "Quét mã QR này để nhập ví của bạn vào ứng dụng khác.",
+    "write_down_header": "Tạo bản sao lưu thủ công",
+    "write_down": "Viết ra và lưu trữ các từ này một cách an toàn. Sử dụng chúng để khôi phục ví của bạn sau này.",
+    "wallet_type_this": "Loại ví này là {type}.",
+    "share_number": "Chia sẻ {number}",
+    "copy_ln_url": "Sao chép và lưu trữ URL này một cách an toàn để khôi phục ví của bạn sau này.",
+    "copy_ln_public": "Sao chép và lưu trữ thông tin này một cách an toàn để khôi phục ví của bạn sau này.",
+    "manage_wallets_search_placeholder": "Tìm kiếm ví, địa chỉ, giao dịch và ghi chú",
+    "more_info": "Thêm thông tin",
+    "details_delete_wallet_error_message": "Đã có sự cố khi xác nhận liệu ví này có được gỡ khỏi thông báo hay không — có thể do sự cố mạng hoặc kết nối kém. Nếu bạn tiếp tục, bạn vẫn có thể nhận thông báo về các giao dịch liên quan đến ví này, ngay cả sau khi nó bị xoá.",
+    "details_delete_anyway": "Vẫn xoá"
   },
   "total_balance_view": {
-    "title": "Tổng số dư"
+    "title": "Tổng số dư",
+    "display_in_bitcoin": "Hiển thị bằng Bitcoin",
+    "hide": "Ẩn",
+    "display_in_sats": "Hiển thị bằng sats",
+    "display_in_fiat": "Hiển thị bằng {currency}",
+    "explanation": "Xem tổng số dư của tất cả các ví của bạn trong màn hình tổng quan."
   },
   "multisig": {
     "multisig_vault": "Vault Multisig",
@@ -430,14 +593,29 @@
     "ms_help_title4": "Đang nhập các Vault",
     "ms_help_4": "Để nhập một Multisig, hãy sử dụng tệp sao lưu của bạn và tính năng nhập. Nếu bạn chỉ có những hạt giống và XPUB, bạn có thể sử dụng nút Nhập riêng lẻ khi tạo các khoá Vault.",
     "ms_help_title5": "Chế độ nâng cao",
-    "ms_help_5": "Theo mặc định, Bluewallet sẽ tạo một Vault 2-trong-3. Để tạo một nhóm túc khác hoặc thay đổi loại địa chỉ, hãy kích hoạt chế độ nâng cao trong cài đặt."
+    "ms_help_5": "Theo mặc định, Bluewallet sẽ tạo một Vault 2-trong-3. Để tạo một nhóm túc khác hoặc thay đổi loại địa chỉ, hãy kích hoạt chế độ nâng cao trong cài đặt.",
+    "provide_signature_details": "Sử dụng thiết bị và ví nơi lưu khoá để ký giao dịch này",
+    "provide_signature_details_bluewallet": "Trong BlueWallet, vào menu màn hình Gửi và chọn ",
+    "provide_signature_next_steps": "Quét hoặc nhập giao dịch đã ký",
+    "provide_signature_next_steps_details": "Sau khi ví của bạn ký giao dịch thành công, quét mã QR được cung cấp hoặc nhập tệp đi kèm, sau đó xem lại tất cả chi tiết giao dịch trước khi truyền tải.",
+    "share": "Chia sẻ...",
+    "shared_key_detected": "Người đồng ký được chia sẻ",
+    "shared_key_detected_question": "Một người đồng ký đã được chia sẻ với bạn, bạn có muốn nhập không?",
+    "invalid_mnemonics": "Cụm từ ghi nhớ này có vẻ không hợp lệ.",
+    "invalid_cosigner": "Dữ liệu người đồng ký không hợp lệ",
+    "invalid_cosigner_format": "Người đồng ký không chính xác: Đây không phải là người đồng ký cho định dạng {format}.",
+    "this_is_cosigners_xpub": "Đây là XPUB của người đồng ký — sẵn sàng để được nhập vào một ví khác. Có thể chia sẻ an toàn.",
+    "this_is_cosigners_xpub_airdrop": "Nếu bạn chia sẻ qua AirDrop, người nhận phải đang ở màn hình điều phối.",
+    "view_edit_cosigners": "Xem/Sửa người đồng ký",
+    "this_cosigner_is_already_imported": "Người đồng ký này đã được nhập."
   },
   "is_it_my_address": {
     "title": "Đó là địa chỉ của tôi không?",
     "owns": "{label} sở hữu {address}",
     "enter_address": "Nhập địa chỉ",
     "check_address": "Kiểm tra địa chỉ",
-    "no_wallet_owns_address": "Không có ví nào có sẵn sở hữu địa chỉ được cung cấp."
+    "no_wallet_owns_address": "Không có ví nào có sẵn sở hữu địa chỉ được cung cấp.",
+    "view_qrcode": "Xem mã QR"
   },
   "cc": {
     "change": "Tiền thừa",
@@ -450,7 +628,14 @@
     "use_coin": "Sử dùng coin",
     "use_coins": "Sử dụng các coin",
     "tip": "Tính năng này cho phép bạn xem, dán nhãn, đóng băng hoặc chọn tiền để quản lý ví cải tiến. Bạn có thể chọn nhiều coin bằng cách chạm vào các vòng tròn màu.",
-    "sort_status": " Trạng thái"
+    "sort_status": " Trạng thái",
+    "empty": "Ví này hiện chưa có coin nào.",
+    "sort_asc": "Tăng dần",
+    "sort_desc": "Giảm dần",
+    "sort_height": "Chiều cao",
+    "sort_value": "Giá trị",
+    "sort_label": "Nhãn",
+    "sort_by": "Sắp xếp theo"
   },
   "units": {
     "BTC": "BTC",
@@ -472,7 +657,9 @@
     "type_change": "Tiền thừa",
     "type_receive": "Nhận",
     "type_used": "Đã sử dụng",
-    "transactions": "Giao dịch"
+    "transactions": "Giao dịch",
+    "copy_private_key": "Sao chép khoá riêng tư",
+    "sensitive_private_key": "Cảnh báo: khoá riêng tư cực kỳ nhạy cảm. Tiếp tục?"
   },
   "lnurl_auth": {
     "register_question_part_1": "Bạn có muốn đăng ký một tài khoản tại",
@@ -493,6 +680,29 @@
   "bip47": {
     "payment_code": "Mã thanh toán",
     "purpose": "Mã có thể sử dụng lại và có thể chia sẻ (BIP47)",
-    "not_found": "Không tìm thấy mã thanh toán"
+    "not_found": "Không tìm thấy mã thanh toán",
+    "contacts": "Danh bạ",
+    "bip47_explain": "Mã có thể sử dụng lại và có thể chia sẻ",
+    "bip47_explain_subtitle": "BIP47",
+    "pay_this_contact": "Thanh toán cho liên hệ này",
+    "rename_contact": "Đổi tên liên hệ",
+    "copy_payment_code": "Sao chép mã thanh toán",
+    "hide_contact": "Ẩn liên hệ",
+    "rename": "Đổi tên",
+    "provide_name": "Cung cấp tên mới cho liên hệ này",
+    "add_contact": "Thêm liên hệ",
+    "provide_payment_code": "Cung cấp mã thanh toán",
+    "invalid_pc": "Mã thanh toán không hợp lệ",
+    "notification_tx_unconfirmed": "Giao dịch thông báo chưa được xác nhận, vui lòng chờ",
+    "failed_create_notif_tx": "Không thể tạo giao dịch on-chain",
+    "onchain_tx_needed": "Cần giao dịch on-chain",
+    "notif_tx_sent": "Đã gửi giao dịch thông báo. Vui lòng chờ giao dịch được xác nhận",
+    "notif_tx": "Giao dịch thông báo"
+  },
+  "autofill_word": {
+    "title": "Từ cuối của cụm từ khôi phục",
+    "enter": "Nhập cụm từ ghi nhớ một phần của bạn",
+    "generate_word": "Tạo từ cuối",
+    "error": "Đầu vào không phải là cụm từ ghi nhớ một phần gồm 11 hoặc 23 từ. Vui lòng thử lại."
   }
 }

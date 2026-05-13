@@ -28,7 +28,8 @@
     "unlock": "Odblokuj",
     "port": "Port",
     "ssl_port": "Port SSL",
-    "suggested": "Sugerowane"
+    "suggested": "Sugerowane",
+    "copied": "Skopiowano!"
   },
   "azteco": {
     "codeIs": "Kod twojego vouchera to",
@@ -387,7 +388,23 @@
     "watchOnlyWarningTitle": "Ostrzeżenie bezpieczeństwa",
     "watchOnlyWarningDescription": "Zachowaj ostrożność wobec oszustów, którzy często używają portfeli „tylko do odczytu” do wprowadzania użytkowników w błąd. Te portfele nie pozwalają na kontrolowanie ani wysyłanie środków; umożliwiają jedynie przeglądanie salda.",
     "custom_fee_warning_title": "Ostrzeżenie",
-    "custom_fee_warning_description": "Opłaty poniżej 1 sat/vB są prawidłowe, ale mogą nie zostać przekazane dalej z powodu konfiguracji policy węzłów."
+    "custom_fee_warning_description": "Opłaty poniżej 1 sat/vB są prawidłowe, ale mogą nie zostać przekazane dalej z powodu konfiguracji policy węzłów.",
+    "details_eta_analyzing": "Analizuję...",
+    "details_sent": "Wysłano",
+    "details_section": "Szczegóły",
+    "details_explorer": "eksplorator",
+    "details_network_fee": "Opłata sieciowa",
+    "details_to_address": "Do",
+    "details_id": "ID",
+    "details_note": "Notatka",
+    "details_add_note": "dodaj",
+    "details_advanced": "Zaawansowane",
+    "details_fee_rate": "Stawka opłaty",
+    "details_size": "Rozmiar",
+    "details_virtual_size": "Rozmiar wirtualny",
+    "details_tx_hex": "Hex transakcji",
+    "details_inputs_count": "Wejścia ({count})",
+    "details_outputs_count": "Wyjścia ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -503,7 +520,11 @@
     "manage_wallets_search_placeholder": "Szukaj portfeli, adresów, transakcji i notatek",
     "more_info": "Więcej informacji",
     "details_delete_wallet_error_message": "Nie udało się potwierdzić usunięcia tego portfela z powiadomień – możliwe, że przyczyną jest problem z siecią lub słabe połączenie. Jeśli kontynuujesz, możesz nadal otrzymywać powiadomienia o transakcjach związanych z tym portfelem, nawet po jego usunięciu.",
-    "details_delete_anyway": "Usuń mimo to"
+    "details_delete_anyway": "Usuń mimo to",
+    "swipe_balance_hide": "Ukryj",
+    "swipe_balance_show": "Pokaż",
+    "drag_to_reorder": "Przeciągnij, aby zmienić kolejność",
+    "clear_search": "Wyczyść wyszukiwanie"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Wyświetlaj w Bitcoinie",

@@ -4,6 +4,7 @@
     "cancel": "取消",
     "continue": "继续",
     "clipboard": "剪贴板",
+    "copied": "已复制！",
     "discard_changes": "放弃更改？",
     "discard_changes_explain": "您有未保存的更改。您确定要放弃这些更改并离开此页面吗？",
     "enter_password": "输入密码",
@@ -387,7 +388,23 @@
     "watchOnlyWarningTitle": "安全警告",
     "watchOnlyWarningDescription": "请注意骗子，他们经常使用“观察钱包”来欺骗用户。这类钱包无法让您控制或发送资金，只能查看余额。 ",
     "custom_fee_warning_title": " 警告",
-    "custom_fee_warning_description": "低于 1 聪/字节的矿工费是有效的，但可能由于节点政策而无法被转发。 "
+    "custom_fee_warning_description": "低于 1 聪/字节的矿工费是有效的，但可能由于节点政策而无法被转发。 ",
+    "details_eta_analyzing": "正在分析……",
+    "details_sent": "已发送",
+    "details_section": "详情",
+    "details_explorer": "浏览器",
+    "details_network_fee": "矿工费",
+    "details_to_address": "到",
+    "details_id": "ID",
+    "details_note": "备注",
+    "details_add_note": "添加",
+    "details_advanced": "高级",
+    "details_fee_rate": "费率",
+    "details_size": "大小",
+    "details_virtual_size": "虚拟大小",
+    "details_tx_hex": "交易十六进制",
+    "details_inputs_count": "输入（{count}）",
+    "details_outputs_count": "输出（{count}）"
   },
   "wallets": {
     "add_bitcoin": "比特币",
@@ -503,7 +520,11 @@
     "manage_wallets_search_placeholder": "搜索钱包、地址、交易和备注",
     "more_info": "更多信息",
     "details_delete_wallet_error_message": "确认此钱包是否已从通知中移除时出现问题——这可能是由于网络问题或连接不良。如果您继续操作，即使删除此钱包，您仍可能收到与该钱包相关的交易通知。",
-    "details_delete_anyway": "仍然删除"
+    "details_delete_anyway": "仍然删除",
+    "swipe_balance_hide": "隐藏",
+    "swipe_balance_show": "显示",
+    "drag_to_reorder": "拖动以重新排序",
+    "clear_search": "清除搜索"
   },
   "total_balance_view": {
     "display_in_bitcoin": "以比特币显示",

@@ -1,6 +1,7 @@
 {
   "_": {
     "bad_password": "Väärä salasana, yritä uudelleen.",
+    "copied": "Kopioitu!",
     "cancel": "Peruuta",
     "continue": "Jatka",
     "clipboard": "Leikepöytä",
@@ -107,7 +108,8 @@
     "maxSatsFull": "Enimmäismäärä on {max} satsia tai {currency}",
     "minSats": "Vähimmäismäärä on {min} satsia",
     "minSatsFull": "Vähimmäismäärä on {min} satsia tai {currency}",
-    "qrcode_for_the_address": "QR-koodi osoitteelle"
+    "qrcode_for_the_address": "QR-koodi osoitteelle",
+    "bip47_explanation": "Maksukoodit ovat yleisluonteinen osoite, joka ei paljasta lompakkosi osoitteita. Kaikki palvelut eivät tue niitä."
   },
   "send": {
     "provided_address_is_invoice": "Tämä osoite vaikuttaa olevan Salamalasku. Maksun suorittamiseksi, siirry Salamalompakkoosi.",
@@ -203,7 +205,9 @@
     "file_saved_at_path": "Tiedosto ({filePath}) on tallennettu.",
     "cant_send_to_silentpayment_adress": "Tämä lompakko ei voi lähettää SilentPayment osoitteisiin",
     "cant_find_bip47_notification": "Lisää tämä maksukoodi yhteystietoihisi ensin",
-    "problem_with_psbt": "Ongelma PSBT:n kanssa"
+    "problem_with_psbt": "Ongelma PSBT:n kanssa",
+    "qr_error_no_qrcode": "Valitusta kuvasta ei löytynyt kelvollista QR-koodia. Varmista, että kuva sisältää vain QR-koodin eikä muuta sisältöä, kuten tekstiä tai painikkeita.",
+    "cant_send_to_bip47": "Tämä lompakko ei voi lähettää BIP47-maksukoodeihin"
   },
   "settings": {
     "about": "Tietoa",
@@ -262,6 +266,14 @@
     "encrypt_enc_and_pass": "Salasanalla suojattu",
     "encrypt_storage_explanation_headline": "Ota käyttöön tallennustilan salaus",
     "encrypt_storage_explanation_description_line1": "Tallennustilan salauksen ottaminen käyttöön lisää sovellukseesi ylimääräisen suojauskerroksen suojaamalla tietojesi tallennustapaa laitteellasi. Tämä vaikeuttaa kenenkään pääsyä tietoihisi ilman lupaa.",
+    "encrypt_storage_explanation_description_line2": "On kuitenkin tärkeää tietää, että tämä salaus suojaa vain pääsyä lompakoihisi, jotka on tallennettu laitteen avainnippuun. Se ei aseta salasanaa tai mitään lisäsuojaa itse lompakoille.",
+    "set_as_preferred_electrum": "Kun {host}:{port} asetetaan ensisijaiseksi palvelimeksi, satunnaiseen ehdotettuun palvelimeen yhdistäminen poistetaan käytöstä.",
+    "encrypt_use_expl": "{type} käytetään henkilöllisyytesi vahvistamiseen ennen siirtotapahtuman tekemistä, lompakon avaamista, vientiä tai poistamista.",
+    "biometrics_fail": "Jos {type} ei ole käytössä tai sen avaaminen epäonnistuu, voit käyttää vaihtoehtona laitteesi pääsykoodia.",
+    "lightning_error_lndhub_uri": "Virheellinen LNDhub URI",
+    "lightning_error_lndhub_uri_tor": "Virheellinen LNDhub URI. Varmista, että Orbot-sovellus on yhteydessä, ja yritä uudelleen.",
+    "lightning_settings_explain": "Jos haluat yhdistää omaan LND-solmuusi, asenna LNDhub ja syötä sen URL-osoite tähän asetuksiin. Huomaa, että vain muutosten tallentamisen jälkeen luodut lompakot yhdistyvät määritettyyn LNDhubiin.",
+    "electrum_suggested_description": "Kun ensisijaista palvelinta ei ole asetettu, käyttöön valitaan satunnaisesti ehdotettu palvelin.",
     "i_understand": "Ymmärrän",
     "block_explorer": "Lohkoselain",
     "block_explorer_preferred": "Käytä ensisijaista lohkoselainta",
@@ -371,7 +383,28 @@
     "to": "Vastaanottaja: {counterparty}",
     "updating": "Päivitetään...",
     "watchOnlyWarningTitle": "Turvallisuusvaroitus",
-    "custom_fee_warning_title": "Varoitus"
+    "custom_fee_warning_title": "Varoitus",
+    "pending_transaction": "Vahvistusta odottava siirtotapahtuma",
+    "offchain": "Salamaverkossa",
+    "onchain": "Ketjussa",
+    "watchOnlyWarningDescription": "Varo huijareita, jotka käyttävät usein pelkästään katseltavia lompakoita käyttäjien huijaamiseen. Näiden lompakoiden avulla et voi hallita tai lähettää varoja; voit ainoastaan tarkastella saldoa.",
+    "custom_fee_warning_description": "Alle 1 sat/vB siirtomaksut ovat kelvollisia, mutta solmujen käytännöt saattavat estää niiden välittämisen.",
+    "details_eta_analyzing": "Analysoidaan...",
+    "details_sent": "Lähetetty",
+    "details_section": "Tarkemmat tiedot",
+    "details_explorer": "selain",
+    "details_network_fee": "Verkkomaksu",
+    "details_to_address": "Vastaanottaja",
+    "details_id": "Tunnus",
+    "details_note": "Muistiinpano",
+    "details_add_note": "lisää",
+    "details_advanced": "Edistynyt",
+    "details_fee_rate": "Siirtomaksun taso",
+    "details_size": "Koko",
+    "details_virtual_size": "Virtuaalinen koko",
+    "details_tx_hex": "Tx Hex",
+    "details_inputs_count": "Syötteet ({count})",
+    "details_outputs_count": "Ulostulot ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -484,7 +517,14 @@
     "xpub_title": "lompakon XPUB",
     "manage_wallets_search_placeholder": "Etsi lompakoista, osoitteista, siirtotapahtumista ja muistiinpanoista",
     "more_info": "Lisää tietoa",
-    "details_delete_anyway": "Poista silti"
+    "details_delete_anyway": "Poista silti",
+    "add_lndhub_error": "Annettu solmun osoite on virheellinen LNDhub-solmu.",
+    "add_wallet_seed_length": "Palautuslauseen pituus",
+    "swipe_balance_hide": "Piilota",
+    "swipe_balance_show": "Näytä",
+    "drag_to_reorder": "Vedä järjestääksesi uudelleen",
+    "clear_search": "Tyhjennä haku",
+    "details_delete_wallet_error_message": "Tämän lompakon ilmoituksista poistamisen vahvistamisessa ilmeni ongelma — tämä voi johtua verkko-ongelmasta tai heikosta yhteydestä. Jos jatkat, saatat silti saada ilmoituksia tähän lompakkoon liittyvistä siirtotapahtumista myös sen poistamisen jälkeen."
   },
   "total_balance_view": {
     "display_in_bitcoin": "Näytä Bitcoineissa",
@@ -564,7 +604,13 @@
     "ms_help_title4": "Tuodaan Vault:ia",
     "ms_help_4": "Voit tuoda multisig:in käyttämällä varmuuskopiotiedostoasi ja Tuo-ominaisuutta. Jos sinulla on vain laajennettuja avaimia ja siemensanoja, voit käyttää yksittäistä Tuo-näppäintä, kun luot Vault -avaimia.",
     "ms_help_title5": "Lisäasetukset",
-    "ms_help_5": "Oletuksena BlueWallet luo 2/3 Vaultin. Jos haluat luoda erilaisen päätösvallan tai muuttaa osoitetyyppiä, aktivoi Lisäasetukset Asetuksista."
+    "ms_help_5": "Oletuksena BlueWallet luo 2/3 Vaultin. Jos haluat luoda erilaisen päätösvallan tai muuttaa osoitetyyppiä, aktivoi Lisäasetukset Asetuksista.",
+    "provide_signature_details": "Käytä laitetta ja lompakkoa, jossa avain sijaitsee, allekirjoittaaksesi tämän siirtotapahtuman",
+    "provide_signature_details_bluewallet": "BlueWalletissa siirry Lähetä-näytön valikkoon ja valitse ",
+    "provide_signature_next_steps_details": "Kun lompakkosi on onnistuneesti allekirjoittanut siirtotapahtuman, skannaa toimitettu QR-koodi tai tuo siihen liittyvä tiedosto, ja tarkista sitten kaikki siirtotapahtuman tiedot ennen sen lähettämistä verkkoon.",
+    "shared_key_detected": "Jaettu osa-allekirjoittaja",
+    "shared_key_detected_question": "Sinulle on jaettu osa-allekirjoittaja, haluatko tuoda sen?",
+    "this_is_cosigners_xpub_airdrop": "Jos jaat AirDropin kautta, vastaanottajien on oltava koordinointinäytöllä."
   },
   "is_it_my_address": {
     "title": "Onko se osoitteeni?",
@@ -575,7 +621,10 @@
     "view_qrcode": "Näytä QR-koodi"
   },
   "autofill_word": {
-    "generate_word": "Muodosta viimeinen sana"
+    "generate_word": "Muodosta viimeinen sana",
+    "title": "Palautuslauseen viimeinen sana",
+    "enter": "Syötä osittainen palautuslauseesi",
+    "error": "Syöte ei ole 11 tai 23 sanan osittainen palautuslause. Yritä uudelleen."
   },
   "cc": {
     "change": "vaihto",
@@ -649,6 +698,14 @@
     "rename": "Nimeä uudelleen",
     "provide_name": "Anna uusi nimi tälle kontaktille",
     "add_contact": "Lisää yhteystieto",
-    "not_found": "Maksukoodia ei löytynyt"
+    "not_found": "Maksukoodia ei löytynyt",
+    "bip47_explain": "Uudelleenkäytettävä ja jaettavissa oleva koodi",
+    "provide_payment_code": "Anna maksukoodi",
+    "invalid_pc": "Virheellinen maksukoodi",
+    "notification_tx_unconfirmed": "Ilmoitustapahtumaa ei ole vielä vahvistettu, odota",
+    "failed_create_notif_tx": "Ketjussa olevan siirtotapahtuman luominen epäonnistui",
+    "onchain_tx_needed": "Ketjussa oleva siirtotapahtuma tarvitaan",
+    "notif_tx_sent": "Ilmoitustapahtuma lähetetty. Odota sen vahvistumista",
+    "notif_tx": "Ilmoitustapahtuma"
   }
 }

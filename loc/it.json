@@ -27,7 +27,9 @@
     "qr_custom_input_button": "Tocca 10 volte per inserire un input personalizzato",
     "unlock": "Sblocca",
     "port": "Porta",
-    "ssl_port": "Porta SSL"
+    "ssl_port": "Porta SSL",
+    "copied": "Copiato!",
+    "suggested": "Suggerito"
   },
   "azteco": {
     "codeIs": "Il codice del tuo voucher è",
@@ -36,12 +38,14 @@
     "redeem": "Riscatta nel portafoglio",
     "redeemButton": "Riscattare",
     "success": "Fatto",
-    "title": "Riscatta un voucher Atze.co"
+    "title": "Riscatta un voucher Atze.co",
+    "successMessage": "Voucher riscattato con successo! I tuoi fondi dovrebbero arrivare a breve nel tuo portafoglio Bitcoin."
   },
   "entropy": {
     "save": "Salva",
     "title": "Entropia",
-    "undo": "Annulla"
+    "undo": "Annulla",
+    "amountOfEntropy": "{bits} di {limit} bit"
   },
   "errors": {
     "broadcast": "Trasmissione fallita",
@@ -71,7 +75,8 @@
     "please_pay": "Per favore paga",
     "sats": "sats.",
     "date_time": "Data e Ora",
-    "wasnt_paid_and_expired": "Questa fattura non è stata pagata ed è scaduta."
+    "wasnt_paid_and_expired": "Questa fattura non è stata pagata ed è scaduta.",
+    "preimage": "Preimage"
   },
   "plausibledeniability": {
     "create_fake_storage": "Crea archivio criptato",
@@ -100,7 +105,11 @@
     "maxSats": "L'importo massimo è {max} sats",
     "maxSatsFull": "L'importo massimo è {max} sats o {currency}",
     "minSats": "L'importo minimo è {min} sats",
-    "minSatsFull": "L'importo minimo è {min} sats o {currency}"
+    "minSatsFull": "L'importo minimo è {min} sats o {currency}",
+    "address_not_found": "Impossibile generare l'indirizzo di ricezione.",
+    "reset": "Reimposta",
+    "qrcode_for_the_address": "Codice QR per l'indirizzo",
+    "bip47_explanation": "I codici di pagamento sono un indirizzo universale che evita di rivelare gli indirizzi del tuo portafoglio. Non tutti i servizi li supportano."
   },
   "send": {
     "provided_address_is_invoice": "Questo indirizzo sembra essere associato ad una fattura Lightning. Apri il tuo portafoglio Lightning per effettuare il pagamento di questa fattura.",
@@ -179,7 +188,25 @@
     "reset_amount": "Resetta l'importo",
     "reset_amount_confirm": "Vuoi resettare l'importo?",
     "success_done": "Fatto",
-    "problem_with_psbt": "Problema con la PSBT"
+    "problem_with_psbt": "Problema con la PSBT",
+    "details_insert_contact": "Inserisci contatto",
+    "details_add_recc_rem_all_alert_description": "Sei sicuro di voler rimuovere tutti i destinatari?",
+    "details_add_rec_rem_all": "Rimuovi tutti i destinatari",
+    "details_recipients_title": "Destinatari",
+    "details_recipient_title": "Destinatario #{number} di #{total}",
+    "please_complete_recipient_title": "Destinatario incompleto",
+    "please_complete_recipient_details": "Per favore completa i dettagli del destinatario #{number} prima di aggiungerne uno nuovo.",
+    "details_frozen": "{amount} BTC sono congelati.",
+    "details_no_signed_tx": "Il file selezionato non contiene una transazione che possa essere importata.",
+    "details_scan_error": "Errore di scansione",
+    "insert_custom_fee": "Inserisci commissione",
+    "invalid_psbt": "PSBT fornita non valida.",
+    "qr_error_no_qrcode": "Non è stato possibile trovare un codice QR valido nell'immagine selezionata. Assicurati che l'immagine contenga solo un codice QR e nessun altro contenuto come testo o pulsanti.",
+    "txSaved": "Il file della transazione ({filePath}) è stato salvato.",
+    "file_saved_at_path": "Il file ({filePath}) è stato salvato.",
+    "cant_send_to_silentpayment_adress": "Questo portafoglio non può inviare a indirizzi SilentPayment",
+    "cant_send_to_bip47": "Questo portafoglio non può inviare a codici di pagamento BIP47",
+    "cant_find_bip47_notification": "Aggiungi prima questo codice di pagamento ai contatti"
   },
   "settings": {
     "about": "Informazioni",
@@ -254,10 +281,52 @@
     "total_balance": "Saldo totale",
     "total_balance_explanation": "Mostra il saldo totale del tutti i tuoi portafogli in una widget sulla tua schermata home.",
     "widgets": "Widgets",
-    "tools": "Strumenti"
+    "tools": "Strumenti",
+    "block_explorer_invalid_custom_url": "L'URL fornito non è valido. Per favore inserisci un URL valido che inizi con http:// o https://.",
+    "privacy_temporary_screenshots": "Consenti acquisizione schermo",
+    "privacy_temporary_screenshots_instructions": "La protezione contro l'acquisizione dello schermo sarà disattivata temporaneamente, abilitando screenshot e registrazioni dello schermo. La protezione si riattiverà automaticamente quando chiuderai e riaprirai BlueWallet.",
+    "biometrics_no_longer_available": "Le impostazioni del tuo dispositivo sono cambiate e non corrispondono più alle impostazioni di sicurezza selezionate nell'app. Per favore riabilita i dati biometrici o il codice di accesso, quindi riavvia l'app per applicare queste modifiche.",
+    "biom_no_passcode": "Il tuo dispositivo non ha un codice di accesso o i dati biometrici abilitati. Per procedere, configura un codice di accesso o un dato biometrico nell'app Impostazioni.",
+    "currency_source": "Tasso ottenuto da",
+    "donate": "Dona",
+    "donate_description": "Aiutaci a mantenere Blue gratuito!",
+    "electrum_error_connect": "Impossibile connettersi al server Electrum fornito",
+    "electrum_error_connect_tor": "Impossibile connettersi al server Electrum fornito. Per favore assicurati che l'app Orbot sia connessa e riprova.",
+    "set_lndhub_as_default": "Impostare {url} come server LNDhub predefinito?",
+    "electrum_preferred_server": "Server preferito",
+    "electrum_preferred_server_description": "Inserisci il server che vuoi che il tuo portafoglio utilizzi per tutte le attività Bitcoin. Una volta impostato, il tuo portafoglio utilizzerà esclusivamente questo server per controllare i saldi, inviare transazioni e recuperare i dati di rete. Assicurati di fidarti di questo server prima di impostarlo.",
+    "electrum_history": "Cronologia",
+    "electrum_reset_to_default": "Questo permetterà a BlueWallet di scegliere casualmente un server dalla lista dei server.",
+    "electrum_reset_to_default_and_clear_history": "Ripristina i valori predefiniti e cancella la cronologia",
+    "encrypt_enc_and_pass": "Protetto da password",
+    "encrypt_storage_explanation_headline": "Abilita cifratura dell'archivio",
+    "encrypt_storage_explanation_description_line1": "Abilitare la cifratura dell'archivio aggiunge un ulteriore livello di protezione alla tua app proteggendo il modo in cui i tuoi dati sono memorizzati sul tuo dispositivo. Questo rende più difficile per chiunque accedere alle tue informazioni senza permesso.",
+    "encrypt_storage_explanation_description_line2": "Tuttavia, è importante sapere che questa cifratura protegge solo l'accesso ai tuoi portafogli memorizzati nel portachiavi del dispositivo. Non imposta una password o una protezione aggiuntiva sui portafogli stessi.",
+    "i_understand": "Ho capito",
+    "block_explorer": "Block Explorer",
+    "block_explorer_preferred": "Usa il block explorer preferito",
+    "block_explorer_error_saving_custom": "Errore nel salvataggio del block explorer preferito",
+    "set_as_preferred": "Imposta come preferito",
+    "set_as_preferred_electrum": "Impostare {host}:{port} come server preferito disabiliterà la connessione casuale a un server suggerito.",
+    "encrypted_feature_disabled": "Questa funzione non può essere usata con l'archivio cifrato abilitato.",
+    "encrypt_use_expl": "{type} sarà utilizzato per confermare la tua identità prima di effettuare una transazione, sbloccare, esportare o eliminare un portafoglio.",
+    "biometrics_fail": "Se {type} non è abilitato, o non riesce a sbloccare, puoi usare il codice di accesso del dispositivo come alternativa.",
+    "license": "Licenza",
+    "lightning_error_lndhub_uri": "URI LNDhub non valido",
+    "lightning_error_lndhub_uri_tor": "URI LNDhub non valido. Per favore assicurati che l'app Orbot sia connessa e riprova.",
+    "lightning_settings_explain": "Per connetterti al tuo nodo LND, per favore installa LNDhub e inserisci qui il suo URL nelle impostazioni. Nota che solo i portafogli creati dopo aver salvato le modifiche si connetteranno al LNDhub specificato.",
+    "lndhub_github": "Repository GitHub",
+    "electrum_suggested_description": "Quando un server preferito non è impostato, un server suggerito verrà selezionato casualmente per l'utilizzo.",
+    "password_explain": "Inserisci la password che utilizzerai per sbloccare il tuo archivio.",
+    "privacy_quickactions_explanation": "Tocca e tieni premuta l'icona dell'app BlueWallet per visualizzare rapidamente il saldo del tuo portafoglio.",
+    "push_notifications_explanation": "Abilitando le notifiche, il token del tuo dispositivo sarà inviato al server, insieme agli indirizzi dei portafogli e agli ID delle transazioni per tutti i portafogli e le transazioni effettuate dopo aver abilitato le notifiche. Il token del dispositivo viene utilizzato per inviare notifiche, e le informazioni del portafoglio ci permettono di avvisarti riguardo a Bitcoin in arrivo o conferme di transazioni.\n\nSolo le informazioni successive all'abilitazione delle notifiche vengono trasmesse—nulla di precedente viene raccolto.\n\nDisattivando le notifiche, tutte queste informazioni saranno rimosse dal server. Inoltre, eliminando un portafoglio dall'app saranno rimosse anche le informazioni associate dal server.",
+    "success_transaction_broadcasted": "La tua transazione è stata trasmessa con successo!"
   },
   "notifications": {
-    "would_you_like_to_receive_notifications": "Desideri ricevere delle notifiche quando ricevi dei pagamenti?"
+    "would_you_like_to_receive_notifications": "Desideri ricevere delle notifiche quando ricevi dei pagamenti?",
+    "notifications_subtitle": "Pagamenti in arrivo e conferme di transazione",
+    "no_and_dont_ask": "No, e non chiedermelo più.",
+    "permission_denied_message": "Hai negato il permesso di inviarti notifiche. Se desideri ricevere notifiche, abilitale nelle impostazioni del tuo dispositivo."
   },
   "transactions": {
     "cancel_explain": "Rimpiazzeremo questa transazione con una che effettua un pagamento a te stesso ed ha costi di transazione più alti. Questa cancella di fatto la transazione attualmente in corso. Questa procedura è chiamata RBF—Replace by Fee.",
@@ -302,7 +371,37 @@
     "status_cancel": "Annulla transazione",
     "transactions_count": "Conteggio transazioni",
     "txid": "ID della transazione",
-    "updating": "Aggiornamento..."
+    "updating": "Aggiornamento...",
+    "transaction_loading_error": "Si è verificato un problema nel caricamento della transazione. Per favore riprova più tardi.",
+    "transaction_not_available": "Transazione non disponibile",
+    "details_view_in_browser": "Visualizza nel browser",
+    "incoming_transaction": "Transazione in entrata",
+    "outgoing_transaction": "Transazione in uscita",
+    "expired_transaction": "Transazione scaduta",
+    "pending_transaction": "Transazione in attesa",
+    "offchain": "Off-chain",
+    "onchain": "On-chain",
+    "list_title_sent": "Inviato",
+    "watchOnlyWarningTitle": "Avviso di sicurezza",
+    "watchOnlyWarningDescription": "Fai attenzione ai truffatori che spesso usano portafogli \"sola lettura\" per ingannare gli utenti. Questi portafogli non ti permettono di controllare o inviare fondi; ti permettono solo di visualizzare il saldo.",
+    "custom_fee_warning_title": "Avviso",
+    "custom_fee_warning_description": "Le commissioni inferiori a 1 sat/vB sono valide, ma potrebbero non essere propagate a causa delle politiche dei nodi.",
+    "details_eta_analyzing": "Analisi in corso...",
+    "details_sent": "Inviato",
+    "details_section": "Dettagli",
+    "details_explorer": "explorer",
+    "details_network_fee": "Commissione di rete",
+    "details_to_address": "A",
+    "details_id": "ID",
+    "details_note": "Nota",
+    "details_add_note": "aggiungi",
+    "details_advanced": "Avanzato",
+    "details_fee_rate": "Tasso di commissione",
+    "details_size": "Dimensione",
+    "details_virtual_size": "Dimensione virtuale",
+    "details_tx_hex": "Hex della transazione",
+    "details_inputs_count": "Input ({count})",
+    "details_outputs_count": "Output ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -383,10 +482,54 @@
     "pull_to_refresh": "Tira verso il basso per aggiornare",
     "add_ln_wallet_first": "Devi prima aggiungere un portafoglio Lightning.",
     "identity_pubkey": "Identity Pubkey",
-    "xpub_title": "XPUB del Portafoglio"
+    "xpub_title": "XPUB del Portafoglio",
+    "add_entropy_reset_title": "Reimposta entropia",
+    "add_entropy_reset_message": "Cambiare il tipo di portafoglio reimposterà l'entropia corrente. Vuoi procedere?",
+    "add_entropy_bytes": "{bytes} byte di entropia",
+    "add_lndhub": "Connetti al tuo LNDhub",
+    "add_lndhub_error": "L'indirizzo del nodo fornito non è un nodo LNDhub valido.",
+    "add_wallet_seed_length": "Lunghezza del seed",
+    "add_wallet_seed_length_12": "12 parole",
+    "add_wallet_seed_length_24": "24 parole",
+    "clear_clipboard_on_import": "Cancella appunti dopo l'importazione",
+    "details_del_wb_err": "L'importo del saldo fornito non corrisponde al saldo di questo portafoglio. Per favore riprova.",
+    "details_display": "Mostra nella schermata Home",
+    "swipe_balance_hide": "Nascondi",
+    "swipe_balance_show": "Mostra",
+    "drag_to_reorder": "Trascina per riordinare",
+    "clear_search": "Cancella ricerca",
+    "learn_more": "Scopri di più",
+    "import_discovery_offline": "BlueWallet è attualmente in modalità offline. In questa modalità non può verificare l'esistenza del portafoglio, quindi dovrai selezionare quello corretto manualmente",
+    "import_derivation_found": "Trovato",
+    "import_derivation_found_not": "Non trovato",
+    "import_derivation_loading": "Caricamento...",
+    "import_derivation_subtitle": "Inserisci un percorso di derivazione personalizzato e proveremo a scoprire il tuo portafoglio.",
+    "import_derivation_unknown": "Sconosciuto",
+    "import_wrong_path": "Percorso di derivazione errato",
+    "list_create_a_wallet_text": "È gratis e puoi crearne \nquanti ne desideri.",
+    "import_file": "Importa file",
+    "manage_title": "Gestisci portafogli",
+    "no_results_found": "Nessun risultato trovato.",
+    "warning_do_not_disclose": "Non condividere mai le informazioni sottostanti",
+    "scan_import": "Scansiona questo codice QR per importare il tuo portafoglio in un'altra applicazione.",
+    "write_down_header": "Crea un backup manuale",
+    "write_down": "Scrivi e conserva in modo sicuro queste parole. Usale per ripristinare il tuo portafoglio in un secondo momento.",
+    "wallet_type_this": "Questo tipo di portafoglio è {type}.",
+    "share_number": "Condividi {number}",
+    "copy_ln_url": "Copia e conserva in modo sicuro questo URL per ripristinare il tuo portafoglio in un secondo momento.",
+    "copy_ln_public": "Copia e conserva in modo sicuro queste informazioni per ripristinare il tuo portafoglio in un secondo momento.",
+    "manage_wallets_search_placeholder": "Cerca portafogli, indirizzi, transazioni e note",
+    "more_info": "Maggiori informazioni",
+    "details_delete_wallet_error_message": "Si è verificato un problema nel confermare se questo portafoglio è stato rimosso dalle notifiche—questo potrebbe essere dovuto a un problema di rete o a una connessione scarsa. Se continui, potresti ancora ricevere notifiche per le transazioni relative a questo portafoglio, anche dopo che è stato eliminato.",
+    "details_delete_anyway": "Elimina comunque"
   },
   "total_balance_view": {
-    "title": "Saldo totale"
+    "title": "Saldo totale",
+    "display_in_bitcoin": "Mostra in Bitcoin",
+    "hide": "Nascondi",
+    "display_in_sats": "Mostra in sats",
+    "display_in_fiat": "Mostra in {currency}",
+    "explanation": "Visualizza il saldo totale di tutti i tuoi portafogli nella schermata di panoramica."
   },
   "multisig": {
     "multisig_vault": "Cassaforte Multisig",
@@ -451,14 +594,34 @@
     "ms_help_title4": "Importazione Vault in corso",
     "ms_help_4": "Per importare un portafoglio multifirma, usa il tuo file di backup e l'opzione Importa. Se hai solo dei seed o delle XPUB, puoi usare il pulsante Importa durante la procedura di creazione delle chiavi Vault.",
     "ms_help_title5": "Modo avanzato",
-    "ms_help_5": "Come configurazione predefinita, BlueWallet genererà una Vault 2-di-3. Per creare un quorum differente o cambiare la tipologia di indirizzo, attiva Modalità Avanzata nelle Impostazioni."
+    "ms_help_5": "Come configurazione predefinita, BlueWallet genererà una Vault 2-di-3. Per creare un quorum differente o cambiare la tipologia di indirizzo, attiva Modalità Avanzata nelle Impostazioni.",
+    "provide_signature_details": "Usa il tuo dispositivo e portafoglio dove risiede la chiave per firmare questa transazione",
+    "provide_signature_details_bluewallet": "In BlueWallet, vai al menu della schermata Invia e seleziona ",
+    "provide_signature_next_steps": "Scansiona o importa la transazione firmata",
+    "provide_signature_next_steps_details": "Una volta che il tuo portafoglio ha firmato con successo la transazione, scansiona il codice QR fornito o importa il file allegato, quindi verifica tutti i dettagli della transazione prima di trasmetterla.",
+    "shared_key_detected": "Cofirmatario condiviso",
+    "shared_key_detected_question": "Un cofirmatario è stato condiviso con te, vuoi importarlo?",
+    "invalid_mnemonics": "Questa frase mnemonica non sembra essere valida.",
+    "invalid_cosigner": "Dati cofirmatario non validi",
+    "invalid_cosigner_format": "Cofirmatario errato: non è un cofirmatario per il formato {format}.",
+    "this_is_cosigners_xpub": "Questa è la XPUB del cofirmatario—pronta per essere importata in un altro portafoglio. È sicuro condividerla.",
+    "this_is_cosigners_xpub_airdrop": "Se condividi tramite AirDrop, i destinatari devono trovarsi nella schermata di coordinazione.",
+    "view_edit_cosigners": "Visualizza/Modifica cofirmatari",
+    "this_cosigner_is_already_imported": "Questo cofirmatario è già stato importato."
   },
   "is_it_my_address": {
     "title": "È il mio indirizzo?",
     "owns": "{label} è proprietario dell'indirizzo {address}",
     "enter_address": "Inserisci l'indirizzo",
     "check_address": "Controlla l'indirizzo",
-    "no_wallet_owns_address": "Nessuno dei portafogli disponibili è proprietario dell'indirizzo fornito."
+    "no_wallet_owns_address": "Nessuno dei portafogli disponibili è proprietario dell'indirizzo fornito.",
+    "view_qrcode": "Visualizza codice QR"
+  },
+  "autofill_word": {
+    "title": "Parola finale del seed",
+    "enter": "Inserisci la tua frase mnemonica parziale",
+    "generate_word": "Genera la parola finale",
+    "error": "L'input non è una frase mnemonica parziale di 11 o 23 parole. Per favore riprova."
   },
   "cc": {
     "change": "Resto",
@@ -472,7 +635,13 @@
     "use_coins": "Usa bitcoin",
     "tip": "Questa funzione ti consente di vedere, etichettare, congelare o selezionare bitcoin per una migliore gestione del portafoglio. Puoi selezionare più bitcoin toccando i cerchi colorati.",
     "sort_label": "Etichetta",
-    "sort_status": "Stato"
+    "sort_status": "Stato",
+    "empty": "Questo portafoglio non ha bitcoin al momento.",
+    "sort_asc": "Crescente",
+    "sort_desc": "Decrescente",
+    "sort_height": "Altezza",
+    "sort_value": "Valore",
+    "sort_by": "Ordina per"
   },
   "units": {
     "BTC": "BTC",
@@ -494,7 +663,9 @@
     "type_change": "Resto",
     "type_receive": "Ricevi",
     "type_used": "Usato",
-    "transactions": "Transazioni"
+    "transactions": "Transazioni",
+    "copy_private_key": "Copia chiave privata",
+    "sensitive_private_key": "Attenzione: le chiavi private sono estremamente sensibili. Continuare?"
   },
   "lnurl_auth": {
     "register_question_part_1": "Vorresti registrare un account su",
@@ -515,6 +686,23 @@
   "bip47": {
     "payment_code": "Codice di pagamento",
     "purpose": "Codice (BIP47) riutilizzabile e condivisibile",
-    "not_found": "Codice di pagamento non trovato"
+    "not_found": "Codice di pagamento non trovato",
+    "contacts": "Contatti",
+    "bip47_explain": "Codice riutilizzabile e condivisibile",
+    "bip47_explain_subtitle": "BIP47",
+    "pay_this_contact": "Paga questo contatto",
+    "rename_contact": "Rinomina contatto",
+    "copy_payment_code": "Copia codice di pagamento",
+    "hide_contact": "Nascondi contatto",
+    "rename": "Rinomina",
+    "provide_name": "Fornisci un nuovo nome per questo contatto",
+    "add_contact": "Aggiungi contatto",
+    "provide_payment_code": "Fornisci codice di pagamento",
+    "invalid_pc": "Codice di pagamento non valido",
+    "notification_tx_unconfirmed": "La transazione di notifica non è ancora confermata, per favore attendi",
+    "failed_create_notif_tx": "Creazione della transazione on-chain fallita",
+    "onchain_tx_needed": "Transazione on-chain necessaria",
+    "notif_tx_sent": "Transazione di notifica inviata. Per favore attendi che venga confermata",
+    "notif_tx": "Transazione di notifica"
   }
 }

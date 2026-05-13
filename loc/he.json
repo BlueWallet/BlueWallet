@@ -4,6 +4,7 @@
     "cancel": "ביטול",
     "continue": "המשך",
     "clipboard": "לוח גזירים",
+    "copied": "הועתק!",
     "discard_changes": "ביטול שינויים?",
     "discard_changes_explain": "יש לך שינויים לא שמורים. האם להיפטר משינויים אלה ולעזוב את המסך?",
     "enter_password": "הכניסו סיסמה",
@@ -73,7 +74,9 @@
     "please_pay_between_and": "אנא שלמו בין {min} לבין {max}",
     "please_pay": "אנא שלמו",
     "date_time": "תאריך ושעה",
-    "wasnt_paid_and_expired": "חשבונית זו לא שולמה ופגה"
+    "wasnt_paid_and_expired": "חשבונית זו לא שולמה ופגה",
+    "preimage": "preimage",
+    "sats": "sats."
   },
   "plausibledeniability": {
     "create_fake_storage": "צרו אחסון מוצפן",
@@ -105,7 +108,8 @@
     "maxSatsFull": "סכום מקסימלי הינו {max} sats או {currency}",
     "minSats": "סכום מינימלי הינו {min} sats",
     "minSatsFull": "סכום מינימלי הינו {min} sats או {currency}",
-    "qrcode_for_the_address": "קוד QR לכתובת"
+    "qrcode_for_the_address": "קוד QR לכתובת",
+    "bip47_explanation": "קודי תשלום הם כתובת אוניברסלית שמונעת חשיפה של כתובות הארנק שלך. לא כל השירותים יתמכו בהם."
   },
   "send": {
     "provided_address_is_invoice": "נראה שכתובת זו היא חשבונית ברק. אנא עברו לארנק הברק שלכם כדי לבצע תשלום עבור חשבונית זו.",
@@ -202,7 +206,8 @@
     "cant_send_to_silentpayment_adress": "ארנק זה אינו יכול לשלוח לכתובות תשלום שקט",
     "cant_send_to_bip47": "ארנק אינו יכול לשלוח לקודי תשלום BIP47",
     "cant_find_bip47_notification": "הוספת קוד תשלום זה לרשימת אנשי קשר",
-    "problem_with_psbt": "בעיה עם PBST"
+    "problem_with_psbt": "בעיה עם PBST",
+    "qr_error_no_qrcode": "לא הצלחנו למצוא קוד QR תקין בתמונה שנבחרה. ודאו שהתמונה מכילה אך ורק קוד QR ללא תוכן נוסף כגון טקסט או כפתורים."
   },
   "settings": {
     "about": "אודות",
@@ -221,6 +226,7 @@
     "about_sm_github": "GitHub",
     "about_sm_telegram": "צ'אט טלגרם",
     "privacy_temporary_screenshots": "אפשר צילומי מסך",
+    "privacy_temporary_screenshots_instructions": "ההגנה מפני צילומי מסך תושבת באופן זמני, מה שיאפשר צילומי מסך והקלטות מסך. ההגנה תופעל מחדש אוטומטית כשתסגרו ותפתחו מחדש את BlueWallet.",
     "biometrics": "זיהוי ביומטרי",
     "biometrics_no_longer_available": "הגדרות מכשירכם השתנו ולא מתאימים יותר להגדרות אבטחה הנבחרות ביישומון. אנא אפשרו מחדש זיהוי ביומטרי או סיסמה, ולאחר מכן הפעילו מחדש את היישומון כדי להחיל את השינויים.",
     "biom_10times": "ניסיתם להכניס את הסיסמה שלכם 10 פעמים. האם תרצו לאפס את האחסון שלכם? פעולה זאת תמחק את כל הארנקים ותפענח את האחסון שלכם.",
@@ -236,6 +242,8 @@
     "electrum_connected": "מחובר",
     "electrum_connected_not": "לא מחובר",
     "electrum_error_connect": "לא ניתן להתחבר לשרת אלקטרום",
+    "electrum_error_connect_tor": "לא ניתן להתחבר לשרת האלקטרום שסופק. אנא ודאו שאפליקציית Orbot מחוברת ונסו שוב.",
+    "electrum_preferred_server_description": "הכניסו את השרת בו תרצו שהארנק שלכם ישתמש עבור כל פעולות הביטקוין. לאחר הגדרתו, הארנק שלכם ישתמש בלעדית בשרת זה לבדיקת יתרות, שליחת עסקאות וקבלת נתוני רשת. ודאו שאתם סומכים על שרת זה לפני הגדרתו.",
     "lndhub_uri": " למשל {example}",
     "electrum_host": "למשל {example}",
     "electrum_offline_mode": "מצב לא מקוון",
@@ -257,6 +265,8 @@
     "encrypt_decrypt_q": "האם לפענח אחסון מוצפן? זה יאפשר לגשת לארנקים שלך ללא סיסמה.",
     "encrypt_enc_and_pass": "מוגן בסיסמה",
     "encrypt_storage_explanation_headline": "הפעלת הצפנת אחסון",
+    "encrypt_storage_explanation_description_line1": "הפעלת הצפנת אחסון מוסיפה שכבת הגנה נוספת לאפליקציה על ידי אבטחת אופן שמירת הנתונים שלכם במכשיר. הדבר מקשה על כל אחד לגשת למידע שלכם ללא הרשאה.",
+    "encrypt_storage_explanation_description_line2": "עם זאת, חשוב לדעת שהצפנה זו מגנה רק על הגישה לארנקים שלכם השמורים במחזיק המפתחות של המכשיר. היא אינה מוסיפה סיסמה או הגנה נוספת לארנקים עצמם.",
     "i_understand": "הבנתי",
     "block_explorer": "סייר בלוקים",
     "block_explorer_preferred": "שימוש בסייר בלוקים מועדף",
@@ -264,6 +274,7 @@
     "encrypt_title": "אבטחה",
     "encrypt_tstorage": "אחסון",
     "encrypt_use": "השתמש {type}",
+    "encrypt_use_expl": "{type} ישמש לאישור זהותכם לפני ביצוע עסקה, פתיחה, יצוא או מחיקה של ארנק.",
     "set_as_preferred": "הגדרה כמועדף",
     "set_as_preferred_electrum": "הגדרת {host}:{port} כשרת מועדף תנטרל חיבור לשרת מוצע בצורה אקראית.",
     "encrypted_feature_disabled": "לא ניתן להשתמש בתכונה זאת עם הצפנת אחסון מופעלת.",
@@ -289,6 +300,7 @@
     "electrum_suggested_description": "כאשר לא הוגדר שרת מועדף, שרת מוצע יבחר לשימוש בצורה אקראית.",
     "not_a_valid_uri": "URI לא תקני",
     "notifications": "התראות",
+    "push_notifications_explanation": "בהפעלת ההתראות, אסימון המכשיר שלכם יישלח לשרת, יחד עם כתובות הארנקים ומזהי העסקאות עבור כל הארנקים והעסקאות שיתבצעו לאחר הפעלת ההתראות. אסימון המכשיר משמש לשליחת התראות, ומידע הארנק מאפשר לנו ליידע אתכם על ביטקוין נכנס או על אישורי עסקאות.\n\nרק מידע מאחרי הפעלת ההתראות מועבר—שום דבר מלפני כן אינו נאסף.\n\nכיבוי ההתראות יסיר את כל המידע הזה מהשרת. בנוסף, מחיקת ארנק מהאפליקציה תסיר גם את המידע המשויך אליו מהשרת.",
     "open_link_in_explorer": "פתיחת קישור בסייר",
     "password": "סיסמה",
     "password_explain": "הזינו את הססמה שבה תשתמשו כדי לפתוח את האחסון שלכם.",
@@ -373,7 +385,26 @@
     "watchOnlyWarningTitle": "אזהרת אבטחה",
     "watchOnlyWarningDescription": "היזהרו מנוכלים אשר לעיתים קרובות משתמשים בארנקי ”צפייה-בלבד“ כדי להונות משתמשים. ארנקים אלה אינם מאפשרים לכם לשלוט בכספים או לשלוח כספים; הם מאפשרים לכם אך ורק לצפות במאזן.",
     "custom_fee_warning_title": "אזהרה",
-    "custom_fee_warning_description": "עמלות מתחת ל-  1 sat/vB תקינות, אבל יתכן ולא ישודרו בשל מדיניות צומת."
+    "custom_fee_warning_description": "עמלות מתחת ל-  1 sat/vB תקינות, אבל יתכן ולא ישודרו בשל מדיניות צומת.",
+    "offchain": "מחוץ לשרשרת",
+    "onchain": "בשרשרת",
+    "received_with_amount": "+{amt1} ({amt2})",
+    "details_eta_analyzing": "מנתח...",
+    "details_sent": "נשלח",
+    "details_section": "פרטים",
+    "details_explorer": "סייר",
+    "details_network_fee": "עמלת רשת",
+    "details_to_address": "אל",
+    "details_id": "מזהה",
+    "details_note": "הערה",
+    "details_add_note": "הוספה",
+    "details_advanced": "מתקדם",
+    "details_fee_rate": "שיעור עמלה",
+    "details_size": "גודל",
+    "details_virtual_size": "גודל וירטואלי",
+    "details_tx_hex": "hex של עסקה",
+    "details_inputs_count": "קלטים ({count})",
+    "details_outputs_count": "פלטים ({count})"
   },
   "wallets": {
     "add_bitcoin": "ביטקוין",
@@ -487,7 +518,13 @@
     "xpub_title": "מפתח צפייה של הארנק",
     "manage_wallets_search_placeholder": "חיפוש ארנקים, כתובות, פעולות ותזכירים",
     "more_info": "מידע נוסף",
-    "details_delete_anyway": "מחק בכל אופן"
+    "details_delete_anyway": "מחק בכל אופן",
+    "swipe_balance_hide": "הסתרה",
+    "swipe_balance_show": "הצגה",
+    "drag_to_reorder": "גררו לסידור מחדש",
+    "clear_search": "ניקוי חיפוש",
+    "import_discovery_offline": "BlueWallet נמצא כעת במצב לא מקוון. במצב זה, לא ניתן לאמת את קיומו של הארנק, ולכן תצטרכו לבחור את הארנק הנכון באופן ידני",
+    "details_delete_wallet_error_message": "אירעה בעיה באישור שהארנק הוסר מההתראות—הדבר עשוי לנבוע מבעיית רשת או חיבור חלש. אם תמשיכו, ייתכן שתמשיכו לקבל התראות על עסקאות הקשורות לארנק זה, גם לאחר מחיקתו."
   },
   "total_balance_view": {
     "display_in_bitcoin": "תצוגה בביטקוין",
@@ -505,9 +542,12 @@
     "provide_signature_details": "השתמשו במכשיר שלכם ובארנק שבו המפתח נמצא כדי לחתום על פעולה זאת",
     "provide_signature_details_bluewallet": "ב- BlueWallet, לכו לתפריט מסך השליחה ובחרו",
     "provide_signature_next_steps": "סריקת או יבוא פעולה חתומה",
+    "provide_signature_next_steps_details": "לאחר שהארנק שלכם חתם בהצלחה על העסקה, סרקו את קוד ה-QR שסופק או ייבאו את הקובץ המצורף, ולאחר מכן בדקו את כל פרטי העסקה לפני שידורה.",
     "vault_key": "מפתח כספת {number}",
     "required_keys_out_of_total": " מפתחות נדרשים מתוך הסך הכולל",
     "fee": "עמלה: {number}",
+    "fee_btc": "{number} BTC",
+    "legacy_title": "Legacy",
     "confirm": "אישור",
     "header": "שליחה",
     "share": "שיתוף...",
@@ -607,7 +647,10 @@
     "sort_by": "מיון לפי"
   },
   "units": {
-    "MAX": "מקס'"
+    "MAX": "מקס'",
+    "BTC": "BTC",
+    "sat_vbyte": "sat/vByte",
+    "sats": "sats"
   },
   "addresses": {
     "copy_private_key": "העתקת מפתח פרטי",
@@ -647,6 +690,7 @@
     "payment_code": "קוד תשלום",
     "contacts": "אנשי קשר",
     "bip47_explain": "קוד רב פעמי ובר שיתוף",
+    "bip47_explain_subtitle": "BIP47",
     "purpose": "קוד רב-פעמי ובר-שיתוף (BIP47)",
     "pay_this_contact": "תשלום לאיש קשר זה",
     "rename_contact": "שינוי שם איש קשר",

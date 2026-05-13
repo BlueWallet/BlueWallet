@@ -3,6 +3,7 @@
     "bad_password": "Құпиясөз қате. Қайталап көріңіз.",
     "cancel": "Бас тарту",
     "continue": "Жалғастыру",
+    "clipboard": "Алмасу буфері",
     "enter_password": "Құпиясөзді еңгізіңіз",
     "never": "Ешқашан",
     "of": "{number} / {total}",
@@ -13,28 +14,39 @@
   },
   "entropy": {
     "save": "Сақтау",
+    "title": "Энтропия",
     "undo": "Болдырмау"
   },
   "errors": {
     "error": "Қате"
   },
   "lnd": {
+    "expired": "Мерзімі біткен",
     "expiresIn": "Мерзімі {time} минутта аяқталады",
     "payButton": "Төлем жасау",
+    "payment": "Төлем",
     "refill": "Қайта толтыру"
   },
   "lndViewInvoice": {
+    "lightning_invoice": "Lightning шоты",
     "sats": "сат."
   },
   "receive": {
-    "details_create": "Жасау"
+    "details_create": "Жасау",
+    "details_label": "Сипаттама",
+    "header": "Қабылдау"
   },
   "send": {
+    "broadcastButton": "Тарату",
     "broadcastError": "Қате",
     "broadcastPending": "Күтілуде",
+    "broadcastSuccess": "Сәтті",
     "confirm_header": "Растау",
     "confirm_sendNow": "Қазір жіберу",
+    "create_broadcast": "Тарату",
     "create_fee": "Комиссия",
+    "create_memo": "Жазба",
+    "create_satoshi_per_vbyte": "sat/vByte",
     "details_add_rec_add": "Алушыны қосу",
     "details_add_rec_rem": "Алушыны алып тастау",
     "details_address": "Адрес",
@@ -46,6 +58,7 @@
     "fee_10m": "10 минут",
     "fee_1d": "1 күн",
     "fee_3h": "3 сағат",
+    "fee_satvbyte": "sat/vByte",
     "header": "Жіберу",
     "input_done": "Дайын",
     "open_settings": "Баптауларды ашу",
@@ -53,32 +66,77 @@
   },
   "settings": {
     "about_license": "MIT License",
+    "biometrics": "Биометрия",
+    "block_explorer": "Блок шолғышы",
     "header": "Баптаулар",
+    "language": "Тіл",
+    "network_broadcast": "Транзакцияны тарату",
+    "network_electrum": "Electrum сервері",
+    "notifications": "Хабарландырулар",
+    "password": "Құпиясөз",
     "save": "Сақтау"
   },
   "transactions": {
     "cpfp_create": "Жасау",
-    "pending": "Күтілуде"
+    "details_inputs": "Кірістер",
+    "details_outputs": "Шығыстар",
+    "details_title": "Транзакция",
+    "details_to": "Шығыс",
+    "offchain": "Оф-чейн",
+    "onchain": "Он-чейн",
+    "pending": "Күтілуде",
+    "rbf_title": "Жылдамдату (RBF)",
+    "status_bump": "Жылдамдату",
+    "status_cancel": "Бас тарту",
+    "transaction": "Транзакция"
   },
   "wallets": {
     "add_create": "Жасау",
+    "add_bitcoin": "Bitcoin",
+    "add_lightning": "Lightning",
     "details_address": "Адрес",
-    "import_do_import": "Еңгізу",
+    "details_derivation_path": "шығару жолы",
+    "details_master_fingerprint": "Негізгі саусақ ізі",
+    "details_title": "Әмиян",
+    "details_type": "Түрі",
+    "import_do_import": "Импорттау",
+    "import_passphrase": "Құпиясөйлем",
+    "import_passphrase_title": "Құпиясөйлем",
     "import_search_accounts": "Шот іздеу",
-    "import_title": "Енгізу",
-    "list_tryagain": "Қайталау"
+    "import_title": "Импорттау",
+    "list_title": "Әмияндар",
+    "list_tryagain": "Қайталау",
+    "wallets": "Әмияндар"
   },
   "multisig": {
     "confirm": "Растау",
     "header": "Жіберу",
-    "create": "Жасау"
+    "create": "Жасау",
+    "provide_signature": "Қол қою",
+    "quorum_header": "Кворум"
   },
   "addresses": {
+    "addresses_title": "Мекенжайлар",
     "sign_verify": "Растау",
-    "sign_placeholder_address": "Адрес"
+    "sign_placeholder_address": "Адрес",
+    "transactions": "Транзакциялар",
+    "type_receive": "Қабылдау"
   },
   "bip47": {
     "payment_code": "Төлем коды",
+    "contacts": "Контактілер",
+    "copy_payment_code": "Төлем кодын көшіру",
+    "invalid_pc": "Жарамсыз төлем коды",
+    "notif_tx": "Хабарландыру транзакциясы",
     "not_found": "Төлем коды табылмады"
+  },
+  "units": {
+    "BTC": "BTC",
+    "sat_vbyte": "sat/vByte",
+    "sats": "сатоши"
+  },
+  "cc": {
+    "change": "Қалдық",
+    "header": "UTXO басқару"
   }
 }
