@@ -116,6 +116,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   }, [isActive, rowScale]);
 
   const onPress = useCallback(() => {
+    if (globalDragActive) return;
     if (swipeInProgressRef.current) return;
     if (item.type === ItemType.WalletSection) {
       setIsLoading(true);
@@ -124,9 +125,10 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     } else if (item.type === ItemType.AddressSection) {
       navigateToAddress(item.data.address, item.data.walletID);
     }
-  }, [item, navigateToWallet, navigateToAddress]);
+  }, [globalDragActive, item, navigateToWallet, navigateToAddress]);
 
   const startDrag = useCallback(() => {
+    if (globalDragActive || isDraggingDisabled) return;
     if (swipeInProgressRef.current) {
       swipeableRef.current?.close?.();
       return;
@@ -135,7 +137,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     if (drag) {
       drag();
     }
-  }, [drag]);
+  }, [drag, globalDragActive, isDraggingDisabled]);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.brandingColor} />;

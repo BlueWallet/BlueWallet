@@ -145,6 +145,8 @@ const ManageWallets: React.FC = () => {
   const [noResultsOpacity] = useState(new Animated.Value(0));
 
   const [dragging, setDragging] = useState(false);
+  const [interactionLockActive, setInteractionLockActive] = useState(false);
+  const interactionLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedSearch = useCallback((text: string) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
@@ -162,6 +164,7 @@ const ManageWallets: React.FC = () => {
   useEffect(() => {
     return () => {
       if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      if (interactionLockTimerRef.current) clearTimeout(interactionLockTimerRef.current);
     };
   }, []);
 
@@ -555,7 +558,7 @@ const ManageWallets: React.FC = () => {
       return (
         <ManageWalletsListItem
           item={item}
-          isDraggingDisabled={isDragDisabled}
+          isDraggingDisabled={isDragDisabled || interactionLockActive}
           handleToggleHideBalance={handleToggleHideBalance}
           handleChangeWalletUnit={handleChangeWalletUnit}
           state={compatibleState}
@@ -564,7 +567,7 @@ const ManageWallets: React.FC = () => {
           renderHighlightedText={renderHighlightedText}
           isActive={isActive}
           drag={isDragDisabled ? undefined : drag}
-          globalDragActive={dragging}
+          globalDragActive={dragging || interactionLockActive}
         />
       );
     },
@@ -578,6 +581,7 @@ const ManageWallets: React.FC = () => {
       navigateToAddress,
       renderHighlightedText,
       dragging,
+      interactionLockActive,
       isDragDisabled,
     ],
   );
@@ -697,10 +701,22 @@ const ManageWallets: React.FC = () => {
               renderItem={renderDraggableItem}
               containerStyle={styles.listContainer}
               onDragBegin={() => {
+                if (interactionLockTimerRef.current) {
+                  clearTimeout(interactionLockTimerRef.current);
+                  interactionLockTimerRef.current = null;
+                }
+                setInteractionLockActive(false);
                 setDragging(true);
               }}
               onDragEnd={({ from, to, data }: DragEndParams<Item>) => {
                 setDragging(false);
+                setInteractionLockActive(true);
+                if (interactionLockTimerRef.current) {
+                  clearTimeout(interactionLockTimerRef.current);
+                }
+                interactionLockTimerRef.current = setTimeout(() => {
+                  setInteractionLockActive(false);
+                }, 180);
 
                 if (state.searchQuery.length > 0 || state.isSearchFocused) {
                   return;

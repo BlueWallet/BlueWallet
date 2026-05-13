@@ -140,9 +140,9 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
         // friction=1 gives a 1:1 feel with the finger — most iOS-like.
         friction={1}
         rightThreshold={ACTION_WIDTH / 2}
-        // Allow a small overshoot but snap back quickly.
-        overshootRight={false}
-        overshootFriction={8}
+        // Allow pulling past action width with elastic resistance.
+        overshootRight
+        overshootFriction={10}
         onSwipeableWillOpen={() => {
           onSwipeStateChange?.(true);
           triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
