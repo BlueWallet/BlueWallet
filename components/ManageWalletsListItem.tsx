@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View, Text, Pressable } from 'react-native';
+import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View, Pressable } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
@@ -16,6 +16,7 @@ import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-wallet';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import WalletListItem from './WalletListItem';
+import Icon from './Icon';
 
 const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefined => {
   const w: unknown = wallet;
@@ -153,10 +154,15 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
           ]}
           onPress={onToggle}
           accessibilityRole="button"
+          accessibilityLabel={isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
         >
-          <Text style={[styles.rightActionText, { color: colors.buttonTextColor }]}>
-            {isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
-          </Text>
+          <Icon
+            type="material"
+            name={isHidden ? 'visibility' : 'visibility-off'}
+            size={24}
+            color={colors.buttonTextColor}
+            accessibilityLabel={isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
+          />
         </Pressable>
       </View>
     );
@@ -427,10 +433,6 @@ const styles = StyleSheet.create({
   },
   rightActionPressed: {
     opacity: 0.85,
-  },
-  rightActionText: {
-    fontSize: 15,
-    fontWeight: '600',
   },
 });
 
