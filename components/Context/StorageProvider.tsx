@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, AppStateStatus, LayoutAnimation } from 'react-native';
 import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
