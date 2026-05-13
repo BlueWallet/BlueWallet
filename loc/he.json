@@ -75,8 +75,7 @@
     "please_pay": "אנא שלמו",
     "date_time": "תאריך ושעה",
     "wasnt_paid_and_expired": "חשבונית זו לא שולמה ופגה",
-    "preimage": "preimage",
-    "sats": "sats."
+    "preimage": "preimage"
   },
   "plausibledeniability": {
     "create_fake_storage": "צרו אחסון מוצפן",

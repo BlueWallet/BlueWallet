@@ -74,7 +74,6 @@
     "please_pay_between_and": "Ju lutem paguani ndërmjet {min} dhe {max}",
     "please_pay": "Ju lutem paguani",
     "preimage": "Pre-imazh",
-    "sats": "sats.",
     "wasnt_paid_and_expired": "Fatura nuk është paguar dhe ka skaduar.",
     "date_time": "Data dhe ora"
   },
@@ -124,7 +123,6 @@
     "create_copy": "Kopjoje dhe transmetoje më vonë",
     "create_details": "Detajet",
     "create_fee": "Komision",
-    "create_memo": "Memo",
     "create_satoshi_per_vbyte": "Satoshi për vByte",
     "create_to": "Te",
     "create_tx_size": "Madhësia e Transfertës",
@@ -390,7 +388,6 @@
     "details_explorer": "eksplorues",
     "details_network_fee": "Komisioni i rrjetit",
     "details_to_address": "Te",
-    "details_id": "ID",
     "details_note": "Shënim",
     "details_add_note": "shto",
     "details_advanced": "Të avancuara",

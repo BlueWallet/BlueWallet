@@ -74,7 +74,6 @@
     "please_pay_between_and": "Калі ласка, заплаціце ад {min} да {max}",
     "please_pay": "Калі ласка, заплаціце",
     "preimage": "Прообраз",
-    "sats": "sats.",
     "date_time": "Дата і час",
     "wasnt_paid_and_expired": "Гэты інвойс ня быў аплачаны, і тэрмін яго дзеяньня скончыўся."
   },
@@ -275,7 +274,6 @@
     "set_as_preferred": "Зрабіць пераважным",
     "set_as_preferred_electrum": "Усталяваньне {host}:{port} як пераважнага сэрвэра адключыць выпадковае падключэньне да прапанаванага сэрвэра.",
     "general": "Агульныя",
-    "general_continuity": "Continuity",
     "general_continuity_e": "Калі ўключана, вы зможаце праглядаць выбраныя кашалькі і трансакцыі, выкарыстоўваючы вашы іншыя прылады Apple, падключаныя да iCloud.",
     "groundcontrol_explanation": "GroundControl — гэта бясплатны сэрвэр пуш-апавяшчэньняў з адкрытым зыходным кодам для кашалькоў Bitcoin. Вы можаце ўсталяваць ваш уласны сэрвэр GroundControl і ўвесьці яго URL сюды, каб не залежаць ад інфраструктуры BlueWallet. Пакіньце пустым, каб выкарыстаць стандартны сэрвэр GroundControl.",
     "header": "Налады",
@@ -389,7 +387,6 @@
     "details_explorer": "аглядальнік",
     "details_network_fee": "Сеткавая камісія",
     "details_to_address": "Да",
-    "details_id": "ID",
     "details_note": "Нататка",
     "details_add_note": "дадаць",
     "details_advanced": "Дадаткова",

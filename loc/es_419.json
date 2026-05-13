@@ -14,7 +14,6 @@
     "enter_url": "Introducir URL",
     "storage_is_encrypted": "Tu almacenamiento está encriptado. Se requiere contraseña para descifrarlo.",
     "yes": "Sí",
-    "no": "No",
     "save": "Guardar",
     "seed": "Semilla",
     "success": "Éxito",
@@ -49,7 +48,6 @@
   },
   "errors": {
     "broadcast": "Error de transmisión",
-    "error": "Error",
     "network": "Error de red"
   },
   "lnd": {
@@ -74,7 +72,6 @@
     "please_pay_between_and": "Paga entre {min} y {max}",
     "please_pay": "Por favor paga",
     "preimage": "Preimagen",
-    "sats": "sats.",
     "date_time": "Fecha y hora",
     "wasnt_paid_and_expired": "Esta factura no se pagó y ha caducado."
   },
@@ -114,7 +111,6 @@
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
     "broadcastButton": "Transmitir",
-    "broadcastError": "Error",
     "broadcastNone": "Introducir hex de transacción",
     "broadcastPending": "Pendiente",
     "broadcastSuccess": "Éxito",
@@ -171,8 +167,6 @@
     "dynamic_start": "Empezar",
     "dynamic_stop": "Detener",
     "fee_10m": "10min",
-    "fee_1d": "1d",
-    "fee_3h": "3h",
     "fee_custom": "Personalizado",
     "insert_custom_fee": "Insertar comisión",
     "fee_fast": "Rápido",
@@ -184,7 +178,6 @@
     "input_clear": "Limpiar",
     "input_done": "Hecho",
     "input_paste": "Pegar",
-    "input_total": "Total:",
     "permission_camera_message": "Necesitamos tu permiso para usar tu cámara",
     "psbt_sign": "Firmar una transacción",
     "invalid_psbt": "PSBT proporcionado no válido.",
@@ -279,7 +272,6 @@
     "encrypted_feature_disabled": "Esta función no se puede utilizar con el almacenamiento cifrado habilitado.",
     "encrypt_use_expl": "{type} se utilizará para confirmar tu identidad antes de realizar una transacción, desbloquear, exportar o eliminar una billetera.",
     "biometrics_fail": "Si {type} no está activado o no se desbloquea, puedes utilizar el código de acceso de tu dispositivo como alternativa.",
-    "general": "General",
     "general_continuity": "Continuidad",
     "general_continuity_e": "Cuando esté habilitado, podrás ver billeteras seleccionadas y transacciones utilizando tus otros dispositivos conectados a Apple iCloud.",
     "groundcontrol_explanation": "GroundControl es un servidor de notificaciones push de código abierto gratuito para billeteras Bitcoin. Puedes instalar tu propio servidor GroundControl y poner tu URL aquí para no depender de la infraestructura de BlueWallet. Déjalo en blanco para usar el predeterminado.",
@@ -320,7 +312,6 @@
     "success_transaction_broadcasted": "¡Tu transacción ha sido transmitida exitosamente!",
     "total_balance": "Balance Total",
     "total_balance_explanation": "Muestra el saldo total de todas tus billeteras en los widgets de tu pantalla de inicio.",
-    "widgets": "Widgets",
     "tools": "Herramientas"
   },
   "notifications": {
@@ -363,7 +354,6 @@
     "onchain": "En cadena",
     "details_to": "Salida",
     "enable_offline_signing": "Esta billetera no se usa junto con una firma fuera de línea. ¿Deseas habilitarlo ahora?",
-    "list_conf": "Conf: {number}",
     "pending": "Pendiente",
     "pending_with_amount": "Pendiente {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
@@ -395,7 +385,6 @@
     "details_explorer": "explorador",
     "details_network_fee": "Comisión de red",
     "details_to_address": "A",
-    "details_id": "ID",
     "details_note": "Nota",
     "details_add_note": "agregar",
     "details_advanced": "Avanzado",

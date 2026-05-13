@@ -74,7 +74,6 @@
     "please_pay_between_and": "Tala rhwng {min} a {max}",
     "please_pay": "Talu",
     "preimage": "Cynddelw",
-    "sats": "sats.",
     "date_time": "Dyddiad ac Amser",
     "wasnt_paid_and_expired": "Ni chafodd yr anfoneb ei thalu, ac mae wedi gorffen."
   },
@@ -169,8 +168,6 @@
     "dynamic_prev": "Blaenorol",
     "dynamic_start": "Dechrau",
     "dynamic_stop": "Stopio",
-    "fee_10m": "10m",
-    "fee_1d": "1d",
     "fee_3h": "3a",
     "fee_custom": "Arbennig",
     "insert_custom_fee": "Mewnosod ffi",
@@ -389,7 +386,6 @@
     "details_explorer": "archwiliwr",
     "details_network_fee": "Ffi Rhwydwaith",
     "details_to_address": "At",
-    "details_id": "ID",
     "details_note": "Nodyn",
     "details_add_note": "adio",
     "details_advanced": "Arbenigol",
@@ -637,7 +633,6 @@
     "sort_desc": "Disgynnol",
     "sort_height": "Uchder",
     "sort_value": "Gwerth",
-    "sort_label": "Label",
     "sort_status": "Statws",
     "sort_by": "Trefnu yn ôl"
   },

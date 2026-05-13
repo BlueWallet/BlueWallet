@@ -126,7 +126,6 @@
     "create_details": "Tarkemmat tiedot",
     "create_fee": "Siirtomaksu",
     "create_memo": "Muistio",
-    "create_satoshi_per_vbyte": "Satoshi per vByte",
     "create_this_is_hex": "Tämä on siirtotapahtuman hex, allekirjoitettu ja valmis lähetettäväksi verkkoon.",
     "create_to": "Vastaanottaja",
     "create_tx_size": "Siirtotapahtuman koko",
@@ -294,7 +293,6 @@
     "license": "Lisenssi",
     "lightning_saved": "Muutoksesi on tallennettu onnistuneesti",
     "lightning_settings": "Salama-asetukset",
-    "lndhub_github": "GitHub Repository",
     "network": "Verkko",
     "network_broadcast": "Lähetä siirtotapahtuma",
     "network_electrum": "Electrum-palvelin",
@@ -402,7 +400,6 @@
     "details_fee_rate": "Siirtomaksun taso",
     "details_size": "Koko",
     "details_virtual_size": "Virtuaalinen koko",
-    "details_tx_hex": "Tx Hex",
     "details_inputs_count": "Syötteet ({count})",
     "details_outputs_count": "Ulostulot ({count})"
   },
@@ -535,8 +532,6 @@
     "explanation": "Näe kaikkien lompakkojen yhteenlasketun saldon yleiskatsausnäytössä."
   },
   "multisig": {
-    "multisig_vault": "Multisig Vault",
-    "default_label": "Multisig Vault",
     "multisig_vault_explain": "Paras turvallisuus suurille summille",
     "provide_signature": "Toimita allekirjoitus",
     "provide_signature_next_steps": "Skannaa tai tuo allekirjoitettu siirtotapahtuma",
@@ -570,7 +565,6 @@
     "what_is_vault_description_to_spend": "kuluttaa ja kolmas sinulle\nvoidaan käyttää varmuuskopiona.",
     "what_is_vault_description_to_spend_other": "kuluttaa.",
     "quorum": "{m} {n} quorum",
-    "quorum_header": "Quorum",
     "of": "n",
     "wallet_type": "Lompakon tyyppi",
     "invalid_mnemonics": "Tämä muistilauseke ei näytä olevan pätevä.",

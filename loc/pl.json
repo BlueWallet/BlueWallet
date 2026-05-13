@@ -26,7 +26,6 @@
     "enter_amount": "Wprowadź kwotę",
     "qr_custom_input_button": "Stuknij 10 razy, aby wprowadzić niestandardowe dane",
     "unlock": "Odblokuj",
-    "port": "Port",
     "ssl_port": "Port SSL",
     "suggested": "Sugerowane",
     "copied": "Skopiowano!"
@@ -103,7 +102,6 @@
     "details_share": "Udostępnij...",
     "address_not_found": "Nie można wygenerować adresu do odbioru.",
     "header": "Otrzymaj",
-    "reset": "Reset",
     "maxSats": "Kwota maksymalna to {max} satoshi",
     "maxSatsFull": "Maksymalna kwota to {max} satoshi lub {currency}",
     "minSats": "Kwota minimalna to {min} satoshi",
@@ -168,8 +166,6 @@
     "dynamic_init": "Inicjalizuję",
     "dynamic_next": "Dalej",
     "dynamic_prev": "Poprzedni",
-    "dynamic_start": "Start",
-    "dynamic_stop": "Stop",
     "fee_10m": "10 min.",
     "fee_1d": "1 dzień",
     "fee_3h": "3 godz.",
@@ -253,7 +249,6 @@
     "set_electrum_server_as_default": "Ustawić {server} jako domyślny serwer Electrum?",
     "set_lndhub_as_default": "Ustawić {url} jako domyślny serwer LNDhub?",
     "electrum_settings_server": "Serwer Electrum",
-    "electrum_status": "Status",
     "electrum_preferred_server": "Preferowany serwer",
     "electrum_preferred_server_description": "Wprowadź serwer, którego ma używać twój portfel do wszystkich operacji związanych z Bitcoinem. Po zapisaniu ustawień, portfel będzie korzystał wyłącznie z tego serwera do sprawdzania sald, wysyłania transakcji oraz pobierania danych z sieci. Upewnij się, że masz zaufanie do tego serwera przed jego wyborem.",
     "electrum_unable_to_connect": "Nie można się połączyć z {server}.",
@@ -395,7 +390,6 @@
     "details_explorer": "eksplorator",
     "details_network_fee": "Opłata sieciowa",
     "details_to_address": "Do",
-    "details_id": "ID",
     "details_note": "Notatka",
     "details_add_note": "dodaj",
     "details_advanced": "Zaawansowane",
@@ -643,7 +637,6 @@
     "sort_height": "Wysokość",
     "sort_value": "Wartość",
     "sort_label": "Etykieta",
-    "sort_status": "Status",
     "sort_by": "Sortuj wg"
   },
   "units": {

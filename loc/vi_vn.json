@@ -43,7 +43,6 @@
   },
   "entropy": {
     "save": "Lưu",
-    "title": "Entropy",
     "undo": "Hoàn tác",
     "amountOfEntropy": "{bits} trong {limit} bit"
   },
@@ -73,7 +72,6 @@
     "lightning_invoice": "Hoá đơn Lightning",
     "please_pay_between_and": "Vui lòng thanh toán từ {min} đến {max}",
     "please_pay": "Vui lòng thanh toán",
-    "sats": "sats.",
     "wasnt_paid_and_expired": "Hoá đơn này chưa được thanh toán và đã hết hạn. ",
     "preimage": "Pre-image",
     "date_time": "Ngày và giờ"
@@ -160,11 +158,9 @@
     "dynamic_start": "Bắt đầu",
     "dynamic_stop": "Ngừng",
     "fee_10m": "10p",
-    "fee_1d": "1d",
     "fee_3h": "3g",
     "fee_custom": "Tuỳ chỉnh",
     "fee_fast": "Nhanh",
-    "fee_medium": "Medium",
     "fee_replace_minvb": "Tổng lệ phí (satoshi mỗi vByte) bạn muốn trả nên lớn hơn {min} sat/vByte.",
     "fee_satvbyte": "bằng sat/vByte",
     "fee_slow": "Chậm",
@@ -392,7 +388,6 @@
     "details_explorer": "trình khám phá",
     "details_network_fee": "Phí mạng",
     "details_to_address": "Đến",
-    "details_id": "ID",
     "details_note": "Ghi chú",
     "details_add_note": "thêm",
     "details_advanced": "Nâng cao",
@@ -408,7 +403,6 @@
     "add_bitcoin_explain": "Ví Bitcoin đơn giản và mạnh mẽ",
     "add_create": "Tạo",
     "total_balance": "Tổng số dư",
-    "add_entropy": "Entropy",
     "add_entropy_generated": "{gen} bytes entropy đã được tạo",
     "add_entropy_provide": "Cung cấp entropy bằng dice roll",
     "add_entropy_remain": "{gen} bytes entropy đã được tạo. {rem} bytes còn lại sẽ lấy được từ số ngẫu nhiên của hệ thống. ",

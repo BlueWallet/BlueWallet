@@ -26,7 +26,6 @@
     "ok": "OK",
     "storage_is_encrypted": "Tu almacenamiento está cifrado. Se requiere la contraseña para descifrarlo.",
     "yes": "Sí",
-    "no": "No",
     "seed": "Semilla",
     "success": "Completado",
     "wallet_key": "Llave de la cartera"
@@ -49,7 +48,6 @@
   },
   "errors": {
     "broadcast": "Emisión fallida",
-    "error": "Error",
     "network": "Error de red"
   },
   "lnd": {
@@ -74,7 +72,6 @@
     "please_pay_between_and": "Paga entre {min} y {max}",
     "please_pay": "Por favor, paga",
     "preimage": "Preimagen",
-    "sats": "sats.",
     "date_time": "Fecha y hora",
     "wasnt_paid_and_expired": "Esta factura no fue pagada y ha expirado."
   },
@@ -114,7 +111,6 @@
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu cartera Lightning para realizar el pago de esta factura.",
     "broadcastButton": "Emitir",
-    "broadcastError": "Error",
     "broadcastNone": "Introduce el hash de la transacción",
     "broadcastPending": "Pendiente",
     "broadcastSuccess": "Completado",
@@ -160,9 +156,6 @@
     "dynamic_prev": "Volver",
     "dynamic_start": "Empezar",
     "dynamic_stop": "Detener",
-    "fee_10m": "10m",
-    "fee_1d": "1d",
-    "fee_3h": "3h",
     "fee_custom": "Personalizada",
     "fee_fast": "Rápida",
     "fee_medium": "Media",
@@ -173,7 +166,6 @@
     "input_clear": "Borrar",
     "input_done": "Completado",
     "input_paste": "Pegar",
-    "input_total": "Total:",
     "permission_camera_message": "Necesitamos permiso para usar tu cámara.",
     "psbt_sign": "Firmar una transacción",
     "open_settings": "Abrir configuración",
@@ -247,7 +239,6 @@
     "encrypt_title": "Seguridad",
     "encrypt_tstorage": "Almacenamiento",
     "encrypt_use": "Usar {type}",
-    "general": "General",
     "general_continuity": "Continuidad",
     "general_continuity_e": "Al activarlo, podrás ver las transacciones y carteras seleccionadas usando cualquiera de tus dispositivos Apple conectados a iCloud.",
     "groundcontrol_explanation": "GroundControl es un servidor gratuito y de código abierto de notificaciones push para carteras Bitcoin. Puedes instalar tu propio servidor de GroundControl y poner su URL aquí para no depender del de BlueWallet. Déjalo en blanco para usar el predeterminado.",
@@ -278,7 +269,6 @@
     "saved": "Guardado",
     "total_balance": "Balance total",
     "total_balance_explanation": "Muestra el balance total de todas tus carteras en los widgets de tu pantalla principal.",
-    "widgets": "Widgets",
     "tools": "Herramientas",
     "performance_score": "Puntuación de rendimiento: {num}",
     "run_performance_test": "Probar rendimiento",
@@ -353,7 +343,6 @@
     "details_title": "Transacción",
     "details_to": "Destino",
     "enable_offline_signing": "Esta cartera no se está usando en conjunción con una firma offline. ¿Quieres activarlo ahora?",
-    "list_conf": "Conf: {number}",
     "pending": "En espera",
     "pending_with_amount": "En espera {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
@@ -392,7 +381,6 @@
     "details_explorer": "explorador",
     "details_network_fee": "Comisión de red",
     "details_to_address": "Para",
-    "details_id": "ID",
     "details_note": "Nota",
     "details_add_note": "añadir",
     "details_advanced": "Avanzado",

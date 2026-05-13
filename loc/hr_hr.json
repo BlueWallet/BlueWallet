@@ -27,7 +27,6 @@
     "enter_amount": "Unesi iznos",
     "qr_custom_input_button": "Tapni 10 puta za unos prilagođenog sadržaja",
     "unlock": "Otključaj",
-    "port": "Port",
     "ssl_port": "SSL port",
     "suggested": "Predloženo"
   },
@@ -74,7 +73,6 @@
     "please_pay_between_and": "Plati iznos između {min} i {max}",
     "please_pay": "Molimo plati",
     "preimage": "Preimage",
-    "sats": "sats.",
     "date_time": "Datum i vrijeme",
     "wasnt_paid_and_expired": "Ova faktura nije plaćena i istekla je."
   },
@@ -169,9 +167,6 @@
     "dynamic_prev": "Natrag",
     "dynamic_start": "Pokreni",
     "dynamic_stop": "Zaustavi",
-    "fee_10m": "10m",
-    "fee_1d": "1d",
-    "fee_3h": "3h",
     "fee_custom": "Prilagođeno",
     "insert_custom_fee": "Unesi naknadu",
     "fee_fast": "Brzo",
@@ -252,7 +247,6 @@
     "set_electrum_server_as_default": "Postaviti {server} kao zadani Electrum poslužitelj?",
     "set_lndhub_as_default": "Postaviti {url} kao zadani LNDhub poslužitelj?",
     "electrum_settings_server": "Electrum poslužitelj",
-    "electrum_status": "Status",
     "electrum_preferred_server": "Preferirani poslužitelj",
     "electrum_preferred_server_description": "Unesite poslužitelj koji želite da vaš novčanik koristi za sve Bitcoin aktivnosti. Nakon postavljanja, vaš novčanik koristit će isključivo ovaj poslužitelj za provjeru salda, slanje transakcija i dohvaćanje mrežnih podataka. Provjerite da imate povjerenja u ovaj poslužitelj prije nego što ga postavite.",
     "electrum_unable_to_connect": "Nije moguće povezati se s {server}.",
@@ -279,7 +273,6 @@
     "encrypt_use_expl": "{type} će se koristiti za potvrdu vašeg identiteta prije izvođenja transakcije, otključavanja, izvoza ili brisanja novčanika.",
     "biometrics_fail": "Ako {type} nije omogućeno ili otključavanje ne uspije, možete koristiti kod za otključavanje uređaja kao alternativu.",
     "general": "Općenito",
-    "general_continuity": "Continuity",
     "general_continuity_e": "Kada je omogućeno, moći ćete pregledati odabrane novčanike i transakcije pomoću drugih Apple iCloud povezanih uređaja.",
     "groundcontrol_explanation": "GroundControl je besplatan, open-source poslužitelj za push obavijesti za Bitcoin novčanike. Možete instalirati svoj vlastiti GroundControl poslužitelj i ovdje unijeti njegov URL kako ne biste ovisili o infrastrukturi BlueWalleta. Ostavite prazno za korištenje zadanog GroundControl poslužitelja.",
     "header": "Postavke",
@@ -389,7 +382,6 @@
     "details_explorer": "preglednik",
     "details_network_fee": "Mrežna naknada",
     "details_to_address": "Za",
-    "details_id": "ID",
     "details_note": "Bilješka",
     "details_add_note": "dodaj",
     "details_advanced": "Napredno",
@@ -636,7 +628,6 @@
     "sort_height": "Visina",
     "sort_value": "Vrijednost",
     "sort_label": "Oznaka",
-    "sort_status": "Status",
     "sort_by": "Sortiraj po"
   },
   "units": {

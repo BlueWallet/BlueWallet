@@ -27,7 +27,6 @@
     "enter_amount": "Zadejte částku",
     "qr_custom_input_button": "Klepněte 10× k zadání vlastního vstupu",
     "unlock": "Odemknout",
-    "port": "Port",
     "ssl_port": "SSL port",
     "suggested": "Doporučené"
   },
@@ -74,7 +73,6 @@
     "please_pay_between_and": "Zaplaťte prosím mezi {min} a {max}",
     "please_pay": "Zaplaťte prosím",
     "preimage": "Předobraz",
-    "sats": "sats.",
     "date_time": "Datum a čas",
     "wasnt_paid_and_expired": "Tato faktura nebyla zaplacena a její platnost vypršela."
   },
@@ -395,7 +393,6 @@
     "details_explorer": "průzkumník",
     "details_network_fee": "Síťový poplatek",
     "details_to_address": "Komu",
-    "details_id": "ID",
     "details_note": "Poznámka",
     "details_add_note": "přidat",
     "details_advanced": "Pokročilé",
@@ -665,7 +662,6 @@
     "sign_placeholder_message": "Zpráva",
     "sign_placeholder_signature": "Podpis",
     "addresses_title": "Adresy",
-    "type_change": "Change",
     "type_receive": "Přijímací",
     "type_used": "Použitá",
     "transactions": "Transakce"

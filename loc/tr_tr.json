@@ -27,7 +27,6 @@
     "enter_amount": "Miktarı girin",
     "qr_custom_input_button": "Özel giriş için 10 kez dokunun",
     "unlock": "Kilidi aç",
-    "port": "Port",
     "ssl_port": "SSL Portu",
     "suggested": "Önerilen"
   },
@@ -73,7 +72,6 @@
     "lightning_invoice": "Lightning faturası",
     "please_pay_between_and": "{min} ve {max} arasında bir ödeme yapın",
     "please_pay": "Lütfen ödeyin",
-    "sats": "sats.",
     "wasnt_paid_and_expired": "Bu fatura ödenmeden zaman aşımına uğradı.",
     "preimage": "Pre-image",
     "date_time": "Tarih ve saat"
@@ -390,7 +388,6 @@
     "details_explorer": "tarayıcı",
     "details_network_fee": "Ağ Ücreti",
     "details_to_address": "Kime",
-    "details_id": "ID",
     "details_note": "Not",
     "details_add_note": "ekle",
     "details_advanced": "Gelişmiş",
