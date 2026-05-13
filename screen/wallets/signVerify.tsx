@@ -23,7 +23,6 @@ import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 type SignVerifyRouteParams = {
   walletID: string;
   address: string;
-  message?: string;
 };
 
 const SignVerify = () => {
@@ -31,10 +30,10 @@ const SignVerify = () => {
   const insets = useSafeAreaInsets();
   const { sleep } = useStorage();
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const { address: _address, message: _message, walletID } = useRoute<RouteProp<{ params: SignVerifyRouteParams }, 'params'>>().params;
+  const { address: _address, walletID } = useRoute<RouteProp<{ params: SignVerifyRouteParams }, 'params'>>().params;
 
-  const [address, setAddress] = useState(_address ?? '');
-  const [message, setMessage] = useState(_message ?? '');
+  const [address, setAddress] = useState(_address);
+  const [message, setMessage] = useState('');
   const [signature, setSignature] = useState('');
   const [loading, setLoading] = useState(false);
   const [messageHasFocus, setMessageHasFocus] = useState(false);
