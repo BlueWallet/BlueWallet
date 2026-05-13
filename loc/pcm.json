@@ -191,7 +191,7 @@
     "permission_storage_denied_message": "BlueWallet no fit save this file. Abeg open your device settings and enable Storage Permission.",
     "permission_storage_title": "Storage Access Permission",
     "psbt_clipboard": "Copy to Clipboard",
-    "psbt_this_is_psbt": "Na Partially Signed Bitcoin Transaction be this. Abeg run am finish with your hardware wallet wey dey offline.  ",
+    "psbt_this_is_psbt": "Na Partially Signed Bitcoin Transaction (PSBT) be this. Abeg finish sign am with your hardware wallet.",
     "psbt_tx_export": "Export to file",
     "no_tx_signing_in_progress": "No transaction signing dey go on now.",
     "outdated_rate": "Last time dem update the rate: {date}",

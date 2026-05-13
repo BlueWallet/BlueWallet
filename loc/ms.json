@@ -81,7 +81,7 @@
   "plausibledeniability": {
     "create_fake_storage": "Cipta Simpanan Sulit.",
     "create_password_explanation": "Kata laluan untuk simpanan palsu tidak boleh sepadan dengan kata laluan untuk simpanan utama anda.",
-    "help": "Dalam keadaan tertentu, anda mungkin dipaksa untuk mendedahkan kata laluan. Supaya duit anda kekal selamat, BlueWallet boleh menghasilkan simpanan sulit lain dengan kata laluan berbeza. Apabila dipaksa. anda dapat mendedahkan kata laluan ini kepada pihak ketiga. Jika dimasukkan ke dalam BlueWallet, satu simpanan \"palsu\" akan dinyahkunci. Simpanan ini akan kelihatan tulen kepada pihak ketiga, tetapi secara rahsia mengekalkan keselamatan duit anda.",
+    "help": "Dalam keadaan tertentu, anda mungkin dipaksa untuk mendedahkan kata laluan. Supaya duit anda kekal selamat, BlueWallet boleh menghasilkan simpanan sulit lain dengan kata laluan berbeza. Apabila dipaksa, anda boleh mendedahkan kata laluan ini kepada pihak ketiga. Jika dimasukkan ke dalam BlueWallet, satu simpanan \"palsu\" akan dinyahkunci. Simpanan ini akan kelihatan tulen kepada pihak ketiga, tetapi secara rahsia mengekalkan keselamatan duit anda.",
     "help2": "Simpanan baharu itu akan berfungsi secara penuh, dan anda boleh menyimpan sedikit jumlah minimum di sana agar ia kelihatan tulen.",
     "password_should_not_match": "Kata laluan sudah dalam penggunaan. Sila cuba kata laluan lain.",
     "title": "Penafian Munasabah"
@@ -92,7 +92,7 @@
     "ask_yes": "Ya, sudah.",
     "ok": "OK, sudah disalin.",
     "ok_lnd": "OK, sudah disimpan.",
-    "text": "Sila ambil sedikit waktu untuk menyalin frasa nemonik ini di atas sehelai kertas.\nSalinan ini adalah sandaran anda dan anda boleh menggunakan salinan ini untuk mendapatkan semula dompet anda. ",
+    "text": "Sila ambil sedikit waktu untuk menyalin frasa mnemonik ini di atas sehelai kertas.\nSalinan ini adalah sandaran anda dan anda boleh menggunakan salinan ini untuk mendapatkan semula dompet anda. ",
     "text_lnd": "Sila simpan sandaran dompet ini. Sandaran ini membolehkan anda untuk mengembalikan dompet ini dalam kes kehilangan.",
     "title": "Dompet anda sudah dicipta."
   },
@@ -281,7 +281,7 @@
     "general": "Umum",
     "general_continuity": "Kesinambungan",
     "general_continuity_e": "Apabila dibolehkan, anda akan dapat melihat dompet terpilih dan urus niaga, menggunakan peranti lain yang terhubung dengan iCloud Apple.",
-    "groundcontrol_explanation": "GroundControl ialah satu pelayan pemberitahuan percuma dan sumber terbuka untuk dompet Bitcoin. Anda boleh memasang pelayan GroundControl anda sendiri dan letakkan URL GrounControl di sini untuk tidak bergantung pada prasarana BlueWallet. Kosongkan untuk menggunakan pelayan lalai GroundControl.",
+    "groundcontrol_explanation": "GroundControl ialah satu pelayan pemberitahuan percuma dan sumber terbuka untuk dompet Bitcoin. Anda boleh memasang pelayan GroundControl anda sendiri dan letakkan URL GroundControl di sini untuk tidak bergantung pada prasarana BlueWallet. Kosongkan untuk menggunakan pelayan lalai GroundControl.",
     "header": "Tetapan",
     "language": "Bahasa",
     "last_updated": "Terakhir Dikemas Kini",
@@ -433,7 +433,7 @@
     "details_address": "Alamat",
     "details_advanced": "Lanjut",
     "details_are_you_sure": "Adakah anda pasti?",
-    "details_connected_to": "Terhububg kepada",
+    "details_connected_to": "Terhubung kepada",
     "details_del_wb_err": "Jumlah baki yang diberikan tidak sepadan dengan baki dompet ini. Sila cuba lagi.",
     "details_del_wb_q": "Dompet ini mempunyai baki. Sebelum meneruskan, sila ambil maklum bahawa anda tidak akan dapat mengembalikan wang tanpa frasa benih dompet ini. Untuk mengelakkan pembuangan secara tidak sengaja, sila masukkan baki dompet anda sebanyak {balance} satoshi.",
     "details_delete": "Padam",
@@ -584,8 +584,8 @@
     "type_your_mnemonics": "Masukkan benih untuk memindah masuk kunci Bilik Kebal yang anda punyai.",
     "this_is_cosigners_xpub": "Ini ialah XPUB penandatangan bersama—sedia untuk dipindah masuk ke dompet lain. Selamat untuk dikongsi.",
     "this_is_cosigners_xpub_airdrop": "Jika anda berkongsi melalui AirDrop, penerima perlu berada di skrin penyelarasan.",
-    "wallet_key_created": "Kunci Bilik Kebal anda sudah dicipta. Sila ambil sedikit waktu untuk membuat sandaran benih nemonik anda.",
-    "are_you_sure_seed_will_be_lost": "Adakah anda pasti? Benih nemonik anda akan hilang jika anda tidak membuat sandaran.",
+    "wallet_key_created": "Kunci Bilik Kebal anda sudah dicipta. Sila ambil sedikit waktu untuk membuat sandaran frasa mnemonik anda.",
+    "are_you_sure_seed_will_be_lost": "Adakah anda pasti? Frasa mnemonik anda akan hilang jika anda tidak membuat sandaran.",
     "forget_this_seed": "Lupakan benih ini dan gunakan XPUB sebagai ganti.",
     "view_edit_cosigners": "Lihat/Sunting Penandatangan Bersama",
     "this_cosigner_is_already_imported": "Penandatangan bersama ini sudah dipindah masuk.",
@@ -606,7 +606,7 @@
     "ms_help_title4": "Memindah Masuk Bilik Kebal",
     "ms_help_4": "Untuk memindah masuk dompet tandamai, gunakan fail sandaran anda dan ciri Pindah Masuk. Jika anda hanya ada benih dan XPUB, anda boleh menggunakan butang Pindah Masuk tersendiri ketika mencipta anak kunci Bilik Kebal.",
     "ms_help_title5": "Mod Lanjut",
-    "ms_help_5": "Secara lalai, BlueWallet akan menjana sebuah Bilik Kebal 2-daripada-3. Untuk mencipta kuorom berbeza atau mengubah jenis alamat, giatkan Mod Lanjut di dalam Tetapan."
+    "ms_help_5": "Secara lalai, BlueWallet akan menjana sebuah Bilik Kebal 2-daripada-3. Untuk mencipta kuorum berbeza atau mengubah jenis alamat, giatkan Mod Lanjut di dalam Tetapan."
   },
   "is_it_my_address": {
     "title": "Adakah ini alamat saya?",

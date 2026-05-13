@@ -4,7 +4,7 @@
     "cancel": "Бас тарту",
     "continue": "Жалғастыру",
     "clipboard": "Алмасу буфері",
-    "enter_password": "Құпиясөзді еңгізіңіз",
+    "enter_password": "Құпиясөзді енгізіңіз",
     "never": "Ешқашан",
     "of": "{number} / {total}",
     "ok": "ОК",
@@ -85,9 +85,9 @@
     "offchain": "Оф-чейн",
     "onchain": "Он-чейн",
     "pending": "Күтілуде",
-    "rbf_title": "Жылдамдату (RBF)",
-    "status_bump": "Жылдамдату",
-    "status_cancel": "Бас тарту",
+    "rbf_title": "Комиссияны арттыру (RBF)",
+    "status_bump": "Комиссияны арттыру",
+    "status_cancel": "Транзакцияны болдырмау",
     "transaction": "Транзакция"
   },
   "wallets": {

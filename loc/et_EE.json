@@ -48,7 +48,7 @@
     "amountOfEntropy": "{bits} {limit} bitist"
   },
   "errors": {
-    "broadcast": "Ülekanne nurjus.",
+    "broadcast": "Leviedastus nurjus.",
     "error": "Viga",
     "network": "Võrgu viga"
   },

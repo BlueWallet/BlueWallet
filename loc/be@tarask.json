@@ -34,7 +34,7 @@
   "azteco": {
     "codeIs": "Ваш код ваўчара",
     "errorBeforeRefeem": "Перад выплатай вы павінны спачатку дадаць кашалёк Bitcoin.",
-    "errorSomething": "Нешта пайшло не так. Сапраўдны ці гэты ваўчар па-ранейшаму?",
+    "errorSomething": "Нешта пайшло не так. Ці гэты ваўчар яшчэ сапраўдны?",
     "redeem": "Перавесьці на кашалёк",
     "redeemButton": "Перавесьці",
     "success": "Посьпех",
@@ -153,7 +153,7 @@
     "details_create": "Стварыць інвойс",
     "details_error_decode": "Немагчыма дэкадаваць адрас Bitcoin",
     "details_fee_field_is_not_valid": "Камісія несапраўдная.",
-    "details_frozen": "{amount} BTC заморажана.",
+    "details_frozen": "{amount} BTC замарожана.",
     "details_next": "Далей",
     "details_no_signed_tx": "Выбраны файл ня ўтрымлівае трансакцыі, якую можна імпартаваць.",
     "details_note_placeholder": "Нататка сабе",
