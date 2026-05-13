@@ -54,7 +54,7 @@ jobs:
       run: npm ci || npm ci
 
     - name: Use specific Java version for sdkmanager to work
-      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -114,7 +114,7 @@ jobs:
       run: npm ci || npm ci
 
     - name: Use specific Java version for sdkmanager to work
-      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -126,7 +126,7 @@ jobs:
         sudo udevadm trigger --name-match=kvm
 
     - name: Download APKs
-      uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
         name: bluewallet-android-apks
 
@@ -134,7 +134,7 @@ jobs:
       run: tar -xzf bluewallet-android-apks.tar.gz
 
     - name: Run tests
-      uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2
+      uses: reactivecircus/android-emulator-runner@e89f39f1abbbd05b1113a29cf4db69e7540cae5a # v2.37.0
       with:
         api-level: 36
         profile: pixel
