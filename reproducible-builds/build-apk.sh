@@ -21,11 +21,11 @@ chmod 777 "$OUT"
 
 log "Building Docker image..."
 
-docker build -f "$SCRIPT_DIR/Dockerfile" -t "$IMAGE_NAME" "$REPO_ROOT"
+docker build --platform linux/amd64 -f "$SCRIPT_DIR/Dockerfile" -t "$IMAGE_NAME" "$REPO_ROOT"
 
 log "Running build inside container..."
 
-docker run --rm \
+docker run --platform linux/amd64 --rm \
   -e KEYSTORE_FILE_HEX \
   -e KEYSTORE_PASSWORD \
   -v "$OUT":/build \
