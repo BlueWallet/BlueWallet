@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
@@ -600,8 +600,6 @@ const WalletsAddMultisigStep2 = () => {
           renderItem={_renderKeyItem}
           keyExtractor={(_item, index) => `${index}`}
           extraData={cosigners}
-          // @ts-expect-error Reanimated itemLayoutAnimation prop not in RN types
-          itemLayoutAnimation={LinearTransition}
         />
       </View>
       {footer}

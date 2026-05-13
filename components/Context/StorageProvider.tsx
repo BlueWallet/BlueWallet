@@ -14,6 +14,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
 import { getScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
+import { AppState, AppStateStatus } from 'react-native';
 
 const BlueApp = BlueAppClass.getInstance();
 

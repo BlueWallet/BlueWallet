@@ -4,7 +4,7 @@ import 'react-native-get-random-values';
 import './shim.js';
 
 import React, { useEffect } from 'react';
-import { AppRegistry, LogBox, Platform, UIManager } from 'react-native';
+import { AppRegistry, LogBox } from 'react-native';
 
 import App from './App';
 import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_modules/currency';
@@ -12,10 +12,6 @@ import { restoreSavedPreferredFiatCurrencyAndExchangeFromStorage } from './blue_
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
   Error.captureStackTrace = () => {};
-}
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
 LogBox.ignoreLogs([
