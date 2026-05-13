@@ -14,6 +14,7 @@
     "enter_url": "Entrar URL",
     "storage_is_encrypted": "La informació està xifrada. Es requereix la contrasenya per a desxifrar-la.",
     "yes": "Sí",
+    "no": "No",
     "save": "Desar...",
     "seed": "Llavor",
     "success": "Èxit",
@@ -26,6 +27,7 @@
     "enter_amount": "Introdueix la quantitat",
     "qr_custom_input_button": "Toqueu 10 vegades per introduir una entrada personalitzada",
     "unlock": "Desbloquejar",
+    "port": "Port",
     "ssl_port": "Port SSL",
     "suggested": "Suggerit"
   },
@@ -47,6 +49,7 @@
   },
   "errors": {
     "broadcast": "La transmissió ha fallat",
+    "error": "Error",
     "network": "Error de xarxa"
   },
   "lnd": {
@@ -111,6 +114,7 @@
   "send": {
     "provided_address_is_invoice": "Aquesta adreça sembla ser per a una factura Lightning. Si us plau, aneu al vostre moneder Lightning per realitzar un pagament d'aquesta factura.",
     "broadcastButton": "Enviar",
+    "broadcastError": "Error",
     "broadcastNone": "Inserir la transacció Hex",
     "broadcastPending": "Pendent",
     "broadcastSuccess": "Èxit",
@@ -165,6 +169,9 @@
     "dynamic_prev": "Anterior",
     "dynamic_start": "Comença",
     "dynamic_stop": "Atura",
+    "fee_10m": "10m",
+    "fee_1d": "1d",
+    "fee_3h": "3h",
     "fee_custom": "Personalitzada",
     "insert_custom_fee": "Inserir comissió",
     "fee_fast": "Ràpid",
@@ -176,6 +183,7 @@
     "input_clear": "Netejar",
     "input_done": "Fet",
     "input_paste": "Enganxar",
+    "input_total": "Total:",
     "permission_camera_message": "Necessitem el vostre permís per usar la vostra càmera.",
     "psbt_sign": "Signar una transacció",
     "invalid_psbt": "PSBT no vàlid.",
@@ -270,6 +278,7 @@
     "encrypted_feature_disabled": "Aquesta funcionalitat no es pot utilitzar amb el xifratge de l'emmagatzematge activat.",
     "encrypt_use_expl": "{type} s'utilitzarà per confirmar la vostra identitat abans de fer una transacció, desbloquejar, exportar o eliminar un moneder.",
     "biometrics_fail": "Si {type} no està activat o falla en desbloquejar, podeu utilitzar el codi d'accés del dispositiu com a alternativa.",
+    "general": "General",
     "general_continuity": "Continuïtat",
     "general_continuity_e": "Quan està activat, podreu visualitzar moneders i transaccions seleccionats mitjançant els vostres altres dispositius Apple connectats amb iCloud.",
     "groundcontrol_explanation": "GroundControl és un servidor de notificacions push gratuït i de codi obert per a moneders de Bitcoin. Podeu instal·lar el vostre propi servidor GroundControl i posar-ne l'URL aquí per no dependre de la infraestructura de BlueWallet. Deixeu-ho en blanc per utilitzar el servidor predeterminat de GroundControl.",
@@ -353,6 +362,7 @@
     "onchain": "En cadena",
     "details_to": "A",
     "enable_offline_signing": "Aquest moneder no s'està utilitzant juntament amb una signatura fora de línia. Voleu activar-la ara?",
+    "list_conf": "Conf: {number}",
     "pending": "Pendent",
     "pending_with_amount": "Pendent {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
@@ -382,6 +392,7 @@
     "details_explorer": "explorador",
     "details_network_fee": "Comissió de xarxa",
     "details_to_address": "A",
+    "details_id": "ID",
     "details_note": "Nota",
     "details_add_note": "afegir",
     "details_advanced": "Avançat",

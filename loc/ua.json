@@ -74,6 +74,7 @@
     "please_pay_between_and": "Будь ласка, сплатіть від {min} до {max}",
     "please_pay": "Будь ласка, оплатіть",
     "preimage": "Преімідж",
+    "sats": "сатоші.",
     "date_time": "Дата та час",
     "wasnt_paid_and_expired": "Цей рахунок не було оплачено, термін його дії закінчився."
   },
@@ -390,6 +391,7 @@
     "details_explorer": "оглядач",
     "details_network_fee": "Комісія мережі",
     "details_to_address": "Кому",
+    "details_id": "ID",
     "details_note": "Нотатка",
     "details_add_note": "додати",
     "details_advanced": "Розширені",

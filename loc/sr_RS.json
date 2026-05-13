@@ -27,7 +27,9 @@
     "qr_custom_input_button": "Dodirnite 10 puta za prilagođeni unos",
     "unlock": "Otključaj",
     "ssl_port": "SSL port",
-    "suggested": "Predloženo"
+    "suggested": "Predloženo",
+    "clipboard": "Clipboard",
+    "port": "Port"
   },
   "azteco": {
     "codeIs": "Vaš kod vaučera je",
@@ -73,7 +75,8 @@
     "please_pay": "Molimo platite",
     "preimage": "Pre-image",
     "date_time": "Datum i vreme",
-    "wasnt_paid_and_expired": "Ova faktura nije plaćena i istekla je."
+    "wasnt_paid_and_expired": "Ova faktura nije plaćena i istekla je.",
+    "sats": "sats."
   },
   "plausibledeniability": {
     "create_fake_storage": "Kreiraj šifrovanu memoriju",
@@ -200,7 +203,10 @@
     "cant_send_to_silentpayment_adress": "Ovaj novčanik ne može da šalje na SilentPayment adrese",
     "cant_send_to_bip47": "Ovaj novčanik ne može da šalje na BIP47 Payment kodove",
     "cant_find_bip47_notification": "Prvo dodajte ovaj Payment kod u kontakte",
-    "problem_with_psbt": "Problem sa PSBT"
+    "problem_with_psbt": "Problem sa PSBT",
+    "fee_10m": "10 min",
+    "fee_3h": "3 h",
+    "fee_1d": "1 d"
   },
   "settings": {
     "about": "O aplikaciji",
@@ -313,7 +319,8 @@
     "total_balance": "Ukupno stanje",
     "total_balance_explanation": "Prikaži ukupno stanje svih vaših novčanika na vidžetima početnog ekrana.",
     "widgets": "Vidžeti",
-    "tools": "Alati"
+    "tools": "Alati",
+    "electrum_status": "Status"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Da li želite da primate obaveštenja kada primite dolazne uplate?",
@@ -389,7 +396,9 @@
     "details_virtual_size": "Virtuelna veličina",
     "details_tx_hex": "Hex transakcije",
     "details_inputs_count": "Ulazi ({count})",
-    "details_outputs_count": "Izlazi ({count})"
+    "details_outputs_count": "Izlazi ({count})",
+    "details_explorer": "explorer",
+    "details_id": "ID"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -627,7 +636,8 @@
     "sort_height": "Visina",
     "sort_value": "Vrednost",
     "sort_label": "Oznaka",
-    "sort_by": "Sortiraj po"
+    "sort_by": "Sortiraj po",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",

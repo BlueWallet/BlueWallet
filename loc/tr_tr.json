@@ -28,6 +28,7 @@
     "qr_custom_input_button": "Özel giriş için 10 kez dokunun",
     "unlock": "Kilidi aç",
     "ssl_port": "SSL Portu",
+    "port": "Port",
     "suggested": "Önerilen"
   },
   "azteco": {
@@ -74,6 +75,7 @@
     "please_pay": "Lütfen ödeyin",
     "wasnt_paid_and_expired": "Bu fatura ödenmeden zaman aşımına uğradı.",
     "preimage": "Pre-image",
+    "sats": "sat.",
     "date_time": "Tarih ve saat"
   },
   "plausibledeniability": {
@@ -350,6 +352,7 @@
     "details_copy_block_explorer_link": "Blok Tarayıcısı Bağlantısını Kopyala",
     "details_copy_note": "Notu Kopyala",
     "details_copy_txid": "İşlem ID'sini Kopyala",
+    "details_id": "ID",
     "details_inputs": "Girdiler",
     "details_outputs": "Çıktılar",
     "date": "Tarih",

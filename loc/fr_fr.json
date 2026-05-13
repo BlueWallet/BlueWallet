@@ -28,7 +28,8 @@
     "unlock": "Déverrouiller",
     "ssl_port": "Port SSL",
     "suggested": "Suggéré",
-    "copied": "Copié !"
+    "copied": "Copié !",
+    "port": "Port"
   },
   "azteco": {
     "codeIs": "Votre code promo est",
@@ -107,7 +108,8 @@
     "minSatsFull": "Le montant minimal est de {min} sats ou {currency}",
     "qrcode_for_the_address": "Code QR pour l'adresse",
     "bip47_explanation": "Les codes de paiement sont une adresse universelle qui évite de divulguer vos adresses de portefeuille. Tous les services ne les prennent pas en charge.",
-    "address_not_found": "Impossible de générer l'adresse de réception."
+    "address_not_found": "Impossible de générer l'adresse de réception.",
+    "details_label": "Description"
   },
   "send": {
     "provided_address_is_invoice": "Cette adresse semble correspondre à une facture Lightning. Veuillez utiliser votre portefeuille Lightning pour payer cette facture.",
@@ -204,7 +206,8 @@
     "cant_send_to_bip47": "Ce portefeuille ne peut pas envoyer à des codes de paiement BIP47",
     "cant_find_bip47_notification": "Ajoutez d'abord ce code de paiement au contact",
     "problem_with_psbt": "Problème avec PSBT",
-    "details_scan_error": "Erreur de scan"
+    "details_scan_error": "Erreur de scan",
+    "fee_3h": "3h"
   },
   "settings": {
     "about": "À propos",
@@ -316,7 +319,9 @@
     "donate_description": "Aidez-nous à garder Blue gratuit !",
     "encrypt_enc_and_pass": "Protégé par mot de passe",
     "encrypt_use_expl": "{type} sera utilisé pour confirmer votre identité avant d'effectuer une transaction, de déverrouiller, d'exporter ou de supprimer un portefeuille.",
-    "lndhub_github": "Dépôt GitHub"
+    "lndhub_github": "Dépôt GitHub",
+    "notifications": "Notifications",
+    "widgets": "Widgets"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Voulez-vous recevoir les notifications quand vous recevez des paiements entrants ?",
@@ -393,7 +398,13 @@
     "details_virtual_size": "Taille virtuelle",
     "details_tx_hex": "Hex de la transaction",
     "details_inputs_count": "Entrées ({count})",
-    "details_outputs_count": "Sorties ({count})"
+    "details_outputs_count": "Sorties ({count})",
+    "confirmations_lowercase": "{confirmations} confirmations",
+    "date": "Date",
+    "details_title": "Transaction",
+    "transaction": "Transaction",
+    "details_id": "ID",
+    "details_note": "Note"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -512,7 +523,8 @@
     "swipe_balance_hide": "Cacher",
     "swipe_balance_show": "Montrer",
     "drag_to_reorder": "Glisser pour réorganiser",
-    "clear_search": "Effacer la recherche"
+    "clear_search": "Effacer la recherche",
+    "details_type": "Type"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Afficher en Bitcoin",
@@ -597,7 +609,8 @@
     "ms_help_title4": "Importation Coffre",
     "ms_help_4": "Pour importer un coffre Multi-signature, utilisez votre fichier de sauvegarde multisig et utilisez la fonction d'importation. Si vous ne disposez que de clés étendues et des graines, vous pouvez utiliser les champs d'importation individuels du flux Ajouter un coffre.",
     "ms_help_title5": "Options avancées",
-    "ms_help_5": "Par défaut, BlueWallet générera un coffre 2-de-3. Pour créer un quorum différent ou pour changer le type d'adresse, activez les options avancées dans les paramètres."
+    "ms_help_5": "Par défaut, BlueWallet générera un coffre 2-de-3. Pour créer un quorum différent ou pour changer le type d'adresse, activez les options avancées dans les paramètres.",
+    "quorum_header": "Quorum"
   },
   "is_it_my_address": {
     "title": "Est-ce mon adresse ?",
@@ -652,7 +665,10 @@
     "addresses_title": "Adresses",
     "type_change": "Monnaie rendue",
     "type_receive": "Réception",
-    "type_used": "Utilisé"
+    "type_used": "Utilisé",
+    "sign_placeholder_message": "Message",
+    "sign_placeholder_signature": "Signature",
+    "transactions": "Transactions"
   },
   "lnurl_auth": {
     "register_question_part_1": "Voulez-vous enregistrer un compte à :",
@@ -689,6 +705,7 @@
     "onchain_tx_needed": "Transaction on-chain nécessaire",
     "notif_tx_sent": "Transaction de notification envoyée. Veuillez attendre qu'elle soit confirmée",
     "notif_tx": "Transaction de notification",
-    "not_found": "Code de paiement introuvable"
+    "not_found": "Code de paiement introuvable",
+    "contacts": "Contacts"
   }
 }

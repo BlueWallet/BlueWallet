@@ -8,6 +8,7 @@
     "discard_changes": "¿Descartar cambios?",
     "discard_changes_explain": "Tienes cambios sin guardar. ¿Estás seguro de que quieres descartarlos y salir de la pantalla?",
     "enter_password": "Ingresar contraseña",
+    "no": "No",
     "never": "Nunca",
     "of": "{number} de {total}",
     "ok": "OK",
@@ -48,6 +49,7 @@
   },
   "errors": {
     "broadcast": "Error de transmisión",
+    "error": "Error",
     "network": "Error de red"
   },
   "lnd": {
@@ -72,6 +74,7 @@
     "please_pay_between_and": "Paga entre {min} y {max}",
     "please_pay": "Por favor paga",
     "preimage": "Preimagen",
+    "sats": "sats.",
     "date_time": "Fecha y hora",
     "wasnt_paid_and_expired": "Esta factura no se pagó y ha caducado."
   },
@@ -111,6 +114,7 @@
   "send": {
     "provided_address_is_invoice": "Esta dirección parece ser para una factura Lightning. Por favor, ve a tu billetera Lightning para realizar el pago de esta factura.",
     "broadcastButton": "Transmitir",
+    "broadcastError": "Error",
     "broadcastNone": "Introducir hex de transacción",
     "broadcastPending": "Pendiente",
     "broadcastSuccess": "Éxito",
@@ -167,6 +171,8 @@
     "dynamic_start": "Empezar",
     "dynamic_stop": "Detener",
     "fee_10m": "10min",
+    "fee_1d": "1d",
+    "fee_3h": "3h",
     "fee_custom": "Personalizado",
     "insert_custom_fee": "Insertar comisión",
     "fee_fast": "Rápido",
@@ -178,6 +184,7 @@
     "input_clear": "Limpiar",
     "input_done": "Hecho",
     "input_paste": "Pegar",
+    "input_total": "Total:",
     "permission_camera_message": "Necesitamos tu permiso para usar tu cámara",
     "psbt_sign": "Firmar una transacción",
     "invalid_psbt": "PSBT proporcionado no válido.",
@@ -230,6 +237,7 @@
     "currency_source": "La cotización se obtiene de",
     "currency_fetch_error": "Se produjo un error al obtener el tipo de cambio de la divisa seleccionada.",
     "default_title": "Al inicio",
+    "general": "General",
     "donate": "Donar",
     "donate_description": "¡Ayúdanos a mantener Blue libre!",
     "electrum_connected": "Conectado",
@@ -312,7 +320,8 @@
     "success_transaction_broadcasted": "¡Tu transacción ha sido transmitida exitosamente!",
     "total_balance": "Balance Total",
     "total_balance_explanation": "Muestra el saldo total de todas tus billeteras en los widgets de tu pantalla de inicio.",
-    "tools": "Herramientas"
+    "tools": "Herramientas",
+    "widgets": "Widgets"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "¿Te gustaría recibir notificaciones cuando recibas pagos entrantes?",
@@ -339,6 +348,7 @@
     "details_copy_block_explorer_link": "Copiar el enlace del explorador de bloques",
     "details_copy_note": "Copiar nota",
     "details_copy_txid": "Copiar ID de transacción",
+    "details_id": "ID",
     "details_from": "Entrada",
     "details_inputs": "Entradas",
     "details_outputs": "Salidas",
@@ -361,6 +371,7 @@
     "eta_3h": "TEA: en ~ 3 horas",
     "eta_1d": "TEA: en ~ 1 día",
     "view_wallet": "Ver {walletLabel}",
+    "list_conf": "Conf: {number}",
     "list_title": "Transacciones",
     "list_title_sent": "Enviado",
     "list_title_received": "Recibido",

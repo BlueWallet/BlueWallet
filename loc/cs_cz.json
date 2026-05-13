@@ -28,7 +28,8 @@
     "qr_custom_input_button": "Klepněte 10× k zadání vlastního vstupu",
     "unlock": "Odemknout",
     "ssl_port": "SSL port",
-    "suggested": "Doporučené"
+    "suggested": "Doporučené",
+    "port": "Port"
   },
   "azteco": {
     "codeIs": "Váš kód voucheru je",
@@ -74,7 +75,8 @@
     "please_pay": "Zaplaťte prosím",
     "preimage": "Předobraz",
     "date_time": "Datum a čas",
-    "wasnt_paid_and_expired": "Tato faktura nebyla zaplacena a její platnost vypršela."
+    "wasnt_paid_and_expired": "Tato faktura nebyla zaplacena a její platnost vypršela.",
+    "sats": "sats."
   },
   "plausibledeniability": {
     "create_fake_storage": "Vytvořit zašifrované úložiště",
@@ -390,6 +392,7 @@
     "details_eta_analyzing": "Analyzování…",
     "details_sent": "Odesláno",
     "details_section": "Podrobnosti",
+    "details_id": "ID",
     "details_explorer": "průzkumník",
     "details_network_fee": "Síťový poplatek",
     "details_to_address": "Komu",
@@ -662,6 +665,7 @@
     "sign_placeholder_message": "Zpráva",
     "sign_placeholder_signature": "Podpis",
     "addresses_title": "Adresy",
+    "type_change": "Drobné",
     "type_receive": "Přijímací",
     "type_used": "Použitá",
     "transactions": "Transakce"

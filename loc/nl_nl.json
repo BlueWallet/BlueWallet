@@ -108,7 +108,8 @@
     "minSats": "Minimaal bedrag is {min} sats",
     "minSatsFull": "Minimaal bedrag is {min} sats of {currency}",
     "qrcode_for_the_address": "QR-code voor het adres",
-    "bip47_explanation": "Payment codes zijn een universeel adres dat voorkomt dat je wallet-adressen worden onthuld. Niet alle diensten ondersteunen ze."
+    "bip47_explanation": "Payment codes zijn een universeel adres dat voorkomt dat je wallet-adressen worden onthuld. Niet alle diensten ondersteunen ze.",
+    "reset": "Reset"
   },
   "send": {
     "provided_address_is_invoice": "Dit adres lijkt te zijn voor een Lightning factuur, Ga naar je Lightning wallet om een betaling voor deze factuur te maken.",
@@ -193,7 +194,19 @@
     "file_saved_at_path": "Het bestand ({filePath}) is opgeslagen.",
     "cant_send_to_silentpayment_adress": "Deze wallet kan niet naar SilentPayment-adressen verzenden",
     "cant_send_to_bip47": "Deze wallet kan niet naar BIP47 payment codes verzenden",
-    "cant_find_bip47_notification": "Voeg deze payment code eerst toe aan contacten"
+    "cant_find_bip47_notification": "Voeg deze payment code eerst toe aan contacten",
+    "create_details": "Details",
+    "create_fee": "Fee",
+    "create_memo": "Memo",
+    "create_satoshi_per_vbyte": "Satoshi per vByte",
+    "details_scan": "Scannen",
+    "dynamic_start": "Start",
+    "dynamic_stop": "Stop",
+    "fee_10m": "10m",
+    "fee_1d": "1d",
+    "fee_custom": "Aangepast",
+    "fee_medium": "Gemiddeld",
+    "fee_satvbyte": "in sat/vByte"
   },
   "settings": {
     "about": "Over",
@@ -302,7 +315,12 @@
     "password_explain": "Voer het wachtwoord in dat je gaat gebruiken om je opslag te ontgrendelen.",
     "privacy_quickactions_explanation": "Houd het BlueWallet-app-icoon ingedrukt om snel het saldo van je wallet te bekijken.",
     "push_notifications_explanation": "Door meldingen in te schakelen, wordt je apparaattoken naar de server verzonden, samen met wallet-adressen en transactie-ID's voor alle wallets en transacties die zijn gemaakt na het inschakelen van meldingen. Het apparaattoken wordt gebruikt om meldingen te verzenden, en de wallet-informatie stelt ons in staat om je te informeren over inkomende Bitcoin of transactiebevestigingen.\n\nAlleen informatie van na het inschakelen van meldingen wordt verzonden — niets van daarvoor wordt verzameld.\n\nHet uitschakelen van meldingen verwijdert al deze informatie van de server. Bovendien zal het verwijderen van een wallet uit de app ook de bijbehorende informatie van de server verwijderen.",
-    "success_transaction_broadcasted": "Je transactie is succesvol verzonden!"
+    "success_transaction_broadcasted": "Je transactie is succesvol verzonden!",
+    "electrum_settings_server": "Electrum-server",
+    "electrum_status": "Status",
+    "privacy": "Privacy",
+    "rate": "Koers",
+    "widgets": "Widgets"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Wil je meldingen ontvangen als je binnenkomende betalingen ontvangt?",
@@ -375,7 +393,14 @@
     "details_advanced": "Geavanceerd",
     "details_size": "Grootte",
     "details_virtual_size": "Virtuele grootte",
-    "details_tx_hex": "Tx hex"
+    "details_tx_hex": "Tx hex",
+    "details_inputs": "Inputs",
+    "details_outputs": "Outputs",
+    "details_section": "Details",
+    "details_id": "ID",
+    "details_fee_rate": "Fee-tarief",
+    "details_inputs_count": "Inputs ({count})",
+    "details_outputs_count": "Outputs ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -488,7 +513,14 @@
     "manage_wallets_search_placeholder": "Zoek wallets, adressen, transacties en memo's",
     "more_info": "Meer info",
     "details_delete_wallet_error_message": "Er was een probleem bij het bevestigen of deze wallet uit de meldingen is verwijderd — dit kan komen door een netwerkprobleem of slechte verbinding. Als je doorgaat, ontvang je mogelijk nog steeds meldingen voor transacties met betrekking tot deze wallet, zelfs nadat deze is verwijderd.",
-    "details_delete_anyway": "Toch verwijderen"
+    "details_delete_anyway": "Toch verwijderen",
+    "add_entropy": "Entropie",
+    "add_wallet_type": "Type",
+    "details_title": "Wallet",
+    "wallets": "Wallets",
+    "details_type": "Type",
+    "list_title": "Wallets",
+    "xpub_title": "Wallet xpub"
   },
   "total_balance_view": {
     "title": "Totaalbalans",
@@ -571,7 +603,10 @@
     "this_is_cosigners_xpub": "Dit is de xpub van de medeondertekenaar — klaar om in een andere wallet te worden geïmporteerd. Het is veilig om deze te delen.",
     "this_is_cosigners_xpub_airdrop": "Als je deelt via AirDrop, moeten de ontvangers zich in het coördinatiescherm bevinden.",
     "view_edit_cosigners": "Medeondertekenaars bekijken/bewerken",
-    "this_cosigner_is_already_imported": "Deze medeondertekenaar is al geïmporteerd."
+    "this_cosigner_is_already_imported": "Deze medeondertekenaar is al geïmporteerd.",
+    "fee": "Fee: {number}",
+    "quorum_header": "Quorum",
+    "ms_help": "Help"
   },
   "is_it_my_address": {
     "title": "Is het mijn adres?",
@@ -596,7 +631,10 @@
     "sort_desc": "Aflopend",
     "sort_height": "Hoogte",
     "sort_value": "Waarde",
-    "sort_by": "Sorteren op"
+    "sort_by": "Sorteren op",
+    "header": "Coin Control",
+    "sort_label": "Label",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",

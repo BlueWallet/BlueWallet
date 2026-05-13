@@ -53,6 +53,82 @@ const KEY_EXCEPTIONS = new Set([
   'wallets.import_derivation_title',     // "Derivation path"
   'wallets.details_multisig_type',       // "multisig"
   'settings.block_explorer',             // "Block Explorer" — Bitcoin tooling
+  // Short UI labels / acronyms / time abbreviations many locales keep Latin
+  'transactions.details_id',             // "ID" — universal acronym
+  'lndViewInvoice.sats',                 // "sats." — unit suffix
+  '_.port',                              // "Port" — networking term
+  '_.ssl_port',                          // "SSL Port" — networking term
+  'settings.electrum_status',            // "Status" — short UI label
+  'cc.sort_status',                      // "Status"
+  'settings.widgets',                    // "Widgets" — UI/Apple term
+  'settings.general_continuity',         // "Continuity" — Apple feature brand
+  'send.dynamic_start',                  // "Start" — short button
+  'send.dynamic_stop',                   // "Stop" — short button
+  'send.input_done',                     // "Done" — short button
+  'send.input_total',                    // "Total:" — short label
+  'send.broadcastError',                 // "Error" — short status
+  'errors.error',                        // "Error" — short status
+  'send.fee_10m',                        // "10m" — time abbreviation
+  'send.fee_3h',                         // "3h"
+  'send.fee_1d',                         // "1d"
+  'send.fee_satvbyte',                   // "in sat/vByte" — technical unit
+  'send.create_satoshi_per_vbyte',       // "Satoshi per vByte" — technical unit
+  'send.create_details',                 // "Details" — short label
+  'transactions.details_section',        // "Details" — short label
+  'transactions.details_explorer',       // "explorer" — short label
+  'transactions.details_tx_hex',         // "Tx Hex" — technical
+  'transactions.list_conf',              // "Conf: {number}" — pure format
+  'wallets.add_wallet_type',             // "Type" — short label
+  'wallets.details_type',                // "Type"
+  'wallets.xpub_title',                  // "Wallet XPUB" — technical compound
+  'settings.network_broadcast',          // "Broadcast Transaction" — kept English in many locales
+  'settings.general',                    // "General" — short label
+  '_.no',                                // "No" — short label
+  'multisig.what_is_vault_wallet',       // "wallet." — sentence fragment
+  'multisig.what_is_vault_numberOfWallets', // pure format with multisig brand
+  'multisig.quorum_header',              // "Quorum" — technical term
+  'multisig.multisig_vault',             // "Multisig Vault" — brand-style
+  'multisig.default_label',              // "Multisig Vault"
+  'cc.header',                           // "Coin Control" — feature label
+  'cc.sort_label',                       // "Label" — short
+  'bip47.payment_code',                  // "Payment Code" — BIP47 term
+  'bip47.notif_tx',                      // "Notification transaction"
+  // UI loanwords + short labels kept in many locales (lang-specific glossaries decide)
+  '_.clipboard',                         // "Clipboard"
+  '_.no',                                // already listed but for emphasis
+  'wallets.details_title',               // "Wallet"
+  'wallets.list_title',                  // "Wallets"
+  'wallets.wallets',                     // "Wallets"
+  'wallets.add_entropy',                 // "Entropy"
+  'entropy.title',                       // "Entropy"
+  'send.header',                         // "Send"
+  'send.create_fee',                     // "Fee"
+  'send.create_memo',                    // "Memo"
+  'send.details_scan',                   // "Scan"
+  'multisig.header',                     // "Send"
+  'multisig.fee',                        // "Fee: {number}" — pure format
+  'multisig.ms_help',                    // "Help"
+  'transactions.transaction',            // "Transaction"
+  'transactions.details_title',          // "Transaction"
+  'transactions.date',                   // "Date"
+  'transactions.details_note',           // "Note"
+  'transactions.details_inputs',         // "Inputs"
+  'transactions.details_outputs',        // "Outputs"
+  'transactions.details_inputs_count',   // "Inputs ({count})" — pure format
+  'transactions.details_outputs_count',  // "Outputs ({count})" — pure format
+  'transactions.confirmations_lowercase',// "{confirmations} confirmations" — format
+  'receive.details_label',               // "Description"
+  'receive.reset',                       // "Reset"
+  'settings.notifications',              // "Notifications"
+  'settings.password',                   // "Password"
+  'settings.privacy',                    // "Privacy"
+  'settings.plausible_deniability',      // "Plausible Deniability"
+  'settings.about_license',              // "MIT License"
+  'plausibledeniability.title',          // "Plausible Deniability"
+  'addresses.sign_placeholder_message',  // "Message"
+  'addresses.sign_placeholder_signature',// "Signature"
+  'addresses.transactions',              // "Transactions"
+  'bip47.contacts',                      // "Contacts"
 ]);
 
 // Single tokens that are legitimate English-equal values (brands, acronyms,

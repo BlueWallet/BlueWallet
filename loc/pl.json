@@ -27,6 +27,7 @@
     "qr_custom_input_button": "Stuknij 10 razy, aby wprowadzić niestandardowe dane",
     "unlock": "Odblokuj",
     "ssl_port": "Port SSL",
+    "port": "Port",
     "suggested": "Sugerowane",
     "copied": "Skopiowano!"
   },
@@ -107,7 +108,8 @@
     "minSats": "Kwota minimalna to {min} satoshi",
     "minSatsFull": "Kwota minimalna to {min} satoshi lub {currency}",
     "qrcode_for_the_address": "Kod QR dla adresu",
-    "bip47_explanation": "Kody płatności to uniwersalne adresy, które chronią prywatność Twojego portfela. Nie wszystkie usługi je obsługują."
+    "bip47_explanation": "Kody płatności to uniwersalne adresy, które chronią prywatność Twojego portfela. Nie wszystkie usługi je obsługują.",
+    "reset": "Resetuj"
   },
   "send": {
     "provided_address_is_invoice": "Ten adres wygląda na fakturę Lightning. Przejdź do swojego portfela Lightning aby ją opłacić.",
@@ -166,6 +168,8 @@
     "dynamic_init": "Inicjalizuję",
     "dynamic_next": "Dalej",
     "dynamic_prev": "Poprzedni",
+    "dynamic_start": "Start",
+    "dynamic_stop": "Stop",
     "fee_10m": "10 min.",
     "fee_1d": "1 dzień",
     "fee_3h": "3 godz.",
@@ -246,6 +250,7 @@
     "electrum_port": "Port, zazwyczaj {example}",
     "use_ssl": "Użyj SSL",
     "electrum_saved": "Zmiany zostały zachowane pomyślnie. Żeby je zobaczyć zrestartuj aplikację.",
+    "electrum_status": "Status",
     "set_electrum_server_as_default": "Ustawić {server} jako domyślny serwer Electrum?",
     "set_lndhub_as_default": "Ustawić {url} jako domyślny serwer LNDhub?",
     "electrum_settings_server": "Serwer Electrum",
@@ -388,6 +393,7 @@
     "details_sent": "Wysłano",
     "details_section": "Szczegóły",
     "details_explorer": "eksplorator",
+    "details_id": "ID",
     "details_network_fee": "Opłata sieciowa",
     "details_to_address": "Do",
     "details_note": "Notatka",
@@ -637,6 +643,7 @@
     "sort_height": "Wysokość",
     "sort_value": "Wartość",
     "sort_label": "Etykieta",
+    "sort_status": "Status",
     "sort_by": "Sortuj wg"
   },
   "units": {

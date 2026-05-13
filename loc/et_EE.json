@@ -27,6 +27,7 @@
     "enter_amount": "Sisesta summa",
     "qr_custom_input_button": "Koputa 10 korda kohandatud sisendi sisestamiseks",
     "unlock": "Ava lukk",
+    "port": "Port",
     "ssl_port": "SSL port",
     "suggested": "Soovitatud"
   },
@@ -168,6 +169,7 @@
     "dynamic_prev": "Eelmine",
     "dynamic_start": "Alusta",
     "dynamic_stop": "Peata",
+    "fee_10m": "10min",
     "fee_1d": "1p",
     "fee_3h": "3t",
     "fee_custom": "Kohandatud",
@@ -344,6 +346,7 @@
     "details_copy_block_explorer_link": "Kopeeri plokiuurija link",
     "details_copy_note": "Kopeeri märkus",
     "details_copy_txid": "Kopeeri tehingu ID",
+    "details_id": "ID",
     "details_inputs": "Sisendid",
     "details_outputs": "Väljundid",
     "date": "Kuupäev",

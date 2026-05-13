@@ -75,7 +75,8 @@
     "please_pay": "Ju lutem paguani",
     "preimage": "Pre-imazh",
     "wasnt_paid_and_expired": "Fatura nuk është paguar dhe ka skaduar.",
-    "date_time": "Data dhe ora"
+    "date_time": "Data dhe ora",
+    "sats": "sats."
   },
   "plausibledeniability": {
     "create_fake_storage": "Krijo një memorie të kriptuar",
@@ -120,6 +121,7 @@
     "confirm_sendNow": "Dërgo tani",
     "create_amount": "Sasia",
     "create_broadcast": "Transmetim",
+    "create_memo": "Memo",
     "create_copy": "Kopjoje dhe transmetoje më vonë",
     "create_details": "Detajet",
     "create_fee": "Komision",
@@ -351,6 +353,7 @@
     "details_copy_block_explorer_link": "Kopjo lidhjen e eksploruesit të blloqeve",
     "details_copy_note": "Kopjo shënimin",
     "details_copy_txid": "Kopjo ID-në e transaksionit",
+    "details_id": "ID",
     "details_inputs": "Hyrjet",
     "details_outputs": "Daljet",
     "date": "Data",

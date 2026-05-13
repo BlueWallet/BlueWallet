@@ -28,7 +28,8 @@
     "qr_custom_input_button": "Trykk 10 ganger for å oppgi egendefinert inndata",
     "unlock": "Lås opp",
     "ssl_port": "SSL-port",
-    "suggested": "Foreslått"
+    "suggested": "Foreslått",
+    "port": "Port"
   },
   "azteco": {
     "codeIs": "Din kupongkode er",
@@ -74,7 +75,8 @@
     "please_pay": "Vennligst betal",
     "preimage": "Forhåndsbilde",
     "date_time": "Dato og klokkeslett",
-    "wasnt_paid_and_expired": "Denne fakturaen ble ikke betalt og har utløpt."
+    "wasnt_paid_and_expired": "Denne fakturaen ble ikke betalt og har utløpt.",
+    "sats": "sats."
   },
   "plausibledeniability": {
     "create_fake_storage": "Opprett Kryptert Lagring",
@@ -199,7 +201,12 @@
     "cant_send_to_silentpayment_adress": "Denne lommeboken kan ikke sende til SilentPayment-adresser",
     "cant_send_to_bip47": "Denne lommeboken kan ikke sende til BIP47-betalingskoder",
     "cant_find_bip47_notification": "Legg først til denne betalingskoden i kontakter",
-    "problem_with_psbt": "Problem med PSBT"
+    "problem_with_psbt": "Problem med PSBT",
+    "create_memo": "Notat",
+    "create_satoshi_per_vbyte": "Satoshi per vByte",
+    "dynamic_start": "Start",
+    "fee_10m": "10 min",
+    "fee_1d": "1 d"
   },
   "settings": {
     "about": "Om",
@@ -306,7 +313,14 @@
     "success_transaction_broadcasted": "Transaksjonen din er kringkastet!",
     "total_balance": "Total balanse",
     "total_balance_explanation": "Vis den totale saldoen til alle lommebokene dine på widgetene på startskjermen.",
-    "tools": "Verktøy"
+    "tools": "Verktøy",
+    "about_license": "MIT-lisens",
+    "biometrics": "Biometri",
+    "electrum_settings_server": "Electrum-server",
+    "electrum_status": "Status",
+    "network_electrum": "Electrum-server",
+    "rate": "Kurs",
+    "widgets": "Widgeter"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Vil du motta varsler når du mottar innbetalinger?",
@@ -386,7 +400,8 @@
     "details_virtual_size": "Virtuell størrelse",
     "details_tx_hex": "Tx-hex",
     "details_inputs_count": "Inndata ({count})",
-    "details_outputs_count": "Utdata ({count})"
+    "details_outputs_count": "Utdata ({count})",
+    "details_id": "ID"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -503,7 +518,10 @@
     "manage_wallets_search_placeholder": "Søk i lommebøker, adresser, transaksjoner og notater",
     "more_info": "Mer info",
     "details_delete_wallet_error_message": "Det oppsto et problem med å bekrefte om denne lommeboken ble fjernet fra varslinger – dette kan skyldes et nettverksproblem eller dårlig tilkobling. Hvis du fortsetter, kan du fortsatt motta varslinger for transaksjoner relatert til denne lommeboken, selv etter at den er slettet.",
-    "details_delete_anyway": "Slett likevel"
+    "details_delete_anyway": "Slett likevel",
+    "add_wallet_type": "Type",
+    "details_type": "Type",
+    "xpub_title": "Lommebok XPUB"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Vis i Bitcoin",
@@ -585,7 +603,11 @@
     "ms_help_title4": "Importerer Vault",
     "ms_help_4": "For å importere en multisig, bruk sikkerhetskopifilen og importfunksjonen. Hvis du bare har seeds og XPUB-er, kan du bruke den individuelle Import-knappen når du oppretter Vault-nøkler.",
     "ms_help_title5": "Enable advanced mode",
-    "ms_help_5": "Som standard vil BlueWallet generere et 2-av-3 Vault. For å opprette et annet quorum eller endre adressetypen, aktiver Avansert-modus i innstillingene."
+    "ms_help_5": "Som standard vil BlueWallet generere et 2-av-3 Vault. For å opprette et annet quorum eller endre adressetypen, aktiver Avansert-modus i innstillingene.",
+    "multisig_vault": "Multisig Vault",
+    "default_label": "Multisig Vault",
+    "header": "Send",
+    "quorum_header": "Quorum"
   },
   "is_it_my_address": {
     "title": "Er det adressen min?",
@@ -618,7 +640,8 @@
     "sort_height": "Høyde",
     "sort_value": "Verdi",
     "sort_label": "Merkelapp",
-    "sort_by": "Sorter etter"
+    "sort_by": "Sorter etter",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",

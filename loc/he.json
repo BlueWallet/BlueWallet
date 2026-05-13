@@ -73,6 +73,7 @@
     "lightning_invoice": "חשבונית ברק",
     "please_pay_between_and": "אנא שלמו בין {min} לבין {max}",
     "please_pay": "אנא שלמו",
+    "sats": "sats.",
     "date_time": "תאריך ושעה",
     "wasnt_paid_and_expired": "חשבונית זו לא שולמה ופגה",
     "preimage": "preimage"

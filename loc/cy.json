@@ -75,7 +75,8 @@
     "please_pay": "Talu",
     "preimage": "Cynddelw",
     "date_time": "Dyddiad ac Amser",
-    "wasnt_paid_and_expired": "Ni chafodd yr anfoneb ei thalu, ac mae wedi gorffen."
+    "wasnt_paid_and_expired": "Ni chafodd yr anfoneb ei thalu, ac mae wedi gorffen.",
+    "sats": "sats."
   },
   "plausibledeniability": {
     "create_fake_storage": "Creu storfa wedi'i hamgryptio",
@@ -203,7 +204,9 @@
     "cant_send_to_silentpayment_adress": "Ni all y waled hon anfon at gyfeiriadau Silent Payments",
     "cant_send_to_bip47": "Ni all y waled hon anfon at godau taliad BIP47",
     "cant_find_bip47_notification": "Adia'r Cod Taliad hwn at gysylltiadau yn gyntaf",
-    "problem_with_psbt": "Problem efo'r PSBT"
+    "problem_with_psbt": "Problem efo'r PSBT",
+    "fee_10m": "10m",
+    "fee_1d": "1d"
   },
   "settings": {
     "about": "Amdano",
@@ -395,7 +398,8 @@
     "details_tx_hex": "Hex y Trafodyn",
     "details_inputs_count": "Mewnbynau ({count})",
     "details_outputs_count": "Allbynau ({count})",
-    "details_from": "Mewnbwn"
+    "details_from": "Mewnbwn",
+    "details_id": "ID"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -634,7 +638,8 @@
     "sort_height": "Uchder",
     "sort_value": "Gwerth",
     "sort_status": "Statws",
-    "sort_by": "Trefnu yn ôl"
+    "sort_by": "Trefnu yn ôl",
+    "sort_label": "Label"
   },
   "units": {
     "BTC": "BTC",

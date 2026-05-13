@@ -75,7 +75,8 @@
     "please_pay": "Betaal asseblief",
     "date_time": "Datum en tyd",
     "wasnt_paid_and_expired": "Die faktuur was nie betaal nie en het verval.",
-    "preimage": "Pre-image"
+    "preimage": "Pre-image",
+    "sats": "sats."
   },
   "plausibledeniability": {
     "create_fake_storage": "Skep fantasie berging wagwoord",
@@ -166,7 +167,14 @@
     "dynamic_next": "Volgende",
     "dynamic_prev": "Vorige",
     "dynamic_start": "Begin",
+    "dynamic_stop": "Stop",
+    "create_satoshi_per_vbyte": "Satoshi per vByte",
+    "fee_10m": "10m",
+    "fee_1d": "1d",
+    "fee_3h": "3h",
     "fee_custom": "Pasgemaak",
+    "fee_medium": "Matig",
+    "fee_satvbyte": "in sat/vByte",
     "insert_custom_fee": "Sit fooi in",
     "fee_fast": "Vinnig",
     "fee_replace_minvb": "Die totale fooi (satoshi per vByte) wat jy wil betaal, moet meer wees as {min} sat/vByte.",
@@ -232,6 +240,8 @@
     "donate_description": "Help ons om Blue gratis te hou!",
     "electrum_connected": "Gekoppel",
     "electrum_connected_not": "Nie gekoppel nie",
+    "electrum_status": "Status",
+    "widgets": "Widgets",
     "electrum_error_connect": "Kan nie aan die verskafde Electrum-bediener koppel nie",
     "electrum_error_connect_tor": "Kan nie aan die verskafde Electrum-bediener koppel nie. Maak asseblief seker dat die Orbot app gekoppel is en probeer weer.",
     "lndhub_uri": "Bv., {example}",
@@ -388,7 +398,8 @@
     "details_virtual_size": "Virtuele grootte",
     "details_tx_hex": "Tx hex",
     "details_inputs_count": "Insette ({count})",
-    "details_outputs_count": "Uitsette ({count})"
+    "details_outputs_count": "Uitsette ({count})",
+    "details_id": "ID"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -627,7 +638,8 @@
     "sort_height": "Hoogte",
     "sort_value": "Waarde",
     "sort_label": "Etiket",
-    "sort_by": "Sorteer volgens"
+    "sort_by": "Sorteer volgens",
+    "sort_status": "Status"
   },
   "units": {
     "BTC": "BTC",
