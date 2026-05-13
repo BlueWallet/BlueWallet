@@ -24,7 +24,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Vault | claddgell / cist | noun · Welsh for "vault/strongbox"; avoid Latin "Vault". |
 | Watch-only | gwylio'n unig | adj · Bitcoin Core cy. |
 | Hardware wallet | waled caledwedd | noun, lowercase. |
-| Seed | hadyn / had | noun; `hadyn` = "seed/kernel" (shipped). |
+| Seed | Seed / ymadrodd adfer | noun · English loanword preferred (UI convention) · ⚠️ NOT `hadyn` / `had` (botanical kernel — wrong register for crypto seed phrase). |
 | Mnemonic | ymadrodd cofiadwy / ymadrodd adfer | noun · technical / mainstream ("recovery phrase"). |
 | Passphrase | geiriau pas | noun · ⚠️ NOT `cyfrinair` (= password) · Bitcoin Core cy. |
 | Public key | allwedd gyhoeddus | noun, lowercase. |

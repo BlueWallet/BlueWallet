@@ -127,7 +127,7 @@
     "create_fee": "Taxa",
     "create_memo": "Nota",
     "create_satoshi_per_vbyte": "Satoshi por vByte",
-    "create_this_is_hex": "Este é o hash da sua transação, assinada e pronta para ser transmitida para o mundo.",
+    "create_this_is_hex": "Este é o hex da sua transação, assinada e pronta para ser transmitida para o mundo.",
     "create_to": "Para",
     "create_tx_size": "Tamanho da Transação",
     "create_verify": "Verificar no coinb.in",

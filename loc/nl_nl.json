@@ -115,7 +115,7 @@
     "provided_address_is_invoice": "Dit adres lijkt te zijn voor een Lightning factuur, Ga naar je Lightning wallet om een betaling voor deze factuur te maken.",
     "broadcastButton": "Verzenden",
     "broadcastError": "fout",
-    "broadcastNone": "Voer transactie-hash in",
+    "broadcastNone": "Voer transactie-hex in",
     "broadcastPending": "in afwachting",
     "broadcastSuccess": "succes",
     "confirm_header": "Bevestig",

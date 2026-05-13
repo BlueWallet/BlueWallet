@@ -115,7 +115,7 @@
     "provided_address_is_invoice": "נראה שכתובת זו היא חשבונית ברק. אנא עברו לארנק הברק שלכם כדי לבצע תשלום עבור חשבונית זו.",
     "broadcastButton": "שידור",
     "broadcastError": "שגיאה",
-    "broadcastNone": "קלט גיבוב פעולה",
+    "broadcastNone": "הכנסת HEX של פעולה",
     "broadcastPending": "ממתין",
     "broadcastSuccess": "הצלחה",
     "confirm_header": "אישור",

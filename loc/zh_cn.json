@@ -549,7 +549,7 @@
     "fee_btc": "{number} BTC",
     "confirm": "确认",
     "header": "发送",
-    "share": "分片……",
+    "share": "共享……",
     "view": "查看",
     "shared_key_detected": "共享联合签名者",
     "shared_key_detected_question": "有人与您共享了一个联合签名者，您是否要导入？",

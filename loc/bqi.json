@@ -398,7 +398,7 @@
   },
   "cc": {
     "sort_status": "وزیت",
-    "change": "باقی‌مانده",
+    "change": "آلشتکاری",
     "header": "مدیریت UTXO",
     "selected_summ": "{value} پسند بیڌه",
     "sort_label": "برچسب"
@@ -406,7 +406,7 @@
   "addresses": {
     "sign_placeholder_address": "آدرس",
     "type_receive": "گرؽڌن",
-    "type_change": "باقی‌مانده",
+    "type_change": "آلشتکاری",
     "addresses_title": "آدرسا",
     "transactions": "تراکونشا"
   },

@@ -444,7 +444,7 @@
     "details_display": "Näytä kotinäkymässä",
     "details_export_backup": "Vie / varmuuskopioi",
     "details_export_history": "Vie historia CSV:ksi",
-    "details_master_fingerprint": "Pää sormenjälki",
+    "details_master_fingerprint": "Pääsormenjälki",
     "details_multisig_type": "multisig",
     "details_show_xpub": "Näytä lompakon XPUB",
     "details_show_addresses": "Näytä osoitteet",

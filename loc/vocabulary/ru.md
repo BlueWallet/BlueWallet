@@ -5,8 +5,8 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Term | Translation | Notes |
 |------|-------------|-------|
 | **_Brand & protocol_** | | |
-| Bitcoin | Bitcoin / биткойн | brand kept Latin; `биткойн` in explanatory text · ru.wikipedia.org/wiki/Биткойн |
-| Lightning | Lightning | brand · ru.wikipedia.org/wiki/Lightning_Network |
+| Bitcoin | Bitcoin / биткойн | brand kept Latin; `биткойн` in explanatory text · ⚠️ when compounding with Cyrillic noun, use hyphen: `Bitcoin-кошелёк`, NOT `Bitcoin кошелёк` · ru.wikipedia.org/wiki/Биткойн |
+| Lightning | Lightning | brand · ⚠️ when compounding with Cyrillic noun, use hyphen: `Lightning-кошелёк`, NOT `Lightning кошелёк` · ru.wikipedia.org/wiki/Lightning_Network |
 | Electrum | Electrum | brand. |
 | LNDhub | LNDhub | brand. |
 | LND | LND | brand. |

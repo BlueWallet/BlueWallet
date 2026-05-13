@@ -43,7 +43,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Input | وۊرۊڌی | noun · ⚠️ NOT "login/entrance" · borrowed from fa: ورودی. |
 | Output | خروجی | noun · ⚠️ NOT the UI label "To:" · borrowed from fa: خروجی. |
 | UTXO | UTXO | acronym · borrowed from fa: letters kept. |
-| Change | باقی‌مانده | noun · borrowed from fa: "leftover" · ⚠️ NOT verb "to change/modify". |
+| Change | آلشتکاری / باقی‌مانده | noun · native bqi `آلشتکاری` preferred (shipped via locsync31 cleanup); fa loanword `باقی‌مانده` ("leftover") fallback · ⚠️ NOT verb "to change/modify". |
 | Hex | هگزادسیمال | — |
 | Pending | د انتظار | adj/state · borrowed from fa: در انتظار. |
 | Unconfirmed | TODO | — |

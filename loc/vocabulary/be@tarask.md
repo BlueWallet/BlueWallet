@@ -24,7 +24,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Vault | сэйф | "safe / strongbox" — Tarask `э`. Vault is NOT a brand per glossary. |
 | Watch-only | толькі для прагляду | ⚠️ NOT "view mode" — specifically a wallet type. |
 | Hardware wallet | апаратны кашалёк | matches shipped Wallet=кашалёк · technical phrase, target-locale lowercase. |
-| Seed | семя / фраза-аднаўленьня | technical / mainstream · shipped `семя` (literal "seed"); фраза-аднаўленьня = recovery phrase (Tarask `-ньне` suffix). |
+| Seed | Сід-фраза / фраза-аднаўленьня | technical / mainstream · established crypto loanword `Сід-фраза` (shipped via locsync31 cleanup); фраза-аднаўленьня = recovery phrase (Tarask `-ньне` suffix) · ⚠️ NOT `семя` (biological seed/semen — wrong register). |
 | Mnemonic | мнэмоніка / фраза-аднаўленьня | technical / mainstream · be-tarask.wikipedia.org spelling `мнэмоніка` (Tarask `э`); фраза-аднаўленьня = recovery phrase (Tarask `-ньне` suffix). |
 | Passphrase | кодавая фраза | ⚠️ NOT "password" (пароль) and NOT device passcode · Bitcoin Core be uses `Кодавая фраза`. |
 | Public key | публічны ключ | target-locale lowercase. |
