@@ -21,7 +21,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | vByte | vByte | technical unit; SegWit-discounted size. |
 | **_Wallet, keys & seeds_** | | |
 | Wallet | Wallet | noun · English loanword dominant in German crypto UI; `Geldbörse` (dictionary form) reads forced and is avoided · Phoenix de + Trezor de + Electrum de |
-| Vault | Vault | noun · English loanword kept; `Tresor` is the dictionary form but the BlueWallet product uses the brand-style "Vault" · ⚠️ NOT a generic safe/strongbox |
+| Vault | Tresor / Vault | noun · native `Tresor` preferred per master; brand-style "Vault" acceptable in product contexts. |
 | Watch-only | watch-only / Watch-only-Wallet | adj · English loanword retained; short / explanatory compound · ⚠️ NOT `Lesemodus` — it is a wallet type · Phoenix de + Trezor de |
 | Hardware wallet | Hardware Wallet | noun · English loanword, two words (no hyphen) · Trezor de + Ledger de |
 | Seed | Seed | noun · English loanword; `Wiederherstellungsphrase` reads forced and is avoided · Phoenix de + Trezor de |
@@ -33,7 +33,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | xpub | xpub | acronym, lowercase preferred. |
 | Descriptor | Descriptor / Deskriptor | noun · English loanword preferred; `Deskriptor` is the Germanised form · Green de keeps Latin "Descriptor" |
 | Derivation path | Derivation Path / Ableitungspfad | noun · English loanword preferred; Germanised form retained as fallback because shipped strings already use it widely |
-| Master fingerprint | Master Fingerprint | noun · English loanword; `Fingerabdruckkennung` reads forced and is avoided · Trezor de + Ledger de |
+| Master fingerprint | Master-Fingerabdruck / Master Fingerprint | noun · native compound preferred; English loanword acceptable in technical contexts · Trezor de + Ledger de |
 | BIP38 | BIP38 | acronym kept · gloss: passwortgeschützter privater Schlüssel. ⚠️ NOT a verb / NOT just "Passwort". |
 | **_On-chain transactions_** | | |
 | Transaction | Transaktion | noun · Bitcoin Core de |
@@ -65,16 +65,16 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Expired | abgelaufen | adj/state · ⚠️ NOT verb form · Bitcoin Core de + Electrum de |
 | **_Multisig & advanced addressing_** | | |
 | Multisig | Multisig | noun · English loanword retained; `Mehrfachsignatur` / `Multisignatur` avoided · Electrum de + Sparrow de |
-| Multisig Vault | Multisig Vault | noun · brand-style compound kept English · matches en.json `multisig_vault` |
+| Multisig Vault | Multisignatur Tresor / Multisig Vault | noun · native compound preferred per master; brand-style acceptable. |
 | Co-signer | Mitsignierer / Mitunterzeichner | noun · BlueWallet UI / Electrum de · ⚠️ NOT `Miteigentümer` (co-owner). |
 | Quorum | Quorum / Signaturschwelle | noun · canonical / UI-clear · shipped uses `signaturfähig` (approximation) · Bitcoin Core de + Electrum de |
 | PSBT | PSBT | acronym · gloss: partiell signierte Bitcoin-Transaktion (BIP174). |
 | Provide signature | Signatur bereitstellen / Transaktion signieren | verb · generic / specific · ⚠️ NOT `Schlüssel eingeben` (= enter key) · Bitcoin Core de + Electrum de |
-| BIP47 / Payment Code | BIP47 / Payment Code | acronym kept; `Payment Code` kept English. Shipped `bip47.payment_code` uses `Payment Code`. |
+| BIP47 / Payment Code | BIP47 / Zahlungscode | acronym kept; `Payment Code` rendered native `Zahlungscode` per master. |
 | Notification transaction | Benachrichtigungstransaktion | noun · BIP47-specific 0-value tx · shipped uses this compound. |
 | SilentPayment | Silent Payments / stille Zahlungen | protocol name kept English (plural); explanatory `stille Zahlungen` if needed. |
 | **_Coin control_** | | |
-| Coin Control | Coin Control | noun · English loanword retained; `Münzauswahl` / `Münzkontrolle` (legacy shipped) avoided going forward · Electrum de + Zeus de |
+| Coin Control | Münzkontrolle / Coin Control | noun · native compound preferred per master; loanword acceptable in technical contexts · Electrum de + Zeus de |
 | Frozen | eingefroren | adj/state · ⚠️ NOT verb `einfrieren` · Bitcoin Core de + Zeus de |
 | **_Security & storage_** | | |
 | Encrypted storage | Speicherverschlüsselung | noun, single compound (avoid `verschlüsselte Speicherung`) · shipped `settings.encrypt_storage_explanation_headline` |
