@@ -20,20 +20,20 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | sat/vByte | sat/vByte / Satoshi pro vByte | technical unit · compact / explanatory (shipped uses long form). |
 | vByte | vByte | technical unit; SegWit-discounted size. |
 | **_Wallet, keys & seeds_** | | |
-| Wallet | Wallet / Geldbörse | noun; loanword `Wallet` dominant in crypto UI; `Geldbörse` is the dictionary form · Bitcoin Core de + Cake de |
-| Vault | Tresor | noun · ⚠️ NOT Latin "Vault"; `Tresor` = safe/strongbox · Bitcoin Core de |
-| Watch-only | nur beobachten / Nur-beobachten-Wallet | adj · short / explanatory · ⚠️ NOT just "Lesemodus" — it's a wallet type · Bitcoin Core de + Green de |
-| Hardware wallet | Hardware-Wallet | noun, hyphenated compound · Bitcoin Core de + Trezor de |
-| Seed | Seed / Wiederherstellungsphrase | noun · technical loanword / mainstream "recovery phrase" · Phoenix de |
-| Mnemonic | mnemonische Phrase / Wiederherstellungsphrase | noun · technical / mainstream · Bitcoin Core de + Phoenix de |
+| Wallet | Wallet | noun · English loanword dominant in German crypto UI; `Geldbörse` (dictionary form) reads forced and is avoided · Phoenix de + Trezor de + Electrum de |
+| Vault | Vault | noun · English loanword kept; `Tresor` is the dictionary form but the BlueWallet product uses the brand-style "Vault" · ⚠️ NOT a generic safe/strongbox |
+| Watch-only | watch-only / Watch-only-Wallet | adj · English loanword retained; short / explanatory compound · ⚠️ NOT `Lesemodus` — it is a wallet type · Phoenix de + Trezor de |
+| Hardware wallet | Hardware Wallet | noun · English loanword, two words (no hyphen) · Trezor de + Ledger de |
+| Seed | Seed | noun · English loanword; `Wiederherstellungsphrase` reads forced and is avoided · Phoenix de + Trezor de |
+| Mnemonic | Mnemonic / Seed | noun · English loanword retained; treated as a synonym of `Seed` · Phoenix de |
 | Passphrase | Passphrase | noun · ⚠️ NOT `Passwort` (= password) / NOT `Passcode` (= device code) · Bitcoin Core de + Trezor de |
 | Public key | öffentlicher Schlüssel | noun, lowercase adjective · Bitcoin Core de |
 | Private key | privater Schlüssel | noun, lowercase adjective · Bitcoin Core de + Electrum de |
 | WIF | WIF | acronym · gloss: Wallet Import Format. |
 | xpub | xpub | acronym, lowercase preferred. |
-| Descriptor | Deskriptor / Output-Deskriptor | noun · short / explanatory · Bitcoin Core de (Green de keeps Latin "Descriptor") |
-| Derivation path | Ableitungspfad | noun · Bitcoin Core de + Trezor de + Zeus de |
-| Master fingerprint | Master-Fingerabdruck / Fingerabdruckkennung | noun · canonical / shipped alt · Bitcoin Core de + Trezor de |
+| Descriptor | Descriptor / Deskriptor | noun · English loanword preferred; `Deskriptor` is the Germanised form · Green de keeps Latin "Descriptor" |
+| Derivation path | Derivation Path / Ableitungspfad | noun · English loanword preferred; Germanised form retained as fallback because shipped strings already use it widely |
+| Master fingerprint | Master Fingerprint | noun · English loanword; `Fingerabdruckkennung` reads forced and is avoided · Trezor de + Ledger de |
 | BIP38 | BIP38 | acronym kept · gloss: passwortgeschützter privater Schlüssel. ⚠️ NOT a verb / NOT just "Passwort". |
 | **_On-chain transactions_** | | |
 | Transaction | Transaktion | noun · Bitcoin Core de |
@@ -47,32 +47,34 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Unconfirmed | unbestätigt | adj · Bitcoin Core de |
 | Confirmed | bestätigt | adj · Bitcoin Core de |
 | Mempool | Mempool | noun · loanword retained · Bitcoin Core de + Electrum de |
-| Broadcast | übertragen / Übertragung | verb / noun · button vs status · Bitcoin Core de + Electrum de |
-| Block explorer | Block-Explorer | noun, hyphenated · Bitcoin Core de |
+| Broadcast | Broadcast / broadcasten | noun / verb · English loanword preferred; `übertragen` retained only in shipped phrasings already using it |
+| Block explorer | Block Explorer | noun · English loanword, two words (no hyphen) · Mempool.space de |
 | Onchain | Onchain / On-Chain | adj · compact (chip) / hyphenated (body) · Electrum de |
 | Offchain | Offchain / Off-Chain | adj · compact (chip) / hyphenated (body) · Electrum de |
 | **_Fees & fee bumping_** | | |
 | Fee | Gebühr | noun · Bitcoin Core de + Electrum de |
 | Fee Bump | Gebührenerhöhung / Gebühr erhöhen | noun / verb · shipped string is more verbose (`Erhöhung TRX-Gebühr nach Senden erlauben`) · Bitcoin Core de + Electrum de |
-| RBF | RBF | acronym · gloss: Replace-by-Fee / Gebührenersatz · Bitcoin Core de + Electrum de |
-| CPFP | CPFP | acronym · gloss: Child-pays-for-parent / Folgetransaktion zahlt für Vorgänger · ⚠️ NOT a verb. |
+| RBF | RBF | acronym · gloss: Replace-by-Fee · Bitcoin Core de + Electrum de |
+| CPFP | CPFP | acronym · gloss: Child-pays-for-parent · ⚠️ NOT a verb. |
 | Speed Up | beschleunigen | verb · UI button label for RBF · Electrum de + Trezor de |
 | **_Lightning_** | | |
 | Invoice | Rechnung / Zahlungsanforderung | noun · technical / mainstream · Bitcoin Core de + Electrum de + Phoenix de + Zeus de |
 | Lightning Invoice | Lightning-Rechnung / Lightning-Zahlungsanforderung | noun, hyphenated compound · technical / mainstream · Phoenix de + Electrum de |
-| Preimage | Urbild / Preimage | noun · math term / English loanword · Phoenix de keeps `Preimage`; Bitcoin literature uses `Urbild` |
+| Preimage | Pre-image | noun · English loanword preferred; `Urbild` (math term) is avoided in UI · Phoenix de |
 | Payment | Zahlung | noun · ⚠️ NOT verb `Zahlen` · Bitcoin Core de + Phoenix de |
 | Expired | abgelaufen | adj/state · ⚠️ NOT verb form · Bitcoin Core de + Electrum de |
 | **_Multisig & advanced addressing_** | | |
+| Multisig | Multisig | noun · English loanword retained; `Mehrfachsignatur` / `Multisignatur` avoided · Electrum de + Sparrow de |
+| Multisig Vault | Multisig Vault | noun · brand-style compound kept English · matches en.json `multisig_vault` |
 | Co-signer | Mitsignierer / Mitunterzeichner | noun · BlueWallet UI / Electrum de · ⚠️ NOT `Miteigentümer` (co-owner). |
 | Quorum | Quorum / Signaturschwelle | noun · canonical / UI-clear · shipped uses `signaturfähig` (approximation) · Bitcoin Core de + Electrum de |
-| PSBT | PSBT | acronym · gloss: teilsignierte Bitcoin-Transaktion (BIP174). |
+| PSBT | PSBT | acronym · gloss: partiell signierte Bitcoin-Transaktion (BIP174). |
 | Provide signature | Signatur bereitstellen / Transaktion signieren | verb · generic / specific · ⚠️ NOT `Schlüssel eingeben` (= enter key) · Bitcoin Core de + Electrum de |
-| BIP47 / Payment Code | BIP47 / Zahlungscode | acronym kept; `Payment Code` → `Zahlungscode`. Shipped `bip47.payment_code` already uses this. |
+| BIP47 / Payment Code | BIP47 / Payment Code | acronym kept; `Payment Code` kept English. Shipped `bip47.payment_code` uses `Payment Code`. |
 | Notification transaction | Benachrichtigungstransaktion | noun · BIP47-specific 0-value tx · shipped uses this compound. |
 | SilentPayment | Silent Payments / stille Zahlungen | protocol name kept English (plural); explanatory `stille Zahlungen` if needed. |
 | **_Coin control_** | | |
-| Coin Control | Coin Control / Münzauswahl | noun · technical loanword / mainstream · Bitcoin Core de uses `Münzauswahl`; Electrum + Zeus keep `Coin Control` · shipped `cc.header` uses `Münzkontrolle` (legacy). |
+| Coin Control | Coin Control | noun · English loanword retained; `Münzauswahl` / `Münzkontrolle` (legacy shipped) avoided going forward · Electrum de + Zeus de |
 | Frozen | eingefroren | adj/state · ⚠️ NOT verb `einfrieren` · Bitcoin Core de + Zeus de |
 | **_Security & storage_** | | |
 | Encrypted storage | Speicherverschlüsselung | noun, single compound (avoid `verschlüsselte Speicherung`) · shipped `settings.encrypt_storage_explanation_headline` |

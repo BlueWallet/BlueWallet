@@ -504,7 +504,7 @@
     "select_no_bitcoin": "Наразі немає доступних Bitcoin-гаманців.",
     "select_no_bitcoin_exp": "Bitcoin-гаманець потрібен для поповнення Lightning-гаманців. Будь ласка, створіть або імпортуйте його.",
     "select_wallet": "Обрати Гаманець",
-    "xpub_copiedToClipboard": "Зкопіювано",
+    "xpub_copiedToClipboard": "Скопійовано в буфер обміну.",
     "pull_to_refresh": "Потягніть щоб оновити",
     "warning_do_not_disclose": "Ніколи не діліться інформацією нижче",
     "scan_import": "Скануйте цей QR-код, щоб імпортувати ваш гаманець в іншому застосунку.",

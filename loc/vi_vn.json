@@ -48,7 +48,7 @@
     "amountOfEntropy": "{bits} trong {limit} bit"
   },
   "errors": {
-    "broadcast": "Phát sóng giao dịch đã thất bại.",
+    "broadcast": "Truyền giao dịch đã thất bại.",
     "error": "Lỗi",
     "network": "Lỗi mạng"
   },
@@ -113,7 +113,7 @@
   },
   "send": {
     "provided_address_is_invoice": "Địa chỉ này dường như là cho một hóa đơn Lightning. Vui lòng sử dụng ví Lightning của bạn để thanh toán hoá đơn này.",
-    "broadcastButton": "Phát sóng",
+    "broadcastButton": "Truyền",
     "broadcastError": "Lỗi",
     "broadcastNone": "Chèn hex giao dịch",
     "broadcastPending": "Đang chờ giải quyết",
@@ -121,13 +121,13 @@
     "confirm_header": "Xác nhận",
     "confirm_sendNow": "Gửi ngay",
     "create_amount": "Số tiền",
-    "create_broadcast": "Phát sóng",
-    "create_copy": "Sao chép và phát sóng sau",
+    "create_broadcast": "Truyền",
+    "create_copy": "Sao chép và truyền sau",
     "create_details": "Chi tiết",
     "create_fee": "Phí",
     "create_memo": "Ghi nhớ",
     "create_satoshi_per_vbyte": "Satoshi mỗi vByte",
-    "create_this_is_hex": "Đây là hex giao dịch của bạn, đã ký và sẵn sàng phát sóng đến mạng.",
+    "create_this_is_hex": "Đây là hex giao dịch của bạn, đã ký và sẵn sàng truyền đến mạng.",
     "create_to": "Đến",
     "create_tx_size": "Kích cỡ giao dịch",
     "create_verify": "Xác minh giao dịch trên coinb.in",
@@ -260,7 +260,7 @@
     "lightning_saved": "Những thay đổi của bạn đã được lưu thành công.",
     "lightning_settings": "Cài đặt Lightning",
     "network": "Mạng",
-    "network_broadcast": "Phát sóng giao dịch",
+    "network_broadcast": "Truyền giao dịch",
     "network_electrum": "Máy chủ Electrum",
     "not_a_valid_uri": "URI không hợp lệ",
     "notifications": "Thông báo",

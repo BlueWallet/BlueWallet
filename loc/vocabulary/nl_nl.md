@@ -20,12 +20,12 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | sat/vByte | sat/vByte | technical unit; UI controls keep Latin. |
 | vByte | vByte | technical unit. From "in sat/vByte". |
 | **_Wallet, keys & seeds_** | | |
-| Wallet | wallet | noun, lowercase. Shipped mixes "wallet" / "Wallets"; lowercase singular is canonical. |
-| Vault | kluis | noun, lowercase · "kluis" = safe/strongbox. Shipped "Multisig Kluis". |
-| Watch-only | alleen-lezen / alleen kijken | adj · Electrum nl_NL ("Alleen-lezen"). Shipped "alleen kijken" is informal but acceptable. |
-| Hardware wallet | hardware-wallet | noun, lowercase · matches shipped; nl.wikipedia.org/wiki/Bitcoin uses "hardwareportemonnee". |
-| Seed | seed / seed-zin | noun · English kept in mainstream nl usage · Zeus nl + Electrum nl_NL keep "Seed". |
-| Mnemonic | mnemonische zin | noun. |
+| Wallet | wallet | noun, lowercase · English loanword canonical in nl Bitcoin community · ⚠️ NOT "portemonnee". Shipped already uses "wallet" consistently. |
+| Vault | Vault | noun · English loanword preferred · ⚠️ NOT "kluis". Shipped uses "Kluis"/"Multisig Kluis" — flag, swap to "Vault" / "Multisig Vault". |
+| Watch-only | watch-only | adj · English loanword canonical in nl Bitcoin community · ⚠️ NOT "alleen-lezen" / "alleen kijken". |
+| Hardware wallet | hardware wallet | noun, lowercase · English loanword canonical · ⚠️ NOT "hardwareportemonnee". |
+| Seed | seed | noun · English loanword canonical in mainstream nl usage · Zeus nl + Electrum nl_NL keep "Seed". |
+| Mnemonic | mnemonic / seed | noun · English loanword preferred · ⚠️ NOT "mnemonische zin" where avoidable. |
 | Passphrase | wachtwoordzin | noun · ⚠️ NOT "Wachtwoord" (= password) · Bitcoin Core nl. Shipped uses "Passphrase" + "Wachtwoord" inconsistently — flag. |
 | Public key | publieke sleutel | noun, lowercase · nl.wikipedia.org/wiki/Bitcoin. Shipped keeps English "public key". |
 | Private key | privésleutel | noun, lowercase · Bitcoin Core nl + Electrum nl_NL. Shipped keeps English "private key". |
@@ -33,7 +33,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | xpub | xpub | acronym, lowercase preferred. Shipped mixes "xpub" / "XPUB". |
 | Descriptor | descriptor | noun, lowercase · Electrum nl_NL keeps "Descriptor". |
 | Derivation path | derivatiepad | noun, lowercase · Electrum nl_NL. |
-| Master fingerprint | master-vingerafdruk | noun, lowercase · Electrum nl_NL ("Master vingerafdruk"). |
+| Master fingerprint | master fingerprint | noun, lowercase · English loanword preferred · ⚠️ NOT "master-vingerafdruk". |
 | BIP38 | BIP38 | acronym kept. |
 | **_On-chain transactions_** | | |
 | Transaction | transactie | noun, lowercase · Bitcoin Core nl + Electrum nl_NL. ⚠️ Shipped uses plural "Transacties" for singular — fix to singular "transactie". |
@@ -46,11 +46,11 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Pending | in afwachting / wachtend | adj/state · Electrum nl_NL ("Wachtend"). |
 | Unconfirmed | onbevestigd / niet-bevestigd | adj · Electrum nl_NL ("Onbevestigd"). |
 | Confirmed | bevestigd | adj, singular · Bitcoin Core nl + Electrum nl_NL. Shipped only has plural noun "bevestigingen" (= confirmations) — flag, add adj form. |
-| Mempool | mempool | noun, lowercase · Electrum nl_NL + nl.wikipedia.org/wiki/Bitcoin. |
-| Broadcast | verzenden / uitzenden | verb · Electrum nl_NL keeps "Broadcast"; Zeus nl "Uitzenden". Shipped "Verzenden". |
-| Block explorer | blokverkenner | noun, lowercase · Electrum nl_NL. ⚠️ Shipped "blok explorer" mixes Dutch/English — fix. |
-| Onchain | on-chain / op de blockchain | adj · compact (chip) / explanatory (body) · nl.wikipedia.org/wiki/Bitcoin. |
-| Offchain | off-chain / buiten de blockchain | adj · compact (chip) / explanatory (body) · nl.wikipedia.org/wiki/Bitcoin ("off-chain betalingen"). |
+| Mempool | mempool | noun, lowercase · English loanword canonical · Electrum nl_NL + nl.wikipedia.org/wiki/Bitcoin. |
+| Broadcast | broadcast / broadcasten | noun / verb · English loanword preferred · ⚠️ shipped uses "Verzenden" (= send) which is acceptable in send-button contexts but "broadcast" is canonical for the protocol verb. |
+| Block explorer | block explorer | noun, lowercase · English loanword preferred · ⚠️ NOT "blokverkenner". |
+| Onchain | onchain | adj · English loanword preferred · ⚠️ NOT "op de blockchain". |
+| Offchain | offchain | adj · English loanword preferred · ⚠️ NOT "buiten de blockchain". |
 | **_Fees & fee bumping_** | | |
 | Fee | fee / transactiekosten | noun · technical / mainstream · English "fee" widely used in nl wallets; Bitcoin Core nl uses "Vergoeding". Shipped keeps "Fee". |
 | Fee Bump | fee bump / fee verhogen | noun · ⚠️ Shipped typo "Fee Bumb" — fix to "Fee Bump" · Electrum nl_NL "Vergoeding verhogen". |
@@ -60,7 +60,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | **_Lightning_** | | |
 | Invoice | factuur | noun, lowercase · Electrum nl_NL + Zeus nl. |
 | Lightning Invoice | Lightning-factuur | noun · Electrum nl_NL. |
-| Preimage | preimage | noun, lowercase · Electrum nl_NL + Zeus nl keep English term. |
+| Preimage | Pre-image | noun · English loanword canonical · Electrum nl_NL + Zeus nl keep English term. |
 | Payment | betaling | noun, lowercase · ⚠️ NOT verb "betalen" · nl.wikipedia.org/wiki/Lightning_Network. |
 | Expired | verlopen | adj · Electrum nl_NL. |
 | **_Multisig & advanced addressing_** | | |
@@ -68,11 +68,11 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Quorum | quorum / handtekeningdrempel | noun · canonical / UI-clear. |
 | PSBT | PSBT | acronym. |
 | Provide signature | handtekening verstrekken / transactie ondertekenen | verb · generic / specific. Shipped "Geef een handtekening" acceptable. |
-| BIP47 / Payment Code | BIP47 / betaalcode | acronym kept; "Payment Code" → "betaalcode". |
+| BIP47 / Payment Code | BIP47 / Payment Code | acronym kept; English loanword "Payment Code" preferred · ⚠️ NOT "betaalcode". |
 | Notification transaction | notificatietransactie | noun · BIP47-specific. |
 | SilentPayment | Silent Payments / stille betalingen | protocol name kept English (plural); explanatory "stille betalingen" if needed. |
 | **_Coin control_** | | |
-| Coin Control | coin control / muntbeheer | noun, lowercase · technical / mainstream · ⚠️ NOT Title Case. Shipped keeps English. |
+| Coin Control | Coin Control | noun · English loanword canonical · ⚠️ NOT "muntbeheer". Shipped already keeps English. |
 | Frozen | bevroren | adj · ⚠️ NOT verb "bevriezen" · Electrum nl_NL + Zeus nl. Shipped "Bevriezen" is the verb — flag, fix for state labels. |
 | **_Security & storage_** | | |
 | Encrypted storage | versleutelde opslag | noun, lowercase · ⚠️ NOT Title Case · Electrum nl_NL. |

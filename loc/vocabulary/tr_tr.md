@@ -21,11 +21,11 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | vByte | vByte | technical unit; SegWit-discounted size. |
 | **_Wallet, keys & seeds_** | | |
 | Wallet | cüzdan | noun · shipped casing inconsistent (Title vs lower) · Bitcoin Core tr + Electrum tr |
-| Vault | kasa | noun · ⚠️ NOT Latin "Vault"; `kasa` = safe/strongbox in Turkish. |
-| Watch-only | yalnızca izleme / yalnızca izlenen cüzdan | adj · short / explanatory · ⚠️ NOT "görüntüleme modu" — it's a wallet type · Bitcoin Core tr + Trezor tr |
-| Hardware wallet | donanım cüzdanı | noun, possessive compound · Bitcoin Core tr + Trezor tr |
-| Seed | seed / kurtarma ifadesi | noun · technical loanword / mainstream "recovery phrase" · shipped `_.seed` keeps `Seed` |
-| Mnemonic | anımsatıcı ifade / kurtarma ifadesi | noun · technical / mainstream · Electrum tr uses `Tohum` for seed |
+| Vault | Kasa / Vault | noun · `Kasa` (= safe/strongbox) shipped; English `Vault` accepted in technical contexts. |
+| Watch-only | watch-only / yalnızca izleme | adj · English loanword preferred (TR Bitcoin community uses `watch-only`) · explanatory `yalnızca izleme` if needed · ⚠️ NOT "görüntüleme modu". |
+| Hardware wallet | hardware wallet / donanım cüzdanı | noun · English loanword preferred in TR Bitcoin community; possessive compound `donanım cüzdanı` accepted. |
+| Seed | seed | noun · English loanword preferred · ⚠️ NOT `anımsatıcı` / NOT `tohum`. |
+| Mnemonic | mnemonic / mnemonik | noun · English loanword preferred · ⚠️ NOT `anımsatıcı`. |
 | Passphrase | parola | noun · ⚠️ NOT `şifre` (= app password) / NOT `PIN` (= passcode) — distinct word · Trezor tr + tr.wikipedia.org/wiki/Parola |
 | Public key | açık anahtar | noun, lowercase · Electrum tr (Bitcoin Core tr uses `Ortak Anahtar`) |
 | Private key | gizli anahtar | noun, lowercase · Bitcoin Core tr + Electrum tr |
@@ -33,7 +33,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | xpub | xpub | acronym, lowercase preferred. |
 | Descriptor | descriptor / çıktı tanımlayıcı | noun · loanword / explanatory · Bitcoin Core tr keeps `descriptor` |
 | Derivation path | türetme yolu | noun · Bitcoin Core tr + Electrum tr + Trezor tr |
-| Master fingerprint | ana parmak izi | noun · Trezor tr uses `Parmak izi` |
+| Master fingerprint | Ana Parmak İzi / fingerprint | noun · shipped `Ana Parmak İzi`; standalone `fingerprint` accepted as English loanword. |
 | BIP38 | BIP38 | acronym kept · gloss: parola korumalı özel anahtar. ⚠️ NOT a verb / NOT just "parola". |
 | **_On-chain transactions_** | | |
 | Transaction | işlem | noun · shipped `transactions.transaction` · Bitcoin Core tr + Electrum tr |
@@ -46,33 +46,35 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Pending | beklemede | adj/state · shipped `transactions.pending`. |
 | Unconfirmed | onaylanmamış | adj · Bitcoin Core tr + Electrum tr |
 | Confirmed | onaylanmış | adj/state · Electrum tr (Bitcoin Core tr uses `Doğrulandı`) |
-| Mempool | bellek havuzu / mempool | noun · explanatory / loanword · Electrum tr + Bitcoin Core tr (`Bellek Alanı`) |
-| Broadcast | yayınla / yayın | verb / noun · button vs status · shipped `broadcastButton` `Yayınla`, `errors.broadcast` `Yayın` · Bitcoin Core tr + Electrum tr |
-| Block explorer | blok tarayıcısı | noun · Bitcoin Core tr |
-| Onchain | zincir üstü / on-chain | adj · compact (chip) / loanword (body). |
-| Offchain | zincir dışı / off-chain | adj · compact (chip) / loanword (body). |
+| Mempool | mempool | noun · English loanword preferred · ⚠️ NOT `bellek havuzu`. |
+| Broadcast | yayınla / yayın | verb / noun · button vs status · shipped `broadcastButton` `Yayınla`, `errors.broadcast` `Yayın`. |
+| Block explorer | block explorer / blok tarayıcısı | noun · English loanword preferred in TR Bitcoin community; explanatory `blok tarayıcısı` accepted. |
+| Onchain | on-chain | adj · English loanword preferred · ⚠️ NOT `zincir üstü`. |
+| Offchain | off-chain | adj · English loanword preferred · ⚠️ NOT `zincir dışı`. |
+| Mined | mine edilir | verb (passive) · loanword verb preferred · ⚠️ NOT `madenlenir`. |
+| ETA | ETA | acronym kept untranslated · ⚠️ NOT `Tahmini`. |
 | **_Fees & fee bumping_** | | |
 | Fee | ücret | noun · shipped `create_fee` `Ücret` · Bitcoin Core tr + Electrum tr |
 | Fee Bump | ücret artırımı / ücret artırımına izin ver | compact / shipped explanatory · noun form preferred · Electrum tr (`Komisyonu yeniden ayarlayabilme`) |
-| RBF | RBF | acronym · gloss: ücret-ile-değiştirme (komisyonu yeniden ayarlayabilme) · Electrum tr |
-| CPFP | CPFP | acronym · gloss: ebeveyn için çocuk ödeme · ⚠️ NOT a verb · Electrum tr |
+| RBF | RBF—Replace by Fee | acronym + English gloss · ⚠️ NOT `Ücret-ile-Değiştirme`. |
+| CPFP | CPFP—Child Pays for Parent | acronym + English gloss · ⚠️ NOT a verb · ⚠️ NOT `Çocuğun Ebeveyne Ödemesi`. |
 | Speed Up | hızlandır | verb · UI button label for RBF · Phoenix tr + Trezor tr |
 | **_Lightning_** | | |
 | Invoice | fatura | noun · shipped `lightning_invoice` · Bitcoin Core tr + Electrum tr + Phoenix tr |
 | Lightning Invoice | Lightning faturası | noun, possessive suffix · shipped `lndViewInvoice.lightning_invoice` |
-| Preimage | ön görüntü / preimage | noun · math term / loanword · cryptographic preimage. |
+| Preimage | Pre-image | noun · English loanword preferred · ⚠️ NOT `ön görüntü`. |
 | Payment | ödeme | noun · ⚠️ NOT verb `öde` · Electrum tr + Phoenix tr |
 | Expired | süresi doldu | adj/state · shipped `lnd.expired`. |
 | **_Multisig & advanced addressing_** | | |
 | Co-signer | ortak imzalayan | noun · ⚠️ NOT `ortak sahip` (= co-owner) · Electrum tr |
-| Quorum | yetersayı / imza eşiği | noun · canonical / UI-clear. |
+| Quorum | Quorum | noun · English loanword preferred · ⚠️ NOT `yetersayı`. |
 | PSBT | PSBT | acronym · gloss: kısmen imzalanmış Bitcoin işlemi (BIP174) · Bitcoin Core tr |
 | Provide signature | imza sağla / işlemi imzala | verb · generic / specific · shipped `co_sign_transaction` uses `Bir işlemi imzalayın`. |
-| BIP47 / Payment Code | BIP47 / ödeme kodu | acronym kept; `Payment Code` → `ödeme kodu`. |
+| BIP47 / Payment Code | BIP47 / Payment Code | acronym kept; `Payment Code` left English (community preference); explanatory `ödeme kodu` accepted. |
 | Notification transaction | bildirim işlemi | noun · BIP47-specific 0-value tx. |
 | SilentPayment | Silent Payments / sessiz ödemeler | protocol name kept English (plural); explanatory `sessiz ödemeler` if needed. |
 | **_Coin control_** | | |
-| Coin Control | coin control / para kontrolü | noun · ⚠️ NOT Title Case · loanword / mainstream · Bitcoin Core tr (`Para kontrolü`) + Electrum tr (`Para yönetimi`) |
+| Coin Control | Coin Control | noun · English loanword preferred (kept untranslated) · ⚠️ NOT `Coin Kontrolü` / NOT `Para kontrolü`. |
 | Frozen | donmuş | adj/state · ⚠️ NOT verb `dondur` (= to freeze) · Electrum tr |
 | **_Security & storage_** | | |
 | Encrypted storage | şifreli depolama | noun · ⚠️ NOT Title Case · shipped `_.storage_is_encrypted` uses `Depolama alanınız şifrelenmiş`. |

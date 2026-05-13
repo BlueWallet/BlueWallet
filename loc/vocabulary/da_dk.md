@@ -20,12 +20,12 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | sat/vByte | sat/vByte | technical unit; UI controls keep Latin. |
 | vByte | vByte | technical unit. |
 | **_Wallet, keys & seeds_** | | |
-| Wallet | tegnebog / wallet | noun, lowercase · `tegnebog` per Bitcoin Core da + Electrum da_DK; `wallet` loanword ships in da_dk.json. |
-| Vault | boks / hvælving | noun · "safe/strongbox" sense; avoid Latin "Vault" · `boks` (everyday) / `hvælving` (bank vault) per da.wikipedia "bankboks". |
-| Watch-only | kun-kigge / kigge-tegnebog | adj · short / wallet-type · Bitcoin Core da ("kigge-tegnebøger") + Electrum da_DK ("kun kigge"). |
-| Hardware wallet | hardwaretegnebog | noun, lowercase · Bitcoin Core da. |
-| Seed | seed / gendannelsesfrase | noun · technical / mainstream · Electrum da_DK keeps "Seed"; mainstream form for recovery phrase. |
-| Mnemonic | mnemonisk frase / gendannelsesfrase | noun · technical / mainstream. |
+| Wallet | wallet | noun, lowercase · English loanword preferred by Danish Bitcoin community; ships in da_dk.json. Native `tegnebog` avoided. |
+| Vault | Vault | noun · English loanword kept (BlueWallet brand-adjacent term); avoid Danish `boks`/`hvælving`. |
+| Watch-only | watch-only | adj · English loanword preferred; avoid `kun-kigge`/`kigge-tegnebog`. |
+| Hardware wallet | hardware wallet | noun, lowercase · English loanword preferred; avoid `hardwaretegnebog`. |
+| Seed | seed | noun · English loanword preferred by Danish Bitcoin community; Electrum da_DK also keeps "Seed". Avoid native `frø`. |
+| Mnemonic | mnemonic | noun · English loanword preferred; avoid `mnemonisk frase`. |
 | Passphrase | adgangsfrase | noun · ⚠️ NOT "adgangskode" (= password). Bitcoin Core da conflates with "Adgangskode" — distinct word preferred to avoid collision with `settings.password`. |
 | Public key | offentlig nøgle | noun, lowercase · Bitcoin Core da + Electrum da_DK. |
 | Private key | privat nøgle | noun, lowercase · Bitcoin Core da + Electrum da_DK. |
@@ -33,7 +33,8 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | xpub | xpub | acronym, lowercase preferred · ⚠️ known discrepancy: shipped JSON ships uppercase `XPUB` — vocabulary prefers lowercase `xpub`. |
 | Descriptor | deskriptor | noun, lowercase · standard da transliteration; Danish tech literature uses `deskriptor`. |
 | Derivation path | afledningssti | noun, lowercase · `afledning` is standard da math/CS term for derivation; `sti` = path. |
-| Master fingerprint | hovednøgle-fingeraftryk | noun, lowercase. |
+| Fingerprint | fingerprint | noun, lowercase · English loanword preferred; avoid `fingeraftryk`. |
+| Master fingerprint | master fingerprint | noun, lowercase · English form preferred; avoid `hovednøgle-fingeraftryk`. |
 | BIP38 | BIP38 | acronym kept · ⚠️ NOT a verb · gloss: krypteret privat nøgle. |
 | **_On-chain transactions_** | | |
 | Transaction | transaktion | noun, lowercase · Bitcoin Core da ("Transaktion"); Electrum da_DK uses "Overførsel" but BlueWallet ships "Transaktion". |
@@ -46,11 +47,11 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Pending | afventende | adj/state · Bitcoin Core da. |
 | Unconfirmed | ubekræftet | adj · Bitcoin Core da. |
 | Confirmed | bekræftet | adj · Bitcoin Core da. |
-| Mempool | mempool / hukommelsespulje | noun · loanword / Bitcoin Core da literal. |
-| Broadcast | transmitter / rundsend | verb · BlueWallet ships "Transmitter"; Electrum da_DK uses "Rundsend". Bitcoin Core da: "transmitteret". |
-| Block explorer | blokudforsker | noun, lowercase · Bitcoin Core da. |
-| Onchain | on-chain / i blokkæden | adj · compact / explanatory. |
-| Offchain | off-chain / uden for blokkæden | adj · compact / explanatory. |
+| Mempool | mempool | noun · English loanword preferred; avoid `hukommelsespulje`. |
+| Broadcast | transmitter / transmittere | verb · Danish `transmitter` preferred (real Danish verb "to broadcast/transmit"); shipped + Bitcoin Core da. Avoid raw English `broadcast`. |
+| Block explorer | block explorer | noun, lowercase · English loanword preferred; avoid `blokudforsker`. |
+| Onchain | onchain | adj · English loanword preferred; avoid `i blokkæden`. |
+| Offchain | offchain | adj · English loanword preferred; avoid `uden for blokkæden`. |
 | **_Fees & fee bumping_** | | |
 | Fee | gebyr | noun, lowercase · Bitcoin Core da + Electrum da_DK. |
 | Fee Bump | gebyrforøgelse | noun · Bitcoin Core da ("Bekræft gebyrforøgelse"). |
@@ -60,19 +61,22 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | **_Lightning_** | | |
 | Invoice | faktura / betalingsanmodning | noun · technical / mainstream. |
 | Lightning Invoice | Lightning-faktura / Lightning-betalingsanmodning | noun · technical / mainstream. |
-| Preimage | preimage / urbillede | noun · technical / math gloss. |
+| Preimage / Pre-image | Pre-image | noun · English loanword preferred; avoid native `urbillede`. |
 | Payment | betaling | noun · ⚠️ NOT verb "betale". |
 | Expired | udløbet | adj · Electrum da_DK. |
 | **_Multisig & advanced addressing_** | | |
-| Co-signer | medunderskriver | noun · ⚠️ NOT "medejer" (co-owner). |
-| Quorum | kvorum / signaturtærskel | noun · canonical / UI-clear. |
+| Co-signer | co-signer | noun · English loanword preferred; avoid `medunderskriver`. ⚠️ NOT "medejer" (co-owner). |
+| Multisig | Multisig | noun · English loanword preferred; do not translate. |
+| Multisig Vault | Multisig Vault | noun · English loanword preferred; do not translate. |
+| Quorum | quorum | noun · English loanword preferred; avoid `kvorum`/`signaturtærskel`. |
 | PSBT | PSBT | acronym · Bitcoin Core da keeps. |
-| Provide signature | underskriv / lever underskrift | verb · short / explicit. |
-| BIP47 / Payment Code | BIP47 / betalingskode | acronym kept; "Payment Code" → "betalingskode". |
-| Notification transaction | underretningstransaktion | noun · BIP47-specific. |
-| SilentPayment | Silent Payments / stille betalinger | protocol name kept English (plural); explanatory "stille betalinger" if needed. |
+| Provide signature | signer / lever signatur | verb · English-flavored Danish (`signer` not `underskriv`). |
+| BIP47 / Payment Code | BIP47 / Payment Code | acronym + English term kept; avoid `betalingskode`. |
+| Notification transaction | notification transaction | noun · English form preferred; avoid `underretningstransaktion`. |
+| SilentPayment | Silent Payments | protocol name kept English (plural). |
 | **_Coin control_** | | |
-| Coin Control | UTXO-håndtering / møntstyring | noun, lowercase · technical / mainstream · ⚠️ NOT Title Case. |
+| Coin Control | Coin Control | noun · English loanword preferred; avoid `UTXO-håndtering`/`møntstyring`. |
+| Coins (Bitcoin coins / UTXO) | coins | noun, lowercase · English loanword preferred; avoid `mønter`. |
 | Frozen | frosset | adj · ⚠️ NOT verb "fryse". |
 | **_Security & storage_** | | |
 | Encrypted storage | krypteret lager | noun, lowercase · shipped da_dk.json · ⚠️ NOT Title Case. |

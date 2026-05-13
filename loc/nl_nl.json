@@ -75,7 +75,7 @@
     "please_pay": "Betaal alstublieft",
     "sats": "sats",
     "wasnt_paid_and_expired": "Deze factuur is niet betaald en is verlopen",
-    "preimage": "Preimage",
+    "preimage": "Pre-image",
     "date_time": "Datum en tijd"
   },
   "plausibledeniability": {
@@ -109,7 +109,7 @@
     "minSats": "Minimaal bedrag is {min} sats",
     "minSatsFull": "Minimaal bedrag is {min} sats of {currency}",
     "qrcode_for_the_address": "QR-code voor het adres",
-    "bip47_explanation": "Betaalcodes zijn een universeel adres dat voorkomt dat je wallet-adressen worden onthuld. Niet alle diensten zullen ze ondersteunen."
+    "bip47_explanation": "Payment codes zijn een universeel adres dat voorkomt dat je wallet-adressen worden onthuld. Niet alle diensten zullen ze ondersteunen."
   },
   "send": {
     "provided_address_is_invoice": "Dit adres lijkt te zijn voor een Lightning factuur, Ga naar je Lightning wallet om een betaling voor deze factuur te maken.",
@@ -204,9 +204,9 @@
     "qr_error_no_qrcode": "We konden geen geldige QR-code vinden in de geselecteerde afbeelding. Zorg ervoor dat de afbeelding alleen een QR-code bevat en geen andere inhoud zoals tekst of knoppen.",
     "txSaved": "Het transactiebestand ({filePath}) is opgeslagen.",
     "file_saved_at_path": "Het bestand ({filePath}) is opgeslagen.",
-    "cant_send_to_silentpayment_adress": "Deze wallet kan niet naar Silent Payments-adressen verzenden",
-    "cant_send_to_bip47": "Deze wallet kan niet naar BIP47-betaalcodes verzenden",
-    "cant_find_bip47_notification": "Voeg deze betaalcode eerst toe aan contacten"
+    "cant_send_to_silentpayment_adress": "Deze wallet kan niet naar SilentPayment-adressen verzenden",
+    "cant_send_to_bip47": "Deze wallet kan niet naar BIP47 payment codes verzenden",
+    "cant_find_bip47_notification": "Voeg deze payment code eerst toe aan contacten"
   },
   "settings": {
     "about": "Over",
@@ -382,7 +382,7 @@
     "open_url_error": "Kan de link niet openen met de standaardbrowser. Wijzig je standaardbrowser en probeer het opnieuw.",
     "rbf_explain": "We zullen deze transactie vervangen door een transactie met een hogere fee zodat deze sneller gemined wordt. Dit heet RBF — Replace by Fee.",
     "watchOnlyWarningTitle": "Beveiligingswaarschuwing",
-    "watchOnlyWarningDescription": "Pas op voor oplichters die vaak \"alleen-lezen\" wallets gebruiken om gebruikers te misleiden. Deze wallets staan je niet toe om tegoeden te beheren of te verzenden; ze laten je alleen het saldo bekijken.",
+    "watchOnlyWarningDescription": "Pas op voor oplichters die vaak \"watch-only\" wallets gebruiken om gebruikers te misleiden. Deze wallets staan je niet toe om tegoeden te beheren of te verzenden; ze laten je alleen het saldo bekijken.",
     "custom_fee_warning_title": "Waarschuwing",
     "custom_fee_warning_description": "Fees onder 1 sat/vB zijn geldig, maar worden mogelijk niet doorgegeven vanwege node-beleid.",
     "details_eta_analyzing": "Bezig met analyseren...",
@@ -497,7 +497,7 @@
     "swipe_balance_show": "Tonen",
     "drag_to_reorder": "Sleep om volgorde te wijzigen",
     "clear_search": "Zoekopdracht wissen",
-    "import_success_watchonly": "Je wallet is succesvol geïmporteerd. WAARSCHUWING: Dit is een alleen-lezen wallet, je kunt er NIET vanaf uitgeven.",
+    "import_success_watchonly": "Je wallet is succesvol geïmporteerd. WAARSCHUWING: Dit is een watch-only-wallet, je kunt er NIET vanaf uitgeven.",
     "learn_more": "Meer informatie",
     "import_discovery_offline": "BlueWallet is momenteel in offline-modus. In deze modus kan het bestaan van de wallet niet worden geverifieerd, dus moet je de juiste handmatig selecteren",
     "import_derivation_found": "Gevonden",
@@ -683,25 +683,25 @@
     "authenticate": "Authenticeren"
   },
   "bip47": {
-    "payment_code": "Betaalcode",
+    "payment_code": "Payment code",
     "contacts": "Contacten",
     "bip47_explain": "Herbruikbare en deelbare code",
     "bip47_explain_subtitle": "BIP47",
     "purpose": "Herbruikbare en deelbare code (BIP47)",
     "pay_this_contact": "Betaal dit contact",
     "rename_contact": "Contact hernoemen",
-    "copy_payment_code": "Betaalcode kopiëren",
+    "copy_payment_code": "Payment code kopiëren",
     "hide_contact": "Contact verbergen",
     "rename": "Hernoemen",
     "provide_name": "Geef een nieuwe naam voor dit contact op",
     "add_contact": "Contact toevoegen",
-    "provide_payment_code": "Geef betaalcode op",
-    "invalid_pc": "Ongeldige betaalcode",
+    "provide_payment_code": "Geef payment code op",
+    "invalid_pc": "Ongeldige payment code",
     "notification_tx_unconfirmed": "Notificatietransactie is nog niet bevestigd, even wachten",
     "failed_create_notif_tx": "Aanmaken van on-chain transactie mislukt",
     "onchain_tx_needed": "On-chain transactie nodig",
     "notif_tx_sent": "Notificatietransactie verzonden. Wacht tot deze is bevestigd",
     "notif_tx": "Notificatietransactie",
-    "not_found": "Betaalcode niet gevonden"
+    "not_found": "Payment code niet gevonden"
   }
 }
