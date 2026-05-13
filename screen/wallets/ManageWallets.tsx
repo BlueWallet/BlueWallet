@@ -526,7 +526,6 @@ const ManageWallets: React.FC = () => {
       });
       setWalletsWithNewOrder(updatedWallets);
       dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
-      triggerHapticFeedback(HapticFeedbackTypes.Selection);
     },
     [state.walletsCopy, setWalletsWithNewOrder],
   );

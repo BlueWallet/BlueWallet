@@ -5,6 +5,9 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapt
 import { useTheme } from './themes';
 import loc from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import { FiatUnit } from '../models/fiatUnit';
+import { useSettings } from '../hooks/context/useSettings';
+import Icon from './Icon';
 
 /** Width of each swipe-action button — matches iOS Mail / Contacts style. */
 const ACTION_WIDTH = 80;
@@ -17,6 +20,7 @@ interface SwipeableWalletRowProps {
   currentUnit: BitcoinUnit;
   onToggleHideBalance: () => void;
   onChangeUnit: () => void;
+  onSwipeStateChange?: (isSwipeInProgress: boolean) => void;
 }
 
 /**
@@ -31,10 +35,10 @@ interface SwipeableWalletRowProps {
  *  - Buttons have a fixed width so the panel has a predictable size.
  */
 const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
-  ({ children, enabled, isHidden, currentUnit, onToggleHideBalance, onChangeUnit }, ref) => {
+  ({ children, enabled, isHidden, currentUnit, onToggleHideBalance, onChangeUnit, onSwipeStateChange }, ref) => {
     const { colors } = useTheme();
+    const { preferredFiatCurrency } = useSettings();
     const internalRef = useRef<Swipeable | null>(null);
-    const swipeInProgressRef = useRef(false);
 
     // Forward the ref while keeping a local copy for `close()`.
     const setRef = useCallback(
@@ -65,6 +69,12 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
       close();
     }, [onChangeUnit, close]);
 
+    const unitLabel = useCallback(() => {
+      if (currentUnit === BitcoinUnit.BTC) return loc.units.BTC;
+      if (currentUnit === BitcoinUnit.SATS) return loc.units.sats;
+      return preferredFiatCurrency?.endPointKey ?? FiatUnit.USD;
+    }, [currentUnit, preferredFiatCurrency]);
+
     /**
      * iOS-style reveal: the whole panel slides in together.
      * `progress` goes from 0 → 1 as the row opens, so we translate
@@ -86,15 +96,15 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
             <Pressable
               style={({ pressed }) => [
                 styles.actionButton,
-                styles.actionButtonUnit,
+                { backgroundColor: colors.changeBackground },
                 pressed && styles.actionButtonPressed,
               ]}
               onPress={handleChangeUnit}
               accessibilityRole="button"
               accessibilityLabel={loc.wallets.swipe_change_unit}
             >
-              <Text style={styles.actionIcon}>↻</Text>
-              <Text style={[styles.actionText, styles.actionTextDark]}>{currentUnit}</Text>
+              <Icon name="arrows-rotate" type="font-awesome-6" size={14} color={colors.changeText} />
+              <Text style={[styles.actionText, { color: colors.changeText }]}>{unitLabel()}</Text>
             </Pressable>
 
             {/* Hide / Show Balance — rightmost, matches iOS "destructive" slot */}
@@ -108,7 +118,7 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
               accessibilityRole="button"
               accessibilityLabel={isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
             >
-              <Text style={styles.actionIcon}>{isHidden ? '👁' : '🙈'}</Text>
+              <Icon name={isHidden ? 'eye' : 'eye-slash'} type="font-awesome" size={14} color={colors.buttonTextColor} />
               <Text style={[styles.actionText, { color: colors.buttonTextColor }]}>
                 {isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
               </Text>
@@ -116,7 +126,7 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
           </Animated.View>
         );
       },
-      [colors, currentUnit, handleChangeUnit, handleHideBalance, isHidden],
+      [colors, handleChangeUnit, handleHideBalance, isHidden, unitLabel],
     );
 
     if (!enabled) {
@@ -134,14 +144,14 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
         overshootRight={false}
         overshootFriction={8}
         onSwipeableWillOpen={() => {
-          swipeInProgressRef.current = true;
+          onSwipeStateChange?.(true);
           triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
         }}
         onSwipeableWillClose={() => {
-          swipeInProgressRef.current = false;
+          onSwipeStateChange?.(false);
         }}
         onSwipeableClose={() => {
-          swipeInProgressRef.current = false;
+          onSwipeStateChange?.(false);
         }}
       >
         {children}
@@ -163,22 +173,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 3,
   },
-  actionButtonUnit: {
-    backgroundColor: '#FF9500', // iOS orange — universally understood as "change"
-  },
   actionButtonPressed: {
     opacity: 0.8,
-  },
-  actionIcon: {
-    fontSize: 18,
   },
   actionText: {
     fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  actionTextDark: {
-    color: '#FFFFFF',
   },
 });
 

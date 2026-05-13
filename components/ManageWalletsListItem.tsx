@@ -157,6 +157,10 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       handleChangeWalletUnit(wallet);
     };
 
+    const onSwipeStateChange = (isSwipeInProgress: boolean) => {
+      swipeInProgressRef.current = isSwipeInProgress;
+    };
+
     const content = (
       <WalletListItem
         wallet={wallet}
@@ -183,6 +187,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
           currentUnit={wallet.getPreferredBalanceUnit()}
           onToggleHideBalance={onToggle}
           onChangeUnit={onChangeUnit}
+          onSwipeStateChange={onSwipeStateChange}
         >
           {content}
         </SwipeableWalletRow>
