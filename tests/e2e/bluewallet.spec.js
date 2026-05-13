@@ -1005,6 +1005,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
+    // Extra scroll moves the full-width row up so its hitbox no longer overlaps the Android system nav bar.
+    await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
     await element(by.id('ViewEditCosigners')).tap();
     await waitForText('Vault Key 1');
     await expect(element(by.text('Vault Key 2'))).toBeVisible();
@@ -1054,6 +1056,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
+    // Extra scroll moves the full-width row up so its hitbox no longer overlaps the Android system nav bar.
+    await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
     await element(by.id('ViewEditCosigners')).tap();
     await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
       .toBeVisible()
