@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, memo, useRef } from 'react';
+import React, { memo, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Animated, Easing, Linking, Pressable, Text, TextStyle, ViewStyle, StyleSheet, View } from 'react-native';
@@ -118,63 +118,62 @@ interface TransactionListItemProps {
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
-export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
-  ({
-    item,
-    itemPriceUnit = BitcoinUnit.BTC,
-    walletID,
-    searchQuery,
-    style,
-    renderHighlightedText,
-    onPress: customOnPress,
-    disableNavigation = false,
-  }: TransactionListItemProps) => {
-    const { colors } = useTheme();
-    const { navigate } = useExtendedNavigation<NavigationProps>();
-    const { txMetadata, counterpartyMetadata, wallets } = useStorage();
-    const { language, selectedBlockExplorer } = useSettings();
-    const insets = useSafeAreaInsets();
-    const containerStyle = useMemo(
-      () => ({
-        backgroundColor: colors.background,
-        borderBottomColor: colors.lightBorder,
-      }),
-      [colors.background, colors.lightBorder],
-    );
+const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
+  item,
+  itemPriceUnit = BitcoinUnit.BTC,
+  walletID,
+  searchQuery,
+  style,
+  renderHighlightedText,
+  onPress: customOnPress,
+  disableNavigation = false,
+}: TransactionListItemProps) => {
+  const { colors } = useTheme();
+  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const { txMetadata, counterpartyMetadata, wallets } = useStorage();
+  const { language, selectedBlockExplorer } = useSettings();
+  const insets = useSafeAreaInsets();
+  const containerStyle = useMemo(
+    () => ({
+      backgroundColor: colors.background,
+      borderBottomColor: colors.lightBorder,
+    }),
+    [colors.background, colors.lightBorder],
+  );
 
-    const combinedStyle = useMemo(() => [containerStyle, style], [containerStyle, style]);
+  const combinedStyle = useMemo(() => [containerStyle, style], [containerStyle, style]);
 
-    const shortenContactName = (name: string): string => {
-      if (name.length < 16) return name;
-      return name.substr(0, 7) + '...' + name.substr(name.length - 7, 7);
-    };
+  const shortenContactName = (name: string): string => {
+    if (name.length < 16) return name;
+    return name.substr(0, 7) + '...' + name.substr(name.length - 7, 7);
+  };
 
-    let counterparty;
-    if (item.counterparty) {
-      counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
+  let counterparty;
+  if (item.counterparty) {
+    counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
+  }
+  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
+  const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
+
+  const listTitleKey = useMemo((): 'pending' | 'sent' | 'received' => {
+    if (item.category === 'receive' && item.confirmations! < 3) return 'pending';
+    if (item.type === 'bitcoind_tx') return item.value! < 0 ? 'sent' : 'received';
+    if (item.type === 'paid_invoice') return 'sent';
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      if (!item.ispaid) return 'pending';
+      return 'received';
     }
-    const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
-    const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
+    if (!item.confirmations) return 'pending';
+    return item.value! < 0 ? 'sent' : 'received';
+  }, [item.category, item.confirmations, item.type, item.value, item.ispaid]);
 
-    const listTitleKey = useMemo((): 'pending' | 'sent' | 'received' => {
-      if (item.category === 'receive' && item.confirmations! < 3) return 'pending';
-      if (item.type === 'bitcoind_tx') return item.value! < 0 ? 'sent' : 'received';
-      if (item.type === 'paid_invoice') return 'sent';
-      if (item.type === 'user_invoice' || item.type === 'payment_request') {
-        if (!item.ispaid) return 'pending';
-        return 'received';
-      }
-      if (!item.confirmations) return 'pending';
-      return item.value! < 0 ? 'sent' : 'received';
-    }, [item.category, item.confirmations, item.type, item.value, item.ispaid]);
+  const listTitle = useMemo(() => {
+    if (listTitleKey === 'pending') return loc.transactions.pending;
+    if (listTitleKey === 'sent') return loc.transactions.list_title_sent;
+    return loc.transactions.list_title_received;
+  }, [listTitleKey]);
 
-    const listTitle = useMemo(() => {
-      if (listTitleKey === 'pending') return loc.transactions.pending;
-      if (listTitleKey === 'sent') return loc.transactions.list_title_sent;
-      return loc.transactions.list_title_received;
-    }, [listTitleKey]);
-
-    const isPending = listTitleKey === 'pending';
+  const isPending = listTitleKey === 'pending';
 
     // For LightningArkWallet rows, prepend a kind tag so the user can tell
     // Lightning swaps, native Ark transfers, and on-chain refills apart at a
@@ -201,171 +200,171 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isPending, item.timestamp, language, arkRowKind]);
 
-    const formattedAmount = useMemo(() => {
-      return formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
-    }, [item.value, itemPriceUnit]);
+  const formattedAmount = useMemo(() => {
+    return formatBalanceWithoutSuffix(item.value, itemPriceUnit, true).toString();
+  }, [item.value, itemPriceUnit]);
 
-    const rowTitle = useMemo(() => {
-      if (item.type === 'user_invoice' || item.type === 'payment_request') {
-        const currentDate = new Date();
-        const now = Math.floor(currentDate.getTime() / 1000);
-        const invoiceExpiration = item.timestamp! + item.expire_time!;
-        if (invoiceExpiration > now || item.ispaid) {
-          return formattedAmount;
-        } else {
-          return loc.lnd.expired;
-        }
+  const rowTitle = useMemo(() => {
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = Math.floor(currentDate.getTime() / 1000);
+      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      if (invoiceExpiration > now || item.ispaid) {
+        return formattedAmount;
+      } else {
+        return loc.lnd.expired;
       }
-      return formattedAmount;
-    }, [item, formattedAmount]);
+    }
+    return formattedAmount;
+  }, [item, formattedAmount]);
 
-    const rowTitleStyle = useMemo<TextStyle>(() => {
-      let color = colors.successColor;
+  const rowTitleStyle = useMemo<TextStyle>(() => {
+    let color = colors.successColor;
 
-      if (item.type === 'user_invoice' || item.type === 'payment_request') {
-        const currentDate = new Date();
-        const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-        const invoiceExpiration = item.timestamp! + item.expire_time!;
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
+      const invoiceExpiration = item.timestamp! + item.expire_time!;
 
-        if (invoiceExpiration > now) {
+      if (invoiceExpiration > now) {
+        color = colors.successColor;
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
           color = colors.successColor;
-        } else if (invoiceExpiration < now) {
-          if (item.ispaid) {
-            color = colors.successColor;
-          } else {
-            color = '#9AA0AA';
-          }
-        }
-      } else if (item.value! / 100000000 < 0) {
-        color = colors.foregroundColor;
-      }
-
-      return {
-        color,
-        fontSize: 14,
-        fontWeight: '600' as TextStyle['fontWeight'],
-        textAlign: 'right',
-        paddingRight: insets.right,
-        paddingLeft: insets.left,
-      } as TextStyle;
-    }, [
-      colors.successColor,
-      colors.foregroundColor,
-      item.type,
-      item.value,
-      item.timestamp,
-      item.expire_time,
-      item.ispaid,
-      insets.right,
-      insets.left,
-    ]);
-
-    const determineTransactionTypeAndAvatar = () => {
-      if (item.category === 'receive' && item.confirmations! < 3) {
-        return {
-          label: loc.transactions.pending_transaction,
-          icon: <TransactionPendingIcon />,
-        };
-      }
-
-      if (item.type && item.type === 'bitcoind_tx') {
-        return {
-          label: loc.transactions.onchain,
-          icon: <TransactionOnchainIcon />,
-        };
-      }
-
-      if (item.type === 'paid_invoice') {
-        return {
-          label: loc.transactions.offchain,
-          icon: <TransactionOffchainIcon />,
-        };
-      }
-
-      if (item.type === 'user_invoice' || item.type === 'payment_request') {
-        const currentDate = new Date();
-        const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-        const invoiceExpiration = item.timestamp! + item.expire_time!;
-        if (!item.ispaid && invoiceExpiration < now) {
-          return {
-            label: loc.transactions.expired_transaction,
-            icon: <TransactionExpiredIcon />,
-          };
-        } else if (!item.ispaid) {
-          return {
-            label: loc.transactions.expired_transaction,
-            icon: <TransactionPendingIcon />,
-          };
         } else {
-          return {
-            label: loc.transactions.incoming_transaction,
-            icon: <TransactionOffchainIncomingIcon />,
-          };
+          color = '#9AA0AA';
         }
       }
+    } else if (item.value! / 100000000 < 0) {
+      color = colors.foregroundColor;
+    }
 
-      if (!item.confirmations) {
+    return {
+      color,
+      fontSize: 14,
+      fontWeight: '600' as TextStyle['fontWeight'],
+      textAlign: 'right',
+      paddingRight: insets.right,
+      paddingLeft: insets.left,
+    } as TextStyle;
+  }, [
+    colors.successColor,
+    colors.foregroundColor,
+    item.type,
+    item.value,
+    item.timestamp,
+    item.expire_time,
+    item.ispaid,
+    insets.right,
+    insets.left,
+  ]);
+
+  const determineTransactionTypeAndAvatar = () => {
+    if (item.category === 'receive' && item.confirmations! < 3) {
+      return {
+        label: loc.transactions.pending_transaction,
+        icon: <TransactionPendingIcon />,
+      };
+    }
+
+    if (item.type && item.type === 'bitcoind_tx') {
+      return {
+        label: loc.transactions.onchain,
+        icon: <TransactionOnchainIcon />,
+      };
+    }
+
+    if (item.type === 'paid_invoice') {
+      return {
+        label: loc.transactions.offchain,
+        icon: <TransactionOffchainIcon />,
+      };
+    }
+
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
+      const invoiceExpiration = item.timestamp! + item.expire_time!;
+      if (!item.ispaid && invoiceExpiration < now) {
         return {
-          label: loc.transactions.pending_transaction,
-          icon: <TransactionPendingIcon />,
+          label: loc.transactions.expired_transaction,
+          icon: <TransactionExpiredIcon />,
         };
-      } else if (item.value! < 0) {
+      } else if (!item.ispaid) {
         return {
-          label: loc.transactions.outgoing_transaction,
-          icon: <TransactionOutgoingIcon />,
+          label: loc.transactions.expired_transaction,
+          icon: <TransactionPendingIcon />,
         };
       } else {
         return {
           label: loc.transactions.incoming_transaction,
-          icon: <TransactionIncomingIcon />,
+          icon: <TransactionOffchainIncomingIcon />,
         };
       }
-    };
+    }
 
-    const { label: transactionTypeLabel, icon: avatar } = determineTransactionTypeAndAvatar();
+    if (!item.confirmations) {
+      return {
+        label: loc.transactions.pending_transaction,
+        icon: <TransactionPendingIcon />,
+      };
+    } else if (item.value! < 0) {
+      return {
+        label: loc.transactions.outgoing_transaction,
+        icon: <TransactionOutgoingIcon />,
+      };
+    } else {
+      return {
+        label: loc.transactions.incoming_transaction,
+        icon: <TransactionIncomingIcon />,
+      };
+    }
+  };
 
-    const amountWithUnit = useMemo(() => {
-      const unitSuffix = itemPriceUnit === BitcoinUnit.BTC || itemPriceUnit === BitcoinUnit.SATS ? ` ${itemPriceUnit}` : ' ';
-      return `${formattedAmount}${unitSuffix}`;
-    }, [formattedAmount, itemPriceUnit]);
+  const { label: transactionTypeLabel, icon: avatar } = determineTransactionTypeAndAvatar();
 
-    const onPress = useCallback(async () => {
-      // If a custom onPress handler was provided, use it and return
-      if (customOnPress) {
-        customOnPress();
-        if (disableNavigation) return;
+  const amountWithUnit = useMemo(() => {
+    const unitSuffix = itemPriceUnit === BitcoinUnit.BTC || itemPriceUnit === BitcoinUnit.SATS ? ` ${itemPriceUnit}` : ' ';
+    return `${formattedAmount}${unitSuffix}`;
+  }, [formattedAmount, itemPriceUnit]);
+
+  const onPress = useCallback(async () => {
+    // If a custom onPress handler was provided, use it and return
+    if (customOnPress) {
+      customOnPress();
+      if (disableNavigation) return;
+    }
+
+    if (item.hash) {
+      if (renderHighlightedText) {
+        pop();
       }
-
-      if (item.hash) {
-        if (renderHighlightedText) {
-          pop();
-        }
-        navigate('TransactionStatus', { hash: item.hash, walletID });
-      } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
-        const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
-        if (lightningWallet.length === 1) {
-          try {
-            // is it a successful lnurl-pay?
-            const LN = new Lnurl(false, AsyncStorage);
-            const rawPaymentHash = item.payment_hash;
-            if (!rawPaymentHash) throw new Error('Missing payment hash');
-            const normalizedPaymentHash =
-              typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array((rawPaymentHash as any).data));
-            const loaded = await LN.loadSuccessfulPayment(normalizedPaymentHash);
-            if (loaded) {
-              navigate('ScanLNDInvoiceRoot', {
-                screen: 'LnurlPaySuccess',
-                params: {
-                  paymentHash: normalizedPaymentHash,
-                  justPaid: false,
-                  fromWalletID: lightningWallet[0].getID(),
-                },
-              });
-              return;
-            }
-          } catch (e) {
-            console.debug(e);
+      navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
+    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
+      const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
+      if (lightningWallet.length === 1) {
+        try {
+          // is it a successful lnurl-pay?
+          const LN = new Lnurl(false, AsyncStorage);
+          const rawPaymentHash = item.payment_hash;
+          if (!rawPaymentHash) throw new Error('Missing payment hash');
+          const normalizedPaymentHash =
+            typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array((rawPaymentHash as any).data));
+          const loaded = await LN.loadSuccessfulPayment(normalizedPaymentHash);
+          if (loaded) {
+            navigate('ScanLNDInvoiceRoot', {
+              screen: 'LnurlPaySuccess',
+              params: {
+                paymentHash: normalizedPaymentHash,
+                justPaid: false,
+                fromWalletID: lightningWallet[0].getID(),
+              },
+            });
+            return;
           }
+        } catch (e) {
+          console.debug(e);
+        }
 
           navigate('LNDViewInvoice', {
             invoice: item,
@@ -385,7 +384,7 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
 
     const handleOnDetailsPress = useCallback(() => {
       if (walletID && item && item.hash) {
-        navigate('TransactionDetails', { tx: item, hash: item.hash, walletID });
+        navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
       } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
         const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
         if (lightningWallet) {
@@ -396,162 +395,154 @@ export const TransactionListItem: React.FC<TransactionListItemProps> = memo(
         }
       } else if ((item as { txid?: string }).txid) {
         // Match the regular tap path for Ark non-swap rows.
-        navigate('TransactionDetails', { tx: item, hash: (item as { txid: string }).txid, walletID });
+        navigate('TransactionStatus', { tx: item, hash: (item as { txid: string }).txid, walletID });
       }
     }, [item, navigate, walletID, wallets]);
 
-    const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
-    const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
-    const handleOnCopyNote = useCallback(() => Clipboard.setString(noteForCopy ?? ''), [noteForCopy]);
-    const handleOnViewOnBlockExplorer = useCallback(() => {
-      const url = `${selectedBlockExplorer.url}/tx/${item.hash}`;
-      Linking.canOpenURL(url).then(supported => {
-        if (supported) {
-          Linking.openURL(url);
-        }
-      });
-    }, [item.hash, selectedBlockExplorer]);
-    const handleCopyOpenInBlockExplorerPress = useCallback(() => {
-      Clipboard.setString(`${selectedBlockExplorer.url}/tx/${item.hash}`);
-    }, [item.hash, selectedBlockExplorer]);
-
-    const onToolTipPress = useCallback(
-      (id: any) => {
-        if (id === CommonToolTipActions.CopyAmount.id) {
-          handleOnCopyAmountTap();
-        } else if (id === CommonToolTipActions.CopyNote.id) {
-          handleOnCopyNote();
-        } else if (id === CommonToolTipActions.OpenInBlockExplorer.id) {
-          handleOnViewOnBlockExplorer();
-        } else if (id === CommonToolTipActions.CopyBlockExplorerLink.id) {
-          handleCopyOpenInBlockExplorerPress();
-        } else if (id === CommonToolTipActions.CopyTXID.id) {
-          handleOnCopyTransactionID();
-        } else if (id === CommonToolTipActions.Details.id) {
-          handleOnDetailsPress();
-        }
-      },
-      [
-        handleCopyOpenInBlockExplorerPress,
-        handleOnCopyAmountTap,
-        handleOnCopyNote,
-        handleOnCopyTransactionID,
-        handleOnDetailsPress,
-        handleOnViewOnBlockExplorer,
-      ],
-    );
-    const toolTipActions = useMemo((): Action[] => {
-      const actions: (Action | Action[])[] = [
-        {
-          ...CommonToolTipActions.CopyAmount,
-          hidden: rowTitle === loc.lnd.expired,
-        },
-        {
-          ...CommonToolTipActions.CopyNote,
-          hidden: !noteForCopy,
-        },
-        {
-          ...CommonToolTipActions.CopyTXID,
-          hidden: !item.hash,
-        },
-        {
-          ...CommonToolTipActions.CopyBlockExplorerLink,
-          hidden: !item.hash,
-        },
-        [{ ...CommonToolTipActions.OpenInBlockExplorer, hidden: !item.hash }, CommonToolTipActions.Details],
-      ];
-
-      return actions as Action[];
-    }, [rowTitle, noteForCopy, item.hash]);
-
-    const title = listTitle;
-    const subtitle = dateLine;
-    const subtitleNumberOfLines: number = 1;
-
-    const titleStyle = useMemo(() => ({ color: colors.foregroundColor }), [colors.foregroundColor]);
-    const subtitleStyle = useMemo(() => ({ color: colors.alternativeTextColor }), [colors.alternativeTextColor]);
-
-    const subtitleContent = useMemo(() => {
-      if (!subtitle) return null;
-      const maxLines = subtitleNumberOfLines === 0 ? undefined : subtitleNumberOfLines;
-
-      if (renderHighlightedText && searchQuery) {
-        const highlighted = renderHighlightedText(subtitle, searchQuery);
-        if (React.isValidElement(highlighted)) {
-          const highlightedElement = highlighted as React.ReactElement<{ numberOfLines?: number; style?: TextStyle | TextStyle[] }>;
-          const existingStyle = highlightedElement.props?.style;
-          const mergedStyle: TextStyle[] = (
-            Array.isArray(existingStyle)
-              ? [styles.subtitle, subtitleStyle, ...existingStyle]
-              : [styles.subtitle, subtitleStyle, existingStyle]
-          ).filter(Boolean) as TextStyle[];
-
-          return React.cloneElement(highlightedElement, {
-            numberOfLines: maxLines,
-            style: mergedStyle,
-          });
-        }
-        return highlighted;
+  const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
+  const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
+  const handleOnCopyNote = useCallback(() => Clipboard.setString(noteForCopy ?? ''), [noteForCopy]);
+  const handleOnViewOnBlockExplorer = useCallback(() => {
+    const url = `${selectedBlockExplorer.url}/tx/${item.hash}`;
+    Linking.canOpenURL(url).then(supported => {
+      if (supported) {
+        Linking.openURL(url);
       }
+    });
+  }, [item.hash, selectedBlockExplorer]);
+  const handleCopyOpenInBlockExplorerPress = useCallback(() => {
+    Clipboard.setString(`${selectedBlockExplorer.url}/tx/${item.hash}`);
+  }, [item.hash, selectedBlockExplorer]);
 
-      return (
-        <Text style={[styles.subtitle, subtitleStyle]} numberOfLines={maxLines}>
-          {subtitle}
-        </Text>
-      );
-    }, [subtitle, subtitleNumberOfLines, renderHighlightedText, searchQuery, subtitleStyle]);
+  const onToolTipPress = useCallback(
+    (id: any) => {
+      if (id === CommonToolTipActions.CopyAmount.id) {
+        handleOnCopyAmountTap();
+      } else if (id === CommonToolTipActions.CopyNote.id) {
+        handleOnCopyNote();
+      } else if (id === CommonToolTipActions.OpenInBlockExplorer.id) {
+        handleOnViewOnBlockExplorer();
+      } else if (id === CommonToolTipActions.CopyBlockExplorerLink.id) {
+        handleCopyOpenInBlockExplorerPress();
+      } else if (id === CommonToolTipActions.CopyTXID.id) {
+        handleOnCopyTransactionID();
+      } else if (id === CommonToolTipActions.Details.id) {
+        handleOnDetailsPress();
+      }
+    },
+    [
+      handleCopyOpenInBlockExplorerPress,
+      handleOnCopyAmountTap,
+      handleOnCopyNote,
+      handleOnCopyTransactionID,
+      handleOnDetailsPress,
+      handleOnViewOnBlockExplorer,
+    ],
+  );
+  const toolTipActions = useMemo((): Action[] => {
+    const actions: (Action | Action[])[] = [
+      {
+        ...CommonToolTipActions.CopyAmount,
+        hidden: rowTitle === loc.lnd.expired,
+      },
+      {
+        ...CommonToolTipActions.CopyNote,
+        hidden: !noteForCopy,
+      },
+      {
+        ...CommonToolTipActions.CopyTXID,
+        hidden: !item.hash,
+      },
+      {
+        ...CommonToolTipActions.CopyBlockExplorerLink,
+        hidden: !item.hash,
+      },
+      [{ ...CommonToolTipActions.OpenInBlockExplorer, hidden: !item.hash }, CommonToolTipActions.Details],
+    ];
+
+    return actions as Action[];
+  }, [rowTitle, noteForCopy, item.hash]);
+
+  const title = listTitle;
+  const subtitle = dateLine;
+  const subtitleNumberOfLines: number = 1;
+
+  const titleStyle = useMemo(() => ({ color: colors.foregroundColor }), [colors.foregroundColor]);
+  const subtitleStyle = useMemo(() => ({ color: colors.alternativeTextColor }), [colors.alternativeTextColor]);
+
+  const subtitleContent = useMemo(() => {
+    if (!subtitle) return null;
+    const maxLines = subtitleNumberOfLines === 0 ? undefined : subtitleNumberOfLines;
+
+    if (renderHighlightedText && searchQuery) {
+      const highlighted = renderHighlightedText(subtitle, searchQuery);
+      if (React.isValidElement(highlighted)) {
+        const highlightedElement = highlighted as React.ReactElement<{ numberOfLines?: number; style?: TextStyle | TextStyle[] }>;
+        const existingStyle = highlightedElement.props?.style;
+        const mergedStyle: TextStyle[] = (
+          Array.isArray(existingStyle)
+            ? [styles.subtitle, subtitleStyle, ...existingStyle]
+            : [styles.subtitle, subtitleStyle, existingStyle]
+        ).filter(Boolean) as TextStyle[];
+
+        return React.cloneElement(highlightedElement, {
+          numberOfLines: maxLines,
+          style: mergedStyle,
+        });
+      }
+      return highlighted;
+    }
 
     return (
-      <ToolTipMenu
-        actions={toolTipActions}
-        onPressMenuItem={onToolTipPress}
-        shouldOpenOnLongPress
-        style={styles.fullWidthButton}
-        accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
-        accessibilityRole="button"
-      >
-        <AnimatedPressableRow onPress={onPress} accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}>
-          {/* @ts-ignore - Context menu wrapper types can be overly strict about child element props */}
-          <ListItem
-            leftAvatar={avatar}
-            title={listTitle}
-            subtitle={<Text style={styles.dateLine}>{dateLine}</Text>}
-            chevron={false}
-            rightTitle={rowTitle}
-            rightTitleStyle={rowTitleStyle}
-            rightSubtitle={noteForCopy}
-            rightSubtitleStyle={styles.rightColumn}
-            containerStyle={combinedStyle}
-            testID="TransactionListItem"
-            accessibilityRole="button"
-            accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
-          >
-            <View style={styles.row}>
-              <View style={styles.avatarContainer}>{avatar}</View>
-              <View style={styles.textContainer}>
-                <Text style={[styles.title, titleStyle]} numberOfLines={1}>
-                  {title}
-                </Text>
-                {subtitleContent}
-              </View>
-              <View style={styles.rightColumn}>
-                <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
-                  {rowTitle}
-                </Text>
-              </View>
+      <Text style={[styles.subtitle, subtitleStyle]} numberOfLines={maxLines}>
+        {subtitle}
+      </Text>
+    );
+  }, [subtitle, subtitleNumberOfLines, renderHighlightedText, searchQuery, subtitleStyle]);
+
+  return (
+    <ToolTipMenu
+      actions={toolTipActions}
+      onPressMenuItem={onToolTipPress}
+      shouldOpenOnLongPress
+      style={styles.fullWidthButton}
+      accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+      accessibilityRole="button"
+    >
+      <AnimatedPressableRow onPress={onPress} accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}>
+        {/* @ts-ignore - Context menu wrapper types can be overly strict about child element props */}
+        <ListItem
+          leftAvatar={avatar}
+          title={listTitle}
+          subtitle={<Text style={styles.dateLine}>{dateLine}</Text>}
+          chevron={false}
+          rightTitle={rowTitle}
+          rightTitleStyle={rowTitleStyle}
+          rightSubtitle={noteForCopy}
+          rightSubtitleStyle={styles.rightColumn}
+          containerStyle={combinedStyle}
+          testID="TransactionListItem"
+          accessibilityRole="button"
+          accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
+        >
+          <View style={styles.row}>
+            <View style={styles.avatarContainer}>{avatar}</View>
+            <View style={styles.textContainer}>
+              <Text style={[styles.title, titleStyle]} numberOfLines={1}>
+                {title}
+              </Text>
+              {subtitleContent}
             </View>
-          </ListItem>
-        </AnimatedPressableRow>
-      </ToolTipMenu>
-    );
-  },
-  (prevProps, nextProps) => {
-    return (
-      prevProps.item.hash === nextProps.item.hash &&
-      prevProps.item.timestamp === nextProps.item.timestamp &&
-      prevProps.itemPriceUnit === nextProps.itemPriceUnit &&
-      prevProps.walletID === nextProps.walletID &&
-      prevProps.searchQuery === nextProps.searchQuery
-    );
-  },
-);
+            <View style={styles.rightColumn}>
+              <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
+                {rowTitle}
+              </Text>
+            </View>
+          </View>
+        </ListItem>
+      </AnimatedPressableRow>
+    </ToolTipMenu>
+  );
+};
+
+export const TransactionListItem = memo(TransactionListItemComponent);
