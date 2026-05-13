@@ -69,7 +69,7 @@
   },
   "lndViewInvoice": {
     "lightning_invoice": "Lightning ಸರಕುಪಟ್ಟಿ",
-    "sats": "ಸತಾಶಿ.",
+    "sats": "ಸ್ಯಾಟ್‌ಗಳು.",
     "wasnt_paid_and_expired": "ಈ ಸರಕುಪಟ್ಟಿ ಪಾವತಿಸಲಾಗಿಲ್ಲ ಮತ್ತು ಅವಧಿ ಮುಗಿದಿದೆ.",
     "additional_info": "ಹೆಚ್ಚುವರಿ ಮಾಹಿತಿ",
     "date_time": "ದಿನಾಂಕ ಮತ್ತು ಸಮಯ",
@@ -113,7 +113,7 @@
     "create_broadcast": "ಪ್ರಸಾರ ಮಾಡಿ",
     "create_fee": "ಶುಲ್ಕ",
     "create_memo": "ಮೆಮೊ",
-    "create_satoshi_per_vbyte": "sat/vByte",
+    "create_satoshi_per_vbyte": "vByte ಗೆ Satoshi",
     "create_to": "ಗೆ",
     "details_address": "ವಿಳಾಸ",
     "details_address_field_is_not_valid": "ವಿಳಾಸ ಮಾನ್ಯವಾಗಿಲ್ಲ.",
@@ -209,7 +209,7 @@
     "electrum_status": "ಸ್ಥಿತಿ",
     "electrum_history": "ಇತಿಹಾಸ",
     "block_explorer": "ಬ್ಲಾಕ್ ಎಕ್ಸ್‌ಪ್ಲೋರರ್",
-    "encrypt_title": "ಸುರಕ್ಷತೆ",
+    "encrypt_title": "ಭದ್ರತೆ",
     "encrypt_tstorage": "ಸಂಗ್ರಹಣೆ",
     "header": "ಸೆಟ್ಟಿಂಗ್‌ಗಳು",
     "language": "ಭಾಷೆ",
@@ -532,7 +532,7 @@
     "BTC": "BTC",
     "MAX": "ಗರಿಷ್ಠ",
     "sat_vbyte": "sat/vByte",
-    "sats": "ಸತಾಶಿ"
+    "sats": "sats"
   },
   "addresses": {
     "sign_sign": "ಸಹಿ ಮಾಡಿ",
