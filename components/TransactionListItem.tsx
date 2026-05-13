@@ -175,30 +175,30 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
 
   const isPending = listTitleKey === 'pending';
 
-    // For LightningArkWallet rows, prepend a kind tag so the user can tell
-    // Lightning swaps, native Ark transfers, and on-chain refills apart at a
-    // glance — they all share the generic "Sent"/"Received"/"Pending" title
-    // and the same on-chain icon. Detection: Lightning swap rows are the
-    // invoice-typed rows synthesized in lightning-ark-wallet.getTransactions();
-    // native Ark and refill rows are bitcoind_tx-typed but carry a synthetic
-    // `txid` prefix (`ark-…`, `boarding-…`). Other wallet types are
-    // unaffected.
-    const arkRowKind = useMemo<'Lightning' | 'Ark' | 'Refill' | undefined>(() => {
-      const wallet = wallets.find(w => w.getID() === item.walletID);
-      if (wallet?.type !== LightningArkWallet.type) return undefined;
-      if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') return 'Lightning';
-      const txid = (item as { txid?: string }).txid;
-      if (txid?.startsWith('ark-')) return 'Ark';
-      if (txid?.startsWith('boarding-')) return 'Refill';
-      return undefined;
-    }, [item, wallets]);
+  // For LightningArkWallet rows, prepend a kind tag so the user can tell
+  // Lightning swaps, native Ark transfers, and on-chain refills apart at a
+  // glance — they all share the generic "Sent"/"Received"/"Pending" title
+  // and the same on-chain icon. Detection: Lightning swap rows are the
+  // invoice-typed rows synthesized in lightning-ark-wallet.getTransactions();
+  // native Ark and refill rows are bitcoind_tx-typed but carry a synthetic
+  // `txid` prefix (`ark-…`, `boarding-…`). Other wallet types are
+  // unaffected.
+  const arkRowKind = useMemo<'Lightning' | 'Ark' | 'Refill' | undefined>(() => {
+    const wallet = wallets.find(w => w.getID() === item.walletID);
+    if (wallet?.type !== LightningArkWallet.type) return undefined;
+    if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') return 'Lightning';
+    const txid = (item as { txid?: string }).txid;
+    if (txid?.startsWith('ark-')) return 'Ark';
+    if (txid?.startsWith('boarding-')) return 'Refill';
+    return undefined;
+  }, [item, wallets]);
 
-    const dateLine = useMemo(() => {
-      const formatted = isPending ? transactionTimeToReadable(item.timestamp) : formatTransactionListDate(item.timestamp * 1000);
-      return arkRowKind ? `${arkRowKind} · ${formatted}` : formatted;
-      // language in deps so date format updates when locale changes (formatters use global locale)
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isPending, item.timestamp, language, arkRowKind]);
+  const dateLine = useMemo(() => {
+    const formatted = isPending ? transactionTimeToReadable(item.timestamp) : formatTransactionListDate(item.timestamp * 1000);
+    return arkRowKind ? `${arkRowKind} · ${formatted}` : formatted;
+    // language in deps so date format updates when locale changes (formatters use global locale)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isPending, item.timestamp, language, arkRowKind]);
 
   const formattedAmount = useMemo(() => {
     return formatBalanceWithoutSuffix(item.value, itemPriceUnit, true).toString();
@@ -366,38 +366,43 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
           console.debug(e);
         }
 
-          navigate('LNDViewInvoice', {
-            invoice: item,
-            walletID: lightningWallet[0].getID(),
-          });
-        }
-      } else if ((item as { txid?: string }).txid) {
-        // Ark wallet rows for refills, native Ark transfers, and boarding
-        // UTXOs are mapped as `bitcoind_tx` without an on-chain `hash`; they
-        // carry only a synthetic `txid` like `ark-…`, `boarding-…`, or
-        // `boarding-utxo-…`. Route them to TransactionDetails using the
-        // synthetic id as the lookup key so the user sees row data instead
-        // of a silent no-op.
-        navigate('TransactionDetails', { tx: item, hash: (item as { txid: string }).txid, walletID });
+        navigate('LNDViewInvoice', {
+          invoice: item,
+          walletID: lightningWallet[0].getID(),
+        });
       }
-    }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
+    } else if ((item as { txid?: string }).txid) {
+      // Ark wallet rows (refills, native transfers, boarding UTXOs) carry a
+      // synthetic `txid` and no on-chain `hash`. Route to TransactionStatus
+      // passing the synthetic id as the lookup key.
+      navigate('TransactionStatus', {
+        tx: item,
+        hash: (item as { txid: string }).txid,
+        walletID,
+      });
+    }
+  }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
 
-    const handleOnDetailsPress = useCallback(() => {
-      if (walletID && item && item.hash) {
-        navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
-      } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
-        const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
-        if (lightningWallet) {
-          navigate('LNDViewInvoice', {
-            invoice: item,
-            walletID: lightningWallet.getID(),
-          });
-        }
-      } else if ((item as { txid?: string }).txid) {
-        // Match the regular tap path for Ark non-swap rows.
-        navigate('TransactionStatus', { tx: item, hash: (item as { txid: string }).txid, walletID });
+  const handleOnDetailsPress = useCallback(() => {
+    if (walletID && item && item.hash) {
+      navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
+    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
+      const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
+      if (lightningWallet) {
+        navigate('LNDViewInvoice', {
+          invoice: item,
+          walletID: lightningWallet.getID(),
+        });
       }
-    }, [item, navigate, walletID, wallets]);
+    } else if ((item as { txid?: string }).txid) {
+      // Match the regular tap path for Ark non-swap rows.
+      navigate('TransactionStatus', {
+        tx: item,
+        hash: (item as { txid: string }).txid,
+        walletID,
+      });
+    }
+  }, [item, navigate, walletID, wallets]);
 
   const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
@@ -477,7 +482,10 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (renderHighlightedText && searchQuery) {
       const highlighted = renderHighlightedText(subtitle, searchQuery);
       if (React.isValidElement(highlighted)) {
-        const highlightedElement = highlighted as React.ReactElement<{ numberOfLines?: number; style?: TextStyle | TextStyle[] }>;
+        const highlightedElement = highlighted as React.ReactElement<{
+          numberOfLines?: number;
+          style?: TextStyle | TextStyle[];
+        }>;
         const existingStyle = highlightedElement.props?.style;
         const mergedStyle: TextStyle[] = (
           Array.isArray(existingStyle)
