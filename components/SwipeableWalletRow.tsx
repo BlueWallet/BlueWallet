@@ -69,7 +69,7 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
       close();
     }, [onChangeUnit, close]);
 
-    const unitLabel = useCallback(() => {
+    const getUnitLabel = useCallback(() => {
       if (currentUnit === BitcoinUnit.BTC) return loc.units.BTC;
       if (currentUnit === BitcoinUnit.SATS) return loc.units.sats;
       return preferredFiatCurrency?.endPointKey ?? FiatUnit.USD;
@@ -104,7 +104,7 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
               accessibilityLabel={loc.wallets.swipe_change_unit}
             >
               <Icon name="arrows-rotate" type="font-awesome-6" size={14} color={colors.changeText} />
-              <Text style={[styles.actionText, { color: colors.changeText }]}>{unitLabel()}</Text>
+              <Text style={[styles.actionText, { color: colors.changeText }]}>{getUnitLabel()}</Text>
             </Pressable>
 
             {/* Hide / Show Balance — rightmost, matches iOS "destructive" slot */}
@@ -126,7 +126,7 @@ const SwipeableWalletRow = React.forwardRef<Swipeable, SwipeableWalletRowProps>(
           </Animated.View>
         );
       },
-      [colors, handleChangeUnit, handleHideBalance, isHidden, unitLabel],
+      [colors, getUnitLabel, handleChangeUnit, handleHideBalance, isHidden],
     );
 
     if (!enabled) {
