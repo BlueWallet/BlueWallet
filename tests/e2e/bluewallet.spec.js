@@ -126,9 +126,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
         .toBeVisible()
         .whileElement(by.id('ElectrumSettingsScrollView'))
         .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await element(by.id('HostInput')).replaceText('electrum.blockstream.info');
+      await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
+      await element(by.id('HostInput')).tapReturnKey();
       await waitForKeyboardToClose();
-      await element(by.id('PortInput')).replaceText('50001');
+      await element(by.id('PortInput')).replaceText('50001\n');
+      await element(by.id('PortInput')).tapReturnKey();
       await waitForKeyboardToClose();
       await waitFor(element(by.id('Save')))
         .toBeVisible()
@@ -599,24 +601,15 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
 
     await element(by.id('WalletDetails')).tap();
-    // Multisig type is inside the Advanced section (collapsed by default).
-    // Depending on imported key type this may be native or wrapped segwit.
     await waitFor(element(by.text('Advanced')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(150, 'down');
     await element(by.text('Advanced')).tap();
-    try {
-      await waitFor(element(by.text('2 / 2 (native segwit)')))
-        .toBeVisible()
-        .whileElement(by.id('WalletDetailsScroll'))
-        .scroll(100, 'down');
-    } catch (_) {
-      await waitFor(element(by.text('2 / 2 (wrapped segwit)')))
-        .toBeVisible()
-        .whileElement(by.id('WalletDetailsScroll'))
-        .scroll(100, 'down');
-    }
+    await waitFor(element(by.text('2 / 2 (native segwit)')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
@@ -796,13 +789,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await element(by.id('ImportButton')).tap();
       await element(by.text('OK')).tap();
 
-      // go to wallet and check derivation path (Derivation path is in Advanced section, collapsed by default)
+      // go to wallet and check derivation path
       await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
       await element(by.id('WalletDetails')).tap();
-      await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+      await waitFor(element(by.text('Advanced')))
+        .toBeVisible()
+        .whileElement(by.id('WalletDetailsScroll'))
+        .scroll(150, 'down');
       await element(by.text('Advanced')).tap();
-      // DerivationPath testID is on the ListItem container (ViewGroup); the path text is in a child - assert text is visible
-      await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
+      await waitFor(element(by.text("m/44'/0'/1'")))
+        .toBeVisible()
+        .whileElement(by.id('WalletDetailsScroll'))
+        .scroll(100, 'down');
     }
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
@@ -964,7 +962,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
 
-    // verify wallet details (multisig type lives under Advanced, collapsed by default)
+    // verify wallet details
     await element(by.id('WalletDetails')).tap();
     await waitFor(element(by.text('Advanced')))
       .toBeVisible()
@@ -1009,7 +1007,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
     await element(by.id('ViewEditCosigners')).tap();
     await waitForText('Vault Key 1');
     await expect(element(by.text('Vault Key 2'))).toBeVisible();
@@ -1059,7 +1056,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
-    await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
     await element(by.id('ViewEditCosigners')).tap();
     await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
       .toBeVisible()
