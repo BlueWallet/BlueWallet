@@ -38,8 +38,8 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | **_On-chain transactions_** | | |
 | Transaction | 트랜잭션 / 거래 | noun · technical / mainstream. |
 | Address | 주소 | noun · Bitcoin Core ko_KR. |
-| Input | 입력 | noun · shipped `send/details_inputs` = "입력" · Electrum ko_KR. |
-| Output | 출력 | noun · shipped `send/details_outputs` = "출력" · Electrum ko_KR · ⚠️ NOT recipient UI label. |
+| Input | 입력 | noun · shipped `transactions.details_inputs` = "입력" · Electrum ko_KR. |
+| Output | 출력 | noun · shipped `transactions.details_outputs` = "출력" · Electrum ko_KR · ⚠️ NOT recipient UI label. |
 | UTXO | UTXO | acronym · gloss: 미사용 트랜잭션 출력. |
 | Change | 거스름돈 | noun · ⚠️ NOT verb "변경" (= to change/alter). Fix shipped `cc.change` = "변경". |
 | Hex | 16진수 / 헥스 | noun · explanatory / short · shipped strings use 16진수 · ⚠️ NOT "hash". |

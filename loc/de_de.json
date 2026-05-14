@@ -206,8 +206,7 @@
     "cant_send_to_silentpayment_adress": "Diese Wallet kann nicht an Silent-Payment-Adressen senden",
     "cant_send_to_bip47": "Diese Wallet kann nicht an BIP47-Zahlungscodes senden",
     "cant_find_bip47_notification": "Diesen Zahlungscode zuerst zu den Kontakten hinzufügen ",
-    "problem_with_psbt": "PSBT-Problem",
-    "counterparty_label_placeholder": "Kontaktnamen bearbeiten"
+    "problem_with_psbt": "PSBT-Problem"
   },
   "settings": {
     "about": "Über",
@@ -399,12 +398,7 @@
     "details_virtual_size": "Virtuelle Größe",
     "details_tx_hex": "Tx Hex",
     "details_inputs_count": "Eingänge ({count})",
-    "details_outputs_count": "Ausgänge ({count})",
-    "copy_link": "Link kopieren",
-    "details_from": "Eingang",
-    "view_wallet": "{walletLabel} anzeigen",
-    "from": "Von: {counterparty}",
-    "to": "Zu: {counterparty}"
+    "details_outputs_count": "Ausgänge ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -523,8 +517,7 @@
     "manage_wallets_search_placeholder": "Wallets, Adressen, Transaktionen und Memos suchen",
     "more_info": "Mehr Infos",
     "details_delete_wallet_error_message": "Problem beim Entfernen der Wallet aus Benachrichtigungen – evtl. Netzwerkproblem oder schlechte Verbindung. Bei Fortfahren könnten Transaktions-Benachrichtigungen für diese Wallet weiterhin ankommen, selbst nach deren Löschung.",
-    "details_delete_anyway": "Trotzdem löschen",
-    "xpub_copiedToClipboard": "In die Zwischenablage kopiert."
+    "details_delete_anyway": "Trotzdem löschen"
   },
   "total_balance_view": {
     "display_in_bitcoin": "In bitcoin anzeigen",

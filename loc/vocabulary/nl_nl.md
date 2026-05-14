@@ -41,7 +41,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Input | input / transactie-input | noun · short / explanatory · Electrum nl_NL keeps "Input". Shipped uses English "Inputs". |
 | Output | output / transactie-output | noun · short / explanatory · Electrum nl_NL keeps "Output". ⚠️ NOT the recipient "Aan:" label. Shipped "Uitvoer" (= computer output) is wrong context. |
 | UTXO | UTXO | acronym · gloss: niet-uitgegeven transactie-output. |
-| Change | wisselgeld / wisseladres | noun · ⚠️ NOT verb "veranderen". Shipped `cc.type_change` already correct ("Wisselgeld") but `cc.change` ships wrong "Veranderen" — fix · Bitcoin Core nl + Electrum nl_NL. |
+| Change | wisselgeld / wisseladres | noun · ⚠️ NOT verb "veranderen". Shipped `addresses.type_change` already correct ("Wisselgeld") but `cc.change` ships wrong "Veranderen" — fix · Bitcoin Core nl + Electrum nl_NL. |
 | Hex | hex | noun, lowercase · Electrum nl_NL. ⚠️ NOT "hash". |
 | Pending | in afwachting / wachtend | adj/state · Electrum nl_NL ("Wachtend"). |
 | Unconfirmed | onbevestigd / niet-bevestigd | adj · Electrum nl_NL ("Onbevestigd"). |

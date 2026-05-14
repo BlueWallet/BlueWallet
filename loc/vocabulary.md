@@ -295,7 +295,7 @@ Each locale lives in its own file under [`vocabulary/`](vocabulary/). One Markdo
 - **ms** `sat/vBait` / `vBait` localise "byte"→"bait" — per convention keep Latin `sat/vByte` / `vByte`.
 - **ms** wallet/vault/hardware-wallet/master-fingerprint/plausible-deniability strings ship Title Case (`Dompet`, `Dompet Perkakas`, `Cap Jari Induk`, etc.) — should be lowercase.
 - **ms** `XPUB` shipped uppercase; convention prefers lowercase `xpub`.
-- **ms** `transactions/output` UI uses `Kepada` (= "To:" preposition) for transaction-output noun — must be a noun (`keluaran`).
+- **ms** `transactions.details_outputs` UI uses `Kepada` (= "To:" preposition) for transaction-output noun — must be a noun (`keluaran`).
 - **ms** `cc.change`: shipped `Ubah` (verb "to change/modify") → noun form (`baki` / `duit baki`).
 - **ms** `unconfirmed`: shipped `tak terperaku` uses uncommon root `peraku` — prefer standard root `sah` (`belum disahkan` / `tidak disahkan`).
 - **ms** `confirmed`: shipped `perakuan` is a noun using non-standard `peraku` — prefer `disahkan` (adj).

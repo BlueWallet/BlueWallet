@@ -152,7 +152,6 @@
     "details_next": "Tjetri",
     "details_no_signed_tx": "File-at e zgjedhur nuk përmbajnë asnjë transaksion që mund të importohet.",
     "details_note_placeholder": "Shënim për veten",
-    "counterparty_label_placeholder": "Ndrysho emrin e kontaktit",
     "details_scan": "Skano",
     "details_scan_hint": "Kliko dy herë për skanim ose importo destinacionin.",
     "details_total_exceeds_balance": "Sasia që dëshironi të dërgoni e tejkalon balancën e disponueshme.",

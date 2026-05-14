@@ -336,7 +336,6 @@
     "transaction_not_available": "Transacció no disponible",
     "confirmations_lowercase": "{confirmations} confirmacions",
     "expand_note": "Ampliar nota",
-    "copy_link": "Còpia l'enllaç",
     "cpfp_create": "Crear",
     "cpfp_exp": "Crearem una altra transacció que gasta la vostra transacció sense confirmar. La comissió total serà més alta que la comissió de la transacció original, de manera que s'hauria de minar més ràpid. Aquesta tècnica s'anomena CPFP—Child Pays for Parent.",
     "cpfp_no_bump": "A aquesta transacció no se li pot ampliar la comissió.",
@@ -347,7 +346,6 @@
     "details_copy_block_explorer_link": "Copiar enllaç de l'explorador de blocs",
     "details_copy_note": "Copiar nota",
     "details_copy_txid": "Copiar ID de la transacció",
-    "details_from": "De",
     "details_inputs": "Entrades",
     "details_outputs": "Sortides",
     "date": "Data",
@@ -369,7 +367,6 @@
     "eta_10m": "ETA: En ~10 minuts",
     "eta_3h": "ETA: En ~3 hores",
     "eta_1d": "ETA: En ~1 dia",
-    "view_wallet": "Veure {walletLabel}",
     "list_title": "transaccions",
     "list_title_sent": "Enviat",
     "list_title_received": "Rebut",
@@ -520,8 +517,7 @@
     "manage_wallets_search_placeholder": "Cercar moneders, adreces, transaccions i comentaris",
     "more_info": "Més informació",
     "details_delete_wallet_error_message": "Hi ha hagut un problema en confirmar si aquest moneder s'ha eliminat de les notificacions—això podria ser degut a un problema de xarxa o una mala connexió. Si continueu, podríeu seguir rebent notificacions per a transaccions relacionades amb aquest moneder, fins i tot després d'eliminar-lo.",
-    "details_delete_anyway": "Eliminar igualment",
-    "xpub_copiedToClipboard": "Copiat al porta-retalls."
+    "details_delete_anyway": "Eliminar igualment"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar en Bitcoin",

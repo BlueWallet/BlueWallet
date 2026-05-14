@@ -398,7 +398,6 @@
     "details_tx_hex": "Hex y Trafodyn",
     "details_inputs_count": "Mewnbynau ({count})",
     "details_outputs_count": "Allbynau ({count})",
-    "details_from": "Mewnbwn",
     "details_id": "ID"
   },
   "wallets": {
@@ -518,8 +517,7 @@
     "manage_wallets_search_placeholder": "Chwilio waledi, cyfeiriadau, trafodion a nodion",
     "more_info": "Mwy o Wybodaeth",
     "details_delete_wallet_error_message": "Cafwyd problem wrth gadarnhau a oedd y waled hon wedi'i gwaredu o'r hysbysiadau—gallai hyn fod oherwydd problem rhwydwaith neu gysylltiad gwael. Os byddi'n parhau, gallet dal i dderbyn hysbysiadau am drafodion sy'n gysylltiedig â'r waled hon, hyd yn oed ar ôl ei dileu.",
-    "details_delete_anyway": "Dileu beth bynnag",
-    "xpub_copiedToClipboard": "Wedi gopio i'r clipfwrdd."
+    "details_delete_anyway": "Dileu beth bynnag"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Dangos mewn Bitcoin",

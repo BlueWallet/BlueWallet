@@ -45,7 +45,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hex | hex / date hex | noun · short / explanatory · ⚠️ NOT "hash". |
 | Pending | în așteptare | adj/state · Avoid noun "așteptare" alone. |
 | Unconfirmed | neconfirmată / neconfirmat | adj · fem / masc agreement form. |
-| Confirmed | confirmată / confirmat | adj · fem / masc agreement · ⚠️ NOT `confirmări` (noun plural "confirmations") · ro.json `transactions.Confirmed` ships `confirmări` which collides. |
+| Confirmed | confirmată / confirmat | adj · fem / masc agreement · ⚠️ NOT `confirmări` (noun plural "confirmations") · ro.json `transactions.confirmations_lowercase` and adjective form must not collide. |
 | Mempool | mempool | noun, lowercase · Bitcoin Core ro uses `Pool Memorie`; Electrum/community use `mempool`. |
 | Broadcast | difuzează / difuzare | verb / noun · ro.json. |
 | Block explorer | explorator de blocuri | noun, lowercase · ro.json keeps Latin `Block explorer`. |

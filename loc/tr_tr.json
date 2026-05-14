@@ -331,7 +331,6 @@
   "transactions": {
     "cpfp_create": "Oluştur",
     "details_copy": "Kopya",
-    "details_from": "Girdi",
     "details_title": "İşlem",
     "details_to": "Çıktı",
     "pending": "Beklemede",
@@ -432,7 +431,6 @@
     "paste_from_clipboard": "Yapıştır",
     "list_title": "cüzdanlar",
     "select_wallet": "Cüzdan Seç",
-    "xpub_copiedToClipboard": "Panoya kopyalandı",
     "xpub_title": "cüzdan XPUB",
     "add_bitcoin": "Bitcoin",
     "add_bitcoin_explain": "Basit ve güçlü Bitcoin cüzdanı",

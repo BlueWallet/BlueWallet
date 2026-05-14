@@ -155,7 +155,6 @@
     "details_next": "نیایی",
     "details_no_signed_tx": "فایل پسند بیڌه، تراکونشی منس نؽڌ ک ترسته بویم ب من یاریمس.",
     "details_note_placeholder": "ویرداشت و خوت",
-    "counterparty_label_placeholder": "آلشت نوم هومدنگ",
     "details_scan": "اسکن",
     "details_scan_hint": "سی اسکن یا و من ٱووردن مقسد، دو کرت بزن ریس",
     "details_scan_error": "ختا اسکن",
@@ -326,7 +325,6 @@
   "transactions": {
     "cancel_title": "ای تراکونشن لقو کوݩ (RBF)",
     "confirmations_lowercase": "{confirmations} تاییڌ",
-    "copy_link": "لف گیری لینگ",
     "expand_note": "نشۉݩ داڌن کامل ویرداشت",
     "cpfp_create": "وورکل",
     "cpfp_no_bump": "ای تراکونش نتره کارمزدس بیشتر بۊ.",
