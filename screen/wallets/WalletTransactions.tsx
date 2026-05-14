@@ -34,6 +34,7 @@ import loc, { formatBalance } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
+import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -61,7 +62,7 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
-  const { wallets, saveToDisk } = useStorage();
+  const { wallets, saveToDisk, walletTransactionUpdateStatus } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { direction } = useLocale();
@@ -85,6 +86,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible;
   });
   const MAX_FAILURES = 3;
+  const isUpstreamWalletRefreshBusy =
+    walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === walletID;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -197,7 +200,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const refreshTransactions = useCallback(
     async (isManualRefresh = false) => {
       console.debug('refreshTransactions, ', wallet.getLabel());
-      if (isElectrumDisabled || isLoading) return;
+      if (isElectrumDisabled || isLoading || isUpstreamWalletRefreshBusy) return;
 
       const MIN_REFRESH_INTERVAL = 5000; // 5 seconds
       if (!isManualRefresh && lastFetchTimestamp !== 0 && Date.now() - lastFetchTimestamp < MIN_REFRESH_INTERVAL) {
@@ -257,14 +260,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         setIsLoading(false);
       }
     },
-    [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures],
+    [wallet, isElectrumDisabled, isLoading, isUpstreamWalletRefreshBusy, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures],
   );
 
   useEffect(() => {
-    if (lastFetchTimestamp === 0 && !isLoading && !isElectrumDisabled) {
+    if (lastFetchTimestamp === 0 && !isLoading && !isElectrumDisabled && !isUpstreamWalletRefreshBusy) {
       refreshTransactions(false).catch(console.error);
     }
-  }, [wallet, isElectrumDisabled, isLoading, refreshTransactions, lastFetchTimestamp]);
+  }, [wallet, isElectrumDisabled, isLoading, isUpstreamWalletRefreshBusy, refreshTransactions, lastFetchTimestamp]);
 
   const isLightning = useCallback((): boolean => wallet.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
