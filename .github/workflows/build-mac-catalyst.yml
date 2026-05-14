@@ -49,27 +49,26 @@ jobs:
 
       - name: Checkout project
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: package-lock.json
+          cache: 'npm'
 
       - name: Setup Xcode
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
-        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: latest
 
       - name: Set up Ruby
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
           ruby-version: 3.4.8
           bundler-cache: true
@@ -78,11 +77,25 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         run: npm ci
 
+      - name: Cache CocoaPods
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods/repos
+          key: ${{ runner.os }}-pods-catalyst-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-catalyst-
+
       - name: Install CocoaPods dependencies
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
-        run: bundle exec fastlane ios install_pods
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
+          RCT_USE_RN_DEP: "1"
+          RCT_USE_PREBUILT_RNCORE: "1"
+        run: bundle exec fastlane ios install_pods
 
       - name: Create temporary keychain for signing
         if: (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true') && steps.labels.outputs.upload_testflight == 'true'
@@ -110,7 +123,7 @@ jobs:
       - name: Upload Mac Catalyst DMG
         id: upload_dmg
         if: success() && (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true')
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: BlueWallet-Mac-Catalyst
           path: ${{ steps.build_catalyst.outputs.catalyst_dmg_path }}

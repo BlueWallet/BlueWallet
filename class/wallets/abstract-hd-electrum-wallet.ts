@@ -158,6 +158,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return ret;
   }
 
+  getBalanceForExternalIndex(index: number): number {
+    const bal = this._balances_by_external_index[index];
+    return (bal?.c || 0) + (bal?.u || 0);
+  }
+
+  getTransactionCountForExternalIndex(index: number): number {
+    return this._txs_by_external_index[index]?.length ?? 0;
+  }
+
   async generate() {
     const buf = await randomBytes(16);
     this.secret = bip39.entropyToMnemonic(uint8ArrayToHex(buf));
