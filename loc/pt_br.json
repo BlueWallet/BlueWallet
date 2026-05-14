@@ -5,7 +5,7 @@
     "continue": "Continuar",
     "clipboard": "Área de transferência",
     "discard_changes": "Descartar alterações?",
-    "discard_changes_explain": "Você tem alterações não salvas. Tem certeza de que deseja descartá-los e sair da tela?",
+    "discard_changes_explain": "Você tem alterações não salvas. Tem certeza de que deseja descartá-las e sair da tela?",
     "enter_password": "Insira a senha",
     "never": "Nunca",
     "of": "{number} de {total}",
@@ -28,7 +28,8 @@
     "unlock": "Desbloquear",
     "port": "Porta",
     "ssl_port": "Porta SSL",
-    "suggested": "Sugerido"
+    "suggested": "Sugerido",
+    "copied": "Copiado!"
   },
   "azteco": {
     "codeIs": "Seu código voucher é",
@@ -37,7 +38,8 @@
     "redeem": "Resgatar para carteira",
     "redeemButton": "Resgatar",
     "success": "Sucesso",
-    "title": "Resgatar voucher Azte.co"
+    "title": "Resgatar voucher Azte.co",
+    "successMessage": "Voucher resgatado com sucesso! Seus fundos devem chegar à sua carteira Bitcoin em breve."
   },
   "entropy": {
     "save": "Salvar",
@@ -62,7 +64,7 @@
     "refill_create": "Para continuar, por favor, crie uma carteira Bitcoin para recarregar.",
     "refill_external": "Recarregar com uma carteira externa",
     "refill_lnd_balance": "Recarregar a carteira Lightning",
-    "sameWalletAsInvoiceError": "Você não pode pagar um boleto com a mesma carteira que o criou.",
+    "sameWalletAsInvoiceError": "Você não pode pagar uma fatura com a mesma carteira que a criou.",
     "title": "Administrar fundos"
   },
   "lndViewInvoice": {
@@ -71,7 +73,7 @@
     "lightning_invoice": "Fatura Lightning",
     "please_pay_between_and": "Por favor, pague entre {min} e {max}",
     "please_pay": "Por favor, pague",
-    "preimage": "Imagem prévia",
+    "preimage": "Pré-imagem",
     "sats": "sats.",
     "date_time": "Data e Horário",
     "wasnt_paid_and_expired": "Esta fatura não foi paga e expirou."
@@ -79,7 +81,7 @@
   "plausibledeniability": {
     "create_fake_storage": "Criar armazenamento criptografado",
     "create_password_explanation": "A senha para o armazenamento falso não deve ser igual a do armazenamento principal.",
-    "help": "Em algumas circunstâncias, você pode ser forçado a revelar uma senha. Para manter seus bitcoins seguros, a BlueWallet pode criar uma senha alternativa. Sob pressão, você pode revelar essa senha ao invés da senha principal. Quando inserida na BlueWallet, esta abrirá uma interface falsa, que parecerá legítima a um terceiro, enquanto suas carteiras originais continuarão à salvo em segredo.",
+    "help": "Em algumas circunstâncias, você pode ser forçado a revelar uma senha. Para manter seus bitcoins seguros, a BlueWallet pode criar uma senha alternativa. Sob pressão, você pode revelar essa senha ao invés da senha principal. Quando inserida na BlueWallet, esta abrirá uma interface falsa, que parecerá legítima a um terceiro, enquanto suas carteiras originais continuarão a salvo em segredo.",
     "help2": "Essa nova interface é completamente funcional e você pode inclusive manter nela um valor mínimo para que pareça mais real.",
     "password_should_not_match": "Esta senha já está sendo usada. Por favor, tente uma senha diferente.",
     "title": "Negação plausível"
@@ -90,7 +92,7 @@
     "ask_yes": "Sim, eu salvei",
     "ok": "Ok, eu anotei.",
     "ok_lnd": "OK, eu salvei.",
-    "text": "Reserve um tempo para anotar esta sequência de palavras em um pedaço de papel.\nÉ o seu backup e você pode usá-la para recuperar a sua carteira.",
+    "text": "Reserve um tempo para anotar esta sequência de palavras em um pedaço de papel.\nÉ o seu backup e você pode usá-lo para recuperar a sua carteira.",
     "text_lnd": "Por favor, salve este backup. É ele que permite a restauração da carteira em caso de perda.",
     "title": "Sua carteira foi criada."
   },
@@ -106,13 +108,14 @@
     "minSats": "O valor mínimo é de {min} sats",
     "minSatsFull": "O valor mínimo é de {min} sats ou {currency}",
     "qrcode_for_the_address": "QR Code para o Endereço",
-    "bip47_explanation": "Os Payment Codes são um tipo de endereço universal que evita a divulgação dos endereços da sua carteira. Nem todos os serviços irão suportar envio."
+    "bip47_explanation": "Os Payment Codes são um tipo de endereço universal que evita a divulgação dos endereços da sua carteira. Nem todos os serviços irão suportar envio.",
+    "address_not_found": "Não foi possível gerar o endereço de recebimento."
   },
   "send": {
     "provided_address_is_invoice": "Esse tipo de endereço se parece com uma fatura da Lightning. Por favor, acesse a sua carteira Lightning para realizar o pagamento dessa fatura.",
     "broadcastButton": "Transmitir",
     "broadcastError": "Erro",
-    "broadcastNone": "Insira o Hash da Transação",
+    "broadcastNone": "Insira o Hex da Transação",
     "broadcastPending": "Pendente",
     "broadcastSuccess": "Sucesso",
     "confirm_header": "Confirmar",
@@ -124,7 +127,7 @@
     "create_fee": "Taxa",
     "create_memo": "Nota",
     "create_satoshi_per_vbyte": "Satoshi por vByte",
-    "create_this_is_hex": "Este é o hash da sua transação, assinada e pronta para ser transmitida para o mundo.",
+    "create_this_is_hex": "Este é o hex da sua transação, assinada e pronta para ser transmitida para o mundo.",
     "create_to": "Para",
     "create_tx_size": "Tamanho da Transação",
     "create_verify": "Verificar no coinb.in",
@@ -169,7 +172,7 @@
     "fee_custom": "Personalizada",
     "fee_fast": "Rápida",
     "fee_medium": "Normal",
-    "fee_replace_minvb": "A taxa total (satoshi per vByte) que você deseja pagar deve ser maior que {min} sat/vByte.",
+    "fee_replace_minvb": "A taxa total (satoshi por vByte) que você deseja pagar deve ser maior que {min} sat/vByte.",
     "fee_satvbyte": "em sat/vByte",
     "fee_slow": "Lenta",
     "header": "Enviar",
@@ -198,7 +201,13 @@
     "cant_send_to_silentpayment_adress": "Esta carteira não pode enviar para endereços SilentPayment",
     "cant_send_to_bip47": "Esta carteira não pode enviar para Payment Codes BIP47",
     "cant_find_bip47_notification": "Adicione este Payment Code aos contatos primeiro",
-    "problem_with_psbt": "Problema com a PSBT"
+    "problem_with_psbt": "Problema com a PSBT",
+    "details_recipient_title": "Destinatário #{number} de #{total}",
+    "please_complete_recipient_title": "Destinatário incompleto",
+    "please_complete_recipient_details": "Por favor, complete os detalhes do destinatário #{number} antes de adicionar um novo destinatário.",
+    "details_scan_error": "Erro na leitura",
+    "insert_custom_fee": "Insira a taxa",
+    "invalid_psbt": "PSBT inválido fornecido."
   },
   "settings": {
     "about": "Sobre",
@@ -221,14 +230,14 @@
     "biom_10times": "Você tentou digitar sua senha 10 vezes. Você gostaria de resetar seu armazenamento? Isso irá remover todas suas carteiras e descriptografar seu armazenamento.",
     "biom_conf_identity": "Por favor, confirme sua identidade.",
     "biom_no_passcode": "Seu dispositivo não possui senha ou biometria ativada. Para prosseguir, configure uma senha ou biometria nas configurações do aplicativo.",
-    "biom_remove_decrypt": "Todas suas carteiras serão removidas e seu armazenamento será descritptografado. Você tem certeza que deseja proceder?",
+    "biom_remove_decrypt": "Todas suas carteiras serão removidas e seu armazenamento será descriptografado. Você tem certeza que deseja proceder?",
     "currency": "Moeda",
     "currency_source": "A taxa é obtida de",
     "currency_fetch_error": "Ocorreu um erro ao tentar obter o índice da moeda selecionada.",
     "default_title": "Ao abrir",
     "electrum_connected": "Conectado",
     "electrum_connected_not": "Não conectado",
-    "electrum_error_connect": "Não possível conectar com servidor Electrum fornecido",
+    "electrum_error_connect": "Não foi possível conectar ao servidor Electrum fornecido",
     "lndhub_uri": "Por ex. {example}",
     "electrum_host": "Por ex. {example}",
     "electrum_offline_mode": "Modo offline",
@@ -295,7 +304,7 @@
     "privacy_do_not_track": "Desativar analítica",
     "privacy_do_not_track_explanation": "Informações de confiabilidade e desempenho não serão enviadas para análise.",
     "rate": "Taxa",
-    "push_notifications_explanation": "Ao habilitar as notificações, o token do seu dispositivo será enviado ao servidor, junto com endereços de carteira e IDs de transação para todas as carteiras e transações feitas após habilitar as notificações. O token do dispositivo é usado para enviar notificações, e as informações da carteira nos permitem notificá-lo sobre Bitcoins recebidos ou confirmações de transações.\n\nSomente informações após você habilitar as notificações são transmitidas — nada anterior é coletado..\n\nDesabilitar notificações removerá todas essas informações do servidor. Além disso, excluir uma carteira do aplicativo também removerá suas informações associadas do servidor.",
+    "push_notifications_explanation": "Ao habilitar as notificações, o token do seu dispositivo será enviado ao servidor, junto com endereços de carteira e IDs de transação para todas as carteiras e transações feitas após habilitar as notificações. O token do dispositivo é usado para enviar notificações, e as informações da carteira nos permitem notificá-lo sobre Bitcoins recebidos ou confirmações de transações.\n\nSomente informações após você habilitar as notificações são transmitidas — nada anterior é coletado.\n\nDesabilitar notificações removerá todas essas informações do servidor. Além disso, excluir uma carteira do aplicativo também removerá suas informações associadas do servidor.",
     "selfTest": "Autoteste",
     "save": "Salvar",
     "saved": "Salvo",
@@ -303,7 +312,16 @@
     "total_balance": "Saldo total",
     "total_balance_explanation": "Exibir o saldo total de todas suas carteiras nos seus widgets da tela inicial.",
     "widgets": "Widgets",
-    "tools": "Ferramentas"
+    "tools": "Ferramentas",
+    "privacy_temporary_screenshots": "Permitir captura de tela",
+    "privacy_temporary_screenshots_instructions": "A proteção contra captura de tela será temporariamente desativada, permitindo capturas de tela e gravações de tela. A proteção será reativada automaticamente quando você fechar e reabrir o BlueWallet.",
+    "donate": "Doar",
+    "donate_description": "Ajude-nos a manter o Blue gratuito!",
+    "electrum_error_connect_tor": "Não foi possível conectar ao servidor Electrum fornecido. Por favor, certifique-se de que o aplicativo Orbot está conectado e tente novamente.",
+    "encrypt_enc_and_pass": "Protegido por senha",
+    "encrypt_use_expl": "{type} será usada para confirmar sua identidade antes de fazer uma transação, desbloquear, exportar ou apagar uma carteira.",
+    "lightning_error_lndhub_uri_tor": "URI LNDhub inválido. Verifique se o Orbot está conectado e tente novamente.",
+    "lndhub_github": "Repositório no GitHub"
   },
   "notifications": {
     "would_you_like_to_receive_notifications": "Gostaria de receber notificações quando receber pagamentos?",
@@ -367,7 +385,26 @@
     "to": "Para:{counterparty}",
     "updating": "Atualizando...",
     "watchOnlyWarningTitle": "Alerta de segurança",
-    "watchOnlyWarningDescription": "Tenha cuidado com golpistas que costumam usar carteiras “watch-only (somente para assistir)” para enganar os usuários. Essas carteiras não permitem controlar ou enviar fundos; eles apenas permitem que você visualize o saldo."
+    "watchOnlyWarningDescription": "Tenha cuidado com golpistas que costumam usar carteiras “watch-only (somente para assistir)” para enganar os usuários. Essas carteiras não permitem controlar ou enviar fundos; elas apenas permitem que você visualize o saldo.",
+    "list_title_sent": "Enviado",
+    "custom_fee_warning_title": "Aviso",
+    "custom_fee_warning_description": "Taxas abaixo de 1 sat/vB são válidas, mas podem não ser propagadas devido às políticas dos nós.",
+    "details_eta_analyzing": "Analisando...",
+    "details_sent": "Enviado",
+    "details_section": "Detalhes",
+    "details_explorer": "explorador",
+    "details_network_fee": "Taxa de rede",
+    "details_to_address": "Para",
+    "details_id": "ID",
+    "details_note": "Nota",
+    "details_add_note": "adicionar",
+    "details_advanced": "Avançado",
+    "details_fee_rate": "Taxa",
+    "details_size": "Tamanho",
+    "details_virtual_size": "Tamanho virtual",
+    "details_tx_hex": "Hex da transação",
+    "details_inputs_count": "Entradas ({count})",
+    "details_outputs_count": "Saídas ({count})"
   },
   "wallets": {
     "add_bitcoin": "Bitcoin",
@@ -409,7 +446,7 @@
     "details_display": "Exibir na tela inicial",
     "details_export_backup": "Exportar/Backup",
     "details_export_history": "Exportar Histórico para CSV",
-    "details_master_fingerprint": "Fingerprint Soberana",
+    "details_master_fingerprint": "Fingerprint mestra",
     "details_multisig_type": "multisig",
     "details_show_xpub": "Exibir XPUB da Carteira",
     "details_show_addresses": "Mostrar endereços",
@@ -429,7 +466,7 @@
     "import_imported": "Importada",
     "import_scan_qr": "Ler código ou importar arquivo",
     "import_success": "Sua carteira foi importada com sucesso.",
-    "import_success_watchonly": "A carteira foi importada.\nAVISO: Esta é uma carteira de consulta e você NÃO pode mover fundos com ela.",
+    "import_success_watchonly": "A carteira foi importada. AVISO: Esta é uma carteira de consulta e você NÃO pode mover fundos com ela.",
     "import_search_accounts": "Procurar contas",
     "import_title": "Importar",
     "learn_more": "Saber mais",
@@ -447,7 +484,7 @@
     "import_wrong_path": "Caminho de derivação errado",
     "list_create_a_button": "Adicionar agora",
     "list_create_a_wallet": "Adicionar uma carteira",
-    "list_create_a_wallet_text": "É gratuito, e você pode criar \nquantos você quiser.",
+    "list_create_a_wallet_text": "É gratuito, e você pode criar \nquantas você quiser.",
     "list_empty_txs1": "Suas transações aparecerão aqui,",
     "list_empty_txs1_lightning": "A carteira Lightning faz transações super-rápidas e tem taxas ridiculamente baratas, ideal para transações diárias e de baixo valor.",
     "list_empty_txs2": "Comece por sua carteira.",
@@ -482,7 +519,12 @@
     "xpub_title": "XPUB da Carteira",
     "more_info": "Mais informações",
     "details_delete_wallet_error_message": "Houve um problema ao confirmar se esta carteira foi removida das notificações — isso pode ser devido a um problema de rede ou conexão ruim. Se você continuar, ainda poderá receber notificações de transações relacionadas a esta carteira, mesmo depois que ela for excluída.",
-    "details_delete_anyway": "Apagar mesmo assim"
+    "details_delete_anyway": "Apagar mesmo assim",
+    "swipe_balance_hide": "Ocultar",
+    "swipe_balance_show": "Mostrar",
+    "drag_to_reorder": "Arraste para reordenar",
+    "clear_search": "Limpar busca",
+    "manage_wallets_search_placeholder": "Buscar carteiras, endereços, transações e notas"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar em Bitcoin",
@@ -490,7 +532,7 @@
     "display_in_sats": "Mostrar em sats",
     "display_in_fiat": "Mostrar em {currency}",
     "title": "Saldo total",
-    "explanation": "Veja o saldo total de todas as suas carteiras na tela pricinpal."
+    "explanation": "Veja o saldo total de todas as suas carteiras na tela principal."
   },
   "multisig": {
     "multisig_vault": "Cofre Multisig",
@@ -498,7 +540,7 @@
     "multisig_vault_explain": "Melhor segurança para grandes valores",
     "provide_signature": "Fornecer assinatura",
     "provide_signature_details": "Use seu dispositivo e carteira onde a chave está localizada para assinar esta transação",
-    "provide_signature_details_bluewallet": "Na BlueWallet, vá a tela de Enviar e selecione",
+    "provide_signature_details_bluewallet": "Na BlueWallet, vá à tela de Enviar e selecione",
     "provide_signature_next_steps": "Ler ou Importar transação assinada",
     "provide_signature_next_steps_details": "Depois que sua carteira tiver assinado a transação com sucesso, escaneie o código QR fornecido ou importe o arquivo assinado e revise todos os detalhes da transação antes de transmitir",
     "vault_key": "Chave {number} do Cofre",
@@ -539,12 +581,12 @@
     "invalid_mnemonics": "Esta seed mnemônica não parece ser válida. ",
     "invalid_cosigner": "Coassinatura inválida",
     "not_a_multisignature_xpub": "Esta não é uma XPUB de uma carteira multisig!",
-    "invalid_cosigner_format": "Coassinatura errada: Esta não é uma coassinatura para formato {format} .",
+    "invalid_cosigner_format": "Coassinatura errada: Esta não é uma coassinatura para o formato {format}.",
     "create_new_key": "Criar nova",
     "scan_or_open_file": "Ler código ou abrir arquivo",
     "i_have_mnemonics": "Eu tenho uma seed para esta chave...",
     "type_your_mnemonics": "Insira uma seed para importar a sua chave do Cofre",
-    "this_is_cosigners_xpub": "Este é o XPUB da coassinatura—pronto para ser importado para outra carteira. É seguro compartilhá-la .",
+    "this_is_cosigners_xpub": "Este é o XPUB da coassinatura—pronto para ser importado para outra carteira. É seguro compartilhá-lo.",
     "this_is_cosigners_xpub_airdrop": "Se você compartilhar via AirDrop, os recebedores devem estar na tela de coordenação.",
     "wallet_key_created": "Sua chave do Cofre foi criada. Reserve um momento para fazer backup com segurança de sua seed.",
     "are_you_sure_seed_will_be_lost": "Você tem certeza? Sua seed mnemônica será perdida se você não tiver um backup",
@@ -566,7 +608,7 @@
     "ms_help_title3": "Backups do Cofre",
     "ms_help_3": "Nas opções da carteira, você encontrará o backup do seu Cofre e o backup somente-leitura. O backup serve como um mapa para sua carteira. É essencial para a recuperação da carteira caso você perca alguma seed.",
     "ms_help_title4": "Importando Cofres",
-    "ms_help_4": "Para importar uma Multisig, use o arquivo de backup da sua multisig e o recurso de importação. Se você só tem  seeds e XPUBs, você pode usar os campos de importação individuais quando estiver criando as chaves do Cofre.",
+    "ms_help_4": "Para importar uma Multisig, use o arquivo de backup da sua multisig e o recurso de importação. Se você só tem seeds e XPUBs, você pode usar os campos de importação individuais quando estiver criando as chaves do Cofre.",
     "ms_help_title5": "Modo Avançado",
     "ms_help_5": "Por padrão, a BlueWallet vai gerar um Cofre 2 de 3. Para alterar a quantidade mínima ou máxima do número de assinaturas ou alterar o tipo de endereço, ative o Modo Avançado nas Configurações."
   },
@@ -581,7 +623,8 @@
   "autofill_word": {
     "enter": "Forneça sua seed mnemônica parcial",
     "generate_word": "Gerar última palavra",
-    "error": "Não foi fornecida seed mnemônica parcial no formato de 11 OU 23 palavras. Por favor, tente novamente."
+    "error": "Não foi fornecida seed mnemônica parcial no formato de 11 OU 23 palavras. Por favor, tente novamente.",
+    "title": "Última palavra da seed"
   },
   "cc": {
     "change": "Troco",
