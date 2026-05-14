@@ -1,0 +1,244 @@
+class\blue-app.ts:import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet';
+class\blue-app.ts:import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
+class\blue-app.ts:          case LightningArkWallet.type:
+class\blue-app.ts:            unserializedWallet = LightningArkWallet.fromJson(key) as unknown as LightningArkWallet;
+class\blue-app.ts:          case LightningCustodianWallet.type: {
+class\blue-app.ts:            unserializedWallet = LightningCustodianWallet.fromJson(key) as unknown as LightningCustodianWallet;
+class\blue-app.ts:          case 'lightningLdk':
+class\deeplink-schema-match.ts:type TBothBitcoinAndLightning = { bitcoin: string; lndInvoice: string } | undefined;
+class\deeplink-schema-match.ts:      lowercaseString.startsWith('lightning:') ||
+class\deeplink-schema-match.ts:    if (event.url.toLowerCase().startsWith('bluewallet:bitcoin:') || event.url.toLowerCase().startsWith('bluewallet:lightning:')) {
+class\deeplink-schema-match.ts:    let isBothBitcoinAndLightning: TBothBitcoinAndLightning;
+class\deeplink-schema-match.ts:      isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(event.url);
+class\deeplink-schema-match.ts:    if (isBothBitcoinAndLightning) {
+class\deeplink-schema-match.ts:            navigation.navigate(...DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning));
+class\deeplink-schema-match.ts:    } else if (DeeplinkSchemaMatch.isLightningInvoice(event.url)) {
+class\deeplink-schema-match.ts:            uri: event.url.replace('lightning:', '').replace('LIGHTNING:', ''),
+class\deeplink-schema-match.ts:    } else if (Lnurl.isLightningAddress(event.url)) {
+class\deeplink-schema-match.ts:      // this might be not just an email but a lightning address
+class\deeplink-schema-match.ts:      // @see https://lightningaddress.com
+class\deeplink-schema-match.ts:                'LightningSettings',
+class\deeplink-schema-match.ts:  static isBothBitcoinAndLightningOnWalletSelect(wallet: TWallet, uri: any): TCompletionHandlerParams {
+class\deeplink-schema-match.ts:  static isLightningInvoice(invoice: string): boolean {
+class\deeplink-schema-match.ts:    let isValidLightningInvoice = false;
+class\deeplink-schema-match.ts:      invoice.toLowerCase().startsWith('lightning:lnb') ||
+class\deeplink-schema-match.ts:      invoice.toLowerCase().startsWith('lightning://lnb') ||
+class\deeplink-schema-match.ts:      isValidLightningInvoice = true;
+class\deeplink-schema-match.ts:    return isValidLightningInvoice;
+class\deeplink-schema-match.ts:  static isBothBitcoinAndLightning(url: string): TBothBitcoinAndLightning {
+class\deeplink-schema-match.ts:    if (url.includes('lightning') && (url.includes('bitcoin') || url.includes('BITCOIN'))) {
+class\deeplink-schema-match.ts:      const txInfo = url.split(/(bitcoin:\/\/|BITCOIN:\/\/|bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
+class\deeplink-schema-match.ts:          } else if (value.startsWith('lightning')) {
+class\deeplink-schema-match.ts:            lndInvoice = `lightning:${lnpart}`;
+class\deeplink-schema-match.ts:            if (!this.isLightningInvoice(lndInvoice)) {
+class\lnurl.ts:    const res = /^(?:http.*[&?]lightning=|lightning:)?(lnurl1[02-9ac-hj-np-z]+)/.exec(bodyOfText.toLowerCase());
+class\lnurl.ts:      if (Lnurl.isLightningAddress(lnurlExample)) {
+class\lnurl.ts:  static isLightningAddress(address: string) {
+class\wallet-gradient.ts:import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet'; // Missing import
+class\wallet-gradient.ts:import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
+class\wallet-gradient.ts:  static lightningCustodianWallet: string[] = ['#F1AA07', '#FD7E37']; // Corrected property with missing colors
+class\wallet-gradient.ts:      case LightningArkWallet.type:
+class\wallet-gradient.ts:      case LightningCustodianWallet.type:
+class\wallet-gradient.ts:        gradient = WalletGradient.lightningCustodianWallet;
+class\wallet-import.ts:import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet';
+class\wallet-import.ts:import { LightningArkWallet } from './wallets/lightning-ark-wallet';
+class\wallet-import.ts:    // -1. check lightning custodian
+class\wallet-import.ts:    // is it lightning custodian?
+class\wallet-import.ts:    yield { progress: 'lightning custodian' };
+class\wallet-import.ts:      const lnd = new LightningCustodianWallet();
+class\wallet-import.ts:    // is it lightning ark wallet?
+class\wallet-import.ts:    yield { progress: 'lightning ark' };
+class\wallet-import.ts:      const ark = new LightningArkWallet();
+class\wallets\hd-aezeed-wallet.ts: * @see https://github.com/lightningnetwork/lnd/tree/master/aezeed
+class\wallets\hd-aezeed-wallet.ts: * @see https://github.com/lightningnetwork/lnd/issues/4960
+class\wallets\hd-aezeed-wallet.ts: * @see https://github.com/lightningnetwork/lnd/blob/master/keychain/derivation.go
+class\wallets\types.ts:import { LightningCustodianWallet } from './lightning-custodian-wallet';
+class\wallets\types.ts:import { LightningArkWallet } from './lightning-ark-wallet.ts';
+class\wallets\types.ts:export type LightningTransaction = {
+class\wallets\types.ts:  | LightningArkWallet
+class\wallets\types.ts:  | LightningCustodianWallet
+components\ManageWalletsListItem.tsx:import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+components\ManageWalletsListItem.tsx:import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+components\ManageWalletsListItem.tsx:import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+components\ManageWalletsListItem.tsx:    case LightningCustodianWallet.type:
+components\ManageWalletsListItem.tsx:    case LightningArkWallet.type:
+components\ManageWalletsListItem.tsx:  data: ExtendedTransaction & LightningTransaction;
+components\platform\index.tsx:  | 'lightning'
+components\platform\index.tsx:    lightning: {
+components\TransactionListItem.tsx:import { LightningTransaction, Transaction } from '../class/wallets/types';
+components\TransactionListItem.tsx:  item: Transaction & LightningTransaction; // using type intersection to have less issues with ts
+components\TransactionListItem.tsx:        const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
+components\TransactionListItem.tsx:        if (lightningWallet.length === 1) {
+components\TransactionListItem.tsx:                  fromWalletID: lightningWallet[0].getID(),
+components\TransactionListItem.tsx:            walletID: lightningWallet[0].getID(),
+components\TransactionListItem.tsx:        const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
+components\TransactionListItem.tsx:        if (lightningWallet) {
+components\TransactionListItem.tsx:            walletID: lightningWallet.getID(),
+components\TransactionsNavigationHeader.tsx:import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+components\TransactionsNavigationHeader.tsx:import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+components\TransactionsNavigationHeader.tsx:    if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
+components\TransactionsNavigationHeader.tsx:        {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
+components\WalletButton.tsx:  Lightning: {
+components\WalletButton.tsx:    image: require('../img/addWallet/lightning.png'),
+components\WalletButton.tsx:    title: loc.wallets.add_lightning,
+components\WalletButton.tsx:    explain: loc.wallets.add_lightning_explain,
+components\WalletButton.tsx:  LightningArk: {
+components\WalletButton.tsx:    image: require('../img/addWallet/lightning.png'),
+components\WalletButton.tsx:    title: loc.wallets.add_lightning,
+components\WalletButton.tsx:    explain: loc.wallets.add_lightning_explain + '\nPowered by Arkade',
+components\WalletsCarousel.tsx:import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+components\WalletsCarousel.tsx:import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+components\WalletsCarousel.tsx:      case LightningCustodianWallet.type:
+components\WalletsCarousel.tsx:      case LightningArkWallet.type:
+hooks\useCompanionListeners.ts:import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+hooks\useCompanionListeners.ts:  LIGHTNING: 'LIGHTNING',
+hooks\useCompanionListeners.ts:            message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
+hooks\useCompanionListeners.ts:            return (wallet as LightningCustodianWallet).isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
+hooks\useCompanionListeners.ts:        const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
+hooks\useCompanionListeners.ts:        const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
+hooks\useCompanionListeners.ts:          (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
+hooks\useCompanionListeners.ts:          } else if (isLightningInvoice || isLNURL) {
+hooks\useCompanionListeners.ts:            contentType = ClipboardContentType.LIGHTNING;
+hooks\useCompanionListeners.ts:          } else if (isBothBitcoinAndLightning) {
+hooks\useWatchConnectivity.ios.ts:import { LightningTransaction, Transaction } from '../class/wallets/types';
+hooks\useWatchConnectivity.ios.ts:interface LightningInvoiceCreateRequest {
+hooks\useWatchConnectivity.ios.ts:  const handleLightningInvoiceCreateRequest = useCallback(
+hooks\useWatchConnectivity.ios.ts:    async ({ walletIndex, amount, description = loc.lnd.placeholder }: LightningInvoiceCreateRequest): Promise<string | undefined> => {
+hooks\useWatchConnectivity.ios.ts:            console.debug('Created Lightning invoice:', { invoiceRequest });
+hooks\useWatchConnectivity.ios.ts:            .map((transaction: Transaction & LightningTransaction) => ({
+hooks\useWatchConnectivity.ios.ts:  const determineTransactionType = (transaction: Transaction & LightningTransaction): string => {
+hooks\useWatchConnectivity.ios.ts:          const createInvoiceRequest = await handleLightningInvoiceCreateRequest({
+hooks\useWatchConnectivity.ios.ts:    [fetchWalletTransactions, saveToDisk, wallets, constructWalletsToSendToWatch, handleLightningInvoiceCreateRequest],
+navigation\DetailViewScreensStack.tsx:import LightningSettings from '../screen/settings/LightningSettings';
+navigation\DetailViewScreensStack.tsx:            headerTitle: loc.lndViewInvoice.lightning_invoice,
+navigation\DetailViewScreensStack.tsx:          name="LightningSettings"
+navigation\DetailViewScreensStack.tsx:          component={LightningSettings}
+navigation\DetailViewScreensStack.tsx:          options={navigationStyle(getSettingsHeaderOptions(loc.settings.lightning_settings))(theme)}
+navigation\DetailViewStackParamList.ts:import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+navigation\DetailViewStackParamList.ts:  LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
+navigation\DetailViewStackParamList.ts:  LightningSettings: {
+navigation\LNDCreateInvoiceStack.tsx:          headerTitle: loc.lndViewInvoice.lightning_invoice,
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:interface CreateLightningInvoiceRequest {
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:interface CreateLightningInvoiceResponse {
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:interface SendLightningPaymentRequest {
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:interface SendLightningPaymentResponse {
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:interface ArkadeLightningConfig {
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:declare class ArkadeLightning {
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:    constructor(config: ArkadeLightningConfig);
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:     * Creates a Lightning invoice.
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:     * @param args - The arguments for creating a Lightning invoice.
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:     * @returns The response containing the created Lightning invoice.
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:    createLightningInvoice(args: CreateLightningInvoiceRequest): Promise<CreateLightningInvoiceResponse>;
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:     * Sends a Lightning payment.
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:     * @param args - The arguments for sending a Lightning payment.
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:    sendLightningPayment(args: SendLightningPaymentRequest): Promise<SendLightningPaymentResponse>;
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:    createSubmarineSwap(args: SendLightningPaymentRequest): Promise<PendingSubmarineSwap>;
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:    createReverseSwap(args: CreateLightningInvoiceRequest): Promise<PendingReverseSwap>;
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:     * Lightning invoice or preimage. They are intended primarily for
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:     * @param invoice - The Lightning invoice for the swap.
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:     * await using arkadeLightning = new ArkadeLightning({ ... });
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts: * Decodes a Lightning invoice.
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts: * @param invoice - The Lightning invoice to decode.
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts: * This pattern appears ~10+ times in arkade-lightning.ts
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts: * This pattern appears ~10+ times in arkade-lightning.ts
+node_modules\@arkade-os\boltz-swap\dist\index.d.ts:export { ArkadeLightning, type ArkadeLightningConfig, BoltzSwapProvider, type BoltzSwapStatus, type CreateLightningInvoiceResponse, type DecodedInvoice, type FeeConfig, type FeesResponse, type IncomingPaymentSubscription, InsufficientFundsError, InvoiceExpiredError, InvoiceFailedToPayError, type LimitsResponse, type Logger, type Network, NetworkError, type PendingReverseSwap, type PendingSubmarineSwap, type RefundHandler, type RetryConfig, SchemaError, type SendLightningPaymentRequest, type SendLightningPaymentResponse, SwapError, SwapExpiredError, SwapManager, type SwapManagerConfig, type SwapManagerEvents, type SwapSaver, type TimeoutConfig, TransactionFailedError, type Vtxo, decodeInvoice, getInvoicePaymentHash, getInvoiceSatoshis, isPendingReverseSwap, isPendingSubmarineSwap, isReverseClaimableStatus, isReverseFinalStatus, isSubmarineFinalStatus, isSubmarineRefundableStatus, isSubmarineSwapRefundable, logger, saveSwap, setLogger, updateReverseSwapStatus, updateSubmarineSwapStatus, verifySignatures };
+node_modules\@react-native-vector-icons\fontawesome6\lib\typescript\commonjs\src\index.d.ts:    "bolt-lightning": number;
+node_modules\@react-native-vector-icons\fontawesome6\lib\typescript\commonjs\src\static.d.ts:    "bolt-lightning": number;
+node_modules\@react-native-vector-icons\fontawesome6\lib\typescript\module\src\index.d.ts:    "bolt-lightning": number;
+node_modules\@react-native-vector-icons\fontawesome6\lib\typescript\module\src\static.d.ts:    "bolt-lightning": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\index.d.ts:    "home-lightning-bolt": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\index.d.ts:    "home-lightning-bolt-outline": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\index.d.ts:    "lightning-bolt": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\index.d.ts:    "lightning-bolt-circle": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\index.d.ts:    "lightning-bolt-outline": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\index.d.ts:    "weather-lightning": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\index.d.ts:    "weather-lightning-rainy": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\index.d.ts:    "weather-partly-lightning": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\static.d.ts:    "home-lightning-bolt": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\static.d.ts:    "home-lightning-bolt-outline": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\static.d.ts:    "lightning-bolt": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\static.d.ts:    "lightning-bolt-circle": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\static.d.ts:    "lightning-bolt-outline": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\static.d.ts:    "weather-lightning": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\static.d.ts:    "weather-lightning-rainy": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\commonjs\src\static.d.ts:    "weather-partly-lightning": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\index.d.ts:    "home-lightning-bolt": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\index.d.ts:    "home-lightning-bolt-outline": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\index.d.ts:    "lightning-bolt": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\index.d.ts:    "lightning-bolt-circle": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\index.d.ts:    "lightning-bolt-outline": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\index.d.ts:    "weather-lightning": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\index.d.ts:    "weather-lightning-rainy": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\index.d.ts:    "weather-partly-lightning": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\static.d.ts:    "home-lightning-bolt": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\static.d.ts:    "home-lightning-bolt-outline": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\static.d.ts:    "lightning-bolt": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\static.d.ts:    "lightning-bolt-circle": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\static.d.ts:    "lightning-bolt-outline": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\static.d.ts:    "weather-lightning": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\static.d.ts:    "weather-lightning-rainy": number;
+node_modules\@react-native-vector-icons\material-design-icons\lib\typescript\module\src\static.d.ts:    "weather-partly-lightning": number;
+screen\send\SendDetails.tsx:        if (address.startsWith('lnb') || address.startsWith('lightning:lnb')) {
+screen\settings\NetworkSettings.tsx:  const navigateToLightningSettings = () => {
+screen\settings\NetworkSettings.tsx:    navigation.navigate('LightningSettings');
+screen\settings\NetworkSettings.tsx:          title={loc.settings.lightning_settings}
+screen\settings\NetworkSettings.tsx:          iconName="lightning"
+screen\settings\NetworkSettings.tsx:          onPress={navigateToLightningSettings}
+screen\settings\NetworkSettings.tsx:          testID="LightningSettings"
+screen\settings\SelfTest.tsx:import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+screen\settings\SelfTest.tsx:        const spkw = new LightningArkWallet();
+screen\wallets\Add.tsx:import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+screen\wallets\Add.tsx:import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+screen\wallets\Add.tsx:    // lightning
+screen\wallets\Add.tsx:    subtitle: LightningCustodianWallet.subtitleReadable,
+screen\wallets\Add.tsx:    text: LightningCustodianWallet.typeReadable,
+screen\wallets\Add.tsx:    walletType: LightningCustodianWallet.type,
+screen\wallets\Add.tsx:  const handleOnLightningArkButtonPressed = useCallback(() => {
+screen\wallets\Add.tsx:  const handleOnLightningButtonPressed = useCallback(() => {
+screen\wallets\Add.tsx:          if (id === LightningCustodianWallet.type) {
+screen\wallets\Add.tsx:            handleOnLightningButtonPressed();
+screen\wallets\Add.tsx:    [handleOnLightningButtonPressed, toolTipActions, entropy, confirmResetEntropy, navigate],
+screen\wallets\Add.tsx:      createLightningWallet();
+screen\wallets\Add.tsx:      createLightningArkWallet();
+screen\wallets\Add.tsx:  const createLightningWallet = async () => {
+screen\wallets\Add.tsx:    const wallet = new LightningCustodianWallet();
+screen\wallets\Add.tsx:        const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub);
+screen\wallets\Add.tsx:  const createLightningArkWallet = async () => {
+screen\wallets\Add.tsx:    const wallet = new LightningArkWallet();
+screen\wallets\Add.tsx:      console.warn('lightning ark create failure', Err);
+screen\wallets\Add.tsx:    Linking.openURL('https://bluewallet.io/lightning/');
+screen\wallets\Add.tsx:  const LightningButtonMemo = useMemo(
+screen\wallets\Add.tsx:        buttonType="Lightning"
+screen\wallets\Add.tsx:        testID="ActivateLightningButton"
+screen\wallets\Add.tsx:        onPress={handleOnLightningButtonPressed}
+screen\wallets\Add.tsx:    [selectedWalletType, handleOnLightningButtonPressed],
+screen\wallets\Add.tsx:              buttonType="LightningArk"
+screen\wallets\Add.tsx:              testID="ActivateLightningArkButton"
+screen\wallets\Add.tsx:              onPress={handleOnLightningArkButtonPressed}
+screen\wallets\Add.tsx:          {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
+screen\wallets\ManageWallets.tsx:import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
+screen\wallets\ManageWallets.tsx:  data: ExtendedTransaction & LightningTransaction;
+screen\wallets\ManageWallets.tsx:                      data: tx as ExtendedTransaction & LightningTransaction,
+screen\wallets\ManageWallets.tsx:                      data: tx as ExtendedTransaction & LightningTransaction,
+screen\wallets\WalletDetails.tsx:import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+screen\wallets\WalletDetails.tsx:import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+screen\wallets\WalletDetails.tsx:import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
+screen\wallets\WalletDetails.tsx:  // Fetch ark address when wallet is a LightningArkWallet
+screen\wallets\WalletDetails.tsx:      if (wallet.type === LightningArkWallet.type && wallet.getArkAddress) {
+screen\wallets\WalletDetails.tsx:    transactions.forEach((transaction: Transaction & LightningTransaction) => {
+screen\wallets\WalletDetails.tsx:              {wallet.type === LightningArkWallet.type && (
+screen\wallets\WalletDetails.tsx:              {wallet.type === LightningCustodianWallet.type && (
+screen\wallets\WalletExport.tsx:import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+screen\wallets\WalletExport.tsx:            {wallet.type === LightningCustodianWallet.type ? loc.wallets.copy_ln_url : loc.wallets.copy_ln_public}
+screen\wallets\WalletTransactions.tsx:import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+screen\wallets\WalletTransactions.tsx:import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+screen\wallets\WalletTransactions.tsx:  const isLightning = useCallback((): boolean => wallet.chain === Chain.OFFCHAIN || false, [wallet]);
+screen\wallets\WalletTransactions.tsx:        wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type,
+screen\wallets\WalletTransactions.tsx:        `internal error, wallet is not ${LightningCustodianWallet.type} or ${LightningArkWallet.type}`,
+screen\wallets\WalletTransactions.tsx:            } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
+screen\wallets\WalletTransactions.tsx:              {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
+screen\wallets\WalletTransactions.tsx:            {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+screen\wallets\WalletTransactions.tsx:  emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
+tests\integration\import.test.ts:import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+tests\integration\import.test.ts:  it('can import lightning ark wallet', async () => {
+tests\integration\import.test.ts:    assert.strictEqual(store.state.wallets[0].type, LightningArkWallet.type);
