@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState, AppStateStatus, LayoutAnimation } from 'react-native';
 import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
@@ -14,6 +13,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
 import { getScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
+import { AppState, AppStateStatus } from 'react-native';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -533,7 +533,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             text: loc.wallets.details_delete,
             onPress: () => {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               onConfirmed();
             },
             style: 'destructive',
