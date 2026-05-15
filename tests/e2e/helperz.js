@@ -93,6 +93,24 @@ export async function getSwitchValue(switchId) {
   }
 }
 
+// Detox's waitFor() doesn't expose toHaveToggleValue, so poll expect() until the switch reaches
+// the expected state (or throw after timeoutMs).
+export async function waitForSwitchValue(switchId, expectedValue, timeoutMs = 8000) {
+  const callsite = captureCallsite(waitForSwitchValue);
+  const deadline = Date.now() + timeoutMs;
+  let lastErr;
+  while (Date.now() < deadline) {
+    try {
+      await expect(element(by.id(switchId))).toHaveToggleValue(expectedValue);
+      return;
+    } catch (err) {
+      lastErr = err;
+      await sleep(250);
+    }
+  }
+  rethrowWithCallsite(lastErr || new Error(`Timed out waiting for ${switchId} == ${expectedValue}`), callsite);
+}
+
 export async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
   await waitForId('WalletsList');
   await waitFor(element(by.id('CreateAWallet')))
@@ -333,30 +351,61 @@ export async function setCustomFeeRate(feeRate) {
 }
 
 export async function goBack() {
-  if (device.getPlatform() === 'ios') {
-    try {
-      await element(by.id('BackButton')).atIndex(0).tap();
-    } catch (_backError) {
-      try {
-        await element(by.id('NavigationCloseButton')).atIndex(0).tap();
-      } catch (_closeButtonError) {
-        try {
-          await element(by.label('Back')).atIndex(0).tap();
-        } catch (_backLabelError) {
-          await element(by.text('Close')).atIndex(0).tap();
-        }
-      }
-    }
-  } else {
+  if (device.getPlatform() !== 'ios') {
     await device.pressBack();
+    return;
   }
+
+  const callsite = captureCallsite(goBack);
+
+  // Race the candidate matchers in parallel — first one to become visible wins.
+  const candidates = [
+    ['id=BackButton', by.id('BackButton')],
+    ['id=NavigationCloseButton', by.id('NavigationCloseButton')],
+    ['label=Back', by.label('Back')],
+    ['text=Close', by.text('Close')],
+  ];
+  const races = candidates.map(([, matcher]) =>
+    waitFor(element(matcher).atIndex(0))
+      .toBeVisible()
+      .withTimeout(20000)
+      .then(() => matcher),
+  );
+
+  let winner;
+  try {
+    winner = await Promise.any(races);
+  } catch (aggErr) {
+    const errs = (aggErr && aggErr.errors) || [];
+    const detail = errs.map((e, i) => `${candidates[i][0]}: ${e && e.message ? e.message.split('\n')[0] : String(e)}`).join('\n  ');
+    rethrowWithCallsite(new Error('goBack: no back/close affordance visible after 20s.\n  ' + detail), callsite);
+    return;
+  }
+
+  await element(winner).atIndex(0).tap();
 }
 
 export async function typeTextIntoAlertInput(text) {
   if (device.getPlatform() === 'android') {
     await element(by.type('android.widget.EditText')).replaceText(text);
   } else {
-    await element(by.type('_UIAlertControllerTextField')).replaceText(text);
+    // Try multiple iOS class names: pre-26 was the private `_UIAlertControllerTextField`,
+    // iOS 26 dropped that. The public `UIAlertControllerTextField` works on some iOS versions.
+    // Last resort: any UITextField — but this picks ANY iOS UITextField including RN's
+    // RCTUITextField (which inherits from UITextField), so atIndex(0) can match the wrong
+    // field if an RN text input is on screen.
+    const candidates = ['_UIAlertControllerTextField', 'UIAlertControllerTextField', 'UITextField'];
+    let matched = false;
+    for (const className of candidates) {
+      try {
+        await element(by.type(className)).atIndex(0).replaceText(text);
+        matched = true;
+        break;
+      } catch (_) {
+        /* try next */
+      }
+    }
+    if (!matched) throw new Error('typeTextIntoAlertInput: no alert text field matched on iOS');
   }
   await sleep(1000);
 }
@@ -385,4 +434,151 @@ export async function waitForKeyboardToClose() {
     return;
   }
   await sleep(500);
+}
+
+// Bundle id used by simctl/applesimutils on iOS. Mirrors `javaPackageName` in package.json
+// and the iOS Info.plist; if either is renamed, update here too.
+const IOS_BUNDLE_ID = 'io.bluewallet.bluewallet';
+
+// Force-kill the booted iOS simulator app. Used by tests that put the app into a state where
+// graceful teardown would itself trigger a biometric prompt (and thus hang). No-op on non-iOS
+// and silently swallows simctl errors so a missing/already-dead process doesn't fail teardown.
+export function terminateBootedApp() {
+  if (device.getPlatform() !== 'ios') return;
+  try {
+    require('child_process').execSync(`xcrun simctl terminate booted ${IOS_BUNDLE_ID}`, { stdio: 'ignore' });
+  } catch (_) {
+    // intentionally ignored — best-effort teardown
+  }
+}
+
+// Biometric helpers. iOS-only today; android support pending ADB wiring.
+
+export async function setupBiometricEnrollment() {
+  if (device.getPlatform() !== 'ios') return;
+  await device.setBiometricEnrollment(true);
+}
+
+// Resolving the iOS-sim Face ID prompt is a two-step dance with no reliable observability:
+//
+//   1. We can't detect when the prompt is on screen. The system overlay is drawn by a separate
+//      process; Detox's in-app `by.label()` can't reach it, and `idb ui describe-all` returns
+//      only the status bar layer in this iOS 26 sim setup (verified empirically — only XCUITest-
+//      based tools like mobile-mcp can see it). So we just sleep long enough for LAContext to
+//      have presented the prompt before firing the signal.
+//
+//   2. We can't use `device.matchFace()` because it post-awaits `waitForActive`, which hangs
+//      indefinitely on a still-busy main queue (wix/Detox#2981). We shell out to applesimutils
+//      directly and skip the wait — callers must rely on their own subsequent waitFor*/expect
+//      to re-sync app state.
+//
+// Tune BIOMETRIC_PROMPT_DELAY_MS up if a slower machine drops the signal (signal must land
+// after the prompt is on screen). 2.5s gives margin over local-sim ~1s while staying well
+// under iOS LAContext's ~30s prompt timeout.
+const BIOMETRIC_PROMPT_DELAY_MS = 2500;
+
+async function rawBiometric(flag) {
+  const { exec } = require('child_process');
+  await new Promise((resolve, reject) => {
+    exec(`applesimutils --booted ${flag}`, err => (err ? reject(err) : resolve()));
+  });
+}
+
+export async function matchBiometric() {
+  if (device.getPlatform() !== 'ios') throw new Error('matchBiometric: android not yet supported');
+  await sleep(BIOMETRIC_PROMPT_DELAY_MS);
+  await rawBiometric('--biometricMatch');
+}
+
+export async function failBiometric() {
+  if (device.getPlatform() !== 'ios') throw new Error('failBiometric: android not yet supported');
+  await sleep(BIOMETRIC_PROMPT_DELAY_MS);
+  await rawBiometric('--biometricNonmatch');
+  // iOS 26 sim shows a "Face Not Recognised / Try Again / Cancel" retry dialog after the
+  // first nonmatch. Tap Cancel via idb (Detox can't reach system-overlay buttons) so the
+  // simplePrompt promise actually rejects and JS-side onError handlers run.
+  await sleep(500);
+  try {
+    require('child_process').execSync(`idb ui tap --udid ${device.id} 200 513`, { stdio: 'ignore' });
+  } catch (_) {
+    /* best-effort — dialog may have auto-dismissed */
+  }
+  await sleep(500);
+}
+
+// Navigate Settings → Security and flip the biometric switch ON. Idempotent: skips the toggle
+// if biometric is already enabled. iOS-only (android: no-op). With returnHome=true (default),
+// goes back twice to return to WalletsList; pass false when the caller wants to stay in Security.
+export async function enableBiometric({ returnHome = true } = {}) {
+  if (device.getPlatform() !== 'ios') return;
+  await element(by.id('SettingsButton')).tap();
+  await element(by.id('SecurityButton')).tap();
+  await waitForId('BiometricSwitch');
+  if (!(await getSwitchValue('BiometricSwitch'))) {
+    // Sync stays disabled across the whole post-tap flow: tapping the switch triggers
+    // simplePrompt() which pins the main queue in "busy" (Detox's idle-wait would hang on
+    // the tap), and even after the Face ID signal lands, post-auth RN work keeps the main
+    // queue non-idle for several seconds — long enough that an `expect()` from
+    // waitForSwitchValue would also block. Re-enable sync only after we've confirmed the
+    // switch value, by which point the app has settled.
+    await device.disableSynchronization();
+    await element(by.id('BiometricSwitch')).tap();
+    await matchBiometric();
+    await waitForSwitchValue('BiometricSwitch', true);
+    await device.enableSynchronization();
+  }
+  if (returnHome) {
+    await goBack();
+    await goBack();
+  }
+}
+
+// Brief wait after a Face ID rejection so the app's RN code can finish handling the rejected
+// simplePrompt promise (close the prompt, restore button state) before we re-tap.
+const BIOMETRIC_REJECTION_SETTLE_MS = 500;
+
+/**
+ * Tap a button whose onPress triggers unlockWithBiometrics(), then exercise both the
+ * rejection and the match paths of the gate:
+ *   1. tap → first simplePrompt → fail Face ID → RN promise rejects, app's onError/catch
+ *      runs.
+ *   2. (optional `reopen` callback for gates that close on rejection — e.g. iOS alerts that
+ *      dismiss when the bio prompt rejects)
+ *   3. re-tap → second simplePrompt → match Face ID → promise resolves, flow proceeds.
+ *
+ * Why disable synchronization: when an RN button's onPress chains into simplePrompt(), the
+ * native Face ID prompt pins the main dispatch queue in "busy". Detox's default idle-sync
+ * then waits forever for `tap()` to return. Disabling sync around the tap lets Detox send the
+ * action without waiting; we re-enable once the biometric is resolved.
+ *
+ * Non-iOS: falls through to a plain tap (android biometric support is pending).
+ */
+export async function tapGatedByBiometric(matcher, { reopen } = {}) {
+  const isIOS = device.getPlatform() === 'ios';
+  if (isIOS) await device.disableSynchronization();
+  await element(matcher).tap();
+  if (!isIOS) return;
+  await failBiometric();
+  await sleep(BIOMETRIC_REJECTION_SETTLE_MS);
+  // iOS-26 sim quirk (AppleSimulatorUtils#65): applesimutils --biometricNonmatch sometimes
+  // backgrounds the app to home. `simctl launch` (without --terminate-running-process) just
+  // foregrounds the existing app process — state preserved.
+  try {
+    require('child_process').execSync(`xcrun simctl launch ${device.id} ${IOS_BUNDLE_ID}`, { stdio: 'ignore' });
+  } catch (_) {
+    /* best-effort */
+  }
+  await sleep(500);
+  if (reopen) await reopen();
+  await element(matcher).tap();
+  await matchBiometric();
+  // Same iOS-26 sim quirk applies after match — foreground the app once more so the caller's
+  // subsequent waitFor*/expect can see the post-auth UI.
+  try {
+    require('child_process').execSync(`xcrun simctl launch ${device.id} ${IOS_BUNDLE_ID}`, { stdio: 'ignore' });
+  } catch (_) {
+    /* best-effort */
+  }
+  await sleep(500);
+  await device.enableSynchronization();
 }

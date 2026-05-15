@@ -4,21 +4,28 @@ import * as bitcoin from 'bitcoinjs-lib';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import {
   countElements,
+  enableBiometric,
   extractTextFromElementById,
+  failBiometric,
   getSwitchValue,
   goBack,
   hashIt,
   helperImportWallet,
+  matchBiometric,
   scanText,
   scrollUpOnHomeScreen,
   setCustomFeeRate,
+  setupBiometricEnrollment,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapAndTapAgainIfTextIsNotVisible,
+  tapGatedByBiometric,
   tapIfTextPresent,
+  terminateBootedApp,
   typeTextIntoAlertInput,
   waitForId,
   waitForKeyboardToClose,
+  waitForSwitchValue,
   waitForText,
 } from './helperz';
 
@@ -542,6 +549,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
+  // TODO: same iOS 26 navigation-gate quirk as multisig vault test —
+  // tapGatedByBiometric on WalletExport / XpubButton (both in useExtendedNavigation's
+  // requiresBiometrics) doesn't recover after rejection.
   it('can do basic wallet-details operations', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t_walletdetails');
     if (process.env.CI) {
@@ -553,6 +563,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     }
 
     await device.launchApp({ newInstance: true });
+
+    await setupBiometricEnrollment();
+    await enableBiometric();
 
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
@@ -579,29 +592,29 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.id('WalletDetails')).tap();
 
-    // wallet export
     await waitFor(element(by.id('WalletExport')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(500, 'down');
-    await tapAndTapAgainIfElementIsNotVisible('WalletExport', 'WalletExportScroll');
+    await tapGatedByBiometric(by.id('WalletExport'));
+    await waitForId('WalletExportScroll');
     await element(by.id('WalletExportScroll')).swipe('up', 'fast', 1);
     await sleep(200); // bounce animation
     await expect(element(by.id('Secret'))).toHaveText(process.env.HD_MNEMONIC_BIP84);
     await goBack();
 
-    // XPUB
     await waitFor(element(by.id('XpubButton')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(500, 'down');
-    await tapAndTapAgainIfElementIsNotVisible('XpubButton', 'CopyTextToClipboard');
+    await tapGatedByBiometric(by.id('XpubButton'));
+    await waitForId('CopyTextToClipboard');
     await goBack();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('should handle URL successfully', async () => {
+  it('handles bitcoin URL deeplink and broadcast is blocked when biometric auth is rejected', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t22');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t22'), 'as it previously passed on Travis');
@@ -610,27 +623,59 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
+    const isIOS = device.getPlatform() === 'ios';
+    await setupBiometricEnrollment();
 
-    await device.launchApp({ newInstance: true });
-
-    await device.launchApp({
+    // Part 1: bitcoin: URL deeplink routes into the send flow with prefilled address+amount.
+    const launchPromise = device.launchApp({
       newInstance: true,
       url: 'bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=0.0001&label=Yo',
     });
+    if (isIOS) await matchBiometric();
+    await launchPromise;
     await waitForId('chooseFee');
 
-    // Wait for the send screen to load after deep link
-    await waitForId('chooseFee');
-
-    // setting fee rate:
     const feeRate = 2;
     await setCustomFeeRate(feeRate);
     await element(by.id('CreateTransactionButton')).tap();
 
-    // created. verifying:
     await waitForId('TransactionValue');
     await expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     await expect(element(by.id('TransactionAddress'))).toHaveText('BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7');
+
+    // Part 2 — iOS only: rebuild the tx manually, then verify that tapping
+    // "Send now" + a rejected Face ID leaves us on Confirm (broadcast blocked).
+    if (!isIOS) {
+      process.env.CI && require('fs').writeFileSync(lockFile, '1');
+      return;
+    }
+
+    const relaunchPromise = device.launchApp({ newInstance: true });
+    await matchBiometric();
+    await relaunchPromise;
+
+    await enableBiometric();
+
+    await scrollUpOnHomeScreen();
+    await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    await waitForId('SendButton');
+    await element(by.id('SendButton')).tap();
+    await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput')).replaceText('0.0001');
+    await element(by.id('chooseFee')).tap();
+    await element(by.id('feeCustomContainerButton')).tap();
+    await element(by.id('feeCustom')).typeText('1');
+    await element(by.id('feeCustom')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await element(by.id('CreateTransactionButton')).tap();
+    await waitForId('TransactionValue');
+
+    await device.disableSynchronization();
+    await element(by.text('Send now')).tap();
+    await failBiometric();
+    await expect(element(by.id('TransactionValue'))).toBeVisible();
+    terminateBootedApp();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
@@ -645,7 +690,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
 
-    await device.launchApp({ newInstance: true });
+    // The earlier wallet-details test enabled biometric; resolve UnlockWith on relaunch.
+    const launchPromise = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await launchPromise;
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -670,7 +718,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForKeyboardToClose();
 
     // Terminate and reopen the app to confirm the note is persisted
-    await device.launchApp({ newInstance: true });
+    const relaunchUtxo = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await relaunchUtxo;
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await waitForId('SendButton');
@@ -698,15 +748,12 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('OutputMemo')).typeText('Test2');
     await element(by.id('OutputMemo')).tapReturnKey();
     await waitForKeyboardToClose();
-    if (device.getPlatform() === 'ios') {
-      // FIXME. Add testId to freez switch
-      await element(by.type('UISwitchModernVisualElement')).tap(); // freeze switch
-    } else {
-      await element(by.type('android.widget.CompoundButton')).tap(); // freeze switch
-    }
+    await element(by.id('FreezeSwitch')).tap(); // freeze switch
+    await waitForSwitchValue('FreezeSwitch', true);
     await element(by.id('CoinControlOutputDone')).tap();
-    await expect(element(by.text('Test2')).atIndex(0)).toBeVisible();
-    await expect(element(by.text('Freeze')).atIndex(0)).toBeVisible();
+    await waitFor(element(by.id('CoinControlOutputDone'))).not.toBeVisible();
+    await expect(element(by.id('OutputMemoLabel').and(by.text('Test2')))).toBeVisible();
+    await expect(element(by.id('FrozenBadge'))).toBeVisible();
 
     // use frozen output to create tx using "Use coin" feature
     await element(by.text('Test2')).atIndex(0).tap();
@@ -771,7 +818,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
 
-    await device.launchApp({ newInstance: true });
+    const launchPromise = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await launchPromise;
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -814,7 +863,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       return;
     }
 
-    await device.launchApp({ newInstance: true });
+    const launchPromise = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await launchPromise;
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
@@ -836,7 +887,9 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(await countElements('TransactionListItem'), 0);
 
     // now, restarting the app:
-    await device.launchApp({ newInstance: true });
+    const relaunch = device.launchApp({ newInstance: true });
+    if (device.getPlatform() === 'ios') await matchBiometric();
+    await relaunch;
     // ^^^ its supposed to refetch txs and balance
 
     // asserting balance and txs loaded:
