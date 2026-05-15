@@ -15,7 +15,7 @@
  */
 
 import { RestArkProvider, RestDelegatorProvider, VtxoManager } from '@arkade-os/sdk';
-import { BoltzSwapProvider } from '@arkade-os/boltz-swap';
+import { BoltzSwapProvider, SwapManager } from '@arkade-os/boltz-swap';
 
 /** Snapshot of `https://arkade.computer/v1/info` for offline tests. */
 export const FAKE_ASP_INFO = {
@@ -87,6 +87,13 @@ export function installSdkProviderSpies(): void {
   // Stub the entry point to a resolved no-op; the wallet's address-derivation
   // path doesn't need either side effect.
   jest.spyOn(VtxoManager.prototype as any, 'initializeSubscription').mockResolvedValue(undefined);
+
+  // ArkadeSwaps auto-starts SwapManager in its constructor (autoStart defaults
+  // to true). SwapManager.start() calls tryConnectWebSocket(), which opens a
+  // real OS WebSocket. On failure it enters startPollingFallback(), a recursive
+  // setTimeout loop that keeps the Node.js event loop alive indefinitely and
+  // prevents Jest from exiting after the test completes.
+  jest.spyOn(SwapManager.prototype as any, 'start').mockResolvedValue(undefined);
 }
 
 export function restoreSdkProviderSpies(): void {
