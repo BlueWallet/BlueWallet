@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
+import { Platform } from 'react-native';
 
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -67,10 +68,12 @@ const ScanLNDInvoiceRoot = () => {
         name="ScanQRCode"
         component={ScanQRCodeComponent}
         options={navigationStyle({
-          headerShown: false,
-          statusBarHidden: true,
+          title: '',
+          headerShown: true,
+          headerTransparent: true,
+          headerBlurEffect: Platform.OS === 'ios' ? 'regular' : undefined,
+          statusBarStyle: 'light',
           presentation: 'fullScreenModal',
-          headerShadowVisible: false,
         })(theme)}
       />
     </Stack.Navigator>

@@ -2,9 +2,10 @@ import React, { useRef, useState } from 'react';
 import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Camera, CameraApi, CameraType, Orientation } from 'react-native-camera-kit-no-google';
 import { OnOrientationChangeData, OnReadCodeData } from 'react-native-camera-kit-no-google/dist/CameraProps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { isDesktop } from '../blue_modules/environment';
-import { triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
+import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
 import Icon from './Icon';
 
@@ -15,6 +16,9 @@ interface CameraScreenProps {
   onImagePickerButtonPress?: () => void;
   onFilePickerButtonPress?: () => void;
   onReadCode?: (event: OnReadCodeData) => void;
+  hideTopButtons?: boolean;
+  torchMode?: boolean;
+  onTorchButtonPress?: () => void;
 }
 
 const CameraScreen: React.FC<CameraScreenProps> = ({
@@ -24,12 +28,17 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   onImagePickerButtonPress,
   onFilePickerButtonPress,
   onReadCode,
+  hideTopButtons,
+  torchMode: controlledTorchMode,
+  onTorchButtonPress,
 }) => {
   const cameraRef = useRef<CameraApi>(null);
-  const [torchMode, setTorchMode] = useState(false);
+  const insets = useSafeAreaInsets();
+  const [uncontrolledTorchMode, setUncontrolledTorchMode] = useState(false);
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [zoom, setZoom] = useState<number | undefined>();
   const [orientationAnim] = useState(new Animated.Value(3));
+  const torchMode = controlledTorchMode ?? uncontrolledTorchMode;
 
   const onSwitchCameraPressed = () => {
     const direction = cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
@@ -39,8 +48,12 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   };
 
   const onSetTorch = () => {
-    setTorchMode(!torchMode);
-    triggerSelectionHapticFeedback();
+    if (onTorchButtonPress) {
+      onTorchButtonPress();
+    } else {
+      setUncontrolledTorchMode(!torchMode);
+    }
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
   };
 
   // Counter-rotate the icons to indicate the actual orientation of the captured photo.
@@ -98,7 +111,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   return (
     <View style={styles.screen}>
       {/* Render top buttons only if not desktop as they would not be relevant */}
-      {!isDesktop && (
+      {!isDesktop && !hideTopButtons && (
         <View style={styles.topButtons}>
           <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
             <Animated.View style={styles.topButtonImg}>
@@ -154,7 +167,7 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           onOrientationChange={handleOrientationChange}
         />
       </View>
-      <View style={styles.bottomButtons}>
+      <View style={[styles.bottomButtons, { paddingBottom: 10 + insets.bottom }]}>
         <TouchableOpacity onPress={onCancelButtonPress}>
           <Animated.Text style={[styles.backTextStyle, uiRotationStyle]}>{loc._.cancel}</Animated.Text>
         </TouchableOpacity>

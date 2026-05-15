@@ -162,8 +162,14 @@ const MainRoot = () => {
             name="ScanQRCode"
             component={LazyScanQRCodeComponent}
             options={{
-              headerShown: false,
-              statusBarHidden: true,
+              headerShown: true,
+              title: '',
+              headerTransparent: true,
+              headerBlurEffect: Platform.OS === 'ios' ? 'regular' : undefined,
+              statusBarStyle: 'light',
+              headerStyle: { backgroundColor: 'transparent' },
+              headerTintColor: '#ffffff',
+              headerShadowVisible: false,
               orientation: 'portrait',
               presentation: 'fullScreenModal',
             }}

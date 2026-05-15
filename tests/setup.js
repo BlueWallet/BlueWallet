@@ -217,6 +217,58 @@ jest.mock('@react-native-documents/picker', () => ({}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
 
+jest.mock('react-native-reanimated', () => {
+  const { View, Text, ScrollView, FlatList, Image } = require('react-native');
+
+  const createAnimationBuilder = () => ({
+    duration: () => createAnimationBuilder(),
+    easing: () => createAnimationBuilder(),
+    springify: () => createAnimationBuilder(),
+  });
+
+  const Animated = {
+    View,
+    Text,
+    ScrollView,
+    FlatList,
+    Image,
+    createAnimatedComponent: Component => Component,
+    call: () => {},
+  };
+
+  return {
+    __esModule: true,
+    default: Animated,
+    useSharedValue: value => ({ value }),
+    useAnimatedStyle: updater => updater(),
+    useAnimatedReaction: () => {},
+    withSpring: value => value,
+    withTiming: value => value,
+    interpolate: value => value,
+    Easing: {
+      linear: jest.fn(),
+      ease: jest.fn(),
+      quad: jest.fn(),
+      in: fn => fn,
+      out: fn => fn,
+      inOut: fn => fn,
+      bezier: jest.fn(() => jest.fn()),
+    },
+    Layout: createAnimationBuilder(),
+    LinearTransition: createAnimationBuilder(),
+    FadeIn: createAnimationBuilder(),
+    FadeOut: createAnimationBuilder(),
+  };
+});
+
+jest.mock('react-native-worklets', () => ({
+  __esModule: true,
+  createSerializable: value => value,
+  runOnJS: fn => fn,
+  runOnUI: fn => fn,
+  default: {},
+}));
+
 const realmInstanceMock = {
   create: function () {},
   delete: function () {},
@@ -272,6 +324,14 @@ jest.mock('react-native-share', () => {
     open: jest.fn(),
   };
 });
+
+jest.mock('react-native-capture-protection', () => ({
+  CaptureProtection: {
+    prevent: jest.fn().mockResolvedValue(undefined),
+    allow: jest.fn().mockResolvedValue(undefined),
+    isScreenRecording: jest.fn().mockResolvedValue(false),
+  },
+}));
 
 const mockKeychain = {
   SECURITY_LEVEL_ANY: 'MOCK_SECURITY_LEVEL_ANY',
