@@ -728,16 +728,19 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[1].type, SegwitP2SHWallet.type);
     assert.strictEqual(store.state.wallets[2].type, LegacyWallet.type);
     assert.strictEqual(store.state.wallets[3].type, TaprootWallet.type);
+    assert.strictEqual(store.state.wallets[4].type, LegacyWallet.type);
 
     assert.strictEqual(store.state.wallets[0].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
     assert.strictEqual(store.state.wallets[1].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
     assert.strictEqual(store.state.wallets[2].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
     assert.strictEqual(store.state.wallets[3].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[4].getSecret(), '5KSEyFcrCYakxTev5Zhs1YqW9pjvUbQexjQ8ZARYnj5mWqVmQRk');
 
     assert.strictEqual(store.state.wallets[0].getAddress(), 'bc1qxscvu3w04nj9k2eukx30897xldfygzqqkmtdav');
     assert.strictEqual(store.state.wallets[1].getAddress(), '38z3svUJKMFj4G3rGrRzcARp2N4vdqV8NK');
     assert.strictEqual(store.state.wallets[2].getAddress(), '15kxc4PEBR8yXqpgEkb83YijfjSkd2xrKV');
     assert.strictEqual(store.state.wallets[3].getAddress(), 'bc1pxnmhjaug5jqm3xqz5fekme8f8dax869z96ufqyllgz5g3wpw2gpqvqxqqy');
+    assert.strictEqual(store.state.wallets[4].getAddress(), '1AynZS85C27HqxGEyQphhkoWedYF1bdBnY');
   });
 
   it('can import private key in base64 format', async () => {
@@ -750,15 +753,18 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[1].type, SegwitP2SHWallet.type);
     assert.strictEqual(store.state.wallets[2].type, LegacyWallet.type);
     assert.strictEqual(store.state.wallets[3].type, TaprootWallet.type);
+    assert.strictEqual(store.state.wallets[4].type, LegacyWallet.type);
 
     assert.strictEqual(store.state.wallets[0].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
     assert.strictEqual(store.state.wallets[1].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
     assert.strictEqual(store.state.wallets[2].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
     assert.strictEqual(store.state.wallets[3].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[4].getSecret(), '5KSEyFcrCYakxTev5Zhs1YqW9pjvUbQexjQ8ZARYnj5mWqVmQRk');
 
     assert.strictEqual(store.state.wallets[0].getAddress(), 'bc1qxscvu3w04nj9k2eukx30897xldfygzqqkmtdav');
     assert.strictEqual(store.state.wallets[1].getAddress(), '38z3svUJKMFj4G3rGrRzcARp2N4vdqV8NK');
     assert.strictEqual(store.state.wallets[2].getAddress(), '15kxc4PEBR8yXqpgEkb83YijfjSkd2xrKV');
     assert.strictEqual(store.state.wallets[3].getAddress(), 'bc1pxnmhjaug5jqm3xqz5fekme8f8dax869z96ufqyllgz5g3wpw2gpqvqxqqy');
+    assert.strictEqual(store.state.wallets[4].getAddress(), '1AynZS85C27HqxGEyQphhkoWedYF1bdBnY');
   });
 });

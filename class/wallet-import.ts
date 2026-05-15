@@ -406,7 +406,7 @@ const startImport = (
       privateKey = wif.encode(0x80, rawKeyBuffer, false);
 
       yield { progress: 'p2pkh uncompressed' };
-      const legacyWalletUncompressed = new LegacyWallet();
+      const legacyWalletUncompressed = new LegacyWallet('Legacy (P2PKH) - Uncompressed');
       legacyWalletUncompressed.setSecret(privateKey);
 
       if (await wasUsed(legacyWalletUncompressed)) {
@@ -448,7 +448,7 @@ const startImport = (
       }
 
       yield { progress: 'p2pkh compressed' };
-      const legacyWalletCompressed = new LegacyWallet();
+      const legacyWalletCompressed = new LegacyWallet('Legacy (P2PKH) - Compressed');
       legacyWalletCompressed.setSecret(privateKey);
 
       if (await wasUsed(legacyWalletCompressed)) {
@@ -462,6 +462,7 @@ const startImport = (
         yield { wallet: segwitWallet };
         yield { wallet: legacyWalletCompressed };
         yield { wallet: taprootWallet };
+        yield { wallet: legacyWalletUncompressed };
       }
     }
 
