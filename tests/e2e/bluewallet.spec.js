@@ -120,7 +120,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // network -> electrum server
     // change electrum server to electrum.blockstream.info and revert it back
     // skip this test on iOS. HeaderMenuButton tap triggers a keyboard open for some reason.
-    if (device.getPlatform() === 'andoid') {
+    if (device.getPlatform() === 'android') {
       await element(by.id('ElectrumSettings')).tap();
       await waitFor(element(by.id('HostInput')))
         .toBeVisible()
