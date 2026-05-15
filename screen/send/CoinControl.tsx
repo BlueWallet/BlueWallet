@@ -27,6 +27,7 @@ const FrozenBadge: React.FC = () => {
   const { colors } = useTheme();
   return (
     <Badge
+      testID="FrozenBadge"
       value={loc.cc.freeze}
       badgeStyle={[styles.badge, { backgroundColor: colors.redBG }]}
       textStyle={[styles.badgeText, { color: colors.redText }]}
@@ -38,6 +39,7 @@ const ChangeBadge: React.FC = () => {
   const { colors } = useTheme();
   return (
     <Badge
+      testID="ChangeBadge"
       value={loc.cc.change}
       badgeStyle={[styles.badge, { backgroundColor: colors.buttonDisabledBackgroundColor }]}
       textStyle={[styles.badgeText, { color: colors.alternativeTextColor }]}
@@ -135,7 +137,7 @@ const OutputList: React.FC<TOutputListProps> = ({
       />
       <View style={styles.itemContent}>
         <Text style={oStyles.amount}>{amount}</Text>
-        <Text style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
+        <Text testID="OutputMemoLabel" style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
           {memo || address}
         </Text>
       </View>
