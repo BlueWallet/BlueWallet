@@ -8,12 +8,10 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import QRCode from '../../components/QRCode';
 import SafeArea from '../../components/SafeArea';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import { styles, useDynamicStyles } from './xpub.styles';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HandOffActivityType } from '../../components/types';
-import { useSettings } from '../../hooks/context/useSettings';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { WalletDescriptor } from '../../class/wallet-descriptor.ts';
@@ -31,8 +29,6 @@ const WalletXpub: React.FC = () => {
   const route = useRoute<WalletXpubRouteProp>();
   const { walletID, xpub } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID);
-  const { isPrivacyBlurEnabled } = useSettings();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [xPubText, setXPubText] = useState<string | undefined>(undefined);
   const navigation = useNavigation<NavigationProp<RootStackParamList, 'WalletXpub'>>();
@@ -42,8 +38,6 @@ const WalletXpub: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (isPrivacyBlurEnabled) enableScreenProtect();
-      // Skip execution if walletID hasn't changed
       if (lastWalletIdRef.current === walletID) {
         return;
       }
@@ -61,10 +55,9 @@ const WalletXpub: React.FC = () => {
       })();
       lastWalletIdRef.current = walletID;
       return () => {
-        disableScreenProtect();
         cancelled = true;
       };
-    }, [isPrivacyBlurEnabled, walletID, wallet, xpub, navigation, enableScreenProtect, disableScreenProtect]),
+    }, [walletID, wallet, xpub, navigation]),
   );
 
   useEffect(() => {

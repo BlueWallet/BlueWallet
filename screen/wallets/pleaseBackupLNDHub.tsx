@@ -8,8 +8,6 @@ import QRCode from '../../components/QRCode';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { useSettings } from '../../hooks/context/useSettings';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 
@@ -23,8 +21,6 @@ const PleaseBackupLNDHub = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);
-  const { isPrivacyBlurEnabled } = useSettings();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
 
   const dismiss = useCallback(() => {
     navigation.getParent()?.goBack();
@@ -48,19 +44,15 @@ const PleaseBackupLNDHub = () => {
   });
 
   useEffect(() => {
-    if (isPrivacyBlurEnabled) {
-      enableScreenProtect();
-    }
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       dismiss();
       return true;
     });
 
     return () => {
-      disableScreenProtect();
       subscription.remove();
     };
-  }, [dismiss, isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
+  }, [dismiss]);
 
   const onLayout = (e: LayoutChangeEvent) => {
     const { height, width } = e.nativeEvent.layout;

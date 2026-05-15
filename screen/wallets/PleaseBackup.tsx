@@ -1,15 +1,14 @@
-import { RouteProp, useFocusEffect, useLocale, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useLocale, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect } from 'react';
 import { BackHandler, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
-import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import SeedWords from '../../components/SeedWords';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
+import { useScreenshotWarning } from '../../hooks/useScreenshotWarning';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'PleaseBackup'>;
 type NavigationProp = NativeStackNavigationProp<AddWalletStackParamList, 'PleaseBackup'>;
@@ -19,10 +18,10 @@ const PleaseBackup: React.FC = () => {
   const { walletID } = useRoute<RouteProps>().params;
   const wallet = wallets.find(w => w.getID() === walletID)!;
   const navigation = useNavigation<NavigationProp>();
-  const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
   const { direction } = useLocale();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
+
+  useScreenshotWarning();
 
   const stylesHook = StyleSheet.create({
     flex: {
@@ -46,15 +45,6 @@ const PleaseBackup: React.FC = () => {
       subscription.remove();
     };
   }, [handleBackButton]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (isPrivacyBlurEnabled) enableScreenProtect();
-      return () => {
-        disableScreenProtect();
-      };
-    }, [disableScreenProtect, enableScreenProtect, isPrivacyBlurEnabled]),
-  );
 
   return (
     <ScrollView

@@ -5,7 +5,6 @@ import A from '../../blue_modules/analytics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
-import { isDesktop } from '../../blue_modules/environment';
 import {
   SettingsFlatList,
   SettingsListItem,
@@ -20,7 +19,6 @@ enum SettingsPrivacySection {
   ReadClipboard,
   QuickActions,
   Widget,
-  TemporaryScreenshots,
   TotalBalance,
 }
 
@@ -36,8 +34,6 @@ const GeneralSettings: React.FC = () => {
   const {
     isDoNotTrackEnabled,
     setDoNotTrackStorage,
-    isPrivacyBlurEnabled,
-    setIsPrivacyBlurEnabled,
     isWidgetBalanceDisplayAllowed,
     setIsWidgetBalanceDisplayAllowedStorage,
     isClipboardGetContentEnabled,
@@ -116,15 +112,6 @@ const GeneralSettings: React.FC = () => {
     [setIsTotalBalanceEnabledStorage],
   );
 
-  const onTemporaryScreenshotsValueChange = useCallback(
-    (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.TemporaryScreenshots);
-      setIsPrivacyBlurEnabled(!value);
-      setIsLoading(SettingsPrivacySection.None);
-    },
-    [setIsPrivacyBlurEnabled],
-  );
-
   const openApplicationSettings = useCallback(() => {
     openSettings();
   }, []);
@@ -190,21 +177,6 @@ const GeneralSettings: React.FC = () => {
         showItem: true,
       },
     ];
-
-    if (!isDesktop) {
-      items.push({
-        id: 'temporaryScreenshots',
-        title: loc.settings.privacy_temporary_screenshots,
-        subtitle: <SettingsSubtitle>{loc.settings.privacy_temporary_screenshots_instructions}</SettingsSubtitle>,
-        switch: {
-          value: !isPrivacyBlurEnabled,
-          onValueChange: onTemporaryScreenshotsValueChange,
-          disabled: isLoading === SettingsPrivacySection.All,
-        },
-        Component: View,
-        showItem: true,
-      });
-    }
 
     items.push({
       id: 'doNotTrack',
@@ -283,7 +255,6 @@ const GeneralSettings: React.FC = () => {
     isClipboardGetContentEnabled,
     isQuickActionsEnabled,
     isTotalBalanceEnabled,
-    isPrivacyBlurEnabled,
     isDoNotTrackEnabled,
     isWidgetBalanceDisplayAllowed,
     isLoading,
@@ -292,7 +263,6 @@ const GeneralSettings: React.FC = () => {
     setIsClipboardGetContentEnabledStorage,
     onDoNotTrackValueChange,
     onQuickActionsValueChange,
-    onTemporaryScreenshotsValueChange,
     onTotalBalanceEnabledValueChange,
     onWidgetsTotalBalanceValueChange,
     openApplicationSettings,

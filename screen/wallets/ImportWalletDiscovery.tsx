@@ -19,7 +19,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWalletDiscovery'>;
@@ -36,8 +35,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
   const { importText, askPassphrase, searchAccounts } = route.params;
-  const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
+  const { isElectrumDisabled } = useSettings();
   const task = useRef<TImport | null>(null);
   const { addAndSaveWallet } = useStorage();
   const [loading, setLoading] = useState<boolean>(true);
@@ -140,15 +138,6 @@ const ImportWalletDiscovery: React.FC = () => {
       task.current?.stop();
     };
   }, [askPassphrase, importText, isElectrumDisabled, navigation, saveWallet, searchAccounts]);
-
-  useEffect(() => {
-    if (isPrivacyBlurEnabled) {
-      enableScreenProtect();
-    }
-    return () => {
-      disableScreenProtect();
-    };
-  }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
 
   const handleCustomDerivation = () => {
     task.current?.stop();

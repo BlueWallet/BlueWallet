@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import Icon from '../../components/Icon';
@@ -21,7 +21,6 @@ import MultipleStepsListItem, {
   MultipleStepsListItemButtonType,
   MultipleStepsListItemDashType,
 } from '../../components/MultipleStepsListItem';
-import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type MultisigStep2Params = {
@@ -44,7 +43,6 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const WalletsAddMultisigStep2 = () => {
   const { addAndSaveWallet, sleep, currentSharedCosigner, setSharedCosigner } = useStorage();
-  const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { colors } = useTheme();
 
   const navigation = useExtendedNavigation();
@@ -56,19 +54,8 @@ const WalletsAddMultisigStep2 = () => {
   const [vaultKeyData, setVaultKeyData] = useState({ keyIndex: 1, xpub: '', seed: '', isLoading: false }); // string rendered in modal
   const [importText, setImportText] = useState('');
   const [askPassphrase, setAskPassphrase] = useState(false);
-  const { isPrivacyBlurEnabled, isElectrumDisabled } = useSettings();
+  const { isElectrumDisabled } = useSettings();
   const data = useRef(new Array(n).fill(null));
-
-  useFocusEffect(
-    useCallback(() => {
-      if (isPrivacyBlurEnabled) {
-        enableScreenProtect();
-      }
-      return () => {
-        disableScreenProtect();
-      };
-    }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]),
-  );
 
   useEffect(() => {
     console.log(currentSharedCosigner);

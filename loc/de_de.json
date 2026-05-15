@@ -224,8 +224,6 @@
     "about_selftest_ok": "Alle internen Tests verliefen erfolgreich. Das Wallet funktioniert gut.",
     "about_sm_github": "GitHub",
     "about_sm_telegram": "Telegram-Channel",
-    "privacy_temporary_screenshots": "Bildschirmaufnahme erlauben",
-    "privacy_temporary_screenshots_instructions": "Der Schutz vor Bildschirmaufnahmen wird vorübergehend deaktiviert, wodurch Screenshots und Bildschirmaufzeichnungen möglich sind. Der Schutz wird automatisch reaktiviert, wenn Sie BlueWallet schließen und erneut öffnen.",
     "biometrics": "Biometrie",
     "biometrics_no_longer_available": "Die Geräteeinstellungen stimmen nicht mehr mit den App Sicherheitseinstellungen überein. Um die Änderungen zu übernehmen, die Biometrie oder den Passcode einrichten, dann die App neu starten.",
     "biom_10times": "Es wurde 10 Mal versucht, das Passwort einzugeben. Soll der Speicher zurückgesetzt werden? Dabei werden alle Wallets entfernt der Speicher entschlüsselt.",

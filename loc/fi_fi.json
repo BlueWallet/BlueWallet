@@ -221,8 +221,6 @@
     "about_selftest_ok": "Kaikki sisäiset testit on läpäisty onnistuneesti. Lompakko toimii hyvin. ",
     "about_sm_github": "GitHub",
     "about_sm_telegram": "Telegram-kanava",
-    "privacy_temporary_screenshots": "Salli näytönkaappaus",
-    "privacy_temporary_screenshots_instructions": "Näytönkaappausesto poistetaan tilapäisesti käytöstä, jolloin näytönkaappaukset ja näytön tallenteet ovat käytössä. Esto aktivoituu automaattisesti uudelleen, kun suljet BlueWalletin ja avaat sen uudelleen.",
     "biometrics": "Biometriset tiedot",
     "biometrics_no_longer_available": "Laitteesi asetukset ovat muuttuneet, eivätkä ne enää vastaa sovelluksessa valittuja suojausasetuksia. Ota biometria tai salasana uudelleen käyttöön ja käynnistä sovellus uudelleen, jotta muutokset tulevat voimaan.",
     "biom_10times": "Olet yrittänyt antaa salasanasi 10 kertaa. Haluatko nollata tallennustilan? Tämä poistaa kaikki lompakot ja purkaa tallennustilan salauksen.",

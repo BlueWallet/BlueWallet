@@ -224,8 +224,6 @@
     "about_selftest_ok": "모든 내부 테스트를 성공적으로 마쳤습니다. 월렛은 정상적으로 기능합니다.",
     "about_sm_github": "GitHub",
     "about_sm_telegram": "텔레그램 채널",
-    "privacy_temporary_screenshots": "화면 캡처 허용",
-    "privacy_temporary_screenshots_instructions": "화면 캡처 보호 기능이 일시적으로 비활성화되어, 스크린샷 및 화면 녹화가 가능해집니다. BlueWallet을 닫았다가 다시 열면 보호 기능이 자동으로 다시 활성화됩니다.",
     "biometrics": "바이오메트릭",
     "biometrics_no_longer_available": "기기의 설정이 변경되어 앱에서 선택한 보안 설정과 일치하지 않습니다. 지문 또는 암호 잠금을 다시 활성화한 후, 앱을 재시작하여 변경 사항을 적용해 주세요.",
     "biom_10times": "비밀번호를 10번 실패했습니다. 스토리지를 초기화시키겠습니까? 이는 모든 월렛을 지우고 스토리지를 암호화합니다. ",

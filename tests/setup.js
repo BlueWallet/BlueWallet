@@ -48,6 +48,22 @@ jest.mock('react-native-capture-protection', () => ({
     prevent: jest.fn(),
     allow: jest.fn(),
     isScreenRecording: jest.fn(() => Promise.resolve(false)),
+    addListener: jest.fn(() => ({ remove: jest.fn() })),
+    removeListener: jest.fn(),
+    hasListener: jest.fn(() => Promise.resolve(false)),
+    requestPermission: jest.fn(() => Promise.resolve(true)),
+  },
+  CaptureEventType: {
+    NONE: 0,
+    RECORDING: 1,
+    END_RECORDING: 2,
+    CAPTURED: 3,
+    APP_SWITCHING: 4,
+    UNKNOWN: 5,
+    ALLOW: 8,
+    PREVENT_SCREEN_CAPTURE: 16,
+    PREVENT_SCREEN_RECORDING: 32,
+    PREVENT_SCREEN_APP_SWITCHING: 64,
   },
 }));
 
