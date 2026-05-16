@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
-import { TextInput, LayoutAnimation } from 'react-native';
+import { TextInput } from 'react-native';
 import loc from '../../loc';
 import { SettingsScrollView, SettingsSection, SettingsListItem, SettingsSectionHeader } from '../../components/platform';
 import {
@@ -76,7 +76,6 @@ const SettingsBlockExplorer: React.FC = () => {
 
   const handleCustomSwitchToggle = useCallback(
     async (value: boolean) => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setIsCustomEnabled(value);
       if (value) {
         await removeBlockExplorer();

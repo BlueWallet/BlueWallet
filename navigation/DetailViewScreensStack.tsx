@@ -1,7 +1,6 @@
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import HeaderRightButton from '../components/HeaderRightButton';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
@@ -15,7 +14,6 @@ import Broadcast from '../screen/send/Broadcast';
 import IsItMyAddress from '../screen/settings/IsItMyAddress';
 import Success from '../screen/send/success';
 import CPFP from '../screen/transactions/CPFP';
-import TransactionDetails from '../screen/transactions/TransactionDetails';
 import RBFBumpFee from '../screen/transactions/RBFBumpFee';
 import RBFCancel from '../screen/transactions/RBFCancel';
 import TransactionStatus from '../screen/transactions/TransactionStatus';
@@ -118,13 +116,16 @@ const DetailViewStackScreensStack = () => {
     if (isElectrumDisabled) return;
     const subscription = AppState.addEventListener('change', nextState => {
       if (nextState === 'active') {
-        pollConnection();
+        BlueElectrum.ensureElectrumConnection()
+          .then(ok => setElectrumConnected(ok))
+          .catch(() => setElectrumConnected(false));
       }
     });
     return () => subscription.remove();
-  }, [isElectrumDisabled, pollConnection]);
-  // When starting up in an unknown state, we optimistically rely on ping()
-  // and the fast retry loop while disconnected. Slow health checks while connected
+  }, [isElectrumDisabled]);
+  // When starting up in an unknown state, we optimistically rely on ping(); on resume we
+  // call ensureElectrumConnection() (reconnect if the socket died in the background).
+  // Fast retry loop while disconnected uses ping only. Slow health checks while connected
   // run only from WalletsList when that screen is focused (saves idle battery).
 
   useEffect(() => {
@@ -134,8 +135,6 @@ const DetailViewStackScreensStack = () => {
   }, [isElectrumDisabled, electrumConnected, pollConnection]);
 
   const connectionPollContextValue = useMemo(() => ({ pollConnection }), [pollConnection]);
-
-  const DetailButton = useMemo(() => <HeaderRightButton testID="DetailButton" disabled={true} title={loc.send.create_details} />, []);
 
   const navigateToAddWallet = useCallback(() => {
     navigation.navigate('AddWalletRoot');
@@ -280,16 +279,6 @@ const DetailViewStackScreensStack = () => {
           })(theme)}
         />
         <DetailViewStack.Screen
-          name="TransactionDetails"
-          component={TransactionDetails}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
-            },
-            headerTitle: loc.transactions.details_title,
-          })(theme)}
-        />
-        <DetailViewStack.Screen
           name="TransactionStatus"
           component={TransactionStatus}
           initialParams={{
@@ -301,8 +290,7 @@ const DetailViewStackScreensStack = () => {
               backgroundColor: theme.colors.customHeader,
             },
             headerTitle: '',
-            headerRight: () => DetailButton,
-            headerBackButtonDisplayMode: 'minimal',
+            headerBackButtonDisplayMode: 'default',
           })(theme)}
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
@@ -519,11 +507,14 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ManageWallets"
           component={ManageWallets}
-          options={{
+          options={navigationStyle({
             presentation: 'fullScreenModal',
             title: loc.wallets.manage_title,
             headerShown: true,
-          }}
+            headerStyle: {
+              backgroundColor: theme.colors.customHeader,
+            },
+          })(theme)}
         />
         <DetailViewStack.Screen
           name="ReceiveDetails"

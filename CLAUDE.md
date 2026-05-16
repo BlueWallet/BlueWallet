@@ -67,7 +67,7 @@ React Navigation 7.x with native stack. Typed params in `navigation/DetailViewSt
 - No unused styles (`react-native/no-unused-styles`: error)
 - Prettier: single quotes, 140 char width, trailing commas
 
-**Localization:** Keys in `loc/en.json`. Run `find-unused-loc.js` to detect unused keys.
+**Localization:** Keys in `loc/en.json`. Run `find-unused-loc.js` to detect unused keys. See `loc/vocabulary.md` for the canonical glossary of Bitcoin/Lightning terms and their per-language renderings — use it as ground truth when translating or generating translations with LLMs.
 
 ## Testing
 
