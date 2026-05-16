@@ -260,6 +260,11 @@ jest.mock('react-native-haptic-feedback', () => ({}));
 // can be exercised in unit tests. Each `Realm.open({ path })` returns a stable
 // instance for that path until it is closed or deleted; concurrent opens for the
 // same path observe the same instance.
+//
+// The mock supports in-memory CRUD so SDK repository operations (saveContract,
+// getContracts, saveVtxos, getVtxos, etc.) round-trip correctly. Without this,
+// `annotateVtxos` cannot find contracts that were just saved and throws
+// "no contract matched vtxo.script" when the test wallet has live VTXOs.
 jest.mock('realm', () => {
   const mockRealmStore = new Map();
   // Persisted-on-disk view: paths that have been opened at least once and not
@@ -267,39 +272,177 @@ jest.mock('realm', () => {
   // live (memory-cached, possibly-closed) instance map so deleteArkadeRealm
   // can realistically test the file-cleanup path.
   const mockRealmFiles = new Set();
+
+  // Primary-key field per Realm object type. Used by create() to key the
+  // in-memory store and by delete() to remove individual objects.
+  const PK_FIELD = {
+    ArkContract: 'script',
+    ArkVtxo: 'pk',
+    ArkUtxo: 'pk',
+    ArkTransaction: 'pk',
+    ArkWalletState: 'key',
+    BoltzSwap: 'id',
+    ArkSwapNotificationSuppression: 'id',
+  };
+
+  // Split a query string at a top-level separator (i.e. not inside parens/braces).
+  const splitTop = (s, sep) => {
+    const parts = [];
+    let depth = 0;
+    let start = 0;
+    for (let i = 0; i <= s.length - sep.length; i++) {
+      const c = s[i];
+      if (c === '(' || c === '{') depth++;
+      else if (c === ')' || c === '}') depth--;
+      else if (depth === 0 && s.slice(i, i + sep.length) === sep) {
+        parts.push(s.slice(start, i).trim());
+        i += sep.length - 1;
+        start = i + 1;
+      }
+    }
+    parts.push(s.slice(start).trim());
+    return parts.length > 1 ? parts : [s.trim()];
+  };
+
+  // Evaluate a Realm query expression against a plain object.
+  // Handles: `field == $N`, `field IN {$0,$1,...}`, AND, OR, and parens.
+  const evalExpr = (obj, expr, args) => {
+    expr = expr.trim();
+    // Strip matching outer parens — e.g. "(a == $0 OR a == $1)" → "a == $0 OR a == $1"
+    while (expr.startsWith('(') && expr.endsWith(')')) {
+      let depth = 0;
+      let allWrapped = true;
+      for (let i = 0; i < expr.length - 1; i++) {
+        if (expr[i] === '(') depth++;
+        else if (expr[i] === ')') {
+          if (--depth === 0) {
+            allWrapped = false;
+            break;
+          }
+        }
+      }
+      if (allWrapped) expr = expr.slice(1, -1).trim();
+      else break;
+    }
+    // AND: all sub-expressions must match
+    const andParts = splitTop(expr, ' AND ');
+    if (andParts.length > 1) return andParts.every(p => evalExpr(obj, p, args));
+    // OR: any sub-expression must match
+    const orParts = splitTop(expr, ' OR ');
+    if (orParts.length > 1) return orParts.some(p => evalExpr(obj, p, args));
+    // IN {$0, $1, ...} — used by BoltzSwap repository
+    const inMatch = expr.match(/^(\w+)\s+IN\s+\{([^}]*)\}$/i);
+    if (inMatch) {
+      const field = inMatch[1];
+      const values = inMatch[2].split(',').map(p => {
+        const m = p.trim().match(/^\$(\d+)$/);
+        return m ? args[+m[1]] : undefined;
+      });
+      return values.includes(obj[field]);
+    }
+    // field == $N
+    const eqMatch = expr.match(/^(\w+)\s*==\s*\$(\d+)$/);
+    if (eqMatch) return obj[eqMatch[1]] === args[+eqMatch[2]];
+    return true; // unknown expression — pass through
+  };
+
+  // Build a chainable collection over an array of Realm objects.
+  const makeCollection = (type, items) => {
+    const arr = Array.isArray(items) ? items : [...items];
+    return {
+      filtered: (query, ...args) => makeCollection(type, arr.filter(o => evalExpr(o, query, args))),
+      sorted: (field, reverse) => {
+        const sorted = [...arr].sort((a, b) => {
+          if (a[field] < b[field]) return reverse ? 1 : -1;
+          if (a[field] > b[field]) return reverse ? -1 : 1;
+          return 0;
+        });
+        return makeCollection(type, sorted);
+      },
+      get length() {
+        return arr.length;
+      },
+      [Symbol.iterator]: function* () {
+        yield* arr;
+      },
+      // Internal: used by delete() to identify the backing type and items.
+      _type: type,
+      _items: arr,
+    };
+  };
+
   const makeRealmInstance = path => {
     let isClosed = false;
+    // type → Map<primaryKey, object>
+    const typeStore = new Map();
+
+    const getStore = type => {
+      if (!typeStore.has(type)) typeStore.set(type, new Map());
+      return typeStore.get(type);
+    };
+
     return {
       path,
       get isClosed() {
         return isClosed;
       },
-      create: function () {},
-      delete: function () {},
-      write: function (transactionFn) {
-        if (typeof transactionFn === 'function') {
-          transactionFn();
+
+      create(type, data) {
+        const store = getStore(type);
+        const pkField = PK_FIELD[type];
+        const pk = pkField !== undefined ? data[pkField] : JSON.stringify(data);
+        // Shallow-copy so later mutations to the caller's object don't affect
+        // what the store holds. Attach a non-enumerable tag for delete().
+        const stored = Object.defineProperty({ ...data }, '_realmMeta', {
+          value: { type, pk },
+          enumerable: false,
+        });
+        store.set(pk, stored);
+      },
+
+      delete(target) {
+        if (!target) return;
+        // Single object returned by objectForPrimaryKey (has _realmMeta)
+        if (target._realmMeta) {
+          const { type, pk } = target._realmMeta;
+          getStore(type).delete(pk);
+          return;
+        }
+        // Collection returned by objects() / filtered()
+        if (target._type !== undefined && target._items !== undefined) {
+          const store = getStore(target._type);
+          const pkField = PK_FIELD[target._type];
+          for (const item of target._items) {
+            const pk = pkField !== undefined ? item[pkField] : undefined;
+            if (pk !== undefined) store.delete(pk);
+          }
         }
       },
-      objectForPrimaryKey: function () {
-        return {};
+
+      write(transactionFn) {
+        if (typeof transactionFn === 'function') transactionFn();
       },
-      objects: function () {
-        return {
-          filtered: function () {
-            return [];
-          },
-          length: 0,
-          [Symbol.iterator]: function* () {},
-        };
+
+      objectForPrimaryKey(type, pk) {
+        return getStore(type).get(pk) ?? null;
       },
-      close: function () {
+
+      objects(type) {
+        return makeCollection(type, getStore(type).values());
+      },
+
+      close() {
         isClosed = true;
       },
+
       addListener: jest.fn(),
       removeAllListeners: jest.fn(),
+
+      // Exposed so __mockRealmHelpers.reset() can wipe data in open instances.
+      _clearData: () => typeStore.clear(),
     };
   };
+
   return {
     UpdateMode: { Modified: 1 },
     open: jest.fn(async config => {
@@ -323,6 +466,11 @@ jest.mock('realm', () => {
     }),
     __mockRealmHelpers: {
       reset: () => {
+        // Clear data inside any open instances so tests don't leak state
+        // through instances cached in the app module's realmInstances map.
+        for (const inst of mockRealmStore.values()) {
+          if (typeof inst._clearData === 'function') inst._clearData();
+        }
         mockRealmStore.clear();
         mockRealmFiles.clear();
       },

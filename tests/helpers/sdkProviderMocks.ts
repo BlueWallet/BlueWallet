@@ -14,7 +14,7 @@
  * covers both.
  */
 
-import { RestArkProvider, RestDelegatorProvider, VtxoManager } from '@arkade-os/sdk';
+import { ContractManager, RestArkProvider, RestDelegatorProvider, VtxoManager } from '@arkade-os/sdk';
 import { BoltzSwapProvider, SwapManager } from '@arkade-os/boltz-swap';
 
 /** Snapshot of `https://arkade.computer/v1/info` for offline tests. */
@@ -94,6 +94,17 @@ export function installSdkProviderSpies(): void {
   // setTimeout loop that keeps the Node.js event loop alive indefinitely and
   // prevents Jest from exiting after the test completes.
   jest.spyOn(SwapManager.prototype as any, 'start').mockResolvedValue(undefined);
+
+  // Any code path that calls `wallet.getContractManager()` lazily constructs
+  // a ContractManager whose `initialize()` opens a ContractWatcher SSE stream
+  // (via `indexerProvider.getSubscription`) and runs a delta sync against the
+  // indexer. Both leave handles or pending fetches that block Jest from
+  // exiting. Unit tests that only exercise address derivation never trigger
+  // this, but tests that call `fetchBalance` / `fetchTransactions` /
+  // `getTransactionHistory` after init do. Stub initialize to a no-op so the
+  // manager exists with no watched contracts — the manager-querying methods
+  // then return empty results without touching the network.
+  jest.spyOn(ContractManager.prototype as any, 'initialize').mockResolvedValue(undefined);
 }
 
 export function restoreSdkProviderSpies(): void {
