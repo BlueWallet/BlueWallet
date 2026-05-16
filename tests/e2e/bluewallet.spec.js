@@ -132,7 +132,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
       // commit via the explicit Save button rather than IME return-key taps
       // (which require focus state we can't reliably guarantee here).
       const scrollIntoView = id =>
-        waitFor(element(by.id(id))).toBeVisible().whileElement(by.id('ElectrumSettingsScrollView')).scroll(300, 'down');
+        waitFor(element(by.id(id)))
+          .toBeVisible()
+          .whileElement(by.id('ElectrumSettingsScrollView'))
+          .scroll(300, 'down');
 
       await scrollIntoView('HostInput');
       await element(by.id('HostInput')).replaceText('electrum.blockstream.info');
@@ -194,7 +197,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
       // toggle so the alert never leaks past `goBack()`.
       const dismissOKAlertIfPresent = async (timeoutMs = 15000) => {
         try {
-          await waitFor(element(by.text('OK'))).toBeVisible().withTimeout(timeoutMs);
+          await waitFor(element(by.text('OK')))
+            .toBeVisible()
+            .withTimeout(timeoutMs);
           await element(by.text('OK')).tap();
         } catch (_) {
           // Alert not shown, which is fine - notifications might be enabled.
