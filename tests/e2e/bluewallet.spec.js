@@ -119,35 +119,39 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // network -> electrum server
     // change electrum server to electrum.blockstream.info and revert it back
-    // skip this test on iOS. HeaderMenuButton tap triggers a keyboard open for some reason.
+    // Skipped on iOS: tapping HeaderMenuButton steals focus and reopens the
+    // soft keyboard, which the iOS Electrum form isn't structured to recover
+    // from cleanly. Android-only for now.
     if (device.getPlatform() === 'android') {
       await element(by.id('ElectrumSettings')).tap();
-      await waitFor(element(by.id('HostInput')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
-      await element(by.id('HostInput')).tapReturnKey();
-      await waitForKeyboardToClose();
-      await element(by.id('PortInput')).replaceText('50001\n');
-      await element(by.id('PortInput')).tapReturnKey();
-      await waitForKeyboardToClose();
-      await waitFor(element(by.id('Save')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+
+      // CI runs Android with a hardware keyboard (waitForKeyboardToClose is a
+      // no-op there), so the form layout shifts unpredictably and inputs that
+      // are nominally on screen can fall just under Detox's 75% visibility
+      // threshold. Scroll each control into view before touching it, and
+      // commit via the explicit Save button rather than IME return-key taps
+      // (which require focus state we can't reliably guarantee here).
+      const scrollIntoView = id =>
+        waitFor(element(by.id(id))).toBeVisible().whileElement(by.id('ElectrumSettingsScrollView')).scroll(300, 'down');
+
+      await scrollIntoView('HostInput');
+      await element(by.id('HostInput')).replaceText('electrum.blockstream.info');
+
+      await scrollIntoView('PortInput');
+      await element(by.id('PortInput')).replaceText('50001');
+
+      await scrollIntoView('Save');
       await element(by.id('Save')).tap();
       await waitForText('OK');
       await element(by.text('OK')).tap();
+
       await element(by.id('HeaderMenuButton')).tap();
       await element(by.text('Reset to default')).tap();
       await element(by.text('RESET TO DEFAULT')).tap();
       await waitForText('OK');
       await element(by.text('OK')).tap();
-      await waitFor(element(by.id('HostInput')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+
+      await scrollIntoView('HostInput');
       await expect(element(by.id('HostInput'))).toHaveText('');
       await expect(element(by.id('PortInput'))).toHaveText('');
       await expect(element(by.id('SSLPortInput'))).toHaveToggleValue(false);
