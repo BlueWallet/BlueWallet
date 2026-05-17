@@ -3,7 +3,6 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import {
   Text,
   Image,
-  LayoutAnimation,
   NativeSyntheticEvent,
   Pressable,
   StyleSheet,
@@ -111,6 +110,23 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     }
   }, [unit]);
 
+  const displayAmount = useMemo(() => {
+    if (amount === BitcoinUnit.MAX) {
+      return loc.units.MAX;
+    }
+
+    return parseFloat(amount) >= 0 ? String(amount) : undefined;
+  }, [amount]);
+
+  const inputFontSize = useMemo(() => (amount.length > 10 ? 20 : 36), [amount.length]);
+
+  const inputWidth = useMemo(() => {
+    const valueLength = Math.max((displayAmount || '0').length, 1);
+    const estimatedCharWidth = inputFontSize * 0.68;
+    const calculatedWidth = Math.ceil(valueLength * estimatedCharWidth) + 12;
+    return Math.min(Math.max(calculatedWidth, 32), 320);
+  }, [displayAmount, inputFontSize]);
+
   const secondaryDisplayCurrency = useMemo(() => {
     if (amount === BitcoinUnit.MAX) {
       return '';
@@ -140,7 +156,6 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   useEffect(() => {
     (async () => {
       if (await isRateOutdated()) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         const recent = await mostRecentFetchedRate();
         setOutdatedRefreshRate(recent);
       }
@@ -278,12 +293,18 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     [amount],
   );
 
-  const stylesHook = StyleSheet.create({
+  const stylesHook = {
     center: { padding: amount === BitcoinUnit.MAX ? 0 : 15 },
     localCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
-    input: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2, fontSize: amount.length > 10 ? 20 : 36 },
+    input: {
+      color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2,
+      fontSize: inputFontSize,
+      lineHeight: inputFontSize,
+      minHeight: inputFontSize + 8,
+      width: inputWidth,
+    },
     cryptoCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
-  });
+  };
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={loc._.enter_amount} disabled={disabled} onPress={handleTextInputOnPress}>
@@ -304,7 +325,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                 maxLength={maxLength}
                 ref={textInputRef}
                 editable={!isLoading && !disabled}
-                value={amount === BitcoinUnit.MAX ? loc.units.MAX : parseFloat(amount) >= 0 ? String(amount) : undefined}
+                value={displayAmount}
                 placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
                 style={[styles.input, stylesHook.input]}
                 {...otherProps}
@@ -399,6 +420,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flexDirection: 'row',
+    alignItems: 'center',
     alignContent: 'space-between',
     justifyContent: 'center',
     paddingTop: 16,
@@ -413,6 +435,9 @@ const styles = StyleSheet.create({
   },
   input: {
     fontWeight: 'bold',
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    textAlign: 'center',
   },
   cryptoCurrency: {
     fontSize: 15,

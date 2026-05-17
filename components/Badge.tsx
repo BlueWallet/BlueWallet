@@ -5,11 +5,12 @@ export interface BadgeProps {
   value?: string | number | React.ReactNode;
   badgeStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  testID?: string;
 }
 
-const Badge: React.FC<BadgeProps> = ({ value, badgeStyle, textStyle }) => {
+const Badge: React.FC<BadgeProps> = ({ value, badgeStyle, textStyle, testID }) => {
   return (
-    <View style={[styles.badge, badgeStyle]}>
+    <View testID={testID} style={[styles.badge, badgeStyle]}>
       {typeof value === 'string' || typeof value === 'number' ? <Text style={[styles.text, textStyle]}>{value}</Text> : value}
     </View>
   );

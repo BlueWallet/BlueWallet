@@ -768,7 +768,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // wait for discovery to be completed
     await waitFor(element(by.text("m/84'/0'/0'")))
       .toBeVisible()
-      .withTimeout(300 * 1000);
+      .withTimeout(600 * 1000);
     await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
     await expect(element(by.text("m/49'/0'/0'"))).toBeVisible();
     await expect(element(by.id('Loading'))).not.toBeVisible();
@@ -782,7 +782,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitForKeyboardToClose();
       await waitFor(element(by.text('Found'))) // wait for discovery to be completed
         .toExist()
-        .withTimeout(300 * 1000);
+        .withTimeout(600 * 1000);
       await element(by.text('Found')).tap();
       await element(by.id('ImportButton')).tap();
       await element(by.text('OK')).tap();

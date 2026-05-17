@@ -14,7 +14,6 @@ import {
   findNodeHandle,
   FlatList,
   Keyboard,
-  LayoutAnimation,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -1333,7 +1332,6 @@ const SendDetails = () => {
             number={utxos.length}
             onContainerPress={handleCoinControl}
             onClose={() => {
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               setParams({ utxos: null });
             }}
           />
