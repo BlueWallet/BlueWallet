@@ -736,51 +736,47 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('ScrollView'))
       .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
     await element(by.id('ImportWallet')).tap();
-    await element(by.id('MnemonicInput')).typeText(
-      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-    );
+    await element(by.id('MnemonicInput')).typeText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
     await tapIfTextPresent('Done');
     await element(by.id('HeaderMenuButton')).tap();
+    await expect(element(by.text('Search accounts'))).toBeVisible();
     await element(by.text('Passphrase')).tap();
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Search accounts')).tap();
     await element(by.id('DoImport')).tap();
-    await sleep(1000);
 
     // cancel import and start over
+    await waitFor(element(by.text('Cancel')))
+      .toBeVisible()
+      .withTimeout(10000);
     await element(by.text('Cancel')).tap();
     await element(by.id('DoImport')).tap();
-    await sleep(1000);
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(10000);
     await element(by.text('OK')).tap();
 
     // wait for discovery to be completed
     await waitFor(element(by.text("m/84'/0'/0'")))
       .toBeVisible()
-      .withTimeout(600 * 1000);
-    await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
-    await expect(element(by.text("m/49'/0'/0'"))).toBeVisible();
+      .withTimeout(300 * 1000);
+    await expect(element(by.text("m/44'/0'/0'"))).toBeVisible();
     await expect(element(by.id('Loading'))).not.toBeVisible();
 
     // open custom derivation path screen and import the wallet
     await element(by.id('CustomDerivationPathButton')).tap();
-    if (device.getPlatform() === 'android') {
-      // TODO: replace ’ with ' on ios
-      await element(by.id('DerivationPathInput')).clearText();
-      await element(by.id('DerivationPathInput')).typeText("m/44'/0'/1'\n");
-      await waitForKeyboardToClose();
-      await waitFor(element(by.text('Found'))) // wait for discovery to be completed
-        .toExist()
-        .withTimeout(600 * 1000);
-      await element(by.text('Found')).tap();
-      await element(by.id('ImportButton')).tap();
-      await element(by.text('OK')).tap();
+    await element(by.id('DerivationPathInput')).clearText();
+    await element(by.id('DerivationPathInput')).typeText("m/44'/0'/0'\n");
+    await waitForKeyboardToClose();
+    await waitFor(element(by.text('Found'))) // wait for discovery to be completed
+      .toExist()
+      .withTimeout(300 * 1000);
+    await element(by.text('Found')).tap();
+    await element(by.id('ImportButton')).tap();
+    await element(by.text('OK')).tap();
 
-      // go to wallet and check derivation path
-      await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
-      await element(by.id('WalletDetails')).tap();
-      await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
-    }
-
+    // go to wallet and check derivation path
+    await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
+    await element(by.id('WalletDetails')).tap();
+    await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/0'");
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
