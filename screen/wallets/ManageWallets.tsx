@@ -25,6 +25,7 @@ import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from 
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import DraggableFlatList, { RenderItemParams, DragEndParams } from 'react-native-draggable-flatlist';
 import { ItemType, AddressItemData } from '../../models/itemTypes';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import ManageWalletsListItem, { WalletGroupComponent } from '../../components/ManageWalletsListItem';
 import HighlightedText from '../../components/HighlightedText';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -144,6 +145,8 @@ const ManageWallets: React.FC = () => {
   const [noResultsOpacity] = useState(new Animated.Value(0));
 
   const [dragging, setDragging] = useState(false);
+  const [interactionLockActive, setInteractionLockActive] = useState(false);
+  const interactionLockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedSearch = useCallback((text: string) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
@@ -161,6 +164,7 @@ const ManageWallets: React.FC = () => {
   useEffect(() => {
     return () => {
       if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+      if (interactionLockTimerRef.current) clearTimeout(interactionLockTimerRef.current);
     };
   }, []);
 
@@ -414,7 +418,10 @@ const ManageWallets: React.FC = () => {
         accessibilityRole="button"
         accessibilityLabel={loc._.close}
         style={styles.button}
-        onPress={goBack}
+        onPress={() => {
+          triggerHapticFeedback(HapticFeedbackTypes.Selection);
+          goBack();
+        }}
         testID="NavigationCloseButton"
       >
         <Image source={closeImage} />
@@ -427,8 +434,14 @@ const ManageWallets: React.FC = () => {
     const searchBarOptions = {
       hideWhenScrolling: false,
       onChangeText: (event: { nativeEvent: { text: any } }) => debouncedSearch(event.nativeEvent.text),
-      onClear: () => debouncedSearch(''),
-      onFocus: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true }),
+      onClear: () => {
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
+        debouncedSearch('');
+      },
+      onFocus: () => {
+        triggerHapticFeedback(HapticFeedbackTypes.Selection);
+        dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true });
+      },
       onBlur: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false }),
       placeholder: loc.wallets.manage_wallets_search_placeholder,
     };
@@ -496,6 +509,30 @@ const ManageWallets: React.FC = () => {
     [state.walletsCopy, setWalletsWithNewOrder],
   );
 
+  const handleChangeWalletUnit = useCallback(
+    (wallet: TWallet) => {
+      const current = wallet.getPreferredBalanceUnit();
+      let next: BitcoinUnit;
+      if (current === BitcoinUnit.BTC) {
+        next = BitcoinUnit.SATS;
+      } else if (current === BitcoinUnit.SATS) {
+        next = BitcoinUnit.LOCAL_CURRENCY;
+      } else {
+        next = BitcoinUnit.BTC;
+      }
+      const walletID = wallet.getID();
+      const updatedWallets = deepCopyWallets(state.walletsCopy).map(w => {
+        if (w.getID() === walletID) {
+          w.setPreferredBalanceUnit(next);
+        }
+        return w;
+      });
+      setWalletsWithNewOrder(updatedWallets);
+      dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
+    },
+    [state.walletsCopy, setWalletsWithNewOrder],
+  );
+
   const renderListItem = useCallback(
     (item: Item, drag: (() => void) | undefined, isActive: boolean) => {
       const compatibleState = {
@@ -521,20 +558,22 @@ const ManageWallets: React.FC = () => {
       return (
         <ManageWalletsListItem
           item={item}
-          isDraggingDisabled={isDragDisabled}
+          isDraggingDisabled={isDragDisabled || interactionLockActive}
           handleToggleHideBalance={handleToggleHideBalance}
+          handleChangeWalletUnit={handleChangeWalletUnit}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
           navigateToAddress={navigateToAddress}
           renderHighlightedText={renderHighlightedText}
           isActive={isActive}
           drag={isDragDisabled ? undefined : drag}
-          globalDragActive={dragging}
+          globalDragActive={dragging || interactionLockActive}
         />
       );
     },
     [
       handleToggleHideBalance,
+      handleChangeWalletUnit,
       state.walletsCopy,
       state.searchQuery,
       state.isSearchFocused,
@@ -542,6 +581,7 @@ const ManageWallets: React.FC = () => {
       navigateToAddress,
       renderHighlightedText,
       dragging,
+      interactionLockActive,
       isDragDisabled,
     ],
   );
@@ -618,6 +658,7 @@ const ManageWallets: React.FC = () => {
           style={({ pressed }) => [styles.clearSearchButton, stylesHook.clearSearchButton, pressed && styles.clearSearchButtonPressed]}
           android_ripple={{ color: colors.buttonDisabledTextColor, borderless: false }}
           onPress={() => {
+            triggerHapticFeedback(HapticFeedbackTypes.Selection);
             dispatch({ type: SET_SEARCH_QUERY, payload: '' });
             dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
           }}
@@ -660,10 +701,22 @@ const ManageWallets: React.FC = () => {
               renderItem={renderDraggableItem}
               containerStyle={styles.listContainer}
               onDragBegin={() => {
+                if (interactionLockTimerRef.current) {
+                  clearTimeout(interactionLockTimerRef.current);
+                  interactionLockTimerRef.current = null;
+                }
+                setInteractionLockActive(false);
                 setDragging(true);
               }}
               onDragEnd={({ from, to, data }: DragEndParams<Item>) => {
                 setDragging(false);
+                setInteractionLockActive(true);
+                if (interactionLockTimerRef.current) {
+                  clearTimeout(interactionLockTimerRef.current);
+                }
+                interactionLockTimerRef.current = setTimeout(() => {
+                  setInteractionLockActive(false);
+                }, 180);
 
                 if (state.searchQuery.length > 0 || state.isSearchFocused) {
                   return;
