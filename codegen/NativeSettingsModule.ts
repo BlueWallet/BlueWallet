@@ -10,6 +10,7 @@ export interface Spec extends TurboModule {
   setDoNotTrack(enabled: boolean): Promise<boolean>;
   getDoNotTrack(): Promise<boolean>;
   openSettings(): Promise<boolean>;
+  requestKeyboardIncognitoMode(): Promise<boolean>;
 }
 
 const nativeModule = TurboModuleRegistry.get<Spec>('SettingsModule');
