@@ -8,7 +8,6 @@ import {
   StyleProp,
   StyleSheet,
   Text,
-  TextInput,
   TextInputProps,
   TextProps,
   View,
@@ -16,6 +15,7 @@ import {
   ViewStyle,
 } from 'react-native';
 
+import IncognitoKeyboardTextInput from './components/IncognitoKeyboardTextInput';
 import Icon from './components/Icon';
 import { useTheme } from './components/themes';
 
@@ -93,7 +93,7 @@ export const BlueFormMultiInput: React.FC<TextInputProps> = props => {
   const { style, editable, ...restProps } = props;
 
   return (
-    <TextInput
+    <IncognitoKeyboardTextInput
       multiline
       underlineColorAndroid="transparent"
       numberOfLines={4}
@@ -108,9 +108,6 @@ export const BlueFormMultiInput: React.FC<TextInputProps> = props => {
         },
         style,
       ]}
-      autoCorrect={false}
-      autoCapitalize="none"
-      spellCheck={false}
       {...restProps}
       selectTextOnFocus={false}
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}

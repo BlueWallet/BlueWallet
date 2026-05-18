@@ -1,5 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, TextInput, View } from 'react-native';
+import IncognitoKeyboardTextInput from './IncognitoKeyboardTextInput';
 import { useTheme } from './themes';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import loc from '../loc';
@@ -136,7 +137,7 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           },
         ]}
       >
-        <TextInput
+        <IncognitoKeyboardTextInput
           ref={inputRef}
           testID="PasswordInput"
           style={[styles.input, stylesHook.input]}
@@ -149,8 +150,6 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           placeholder={placeholder}
           placeholderTextColor={colors.alternativeTextColor}
           secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
           editable={!isSuccess}
           onSubmitEditing={handleSubmit}
           returnKeyType="done"
