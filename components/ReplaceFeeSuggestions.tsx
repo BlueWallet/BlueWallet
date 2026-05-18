@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Keyboard, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BlueText } from '../BlueComponents';
+import BlueText from './BlueText';
 import loc, { formatStringAddTwoWhiteSpaces } from '../loc';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../models/networkTransactionFees';
 import { useTheme } from './themes';
