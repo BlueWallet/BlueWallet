@@ -4,13 +4,13 @@ import Icon, { type IconProps } from './Icon';
 
 export interface AvatarProps {
   rounded?: boolean;
-  size?: number;
-  containerStyle?: StyleProp<ViewStyle>;
+  size: number;
+  containerStyle: StyleProp<ViewStyle>;
   icon?: Pick<IconProps, 'name' | 'type' | 'color' | 'size'>;
   onPress?: () => void;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ rounded, size = 40, containerStyle, icon, onPress }) => {
+const Avatar: React.FC<AvatarProps> = ({ rounded, size, containerStyle, icon, onPress }) => {
   const dimensionStyle = { width: size, height: size, borderRadius: rounded ? size / 2 : 0 } as ViewStyle;
   const content = (
     <View style={[styles.container, dimensionStyle, containerStyle]}>

@@ -6,7 +6,8 @@ import { randomBytes } from '../../class/rng';
 import Button from '../../components/Button';
 import loc from '../../loc';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
+import BlueFormMultiInput from '../../components/BlueFormMultiInput';
+import BlueTextCentered from '../../components/BlueTextCentered';
 import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
 
