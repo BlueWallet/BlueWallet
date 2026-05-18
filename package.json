@@ -144,7 +144,7 @@
     "dayjs": "1.11.20",
     "detox": "20.51.1",
     "ecpair": "3.0.1",
-    "electrum-client": "github:BlueWallet/rn-electrum-client#d9f511d",
+    "electrum-client": "github:BlueWallet/rn-electrum-client#83420b8",
     "electrum-mnemonic": "2.0.0",
     "events": "3.3.0",
     "lottie-react-native": "7.3.7",
