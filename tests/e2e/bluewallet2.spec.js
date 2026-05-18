@@ -412,11 +412,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     // go to receive screen and check that payment code is there
     await waitForId('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
-
-    try {
-      await element(by.text('ASK ME LATER.')).tap();
-    } catch (_) {}
-
     await element(by.text('Payment Code')).tap();
     await element(by.id('ReceiveDetailsScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await sleep(200);

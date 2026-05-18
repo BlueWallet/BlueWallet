@@ -6,7 +6,6 @@ import {
   scanText,
   scrollUpOnHomeScreen,
   sleep,
-  tapIfTextPresent,
   waitForId,
   waitForKeyboardToClose,
 } from './helperz';
@@ -52,15 +51,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     } catch (_) {}
 
     await element(by.id('ReceiveButton')).tap();
-    try {
-      // in case emulator has no google services and doesnt support pushes
-      // we just dont show this popup
-      await tapIfTextPresent('No, and do not ask me again.');
-      await tapIfTextPresent('No, and do not ask me again.');
-      // Some Android system dialogs use this variant.
-      await tapIfTextPresent('ASK ME LATER.');
-      await tapIfTextPresent('ASK ME LATER.');
-    } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCode'))).toBeVisible();
     await expect(element(by.label('bc1qgrhr5xc5774maph97d73ydrjlqqmg2v6jjlr29'))).toBeVisible();
     await element(by.id('SetCustomAmountButton')).tap();

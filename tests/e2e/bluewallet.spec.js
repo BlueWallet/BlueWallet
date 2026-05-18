@@ -261,15 +261,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
     await element(by.text('Yes, I have.')).tap();
-    try {
-      // in case emulator has no google services and doesnt support pushes
-      // we just dont show this popup
-      await tapIfTextPresent('No, and do not ask me again.');
-      await tapIfTextPresent('No, and do not ask me again.');
-      // Some Android system dialogs use this variant.
-      await tapIfTextPresent('ASK ME LATER.');
-      await tapIfTextPresent('ASK ME LATER.');
-    } catch (_) {}
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
@@ -585,15 +576,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Multisig Vault')).tap(); // go inside the wallet
     await waitForId('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
-    try {
-      // in case emulator has no google services and doesnt support pushes
-      // we just dont show this popup
-      await tapIfTextPresent('No, and do not ask me again.');
-      await tapIfTextPresent('No, and do not ask me again.');
-      // Some Android system dialogs use this variant.
-      await tapIfTextPresent('ASK ME LATER.');
-      await tapIfTextPresent('ASK ME LATER.');
-    } catch (_) {}
 
     await waitForLabel('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');
     await goBack();
