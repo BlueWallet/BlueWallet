@@ -361,11 +361,26 @@ export async function goBack() {
   // Try each back/close affordance in order; retry the full set up to 10 times.
   const candidates = [by.id('BackButton'), by.id('NavigationCloseButton'), by.label('Back'), by.text('Close')];
 
+  // iOS 26 trap: a leaked UIAlertController dims the window with
+  // `_alertControllerDimmingViewColor` and intercepts every hit-test, so none of
+  // the back/close candidates can be tapped until the alert itself is dismissed.
+  // When the primary pass fails, fall through to OK/Cancel to clear the alert,
+  // then let the next loop iteration retry back/close.
+  const alertDismissals = [by.text('OK'), by.text('Cancel')];
+
   for (let attempt = 0; attempt < 10; attempt++) {
     for (const matcher of candidates) {
       try {
         await element(matcher).atIndex(0).tap();
         return;
+      } catch (_) {
+        /* try next */
+      }
+    }
+    for (const matcher of alertDismissals) {
+      try {
+        await element(matcher).atIndex(0).tap();
+        break;
       } catch (_) {
         /* try next */
       }

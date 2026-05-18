@@ -119,35 +119,42 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // network -> electrum server
     // change electrum server to electrum.blockstream.info and revert it back
-    // skip this test on iOS. HeaderMenuButton tap triggers a keyboard open for some reason.
-    if (device.getPlatform() === 'andoid') {
+    // Skipped on iOS: tapping HeaderMenuButton steals focus and reopens the
+    // soft keyboard, which the iOS Electrum form isn't structured to recover
+    // from cleanly. Android-only for now.
+    if (device.getPlatform() === 'android') {
       await element(by.id('ElectrumSettings')).tap();
-      await waitFor(element(by.id('HostInput')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-      await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
-      await element(by.id('HostInput')).tapReturnKey();
-      await waitForKeyboardToClose();
-      await element(by.id('PortInput')).replaceText('50001\n');
-      await element(by.id('PortInput')).tapReturnKey();
-      await waitForKeyboardToClose();
-      await waitFor(element(by.id('Save')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+
+      // CI runs Android with a hardware keyboard (waitForKeyboardToClose is a
+      // no-op there), so the form layout shifts unpredictably and inputs that
+      // are nominally on screen can fall just under Detox's 75% visibility
+      // threshold. Scroll each control into view before touching it, and
+      // commit via the explicit Save button rather than IME return-key taps
+      // (which require focus state we can't reliably guarantee here).
+      const scrollIntoView = id =>
+        waitFor(element(by.id(id)))
+          .toBeVisible()
+          .whileElement(by.id('ElectrumSettingsScrollView'))
+          .scroll(300, 'down');
+
+      await scrollIntoView('HostInput');
+      await element(by.id('HostInput')).replaceText('electrum.blockstream.info');
+
+      await scrollIntoView('PortInput');
+      await element(by.id('PortInput')).replaceText('50001');
+
+      await scrollIntoView('Save');
       await element(by.id('Save')).tap();
       await waitForText('OK');
       await element(by.text('OK')).tap();
+
       await element(by.id('HeaderMenuButton')).tap();
       await element(by.text('Reset to default')).tap();
       await element(by.text('RESET TO DEFAULT')).tap();
       await waitForText('OK');
       await element(by.text('OK')).tap();
-      await waitFor(element(by.id('HostInput')))
-        .toBeVisible()
-        .whileElement(by.id('ElectrumSettingsScrollView'))
-        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+
+      await scrollIntoView('HostInput');
       await expect(element(by.id('HostInput'))).toHaveText('');
       await expect(element(by.id('PortInput'))).toHaveText('');
       await expect(element(by.id('SSLPortInput'))).toHaveToggleValue(false);
@@ -182,28 +189,30 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitFor(element(by.id('NotificationsSwitch')))
         .toBeVisible()
         .withTimeout(10000);
-      await element(by.id('NotificationsSwitch')).tap();
+      // On iOS 26 the simulator's notifications permission grant from
+      // `device.launchApp({ permissions: { notifications: 'YES' } })` no longer
+      // persists, so the app's "You have denied permission" alert reliably
+      // appears — but its render timing varies, sometimes landing well after
+      // the toggle settles. Use a generous window and re-check after each
+      // toggle so the alert never leaks past `goBack()`.
+      const dismissOKAlertIfPresent = async (timeoutMs = 15000) => {
+        try {
+          await waitFor(element(by.text('OK')))
+            .toBeVisible()
+            .withTimeout(timeoutMs);
+          await element(by.text('OK')).tap();
+        } catch (_) {
+          // Alert not shown, which is fine - notifications might be enabled.
+        }
+      };
 
-      // If notifications are not enabled on the device, an alert will appear
-      try {
-        await waitFor(element(by.text('OK')))
-          .toBeVisible()
-          .withTimeout(3000);
-        await element(by.text('OK')).tap();
-      } catch (_) {
-        // Alert not shown, which is fine - notifications might be enabled
-      }
       await element(by.id('NotificationsSwitch')).tap();
-
-      // If notifications are not enabled on the device, an alert will appear
-      try {
-        await waitFor(element(by.text('OK')))
-          .toBeVisible()
-          .withTimeout(3000);
-        await element(by.text('OK')).tap();
-      } catch (_) {
-        // Alert not shown, which is fine - notifications might be enabled
-      }
+      await dismissOKAlertIfPresent();
+      await element(by.id('NotificationsSwitch')).tap();
+      await dismissOKAlertIfPresent();
+      // Belt + suspenders: occasionally the alert lands just after the second
+      // dismissal check has resolved; sweep once more with a short timeout.
+      await dismissOKAlertIfPresent(3000);
 
       await goBack();
       await goBack();
@@ -753,12 +762,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await sleep(1000);
     await element(by.text('OK')).tap();
 
-    // wait for discovery to be completed
-    await waitFor(element(by.text("m/84'/0'/0'")))
+    // wait for discovery to be completed.
+    // Discovery now surfaces the same path under multiple wallet kinds (e.g.
+    // `m/84'/0'/0'` appears under both BIP84 SegWit and BIP44 Legacy rows), so
+    // `by.text(…)` matches more than one element. Pin to atIndex(0) — we only
+    // need to confirm any one match rendered.
+    await waitFor(element(by.text("m/84'/0'/0'")).atIndex(0))
       .toBeVisible()
       .withTimeout(600 * 1000);
-    await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
-    await expect(element(by.text("m/49'/0'/0'"))).toBeVisible();
+    await expect(element(by.text("m/44'/0'/1'")).atIndex(0)).toBeVisible();
+    await expect(element(by.text("m/49'/0'/0'")).atIndex(0)).toBeVisible();
     await expect(element(by.id('Loading'))).not.toBeVisible();
 
     // open custom derivation path screen and import the wallet

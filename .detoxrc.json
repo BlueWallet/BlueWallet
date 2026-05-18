@@ -33,7 +33,8 @@
     "simulator": {
       "type": "ios.simulator",
       "device": {
-        "type": "iPhone 17"
+        "type": "iPhone 17",
+        "os": "iOS 26.4"
       }
     },
     "emulator": {
