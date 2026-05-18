@@ -2,7 +2,7 @@ import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
 import { sha256 } from '@noble/hashes/sha256';
 import { hmac } from '@noble/hashes/hmac';
-import CryptoJS from 'crypto-js';
+import { cbc } from '@noble/ciphers/aes';
 import ecc from '../blue_modules/noble_ecc';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { fetch } from '../util/fetch';
@@ -321,13 +321,22 @@ export default class Lnurl {
   }
 
   static decipherAES(ciphertextBase64: string, preimageHex: string, ivBase64: string): string {
-    const iv = CryptoJS.enc.Base64.parse(ivBase64);
-    const key = CryptoJS.enc.Hex.parse(preimageHex);
-    return CryptoJS.AES.decrypt(uint8ArrayToHex(base64ToUint8Array(ciphertextBase64)), key, {
-      iv,
-      mode: CryptoJS.mode.CBC,
-      format: CryptoJS.format.Hex,
-    }).toString(CryptoJS.enc.Utf8);
+    // crypto-js's old path either returned '' or threw on malformed ciphertext,
+    // and `.toString(enc.Utf8)` strictly threw on invalid UTF-8. @noble/ciphers
+    // throws on bad padding / non-16-aligned bytes. We wrap every throwing call
+    // — base64/hex decode, AES-CBC decrypt, and a `fatal: true` UTF-8 decode —
+    // and collapse all of them to '' so the user-facing call site at
+    // screen/lnd/lnurlPaySuccess.tsx (no surrounding try/catch) cannot be tricked
+    // by a misbehaving LNURL server into rendering mojibake or crashing.
+    try {
+      const key = hexToUint8Array(preimageHex);
+      const iv = base64ToUint8Array(ivBase64);
+      const ct = base64ToUint8Array(ciphertextBase64);
+      const pt = cbc(key, iv).decrypt(ct);
+      return new TextDecoder('utf-8', { fatal: true }).decode(pt);
+    } catch (_) {
+      return '';
+    }
   }
 
   getCommentAllowed(): number | false {
