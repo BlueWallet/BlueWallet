@@ -40,6 +40,9 @@ async function decryptV2(data: string, password: string): Promise<string | false
     const ct = envelope.subarray(V2_SALT_LEN + V2_NONCE_LEN);
     const key = await deriveV2Key(password, salt);
     const plain = gcm(key, nonce).decrypt(ct); // throws on auth-tag mismatch (wrong password / tampered)
+    // Deliberately no `length < 10` belt-and-suspenders here: GCM's auth tag
+    // is the wrong-password gate. Any failed decrypt has already thrown
+    // above; if we reach this line, `plain` is the genuine plaintext.
     return new TextDecoder('utf-8', { fatal: true }).decode(plain);
   } catch (_) {
     return false;
@@ -51,7 +54,8 @@ async function decryptV2(data: string, password: string): Promise<string | false
 // -----------------------------------------------------------------------------
 // Wire format: base64( "Salted__"(8) || salt(8) || aes_cbc_pkcs7_ciphertext )
 // New encryptions never emit this format. Existing on-device wallets stay
-// readable forever; first `saveToDisk` after unlock rewrites them as v2.
+// readable forever; `decryptData` lazily rewrites them as v2 on the first
+// successful unlock via `loadFromDisk` (the only opt-in caller).
 // =============================================================================
 const V1_SALT_MAGIC = new Uint8Array([0x53, 0x61, 0x6c, 0x74, 0x65, 0x64, 0x5f, 0x5f]); // "Salted__"
 const V1_SALT_LEN = 8;

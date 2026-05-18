@@ -182,10 +182,17 @@ export class BlueApp {
   };
 
   /**
-   * Iterates through all values of `data` trying to
-   * decrypt each one, and returns first one successfully decrypted
+   * Iterates through all values of `data` trying to decrypt each one, and
+   * returns the first one successfully decrypted.
+   *
+   * Pass `{ upgrade: true }` to opt into the lazy v1 → v2 rewrite on success.
+   * The opt-in is deliberate: `isPasswordInUse` calls this method as a
+   * read-only probe during the create-fake-storage flow, and must NOT have
+   * the side-effect of mutating on-disk state (that would widen the same
+   * plausible-deniability fingerprint leak the lazy upgrade is closing).
+   * Only `loadFromDisk` (the real unlock path) opts in.
    */
-  async decryptData(data: string, password: string): Promise<boolean | string> {
+  async decryptData(data: string, password: string, opts?: { upgrade?: boolean }): Promise<boolean | string> {
     const buckets: string[] = JSON.parse(data);
     let num = 0;
     for (const value of buckets) {
@@ -193,12 +200,12 @@ export class BlueApp {
 
       if (decrypted) {
         usedBucketNum = num;
-        // Lazy v1 → v2 upgrade: if this bucket is still in the legacy
-        // `Salted__` format, re-encrypt under the same password so the
-        // on-disk fingerprint converges over time. Decoy buckets the user
-        // never unlocks stay v1 — accepted plausible-deniability tradeoff,
-        // documented in release notes.
-        if (!value.startsWith('v2:')) {
+        // Lazy v1 → v2 upgrade (only when explicitly requested): if this
+        // bucket is still in the legacy `Salted__` format, re-encrypt under
+        // the same password so the on-disk fingerprint converges over time.
+        // Decoy buckets the user never unlocks stay v1 — accepted
+        // plausible-deniability tradeoff, documented in release notes.
+        if (opts?.upgrade && !value.startsWith('v2:')) {
           try {
             buckets[num] = await encryption.encrypt(decrypted as string, password);
             await this.setItem('data', JSON.stringify(buckets));
@@ -376,7 +383,7 @@ export class BlueApp {
     }
     let dataRaw = await this.getItemWithFallbackToRealm('data');
     if (password) {
-      dataRaw = await this.decryptData(dataRaw, password);
+      dataRaw = await this.decryptData(dataRaw, password, { upgrade: true });
       if (dataRaw) {
         // password is good, cache it
         this.cachedPassword = password;
