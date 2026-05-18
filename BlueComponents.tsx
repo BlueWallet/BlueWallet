@@ -11,6 +11,7 @@ import {
   TextInput,
   TextInputProps,
   TextProps,
+  TextStyle,
   View,
   ViewProps,
   ViewStyle,
@@ -64,15 +65,13 @@ export const BlueText: React.FC<BlueTextProps> = ({ bold = false, h1, h2, h3, h4
   }
 
   const hasHeading = h1 || h2 || h3 || h4;
-  const style = StyleSheet.compose(
-    {
-      color: colors.foregroundColor,
-      writingDirection: direction,
-      fontWeight: hasHeading ? undefined : bold ? 'bold' : 'normal',
-      ...headingStyle,
-    },
-    passedStyle,
-  );
+  const baseStyle: TextStyle = {
+    color: colors.foregroundColor,
+    writingDirection: direction,
+    fontWeight: hasHeading ? undefined : bold ? 'bold' : 'normal',
+    ...headingStyle,
+  };
+  const style = StyleSheet.flatten([baseStyle, passedStyle]);
   return <Text style={style} {...props} />;
 };
 
