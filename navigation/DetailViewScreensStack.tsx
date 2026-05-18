@@ -1,27 +1,16 @@
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CommonActions, useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isNotificationsEnabled } from '../blue_modules/notifications';
 import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable } from 'react-native';
 import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
-import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
-import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
-import LnurlAuth from '../screen/lnd/lnurlAuth';
-import LnurlPay from '../screen/lnd/lnurlPay';
-import LnurlPaySuccess from '../screen/lnd/lnurlPaySuccess';
-import Broadcast from '../screen/send/Broadcast';
-import IsItMyAddress from '../screen/settings/IsItMyAddress';
-import Success from '../screen/send/success';
-import CPFP from '../screen/transactions/CPFP';
-import RBFBumpFee from '../screen/transactions/RBFBumpFee';
-import RBFCancel from '../screen/transactions/RBFCancel';
-import TransactionStatus from '../screen/transactions/TransactionStatus';
-import WalletAddresses from '../screen/wallets/WalletAddresses';
-import WalletDetails from '../screen/wallets/WalletDetails';
-import GenerateWord from '../screen/wallets/generateWord';
-import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
+import WalletDetails from '../screen/wallets/WalletDetails';
+import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import { DetailViewStack } from './index';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import Icon from '../components/Icon';
@@ -31,35 +20,160 @@ import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from '../components/Context/StorageProvider';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
-import Settings from '../screen/settings/Settings';
-import Currency from '../screen/settings/Currency';
-import GeneralSettings from '../screen/settings/GeneralSettings';
-import PlausibleDeniability from '../screen/PlausibleDeniability';
-import Licensing from '../screen/settings/Licensing';
-import NetworkSettings from '../screen/settings/NetworkSettings';
-import SettingsBlockExplorer from '../screen/settings/SettingsBlockExplorer';
-import About from '../screen/settings/About';
 // import DefaultView from '../screen/settings/DefaultView'; // Commented out - not accessible from UI
-import ElectrumSettings from '../screen/settings/ElectrumSettings';
-import EncryptStorage from '../screen/settings/EncryptStorage';
-import Language from '../screen/settings/Language';
-import LightningSettings from '../screen/settings/LightningSettings';
-import NotificationSettings from '../screen/settings/NotificationSettings';
-import SelfTest from '../screen/settings/SelfTest';
-import ReleaseNotes from '../screen/settings/ReleaseNotes';
-import SettingsTools from '../screen/settings/SettingsTools';
-import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { isDesktop } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
-import ManageWallets from '../screen/wallets/ManageWallets';
-import ReceiveDetails from '../screen/receive/ReceiveDetails';
-import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 
+const LNDViewAdditionalInvoicePreImage = lazy(() => import('../screen/lnd/lndViewAdditionalInvoicePreImage'));
+const LNDViewInvoice = lazy(() => import('../screen/lnd/lndViewInvoice'));
+const LnurlAuth = lazy(() => import('../screen/lnd/lnurlAuth'));
+const LnurlPay = lazy(() => import('../screen/lnd/lnurlPay'));
+const LnurlPaySuccess = lazy(() => import('../screen/lnd/lnurlPaySuccess'));
+const Broadcast = lazy(() => import('../screen/send/Broadcast'));
+const IsItMyAddress = lazy(() => import('../screen/settings/IsItMyAddress'));
+const Success = lazy(() => import('../screen/send/success'));
+const CPFP = lazy(() => import('../screen/transactions/CPFP'));
+const RBFBumpFee = lazy(() => import('../screen/transactions/RBFBumpFee'));
+const RBFCancel = lazy(() => import('../screen/transactions/RBFCancel'));
+const TransactionStatus = lazy(() => import('../screen/transactions/TransactionStatus'));
+const WalletAddresses = lazy(() => import('../screen/wallets/WalletAddresses'));
+const GenerateWord = lazy(() => import('../screen/wallets/generateWord'));
+const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
+const Settings = lazy(() => import('../screen/settings/Settings'));
+const Currency = lazy(() => import('../screen/settings/Currency'));
+const GeneralSettings = lazy(() => import('../screen/settings/GeneralSettings'));
+const PlausibleDeniability = lazy(() => import('../screen/PlausibleDeniability'));
+const Licensing = lazy(() => import('../screen/settings/Licensing'));
+const NetworkSettings = lazy(() => import('../screen/settings/NetworkSettings'));
+const SettingsBlockExplorer = lazy(() => import('../screen/settings/SettingsBlockExplorer'));
+const About = lazy(() => import('../screen/settings/About'));
+const ElectrumSettings = lazy(() => import('../screen/settings/ElectrumSettings'));
+const EncryptStorage = lazy(() => import('../screen/settings/EncryptStorage'));
+const Language = lazy(() => import('../screen/settings/Language'));
+const NotificationSettings = lazy(() => import('../screen/settings/NotificationSettings'));
+const SelfTest = lazy(() => import('../screen/settings/SelfTest'));
+const ReleaseNotes = lazy(() => import('../screen/settings/ReleaseNotes'));
+const SettingsTools = lazy(() => import('../screen/settings/SettingsTools'));
+const PromptPasswordConfirmationSheet = lazy(() => import('../screen/PromptPasswordConfirmationSheet'));
+const ManageWallets = lazy(() => import('../screen/wallets/ManageWallets'));
+const ReceiveCustomAmountSheet = lazy(() => import('../screen/receive/ReceiveCustomAmountSheet'));
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
+const LightningSettings = lazy(() => import('../screen/settings/LightningSettings'));
+
+const LNDViewAdditionalInvoicePreImageComponent = withLazySuspense(LNDViewAdditionalInvoicePreImage);
+const LNDViewInvoiceComponent = withLazySuspense(LNDViewInvoice);
+const LnurlAuthComponent = withLazySuspense(LnurlAuth);
+const LnurlPayComponent = withLazySuspense(LnurlPay);
+const LnurlPaySuccessComponent = withLazySuspense(LnurlPaySuccess);
+const BroadcastComponent = withLazySuspense(Broadcast);
+const IsItMyAddressComponent = withLazySuspense(IsItMyAddress);
+const SuccessComponent = withLazySuspense(Success);
+const CPFPComponent = withLazySuspense(CPFP);
+const RBFBumpFeeComponent = withLazySuspense(RBFBumpFee);
+const RBFCancelComponent = withLazySuspense(RBFCancel);
+const TransactionStatusComponent = withLazySuspense(TransactionStatus);
+const WalletAddressesComponent = withLazySuspense(WalletAddresses);
+const GenerateWordComponent = withLazySuspense(GenerateWord);
+const SelectWalletComponent = withLazySuspense(SelectWallet);
+const SettingsComponent = withLazySuspense(Settings);
+const CurrencyComponent = withLazySuspense(Currency);
+const GeneralSettingsComponent = withLazySuspense(GeneralSettings);
+const PlausibleDeniabilityComponent = withLazySuspense(PlausibleDeniability);
+const LicensingComponent = withLazySuspense(Licensing);
+const NetworkSettingsComponent = withLazySuspense(NetworkSettings);
+const SettingsBlockExplorerComponent = withLazySuspense(SettingsBlockExplorer);
+const AboutComponent = withLazySuspense(About);
+const ElectrumSettingsComponent = withLazySuspense(ElectrumSettings);
+const EncryptStorageComponent = withLazySuspense(EncryptStorage);
+const LanguageComponent = withLazySuspense(Language);
+const NotificationSettingsComponent = withLazySuspense(NotificationSettings);
+const SelfTestComponent = withLazySuspense(SelfTest);
+const ReleaseNotesComponent = withLazySuspense(ReleaseNotes);
+const SettingsToolsComponent = withLazySuspense(SettingsTools);
+const PromptPasswordConfirmationSheetComponent = withLazySuspense(PromptPasswordConfirmationSheet);
+const ManageWalletsComponent = withLazySuspense(ManageWallets);
+const ReceiveCustomAmountSheetComponent = withLazySuspense(ReceiveCustomAmountSheet);
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
+const LightningSettingsComponent = withLazySuspense(LightningSettings);
+
+const WalletsListWithPreloader = ({ hasWallets }: { hasWallets: boolean }) => {
+  const navigation = useExtendedNavigation();
+  const isFocused = useIsFocused();
+  const hasPreloadedSettingsRef = useRef(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [hasCustomElectrumServers, setHasCustomElectrumServers] = useState(false);
+
+  // Check notification status on mount
+  useEffect(() => {
+    const checkNotifications = async () => {
+      try {
+        const enabled = await isNotificationsEnabled();
+        setNotificationsEnabled(enabled);
+      } catch (e) {
+        setNotificationsEnabled(false);
+      }
+    };
+    checkNotifications();
+  }, []);
+
+  // Check for custom Electrum servers on mount
+  useEffect(() => {
+    const checkCustomServers = async () => {
+      try {
+        const storedPeers = await AsyncStorage.getItem(BlueElectrum.ELECTRUM_SERVER_HISTORY);
+        setHasCustomElectrumServers(storedPeers ? JSON.parse(storedPeers).length > 0 : false);
+      } catch (e) {
+        setHasCustomElectrumServers(false);
+      }
+    };
+    checkCustomServers();
+  }, []);
+
+  useEffect(() => {
+    if (!isFocused || !hasWallets || hasPreloadedSettingsRef.current) {
+      return;
+    }
+
+    if (__DEV__) {
+      console.debug('[WalletsListWithPreloader] Dispatching Settings preload', {
+        notificationsEnabled,
+        hasCustomElectrumServers,
+      });
+    }
+
+    navigation.dispatch(CommonActions.preload('Settings'));
+
+    if (notificationsEnabled) {
+      navigation.dispatch(CommonActions.preload('NotificationSettings'));
+    }
+
+    if (hasCustomElectrumServers) {
+      navigation.dispatch(CommonActions.preload('ElectrumSettings'));
+    }
+
+    hasPreloadedSettingsRef.current = true;
+  }, [isFocused, hasWallets, navigation, notificationsEnabled, hasCustomElectrumServers]);
+
+  return <WalletsList />;
+};
+
+const FocusedSettingsScreen = () => {
+  const isFocused = useIsFocused();
+  return isFocused ? <SettingsComponent /> : null;
+};
+
+const FocusedNotificationSettingsScreen = () => {
+  const isFocused = useIsFocused();
+  return isFocused ? <NotificationSettingsComponent /> : null;
+};
+
+const FocusedElectrumSettingsScreen = () => {
+  const isFocused = useIsFocused();
+  return isFocused ? <ElectrumSettingsComponent /> : null;
+};
 
 const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
@@ -93,7 +207,7 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
-  const { walletTransactionUpdateStatus } = useStorage();
+  const { walletTransactionUpdateStatus, wallets } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
@@ -269,7 +383,9 @@ const DetailViewStackScreensStack = () => {
         initialRouteName="WalletsList"
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
-        <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
+        <DetailViewStack.Screen name="WalletsList" options={navigationStyle(walletListScreenOptions)(theme)}>
+          {() => <WalletsListWithPreloader hasWallets={wallets.length > 0} />}
+        </DetailViewStack.Screen>
         <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
         <DetailViewStack.Screen
           name="WalletDetails"
@@ -280,7 +396,7 @@ const DetailViewStackScreensStack = () => {
         />
         <DetailViewStack.Screen
           name="TransactionStatus"
-          component={TransactionStatus}
+          component={TransactionStatusComponent}
           initialParams={{
             hash: undefined,
             walletID: undefined,
@@ -293,25 +409,29 @@ const DetailViewStackScreensStack = () => {
             headerBackButtonDisplayMode: 'default',
           })(theme)}
         />
-        <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
+        <DetailViewStack.Screen
+          name="CPFP"
+          component={CPFPComponent}
+          options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)}
+        />
         <DetailViewStack.Screen
           name="RBFBumpFee"
-          component={RBFBumpFee}
+          component={RBFBumpFeeComponent}
           options={navigationStyle({ title: loc.transactions.rbf_title })(theme)}
         />
         <DetailViewStack.Screen
           name="RBFCancel"
-          component={RBFCancel}
+          component={RBFCancelComponent}
           options={navigationStyle({ title: loc.transactions.cancel_title })(theme)}
         />
         <DetailViewStack.Screen
           name="SelectWallet"
-          component={SelectWallet}
+          component={SelectWalletComponent}
           options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
         />
         <DetailViewStack.Screen
           name="LNDViewInvoice"
-          component={LNDViewInvoice}
+          component={LNDViewInvoiceComponent}
           options={navigationStyle({
             headerTitle: loc.lndViewInvoice.lightning_invoice,
             headerStyle: {
@@ -321,29 +441,29 @@ const DetailViewStackScreensStack = () => {
         />
         <DetailViewStack.Screen
           name="LNDViewAdditionalInvoicePreImage"
-          component={LNDViewAdditionalInvoicePreImage}
+          component={LNDViewAdditionalInvoicePreImageComponent}
           options={navigationStyle({ title: loc.lndViewInvoice.additional_info })(theme)}
         />
 
         <DetailViewStack.Screen
           name="Broadcast"
-          component={Broadcast}
+          component={BroadcastComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.send.create_broadcast))(theme)}
         />
         <DetailViewStack.Screen
           name="IsItMyAddress"
-          component={IsItMyAddress}
+          component={IsItMyAddressComponent}
           initialParams={{ address: undefined }}
           options={navigationStyle(getSettingsHeaderOptions(loc.is_it_my_address.title))(theme)}
         />
         <DetailViewStack.Screen
           name="GenerateWord"
-          component={GenerateWord}
+          component={GenerateWordComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.autofill_word.title))(theme)}
         />
         <DetailViewStack.Screen
           name="LnurlPay"
-          component={LnurlPay}
+          component={LnurlPayComponent}
           options={navigationStyle({
             title: '',
             closeButtonPosition: CloseButtonPosition.Right,
@@ -357,7 +477,7 @@ const DetailViewStackScreensStack = () => {
 
         <DetailViewStack.Screen
           name="LnurlPaySuccess"
-          component={LnurlPaySuccess}
+          component={LnurlPaySuccessComponent}
           options={navigationStyle({
             title: '',
             closeButtonPosition: CloseButtonPosition.Right,
@@ -365,10 +485,10 @@ const DetailViewStackScreensStack = () => {
             gestureEnabled: false,
           })(theme)}
         />
-        <DetailViewStack.Screen name="LnurlAuth" component={LnurlAuth} options={navigationStyle({ title: '' })(theme)} />
+        <DetailViewStack.Screen name="LnurlAuth" component={LnurlAuthComponent} options={navigationStyle({ title: '' })(theme)} />
         <DetailViewStack.Screen
           name="Success"
-          component={Success}
+          component={SuccessComponent}
           options={{
             headerShown: false,
             gestureEnabled: false,
@@ -376,13 +496,13 @@ const DetailViewStackScreensStack = () => {
         />
         <DetailViewStack.Screen
           name="WalletAddresses"
-          component={WalletAddresses}
+          component={WalletAddressesComponent}
           options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
         />
 
         <DetailViewStack.Screen
           name="Settings"
-          component={Settings}
+          component={FocusedSettingsScreen}
           options={navigationStyle({
             title: loc.settings.header,
             headerBackButtonDisplayMode: 'minimal',
@@ -412,38 +532,38 @@ const DetailViewStackScreensStack = () => {
         />
         <DetailViewStack.Screen
           name="Currency"
-          component={Currency}
+          component={CurrencyComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.currency))(theme)}
         />
         <DetailViewStack.Screen
           name="GeneralSettings"
-          component={GeneralSettings}
+          component={GeneralSettingsComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.general))(theme)}
         />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
-          component={PlausibleDeniability}
+          component={PlausibleDeniabilityComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.plausibledeniability.title))(theme)}
         />
         <DetailViewStack.Screen
           name="Licensing"
-          component={Licensing}
+          component={LicensingComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.license))(theme)}
         />
         <DetailViewStack.Screen
           name="NetworkSettings"
-          component={NetworkSettings}
+          component={NetworkSettingsComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.network))(theme)}
         />
         <DetailViewStack.Screen
           name="SettingsBlockExplorer"
-          component={SettingsBlockExplorer}
+          component={SettingsBlockExplorerComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.block_explorer))(theme)}
         />
 
         <DetailViewStack.Screen
           name="About"
-          component={About}
+          component={AboutComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.about))(theme)}
         />
         {/* <DetailViewStack.Screen
@@ -453,48 +573,48 @@ const DetailViewStackScreensStack = () => {
       /> */}
         <DetailViewStack.Screen
           name="ElectrumSettings"
-          component={ElectrumSettings}
+          component={FocusedElectrumSettingsScreen}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server))(theme)}
           initialParams={{ server: undefined }}
         />
         <DetailViewStack.Screen
           name="EncryptStorage"
-          component={EncryptStorage}
+          component={EncryptStorageComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.encrypt_title))(theme)}
         />
         <DetailViewStack.Screen
           name="Language"
-          component={Language}
+          component={LanguageComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.language))(theme)}
         />
         <DetailViewStack.Screen
           name="LightningSettings"
-          component={LightningSettings}
+          component={LightningSettingsComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.lightning_settings))(theme)}
         />
         <DetailViewStack.Screen
           name="NotificationSettings"
-          component={NotificationSettings}
+          component={FocusedNotificationSettingsScreen}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.notifications))(theme)}
         />
         <DetailViewStack.Screen
           name="SelfTest"
-          component={SelfTest}
+          component={SelfTestComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.selfTest))(theme)}
         />
         <DetailViewStack.Screen
           name="ReleaseNotes"
-          component={ReleaseNotes}
+          component={ReleaseNotesComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.about_release_notes))(theme)}
         />
         <DetailViewStack.Screen
           name="SettingsTools"
-          component={SettingsTools}
+          component={SettingsToolsComponent}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.tools))(theme)}
         />
         <DetailViewStack.Screen
           name="PromptPasswordConfirmationSheet"
-          component={PromptPasswordConfirmationSheet}
+          component={PromptPasswordConfirmationSheetComponent}
           options={navigationStyle({
             title: loc.settings.password,
             presentation: 'formSheet',
@@ -506,7 +626,7 @@ const DetailViewStackScreensStack = () => {
         />
         <DetailViewStack.Screen
           name="ManageWallets"
-          component={ManageWallets}
+          component={ManageWalletsComponent}
           options={navigationStyle({
             presentation: 'fullScreenModal',
             title: loc.wallets.manage_title,
@@ -528,7 +648,7 @@ const DetailViewStackScreensStack = () => {
         />
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
-          component={ReceiveCustomAmountSheet}
+          component={ReceiveCustomAmountSheetComponent}
           options={navigationStyle({
             presentation: 'formSheet',
             sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],

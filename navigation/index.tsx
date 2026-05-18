@@ -1,10 +1,12 @@
-import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import React, { lazy } from 'react';
+import { CommonActions, useIsFocused } from '@react-navigation/native';
+import { createNativeStackNavigator, NativeStackNavigationOptions, NativeStackScreenProps } from '@react-navigation/native-stack';
+import React, { lazy, useEffect, useMemo, useRef } from 'react';
 import { Platform } from 'react-native';
 import UnlockWith from '../screen/UnlockWith';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
+import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -13,6 +15,7 @@ import WalletExport from '../screen/wallets/WalletExport';
 import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
+import { Chain } from '../models/bitcoinUnits';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -60,9 +63,40 @@ const LazySignVerifyStackRoot = withLazySuspense(SignVerifyStackRoot);
 const LazyScanQRCodeComponent = withLazySuspense(ScanQRCode);
 const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
+type DrawerRootWithPreloaderProps = NativeStackScreenProps<DetailViewStackParamList, 'DrawerRoot'> & {
+  shouldPreloadSendDetails: boolean;
+};
+
+const DrawerRootWithPreloader = ({ shouldPreloadSendDetails, ...screenProps }: DrawerRootWithPreloaderProps) => {
+  const navigation = useExtendedNavigation();
+  const isFocused = useIsFocused();
+  const hasPreloadedSendDetailsRef = useRef(false);
+
+  useEffect(() => {
+    if (!isFocused || !shouldPreloadSendDetails || hasPreloadedSendDetailsRef.current) {
+      return;
+    }
+
+    navigation.dispatch(CommonActions.preload('SendDetailsRoot'));
+    hasPreloadedSendDetailsRef.current = true;
+  }, [isFocused, navigation, shouldPreloadSendDetails]);
+
+  return <LazyDrawerRoot {...screenProps} />;
+};
+
+const FocusedSendDetailsRoot = () => {
+  const isFocused = useIsFocused();
+  return isFocused ? <LazySendDetailsStack /> : null;
+};
+
 const MainRoot = () => {
-  const { walletsInitialized } = useStorage();
+  const { walletsInitialized, wallets } = useStorage();
   const theme = useTheme();
+
+  const shouldPreloadSendDetails = useMemo(
+    () => wallets.length > 0 && wallets.some(wallet => wallet.chain === Chain.ONCHAIN && wallet.allowSend()),
+    [wallets],
+  );
 
   return (
     <DetailViewStack.Navigator screenOptions={{ headerShown: false }}>
@@ -70,11 +104,13 @@ const MainRoot = () => {
         <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (
         <>
-          <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
+          <DetailViewStack.Screen name="DrawerRoot">
+            {screenProps => <DrawerRootWithPreloader {...screenProps} shouldPreloadSendDetails={shouldPreloadSendDetails} />}
+          </DetailViewStack.Screen>
 
           {/* Modal stacks */}
           <DetailViewStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="SendDetailsRoot" component={LazySendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
+          <DetailViewStack.Screen name="SendDetailsRoot" component={FocusedSendDetailsRoot} options={NavigationFormNoSwipeDefaultOptions} />
           <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />

@@ -1,4 +1,4 @@
-import React, { lazy, useMemo } from 'react';
+import React, { lazy, useEffect, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
@@ -7,23 +7,36 @@ import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { SendDetailsStackParamList } from './SendDetailsStackParamList';
 import HeaderRightButton from '../components/HeaderRightButton';
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
 import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
+import { useStorage } from '../hooks/context/useStorage';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
-const SendDetails = lazy(() => import('../screen/send/SendDetails'));
-const Confirm = lazy(() => import('../screen/send/Confirm'));
-const PsbtWithHardwareWallet = lazy(() => import('../screen/send/psbtWithHardwareWallet'));
-const CreateTransaction = lazy(() => import('../screen/send/create'));
-const PsbtMultisig = lazy(() => import('../screen/send/psbtMultisig'));
-const PsbtMultisigQRCode = lazy(() => import('../screen/send/PsbtMultisigQRCode'));
-const Success = lazy(() => import('../screen/send/success'));
-const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
-const CoinControl = lazy(() => import('../screen/send/CoinControl'));
-const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
-const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
+const importSendDetails = () => import('../screen/send/SendDetails');
+const importConfirm = () => import('../screen/send/Confirm');
+const importPsbtWithHardwareWallet = () => import('../screen/send/psbtWithHardwareWallet');
+const importCreateTransaction = () => import('../screen/send/create');
+const importPsbtMultisig = () => import('../screen/send/psbtMultisig');
+const importPsbtMultisigQRCode = () => import('../screen/send/PsbtMultisigQRCode');
+const importSuccess = () => import('../screen/send/success');
+const importSelectWallet = () => import('../screen/wallets/SelectWallet');
+const importCoinControl = () => import('../screen/send/CoinControl');
+const importPaymentCodesList = () => import('../screen/wallets/PaymentCodesList');
+const importScanQRCode = () => import('../screen/send/ScanQRCode');
+
+const SendDetails = lazy(importSendDetails);
+const Confirm = lazy(importConfirm);
+const PsbtWithHardwareWallet = lazy(importPsbtWithHardwareWallet);
+const CreateTransaction = lazy(importCreateTransaction);
+const PsbtMultisig = lazy(importPsbtMultisig);
+const PsbtMultisigQRCode = lazy(importPsbtMultisigQRCode);
+const Success = lazy(importSuccess);
+const SelectWallet = lazy(importSelectWallet);
+const CoinControl = lazy(importCoinControl);
+const PaymentCodesList = lazy(importPaymentCodesList);
+const ScanQRCode = lazy(importScanQRCode);
 
 const SendDetailsComponent = withLazySuspense(SendDetails);
 const ConfirmComponent = withLazySuspense(Confirm);
@@ -39,10 +52,46 @@ const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
 const SendDetailsStack = () => {
   const theme = useTheme();
+  const { wallets, walletsInitialized } = useStorage();
+  const warmModule = (importer: () => Promise<unknown>) => {
+    importer().catch(() => {
+      // Keep lazy fallback behavior if background preload fails.
+    });
+  };
+
   const DetailsButton = useMemo(
     () => <HeaderRightButton testID="TransactionDetailsButton" disabled={true} title={loc.send.create_details} />,
     [],
   );
+
+  useEffect(() => {
+    if (!walletsInitialized) {
+      return;
+    }
+
+    const hasOnchainSendWallet = wallets.some(wallet => wallet.chain === Chain.ONCHAIN && wallet.allowSend());
+    const hasMultisigWallet = wallets.some(wallet => wallet.type === 'HDmultisig');
+    const hasOffchainWallet = wallets.some(wallet => wallet.chain === Chain.OFFCHAIN);
+
+    if (hasOnchainSendWallet) {
+      warmModule(importConfirm);
+      warmModule(importCreateTransaction);
+      warmModule(importCoinControl);
+      warmModule(importPsbtWithHardwareWallet);
+      warmModule(importSelectWallet);
+      warmModule(importScanQRCode);
+      warmModule(importSuccess);
+    }
+
+    if (hasMultisigWallet) {
+      warmModule(importPsbtMultisig);
+      warmModule(importPsbtMultisigQRCode);
+    }
+
+    if (hasOffchainWallet) {
+      warmModule(importPaymentCodesList);
+    }
+  }, [wallets, walletsInitialized]);
 
   return (
     <Stack.Navigator initialRouteName="SendDetails" screenOptions={{ headerShadowVisible: false, fullScreenGestureEnabled: false }}>

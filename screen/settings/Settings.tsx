@@ -1,4 +1,5 @@
 import React, { useMemo, useLayoutEffect, useCallback } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 import { View, StyleSheet, Linking, Image, Platform } from 'react-native';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -10,13 +11,18 @@ const Settings = () => {
   const { navigate, setOptions } = useExtendedNavigation();
   const { language } = useSettings(); // Subscribe to language changes to trigger re-render
   const { colors, dark } = useTheme();
+  const isFocused = useIsFocused();
   const isIOSLightMode = Platform.OS === 'ios' && !dark;
   const settingsCardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? colors.background;
   const settingsScreenBackgroundColor = isIOSLightMode ? settingsCardColor : colors.background;
   const settingsListItemBackgroundColor = isIOSLightMode ? colors.background : undefined;
   useLayoutEffect(() => {
+    if (!isFocused) {
+      return;
+    }
+
     setOptions(getSettingsHeaderOptions(loc.settings.header, { ...colors, background: settingsScreenBackgroundColor }, dark));
-  }, [setOptions, language, colors, settingsScreenBackgroundColor, dark]); // Include language to trigger re-render when language changes
+  }, [setOptions, language, colors, settingsScreenBackgroundColor, dark, isFocused]); // Include language to trigger re-render when language changes
 
   const handleDonatePress = useCallback(() => {
     Linking.openURL('https://donate.bluewallet.io/');
