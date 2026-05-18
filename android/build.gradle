@@ -57,6 +57,13 @@ allprojects {
         maven {
             url("$rootDir/../node_modules/detox/Detox-android")
         }
+        // react-native-background-fetch ships com.transistorsoft:tsbackgroundfetch
+        // as a bundled local Maven repo; the package's own build.gradle adds it
+        // for itself, but :app's runtime classpath resolution needs it visible
+        // at the root level too.
+        maven {
+            url("$rootDir/../node_modules/react-native-background-fetch/android/libs")
+        }
 
             mavenCentral {
 	            // We don't want to fetch react-native from Maven Central as there are
@@ -85,6 +92,17 @@ if (buildscript != null) {
 }
 
 subprojects { project ->
+    // react-native-device-info's androidTest classpath pulls
+    // play-services-iid:16.0.1 -> play-services-base:16.0.1 -> support-v4:26.1.0,
+    // which collides with androidx.core:core:1.13.1 (Duplicate class
+    // android.support.v4.app.INotificationSideChannel). Exclude the pre-AndroidX
+    // support-* modules so the AndroidX equivalents in core win.
+    configurations.all {
+        exclude group: 'com.android.support', module: 'support-compat'
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.android.support', module: 'support-core-utils'
+    }
+
     // Remove and block any jcenter() repositories at both project and buildscript levels
     def scrub = { repoContainer ->
         repoContainer.all { repo ->

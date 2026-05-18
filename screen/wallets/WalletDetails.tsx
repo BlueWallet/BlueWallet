@@ -37,7 +37,7 @@ import { BlueLoading } from '../../components/BlueLoading';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, txMetadata, handleWalletDeletion } = useStorage();
+  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, fetchAndSaveWalletTransactions } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -95,6 +95,21 @@ const WalletDetails: React.FC = () => {
 
     fetchArkAddress();
   }, [wallet]);
+
+  const [isRestoringSwaps, setIsRestoringSwaps] = useState<boolean>(false);
+  const onRestoreSwapsPressed = useCallback(async () => {
+    if (wallet.type !== LightningArkWallet.type || !(wallet as unknown as LightningArkWallet).restoreSwaps) return;
+    setIsRestoringSwaps(true);
+    try {
+      await (wallet as unknown as LightningArkWallet).restoreSwaps();
+      await fetchAndSaveWalletTransactions(wallet.getID());
+      presentAlert({ message: loc.wallets.restore_swap_activity_done });
+    } catch (e: any) {
+      presentAlert({ message: e?.message ?? String(e) });
+    } finally {
+      setIsRestoringSwaps(false);
+    }
+  }, [wallet, fetchAndSaveWalletTransactions]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
@@ -666,6 +681,18 @@ const WalletDetails: React.FC = () => {
                   <>
                     <BlueSpacing20 />
                     <SecondButton onPress={navigateToSignVerify} testID="SignVerify" title={loc.addresses.sign_title} />
+                  </>
+                )}
+                {wallet.type === LightningArkWallet.type && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton
+                      onPress={onRestoreSwapsPressed}
+                      testID="RestoreSwapActivity"
+                      title={loc.wallets.restore_swap_activity}
+                      disabled={isRestoringSwaps}
+                      loading={isRestoringSwaps}
+                    />
                   </>
                 )}
                 <BlueSpacing20 />

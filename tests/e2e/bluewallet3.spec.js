@@ -88,6 +88,12 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
 
     // now lets test scanning back QR with UR PSBT. this should lead straight to broadcast dialog
 
+    // Same race as the t1 AboutScrollView fix in bluewallet.spec.js: the
+    // PSBT-with-hardware screen has not always mounted by the time
+    // whileElement(...).scroll() runs.
+    await waitFor(element(by.id('PsbtWithHardwareScrollView')))
+      .toBeVisible()
+      .withTimeout(15_000);
     await waitFor(element(by.id('PsbtTxScanButton')))
       .toBeVisible()
       .whileElement(by.id('PsbtWithHardwareScrollView'))

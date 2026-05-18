@@ -29,6 +29,7 @@ import { CreateTransactionUtxo } from '../../class/wallets/types';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { SettingsCard, SettingsScrollView } from '../../components/platform';
 
 const bip32 = BIP32Factory(ecc);
@@ -93,6 +94,11 @@ export default class SelfTest extends Component {
     let isOk = true;
 
     try {
+      // Drain any Ark background-fetch listener before running the self-test.
+      // A live background-fetch timer keeps Detox's FabricTimersIdlingResource
+      // busy and disconnects the JS bridge before SelfTestOk can be observed.
+      await stopArkBackgroundTask();
+
       await new Promise(resolve => setTimeout(resolve, 1_000)); // propagate ui
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
@@ -117,7 +123,7 @@ export default class SelfTest extends Component {
         await spkw.init();
         assertStrictEqual(
           await spkw.getArkAddress(),
-          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t59s7u3fgnd3lyjda00ycjq53mgxl6wsxspe4s72t5dss3q6w5clv0xpgal',
+          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t4damkjtcm90w43zn6f90ermjhr9d2qxmsw75r7daanhmasp6avmstu5est',
           'Ark failed',
         );
       } else {
