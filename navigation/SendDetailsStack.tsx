@@ -125,9 +125,10 @@ const SendDetailsStack = () => {
         name="ScanQRCode"
         component={ScanQRCodeComponent}
         options={navigationStyle({
-          headerShown: false,
           statusBarHidden: true,
           presentation: 'fullScreenModal',
+          headerTransparent: true,
+          headerBlurEffect: 'dark',
           headerShadowVisible: false,
         })(theme)}
       />

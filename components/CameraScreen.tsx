@@ -15,6 +15,7 @@ interface CameraScreenProps {
   onImagePickerButtonPress?: () => void;
   onFilePickerButtonPress?: () => void;
   onReadCode?: (event: OnReadCodeData) => void;
+  torchMode?: boolean;
 }
 
 const CameraScreen: React.FC<CameraScreenProps> = ({
@@ -24,9 +25,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
   onImagePickerButtonPress,
   onFilePickerButtonPress,
   onReadCode,
+  torchMode = false,
 }) => {
   const cameraRef = useRef<CameraApi>(null);
-  const [torchMode, setTorchMode] = useState(false);
   const [cameraType, setCameraType] = useState(CameraType.Back);
   const [zoom, setZoom] = useState<number | undefined>();
   const [orientationAnim] = useState(new Animated.Value(3));
@@ -35,11 +36,6 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
     const direction = cameraType === CameraType.Back ? CameraType.Front : CameraType.Back;
     setCameraType(direction);
     setZoom(1); // When changing camera type, reset to default zoom for that camera
-    triggerSelectionHapticFeedback();
-  };
-
-  const onSetTorch = () => {
-    setTorchMode(!torchMode);
     triggerSelectionHapticFeedback();
   };
 
@@ -97,47 +93,6 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
 
   return (
     <View style={styles.screen}>
-      {/* Render top buttons only if not desktop as they would not be relevant */}
-      {!isDesktop && (
-        <View style={styles.topButtons}>
-          <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
-            <Animated.View style={styles.topButtonImg}>
-              <Icon
-                name={torchMode ? 'flashlight' : 'flashlight-off'}
-                type="material-community"
-                size={24}
-                color={torchMode ? '#000' : '#fff'}
-              />
-            </Animated.View>
-          </TouchableOpacity>
-          <View style={styles.rightButtonsContainer}>
-            {showImagePickerButton && (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={loc._.pick_image}
-                style={[styles.topButton, styles.spacing, uiRotationStyle]}
-                onPress={onImagePickerButtonPress}
-              >
-                <Animated.View style={styles.topButtonImg}>
-                  <Icon name="image" type="font-awesome" size={24} color="#ffffff" />
-                </Animated.View>
-              </TouchableOpacity>
-            )}
-            {showFilePickerButton && (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={loc._.pick_file}
-                style={[styles.topButton, styles.spacing, uiRotationStyle]}
-                onPress={onFilePickerButtonPress}
-              >
-                <Animated.View style={styles.topButtonImg}>
-                  <Icon name="file-import" type="font-awesome-6" size={24} color="#ffffff" />
-                </Animated.View>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-      )}
       <View style={styles.cameraContainer}>
         <Camera
           ref={cameraRef}
@@ -200,26 +155,9 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
 export default CameraScreen;
 
 const styles = StyleSheet.create({
-  activeTorch: {
-    backgroundColor: '#fff',
-  },
   screen: {
     height: '100%',
     backgroundColor: '#000000',
-  },
-  topButtons: {
-    padding: 10,
-    zIndex: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  topButton: {
-    backgroundColor: '#222',
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   topButtonImg: {
     margin: 10,
