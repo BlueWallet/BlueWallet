@@ -77,7 +77,7 @@
     "sats": "sats.",
     "date_time": "Date and Time",
     "wasnt_paid_and_expired": "This invoice was not paid and has expired.",
-    "claim_funds": "Claim funds",
+    "receiving_payment": "Receiving payment…",
     "refund_funds": "Refund funds",
     "refund_deferred": "Funds aren't refundable yet. Try again after the swap timelock expires.",
     "notification_action_title": "Action needed",

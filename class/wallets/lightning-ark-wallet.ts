@@ -2,7 +2,6 @@ import BigNumber from 'bignumber.js';
 import { sha256 } from '@noble/hashes/sha256';
 import {
   ArkadeSwaps,
-  BoltzReverseSwap,
   BoltzSubmarineSwap,
   BoltzSwap,
   BoltzSwapProvider,
@@ -703,11 +702,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
-  // Per-swap claim/refund + import-time restore.
+  // Per-swap refund + import-time restore + SDK event forwarding.
   // These are thin wrappers over `ArkadeSwaps`. We do not add app-side polling
   // or reliability layers — the SDK owns swap reliability internally
-  // (claimVHTLC waits for VTXO availability; refundVHTLC reports
-  // swept/skipped). UI code calls these from the swap detail screen.
+  // (auto-claims reverse swaps via SwapManager; refundVHTLC reports
+  // swept/skipped). UI code calls refundSwap from the swap detail screen and
+  // subscribes to status updates via subscribeToSwapEvents.
 
   getSwapById(id: string): BoltzSwap | undefined {
     return this._swapHistory.find(swap => swap.id === id);
@@ -721,12 +721,17 @@ export class LightningArkWallet extends LightningCustodianWallet {
     return isSubmarineSwapRefundable(swap) || isChainSwapRefundable(swap);
   }
 
-  async claimSwap(swap: BoltzReverseSwap): Promise<void> {
-    if (!this._wallet) await this.init();
-    if (!this._arkadeSwaps) throw new Error('ArkadeSwaps not initialized');
-    await this._arkadeSwaps.claimVHTLC(swap);
-    await this.fetchTransactions();
-    await this.fetchBalance();
+  // Forward SwapManager status transitions to a single UI callback so screens
+  // can re-render the moment the SDK observes a new status (e.g. reverse
+  // `transaction.mempool` → `invoice.settled` after the SDK's auto-claim),
+  // instead of waiting for the 3s polling tick in the invoice viewer. No-op
+  // (returns an inert unsubscribe) if init hasn't populated `_arkadeSwaps`
+  // yet — callers re-subscribe whenever the wallet ref changes.
+  subscribeToSwapEvents(callback: (swap: BoltzSwap) => void): () => void {
+    const sm = this._arkadeSwaps?.getSwapManager();
+    if (!sm) return () => {};
+    sm.onSwapUpdate(callback).catch(() => {});
+    return () => sm.offSwapUpdate(callback);
   }
 
   async refundSwap(swap: BoltzSubmarineSwap): Promise<SubmarineRefundOutcome> {

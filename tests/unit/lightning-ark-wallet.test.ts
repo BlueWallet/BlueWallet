@@ -866,19 +866,6 @@ describe('LightningArkWallet — per-swap claim/refund + restore', () => {
     assert.strictEqual(w.isSwapRefundable(settledReverse), false);
   });
 
-  it('claimSwap delegates to ArkadeSwaps.claimVHTLC and refreshes balance + transactions', async () => {
-    const swap: any = { id: 'r1', type: 'reverse', status: 'transaction.confirmed' };
-
-    await w.claimSwap(swap);
-
-    assert.strictEqual(fakeArkadeSwaps.claimVHTLC.mock.calls.length, 1);
-    assert.strictEqual(fakeArkadeSwaps.claimVHTLC.mock.calls[0][0], swap);
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchTransactions.mock.calls.length, 1);
-    // @ts-expect-error spy
-    assert.strictEqual(w.fetchBalance.mock.calls.length, 1);
-  });
-
   it('refundSwap delegates to ArkadeSwaps.refundVHTLC and forwards the SubmarineRefundOutcome', async () => {
     fakeArkadeSwaps.refundVHTLC.mockResolvedValue({ swept: 1, skipped: 0 });
     const swap: any = { id: 's1', type: 'submarine', status: 'swap.expired' };
