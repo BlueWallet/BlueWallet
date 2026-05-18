@@ -186,14 +186,26 @@ export class BlueApp {
    * decrypt each one, and returns first one successfully decrypted
    */
   async decryptData(data: string, password: string): Promise<boolean | string> {
-    data = JSON.parse(data);
-    let decrypted;
+    const buckets: string[] = JSON.parse(data);
     let num = 0;
-    for (const value of data) {
-      decrypted = await encryption.decrypt(value, password);
+    for (const value of buckets) {
+      const decrypted = await encryption.decrypt(value, password);
 
       if (decrypted) {
         usedBucketNum = num;
+        // Lazy v1 → v2 upgrade: if this bucket is still in the legacy
+        // `Salted__` format, re-encrypt under the same password so the
+        // on-disk fingerprint converges over time. Decoy buckets the user
+        // never unlocks stay v1 — accepted plausible-deniability tradeoff,
+        // documented in release notes.
+        if (!value.startsWith('v2:')) {
+          try {
+            buckets[num] = await encryption.encrypt(decrypted as string, password);
+            await this.setItem('data', JSON.stringify(buckets));
+          } catch (e) {
+            console.warn('lazy v2 upgrade failed:', e);
+          }
+        }
         return decrypted;
       }
       num++;

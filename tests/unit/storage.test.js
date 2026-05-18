@@ -525,3 +525,52 @@ it('Appstorage - hashIt() works', async () => {
   const storage = new BlueApp();
   assert.strictEqual(storage.hashIt('hello'), '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824');
 });
+
+it('Appstorage - lazy v1 → v2 upgrade rewrites legacy bucket on successful decrypt', async () => {
+  // Legacy CryptoJS@3.1.9-1 ciphertext under password 'password' — same fixture
+  // used in tests/unit/encryption.test.ts.
+  const legacyV1 =
+    'U2FsdGVkX19fJ4PcLum+tmBpEVNgGGsGKOhRS21cEcYAox+Df8VqmnnG9t2PvpM05eWImCRArorVUUegtcfSq314WMFzxKmiPIl9eqV1aOY+VFGuIBx0VIVsCWix2Q7sRZZwnOVpG5bdveZI0+Azyw==';
+  const expectedPlaintext = 'really long data string bla bla really long data string bla bla really long data string bla bla';
+
+  await AsyncStorage.setItem('data', JSON.stringify([legacyV1]));
+  await AsyncStorage.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+
+  const Storage = new BlueApp();
+  const decrypted = await Storage.decryptData(JSON.stringify([legacyV1]), 'password');
+  assert.strictEqual(decrypted, expectedPlaintext);
+
+  // On-disk bucket should have been rewritten as v2 by the lazy upgrade.
+  const rewritten = JSON.parse(await AsyncStorage.getItem('data'));
+  assert.strictEqual(rewritten.length, 1);
+  assert.ok(rewritten[0].startsWith('v2:'), `expected v2: prefix after upgrade, got: ${rewritten[0].slice(0, 16)}…`);
+
+  // Sanity: the new v2 ciphertext still decrypts to the same plaintext.
+  const Storage2 = new BlueApp();
+  const reread = await Storage2.decryptData(await AsyncStorage.getItem('data'), 'password');
+  assert.strictEqual(reread, expectedPlaintext);
+});
+
+it('Appstorage - lazy v1 → v2 upgrade leaves untouched buckets at v1', async () => {
+  // Two buckets: one unlocks with 'password' (will upgrade), one stays v1
+  // because we never present its password. Models the plausible-deniability
+  // scenario where decoy buckets the user does not unlock stay legacy.
+  const legacyV1A =
+    'U2FsdGVkX19fJ4PcLum+tmBpEVNgGGsGKOhRS21cEcYAox+Df8VqmnnG9t2PvpM05eWImCRArorVUUegtcfSq314WMFzxKmiPIl9eqV1aOY+VFGuIBx0VIVsCWix2Q7sRZZwnOVpG5bdveZI0+Azyw==';
+  // A second legacy ciphertext with a different password — we never unlock it.
+  const legacyV1B =
+    'U2FsdGVkX1/OSNdi0JrLANn9qdNEiXgP20MJgT13CMKC7xKe+sb7x0An6r8lzrYeL2vjoPm2Xi5I3UdBcsgjgh0TR4PypNdDaW1tW8LhFH1wVCh1hacrFsJjoKMBmdCn4IVMwtIffGPptqBrGZl+6kjOc3BBbgq4uaAavFIwTS86WdaRt9qAboBcoPJZxsj37othbZfZfl2GBTCWnR1tOYAbElKWv4lBwNQpX7HqX3wTQkAbamBslsH5FfZRY1c38lOHrZMwNSyxhgspydksTxKkhPqWQu3XWT4GpRoRuVvYlBNvJOCUu2JbiVSp4NiOMSfnA8ahvpCGRNy+qPWsXqmJtz9BwyzedzDkgg6QOqxXz4oOeEJa/XLKiuv3ItsLrZb+sSA6wjB1Cx6/Oh2vW7eiHjCITeC7KUK1fAxVwufLcprNkvG8qFzkOcHxDyzG+sNL0cMipAxhpMX7qIcYcZFoLYkQRQHpOZKZCIAdNTfPGJ7M4cxGM0V+Uuirjyn+KAPJwNElwmPpX8sTQyEqlIlEwVjFXBpz28N5RAGN2zzCzEjD8NVYQJ2QyHj0gfWe';
+
+  await AsyncStorage.setItem('data', JSON.stringify([legacyV1A, legacyV1B]));
+  await AsyncStorage.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+
+  const Storage = new BlueApp();
+  const decrypted = await Storage.decryptData(JSON.stringify([legacyV1A, legacyV1B]), 'password');
+  assert.ok(decrypted);
+
+  const rewritten = JSON.parse(await AsyncStorage.getItem('data'));
+  assert.strictEqual(rewritten.length, 2);
+  assert.ok(rewritten[0].startsWith('v2:'), 'unlocked bucket should be upgraded');
+  assert.ok(!rewritten[1].startsWith('v2:'), 'untouched decoy bucket should stay v1');
+  assert.strictEqual(rewritten[1], legacyV1B);
+});
