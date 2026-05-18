@@ -8,7 +8,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  LayoutAnimation,
   ListRenderItemInfo,
   NativeSyntheticEvent,
   LayoutRectangle,
@@ -299,7 +298,6 @@ const PsbtMultisig = () => {
   };
 
   const handleToggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIsFiltered(prev => !prev);
   };
 
