@@ -18,6 +18,7 @@ import { SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from '../../class/wa
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import startImport from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
+import { TaprootWallet } from '../../class/wallets/taproot-wallet';
 
 jest.setTimeout(90 * 1000);
 
@@ -709,5 +710,61 @@ describe('import procedure', () => {
       store.state.wallets[0].getSecret(),
       'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
     );
+  });
+
+  it('can import private key in hex format', async () => {
+    const store = createStore();
+    const { promise } = startImport(
+      'D556170609D43CAAC751EB81D5400425E029A86C2718CD33EC4D7D43CE1BB306',
+      false,
+      true,
+      false,
+      ...store.callbacks,
+    );
+    await promise;
+    assert.strictEqual(store.state.wallets.length > 3, true);
+
+    assert.strictEqual(store.state.wallets[0].type, SegwitBech32Wallet.type);
+    assert.strictEqual(store.state.wallets[1].type, SegwitP2SHWallet.type);
+    assert.strictEqual(store.state.wallets[2].type, LegacyWallet.type);
+    assert.strictEqual(store.state.wallets[3].type, TaprootWallet.type);
+    assert.strictEqual(store.state.wallets[4].type, LegacyWallet.type);
+
+    assert.strictEqual(store.state.wallets[0].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[1].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[2].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[3].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[4].getSecret(), '5KSEyFcrCYakxTev5Zhs1YqW9pjvUbQexjQ8ZARYnj5mWqVmQRk');
+
+    assert.strictEqual(store.state.wallets[0].getAddress(), 'bc1qxscvu3w04nj9k2eukx30897xldfygzqqkmtdav');
+    assert.strictEqual(store.state.wallets[1].getAddress(), '38z3svUJKMFj4G3rGrRzcARp2N4vdqV8NK');
+    assert.strictEqual(store.state.wallets[2].getAddress(), '15kxc4PEBR8yXqpgEkb83YijfjSkd2xrKV');
+    assert.strictEqual(store.state.wallets[3].getAddress(), 'bc1pxnmhjaug5jqm3xqz5fekme8f8dax869z96ufqyllgz5g3wpw2gpqvqxqqy');
+    assert.strictEqual(store.state.wallets[4].getAddress(), '1AynZS85C27HqxGEyQphhkoWedYF1bdBnY');
+  });
+
+  it('can import private key in base64 format', async () => {
+    const store = createStore();
+    const { promise } = startImport('1VYXBgnUPKrHUeuB1UAEJeApqGwnGM0z7E19Q84bswY=', false, true, false, ...store.callbacks);
+    await promise;
+    assert.strictEqual(store.state.wallets.length > 3, true);
+
+    assert.strictEqual(store.state.wallets[0].type, SegwitBech32Wallet.type);
+    assert.strictEqual(store.state.wallets[1].type, SegwitP2SHWallet.type);
+    assert.strictEqual(store.state.wallets[2].type, LegacyWallet.type);
+    assert.strictEqual(store.state.wallets[3].type, TaprootWallet.type);
+    assert.strictEqual(store.state.wallets[4].type, LegacyWallet.type);
+
+    assert.strictEqual(store.state.wallets[0].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[1].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[2].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[3].getSecret(), 'L4NQfHXE9xQ11neMH9MMjRX5fwiT2nsQYz96LxbMJpk3UU8yUyEC');
+    assert.strictEqual(store.state.wallets[4].getSecret(), '5KSEyFcrCYakxTev5Zhs1YqW9pjvUbQexjQ8ZARYnj5mWqVmQRk');
+
+    assert.strictEqual(store.state.wallets[0].getAddress(), 'bc1qxscvu3w04nj9k2eukx30897xldfygzqqkmtdav');
+    assert.strictEqual(store.state.wallets[1].getAddress(), '38z3svUJKMFj4G3rGrRzcARp2N4vdqV8NK');
+    assert.strictEqual(store.state.wallets[2].getAddress(), '15kxc4PEBR8yXqpgEkb83YijfjSkd2xrKV');
+    assert.strictEqual(store.state.wallets[3].getAddress(), 'bc1pxnmhjaug5jqm3xqz5fekme8f8dax869z96ufqyllgz5g3wpw2gpqvqxqqy');
+    assert.strictEqual(store.state.wallets[4].getAddress(), '1AynZS85C27HqxGEyQphhkoWedYF1bdBnY');
   });
 });

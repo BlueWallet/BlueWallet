@@ -322,6 +322,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     alignSelf: 'center',
+    alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 30,
   },

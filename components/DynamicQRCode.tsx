@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, LayoutAnimation, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { encodeUR } from '../blue_modules/ur';
 import { BlueCurrentTheme } from '../components/themes';
@@ -159,7 +159,6 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
           accessibilityRole="button"
           testID="DynamicCode"
           onPress={() => {
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
             this.setState(prevState => ({ hideControls: !prevState.hideControls }));
           }}
         >
