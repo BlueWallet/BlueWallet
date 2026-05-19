@@ -127,39 +127,47 @@ export const AddressInputScanButton = ({
   const menuButtonStyle = useMemo(() => (type === 'default' ? [styles.scan, stylesHook.scan] : undefined), [stylesHook.scan, type]);
 
   return (
-    <ToolTipMenu
-      actions={actions}
-      isButton
-      onPressMenuItem={onMenuItemPressed}
-      shouldOpenOnLongPress
-      disabled={isLoading}
-      onPress={toolTipOnPress}
-      testID={type === 'default' ? testID : undefined}
-      buttonStyle={menuButtonStyle}
-      accessibilityLabel={loc.send.details_scan}
-      accessibilityHint={loc.send.details_scan_hint}
-    >
-      {type === 'default' ? (
-        <View style={styles.scanContent}>
-          <Image source={require('../img/scan-white.png')} accessible={false} />
-          <Text numberOfLines={1} style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-            {loc.send.details_scan}
-          </Text>
-        </View>
-      ) : (
-        <View testID={testID} style={styles.contentRow}>
-          <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
-            {loc.wallets.import_scan_qr}
-          </Text>
-        </View>
-      )}
-    </ToolTipMenu>
+    <View style={type === 'default' ? styles.wrapper : undefined}>
+      <ToolTipMenu
+        actions={actions}
+        isButton
+        onPressMenuItem={onMenuItemPressed}
+        shouldOpenOnLongPress
+        disabled={isLoading}
+        onPress={toolTipOnPress}
+        testID={type === 'default' ? testID : undefined}
+        buttonStyle={menuButtonStyle}
+        accessibilityLabel={loc.send.details_scan}
+        accessibilityHint={loc.send.details_scan_hint}
+      >
+        {type === 'default' ? (
+          <View style={styles.scanContent}>
+            <Image source={require('../img/scan-white.png')} accessible={false} />
+            <Text numberOfLines={1} style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+              {loc.send.details_scan}
+            </Text>
+          </View>
+        ) : (
+          <View testID={testID} style={styles.contentRow}>
+            <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
+              {loc.wallets.import_scan_qr}
+            </Text>
+          </View>
+        )}
+      </ToolTipMenu>
+    </View>
   );
 };
 
 AddressInputScanButton.displayName = 'AddressInputScanButton';
 
 const styles = StyleSheet.create({
+  wrapper: {
+    minWidth: 82,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   scan: {
     height: 36,
     flexDirection: 'row',
@@ -171,8 +179,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
-    marginHorizontal: 4,
-    alignSelf: 'center',
   },
   scanText: {
     marginLeft: 4,

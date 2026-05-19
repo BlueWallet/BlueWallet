@@ -580,7 +580,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderBottomWidth: 0.5,
     minHeight: 44,
-    height: 44,
     marginHorizontal: 20,
     alignItems: 'center',
     marginVertical: 16,
@@ -588,8 +587,11 @@ const styles = StyleSheet.create({
   },
   textInputCommon: {
     flex: 1,
-    marginHorizontal: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 11,
+    fontSize: 15,
     color: '#81868e',
+    lineHeight: 19,
   },
   buttons: {
     flexDirection: 'column',
@@ -610,7 +612,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderBottomWidth: 0.5,
     minHeight: 44,
-    height: 44,
     alignItems: 'center',
     marginVertical: 16,
     borderRadius: 4,

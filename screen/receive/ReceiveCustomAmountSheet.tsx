@@ -179,7 +179,6 @@ const styles = StyleSheet.create({
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
     minHeight: 44,
-    height: 44,
     marginHorizontal: 20,
     alignItems: 'center',
     marginVertical: 8,
@@ -200,7 +199,9 @@ const styles = StyleSheet.create({
   },
   customAmountText: {
     flex: 1,
-    marginHorizontal: 8,
-    minHeight: 33,
+    paddingHorizontal: 8,
+    paddingVertical: 11,
+    fontSize: 15,
+    lineHeight: 19,
   },
 });

@@ -148,6 +148,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         const parameters = {
           walletID,
           uri: ret?.data ? ret.data : ret,
+          amountUnit: displayUnit,
+          feeUnit: displayUnit,
         };
         if (wallet.chain === Chain.ONCHAIN) {
           navigate('SendDetailsRoot', { screen: 'SendDetails', params: parameters });
@@ -157,7 +159,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         setIsLoading(false);
       }
     },
-    [isLoading, walletID, wallet.chain, navigate],
+    [isLoading, walletID, wallet.chain, navigate, displayUnit],
   );
 
   useEffect(() => {
@@ -284,6 +286,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       screen: 'SendDetails',
       params: {
         walletID,
+        amountUnit: displayUnit,
+        feeUnit: displayUnit,
       },
     });
   };
@@ -315,6 +319,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           transactionMemo: loc.lnd.refill_lnd_balance,
           address: toAddress,
           walletID: selectedWallet.getID(),
+          amountUnit: selectedWallet.getPreferredBalanceUnit(),
+          feeUnit: selectedWallet.getPreferredBalanceUnit(),
         },
       });
     },
