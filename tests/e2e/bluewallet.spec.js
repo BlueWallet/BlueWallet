@@ -62,10 +62,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapAndTapAgainIfElementIsNotVisible('RunSelfTestButton', 'SelfTestLoading');
     await element(by.id('SelfTestLoading')).tap(); // tapping START button
 
-    // SelfTest runs CPU-heavy crypto loops + network calls for 100+ seconds.
-    // Detox's FabricTimersIdlingResource never goes idle during that, so a
-    // synchronized waitFor would throw IdlingResourceTimeoutException long
-    // before SelfTestOk renders. Disable synchronization just for the wait.
+    // SelfTest runs CPU-heavy crypto loops for 100+ seconds. Detox's
+    // FabricTimersIdlingResource never goes idle during that, so a synchronized
+    // waitFor would throw IdlingResourceTimeoutException long before
+    // SelfTestOk renders. Disable synchronization just for the wait.
     await device.disableSynchronization();
     try {
       await waitFor(element(by.id('SelfTestOk')))
