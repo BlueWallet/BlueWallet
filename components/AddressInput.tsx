@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { StyleProp, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import loc from '../loc';
 import { AddressInputScanButton } from './AddressInputScanButton';
@@ -45,20 +45,16 @@ const AddressInput = ({
   style,
 }: AddressInputProps) => {
   const { colors } = useTheme();
-  const stylesHook = useMemo(
-    () =>
-      StyleSheet.create({
-        root: {
-          borderColor: colors.formBorder,
-          borderBottomColor: colors.formBorder,
-          backgroundColor: colors.inputBackgroundColor,
-        },
-        input: {
-          color: colors.foregroundColor,
-        },
-      }),
-    [colors.formBorder, colors.inputBackgroundColor, colors.foregroundColor],
-  );
+  const stylesHook = StyleSheet.create({
+    root: {
+      borderColor: colors.formBorder,
+      borderBottomColor: colors.formBorder,
+      backgroundColor: colors.inputBackgroundColor,
+    },
+    input: {
+      color: colors.foregroundColor,
+    },
+  });
 
   return (
     <View style={[styles.root, editable ? styles.rootEditable : styles.rootReadOnly, stylesHook.root, style]}>
