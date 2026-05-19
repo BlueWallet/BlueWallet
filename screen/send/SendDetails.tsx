@@ -83,6 +83,7 @@ const SendDetails = () => {
   const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
   const setParams = navigation.setParams;
   const route = useRoute<RouteProps>();
+  const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
   const amountUnit = route.params?.amountUnit ?? BitcoinUnit.BTC;
   const frozenBalance = route.params?.frozenBalance ?? 0;
   const transactionMemo = route.params?.transactionMemo;
@@ -92,8 +93,6 @@ const SendDetails = () => {
   const routeParams = route.params;
   const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
-  // Updated on pager scroll to re-render fee label; always read scrollIndex.current for the active index.
-  const [, setRecipientPagerIndex] = useState(0);
   const { colors } = useTheme();
 
   // state
@@ -240,12 +239,8 @@ const SendDetails = () => {
       return;
     }
     const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
-    const preferredUnit = routeParams.amountUnit ?? newWallet.getPreferredBalanceUnit();
     setWallet(newWallet);
-    setParams({ feeUnit: preferredUnit, amountUnit: preferredUnit });
-    if (!routeParams.uri) {
-      setAddresses(addrs => addrs.map(addr => ({ ...addr, unit: preferredUnit })));
-    }
+    setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
 
     // we are ready!
     setIsLoading(false);
@@ -702,13 +697,8 @@ const SendDetails = () => {
     const newWallet = wallets.find(w => w.getID() === routeParams.walletID);
     if (newWallet) {
       setWallet(newWallet);
-      if (!routeParams.uri) {
-        const preferredUnit = newWallet.getPreferredBalanceUnit();
-        setParams({ feeUnit: preferredUnit, amountUnit: preferredUnit });
-        setAddresses(addrs => addrs.map(addr => ({ ...addr, unit: preferredUnit })));
-      }
     }
-  }, [routeParams.walletID, routeParams.uri, wallets, setParams]);
+  }, [routeParams.walletID, wallets]);
 
   const setTransactionMemo = (memo: string) => {
     setParams({ transactionMemo: memo });
@@ -974,7 +964,6 @@ const SendDetails = () => {
     const incompleteIndex = addresses.findIndex(item => !item.address || !item.amount);
     if (incompleteIndex !== -1) {
       scrollIndex.current = incompleteIndex;
-      setRecipientPagerIndex(incompleteIndex);
       scrollView.current?.scrollToIndex({ index: incompleteIndex, animated: true });
       presentAlert({
         title: loc.send.please_complete_recipient_title,
@@ -987,7 +976,6 @@ const SendDetails = () => {
     // Wait for the state to update before scrolling
     setTimeout(() => {
       scrollIndex.current = addresses.length; // New index at the end
-      setRecipientPagerIndex(addresses.length);
       scrollView.current?.scrollToIndex({
         index: scrollIndex.current,
         animated: true,
@@ -997,7 +985,6 @@ const SendDetails = () => {
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
     scrollIndex.current = 0;
-    setRecipientPagerIndex(0);
     setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
     setTimeout(() => {
       scrollView.current?.scrollToOffset({ offset: 0, animated: false });
@@ -1038,7 +1025,6 @@ const SendDetails = () => {
 
       // Update the scroll index reference
       scrollIndex.current = newIndex;
-      setRecipientPagerIndex(newIndex);
     }
   }, [addresses]);
 
@@ -1275,15 +1261,9 @@ const SendDetails = () => {
     const viewSize = e.nativeEvent.layoutMeasurement;
     const index = Math.floor(contentOffset.x / viewSize.width);
     scrollIndex.current = index;
-    setRecipientPagerIndex(index);
   };
 
-  const getDisplayFeeUnit = useCallback(
-    () => addresses[scrollIndex.current]?.unit ?? amountUnit,
-    [addresses, amountUnit],
-  );
-
-  const formatFee = useCallback((fee: number) => formatBalance(fee, getDisplayFeeUnit(), true), [getDisplayFeeUnit]);
+  const formatFee = (fee: number) => formatBalance(fee, feeUnit!, true);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -1416,9 +1396,6 @@ const SendDetails = () => {
                 addrs[index].unit = unit;
                 return [...addrs];
               });
-              if (index === scrollIndex.current) {
-                setParams({ feeUnit: unit });
-              }
             }}
             onChangeText={(text: string) => {
               setAddresses(addrs => {
@@ -1565,11 +1542,12 @@ const SendDetails = () => {
             accessibilityRole="button"
             onPress={() => {
               Keyboard.dismiss();
+              const selectedRecipientUnit = addresses[scrollIndex.current]?.unit || amountUnit;
               navigation.navigate('SelectFee', {
                 networkTransactionFees,
                 feePrecalc,
                 feeRate,
-                feeUnit: addresses[scrollIndex.current]?.unit ?? amountUnit,
+                feeUnit: selectedRecipientUnit,
                 walletID: wallet?.getID() || '',
                 customFee,
               });
@@ -1579,15 +1557,15 @@ const SendDetails = () => {
           >
             <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
-            <View style={[styles.feeRow, stylesHook.feeRow]}>
-              {networkTransactionFeesIsLoading ? (
-                <ActivityIndicator />
-              ) : (
+            {networkTransactionFeesIsLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <View style={[styles.feeRow, stylesHook.feeRow]}>
                 <Text style={stylesHook.feeValue}>
                   {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
                 </Text>
-              )}
-            </View>
+              </View>
+            )}
           </Pressable>
           {renderCustomFeeWarning()}
           {renderCreateButton()}
@@ -1676,6 +1654,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     minHeight: 33,
     color: '#81868e',
+    fontSize: 15,
     lineHeight: 19,
   },
   fee: {
@@ -1691,7 +1670,7 @@ const styles = StyleSheet.create({
     minWidth: 40,
     height: 25,
     borderRadius: 4,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,

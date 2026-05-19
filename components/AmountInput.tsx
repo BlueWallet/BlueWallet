@@ -120,12 +120,10 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
 
   const inputFontSize = useMemo(() => (amount.length > 10 ? 20 : 36), [amount.length]);
 
-  const isMaxAmount = amount === BitcoinUnit.MAX;
-
   const inputWidth = useMemo(() => {
     const valueLength = Math.max((displayAmount || '0').length, 1);
     const estimatedCharWidth = inputFontSize * 0.68;
-    const calculatedWidth = Math.ceil(valueLength * estimatedCharWidth);
+    const calculatedWidth = Math.ceil(valueLength * estimatedCharWidth) + 12;
     return Math.min(Math.max(calculatedWidth, 32), 320);
   }, [displayAmount, inputFontSize]);
 
@@ -296,6 +294,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   );
 
   const stylesHook = {
+    center: { padding: amount === BitcoinUnit.MAX ? 0 : 15 },
     localCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
     input: {
       color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2,
@@ -303,95 +302,68 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
       lineHeight: inputFontSize,
       minHeight: inputFontSize + 8,
       width: inputWidth,
-      textAlign: (unit === BitcoinUnit.LOCAL_CURRENCY ? 'center' : 'right') as 'center' | 'right',
     },
-    maxInput: {
-      color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2,
-      fontSize: inputFontSize,
-      lineHeight: inputFontSize,
-      minHeight: inputFontSize + 8,
-    },
-    maxEstimate: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
     cryptoCurrency: { color: disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2 },
   };
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={loc._.enter_amount} disabled={disabled} onPress={handleTextInputOnPress}>
       <View style={styles.root}>
-        <View style={styles.side} />
-        <View style={styles.center}>
-          <View style={styles.amountBlock}>
-            <View style={styles.container}>
-              {unit === BitcoinUnit.LOCAL_CURRENCY && !isMaxAmount ? (
-                <View style={styles.fiatRow}>
-                  <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{getCurrencySymbol()}</Text>
-                  <TextInput
-                    onSelectionChange={handleSelectionChange}
-                    testID="BitcoinAmountInput"
-                    keyboardType="numeric"
-                    onChangeText={handleChangeText}
-                    placeholder="0"
-                    maxLength={maxLength}
-                    ref={textInputRef}
-                    editable={!isLoading && !disabled}
-                    value={displayAmount}
-                    placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
-                    style={[styles.input, stylesHook.input]}
-                    {...otherProps}
-                  />
-                </View>
-              ) : !isMaxAmount ? (
-                <TextInput
-                  onSelectionChange={handleSelectionChange}
-                  testID="BitcoinAmountInput"
-                  keyboardType="numeric"
-                  onChangeText={handleChangeText}
-                  placeholder="0"
-                  maxLength={maxLength}
-                  ref={textInputRef}
-                  editable={!isLoading && !disabled}
-                  value={displayAmount}
-                  placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
-                  style={[styles.input, stylesHook.input]}
-                  {...otherProps}
-                />
-              ) : (
-                <Pressable onPress={resetAmount} style={styles.maxPressable}>
-                  <Text style={[styles.input, stylesHook.maxInput]}>{BitcoinUnit.MAX}</Text>
-                  {maxSendableAmount != null && (
-                    <Text style={[styles.maxEstimate, stylesHook.maxEstimate]} onLongPress={copyMaxEstimate}>
-                      {(isMaxAmountEstimate ? '≈ ' : '') +
-                        removeTrailingZeros(new BigNumber(maxSendableAmount).dividedBy(100000000).toFixed(8)) +
-                        ' ' +
-                        loc.units[BitcoinUnit.BTC]}
-                    </Text>
-                  )}
-                </Pressable>
-              )}
-              {unit !== BitcoinUnit.LOCAL_CURRENCY && !isMaxAmount && (
-                <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{loc.units[unit]}</Text>
-              )}
-            </View>
-            {secondaryDisplayCurrency ? (
-              <Text style={styles.secondaryText} selectable>
-                {secondaryDisplayCurrency}
-              </Text>
-            ) : null}
+        {!disabled && <View style={[styles.center, stylesHook.center]} />}
+        <View style={styles.flex}>
+          <View style={styles.container}>
+            {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
+              <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{getCurrencySymbol() + ' '}</Text>
+            )}
+            {amount !== BitcoinUnit.MAX ? (
+              <TextInput
+                onSelectionChange={handleSelectionChange}
+                testID="BitcoinAmountInput"
+                keyboardType="numeric"
+                onChangeText={handleChangeText}
+                placeholder="0"
+                maxLength={maxLength}
+                ref={textInputRef}
+                editable={!isLoading && !disabled}
+                value={displayAmount}
+                placeholderTextColor={disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2}
+                style={[styles.input, stylesHook.input]}
+                {...otherProps}
+              />
+            ) : (
+              <Pressable onPress={resetAmount} style={styles.maxPressable}>
+                <Text style={[styles.input, stylesHook.input]}>{BitcoinUnit.MAX}</Text>
+                {maxSendableAmount != null && (
+                  <Text style={[styles.maxEstimate, stylesHook.localCurrency]} onLongPress={copyMaxEstimate}>
+                    {(isMaxAmountEstimate ? '≈ ' : '') +
+                      removeTrailingZeros(new BigNumber(maxSendableAmount).dividedBy(100000000).toFixed(8)) +
+                      ' ' +
+                      loc.units[BitcoinUnit.BTC]}
+                  </Text>
+                )}
+              </Pressable>
+            )}
+            {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
+              <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{' ' + loc.units[unit]}</Text>
+            )}
+          </View>
+          <View style={styles.secondaryRoot}>
+            <Text style={styles.secondaryText} selectable>
+              {secondaryDisplayCurrency}
+            </Text>
           </View>
         </View>
-        <View style={styles.side}>
-          {!disabled && !isMaxAmount && (
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={loc._.change_input_currency}
-              testID="changeAmountUnitButton"
-              style={styles.changeAmountUnit}
-              onPress={changeAmountUnit}
-            >
-              <Image source={require('../img/round-compare-arrows-24-px.png')} />
-            </TouchableOpacity>
-          )}
-        </View>
+        {!disabled && amount !== BitcoinUnit.MAX && (
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.change_input_currency}
+            testID="changeAmountUnitButton"
+            style={styles.changeAmountUnit}
+            onPress={changeAmountUnit}
+          >
+            <Image source={require('../img/round-compare-arrows-24-px.png')} />
+          </TouchableOpacity>
+        )}
       </View>
       {outdatedRefreshRate && (
         <View style={styles.outdatedRateContainer}>
@@ -417,20 +389,13 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
 const styles = StyleSheet.create({
   root: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    width: '100%',
-  },
-  side: {
-    width: 56,
-    alignItems: 'center',
-    paddingTop: 12,
+    justifyContent: 'space-between',
   },
   center: {
-    flex: 1,
-    alignItems: 'center',
+    alignSelf: 'center',
   },
-  amountBlock: {
-    alignItems: 'stretch',
+  flex: {
+    flex: 1,
   },
   spacing8: {
     width: 8,
@@ -456,41 +421,39 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignContent: 'space-between',
     justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 2,
   },
-  fiatRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
   localCurrency: {
     fontSize: 18,
-    lineHeight: 22,
-    marginRight: 4,
+    marginHorizontal: 4,
     fontWeight: 'bold',
     alignSelf: 'center',
+    justifyContent: 'center',
   },
   input: {
     fontWeight: 'bold',
     paddingHorizontal: 0,
     paddingVertical: 0,
+    textAlign: 'center',
   },
   cryptoCurrency: {
     fontSize: 15,
-    marginLeft: 4,
+    marginHorizontal: 4,
     fontWeight: '600',
     alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  secondaryRoot: {
+    alignItems: 'center',
+    marginBottom: 22,
   },
   secondaryText: {
-    alignSelf: 'stretch',
     fontSize: 16,
     color: '#9BA0A9',
     fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 22,
   },
   maxEstimate: {
     fontSize: 16,
@@ -501,6 +464,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   changeAmountUnit: {
-    paddingTop: 32,
+    alignSelf: 'center',
+    marginRight: 16,
+    paddingLeft: 16,
+    paddingVertical: 16,
   },
 });

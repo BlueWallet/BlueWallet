@@ -57,31 +57,25 @@ const AddressInput = ({
   });
 
   return (
-    <View style={[styles.root, editable ? styles.rootEditable : styles.rootReadOnly, stylesHook.root, style]}>
-      <View style={styles.inputWrapper}>
-        <TextInput
-          testID={testID}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor="#81868e"
-          value={address}
-          style={[styles.input, stylesHook.input, !editable && styles.inputReadOnly]}
-          editable={!isLoading && editable}
-          multiline={!editable}
-          inputAccessoryViewID={inputAccessoryViewID}
-          clearButtonMode="while-editing"
-          onFocus={onFocus}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType={keyboardType}
-          onBlur={onBlur}
-        />
-      </View>
-      {editable ? (
-        <View style={styles.scanSlot}>
-          <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} />
-        </View>
-      ) : null}
+    <View style={[styles.root, stylesHook.root, style]}>
+      <TextInput
+        testID={testID}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor="#81868e"
+        value={address}
+        style={[styles.input, stylesHook.input]}
+        editable={!isLoading && editable}
+        multiline={!editable}
+        inputAccessoryViewID={inputAccessoryViewID}
+        clearButtonMode="while-editing"
+        onFocus={onFocus}
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType={keyboardType}
+        onBlur={onBlur}
+      />
+      {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
     </View>
   );
 };
@@ -92,38 +86,16 @@ const styles = StyleSheet.create({
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
     minHeight: 44,
-    borderRadius: 4,
-  },
-  rootEditable: {
     height: 44,
     alignItems: 'center',
-  },
-  rootReadOnly: {
-    alignItems: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-  },
-  inputWrapper: {
-    flex: 1,
-    alignSelf: 'stretch',
-    justifyContent: 'center',
+    borderRadius: 4,
   },
   input: {
-    marginHorizontal: 8,
+    flex: 1,
+    paddingHorizontal: 8,
+    minHeight: 33,
     fontSize: 15,
     lineHeight: 19,
-    minHeight: 33,
-    padding: 0,
-  },
-  inputReadOnly: {
-    marginHorizontal: 0,
-    lineHeight: 20,
-    minHeight: 33,
-  },
-  scanSlot: {
-    width: 90,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });
 

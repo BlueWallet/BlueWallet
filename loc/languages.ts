@@ -1,4 +1,11 @@
-export const AvailableLanguages: Readonly<TLanguage[]> = Object.freeze([
+export type TLanguage = {
+  label: string;
+  value: string;
+  isRTL?: boolean;
+};
+
+// Literal-typed tuple so `LangCode` is a literal union; widened on re-export.
+const _availableLanguages = Object.freeze([
   { label: 'English', value: 'en' },
   { label: 'Afrikaans (AFR)', value: 'zar_afr' },
   { label: 'العربية (AR)', value: 'ar', isRTL: true },
@@ -51,10 +58,9 @@ export const AvailableLanguages: Readonly<TLanguage[]> = Object.freeze([
   { label: 'Українська (UA)', value: 'ua' },
   { label: 'Türkçe (TR)', value: 'tr_tr' },
   { label: 'Xhosa (XHO)', value: 'zar_xho' },
-]);
+] as const) satisfies readonly TLanguage[];
 
-export type TLanguage = {
-  label: string;
-  value: string;
-  isRTL?: boolean;
-};
+export const AvailableLanguages: readonly TLanguage[] = _availableLanguages;
+
+// Drives the typed loader Record in loc/index.ts so drift becomes a TS error.
+export type LangCode = (typeof _availableLanguages)[number]['value'];
