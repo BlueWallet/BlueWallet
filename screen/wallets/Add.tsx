@@ -151,6 +151,8 @@ const WalletsAdd: React.FC = () => {
     });
   }, [entropy]);
 
+  const hasStoredLndHub = (walletBaseURI ?? '').trim().length > 0;
+
   const confirmResetEntropy = useCallback(
     (newWalletType: ButtonSelected) => {
       if (entropy || words) {
@@ -514,7 +516,7 @@ const WalletsAdd: React.FC = () => {
               size={styles.button}
             />
           ) : null}
-          {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
+          {(selectedWalletType === ButtonSelected.OFFCHAIN || hasStoredLndHub) && LightningButtonMemo}
         </View>
         <View style={styles.advanced}>
           {selectedWalletType === ButtonSelected.OFFCHAIN && (
