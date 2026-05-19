@@ -92,7 +92,8 @@ const SendDetails = () => {
   const routeParams = route.params;
   const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
-  const [currentRecipientIndex, setCurrentRecipientIndex] = useState(0);
+  // Updated on pager scroll to re-render fee label; always read scrollIndex.current for the active index.
+  const [, setRecipientPagerIndex] = useState(0);
   const { colors } = useTheme();
 
   // state
@@ -973,7 +974,7 @@ const SendDetails = () => {
     const incompleteIndex = addresses.findIndex(item => !item.address || !item.amount);
     if (incompleteIndex !== -1) {
       scrollIndex.current = incompleteIndex;
-      setCurrentRecipientIndex(incompleteIndex);
+      setRecipientPagerIndex(incompleteIndex);
       scrollView.current?.scrollToIndex({ index: incompleteIndex, animated: true });
       presentAlert({
         title: loc.send.please_complete_recipient_title,
@@ -986,7 +987,7 @@ const SendDetails = () => {
     // Wait for the state to update before scrolling
     setTimeout(() => {
       scrollIndex.current = addresses.length; // New index at the end
-      setCurrentRecipientIndex(addresses.length);
+      setRecipientPagerIndex(addresses.length);
       scrollView.current?.scrollToIndex({
         index: scrollIndex.current,
         animated: true,
@@ -996,7 +997,7 @@ const SendDetails = () => {
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
     scrollIndex.current = 0;
-    setCurrentRecipientIndex(0);
+    setRecipientPagerIndex(0);
     setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]);
     setTimeout(() => {
       scrollView.current?.scrollToOffset({ offset: 0, animated: false });
@@ -1037,7 +1038,7 @@ const SendDetails = () => {
 
       // Update the scroll index reference
       scrollIndex.current = newIndex;
-      setCurrentRecipientIndex(newIndex);
+      setRecipientPagerIndex(newIndex);
     }
   }, [addresses]);
 
@@ -1274,15 +1275,15 @@ const SendDetails = () => {
     const viewSize = e.nativeEvent.layoutMeasurement;
     const index = Math.floor(contentOffset.x / viewSize.width);
     scrollIndex.current = index;
-    setCurrentRecipientIndex(index);
+    setRecipientPagerIndex(index);
   };
 
-  const displayFeeUnit = useMemo(
-    () => addresses[currentRecipientIndex]?.unit ?? amountUnit,
-    [addresses, currentRecipientIndex, amountUnit],
+  const getDisplayFeeUnit = useCallback(
+    () => addresses[scrollIndex.current]?.unit ?? amountUnit,
+    [addresses, amountUnit],
   );
 
-  const formatFee = useCallback((fee: number) => formatBalance(fee, displayFeeUnit, true), [displayFeeUnit]);
+  const formatFee = useCallback((fee: number) => formatBalance(fee, getDisplayFeeUnit(), true), [getDisplayFeeUnit]);
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -1415,7 +1416,7 @@ const SendDetails = () => {
                 addrs[index].unit = unit;
                 return [...addrs];
               });
-              if (index === currentRecipientIndex) {
+              if (index === scrollIndex.current) {
                 setParams({ feeUnit: unit });
               }
             }}
@@ -1568,7 +1569,7 @@ const SendDetails = () => {
                 networkTransactionFees,
                 feePrecalc,
                 feeRate,
-                feeUnit: displayFeeUnit,
+                feeUnit: addresses[scrollIndex.current]?.unit ?? amountUnit,
                 walletID: wallet?.getID() || '',
                 customFee,
               });
