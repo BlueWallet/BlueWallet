@@ -2,7 +2,13 @@ import React, { useMemo, useLayoutEffect, useCallback } from 'react';
 import { View, StyleSheet, Linking, Image, Platform } from 'react-native';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
-import { SettingsScrollView, SettingsSection, SettingsListItem, getSettingsHeaderOptions, isIOS26OrHigher } from '../../components/platform';
+import {
+  SettingsScrollView,
+  SettingsSection,
+  SettingsListItem,
+  getSettingsHeaderOptions,
+  isIOS26OrHigher,
+} from '../../components/platform';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useTheme } from '../../components/themes';
 
