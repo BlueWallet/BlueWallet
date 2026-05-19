@@ -50,6 +50,11 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       await sleep(1000);
     } catch (_) {}
 
+    try {
+      // in case notification popup appeared early and is blocking taps
+      await element(by.text(`No, and do not ask me again.`)).tap();
+    } catch (_) {}
+
     await element(by.id('ReceiveButton')).tap();
     try {
       // in case emulator has no google services and doesnt support pushes

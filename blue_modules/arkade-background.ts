@@ -350,11 +350,21 @@ export async function registerArkBackgroundTask(): Promise<void> {
 }
 
 export async function stopArkBackgroundTask(): Promise<void> {
+  cancelRequested = true;
   try {
     await BackgroundFetch.stop();
   } catch (e: any) {
     recordError(`stop: ${e?.message ?? e}`);
   }
+
+  // Await in-flight run completion (draining). A live background run keeps
+  // Detox's FabricTimersIdlingResource busy and disconnects the JS bridge.
+  const start = Date.now();
+  // eslint-disable-next-line no-unmodified-loop-condition
+  while (running && Date.now() - start < 30_000) {
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+
   swapStatusCache.clear();
   // Clear in-process predicate-flip tracker so a later run does not
   // diagnose a flip on the first poll after restart. Persistent suppression

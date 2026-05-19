@@ -67,10 +67,13 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // synchronized waitFor would throw IdlingResourceTimeoutException long
     // before SelfTestOk renders. Disable synchronization just for the wait.
     await device.disableSynchronization();
-    await waitFor(element(by.id('SelfTestOk')))
-      .toBeVisible()
-      .withTimeout(300 * 1000);
-    await device.enableSynchronization();
+    try {
+      await waitFor(element(by.id('SelfTestOk')))
+        .toBeVisible()
+        .withTimeout(300 * 1000);
+    } finally {
+      await device.enableSynchronization();
+    }
     await goBack();
     await goBack();
     await goBack();
