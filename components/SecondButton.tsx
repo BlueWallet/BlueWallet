@@ -10,7 +10,7 @@ type SecondButtonProps = {
   backgroundColor?: string;
   disabled?: boolean;
   icon?: IconButtonProps;
-  title?: string;
+  title: string;
   textColor?: string;
   onPress?: () => void;
   loading?: boolean;
