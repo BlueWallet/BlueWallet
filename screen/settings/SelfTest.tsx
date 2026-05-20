@@ -12,7 +12,7 @@ import * as encryption from '../../blue_modules/encryption';
 import * as fs from '../../blue_modules/fs';
 import ecc from '../../blue_modules/noble_ecc';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import { BlueText } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
 import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';

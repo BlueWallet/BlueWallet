@@ -4,7 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { BlueFormLabel, BlueFormMultiInput, BlueTextCentered } from '../../BlueComponents';
+import BlueFormLabel from '../../components/BlueFormLabel';
+import BlueFormMultiInput from '../../components/BlueFormMultiInput';
+import BlueTextCentered from '../../components/BlueTextCentered';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
 import {

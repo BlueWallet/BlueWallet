@@ -477,10 +477,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     }, [walletID, unregisterTransactionsHandler]),
   );
 
-  useEffect(() => {
-    const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
-    return () => clearInterval(interval);
-  }, [wallet]);
+  useFocusEffect(
+    useCallback(() => {
+      // sync once on focus so balance is fresh after returning to screen
+      setBalance(wallet.getBalance());
+      const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
+      return () => clearInterval(interval);
+    }, [wallet]),
+  );
 
   const walletBalance = useMemo(() => {
     if (wallet.hideBalance) return '';

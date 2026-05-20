@@ -106,7 +106,7 @@ const AnimatedPressableRow: React.FC<AnimatedPressableRowProps> = ({ onPress, ch
 };
 
 interface TransactionListItemProps {
-  itemPriceUnit?: BitcoinUnit;
+  itemPriceUnit: BitcoinUnit;
   walletID: string;
   item: Transaction & LightningTransaction; // using type intersection to have less issues with ts
   searchQuery?: string;
@@ -120,7 +120,7 @@ type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
 const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   item,
-  itemPriceUnit = BitcoinUnit.BTC,
+  itemPriceUnit,
   walletID,
   searchQuery,
   style,

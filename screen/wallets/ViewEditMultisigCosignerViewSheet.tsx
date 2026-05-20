@@ -5,7 +5,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueTextCentered } from '../../BlueComponents';
+import BlueTextCentered from '../../components/BlueTextCentered';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';
 import SquareEnumeratedWords, { SquareEnumeratedWordsContentAlign } from '../../components/SquareEnumeratedWords';
