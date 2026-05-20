@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useRoute } from '@react-navigation/native';
 
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueTextCentered } from '../../BlueComponents';
+import BlueTextCentered from '../../components/BlueTextCentered';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCode from '../../components/QRCode';
 import { useTheme } from '../../components/themes';
