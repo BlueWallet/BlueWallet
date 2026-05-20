@@ -81,12 +81,13 @@ jest.mock('../../components/themes', () => ({
   }),
 }));
 
-jest.mock('../../BlueComponents', () => {
-  const { Text, View } = require('react-native');
-  return {
-    BlueCard: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
-    BlueText: ({ children }: { children: React.ReactNode }) => <Text>{children}</Text>,
-  };
+jest.mock('../../components/BlueCard', () => {
+  const { View } = require('react-native');
+  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <View>{children}</View> };
+});
+jest.mock('../../components/BlueText', () => {
+  const { Text } = require('react-native');
+  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <Text>{children}</Text> };
 });
 
 jest.mock('../../components/Button', () => 'Button');
