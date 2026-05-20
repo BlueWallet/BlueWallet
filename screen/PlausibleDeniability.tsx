@@ -1,6 +1,7 @@
 import React, { useCallback, useReducer } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { BlueCard, BlueText } from '../BlueComponents';
+import BlueCard from '../components/BlueCard';
+import BlueText from '../components/BlueText';
 import Button from '../components/Button';
 import loc from '../loc';
 import { MODAL_TYPES } from './PromptPasswordConfirmationSheet.types';
