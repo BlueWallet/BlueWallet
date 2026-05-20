@@ -10,7 +10,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import { BlueText } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { Transaction, TWallet } from '../../class/wallets/types';

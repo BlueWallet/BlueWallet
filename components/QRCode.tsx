@@ -14,7 +14,7 @@ type ErrorCorrectionLevel = 'H' | 'Q' | 'M' | 'L';
 
 interface QRCodeProps {
   value: string;
-  size?: number;
+  size: number;
   isLogoRendered?: boolean;
   isMenuAvailable?: boolean;
   logoSize?: number;
@@ -144,7 +144,7 @@ const getCachedPlan = (value: string, ecl: ErrorCorrectionLevel, size: number, i
 
 const QRCode: React.FC<QRCodeProps> = ({
   value = '',
-  size = 300,
+  size,
   isLogoRendered = true,
   isMenuAvailable = true,
   logoSize = 90,
