@@ -1,8 +1,8 @@
 import React from 'react';
 import { ScrollView } from 'react-native';
 
-import { BlueCard, BlueText } from '../../BlueComponents';
-
+import BlueCard from '../../components/BlueCard';
+import BlueText from '../../components/BlueText';
 const ReleaseNotes: React.FC = () => {
   const notes = require('../../release-notes');
 
