@@ -1,23 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Animated, { Easing, FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import Clipboard from '@react-native-clipboard/clipboard';
+import BigNumber from 'bignumber.js';
+import dayjs from 'dayjs';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Text,
   Image,
-  NativeSyntheticEvent,
   Platform,
   Pressable,
   StyleSheet,
+  Text,
   TextInput,
   TextInputProps,
-  TextInputSelectionChangeEventData,
+  TextInputSelectionChangeEvent,
   TouchableOpacity,
   View,
 } from 'react-native';
-import Badge from './Badge';
-import Icon from './Icon';
-import BigNumber from 'bignumber.js';
-import dayjs from 'dayjs';
+import Animated, { Easing, FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import {
   CurrencyRate,
@@ -29,10 +26,12 @@ import {
   updateExchangeRate,
 } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import BlueText from './BlueText';
 import confirm from '../helpers/confirm';
 import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import Badge from './Badge';
+import BlueText from './BlueText';
+import Icon from './Icon';
 import { useTheme } from './themes';
 
 export const conversionCache: { [key: string]: string } = {};
@@ -113,6 +112,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     isLoading = false,
     maxSendableAmount,
     isMaxAmountEstimate,
+    style: styleOverride,
     ...otherProps
   } = props;
   const [isRateBeingUpdatedLocal, setIsRateBeingUpdatedLocal] = useState(false);
@@ -301,7 +301,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   }, [maxSendableAmount]);
 
   const handleSelectionChange = useCallback(
-    (event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
+    (event: TextInputSelectionChangeEvent) => {
       const { selection } = event.nativeEvent;
       if (selection.start !== selection.end || selection.start !== amount.length) {
         textInputRef.current?.setNativeProps({ selection: { start: amount.length, end: amount.length } });
@@ -336,18 +336,14 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   const stylesHook = {
     container: {
       marginLeft: unit === BitcoinUnit.LOCAL_CURRENCY ? 0 : CRYPTO_CONTAINER_OFFSET,
-      overflow: 'visible' as const,
     },
     localCurrency: { color: inputTextColor },
     input: {
       color: inputTextColor,
       ...inputTypography,
     },
-    inputField: inputTypography,
     inputDisplay: {
       justifyContent: displayJustifyContent,
-      paddingHorizontal: INPUT_HORIZONTAL_PADDING,
-      paddingVertical: INPUT_VERTICAL_PADDING,
       ...(isCryptoUnit && {
         paddingLeft: INPUT_HORIZONTAL_PADDING + 4,
       }),
@@ -386,7 +382,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                 <Animated.View layout={charLayoutTransition} style={[styles.inputDisplay, stylesHook.inputDisplay]} pointerEvents="none">
                   {amountCharacters.map((char, index) => (
                     <Animated.Text
-                      key={`${index}-${char}`}
+                      key={index}
                       entering={charEntering}
                       exiting={charExiting}
                       layout={charLayoutTransition}
@@ -416,10 +412,10 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                   style={[
                     styles.input,
                     styles.inputOverlay,
-                    stylesHook.inputField,
+                    stylesHook.input,
                     stylesHook.inputTransparent,
                     androidFontPaddingStyle,
-                    otherProps.style,
+                    styleOverride,
                   ]}
                 />
               </Animated.View>
@@ -474,7 +470,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
             accessibilityLabel={loc._.refresh}
             onPress={updateRate}
             disabled={isRateBeingUpdatedLocal}
-            style={isRateBeingUpdatedLocal ? styles.disabledButton : styles.enabledButon}
+            style={isRateBeingUpdatedLocal ? styles.disabledButton : undefined}
           >
             <Icon name="arrows-rotate" type="font-awesome-6" size={16} color={colors.buttonAlternativeTextColor} />
           </TouchableOpacity>
@@ -510,9 +506,6 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     opacity: 0.5,
-  },
-  enabledButon: {
-    opacity: 1,
   },
   outdatedRateContainer: {
     flexDirection: 'row',
@@ -560,6 +553,8 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: INPUT_HORIZONTAL_PADDING,
+    paddingVertical: INPUT_VERTICAL_PADDING,
     zIndex: 2,
   },
   inputOverlay: {

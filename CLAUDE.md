@@ -60,6 +60,8 @@ React Navigation 7.x with native stack. Typed params in `navigation/DetailViewSt
 
 **Dependencies:** Do not add new dependencies without strong justification. Bonus for removing dependencies.
 
+**Patches:** Local fixes to `node_modules` live in `patches/` and are applied by `patch-package` on `postinstall`. Each patch is documented in `patches/README.md` (what/why + upstream issue link); update it when adding or removing a patch.
+
 **Components:** New components go in `components/`, not legacy `BlueComponents.js`.
 
 **Linting Rules:**
