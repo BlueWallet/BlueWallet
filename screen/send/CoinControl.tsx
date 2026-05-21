@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
@@ -17,6 +17,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
@@ -260,9 +261,8 @@ const CoinControl: React.FC = () => {
 
   const handleChoose = (item: Utxo) => navigation.navigate('CoinControlOutput', { walletID, utxo: item });
 
-  const handleUseCoin = async (u: Utxo[]) => {
-    const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: u }, { merge: true });
-    navigation.dispatch(popToAction);
+  const handleUseCoin = (u: Utxo[]) => {
+    goFromCoinControlToSendDetails(navigation, walletID, u);
   };
 
   const handleMassFreeze = () => {

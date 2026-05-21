@@ -93,6 +93,8 @@ const SendDetails = () => {
   const routeParams = route.params;
   const scrollView = useRef<FlatList<any>>(null);
   const scrollIndex = useRef(0);
+  /** Used so we only clear coin-selection (utxos) when the user switches wallet, not on first mount (e.g. Send opened from wallet details with pre-selected UTXOs). */
+  const prevWalletIdForCoinResetRef = useRef<string | null>(null);
   const { colors } = useTheme();
 
   // state
@@ -274,17 +276,20 @@ const SendDetails = () => {
   useEffect(() => {
     if (!wallet) return;
 
-    // reset other values
     setChangeAddress(null);
+    const prevId = prevWalletIdForCoinResetRef.current;
+    const currentId = wallet.getID();
+    const walletActuallyChanged = prevId !== null && prevId !== currentId;
+
     setParams({
-      utxos: null,
+      ...(walletActuallyChanged ? { utxos: null } : {}),
       isTransactionReplaceable: wallet.type === HDSegwitBech32Wallet.type && !routeParams.isTransactionReplaceable ? true : undefined,
     });
-    // update wallet UTXO
+    prevWalletIdForCoinResetRef.current = currentId;
+
     wallet
       .fetchUtxo()
       .then(() => {
-        // we need to re-calculate fees
         setDumb(v => !v);
       })
       .catch(e => console.log('fetchUtxo error', e));
@@ -1557,15 +1562,15 @@ const SendDetails = () => {
           >
             <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
-            {networkTransactionFeesIsLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <View style={[styles.feeRow, stylesHook.feeRow]}>
+            <View style={[styles.feeRow, stylesHook.feeRow]}>
+              {networkTransactionFeesIsLoading ? (
+                <ActivityIndicator />
+              ) : (
                 <Text style={stylesHook.feeValue}>
                   {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
                 </Text>
-              </View>
-            )}
+              )}
+            </View>
           </Pressable>
           {renderCustomFeeWarning()}
           {renderCreateButton()}
@@ -1654,6 +1659,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     minHeight: 33,
     color: '#81868e',
+    fontSize: 15,
+    lineHeight: 19,
   },
   fee: {
     flexDirection: 'row',
