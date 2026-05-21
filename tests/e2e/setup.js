@@ -9,10 +9,7 @@
 //
 // Tell Detox to ignore that endpoint. The blacklist is process-scoped on
 // iOS, so we re-apply it after every launchApp.
-const URL_BLACKLIST = [
-  '.*arkade\\.computer/v1/indexer/script/subscription.*',
-  '.*groundcontrol-bluewallet\\.herokuapp\\.com.*',
-];
+const URL_BLACKLIST = ['.*arkade\\.computer/v1/indexer/script/subscription.*', '.*groundcontrol-bluewallet\\.herokuapp\\.com.*'];
 
 beforeAll(async () => {
   if (typeof device === 'undefined' || !device?.launchApp) return;
