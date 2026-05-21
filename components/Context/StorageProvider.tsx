@@ -1,12 +1,14 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { registerArkBackgroundTask, stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -174,6 +176,15 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const deleteWallet = useCallback((wallet: TWallet) => {
     BlueApp.deleteWallet(wallet);
     setWallets([...BlueApp.getWallets()]);
+    if (wallet.type === LightningArkWallet.type) {
+      // Fire-and-forget: cleans up the per-wallet Arkade Realm (close + delete files)
+      // and the Keychain encryption key. Errors stay scoped to the Ark wallet path
+      // and never block deletion.
+      (wallet as LightningArkWallet).onDelete().catch(e => console.warn('[StorageProvider] Ark wallet cleanup failed:', e?.message ?? e));
+      if (!BlueApp.getWallets().some(w => w.type === LightningArkWallet.type)) {
+        stopArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task stop failed:', e?.message ?? e));
+      }
+    }
   }, []);
 
   const handleWalletDeletion = useCallback(
@@ -307,7 +318,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
-      setWallets(BlueApp.getWallets());
+      const loaded = BlueApp.getWallets();
+      setWallets(loaded);
+      if (loaded.some(w => w.type === LightningArkWallet.type)) {
+        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
+      }
     }
   }, [walletsInitialized]);
 
@@ -452,6 +467,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
       w.setUserHasSavedExport(true);
       addWallet(w);
+      if (w instanceof LightningArkWallet) {
+        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
+      }
       if (getScanWasBBQR()) {
         // to avoid proxying `useBBQR` through a bunch of screens during import procedure, we use a trick:
         // on add-wallet screen we reset `lastScanWasBBQR` to false. then potentially user scans QR in BBQR format
