@@ -102,8 +102,6 @@ const NotificationSettings: React.FC = () => {
           await AsyncStorage.setItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG, 'true');
           setNotificationsEnabledState(false);
         }
-
-        setNotificationsEnabledState(await isNotificationsEnabled());
       } catch (error) {
         console.error(error);
         presentAlert({ message: (error as Error).message });
