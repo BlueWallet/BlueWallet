@@ -23,7 +23,7 @@ export const startAndDecrypt = async (retry?: boolean, passwordPrompt?: Password
       password = await passwordPrompt();
     } else {
       do {
-        password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted, false);
+        password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted, { cancelable: false });
       } while (!password);
     }
   }

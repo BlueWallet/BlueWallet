@@ -1,57 +1,27 @@
-// Type definitions for react-native-prompt-android 0.3.1
-// Project: https://github.com/shimohq/react-native-prompt-android
-// Definitions by: Krystof Celba <https://github.com/krystofcelba>
-// TypeScript Version: 2.6.1
+// Supplemental types for `react-native-prompt-android`.
+// The package ships its own `index.d.ts`; this file only adds the type aliases
+// used unqualified across the app, plus a `keyboardType` augmentation that is
+// absent from the upstream definitions.
 
-type PromptButton = {
-  text?: string;
-  onPress?: (message: string) => void;
+import type { KeyboardTypeOptions } from 'react-native';
 
-  /** @platform ios */
-  style?: 'default' | 'cancel' | 'destructive';
-};
+declare global {
+  type PromptButton = {
+    text?: string;
+    onPress?: (message: string) => void;
 
-type PromptType = 'default' | 'plain-text' | 'secure-text';
-type PromptTypeIOS = 'login-password';
-type PromptTypeAndroid = 'numeric' | 'email-address' | 'phone-pad';
+    /** @platform ios */
+    style?: 'default' | 'cancel' | 'destructive';
+  };
 
-type PromptStyleAndroid = 'default' | 'shimo';
-
-interface PromptOptions {
-  /**
-   * * Cross platform:
-   *
-   * - `'default'`
-   * - `'plain-text'`
-   * - `'secure-text'`
-   *
-   * * iOS only:
-   *
-   * - `'login-password'`
-   *
-   * * Android only:
-   *
-   * - `'numeric'`
-   * - `'email-address'`
-   * - `'phone-pad'`
-   */
-  type?: PromptType | PromptTypeIOS | PromptTypeAndroid;
-
-  defaultValue?: string;
-
-  /** @platform android */
-  placeholder?: string;
-
-  /** @platform android */
-  cancelable?: boolean;
-
-  /** @platform android */
-  style?: PromptStyleAndroid;
+  type PromptType = 'default' | 'plain-text' | 'secure-text';
+  type PromptTypeIOS = 'login-password';
+  type PromptTypeAndroid = 'numeric' | 'email-address' | 'phone-pad';
 }
 
-declare function prompt(
-  title?: string,
-  message?: string,
-  callbackOrButtons?: ((value: string) => void) | Array<PromptButton>,
-  options?: PromptOptions,
-): void;
+// `keyboardType` is supported by the native prompt but is absent from the upstream type definitions.
+declare module 'react-native-prompt-android' {
+  interface PromptOptions {
+    keyboardType?: KeyboardTypeOptions;
+  }
+}

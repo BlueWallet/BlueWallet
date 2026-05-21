@@ -270,15 +270,10 @@ describe('TransactionStatus regression', () => {
       expect(mockPrompt).toHaveBeenCalledTimes(1);
     });
 
-    // 7th argument is defaultInputValue: current memo should be in the input field, not in the message
     expect(mockPrompt).toHaveBeenCalledWith(
       'Note to Self',
       '', // message empty so content is not in alert body
-      true,
-      'plain-text',
-      false,
-      undefined,
-      existingMemo, // defaultInputValue: pre-fill input for easy editing
+      { type: 'plain-text', defaultValue: existingMemo }, // defaultValue: pre-fill input for easy editing
     );
   });
 });
