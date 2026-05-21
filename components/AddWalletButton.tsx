@@ -8,7 +8,7 @@ import loc from '../loc';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 type AddWalletButtonProps = {
-  onPress?: (event: GestureResponderEvent) => void;
+  onPress: (event: GestureResponderEvent) => void;
 };
 
 const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {

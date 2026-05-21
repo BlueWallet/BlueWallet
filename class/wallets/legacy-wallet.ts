@@ -21,14 +21,20 @@ bitcoin.initEccLib(ecc);
  */
 export class LegacyWallet extends AbstractWallet {
   static readonly type = 'legacy';
-  static readonly typeReadable = 'Legacy (P2PKH)';
+  static readonly defaultTypeReadable = 'Legacy (P2PKH)';
   // @ts-ignore: override
   public readonly type = LegacyWallet.type;
   // @ts-ignore: override
-  public readonly typeReadable = LegacyWallet.typeReadable;
+  public readonly typeReadable: string;
 
   _txs_by_external_index: Transaction[] = [];
   _txs_by_internal_index: Transaction[] = [];
+
+  constructor(typeReadable?: string) {
+    super();
+
+    this.typeReadable = typeReadable ?? LegacyWallet.defaultTypeReadable;
+  }
 
   /**
    * Simple function which says that we havent tried to fetch balance
