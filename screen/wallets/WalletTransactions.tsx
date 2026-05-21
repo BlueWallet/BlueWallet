@@ -34,7 +34,6 @@ import loc, { formatBalance } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
-import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -62,7 +61,7 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
-  const { wallets, saveToDisk, walletTransactionUpdateStatus } = useStorage();
+  const { wallets, saveToDisk } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { direction } = useLocale();
@@ -86,8 +85,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible;
   });
   const MAX_FAILURES = 3;
-  const isUpstreamWalletRefreshBusy =
-    walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === walletID;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -104,7 +101,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       backgroundColor: colors.background,
     },
     gradientBackground: {
-      backgroundColor: headerHeight > 0 ? WalletGradient.headerColorFor(wallet.type) : colors.background,
+      backgroundColor: WalletGradient.headerColorFor(wallet.type),
       height: headerHeight > 0 ? headerHeight : '30%',
     },
     activityIndicatorStyle: {
@@ -200,7 +197,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const refreshTransactions = useCallback(
     async (isManualRefresh = false) => {
       console.debug('refreshTransactions, ', wallet.getLabel());
-      if (isElectrumDisabled || isLoading || isUpstreamWalletRefreshBusy) return;
+      if (isElectrumDisabled || isLoading) return;
 
       const MIN_REFRESH_INTERVAL = 5000; // 5 seconds
       if (!isManualRefresh && lastFetchTimestamp !== 0 && Date.now() - lastFetchTimestamp < MIN_REFRESH_INTERVAL) {
@@ -260,14 +257,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         setIsLoading(false);
       }
     },
-    [wallet, isElectrumDisabled, isLoading, isUpstreamWalletRefreshBusy, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures],
+    [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures],
   );
 
   useEffect(() => {
-    if (lastFetchTimestamp === 0 && !isLoading && !isElectrumDisabled && !isUpstreamWalletRefreshBusy) {
+    if (lastFetchTimestamp === 0 && !isLoading && !isElectrumDisabled) {
       refreshTransactions(false).catch(console.error);
     }
-  }, [wallet, isElectrumDisabled, isLoading, isUpstreamWalletRefreshBusy, refreshTransactions, lastFetchTimestamp]);
+  }, [wallet, isElectrumDisabled, isLoading, refreshTransactions, lastFetchTimestamp]);
 
   const isLightning = useCallback((): boolean => wallet.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
@@ -464,10 +461,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     }, [walletID, unregisterTransactionsHandler]),
   );
 
-  useEffect(() => {
-    const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
-    return () => clearInterval(interval);
-  }, [wallet]);
+  useFocusEffect(
+    useCallback(() => {
+      // sync once on focus so balance is fresh after returning to screen
+      setBalance(wallet.getBalance());
+      const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
+      return () => clearInterval(interval);
+    }, [wallet]),
+  );
 
   const walletBalance = useMemo(() => {
     if (wallet.hideBalance) return '';

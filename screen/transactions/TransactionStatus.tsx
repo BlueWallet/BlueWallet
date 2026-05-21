@@ -10,7 +10,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import { BlueText } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { Transaction, TWallet } from '../../class/wallets/types';
@@ -823,8 +823,8 @@ const TransactionStatus: React.FC = () => {
     return null;
   }, [tx, txFromElectrum, mempoolFee]);
 
-  // Calculate fee rate
-  const feeRate = calculatedFee && tx?.vsize ? Math.round(calculatedFee / tx.vsize) : null;
+  // Calculate fee rate (sat/vB), rounded to one decimal place for display
+  const feeRate = calculatedFee && tx?.vsize ? Math.round((calculatedFee / tx.vsize) * 10) / 10 : null;
   const parsedTxValue = Number(tx?.value);
   const txValue = Number.isFinite(parsedTxValue) ? parsedTxValue : null;
   const parsedConfirmations = Number(tx?.confirmations);
@@ -1202,7 +1202,7 @@ const TransactionStatus: React.FC = () => {
               <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_fee_rate}</BlueText>
               <View style={styles.detailValueContainer}>
                 <CopyTextToClipboard
-                  text={feeRate ? `${feeRate} sats/vb` : '-'}
+                  text={feeRate != null ? `${Number(feeRate.toFixed(1))} sats/vb` : '-'}
                   style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
                   textAlign="right"
                 />

@@ -1,8 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from './themes';
-import { BlueText } from '../BlueComponents';
-
+import BlueText from './BlueText';
 interface TipBoxProps {
   number?: string;
   title?: string;

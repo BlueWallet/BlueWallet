@@ -1,20 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
-import {
-  Alert,
-  findNodeHandle,
-  FlatList,
-  GestureResponderEvent,
-  LayoutAnimation,
-  ListRenderItemInfo,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 import Badge from '../../components/Badge';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueCard } from '../../BlueComponents';
+import BlueCard from '../../components/BlueCard';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
@@ -366,7 +356,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
                 onPress: (e: number | GestureResponderEvent) => {
                   if (e === 0) return;
-                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                   setVaultKeyData({
                     ...vaultKeyData,
                     isLoading: true,
@@ -375,7 +364,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   setTimeout(
                     () =>
                       xpubInsteadOfSeed(el.index + 1).finally(() => {
-                        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                         setVaultKeyData({
                           ...vaultKeyData,
                           isLoading: false,
@@ -411,7 +399,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
         return presentAlert({ message: e.message });
       }
 
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setWallet(wallet);
       setIsSaveButtonDisabled(false);
       setImportText('');
@@ -454,7 +441,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
         reject(e);
         return presentAlert({ message: e.message });
       }
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setWallet(wallet);
       setIsSaveButtonDisabled(false);
       resolve();
