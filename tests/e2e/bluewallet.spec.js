@@ -120,17 +120,15 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // network -> electrum server
     // change electrum server to electrum.blockstream.info and revert it back
     // skip this test on iOS. HeaderMenuButton tap triggers a keyboard open for some reason.
-    if (device.getPlatform() === 'andoid') {
+    if (device.getPlatform() === 'android') {
       await element(by.id('ElectrumSettings')).tap();
       await waitFor(element(by.id('HostInput')))
         .toBeVisible()
         .whileElement(by.id('ElectrumSettingsScrollView'))
         .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
       await element(by.id('HostInput')).replaceText('electrum.blockstream.info\n');
-      await element(by.id('HostInput')).tapReturnKey();
       await waitForKeyboardToClose();
       await element(by.id('PortInput')).replaceText('50001\n');
-      await element(by.id('PortInput')).tapReturnKey();
       await waitForKeyboardToClose();
       await waitFor(element(by.id('Save')))
         .toBeVisible()
@@ -263,12 +261,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
     await element(by.text('Yes, I have.')).tap();
-    try {
-      // in case emulator has no google services and doesnt support pushes
-      // we just dont show this popup
-      await element(by.text(`No, and do not ask me again.`)).tap();
-      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
-    } catch (_) {}
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
@@ -584,18 +576,20 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Multisig Vault')).tap(); // go inside the wallet
     await waitForId('ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
-    try {
-      // in case emulator has no google services and doesnt support pushes
-      // we just dont show this popup
-      await element(by.text(`No, and do not ask me again.`)).tap();
-      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
-    } catch (_) {}
 
     await waitForLabel('bc1qmf06nt4jhvzz4387ak8fecs42k6jqygr2unumetfc7xkdup7ah9s8phlup');
     await goBack();
 
     await element(by.id('WalletDetails')).tap();
-    await waitForText('2 / 2 (native segwit)');
+    await waitFor(element(by.text('Advanced')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(150, 'down');
+    await element(by.text('Advanced')).tap();
+    await waitFor(element(by.text('2 / 2 (native segwit)')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
@@ -643,6 +637,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
 
+    await waitForId('AddressInput');
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).replaceText('0.0005');
     await element(by.id('BitcoinAmountInput')).tapReturnKey();
@@ -736,51 +731,55 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('ScrollView'))
       .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
     await element(by.id('ImportWallet')).tap();
-    await element(by.id('MnemonicInput')).typeText(
-      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-    );
+    await element(by.id('MnemonicInput')).typeText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
     await tapIfTextPresent('Done');
     await element(by.id('HeaderMenuButton')).tap();
+    await expect(element(by.text('Search accounts'))).toBeVisible();
     await element(by.text('Passphrase')).tap();
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Search accounts')).tap();
     await element(by.id('DoImport')).tap();
-    await sleep(1000);
 
     // cancel import and start over
+    await waitFor(element(by.text('Cancel')))
+      .toBeVisible()
+      .withTimeout(10000);
     await element(by.text('Cancel')).tap();
     await element(by.id('DoImport')).tap();
-    await sleep(1000);
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(10000);
     await element(by.text('OK')).tap();
 
     // wait for discovery to be completed
     await waitFor(element(by.text("m/84'/0'/0'")))
       .toBeVisible()
-      .withTimeout(600 * 1000);
-    await expect(element(by.text("m/44'/0'/1'"))).toBeVisible();
-    await expect(element(by.text("m/49'/0'/0'"))).toBeVisible();
+      .withTimeout(300 * 1000);
+    await expect(element(by.text("m/44'/0'/0'"))).toBeVisible();
     await expect(element(by.id('Loading'))).not.toBeVisible();
 
     // open custom derivation path screen and import the wallet
     await element(by.id('CustomDerivationPathButton')).tap();
-    if (device.getPlatform() === 'android') {
-      // TODO: replace ’ with ' on ios
-      await element(by.id('DerivationPathInput')).clearText();
-      await element(by.id('DerivationPathInput')).typeText("m/44'/0'/1'\n");
-      await waitForKeyboardToClose();
-      await waitFor(element(by.text('Found'))) // wait for discovery to be completed
-        .toExist()
-        .withTimeout(600 * 1000);
-      await element(by.text('Found')).tap();
-      await element(by.id('ImportButton')).tap();
-      await element(by.text('OK')).tap();
+    await element(by.id('DerivationPathInput')).clearText();
+    await element(by.id('DerivationPathInput')).typeText("m/44'/0'/0'\n");
+    await waitForKeyboardToClose();
+    await waitFor(element(by.text('Found'))) // wait for discovery to be completed
+      .toExist()
+      .withTimeout(300 * 1000);
+    await element(by.text('Found')).tap();
+    await element(by.id('ImportButton')).tap();
+    await element(by.text('OK')).tap();
 
-      // go to wallet and check derivation path
-      await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
-      await element(by.id('WalletDetails')).tap();
-      await expect(element(by.id('DerivationPath'))).toHaveText("m/44'/0'/1'");
-    }
-
+    // go to wallet and check derivation path
+    await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
+    await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.text('Advanced')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(150, 'down');
+    await element(by.text('Advanced')).tap();
+    await waitFor(element(by.text("m/44'/0'/0'")))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
@@ -796,6 +795,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperCreateWallet();
     await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
     await scanText('bitcoin:bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
+    await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText('bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
 
     // now, gona import second wallet (ln) and test bip21 with both onchain and offchain present
@@ -821,6 +821,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'lightning:lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
     );
+    await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText(
       'lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
     );
@@ -840,6 +841,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('SelectWalletsList');
     await element(by.text('Imported Lightning')).tap();
+    await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText(
       'lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
     ); // send screen, and ln invoice is prefilled!
@@ -860,6 +862,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('SelectWalletsList');
     await element(by.text('cr34t3d')).tap();
+    await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText('1DamianM2k8WfNEeJmyqSe2YW1upB7UATx'); // send screen, and ONCHAIN invoice is prefilled!
     await expect(element(by.id('BitcoinAmountInput'))).toHaveText('0.000001');
 
@@ -942,14 +945,23 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // verify wallet details
     await element(by.id('WalletDetails')).tap();
-    await waitForText('2 / 3 (native segwit)');
+    await waitFor(element(by.text('Advanced')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(150, 'down');
+    await element(by.text('Advanced')).tap();
+    await waitFor(element(by.text('2 / 3 (native segwit)')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
 
     // test Export Coordination Setup, it has animated qrcode, that uses setInterval, so we need to disable synchronization
     await waitFor(element(by.id('MultisigCoordinationSetup')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(150, 'down');
-    await element(by.id('MultisigCoordinationSetup')).tap();
+    // Tap high in the row: full-width list hitboxes near the bottom edge can extend into the system nav bar on Android.
+    await element(by.id('MultisigCoordinationSetup')).tap({ x: 120, y: 18 });
     await device.disableSynchronization();
     await waitForId('ExportMultisigCoordinationSetupView');
     await element(by.id('NavigationCloseButton')).atIndex(0).tap();
@@ -963,7 +975,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     const vaultReceiveAddress = await extractTextFromElementById('AddressValue');
     assert.ok(vaultReceiveAddress && vaultReceiveAddress.length > 20);
     await goBack();
+    await waitForId('ReceiveButton');
     await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.id('WalletDetailsScroll')))
+      .toBeVisible()
+      .withTimeout(20000);
 
     console.log('vaultReceiveAddress', vaultReceiveAddress);
 
@@ -972,6 +988,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
+    // Extra scroll moves the full-width row up so its hitbox no longer overlaps the Android system nav bar.
+    await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
     await element(by.id('ViewEditCosigners')).tap();
     await waitForText('Vault Key 1');
     await expect(element(by.text('Vault Key 2'))).toBeVisible();
@@ -1012,11 +1030,17 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go back to manage keys, restore seed for cosigner 3, and save
     await goBack();
+    await waitForId('ReceiveButton');
     await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.id('WalletDetailsScroll')))
+      .toBeVisible()
+      .withTimeout(20000);
     await waitFor(element(by.id('ViewEditCosigners')))
       .toBeVisible()
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
+    // Extra scroll moves the full-width row up so its hitbox no longer overlaps the Android system nav bar.
+    await element(by.id('WalletDetailsScroll')).scroll(200, 'down');
     await element(by.id('ViewEditCosigners')).tap();
     await waitFor(element(by.id('VaultCosignerImportMnemonics3')))
       .toBeVisible()
@@ -1100,7 +1124,15 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
     await element(by.id('WalletDetails')).tap();
-    await waitForText('2 / 2 (wrapped segwit)');
+    await waitFor(element(by.text('Advanced')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(150, 'down');
+    await element(by.text('Advanced')).tap();
+    await waitFor(element(by.text('2 / 2 (wrapped segwit)')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(100, 'down');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });

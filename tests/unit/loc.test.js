@@ -1,11 +1,46 @@
 import assert from 'assert';
 
 import { _setExchangeRate, _setPreferredFiatCurrency, _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
-import { _leaveNumbersAndDots, formatBalance, formatBalancePlain, formatBalanceWithoutSuffix } from '../../loc';
+import loc, {
+  _leaveNumbersAndDots,
+  formatBalance,
+  formatBalancePlain,
+  formatBalanceWithoutSuffix,
+  parsedLanguages,
+  saveLanguage,
+} from '../../loc';
+import enJson from '../../loc/en.json';
+import ruJson from '../../loc/ru.json';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit } from '../../models/fiatUnit';
 
 describe('Localization', () => {
+  it('switches active language and round-trips back to en', async () => {
+    await saveLanguage('en');
+    const enValue = enJson._.never;
+    assert.strictEqual(loc._.never, enValue, 'starts on en');
+
+    await saveLanguage('ru');
+    assert.strictEqual(loc.getLanguage(), 'ru', 'active language is ru');
+    assert.strictEqual(loc._.never, ruJson._.never, 'ru strings applied');
+    assert.notStrictEqual(loc._.never, enValue, 'ru differs from en');
+
+    await saveLanguage('en');
+    assert.strictEqual(loc.getLanguage(), 'en', 'active language back to en');
+    assert.strictEqual(loc._.never, enValue, 'en strings restored');
+  });
+
+  it('caches parsed language dictionaries across toggles', async () => {
+    // fr_fr is untouched by other tests so we observe the first cache fill, not a residue.
+    await saveLanguage('fr_fr');
+    assert.ok('fr_fr' in parsedLanguages, 'fr_fr cached after first switch');
+    const cached = parsedLanguages.fr_fr;
+
+    await saveLanguage('en');
+    await saveLanguage('fr_fr');
+    assert.strictEqual(parsedLanguages.fr_fr, cached, 'cached dict reused, not re-required');
+  });
+
   it('internal formatter', () => {
     assert.strictEqual(_leaveNumbersAndDots('1,00 ₽'), '1');
     assert.strictEqual(_leaveNumbersAndDots('0,50 ₽"'), '0.50');

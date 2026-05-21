@@ -4,13 +4,13 @@ import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from './themes';
 
 interface HeaderRightButtonProps {
-  disabled?: boolean;
+  disabled: boolean;
   onPress?: () => void;
   title: string;
   testID?: string;
 }
 
-const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled = true, onPress, title, testID }) => {
+const HeaderRightButton: React.FC<HeaderRightButtonProps> = ({ disabled, onPress, title, testID }) => {
   const { colors } = useTheme();
   const opacity = disabled ? 0.5 : 1;
   return (

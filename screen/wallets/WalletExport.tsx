@@ -6,7 +6,7 @@ import { LayoutChangeEvent, ScrollView, StyleSheet, Pressable, View } from 'reac
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { validateMnemonic } from '../../blue_modules/bip39';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueText } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import HandOffComponent from '../../components/HandOffComponent';
