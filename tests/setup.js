@@ -350,7 +350,11 @@ jest.mock('realm', () => {
   const makeCollection = (type, items) => {
     const arr = Array.isArray(items) ? items : [...items];
     return {
-      filtered: (query, ...args) => makeCollection(type, arr.filter(o => evalExpr(o, query, args))),
+      filtered: (query, ...args) =>
+        makeCollection(
+          type,
+          arr.filter(o => evalExpr(o, query, args)),
+        ),
       sorted: (field, reverse) => {
         const sorted = [...arr].sort((a, b) => {
           if (a[field] < b[field]) return reverse ? 1 : -1;

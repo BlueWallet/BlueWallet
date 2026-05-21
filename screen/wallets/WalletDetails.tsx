@@ -906,18 +906,18 @@ const WalletDetails: React.FC = () => {
                   backgroundColor={colors.redBG}
                   textColor={colors.redText}
                 />
-                  {wallet.type === LightningArkWallet.type && (
-                      <>
-                          <BlueSpacing20 />
-                          <SecondButton
-                              onPress={onRestoreSwapsPressed}
-                              testID="RestoreSwapActivity"
-                              title={loc.wallets.restore_swap_activity}
-                              disabled={isRestoringSwaps}
-                              loading={isRestoringSwaps}
-                          />
-                      </>
-                  )}
+                {wallet.type === LightningArkWallet.type && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton
+                      onPress={onRestoreSwapsPressed}
+                      testID="RestoreSwapActivity"
+                      title={loc.wallets.restore_swap_activity}
+                      disabled={isRestoringSwaps}
+                      loading={isRestoringSwaps}
+                    />
+                  </>
+                )}
               </View>
             </BlueCard>
           </>
