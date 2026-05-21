@@ -286,7 +286,7 @@ const WalletsAddMultisigStep2 = () => {
         //  do nothing, it's already set
       } else {
         try {
-          fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, true, 'plain-text');
+          fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, { type: 'plain-text' });
           fp = (fp + '').toUpperCase();
           if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
         } catch (e) {
@@ -297,12 +297,9 @@ const WalletsAddMultisigStep2 = () => {
         //  do nothing, it's already set
       } else {
         try {
-          path = await prompt(
-            loc.multisig.input_path,
-            loc.formatString(loc.multisig.input_path_explain, { default: getPath() }),
-            true,
-            'plain-text',
-          );
+          path = await prompt(loc.multisig.input_path, loc.formatString(loc.multisig.input_path_explain, { default: getPath() }), {
+            type: 'plain-text',
+          });
           if (!MultisigHDWallet.isPathValid(path)) path = getPath();
         } catch {
           return setIsLoading(false);

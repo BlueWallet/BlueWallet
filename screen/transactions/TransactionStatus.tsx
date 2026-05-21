@@ -677,7 +677,7 @@ const TransactionStatus: React.FC = () => {
   const handleNotePress = useCallback(async () => {
     const currentMemo = txMetadata[tx.hash]?.memo || '';
     try {
-      const newMemo = await prompt(loc.send.details_note_placeholder, '', true, 'plain-text', false, undefined, currentMemo);
+      const newMemo = await prompt(loc.send.details_note_placeholder, '', { type: 'plain-text', defaultValue: currentMemo });
       if (newMemo !== undefined) {
         txMetadata[tx.hash] = { memo: newMemo };
         await saveToDisk();
