@@ -655,6 +655,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
 
+    await waitForId('AddressInput');
     await element(by.id('AddressInput')).replaceText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).replaceText('0.0005');
     await element(by.id('BitcoinAmountInput')).tapReturnKey();
@@ -812,6 +813,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperCreateWallet();
     await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
     await scanText('bitcoin:bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
+    await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText('bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
 
     // now, gona import second wallet (ln) and test bip21 with both onchain and offchain present
@@ -837,6 +839,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'lightning:lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
     );
+    await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText(
       'lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
     );
@@ -856,6 +859,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('SelectWalletsList');
     await element(by.text('Imported Lightning')).tap();
+    await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText(
       'lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
     ); // send screen, and ln invoice is prefilled!
@@ -876,6 +880,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('SelectWalletsList');
     await element(by.text('cr34t3d')).tap();
+    await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText('1DamianM2k8WfNEeJmyqSe2YW1upB7UATx'); // send screen, and ONCHAIN invoice is prefilled!
     await expect(element(by.id('BitcoinAmountInput'))).toHaveText('0.000001');
 

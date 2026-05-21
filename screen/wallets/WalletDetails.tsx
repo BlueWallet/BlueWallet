@@ -74,6 +74,7 @@ const WalletDetails: React.FC = () => {
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
+  const [walletName, setWalletName] = useState<string>(wallet.getLabel());
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
 
@@ -172,10 +173,7 @@ const WalletDetails: React.FC = () => {
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
         loc.formatString(loc.wallets.details_del_wb_q, { balance }),
-        true,
-        'numeric',
-        true,
-        loc.wallets.details_delete,
+        { type: 'numeric', destructive: true, continueButtonText: loc.wallets.details_delete },
       );
       // Remove any non-numeric characters before comparison
       const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
@@ -500,15 +498,26 @@ const WalletDetails: React.FC = () => {
   };
 
   const handleEditWalletName = useCallback(async () => {
+    let newName: string;
     try {
-      const newName = await prompt(loc.wallets.add_wallet_name, '', true, 'plain-text', false, undefined, wallet.getLabel());
-      const trimmed = newName.trim();
-      if (trimmed.length === 0) return;
-      if (wallet.getLabel() === trimmed) return;
-      wallet.setLabel(trimmed);
-      await saveToDisk();
+      newName = await prompt(loc.wallets.add_wallet_name, '', { type: 'plain-text', defaultValue: wallet.getLabel() });
     } catch (_) {
       // User cancelled
+      return;
+    }
+    const trimmed = newName.trim();
+    if (trimmed.length === 0) return;
+    const previousLabel = wallet.getLabel();
+    if (previousLabel === trimmed) return;
+    wallet.setLabel(trimmed);
+    setWalletName(trimmed);
+    try {
+      await saveToDisk();
+    } catch (error: unknown) {
+      wallet.setLabel(previousLabel);
+      setWalletName(previousLabel);
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: error instanceof Error ? error.message : String(error) });
     }
   }, [wallet, saveToDisk]);
 
@@ -534,7 +543,7 @@ const WalletDetails: React.FC = () => {
                   ellipsizeMode="tail"
                   testID="WalletNameDisplay"
                 >
-                  {wallet.getLabel()}
+                  {walletName}
                 </Text>
                 <TouchableOpacity
                   style={[styles.editButton, stylesHook.editButton]}
