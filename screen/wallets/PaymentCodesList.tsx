@@ -134,7 +134,7 @@ export default function PaymentCodesList() {
         break;
       }
       case String(Actions.rename): {
-        const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, true, 'plain-text');
+        const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, { type: 'plain-text' });
         if (!newName) return;
 
         counterpartyMetadata[pc] = { label: newName };
@@ -245,7 +245,7 @@ export default function PaymentCodesList() {
 
   const onAddContactPress = async () => {
     try {
-      const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, true, 'plain-text');
+      const newPc = await prompt(loc.bip47.add_contact, loc.bip47.provide_payment_code, { type: 'plain-text' });
       if (!newPc) return;
 
       await _addContact(newPc);
