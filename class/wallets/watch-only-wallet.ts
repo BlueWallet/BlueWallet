@@ -197,12 +197,13 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   async fetchUtxo() {
     if (this._hdWalletInstance) return this._hdWalletInstance.fetchUtxo();
-    throw new Error('Not initialized');
+    // Single-address watch-only uses LegacyWallet UTXO + derivation from txs (no HD instance).
+    return super.fetchUtxo();
   }
 
   getUtxo(...args: Parameters<THDWalletForWatchOnly['getUtxo']>) {
     if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo(...args);
-    throw new Error('Not initialized');
+    return super.getUtxo(...args);
   }
 
   combinePsbt(...args: Parameters<THDWalletForWatchOnly['combinePsbt']>) {

@@ -4,7 +4,8 @@ import { BackHandler, Image, ScrollView, StyleSheet, Text, TouchableOpacity, Vie
 import Icon from '../../components/Icon';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueText, BlueTextCentered } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
+import BlueTextCentered from '../../components/BlueTextCentered';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCode from '../../components/QRCode';
