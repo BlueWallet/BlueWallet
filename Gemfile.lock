@@ -261,7 +261,7 @@ GEM
     multi_json (1.19.1)
     multipart-post (2.4.1)
     mutex_m (0.3.0)
-    nanaimo (0.3.0)
+    nanaimo (0.4.0)
     nap (1.1.0)
     naturally (2.3.0)
     netrc (0.11.0)
@@ -317,12 +317,12 @@ GEM
     uber (0.1.0)
     unicode-display_width (2.6.0)
     word_wrap (1.0.0)
-    xcodeproj (1.25.1)
+    xcodeproj (1.27.0)
       CFPropertyList (>= 2.3.3, < 4.0)
       atomos (~> 0.1.3)
       claide (>= 1.0.2, < 2.0)
       colored2 (~> 3.1)
-      nanaimo (~> 0.3.0)
+      nanaimo (~> 0.4.0)
       rexml (>= 3.3.6, < 4.0)
     xcpretty (0.4.1)
       rouge (~> 3.28.0)
@@ -347,7 +347,7 @@ DEPENDENCIES
   jwt
   logger
   mutex_m
-  xcodeproj (< 1.26.0)
+  xcodeproj (< 1.27.1)
 
 CHECKSUMS
   CFPropertyList (3.0.8) sha256=2c99d0d980536d3d7ab252f7bd59ac8be50fbdd1ff487c98c949bb66bb114261
@@ -443,7 +443,7 @@ CHECKSUMS
   multi_json (1.19.1) sha256=7aefeff8f2c854bf739931a238e4aea64592845e0c0395c8a7d2eea7fdd631b7
   multipart-post (2.4.1) sha256=9872d03a8e552020ca096adadbf5e3cb1cd1cdd6acd3c161136b8a5737cdb4a8
   mutex_m (0.3.0) sha256=cfcb04ac16b69c4813777022fdceda24e9f798e48092a2b817eb4c0a782b0751
-  nanaimo (0.3.0) sha256=aaaedc60497070b864a7e220f7c4b4cad3a0daddda2c30055ba8dae306342376
+  nanaimo (0.4.0) sha256=faf069551bab17f15169c1f74a1c73c220657e71b6e900919897a10d991d0723
   nap (1.1.0) sha256=949691660f9d041d75be611bb2a8d2fd559c467537deac241f4097d9b5eea576
   naturally (2.3.0) sha256=459923cf76c2e6613048301742363200c3c7e4904c324097d54a67401e179e01
   netrc (0.11.0) sha256=de1ce33da8c99ab1d97871726cba75151113f117146becbe45aa85cb3dabee3f
@@ -481,7 +481,7 @@ CHECKSUMS
   uber (0.1.0) sha256=5beeb407ff807b5db994f82fa9ee07cfceaa561dad8af20be880bc67eba935dc
   unicode-display_width (2.6.0) sha256=12279874bba6d5e4d2728cef814b19197dbb10d7a7837a869bab65da943b7f5a
   word_wrap (1.0.0) sha256=f556d4224c812e371000f12a6ee8102e0daa724a314c3f246afaad76d82accc7
-  xcodeproj (1.25.1) sha256=9a2310dccf6d717076e86f602b17c640046b6f1dfe64480044596f6f2f13dc84
+  xcodeproj (1.27.0) sha256=8cc7a73b4505c227deab044dce118ede787041c702bc47636856a2e566f854d3
   xcpretty (0.4.1) sha256=b14c50e721f6589ee3d6f5353e2c2cfcd8541fa1ea16d6c602807dd7327f3892
   xcpretty-travis-formatter (1.0.1) sha256=aacc332f17cb7b2cba222994e2adc74223db88724fe76341483ad3098e232f93
   xml-simple (1.1.9) sha256=d21131e519c86f1a5bc2b6d2d57d46e6998e47f18ed249b25cad86433dbd695d
