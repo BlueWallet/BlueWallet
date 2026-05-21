@@ -1659,6 +1659,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     minHeight: 33,
     color: '#81868e',
+    fontSize: 15,
+    lineHeight: 19,
   },
   fee: {
     flexDirection: 'row',
