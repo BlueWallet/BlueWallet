@@ -125,6 +125,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   for (let c = 0; c < 5; c++) {
     await element(by.id('SpeedBackdoor')).tap();
   }
+  await waitForId('SpeedMnemonicInput');
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
   if (device.getPlatform() === 'ios') {
@@ -166,8 +167,7 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await element(by.id('WalletDetails')).tap();
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
   await sleep(200);
-  await element(by.id('HeaderMenuButton')).tap();
-  await element(by.text('Delete')).tap();
+  await element(by.id('DeleteWallet')).tap();
   await waitForText('Yes, delete');
   await element(by.text('Yes, delete')).tap();
   if (remainingBalanceSat) {
@@ -345,9 +345,9 @@ export async function setCustomFeeRate(feeRate) {
   await waitForId('feeCustomContainerButton');
   await element(by.id('feeCustomContainerButton')).tap();
   await waitForId('feeCustom');
-  await element(by.id('feeCustom')).replaceText(String(feeRate));
-  await element(by.id('feeCustom')).tapReturnKey();
+  await element(by.id('feeCustom')).typeText(String(feeRate) + '\n');
   await waitForKeyboardToClose();
+  await waitForId('chooseFee');
 }
 
 export async function goBack() {

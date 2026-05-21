@@ -1,6 +1,6 @@
 import React from 'react';
 import { InputAccessoryView, Keyboard, Platform, StyleSheet, View } from 'react-native';
-import { BlueButtonLink } from '../BlueComponents';
+import BlueButtonLink from './BlueButtonLink';
 import loc from '../loc';
 import { useTheme } from './themes';
 import Clipboard from '@react-native-clipboard/clipboard';

@@ -11,10 +11,12 @@ interface ListItemProps {
   noFeedback?: boolean;
   bottomDivider?: boolean;
   testID?: string;
+  switchTestID?: string;
   onPress?: () => void;
   disabled?: boolean;
   switch?: SwitchProps;
   title: string;
+  titleStyle?: StyleProp<TextStyle>;
   subtitle?: string | React.ReactNode;
   subtitleNumberOfLines?: number;
   rightTitle?: string;
@@ -33,10 +35,12 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     noFeedback = false,
     bottomDivider = true,
     testID,
+    switchTestID,
     onPress,
     disabled,
     switch: switchProps,
     title,
+    titleStyle,
     subtitle,
     subtitleNumberOfLines,
     rightTitle,
@@ -83,6 +87,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     const memoizedSwitchProps = useMemo(() => {
       return switchProps ? { ...switchProps } : undefined;
     }, [switchProps]);
+    const resolvedSwitchTestID = switchTestID ?? memoizedSwitchProps?.testID;
     const enableFeedback = !noFeedback && !!onPress && !disabled;
 
     const renderContent = () => (
@@ -94,7 +99,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           </View>
         )}
         <View style={styles.content}>
-          <Text style={stylesHook.title} numberOfLines={0} accessibilityRole="text">
+          <Text style={[stylesHook.title, titleStyle]} numberOfLines={0} accessibilityRole="text">
             {title}
           </Text>
           {subtitle ? (
@@ -124,7 +129,14 @@ const ListItem: React.FC<ListItemProps> = React.memo(
           <Icon name={isRtl ? 'angle-left' : 'angle-right'} type="font-awesome" color={colors.alternativeTextColor} size={18} />
         ) : null}
         {switchProps ? (
-          <Switch {...memoizedSwitchProps} accessibilityLabel={title} style={styles.margin16} accessible accessibilityRole="switch" />
+          <Switch
+            {...memoizedSwitchProps}
+            testID={resolvedSwitchTestID}
+            accessibilityLabel={title}
+            style={styles.margin16}
+            accessible
+            accessibilityRole="switch"
+          />
         ) : null}
         {checkmark ? (
           <View style={styles.checkmarkContainer}>

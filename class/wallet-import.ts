@@ -319,6 +319,7 @@ const startImport = (
     }
 
     yield { progress: 'wif' };
+
     const segwitWallet = new SegwitP2SHWallet();
     segwitWallet.setSecret(text);
     if (segwitWallet.getAddress()) {
@@ -380,6 +381,89 @@ const startImport = (
     if (legacyWallet.getAddress()) {
       await fetch(legacyWallet, true, true);
       yield { wallet: legacyWallet };
+    }
+
+    yield { progress: 'Private key in hex/base64' };
+
+    // check if text is in hex or base64 format
+    const isHexKey = /^[0-9a-fA-F]{64}$/.test(text);
+    const isBase64Key = /^[A-Za-z0-9+/=]{43,44}$/.test(text);
+
+    let rawKeyBuffer;
+    let privateKey;
+
+    if (isHexKey) {
+      rawKeyBuffer = Buffer.from(text, 'hex');
+    } else if (isBase64Key) {
+      rawKeyBuffer = Buffer.from(text, 'base64');
+    }
+
+    if (rawKeyBuffer && rawKeyBuffer.length === 32) {
+      let walletFound = false;
+
+      // convert the bytes to Wallet import format, 0x80 for mainnet,
+      // start with uncompressed p2pkh
+      privateKey = wif.encode(0x80, rawKeyBuffer, false);
+
+      yield { progress: 'p2pkh uncompressed' };
+      const legacyWalletUncompressed = new LegacyWallet('Legacy (P2PKH) - Uncompressed');
+      legacyWalletUncompressed.setSecret(privateKey);
+
+      if (await wasUsed(legacyWalletUncompressed)) {
+        await fetch(legacyWalletUncompressed, true);
+        walletFound = true;
+        yield { wallet: legacyWalletUncompressed };
+      }
+
+      // compressed is true for other wallet types
+      privateKey = wif.encode(0x80, rawKeyBuffer, true);
+
+      yield { progress: 'p2wpkh' };
+      const segwitBech32Wallet = new SegwitBech32Wallet();
+      segwitBech32Wallet.setSecret(privateKey);
+
+      if (await wasUsed(segwitBech32Wallet)) {
+        await fetch(segwitBech32Wallet, true);
+        walletFound = true;
+        yield { wallet: segwitBech32Wallet };
+      }
+
+      yield { progress: 'p2tr' };
+      const taprootWallet = new TaprootWallet();
+
+      taprootWallet.setSecret(privateKey);
+      if (await wasUsed(taprootWallet)) {
+        await fetch(taprootWallet, true);
+        walletFound = true;
+        yield { wallet: taprootWallet };
+      }
+
+      yield { progress: 'p2wpkh-p2sh' };
+
+      segwitWallet.setSecret(privateKey);
+      if (await wasUsed(segwitWallet)) {
+        await fetch(segwitWallet, true);
+        walletFound = true;
+        yield { wallet: segwitWallet };
+      }
+
+      yield { progress: 'p2pkh compressed' };
+      const legacyWalletCompressed = new LegacyWallet('Legacy (P2PKH) - Compressed');
+      legacyWalletCompressed.setSecret(privateKey);
+
+      if (await wasUsed(legacyWalletCompressed)) {
+        await fetch(legacyWalletCompressed, true);
+        walletFound = true;
+        yield { wallet: legacyWalletCompressed };
+      }
+
+      if (!walletFound) {
+        yield { wallet: segwitBech32Wallet };
+        yield { wallet: segwitWallet };
+        yield { wallet: legacyWalletCompressed };
+        yield { wallet: taprootWallet };
+        yield { wallet: legacyWalletUncompressed };
+      }
     }
 
     // maybe its a watch-only address?
