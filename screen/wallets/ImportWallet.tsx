@@ -2,7 +2,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View, TouchableOpacity, Image } from 'react-native';
-import { BlueFormLabel, BlueFormMultiInput } from '../../BlueComponents';
+import BlueFormLabel from '../../components/BlueFormLabel';
+import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import Button from '../../components/Button';
 import {
   DoneAndDismissKeyboardInputAccessory,

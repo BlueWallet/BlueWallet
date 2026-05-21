@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
@@ -10,6 +10,7 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -81,8 +82,7 @@ const CoinControlOutputSheet: React.FC = () => {
     debouncedSaveMemo.current.cancel();
     wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo });
     await saveToDisk();
-    const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: [utxo] }, { merge: true });
-    navigation.dispatch(popToAction);
+    goFromCoinControlToSendDetails(navigation, walletID, [utxo]);
   }, [memo, navigation, saveToDisk, utxo, wallet, walletID]);
 
   const applyChangesAndClose = useCallback(async () => {

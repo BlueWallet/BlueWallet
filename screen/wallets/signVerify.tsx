@@ -4,7 +4,7 @@ import { ActivityIndicator, Keyboard, LayoutAnimation, Platform, ScrollView, Sty
 import Share from 'react-native-share';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueFormLabel } from '../../BlueComponents';
+import BlueFormLabel from '../../components/BlueFormLabel';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import Icon from '../../components/Icon';

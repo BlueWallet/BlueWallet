@@ -115,7 +115,14 @@ const SendDetailsStack = () => {
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
-      <Stack.Screen name="CoinControl" component={CoinControlComponent} options={navigationStyle({ title: loc.cc.header })(theme)} />
+      <Stack.Screen
+        name="CoinControl"
+        component={CoinControlComponent}
+        options={navigationStyle({
+          title: loc.cc.header,
+          closeButtonIfFirstInStack: CloseButtonPosition.Left,
+        })(theme)}
+      />
       <Stack.Screen
         name="PaymentCodeList"
         component={PaymentCodesListComponent}
