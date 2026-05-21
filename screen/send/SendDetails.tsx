@@ -1562,15 +1562,15 @@ const SendDetails = () => {
           >
             <Text style={[styles.feeLabel, stylesHook.feeLabel]}>{loc.send.create_fee}</Text>
 
-            {networkTransactionFeesIsLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <View style={[styles.feeRow, stylesHook.feeRow]}>
+            <View style={[styles.feeRow, stylesHook.feeRow]}>
+              {networkTransactionFeesIsLoading ? (
+                <ActivityIndicator />
+              ) : (
                 <Text style={stylesHook.feeValue}>
                   {feePrecalc.current ? formatFee(feePrecalc.current) : feeRate + ' ' + loc.units.sat_vbyte}
                 </Text>
-              </View>
-            )}
+              )}
+            </View>
           </Pressable>
           {renderCustomFeeWarning()}
           {renderCreateButton()}
