@@ -49,7 +49,7 @@ function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: 
 }
 
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, sleep } = useStorage();
+  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -138,6 +138,21 @@ const WalletDetails: React.FC = () => {
 
     fetchArkAddress();
   }, [wallet]);
+
+  const [isRestoringSwaps, setIsRestoringSwaps] = useState<boolean>(false);
+  const onRestoreSwapsPressed = useCallback(async () => {
+    if (wallet.type !== LightningArkWallet.type || !(wallet as unknown as LightningArkWallet).restoreSwaps) return;
+    setIsRestoringSwaps(true);
+    try {
+      await (wallet as unknown as LightningArkWallet).restoreSwaps();
+      await fetchAndSaveWalletTransactions(wallet.getID());
+      presentAlert({ message: loc.wallets.restore_swap_activity_done });
+    } catch (e: any) {
+      presentAlert({ message: e?.message ?? String(e) });
+    } finally {
+      setIsRestoringSwaps(false);
+    }
+  }, [wallet, fetchAndSaveWalletTransactions]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
@@ -891,6 +906,18 @@ const WalletDetails: React.FC = () => {
                   backgroundColor={colors.redBG}
                   textColor={colors.redText}
                 />
+                {wallet.type === LightningArkWallet.type && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton
+                      onPress={onRestoreSwapsPressed}
+                      testID="RestoreSwapActivity"
+                      title={loc.wallets.restore_swap_activity}
+                      disabled={isRestoringSwaps}
+                      loading={isRestoringSwaps}
+                    />
+                  </>
+                )}
               </View>
             </BlueCard>
           </>

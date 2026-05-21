@@ -675,18 +675,20 @@ const TransactionStatus: React.FC = () => {
   };
 
   const handleNotePress = useCallback(async () => {
-    const currentMemo = txMetadata[tx.hash]?.memo || '';
+    // Ark rows have no on-chain hash; use their synthetic txid as fallback key.
+    const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
+    const currentMemo = (metadataKey && txMetadata[metadataKey]?.memo) || '';
     try {
       const newMemo = await prompt(loc.send.details_note_placeholder, '', true, 'plain-text', false, undefined, currentMemo);
-      if (newMemo !== undefined) {
-        txMetadata[tx.hash] = { memo: newMemo };
+      if (newMemo !== undefined && metadataKey) {
+        txMetadata[metadataKey] = { memo: newMemo };
         await saveToDisk();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
     } catch (error) {
       // User cancelled
     }
-  }, [tx?.hash, txMetadata, saveToDisk]);
+  }, [tx, txMetadata, saveToDisk]);
 
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
