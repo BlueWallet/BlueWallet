@@ -11,6 +11,7 @@ type SecondButtonProps = {
   disabled?: boolean;
   icon?: IconButtonProps;
   title: string;
+  textColor?: string;
   onPress?: () => void;
   loading?: boolean;
   testID?: string;
@@ -19,7 +20,7 @@ type SecondButtonProps = {
 export const SecondButton = forwardRef<React.ElementRef<typeof TouchableOpacity>, SecondButtonProps>((props, ref) => {
   const { colors } = useTheme();
   let backgroundColor = props.backgroundColor ? props.backgroundColor : colors.buttonGrayBackgroundColor;
-  let fontColor = colors.secondButtonTextColor;
+  let fontColor = props.textColor ?? colors.secondButtonTextColor;
   if (props.disabled === true) {
     backgroundColor = colors.buttonDisabledBackgroundColor;
     fontColor = colors.buttonDisabledTextColor;

@@ -592,6 +592,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     color: '#81868e',
+    fontSize: 15,
+    lineHeight: 19,
   },
   buttons: {
     flexDirection: 'column',
