@@ -183,7 +183,7 @@ type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
   const { walletID, address } = route.params;
-  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions, addressMetadata } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors, closeImage } = useTheme();
   const isDarkTheme = useColorScheme() === 'dark';
@@ -234,6 +234,12 @@ const ReceiveDetails = () => {
     },
     qrPlaceholderFill: {
       backgroundColor: isDarkTheme ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+    },
+    addressLabelPill: {
+      backgroundColor: colors.success,
+    },
+    addressLabelText: {
+      color: colors.successCheck,
     },
   });
 
@@ -327,14 +333,6 @@ const ReceiveDetails = () => {
     }
   }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
-  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
-    if (wallet && wallet.allowBIP47()) {
-      wallet.switchBIP47(!wallet.isBIP47Enabled());
-    }
-    saveToDisk();
-    obtainWalletAddress();
-  }, [wallet, saveToDisk, obtainWalletAddress]);
-
   useEffect(() => {
     if (showConfirmedBalance) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -346,6 +344,22 @@ const ReceiveDetails = () => {
       setAddressBIP21Encoded(address);
     }
   }, [address, isCustom, setAddressBIP21Encoded]);
+
+  // The label sheet mutates addressMetadata in place and saveToDisk re-renders this screen, so a derived read stays fresh.
+  const addressLabel = address ? (addressMetadata[address]?.label ?? '') : '';
+
+  const navigateToAddressLabel = useCallback(() => {
+    if (!address) return;
+    navigate('ReceiveAddressLabel', { address });
+  }, [address, navigate]);
+
+  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
+    if (wallet && wallet.allowBIP47()) {
+      wallet.switchBIP47(!wallet.isBIP47Enabled());
+    }
+    saveToDisk();
+    obtainWalletAddress();
+  }, [wallet, saveToDisk, obtainWalletAddress]);
 
   const toolTipActions = useMemo(() => {
     const action = { ...CommonToolTipActions.PaymentsCode };
@@ -695,9 +709,9 @@ const ReceiveDetails = () => {
     }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
   );
 
-  const showCustomAmountModal = useCallback(() => {
+  const showMoreOptionsSheet = useCallback(() => {
     if (!address) return;
-    navigate('ReceiveCustomAmount', {
+    navigate('ReceiveMoreOptions', {
       address,
       currentLabel: customLabel,
       currentAmount: customAmount,
@@ -797,6 +811,19 @@ const ReceiveDetails = () => {
         onLayout={onScrollViewLayout}
       >
         {showAddress && renderReceiveCard()}
+        {showAddress && currentTab === segmentControlValues[0] && addressLabel ? (
+          <TouchableOpacity
+            onPress={navigateToAddressLabel}
+            style={[styles.addressLabelPill, stylesHook.addressLabelPill]}
+            accessibilityRole="button"
+            accessibilityLabel={loc.transactions.address_label_placeholder}
+            testID="ReceiveAddressLabel"
+          >
+            <Text numberOfLines={1} style={[styles.addressLabelText, stylesHook.addressLabelText]}>
+              {addressLabel}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
         {showReceiveSkeleton && renderReceiveSkeleton()}
         {showAddress && address !== undefined && (
           <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
@@ -815,9 +842,9 @@ const ReceiveDetails = () => {
             {showAddress && currentTab === loc.wallets.details_address && (
               <BlueButtonLink
                 style={styles.link}
-                testID="SetCustomAmountButton"
-                title={loc.receive.details_setAmount}
-                onPress={showCustomAmountModal}
+                testID="ReceiveMoreOptionsButton"
+                title={loc.receive.details_more_options}
+                onPress={showMoreOptionsSheet}
               />
             )}
             <Button
@@ -920,6 +947,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     minHeight: 48,
     justifyContent: 'center',
+  },
+  addressLabelPill: {
+    alignSelf: 'center',
+    maxWidth: '86%',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    marginTop: 8,
+  },
+  addressLabelText: {
+    fontSize: 14,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   bip47NotFoundContainer: {
     paddingVertical: 40,

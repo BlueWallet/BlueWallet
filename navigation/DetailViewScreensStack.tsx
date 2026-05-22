@@ -57,6 +57,9 @@ import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
+import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
+import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import { receiveSheetOptions } from './ReceiveDetailsStack';
 import { isIOS26OrHigher } from '../components/platform';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
@@ -583,13 +586,17 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
           component={ReceiveCustomAmountSheet}
-          options={navigationStyle({
-            presentation: 'formSheet',
-            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-            headerTitle: loc.receive.details_setAmount,
-            sheetGrabberVisible: true,
-            closeButtonPosition: CloseButtonPosition.Right,
-          })(theme)}
+          options={receiveSheetOptions(loc.receive.details_setAmount, 0.9)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveMoreOptions"
+          component={ReceiveMoreOptionsSheet}
+          options={receiveSheetOptions(loc.receive.details_more_options)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveAddressLabel"
+          component={ReceiveAddressLabelSheet}
+          options={receiveSheetOptions(loc.receive.option_label)(theme)}
         />
       </DetailViewStack.Navigator>
     </ConnectionPollContext.Provider>

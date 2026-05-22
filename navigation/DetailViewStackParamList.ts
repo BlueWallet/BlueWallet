@@ -148,6 +148,16 @@ export type DetailViewStackParamList = {
     currentUnit?: BitcoinUnit;
     preferredUnit?: BitcoinUnit;
   };
+  ReceiveMoreOptions: {
+    address: string;
+    currentLabel?: string;
+    currentAmount?: string;
+    currentUnit?: BitcoinUnit;
+    preferredUnit?: BitcoinUnit;
+  };
+  ReceiveAddressLabel: {
+    address: string;
+  };
   ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: {
     paymentCode: string;

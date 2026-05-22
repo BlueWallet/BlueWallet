@@ -15,4 +15,14 @@ export type ReceiveDetailsStackParamList = {
     currentUnit?: import('../models/bitcoinUnits').BitcoinUnit;
     preferredUnit?: import('../models/bitcoinUnits').BitcoinUnit;
   };
+  ReceiveMoreOptions: {
+    address: string;
+    currentLabel?: string;
+    currentAmount?: string;
+    currentUnit?: import('../models/bitcoinUnits').BitcoinUnit;
+    preferredUnit?: import('../models/bitcoinUnits').BitcoinUnit;
+  };
+  ReceiveAddressLabel: {
+    address: string;
+  };
 };
