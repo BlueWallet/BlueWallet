@@ -2,7 +2,7 @@ import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from '
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { Action } from '../components/types';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
@@ -61,6 +61,8 @@ import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
+import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
+import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -599,13 +601,17 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
           component={ReceiveCustomAmountSheet}
-          options={navigationStyle({
-            presentation: 'formSheet',
-            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-            headerTitle: loc.receive.details_setAmount,
-            sheetGrabberVisible: true,
-            closeButtonPosition: CloseButtonPosition.Right,
-          })(theme)}
+          options={receiveSheetOptions(loc.receive.details_setAmount, 0.9)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveMoreOptions"
+          component={ReceiveMoreOptionsSheet}
+          options={receiveSheetOptions(loc.receive.details_more_options)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveAddressLabel"
+          component={ReceiveAddressLabelSheet}
+          options={receiveSheetOptions(loc.receive.option_label)(theme)}
         />
       </DetailViewStack.Navigator>
     </ConnectionPollContext.Provider>

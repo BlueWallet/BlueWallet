@@ -104,9 +104,14 @@
     "title": "Your wallet has been created."
   },
   "receive": {
-    "details_create": "Create",
+    "details_add": "Add",
+    "details_save": "Save",
     "details_label": "Description",
     "details_setAmount": "Receive with amount",
+    "details_more_options": "More options",
+    "option_amount_subtitle": "Receiver sees suggested amount and description",
+    "option_label": "Label",
+    "option_label_subtitle": "Tag this address for future reference",
     "details_share": "Share...",
     "address_not_found": "Unable to generate receiving address.",
     "header": "Receive",
