@@ -6,14 +6,19 @@ import {
   Dimensions,
   findNodeHandle,
   FlatList,
+  LayoutChangeEvent,
   Platform,
   PixelRatio,
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
   RefreshControl,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
@@ -35,10 +40,14 @@ import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { Transaction, TWallet } from '../../class/wallets/types';
-import getWalletTransactionsOptions, { WalletTransactionsRouteProps } from '../../navigation/helpers/getWalletTransactionsOptions';
+import getWalletTransactionsOptions, {
+  WalletTransactionsRouteProps,
+  createWalletDetailsHeaderRight,
+  createWalletDetailsHeaderRightItems,
+} from '../../navigation/helpers/getWalletTransactionsOptions';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
@@ -49,6 +58,7 @@ import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
+import { isIOS26OrHigher } from '../../components/platform';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -59,7 +69,64 @@ type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 
-type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
+/** Scroll offset after which the compact wallet name + balance header is shown. */
+const SCROLLED_HEADER_SHOW_OFFSET = 180;
+
+/** Horizontal space reserved so the scrolled title does not run under back / header-right actions. */
+const getScrolledHeaderTitleLayout = (screenWidth: number) => {
+  const titleInsetLeft = Platform.OS === 'ios' ? 56 : 72;
+  const titleInsetRight = Platform.OS === 'ios' ? (isIOS26OrHigher ? 96 : 84) : 84;
+  return {
+    maxWidth: Math.max(0, screenWidth - titleInsetLeft - titleInsetRight),
+    titleInsetLeft,
+    titleInsetRight,
+  };
+};
+
+type WalletTransactionsScrolledHeaderTitleProps = {
+  walletLabel: string;
+  balance: string;
+};
+
+const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolledHeaderTitleProps> = ({ walletLabel, balance }) => {
+  const { width: screenWidth } = useWindowDimensions();
+  const { colors } = useTheme();
+  const { maxWidth, titleInsetLeft, titleInsetRight } = getScrolledHeaderTitleLayout(screenWidth);
+
+  const titleColor = Platform.OS === 'ios' ? colors.foregroundColor : '#FFFFFF';
+
+  const titleContent = (
+    <>
+      <Text style={[scrolledHeaderTitleStyles.walletLabel, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
+        {walletLabel}
+      </Text>
+      {balance.length > 0 ? (
+        <Text style={[scrolledHeaderTitleStyles.balance, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
+          {balance}
+        </Text>
+      ) : null}
+    </>
+  );
+
+  if (Platform.OS === 'ios') {
+    return (
+      <View style={[scrolledHeaderTitleStyles.iosHeaderRoot, { width: screenWidth }]}>
+        <View
+          style={[
+            scrolledHeaderTitleStyles.container,
+            scrolledHeaderTitleStyles.iosTitleArea,
+            { left: titleInsetLeft, right: titleInsetRight },
+          ]}
+        >
+          {titleContent}
+        </View>
+      </View>
+    );
+  }
+
+  return <View style={[scrolledHeaderTitleStyles.container, { maxWidth }]}>{titleContent}</View>;
+};
+
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
   const { wallets, saveToDisk } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
@@ -73,8 +140,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [pageSize] = useState(20);
   const navigation = useExtendedNavigation();
   const { setOptions, navigate } = navigation;
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
   const { isElectrumDisabled } = useSettings();
+  const insets = useSafeAreaInsets();
+  const navBarHeight = Platform.select({ ios: 44, android: 56, default: 44 }) ?? 44;
+  const headerOverlayHeight = insets.top + navBarHeight;
   const walletActionButtonsRef = useRef<View>(null);
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet._lastTxFetch || 0);
   const [fetchFailures, setFetchFailures] = useState(0);
@@ -88,6 +158,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+  const headerScrolledRef = useRef(false);
+  const [showScrolledHeaderBg, setShowScrolledHeaderBg] = useState(false);
+  const needsScrolledHeaderBg = Platform.OS === 'android';
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -478,132 +551,195 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, wallet.hideBalance, displayUnit, balance]);
 
-  const handleScroll = useCallback(
-    (event: any) => {
-      const offsetY = event.nativeEvent.contentOffset.y;
-      const combinedHeight = 180;
-      if (offsetY < combinedHeight) {
-        setOptions({ ...getWalletTransactionsOptions({ route }), headerTitle: undefined });
-      } else {
-        navigation.setOptions({
-          headerTitle: `${wallet.getLabel()} ${walletBalance}`,
-        });
-      }
-    },
-    [navigation, wallet, walletBalance, setOptions, route],
+  const walletLabel = wallet.getLabel();
+  const scrolledHeaderTitle = useCallback(
+    () => <WalletTransactionsScrolledHeaderTitle walletLabel={walletLabel} balance={walletBalance} />,
+    [walletLabel, walletBalance],
   );
 
-  const measureHeaderHeight = useCallback(() => {
-    if (!headerRef.current) {
-      // If header ref is not available, use default background
-      setHeaderHeight(0);
-      return;
-    }
+  const { width: screenWidth } = useWindowDimensions();
 
-    headerRef.current.measure((x, y, width, height, pageX, pageY) => {
-      // Check if the header is actually visible
-      if (height === 0 || pageY < 0) {
-        // Header is not visible, use default background
-        setHeaderHeight(0);
-        return;
-      }
+  const getScrolledHeaderOptions = useCallback((): NativeStackNavigationOptions => {
+    const { titleInsetRight } = getScrolledHeaderTitleLayout(screenWidth);
+    const routeIsLoading = route.params.isLoading ?? false;
+    const scrolledHeaderIconColor = colors.foregroundColor;
 
-      const fullHeight = pageY + height;
-      if (fullHeight > 0) {
-        setHeaderHeight(fullHeight);
-      }
-    });
-  }, []);
+    return {
+      headerTitle: scrolledHeaderTitle,
+      // iOS ignores 'left'; title is positioned manually in WalletTransactionsScrolledHeaderTitle.
+      headerTitleAlign: Platform.OS === 'ios' ? 'center' : 'left',
+      headerTitleContainerStyle:
+        Platform.OS === 'ios'
+          ? {
+              width: screenWidth,
+              maxWidth: screenWidth,
+              alignSelf: 'flex-start',
+              left: 0,
+              flexShrink: 1,
+              minWidth: 0,
+            }
+          : {
+              paddingRight: titleInsetRight,
+              flexShrink: 1,
+              minWidth: 0,
+              alignItems: 'flex-start',
+            },
+      ...(Platform.OS === 'ios'
+        ? {
+            headerTintColor: scrolledHeaderIconColor,
+            statusBarStyle: 'light',
+            ...(isIOS26OrHigher && !isDesktop
+              ? {
+                  headerRight: undefined,
+                  unstable_headerRightItems: createWalletDetailsHeaderRightItems({
+                    isLoading: routeIsLoading,
+                    walletID,
+                  }),
+                  experimental_userInterfaceStyle: dark ? ('dark' as const) : ('light' as const),
+                }
+              : {
+                  headerBlurEffect: dark ? ('dark' as const) : ('light' as const),
+                  headerRight: createWalletDetailsHeaderRight({
+                    walletID,
+                    isLoading: routeIsLoading,
+                    iconColor: scrolledHeaderIconColor,
+                  }),
+                }),
+          }
+        : {}),
+    } as NativeStackNavigationOptions;
+  }, [scrolledHeaderTitle, screenWidth, colors.foregroundColor, dark, route.params.isLoading, walletID]);
 
   useEffect(() => {
-    const timer = setTimeout(measureHeaderHeight, 100);
-    return () => clearTimeout(timer);
-  }, [walletID, measureHeaderHeight]);
+    if (!headerScrolledRef.current) return;
+    setOptions(getScrolledHeaderOptions());
+  }, [walletBalance, getScrolledHeaderOptions, setOptions]);
 
-  const ListHeaderComponent = useCallback(
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetY = event.nativeEvent.contentOffset.y;
+      const scrolled = offsetY >= SCROLLED_HEADER_SHOW_OFFSET;
+
+      if (scrolled === headerScrolledRef.current) return;
+      headerScrolledRef.current = scrolled;
+
+      if (!scrolled) {
+        setOptions({
+          ...getWalletTransactionsOptions({ route }),
+          headerTitle: undefined,
+          headerTitleAlign: undefined,
+          headerTitleContainerStyle: undefined,
+          headerTintColor: undefined,
+          headerBlurEffect: undefined,
+          experimental_userInterfaceStyle: undefined,
+        });
+        if (needsScrolledHeaderBg) setShowScrolledHeaderBg(false);
+      } else {
+        setOptions(getScrolledHeaderOptions());
+        if (needsScrolledHeaderBg) setShowScrolledHeaderBg(true);
+      }
+    },
+    [getScrolledHeaderOptions, setOptions, route, needsScrolledHeaderBg],
+  );
+
+  const onHeroLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout;
+    if (height > 0) {
+      setHeaderHeight(height);
+    }
+  }, []);
+
+  const listHeader = useMemo(
     () => (
-      <View ref={headerRef} onLayout={measureHeaderHeight}>
-        <TransactionsNavigationHeader
-          wallet={wallet}
-          onWalletUnitChange={async selectedUnit => {
-            console.debug('[UnitSwitch] requested', { walletID, from: displayUnit, to: selectedUnit });
-            setIsUnitSwitching(true);
-            setDisplayUnit(selectedUnit);
-            if ('setPreferredBalanceUnit' in wallet) {
-              wallet.setPreferredBalanceUnit(selectedUnit);
-            } else {
-              (wallet as any).preferredBalanceUnit = selectedUnit;
-            }
-            await saveToDisk();
-            console.debug('[UnitSwitch] persisted preferred unit', { walletID, unit: selectedUnit });
-            setTimeout(() => {
-              setIsUnitSwitching(false);
-              console.debug('[UnitSwitch] complete', { walletID, unit: selectedUnit });
-            }, 50);
-          }}
-          unit={displayUnit}
-          unitSwitching={isUnitSwitching}
-          onWalletBalanceVisibilityChange={async isShouldBeVisible => {
-            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-            if (wallet.hideBalance && isBiometricsEnabled) {
-              const unlocked = await unlockWithBiometrics();
-              if (!unlocked) throw new Error('Biometrics failed');
-            }
-            wallet.hideBalance = isShouldBeVisible;
-            await saveToDisk();
-          }}
-          onManageFundsPressed={id => {
-            if (wallet.type === MultisigHDWallet.type) {
-              navigateToViewEditCosigners();
-            } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
-              if (wallet.getUserHasSavedExport()) {
-                if (!id) return;
-                onManageFundsPressed(id);
+      <View ref={headerRef}>
+        <View onLayout={onHeroLayout}>
+          <TransactionsNavigationHeader
+            headerOverlayHeight={headerOverlayHeight}
+            wallet={wallet}
+            onWalletUnitChange={async selectedUnit => {
+              console.debug('[UnitSwitch] requested', { walletID, from: displayUnit, to: selectedUnit });
+              setIsUnitSwitching(true);
+              setDisplayUnit(selectedUnit);
+              if ('setPreferredBalanceUnit' in wallet) {
+                wallet.setPreferredBalanceUnit(selectedUnit);
               } else {
-                presentWalletExportReminder()
-                  .then(async () => {
-                    if (!id) return;
-                    wallet.setUserHasSavedExport(true);
-                    await saveToDisk();
-                    onManageFundsPressed(id);
-                  })
-                  .catch(() => {
-                    navigate('WalletExport', {
-                      walletID,
-                    });
-                  });
+                (wallet as any).preferredBalanceUnit = selectedUnit;
               }
-            }
-          }}
-        />
+              await saveToDisk();
+              console.debug('[UnitSwitch] persisted preferred unit', { walletID, unit: selectedUnit });
+              setTimeout(() => {
+                setIsUnitSwitching(false);
+                console.debug('[UnitSwitch] complete', { walletID, unit: selectedUnit });
+              }, 50);
+            }}
+            unit={displayUnit}
+            unitSwitching={isUnitSwitching}
+            onWalletBalanceVisibilityChange={async shouldHideBalance => {
+              try {
+                const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+                if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
+                  if (!(await unlockWithBiometrics())) {
+                    return;
+                  }
+                }
+                wallet.hideBalance = shouldHideBalance;
+                await saveToDisk();
+              } catch (error) {
+                console.error('Failed to toggle balance visibility:', error);
+              }
+            }}
+            onManageFundsPressed={id => {
+              if (wallet.type === MultisigHDWallet.type) {
+                navigateToViewEditCosigners();
+              } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
+                if (wallet.getUserHasSavedExport()) {
+                  if (!id) return;
+                  onManageFundsPressed(id);
+                } else {
+                  presentWalletExportReminder()
+                    .then(async () => {
+                      if (!id) return;
+                      wallet.setUserHasSavedExport(true);
+                      await saveToDisk();
+                      onManageFundsPressed(id);
+                    })
+                    .catch(() => {
+                      navigate('WalletExport', {
+                        walletID,
+                      });
+                    });
+                }
+              }
+            }}
+          />
+        </View>
         <View style={styles.headerBottomBarSpacer}>
           <View style={stylesHook.headerBottomBar} />
         </View>
-        <>
-          <View style={[styles.flex, stylesHook.backgroundContainer]}>
-            <View style={styles.listHeaderTextRow}>
-              <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-            </View>
+        <View style={[styles.flex, stylesHook.backgroundContainer]}>
+          <View style={styles.listHeaderTextRow}>
+            <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           </View>
-          <View style={stylesHook.backgroundContainer}>
-            {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
-              <WatchOnlyWarning
-                handleDismiss={() => {
-                  setIsWatchOnlyWarningVisible(false);
-                  wallet.isWatchOnlyWarningVisible = false;
-                  saveToDisk();
-                }}
-              />
-            )}
-          </View>
-        </>
+        </View>
+        <View style={stylesHook.backgroundContainer}>
+          {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
+            <WatchOnlyWarning
+              handleDismiss={() => {
+                setIsWatchOnlyWarningVisible(false);
+                wallet.isWatchOnlyWarningVisible = false;
+                saveToDisk();
+              }}
+            />
+          )}
+        </View>
       </View>
     ),
     [
       wallet,
       displayUnit,
       isUnitSwitching,
-      measureHeaderHeight,
+      headerOverlayHeight,
+      onHeroLayout,
       stylesHook.backgroundContainer,
       stylesHook.headerBottomBar,
       stylesHook.listHeaderText,
@@ -618,6 +754,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   );
 
   useEffect(() => {
+    setHeaderHeight(0);
+    headerScrolledRef.current = false;
+    setShowScrolledHeaderBg(false);
     if (flatListRef.current) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true });
     }
@@ -626,8 +765,18 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   return (
     <View style={[styles.flex, stylesHook.backgroundContainer]}>
       <View style={[styles.refreshIndicatorBackground, stylesHook.gradientBackground]} testID="TransactionsListView" />
+      {Platform.OS === 'android' && showScrolledHeaderBg && (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.scrolledHeaderBackground,
+            { height: headerOverlayHeight, backgroundColor: WalletGradient.headerColorFor(wallet.type) },
+          ]}
+        />
+      )}
       <FlatList<Transaction>
         ref={flatListRef}
+        style={styles.flatList}
         getItemLayout={getItemLayout}
         updateCellsBatchingPeriod={50}
         onEndReachedThreshold={0.3}
@@ -638,14 +787,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
         initialNumToRender={10}
-        removeClippedSubviews
+        removeClippedSubviews={false}
         contentContainerStyle={stylesHook.backgroundContainer}
+        contentInsetAdjustmentBehavior="never"
         contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         maxToRenderPerBatch={10}
         onScroll={handleScroll}
         windowSize={15}
         scrollEventThrottle={16}
-        ListHeaderComponent={ListHeaderComponent}
+        ListHeaderComponent={listHeader}
         ListEmptyComponent={
           <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
             <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
@@ -656,7 +806,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         }
         refreshControl={
           !isDesktop && !isElectrumDisabled ? (
-            <RefreshControl refreshing={isLoading} onRefresh={() => refreshTransactions(true)} tintColor={colors.msSuccessCheck} />
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={() => refreshTransactions(true)}
+              tintColor={colors.msSuccessCheck}
+              progressViewOffset={headerOverlayHeight}
+            />
           ) : undefined
         }
       />
@@ -720,8 +875,43 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
 export default WalletTransactions;
 
+const scrolledHeaderTitleStyles = StyleSheet.create({
+  iosHeaderRoot: {
+    height: 44,
+    justifyContent: 'center',
+  },
+  iosTitleArea: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    minWidth: 0,
+  },
+  container: {
+    minWidth: 0,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  walletLabel: {
+    fontSize: 17,
+    fontWeight: '600',
+    letterSpacing: 0.15,
+    alignSelf: 'stretch',
+    flexShrink: 1,
+  },
+  balance: {
+    fontSize: 13,
+    fontWeight: '500',
+    lineHeight: 18,
+    marginTop: 1,
+    alignSelf: 'stretch',
+    flexShrink: 1,
+  },
+});
+
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  flatList: { flex: 1, backgroundColor: 'transparent' },
   headerBottomBarSpacer: { position: 'relative', height: 12 },
   scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
   activityIndicator: { marginVertical: 20 },
@@ -732,6 +922,13 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
+  },
+  scrolledHeaderBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
   },
   emptyTxsContainer: { height: '10%', minHeight: '10%', flex: 1 },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },

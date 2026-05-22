@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel, { getWalletCarouselItemWidth } from '../../components/WalletsCarousel';
+import WalletsCarousel, { getWalletCarouselItemWidth, getWalletsHideBalanceSignature } from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -296,12 +296,14 @@ const WalletsList: React.FC = () => {
     [],
   );
 
+  const walletsHideBalanceSignature = getWalletsHideBalanceSignature(wallets);
+
   const renderWalletsCarousel = useCallback(() => {
     return (
       <>
         <WalletsCarousel
           data={wallets}
-          extraData={[wallets]}
+          extraData={[wallets, walletsHideBalanceSignature]}
           onPress={handleClick}
           handleLongPress={handleLongPress}
           onMomentumScrollEnd={onSnapToItem}
@@ -314,7 +316,7 @@ const WalletsList: React.FC = () => {
         />
       </>
     );
-  }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets]);
+  }, [handleClick, handleLongPress, isFocused, onSnapToItem, wallets, walletsHideBalanceSignature]);
 
   const renderSectionItem = useCallback(
     (item: { section: any; item: ExtendedTransaction }) => {

@@ -12,6 +12,58 @@ import loc from '../../loc';
 
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
+const HERO_HEADER_ICON_COLOR = '#FFFFFF';
+
+const navigateToWalletDetails = (walletID: string) => {
+  navigationRef.navigate('WalletDetails', {
+    walletID,
+  });
+};
+
+/** Material "more" button for WalletTransactions header (pre–iOS 26 and Android). */
+export const createWalletDetailsHeaderRight = ({
+  walletID,
+  isLoading = false,
+  iconColor = HERO_HEADER_ICON_COLOR,
+}: {
+  walletID: string;
+  isLoading?: boolean;
+  iconColor?: string;
+}): (() => React.ReactElement) => {
+  return () => (
+    <TouchableOpacity
+      accessibilityRole="button"
+      testID="WalletDetails"
+      disabled={isLoading}
+      style={styles.walletDetails}
+      onPress={() => navigateToWalletDetails(walletID)}
+    >
+      <Icon name="more-horiz" type="material" size={22} color={iconColor} />
+    </TouchableOpacity>
+  );
+};
+
+/** Native toolbar ellipsis for WalletTransactions on iOS 26+. */
+export const createWalletDetailsHeaderRightItems = ({
+  isLoading = false,
+  walletID,
+}: {
+  isLoading?: boolean;
+  walletID: string;
+}): (() => NativeStackHeaderItem[]) => {
+  return () => [
+    {
+      type: 'button',
+      label: loc.wallets.details_title,
+      icon: { type: 'sfSymbol', name: 'ellipsis' },
+      identifier: 'WalletDetails',
+      sharesBackground: false,
+      onPress: () => navigateToWalletDetails(walletID),
+      disabled: isLoading,
+    },
+  ];
+};
+
 /** Whether a solid #RRGGBB header background is dark enough to prefer dark bar chrome on iOS 26+. */
 function prefersDarkHeaderChrome(backgroundColor: string): boolean {
   const hex = backgroundColor.replace(/^#/, '');
@@ -31,32 +83,22 @@ function prefersDarkHeaderChrome(backgroundColor: string): boolean {
 const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRouteProps }): NativeStackNavigationOptions => {
   const { isLoading = false, walletID, walletType } = route.params;
 
-  const onPress = () => {
-    navigationRef.navigate('WalletDetails', {
-      walletID,
-    });
-  };
-
-  const RightButton = (
-    <TouchableOpacity accessibilityRole="button" testID="WalletDetails" disabled={isLoading} style={styles.walletDetails} onPress={onPress}>
-      <Icon name="more-horiz" type="material" size={22} color="#FFFFFF" />
-    </TouchableOpacity>
-  );
-
   const backgroundColor = WalletGradient.headerColorFor(walletType);
 
   const base: NativeStackNavigationOptions = {
     title: '',
     headerBackTitleStyle: { fontSize: 0 },
+    headerTransparent: true,
     headerStyle: {
-      backgroundColor,
+      backgroundColor: 'transparent',
     },
     headerBackButtonDisplayMode: 'minimal',
     headerShadowVisible: false,
-    headerTintColor: '#FFFFFF',
+    headerTintColor: HERO_HEADER_ICON_COLOR,
+    headerBlurEffect: undefined,
     statusBarStyle: 'light',
     headerBackTitle: undefined,
-    headerRight: () => RightButton,
+    headerRight: createWalletDetailsHeaderRight({ walletID, isLoading, iconColor: HERO_HEADER_ICON_COLOR }),
   };
 
   if (Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop) {
@@ -65,17 +107,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
       ...base,
       headerRight: undefined,
       ...(darkChrome ? { experimental_userInterfaceStyle: 'dark' as const } : {}),
-      unstable_headerRightItems: (): NativeStackHeaderItem[] => [
-        {
-          type: 'button',
-          label: loc.wallets.details_title,
-          icon: { type: 'sfSymbol', name: 'ellipsis' },
-          identifier: 'WalletDetails',
-          sharesBackground: false,
-          onPress,
-          disabled: isLoading,
-        },
-      ],
+      unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }),
     };
   }
 

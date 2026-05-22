@@ -17,17 +17,26 @@ import ToolTipMenu from './TooltipMenu';
 import useAnimateOnChange from '../hooks/useAnimateOnChange';
 import { useLocale } from '@react-navigation/native';
 
+/** Default hero body min height before the 20% increase (see HERO_MIN_BODY_HEIGHT). */
+const HERO_BASE_BODY_MIN_HEIGHT = 120;
+const HERO_MIN_BODY_HEIGHT = Math.round(HERO_BASE_BODY_MIN_HEIGHT * 1.2);
+const HERO_BOTTOM_PADDING = 32;
+const WALLET_LABEL_TOP_GAP = 32;
+
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
   unit: BitcoinUnit;
+  /** Top inset (safe area + nav bar) so content clears the transparent header. */
+  headerOverlayHeight: number;
   onWalletUnitChange: (unit: BitcoinUnit) => void;
   onManageFundsPressed?: (id?: string) => void;
-  onWalletBalanceVisibilityChange?: (isShouldBeVisible: boolean) => void;
+  onWalletBalanceVisibilityChange?: (shouldHideBalance: boolean) => void;
   unitSwitching?: boolean;
 }
 
 const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
   wallet,
+  headerOverlayHeight,
   onWalletUnitChange,
   onManageFundsPressed,
   onWalletBalanceVisibilityChange,
@@ -72,12 +81,13 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   const handleBalanceVisibility = useCallback(() => {
     onWalletBalanceVisibilityChange?.(!hideBalance);
-  }, [onWalletBalanceVisibilityChange, hideBalance]);
+  }, [hideBalance, onWalletBalanceVisibilityChange]);
 
   const changeWalletBalanceUnit = () => {
+    if (hideBalance) {
+      return;
+    }
     let newWalletPreferredUnit = wallet.getPreferredBalanceUnit();
-
-    console.debug('[UnitSwitch/UI] tap unit change', { walletID: wallet.getID?.(), current: newWalletPreferredUnit });
 
     if (newWalletPreferredUnit === BitcoinUnit.BTC) {
       newWalletPreferredUnit = BitcoinUnit.SATS;
@@ -87,7 +97,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
       newWalletPreferredUnit = BitcoinUnit.BTC;
     }
 
-    console.debug('[UnitSwitch/UI] next unit resolved', { walletID: wallet.getID?.(), next: newWalletPreferredUnit });
     onWalletUnitChange(newWalletPreferredUnit);
   };
 
@@ -102,9 +111,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
 
   const onPressMenuItem = useCallback(
     (id: string) => {
-      if (id === 'walletBalanceVisibility') {
+      if (id === actionKeys.WalletBalanceVisibility) {
         handleBalanceVisibility();
-      } else if (id === 'copyToClipboard') {
+      } else if (id === actionKeys.CopyToClipboard) {
         handleCopyPress();
       }
     },
@@ -169,43 +178,33 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     return hideBalance
       ? [
           {
-            id: 'walletBalanceVisibility',
+            id: actionKeys.WalletBalanceVisibility,
             text: loc.transactions.details_balance_show,
-            icon: {
-              iconValue: 'eye',
-            },
+            icon: actionIcons.Eye,
           },
         ]
       : [
           {
-            id: 'walletBalanceVisibility',
+            id: actionKeys.WalletBalanceVisibility,
             text: loc.transactions.details_balance_hide,
-            icon: {
-              iconValue: 'eye.slash',
-            },
+            icon: actionIcons.EyeSlash,
           },
           {
-            id: 'copyToClipboard',
+            id: actionKeys.CopyToClipboard,
             text: loc.transactions.details_copy,
-            icon: {
-              iconValue: 'doc.on.doc',
-            },
+            icon: actionIcons.Clipboard,
           },
         ];
   }, [hideBalance]);
 
-  useEffect(() => {
-    console.debug('[UnitSwitch/UI] render state', {
-      walletID: wallet.getID?.(),
-      unit,
-      hideBalance,
-      preferredFiat: preferredFiatCurrency?.endPointKey,
-      switching: unitSwitching,
-    });
-  }, [wallet, unit, hideBalance, preferredFiatCurrency, unitSwitching]);
-
   return (
-    <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={styles.lineaderGradient}>
+    <View
+      style={[
+        styles.lineaderGradient,
+        { paddingTop: headerOverlayHeight, minHeight: headerOverlayHeight + HERO_MIN_BODY_HEIGHT },
+      ]}
+    >
+      <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} />
       <View style={styles.contentContainer}>
         <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
           {wallet.getLabel()}
@@ -226,7 +225,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                 ) : (
                   <View key={`wallet-balance-textwrap-${wallet.getID?.() ?? ''}-${String(balance)}`}>
                     <Animated.Text
-                      key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`} // force recreation on balance change for RTL correctness
+                      key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`}
                       testID="WalletBalance"
                       numberOfLines={1}
                       minimumFontScale={0.5}
@@ -239,17 +238,20 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                 )}
               </View>
             </ToolTipMenu>
-            <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit} disabled={unitSwitching}>
-              <Text style={styles.walletPreferredUnitText}>
-                {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
-              </Text>
-            </TouchableOpacity>
+            {!hideBalance && (
+              <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit} disabled={unitSwitching}>
+                <Text style={styles.walletPreferredUnitText}>
+                  {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
+                </Text>
+              </TouchableOpacity>
+            )}
           </Animated.View>
           {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
             <View style={styles.manageFundsSection}>
               <ToolTipMenu
                 shouldOpenOnLongPress={false}
                 isButton
+                enableAndroidRipple={false}
                 onPressMenuItem={handleManageFundsPressed}
                 actions={toolTipActions}
                 buttonStyle={styles.manageFundsButton}
@@ -265,17 +267,19 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           </TouchableOpacity>
         )}
       </View>
-    </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   lineaderGradient: {
-    minHeight: 140,
     justifyContent: 'flex-start',
+    position: 'relative',
   },
   contentContainer: {
-    padding: 15,
+    paddingTop: WALLET_LABEL_TOP_GAP,
+    paddingHorizontal: 15,
+    paddingBottom: HERO_BOTTOM_PADDING,
   },
   balanceSection: {
     flexDirection: 'column',
@@ -284,12 +288,14 @@ const styles = StyleSheet.create({
   walletLabel: {
     backgroundColor: 'transparent',
     fontSize: 19,
-    color: '#fff',
-    marginBottom: 10,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 4,
   },
   walletBalance: {
     flexShrink: 1,
     marginRight: 6,
+    minHeight: 39,
+    justifyContent: 'center',
   },
   manageFundsButton: {
     marginTop: 14,
@@ -314,13 +320,13 @@ const styles = StyleSheet.create({
   walletBalanceAndUnitContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 10, // Ensure there's some padding to the right
+    paddingRight: 10,
   },
   walletBalanceText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 36,
-    flexShrink: 1, // Allow the text to shrink if there's not enough space
+    flexShrink: 1,
   },
   walletPreferredUnitView: {
     justifyContent: 'center',

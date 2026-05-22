@@ -39,6 +39,10 @@ export const WALLET_CAROUSEL_HEADER_WIDTH = 16;
 
 export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
 
+/** FlatList extraData token so in-place `wallet.hideBalance` updates still refresh cards. */
+export const getWalletsHideBalanceSignature = (wallets: TWallet[]) =>
+  wallets.map(wallet => `${wallet.getID()}:${wallet.hideBalance ? 1 : 0}`).join('|');
+
 interface NewWalletPanelProps {
   onPress: () => void;
 }
@@ -335,8 +339,21 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     }, [isNewWallet, animationsEnabled, translateYValue, opacityValue, isSelectedWallet]);
 
     useEffect(() => {
+      if (hideBalance) {
+        previousBalance.current = undefined;
+        balanceOpacity.value = 1;
+        balanceTranslateY.value = 0;
+      }
+    }, [hideBalance, balanceOpacity, balanceTranslateY]);
+
+    useEffect(() => {
       if (!animationsEnabled) {
         previousBalance.current = safeBalance;
+        return;
+      }
+
+      if (hideBalance) {
+        previousBalance.current = undefined;
         return;
       }
 
@@ -349,7 +366,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
       }
 
       previousBalance.current = safeBalance;
-    }, [safeBalance, animationsEnabled, balanceOpacity, balanceTranslateY]);
+    }, [safeBalance, hideBalance, animationsEnabled, balanceOpacity, balanceTranslateY]);
 
     useEffect(() => {
       if (isExiting && animationsEnabled) {
@@ -536,8 +553,10 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     isFlatList = true,
     animateChanges = false,
   } = props;
+  const { extraData: extraDataFromProps, ...flatListProps } = props;
 
   const { width } = useWindowDimensions();
+  const hideBalanceSignature = getWalletsHideBalanceSignature(data);
   const itemWidth = React.useMemo(() => getWalletCarouselItemWidth(width), [width]);
   const snapInterval = React.useMemo(() => itemWidth, [itemWidth]);
   const snapOffsets = React.useMemo(() => {
@@ -733,7 +752,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
         <WalletCarouselItem
           isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
           item={item}
-          hideBalance={item.hideBalance}
+          hideBalance={!!item.hideBalance}
           handleLongPress={handleLongPress}
           onPress={onPress}
           horizontal={horizontal}
@@ -760,6 +779,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       searchQuery,
       renderHighlightedText,
       animateChanges,
+      hideBalanceSignature,
       layoutTransition,
       enteringTransition,
       exitingTransition,
@@ -801,7 +821,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
           <WalletCarouselItem
             isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
             item={item}
-            hideBalance={item.hideBalance}
+            hideBalance={!!item.hideBalance}
             handleLongPress={handleLongPress}
             onPress={onPress}
             searchQuery={props.searchQuery}
@@ -829,6 +849,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     props.searchQuery,
     props.renderHighlightedText,
     animateChanges,
+    hideBalanceSignature,
     layoutTransition,
     enteringTransition,
     exitingTransition,
@@ -858,11 +879,16 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
     },
   });
 
+  const flatListExtraData =
+    extraDataFromProps !== undefined
+      ? [...(Array.isArray(extraDataFromProps) ? extraDataFromProps : [extraDataFromProps]), hideBalanceSignature]
+      : [data, hideBalanceSignature, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current];
+
   return isFlatList ? (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
-      extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
+      extraData={flatListExtraData}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
       pagingEnabled={false}
@@ -885,7 +911,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
       style={{ minHeight: sliderHeight + 12 }}
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
-      {...props}
+      {...flatListProps}
     />
   ) : (
     <View style={cStyles.contentLargeScreen}>
