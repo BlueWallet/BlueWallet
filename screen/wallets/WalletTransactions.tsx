@@ -61,6 +61,7 @@ import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
 import { isIOS26OrHigher } from '../../components/platform';
+import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -73,6 +74,10 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 
 /** Scroll offset after which the compact wallet name + balance header is shown. */
 const SCROLLED_HEADER_SHOW_OFFSET = 180;
+const SCROLLED_HEADER_FADE_IN_MS = 180;
+const SCROLLED_HEADER_FADE_OUT_MS = 150;
+
+const usesIos26AnimatedScrolledHeader = Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop;
 
 /** Native stack options used when scrolled; includes props missing from the published TS types. */
 type WalletTransactionsScrolledHeaderOptions = NativeStackNavigationOptions & {
@@ -90,9 +95,45 @@ const getScrolledHeaderTitleLayout = (screenWidth: number) => {
   };
 };
 
+const buildIos26HeaderTitleLayoutOptions = (
+  screenWidth: number,
+): Pick<WalletTransactionsScrolledHeaderOptions, 'headerTitleAlign' | 'headerTitleContainerStyle'> => ({
+  headerTitleAlign: 'left',
+  headerTitleContainerStyle: {
+    width: screenWidth,
+    maxWidth: screenWidth,
+    alignSelf: 'flex-start',
+    alignItems: 'flex-start',
+    left: 0,
+    flexShrink: 1,
+    minWidth: 0,
+  },
+});
+
 type WalletTransactionsScrolledHeaderTitleProps = {
   walletLabel: string;
   balance: string;
+};
+
+type WalletTransactionsScrolledHeaderTitleAnimatedProps = WalletTransactionsScrolledHeaderTitleProps & {
+  opacity: SharedValue<number>;
+};
+
+const WalletTransactionsScrolledHeaderTitleAnimated: React.FC<WalletTransactionsScrolledHeaderTitleAnimatedProps> = ({
+  opacity,
+  walletLabel,
+  balance,
+}) => {
+  const { width: screenWidth } = useWindowDimensions();
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={[scrolledHeaderTitleStyles.animatedTitleWrapper, { width: screenWidth }, animatedStyle]} pointerEvents="box-none">
+      <WalletTransactionsScrolledHeaderTitle walletLabel={walletLabel} balance={balance} />
+    </Animated.View>
+  );
 };
 
 const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolledHeaderTitleProps> = ({ walletLabel, balance }) => {
@@ -166,6 +207,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
   const headerScrolledRef = useRef(false);
+  const scrolledHeaderOpacity = useSharedValue(0);
   const [showScrolledHeaderBg, setShowScrolledHeaderBg] = useState(false);
   const needsScrolledHeaderBg = Platform.OS === 'android';
 
@@ -211,12 +253,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       }),
     },
   });
-
-  useFocusEffect(
-    useCallback(() => {
-      setOptions(getWalletTransactionsOptions({ route }));
-    }, [route, setOptions]),
-  );
 
   const onBarCodeRead = useCallback(
     (ret?: { data?: any }) => {
@@ -559,10 +595,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [wallet, wallet.hideBalance, displayUnit, balance]);
 
   const walletLabel = wallet.getLabel();
-  const scrolledHeaderTitle = useCallback(
-    () => <WalletTransactionsScrolledHeaderTitle walletLabel={walletLabel} balance={walletBalance} />,
-    [walletLabel, walletBalance],
-  );
+  const scrolledHeaderTitle = useCallback(() => {
+    if (usesIos26AnimatedScrolledHeader) {
+      return (
+        <WalletTransactionsScrolledHeaderTitleAnimated opacity={scrolledHeaderOpacity} walletLabel={walletLabel} balance={walletBalance} />
+      );
+    }
+    return <WalletTransactionsScrolledHeaderTitle walletLabel={walletLabel} balance={walletBalance} />;
+  }, [walletLabel, walletBalance, scrolledHeaderOpacity]);
 
   const { width: screenWidth } = useWindowDimensions();
 
@@ -574,23 +614,17 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return {
       headerTitle: scrolledHeaderTitle,
       // iOS ignores 'left'; title is positioned manually in WalletTransactionsScrolledHeaderTitle.
-      headerTitleAlign: Platform.OS === 'ios' ? 'center' : 'left',
-      headerTitleContainerStyle:
-        Platform.OS === 'ios'
-          ? {
-              width: screenWidth,
-              maxWidth: screenWidth,
-              alignSelf: 'flex-start',
-              left: 0,
-              flexShrink: 1,
-              minWidth: 0,
-            }
-          : {
+      ...(Platform.OS === 'ios'
+        ? buildIos26HeaderTitleLayoutOptions(screenWidth)
+        : {
+            headerTitleAlign: 'left' as const,
+            headerTitleContainerStyle: {
               paddingRight: titleInsetRight,
               flexShrink: 1,
               minWidth: 0,
               alignItems: 'flex-start',
             },
+          }),
       ...(Platform.OS === 'ios'
         ? {
             headerTintColor: scrolledHeaderIconColor,
@@ -622,10 +656,46 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     setOptions(getScrolledHeaderOptions());
   }, [walletBalance, getScrolledHeaderOptions, setOptions]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (usesIos26AnimatedScrolledHeader) {
+        headerScrolledRef.current = false;
+        scrolledHeaderOpacity.value = 0;
+        setOptions({
+          ...getWalletTransactionsOptions({ route }),
+          ...buildIos26HeaderTitleLayoutOptions(screenWidth),
+          headerTitle: scrolledHeaderTitle,
+        });
+        return;
+      }
+      setOptions(getWalletTransactionsOptions({ route }));
+    }, [route, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity, setOptions]),
+  );
+
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetY = event.nativeEvent.contentOffset.y;
       const scrolled = offsetY >= SCROLLED_HEADER_SHOW_OFFSET;
+
+      if (usesIos26AnimatedScrolledHeader) {
+        if (scrolled === headerScrolledRef.current) return;
+        headerScrolledRef.current = scrolled;
+        scrolledHeaderOpacity.value = withTiming(scrolled ? 1 : 0, {
+          duration: scrolled ? SCROLLED_HEADER_FADE_IN_MS : SCROLLED_HEADER_FADE_OUT_MS,
+        });
+        if (scrolled) {
+          setOptions(getScrolledHeaderOptions());
+        } else {
+          setOptions({
+            ...getWalletTransactionsOptions({ route }),
+            ...buildIos26HeaderTitleLayoutOptions(screenWidth),
+            headerTitle: scrolledHeaderTitle,
+            headerTintColor: undefined,
+            experimental_userInterfaceStyle: undefined,
+          });
+        }
+        return;
+      }
 
       if (scrolled === headerScrolledRef.current) return;
       headerScrolledRef.current = scrolled;
@@ -646,7 +716,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         if (needsScrolledHeaderBg) setShowScrolledHeaderBg(true);
       }
     },
-    [getScrolledHeaderOptions, setOptions, route, needsScrolledHeaderBg],
+    [getScrolledHeaderOptions, setOptions, route, needsScrolledHeaderBg, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity],
   );
 
   const onHeroLayout = useCallback((event: LayoutChangeEvent) => {
@@ -763,11 +833,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   useEffect(() => {
     setHeaderHeight(0);
     headerScrolledRef.current = false;
+    scrolledHeaderOpacity.value = 0;
     setShowScrolledHeaderBg(false);
     if (flatListRef.current) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true });
     }
-  }, [walletID]);
+  }, [walletID, scrolledHeaderOpacity]);
 
   return (
     <View style={[styles.flex, stylesHook.backgroundContainer]}>
@@ -883,6 +954,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 export default WalletTransactions;
 
 const scrolledHeaderTitleStyles = StyleSheet.create({
+  animatedTitleWrapper: {
+    alignSelf: 'flex-start',
+  },
   iosHeaderRoot: {
     height: 44,
     justifyContent: 'center',

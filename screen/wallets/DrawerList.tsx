@@ -5,7 +5,7 @@ import { StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native'
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
-import WalletsCarousel, { getWalletsHideBalanceSignature } from '../../components/WalletsCarousel';
+import WalletsCarousel from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
@@ -232,8 +232,6 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
     navigation.navigate('AddWalletRoot');
   }, [navigation]);
 
-  const walletsHideBalanceSignature = getWalletsHideBalanceSignature(state.wallets);
-
   return (
     <DrawerContentScrollView
       ref={scrollViewRef}
@@ -254,14 +252,7 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
       <Animated.View style={{ opacity: fadeAnim }}>
         <WalletsCarousel
           data={state.wallets}
-          extraData={[
-            state.wallets,
-            walletsHideBalanceSignature,
-            currentSelectedWalletID,
-            state.walletAdded,
-            state.walletRemoved,
-            lastAddedWalletId.current,
-          ]}
+          extraData={[state.wallets, currentSelectedWalletID, state.walletAdded, state.walletRemoved, lastAddedWalletId.current]}
           onPress={handleClick}
           handleLongPress={handleLongPress}
           ref={walletsCarousel}

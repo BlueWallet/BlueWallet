@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
@@ -14,7 +13,6 @@ import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from '../hooks/context/useSettings';
 import ToolTipMenu from './TooltipMenu';
-import useAnimateOnChange from '../hooks/useAnimateOnChange';
 import { useLocale } from '@react-navigation/native';
 
 /** Default hero body min height before the 20% increase (see HERO_MIN_BODY_HEIGHT). */
@@ -48,9 +46,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(isLightningWallet);
   const { preferredFiatCurrency } = useSettings();
   const { direction } = useLocale();
-  const balanceOpacity = useSharedValue(1);
-  const balanceTranslateY = useSharedValue(0);
-  const previousBalance = useRef<string | undefined>(undefined);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
     if (isLightningWallet) {
@@ -143,36 +138,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [unit, currentBalance]);
 
   const balance = !wallet.hideBalance && formattedBalance;
-  const safeBalance = balance ? String(balance) : undefined;
-
-  useEffect(() => {
-    if (hideBalance) {
-      previousBalance.current = undefined;
-      balanceOpacity.value = 1;
-      balanceTranslateY.value = 0;
-      return;
-    }
-
-    if (previousBalance.current !== undefined && previousBalance.current !== safeBalance) {
-      balanceOpacity.value = 0;
-      balanceTranslateY.value = 6;
-      balanceOpacity.value = withTiming(1, { duration: 180 });
-      balanceTranslateY.value = withSpring(0, { damping: 16, stiffness: 220 });
-    }
-
-    previousBalance.current = safeBalance;
-  }, [safeBalance, hideBalance, balanceOpacity, balanceTranslateY]);
-
-  const balanceAnimationKey = useMemo(
-    () => `${wallet.getID?.() ?? ''}-${unit}-${hideBalance}-${safeBalance ?? ''}`,
-    [safeBalance, hideBalance, unit, wallet],
-  );
-  const balanceAnimatedStyle = useAnimateOnChange(balanceAnimationKey);
-
-  const animatedBalanceTextStyle = useAnimatedStyle(() => ({
-    opacity: balanceOpacity.value,
-    transform: [{ translateY: balanceTranslateY.value }],
-  }));
 
   const toolTipWalletBalanceActions = useMemo(() => {
     return hideBalance
@@ -198,19 +163,14 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [hideBalance]);
 
   return (
-    <View
-      style={[
-        styles.lineaderGradient,
-        { paddingTop: headerOverlayHeight, minHeight: headerOverlayHeight + HERO_MIN_BODY_HEIGHT },
-      ]}
-    >
+    <View style={[styles.lineaderGradient, { paddingTop: headerOverlayHeight, minHeight: headerOverlayHeight + HERO_MIN_BODY_HEIGHT }]}>
       <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} />
       <View style={styles.contentContainer}>
         <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
           {wallet.getLabel()}
         </Text>
         <View style={styles.balanceSection}>
-          <Animated.View style={[styles.walletBalanceAndUnitContainer, balanceAnimatedStyle]}>
+          <View style={styles.walletBalanceAndUnitContainer}>
             <ToolTipMenu
               shouldOpenOnLongPress
               isButton
@@ -223,18 +183,15 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                 {hideBalance ? (
                   <BlurredBalanceView />
                 ) : (
-                  <View key={`wallet-balance-textwrap-${wallet.getID?.() ?? ''}-${String(balance)}`}>
-                    <Animated.Text
-                      key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`}
-                      testID="WalletBalance"
-                      numberOfLines={1}
-                      minimumFontScale={0.5}
-                      adjustsFontSizeToFit
-                      style={[styles.walletBalanceText, animatedBalanceTextStyle]}
-                    >
-                      {balance}
-                    </Animated.Text>
-                  </View>
+                  <Text
+                    testID="WalletBalance"
+                    numberOfLines={1}
+                    minimumFontScale={0.5}
+                    adjustsFontSizeToFit
+                    style={styles.walletBalanceText}
+                  >
+                    {balance}
+                  </Text>
                 )}
               </View>
             </ToolTipMenu>
@@ -245,7 +202,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                 </Text>
               </TouchableOpacity>
             )}
-          </Animated.View>
+          </View>
           {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
             <View style={styles.manageFundsSection}>
               <ToolTipMenu
