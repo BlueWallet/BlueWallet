@@ -13,11 +13,13 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { satoshiToBTC, fiatToBTC } from '../../blue_modules/currency';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
+import { useStorage } from '../../hooks/context/useStorage';
 
 const ReceiveCustomAmountSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ReceiveDetailsStackParamList, 'ReceiveCustomAmount'>>();
   const route = useRoute<RouteProp<ReceiveDetailsStackParamList, 'ReceiveCustomAmount'>>();
   const { colors } = useTheme();
+  const { addressMetadata, saveToDisk } = useStorage();
 
   const { address, currentLabel = '', currentAmount = '', currentUnit = BitcoinUnit.BTC, preferredUnit = BitcoinUnit.BTC } = route.params;
 
@@ -91,6 +93,10 @@ const ReceiveCustomAmountSheet = () => {
 
   const handleSave = useCallback(() => {
     const resolvedLabel = latestLabel.current ?? label;
+    const trimmed = resolvedLabel.trim();
+    if (trimmed) addressMetadata[address] = { label: trimmed };
+    else delete addressMetadata[address];
+    saveToDisk();
     const encoded = computeBip21(amount, unit, resolvedLabel);
     navigation.popTo(
       'ReceiveDetails',
@@ -103,11 +109,13 @@ const ReceiveCustomAmountSheet = () => {
       },
       { merge: true },
     );
-  }, [amount, unit, label, computeBip21, navigation]);
+  }, [amount, unit, label, computeBip21, navigation, address, addressMetadata, saveToDisk]);
 
   const handleReset = useCallback(() => {
     const fallbackUnit = preferredUnit || BitcoinUnit.BTC;
     const encoded = DeeplinkSchemaMatch.bip21encode(address);
+    delete addressMetadata[address];
+    saveToDisk();
     navigation.popTo(
       'ReceiveDetails',
       {
@@ -119,7 +127,7 @@ const ReceiveCustomAmountSheet = () => {
       },
       { merge: true },
     );
-  }, [address, navigation, preferredUnit]);
+  }, [address, navigation, preferredUnit, addressMetadata, saveToDisk]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
