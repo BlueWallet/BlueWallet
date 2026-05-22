@@ -105,6 +105,7 @@
   },
   "receive": {
     "details_create": "Create",
+    "details_add_label": "Add address label",
     "details_label": "Description",
     "details_setAmount": "Receive with amount",
     "details_share": "Share...",
