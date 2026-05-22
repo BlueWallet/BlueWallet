@@ -17,6 +17,8 @@ import {
   RefreshControl,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
@@ -72,9 +74,14 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 /** Scroll offset after which the compact wallet name + balance header is shown. */
 const SCROLLED_HEADER_SHOW_OFFSET = 180;
 
+/** Native stack options used when scrolled; includes props missing from the published TS types. */
+type WalletTransactionsScrolledHeaderOptions = NativeStackNavigationOptions & {
+  headerTitleContainerStyle?: StyleProp<ViewStyle>;
+};
+
 /** Horizontal space reserved so the scrolled title does not run under back / header-right actions. */
 const getScrolledHeaderTitleLayout = (screenWidth: number) => {
-  const titleInsetLeft = Platform.OS === 'ios' ? 56 : 72;
+  const titleInsetLeft = Platform.OS === 'ios' ? (isIOS26OrHigher ? 40 : 56) : 72;
   const titleInsetRight = Platform.OS === 'ios' ? (isIOS26OrHigher ? 96 : 84) : 84;
   return {
     maxWidth: Math.max(0, screenWidth - titleInsetLeft - titleInsetRight),
@@ -559,7 +566,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const { width: screenWidth } = useWindowDimensions();
 
-  const getScrolledHeaderOptions = useCallback((): NativeStackNavigationOptions => {
+  const getScrolledHeaderOptions = useCallback((): WalletTransactionsScrolledHeaderOptions => {
     const { titleInsetRight } = getScrolledHeaderTitleLayout(screenWidth);
     const routeIsLoading = route.params.isLoading ?? false;
     const scrolledHeaderIconColor = colors.foregroundColor;
@@ -607,7 +614,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
                 }),
           }
         : {}),
-    } as NativeStackNavigationOptions;
+    };
   }, [scrolledHeaderTitle, screenWidth, colors.foregroundColor, dark, route.params.isLoading, walletID]);
 
   useEffect(() => {
