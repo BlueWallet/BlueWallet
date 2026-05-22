@@ -236,20 +236,17 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   getMasterFingerprintHex() {
     if (!this.masterFingerprint) return '00000000';
-    let masterFingerprintHex = Number(this.masterFingerprint).toString(16);
-    if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
-    // poor man's little-endian conversion:
-    // ¯\_(ツ)_/¯
-    return (
-      masterFingerprintHex[6] +
-      masterFingerprintHex[7] +
-      masterFingerprintHex[4] +
-      masterFingerprintHex[5] +
-      masterFingerprintHex[2] +
-      masterFingerprintHex[3] +
-      masterFingerprintHex[0] +
-      masterFingerprintHex[1]
-    );
+
+    const hex = Number(this.masterFingerprint).toString(16).padStart(8, '0');
+
+    const bytes = hex.match(/../g);
+
+    if (!bytes) {
+      return '00000000';
+    } else {
+      // convert Big Endian to Little Endian
+      return bytes.reverse().join('');
+    }
   }
 
   setMasterFingerprintHex(hex: string) {
@@ -258,17 +255,26 @@ export class WatchOnlyWallet extends LegacyWallet {
     }
 
     // remove 0x
-    hex = hex.replace(/^0x/, '');
+    hex = hex.replace(/^0x/i, '');
 
-    // must 8 hex characters
     if (!/^[0-9a-fA-F]{8}$/.test(hex)) {
       throw new Error('Master fingerprint must be exactly 8 hex characters');
     }
 
-    // reverse byte order to match getMasterFingerprintHex
-    const reversed = hex.slice(6, 8) + hex.slice(4, 6) + hex.slice(2, 4) + hex.slice(0, 2);
+    const bytes = hex.match(/../g);
+    if (!bytes) {
+      throw new Error('Invalid master fingerprint structure');
+    }
 
-    this.masterFingerprint = parseInt(reversed, 16);
+    // convert Little Endian to Big Endian
+    const reversed = bytes.reverse().join('');
+    const parsed = Number.parseInt(reversed, 16);
+
+    if (Number.isNaN(parsed)) {
+      throw new Error('Invalid master fingerprint');
+    }
+
+    this.masterFingerprint = parsed;
   }
 
   isHd() {

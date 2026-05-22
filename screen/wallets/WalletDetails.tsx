@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -375,6 +375,10 @@ const WalletDetails: React.FC = () => {
       backgroundColor: 'transparent',
       borderBottomColor: colors.cardBorderColor,
     },
+    input: {
+      borderColor: colors.formBorder,
+      color: colors.foregroundColor,
+    },
   });
 
   const navigateToWalletExport = () => {
@@ -506,7 +510,35 @@ const WalletDetails: React.FC = () => {
     }
   }, [wallet, saveToDisk]);
 
-  usePreventRemove(false, () => {});
+  const walletMasterFingerprintInputOnBlur = useCallback(async () => {
+    const mfp = masterFingerprint?.trim();
+
+    if (wallet.type === WatchOnlyWallet.type) {
+      // masterfingerprint before editing started
+      const currentMasterFingerprint = wallet.getMasterFingerprintHex();
+
+      if (!mfp) {
+        setMasterFingerprint(currentMasterFingerprint);
+        return;
+      }
+
+      if (mfp.length === 8 && mfp !== currentMasterFingerprint) {
+        try {
+          console.warn('updating masterfingerprint:', mfp);
+          wallet.setMasterFingerprintHex(mfp);
+          await saveToDisk();
+        } catch (error) {
+          console.error((error as Error).message);
+        }
+      } else {
+        setMasterFingerprint(currentMasterFingerprint);
+      }
+    }
+  }, [wallet, masterFingerprint, saveToDisk]);
+
+  usePreventRemove(false, () => {
+    walletMasterFingerprintInputOnBlur();
+  });
 
   const onViewMasterFingerPrintPress = () => {
     setIsMasterFingerPrintVisible(true);
@@ -861,8 +893,38 @@ const WalletDetails: React.FC = () => {
                       onPress={isMasterFingerPrintVisible ? undefined : onViewMasterFingerPrintPress}
                       title={loc.wallets.details_master_fingerprint}
                       titleStyle={stylesHook.advancedListItemTitle}
-                      rightTitle={
-                        isMasterFingerPrintVisible ? (masterFingerprint ?? loc.wallets.import_derivation_loading) : loc.multisig.view
+                      rightSubtitle={
+                        <View>
+                          {isMasterFingerPrintVisible ? (
+                            <View>
+                              {wallet.type === WatchOnlyWallet.type && wallet.isHd() ? (
+                                <TextInput
+                                  value={masterFingerprint}
+                                  onChangeText={(text: string) => {
+                                    setMasterFingerprint(text);
+                                  }}
+                                  onChange={event => {
+                                    const text = event.nativeEvent.text;
+                                    setMasterFingerprint(text);
+                                  }}
+                                  onBlur={walletMasterFingerprintInputOnBlur}
+                                  numberOfLines={1}
+                                  style={[styles.input, stylesHook.input, { writingDirection: direction }]}
+                                  editable={!isLoading}
+                                  underlineColorAndroid="transparent"
+                                  testID="masterfingerPrintInput"
+                                  autoFocus
+                                />
+                              ) : (
+                                <BlueText selectable>{masterFingerprint ?? loc.wallets.import_derivation_loading}</BlueText>
+                              )}
+                            </View>
+                          ) : (
+                            <Pressable onPress={onViewMasterFingerPrintPress}>
+                              <BlueText>{loc.multisig.view}</BlueText>
+                            </Pressable>
+                          )}
+                        </View>
                       }
                       rightTitleStyle={stylesHook.advancedListItemRightTitle}
                       bottomDivider={!!derivationPath}
@@ -953,6 +1015,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     lineHeight: 20,
+  },
+  input: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    alignItems: 'center',
+    borderRadius: 4,
+    padding: 6,
+    marginTop: 12,
+    minWidth: 88,
+    maxWidth: 88,
+    textAlign: 'center',
   },
   detailsCard: {
     marginHorizontal: 16,
