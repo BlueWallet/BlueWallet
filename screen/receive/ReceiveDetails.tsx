@@ -183,7 +183,7 @@ type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
   const { walletID, address } = route.params;
-  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions, addressMetadata } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors, closeImage } = useTheme();
   const isDarkTheme = useColorScheme() === 'dark';
@@ -346,6 +346,15 @@ const ReceiveDetails = () => {
       setAddressBIP21Encoded(address);
     }
   }, [address, isCustom, setAddressBIP21Encoded]);
+
+  useEffect(() => {
+    if (!address || isCustom) return;
+    const storedLabel = addressMetadata?.[address]?.label;
+    if (!storedLabel) return;
+    setCustomLabel(storedLabel);
+    setIsCustom(true);
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { label: storedLabel }));
+  }, [address, isCustom, addressMetadata]);
 
   const toolTipActions = useMemo(() => {
     const action = { ...CommonToolTipActions.PaymentsCode };
