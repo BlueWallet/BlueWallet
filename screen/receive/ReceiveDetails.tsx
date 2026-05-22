@@ -8,6 +8,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
+import AddressLabelBadge from '../../components/AddressLabelBadge';
 import BlueButtonLink from '../../components/BlueButtonLink';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
@@ -198,12 +199,6 @@ const ReceiveDetails = () => {
     },
     qrPlaceholderFill: {
       backgroundColor: isDarkTheme ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
-    },
-    addressLabelPill: {
-      backgroundColor: colors.success,
-    },
-    addressLabelText: {
-      color: colors.successCheck,
     },
   });
 
@@ -753,17 +748,13 @@ const ReceiveDetails = () => {
       >
         {showAddress && renderReceiveCard()}
         {showAddress && currentTab === segmentControlValues[0] && addressLabel ? (
-          <Pressable
+          <AddressLabelBadge
+            label={addressLabel}
+            style={styles.addressLabelPill}
             onPress={navigateToAddressLabel}
-            style={[styles.addressLabelPill, stylesHook.addressLabelPill]}
-            accessibilityRole="button"
             accessibilityLabel={`${loc.receive.option_label}: ${addressLabel}`}
             testID="ReceiveAddressLabel"
-          >
-            <Text numberOfLines={1} style={[styles.addressLabelText, stylesHook.addressLabelText]}>
-              {addressLabel}
-            </Text>
-          </Pressable>
+          />
         ) : null}
         {showReceiveSkeleton && renderReceiveSkeleton()}
         {showAddress && address !== undefined && (
@@ -892,15 +883,9 @@ const styles = StyleSheet.create({
   addressLabelPill: {
     alignSelf: 'center',
     maxWidth: '86%',
-    borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 7,
     marginTop: 8,
-  },
-  addressLabelText: {
-    fontSize: 14,
-    fontWeight: '500',
-    textAlign: 'center',
   },
   bip47NotFoundContainer: {
     paddingVertical: 40,
