@@ -94,6 +94,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 8,
     minHeight: 33,
+    fontSize: 15,
+    lineHeight: 19,
   },
 });
 

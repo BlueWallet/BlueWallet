@@ -29,7 +29,7 @@ PODS:
     - hermes-engine/Pre-built (= 250829098.0.10)
   - hermes-engine/Pre-built (250829098.0.10)
   - lottie-ios (4.6.0)
-  - lottie-react-native (7.3.6):
+  - lottie-react-native (7.3.7):
     - hermes-engine
     - lottie-ios (= 4.6.0)
     - RCTRequired
@@ -2068,7 +2068,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.31.1):
+  - RNGestureHandler (2.31.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2325,7 +2325,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNSVG (15.15.4):
+  - RNSVG (15.15.5):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2346,9 +2346,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNSVG/common (= 15.15.4)
+    - RNSVG/common (= 15.15.5)
     - Yoga
-  - RNSVG/common (15.15.4):
+  - RNSVG/common (15.15.5):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2808,7 +2808,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
   hermes-engine: 86cdbf283775c54dc008895c3eacd24a1f2a40b4
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
-  lottie-react-native: 615e5f4651bee144ea991ad8e900630b6b3daf5d
+  lottie-react-native: 26b365c3d5615e87f4db048dcb151de3eb9a8e76
   RCTDeprecation: a4c521821fab57cbb125b36effe84d897d0dfa12
   RCTRequired: 9f3a7e5645d4bc3f551593de7550bb66ab6e42bc
   RCTSwiftUI: 239ed2eb9e73de5a6f518810630f0c95e01c8702
@@ -2905,7 +2905,7 @@ SPEC CHECKSUMS:
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3
   RNDeviceInfo: bcce8752b5043a623fe3c26789679b473f705d3c
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
-  RNGestureHandler: 187c5c7936abf427bc4d22d6c3b1ac80ad1f63c0
+  RNGestureHandler: 2ff61eac036eaf89f6818bf4ed9c39771a17d134
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 6778b35b5bd067c322f8479526ac09b1d61f31d0
   RNLocalize: f370284ea42c48f29f0d8dd3a7bcc28a04f82155
@@ -2915,7 +2915,7 @@ SPEC CHECKSUMS:
   RNReanimated: c4e6659e58b793885ae6da476cb514fc913e7b85
   RNScreens: 01b065ded2dfe7987bcce770ff3a196be417ff41
   RNShare: 2afdc1739d80ac140b2870ae81e8b2098f4599d9
-  RNSVG: 04044c3abcf177fd674a1a3d13097efa1adebcbe
+  RNSVG: 0e52210d4d43165e7e2cf9c890a9848b27e513ac
   RNWatch: 28fe1f5e0c6410d45fd20925f4796fce05522e3f
   RNWorklets: dd3b2cb0750090d78d85cd3b3ec0fdbeab5ce118
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
