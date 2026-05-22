@@ -40,7 +40,8 @@ const AddressItem = ({
   searchQuery = '',
   renderHighlightedText,
 }: AddressItemProps) => {
-  const { wallets } = useStorage();
+  const { wallets, addressMetadata } = useStorage();
+  const addressLabel = addressMetadata?.[item.address]?.label;
   const { colors, dark } = useTheme();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const balanceOpacity = useSharedValue(1);
@@ -64,6 +65,9 @@ const AddressItem = ({
     },
     address: {
       color: dark ? colors.foregroundColor : colors.darkGray,
+    },
+    label: {
+      color: colors.foregroundColor,
     },
   });
 
@@ -210,6 +214,11 @@ const AddressItem = ({
           </View>
           <View style={styles.middleSection}>
             {renderAddressContent()}
+            {addressLabel ? (
+              <Text style={[stylesHook.label, styles.label]} numberOfLines={1} ellipsizeMode="tail">
+                {addressLabel}
+              </Text>
+            ) : null}
             <Text style={[stylesHook.balance, styles.balance]}>{balance}</Text>
           </View>
         </View>
@@ -235,6 +244,12 @@ const styles = StyleSheet.create({
   address: {
     fontWeight: 'bold',
     marginHorizontal: 4,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '500',
+    marginHorizontal: 4,
+    marginTop: 4,
   },
   tooltipButton: {
     width: '100%',
