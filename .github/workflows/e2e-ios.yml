@@ -194,9 +194,6 @@ jobs:
           mkdir -p ios/build/Build/Products/Release-iphonesimulator
           tar -xzf BlueWallet.app.tar.gz -C ios/build/Build/Products/Release-iphonesimulator
 
-      - name: Disable simulator animations
-        run: defaults write com.apple.iphonesimulator SlowMotionAnimation -bool NO
-
       # Pre-boot simulator so first detox launchApp lands warm.
       - name: Pre-boot iOS simulator
         run: |
@@ -209,6 +206,13 @@ jobs:
           xcrun simctl boot "$UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
+
+      # Cut animations so detox sync stays steady on slow CI VMs; Reduce Motion makes reanimated skip to final value.
+      - name: Disable simulator animations
+        run: |
+          defaults write com.apple.iphonesimulator SlowMotionAnimation -bool NO
+          xcrun simctl spawn booted defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
+          xcrun simctl spawn booted notifyutil -p com.apple.Accessibility.ReduceMotionStatusDidChange
 
       - name: Run detox tests
         timeout-minutes: 360
