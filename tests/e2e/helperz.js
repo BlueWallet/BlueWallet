@@ -63,6 +63,27 @@ export async function waitForText(text, timeout = 33000) {
   }
 }
 
+/** Waits for `accessibilityLabel` (Detox `by.label`), e.g. full address while UI text is multiline. */
+export async function waitForLabel(label, timeout = 33000) {
+  const callsite = captureCallsite(waitForLabel);
+  try {
+    await waitFor(element(by.label(label)))
+      .toBeVisible()
+      .withTimeout(timeout / 2);
+    return true;
+  } catch (_) {
+    // nop
+  }
+
+  try {
+    await waitFor(element(by.label(label)))
+      .toBeVisible()
+      .withTimeout(timeout / 2);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
+}
+
 export async function getSwitchValue(switchId) {
   try {
     await expect(element(by.id(switchId))).toHaveToggleValue(true);
@@ -70,6 +91,24 @@ export async function getSwitchValue(switchId) {
   } catch (_) {
     return false;
   }
+}
+
+// Detox's waitFor() doesn't expose toHaveToggleValue, so poll expect() until the switch reaches
+// the expected state (or throw after timeoutMs).
+export async function waitForSwitchValue(switchId, expectedValue, timeoutMs = 8000) {
+  const callsite = captureCallsite(waitForSwitchValue);
+  const deadline = Date.now() + timeoutMs;
+  let lastErr;
+  while (Date.now() < deadline) {
+    try {
+      await expect(element(by.id(switchId))).toHaveToggleValue(expectedValue);
+      return;
+    } catch (err) {
+      lastErr = err;
+      await sleep(250);
+    }
+  }
+  rethrowWithCallsite(lastErr || new Error(`Timed out waiting for ${switchId} == ${expectedValue}`), callsite);
 }
 
 export async function helperImportWallet(importText, walletType, expectedWalletLabel, expectedBalance, passphrase) {
@@ -86,6 +125,7 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   for (let c = 0; c < 5; c++) {
     await element(by.id('SpeedBackdoor')).tap();
   }
+  await waitForId('SpeedMnemonicInput');
   await element(by.id('SpeedMnemonicInput')).replaceText(importText);
   await element(by.id('SpeedWalletTypeInput')).replaceText(walletType);
   if (device.getPlatform() === 'ios') {
@@ -127,8 +167,7 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await element(by.id('WalletDetails')).tap();
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
   await sleep(200);
-  await element(by.id('HeaderMenuButton')).tap();
-  await element(by.text('Delete')).tap();
+  await element(by.id('DeleteWallet')).tap();
   await waitForText('Yes, delete');
   await element(by.text('Yes, delete')).tap();
   if (remainingBalanceSat) {
@@ -306,29 +345,35 @@ export async function setCustomFeeRate(feeRate) {
   await waitForId('feeCustomContainerButton');
   await element(by.id('feeCustomContainerButton')).tap();
   await waitForId('feeCustom');
-  await element(by.id('feeCustom')).replaceText(String(feeRate));
-  await element(by.id('feeCustom')).tapReturnKey();
+  await element(by.id('feeCustom')).typeText(String(feeRate) + '\n');
   await waitForKeyboardToClose();
+  await waitForId('chooseFee');
 }
 
 export async function goBack() {
-  if (device.getPlatform() === 'ios') {
-    try {
-      await element(by.id('BackButton')).atIndex(0).tap();
-    } catch (_backError) {
+  if (device.getPlatform() !== 'ios') {
+    await device.pressBack();
+    return;
+  }
+
+  const callsite = captureCallsite(goBack);
+
+  // Try each back/close affordance in order; retry the full set up to 10 times.
+  const candidates = [by.id('BackButton'), by.id('NavigationCloseButton'), by.label('Back'), by.text('Close')];
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    for (const matcher of candidates) {
       try {
-        await element(by.id('NavigationCloseButton')).atIndex(0).tap();
-      } catch (_closeButtonError) {
-        try {
-          await element(by.label('Back')).atIndex(0).tap();
-        } catch (_backLabelError) {
-          await element(by.text('Close')).atIndex(0).tap();
-        }
+        await element(matcher).atIndex(0).tap();
+        return;
+      } catch (_) {
+        /* try next */
       }
     }
-  } else {
-    await device.pressBack();
+    await sleep(500);
   }
+
+  rethrowWithCallsite(new Error('goBack: no back/close affordance tappable after 10 attempts.'), callsite);
 }
 
 export async function typeTextIntoAlertInput(text) {

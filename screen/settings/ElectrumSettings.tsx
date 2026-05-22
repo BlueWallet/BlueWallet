@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Keyboard, LayoutAnimation, Platform, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Keyboard, Platform, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -464,7 +464,6 @@ const ElectrumSettings: React.FC = () => {
   };
 
   const onElectrumConnectionEnabledSwitchChange = async (value: boolean) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     try {
       triggerSelectionHapticFeedback();
       await BlueElectrum.setDisabled(value);

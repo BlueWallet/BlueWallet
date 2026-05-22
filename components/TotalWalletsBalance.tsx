@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
-import { TouchableOpacity, Text, StyleSheet, LayoutAnimation, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import loc, { formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -55,7 +55,6 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
 
   const onPressMenuItem = useCallback(
     async (id: string) => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       switch (id) {
         case CommonToolTipActions.ViewInFiat.id:
           await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
@@ -80,7 +79,6 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
   );
 
   const handleBalanceOnPress = useCallback(async () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     const nextUnit =
       totalBalancePreferredUnit === BitcoinUnit.BTC
         ? BitcoinUnit.SATS

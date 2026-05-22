@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
@@ -286,7 +286,7 @@ const WalletsAddMultisigStep2 = () => {
         //  do nothing, it's already set
       } else {
         try {
-          fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, true, 'plain-text');
+          fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, { type: 'plain-text' });
           fp = (fp + '').toUpperCase();
           if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
         } catch (e) {
@@ -297,12 +297,9 @@ const WalletsAddMultisigStep2 = () => {
         //  do nothing, it's already set
       } else {
         try {
-          path = await prompt(
-            loc.multisig.input_path,
-            loc.formatString(loc.multisig.input_path_explain, { default: getPath() }),
-            true,
-            'plain-text',
-          );
+          path = await prompt(loc.multisig.input_path, loc.formatString(loc.multisig.input_path_explain, { default: getPath() }), {
+            type: 'plain-text',
+          });
           if (!MultisigHDWallet.isPathValid(path)) path = getPath();
         } catch {
           return setIsLoading(false);
@@ -600,8 +597,6 @@ const WalletsAddMultisigStep2 = () => {
           renderItem={_renderKeyItem}
           keyExtractor={(_item, index) => `${index}`}
           extraData={cosigners}
-          // @ts-expect-error Reanimated itemLayoutAnimation prop not in RN types
-          itemLayoutAnimation={LinearTransition}
         />
       </View>
       {footer}

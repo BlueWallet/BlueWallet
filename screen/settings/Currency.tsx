@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Keyboard, LayoutAnimation, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import { Keyboard, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
 
 import {
   CurrencyRate,
@@ -41,10 +41,6 @@ const Currency: React.FC = () => {
   const [search, setSearch] = useState('');
 
   const filteredCurrencies = useMemo(() => {
-    if (search.length > 0) {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }
-
     const searchLower = search.toLowerCase();
     return Object.values(FiatUnit)
       .filter(item => item.endPointKey.toLowerCase().includes(searchLower) || item.country.toLowerCase().includes(searchLower))

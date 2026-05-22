@@ -22,6 +22,16 @@ console.debug = console.log = (...args) => {
       args[0].startsWith('Created new currency formatter for') ||
       args[0].startsWith('begin connection') ||
       args[0].startsWith('TLS Connected to') ||
+      args[0].startsWith('Getting saved peer') ||
+      args[0].startsWith('Getting Electrum connection disabled state') ||
+      args[0].startsWith('Using peer') ||
+      args[0].startsWith('fetch wrapper') ||
+      args[0].startsWith('Preferred currency') ||
+      args[0].startsWith('SelfTest - runSelfTest') ||
+      args[0].startsWith('Wallet.create() took') ||
+      args[0].startsWith('Cleared all cached currency formatters') ||
+      args[0].startsWith('[UnitSwitch/Fiat]') ||
+      args[0].startsWith('transactionDetail - useEffect') ||
       args[0].startsWith('connected to'))
   ) {
     return;
@@ -34,6 +44,22 @@ global.tls = require('tls'); // needed by Electrum client. For RN it is proviced
 global.fetch = require('node-fetch');
 
 jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
+
+// Workaround for software-mansion/react-native-reanimated#8806.
+// Fixed upstream in reanimated 4.3.0; remove once we upgrade.
+// Path is held in a variable so tsc does not statically resolve into worklets'
+// src/*.ts (which has its own type errors) under allowJs.
+const workletsMockPath = 'react-native-worklets/src/mock';
+jest.mock('react-native-worklets', () => require(workletsMockPath));
+jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+
+jest.mock('react-native-capture-protection', () => ({
+  CaptureProtection: {
+    prevent: jest.fn(),
+    allow: jest.fn(),
+    isScreenRecording: jest.fn(() => Promise.resolve(false)),
+  },
+}));
 
 jest.mock('react-native-watch-connectivity', () => {
   return {

@@ -1,7 +1,7 @@
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { BlueText } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
 import { TWallet } from '../../class/wallets/types';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import Button from '../../components/Button';

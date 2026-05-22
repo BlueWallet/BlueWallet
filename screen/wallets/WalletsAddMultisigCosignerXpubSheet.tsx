@@ -5,9 +5,9 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueTextCentered } from '../../BlueComponents';
+import BlueTextCentered from '../../components/BlueTextCentered';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -29,10 +29,12 @@ const WalletsAddMultisigCosignerXpubSheet = () => {
         </BlueTextCentered>
         <BlueSpacing20 />
         <View style={styles.qrContainer}>
-          <QRCodeComponent value={cosignerXpubURv2} size={260} />
+          <QRCode value={cosignerXpubURv2} size={260} />
         </View>
         <BlueSpacing20 />
-        <CopyTextToClipboard text={cosignerXpub} truncated={false} />
+        <View style={styles.copyText}>
+          <CopyTextToClipboard text={cosignerXpub} truncated={false} />
+        </View>
       </View>
       <View style={styles.footer}>
         <Button title={loc.send.success_done} onPress={() => navigation.goBack()} />
@@ -57,6 +59,10 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 22,
     paddingVertical: 16,
+  },
+  copyText: {
+    marginVertical: 32,
+    paddingHorizontal: 16,
   },
 });
 

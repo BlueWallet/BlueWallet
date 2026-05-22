@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, StackActions, useFocusEffect, useRoute } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
@@ -17,6 +17,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
@@ -27,6 +28,7 @@ const FrozenBadge: React.FC = () => {
   const { colors } = useTheme();
   return (
     <Badge
+      testID="FrozenBadge"
       value={loc.cc.freeze}
       badgeStyle={[styles.badge, { backgroundColor: colors.redBG }]}
       textStyle={[styles.badgeText, { color: colors.redText }]}
@@ -38,6 +40,7 @@ const ChangeBadge: React.FC = () => {
   const { colors } = useTheme();
   return (
     <Badge
+      testID="ChangeBadge"
       value={loc.cc.change}
       badgeStyle={[styles.badge, { backgroundColor: colors.buttonDisabledBackgroundColor }]}
       textStyle={[styles.badgeText, { color: colors.alternativeTextColor }]}
@@ -135,7 +138,7 @@ const OutputList: React.FC<TOutputListProps> = ({
       />
       <View style={styles.itemContent}>
         <Text style={oStyles.amount}>{amount}</Text>
-        <Text style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
+        <Text testID="OutputMemoLabel" style={oStyles.memo} numberOfLines={1} ellipsizeMode="middle">
           {memo || address}
         </Text>
       </View>
@@ -258,9 +261,8 @@ const CoinControl: React.FC = () => {
 
   const handleChoose = (item: Utxo) => navigation.navigate('CoinControlOutput', { walletID, utxo: item });
 
-  const handleUseCoin = async (u: Utxo[]) => {
-    const popToAction = StackActions.popTo('SendDetails', { walletID, utxos: u }, { merge: true });
-    navigation.dispatch(popToAction);
+  const handleUseCoin = (u: Utxo[]) => {
+    goFromCoinControlToSendDetails(navigation, walletID, u);
   };
 
   const handleMassFreeze = () => {

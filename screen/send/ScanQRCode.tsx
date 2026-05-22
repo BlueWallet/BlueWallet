@@ -6,7 +6,7 @@ import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-n
 import Base43 from '../../blue_modules/base43';
 import * as fs from '../../blue_modules/fs';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
-import { BlueText } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';

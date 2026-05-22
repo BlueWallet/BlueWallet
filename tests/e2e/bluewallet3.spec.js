@@ -51,14 +51,8 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     } catch (_) {}
 
     await element(by.id('ReceiveButton')).tap();
-    try {
-      // in case emulator has no google services and doesnt support pushes
-      // we just dont show this popup
-      await element(by.text(`No, and do not ask me again.`)).tap();
-      await element(by.text(`No, and do not ask me again.`)).tap(); // sometimes the first click doesnt work (detox issue, not app's)
-    } catch (_) {}
     await expect(element(by.id('BitcoinAddressQRCode'))).toBeVisible();
-    await expect(element(by.text('bc1qgrhr5xc5774maph97d73ydrjlqqmg2v6jjlr29'))).toBeVisible();
+    await expect(element(by.label('bc1qgrhr5xc5774maph97d73ydrjlqqmg2v6jjlr29'))).toBeVisible();
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).typeText('Test');
@@ -70,7 +64,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
 
     await expect(element(by.id('BitcoinAddressQRCode'))).toBeVisible();
 
-    await expect(element(by.text('bitcoin:BC1QGRHR5XC5774MAPH97D73YDRJLQQMG2V6JJLR29?amount=1&label=Test'))).toBeVisible();
+    await expect(element(by.label('bitcoin:BC1QGRHR5XC5774MAPH97D73YDRJLQQMG2V6JJLR29?amount=1&label=Test'))).toBeVisible();
     await goBack();
     await element(by.id('SendButton')).tap();
     await element(by.text('OK')).tap();

@@ -14,7 +14,6 @@ import {
   View,
   RefreshControl,
 } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
@@ -25,7 +24,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
-import { FButton, FContainer } from '../../components/FloatButtons';
+import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
@@ -82,6 +81,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [balance, setBalance] = useState(wallet.getBalance());
   const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
   const [isUnitSwitching, setIsUnitSwitching] = useState(false);
+  const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
+    return wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible;
+  });
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
@@ -99,7 +101,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       backgroundColor: colors.background,
     },
     gradientBackground: {
-      backgroundColor: headerHeight > 0 ? WalletGradient.headerColorFor(wallet.type) : colors.background,
+      backgroundColor: WalletGradient.headerColorFor(wallet.type),
       height: headerHeight > 0 ? headerHeight : '30%',
     },
     activityIndicatorStyle: {
@@ -168,6 +170,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     console.debug('[UnitSwitch] sync from wallet preferred unit', { walletID, preferred: wallet.preferredBalanceUnit });
     setDisplayUnit(wallet.preferredBalanceUnit);
   }, [wallet, walletID]);
+
+  useEffect(() => {
+    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walletID]);
 
   useEffect(() => {
     console.debug('[UnitSwitch] display unit state changed', { walletID, displayUnit, switching: isUnitSwitching });
@@ -454,10 +461,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     }, [walletID, unregisterTransactionsHandler]),
   );
 
-  useEffect(() => {
-    const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
-    return () => clearInterval(interval);
-  }, [wallet]);
+  useFocusEffect(
+    useCallback(() => {
+      // sync once on focus so balance is fresh after returning to screen
+      setBalance(wallet.getBalance());
+      const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
+      return () => clearInterval(interval);
+    }, [wallet]),
+  );
 
   const walletBalance = useMemo(() => {
     if (wallet.hideBalance) return '';
@@ -575,15 +586,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             </View>
           </View>
           <View style={stylesHook.backgroundContainer}>
-            {wallet.type === WatchOnlyWallet.type && wallet.isWatchOnlyWarningVisible && (
-              <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(150)}>
-                <WatchOnlyWarning
-                  handleDismiss={() => {
-                    wallet.isWatchOnlyWarningVisible = false;
-                    saveToDisk();
-                  }}
-                />
-              </Animated.View>
+            {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
+              <WatchOnlyWarning
+                handleDismiss={() => {
+                  setIsWatchOnlyWarningVisible(false);
+                  wallet.isWatchOnlyWarningVisible = false;
+                  saveToDisk();
+                }}
+              />
             )}
           </View>
         </>
@@ -603,6 +613,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       onManageFundsPressed,
       navigate,
       walletID,
+      isWatchOnlyWarningVisible,
     ],
   );
 
@@ -650,6 +661,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         }
       />
 
+      <FloatButtonsBottomFade />
       <FContainer ref={walletActionButtonsRef}>
         {wallet.allowReceive() && (
           <FButton

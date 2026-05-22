@@ -2,14 +2,18 @@ import { Platform } from 'react-native';
 import prompt from 'react-native-prompt-android';
 import loc from '../loc';
 
-export default (
-  title: string,
-  text: string,
-  isCancelable = true,
-  type: PromptType | PromptTypeIOS | PromptTypeAndroid = 'secure-text',
-  isOKDestructive = false,
-  continueButtonText = loc._.ok,
-): Promise<string> => {
+type PromptHelperOptions = {
+  cancelable?: boolean;
+  type?: PromptType | PromptTypeIOS | PromptTypeAndroid;
+  destructive?: boolean; // applies only to the cancelable (two-button) layout
+  continueButtonText?: string;
+  defaultValue?: string;
+};
+
+export default (title: string, text: string, options: PromptHelperOptions = {}): Promise<string> => {
+  const { cancelable = true, destructive = false, continueButtonText = loc._.ok, defaultValue } = options;
+  let { type = 'secure-text' } = options;
+
   const keyboardType = type === 'numeric' ? 'numeric' : 'default';
 
   if (Platform.OS === 'ios' && type === 'numeric') {
@@ -18,7 +22,7 @@ export default (
   }
 
   return new Promise((resolve, reject) => {
-    const buttons: Array<PromptButton> = isCancelable
+    const buttons: Array<PromptButton> = cancelable
       ? [
           {
             text: loc._.cancel,
@@ -33,7 +37,7 @@ export default (
               console.log('OK Pressed');
               resolve(password);
             },
-            style: isOKDestructive ? 'destructive' : 'default',
+            style: destructive ? 'destructive' : 'default',
           },
         ]
       : [
@@ -46,11 +50,12 @@ export default (
           },
         ];
 
-    prompt(title, text, buttons, {
+    const message = defaultValue !== undefined ? '' : text;
+    prompt(title, message, buttons, {
       type,
-      cancelable: isCancelable,
-      // @ts-ignore suppressed because its supported only on ios and is absent from type definitions
+      cancelable,
       keyboardType,
+      ...(defaultValue !== undefined && { defaultValue }),
     });
   });
 };

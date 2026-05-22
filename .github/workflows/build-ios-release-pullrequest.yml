@@ -10,6 +10,10 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: build-ios-release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: macos-26
@@ -26,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout Project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0 # Ensures the full Git history is 
 
@@ -65,13 +69,12 @@ jobs:
           echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
 
       - name: Specify Node.js Version
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 24
           cache: 'npm'
-          cache-dependency-path: package-lock.json
 
-      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
+      - uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
         with:
           xcode-version: latest
 
@@ -205,9 +208,9 @@ jobs:
           echo -e "\033[1;34m======================================================\033[0m"
 
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
-          ruby-version: 3.4.8
+          ruby-version: 3.4.9
 
       - name: System Debug Information
         run: |
@@ -244,7 +247,21 @@ jobs:
       - name: Install Node Modules
         run: npm ci --omit=dev --yes
 
+      - name: Cache CocoaPods
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods/repos
+          key: ${{ runner.os }}-pods-ios-release-${{ hashFiles('ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-ios-release-
+
       - name: Install CocoaPods Dependencies
+        env:
+          RCT_USE_RN_DEP: "1"
+          RCT_USE_PREBUILT_RNCORE: "1"
         run: |
           bundle exec fastlane ios install_pods
           echo "CocoaPods dependencies installed successfully"
@@ -430,7 +447,7 @@ jobs:
 
       - name: Upload Build Logs
         if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: build_logs
           path: ./ios/build_logs/
@@ -451,7 +468,7 @@ jobs:
           
       - name: Upload IPA as Artifact
         if: success()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: BlueWallet_IPA
           path: ${{ env.IPA_OUTPUT_PATH }}
@@ -473,20 +490,20 @@ jobs:
       BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
     steps:
       - name: Checkout Project
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
-          ruby-version: 3.4.8
-          
+          ruby-version: 3.4.9
+
       - name: Install Dependencies with Bundler
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3 --quiet
 
       - name: Download IPA from Artifact
-        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: BlueWallet_IPA
           path: ./
@@ -530,7 +547,7 @@ jobs:
 
       - name: Post PR Comment
         if: success() && github.event_name == 'pull_request'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           BUILD_NUMBER: ${{ needs.build.outputs.new_build_number }}
           PROJECT_VERSION: ${{ needs.build.outputs.project_version }}

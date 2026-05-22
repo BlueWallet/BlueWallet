@@ -5,7 +5,7 @@ import Icon from '../../components/Icon';
 
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard } from '../../BlueComponents';
+import BlueCard from '../../components/BlueCard';
 import Lnurl from '../../class/lnurl';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
