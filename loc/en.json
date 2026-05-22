@@ -341,6 +341,7 @@
     "transaction_not_available": "Transaction not available",
     "confirmations_lowercase": "{confirmations} confirmations",
     "expand_note": "Expand Note",
+    "address_label_placeholder": "Label for this address",
     "cpfp_create": "Create",
     "cpfp_exp": "We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP—Child Pays for Parent.",
     "cpfp_no_bump": "This transaction is not bumpable.",
