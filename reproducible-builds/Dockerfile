@@ -3,23 +3,23 @@ FROM node:24-bullseye-slim@sha256:e27057f6adaf0b3f172345fb5cdca821e07203ca81bc35
 
 # Environment Setup
 ENV TZ=UTC \
-    LANG=C.UTF-8 \
-    LC_ALL=C.UTF-8 \
+    LANG=C \
+    LC_ALL=C \
+    SOURCE_DATE_EPOCH=315532800 \
     ANDROID_SDK_ROOT=/opt/android-sdk \
     JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 
 # Install system packages and create a stable JAVA_HOME symlink
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    git \
-    unzip \
-    zip \
-    libglu1-mesa \
-    wget \
-    xxd \
-    zipalign \
-    build-essential \
-    openjdk-17-jdk-headless \
+    curl=7.74.0-1.3+deb11u16 \
+    git=1:2.30.2-1+deb11u5 \
+    unzip=6.0-26+deb11u1 \
+    zip=3.0-12 \
+    libglu1-mesa=9.0.1-1 \
+    wget=1.21-1+deb11u2 \
+    xxd=2:8.2.2434-3+deb11u3 \
+    build-essential=12.9 \
+    openjdk-17-jdk-headless=17.0.19+10-1~deb11u1 \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sfn "$(dirname $(dirname $(readlink -f $(which java))))" /usr/lib/jvm/java-17-openjdk
 
@@ -45,7 +45,6 @@ RUN yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses \
     "platforms;android-36" \
     "build-tools;36.0.0" \
     "ndk;28.2.13676358" \
-    "ndk;27.0.12077973" \
     "cmake;3.22.1" \
     "platform-tools" \
     && rm -rf $ANDROID_SDK_ROOT/cmdline-tools/tmp

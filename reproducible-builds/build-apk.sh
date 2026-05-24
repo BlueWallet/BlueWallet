@@ -12,12 +12,9 @@ log() {
   printf "\n[%s] %s\n" "$(date +'%H:%M:%S')" "$*" >&2
 }
 
-log "$SCRIPT_DIR"
-log "$REPO_ROOT"
-
 rm -rf "$OUT"
 mkdir -p "$OUT"
-chmod 777 "$OUT"
+chmod 775 "$OUT"
 
 log "Building Docker image..."
 

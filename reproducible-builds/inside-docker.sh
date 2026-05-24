@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+umask 022
+
 npm config set fetch-timeout 600000
 npm config set fetch-retries 5
 npm config set fetch-retry-mintimeout 20000
 npm config set fetch-retry-maxtimeout 120000
 
-npm ci --omit=dev --verbose
+npm ci --verbose
 
 cd android
 ./gradlew --no-daemon --no-build-cache assembleRelease
@@ -20,8 +22,8 @@ if [ -n "${KEYSTORE_FILE_HEX:-}" ] && [ -n "${KEYSTORE_PASSWORD:-}" ]; then
 
   apksigner sign \
     --ks "$KEYSTORE" \
-    --ks-pass pass:"$KEYSTORE_PASSWORD" \
-    --key-pass pass:"$KEYSTORE_PASSWORD" \
+    --ks-pass env:KEYSTORE_PASSWORD \
+    --key-pass env:KEYSTORE_PASSWORD \
     --deterministic-dsa-signing \
     --out "$APK_SIGNED" \
     "$APK_UNSIGNED"

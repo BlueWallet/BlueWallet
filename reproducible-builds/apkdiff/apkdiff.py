@@ -1,11 +1,13 @@
 #! /usr/bin/env python3
-# script taken from https://github.com/signalapp/Signal-Android/blob/main/reproducible-builds/apkdiff/apkdiff.py
+# script laregly taken from 
+# https://github.com/signalapp/Signal-Android/tree/0010386b9e558e0f3d43d61180c818246226b1f9/reproducible-builds/apkdiff
 
 import sys
+import os
 import re
 import logging
 from xml.etree.ElementTree import Element
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from typing import Optional
@@ -51,13 +53,24 @@ IGNORE_FILES = [
 
 ALLOWED_ARSC_DIFF_PATHS = [".res1"]
 
+def open_apk(path: str) -> ZipFile:
+    if not os.path.exists(path):
+        print(f"ERROR: File not found: {path}")
+        sys.exit(2)
+
+    try:
+        return ZipFile(path, "r")
+    except BadZipFile:
+        print(f"ERROR: Invalid or corrupted APK (not a valid zip archive): {path}")
+        sys.exit(2)
+
 
 def compare(apk1, apk2) -> bool:
     print(f"Comparing: \n\t{apk1}\n\t{apk2}\n")
 
     print("Unzipping...")
-    zip1 = ZipFile(apk1, "r")
-    zip2 = ZipFile(apk2, "r")
+    zip1 = open_apk(apk1)
+    zip2 = open_apk(apk2)
 
     entry_names = compare_entry_names(zip1, zip2)
     entry_contents = compare_entry_contents(zip1, zip2)
@@ -306,7 +319,7 @@ def compare_resources_arsc(first_entry_bytes: bytes, second_entry_bytes: bytes) 
 
     if not success:
         print("Files have differences beyond the allowed .res1 differences.")
-    return True
+    return success
 
 
 def compare_xml(bytes1: bytes, bytes2: bytes) -> list[XmlDifference]:
