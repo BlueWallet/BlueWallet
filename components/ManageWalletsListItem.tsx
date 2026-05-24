@@ -1,9 +1,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
-import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View, Text, Pressable } from 'react-native';
+import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View } from 'react-native';
 import { useLocale } from '@react-navigation/native';
-import { Swipeable } from 'react-native-gesture-handler';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
-import loc from '../loc';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -16,6 +14,7 @@ import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-wallet';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import WalletListItem from './WalletListItem';
+import SwipeableWalletRow from './SwipeableWalletRow';
 
 const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefined => {
   const w: unknown = wallet;
@@ -60,6 +59,7 @@ interface ManageWalletsListItemProps {
   item: Item;
   isDraggingDisabled: boolean;
   handleToggleHideBalance: (wallet: TWallet) => void;
+  handleChangeWalletUnit: (wallet: TWallet) => void;
   state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress: (address: string, walletID: string) => void;
@@ -81,6 +81,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   isPlaceHolder = false,
   navigateToWallet,
   navigateToAddress,
+  handleChangeWalletUnit,
   renderHighlightedText,
   onPressIn,
   onPressOut,
@@ -94,7 +95,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const prevIsActive = useRef(isActive);
-  const swipeableRef = useRef<Swipeable | null>(null);
+  const rowScale = useRef(new Animated.Value(1)).current;
+  const swipeableRef = useRef<import('react-native-gesture-handler').Swipeable | null>(null);
   const swipeInProgressRef = useRef(false);
 
   useEffect(() => {
@@ -104,7 +106,17 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     prevIsActive.current = isActive;
   }, [isActive]);
 
+  useEffect(() => {
+    Animated.spring(rowScale, {
+      toValue: isActive ? 1.04 : 1,
+      friction: 7,
+      tension: 90,
+      useNativeDriver: true,
+    }).start();
+  }, [isActive, rowScale]);
+
   const onPress = useCallback(() => {
+    if (globalDragActive) return;
     if (swipeInProgressRef.current) return;
     if (item.type === ItemType.WalletSection) {
       setIsLoading(true);
@@ -113,9 +125,10 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     } else if (item.type === ItemType.AddressSection) {
       navigateToAddress(item.data.address, item.data.walletID);
     }
-  }, [item, navigateToWallet, navigateToAddress]);
+  }, [globalDragActive, item, navigateToWallet, navigateToAddress]);
 
   const startDrag = useCallback(() => {
+    if (globalDragActive || isDraggingDisabled) return;
     if (swipeInProgressRef.current) {
       swipeableRef.current?.close?.();
       return;
@@ -124,7 +137,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     if (drag) {
       drag();
     }
-  }, [drag]);
+  }, [drag, globalDragActive, isDraggingDisabled]);
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={colors.brandingColor} />;
@@ -140,26 +153,15 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 
     const onToggle = () => {
       handleToggleHideBalance(wallet);
-      swipeableRef.current?.close?.();
     };
 
-    const renderRightActions = () => (
-      <View style={styles.rightActionsContainer}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.rightAction,
-            { backgroundColor: colors.buttonBackgroundColor },
-            pressed && styles.rightActionPressed,
-          ]}
-          onPress={onToggle}
-          accessibilityRole="button"
-        >
-          <Text style={[styles.rightActionText, { color: colors.buttonTextColor }]}>
-            {isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
-          </Text>
-        </Pressable>
-      </View>
-    );
+    const onChangeUnit = () => {
+      handleChangeWalletUnit(wallet);
+    };
+
+    const onSwipeStateChange = (isSwipeInProgress: boolean) => {
+      swipeInProgressRef.current = isSwipeInProgress;
+    };
 
     const content = (
       <WalletListItem
@@ -178,29 +180,20 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
       />
     );
 
-    if (!canSwipe) return content;
-
     return (
-      <Swipeable
-        ref={r => {
-          swipeableRef.current = r;
-        }}
-        onSwipeableWillOpen={() => {
-          swipeInProgressRef.current = true;
-        }}
-        onSwipeableWillClose={() => {
-          swipeInProgressRef.current = false;
-        }}
-        onSwipeableClose={() => {
-          swipeInProgressRef.current = false;
-        }}
-        renderRightActions={renderRightActions}
-        friction={2}
-        rightThreshold={40}
-        overshootRight={false}
-      >
-        {content}
-      </Swipeable>
+      <Animated.View style={[styles.dragAnimatedRow, { transform: [{ scale: rowScale }] }]}>
+        <SwipeableWalletRow
+          ref={swipeableRef}
+          enabled={canSwipe}
+          isHidden={isHidden}
+          currentUnit={wallet.getPreferredBalanceUnit()}
+          onToggleHideBalance={onToggle}
+          onChangeUnit={onChangeUnit}
+          onSwipeStateChange={onSwipeStateChange}
+        >
+          {content}
+        </SwipeableWalletRow>
+      </Animated.View>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
     try {
@@ -411,26 +404,12 @@ const WalletGroupComponent: React.FC<WalletGroupProps> = ({
 };
 
 const styles = StyleSheet.create({
+  dragAnimatedRow: {
+    width: '100%',
+  },
   itemDivider: {
     height: 1,
     width: '100%',
-  },
-  rightActionsContainer: {
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  rightAction: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    height: '100%',
-  },
-  rightActionPressed: {
-    opacity: 0.85,
-  },
-  rightActionText: {
-    fontSize: 15,
-    fontWeight: '600',
   },
 });
 
