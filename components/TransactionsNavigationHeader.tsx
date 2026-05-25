@@ -260,12 +260,13 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: WALLET_LABEL_TOP_GAP,
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
     paddingBottom: HERO_BOTTOM_PADDING,
   },
   bottomBarSpacer: {
     position: 'relative',
     height: 12,
+    marginBottom: -1,
   },
   bottomBar: {
     position: 'absolute',
