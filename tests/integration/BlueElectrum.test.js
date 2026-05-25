@@ -103,7 +103,7 @@ describe('BlueElectrum', () => {
     assert.ok(!(await BlueElectrum.testConnection('joyreactor.cc', 80, false)));
     assert.ok(!(await BlueElectrum.testConnection('joyreactor.cc', false, 80)));
 
-    assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', '50001'));
+    assert.ok(await BlueElectrum.testConnection('mainnet.foundationdevices.com', false, 50002));
     assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', false, 443));
   });
 
