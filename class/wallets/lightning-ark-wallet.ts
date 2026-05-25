@@ -462,6 +462,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
         value,
         timestamp,
         ispaid,
+        // A non-empty memoPrefix is set only for terminal failed/refunded/expired
+        // swaps (see status switches above). Surfacing it explicitly lets the UI
+        // tell "in flight" (`ispaid:false`, no prefix) apart from "dead"
+        // (`ispaid:false`, prefix set) without string-matching the memo.
+        failed: memoPrefix !== '',
         payment_hash,
         payment_request: bolt11invoice,
         amt: value,

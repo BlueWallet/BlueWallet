@@ -168,6 +168,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     const txs = w.getTransactions();
     assert.strictEqual(txs.length, 1);
     assert.strictEqual(txs[0].ispaid, false);
+    assert.ok(!txs[0].failed, 'an in-flight row must not be flagged failed');
     assert.strictEqual(txs[0].value, 100000);
     assert.strictEqual(txs[0].type, 'user_invoice');
   });
@@ -187,6 +188,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs.length, 1);
     assert.strictEqual(txs[0].type, 'payment_request', 'submarine pending = LN send pending');
     assert.strictEqual(txs[0].ispaid, false);
+    assert.ok(!txs[0].failed, 'an in-flight row must not be flagged failed');
     assert.strictEqual(txs[0].value, -50000, 'submarine = negative (outgoing)');
   });
 
@@ -238,6 +240,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     const txs = w.getTransactions();
     assert.strictEqual(txs.length, 1, 'failed reverse with expired BOLT11 must stay visible');
     assert.strictEqual(txs[0].ispaid, false);
+    assert.strictEqual(txs[0].failed, true, 'terminal failed row is flagged so the pending pill ignores it');
     assert.ok(txs[0].memo!.startsWith('Failed: '), 'failed reverse keeps a Failed: prefix');
     assert.strictEqual(txs[0].txid, 'swap-rev-failed');
   });
@@ -256,6 +259,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     const txs = w.getTransactions();
     assert.strictEqual(txs.length, 1, 'refunded submarine with expired BOLT11 must stay visible');
     assert.strictEqual(txs[0].ispaid, false);
+    assert.strictEqual(txs[0].failed, true, 'refunded row is flagged terminal');
     assert.strictEqual(txs[0].type, 'payment_request');
     assert.ok(txs[0].memo!.startsWith('Refunded: '));
   });
@@ -281,6 +285,51 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].type, 'payment_request');
     assert.ok(txs[0].memo!.startsWith('Failed: '));
     assert.strictEqual(txs[0].txid, 'swap-sub-expired');
+  });
+
+  it('flags only terminal rows as failed, so the pending-pill predicate ignores dead swaps', () => {
+    // Mirrors the wallet-card predicate in WalletsCarousel: a row counts as
+    // pending iff `ispaid === false && !failed`. A history of only
+    // failed/refunded swaps must therefore report nothing pending.
+    (w as any)._swapHistory = [
+      {
+        id: 'rev-failed',
+        type: 'reverse',
+        status: 'transaction.failed',
+        createdAt: 1700006000,
+        request: { invoice: 'lnbc...revfail', invoiceAmount: 1000 },
+        response: { invoice: 'lnbc...revfail', onchainAmount: 1000 },
+      },
+      {
+        id: 'sub-refunded',
+        type: 'submarine',
+        status: 'transaction.refunded',
+        createdAt: 1700006100,
+        request: { invoice: 'lnbc...subref', invoiceAmount: 2000 },
+        response: { expectedAmount: 2000 },
+      },
+    ];
+
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 2, 'terminal rows stay visible for diagnostics');
+    assert.ok(
+      !txs.some((tx: any) => tx.ispaid === false && !tx.failed),
+      'a wallet whose only swaps are failed/refunded must report nothing pending',
+    );
+
+    // Adding one genuinely in-flight swap flips the predicate back to pending.
+    (w as any)._swapHistory.push({
+      id: 'rev-pending',
+      type: 'reverse',
+      status: 'swap.created',
+      createdAt: 1700006200,
+      request: { invoice: 'lnbc...revpending', invoiceAmount: 3000 },
+      response: { invoice: 'lnbc...revpending', onchainAmount: 3000 },
+    });
+    assert.ok(
+      w.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed),
+      'an in-flight swap must register as pending',
+    );
   });
 
   it('still drops submarine invoice.set rows (no funds at risk yet)', () => {
