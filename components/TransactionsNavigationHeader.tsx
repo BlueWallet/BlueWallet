@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
   bottomBarSpacer: {
     position: 'relative',
     height: 12,
-    marginBottom: -1,
+    marginBottom: -2,
   },
   bottomBar: {
     position: 'absolute',
