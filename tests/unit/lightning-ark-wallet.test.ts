@@ -154,6 +154,56 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].txid, 'swap-swap-in');
   });
 
+  it('relabels the SDK default reverse-swap description as "Received via Arkade"', () => {
+    const w2 = new LightningArkWallet();
+    // The SDK stamps reverse-swap invoices with this default placeholder.
+    (w2 as any).decodeInvoice = () => ({
+      num_satoshis: 500,
+      description: 'Send to Arkade address',
+      payment_hash: 'ph',
+      expiry: 3600,
+    });
+    (w2 as any)._swapHistory = [
+      {
+        id: 'rev-default',
+        type: 'reverse',
+        status: 'invoice.settled',
+        createdAt: 1700001000,
+        request: { invoice: 'lnbc500...receive' },
+        response: { invoice: 'lnbc500...receive', onchainAmount: 500 },
+      },
+    ];
+
+    const txs = w2.getTransactions();
+    assert.strictEqual(txs.length, 1);
+    assert.strictEqual(txs[0].memo, 'Received via Arkade');
+    assert.strictEqual(txs[0].description, 'Received via Arkade');
+  });
+
+  it('preserves a user-supplied reverse-swap description instead of relabeling it', () => {
+    const w2 = new LightningArkWallet();
+    (w2 as any).decodeInvoice = () => ({
+      num_satoshis: 500,
+      description: 'coffee money',
+      payment_hash: 'ph',
+      expiry: 3600,
+    });
+    (w2 as any)._swapHistory = [
+      {
+        id: 'rev-custom',
+        type: 'reverse',
+        status: 'invoice.settled',
+        createdAt: 1700001000,
+        request: { invoice: 'lnbc500...receive' },
+        response: { invoice: 'lnbc500...receive', onchainAmount: 500 },
+      },
+    ];
+
+    const txs = w2.getTransactions();
+    assert.strictEqual(txs.length, 1);
+    assert.strictEqual(txs[0].memo, 'coffee money');
+  });
+
   it('maps a pending reverse swap (swap.created) as a user_invoice with ispaid=false', () => {
     const swap = {
       id: 'swap-pending',
