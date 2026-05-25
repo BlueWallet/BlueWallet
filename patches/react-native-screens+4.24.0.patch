@@ -1,0 +1,12 @@
+diff --git a/node_modules/react-native-screens/ios/RNSBarButtonItem.mm b/node_modules/react-native-screens/ios/RNSBarButtonItem.mm
+index 0eb1f09..324b888 100644
+--- a/node_modules/react-native-screens/ios/RNSBarButtonItem.mm
++++ b/node_modules/react-native-screens/ios/RNSBarButtonItem.mm
+@@ -81,6 +81,7 @@ - (instancetype)initWithConfig:(NSDictionary<NSString *, id> *)dict
+     NSString *identifier = dict[@"identifier"];
+     if (identifier != nil) {
+       self.identifier = identifier;
++      self.accessibilityIdentifier = identifier;
+     }
+     NSDictionary *badgeConfig = dict[@"badge"];
+     if (badgeConfig != nil) {
