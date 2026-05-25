@@ -221,8 +221,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     activityIndicatorStyle: {
       backgroundColor: colors.background,
     },
-    sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
-    receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
+    sendIcon: {
+      transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }],
+    },
+    receiveIcon: {
+      transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }],
+    },
   });
 
   const onBarCodeRead = useCallback(
@@ -234,9 +238,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           uri: ret?.data ? ret.data : ret,
         };
         if (wallet.chain === Chain.ONCHAIN) {
-          navigate('SendDetailsRoot', { screen: 'SendDetails', params: parameters });
+          navigate('SendDetailsRoot', {
+            screen: 'SendDetails',
+            params: parameters,
+          });
         } else {
-          navigate('ScanLNDInvoiceRoot', { screen: 'ScanLNDInvoice', params: parameters });
+          navigate('ScanLNDInvoiceRoot', {
+            screen: 'ScanLNDInvoice',
+            params: parameters,
+          });
         }
         setIsLoading(false);
       }
@@ -254,7 +264,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   useEffect(() => {
     // keep local display unit in sync when wallet changes (e.g., switching wallets)
-    console.debug('[UnitSwitch] sync from wallet preferred unit', { walletID, preferred: wallet.preferredBalanceUnit });
+    console.debug('[UnitSwitch] sync from wallet preferred unit', {
+      walletID,
+      preferred: wallet.preferredBalanceUnit,
+    });
     setDisplayUnit(wallet.preferredBalanceUnit);
   }, [wallet, walletID]);
 
@@ -264,7 +277,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [walletID]);
 
   useEffect(() => {
-    console.debug('[UnitSwitch] display unit state changed', { walletID, displayUnit, switching: isUnitSwitching });
+    console.debug('[UnitSwitch] display unit state changed', {
+      walletID,
+      displayUnit,
+      switching: isUnitSwitching,
+    });
   }, [walletID, displayUnit, isUnitSwitching]);
 
   const sortedTransactions = useMemo(() => {
@@ -388,7 +405,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           await wallet.fetchBtcAddress();
           toAddress = wallet.refill_addressess[0];
         } catch (Err) {
-          return presentAlert({ message: (Err as Error).message, type: AlertType.Toast });
+          return presentAlert({
+            message: (Err as Error).message,
+            type: AlertType.Toast,
+          });
         }
       }
 
@@ -463,7 +483,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const sendButtonPress = () => {
     if (wallet.chain === Chain.OFFCHAIN) {
-      return navigate('ScanLNDInvoiceRoot', { screen: 'ScanLNDInvoice', params: { walletID } });
+      return navigate('ScanLNDInvoiceRoot', {
+        screen: 'ScanLNDInvoice',
+        params: { walletID },
+      });
     }
 
     if (wallet.type === WatchOnlyWallet.type && wallet.isHd() && !wallet.useWithHardwareWalletEnabled()) {
@@ -595,7 +618,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
               minWidth: 0,
               alignItems: 'flex-start',
             },
-            headerStyle: { backgroundColor: WalletGradient.headerColorFor(wallet.type) },
+            headerStyle: {
+              backgroundColor: WalletGradient.headerColorFor(wallet.type),
+            },
             headerTintColor: '#ffffff',
           }),
       ...(Platform.OS === 'ios'
@@ -622,7 +647,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           }
         : {}),
     };
-  }, [scrolledHeaderTitle, screenWidth, colors.foregroundColor, dark, route.params.isLoading, walletID]);
+  }, [scrolledHeaderTitle, screenWidth, colors.foregroundColor, dark, route.params.isLoading, walletID, wallet.type]);
 
   useEffect(() => {
     if (!headerScrolledRef.current) return;
@@ -689,69 +714,78 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     [getScrolledHeaderOptions, setOptions, route, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity],
   );
 
-
   const listHeader = useMemo(
     () => (
       <View ref={headerRef}>
-          <TransactionsNavigationHeader
-            headerOverlayHeight={headerOverlayHeight}
-            wallet={wallet}
-            onWalletUnitChange={async selectedUnit => {
-              console.debug('[UnitSwitch] requested', { walletID, from: displayUnit, to: selectedUnit });
-              setIsUnitSwitching(true);
-              setDisplayUnit(selectedUnit);
-              if ('setPreferredBalanceUnit' in wallet) {
-                wallet.setPreferredBalanceUnit(selectedUnit);
-              } else {
-                (wallet as any).preferredBalanceUnit = selectedUnit;
+        <TransactionsNavigationHeader
+          headerOverlayHeight={headerOverlayHeight}
+          wallet={wallet}
+          onWalletUnitChange={async selectedUnit => {
+            console.debug('[UnitSwitch] requested', {
+              walletID,
+              from: displayUnit,
+              to: selectedUnit,
+            });
+            setIsUnitSwitching(true);
+            setDisplayUnit(selectedUnit);
+            if ('setPreferredBalanceUnit' in wallet) {
+              wallet.setPreferredBalanceUnit(selectedUnit);
+            } else {
+              (wallet as any).preferredBalanceUnit = selectedUnit;
+            }
+            await saveToDisk();
+            console.debug('[UnitSwitch] persisted preferred unit', {
+              walletID,
+              unit: selectedUnit,
+            });
+            setTimeout(() => {
+              setIsUnitSwitching(false);
+              console.debug('[UnitSwitch] complete', {
+                walletID,
+                unit: selectedUnit,
+              });
+            }, 50);
+          }}
+          unit={displayUnit}
+          unitSwitching={isUnitSwitching}
+          onWalletBalanceVisibilityChange={async shouldHideBalance => {
+            try {
+              const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+              if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
+                if (!(await unlockWithBiometrics())) {
+                  return;
+                }
               }
+              wallet.hideBalance = shouldHideBalance;
               await saveToDisk();
-              console.debug('[UnitSwitch] persisted preferred unit', { walletID, unit: selectedUnit });
-              setTimeout(() => {
-                setIsUnitSwitching(false);
-                console.debug('[UnitSwitch] complete', { walletID, unit: selectedUnit });
-              }, 50);
-            }}
-            unit={displayUnit}
-            unitSwitching={isUnitSwitching}
-            onWalletBalanceVisibilityChange={async shouldHideBalance => {
-              try {
-                const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-                if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
-                  if (!(await unlockWithBiometrics())) {
-                    return;
-                  }
-                }
-                wallet.hideBalance = shouldHideBalance;
-                await saveToDisk();
-              } catch (error) {
-                console.error('Failed to toggle balance visibility:', error);
-              }
-            }}
-            onManageFundsPressed={id => {
-              if (wallet.type === MultisigHDWallet.type) {
-                navigateToViewEditCosigners();
-              } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
-                if (wallet.getUserHasSavedExport()) {
-                  if (!id) return;
-                  onManageFundsPressed(id);
-                } else {
-                  presentWalletExportReminder()
-                    .then(async () => {
-                      if (!id) return;
-                      wallet.setUserHasSavedExport(true);
-                      await saveToDisk();
-                      onManageFundsPressed(id);
-                    })
-                    .catch(() => {
-                      navigate('WalletExport', {
-                        walletID,
-                      });
+            } catch (error) {
+              console.error('Failed to toggle balance visibility:', error);
+            }
+          }}
+          onManageFundsPressed={id => {
+            if (wallet.type === MultisigHDWallet.type) {
+              navigateToViewEditCosigners();
+            } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
+              if (wallet.getUserHasSavedExport()) {
+                if (!id) return;
+                onManageFundsPressed(id);
+              } else {
+                presentWalletExportReminder()
+                  .then(async () => {
+                    if (!id) return;
+                    wallet.setUserHasSavedExport(true);
+                    await saveToDisk();
+                    onManageFundsPressed(id);
+                  })
+                  .catch(() => {
+                    navigate('WalletExport', {
+                      walletID,
                     });
-                }
+                  });
               }
-            }}
-          />
+            }
+          }}
+        />
         <View style={[styles.flex, stylesHook.backgroundContainer]}>
           <View style={styles.listHeaderTextRow}>
             <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
@@ -856,7 +890,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             text={loc.receive.header}
             onPress={() => {
               if (wallet.chain === Chain.OFFCHAIN) {
-                navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID } });
+                navigate('LNDCreateInvoiceRoot', {
+                  screen: 'LNDCreateInvoice',
+                  params: { walletID },
+                });
               } else {
                 navigate('ReceiveDetails', { walletID });
               }
@@ -947,15 +984,40 @@ const scrolledHeaderTitleStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   flatList: { flex: 1, backgroundColor: 'transparent' },
-  scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
+  scrollViewContent: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 500,
+  },
   activityIndicator: { marginVertical: 20 },
-  listHeaderTextRow: { flex: 1, marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between' },
-  listHeaderText: { marginTop: 16, marginBottom: 16, fontWeight: 'bold', fontSize: 24 },
+  listHeaderTextRow: {
+    flex: 1,
+    marginHorizontal: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  listHeaderText: {
+    marginTop: 16,
+    marginBottom: 16,
+    fontWeight: 'bold',
+    fontSize: 24,
+  },
   contentContainer: { flexGrow: 1 },
   refreshSpinner: { position: 'absolute', alignSelf: 'center', zIndex: 10 },
   emptyTxsContainer: { height: '10%', minHeight: '10%', flex: 1 },
-  emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
-  emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },
+  emptyTxs: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    marginVertical: 16,
+  },
+  emptyTxsLightning: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
   iconContainer: {
     justifyContent: 'center',
     alignItems: 'center',

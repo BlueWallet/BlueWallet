@@ -168,7 +168,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     <View
       style={[
         styles.lineaderGradient,
-        { paddingTop: headerOverlayHeight, minHeight: headerOverlayHeight + HERO_MIN_BODY_HEIGHT, backgroundColor: WalletGradient.headerColorFor(wallet.type) },
+        {
+          paddingTop: headerOverlayHeight,
+          minHeight: headerOverlayHeight + HERO_MIN_BODY_HEIGHT,
+          backgroundColor: WalletGradient.headerColorFor(wallet.type),
+        },
       ]}
     >
       <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} />
