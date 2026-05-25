@@ -9,6 +9,14 @@ ENV TZ=UTC \
     ANDROID_SDK_ROOT=/opt/android-sdk \
     JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 
+# Freeze Debian repositories to snapshot on May 25 2026
+RUN printf '%s\n' \
+    'deb http://snapshot.debian.org/archive/debian/20260524T000000Z bullseye main contrib non-free' \
+    'deb http://snapshot.debian.org/archive/debian-security/20260524T000000Z bullseye-security main contrib non-free' \
+    > /etc/apt/sources.list \
+    && echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99snapshot \
+    && echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries
+
 # Install system packages and create a stable JAVA_HOME symlink
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl=7.74.0-1.3+deb11u16 \

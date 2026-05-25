@@ -2,7 +2,9 @@
 set -euo pipefail
 
 IMAGE_NAME="android-build-env"
-OUT="$(pwd)/build"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+OUT="$REPO_ROOT/reproducible-builds/build"
 
 log() {
   printf "\n[%s] %s\n" "$(date +'%H:%M:%S')" "$*" >&2
@@ -14,11 +16,11 @@ chmod 775 "$OUT"
 
 log "Building Docker image..."
 
-docker build -f Dockerfile -t "$IMAGE_NAME" ..
+docker build --platform linux/amd64 -f "$SCRIPT_DIR/Dockerfile" -t "$IMAGE_NAME" "$REPO_ROOT"
 
 log "Running build inside container..."
 
-docker run --rm \
+docker run --platform linux/amd64 --rm \
   -v "$OUT":/build \
   "$IMAGE_NAME" \
   bash -c "
