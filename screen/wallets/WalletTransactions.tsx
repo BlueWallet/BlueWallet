@@ -6,7 +6,6 @@ import {
   Dimensions,
   findNodeHandle,
   FlatList,
-  LayoutChangeEvent,
   Platform,
   PixelRatio,
   ScrollView,
@@ -205,11 +204,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
-  const [headerHeight, setHeaderHeight] = useState(0);
   const headerScrolledRef = useRef(false);
   const scrolledHeaderOpacity = useSharedValue(0);
-  const [showScrolledHeaderBg, setShowScrolledHeaderBg] = useState(false);
-  const needsScrolledHeaderBg = Platform.OS === 'android';
 
   const stylesHook = StyleSheet.create({
     listHeaderText: {
@@ -222,36 +218,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     backgroundContainer: {
       backgroundColor: colors.background,
     },
-    gradientBackground: {
-      backgroundColor: WalletGradient.headerColorFor(wallet.type),
-      height: headerHeight > 0 ? headerHeight : '30%',
-    },
     activityIndicatorStyle: {
       backgroundColor: colors.background,
     },
     sendIcon: { transform: [{ rotate: direction === 'rtl' ? '-225deg' : '225deg' }] },
     receiveIcon: { transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }] },
-    headerBottomBar: {
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      bottom: 12,
-      height: 12,
-      backgroundColor: colors.background,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      ...Platform.select({
-        ios: {
-          shadowColor: colors.shadowColor,
-          shadowOffset: { width: 0, height: -8 },
-          shadowOpacity: 0.1,
-          shadowRadius: 6,
-        },
-        android: {
-          elevation: 0.5,
-        },
-      }),
-    },
   });
 
   const onBarCodeRead = useCallback(
@@ -624,6 +595,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
               minWidth: 0,
               alignItems: 'flex-start',
             },
+            headerStyle: { backgroundColor: WalletGradient.headerColorFor(wallet.type) },
+            headerTintColor: '#ffffff',
           }),
       ...(Platform.OS === 'ios'
         ? {
@@ -706,30 +679,20 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           headerTitle: undefined,
           headerTitleAlign: undefined,
           headerTitleContainerStyle: undefined,
-          headerTintColor: undefined,
           headerBlurEffect: undefined,
           experimental_userInterfaceStyle: undefined,
         });
-        if (needsScrolledHeaderBg) setShowScrolledHeaderBg(false);
       } else {
         setOptions(getScrolledHeaderOptions());
-        if (needsScrolledHeaderBg) setShowScrolledHeaderBg(true);
       }
     },
-    [getScrolledHeaderOptions, setOptions, route, needsScrolledHeaderBg, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity],
+    [getScrolledHeaderOptions, setOptions, route, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity],
   );
 
-  const onHeroLayout = useCallback((event: LayoutChangeEvent) => {
-    const { height } = event.nativeEvent.layout;
-    if (height > 0) {
-      setHeaderHeight(height);
-    }
-  }, []);
 
   const listHeader = useMemo(
     () => (
       <View ref={headerRef}>
-        <View onLayout={onHeroLayout}>
           <TransactionsNavigationHeader
             headerOverlayHeight={headerOverlayHeight}
             wallet={wallet}
@@ -789,10 +752,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
               }
             }}
           />
-        </View>
-        <View style={styles.headerBottomBarSpacer}>
-          <View style={stylesHook.headerBottomBar} />
-        </View>
         <View style={[styles.flex, stylesHook.backgroundContainer]}>
           <View style={styles.listHeaderTextRow}>
             <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
@@ -816,9 +775,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       displayUnit,
       isUnitSwitching,
       headerOverlayHeight,
-      onHeroLayout,
       stylesHook.backgroundContainer,
-      stylesHook.headerBottomBar,
       stylesHook.listHeaderText,
       saveToDisk,
       isBiometricUseCapableAndEnabled,
@@ -831,27 +788,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   );
 
   useEffect(() => {
-    setHeaderHeight(0);
     headerScrolledRef.current = false;
     scrolledHeaderOpacity.value = 0;
-    setShowScrolledHeaderBg(false);
     if (flatListRef.current) {
       flatListRef.current.scrollToOffset({ offset: 0, animated: true });
     }
   }, [walletID, scrolledHeaderOpacity]);
 
   return (
-    <View style={[styles.flex, stylesHook.backgroundContainer]}>
-      <View style={[styles.refreshIndicatorBackground, stylesHook.gradientBackground]} testID="TransactionsListView" />
-      {Platform.OS === 'android' && showScrolledHeaderBg && (
-        <View
-          pointerEvents="none"
-          style={[
-            styles.scrolledHeaderBackground,
-            { height: headerOverlayHeight, backgroundColor: WalletGradient.headerColorFor(wallet.type) },
-          ]}
-        />
-      )}
+    <View style={[styles.flex, { backgroundColor: WalletGradient.headerColorFor(wallet.type) }]} testID="TransactionsListView">
       <FlatList<Transaction>
         ref={flatListRef}
         style={styles.flatList}
@@ -866,7 +811,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         renderItem={renderItem}
         initialNumToRender={10}
         removeClippedSubviews={false}
-        contentContainerStyle={stylesHook.backgroundContainer}
+        contentContainerStyle={[styles.contentContainer, stylesHook.backgroundContainer]}
         contentInsetAdjustmentBehavior="never"
         contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         maxToRenderPerBatch={10}
@@ -887,12 +832,21 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             <RefreshControl
               refreshing={isLoading}
               onRefresh={() => refreshTransactions(true)}
-              tintColor={colors.msSuccessCheck}
+              tintColor={Platform.OS === 'ios' ? 'transparent' : colors.msSuccessCheck}
               progressViewOffset={headerOverlayHeight}
             />
           ) : undefined
         }
       />
+
+      {isLoading && Platform.OS === 'ios' && (
+        <ActivityIndicator
+          style={[styles.refreshSpinner, { top: headerOverlayHeight + 12, transform: [{ scale: 1.4 }] }]}
+          color="#ffffff"
+          size="small"
+          pointerEvents="none"
+        />
+      )}
 
       <FloatButtonsBottomFade />
       <FContainer ref={walletActionButtonsRef}>
@@ -993,24 +947,12 @@ const scrolledHeaderTitleStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   flatList: { flex: 1, backgroundColor: 'transparent' },
-  headerBottomBarSpacer: { position: 'relative', height: 12 },
   scrollViewContent: { flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingBottom: 500 },
   activityIndicator: { marginVertical: 20 },
   listHeaderTextRow: { flex: 1, marginHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between' },
-  listHeaderText: { marginTop: 0, marginBottom: 16, fontWeight: 'bold', fontSize: 24 },
-  refreshIndicatorBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-  },
-  scrolledHeaderBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1,
-  },
+  listHeaderText: { marginTop: 16, marginBottom: 16, fontWeight: 'bold', fontSize: 24 },
+  contentContainer: { flexGrow: 1 },
+  refreshSpinner: { position: 'absolute', alignSelf: 'center', zIndex: 10 },
   emptyTxsContainer: { height: '10%', minHeight: '10%', flex: 1 },
   emptyTxs: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', marginVertical: 16 },
   emptyTxsLightning: { fontSize: 18, color: '#9aa0aa', textAlign: 'center', fontWeight: '600' },

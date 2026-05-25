@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { useTheme } from './themes';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
@@ -41,6 +42,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   unit = BitcoinUnit.BTC,
   unitSwitching = false,
 }) => {
+  const { colors } = useTheme();
   const { hideBalance } = wallet;
   const isLightningWallet = wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type;
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(isLightningWallet);
@@ -163,7 +165,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [hideBalance]);
 
   return (
-    <View style={[styles.lineaderGradient, { paddingTop: headerOverlayHeight, minHeight: headerOverlayHeight + HERO_MIN_BODY_HEIGHT }]}>
+    <View
+      style={[
+        styles.lineaderGradient,
+        { paddingTop: headerOverlayHeight, minHeight: headerOverlayHeight + HERO_MIN_BODY_HEIGHT, backgroundColor: WalletGradient.headerColorFor(wallet.type) },
+      ]}
+    >
       <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} />
       <View style={styles.contentContainer}>
         <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
@@ -224,6 +231,20 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           </TouchableOpacity>
         )}
       </View>
+      <View style={styles.bottomBarSpacer}>
+        <View
+          style={[
+            styles.bottomBar,
+            {
+              backgroundColor: colors.background,
+              ...Platform.select({
+                ios: { shadowColor: colors.shadowColor },
+                android: {},
+              }),
+            },
+          ]}
+        />
+      </View>
     </View>
   );
 };
@@ -237,6 +258,29 @@ const styles = StyleSheet.create({
     paddingTop: WALLET_LABEL_TOP_GAP,
     paddingHorizontal: 15,
     paddingBottom: HERO_BOTTOM_PADDING,
+  },
+  bottomBarSpacer: {
+    position: 'relative',
+    height: 12,
+  },
+  bottomBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 12,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    ...Platform.select({
+      ios: {
+        shadowOffset: { width: 0, height: -8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 0.5,
+      },
+    }),
   },
   balanceSection: {
     flexDirection: 'column',
