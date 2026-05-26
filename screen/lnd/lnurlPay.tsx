@@ -140,7 +140,7 @@ const LnurlPay: React.FC = () => {
     try {
       let comment: string | undefined;
       if (_LN.getCommentAllowed()) {
-        comment = await prompt('Comment', '', false, 'plain-text');
+        comment = await prompt('Comment', '', { cancelable: false, type: 'plain-text' });
       }
 
       const bolt11payload = await _LN.requestBolt11FromLnurlPayService(amountSats, comment);
