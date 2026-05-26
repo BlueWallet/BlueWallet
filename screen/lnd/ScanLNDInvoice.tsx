@@ -37,7 +37,7 @@ const ScanLNDInvoice = () => {
   const { colors } = useTheme();
   const { direction } = useLocale();
   const route = useRoute<RouteProps>();
-  const { walletID, uri, invoice } = route.params || {};
+  const { walletID, uri } = route.params || {};
   const [wallet, setWallet] = useState<LightningCustodianWallet | undefined>(
     (wallets.find(item => item.getID() === walletID) as LightningCustodianWallet) ||
       (wallets.find(item => item.chain === Chain.OFFCHAIN) as LightningCustodianWallet),
@@ -135,7 +135,7 @@ const ScanLNDInvoice = () => {
       if (data.toLowerCase().startsWith('ark1')) {
         const arkw = new LightningArkWallet();
         if (arkw.isAddressValid(data)) {
-          setParams({ uri: undefined, invoice: data });
+          setParams({ uri: undefined });
           // @ts-ignore we need it to be set to something
           setDecoded({});
           setIsAmountInitiallyEmpty(true);
@@ -160,7 +160,7 @@ const ScanLNDInvoice = () => {
         }
 
         Keyboard.dismiss();
-        setParams({ uri: undefined, invoice: data });
+        setParams({ uri: undefined });
         setIsAmountInitiallyEmpty(newDecoded.num_satoshis === 0);
         setDestination(data);
         setIsLoading(false);
@@ -206,7 +206,7 @@ const ScanLNDInvoice = () => {
   };
 
   const pay = async () => {
-    if (!decoded || !wallet || !amount || !invoice) {
+    if (!decoded || !wallet || !amount || !destination) {
       return null;
     }
 
@@ -247,7 +247,7 @@ const ScanLNDInvoice = () => {
     }
 
     try {
-      await wallet.payInvoice(invoice, amountSats);
+      await wallet.payInvoice(destination, amountSats);
     } catch (Err: any) {
       console.log(Err.message);
       setIsLoading(false);
