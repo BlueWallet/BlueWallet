@@ -5,6 +5,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
@@ -22,6 +23,7 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
 import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
+import BlocksAccordion from '../../components/BlocksAccordion';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
@@ -160,6 +162,23 @@ const TransactionStatus: React.FC = () => {
   // Explicit width for To/ID text so Android StaticLayout can apply ellipsis (flex alone often fails on Android)
   const detailValueMaxWidth = useMemo(() => Math.max(0, Math.floor((windowWidth - 48) / 2)), [windowWidth]);
   const detailValueWidthStyle = useMemo(() => ({ width: detailValueMaxWidth }), [detailValueMaxWidth]);
+
+  // Blocks accordion state
+  const [isBlocksExpanded, setIsBlocksExpanded] = useState(false);
+  const blocksChevronRotation = useSharedValue(0);
+  const stateCardScale = useSharedValue(1);
+  const blocksChevronStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${blocksChevronRotation.value * 180}deg` }],
+  }));
+  const stateCardAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: stateCardScale.value }],
+  }));
+  const toggleBlocksExpanded = useCallback(() => {
+    const next = !isBlocksExpanded;
+    setIsBlocksExpanded(next);
+    blocksChevronRotation.value = withTiming(next ? 1 : 0, { duration: 300 });
+    stateCardScale.value = withSequence(withTiming(0.98, { duration: 100 }), withTiming(1, { duration: 150 }));
+  }, [isBlocksExpanded, blocksChevronRotation, stateCardScale]);
 
   // Advanced section state
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
@@ -838,6 +857,8 @@ const TransactionStatus: React.FC = () => {
   const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
 
+  const showBlocksAccordion = !isPending && parsedConfirmations > 0;
+
   // Get transaction direction and date
   const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
@@ -980,7 +1001,7 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* State Section */}
-      <View
+      <Animated.View
         style={[
           styles.stateCard,
           isPending
@@ -988,6 +1009,7 @@ const TransactionStatus: React.FC = () => {
             : txValue !== null && txValue < 0
               ? stylesHook.stateCardSent
               : stylesHook.stateCardReceived,
+          stateCardAnimatedStyle,
         ]}
       >
         <View style={styles.stateSection}>
@@ -1026,36 +1048,49 @@ const TransactionStatus: React.FC = () => {
               )}
             </>
           ) : txValue !== null && txValue < 0 ? (
-            <View style={styles.stateIndicator}>
-              <TransactionOutgoingIcon />
-              <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent]}>{loc.transactions.details_sent}</BlueText>
-                {isOnChainTx && (
-                  <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline]}>
-                    {loc.formatString(loc.transactions.confirmations_lowercase, {
-                      confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                    })}
-                  </BlueText>
-                )}
+            <TouchableOpacity style={styles.stateHeaderRow} onPress={toggleBlocksExpanded} activeOpacity={0.7}>
+              <View style={styles.stateIndicator}>
+                <TransactionOutgoingIcon />
+                <View style={styles.stateLabelContainer}>
+                  <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent]}>{loc.transactions.details_sent}</BlueText>
+                  {isOnChainTx && (
+                    <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline]}>
+                      {loc.formatString(loc.transactions.confirmations_lowercase, {
+                        confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
+                      })}
+                    </BlueText>
+                  )}
+                </View>
               </View>
-            </View>
+              <Animated.View style={blocksChevronStyle}>
+                <Icon name="chevron-down" type="font-awesome" size={14} color={colors.transactionSentColor} />
+              </Animated.View>
+            </TouchableOpacity>
           ) : (
-            <View style={styles.stateIndicator}>
-              <TransactionIncomingIcon />
-              <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived]}>{loc.transactions.details_received}</BlueText>
-                {isOnChainTx && (
-                  <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline]}>
-                    {loc.formatString(loc.transactions.confirmations_lowercase, {
-                      confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                    })}
-                  </BlueText>
-                )}
+            <TouchableOpacity style={styles.stateHeaderRow} onPress={toggleBlocksExpanded} activeOpacity={0.7}>
+              <View style={styles.stateIndicator}>
+                <TransactionIncomingIcon />
+                <View style={styles.stateLabelContainer}>
+                  <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived]}>{loc.transactions.details_received}</BlueText>
+                  {isOnChainTx && (
+                    <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline]}>
+                      {loc.formatString(loc.transactions.confirmations_lowercase, {
+                        confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
+                      })}
+                    </BlueText>
+                  )}
+                </View>
               </View>
-            </View>
+              <Animated.View style={blocksChevronStyle}>
+                <Icon name="chevron-down" type="font-awesome" size={14} color={colors.transactionReceivedColor} />
+              </Animated.View>
+            </TouchableOpacity>
           )}
         </View>
-      </View>
+        {showBlocksAccordion && tx?.hash && (
+          <BlocksAccordion txHash={tx.hash} isSent={txValue !== null && txValue < 0} isExpanded={isBlocksExpanded} />
+        )}
+      </Animated.View>
 
       {/* Counterparty badge (read-only, matches contact list style) */}
       {counterpartyDisplayName && (
@@ -1391,10 +1426,16 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     paddingHorizontal: 20,
   },
+  stateHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   stateIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 6,
+    flex: 1,
   },
   stateLabelContainer: {
     flexDirection: 'column',
