@@ -377,12 +377,16 @@ const LNDViewInvoice = () => {
         );
       }
     } else if (invoice) {
-      // `invoice` is string, just not decoded yet. lets just display it as a QR code first (till it gets decoded
-      // and more data is rendered)
+      // `invoice` is string, just not decoded yet. The raw string IS the payment
+      // request, so render the QR and the copyable text immediately; richer details
+      // (amount, description) fill in once it gets decoded into an object.
       return (
         <View style={[styles.activeRoot, stylesHook.root]}>
           <View style={styles.activeQrcode}>
             <QRCode value={invoice} size={qrCodeSize} />
+          </View>
+          <View style={styles.copyText}>
+            <CopyTextToClipboard truncated text={invoice} />
           </View>
         </View>
       );

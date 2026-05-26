@@ -371,17 +371,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
         direction = 1;
         type = 'user_invoice';
         // The SDK hardcodes "Send to Arkade address" as the default reverse-swap
-        // invoice description (@arkade-os/boltz-swap createReverseSwap:
-        // `description?.trim() || "Send to Arkade address"`), so matching that
-        // exact literal is safe. That phrasing is an instruction to the payer;
-        // on the receiver side show a clearer label. A user-supplied description
+        // invoice description, so matching that
+        // exact literal is safe. A user-supplied description
         // is kept as-is.
-        // Plain English (not a loc key) on purpose: this matches the sibling
-        // synthesized memos in this method ('Sent' / 'Received' / 'Refill') —
-        // wallet classes don't import loc, and the literal above must stay in
-        // sync with the SDK's English string regardless of app language.
         if (!memo || memo === 'Send to Arkade address') {
-          memo = 'Received via Arkade';
+          memo = 'BlueWallet';
         }
         switch (swap.status) {
           case 'invoice.settled':
