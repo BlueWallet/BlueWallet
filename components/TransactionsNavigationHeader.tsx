@@ -16,7 +16,6 @@ import { useSettings } from '../hooks/context/useSettings';
 import ToolTipMenu from './TooltipMenu';
 import { useLocale } from '@react-navigation/native';
 
-/** Default hero body min height before the 20% increase (see HERO_MIN_BODY_HEIGHT). */
 const HERO_BASE_BODY_MIN_HEIGHT = 120;
 const HERO_MIN_BODY_HEIGHT = Math.round(HERO_BASE_BODY_MIN_HEIGHT * 1.2);
 const HERO_BOTTOM_PADDING = 32;
@@ -25,7 +24,6 @@ const WALLET_LABEL_TOP_GAP = 32;
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
   unit: BitcoinUnit;
-  /** Top inset (safe area + nav bar) so content clears the transparent header. */
   headerOverlayHeight: number;
   onWalletUnitChange: (unit: BitcoinUnit) => void;
   onManageFundsPressed?: (id?: string) => void;
