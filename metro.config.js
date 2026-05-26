@@ -7,9 +7,9 @@ const path = require('path');
 // The boltz-swap realm subpath is forced to CJS for the same reason — it
 // re-exports the SDK realm types.
 const resolveAliases = {
-  '@arkade-os/sdk': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/cjs/index.js'),
-  '@arkade-os/sdk/adapters/expo': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/cjs/adapters/expo.js'),
-  '@arkade-os/sdk/repositories/realm': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/cjs/repositories/realm/index.js'),
+  '@arkade-os/sdk': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/index.cjs'),
+  '@arkade-os/sdk/adapters/expo': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/adapters/expo.cjs'),
+  '@arkade-os/sdk/repositories/realm': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/repositories/realm/index.cjs'),
   '@arkade-os/boltz-swap/repositories/realm': path.join(__dirname, 'node_modules/@arkade-os/boltz-swap/dist/repositories/realm/index.cjs'),
   'expo/fetch': path.join(__dirname, 'util/expo-fetch.js'),
 };
