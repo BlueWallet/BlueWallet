@@ -517,12 +517,14 @@ const WalletDetails: React.FC = () => {
       // masterfingerprint before editing started
       const currentMasterFingerprint = wallet.getMasterFingerprintHex();
 
-      if (!mfp) {
+      if (!mfp || mfp.length !== 8) {
+        presentAlert({ message: loc.wallets.invalid_masterfingerprint });
+
         setMasterFingerprint(currentMasterFingerprint);
         return;
       }
 
-      if (mfp.length === 8 && mfp !== currentMasterFingerprint) {
+      if (mfp !== currentMasterFingerprint) {
         try {
           console.warn('updating masterfingerprint:', mfp);
           wallet.setMasterFingerprintHex(mfp);
