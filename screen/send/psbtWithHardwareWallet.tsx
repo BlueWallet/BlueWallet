@@ -147,8 +147,9 @@ const PsbtWithHardwareWallet = () => {
       }
     }
     try {
-      await BlueElectrum.ping();
-      await BlueElectrum.waitTillConnected();
+      if (!(await BlueElectrum.ensureConnected())) {
+        throw new Error(loc.errors.network);
+      }
 
       if (!txHex) {
         setIsLoading(false);

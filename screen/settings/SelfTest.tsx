@@ -127,8 +127,7 @@ export default class SelfTest extends Component {
       //
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        await BlueElectrum.ping();
-        await BlueElectrum.waitTillConnected();
+        if (!(await BlueElectrum.ensureConnected())) throw new Error('Could not connect to Electrum');
         const addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
         const electrumBalance = await BlueElectrum.getBalanceByAddress(addr4elect);
         if (electrumBalance.confirmed !== 51432)
