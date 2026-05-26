@@ -106,11 +106,28 @@ export class LightningArkWallet extends LightningCustodianWallet {
   private _limitMax: number = 0;
   private _feePercentage: number = 0;
 
+  // Submarine-swap (Arkade → Lightning) fee bracket — the PAY side, surfaced on
+  // the Lightning pay screen. Distinct from `_feePercentage` above (reverse leg).
+  private _submarineFeePercentage: number = 0;
+  private _submarineMinerFees: number = 0;
+  // Runtime "fetched fees this session" flag. Redefined non-enumerable in the
+  // constructor so saveToDisk never persists it — see the constructor for why.
+  private _feesLoaded: boolean = false;
+
   constructor() {
     super();
     Object.defineProperty(this, '_wallet', { value: undefined, writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_arkadeSwaps', { value: undefined, writable: true, enumerable: false, configurable: true });
     Object.defineProperty(this, '_namespaceCache', { value: undefined, writable: true, enumerable: false, configurable: true });
+    // Non-enumerable so saveToDisk's Object.assign({}, wallet) does not persist
+    // it. Persisting `true` would make a restored wallet skip the per-session
+    // Boltz fee refresh in ensureLightningFeesLoaded() (init() also skips it
+    // because _limitMin/_limitMax are serialized truthy), pinning a stale fee
+    // estimate on the pay screen across restarts. Resetting to false each
+    // process forces exactly one refresh per session. The fee *values* stay
+    // enumerable (cached like the reverse-leg fields) but are gated behind this
+    // flag — getSubmarineFeeEstimate() returns undefined until it flips true.
+    Object.defineProperty(this, '_feesLoaded', { value: false, writable: true, enumerable: false, configurable: true });
   }
 
   hashIt = (s: string): string => {
@@ -262,8 +279,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
     try {
       const [fees, limits] = await Promise.all([this._arkadeSwaps.getFees(), this._arkadeSwaps.getLimits()]);
       this._feePercentage = fees.reverse?.percentage ?? 0;
+      this._submarineFeePercentage = fees.submarine?.percentage ?? 0;
+      this._submarineMinerFees = fees.submarine?.minerFees ?? 0;
       this._limitMin = limits.min ?? 333;
       this._limitMax = limits.max ?? 1_000_000;
+      this._feesLoaded = true;
       if (!fees.reverse?.percentage) {
         console.log('warning: unexpected fees response from boltz:', JSON.stringify(fees, null, 2));
       }
@@ -596,6 +616,27 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Amount:', paymentResult.amount);
     console.log('Preimage:', paymentResult.preimage);
     console.log('Transaction ID:', paymentResult.txid);
+  }
+
+  /**
+   * Estimated Boltz fee in sats for paying a Lightning invoice of `amountSats`
+   * via a submarine swap (Arkade → Lightning): percentage fee + flat miner fee.
+   * Returns `undefined` until fees have been fetched — call
+   * `ensureLightningFeesLoaded()` first. This is the Boltz swap fee only; the
+   * Ark-network overhead is negligible and not included.
+   */
+  getSubmarineFeeEstimate(amountSats: number): number | undefined {
+    if (!this._feesLoaded) return undefined;
+    const serviceFee = Math.ceil(new BigNumber(amountSats).multipliedBy(this._submarineFeePercentage).dividedBy(100).toNumber());
+    return serviceFee + this._submarineMinerFees;
+  }
+
+  /** Warm the cached Boltz fee/limit params so getSubmarineFeeEstimate() returns a value. */
+  async ensureLightningFeesLoaded(): Promise<void> {
+    if (this._feesLoaded) return;
+    await this.init(); // guarantees _arkadeSwaps is set (or throws)
+    // init() can return without fetching fees, so fetch explicitly if still cold.
+    if (!this._feesLoaded) await this._fetchLightningFeesAndLimits();
   }
 
   async getUserInvoices(): Promise<LightningTransaction[]> {

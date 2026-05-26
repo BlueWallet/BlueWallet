@@ -729,6 +729,10 @@ describe('LightningArkWallet — runtime SDK fields are non-enumerable', () => {
     w.setSecret('arkade://' + TEST_MNEMONIC);
     (w as any)._wallet = { fake: 'wallet' };
     (w as any)._arkadeSwaps = { fake: 'swaps' };
+    // A session that already warmed fees: the flag must NOT be persisted, or a
+    // restored wallet would skip the per-session Boltz fee refresh and pin a
+    // stale pay-screen estimate across restarts.
+    (w as any)._feesLoaded = true;
 
     // Touch the namespace cache so we can assert it stays non-enumerable too.
     w.getNamespace();
@@ -737,10 +741,34 @@ describe('LightningArkWallet — runtime SDK fields are non-enumerable', () => {
     assert.ok(!('_wallet' in cloned), '_wallet must not be enumerable');
     assert.ok(!('_arkadeSwaps' in cloned), '_arkadeSwaps must not be enumerable');
     assert.ok(!('_namespaceCache' in cloned), '_namespaceCache must not be enumerable');
+    assert.ok(!('_feesLoaded' in cloned), '_feesLoaded must not be enumerable (runtime-only, not persisted)');
 
     // The values are still present on the instance itself.
     assert.deepStrictEqual((w as any)._wallet, { fake: 'wallet' });
     assert.deepStrictEqual((w as any)._arkadeSwaps, { fake: 'swaps' });
+    assert.strictEqual((w as any)._feesLoaded, true);
+  });
+
+  it('a fromJson-restored wallet comes back with _feesLoaded false so it refetches fees', () => {
+    // New-build restart: a wallet saved this session with warmed fees (and
+    // truthy persisted limits) must restore cold. Otherwise ensureLightningFeesLoaded()
+    // short-circuits on the persisted `true` and the pay screen shows a stale
+    // estimate forever. getSubmarineFeeEstimate() must report undefined until a
+    // fresh fetch flips the flag.
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    (w as any)._feesLoaded = true;
+    (w as any)._submarineFeePercentage = 0.25;
+    (w as any)._submarineMinerFees = 99;
+    (w as any)._limitMin = 1000;
+    (w as any)._limitMax = 1_000_000;
+    assert.strictEqual(w.getSubmarineFeeEstimate(10_000), 124, 'live session reports the warmed estimate');
+
+    const json = JSON.stringify({ ...Object.assign({}, w), type: (w as any).type });
+    const restored = LightningArkWallet.fromJson(json) as unknown as LightningArkWallet;
+
+    assert.strictEqual((restored as any)._feesLoaded, false, 'restored flag must be cold to force a refresh');
+    assert.strictEqual(restored.getSubmarineFeeEstimate(10_000), undefined, 'no estimate until fees are refetched this session');
   });
 
   it('getNamespace requires a secret', () => {
@@ -904,6 +932,86 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
       amount: 12_345,
     });
     assert.strictEqual(fakeArkadeSwaps.sendLightningPayment.mock.calls.length, 0, 'Lightning swap must not run for native Ark transfers');
+  });
+});
+
+describe('LightningArkWallet — submarine fee estimate (Lightning pay side)', () => {
+  let w: LightningArkWallet;
+
+  beforeEach(() => {
+    w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+  });
+
+  it('returns undefined before fees are loaded so the screen hides the line', () => {
+    assert.strictEqual(w.getSubmarineFeeEstimate(10_000), undefined);
+  });
+
+  it('computes ceil(amount * percentage / 100) + minerFees once loaded', () => {
+    (w as any)._feesLoaded = true;
+    (w as any)._submarineFeePercentage = 0.1; // 0.1%
+    (w as any)._submarineMinerFees = 121;
+    // 10_000 * 0.1 / 100 = 10 → + 121 flat miner fee = 131
+    assert.strictEqual(w.getSubmarineFeeEstimate(10_000), 131);
+  });
+
+  it('rounds the percentage component up (matches the reverse-side ceil convention)', () => {
+    (w as any)._feesLoaded = true;
+    (w as any)._submarineFeePercentage = 0.1;
+    (w as any)._submarineMinerFees = 0;
+    // 1234 * 0.1 / 100 = 1.234 → ceil = 2
+    assert.strictEqual(w.getSubmarineFeeEstimate(1234), 2);
+  });
+});
+
+describe('LightningArkWallet — ensureLightningFeesLoaded warms a restored wallet', () => {
+  // Regression for the silent-stuck-state bug: a wallet restored via fromJson
+  // can carry truthy _limitMin/_limitMax (serialized last session) while the
+  // submarine fields + _feesLoaded come back cold (an older build serialized
+  // the wallet before those fields existed). init() gates its fee fetch on
+  // falsy limits, so it short-circuits and never refreshes — leaving the pay
+  // screen's estimate undefined forever. ensureLightningFeesLoaded() must fetch
+  // explicitly. This test fails against an `await this.init()`-only version.
+  let w: LightningArkWallet;
+  const fakeArkadeSwaps: { getFees: jest.Mock; getLimits: jest.Mock } = {
+    getFees: jest.fn(),
+    getLimits: jest.fn(),
+  };
+
+  beforeEach(() => {
+    w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    fakeArkadeSwaps.getFees.mockReset().mockResolvedValue({
+      reverse: { percentage: 0.5, minerFees: { lockup: 0, claim: 0 } },
+      submarine: { percentage: 0.25, minerFees: 99 },
+    });
+    fakeArkadeSwaps.getLimits.mockReset().mockResolvedValue({ min: 1000, max: 1_000_000 });
+    // _wallet + _arkadeSwaps present → init() short-circuits offline (no Realm,
+    // no network). Limits truthy, fees cold.
+    (w as any)._wallet = {};
+    (w as any)._arkadeSwaps = fakeArkadeSwaps;
+    (w as any)._limitMin = 1000;
+    (w as any)._limitMax = 1_000_000;
+    (w as any)._feesLoaded = false;
+  });
+
+  it('fetches fees explicitly even though init() short-circuits on truthy limits', async () => {
+    assert.strictEqual(w.getSubmarineFeeEstimate(10_000), undefined, 'cold before warm-up');
+
+    await w.ensureLightningFeesLoaded();
+
+    assert.strictEqual(fakeArkadeSwaps.getFees.mock.calls.length, 1, 'must fetch fees despite truthy limits');
+    assert.strictEqual((w as any)._feesLoaded, true);
+    assert.strictEqual((w as any)._submarineFeePercentage, 0.25);
+    assert.strictEqual((w as any)._submarineMinerFees, 99);
+    // 10_000 * 0.25 / 100 = 25 → + 99 = 124
+    assert.strictEqual(w.getSubmarineFeeEstimate(10_000), 124);
+  });
+
+  it('is a no-op once fees are already loaded', async () => {
+    (w as any)._feesLoaded = true;
+    await w.ensureLightningFeesLoaded();
+    assert.strictEqual(fakeArkadeSwaps.getFees.mock.calls.length, 0, 'no fetch when already warm');
   });
 });
 
