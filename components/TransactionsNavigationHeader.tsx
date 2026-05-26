@@ -16,6 +16,7 @@ import { useSettings } from '../hooks/context/useSettings';
 import ToolTipMenu from './TooltipMenu';
 import useAnimateOnChange from '../hooks/useAnimateOnChange';
 import { useLocale } from '@react-navigation/native';
+import ActionSheet from '../screen/ActionSheet';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
@@ -111,20 +112,25 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     [handleBalanceVisibility, handleCopyPress],
   );
 
-  const toolTipActions = useMemo(() => {
-    return [
+  // The Manage Funds menu is presented via a JS ActionSheet rather than the
+  // native context menu (ToolTipMenu): react-native-context-menu-view is
+  // Paper-only and, routed through Fabric's legacy interop on the New
+  // Architecture, its host view gets mispositioned to the header origin —
+  // overlapping the wallet label. A plain TouchableOpacity + ActionSheet lays
+  // out correctly (same pattern as the Multisig button below).
+  const showManageFundsActionSheet = useCallback(() => {
+    ActionSheet.showActionSheetWithOptions(
       {
-        id: actionKeys.Refill,
-        text: loc.lnd.refill,
-        icon: actionIcons.Refill,
+        title: loc.lnd.title,
+        options: [loc._.cancel, loc.lnd.refill, loc.lnd.refill_external],
+        cancelButtonIndex: 0,
       },
-      {
-        id: actionKeys.RefillWithExternalWallet,
-        text: loc.lnd.refill_external,
-        icon: actionIcons.RefillWithExternalWallet,
+      buttonIndex => {
+        if (buttonIndex === 1) handleManageFundsPressed(actionKeys.Refill);
+        else if (buttonIndex === 2) handleManageFundsPressed(actionKeys.RefillWithExternalWallet);
       },
-    ];
-  }, []);
+    );
+  }, [handleManageFundsPressed]);
 
   const currentBalance = wallet ? wallet.getBalance() : 0;
   const formattedBalance = useMemo(() => {
@@ -245,15 +251,9 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           </TouchableOpacity>
         </Animated.View>
         {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
-          <ToolTipMenu
-            shouldOpenOnLongPress={false}
-            isButton
-            onPressMenuItem={handleManageFundsPressed}
-            actions={toolTipActions}
-            buttonStyle={styles.manageFundsButton}
-          >
+          <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={showManageFundsActionSheet}>
             <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-          </ToolTipMenu>
+          </TouchableOpacity>
         )}
         {wallet.type === MultisigHDWallet.type && (
           <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
