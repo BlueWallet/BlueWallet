@@ -6,7 +6,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
-    connectMain: jest.fn(),
+    ensureConnected: jest.fn().mockResolvedValue(true),
   };
 });
 
