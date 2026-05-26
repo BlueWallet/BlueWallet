@@ -168,6 +168,8 @@ export const ENSURE_CONNECTED_MAX_WALL_MS =
 
 /** Coalesces concurrent `ensureConnected()` callers — at most one connect attempt at a time. */
 let ensureInFlight: Promise<boolean> | null = null;
+/** If any coalesced caller asked for the failure alert, honour it once the in-flight attempt finishes. */
+let ensureInFlightShowAlert = false;
 
 /**
  * Bumps every time the caller asks us to abandon the current connection
@@ -339,7 +341,9 @@ function scheduleReconnectFromClient(client: typeof ElectrumClient, usingPeer: P
   setConnectionState('disconnected');
 
   const delay = usingPeer.host.endsWith('.onion') ? RECONNECT_ONION_DELAY_MS : RECONNECT_TCP_DELAY_MS;
+  const generationAtSchedule = disconnectGeneration;
   setTimeout(() => {
+    if (generationAtSchedule !== disconnectGeneration) return;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define -- defined later in file
     ensureConnected().catch(() => {
       /* ensureConnected never throws, but be defensive */
@@ -487,8 +491,12 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
     return false;
   }
 
-  if (ensureInFlight) return ensureInFlight;
+  if (ensureInFlight) {
+    if (showAlertOnFailure) ensureInFlightShowAlert = true;
+    return ensureInFlight;
+  }
 
+  ensureInFlightShowAlert = showAlertOnFailure;
   ensureInFlight = (async (): Promise<boolean> => {
     const myGeneration = disconnectGeneration;
     /** True iff the current generation no longer matches ours (i.e. `forceDisconnect()` ran). */
@@ -552,13 +560,14 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
       }
 
       setConnectionState('disconnected');
-      if (showAlertOnFailure) {
+      if (ensureInFlightShowAlert) {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define -- defined later in file
         presentNetworkErrorAlert(lastPeer);
       }
       return false;
     } finally {
       ensureInFlight = null;
+      ensureInFlightShowAlert = false;
     }
   })();
 
@@ -736,7 +745,14 @@ export const getBalanceByAddress = async function (address: string): Promise<{ c
 };
 
 export const getConfig = async function () {
-  if (!mainClient) throw new Error('Electrum client is not connected');
+  if (!mainClient) {
+    return {
+      host: undefined,
+      port: undefined,
+      serverName: false as typeof serverName,
+      connected: connState === 'connected' ? 1 : 0,
+    };
+  }
   return {
     host: mainClient.host,
     port: mainClient.port,
