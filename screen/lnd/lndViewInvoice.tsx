@@ -227,8 +227,9 @@ const LNDViewInvoice = () => {
   };
 
   const handleOnSharePressed = () => {
-    if (typeof invoice === 'string' || !invoice.payment_request) return;
-    Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
+    const paymentRequest = typeof invoice === 'string' ? invoice : invoice.payment_request;
+    if (!paymentRequest) return;
+    Share.open({ message: `lightning:${paymentRequest}` }).catch(error => console.log(error));
   };
 
   useEffect(() => {
@@ -248,6 +249,29 @@ const LNDViewInvoice = () => {
   const onLayout = (e: any) => {
     const { height, width } = e.nativeEvent.layout;
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
+  };
+
+  // Drive both the amount and the description straight off the BOLT11 — the
+  // source of truth, and the one thing identical whether the route param is
+  // still the raw string or the polled-in object, so both render phases agree
+  // and nothing changes after the page first paints. Decode is sync + cached.
+  // "Please pay" deliberately shows the invoice-encoded amount (what the payer
+  // is actually charged), not invoice.amt — which getTransactions() resolves to
+  // the post-fee on-chain amount and so differs from the BOLT11 by the swap fee.
+  // Likewise we ignore the row's synthesized description/memo: getTransactions()
+  // backfills a "BlueWallet" label there for memo-less reverse swaps (so the tx
+  // list isn't blank) and that placeholder must never surface here as
+  // "For: BlueWallet". "Send to Arkade address" is the SDK's hardcoded default
+  // for a memo-less reverse swap, so it counts as "no description" too.
+  const decodeForDisplay = (paymentRequest?: string): { amountSats?: number; description?: string } => {
+    if (!paymentRequest) return {};
+    try {
+      const d = wallet?.decodeInvoice(paymentRequest);
+      const description = d?.description && d.description !== 'Send to Arkade address' ? d.description : undefined;
+      return { amountSats: d?.num_satoshis || undefined, description };
+    } catch {
+      return {};
+    }
   };
 
   const render = () => {
@@ -353,6 +377,8 @@ const LNDViewInvoice = () => {
       }
       // Invoice has not expired, nor has it been paid for.
       if (invoice.payment_request) {
+        const { amountSats: bolt11Amount, description } = decodeForDisplay(invoice.payment_request);
+        const amountSats = bolt11Amount ?? invoice.amt;
         return (
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
@@ -361,13 +387,13 @@ const LNDViewInvoice = () => {
               </View>
               <BlueSpacing20 />
               <BlueText>
-                {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+                {loc.lndViewInvoice.please_pay} {amountSats} {loc.lndViewInvoice.sats}
               </BlueText>
-              {'description' in invoice && (invoice.description?.length ?? 0) > 0 && (
+              {description ? (
                 <BlueText>
-                  {loc.lndViewInvoice.for} {invoice.description ?? ''}
+                  {loc.lndViewInvoice.for} {description}
                 </BlueText>
-              )}
+              ) : null}
               <View style={styles.copyText}>
                 <CopyTextToClipboard truncated text={invoice.payment_request} />
               </View>
@@ -377,18 +403,36 @@ const LNDViewInvoice = () => {
         );
       }
     } else if (invoice) {
-      // `invoice` is string, just not decoded yet. The raw string IS the payment
-      // request, so render the QR and the copyable text immediately; richer details
-      // (amount, description) fill in once it gets decoded into an object.
+      // `invoice` is the raw BOLT11 string — the polling effect hasn't yet swapped
+      // it for the decoded object. Don't make the amount/description wait for that
+      // 3s round-trip: both are encoded in the string and decode synchronously
+      // (offline, cached) via the same decodeForDisplay() the object branch uses,
+      // so we render the full "please pay" block now and it doesn't change when
+      // the object arrives. A malformed string just falls back to QR + copy.
+      const { amountSats, description } = decodeForDisplay(invoice);
       return (
-        <View style={[styles.activeRoot, stylesHook.root]}>
-          <View style={styles.activeQrcode}>
-            <QRCode value={invoice} size={qrCodeSize} />
+        <ScrollView>
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <View style={styles.activeQrcode}>
+              <QRCode value={invoice} size={qrCodeSize} />
+            </View>
+            <BlueSpacing20 />
+            {amountSats ? (
+              <BlueText>
+                {loc.lndViewInvoice.please_pay} {amountSats} {loc.lndViewInvoice.sats}
+              </BlueText>
+            ) : null}
+            {description ? (
+              <BlueText>
+                {loc.lndViewInvoice.for} {description}
+              </BlueText>
+            ) : null}
+            <View style={styles.copyText}>
+              <CopyTextToClipboard truncated text={invoice} />
+            </View>
+            <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
           </View>
-          <View style={styles.copyText}>
-            <CopyTextToClipboard truncated text={invoice} />
-          </View>
-        </View>
+        </ScrollView>
       );
     } else {
       // something is not right
