@@ -270,8 +270,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: -StyleSheet.hairlineWidth,
-    height: 12 + StyleSheet.hairlineWidth,
+    bottom: -1,
+    height: 13,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     ...Platform.select({

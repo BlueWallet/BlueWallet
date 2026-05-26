@@ -786,7 +786,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             }
           }}
         />
-        <View style={[styles.flex, stylesHook.backgroundContainer]}>
+        <View style={[styles.flex, styles.transactionsSection, stylesHook.backgroundContainer]}>
           <View style={styles.listHeaderTextRow}>
             <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           </View>
@@ -984,6 +984,7 @@ const scrolledHeaderTitleStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   flatList: { flex: 1, backgroundColor: 'transparent' },
+  transactionsSection: { marginTop: -1 },
   scrollViewContent: {
     flex: 1,
     justifyContent: 'center',
