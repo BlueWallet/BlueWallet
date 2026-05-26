@@ -166,10 +166,6 @@ const RECONNECT_TCP_DELAY_MS = 500;
 export const ENSURE_CONNECTED_MAX_WALL_MS =
   CONNECT_MAX_ATTEMPTS * CONNECT_ATTEMPT_TIMEOUT_MS + (CONNECT_MAX_ATTEMPTS - 1) * CONNECT_BACKOFF_MS;
 
-/** Backward-compat exports for callers (e.g. StorageProvider fetch budget). */
-export const WAIT_TILL_CONNECTED_MAX_WALL_MS_AFTER_FIRST = ENSURE_CONNECTED_MAX_WALL_MS;
-export const WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER = ENSURE_CONNECTED_MAX_WALL_MS;
-
 /** Coalesces concurrent `ensureConnected()` callers — at most one connect attempt at a time. */
 let ensureInFlight: Promise<boolean> | null = null;
 
@@ -448,8 +444,9 @@ async function pingWithTimeout(timeoutMs: number = PING_TIMEOUT_MS): Promise<boo
 export type EnsureConnectedOptions = {
   /**
    * Show the legacy "couldn't connect" alert (Try again / Reset / Cancel) on failure.
-   * Used by initial bootstrap (`connectMain`) and the manual help alert. Off-hot-path
-   * callers (refresh, broadcast, etc.) should leave this false and surface their own UI.
+   * Used by initial bootstrap (`SettingsProvider` re-enabling Electrum) and the manual
+   * help alert. Off-hot-path callers (refresh, broadcast, etc.) should leave this false
+   * and surface their own UI.
    */
   showAlertOnFailure?: boolean;
 };
@@ -480,12 +477,18 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
 
   ensureInFlight = (async (): Promise<boolean> => {
     const myGeneration = disconnectGeneration;
+    /** True iff the current generation no longer matches ours (i.e. `forceDisconnect()` ran). */
+    const aborted = (where: string): boolean => {
+      if (myGeneration === disconnectGeneration) return false;
+      console.log(`[BlueElectrum] ensureConnected aborted by forceDisconnect at ${where} (gen ${myGeneration} → ${disconnectGeneration})`);
+      return true;
+    };
     let lastPeer: Peer | undefined;
     try {
       // Fast path: live ping on the existing client.
       if (mainClient && connState === 'connected') {
         if (await pingWithTimeout()) {
-          if (myGeneration !== disconnectGeneration) {
+          if (aborted('post-ping')) {
             setConnectionState('disconnected');
             return false;
           }
@@ -499,7 +502,7 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
         setConnectionState('disconnected');
       }
 
-      if (myGeneration !== disconnectGeneration) return false;
+      if (aborted('pre-loop')) return false;
       setConnectionState('connecting');
 
       for (let i = 0; i < CONNECT_MAX_ATTEMPTS; i++) {
@@ -507,7 +510,7 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
           setConnectionState('disabled');
           return false;
         }
-        if (myGeneration !== disconnectGeneration) {
+        if (aborted(`attempt ${i} start`)) {
           setConnectionState('disconnected');
           return false;
         }
@@ -515,7 +518,7 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
         const { ok, peer } = await attemptConnectOnce();
         lastPeer = peer;
 
-        if (myGeneration !== disconnectGeneration) {
+        if (aborted(`attempt ${i} end`)) {
           if (mainClient) {
             try {
               mainClient.close();
@@ -546,20 +549,6 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
   })();
 
   return ensureInFlight;
-}
-
-/**
- * Public bootstrap: connect on app start (or when user re-enables Electrum). On
- * failure presents the legacy Try-again/Reset/Cancel alert. Always resolves; never
- * throws. Internally delegates to `ensureConnected()` so concurrent callers share
- * a single attempt.
- */
-export async function connectMain(): Promise<void> {
-  if (await isDisabled()) {
-    console.log('Electrum connection disabled by user. Skipping connectMain call');
-    return;
-  }
-  await ensureConnected({ showAlertOnFailure: true });
 }
 
 export async function presentResetToDefaultsAlert(): Promise<boolean> {
@@ -1260,20 +1249,6 @@ export async function multiGetTransactionByTxid<T extends boolean>(
 
   return ret;
 }
-
-/**
- * Backward-compatible wrapper around `ensureConnected()`. Throws on failure to
- * match the old throwing contract that existing callers' `try/catch` blocks expect.
- *
- * New code should call `ensureConnected()` directly and inspect its boolean result.
- *
- * @deprecated Use `ensureConnected()`.
- */
-export const waitTillConnected = async function (): Promise<boolean> {
-  const ok = await ensureConnected();
-  if (!ok) throw new Error('Waiting for Electrum connection timeout');
-  return true;
-};
 
 // Returns the value at a given percentile in a sorted numeric array.
 // "Linear interpolation between closest ranks" method
