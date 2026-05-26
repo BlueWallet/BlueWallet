@@ -327,6 +327,26 @@ async function pickPeer(): Promise<Peer> {
   return usingPeer;
 }
 
+function scheduleReconnectFromClient(client: typeof ElectrumClient, usingPeer: Peer, reason: string): void {
+  if (connState !== 'connected' || mainClient !== client) return;
+
+  console.log(`scheduling Electrum reconnect after ${reason}`);
+  try {
+    // Also neutralises electrum-client's own timers/reconnect hooks for this instance.
+    client.close();
+  } catch {}
+  if (mainClient === client) mainClient = undefined;
+  setConnectionState('disconnected');
+
+  const delay = usingPeer.host.endsWith('.onion') ? RECONNECT_ONION_DELAY_MS : RECONNECT_TCP_DELAY_MS;
+  setTimeout(() => {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define -- defined later in file
+    ensureConnected().catch(() => {
+      /* ensureConnected never throws, but be defensive */
+    });
+  }, delay);
+}
+
 /**
  * One connect attempt: build a fresh `ElectrumClient`, run the version handshake,
  * subscribe to headers. No retries, no UI side effects. Returns the peer used
@@ -355,23 +375,17 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
     // are caught below — we must not double-handle them here.
     client.onError = function (e: { message: string }) {
       console.log('electrum mainClient.onError():', e.message);
-      if (connState !== 'connected' || mainClient !== client) return;
-      try {
-        client.close();
-      } catch {}
-      if (mainClient === client) mainClient = undefined;
-      setConnectionState('disconnected');
-      const delay = usingPeer.host.endsWith('.onion') ? RECONNECT_ONION_DELAY_MS : RECONNECT_TCP_DELAY_MS;
-      setTimeout(() => {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define -- defined later in file
-        ensureConnected().catch(() => {
-          /* ensureConnected never throws, but be defensive */
-        });
-      }, delay);
+      scheduleReconnectFromClient(client, usingPeer, 'socket error');
     };
 
     const ver = await Promise.race([
-      client.initElectrum({ client: 'bluewallet', version: '1.4' }),
+      client.initElectrum(
+        { client: 'bluewallet', version: '1.4' },
+        {
+          maxRetry: 0,
+          callback: () => scheduleReconnectFromClient(client, usingPeer, 'socket close'),
+        },
+      ),
       new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('connect timeout')), CONNECT_ATTEMPT_TIMEOUT_MS)),
     ]);
 
