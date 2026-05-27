@@ -204,9 +204,12 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].memo, 'coffee money');
   });
 
-  it('maps a pending reverse swap (swap.created) as a user_invoice with ispaid=false', () => {
+  it('hides a created-but-unpaid reverse swap (swap.created) — an open invoice is not "pending"', () => {
+    // A reverse swap in swap.created is an invoice the user generated that
+    // nobody has paid yet. It is not a pending receive (no funds in flight),
+    // so it must not appear in history nor pin the wallet card to "Pending".
     const swap = {
-      id: 'swap-pending',
+      id: 'swap-unpaid',
       type: 'reverse',
       status: 'swap.created',
       createdAt: 1700002000,
@@ -215,13 +218,32 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     } as any;
     (w as any)._swapHistory = [swap];
 
-    const txs = w.getTransactions();
-    assert.strictEqual(txs.length, 1);
-    assert.strictEqual(txs[0].ispaid, false);
-    assert.ok(!txs[0].failed, 'an in-flight row must not be flagged failed');
-    assert.strictEqual(txs[0].value, 100000);
-    assert.strictEqual(txs[0].type, 'user_invoice');
+    assert.deepStrictEqual(w.getTransactions(), [], 'an unpaid open invoice is not surfaced');
   });
+
+  it.each(['transaction.mempool', 'transaction.confirmed'])(
+    'maps an in-flight reverse swap (%s) as a pending user_invoice with ispaid=false',
+    status => {
+      // The payer has paid; Boltz has locked funds on-chain and the claim is
+      // imminent (isReverseClaimableStatus). This is a genuine pending receive.
+      const swap = {
+        id: 'swap-inflight',
+        type: 'reverse',
+        status,
+        createdAt: 1700002000,
+        request: { invoice: 'lnbc1u1pjpending', invoiceAmount: 100000 },
+        response: { invoice: 'lnbc1u1pjpending', onchainAmount: 100000 },
+      } as any;
+      (w as any)._swapHistory = [swap];
+
+      const txs = w.getTransactions();
+      assert.strictEqual(txs.length, 1);
+      assert.strictEqual(txs[0].ispaid, false);
+      assert.ok(!txs[0].failed, 'an in-flight row must not be flagged failed');
+      assert.strictEqual(txs[0].value, 100000);
+      assert.strictEqual(txs[0].type, 'user_invoice');
+    },
+  );
 
   it('maps a pending submarine swap (swap.created) as a payment_request with ispaid=false', () => {
     const swap = {
@@ -367,11 +389,13 @@ describe('LightningArkWallet — getTransactions mapping', () => {
       'a wallet whose only swaps are failed/refunded must report nothing pending',
     );
 
-    // Adding one genuinely in-flight swap flips the predicate back to pending.
+    // Adding one genuinely in-flight swap (funds locked on-chain, claim
+    // imminent) flips the predicate back to pending. swap.created would NOT —
+    // an unpaid open invoice is not pending and is dropped from history.
     (w as any)._swapHistory.push({
       id: 'rev-pending',
       type: 'reverse',
-      status: 'swap.created',
+      status: 'transaction.mempool',
       createdAt: 1700006200,
       request: { invoice: 'lnbc...revpending', invoiceAmount: 3000 },
       response: { invoice: 'lnbc...revpending', onchainAmount: 3000 },
@@ -548,7 +572,9 @@ describe('LightningArkWallet — getTransactions mapping', () => {
       {
         id: 'rev-pending-coalesce',
         type: 'reverse',
-        status: 'swap.created',
+        // In-flight (claimable) so the row stays visible; it is still unsettled,
+        // so no dedup fingerprint is recorded for it.
+        status: 'transaction.mempool',
         createdAt: 1700020000,
         request: { invoice: 'lnbc1u1pjpend' },
         response: { invoice: 'lnbc1u1pjpend', onchainAmount: 5000 },
@@ -624,18 +650,21 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.ok(txs.some(t => t.txid === 'ark-native'));
   });
 
-  it('hides expired unpaid reverse-swap invoices when expiry was decoded', () => {
+  it.each(['invoice.expired', 'swap.expired'])('hides unpaid-and-dead reverse-swap invoices (%s)', status => {
+    // Unpaid reverse swaps with no payment in flight are dropped regardless of
+    // the BOLT11 expiry clock — the SDK status alone (not isReverseClaimableStatus)
+    // tells us no funds are locked on-chain, so there is nothing to surface.
     (w as any)._swapHistory = [
       {
-        id: 'rev-expired',
+        id: 'rev-dead',
         type: 'reverse',
-        status: 'swap.created',
+        status,
         createdAt: EXPIRED_INVOICE_TIMESTAMP,
         request: { invoice: EXPIRED_INVOICE },
         response: { invoice: EXPIRED_INVOICE, onchainAmount: 667 },
       },
     ];
-    assert.deepStrictEqual(w.getTransactions(), [], 'expired unpaid pending reverse invoice is hidden');
+    assert.deepStrictEqual(w.getTransactions(), [], 'unpaid reverse invoice with no funds in flight is hidden');
   });
 
   it('keeps submarine pending rows visible even when their BOLT11 has aged out', () => {

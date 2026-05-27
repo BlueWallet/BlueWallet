@@ -9,6 +9,7 @@ import {
   decodeInvoice,
   isChainSwapClaimable,
   isChainSwapRefundable,
+  isReverseClaimableStatus,
   isReverseSwapClaimable,
   isSubmarineSwapRefundable,
 } from '@arkade-os/boltz-swap';
@@ -344,19 +345,21 @@ export class LightningArkWallet extends LightningCustodianWallet {
    * - Submarine `swap.expired` / `invoice.expired` → kept with a `Failed: `
    *   prefix; SDK classifies them as refundable so the user needs the row
    *   to recover an on-chain lockup.
-   * - Reverse expired-unpaid invoices (`type === 'reverse'` AND `!ispaid`
-   *   AND `!memoPrefix` AND `expiry+timestamp < now`) are dropped. The
-   *   expiry guard is gated to (a) reverse only — submarine pending rows
-   *   may have on-chain locked funds that need recovery visibility — and
-   *   (b) non-terminal rows so a `Failed: ` / `Refunded: ` row whose
-   *   BOLT11 has since expired is still preserved for diagnosis.
+   * - Unpaid reverse invoices with no payment in flight (`type === 'reverse'`
+   *   AND `!ispaid` AND `!memoPrefix` AND NOT isReverseClaimableStatus) are
+   *   dropped. This covers `swap.created` (invoice generated, never paid) and
+   *   `invoice.expired` / `swap.expired` (unpaid & dead). Only claimable
+   *   reverse swaps (`transaction.mempool` / `transaction.confirmed`, funds
+   *   locked on-chain) survive as genuine pending receives. The guard is gated
+   *   to (a) reverse only — submarine pending rows may have on-chain locked
+   *   funds that need recovery visibility — and (b) non-terminal rows so a
+   *   `Failed: ` / `Refunded: ` row is still preserved for diagnosis.
    * - Failed/refunded swaps stay visible with `ispaid:false` and a
    *   `Failed: ` / `Refunded: ` memo prefix so support can diagnose them.
    */
   getTransactions(): (Transaction & LightningTransaction)[] {
     const walletID = this.getID();
     const ret: any[] = [];
-    const nowSec = Math.floor(Date.now() / 1000);
     const DEDUP_WINDOW_SEC = 30 * 60;
 
     type SwapFingerprint = { type: TxType; amount: number; createdAtSec: number };
@@ -406,8 +409,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
           case 'transaction.refunded':
             memoPrefix = 'Failed: ';
             break;
-          // swap.created / transaction.mempool / transaction.confirmed → pending receive
-          // invoice.expired / swap.expired → handled by the unpaid-expired filter below
+          // transaction.mempool / transaction.confirmed → payment in flight,
+          //   genuine pending receive (isReverseClaimableStatus is true here)
+          // swap.created → invoice made but nobody has paid; invoice.expired /
+          //   swap.expired → unpaid & dead. Both are dropped by the
+          //   unpaid-not-in-flight filter below — neither is "pending".
         }
       } else if (swap.type === 'submarine') {
         direction = -1;
@@ -451,18 +457,21 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const absValue = Math.abs(rawValue);
       value = absValue * direction;
 
-      // Hide expired unpaid reverse invoices only. Three exclusions:
-      // 1. Terminal rows (`Failed: ` / `Refunded: `) carry diagnostic value
-      //    beyond the BOLT11 lifetime — we keep them.
-      // 2. Submarine pending rows are NEVER hidden: by the time a submarine
-      //    swap reaches `invoice.pending` / `invoice.paid` /
-      //    `transaction.claim.pending`, the user's lockup is on-chain.
-      //    Hiding the row before the SDK transitions it to swap.expired or
-      //    transaction.refunded would lose visibility into recoverable
-      //    locked funds.
-      // 3. Without a decoded expiry we can't reason about freshness, so the
-      //    row stays visible.
-      if (swap.type === 'reverse' && !ispaid && !memoPrefix && expiry !== undefined && expiry > 0 && timestamp + expiry < nowSec) continue;
+      // Hide unpaid reverse invoices that have no payment in flight. A
+      // `swap.created` reverse swap is an invoice the user generated that
+      // nobody has paid yet — it is NOT pending, just an open request that
+      // belongs on the receive screen, not in history. Surfacing it pinned the
+      // wallet card and the row to "Pending" indefinitely. Expired-unpaid
+      // reverse swaps (`invoice.expired` / `swap.expired`) are equally dead and
+      // dropped here too. Three things survive this filter:
+      // 1. Claimable reverse swaps (`transaction.mempool` /
+      //    `transaction.confirmed`, per isReverseClaimableStatus) — funds are
+      //    locked on-chain and the claim is imminent: a genuine pending receive.
+      // 2. Terminal rows (`Failed: ` / `Refunded: `) — diagnostic value.
+      // 3. Submarine rows of any status — by the time a submarine reaches a
+      //    pending state the user's lockup is on-chain, and hiding it would
+      //    lose visibility into recoverable funds.
+      if (swap.type === 'reverse' && !ispaid && !memoPrefix && !isReverseClaimableStatus(swap.status)) continue;
 
       // Pre-record the fingerprint so the native-Ark pass below can suppress
       // the matching SDK history entry. Only settled swaps are guaranteed to
