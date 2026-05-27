@@ -214,22 +214,32 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           </View>
           {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
             <View style={styles.manageFundsSection}>
-              <ToolTipMenu
-                shouldOpenOnLongPress={false}
-                isButton
-                enableAndroidRipple={false}
-                onPressMenuItem={handleManageFundsPressed}
-                actions={toolTipActions}
-                buttonStyle={styles.manageFundsButton}
-              >
-                <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-              </ToolTipMenu>
+              <View style={styles.manageFundsButtonContainer}>
+                <ToolTipMenu
+                  shouldOpenOnLongPress={false}
+                  isButton
+                  enableAndroidRipple={false}
+                  onPressMenuItem={handleManageFundsPressed}
+                  actions={toolTipActions}
+                  buttonStyle={styles.manageFundsButtonTouchable}
+                >
+                  <View style={styles.manageFundsButtonContent}>
+                    <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
+                  </View>
+                </ToolTipMenu>
+              </View>
             </View>
           )}
         </View>
         {wallet.type === MultisigHDWallet.type && (
-          <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
-            <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
+          <TouchableOpacity
+            style={[styles.manageFundsButtonContainer, styles.manageFundsButtonTouchable]}
+            accessibilityRole="button"
+            onPress={() => handleManageFundsPressed()}
+          >
+            <View style={styles.manageFundsButtonContent}>
+              <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
+            </View>
           </TouchableOpacity>
         )}
       </View>
@@ -301,13 +311,23 @@ const styles = StyleSheet.create({
     minHeight: 39,
     justifyContent: 'center',
   },
-  manageFundsButton: {
+  manageFundsButtonContainer: {
     marginTop: 14,
     marginBottom: 10,
+    alignSelf: 'flex-start',
+  },
+  manageFundsButtonTouchable: {
     backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 9,
-    minHeight: 39,
-    alignSelf: 'flex-start',
+    height: 39,
+    paddingHorizontal: 12,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  manageFundsButtonContent: {
+    flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -318,8 +338,12 @@ const styles = StyleSheet.create({
   manageFundsButtonText: {
     fontWeight: '500',
     fontSize: 14,
+    lineHeight: 18,
     color: '#FFFFFF',
-    padding: 12,
+    padding: 0,
+    textAlign: 'center',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   walletBalanceAndUnitContainer: {
     flexDirection: 'row',

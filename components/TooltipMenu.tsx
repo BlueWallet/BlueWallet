@@ -89,13 +89,23 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     // Android gesture-cancel race documented above.
     return (
       <View
+        style={visibleStyle}
         testID={testID}
         accessibilityLabel={accessibilityLabel}
         accessibilityHint={accessibilityHint}
         accessibilityRole={accessibilityRole}
         accessibilityState={accessibilityState}
       >
-        {menu}
+        <ContextMenu
+          title={title}
+          previewBackgroundColor="transparent"
+          onPress={handlePressMenuItem}
+          actions={items}
+          dropdownMenuMode={!shouldOpenOnLongPress}
+          style={styles.menuFlex}
+        >
+          {children}
+        </ContextMenu>
       </View>
     );
   }
