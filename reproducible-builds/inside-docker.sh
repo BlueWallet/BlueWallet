@@ -41,8 +41,8 @@ else
   apksigner sign \
     --ks "$KEYSTORE" \
     --ks-key-alias temp-key \
-    --ks-pass env:password \
-    --key-pass env:password \
+    --ks-pass pass:password \
+    --key-pass pass:password \
     --deterministic-dsa-signing \
     --out "$APK_SIGNED" \
     "$APK_UNSIGNED"
