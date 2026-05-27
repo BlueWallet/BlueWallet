@@ -9,7 +9,7 @@ ENV TZ=UTC \
     ANDROID_SDK_ROOT=/opt/android-sdk \
     JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 
-# Freeze Debian repositories to snapshot on May 25 2026
+# Freeze Debian repositories to snapshot on May 24 2026
 RUN printf '%s\n' \
     'deb http://snapshot.debian.org/archive/debian/20260524T000000Z bullseye main contrib non-free' \
     'deb http://snapshot.debian.org/archive/debian-security/20260524T000000Z bullseye-security main contrib non-free' \

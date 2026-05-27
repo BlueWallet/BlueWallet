@@ -44,6 +44,7 @@ release-notes.txt
 current-branch.json
 
 # iOS / Xcode
+ios/build/
 build/
 DerivedData/
 *.xcuserstate
