@@ -274,7 +274,22 @@ export async function isDisabled(): Promise<boolean> {
 export async function setDisabled(disabled = true) {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
   console.log('Setting Electrum connection disabled state to:', disabled);
-  return DefaultPreference.set(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
+  const result = await DefaultPreference.set(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
+  // Disabling must abort any in-flight ensureConnected() and tear down the live
+  // socket so callers don't have to remember to pair this with forceDisconnect().
+  // Without bumping the generation, an in-flight connect could race back to
+  // 'connected' after the user toggled Electrum off.
+  if (disabled) {
+    disconnectGeneration += 1;
+    if (mainClient) {
+      try {
+        mainClient.close();
+      } catch {}
+      mainClient = undefined;
+    }
+    setConnectionState('disabled');
+  }
+  return result;
 }
 
 function getCurrentPeer() {
@@ -510,10 +525,9 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
       // Fast path: live ping on the existing client.
       if (mainClient && connState === 'connected') {
         if (await pingWithTimeout()) {
-          if (aborted('post-ping')) {
-            setConnectionState('disconnected');
-            return false;
-          }
+          // If a disconnect/disable raced us, the bumper already set the right
+          // state ('disconnected' or 'disabled'); don't clobber it from here.
+          if (aborted('post-ping')) return false;
           return true;
         }
         // Stale socket. Tear it down so the attempt loop starts fresh.
@@ -532,10 +546,10 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
           setConnectionState('disabled');
           return false;
         }
-        if (aborted(`attempt ${i} start`)) {
-          setConnectionState('disconnected');
-          return false;
-        }
+        // Generation-bumper (`forceDisconnect` or `setDisabled(true)`) already
+        // set the appropriate terminal state; we must not clobber 'disabled'
+        // back to 'disconnected' here.
+        if (aborted(`attempt ${i} start`)) return false;
 
         const { ok, peer } = await attemptConnectOnce();
         lastPeer = peer;
@@ -547,7 +561,6 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
             } catch {}
             mainClient = undefined;
           }
-          setConnectionState('disconnected');
           return false;
         }
         if (ok) {
