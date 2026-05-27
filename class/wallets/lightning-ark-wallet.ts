@@ -395,7 +395,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // exact literal is safe. A user-supplied description
         // is kept as-is.
         if (!memo || memo === 'Send to Arkade address') {
-          memo = 'BlueWallet';
+          memo = 'Received via Arkade';
         }
         switch (swap.status) {
           case 'invoice.settled':
