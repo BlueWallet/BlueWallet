@@ -32,6 +32,7 @@ import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
 
 dayjs.extend(relativeTime);
 
@@ -336,7 +337,10 @@ const TransactionStatus: React.FC = () => {
     console.debug('transactionDetail - useEffect');
 
     if (!tx || tx?.confirmations) return;
-    if (!hash) return;
+    // Ark/Lightning rows carry a synthetic id (ark-/swap-/boarding-), not an on-chain
+    // txid. Never poll Electrum for them — the old `if (!hash) return;` let the
+    // synthetic id through and logged "… with hash ark-… not found" every interval.
+    if (!isOnChainTransaction(tx)) return;
 
     if (fetchTxInterval.current) {
       clearInterval(fetchTxInterval.current);
@@ -830,7 +834,8 @@ const TransactionStatus: React.FC = () => {
   const parsedTxValue = Number(tx?.value);
   const txValue = Number.isFinite(parsedTxValue) ? parsedTxValue : null;
   const parsedConfirmations = Number(tx?.confirmations);
-  const isPending = Number.isFinite(parsedConfirmations) ? parsedConfirmations <= 0 : !tx?.confirmations;
+  const isOnChainTx = isOnChainTransaction(tx);
+  const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
 
   // Get transaction direction and date
@@ -1025,11 +1030,13 @@ const TransactionStatus: React.FC = () => {
               <TransactionOutgoingIcon />
               <View style={styles.stateLabelContainer}>
                 <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent]}>{loc.transactions.details_sent}</BlueText>
-                <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline]}>
-                  {loc.formatString(loc.transactions.confirmations_lowercase, {
-                    confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                  })}
-                </BlueText>
+                {isOnChainTx && (
+                  <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline]}>
+                    {loc.formatString(loc.transactions.confirmations_lowercase, {
+                      confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
+                    })}
+                  </BlueText>
+                )}
               </View>
             </View>
           ) : (
@@ -1037,11 +1044,13 @@ const TransactionStatus: React.FC = () => {
               <TransactionIncomingIcon />
               <View style={styles.stateLabelContainer}>
                 <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived]}>{loc.transactions.details_received}</BlueText>
-                <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline]}>
-                  {loc.formatString(loc.transactions.confirmations_lowercase, {
-                    confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                  })}
-                </BlueText>
+                {isOnChainTx && (
+                  <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline]}>
+                    {loc.formatString(loc.transactions.confirmations_lowercase, {
+                      confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
+                    })}
+                  </BlueText>
+                )}
               </View>
             </View>
           )}
