@@ -254,7 +254,7 @@ async function processWallet(wallet: LightningArkWallet): Promise<void> {
   }
 
   let swaps: BoltzSwap[];
-  const repo = new RealmSwapRepository(realm);
+  const repo = new RealmSwapRepository(realm as any);
   const suppression = new RealmNotificationSuppressionRepository(realm);
   try {
     swaps = await repo.getAllSwaps<BoltzSwap>();
