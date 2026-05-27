@@ -165,20 +165,14 @@ const TransactionStatus: React.FC = () => {
 
   // Blocks accordion state
   const [isBlocksExpanded, setIsBlocksExpanded] = useState(false);
-  const blocksChevronRotation = useSharedValue(0);
   const stateCardScale = useSharedValue(1);
-  const blocksChevronStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${blocksChevronRotation.value * 180}deg` }],
-  }));
   const stateCardAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: stateCardScale.value }],
   }));
   const toggleBlocksExpanded = useCallback(() => {
-    const next = !isBlocksExpanded;
-    setIsBlocksExpanded(next);
-    blocksChevronRotation.value = withTiming(next ? 1 : 0, { duration: 300 });
+    setIsBlocksExpanded(prev => !prev);
     stateCardScale.value = withSequence(withTiming(0.98, { duration: 100 }), withTiming(1, { duration: 150 }));
-  }, [isBlocksExpanded, blocksChevronRotation, stateCardScale]);
+  }, [stateCardScale]);
 
   // Advanced section state
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
@@ -1062,9 +1056,6 @@ const TransactionStatus: React.FC = () => {
                   )}
                 </View>
               </View>
-              <Animated.View style={blocksChevronStyle}>
-                <Icon name="chevron-down" type="font-awesome" size={14} color={colors.transactionSentColor} />
-              </Animated.View>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.stateHeaderRow} onPress={toggleBlocksExpanded} activeOpacity={0.7}>
@@ -1081,9 +1072,6 @@ const TransactionStatus: React.FC = () => {
                   )}
                 </View>
               </View>
-              <Animated.View style={blocksChevronStyle}>
-                <Icon name="chevron-down" type="font-awesome" size={14} color={colors.transactionReceivedColor} />
-              </Animated.View>
             </TouchableOpacity>
           )}
         </View>

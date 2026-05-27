@@ -44,7 +44,7 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
   const accentColor = isSent ? colors.transactionSentColor : colors.transactionReceivedColor;
   const borderAccent = isSent ? colors.outgoingForegroundColor : colors.incomingForegroundColor;
   const blockCardBg = isSent ? 'rgba(208, 2, 27, 0.16)' : 'rgba(55, 192, 161, 0.16)';
-  const confirmedCardBg = isSent ? 'rgba(208, 2, 27, 0.08)' : 'rgba(55, 192, 161, 0.08)';
+  const confirmedCardBg = isSent ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)';
 
   const stylesHook = StyleSheet.create({
     blockCardBase: { backgroundColor: blockCardBg },
