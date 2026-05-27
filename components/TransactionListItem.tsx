@@ -183,12 +183,12 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   // native Ark and refill rows are bitcoind_tx-typed but carry a synthetic
   // `txid` prefix (`ark-…`, `boarding-…`). Other wallet types are
   // unaffected.
-  const arkRowKind = useMemo<'Lightning' | 'Ark' | 'Refill' | undefined>(() => {
+  const arkRowKind = useMemo<'Lightning' | 'Arkade' | 'Refill' | undefined>(() => {
     const wallet = wallets.find(w => w.getID() === item.walletID);
     if (wallet?.type !== LightningArkWallet.type) return undefined;
     if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') return 'Lightning';
     const txid = (item as { txid?: string }).txid;
-    if (txid?.startsWith('ark-')) return 'Ark';
+    if (txid?.startsWith('ark-')) return 'Arkade';
     if (txid?.startsWith('boarding-')) return 'Refill';
     return undefined;
   }, [item, wallets]);

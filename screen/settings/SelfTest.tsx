@@ -124,12 +124,12 @@ export default class SelfTest extends Component {
         spkw.setSecret('arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
         const pubkey = await spkw._getIdentity().xOnlyPublicKey();
         if (!(pubkey instanceof Uint8Array) || pubkey.length !== 32) {
-          throw new Error('Ark x-only pubkey shape regression: length=' + (pubkey as Uint8Array | undefined)?.length);
+          throw new Error('Arkade x-only pubkey shape regression: length=' + (pubkey as Uint8Array | undefined)?.length);
         }
         const expectedNamespace = 'e13b00f781e8dfc57f8f2a936220ff24d132eaaf8c85d4b10b5337645085ee9a';
         const namespace = spkw.getNamespace();
         if (namespace !== expectedNamespace) {
-          throw new Error(`Ark namespace regression: expected ${expectedNamespace}, got ${namespace}`);
+          throw new Error(`Arkade namespace regression: expected ${expectedNamespace}, got ${namespace}`);
         }
       } else {
         // skipping RN-specific test

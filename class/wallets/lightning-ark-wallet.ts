@@ -68,8 +68,8 @@ export const __testing__ = {
 
 export class LightningArkWallet extends LightningCustodianWallet {
   static readonly type = 'lightningArkWallet';
-  static readonly typeReadable = 'Lightning Ark';
-  static readonly subtitleReadable = 'Ark';
+  static readonly typeReadable = 'Lightning Arkade';
+  static readonly subtitleReadable = 'Arkade';
   // @ts-ignore: override
   public readonly type = LightningArkWallet.type;
   // @ts-ignore: override
@@ -573,7 +573,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async fetchTransactions() {
     if (!this._wallet) await this.init();
-    if (!this._wallet) throw new Error('Ark wallet not initialized');
+    if (!this._wallet) throw new Error('Arkade wallet not initialized');
     if (!this._arkadeSwaps) throw new Error('ArkadeSwaps not initialized');
 
     this._swapHistory = await this._arkadeSwaps.getSwapHistory();
@@ -583,7 +583,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async fetchBalance(): Promise<void> {
     if (!this._wallet) await this.init();
-    if (!this._wallet) throw new Error('Ark wallet not initialized');
+    if (!this._wallet) throw new Error('Arkade wallet not initialized');
 
     await this._attemptBoardUtxos();
 
@@ -597,7 +597,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async payInvoice(invoice: string, freeAmount: number = 0) {
     if (!this._wallet) await this.init();
-    if (!this._wallet) throw new Error('Ark wallet not initialized');
+    if (!this._wallet) throw new Error('Arkade wallet not initialized');
 
     if (this.isAddressValid(invoice)) {
       // its an ark address, so we need to do native ark-to-ark transfer
@@ -679,7 +679,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async getArkAddress(): Promise<string> {
     if (!this._wallet) await this.init();
-    if (!this._wallet) throw new Error('Ark not initialized');
+    if (!this._wallet) throw new Error('Arkade not initialized');
     return await this._wallet.getAddress();
   }
 
@@ -697,7 +697,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async fetchBtcAddress() {
     if (!this._wallet) await this.init();
-    assert(this._wallet, 'Ark wallet not initialized');
+    assert(this._wallet, 'Arkade wallet not initialized');
 
     this.refill_addressess = this.refill_addressess || [];
     const address = await this._wallet.getBoardingAddress();

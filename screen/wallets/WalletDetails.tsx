@@ -643,7 +643,7 @@ const WalletDetails: React.FC = () => {
               <View style={[styles.detailsCard, stylesHook.detailsCard]}>
                 <View style={stylesHook.optionsContent}>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
-                    {`Ark ${loc.wallets.details_address}`}
+                    {`Arkade ${loc.wallets.details_address}`}
                   </Text>
                   <CopyTextToClipboard
                     text={arkAddress}
