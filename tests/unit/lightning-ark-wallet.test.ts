@@ -112,7 +112,10 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.deepStrictEqual(w.getTransactions(), []);
   });
 
-  it('maps a settled submarine swap (transaction.claimed) as a paid_invoice with negative amount', () => {
+  it('enriches the native SENT leg of a settled submarine swap (no separate swap row)', () => {
+    // A settled submarine (Lightning send) leaves a native SENT leg in the SDK
+    // history. The swap enriches that leg in place — it does NOT emit a parallel
+    // `swap-` row, so the send shows exactly once.
     const swap = {
       id: 'swap-out',
       type: 'submarine',
@@ -123,18 +126,26 @@ describe('LightningArkWallet — getTransactions mapping', () => {
       response: { expectedAmount: 1234 },
     } as any;
     (w as any)._swapHistory = [swap];
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'sub-leg' },
+        type: 'SENT',
+        settled: true,
+        amount: 1234,
+        createdAt: 1700000000_000,
+      },
+    ];
 
     const txs = w.getTransactions();
-    assert.strictEqual(txs.length, 1);
-    assert.strictEqual(txs[0].type, 'paid_invoice');
+    assert.strictEqual(txs.length, 1, 'settled swap enriches its leg; no parallel swap row');
+    assert.strictEqual(txs[0].txid, 'ark-sub-leg', 'the row is the native leg, not a swap- row');
     assert.strictEqual(txs[0].value, -1234);
     assert.strictEqual(txs[0].ispaid, true);
     assert.strictEqual(txs[0].timestamp, 1700000000);
     assert.strictEqual(txs[0].payment_preimage, 'aa'.repeat(32));
-    assert.strictEqual(txs[0].txid, 'swap-swap-out', 'stable id is swap-<id> regardless of status');
   });
 
-  it('maps a settled reverse swap (invoice.settled) as a user_invoice with positive amount', () => {
+  it('enriches the native RECEIVED leg of a settled reverse swap (no separate swap row)', () => {
     const swap = {
       id: 'swap-in',
       type: 'reverse',
@@ -145,13 +156,22 @@ describe('LightningArkWallet — getTransactions mapping', () => {
       response: { invoice: 'lnbc999...receive', onchainAmount: 9999 },
     } as any;
     (w as any)._swapHistory = [swap];
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'rev-leg' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 9999,
+        createdAt: 1700001000_000,
+      },
+    ];
 
     const txs = w.getTransactions();
     assert.strictEqual(txs.length, 1);
-    assert.strictEqual(txs[0].type, 'user_invoice');
+    assert.strictEqual(txs[0].txid, 'ark-rev-leg');
     assert.strictEqual(txs[0].value, 9999);
     assert.strictEqual(txs[0].ispaid, true);
-    assert.strictEqual(txs[0].txid, 'swap-swap-in');
+    assert.strictEqual(txs[0].payment_preimage, 'bb'.repeat(32));
   });
 
   it('relabels the SDK default reverse-swap description as "Received via Arkade"', () => {
@@ -171,6 +191,15 @@ describe('LightningArkWallet — getTransactions mapping', () => {
         createdAt: 1700001000,
         request: { invoice: 'lnbc500...receive' },
         response: { invoice: 'lnbc500...receive', onchainAmount: 500 },
+      },
+    ];
+    (w2 as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'rev-default-leg' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 500,
+        createdAt: 1700001000_000,
       },
     ];
 
@@ -196,6 +225,15 @@ describe('LightningArkWallet — getTransactions mapping', () => {
         createdAt: 1700001000,
         request: { invoice: 'lnbc500...receive' },
         response: { invoice: 'lnbc500...receive', onchainAmount: 500 },
+      },
+    ];
+    (w2 as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'rev-custom-leg' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 500,
+        createdAt: 1700001000_000,
       },
     ];
 
@@ -535,10 +573,10 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(w.getTransactions()[0].txid, 'ark-commit-only');
   });
 
-  it('dedupes the Ark-history leg of a swap whose Lightning row we already render', () => {
+  it('enriches the Ark-history leg of a settled swap in place (one row, not two)', () => {
     // A reverse swap that settled — Boltz claimed 1000 sat into our wallet.
-    // The SDK history will also contain the matching RECEIVED entry; we must
-    // not show it as a second native-Ark row.
+    // The SDK history also contains the matching RECEIVED entry; the swap must
+    // enrich that single native row, not add a second `swap-` row beside it.
     (w as any)._swapHistory = [
       {
         id: 'rev1',
@@ -556,12 +594,14 @@ describe('LightningArkWallet — getTransactions mapping', () => {
         type: 'RECEIVED',
         settled: true,
         amount: 1000,
-        createdAt: 1700010120_000, // 2 min after swap.createdAt → inside dedup window
+        createdAt: 1700010120_000, // 2 min after swap.createdAt → inside match window
       },
     ];
     const txs = w.getTransactions();
     assert.strictEqual(txs.length, 1, 'one row, not two');
-    assert.strictEqual(txs[0].txid, 'swap-rev1');
+    assert.strictEqual(txs[0].txid, 'ark-rev1-arkleg', 'the native leg is enriched, not a swap- row');
+    assert.strictEqual(txs[0].ispaid, true);
+    assert.strictEqual(txs[0].payment_preimage, 'ee'.repeat(32));
   });
 
   it('does not dedupe a native Ark transfer against a pending reverse swap', () => {
@@ -623,7 +663,12 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.ok(txs.some(t => t.txid === 'ark-real-rx'));
   });
 
-  it('keeps the native-Ark row when its amount or direction differs from any swap', () => {
+  it('drops an unmatched settled swap and keeps the unrelated native row unenriched', () => {
+    // The settled swap's on-chain amount (1000) matches no native leg (2222), so
+    // it enriches nothing and emits no row — a settlement is represented by its
+    // leg, never by a parallel `swap-` row. The unrelated 2222 native row stays,
+    // unenriched. (In production a settled swap's leg is present; a mismatch this
+    // total only happens with corrupt/synthetic data.)
     (w as any)._swapHistory = [
       {
         id: 'rev2',
@@ -640,14 +685,14 @@ describe('LightningArkWallet — getTransactions mapping', () => {
         key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'native' },
         type: 'RECEIVED',
         settled: true,
-        amount: 2222, // different amount → not a dedup match
+        amount: 2222, // different amount → not a match
         createdAt: 1700011000_000,
       },
     ];
     const txs = w.getTransactions();
-    assert.strictEqual(txs.length, 2);
-    assert.ok(txs.some(t => t.txid === 'swap-rev2'));
-    assert.ok(txs.some(t => t.txid === 'ark-native'));
+    assert.strictEqual(txs.length, 1, 'no swap- row for an unmatched settled swap');
+    assert.strictEqual(txs[0].txid, 'ark-native');
+    assert.ok(!txs[0].ispaid, 'the unrelated native row is not enriched');
   });
 
   it.each(['invoice.expired', 'swap.expired'])('hides unpaid-and-dead reverse-swap invoices (%s)', status => {
@@ -690,7 +735,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].txid, 'swap-sub-stalled');
   });
 
-  it('returns mixed swap + boarding rows in a single list', () => {
+  it('returns mixed (enriched swap leg + boarding) rows in a single list', () => {
     (w as any)._swapHistory = [
       {
         id: 'paid',
@@ -704,6 +749,15 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     ];
     (w as any)._boardingUtxos = [{ txid: 'mixboard', vout: 0, value: 2000, status: { block_time: 1700001000 } }];
     (w as any)._transactionsHistory = [
+      // The settled reverse swap's native RECEIVED leg (enriched in place)…
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'paid-leg' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 1000,
+        createdAt: 1700000000_000,
+      },
+      // …and a separate completed refill.
       {
         key: { boardingTxid: 'refilled', commitmentTxid: '', arkTxid: '' },
         type: 'RECEIVED',
@@ -714,10 +768,125 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     ];
 
     const txs = w.getTransactions();
-    assert.strictEqual(txs.length, 3);
-    assert.strictEqual(txs[0].type, 'user_invoice');
-    assert.strictEqual(txs[1].description, 'Pending refill');
-    assert.strictEqual(txs[2].description, 'Refill');
+    assert.strictEqual(txs.length, 3, 'enriched LN leg + pending refill + settled refill');
+    const byId = Object.fromEntries(txs.map((t: any) => [t.txid, t]));
+    assert.ok(byId['ark-paid-leg']?.ispaid, 'the settled swap enriched its native leg');
+    assert.strictEqual(byId['boarding-utxo-mixboard:0']?.description, 'Pending refill');
+    assert.strictEqual(byId['boarding-refilled']?.description, 'Refill');
+  });
+
+  it('does not duplicate a refill as a Lightning row when a same-amount settled swap exists', () => {
+    // Regression for the reported bug: one on-chain refill showed twice — once
+    // as "Refill" and once as a phantom "Lightning" row of the same amount. A
+    // real refill is a boarding entry (it produces no native leg), so a settled
+    // swap that matches no native leg must NOT emit a `swap-` row. The refill
+    // shows exactly once.
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: 'refill-tx', commitmentTxid: '', arkTxid: '' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 84960,
+        createdAt: 1700000000_000,
+      },
+    ];
+    (w as any)._swapHistory = [
+      {
+        id: 'phantom',
+        type: 'reverse',
+        status: 'invoice.settled',
+        createdAt: 1700000000,
+        preimage: 'dd'.repeat(32),
+        request: { invoice: 'lnbc...phantom' },
+        response: { invoice: 'lnbc...phantom', onchainAmount: 84960 },
+      },
+    ];
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 1, 'exactly one row for the refill — no phantom Lightning');
+    assert.strictEqual(txs[0].txid, 'boarding-refill-tx');
+    assert.strictEqual(txs[0].description, 'Refill');
+  });
+
+  it('matches each settled swap to a distinct native leg (consume-once)', () => {
+    (w as any)._swapHistory = [
+      {
+        id: 'a',
+        type: 'reverse',
+        status: 'invoice.settled',
+        createdAt: 1700000000,
+        preimage: '11'.repeat(32),
+        request: { invoice: 'lnbc...a' },
+        response: { invoice: 'lnbc...a', onchainAmount: 1000 },
+      },
+      {
+        id: 'b',
+        type: 'reverse',
+        status: 'invoice.settled',
+        createdAt: 1700000000,
+        preimage: '22'.repeat(32),
+        request: { invoice: 'lnbc...b' },
+        response: { invoice: 'lnbc...b', onchainAmount: 1000 },
+      },
+    ];
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'leg1' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 1000,
+        createdAt: 1700000000_000,
+      },
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'leg2' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 1000,
+        createdAt: 1700000000_000,
+      },
+    ];
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 2, 'two legs, two enriched rows — neither swap double-claims a leg');
+    assert.ok(
+      txs.every((t: any) => t.ispaid),
+      'both legs enriched',
+    );
+    assert.deepStrictEqual(txs.map((t: any) => t.txid).sort(), ['ark-leg1', 'ark-leg2']);
+  });
+
+  it('exposes open unpaid invoices only when includeUnpaidInvoices is set (registry path)', () => {
+    (w as any)._swapHistory = [
+      {
+        id: 'open',
+        type: 'reverse',
+        status: 'swap.created',
+        createdAt: 1700000000,
+        request: { invoice: 'lnbc...open', invoiceAmount: 100000 },
+        response: { invoice: 'lnbc...open', onchainAmount: 100000 },
+      },
+    ];
+    assert.deepStrictEqual(w.getTransactions(), [], 'hidden from the history list');
+    const reg = w.getTransactions(true);
+    assert.strictEqual(reg.length, 1, 'visible to getUserInvoices/isInvoiceGeneratedByWallet');
+    assert.strictEqual(reg[0].txid, 'swap-open');
+  });
+
+  it('shows native legs as-is on a restored wallet with empty swap history', () => {
+    // After restore, _swapHistory is empty; native legs must still appear (the
+    // display layer labels them Lightning), not vanish.
+    (w as any)._swapHistory = [];
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'restored-rx' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 5000,
+        createdAt: 1700000000_000,
+      },
+    ];
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 1);
+    assert.strictEqual(txs[0].txid, 'ark-restored-rx');
+    assert.ok(!txs[0].ispaid, 'no swap to enrich it; shown as a plain native leg');
   });
 });
 

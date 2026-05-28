@@ -305,40 +305,42 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   /**
-   * Single source of activity for the BlueWallet transaction list,
-   * coalesced from three feeds:
+   * Single source of activity for the BlueWallet transaction list. The SDK's
+   * `getTransactionHistory()` (`_transactionsHistory`) is the source of truth
+   * for every settled row; swaps annotate those rows rather than producing
+   * parallel ones. Three passes build the result:
    *
-   * 1. `_swapHistory` (Boltz). Branch on the `swap.type` discriminator:
-   *    - `reverse`   → Lightning RECEIVE (`user_invoice`).
-   *    - `submarine` → Lightning SEND (`payment_request` while pending,
-   *      `paid_invoice` once `transaction.claimed`).
-   *    - `chain`     → not surfaced (no LN-shaped UX entry point yet).
-   *    Settlement signal is `LightningTransaction.ispaid`; we never invent
-   *    a `confirmations` field for an LN/Ark row.
+   * 1. `_transactionsHistory` (Ark SDK) — the base rows:
+   *    - `key.boardingTxid` is set ONLY on boarding outputs, so it is an
+   *      exclusive refill discriminator: RECEIVED && settled → "Refill"
+   *      (`boarding-<txid>`); other boarding states are suppressed (pending
+   *      boarding is surfaced from `_boardingUtxos` in pass 2).
+   *    - no `boardingTxid` → native Ark leg (`ark-<arkTxid|commitmentTxid>`),
+   *      SENT negative / RECEIVED positive. Labeled "Lightning" by
+   *      TransactionListItem; a settled swap may enrich it in place (pass 3).
    *
-   * 2. `_transactionsHistory` (Ark SDK):
-   *    - `key.boardingTxid && type==='RECEIVED' && settled` → "Refill" row.
-   *    - `key.boardingTxid` (other types/statuses) → suppressed.
-   *    - no `boardingTxid` → native Ark transfer; SENT renders negative,
-   *      RECEIVED renders positive.
+   * 2. `_boardingUtxos` → "Pending refill" rows (boarding UTXO not yet swept),
+   *    with a live timestamp.
    *
-   * 3. `_boardingUtxos` → "Pending refill" rows (boarding UTXO not yet swept).
+   * 3. `_swapHistory` (Boltz) — annotation + residual. A *settled* swap (reverse
+   *    `invoice.settled`, submarine `transaction.claimed`) always has an
+   *    Ark-side leg in pass 1 — reverse settles by Boltz claiming into our
+   *    address, submarine by our lockup being claimed. We find the unconsumed
+   *    native leg matching `(direction, on-chain amount)` within ±30 min, mark
+   *    it consumed, and enrich it (memo, invoice, preimage, payment_hash,
+   *    ispaid) and emit NO row for the swap itself. This is what eliminates the
+   *    duplicate-row class: a settlement can no longer appear once as its native
+   *    leg and once as a `swap-` row, regardless of timestamp skew. A settled
+   *    swap with no matching leg emits nothing — the leg is present in virtually
+   *    all cases (settling *is* creating it), and a fallback `swap-` row would
+   *    re-introduce the duplicate. Non-settled swaps that still need visibility
+   *    (claimable reverse, in-flight submarine, failed/refunded, and open
+   *    invoices when `includeUnpaidInvoices`) are emitted as `swap-<id>` rows.
+   *    Settlement signal is `LightningTransaction.ispaid`; we never invent a
+   *    `confirmations` field for an LN/Ark row.
    *
-   * Coalescing: a settled swap always produces an Ark-side tx in
-   * `_transactionsHistory` — reverse `invoice.settled` is Boltz claiming
-   * into our address, submarine `transaction.claimed` is our lockup being
-   * claimed by Boltz. The native-Ark pass therefore drops any history
-   * entry whose `(direction, |amount|)` matches a *settled* swap within
-   * ±30 minutes of `swap.createdAt`. We do NOT dedupe against
-   * pending/failed/refunded swaps — those don't guarantee an Ark-side leg
-   * and matching against them would hide unrelated native transfers of
-   * the same amount.
-   *
-   * Stable row ids: every row sets `txid` to a logical id that survives
-   * status transitions — `swap-<id>`, `boarding-<txid>`,
-   * `boarding-utxo-<txid>:<vout>`, `ark-<arkTxid|commitmentTxid>`. FlatList
-   * still keys by index today, but the field is the canonical key for any
-   * future consumer.
+   * Stable row ids survive status transitions: `boarding-<txid>`,
+   * `boarding-utxo-<txid>:<vout>`, `ark-<arkTxid|commitmentTxid>`, `swap-<id>`.
    *
    * Hidden states:
    * - Submarine `invoice.set` → dropped (no funds at risk yet).
@@ -364,11 +366,64 @@ export class LightningArkWallet extends LightningCustodianWallet {
   getTransactions(includeUnpaidInvoices = false): (Transaction & LightningTransaction)[] {
     const walletID = this.getID();
     const ret: any[] = [];
-    const DEDUP_WINDOW_SEC = 30 * 60;
+    const MATCH_WINDOW_SEC = 30 * 60;
 
-    type SwapFingerprint = { type: TxType; amount: number; createdAtSec: number };
-    const swapFingerprints: SwapFingerprint[] = [];
+    // Pass 1 — base rows from the SDK transaction history (single source of
+    // truth). `key.boardingTxid` is set only on boarding outputs, so it is an
+    // exclusive refill discriminator; every other entry is a native Ark leg a
+    // settled swap may later enrich in place.
+    type NativeLeg = { row: any; arkType: TxType; absAmount: number; matched: boolean };
+    const nativeLegs: NativeLeg[] = [];
 
+    for (const histTx of this._transactionsHistory) {
+      if (histTx.key.boardingTxid) {
+        // Settled refill only; pending boarding comes from _boardingUtxos (pass 2).
+        if (histTx.type === TxType.TxReceived && histTx.settled) {
+          ret.push({
+            txid: `boarding-${histTx.key.boardingTxid}`,
+            type: 'bitcoind_tx',
+            walletID,
+            description: 'Refill',
+            memo: 'Refill',
+            value: histTx.amount,
+            timestamp: Math.floor(histTx.createdAt / 1000),
+          });
+        }
+        continue;
+      }
+
+      const absAmount = Math.abs(histTx.amount);
+      const createdAtSec = Math.floor(histTx.createdAt / 1000);
+      const direction = histTx.type === TxType.TxSent ? -1 : 1;
+      const idKey = histTx.key.arkTxid || histTx.key.commitmentTxid || `${histTx.type}-${createdAtSec}-${absAmount}`;
+      const description = histTx.type === TxType.TxSent ? 'Sent' : 'Received';
+      const row: any = {
+        txid: `ark-${idKey}`,
+        type: 'bitcoind_tx',
+        walletID,
+        description,
+        memo: description,
+        value: absAmount * direction,
+        timestamp: createdAtSec,
+      };
+      ret.push(row);
+      nativeLegs.push({ row, arkType: histTx.type, absAmount, matched: false });
+    }
+
+    // Pass 2 — pending refills (boarding UTXOs not yet swept), live timestamp.
+    for (const boardingTx of this._boardingUtxos) {
+      ret.push({
+        txid: `boarding-utxo-${boardingTx.txid}:${boardingTx.vout}`,
+        type: 'bitcoind_tx',
+        walletID,
+        description: 'Pending refill',
+        memo: 'Pending refill',
+        value: boardingTx.value,
+        timestamp: boardingTx.status.block_time ?? Math.floor(Date.now() / 1000),
+      });
+    }
+
+    // Pass 3 — swaps annotate a matching settled leg, or emit a residual row.
     for (const swap of this._swapHistory) {
       let memo = '';
       let value = 0;
@@ -461,38 +516,42 @@ export class LightningArkWallet extends LightningCustodianWallet {
       const absValue = Math.abs(rawValue);
       value = absValue * direction;
 
-      // Hide unpaid reverse invoices that have no payment in flight. A
-      // `swap.created` reverse swap is an invoice the user generated that
-      // nobody has paid yet — it is NOT pending, just an open request that
-      // belongs on the receive screen, not in history. Surfacing it pinned the
-      // wallet card and the row to "Pending" indefinitely. Expired-unpaid
-      // reverse swaps (`invoice.expired` / `swap.expired`) are equally dead and
-      // dropped here too. Three things survive this filter:
-      // 1. Claimable reverse swaps (`transaction.mempool` /
-      //    `transaction.confirmed`, per isReverseClaimableStatus) — funds are
-      //    locked on-chain and the claim is imminent: a genuine pending receive.
-      // 2. Terminal rows (`Failed: ` / `Refunded: `) — diagnostic value.
-      // 3. Submarine rows of any status — by the time a submarine reaches a
-      //    pending state the user's lockup is on-chain, and hiding it would
-      //    lose visibility into recoverable funds.
-      // Display-only drop; registry callers opt out via includeUnpaidInvoices (see header).
-      if (!includeUnpaidInvoices && swap.type === 'reverse' && !ispaid && !memoPrefix && !isReverseClaimableStatus(swap.status)) continue;
-
-      // Pre-record the fingerprint so the native-Ark pass below can suppress
-      // the matching SDK history entry. Only settled swaps are guaranteed to
-      // have an Ark-side counterpart: reverse settles by
-      // Boltz claiming into our address, submarine settles by our lockup
-      // being claimed by Boltz. Pending/failed/refunded rows aren't
-      // guaranteed to produce an Ark leg, and recording their fingerprints
-      // would hide unrelated same-amount native transfers in the ±30 min
-      // window.
+      // Settled swaps (reverse `invoice.settled` / submarine `transaction.claimed`)
+      // are represented by their Ark-side leg from pass 1 — reverse settles by
+      // Boltz claiming into our address, submarine by our lockup being claimed,
+      // so the leg is in `getTransactionHistory()` in virtually all cases. We
+      // enrich that leg in place (memo/invoice/preimage) and NEVER emit a
+      // separate row for a settled swap: emitting no row here is the structural
+      // guarantee that a settlement cannot appear twice (once as its native leg,
+      // once as a `swap-` row), regardless of any timestamp skew between the
+      // swap and its leg. Match on (direction, on-chain amount) within ±30 min
+      // and consume each leg once. A leg that is briefly missing (sync lag)
+      // reappears — enriched — on the next fetch; the only cost of a window/
+      // amount miss is a generic memo on a row that already reads "Lightning".
       if (ispaid) {
-        swapFingerprints.push({
-          type: direction < 0 ? TxType.TxSent : TxType.TxReceived,
-          amount: absValue,
-          createdAtSec: timestamp,
-        });
+        const arkType = direction < 0 ? TxType.TxSent : TxType.TxReceived;
+        const leg = nativeLegs.find(
+          l => !l.matched && l.arkType === arkType && l.absAmount === absValue && Math.abs(l.row.timestamp - timestamp) <= MATCH_WINDOW_SEC,
+        );
+        if (leg) {
+          leg.matched = true;
+          leg.row.description = memoPrefix + memo;
+          leg.row.memo = memoPrefix + memo;
+          leg.row.ispaid = true;
+          leg.row.payment_hash = payment_hash;
+          leg.row.payment_request = bolt11invoice;
+          // @ts-ignore preimage is required for reverse, optional for submarine
+          leg.row.payment_preimage = swap.preimage;
+        }
+        continue;
       }
+
+      // Non-settled: hide unpaid reverse invoices with no payment in flight
+      // (`swap.created`, `invoice.expired` / `swap.expired`). Claimable reverse
+      // swaps and terminal `Failed: ` / `Refunded: ` rows survive; submarine rows
+      // of any status survive (lockup may be on-chain and recoverable).
+      // Display-only drop — registry callers pass includeUnpaidInvoices=true.
+      if (!includeUnpaidInvoices && swap.type === 'reverse' && !memoPrefix && !isReverseClaimableStatus(swap.status)) continue;
 
       ret.push({
         txid: `swap-${swap.id}`,
@@ -514,58 +573,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // @ts-ignore preimage is required for reverse, optional for submarine
         payment_preimage: swap.preimage,
         expire_time: expiry ?? 3600,
-      });
-    }
-
-    for (const boardingTx of this._boardingUtxos) {
-      ret.push({
-        txid: `boarding-utxo-${boardingTx.txid}:${boardingTx.vout}`,
-        type: 'bitcoind_tx',
-        walletID,
-        description: 'Pending refill',
-        memo: 'Pending refill',
-        value: boardingTx.value,
-        timestamp: boardingTx.status.block_time ?? Math.floor(Date.now() / 1000),
-      });
-    }
-
-    for (const histTx of this._transactionsHistory) {
-      if (histTx.key.boardingTxid) {
-        // Boarding leg: keep the existing "settled refill only" rule.
-        if (histTx.type === TxType.TxReceived && histTx.settled) {
-          ret.push({
-            txid: `boarding-${histTx.key.boardingTxid}`,
-            type: 'bitcoind_tx',
-            walletID,
-            description: 'Refill',
-            memo: 'Refill',
-            value: histTx.amount,
-            timestamp: Math.floor(histTx.createdAt / 1000),
-          });
-        }
-        continue;
-      }
-
-      // Native Ark transfer. Skip the swap-side leg of any settlement we
-      // already rendered as a Lightning row.
-      const histAmount = Math.abs(histTx.amount);
-      const histCreatedAtSec = Math.floor(histTx.createdAt / 1000);
-      const matchesSwap = swapFingerprints.some(
-        fp => fp.type === histTx.type && fp.amount === histAmount && Math.abs(fp.createdAtSec - histCreatedAtSec) <= DEDUP_WINDOW_SEC,
-      );
-      if (matchesSwap) continue;
-
-      const idKey = histTx.key.arkTxid || histTx.key.commitmentTxid || `${histTx.type}-${histCreatedAtSec}-${histAmount}`;
-      const direction = histTx.type === TxType.TxSent ? -1 : 1;
-      const description = histTx.type === TxType.TxSent ? 'Sent' : 'Received';
-      ret.push({
-        txid: `ark-${idKey}`,
-        type: 'bitcoind_tx',
-        walletID,
-        description,
-        memo: description,
-        value: histAmount * direction,
-        timestamp: histCreatedAtSec,
       });
     }
 
@@ -724,8 +731,15 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   isInvoiceGeneratedByWallet(paymentRequest: string) {
-    return this.getTransactions(true).some(
-      tx => tx.payment_request === paymentRequest && typeof tx.value !== 'undefined' && tx?.value >= 0,
+    // "Did we generate this invoice?" is a swap-history question: reverse swaps
+    // are the invoices we create to receive. Check _swapHistory directly so the
+    // answer is independent of how the display list coalesces a settled swap
+    // (whose row is enriched onto its native Ark leg rather than kept as a
+    // `swap-` row, and so would otherwise drop out of getTransactions()).
+    return this._swapHistory.some(
+      swap =>
+        swap.type === 'reverse' &&
+        ((swap.request as any)?.invoice === paymentRequest || (swap.response as any)?.invoice === paymentRequest),
     );
   }
 
