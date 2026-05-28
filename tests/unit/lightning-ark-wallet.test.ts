@@ -807,6 +807,60 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].description, 'Refill');
   });
 
+  it('drops the commitment-sweep twin so a boarding refill renders once (not Refill + Lightning)', () => {
+    // Observed bug: the SDK reports one refill twice — as the boarding leg
+    // (key.boardingTxid) and as the round key.commitmentTxid that sweeps it into a
+    // VTXO (same amount, both RECEIVED, ~minutes apart, no arkTxid). The commitment
+    // twin must be dropped so the refill shows once. The twin is listed first to
+    // exercise the order-independent fingerprint pre-pass.
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: 'sweep-commit', arkTxid: '' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 84960,
+        createdAt: 1700000104_000,
+      },
+      {
+        key: { boardingTxid: 'refill-tx', commitmentTxid: '', arkTxid: '' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 84960,
+        createdAt: 1700000000_000,
+      },
+    ];
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 1, 'exactly one row for the refill — commitment twin dropped');
+    assert.strictEqual(txs[0].txid, 'boarding-refill-tx');
+    assert.strictEqual(txs[0].description, 'Refill');
+  });
+
+  it('keeps an unrelated commitment-only RECEIVED leg that does not match a refill', () => {
+    // The twin-drop is gated on |amount| + time window, so a genuine commitment-only
+    // receive of a different amount survives alongside the refill.
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: 'refill-tx', commitmentTxid: '', arkTxid: '' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 84960,
+        createdAt: 1700000000_000,
+      },
+      {
+        key: { boardingTxid: '', commitmentTxid: 'genuine-commit', arkTxid: '' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 500,
+        createdAt: 1700000104_000,
+      },
+    ];
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 2);
+    const byId = Object.fromEntries(txs.map((t: any) => [t.txid, t]));
+    assert.strictEqual(byId['boarding-refill-tx']?.description, 'Refill');
+    assert.strictEqual(byId['ark-genuine-commit']?.description, 'Received');
+  });
+
   it('matches each settled swap to a distinct native leg (consume-once)', () => {
     (w as any)._swapHistory = [
       {

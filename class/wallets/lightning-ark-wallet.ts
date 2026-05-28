@@ -372,8 +372,25 @@ export class LightningArkWallet extends LightningCustodianWallet {
     // truth). `key.boardingTxid` is set only on boarding outputs, so it is an
     // exclusive refill discriminator; every other entry is a native Ark leg a
     // settled swap may later enrich in place.
+    //
+    // The SDK reports a single refill TWICE: once as the boarding leg
+    // (`key.boardingTxid`) and once as the round `key.commitmentTxid` that sweeps
+    // that boarding output into a VTXO — same |amount|, both Received, minutes
+    // apart, the commitment leg carrying no `arkTxid`. Collect the boarding
+    // fingerprints first so the main loop can drop the commitment-sweep twin;
+    // otherwise the refill renders both as "Refill" and as a phantom native leg.
     type NativeLeg = { row: any; arkType: TxType; absAmount: number; matched: boolean };
     const nativeLegs: NativeLeg[] = [];
+    const boardingFingerprints: { absAmount: number; createdAtSec: number; consumed: boolean }[] = [];
+    for (const histTx of this._transactionsHistory) {
+      if (histTx.key.boardingTxid && histTx.type === TxType.TxReceived && histTx.settled) {
+        boardingFingerprints.push({
+          absAmount: Math.abs(histTx.amount),
+          createdAtSec: Math.floor(histTx.createdAt / 1000),
+          consumed: false,
+        });
+      }
+    }
 
     for (const histTx of this._transactionsHistory) {
       if (histTx.key.boardingTxid) {
@@ -394,6 +411,23 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
       const absAmount = Math.abs(histTx.amount);
       const createdAtSec = Math.floor(histTx.createdAt / 1000);
+
+      // Drop the commitment-sweep twin of a boarding refill: a Received entry keyed
+      // only by `commitmentTxid` (no `arkTxid`) that matches a boarding fingerprint
+      // (same |amount|, within MATCH_WINDOW_SEC) is the round that swept that refill
+      // into a VTXO and is already represented by the "Refill" row. Consume the
+      // fingerprint so each refill suppresses exactly one twin; genuine `arkTxid`
+      // receives are never affected.
+      if (histTx.type === TxType.TxReceived && histTx.key.commitmentTxid && !histTx.key.arkTxid) {
+        const fp = boardingFingerprints.find(
+          b => !b.consumed && b.absAmount === absAmount && Math.abs(b.createdAtSec - createdAtSec) <= MATCH_WINDOW_SEC,
+        );
+        if (fp) {
+          fp.consumed = true;
+          continue;
+        }
+      }
+
       const direction = histTx.type === TxType.TxSent ? -1 : 1;
       const idKey = histTx.key.arkTxid || histTx.key.commitmentTxid || `${histTx.type}-${createdAtSec}-${absAmount}`;
       const description = histTx.type === TxType.TxSent ? 'Sent' : 'Received';
