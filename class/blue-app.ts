@@ -54,6 +54,12 @@ export type TCounterpartyMetadata = {
   };
 };
 
+export type TAddressMetadata = {
+  [address: string]: {
+    label: string;
+  };
+};
+
 type TRealmTransaction = {
   internal: boolean;
   index: number;
@@ -64,6 +70,7 @@ type TBucketStorage = {
   wallets: string[]; // array of serialized wallets, not actual wallet objects
   tx_metadata: TTXMetadata;
   counterparty_metadata: TCounterpartyMetadata;
+  address_metadata: TAddressMetadata;
 };
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
@@ -81,12 +88,14 @@ export class BlueApp {
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
   public counterparty_metadata: TCounterpartyMetadata;
+  public address_metadata: TAddressMetadata;
   public wallets: TWallet[];
 
   constructor() {
     this.wallets = [];
     this.tx_metadata = {};
     this.counterparty_metadata = {};
+    this.address_metadata = {};
     this.cachedPassword = false;
   }
 
@@ -209,6 +218,7 @@ export class BlueApp {
       this.wallets = [];
       this.tx_metadata = {};
       this.counterparty_metadata = {};
+      this.address_metadata = {};
       return this.loadFromDisk();
     } else {
       throw new Error('Incorrect password. Please, try again.');
@@ -239,11 +249,13 @@ export class BlueApp {
     this.wallets = [];
     this.tx_metadata = {};
     this.counterparty_metadata = {};
+    this.address_metadata = {};
 
     const data: TBucketStorage = {
       wallets: [],
       tx_metadata: {},
       counterparty_metadata: {},
+      address_metadata: {},
     };
 
     let buckets = await this.getItem('data');
@@ -489,6 +501,7 @@ export class BlueApp {
           this.wallets.push(unserializedWallet);
           this.tx_metadata = data.tx_metadata;
           this.counterparty_metadata = data.counterparty_metadata;
+          this.address_metadata = data.address_metadata ?? {};
         }
       }
       if (realm) realm.close();
@@ -684,6 +697,7 @@ export class BlueApp {
         wallets: walletsToSave,
         tx_metadata: this.tx_metadata,
         counterparty_metadata: this.counterparty_metadata,
+        address_metadata: this.address_metadata,
       };
 
       if (this.cachedPassword) {
