@@ -206,6 +206,7 @@ const ReceiveDetails = () => {
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
+  const isBIP47Capable = wallet?.allowBIP47?.() ?? false;
 
   const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
 
@@ -372,7 +373,7 @@ const ReceiveDetails = () => {
   useEffect(() => {
     const androidNoDuplicateBack = Platform.OS === 'android' ? { headerBackVisible: false as const } : {};
 
-    if (wallet?.allowBIP47() && isBIP47Enabled) {
+    if (isBIP47Capable) {
       setOptions({
         ...androidNoDuplicateBack,
         headerLeft: renderHeaderCloseButton,
@@ -388,7 +389,7 @@ const ReceiveDetails = () => {
       headerLeft: () => null,
       headerRight: renderHeaderCloseButton,
     });
-  }, [isBIP47Enabled, renderHeaderCloseButton, renderHeaderRightMenu, setOptions, wallet]);
+  }, [isBIP47Capable, renderHeaderCloseButton, renderHeaderRightMenu, setOptions]);
 
   // re-fetching address balance periodically
   useEffect(() => {
