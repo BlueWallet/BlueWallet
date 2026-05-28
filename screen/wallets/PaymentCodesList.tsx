@@ -294,8 +294,11 @@ export default function PaymentCodesList() {
     setIsLoading(true);
 
     const notificationTx = foundWallet.getBIP47NotificationTransaction(newPc);
+    // Normalize once so both branches treat a mempool tx (undefined confirmations) as 0.
+    // Without this, a fresh mempool notification tx falls through to creating a duplicate.
+    const notificationTxConfirmations = notificationTx?.confirmations ?? 0;
 
-    if (notificationTx && notificationTx.confirmations > 0) {
+    if (notificationTx && notificationTxConfirmations > 0) {
       // we previously sent notification transaction to him, so just need to add him to internals
       foundWallet.addBIP47Receiver(newPc);
       await foundWallet.syncBip47ReceiversAddresses(newPc); // so we can unwrap and save all his possible addresses
@@ -305,7 +308,7 @@ export default function PaymentCodesList() {
       return;
     }
 
-    if (notificationTx && notificationTx.confirmations === 0) {
+    if (notificationTx && notificationTxConfirmations === 0) {
       // for a rare case when we just sent the confirmation tx and it havent confirmed yet
       presentAlert({ message: loc.bip47.notification_tx_unconfirmed });
       return;

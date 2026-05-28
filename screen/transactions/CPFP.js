@@ -78,8 +78,9 @@ export default class CPFP extends Component {
   broadcast = () => {
     this.setState({ isLoading: true }, async () => {
       try {
-        await BlueElectrum.ping();
-        await BlueElectrum.waitTillConnected();
+        if (!(await BlueElectrum.ensureConnected())) {
+          throw new Error(loc.errors.network);
+        }
         const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
           this.onSuccessBroadcast();
