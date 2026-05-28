@@ -862,6 +862,25 @@ describe('LightningArkWallet — generate', () => {
     assert.ok(w.isInvoiceGeneratedByWallet('lnbc100u1p50528cpp5...mine'));
     assert.ok(!w.isInvoiceGeneratedByWallet('lnbc999u1psomeoneelse'));
   });
+
+  it('recognizes a freshly-created (unpaid) reverse invoice as ours but keeps it out of the history list', () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    (w as any)._swapHistory = [
+      {
+        id: 'fresh',
+        type: 'reverse',
+        status: 'swap.created',
+        createdAt: 1700000000,
+        request: { invoice: 'lnbc100u1p50528cpp5...fresh', invoiceAmount: 100 },
+        response: { invoice: 'lnbc100u1p50528cpp5...fresh' },
+      },
+    ];
+    // Registry view (includeUnpaidInvoices=true) sees the open invoice...
+    assert.ok(w.isInvoiceGeneratedByWallet('lnbc100u1p50528cpp5...fresh'));
+    // ...but the displayed history list still hides the unpaid, not-in-flight row.
+    assert.strictEqual(w.getTransactions().length, 0);
+  });
 });
 
 describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', () => {

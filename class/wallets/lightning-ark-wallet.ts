@@ -354,10 +354,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
    *   to (a) reverse only — submarine pending rows may have on-chain locked
    *   funds that need recovery visibility — and (b) non-terminal rows so a
    *   `Failed: ` / `Refunded: ` row is still preserved for diagnosis.
+   *   This drop is display-only: `getUserInvoices()` and
+   *   `isInvoiceGeneratedByWallet()` call with `includeUnpaidInvoices=true` so a
+   *   just-created, unpaid invoice stays discoverable by the receive-screen poll
+   *   and the clipboard heuristic, even though it is hidden from the history list.
    * - Failed/refunded swaps stay visible with `ispaid:false` and a
    *   `Failed: ` / `Refunded: ` memo prefix so support can diagnose them.
    */
-  getTransactions(): (Transaction & LightningTransaction)[] {
+  getTransactions(includeUnpaidInvoices = false): (Transaction & LightningTransaction)[] {
     const walletID = this.getID();
     const ret: any[] = [];
     const DEDUP_WINDOW_SEC = 30 * 60;
@@ -471,7 +475,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
       // 3. Submarine rows of any status — by the time a submarine reaches a
       //    pending state the user's lockup is on-chain, and hiding it would
       //    lose visibility into recoverable funds.
-      if (swap.type === 'reverse' && !ispaid && !memoPrefix && !isReverseClaimableStatus(swap.status)) continue;
+      // Display-only drop; registry callers opt out via includeUnpaidInvoices (see header).
+      if (!includeUnpaidInvoices && swap.type === 'reverse' && !ispaid && !memoPrefix && !isReverseClaimableStatus(swap.status)) continue;
 
       // Pre-record the fingerprint so the native-Ark pass below can suppress
       // the matching SDK history entry. Only settled swaps are guaranteed to
@@ -650,7 +655,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
   async getUserInvoices(): Promise<LightningTransaction[]> {
     await this.fetchTransactions();
-    const txs = this.getTransactions();
+    const txs = this.getTransactions(true);
     return txs.filter(tx => tx.value! > 0);
   }
 
@@ -719,7 +724,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   isInvoiceGeneratedByWallet(paymentRequest: string) {
-    return this.getTransactions().some(tx => tx.payment_request === paymentRequest && typeof tx.value !== 'undefined' && tx?.value >= 0);
+    return this.getTransactions(true).some(
+      tx => tx.payment_request === paymentRequest && typeof tx.value !== 'undefined' && tx?.value >= 0,
+    );
   }
 
   async createAccount() {
