@@ -127,7 +127,7 @@ function setConnectionState(next: ConnectionState): void {
     try {
       l(next);
     } catch (e) {
-      console.warn('connection listener threw:', e);
+      console.warn('[electrum] connection listener threw:', e);
     }
   }
 }
@@ -224,10 +224,10 @@ export const getPreferredServer = async (): Promise<ElectrumServerItem | undefin
     const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
     const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
 
-    console.log('Getting preferred server:', { host, tcpPort, sslPort });
+    console.log('[electrum] Getting preferred server:', { host, tcpPort, sslPort });
 
     if (!host) {
-      console.warn('Preferred server host is undefined');
+      console.warn('[electrum] Preferred server host is undefined');
       return;
     }
 
@@ -237,7 +237,7 @@ export const getPreferredServer = async (): Promise<ElectrumServerItem | undefin
       ssl: sslPort ? Number(sslPort) : undefined,
     };
   } catch (error) {
-    console.error('Error in getPreferredServer:', error);
+    console.error('[electrum] Error in getPreferredServer:', error);
     return undefined;
   }
 };
@@ -245,12 +245,12 @@ export const getPreferredServer = async (): Promise<ElectrumServerItem | undefin
 export const removePreferredServer = async () => {
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-    console.log('Removing preferred server');
+    console.log('[electrum] Removing preferred server');
     await DefaultPreference.clear(ELECTRUM_HOST);
     await DefaultPreference.clear(ELECTRUM_TCP_PORT);
     await DefaultPreference.clear(ELECTRUM_SSL_PORT);
   } catch (error) {
-    console.error('Error in removePreferredServer:', error);
+    console.error('[electrum] Error in removePreferredServer:', error);
   }
 };
 
@@ -259,14 +259,14 @@ export async function isDisabled(): Promise<boolean> {
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
     const savedValue = await DefaultPreference.get(ELECTRUM_CONNECTION_DISABLED);
-    console.log('Getting Electrum connection disabled state:', savedValue);
+    console.log('[electrum] Getting Electrum connection disabled state:', savedValue);
     if (savedValue === null) {
       result = false;
     } else {
       result = savedValue;
     }
   } catch (error) {
-    console.error('Error getting Electrum connection disabled state:', error);
+    console.error('[electrum] Error getting Electrum connection disabled state:', error);
     result = false;
   }
   return !!result;
@@ -274,7 +274,7 @@ export async function isDisabled(): Promise<boolean> {
 
 export async function setDisabled(disabled = true) {
   await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
-  console.log('Setting Electrum connection disabled state to:', disabled);
+  console.log('[electrum] Setting Electrum connection disabled state to:', disabled);
   const result = await DefaultPreference.set(ELECTRUM_CONNECTION_DISABLED, disabled ? '1' : '');
   // Disabling must abort any in-flight ensureConnected() and tear down the live
   // socket so callers don't have to remember to pair this with forceDisconnect().
@@ -314,7 +314,7 @@ async function getSavedPeer(): Promise<Peer | null> {
     const tcpPort = await DefaultPreference.get(ELECTRUM_TCP_PORT);
     const sslPort = await DefaultPreference.get(ELECTRUM_SSL_PORT);
 
-    console.log('Getting saved peer:', { host, tcpPort, sslPort });
+    console.log('[electrum] Getting saved peer:', { host, tcpPort, sslPort });
 
     if (!host) {
       return null;
@@ -330,7 +330,7 @@ async function getSavedPeer(): Promise<Peer | null> {
 
     return null;
   } catch (error) {
-    console.error('Error in getSavedPeer:', error);
+    console.error('[electrum] Error in getSavedPeer:', error);
     return null;
   }
 }
@@ -348,7 +348,7 @@ async function pickPeer(): Promise<Peer> {
 function scheduleReconnectFromClient(client: typeof ElectrumClient, usingPeer: Peer, reason: string): void {
   if (connState !== 'connected' || mainClient !== client) return;
 
-  console.log(`scheduling Electrum reconnect after ${reason}`);
+  console.log(`[electrum] scheduling Electrum reconnect after ${reason}`);
   try {
     // Also neutralises electrum-client's own timers/reconnect hooks for this instance.
     client.close();
@@ -374,7 +374,7 @@ function scheduleReconnectFromClient(client: typeof ElectrumClient, usingPeer: P
  */
 async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
   const usingPeer = await pickPeer();
-  console.log('Using peer:', JSON.stringify(usingPeer));
+  console.log('[electrum] Using peer:', JSON.stringify(usingPeer));
 
   // Drop any prior client before allocating a new one. Closing also neutralises
   // electrum-client's internal `reconnect()` loop on the old instance.
@@ -386,7 +386,7 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
   }
 
   try {
-    console.log('begin connection:', JSON.stringify(usingPeer));
+    console.log('[electrum] begin connection:', JSON.stringify(usingPeer));
     const client = new ElectrumClient(net, tls, usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
     mainClient = client;
 
@@ -394,7 +394,7 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
     // `ensureConnected()` (deduped). Errors during this attempt's own handshake
     // are caught below — we must not double-handle them here.
     client.onError = function (e: { message: string }) {
-      console.log('electrum mainClient.onError():', e.message);
+      console.log('[electrum] electrum mainClient.onError():', e.message);
       scheduleReconnectFromClient(client, usingPeer, 'socket error');
     };
 
@@ -418,7 +418,7 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
     }
 
     if (ver && ver[0]) {
-      console.log('connected to ', ver);
+      console.log('[electrum] connected to ', ver);
       serverName = ver[0];
       if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs') || ver[0].startsWith('Fulcrum')) {
         disableBatching = true;
@@ -449,7 +449,7 @@ async function attemptConnectOnce(): Promise<{ ok: boolean; peer: Peer }> {
     }
     return { ok: false, peer: usingPeer };
   } catch (e) {
-    console.log('bad connection:', JSON.stringify(usingPeer), e);
+    console.log('[electrum] bad connection:', JSON.stringify(usingPeer), e);
     if (mainClient) {
       try {
         mainClient.close();
@@ -518,7 +518,7 @@ export async function ensureConnected(opts: EnsureConnectedOptions = {}): Promis
     /** True iff the current generation no longer matches ours (i.e. `forceDisconnect()` ran). */
     const aborted = (where: string): boolean => {
       if (myGeneration === disconnectGeneration) return false;
-      console.log(`[BlueElectrum] ensureConnected aborted by forceDisconnect at ${where} (gen ${myGeneration} → ${disconnectGeneration})`);
+      console.log(`[electrum] ensureConnected aborted by forceDisconnect at ${where} (gen ${myGeneration} → ${disconnectGeneration})`);
       return true;
     };
     let lastPeer: Peer | undefined;
@@ -607,7 +607,7 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
             await DefaultPreference.clear(ELECTRUM_SSL_PORT);
             await DefaultPreference.clear(ELECTRUM_TCP_PORT);
           } catch (e) {
-            console.log(e); // Must be running on Android
+            console.log('[electrum]', e); // Must be running on Android
           }
           resolve(true);
         },
@@ -626,7 +626,7 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
             await DefaultPreference.clear(ELECTRUM_SSL_PORT);
             await DefaultPreference.clear(ELECTRUM_TCP_PORT);
           } catch (e) {
-            console.log(e); // Must be running on Android
+            console.log('[electrum]', e); // Must be running on Android
           }
           resolve(true);
         },
@@ -652,7 +652,7 @@ export async function presentResetToDefaultsAlert(): Promise<boolean> {
 async function presentNetworkErrorAlert(usingPeer?: Peer, allowRepeat = false) {
   if (await isDisabled()) {
     console.log(
-      'Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
+      '[electrum] Electrum connection disabled by user. Perhaps we are attempting to show this network error alert after the user disabled connections.',
     );
     return;
   }
@@ -753,7 +753,7 @@ export const getBalanceByAddress = async function (address: string): Promise<{ c
     balance.addr = address;
     return balance;
   } catch (error) {
-    console.error('Error in getBalanceByAddress:', error);
+    console.error('[electrum] Error in getBalanceByAddress:', error);
     throw error;
   }
 };
@@ -1032,7 +1032,7 @@ export const multiGetBalanceByAddress = async (addresses: string[], batchsize: n
     }
 
     for (const bal of balances) {
-      if (bal.error) console.warn('multiGetBalanceByAddress():', bal.error);
+      if (bal.error) console.warn('[electrum] multiGetBalanceByAddress():', bal.error);
       ret.balance += +bal.result.confirmed;
       ret.unconfirmed_balance += +bal.result.unconfirmed;
       ret.addresses[scripthash2addr[bal.param]] = bal.result;
@@ -1126,7 +1126,7 @@ export const multiGetHistoryByAddress = async function (
     }
 
     for (const history of results) {
-      if (history.error) console.warn('multiGetHistoryByAddress():', history.error);
+      if (history.error) console.warn('[electrum] multiGetHistoryByAddress():', history.error);
       ret[scripthash2addr[history.param]] = history.result || [];
       for (const result of history.result || []) {
         if (result.tx_hash) txhashHeightCache[result.tx_hash] = result.height; // cache tx height
@@ -1167,7 +1167,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
       try {
         ret[txid] = JSON.parse(jsonString.cache_value as string);
       } catch (error) {
-        console.log(error, 'cache failed to parse', jsonString.cache_value);
+        console.log('[electrum]', error, 'cache failed to parse', jsonString.cache_value);
       }
     }
 
@@ -1217,7 +1217,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
               tx = txhexToElectrumTransaction(tx);
               results.push({ result: tx, param: txid });
             } catch (err) {
-              console.log(err);
+              console.log('[electrum]', err);
             }
           }
         } else {
@@ -1233,7 +1233,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
               }
               results.push({ result: tx, param: txid });
             } catch (err) {
-              console.log(err);
+              console.log('[electrum]', err);
             }
           }
         }
@@ -1288,7 +1288,7 @@ export async function multiGetTransactionByTxid<T extends boolean>(
       }
     });
   } catch (writeError) {
-    console.error('Failed to write transaction cache:', writeError);
+    console.error('[electrum] Failed to write transaction cache:', writeError);
   }
 
   return ret;
@@ -1445,10 +1445,11 @@ export const testConnection = async function (host: string, tcpPort?: number, ss
 
   client.onError = () => {}; // mute
   let timeoutId: NodeJS.Timeout | undefined;
+  const timeoutMs = host.endsWith('.onion') ? 21_000 : 5_000;
   try {
     const rez = await Promise.race([
       new Promise(resolve => {
-        timeoutId = setTimeout(() => resolve('timeout'), 5000);
+        timeoutId = setTimeout(() => resolve('timeout'), timeoutMs);
       }),
       client.connect(),
     ]);
