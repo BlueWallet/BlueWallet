@@ -175,22 +175,17 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
 
   const isPending = listTitleKey === 'pending';
 
-  // For LightningArkWallet rows, prepend a kind tag so the user can tell
-  // Lightning swaps, native Ark transfers, and on-chain refills apart at a
-  // glance — they all share the generic "Sent"/"Received"/"Pending" title
-  // and the same on-chain icon. Detection: Lightning swap rows are the
-  // invoice-typed rows synthesized in lightning-ark-wallet.getTransactions();
-  // native Ark and refill rows are bitcoind_tx-typed but carry a synthetic
-  // `txid` prefix (`ark-…`, `boarding-…`). Other wallet types are
-  // unaffected.
-  const arkRowKind = useMemo<'Lightning' | 'Arkade' | 'Refill' | undefined>(() => {
+  // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
+  // wallet transacts entirely via Boltz swaps, so every row is Lightning; the
+  // only genuinely on-chain activity is onboarding/refill (boarding UTXOs),
+  // tagged from the synthetic `boarding-…` txid set in
+  // lightning-ark-wallet.getTransactions(). Other wallet types are unaffected.
+  const arkRowKind = useMemo<'Lightning' | 'Refill' | undefined>(() => {
     const wallet = wallets.find(w => w.getID() === item.walletID);
     if (wallet?.type !== LightningArkWallet.type) return undefined;
-    if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') return 'Lightning';
     const txid = (item as { txid?: string }).txid;
-    if (txid?.startsWith('ark-')) return 'Arkade';
     if (txid?.startsWith('boarding-')) return 'Refill';
-    return undefined;
+    return 'Lightning';
   }, [item, wallets]);
 
   const dateLine = useMemo(() => {
@@ -265,6 +260,14 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         label: loc.transactions.pending_transaction,
         icon: <TransactionPendingIcon />,
       };
+    }
+
+    // Recovered Arkade Lightning legs are bitcoind_tx but represent Boltz swaps,
+    // not on-chain transfers — render them with the off-chain (Lightning) icon.
+    if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
+      return item.value! < 0
+        ? { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> }
+        : { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };
     }
 
     if (item.type && item.type === 'bitcoind_tx') {
