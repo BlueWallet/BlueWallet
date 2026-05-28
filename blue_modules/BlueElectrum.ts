@@ -30,7 +30,7 @@ type Utxo = {
   wif?: string;
 };
 
-type ElectrumTransaction = {
+export type ElectrumTransaction = {
   txid: string;
   hash: string;
   version: number;
@@ -58,13 +58,14 @@ type ElectrumTransaction = {
       addresses: string[];
     };
   }[];
-  blockhash: string;
-  confirmations: number;
-  time: number;
-  blocktime: number;
+  // Confirmation-only fields: absent on mempool (unconfirmed) responses.
+  blockhash?: string;
+  confirmations?: number;
+  time?: number;
+  blocktime?: number;
 };
 
-type ElectrumTransactionWithHex = ElectrumTransaction & {
+export type ElectrumTransactionWithHex = ElectrumTransaction & {
   hex: string;
 };
 
