@@ -555,11 +555,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: INPUT_HORIZONTAL_PADDING,
     paddingVertical: INPUT_VERTICAL_PADDING,
-    zIndex: 2,
+    zIndex: 1,
   },
   inputOverlay: {
     ...StyleSheet.absoluteFill,
-    zIndex: 1,
+    zIndex: 2,
   },
   cryptoCurrency: {
     fontSize: 15,

@@ -98,38 +98,51 @@ const DetailViewStackScreensStack = () => {
   const { sizeClass } = useSizeClass();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
+  // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
+  // BlueElectrum.ping() reflects the result into the shared connection state, which
+  // we observe via the subscription below — no need to set local state here.
   const pollConnection = useCallback(async () => {
     if (isElectrumDisabled) return;
-    const ok = await BlueElectrum.ping();
-    setElectrumConnected(ok);
+    await BlueElectrum.ping();
   }, [isElectrumDisabled]);
 
+  // Mirror BlueElectrum's connection state into local UI state.
   useEffect(() => {
     if (isElectrumDisabled) {
       setElectrumConnected(null);
       return;
     }
-    pollConnection();
-  }, [isElectrumDisabled, pollConnection]);
+    const sync = () => setElectrumConnected(BlueElectrum.isConnected());
+    sync();
+    const unsubscribe = BlueElectrum.subscribeConnectionState(sync);
+    // Kick off an initial probe so the header pill reflects reality after mount.
+    BlueElectrum.ping().catch(() => {});
+    return unsubscribe;
+  }, [isElectrumDisabled]);
 
+  // On foreground transition, proactively heal: ensureConnected() takes the fast
+  // ping path when the socket is alive (no-op) and rebuilds the connection only
+  // when needed. This replaces the old "ping → maybe show network alert" path that
+  // could surface a false alert after iOS suspend/resume.
   useEffect(() => {
     if (isElectrumDisabled) return;
     const subscription = AppState.addEventListener('change', nextState => {
       if (nextState === 'active') {
-        pollConnection();
+        BlueElectrum.ensureConnected().catch(() => {});
       }
     });
     return () => subscription.remove();
-  }, [isElectrumDisabled, pollConnection]);
-  // When starting up in an unknown state, we optimistically rely on ping()
-  // and the fast retry loop while disconnected. Slow health checks while connected
-  // run only from WalletsList when that screen is focused (saves idle battery).
+  }, [isElectrumDisabled]);
 
+  // While we believe we're disconnected, ask BlueElectrum to keep trying to
+  // reconnect (silently — the red "Not connected" pill is the only UI signal).
   useEffect(() => {
     if (isElectrumDisabled || electrumConnected !== false) return;
-    const interval = setInterval(pollConnection, 3000);
+    const interval = setInterval(() => {
+      BlueElectrum.ensureConnected().catch(() => {});
+    }, 3000);
     return () => clearInterval(interval);
-  }, [isElectrumDisabled, electrumConnected, pollConnection]);
+  }, [isElectrumDisabled, electrumConnected]);
 
   const connectionPollContextValue = useMemo(() => ({ pollConnection }), [pollConnection]);
 
