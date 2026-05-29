@@ -511,15 +511,34 @@ const WalletDetails: React.FC = () => {
   }, [wallet, saveToDisk]);
 
   const walletMasterFingerprintInputOnBlur = useCallback(async () => {
-    const mfp = masterFingerprint?.trim();
-
     if (wallet.type === WatchOnlyWallet.type) {
+      let mfp = masterFingerprint?.trim().toLocaleLowerCase();
+
       // masterfingerprint before editing started
       const currentMasterFingerprint = wallet.getMasterFingerprintHex();
 
-      if (!mfp || mfp.length !== 8) {
-        presentAlert({ message: loc.wallets.invalid_masterfingerprint });
+      if (!mfp) {
+        presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
 
+        setMasterFingerprint(currentMasterFingerprint);
+        return;
+      }
+
+      if (mfp.startsWith('0b')) {
+        const binaryPureString = mfp.replace('0b', '');
+        mfp = parseInt(binaryPureString, 2).toString(16);
+        mfp = mfp.padStart(8, '0');
+      } else if (mfp.startsWith('0d')) {
+        const decimalPureString = mfp.replace('0d', '');
+        mfp = parseInt(decimalPureString, 10).toString(16);
+        mfp = mfp.padStart(8, '0');
+      } else if (mfp.startsWith('0x')) {
+        mfp = mfp.replace('0x', '');
+      }
+
+      // hex should be 8 characters and have only hex characters
+      if (mfp.length !== 8 || !/^[0-9a-f]{8}$/.test(mfp)) {
+        presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
         setMasterFingerprint(currentMasterFingerprint);
         return;
       }
@@ -528,6 +547,8 @@ const WalletDetails: React.FC = () => {
         try {
           console.warn('updating masterfingerprint:', mfp);
           wallet.setMasterFingerprintHex(mfp);
+          setMasterFingerprint(mfp);
+
           await saveToDisk();
         } catch (error) {
           console.error((error as Error).message);
@@ -536,7 +557,7 @@ const WalletDetails: React.FC = () => {
         setMasterFingerprint(currentMasterFingerprint);
       }
     }
-  }, [wallet, masterFingerprint, saveToDisk]);
+  }, [wallet, masterFingerprint, setMasterFingerprint, saveToDisk]);
 
   usePreventRemove(false, () => {
     walletMasterFingerprintInputOnBlur();
@@ -842,6 +863,7 @@ const WalletDetails: React.FC = () => {
                 onPress={() => setIsAdvancedExpanded(prev => !prev)}
                 style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRowContainer]}
                 activeOpacity={0.85}
+                testID="advanced-details"
               >
                 <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.wallets.details_advanced}</BlueText>
                 <Icon
@@ -922,7 +944,7 @@ const WalletDetails: React.FC = () => {
                               )}
                             </View>
                           ) : (
-                            <Pressable onPress={onViewMasterFingerPrintPress}>
+                            <Pressable onPress={onViewMasterFingerPrintPress} testID="viewMasterfingerprint">
                               <BlueText>{loc.multisig.view}</BlueText>
                             </Pressable>
                           )}
