@@ -88,26 +88,34 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
     await setTotalBalancePreferredUnitStorage(nextUnit);
   }, [totalBalancePreferredUnit, setTotalBalancePreferredUnitStorage]);
 
-  if (!isTotalBalanceEnabled) return null;
-
+  // We intentionally keep the ToolTipMenu mounted and toggle `display` instead of
+  // returning null when disabled. react-native-context-menu-view is a legacy (Paper)
+  // component driven through the New Architecture interop layer; unmounting the menu
+  // host while the native context menu is still dismissing desyncs Fabric's view
+  // registry and crashes in RCTViewComponentView unmountChildComponentView (NSRangeException).
   return (
-    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress style={styles.menuContainer}>
-      <View style={styles.container}>
-        <Text style={styles.label}>{loc.wallets.total_balance}</Text>
-        <TouchableOpacity onPress={handleBalanceOnPress}>
-          <Text style={[styles.balance, { color: colors.foregroundColor }]}>
-            {totalBalanceFormatted}{' '}
-            {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-              <Text style={[styles.currency, { color: colors.foregroundColor }]}>{totalBalancePreferredUnit}</Text>
-            )}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </ToolTipMenu>
+    <View style={isTotalBalanceEnabled ? undefined : styles.hidden}>
+      <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress style={styles.menuContainer}>
+        <View style={styles.container}>
+          <Text style={styles.label}>{loc.wallets.total_balance}</Text>
+          <TouchableOpacity onPress={handleBalanceOnPress}>
+            <Text style={[styles.balance, { color: colors.foregroundColor }]}>
+              {totalBalanceFormatted}{' '}
+              {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+                <Text style={[styles.currency, { color: colors.foregroundColor }]}>{totalBalancePreferredUnit}</Text>
+              )}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ToolTipMenu>
+    </View>
   );
 });
 
 const styles = StyleSheet.create({
+  hidden: {
+    display: 'none',
+  },
   menuContainer: {
     alignSelf: 'stretch',
   },

@@ -220,23 +220,27 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
               onPressMenuItem={onPressMenuItem}
               actions={toolTipWalletBalanceActions}
             >
+              {/* Both views stay mounted; we toggle `display` instead of swapping them.
+                  react-native-context-menu-view is a legacy (Paper) component running under
+                  the New Architecture interop layer, and mounting/unmounting children of the
+                  menu host desyncs Fabric's view registry, crashing in
+                  RCTViewComponentView unmountChildComponentView (NSRangeException). */}
               <View style={styles.walletBalance}>
-                {hideBalance ? (
+                <View style={hideBalance ? undefined : styles.balanceHidden} pointerEvents="none">
                   <BlurredBalanceView />
-                ) : (
-                  <View key={`wallet-balance-textwrap-${wallet.getID?.() ?? ''}-${String(balance)}`}>
-                    <Animated.Text
-                      key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`} // force recreation on balance change for RTL correctness
-                      testID="WalletBalance"
-                      numberOfLines={1}
-                      minimumFontScale={0.5}
-                      adjustsFontSizeToFit
-                      style={[styles.walletBalanceText, animatedBalanceTextStyle]}
-                    >
-                      {balance}
-                    </Animated.Text>
-                  </View>
-                )}
+                </View>
+                <View style={hideBalance ? styles.balanceHidden : undefined}>
+                  <Animated.Text
+                    key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`} // force recreation on balance change for RTL correctness
+                    testID="WalletBalance"
+                    numberOfLines={1}
+                    minimumFontScale={0.5}
+                    adjustsFontSizeToFit
+                    style={[styles.walletBalanceText, animatedBalanceTextStyle]}
+                  >
+                    {balance}
+                  </Animated.Text>
+                </View>
               </View>
             </ToolTipMenu>
             <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit} disabled={unitSwitching}>
@@ -300,6 +304,9 @@ const styles = StyleSheet.create({
   walletBalance: {
     flexShrink: 1,
     marginRight: 6,
+  },
+  balanceHidden: {
+    display: 'none',
   },
   manageFundsButtonContainer: {
     marginTop: 14,
