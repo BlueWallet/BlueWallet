@@ -8,7 +8,7 @@ import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
-    connectMain: jest.fn(),
+    ensureConnected: jest.fn().mockResolvedValue(true),
   };
 });
 

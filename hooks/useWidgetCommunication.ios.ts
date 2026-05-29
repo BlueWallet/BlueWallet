@@ -74,7 +74,7 @@ export const calculateBalanceAndTransactionTime = async (
 
       const balance = await wallet.getBalance();
       const transactions: Transaction[] = await wallet.getTransactions();
-      const confirmedTransactions = transactions.filter(t => t.confirmations > 0);
+      const confirmedTransactions = transactions.filter(t => (t.confirmations ?? 0) > 0);
       const latestTransactionTime =
         confirmedTransactions.length > 0
           ? secondsToMilliseconds(Math.max(...confirmedTransactions.map(t => t.timestamp || t.time || 0)))

@@ -153,6 +153,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
           ]}
           onPress={onToggle}
           accessibilityRole="button"
+          testID={isHidden ? 'SwipeShowBalance' : 'SwipeHideBalance'}
         >
           <Text style={[styles.rightActionText, { color: colors.buttonTextColor }]}>
             {isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}

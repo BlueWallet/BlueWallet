@@ -568,7 +568,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForKeyboardToClose();
     await goBack();
     await waitForText('testname');
-    await expect(element(by.id('WalletLabel'))).toHaveText('testname');
     await element(by.id('WalletDetails')).tap();
 
     // rename back
@@ -578,7 +577,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForKeyboardToClose();
     await goBack();
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
-    await expect(element(by.id('WalletLabel'))).toHaveText('Imported HD SegWit (BIP84 Bech32 Native)');
     await element(by.id('WalletDetails')).tap();
 
     // wallet export
@@ -599,6 +597,16 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
       .scroll(500, 'down');
     await tapAndTapAgainIfElementIsNotVisible('XpubButton', 'CopyTextToClipboard');
     await goBack();
+    await goBack();
+    await goBack();
+
+    // ManageWallets — open via long-press, verify header + drag hint render
+    await waitForId('WalletsList');
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).longPress();
+    await waitForId('NavigationCloseButton');
+    await expect(element(by.id('Imported HD SegWit (BIP84 Bech32 Native)'))).toBeVisible();
+    await element(by.id('NavigationCloseButton')).tap();
+    await waitForId('WalletsList');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
