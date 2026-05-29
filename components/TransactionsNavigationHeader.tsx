@@ -224,7 +224,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                 {hideBalance ? (
                   <BlurredBalanceView />
                 ) : (
-                  <View key={`wallet-balance-textwrap-${wallet.getID?.() ?? ''}-${String(balance)}`}>
+                  <Animated.View key={`wallet-balance-textwrap-${wallet.getID?.() ?? ''}-${String(balance)}`}>
                     <Animated.Text
                       key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`} // force recreation on balance change for RTL correctness
                       testID="WalletBalance"
@@ -235,7 +235,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                     >
                       {balance}
                     </Animated.Text>
-                  </View>
+                  </Animated.View>
                 )}
               </View>
             </ToolTipMenu>
