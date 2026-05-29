@@ -30,7 +30,9 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.connectMain();
+  if (!(await BlueElectrum.ensureConnected())) {
+    throw new Error('failed to connect to Electrum');
+  }
 });
 
 type THistoryItem = { action: 'progress'; data: string } | { action: 'wallet'; data: TWallet } | { action: 'password'; data: string };

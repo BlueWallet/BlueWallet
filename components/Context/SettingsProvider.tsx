@@ -220,7 +220,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
 
   useEffect(() => {
     if (walletsInitialized) {
-      isElectrumDisabled ? BlueElectrum.forceDisconnect() : BlueElectrum.connectMain();
+      if (isElectrumDisabled) {
+        BlueElectrum.forceDisconnect();
+      } else {
+        BlueElectrum.ensureConnected({ showAlertOnFailure: true });
+      }
     }
   }, [isElectrumDisabled, walletsInitialized]);
 
