@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
@@ -14,7 +13,6 @@ import { FiatUnit } from '../models/fiatUnit';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { useSettings } from '../hooks/context/useSettings';
 import ToolTipMenu from './TooltipMenu';
-import useAnimateOnChange from '../hooks/useAnimateOnChange';
 import { useLocale } from '@react-navigation/native';
 
 interface TransactionsNavigationHeaderProps {
@@ -39,9 +37,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   const [allowOnchainAddress, setAllowOnchainAddress] = useState(isLightningWallet);
   const { preferredFiatCurrency } = useSettings();
   const { direction } = useLocale();
-  const balanceOpacity = useSharedValue(1);
-  const balanceTranslateY = useSharedValue(0);
+  const balanceOpacity = useRef(new Animated.Value(1)).current;
+  const balanceTranslateY = useRef(new Animated.Value(0)).current;
+  const containerProgress = useRef(new Animated.Value(1)).current;
   const previousBalance = useRef<string | undefined>(undefined);
+  const previousBalanceAnimationKey = useRef<string | undefined>(undefined);
 
   const verifyIfWalletAllowsOnchainAddress = useCallback(() => {
     if (isLightningWallet) {
@@ -139,16 +139,28 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   useEffect(() => {
     if (hideBalance) {
       previousBalance.current = undefined;
-      balanceOpacity.value = 1;
-      balanceTranslateY.value = 0;
+      balanceOpacity.setValue(1);
+      balanceTranslateY.setValue(0);
       return;
     }
 
     if (previousBalance.current !== undefined && previousBalance.current !== safeBalance) {
-      balanceOpacity.value = 0;
-      balanceTranslateY.value = 6;
-      balanceOpacity.value = withTiming(1, { duration: 180 });
-      balanceTranslateY.value = withSpring(0, { damping: 16, stiffness: 220 });
+      balanceOpacity.setValue(0);
+      balanceTranslateY.setValue(6);
+
+      Animated.parallel([
+        Animated.timing(balanceOpacity, {
+          toValue: 1,
+          duration: 180,
+          useNativeDriver: true,
+        }),
+        Animated.spring(balanceTranslateY, {
+          toValue: 0,
+          damping: 16,
+          stiffness: 220,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
 
     previousBalance.current = safeBalance;
@@ -158,12 +170,44 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     () => `${wallet.getID?.() ?? ''}-${unit}-${hideBalance}-${safeBalance ?? ''}`,
     [safeBalance, hideBalance, unit, wallet],
   );
-  const balanceAnimatedStyle = useAnimateOnChange(balanceAnimationKey);
+  useEffect(() => {
+    if (previousBalanceAnimationKey.current !== undefined && previousBalanceAnimationKey.current !== balanceAnimationKey) {
+      containerProgress.setValue(0);
+      Animated.timing(containerProgress, {
+        toValue: 1,
+        duration: 220,
+        useNativeDriver: true,
+      }).start();
+    }
 
-  const animatedBalanceTextStyle = useAnimatedStyle(() => ({
-    opacity: balanceOpacity.value,
-    transform: [{ translateY: balanceTranslateY.value }],
-  }));
+    previousBalanceAnimationKey.current = balanceAnimationKey;
+  }, [balanceAnimationKey, containerProgress]);
+
+  const balanceAnimatedStyle = useMemo(
+    () => ({
+      opacity: containerProgress.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0.85, 1],
+      }),
+      transform: [
+        {
+          scale: containerProgress.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.98, 1],
+          }),
+        },
+      ],
+    }),
+    [containerProgress],
+  );
+
+  const animatedBalanceTextStyle = useMemo(
+    () => ({
+      opacity: balanceOpacity,
+      transform: [{ translateY: balanceTranslateY }],
+    }),
+    [balanceOpacity, balanceTranslateY],
+  );
 
   const toolTipWalletBalanceActions = useMemo(() => {
     return hideBalance
