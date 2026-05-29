@@ -107,7 +107,7 @@ const WalletListItem: React.FC<Props> = ({
         )}
 
         {wallet.hideBalance ? (
-          <View style={styles.hiddenBalance}>
+          <View style={styles.hiddenBalance} testID="HiddenBalance">
             <View style={styles.hiddenBalanceBar} />
           </View>
         ) : (

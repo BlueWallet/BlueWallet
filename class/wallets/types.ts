@@ -123,10 +123,11 @@ export type Transaction = {
   locktime: number;
   inputs: TransactionInput[];
   outputs: TransactionOutput[];
-  blockhash: string;
-  confirmations: number;
-  time: number;
-  blocktime: number;
+  // Confirmation-only fields: absent on mempool (unconfirmed) responses.
+  blockhash?: string;
+  confirmations?: number;
+  time?: number;
+  blocktime?: number;
   timestamp: number; // seconds, not milliseconds
   value?: number;
 

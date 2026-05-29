@@ -98,8 +98,9 @@ const Broadcast: React.FC = () => {
     Keyboard.dismiss();
     setBroadcastResult(BROADCAST_RESULT.pending);
     try {
-      await BlueElectrum.ping();
-      await BlueElectrum.waitTillConnected();
+      if (!(await BlueElectrum.ensureConnected())) {
+        throw new Error(loc.errors.network);
+      }
       const walletObj = new HDSegwitBech32Wallet();
       if (txHex) {
         const result = await walletObj.broadcastTx(txHex);

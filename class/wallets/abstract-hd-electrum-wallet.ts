@@ -601,8 +601,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
     const ret: Transaction[] = [];
     for (const tx of txs) {
-      tx.timestamp = tx.blocktime;
-      if (!tx.blocktime) tx.timestamp = Math.floor(+new Date() / 1000) - 30; // unconfirmed
+      tx.timestamp = tx.blocktime || Math.floor(+new Date() / 1000) - 30; // fallback for unconfirmed
       tx.confirmations = tx.confirmations || 0; // unconfirmed
       tx.hash = tx.txid;
       tx.value = 0;
