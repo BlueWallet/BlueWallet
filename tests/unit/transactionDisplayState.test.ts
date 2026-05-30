@@ -39,11 +39,14 @@ describe('transactionDisplayState', () => {
     it('refill (boarding-, positive) → received', () => {
       assert.strictEqual(resolveTxDisplayState({ txid: 'boarding-deadbeef', type: 'bitcoind_tx', value: 5000 }), 'received');
     });
-    it('pending refill (boarding-utxo-, positive) → received (parity with the list)', () => {
-      assert.strictEqual(resolveTxDisplayState({ txid: 'boarding-utxo-deadbeef:0', type: 'bitcoind_tx', value: 5000 }), 'received');
+    it('pending refill (boarding-utxo-, positive) → pending (parity with the list)', () => {
+      assert.strictEqual(resolveTxDisplayState({ txid: 'boarding-utxo-deadbeef:0', type: 'bitcoind_tx', value: 5000 }), 'pending');
     });
-    it('a bitcoind_tx Ark row is never pending, even with no confirmations field', () => {
+    it('a native Ark leg (ark-) is never pending, even with no confirmations field', () => {
       assert.notStrictEqual(resolveTxDisplayState({ txid: 'ark-x', type: 'bitcoind_tx', value: 1 }), 'pending');
+    });
+    it('a settled refill (boarding-) is a confirmed receive, not pending', () => {
+      assert.strictEqual(resolveTxDisplayState({ txid: 'boarding-deadbeef', type: 'bitcoind_tx', value: 5000 }), 'received');
     });
   });
 

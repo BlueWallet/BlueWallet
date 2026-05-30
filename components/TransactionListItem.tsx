@@ -155,26 +155,6 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
 
-  const listTitleKey = useMemo((): 'pending' | 'sent' | 'received' => {
-    if (item.category === 'receive' && item.confirmations! < 3) return 'pending';
-    if (item.type === 'bitcoind_tx') return item.value! < 0 ? 'sent' : 'received';
-    if (item.type === 'paid_invoice') return 'sent';
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      if (!item.ispaid) return 'pending';
-      return 'received';
-    }
-    if (!item.confirmations) return 'pending';
-    return item.value! < 0 ? 'sent' : 'received';
-  }, [item.category, item.confirmations, item.type, item.value, item.ispaid]);
-
-  const listTitle = useMemo(() => {
-    if (listTitleKey === 'pending') return loc.transactions.pending;
-    if (listTitleKey === 'sent') return loc.transactions.list_title_sent;
-    return loc.transactions.list_title_received;
-  }, [listTitleKey]);
-
-  const isPending = listTitleKey === 'pending';
-
   // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
   // wallet transacts entirely via Boltz swaps, so every row is Lightning; the
   // only genuinely on-chain activity is onboarding/refill (boarding UTXOs),
@@ -187,6 +167,36 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (txid?.startsWith('boarding-')) return 'Refill';
     return 'Lightning';
   }, [item, wallets]);
+
+  // A refill is "Pending" until the SDK settles its boarding UTXO into a VTXO
+  // (also when it enters the spendable balance). getTransactions() pass 2 tags
+  // those not-yet-settled rows with a `boarding-utxo-…` id; settled refills use
+  // `boarding-…` and render as a normal confirmed receive.
+  const isPendingRefill = useMemo(
+    () => arkRowKind === 'Refill' && !!(item as { txid?: string }).txid?.startsWith('boarding-utxo-'),
+    [arkRowKind, item],
+  );
+
+  const listTitleKey = useMemo((): 'pending' | 'sent' | 'received' => {
+    if (isPendingRefill) return 'pending';
+    if (item.category === 'receive' && item.confirmations! < 3) return 'pending';
+    if (item.type === 'bitcoind_tx') return item.value! < 0 ? 'sent' : 'received';
+    if (item.type === 'paid_invoice') return 'sent';
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      if (!item.ispaid) return 'pending';
+      return 'received';
+    }
+    if (!item.confirmations) return 'pending';
+    return item.value! < 0 ? 'sent' : 'received';
+  }, [isPendingRefill, item.category, item.confirmations, item.type, item.value, item.ispaid]);
+
+  const listTitle = useMemo(() => {
+    if (listTitleKey === 'pending') return loc.transactions.pending;
+    if (listTitleKey === 'sent') return loc.transactions.list_title_sent;
+    return loc.transactions.list_title_received;
+  }, [listTitleKey]);
+
+  const isPending = listTitleKey === 'pending';
 
   const dateLine = useMemo(() => {
     const formatted = isPending ? transactionTimeToReadable(item.timestamp) : formatTransactionListDate(item.timestamp * 1000);
@@ -255,6 +265,14 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   ]);
 
   const determineTransactionTypeAndAvatar = () => {
+    // A refill awaiting settlement: show it as pending, not as a completed receive.
+    if (isPendingRefill) {
+      return {
+        label: loc.transactions.pending_transaction,
+        icon: <TransactionPendingIcon />,
+      };
+    }
+
     if (item.category === 'receive' && item.confirmations! < 3) {
       return {
         label: loc.transactions.pending_transaction,

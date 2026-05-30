@@ -523,6 +523,28 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.deepStrictEqual(w.getTransactions(), []);
   });
 
+  it('does not list a refill as both settled "Refill" and "Pending refill" when the feeds overlap', () => {
+    // During the settlement transition the boarding UTXO can still be in
+    // getBoardingUtxos() for a beat after the settled history entry appears.
+    // The settled "Refill" (pass 1) must win; the pending row for the same
+    // boarding txid is suppressed so the refill is never double-listed.
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: 'dup', commitmentTxid: '', arkTxid: '' },
+        type: 'RECEIVED',
+        settled: true,
+        amount: 100000,
+        createdAt: 1700009000_000,
+      },
+    ];
+    (w as any)._boardingUtxos = [{ txid: 'dup', vout: 0, value: 100000, status: { block_time: 1700009000 } }];
+
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 1, 'only the settled refill row survives');
+    assert.strictEqual(txs[0].txid, 'boarding-dup');
+    assert.strictEqual(txs[0].description, 'Refill');
+  });
+
   it('maps a native Ark RECEIVED entry (no boardingTxid) as a positive bitcoind_tx row', () => {
     (w as any)._transactionsHistory = [
       {
@@ -1149,6 +1171,70 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
       amount: 12_345,
     });
     assert.strictEqual(fakeArkadeSwaps.sendLightningPayment.mock.calls.length, 0, 'Lightning swap must not run for native Ark transfers');
+  });
+});
+
+describe('LightningArkWallet — fetchBalance (headline excludes boarding)', () => {
+  // Bypass init() by injecting a fake SDK wallet. The headline balance must be
+  // offchain spendable + recoverable only (SDK `total` minus `boarding.total`):
+  //   - a pending/unconfirmed refill must NOT inflate the balance, and
+  //   - during settlement the SDK transiently reports BOTH the boarding UTXO and
+  //     the new preconfirmed VTXO, so counting `total` would double-count it.
+  let w: LightningArkWallet;
+
+  const makeBalance = (over: Record<string, any> = {}) => ({
+    boarding: { confirmed: 0, unconfirmed: 0, total: 0 },
+    settled: 0,
+    preconfirmed: 0,
+    available: 0,
+    recoverable: 0,
+    total: 0,
+    assets: [],
+    ...over,
+  });
+
+  beforeEach(() => {
+    w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+  });
+
+  it('excludes confirmed and unconfirmed boarding from the headline balance', async () => {
+    const balance = makeBalance({
+      boarding: { confirmed: 50_000, unconfirmed: 20_000, total: 70_000 },
+      settled: 100_000,
+      available: 100_000,
+      recoverable: 5_000,
+      total: 175_000, // available + recoverable + boarding.total
+    });
+    (w as any)._wallet = {
+      getBalance: jest.fn().mockResolvedValue(balance),
+      getBoardingUtxos: jest.fn().mockResolvedValue([]),
+    };
+
+    await w.fetchBalance();
+
+    // available (100_000) + recoverable (5_000); boarding (70_000) is excluded.
+    assert.strictEqual(w.balance, 105_000);
+  });
+
+  it('does not double-count a refill mid-settlement (boarding UTXO + new VTXO both present)', async () => {
+    // The boarding UTXO (40_000) is still reported as confirmed boarding while
+    // the freshly-settled VTXO already shows up as preconfirmed. SDK `total`
+    // would be 80_000; the headline must stay 40_000 (the VTXO, counted once).
+    const balance = makeBalance({
+      boarding: { confirmed: 40_000, unconfirmed: 0, total: 40_000 },
+      preconfirmed: 40_000,
+      available: 40_000,
+      total: 80_000,
+    });
+    (w as any)._wallet = {
+      getBalance: jest.fn().mockResolvedValue(balance),
+      getBoardingUtxos: jest.fn().mockResolvedValue([]),
+    };
+
+    await w.fetchBalance();
+
+    assert.strictEqual(w.balance, 40_000);
   });
 });
 

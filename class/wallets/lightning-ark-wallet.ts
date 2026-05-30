@@ -261,7 +261,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
         if (this._wallet) {
           this._transactionsHistory = await this._wallet.getTransactionHistory();
           const balance = await this._wallet.getBalance();
-          this.balance = balance.available;
+          // Keep this in sync with fetchBalance(): offchain spendable + recoverable,
+          // boarding excluded (see fetchBalance for the double-count rationale).
+          this.balance = balance.available + balance.recoverable;
         }
         this._lastBalanceFetch = +new Date();
         this._lastTxFetch = +new Date();
@@ -375,10 +377,19 @@ export class LightningArkWallet extends LightningCustodianWallet {
     type NativeLeg = { row: any; arkType: TxType; absAmount: number; matched: boolean };
     const nativeLegs: NativeLeg[] = [];
 
+    // Boarding txids already surfaced as a settled "Refill" (pass 1). A boarding
+    // UTXO leaves getBoardingUtxos() and its settled history entry appears on the
+    // same on-chain signal (the boarding output being spent), so the two feeds
+    // normally flip together — but if they disagree for a beat we must not show
+    // one refill as BOTH a settled "Refill" and a "Pending refill" row. Pass 2
+    // dedupes against this set.
+    const settledRefillTxids = new Set<string>();
+
     for (const histTx of this._transactionsHistory) {
       if (histTx.key.boardingTxid) {
         // Settled refill only; pending boarding comes from _boardingUtxos (pass 2).
         if (histTx.type === TxType.TxReceived && histTx.settled) {
+          settledRefillTxids.add(histTx.key.boardingTxid);
           ret.push({
             txid: `boarding-${histTx.key.boardingTxid}`,
             type: 'bitcoind_tx',
@@ -411,7 +422,11 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
 
     // Pass 2 — pending refills (boarding UTXOs not yet swept), live timestamp.
+    // These render as "Pending" (TransactionListItem) until settlement promotes
+    // them into a settled "Refill" row (pass 1) and into the spendable balance.
     for (const boardingTx of this._boardingUtxos) {
+      // Already shown as a settled "Refill" in pass 1 — don't also list it pending.
+      if (settledRefillTxids.has(boardingTx.txid)) continue;
       ret.push({
         txid: `boarding-utxo-${boardingTx.txid}:${boardingTx.vout}`,
         type: 'bitcoind_tx',
@@ -601,10 +616,19 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     const balance = await this._wallet.getBalance();
     this._lastBalanceFetch = +new Date();
-    // Use SDK `total` (offchain available + recoverable + boarding) so the
-    // headline balance reflects everything the user holds, including pending
-    // refills. `available` alone hides boarding deposits until they swap.
-    this.balance = balance.total;
+    // Headline balance = spendable offchain + recoverable, i.e. SDK `total`
+    // minus `boarding.total`. A refill stays OUT of the balance until the SDK
+    // settles its boarding UTXO into a VTXO — the same moment its history row
+    // flips from "Pending" to a confirmed "Refill". Two reasons boarding is
+    // excluded here:
+    //   1. A pending/unconfirmed refill must not inflate the balance before it
+    //      is usable; it is surfaced as a "Pending" row instead (getTransactions).
+    //   2. While settling, the SDK briefly reports BOTH the boarding UTXO (still
+    //      unspent in getCoins) AND the freshly-minted preconfirmed VTXO, so
+    //      `balance.total` transiently double-counts the refill. Counting only
+    //      offchain+recoverable means each sat is counted once, at settlement.
+    // Mirrors the reference wallets (trixie's headline is `available`).
+    this.balance = balance.available + balance.recoverable;
   }
 
   async payInvoice(invoice: string, freeAmount: number = 0) {
