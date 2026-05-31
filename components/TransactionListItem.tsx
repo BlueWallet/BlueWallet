@@ -397,14 +397,14 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         });
       }
     } else if ((item as { txid?: string }).txid) {
-      // Ark wallet rows (refills, native transfers, boarding UTXOs) carry a
-      // synthetic `txid` and no on-chain `hash`. Route to TransactionStatus
-      // passing the synthetic id as the lookup key.
-      navigate('TransactionStatus', {
-        tx: item,
-        hash: (item as { txid: string }).txid,
-        walletID,
-      });
+      // Hash-less Ark rows carry a synthetic `txid`. Native transfer legs
+      // (`ark-…`) open the hash-less-tolerant TransactionStatus detail. Refill
+      // rows (`boarding-…` / `boarding-utxo-…`) have no detail surface and are
+      // not tappable — matching master, where on-chain top-ups aren't tappable.
+      const txid = (item as { txid: string }).txid;
+      if (!txid.startsWith('boarding-')) {
+        navigate('TransactionStatus', { tx: item, hash: txid, walletID });
+      }
     }
   }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
 
@@ -422,12 +422,12 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         });
       }
     } else if ((item as { txid?: string }).txid) {
-      // Match the regular tap path for Ark non-swap rows.
-      navigate('TransactionStatus', {
-        tx: item,
-        hash: (item as { txid: string }).txid,
-        walletID,
-      });
+      // Match the regular tap path for Ark non-swap rows: native transfer legs
+      // open TransactionStatus; refills (`boarding-…`) are not tappable (master).
+      const txid = (item as { txid: string }).txid;
+      if (!txid.startsWith('boarding-')) {
+        navigate('TransactionStatus', { tx: item, hash: txid, walletID });
+      }
     }
   }, [item, navigate, walletID, wallets]);
 
