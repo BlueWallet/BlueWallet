@@ -361,7 +361,11 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         pop();
       }
       navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
-    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
+    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice' || item.payment_request) {
+      // A settled Arkade swap is an enriched native Ark leg (type 'bitcoind_tx')
+      // carrying the swap's invoice payload (payment_request/hash/preimage). Route
+      // it to the Lightning invoice view by that payload, not by type — otherwise
+      // it falls through to the on-chain TransactionStatus branch below.
       const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
       if (lightningWallet.length === 1) {
         try {
@@ -407,7 +411,9 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   const handleOnDetailsPress = useCallback(() => {
     if (walletID && item && item.hash) {
       navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
-    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
+    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice' || item.payment_request) {
+      // Settled Arkade swaps carry invoice data on a 'bitcoind_tx' leg; route by
+      // payload so they open the Lightning invoice view (see onPress above).
       const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
       if (lightningWallet) {
         navigate('LNDViewInvoice', {

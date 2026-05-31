@@ -294,6 +294,10 @@ const LNDViewInvoice = () => {
           amount = invoice.value;
         } else if (invoice.type === 'user_invoice' && invoice.amt) {
           amount = invoice.amt;
+        } else if (invoice.value) {
+          // Settled Arkade swap: an enriched native Ark leg (type 'bitcoind_tx')
+          // has no `amt`; its magnitude lives in the signed `value`.
+          amount = Math.abs(invoice.value);
         }
         if (invoice.description) {
           description = invoice.description;

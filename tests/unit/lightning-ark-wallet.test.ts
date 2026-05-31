@@ -143,6 +143,10 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].ispaid, true);
     assert.strictEqual(txs[0].timestamp, 1700000000);
     assert.strictEqual(txs[0].payment_preimage, 'aa'.repeat(32));
+    // The enriched leg carries the swap's invoice payload. TransactionListItem
+    // routes a row that has `payment_request` to LNDViewInvoice (the Lightning
+    // detail), not the on-chain TransactionStatus, despite its 'bitcoind_tx' type.
+    assert.strictEqual(txs[0].payment_request, 'lnbc1234...send');
   });
 
   it('enriches the native RECEIVED leg of a settled reverse swap (no separate swap row)', () => {
@@ -172,6 +176,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].value, 9999);
     assert.strictEqual(txs[0].ispaid, true);
     assert.strictEqual(txs[0].payment_preimage, 'bb'.repeat(32));
+    assert.strictEqual(txs[0].payment_request, 'lnbc999...receive');
   });
 
   it('relabels the SDK default reverse-swap description as "Received via Arkade"', () => {
@@ -468,6 +473,9 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].value, 50000);
     assert.strictEqual(txs[0].timestamp, 1700005000);
     assert.strictEqual(txs[0].txid, 'boarding-utxo-boardtx:0');
+    // No invoice payload → TransactionListItem keeps refills on the on-chain
+    // TransactionStatus detail (the counterpart to the enrichment assertions above).
+    assert.strictEqual(txs[0].payment_request, undefined);
   });
 
   it('falls back to "now" when the boarding UTXO has no block_time yet', () => {
@@ -495,6 +503,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].value, 100000);
     assert.strictEqual(txs[0].timestamp, 1700006000);
     assert.strictEqual(txs[0].txid, 'boarding-abc');
+    assert.strictEqual(txs[0].payment_request, undefined);
   });
 
   it('skips unsettled boarding history records (only completed refills surface)', () => {
