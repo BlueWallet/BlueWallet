@@ -86,8 +86,15 @@ jobs:
           security set-keychain-settings -t 3600 -u build.keychain
 
       - name: Create App Store Connect API Key JSON
-        if: success() && (secrets.APPLE_API_KEY_CONTENT != '' || secrets.APP_STORE_CONNECT_API_KEY_CONTENT != '')
-        run: echo '${{ secrets.APPLE_API_KEY_CONTENT || secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        env:
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT || secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        run: |
+          if [[ -n "${APPLE_API_KEY_CONTENT}" ]]; then
+            printf '%s' "${APPLE_API_KEY_CONTENT}" > ./appstore_api_key.json
+            echo "Created appstore_api_key.json"
+          else
+            echo "No App Store Connect API key content provided; skipping key file creation."
+          fi
 
       - name: Build Mac Catalyst app with Fastlane
         id: build_catalyst
