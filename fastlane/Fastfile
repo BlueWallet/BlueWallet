@@ -26,6 +26,7 @@ end
 
 require 'securerandom'
 require 'json'
+require 'base64'
 
 default_platform(:android)
 PROJECT_ROOT = File.expand_path("..", __dir__)
@@ -438,6 +439,19 @@ platform :ios do
     end
   end
 
+  def match_git_basic_auth_value(token)
+    return nil if token.nil? || token.empty?
+
+    begin
+      decoded = Base64.strict_decode64(token)
+      return token if decoded.include?(':')
+    rescue ArgumentError
+      # Token is not base64-encoded; encode it below.
+    end
+
+    Base64.strict_encode64("x-access-token:#{token}")
+  end
+
   def catalyst_notarization_enabled?
     ENV.fetch('CATALYST_NOTARIZE', '1') != '0'
   end
@@ -549,7 +563,7 @@ platform :ios do
       with_retry(3, "Fetching provisioning profile for #{app_identifier}") do
         UI.message("Fetching provisioning profile for #{app_identifier}...")
         match(
-          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_basic_authorization: match_git_basic_auth_value(ENV["GIT_ACCESS_TOKEN"]),
           git_url: ENV["GIT_URL"],
           type: "appstore",
           clone_branch_directly: true,
@@ -686,21 +700,43 @@ platform :ios do
         UI.message("Setting up Mac Catalyst provisioning profiles via match...")
         team_id = ENV['CATALYST_TEAM_ID']
         match_readonly = ENV['MATCH_READONLY'] != 'false'
+        clone_branch_directly = match_readonly
+        match_git_auth = match_git_basic_auth_value(ENV['GIT_ACCESS_TOKEN'])
 
         # Create/fetch provisioning profiles for catalyst targets
         catalyst_identifiers.each do |app_id|
-          match(
-            type: "appstore",
-            platform: "catalyst",
-            app_identifier: app_id,
-            team_id: team_id,
-            git_url: ENV['GIT_URL'],
-            git_basic_authorization: ENV['GIT_ACCESS_TOKEN'],
-            readonly: match_readonly,
-            clone_branch_directly: true,
-            keychain_name: ENV['KEYCHAIN_NAME'] || "login",
-            keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
-          )
+          begin
+            match(
+              type: "appstore",
+              platform: "catalyst",
+              app_identifier: app_id,
+              team_id: team_id,
+              git_url: ENV['GIT_URL'],
+              git_basic_authorization: match_git_auth,
+              readonly: match_readonly,
+              clone_branch_directly: clone_branch_directly,
+              keychain_name: ENV['KEYCHAIN_NAME'] || "login",
+              keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
+            )
+          rescue => ex
+            if !match_readonly && clone_branch_directly
+              UI.important("match failed for #{app_id} with clone_branch_directly=true: #{ex.message}")
+              UI.message('Retrying match without clone_branch_directly for writable setup...')
+              match(
+                type: "appstore",
+                platform: "catalyst",
+                app_identifier: app_id,
+                team_id: team_id,
+                git_url: ENV['GIT_URL'],
+                git_basic_authorization: match_git_auth,
+                readonly: match_readonly,
+                keychain_name: ENV['KEYCHAIN_NAME'] || "login",
+                keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
+              )
+            else
+              raise ex
+            end
+          end
         end
 
         xcargs_str += " DEVELOPMENT_TEAM=#{team_id}"
