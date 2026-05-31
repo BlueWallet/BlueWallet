@@ -1,5 +1,5 @@
 PODS:
-  - BugsnagReactNative (8.8.1):
+  - BugsnagReactNative (8.9.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -29,7 +29,7 @@ PODS:
     - hermes-engine/Pre-built (= 250829098.0.10)
   - hermes-engine/Pre-built (250829098.0.10)
   - lottie-ios (4.6.0)
-  - lottie-react-native (7.3.7):
+  - lottie-react-native (7.3.8):
     - hermes-engine
     - lottie-ios (= 4.6.0)
     - RCTRequired
@@ -2802,13 +2802,13 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  BugsnagReactNative: bee770e3f497a8571feb1579bdc083a070bee1f3
+  BugsnagReactNative: 73ce58aac04585e7cba3081c0abba06d848d62fc
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
   hermes-engine: 86cdbf283775c54dc008895c3eacd24a1f2a40b4
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
-  lottie-react-native: 26b365c3d5615e87f4db048dcb151de3eb9a8e76
+  lottie-react-native: ee142214581f3bb68fbda7efcf07b835a189eeda
   RCTDeprecation: a4c521821fab57cbb125b36effe84d897d0dfa12
   RCTRequired: 9f3a7e5645d4bc3f551593de7550bb66ab6e42bc
   RCTSwiftUI: 239ed2eb9e73de5a6f518810630f0c95e01c8702
@@ -2817,7 +2817,7 @@ SPEC CHECKSUMS:
   React: e2dc35338068bbd299c66f043ae0d7f25de8499e
   React-callinvoker: 28b25d21b124c26cebaea713ba7d801b9351dc48
   React-Core: 02ed7d2ffb70437bdf2aba074a13078a7b0b9ff0
-  React-Core-prebuilt: 9e875134f667c471ab68bf9edf1661fa11b86540
+  React-Core-prebuilt: 77e6ce0d749dda263043e4b099bd12d086f85b4a
   React-CoreModules: b3a5a42dadcde3b5d47b325bd912eb2ced89e146
   React-cxxreact: fe8f88dda044e5905e99a00f41b7a874c3908716
   React-debug: 92944dc4d89f56d640e75498266cbde557a48189
@@ -2920,6 +2920,6 @@ SPEC CHECKSUMS:
   RNWorklets: dd3b2cb0750090d78d85cd3b3ec0fdbeab5ce118
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
 
-PODFILE CHECKSUM: a6ebefd60fd3fd993430ecd1d3feb222ff502eb0
+PODFILE CHECKSUM: 7bf5ce6745c1d4a552afd47cefaf8272077519a4
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2
