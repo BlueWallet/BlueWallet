@@ -106,6 +106,7 @@ jobs:
           CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.ITC_TEAM_ID || secrets.TEAM_ID }}
           GIT_URL: ${{ secrets.GIT_URL }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_READONLY: ${{ steps.labels.outputs.upload_testflight == 'true' && 'false' || 'true' }}
           KEYCHAIN_NAME: build
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
