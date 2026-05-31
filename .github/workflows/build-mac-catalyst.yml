@@ -106,8 +106,8 @@ jobs:
           security set-keychain-settings -t 3600 -u build.keychain
 
       - name: Create App Store Connect API Key JSON
-        if: success() && (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true')
-        run: echo '${{ secrets.APPLE_API_KEY_CONTENT }}' > ./appstore_api_key.json
+        if: success() && (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true') && (secrets.APPLE_API_KEY_CONTENT != '' || secrets.APP_STORE_CONNECT_API_KEY_CONTENT != '')
+        run: echo '${{ secrets.APPLE_API_KEY_CONTENT || secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}' > ./appstore_api_key.json
 
       - name: Build Mac Catalyst app with Fastlane
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
@@ -116,19 +116,19 @@ jobs:
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
           SKIP_CLEAR_DERIVED_DATA: '1'
-          CATALYST_SIGNING_IDENTITY: ${{ secrets.CATALYST_SIGNING_IDENTITY }}
-          CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID }}
+          CATALYST_SIGNING_IDENTITY: ${{ secrets.CATALYST_SIGNING_IDENTITY || 'Apple Distribution' }}
+          CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.ITC_TEAM_ID || secrets.TEAM_ID }}
           GIT_URL: ${{ secrets.GIT_URL }}
           GIT_ACCESS_TOKEN: ${{ secrets.GIT_ACCESS_TOKEN }}
           MATCH_READONLY: ${{ steps.labels.outputs.upload_testflight == 'true' && 'false' || 'true' }}
           KEYCHAIN_NAME: build
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          CATALYST_NOTARIZE: '1'
+          CATALYST_NOTARIZE: ${{ (((secrets.CATALYST_SIGNING_IDENTITY != '' || 'Apple Distribution' != '') && (secrets.CATALYST_TEAM_ID != '' || secrets.ITC_TEAM_ID != '' || secrets.TEAM_ID != '')) && (((secrets.APPLE_API_KEY_CONTENT != '' || secrets.APP_STORE_CONNECT_API_KEY_CONTENT != '') && (secrets.APPLE_API_KEY_ID != '' || secrets.APP_STORE_CONNECT_API_KEY_KEY_ID != '') && (secrets.APPLE_API_ISSUER_ID != '' || secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID != '')) || (secrets.APPLE_ID != '' && (secrets.APPLE_APP_SPECIFIC_PASSWORD != '' || secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD != '')))) && '1' || '0' }}
           APPLE_API_KEY_PATH: ./appstore_api_key.json
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID || secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID || secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD || secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
 
       - name: Upload Mac Catalyst DMG
         id: upload_dmg
@@ -143,9 +143,9 @@ jobs:
         if: success() && steps.labels.outputs.upload_testflight == 'true'
         run: bundle exec fastlane ios upload_catalyst_to_testflight
         env:
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
-          CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID || secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID || secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          CATALYST_TEAM_ID: ${{ secrets.CATALYST_TEAM_ID || secrets.ITC_TEAM_ID || secrets.TEAM_ID }}
           TEAM_ID: ${{ secrets.TEAM_ID }}
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
           LATEST_COMMIT_MESSAGE: ${{ github.event.pull_request.title || 'Manual build' }}
