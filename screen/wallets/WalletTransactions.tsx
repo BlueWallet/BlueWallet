@@ -349,9 +349,22 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   });
 
   const renderItem = useCallback(
+    // react/no-unused-prop-types misfires on inline arrow renderers: it reads the
+    // destructured `item: Transaction` annotation as a propTypes definition and
+    // ignores that the value is consumed on the next line.
     // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: Transaction }) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={displayUnit} walletID={walletID} />
+      // Ark wallet rows lack on-chain `hash` and instead carry a synthetic
+      // `txid` (`swap-…`, `ark-…`, `boarding-…`, `boarding-utxo-…`). Falling
+      // back to `txid` prevents multiple Ark rows from sharing
+      // `key={undefined}`, which made React reuse stale memoized renders
+      // across rows.
+      <TransactionListItem
+        key={item.hash ?? (item as { txid?: string }).txid}
+        item={item}
+        itemPriceUnit={displayUnit}
+        walletID={walletID}
+      />
     ),
     [displayUnit, walletID],
   );
@@ -370,7 +383,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       });
   };
 
-  const _keyExtractor = useCallback((_item: any, index: number) => index.toString(), []);
+  const _keyExtractor = useCallback((item: Transaction, index: number) => item.hash || item.txid || index.toString(), []);
 
   const pasteFromClipboard = async () => {
     onBarCodeRead({ data: await getClipboardContent() });
@@ -522,7 +535,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return () => clearTimeout(timer);
   }, [walletID, measureHeaderHeight]);
 
-  const ListHeaderComponent = useCallback(
+  const ListHeaderComponent = useMemo(
     () => (
       <View ref={headerRef} onLayout={measureHeaderHeight}>
         <TransactionsNavigationHeader

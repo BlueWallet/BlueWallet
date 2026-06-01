@@ -16,6 +16,7 @@ import { useSettings } from '../hooks/context/useSettings';
 import ToolTipMenu from './TooltipMenu';
 import useAnimateOnChange from '../hooks/useAnimateOnChange';
 import { useLocale } from '@react-navigation/native';
+import ActionSheet from '../screen/ActionSheet';
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
@@ -111,20 +112,25 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     [handleBalanceVisibility, handleCopyPress],
   );
 
-  const toolTipActions = useMemo(() => {
-    return [
+  // The Manage Funds menu is presented via a JS ActionSheet rather than the
+  // native context menu (ToolTipMenu): react-native-context-menu-view is
+  // Paper-only and, routed through Fabric's legacy interop on the New
+  // Architecture, its host view gets mispositioned to the header origin —
+  // overlapping the wallet label. A plain TouchableOpacity + ActionSheet lays
+  // out correctly (same pattern as the Multisig button below).
+  const showManageFundsActionSheet = useCallback(() => {
+    ActionSheet.showActionSheetWithOptions(
       {
-        id: actionKeys.Refill,
-        text: loc.lnd.refill,
-        icon: actionIcons.Refill,
+        title: loc.lnd.title,
+        options: [loc._.cancel, loc.lnd.refill, loc.lnd.refill_external],
+        cancelButtonIndex: 0,
       },
-      {
-        id: actionKeys.RefillWithExternalWallet,
-        text: loc.lnd.refill_external,
-        icon: actionIcons.RefillWithExternalWallet,
+      buttonIndex => {
+        if (buttonIndex === 1) handleManageFundsPressed(actionKeys.Refill);
+        else if (buttonIndex === 2) handleManageFundsPressed(actionKeys.RefillWithExternalWallet);
       },
-    ];
-  }, []);
+    );
+  }, [handleManageFundsPressed]);
 
   const currentBalance = wallet ? wallet.getBalance() : 0;
   const formattedBalance = useMemo(() => {
@@ -210,68 +216,48 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
           {wallet.getLabel()}
         </Text>
-        <View style={styles.balanceSection}>
-          <Animated.View style={[styles.walletBalanceAndUnitContainer, balanceAnimatedStyle]}>
-            <ToolTipMenu
-              shouldOpenOnLongPress
-              isButton
-              enableAndroidRipple={false}
-              buttonStyle={styles.walletBalance}
-              onPressMenuItem={onPressMenuItem}
-              actions={toolTipWalletBalanceActions}
-            >
-              <View style={styles.walletBalance}>
-                {hideBalance ? (
-                  <BlurredBalanceView />
-                ) : (
-                  <View key={`wallet-balance-textwrap-${wallet.getID?.() ?? ''}-${String(balance)}`}>
-                    <Animated.Text
-                      key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`} // force recreation on balance change for RTL correctness
-                      testID="WalletBalance"
-                      numberOfLines={1}
-                      minimumFontScale={0.5}
-                      adjustsFontSizeToFit
-                      style={[styles.walletBalanceText, animatedBalanceTextStyle]}
-                    >
-                      {balance}
-                    </Animated.Text>
-                  </View>
-                )}
-              </View>
-            </ToolTipMenu>
-            <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit} disabled={unitSwitching}>
-              <Text style={styles.walletPreferredUnitText}>
-                {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-          {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
-            <View style={styles.manageFundsSection}>
-              <View style={styles.manageFundsButtonContainer}>
-                <ToolTipMenu
-                  shouldOpenOnLongPress={false}
-                  isButton
-                  onPressMenuItem={handleManageFundsPressed}
-                  actions={toolTipActions}
-                  buttonStyle={styles.manageFundsButtonTouchable}
-                >
-                  <View style={styles.manageFundsButtonContent}>
-                    <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
-                  </View>
-                </ToolTipMenu>
-              </View>
-            </View>
-          )}
-        </View>
-        {wallet.type === MultisigHDWallet.type && (
-          <TouchableOpacity
-            style={[styles.manageFundsButtonContainer, styles.manageFundsButtonTouchable]}
-            accessibilityRole="button"
-            onPress={() => handleManageFundsPressed()}
+        <Animated.View style={[styles.walletBalanceAndUnitContainer, balanceAnimatedStyle]}>
+          <ToolTipMenu
+            shouldOpenOnLongPress
+            isButton
+            enableAndroidRipple={false}
+            buttonStyle={styles.walletBalance}
+            onPressMenuItem={onPressMenuItem}
+            actions={toolTipWalletBalanceActions}
           >
-            <View style={styles.manageFundsButtonContent}>
-              <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
+            <View style={styles.walletBalance}>
+              {hideBalance ? (
+                <BlurredBalanceView />
+              ) : (
+                <View key={`wallet-balance-textwrap-${wallet.getID?.() ?? ''}-${String(balance)}`}>
+                  <Animated.Text
+                    key={`wallet-balance-text-${wallet.getID?.() ?? ''}-${String(balance)}`} // force recreation on balance change for RTL correctness
+                    testID="WalletBalance"
+                    numberOfLines={1}
+                    minimumFontScale={0.5}
+                    adjustsFontSizeToFit
+                    style={[styles.walletBalanceText, animatedBalanceTextStyle]}
+                  >
+                    {balance}
+                  </Animated.Text>
+                </View>
+              )}
             </View>
+          </ToolTipMenu>
+          <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit} disabled={unitSwitching}>
+            <Text style={styles.walletPreferredUnitText}>
+              {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+        {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
+          <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={showManageFundsActionSheet}>
+            <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
+          </TouchableOpacity>
+        )}
+        {wallet.type === MultisigHDWallet.type && (
+          <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
+            <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -287,10 +273,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 15,
   },
-  balanceSection: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-  },
   walletLabel: {
     backgroundColor: 'transparent',
     fontSize: 19,
@@ -301,39 +283,21 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     marginRight: 6,
   },
-  manageFundsButtonContainer: {
+  manageFundsButton: {
     marginTop: 14,
     marginBottom: 10,
-    alignSelf: 'flex-start',
-  },
-  manageFundsButtonTouchable: {
     backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 9,
-    height: 39,
-    paddingHorizontal: 12,
-    overflow: 'hidden',
+    minHeight: 39,
+    alignSelf: 'flex-start',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  manageFundsButtonContent: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  manageFundsSection: {
-    width: '100%',
-    alignItems: 'flex-start',
   },
   manageFundsButtonText: {
     fontWeight: '500',
     fontSize: 14,
-    lineHeight: 18,
     color: '#FFFFFF',
-    padding: 0,
-    textAlign: 'center',
-    includeFontPadding: false,
-    textAlignVertical: 'center',
+    padding: 12,
   },
   walletBalanceAndUnitContainer: {
     flexDirection: 'row',
