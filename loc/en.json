@@ -56,6 +56,7 @@
     "errorInvoiceExpired": "Invoice expired.",
     "expired": "Expired",
     "expiresIn": "Expires in {time} minutes",
+    "network_fee": "Network fee: {fee}",
     "payButton": "Pay",
     "payment": "Payment",
     "placeholder": "Invoice or address",
@@ -76,7 +77,13 @@
     "preimage": "Pre-image",
     "sats": "sats.",
     "date_time": "Date and Time",
-    "wasnt_paid_and_expired": "This invoice was not paid and has expired."
+    "wasnt_paid_and_expired": "This invoice was not paid and has expired.",
+    "receiving_payment": "Receiving payment…",
+    "refund_funds": "Refund funds",
+    "refund_deferred": "Funds aren't refundable yet. Try again after the swap timelock expires.",
+    "notification_action_title": "Action needed",
+    "notification_claim_body": "{walletLabel}: tap to claim your incoming Lightning payment.",
+    "notification_refund_body": "{walletLabel}: tap to refund your stuck Lightning payment."
   },
   "plausibledeniability": {
     "create_fake_storage": "Create Encrypted Storage",
@@ -449,6 +456,8 @@
     "details_show_addresses": "Show addresses",
     "details_stats_coins": "Coins",
     "details_title": "Wallet",
+    "restore_swap_activity": "Restore swap activity",
+    "restore_swap_activity_done": "Swap activity restored.",
     "wallets": "Wallets",
     "swipe_balance_hide": "Hide",
     "swipe_balance_show": "Show",
