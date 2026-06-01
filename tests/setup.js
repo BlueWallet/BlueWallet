@@ -20,11 +20,6 @@ console.debug = console.log = (...args) => {
     typeof args[0] === 'string' &&
     (args[0].startsWith('updating exchange rate') ||
       args[0].startsWith('Created new currency formatter for') ||
-      args[0].startsWith('begin connection') ||
-      args[0].startsWith('TLS Connected to') ||
-      args[0].startsWith('Getting saved peer') ||
-      args[0].startsWith('Getting Electrum connection disabled state') ||
-      args[0].startsWith('Using peer') ||
       args[0].startsWith('fetch wrapper') ||
       args[0].startsWith('Preferred currency') ||
       args[0].startsWith('SelfTest - runSelfTest') ||
@@ -32,7 +27,7 @@ console.debug = console.log = (...args) => {
       args[0].startsWith('Cleared all cached currency formatters') ||
       args[0].startsWith('[UnitSwitch/Fiat]') ||
       args[0].startsWith('transactionDetail - useEffect') ||
-      args[0].startsWith('connected to'))
+      args[0].startsWith('[electrum]'))
   ) {
     return;
   }

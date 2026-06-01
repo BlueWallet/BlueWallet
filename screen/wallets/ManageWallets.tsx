@@ -593,7 +593,7 @@ const ManageWallets: React.FC = () => {
 
     const hintTextColor = dark ? colors.foregroundColor : colors.alternativeTextColor;
     return (
-      <Pressable accessibilityRole="text" style={styles.reorderHintContainer}>
+      <Pressable accessibilityRole="text" style={styles.reorderHintContainer} testID="DragToReorderHint">
         <View style={styles.reorderHintIcon}>
           <DragIcon color={hintTextColor} />
         </View>

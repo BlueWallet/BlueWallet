@@ -331,24 +331,21 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
         }
         console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
-        await BlueElectrum.waitTillConnected();
-        if (!(await BlueElectrum.ping())) {
-          // above `waitTillConnected` is not reliable, as app might have returned from long sleep, so it thinks its
-          // connected but actually socket is closed. thus, we ping, and if it fails - we wait again (reconnection code
-          // should pick up)
-          console.log('[refreshAllWalletTransactions] ping failed, waiting for connection...');
-          await BlueElectrum.waitTillConnected();
+        // `ensureConnected()` ping-checks the existing socket and, only if needed,
+        // tears it down and reconnects. Replaces the old wait+ping+wait pattern
+        // which surfaced false "network error" alerts after iOS suspend/resume.
+        const connected = await BlueElectrum.ensureConnected();
+        if (!connected) {
+          console.log('[refreshAllWalletTransactions] could not establish Electrum connection, aborting refresh');
+          return;
         }
 
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
-        // Race only the post-connect work. `waitTillConnected` can take up to
-        // WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER (+ a second wait); starting the timer earlier caused refresh to abort
-        // while Electrum was still legitimately connecting.
-        const REFRESH_FETCH_PHASE_TIMEOUT_MS = Math.max(
-          120_000,
-          BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER + BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_AFTER_FIRST,
-        );
+        // Race only the post-connect work. We budget ample time so that a slow
+        // initial Electrum connection (cold start, slow TLS, flaky network) doesn't
+        // cause the fetch race to abort prematurely.
+        const REFRESH_FETCH_PHASE_TIMEOUT_MS = Math.max(120_000, BlueElectrum.ENSURE_CONNECTED_MAX_WALL_MS * 2);
         const timeoutPromise = new Promise<never>(
           (_resolve, reject) =>
             (refreshTimeout = setTimeout(() => {
@@ -418,7 +415,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         }
         _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
-        await BlueElectrum.waitTillConnected();
+        const connected = await BlueElectrum.ensureConnected();
+        if (!connected) {
+          console.log('[fetchAndSaveWalletTransactions] could not establish Electrum connection, aborting');
+          return;
+        }
         setWalletTransactionUpdateStatus(walletID);
 
         const balanceStart = Date.now();
