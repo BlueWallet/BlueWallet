@@ -7,10 +7,18 @@ import { useTheme } from './themes';
 interface SafeAreaScrollViewProps extends ScrollViewProps {
   floatingButtonHeight?: number;
   headerHeight?: number; // Additional header height to account for (e.g., when headerTransparent is true)
+  disableDefaultTopPadding?: boolean;
 }
 
 const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((props, ref) => {
-  const { style, contentContainerStyle, floatingButtonHeight = 0, headerHeight = 0, ...otherProps } = props;
+  const {
+    style,
+    contentContainerStyle,
+    floatingButtonHeight = 0,
+    headerHeight = 0,
+    disableDefaultTopPadding = false,
+    ...otherProps
+  } = props;
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -32,7 +40,10 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
         if (headerHeight > 0) {
           return headerHeight;
         }
-        // iOS safe area or no status bar
+        if (disableDefaultTopPadding) {
+          return 0;
+        }
+        // Preserve legacy behavior for existing screens
         return insets.top > 0 ? 5 : 0;
       })(),
     };
@@ -48,7 +59,7 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
 
     // Now compose with contentContainerStyle to ensure passed styles override defaults
     return StyleSheet.compose(basePadding, contentContainerStyle);
-  }, [insets, contentContainerStyle, floatingButtonHeight, headerHeight]);
+  }, [insets, contentContainerStyle, floatingButtonHeight, headerHeight, disableDefaultTopPadding]);
 
   return (
     <ScrollView
