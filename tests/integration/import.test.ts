@@ -12,6 +12,7 @@ import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from '../../class/wallets/slip39-wallets';
@@ -695,23 +696,33 @@ describe('import procedure', () => {
     // not checking other 2 wallets
   });
 
-  it('can import lightning ark wallet', async () => {
-    const store = createStore();
-    const { promise } = startImport(
-      'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-      false,
-      false,
-      false,
-      ...store.callbacks,
-    );
-    await promise;
+  // Stub the Arkade SDK network providers so the import-time `ark.init()` does
+  // not open real SSE/WebSocket subscriptions. Without these, Wallet.create
+  // brings up VtxoManager + SwapManager — both keep the Node event loop alive
+  // and force jest to hang at the end of the run. See `tests/helpers/
+  // sdkProviderMocks.ts` for the rationale.
+  describe('lightning ark', () => {
+    beforeEach(() => installSdkProviderSpies());
+    afterEach(() => restoreSdkProviderSpies());
 
-    assert.strictEqual(store.state.wallets.length, 1);
-    assert.strictEqual(store.state.wallets[0].type, LightningArkWallet.type);
-    assert.strictEqual(
-      store.state.wallets[0].getSecret(),
-      'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
-    );
+    it('can import lightning ark wallet', async () => {
+      const store = createStore();
+      const { promise } = startImport(
+        'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        false,
+        false,
+        false,
+        ...store.callbacks,
+      );
+      await promise;
+
+      assert.strictEqual(store.state.wallets.length, 1);
+      assert.strictEqual(store.state.wallets[0].type, LightningArkWallet.type);
+      assert.strictEqual(
+        store.state.wallets[0].getSecret(),
+        'arkade://abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+      );
+    });
   });
 
   it('can import private key in hex format', async () => {

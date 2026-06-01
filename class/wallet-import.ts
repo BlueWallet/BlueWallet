@@ -216,10 +216,35 @@ const startImport = (
     if (text.startsWith('arkade://')) {
       const ark = new LightningArkWallet();
       ark.setSecret(text);
-      await ark.init();
+      // Defer init() to first wallet open when offline — init touches the ASP
+      // and delegator over the network. We still detect the wallet by prefix
+      // and persist it with its secret.
+      // A network or SDK failure during init must not abort the import: the
+      // wallet type and secret are known, and the SDK runtime can be brought
+      // up the next time the wallet is opened.
       if (!offline) {
-        await ark.fetchBalance();
-        await ark.fetchTransactions();
+        try {
+          await ark.init();
+          // Restore any previous Boltz swap activity for this seed exactly
+          // once, here at import time. We never run this on later wallet
+          // opens — the app does not sweep all swaps on bootstrap. A failure
+          // must not block the import: the wallet itself is fine, the
+          // restored rows are an optional bonus for imported-from-elsewhere
+          // wallets.
+          try {
+            await ark.restoreSwaps();
+          } catch (e: any) {
+            console.log('[wallet-import] restoreSwaps failed:', e?.message ?? e);
+          }
+          try {
+            await ark.fetchBalance();
+            await ark.fetchTransactions();
+          } catch (e: any) {
+            console.log('[wallet-import] initial Ark sync failed:', e?.message ?? e);
+          }
+        } catch (e: any) {
+          console.log('[wallet-import] Ark init failed; deferring to next open:', e?.message ?? e);
+        }
       }
       yield { wallet: ark };
     }

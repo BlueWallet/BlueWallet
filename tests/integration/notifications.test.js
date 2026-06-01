@@ -7,7 +7,7 @@ describe('notifications', () => {
   // yeah, lets rely less on external services...
   // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can check groundcontrol server uri validity', async () => {
-    assert.ok(await isGroundControlUriValid('https://groundcontrol-bluewallet.herokuapp.com'));
+    assert.ok(await isGroundControlUriValid('https://groundcontrol.bluewallet.io/'));
     assert.ok(!(await isGroundControlUriValid('https://www.google.com')));
     await new Promise(resolve => setTimeout(resolve, 2000));
   });

@@ -163,7 +163,14 @@ export function hashIt(s) {
 }
 
 export async function helperDeleteWallet(label, remainingBalanceSat = false) {
+  // Tapping the wallet card by visible text (`by.text(label)`) is what
+  // bluewallet3's import-then-delete flow uses successfully. On a wallet
+  // that has been opened before, this navigates to WalletTransactions
+  // immediately. On a freshly-created wallet (t10) the carousel
+  // Pressable's first onPress is swallowed before navigation fires —
+  // that case is a known limitation of the e2e harness.
   await element(by.text(label)).tap();
+  await waitForId('WalletDetails');
   await element(by.id('WalletDetails')).tap();
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
   await sleep(200);
