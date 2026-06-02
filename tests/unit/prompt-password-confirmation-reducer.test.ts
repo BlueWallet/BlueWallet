@@ -51,7 +51,7 @@ describe('PromptPasswordConfirmationSheet reducer', () => {
     });
 
     it('returns same state for unknown action', () => {
-      // @ts-expect-error - exercising the default branch
+      // @ts-expect-error
       expect(reducer(base, { type: 'NOPE' })).toBe(base);
     });
 

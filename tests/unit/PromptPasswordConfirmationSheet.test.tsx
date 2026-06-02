@@ -6,8 +6,6 @@ import { StackActions } from '@react-navigation/native';
 import PromptPasswordConfirmationSheet from '../../screen/PromptPasswordConfirmationSheet';
 import { MODAL_TYPES } from '../../screen/PromptPasswordConfirmationSheet.types';
 
-// Make Animated.timing fire its completion callback synchronously so the
-// explanation -> form transition completes during the test.
 jest.spyOn(Animated, 'timing').mockImplementation(
   () =>
     ({
@@ -138,8 +136,6 @@ describe('PromptPasswordConfirmationSheet (render)', () => {
       fireEvent.press(getByTestId('IUnderstandButton'));
     });
 
-    // Animated.timing in the explanation transition calls the completion callback synchronously
-    // under the reanimated mock; the form should now be visible.
     expect(getByTestId('PasswordInput')).toBeTruthy();
     expect(getByTestId('ConfirmPasswordInput')).toBeTruthy();
   });
