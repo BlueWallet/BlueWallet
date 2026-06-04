@@ -7,7 +7,6 @@ export type LNDStackParamsList = {
   ScanLNDInvoice: {
     walletID: string | undefined;
     uri: string | undefined;
-    invoice: string | undefined;
     onBarScanned: string | undefined;
   };
   LnurlPay: {

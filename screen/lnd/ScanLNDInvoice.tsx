@@ -37,7 +37,7 @@ const ScanLNDInvoice = () => {
   const { colors } = useTheme();
   const { direction } = useLocale();
   const route = useRoute<RouteProps>();
-  const { walletID, uri, invoice } = route.params || {};
+  const { walletID, uri } = route.params || {};
   const [wallet, setWallet] = useState<LightningCustodianWallet | undefined>(
     (wallets.find(item => item.getID() === walletID) as LightningCustodianWallet) ||
       (wallets.find(item => item.chain === Chain.OFFCHAIN) as LightningCustodianWallet),
@@ -51,6 +51,7 @@ const ScanLNDInvoice = () => {
   const [amount, setAmount] = useState<string | undefined>();
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState<boolean | undefined>();
   const [expiresIn, setExpiresIn] = useState<string | undefined>();
+  const [arkFeesReady, setArkFeesReady] = useState<boolean>(false);
   const stylesHook = StyleSheet.create({
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
@@ -82,6 +83,25 @@ const ScanLNDInvoice = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
+
+  useEffect(() => {
+    // Reset readiness whenever the selected wallet changes (or is not an Ark
+    // wallet) so a stale `true` from a previously-selected wallet never carries
+    // over to one whose fees are not loaded yet.
+    if (!(wallet instanceof LightningArkWallet)) {
+      setArkFeesReady(false);
+      return;
+    }
+    setArkFeesReady(false);
+    let cancelled = false;
+    wallet
+      .ensureLightningFeesLoaded()
+      .then(() => !cancelled && setArkFeesReady(true))
+      .catch(() => {}); // fee label is non-critical; stay silent and keep the line hidden
+    return () => {
+      cancelled = true;
+    };
+  }, [wallet]);
 
   useFocusEffect(
     useCallback(() => {
@@ -115,7 +135,7 @@ const ScanLNDInvoice = () => {
       if (data.toLowerCase().startsWith('ark1')) {
         const arkw = new LightningArkWallet();
         if (arkw.isAddressValid(data)) {
-          setParams({ uri: undefined, invoice: data });
+          setParams({ uri: undefined });
           // @ts-ignore we need it to be set to something
           setDecoded({});
           setIsAmountInitiallyEmpty(true);
@@ -140,7 +160,7 @@ const ScanLNDInvoice = () => {
         }
 
         Keyboard.dismiss();
-        setParams({ uri: undefined, invoice: data });
+        setParams({ uri: undefined });
         setIsAmountInitiallyEmpty(newDecoded.num_satoshis === 0);
         setDestination(data);
         setIsLoading(false);
@@ -186,7 +206,7 @@ const ScanLNDInvoice = () => {
   };
 
   const pay = async () => {
-    if (!decoded || !wallet || !amount || !invoice) {
+    if (!decoded || !wallet || !amount || !destination) {
       return null;
     }
 
@@ -227,7 +247,7 @@ const ScanLNDInvoice = () => {
     }
 
     try {
-      await wallet.payInvoice(invoice, amountSats);
+      await wallet.payInvoice(destination, amountSats);
     } catch (Err: any) {
       console.log(Err.message);
       setIsLoading(false);
@@ -299,8 +319,22 @@ const ScanLNDInvoice = () => {
   };
 
   const getFees = (): string => {
-    if (!decoded) return '';
+    // Guard the amount, not just `decoded`: the Ark-address path sets
+    // `decoded = {}` (truthy) and amountless invoices leave num_satoshis
+    // 0/absent. The old `if (!decoded)` was safe only because getFees() used to
+    // be called solely inside the `num_satoshis > 0` JSX guard; the fee value is
+    // now hoisted unconditionally, so it must short-circuit here or
+    // `undefined.toString()` throws.
+    if (!decoded?.num_satoshis) return '';
     const num_satoshis = parseInt(decoded.num_satoshis.toString(), 10);
+
+    if (wallet instanceof LightningArkWallet) {
+      if (!arkFeesReady) return ''; // not loaded yet → fee line stays hidden until warm
+      const est = wallet.getSubmarineFeeEstimate(num_satoshis);
+      return est === undefined ? '' : `${est} ${BitcoinUnit.SATS}`;
+    }
+
+    // LightningCustodianWallet (LndHub): keep the legacy hardcoded estimate.
     const min = Math.floor(num_satoshis * 0.003);
     const max = Math.floor(num_satoshis * 0.01) + 1;
     return `${min} ${BitcoinUnit.SATS} - ${max} ${BitcoinUnit.SATS}`;
@@ -348,6 +382,12 @@ const ScanLNDInvoice = () => {
     );
   }
 
+  const feeText = getFees();
+  // Boltz publishes deterministic fees, so Arkade shows a single fixed amount
+  // under a definite label ("Network fee"), not a "potential" bracket. Custodial
+  // keeps the legacy "Potential fee" label + range.
+  const feeLabel = wallet instanceof LightningArkWallet ? loc.lnd.network_fee : loc.lnd.potentialFee;
+
   return (
     <SafeArea style={stylesHook.root}>
       <View style={[styles.root, stylesHook.root]}>
@@ -389,8 +429,8 @@ const ScanLNDInvoice = () => {
             {expiresIn !== undefined && (
               <View>
                 <Text style={stylesHook.expiresIn}>{expiresIn}</Text>
-                {decoded && decoded.num_satoshis > 0 && (
-                  <Text style={stylesHook.expiresIn}>{loc.formatString(loc.lnd.potentialFee, { fee: getFees() })}</Text>
+                {decoded && decoded.num_satoshis > 0 && feeText !== '' && (
+                  <Text style={stylesHook.expiresIn}>{loc.formatString(feeLabel, { fee: feeText })}</Text>
                 )}
               </View>
             )}

@@ -51,6 +51,11 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       await sleep(1000);
     } catch (_) {}
 
+    try {
+      // in case notification popup appeared early and is blocking taps
+      await element(by.text(`No, and do not ask me again.`)).tap();
+    } catch (_) {}
+
     await element(by.id('ReceiveButton')).tap();
     await expect(element(by.id('BitcoinAddressQRCode'))).toBeVisible();
     await expect(element(by.label('bc1qgrhr5xc5774maph97d73ydrjlqqmg2v6jjlr29'))).toBeVisible();
@@ -83,6 +88,12 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
 
     // now lets test scanning back QR with UR PSBT. this should lead straight to broadcast dialog
 
+    // Same race as the t1 AboutScrollView fix in bluewallet.spec.js: the
+    // PSBT-with-hardware screen has not always mounted by the time
+    // whileElement(...).scroll() runs.
+    await waitFor(element(by.id('PsbtWithHardwareScrollView')))
+      .toBeVisible()
+      .withTimeout(15_000);
     await waitFor(element(by.id('PsbtTxScanButton')))
       .toBeVisible()
       .whileElement(by.id('PsbtWithHardwareScrollView'))
