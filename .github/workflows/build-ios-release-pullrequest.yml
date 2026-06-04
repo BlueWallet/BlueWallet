@@ -266,10 +266,10 @@ jobs:
           bundle exec fastlane ios install_pods
           echo "CocoaPods dependencies installed successfully"
 
-      - name: Generate Build Number Based on Timestamp
+      - name: Generate Build Number from latest commit timestamp
         id: generate_build_number
         run: |
-          NEW_BUILD_NUMBER=$(date +%s)
+          NEW_BUILD_NUMBER=$(git log -1 --format=%ct)
           echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
           echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
 

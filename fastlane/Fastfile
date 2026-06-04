@@ -268,8 +268,8 @@ platform :android do
   desc "Build and sign release APK"
   lane :build_release_apk do |options|
     Dir.chdir(PROJECT_ROOT) do
-      # Allow caller to pass a build_number; otherwise fall back to env or timestamp
-      build_number = options[:build_number] || ENV['BUILD_NUMBER'] || Time.now.to_i.to_s
+      # Allow caller to pass a build_number; otherwise fall back to env or latest commit timestamp
+      build_number = options[:build_number] || ENV['BUILD_NUMBER'] || `git log -1 --format=%ct`.strip
       ENV['BUILD_NUMBER'] = build_number
 
       AndroidHelpers.ensure_temp_credentials!(auto: options[:auto_credentials])

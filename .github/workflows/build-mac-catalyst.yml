@@ -97,6 +97,18 @@ jobs:
           RCT_USE_PREBUILT_RNCORE: "1"
         run: bundle exec fastlane ios install_pods
 
+      - name: Generate Build Number from latest commit timestamp
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        id: generate_build_number
+        run: |
+          NEW_BUILD_NUMBER=$(git log -1 --format=%ct)
+          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
+          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
+
+      - name: Set Build Number
+        if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
+        run: bundle exec fastlane ios increment_build_number_lane
+
       - name: Create temporary keychain for signing
         if: (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true') && steps.labels.outputs.upload_testflight == 'true'
         run: |
