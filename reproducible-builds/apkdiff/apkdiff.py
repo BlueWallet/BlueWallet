@@ -69,13 +69,11 @@ def compare(apk1, apk2) -> bool:
     print(f"Comparing: \n\t{apk1}\n\t{apk2}\n")
 
     print("Unzipping...")
-    zip1 = open_apk(apk1)
-    zip2 = open_apk(apk2)
+    with open_apk(apk1) as zip1, open_apk(apk2) as zip2:
+        entry_names = compare_entry_names(zip1, zip2)
+        entry_contents = compare_entry_contents(zip1, zip2)
 
-    entry_names = compare_entry_names(zip1, zip2)
-    entry_contents = compare_entry_contents(zip1, zip2)
-
-    return entry_names and entry_contents
+        return entry_names and entry_contents
 
 
 def compare_entry_names(zip1: ZipFile, zip2: ZipFile) -> bool:
