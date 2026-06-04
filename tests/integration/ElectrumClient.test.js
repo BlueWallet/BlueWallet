@@ -12,9 +12,6 @@ const hardcodedPeers = [
   { host: 'electrum1.bluewallet.io', ssl: '443' },
   { host: 'electrum2.bluewallet.io', ssl: '443' },
   { host: 'electrum3.bluewallet.io', ssl: '443' },
-  { host: 'electrum1.bluewallet.io', tcp: '50001' },
-  { host: 'electrum2.bluewallet.io', tcp: '50001' },
-  { host: 'electrum3.bluewallet.io', tcp: '50001' },
 ];
 
 function bitcoinjs_crypto_sha256(buffer /*: Buffer */) /*: Buffer */ {

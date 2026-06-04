@@ -510,6 +510,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
+    fontSize: 15,
+    lineHeight: 19,
     color: '#81868e',
   },
 });

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Animated, Easing, Linking, Pressable, Text, TextStyle, ViewStyle, StyleSheet, View } from 'react-native';
 import Lnurl from '../class/lnurl';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
 import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
 import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
@@ -154,7 +155,30 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
 
+  // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
+  // wallet transacts entirely via Boltz swaps, so every row is Lightning; the
+  // only genuinely on-chain activity is onboarding/refill (boarding UTXOs),
+  // tagged from the synthetic `boarding-…` txid set in
+  // lightning-ark-wallet.getTransactions(). Other wallet types are unaffected.
+  const arkRowKind = useMemo<'Lightning' | 'Refill' | undefined>(() => {
+    const wallet = wallets.find(w => w.getID() === item.walletID);
+    if (wallet?.type !== LightningArkWallet.type) return undefined;
+    const txid = (item as { txid?: string }).txid;
+    if (txid?.startsWith('boarding-')) return 'Refill';
+    return 'Lightning';
+  }, [item, wallets]);
+
+  // A refill is "Pending" until the SDK settles its boarding UTXO into a VTXO
+  // (also when it enters the spendable balance). getTransactions() pass 2 tags
+  // those not-yet-settled rows with a `boarding-utxo-…` id; settled refills use
+  // `boarding-…` and render as a normal confirmed receive.
+  const isPendingRefill = useMemo(
+    () => arkRowKind === 'Refill' && !!(item as { txid?: string }).txid?.startsWith('boarding-utxo-'),
+    [arkRowKind, item],
+  );
+
   const listTitleKey = useMemo((): 'pending' | 'sent' | 'received' => {
+    if (isPendingRefill) return 'pending';
     if (item.category === 'receive' && item.confirmations! < 3) return 'pending';
     if (item.type === 'bitcoind_tx') return item.value! < 0 ? 'sent' : 'received';
     if (item.type === 'paid_invoice') return 'sent';
@@ -164,7 +188,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     }
     if (!item.confirmations) return 'pending';
     return item.value! < 0 ? 'sent' : 'received';
-  }, [item.category, item.confirmations, item.type, item.value, item.ispaid]);
+  }, [isPendingRefill, item.category, item.confirmations, item.type, item.value, item.ispaid]);
 
   const listTitle = useMemo(() => {
     if (listTitleKey === 'pending') return loc.transactions.pending;
@@ -175,11 +199,11 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   const isPending = listTitleKey === 'pending';
 
   const dateLine = useMemo(() => {
-    if (isPending) return transactionTimeToReadable(item.timestamp);
-    return formatTransactionListDate(item.timestamp * 1000);
+    const formatted = isPending ? transactionTimeToReadable(item.timestamp) : formatTransactionListDate(item.timestamp * 1000);
+    return arkRowKind ? `${arkRowKind} · ${formatted}` : formatted;
     // language in deps so date format updates when locale changes (formatters use global locale)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPending, item.timestamp, language]);
+  }, [isPending, item.timestamp, language, arkRowKind]);
 
   const formattedAmount = useMemo(() => {
     return formatBalanceWithoutSuffix(item.value, itemPriceUnit, true).toString();
@@ -241,11 +265,27 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   ]);
 
   const determineTransactionTypeAndAvatar = () => {
+    // A refill awaiting settlement: show it as pending, not as a completed receive.
+    if (isPendingRefill) {
+      return {
+        label: loc.transactions.pending_transaction,
+        icon: <TransactionPendingIcon />,
+      };
+    }
+
     if (item.category === 'receive' && item.confirmations! < 3) {
       return {
         label: loc.transactions.pending_transaction,
         icon: <TransactionPendingIcon />,
       };
+    }
+
+    // Recovered Arkade Lightning legs are bitcoind_tx but represent Boltz swaps,
+    // not on-chain transfers — render them with the off-chain (Lightning) icon.
+    if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
+      return item.value! < 0
+        ? { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> }
+        : { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };
     }
 
     if (item.type && item.type === 'bitcoind_tx') {
@@ -321,7 +361,11 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         pop();
       }
       navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
-    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
+    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice' || item.payment_request) {
+      // A settled Arkade swap is an enriched native Ark leg (type 'bitcoind_tx')
+      // carrying the swap's invoice payload (payment_request/hash/preimage). Route
+      // it to the Lightning invoice view by that payload, not by type — otherwise
+      // it falls through to the on-chain TransactionStatus branch below.
       const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
       if (lightningWallet.length === 1) {
         try {
@@ -352,21 +396,37 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
           walletID: lightningWallet[0].getID(),
         });
       }
-    } else {
-      console.log('cant handle press');
+    } else if ((item as { txid?: string }).txid) {
+      // Hash-less Ark rows carry a synthetic `txid`. Native transfer legs
+      // (`ark-…`) open the hash-less-tolerant TransactionStatus detail. Refill
+      // rows (`boarding-…` / `boarding-utxo-…`) have no detail surface and are
+      // not tappable — matching master, where on-chain top-ups aren't tappable.
+      const txid = (item as { txid: string }).txid;
+      if (!txid.startsWith('boarding-')) {
+        navigate('TransactionStatus', { tx: item, hash: txid, walletID });
+      }
     }
   }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
 
   const handleOnDetailsPress = useCallback(() => {
     if (walletID && item && item.hash) {
       navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
-    } else {
+    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice' || item.payment_request) {
+      // Settled Arkade swaps carry invoice data on a 'bitcoind_tx' leg; route by
+      // payload so they open the Lightning invoice view (see onPress above).
       const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
       if (lightningWallet) {
         navigate('LNDViewInvoice', {
           invoice: item,
           walletID: lightningWallet.getID(),
         });
+      }
+    } else if ((item as { txid?: string }).txid) {
+      // Match the regular tap path for Ark non-swap rows: native transfer legs
+      // open TransactionStatus; refills (`boarding-…`) are not tappable (master).
+      const txid = (item as { txid: string }).txid;
+      if (!txid.startsWith('boarding-')) {
+        navigate('TransactionStatus', { tx: item, hash: txid, walletID });
       }
     }
   }, [item, navigate, walletID, wallets]);
@@ -449,7 +509,10 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     if (renderHighlightedText && searchQuery) {
       const highlighted = renderHighlightedText(subtitle, searchQuery);
       if (React.isValidElement(highlighted)) {
-        const highlightedElement = highlighted as React.ReactElement<{ numberOfLines?: number; style?: TextStyle | TextStyle[] }>;
+        const highlightedElement = highlighted as React.ReactElement<{
+          numberOfLines?: number;
+          style?: TextStyle | TextStyle[];
+        }>;
         const existingStyle = highlightedElement.props?.style;
         const mergedStyle: TextStyle[] = (
           Array.isArray(existingStyle)
