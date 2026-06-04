@@ -4,6 +4,7 @@ import navigationStyle, { CloseButtonPosition } from '../components/navigationSt
 import { useTheme } from '../components/themes';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { PromptPasswordConfirmationStackParamList } from './PromptPasswordConfirmationStackParamList';
+import loc from '../loc';
 
 const Stack = createNativeStackNavigator<PromptPasswordConfirmationStackParamList>();
 
@@ -16,6 +17,7 @@ const PromptPasswordConfirmationStack = () => {
         name="PromptPasswordConfirmationSheet"
         component={PromptPasswordConfirmationSheet}
         options={navigationStyle({
+          title: loc.settings.password,
           presentation: 'formSheet',
           sheetAllowedDetents: 'fitToContents',
           sheetGrabberVisible: true,
