@@ -116,7 +116,9 @@ const resetAllMocks = () => {
 
 describe('PromptPasswordConfirmationSheet (render)', () => {
   beforeEach(resetAllMocks);
-
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
   it('renders the enter-password form by default', () => {
     setRoute({ modalType: MODAL_TYPES.ENTER_PASSWORD, returnTo: 'EncryptStorage' });
     const { getByTestId, queryByTestId } = render(<PromptPasswordConfirmationSheet />);
