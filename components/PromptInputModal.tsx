@@ -81,9 +81,16 @@ const PromptInputModal = () => {
 
   return (
     <Modal visible transparent animationType="fade" statusBarTranslucent onRequestClose={onBackdropPress}>
-      <Pressable style={backdropStyle} onPress={onBackdropPress}>
+      <Pressable
+        style={backdropStyle}
+        onPress={onBackdropPress}
+        accessibilityViewIsModal
+        accessibilityRole={current.cancelable ? 'button' : undefined}
+        accessibilityLabel={current.cancelable ? loc._.cancel : undefined}
+        testID="PromptBackdrop"
+      >
         <View style={[styles.card, stylesHook.card]} onStartShouldSetResponder={() => true}>
-          <Text style={[styles.title, stylesHook.title]} maxFontSizeMultiplier={1.2}>
+          <Text style={[styles.title, stylesHook.title]} maxFontSizeMultiplier={1.2} accessibilityRole="header">
             {current.title}
           </Text>
           {current.description ? (
@@ -104,6 +111,8 @@ const PromptInputModal = () => {
             autoCorrect={false}
             autoFocus
             returnKeyType="done"
+            accessibilityLabel={current.title}
+            accessibilityHint={current.description}
           />
           <View style={styles.footer}>
             {current.cancelable ? (
