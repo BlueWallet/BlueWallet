@@ -1,0 +1,70 @@
+diff --git a/node_modules/react-native/src/private/components/virtualview/VirtualViewExperimentalNativeComponent.js b/node_modules/react-native/src/private/components/virtualview/VirtualViewExperimentalNativeComponent.js
+index c640b5a..5c1147f 100644
+--- a/node_modules/react-native/src/private/components/virtualview/VirtualViewExperimentalNativeComponent.js
++++ b/node_modules/react-native/src/private/components/virtualview/VirtualViewExperimentalNativeComponent.js
+@@ -85,10 +85,8 @@ type VirtualViewExperimentalNativeProps = Readonly<{
+    */
+   renderState: Int32,
+ 
+-  /**
+-   * See `NativeModeChangeEvent`.
+-   */
+-  onModeChange?: ?DirectEventHandler<NativeModeChangeEvent>,
++  // react-native-macos codegen compatibility: omit this event to avoid
++  // parser failure in mixed react-native/react-native-macos setups.
+ }>;
+ 
+ // TODO: Rename to eliminate "Experimental" suffix in the name.
+diff --git a/node_modules/react-native/src/private/components/virtualview/VirtualViewNativeComponent.js b/node_modules/react-native/src/private/components/virtualview/VirtualViewNativeComponent.js
+index 4ba5b68..d68d9ee 100644
+--- a/node_modules/react-native/src/private/components/virtualview/VirtualViewNativeComponent.js
++++ b/node_modules/react-native/src/private/components/virtualview/VirtualViewNativeComponent.js
+@@ -85,10 +85,8 @@ type VirtualViewNativeProps = Readonly<{
+    */
+   renderState: Int32,
+ 
+-  /**
+-   * See `NativeModeChangeEvent`.
+-   */
+-  onModeChange?: ?DirectEventHandler<NativeModeChangeEvent>,
++  // react-native-macos codegen compatibility: omit this event to avoid
++  // parser failure in mixed react-native/react-native-macos setups.
+ }>;
+ 
+ export default codegenNativeComponent<VirtualViewNativeProps>('VirtualView', {
+diff --git a/node_modules/react-native/src/private/specs_DEPRECATED/components/AndroidDrawerLayoutNativeComponent.js b/node_modules/react-native/src/private/specs_DEPRECATED/components/AndroidDrawerLayoutNativeComponent.js
+index 22ce1ab..8fb51f0 100644
+--- a/node_modules/react-native/src/private/specs_DEPRECATED/components/AndroidDrawerLayoutNativeComponent.js
++++ b/node_modules/react-native/src/private/specs_DEPRECATED/components/AndroidDrawerLayoutNativeComponent.js
+@@ -76,29 +76,8 @@ type AndroidDrawerLayoutNativeProps = Readonly<{
+     'unlocked',
+   >,
+ 
+-  /**
+-   * Function called whenever there is an interaction with the navigation view.
+-   */
+-  onDrawerSlide?: ?DirectEventHandler<DrawerSlideEvent>,
+-
+-  /**
+-   * Function called when the drawer state has changed. The drawer can be in 3 states:
+-   * - Idle, meaning there is no interaction with the navigation view happening at the time
+-   * - Dragging, meaning there is currently an interaction with the navigation view
+-   * - Settling, meaning that there was an interaction with the navigation view, and the
+-   * navigation view is now finishing its closing or opening animation
+-   */
+-  onDrawerStateChanged?: ?DirectEventHandler<DrawerStateEvent>,
+-
+-  /**
+-   * Function called whenever the navigation view has been opened.
+-   */
+-  onDrawerOpen?: ?DirectEventHandler<null>,
+-
+-  /**
+-   * Function called whenever the navigation view has been closed.
+-   */
+-  onDrawerClose?: ?DirectEventHandler<null>,
++  // react-native-macos codegen compatibility: omit AndroidDrawerLayout events
++  // to avoid parser failures in mixed react-native/react-native-macos setups.
+ 
+   /**
+    * Make the drawer take the entire screen and draw the background of the

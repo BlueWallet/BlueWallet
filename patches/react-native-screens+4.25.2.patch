@@ -1,0 +1,85 @@
+diff --git a/node_modules/react-native-screens/android/.gradle/8.9/checksums/checksums.lock b/node_modules/react-native-screens/android/.gradle/8.9/checksums/checksums.lock
+new file mode 100644
+index 0000000..26217ee
+Binary files /dev/null and b/node_modules/react-native-screens/android/.gradle/8.9/checksums/checksums.lock differ
+diff --git a/node_modules/react-native-screens/android/.gradle/8.9/dependencies-accessors/gc.properties b/node_modules/react-native-screens/android/.gradle/8.9/dependencies-accessors/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-screens/android/.gradle/8.9/fileChanges/last-build.bin b/node_modules/react-native-screens/android/.gradle/8.9/fileChanges/last-build.bin
+new file mode 100644
+index 0000000..f76dd23
+Binary files /dev/null and b/node_modules/react-native-screens/android/.gradle/8.9/fileChanges/last-build.bin differ
+diff --git a/node_modules/react-native-screens/android/.gradle/8.9/fileHashes/fileHashes.lock b/node_modules/react-native-screens/android/.gradle/8.9/fileHashes/fileHashes.lock
+new file mode 100644
+index 0000000..8ea67ba
+Binary files /dev/null and b/node_modules/react-native-screens/android/.gradle/8.9/fileHashes/fileHashes.lock differ
+diff --git a/node_modules/react-native-screens/android/.gradle/8.9/gc.properties b/node_modules/react-native-screens/android/.gradle/8.9/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-screens/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock b/node_modules/react-native-screens/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock
+new file mode 100644
+index 0000000..3332882
+Binary files /dev/null and b/node_modules/react-native-screens/android/.gradle/buildOutputCleanup/buildOutputCleanup.lock differ
+diff --git a/node_modules/react-native-screens/android/.gradle/buildOutputCleanup/cache.properties b/node_modules/react-native-screens/android/.gradle/buildOutputCleanup/cache.properties
+new file mode 100644
+index 0000000..b26a0dc
+--- /dev/null
++++ b/node_modules/react-native-screens/android/.gradle/buildOutputCleanup/cache.properties
+@@ -0,0 +1,2 @@
++#Sun May 31 12:20:59 COT 2026
++gradle.version=8.9
+diff --git a/node_modules/react-native-screens/android/.gradle/vcs-1/gc.properties b/node_modules/react-native-screens/android/.gradle/vcs-1/gc.properties
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/react-native-screens/android/.project b/node_modules/react-native-screens/android/.project
+new file mode 100644
+index 0000000..38263c4
+--- /dev/null
++++ b/node_modules/react-native-screens/android/.project
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>react-native-screens</name>
++	<comment>Project react-native-screens created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++	<filteredResources>
++		<filter>
++			<id>1773555126980</id>
++			<name></name>
++			<type>30</type>
++			<matcher>
++				<id>org.eclipse.core.resources.regexFilterMatcher</id>
++				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
++			</matcher>
++		</filter>
++	</filteredResources>
++</projectDescription>
+diff --git a/node_modules/react-native-screens/src/components/tabs/host/TabsHost.macos.tsx b/node_modules/react-native-screens/src/components/tabs/host/TabsHost.macos.tsx
+new file mode 100644
+index 0000000..33fbf06
+--- /dev/null
++++ b/node_modules/react-native-screens/src/components/tabs/host/TabsHost.macos.tsx
+@@ -0,0 +1,2 @@
++export { default } from './TabsHost.ios';
++export * from './TabsHost.ios';
+\ No newline at end of file
+diff --git a/node_modules/react-native-screens/src/components/tabs/screen/TabsScreen.macos.tsx b/node_modules/react-native-screens/src/components/tabs/screen/TabsScreen.macos.tsx
+new file mode 100644
+index 0000000..88bc8b8
+--- /dev/null
++++ b/node_modules/react-native-screens/src/components/tabs/screen/TabsScreen.macos.tsx
+@@ -0,0 +1,2 @@
++export { default } from './TabsScreen.ios';
++export * from './TabsScreen.ios';
+\ No newline at end of file

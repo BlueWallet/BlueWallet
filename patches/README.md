@@ -64,3 +64,67 @@ delivered.
 Added in BlueWallet PR https://github.com/BlueWallet/BlueWallet/pull/8424
 during a React Native bump. Remove once `react-native-notifications`
 ships New-Architecture-safe token delivery.
+
+---
+
+## `react-native+0.85.3.patch`
+
+**What:** disables a small set of codegen event props in React Native
+component specs:
+
+- `VirtualViewNativeComponent` / `VirtualViewExperimentalNativeComponent`:
+  remove `onModeChange`
+- `AndroidDrawerLayoutNativeComponent`: remove drawer event handlers in
+  the generated spec file used by codegen (`onDrawerSlide`,
+  `onDrawerStateChanged`, `onDrawerOpen`, `onDrawerClose`)
+
+**Why:** in this mixed setup (`react-native` for JS + `react-native-macos`
+for native Apple build tooling), `react-native-macos` codegen parsing can
+fail on newer React Native spec syntax/shape. This patch keeps codegen
+running for BlueWallet and third-party modules by omitting these
+incompatible event definitions.
+
+**Upstream:** no direct upstream issue tracked from this repo yet; this is
+an integration compatibility shim.
+
+**Remove this patch once** `react-native-macos` supports these
+`react-native@0.85.x` specs without local changes.
+
+---
+
+## `react-native-macos+0.81.7.patch`
+
+**What:** in `generate-artifacts-executor/utils.js`, skip codegen library
+discovery for the base `react-native` dependency in `findExternalLibraries`.
+
+**Why:** when `react-native-macos` runs codegen in a mixed app, trying to
+also parse base `react-native` specs can fail before pods are installed.
+Skipping that dependency avoids parser failures while still generating
+required app and dependency artifacts.
+
+**Upstream:** no direct upstream issue tracked from this repo yet; this is
+a local mixed-version compatibility workaround.
+
+**Remove this patch once** `react-native-macos` can consume the base
+`react-native` dependency specs in this version combination.
+
+---
+
+## `react-native-svg+15.15.5.patch`
+
+**What:** in `RNSVGImage.mm`, add a macOS-specific branch for
+`ImageResponseObserverCoordinator` add/remove calls so macOS uses
+`*observerProxy` in the `REACT_NATIVE_MINOR_VERSION > 84` code path.
+
+**Why:** with `react-native-macos@0.81.7`, the macOS observer API expects
+`ImageResponseObserver` rather than `shared_ptr<ImageResponseObserver>` in
+this location. Without the guard, macOS builds fail with:
+
+```
+error: no viable conversion from 'std::shared_ptr<RCTImageResponseObserverProxy>' to 'const ImageResponseObserver'
+```
+
+**Upstream:** no direct upstream issue tracked from this repo yet.
+
+**Remove this patch once** `react-native-svg` (or `react-native-macos`)
+handles this API difference natively.

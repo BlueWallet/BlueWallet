@@ -1,0 +1,18 @@
+diff --git a/node_modules/react-native-macos/scripts/codegen/generate-artifacts-executor/utils.js b/node_modules/react-native-macos/scripts/codegen/generate-artifacts-executor/utils.js
+index 7aefca2..8c597ff 100644
+--- a/node_modules/react-native-macos/scripts/codegen/generate-artifacts-executor/utils.js
++++ b/node_modules/react-native-macos/scripts/codegen/generate-artifacts-executor/utils.js
+@@ -241,6 +241,13 @@ function findExternalLibraries(
+   );
+   // Handle third-party libraries
+   return Object.keys(dependencies).flatMap(dependency => {
++    // In mixed react-native/react-native-macos apps, generating code for the
++    // base `react-native` package with the macOS codegen runner can fail on
++    // incompatible spec syntax from newer RN versions.
++    if (dependency === REACT_NATIVE || dependency === 'react-native') {
++      return [];
++    }
++
+     let configFilePath = '';
+     try {
+       configFilePath = require.resolve(path.join(dependency, 'package.json'), {

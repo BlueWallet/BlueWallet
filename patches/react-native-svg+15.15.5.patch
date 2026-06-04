@@ -1,0 +1,62 @@
+diff --git a/node_modules/react-native-svg/android/.project b/node_modules/react-native-svg/android/.project
+new file mode 100644
+index 0000000..a0615c1
+--- /dev/null
++++ b/node_modules/react-native-svg/android/.project
+@@ -0,0 +1,28 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<projectDescription>
++	<name>react-native-svg</name>
++	<comment>Project react-native-svg created by Buildship.</comment>
++	<projects>
++	</projects>
++	<buildSpec>
++		<buildCommand>
++			<name>org.eclipse.buildship.core.gradleprojectbuilder</name>
++			<arguments>
++			</arguments>
++		</buildCommand>
++	</buildSpec>
++	<natures>
++		<nature>org.eclipse.buildship.core.gradleprojectnature</nature>
++	</natures>
++	<filteredResources>
++		<filter>
++			<id>1766959284505</id>
++			<name></name>
++			<type>30</type>
++			<matcher>
++				<id>org.eclipse.core.resources.regexFilterMatcher</id>
++				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
++			</matcher>
++		</filter>
++	</filteredResources>
++</projectDescription>
+diff --git a/node_modules/react-native-svg/apple/Elements/RNSVGImage.mm b/node_modules/react-native-svg/apple/Elements/RNSVGImage.mm
+index e58ddba..99760ad 100644
+--- a/node_modules/react-native-svg/apple/Elements/RNSVGImage.mm
++++ b/node_modules/react-native-svg/apple/Elements/RNSVGImage.mm
+@@ -123,7 +123,11 @@ - (void)_setStateAndResubscribeImageResponseObserver:(RNSVGImageShadowNode::Conc
+   if (_state) {
+     auto &observerCoordinator = _state->getData().getImageRequest().getObserverCoordinator();
+ #if REACT_NATIVE_MINOR_VERSION > 84
++#if !TARGET_OS_OSX // [macOS]
+     observerCoordinator.removeObserver(_imageResponseObserverProxy);
++#else // [macOS]
++  observerCoordinator.removeObserver(*_imageResponseObserverProxy);
++#endif // [macOS]
+ #else
+     observerCoordinator.removeObserver(*_imageResponseObserverProxy);
+ #endif
+@@ -134,7 +138,11 @@ - (void)_setStateAndResubscribeImageResponseObserver:(RNSVGImageShadowNode::Conc
+   if (_state) {
+     auto &observerCoordinator = _state->getData().getImageRequest().getObserverCoordinator();
+ #if REACT_NATIVE_MINOR_VERSION > 84
++#if !TARGET_OS_OSX // [macOS]
+     observerCoordinator.addObserver(_imageResponseObserverProxy);
++#else // [macOS]
++  observerCoordinator.addObserver(*_imageResponseObserverProxy);
++#endif // [macOS]
+ #else
+     observerCoordinator.addObserver(*_imageResponseObserverProxy);
+ #endif
