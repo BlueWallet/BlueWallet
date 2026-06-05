@@ -1,11 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Platform, View, ListRenderItem } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Platform, View, ListRenderItem, FlatList } from 'react-native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import {
   SettingsFlatList,
   SettingsListItem,
@@ -30,7 +32,12 @@ interface SettingItem extends SettingsListItemProps {
   showItem: boolean;
 }
 
+type RouteProps = RouteProp<DetailViewStackParamList, 'GeneralSettings'>;
+
 const GeneralSettings: React.FC = () => {
+  const route = useRoute<RouteProps>();
+  const flatListRef = useRef<FlatList<SettingItem> | null>(null);
+  const targetItemId = route.params?.targetItemId;
   const { wallets, isStorageEncrypted } = useStorage();
 
   const {
@@ -337,15 +344,45 @@ const GeneralSettings: React.FC = () => {
 
   const keyExtractor = useCallback((item: SettingItem) => item.id, []);
 
+  const data = useMemo(() => settingsItems(), [settingsItems]);
+
+  useEffect(() => {
+    if (!targetItemId || data.length === 0) {
+      return;
+    }
+
+    const targetIndex = data.findIndex(item => item.id === targetItemId);
+    if (targetIndex < 0) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      flatListRef.current?.scrollToIndex({
+        index: targetIndex,
+        animated: true,
+        viewPosition: 0,
+      });
+    }, 150);
+
+    return () => clearTimeout(timer);
+  }, [targetItemId, data]);
+
   return (
     <SettingsFlatList
+      ref={flatListRef}
       testID="GeneralSettingsScreen"
-      data={settingsItems()}
+      data={data}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       removeClippedSubviews
+      onScrollToIndexFailed={info => {
+        flatListRef.current?.scrollToOffset({
+          offset: Math.max(0, info.averageItemLength * info.index),
+          animated: true,
+        });
+      }}
     />
   );
 };
