@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
-import { BlueText } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert from '../../components/Alert';

@@ -3,7 +3,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import { BlueCard } from '../../BlueComponents';
+import BlueCard from '../../components/BlueCard';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';

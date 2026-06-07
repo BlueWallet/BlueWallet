@@ -13,13 +13,15 @@ afterAll(async () => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.connectMain();
+  if (!(await BlueElectrum.ensureConnected())) {
+    throw new Error('failed to connect to Electrum');
+  }
 });
 
 describe('Watch only wallet', () => {
   it('can fetch balance', async () => {
     const w = new WatchOnlyWallet();
-    w.setSecret('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa');
+    w.setSecret('12cbQLTFMXRnSzktFkuoG3eHoMeFtpTu3S');
     await w.fetchBalance();
     assert.ok(w.getBalance() > 16);
   });

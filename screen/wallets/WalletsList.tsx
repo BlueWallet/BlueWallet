@@ -20,7 +20,6 @@ import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
-import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
@@ -106,8 +105,7 @@ const WalletsList: React.FC = () => {
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
-  const { wallets, getTransactions, refreshAllWalletTransactions, walletTransactionUpdateStatus } = useStorage();
-  const isGlobalTransactionRefreshBusy = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
+  const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width } = useWindowDimensions();
   const { colors, scanImage } = useTheme();
@@ -173,13 +171,10 @@ const WalletsList: React.FC = () => {
   }, []);
 
   const onRefresh = useCallback(() => {
-    if (isGlobalTransactionRefreshBusy) {
-      return Promise.resolve();
-    }
     console.debug('WalletsList onRefresh');
     return refreshTransactions();
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
-  }, [refreshTransactions, isGlobalTransactionRefreshBusy]);
+  }, [refreshTransactions]);
 
   useEffect(() => {
     const screenKey = route.name;
@@ -295,7 +290,14 @@ const WalletsList: React.FC = () => {
 
   const renderTransactionListsRow = useCallback(
     (item: ExtendedTransaction) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
+      // Ark wallet rows have no on-chain `hash` — fall back to their
+      // synthetic `txid` so each row gets a unique React key.
+      <TransactionListItem
+        key={item.hash ?? (item as { txid?: string }).txid}
+        item={item}
+        itemPriceUnit={item.walletPreferredBalanceUnit}
+        walletID={item.walletID}
+      />
     ),
     [],
   );
@@ -468,13 +470,11 @@ const WalletsList: React.FC = () => {
   }, [onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
 
   const sectionListKeyExtractor = useCallback((item: any, index: any) => {
-    return `${item}${index}`;
+    if (typeof item === 'string') return item;
+    return item?.hash || item?.txid || `${item}${index}`;
   }, []);
 
-  const refreshProps = useMemo(
-    () => (isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh }),
-    [isElectrumDisabled, isLoading, onRefresh],
-  );
+  const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
 
   const sections: SectionData[] = useMemo(() => {
     // On large screens, only show transactions section

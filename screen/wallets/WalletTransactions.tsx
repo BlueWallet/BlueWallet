@@ -34,7 +34,6 @@ import loc, { formatBalance } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
 import { useStorage } from '../../hooks/context/useStorage';
-import { WalletTransactionsStatus } from '../../components/Context/StorageProvider';
 import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -62,7 +61,7 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 
 type TransactionListItem = Transaction & { type: 'transaction' | 'header' };
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
-  const { wallets, saveToDisk, walletTransactionUpdateStatus } = useStorage();
+  const { wallets, saveToDisk } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { direction } = useLocale();
@@ -86,8 +85,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible;
   });
   const MAX_FAILURES = 3;
-  const isUpstreamWalletRefreshBusy =
-    walletTransactionUpdateStatus === WalletTransactionsStatus.ALL || walletTransactionUpdateStatus === walletID;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -200,7 +197,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const refreshTransactions = useCallback(
     async (isManualRefresh = false) => {
       console.debug('refreshTransactions, ', wallet.getLabel());
-      if (isElectrumDisabled || isLoading || isUpstreamWalletRefreshBusy) return;
+      if (isElectrumDisabled || isLoading) return;
 
       const MIN_REFRESH_INTERVAL = 5000; // 5 seconds
       if (!isManualRefresh && lastFetchTimestamp !== 0 && Date.now() - lastFetchTimestamp < MIN_REFRESH_INTERVAL) {
@@ -218,7 +215,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
       let smthChanged = false;
       try {
-        await BlueElectrum.waitTillConnected();
+        if (!(await BlueElectrum.ensureConnected())) {
+          throw new Error(loc.errors.network);
+        }
         if (wallet.allowBIP47() && wallet.isBIP47Enabled() && 'fetchBIP47SenderPaymentCodes' in wallet) {
           await wallet.fetchBIP47SenderPaymentCodes();
         }
@@ -260,14 +259,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         setIsLoading(false);
       }
     },
-    [wallet, isElectrumDisabled, isLoading, isUpstreamWalletRefreshBusy, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures],
+    [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures],
   );
 
   useEffect(() => {
-    if (lastFetchTimestamp === 0 && !isLoading && !isElectrumDisabled && !isUpstreamWalletRefreshBusy) {
+    if (lastFetchTimestamp === 0 && !isLoading && !isElectrumDisabled) {
       refreshTransactions(false).catch(console.error);
     }
-  }, [wallet, isElectrumDisabled, isLoading, isUpstreamWalletRefreshBusy, refreshTransactions, lastFetchTimestamp]);
+  }, [wallet, isElectrumDisabled, isLoading, refreshTransactions, lastFetchTimestamp]);
 
   const isLightning = useCallback((): boolean => wallet.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
@@ -350,9 +349,22 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   });
 
   const renderItem = useCallback(
+    // react/no-unused-prop-types misfires on inline arrow renderers: it reads the
+    // destructured `item: Transaction` annotation as a propTypes definition and
+    // ignores that the value is consumed on the next line.
     // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: Transaction }) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={displayUnit} walletID={walletID} />
+      // Ark wallet rows lack on-chain `hash` and instead carry a synthetic
+      // `txid` (`swap-…`, `ark-…`, `boarding-…`, `boarding-utxo-…`). Falling
+      // back to `txid` prevents multiple Ark rows from sharing
+      // `key={undefined}`, which made React reuse stale memoized renders
+      // across rows.
+      <TransactionListItem
+        key={item.hash ?? (item as { txid?: string }).txid}
+        item={item}
+        itemPriceUnit={displayUnit}
+        walletID={walletID}
+      />
     ),
     [displayUnit, walletID],
   );
@@ -371,7 +383,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       });
   };
 
-  const _keyExtractor = useCallback((_item: any, index: number) => index.toString(), []);
+  const _keyExtractor = useCallback((item: Transaction, index: number) => item.hash || item.txid || index.toString(), []);
 
   const pasteFromClipboard = async () => {
     onBarCodeRead({ data: await getClipboardContent() });
@@ -464,10 +476,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     }, [walletID, unregisterTransactionsHandler]),
   );
 
-  useEffect(() => {
-    const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
-    return () => clearInterval(interval);
-  }, [wallet]);
+  useFocusEffect(
+    useCallback(() => {
+      // sync once on focus so balance is fresh after returning to screen
+      setBalance(wallet.getBalance());
+      const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
+      return () => clearInterval(interval);
+    }, [wallet]),
+  );
 
   const walletBalance = useMemo(() => {
     if (wallet.hideBalance) return '';
@@ -519,7 +535,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return () => clearTimeout(timer);
   }, [walletID, measureHeaderHeight]);
 
-  const ListHeaderComponent = useCallback(
+  const ListHeaderComponent = useMemo(
     () => (
       <View ref={headerRef} onLayout={measureHeaderHeight}>
         <TransactionsNavigationHeader

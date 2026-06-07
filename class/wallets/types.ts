@@ -104,6 +104,11 @@ export type LightningTransaction = {
   timestamp: number; // seconds, not milliseconds
   expire_time?: number;
   ispaid?: boolean;
+  // Terminal non-success state (failed/refunded/expired swap). Distinct from
+  // `ispaid:false`, which on its own only means "not settled yet" and is also
+  // true for in-flight rows. Consumers that gate on pending vs. dead state
+  // (e.g. the wallet-card pending pill) must treat `failed` rows as terminal.
+  failed?: boolean;
   walletID?: string;
   value?: number;
   amt?: number;
@@ -123,10 +128,11 @@ export type Transaction = {
   locktime: number;
   inputs: TransactionInput[];
   outputs: TransactionOutput[];
-  blockhash: string;
-  confirmations: number;
-  time: number;
-  blocktime: number;
+  // Confirmation-only fields: absent on mempool (unconfirmed) responses.
+  blockhash?: string;
+  confirmations?: number;
+  time?: number;
+  blocktime?: number;
   timestamp: number; // seconds, not milliseconds
   value?: number;
 

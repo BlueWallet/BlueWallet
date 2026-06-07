@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueButtonLink, BlueFormLabel, BlueText } from '../../BlueComponents';
+import BlueButtonLink from '../../components/BlueButtonLink';
+import BlueFormLabel from '../../components/BlueFormLabel';
+import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import startImport, { TImport } from '../../class/wallet-import';

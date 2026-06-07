@@ -33,7 +33,7 @@ jest.mock('../../hooks/useWalletSubscribe', () => ({
   default: () => mockWalletSubscribe,
 }));
 
-const routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
+let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet' };
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
@@ -81,12 +81,13 @@ jest.mock('../../components/themes', () => ({
   }),
 }));
 
-jest.mock('../../BlueComponents', () => {
-  const { Text, View } = require('react-native');
-  return {
-    BlueCard: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
-    BlueText: ({ children }: { children: React.ReactNode }) => <Text>{children}</Text>,
-  };
+jest.mock('../../components/BlueCard', () => {
+  const { View } = require('react-native');
+  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <View>{children}</View> };
+});
+jest.mock('../../components/BlueText', () => {
+  const { Text } = require('react-native');
+  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <Text>{children}</Text> };
 });
 
 jest.mock('../../components/Button', () => 'Button');
@@ -225,6 +226,7 @@ describe('TransactionStatus regression', () => {
       saveToDisk: jest.fn(() => Promise.resolve()),
     };
     mockWalletSubscribe = null;
+    routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
   });
 
   afterEach(() => {
@@ -269,15 +271,37 @@ describe('TransactionStatus regression', () => {
       expect(mockPrompt).toHaveBeenCalledTimes(1);
     });
 
-    // 7th argument is defaultInputValue: current memo should be in the input field, not in the message
     expect(mockPrompt).toHaveBeenCalledWith(
       'Note to Self',
       '', // message empty so content is not in alert body
-      true,
-      'plain-text',
-      false,
-      undefined,
-      existingMemo, // defaultInputValue: pre-fill input for easy editing
+      { type: 'plain-text', defaultValue: existingMemo }, // defaultValue: pre-fill input for easy editing
     );
+  });
+
+  it('renders an Arkade row as received (not pending) and never queries Electrum for its synthetic id', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    const arkRow = { txid: 'ark-deadbeef', type: 'bitcoind_tx', value: 1200, walletID: 'mock-wallet', timestamp: 1700000000 };
+    routeParams = { tx: arkRow, hash: 'ark-deadbeef', walletID: 'mock-wallet' };
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [arkRow]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    // #1: the row shows its real direction (received), not a false "Pending".
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+    // #1/#3: no "confirmations" sub-value for an off-chain row (would have rendered "NaN confirmations").
+    expect(view.queryByText(/confirmations/)).toBeNull();
+    // #2: the synthetic id is never handed to Electrum (the source of "hash ark-… not found").
+    expect(BlueElectrum.multiGetTransactionByTxid).not.toHaveBeenCalled();
   });
 });
