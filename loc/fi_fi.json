@@ -373,7 +373,6 @@
     "rbf_title": "Nosta siirtomaksua (RBF)",
     "status_bump": "Nosta siirtomaksua",
     "status_cancel": "Peruuta Siirtotapahtuma",
-    "transactions_count": "Siirtotapahtumien määrä",
     "txid": "Siirtotapahtuman tunnus",
     "updating": "Päivitetään...",
     "watchOnlyWarningTitle": "Turvallisuusvaroitus",
@@ -513,8 +512,6 @@
     "details_delete_anyway": "Poista silti",
     "add_lndhub_error": "Annettu solmun osoite on virheellinen LNDhub-solmu.",
     "add_wallet_seed_length": "Palautuslauseen pituus",
-    "swipe_balance_hide": "Piilota",
-    "swipe_balance_show": "Näytä",
     "drag_to_reorder": "Vedä järjestääksesi uudelleen",
     "clear_search": "Tyhjennä haku",
     "details_delete_wallet_error_message": "Tämän lompakon ilmoituksista poistamisen vahvistamisessa ilmeni ongelma — tämä voi johtua verkko-ongelmasta tai heikosta yhteydestä. Jos jatkat, saatat silti saada ilmoituksia tähän lompakkoon liittyvistä siirtotapahtumista myös sen poistamisen jälkeen."

@@ -392,7 +392,6 @@
     "rbf_title": "手数料をバンプ (RBF)",
     "status_bump": "手数料をバンプ",
     "status_cancel": "トランザクションをキャンセル",
-    "transactions_count": "トランザクションカウント",
     "txid": "トランザクションID",
     "updating": "更新中…",
     "watchOnlyWarningTitle": "セキュリティ警告",
@@ -514,8 +513,6 @@
     "more_info": "詳細情報",
     "details_delete_wallet_error_message": "ウォレットが通知から削除されたかの確認に問題が生じました—ネットワークの問題か、接続が弱いためかもしれません。続行すると、ウォレットを削除した後でも、関連するトランザクションの通知を受け取る可能性があります。",
     "details_delete_anyway": "とにかく削除",
-    "swipe_balance_hide": "非表示",
-    "swipe_balance_show": "表示",
     "drag_to_reorder": "ドラッグして並び替え",
     "clear_search": "検索をクリア"
   },

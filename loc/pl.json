@@ -376,7 +376,6 @@
     "rbf_title": "Zwiększ opłatę (RBF)",
     "status_bump": "Zwiększ opłatę",
     "status_cancel": "Anuluj transakcję",
-    "transactions_count": "Ilość transakcji",
     "txid": "ID Transakcji",
     "updating": "Aktualizuję...",
     "watchOnlyWarningTitle": "Ostrzeżenie bezpieczeństwa",
@@ -514,8 +513,6 @@
     "more_info": "Więcej informacji",
     "details_delete_wallet_error_message": "Nie udało się potwierdzić usunięcia tego portfela z powiadomień – możliwe, że przyczyną jest problem z siecią lub słabe połączenie. Jeśli kontynuujesz, możesz nadal otrzymywać powiadomienia o transakcjach związanych z tym portfelem, nawet po jego usunięciu.",
     "details_delete_anyway": "Usuń mimo to",
-    "swipe_balance_hide": "Ukryj",
-    "swipe_balance_show": "Pokaż",
     "drag_to_reorder": "Przeciągnij, aby zmienić kolejność",
     "clear_search": "Wyczyść wyszukiwanie"
   },
