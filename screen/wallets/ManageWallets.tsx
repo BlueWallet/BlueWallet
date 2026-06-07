@@ -523,7 +523,6 @@ const ManageWallets: React.FC = () => {
 
       setWalletsWithNewOrder(updatedWallets);
       dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
-      saveToDisk();
       triggerHapticFeedback(HapticFeedbackTypes.Selection);
     },
     [state.walletsCopy, setWalletsWithNewOrder, saveToDisk],
