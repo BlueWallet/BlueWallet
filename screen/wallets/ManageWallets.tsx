@@ -516,11 +516,7 @@ const ManageWallets: React.FC = () => {
 
       const updatedWallets = deepCopyWallets(state.walletsCopy).map(w => {
         if (w.getID() === walletID) {
-          if (typeof (w as any).setPreferredBalanceUnit === 'function') {
-            (w as any).setPreferredBalanceUnit(next);
-          } else {
-            (w as any).preferredBalanceUnit = next;
-          }
+          w.setPreferredBalanceUnit(next);
         }
         return w;
       });
