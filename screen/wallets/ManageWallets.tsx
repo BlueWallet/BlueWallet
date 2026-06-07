@@ -129,7 +129,7 @@ const reducer = (state: State, action: Action): State => {
 
 const ManageWallets: React.FC = () => {
   const { colors, closeImage, dark } = useTheme();
-  const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata, saveToDisk } = useStorage();
+  const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
   const { preferredFiatCurrency } = useSettings();
   const preferredFiatLabel = preferredFiatCurrency?.endPointKey ?? FiatUnit.USD.endPointKey;
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
@@ -525,7 +525,7 @@ const ManageWallets: React.FC = () => {
       dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
       triggerHapticFeedback(HapticFeedbackTypes.Selection);
     },
-    [state.walletsCopy, setWalletsWithNewOrder, saveToDisk],
+    [state.walletsCopy, setWalletsWithNewOrder],
   );
 
   const renderListItem = useCallback(
