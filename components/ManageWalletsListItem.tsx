@@ -143,13 +143,11 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     const canSwipe = !isActive && !globalDragActive;
     const isHidden = !!wallet.hideBalance;
     const currentUnit = wallet.getPreferredBalanceUnit();
-    const fiatLabel = preferredFiatLabel ?? BitcoinUnit.LOCAL_CURRENCY;
+    const fiatLabel = preferredFiatLabel ?? 'USD';
     let nextUnitLabel: string;
     if (currentUnit === BitcoinUnit.BTC) {
       nextUnitLabel = loc.total_balance_view.display_in_sats;
-    } else if (currentUnit === BitcoinUnit.SATS) {
-      nextUnitLabel = loc.formatString(loc.total_balance_view.display_in_fiat, { currency: fiatLabel });
-    } else {
+    }
       nextUnitLabel = loc.total_balance_view.display_in_bitcoin;
     }
 
