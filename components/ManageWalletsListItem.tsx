@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View, Text, Pressable } from 'react-native';
 import { useLocale } from '@react-navigation/native';
-import { Swipeable } from 'react-native-gesture-handler';
+import ReanimatedSwipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import loc from '../loc';
 import { TransactionListItem } from './TransactionListItem';
@@ -16,6 +16,7 @@ import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
 import { AbstractHDElectrumWallet } from '../class/wallets/abstract-hd-electrum-wallet';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import WalletListItem from './WalletListItem';
+import Icon from './Icon';
 
 const getHdElectrumWallet = (wallet: TWallet): AbstractHDElectrumWallet | undefined => {
   const w: unknown = wallet;
@@ -60,6 +61,8 @@ interface ManageWalletsListItemProps {
   item: Item;
   isDraggingDisabled: boolean;
   handleToggleHideBalance: (wallet: TWallet) => void;
+  handleCycleBalanceUnit: (wallet: TWallet) => void;
+  preferredFiatLabel?: string;
   state: { wallets: TWallet[]; searchQuery: string; isSearchFocused?: boolean };
   navigateToWallet: (wallet: TWallet) => void;
   navigateToAddress: (address: string, walletID: string) => void;
@@ -85,6 +88,8 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   onPressIn,
   onPressOut,
   handleToggleHideBalance,
+  handleCycleBalanceUnit,
+  preferredFiatLabel,
   isActive,
   globalDragActive,
   style,
@@ -94,7 +99,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const prevIsActive = useRef(isActive);
-  const swipeableRef = useRef<Swipeable | null>(null);
+  const swipeableRef = useRef<SwipeableMethods | null>(null);
   const swipeInProgressRef = useRef(false);
 
   useEffect(() => {
@@ -137,11 +142,53 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
 
     const canSwipe = !isActive && !globalDragActive;
     const isHidden = !!wallet.hideBalance;
+    const currentUnit = wallet.getPreferredBalanceUnit();
+    const fiatLabel = preferredFiatLabel ?? BitcoinUnit.LOCAL_CURRENCY;
+    let nextUnitLabel: string;
+    if (currentUnit === BitcoinUnit.BTC) {
+      nextUnitLabel = loc.total_balance_view.display_in_sats;
+    } else if (currentUnit === BitcoinUnit.SATS) {
+      nextUnitLabel = loc.formatString(loc.total_balance_view.display_in_fiat, { currency: fiatLabel });
+    } else {
+      nextUnitLabel = loc.total_balance_view.display_in_bitcoin;
+    }
 
     const onToggle = () => {
       handleToggleHideBalance(wallet);
       swipeableRef.current?.close?.();
     };
+
+    const onCycleUnit = () => {
+      handleCycleBalanceUnit(wallet);
+      swipeableRef.current?.close?.();
+    };
+
+    const renderLeftActions = () => (
+      <View style={styles.leftActionsContainer}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.leftAction,
+            { backgroundColor: colors.buttonBackgroundColor },
+            pressed && styles.leftActionPressed,
+          ]}
+          onPress={onToggle}
+          accessibilityRole="button"
+          accessibilityLabel={isHidden ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
+          testID={isHidden ? 'SwipeShowBalance' : 'SwipeHideBalance'}
+        >
+          <Icon
+            name={isHidden ? 'eye' : 'eye-slash'}
+            type="font-awesome"
+            size={20}
+            color={colors.buttonTextColor}
+            containerStyle={styles.leftActionIcon}
+          />
+          <Text style={[styles.leftActionText, { color: colors.buttonTextColor }]}>
+            {isHidden ? loc.transactions.details_balance_show : loc.transactions.details_balance_hide}
+          </Text>
+        </Pressable>
+      </View>
+    );
 
     const renderRightActions = () => (
       <View style={styles.rightActionsContainer}>
@@ -151,13 +198,19 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
             { backgroundColor: colors.buttonBackgroundColor },
             pressed && styles.rightActionPressed,
           ]}
-          onPress={onToggle}
+          onPress={onCycleUnit}
           accessibilityRole="button"
-          testID={isHidden ? 'SwipeShowBalance' : 'SwipeHideBalance'}
+          accessibilityLabel={nextUnitLabel}
+          testID="SwipeCycleBalanceUnit"
         >
-          <Text style={[styles.rightActionText, { color: colors.buttonTextColor }]}>
-            {isHidden ? loc.wallets.swipe_balance_show : loc.wallets.swipe_balance_hide}
-          </Text>
+          <Icon
+            name="arrow-right-arrow-left"
+            type="font-awesome-6"
+            size={18}
+            color={colors.buttonTextColor}
+            containerStyle={styles.rightActionIcon}
+          />
+          <Text style={[styles.rightActionText, { color: colors.buttonTextColor }]}>{nextUnitLabel}</Text>
         </Pressable>
       </View>
     );
@@ -182,7 +235,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     if (!canSwipe) return content;
 
     return (
-      <Swipeable
+      <ReanimatedSwipeable
         ref={r => {
           swipeableRef.current = r;
         }}
@@ -195,13 +248,16 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
         onSwipeableClose={() => {
           swipeInProgressRef.current = false;
         }}
+        renderLeftActions={renderLeftActions}
         renderRightActions={renderRightActions}
         friction={2}
+        leftThreshold={40}
         rightThreshold={40}
+        overshootLeft={false}
         overshootRight={false}
       >
         {content}
-      </Swipeable>
+      </ReanimatedSwipeable>
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
     try {
@@ -416,11 +472,33 @@ const styles = StyleSheet.create({
     height: 1,
     width: '100%',
   },
+  leftActionsContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  leftAction: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    height: '100%',
+  },
+  leftActionPressed: {
+    opacity: 0.85,
+  },
+  leftActionIcon: {
+    marginRight: 8,
+  },
+  leftActionText: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
   rightActionsContainer: {
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
   rightAction: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 18,
@@ -428,6 +506,9 @@ const styles = StyleSheet.create({
   },
   rightActionPressed: {
     opacity: 0.85,
+  },
+  rightActionIcon: {
+    marginRight: 8,
   },
   rightActionText: {
     fontSize: 15,

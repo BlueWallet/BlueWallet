@@ -20,6 +20,9 @@ import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { FiatUnit } from '../../models/fiatUnit';
 import { TTXMetadata } from '../../class/blue-app';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
@@ -126,7 +129,9 @@ const reducer = (state: State, action: Action): State => {
 
 const ManageWallets: React.FC = () => {
   const { colors, closeImage, dark } = useTheme();
-  const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
+  const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata, saveToDisk } = useStorage();
+  const { preferredFiatCurrency } = useSettings();
+  const preferredFiatLabel = preferredFiatCurrency?.endPointKey ?? FiatUnit.USD.endPointKey;
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const { direction } = useLocale();
@@ -496,6 +501,38 @@ const ManageWallets: React.FC = () => {
     [state.walletsCopy, setWalletsWithNewOrder],
   );
 
+  const handleCycleBalanceUnit = useCallback(
+    (wallet: TWallet) => {
+      const walletID = wallet.getID();
+      const current = wallet.getPreferredBalanceUnit();
+      let next: BitcoinUnit;
+      if (current === BitcoinUnit.BTC) {
+        next = BitcoinUnit.SATS;
+      } else if (current === BitcoinUnit.SATS) {
+        next = BitcoinUnit.LOCAL_CURRENCY;
+      } else {
+        next = BitcoinUnit.BTC;
+      }
+
+      const updatedWallets = deepCopyWallets(state.walletsCopy).map(w => {
+        if (w.getID() === walletID) {
+          if (typeof (w as any).setPreferredBalanceUnit === 'function') {
+            (w as any).setPreferredBalanceUnit(next);
+          } else {
+            (w as any).preferredBalanceUnit = next;
+          }
+        }
+        return w;
+      });
+
+      setWalletsWithNewOrder(updatedWallets);
+      dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
+      saveToDisk();
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
+    },
+    [state.walletsCopy, setWalletsWithNewOrder, saveToDisk],
+  );
+
   const renderListItem = useCallback(
     (item: Item, drag: (() => void) | undefined, isActive: boolean) => {
       const compatibleState = {
@@ -523,6 +560,8 @@ const ManageWallets: React.FC = () => {
           item={item}
           isDraggingDisabled={isDragDisabled}
           handleToggleHideBalance={handleToggleHideBalance}
+          handleCycleBalanceUnit={handleCycleBalanceUnit}
+          preferredFiatLabel={preferredFiatLabel}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
           navigateToAddress={navigateToAddress}
@@ -535,6 +574,8 @@ const ManageWallets: React.FC = () => {
     },
     [
       handleToggleHideBalance,
+      handleCycleBalanceUnit,
+      preferredFiatLabel,
       state.walletsCopy,
       state.searchQuery,
       state.isSearchFocused,
