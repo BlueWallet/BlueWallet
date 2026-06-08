@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel, { getWalletCarouselItemWidth } from '../../components/WalletsCarousel';
+import WalletsCarousel, { getWalletCarouselItemWidth, CarouselListRefType } from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -101,7 +101,7 @@ const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading } = state;
   const { sizeClass, isLarge } = useSizeClass();
-  const walletsCarousel = useRef<any>(null);
+  const walletsCarousel = useRef<CarouselListRefType>(null);
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
