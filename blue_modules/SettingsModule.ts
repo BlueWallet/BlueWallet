@@ -44,6 +44,12 @@ interface SettingsModuleInterface {
    * This opens the app's settings screen
    */
   openSettings(): Promise<boolean>;
+
+  /**
+   * Ask Android keyboards not to persist personalized learning for the
+   * currently focused input.
+   */
+  requestKeyboardIncognitoMode(): Promise<boolean>;
 }
 
 // Only available on Android

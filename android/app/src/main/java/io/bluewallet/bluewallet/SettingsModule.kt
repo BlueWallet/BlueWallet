@@ -3,6 +3,9 @@ package io.bluewallet.bluewallet
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
@@ -206,6 +209,43 @@ class SettingsModule(reactContext: ReactApplicationContext) : NativeSettingsModu
         } catch (e: Exception) {
             Log.e(TAG, "Error opening settings", e)
             promise.reject("ERROR", e.message)
+        }
+    }
+
+    /**
+     * Request best-effort Android keyboard privacy for the focused editor.
+     *
+     * Keyboards that honor IME_FLAG_NO_PERSONALIZED_LEARNING should avoid
+     * storing this input for suggestions, analytics, or user dictionaries.
+     */
+    @ReactMethod
+    override fun requestKeyboardIncognitoMode(promise: Promise) {
+        val activity = currentActivity
+        if (activity == null) {
+            promise.resolve(false)
+            return
+        }
+
+        activity.runOnUiThread {
+            try {
+                val focusedView = activity.currentFocus
+                if (focusedView !is TextView) {
+                    promise.resolve(false)
+                    return@runOnUiThread
+                }
+
+                focusedView.imeOptions =
+                    focusedView.imeOptions or EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING
+
+                val inputMethodManager =
+                    activity.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                inputMethodManager?.restartInput(focusedView)
+
+                promise.resolve(true)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error requesting keyboard incognito mode", e)
+                promise.reject("ERROR", e.message)
+            }
         }
     }
 }
