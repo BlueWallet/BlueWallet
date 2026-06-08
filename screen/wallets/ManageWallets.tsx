@@ -149,6 +149,7 @@ const ManageWallets: React.FC = () => {
   const [noResultsOpacity] = useState(new Animated.Value(0));
 
   const [dragging, setDragging] = useState(false);
+  const [resetSwipeToken, setResetSwipeToken] = useState(0);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedSearch = useCallback((text: string) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
@@ -552,6 +553,7 @@ const ManageWallets: React.FC = () => {
 
       return (
         <ManageWalletsListItem
+          key={`row-${resetSwipeToken}-${item.type === ItemType.WalletSection ? item.data.getID() : item.type === ItemType.TransactionSection ? item.data.hash || item.data.txid || '' : item.data.address}`}
           item={item}
           isDraggingDisabled={isDragDisabled}
           handleToggleHideBalance={handleToggleHideBalance}
@@ -574,6 +576,7 @@ const ManageWallets: React.FC = () => {
       state.walletsCopy,
       state.searchQuery,
       state.isSearchFocused,
+      resetSwipeToken,
       navigateToWallet,
       navigateToAddress,
       renderHighlightedText,
@@ -697,6 +700,7 @@ const ManageWallets: React.FC = () => {
               containerStyle={styles.listContainer}
               onDragBegin={() => {
                 setDragging(true);
+                setResetSwipeToken(prev => prev + 1);
               }}
               onDragEnd={({ from, to, data }: DragEndParams<Item>) => {
                 setDragging(false);

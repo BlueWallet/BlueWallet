@@ -147,7 +147,9 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     let nextUnitLabel: string;
     if (currentUnit === BitcoinUnit.BTC) {
       nextUnitLabel = loc.total_balance_view.display_in_sats;
-    }
+    } else if (currentUnit === BitcoinUnit.SATS) {
+      nextUnitLabel = loc.formatString(loc.total_balance_view.display_in_fiat, { currency: fiatLabel });
+    } else {
       nextUnitLabel = loc.total_balance_view.display_in_bitcoin;
     }
 
