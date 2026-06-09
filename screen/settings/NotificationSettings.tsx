@@ -13,6 +13,7 @@ import {
   isGroundControlUriValid,
   checkPermissions,
   checkNotificationPermissionStatus,
+  enqueueTestPushNotification,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
 } from '../../blue_modules/notifications';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -192,6 +193,18 @@ const NotificationSettings: React.FC = () => {
     setIsLoading(false);
   }, [URI]);
 
+  const enqueueTestPush = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await enqueueTestPushNotification();
+    } catch (error) {
+      console.error('Error enqueueing test push:', error);
+      presentAlert({ message: (error as Error).message });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const renderDeveloperSettings = useCallback(() => {
     if (tapCount < 10) return null;
 
@@ -249,11 +262,13 @@ const NotificationSettings: React.FC = () => {
 
             <BlueSpacing20 />
             <Button onPress={save} title={loc.settings.save} />
+            <BlueSpacing20 />
+            <Button onPress={enqueueTestPush} title="Enqueue test push notification" disabled={isLoading} />
           </View>
         </SettingsCard>
       </View>
     );
-  }, [tapCount, colors, isLoading, URI, tokenInfo, save]);
+  }, [tapCount, colors, isLoading, URI, tokenInfo, save, enqueueTestPush]);
 
   const renderPushNotificationsExplanation = useCallback(() => {
     return (

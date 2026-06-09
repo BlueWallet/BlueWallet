@@ -29,6 +29,8 @@ import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
+import { arkadePaymentPushUri } from '../../blue_modules/constants';
+import { fetch } from '../../util/fetch';
 const { bech32m } = require('bech32');
 
 const bip32 = BIP32Factory(ecc);
@@ -709,6 +711,20 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Payment Hash:', result.paymentHash);
     console.log('Pending swap', result.pendingSwap);
     console.log('Preimage', result.preimage);
+
+    if (arkadePaymentPushUri) {
+      fetch(`${arkadePaymentPushUri}/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic: result.paymentHash,
+          label: memo,
+          swap: { ...result.pendingSwap, preimage: '' },
+        }),
+      })
+        .then(() => console.log('[ARK] payment push registration ok'))
+        .catch((e: any) => console.log('[ARK] payment push registration failed:', e?.message ?? e));
+    }
 
     return result.invoice;
   }

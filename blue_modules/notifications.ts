@@ -252,6 +252,31 @@ export const tryToObtainPermissions = async (): Promise<boolean> => {
     return false;
   }
 };
+
+export const enqueueTestPushNotification = async (): Promise<void> => {
+  await getSavedUri();
+
+  const pushToken = await getPushToken();
+  if (!pushToken?.token || !pushToken?.os) {
+    throw new Error('No push token available');
+  }
+
+  const response = await fetch(`${baseURI}/enqueue`, {
+    method: 'POST',
+    headers: _getHeaders(),
+    body: JSON.stringify({
+      type: 5,
+      token: pushToken.token,
+      os: pushToken.os,
+      text: 'Test push notification',
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Enqueue request failed with status ${response.status}: ${response.statusText}`);
+  }
+};
+
 /**
  * Submits onchain bitcoin addresses and ln invoice preimage hashes to GroundControl server, so later we could
  * be notified if they were paid
