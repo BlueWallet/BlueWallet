@@ -53,6 +53,7 @@ jobs:
         BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
         HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
+        HD_MNEMONIC_OLD: ${{ secrets.HD_MNEMONIC_OLD }}
         HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
         HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
         HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}
@@ -83,6 +84,7 @@ jobs:
         BIP47_HD_MNEMONIC: ${{ secrets.BIP47_HD_MNEMONIC}}
         HD_MNEMONIC: ${{ secrets.HD_MNEMONIC }}
         HD_MNEMONIC_BIP49: ${{ secrets.HD_MNEMONIC_BIP49 }}
+        HD_MNEMONIC_OLD: ${{ secrets.HD_MNEMONIC_OLD }}
         HD_MNEMONIC_BIP49_MANY_TX: ${{ secrets.HD_MNEMONIC_BIP49_MANY_TX }}
         HD_MNEMONIC_BIP84: ${{ secrets.HD_MNEMONIC_BIP84 }}
         HD_MNEMONIC_BREAD: ${{ secrets.HD_MNEMONIC_BREAD }}

@@ -510,6 +510,17 @@ jest.mock('../blue_modules/analytics', () => {
   return ret;
 });
 
+// addInvoice() registers a fire-and-forget payment-push callback; disable the
+// URI in unit tests so node-fetch does not leave in-flight handles after the
+// suite exits (which makes Jest fail with "did not exit one second after").
+jest.mock('../blue_modules/constants', () => {
+  const actual = jest.requireActual('../blue_modules/constants');
+  return {
+    ...actual,
+    arkadePaymentPushUri: '',
+  };
+});
+
 jest.mock('react-native-share', () => {
   return {
     open: jest.fn(),
