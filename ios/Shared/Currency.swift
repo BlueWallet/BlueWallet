@@ -23,9 +23,11 @@ class Currency {
     }
 
     if preferredCurrency != Currency.getLastSelectedCurrency() {
-      UserDefaults.standard.removeObject(forKey: WidgetData.WidgetCachedDataStoreKey)
-      UserDefaults.standard.removeObject(forKey: WidgetData.WidgetDataStoreKey)
-      UserDefaults.standard.synchronize()
+      if let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue) {
+        groupUserDefaults.removeObject(forKey: WidgetData.WidgetCachedDataStoreKey)
+        groupUserDefaults.removeObject(forKey: WidgetData.WidgetDataStoreKey)
+        groupUserDefaults.synchronize()
+      }
     }
 
     return preferredCurrency
