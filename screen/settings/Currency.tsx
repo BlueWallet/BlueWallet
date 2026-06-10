@@ -23,6 +23,7 @@ import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
+import NativeWidgetHelper from '../../blue_modules/NativeWidgetHelper';
 
 dayjs.extend(calendar);
 
@@ -111,8 +112,25 @@ const Currency: React.FC = () => {
             Keyboard.dismiss();
             setIsSavingNewPreferredCurrency(item);
             try {
-              await getFiatRate(item.endPointKey);
+              const rateObj = await getFiatRate(item.endPointKey);
+
+              // Immediately update UI so header shows actual provider (fallbacks included)
+              try {
+                const formatted = new Intl.NumberFormat(item.locale, { style: 'currency', currency: item.endPointKey, minimumFractionDigits: 2 }).format(rateObj.rate);
+                setCurrencyRate({ LastUpdated: new Date(), Rate: formatted, Source: rateObj.source });
+              } catch (e) {
+                // ignore formatting errors
+                setCurrencyRate({ LastUpdated: new Date(), Rate: rateObj.rate, Source: rateObj.source } as any);
+              }
+
               await setPreferredCurrency(item);
+              // Ask native widgets to reload ASAP
+              try {
+                if (NativeWidgetHelper && typeof NativeWidgetHelper.reloadAllWidgets === 'function') NativeWidgetHelper.reloadAllWidgets();
+              } catch (e) {
+                console.warn('Failed to call reloadAllWidgets after selecting currency', e);
+              }
+
               await initCurrencyDaemon(true);
               await fetchCurrency();
               setSelectedCurrency(item);
@@ -144,7 +162,7 @@ const Currency: React.FC = () => {
         <View style={styles.infoWrapper}>
           <SettingsCard style={styles.infoCard}>
             <SettingsText style={styles.infoTitle}>
-              {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
+              {loc.settings.currency_source} {currencyRate.Source ?? selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
             </SettingsText>
             <SettingsSubtitle style={styles.infoSubtitle}>
               {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}

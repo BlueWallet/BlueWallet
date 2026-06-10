@@ -51,7 +51,12 @@ class Currency {
   }
 
   static func saveNewSelectedCurrency() {
-    UserDefaults.standard.setValue(Currency.getUserPreferredCurrency(), forKey: "currency")
+    if let groupUserDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue) {
+      groupUserDefaults.setValue(Currency.getUserPreferredCurrency(), forKey: "currency")
+      groupUserDefaults.synchronize()
+    } else {
+      UserDefaults.standard.setValue(Currency.getUserPreferredCurrency(), forKey: "currency")
+    }
   }
 
   
