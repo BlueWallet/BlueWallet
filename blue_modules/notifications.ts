@@ -13,11 +13,10 @@ import { groundControlUri } from './constants';
 import { fetch } from '../util/fetch';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
-const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 const ANDROID_NOTIFICATION_CHANNEL_ID = 'channel_01';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
-let baseURI = groundControlUri;
+const baseURI = groundControlUri;
 let notificationSubscriptions: EmitterSubscription[] = [];
 let onProcessNotificationsHandler: undefined | (() => void | Promise<void>);
 const handledNotificationKeys = new Set<string>();
@@ -254,8 +253,6 @@ export const tryToObtainPermissions = async (): Promise<boolean> => {
 };
 
 export const enqueueTestPushNotification = async (): Promise<void> => {
-  await getSavedUri();
-
   const pushToken = await getPushToken();
   if (!pushToken?.token || !pushToken?.os) {
     throw new Error('No push token available');
@@ -554,22 +551,6 @@ const configureNotifications = async (onProcessNotifications?: () => void): Prom
   }
 };
 
-/**
- * Validates whether the provided GroundControl URI is valid by pinging it.
- *
- * @param uri {string}
- * @returns {Promise<boolean>} TRUE if valid, FALSE otherwise
- */
-export const isGroundControlUriValid = async (uri: string) => {
-  try {
-    const response = await fetch(`${uri}/ping`, { headers: _getHeaders() });
-    const json = await response.json();
-    return !!json.description;
-  } catch (_) {
-    return false;
-  }
-};
-
 export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
 
 export const getPushToken = async (): Promise<TPushToken> => {
@@ -701,38 +682,6 @@ export const removeAllDeliveredNotifications = () => {
   Notifications.removeAllDeliveredNotifications();
 };
 
-export const getDefaultUri = () => {
-  return groundControlUri;
-};
-
-export const saveUri = async (uri: string) => {
-  try {
-    baseURI = uri || groundControlUri;
-    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, baseURI);
-  } catch (error) {
-    console.error('Error saving URI:', error);
-    throw error;
-  }
-};
-
-export const getSavedUri = async () => {
-  try {
-    const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
-    if (baseUriStored) {
-      baseURI = baseUriStored;
-    }
-    return baseUriStored;
-  } catch (e) {
-    console.error(e);
-    try {
-      await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
-    } catch (storageError) {
-      console.error('Failed to reset URI:', storageError);
-    }
-    throw e;
-  }
-};
-
 export const isNotificationsEnabled = async () => {
   try {
     const levels = await getLevels();
@@ -782,10 +731,6 @@ export const initializeNotifications = async (onProcessNotifications?: () => voi
       return;
     }
 
-    const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
-    baseURI = baseUriStored || groundControlUri;
-    console.log('Base URI set to:', baseURI);
-
     setApplicationIconBadgeNumber(0);
 
     // Only check permissions, never request
@@ -806,7 +751,5 @@ export const initializeNotifications = async (onProcessNotifications?: () => voi
     }
   } catch (error) {
     console.error('Failed to initialize notifications:', error);
-    baseURI = groundControlUri;
-    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => console.error('Failed to reset URI:', err));
   }
 };
