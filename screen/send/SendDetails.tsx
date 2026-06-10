@@ -283,7 +283,12 @@ const SendDetails = () => {
 
     setParams({
       ...(walletActuallyChanged ? { utxos: null } : {}),
-      isTransactionReplaceable: wallet.type === HDSegwitBech32Wallet.type && !routeParams.isTransactionReplaceable ? true : undefined,
+      isTransactionReplaceable:
+        (wallet.type === HDSegwitBech32Wallet.type ||
+          (wallet.type === WatchOnlyWallet.type && wallet._hdWalletInstance?.type === HDSegwitBech32Wallet.type)) &&
+        !routeParams.isTransactionReplaceable
+          ? true
+          : undefined,
     });
     prevWalletIdForCoinResetRef.current = currentId;
 
@@ -1164,7 +1169,11 @@ const SendDetails = () => {
       {
         ...CommonToolTipActions.AllowRBF,
         menuState: isTransactionReplaceable,
-        hidden: !(wallet.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined),
+        hidden: !(
+          (wallet.type === HDSegwitBech32Wallet.type ||
+            (wallet.type === WatchOnlyWallet.type && wallet._hdWalletInstance?.type === HDSegwitBech32Wallet.type)) &&
+          isTransactionReplaceable !== undefined
+        ),
       },
     ];
     walletActions.push(rbfAction);
