@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, StyleSheet, View, Pressable, AppState, Text } from 'react-native';
+import { StyleSheet, View, Pressable, AppState, Text } from 'react-native';
 import {
   getPushToken,
   getStoredNotifications,
@@ -185,15 +185,6 @@ const NotificationSettings: React.FC = () => {
     return (
       <View>
         <View style={[styles.divider, { backgroundColor: colors.lightBorder ?? colors.borderTopColor }]} />
-
-        <SettingsListItem
-          title="github.com/BlueWallet/GroundControl"
-          iconName="github"
-          onPress={() => Linking.openURL('https://github.com/BlueWallet/GroundControl')}
-          chevron
-          position="single"
-          spacingTop
-        />
 
         <SettingsCard style={styles.card}>
           <View style={styles.cardContent}>
