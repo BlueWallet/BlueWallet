@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, StyleSheet, View, Pressable, AppState, Text } from 'react-native';
+import { StyleSheet, View, Pressable, AppState, Text } from 'react-native';
 import {
   getPushToken,
   getStoredNotifications,
@@ -9,9 +9,12 @@ import {
   cleanUserOptOutFlag,
   checkPermissions,
   checkNotificationPermissionStatus,
+  enqueueTestPushNotification,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
 } from '../../blue_modules/notifications';
 import presentAlert from '../../components/Alert';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { Button } from '../../components/Button';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -164,21 +167,24 @@ const NotificationSettings: React.FC = () => {
     };
   }, []);
 
+  const enqueueTestPush = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await enqueueTestPushNotification();
+    } catch (error) {
+      console.error('Error enqueueing test push:', error);
+      presentAlert({ message: (error as Error).message });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const renderDeveloperSettings = useCallback(() => {
     if (tapCount < 10) return null;
 
     return (
       <View>
         <View style={[styles.divider, { backgroundColor: colors.lightBorder ?? colors.borderTopColor }]} />
-
-        <SettingsListItem
-          title="github.com/BlueWallet/GroundControl"
-          iconName="github"
-          onPress={() => Linking.openURL('https://github.com/BlueWallet/GroundControl')}
-          chevron
-          position="single"
-          spacingTop
-        />
 
         <SettingsCard style={styles.card}>
           <View style={styles.cardContent}>
@@ -192,11 +198,14 @@ const NotificationSettings: React.FC = () => {
             <View>
               <CopyToClipboardButton stringToCopy={tokenInfo} displayText={tokenInfo} />
             </View>
+
+            <BlueSpacing20 />
+            <Button onPress={enqueueTestPush} title="Enqueue test push notification" disabled={isLoading} />
           </View>
         </SettingsCard>
       </View>
     );
-  }, [tapCount, colors, tokenInfo]);
+  }, [tapCount, colors, isLoading, tokenInfo, enqueueTestPush]);
 
   const renderPushNotificationsExplanation = useCallback(() => {
     return (

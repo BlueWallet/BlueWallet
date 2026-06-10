@@ -110,3 +110,25 @@ export function installSdkProviderSpies(): void {
 export function restoreSdkProviderSpies(): void {
   jest.restoreAllMocks();
 }
+
+let backgroundLoopSpies: jest.SpiedFunction<any>[] = [];
+
+export function restoreSdkBackgroundLoopStubs(): void {
+  for (const spy of backgroundLoopSpies) spy.mockRestore();
+  backgroundLoopSpies = [];
+}
+
+/**
+ * Stub only the SDK background subscriptions that Jest cannot shut down
+ * cleanly (VtxoManager polling, SwapManager WebSocket, ContractWatcher SSE).
+ * Real HTTP calls (getInfo, getTransactionHistory, restoreSwaps, etc.) still
+ * run — use in env-gated integration tests that hit production services.
+ */
+export function installSdkBackgroundLoopStubs(): void {
+  restoreSdkBackgroundLoopStubs();
+  backgroundLoopSpies = [
+    jest.spyOn(VtxoManager.prototype as any, 'initializeSubscription').mockResolvedValue(undefined),
+    jest.spyOn(SwapManager.prototype as any, 'start').mockResolvedValue(undefined),
+    jest.spyOn(ContractManager.prototype as any, 'initialize').mockResolvedValue(undefined),
+  ];
+}
