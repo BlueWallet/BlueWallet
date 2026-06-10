@@ -2,6 +2,8 @@ import assert from 'assert';
 
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
+import { disposeAllArkadeRuntime, teardownArkadeWallet } from '../helpers/arkadeMocks';
+import { installSdkBackgroundLoopStubs, restoreSdkBackgroundLoopStubs } from '../helpers/sdkProviderMocks';
 
 // Ark storage lives in Realm, not AsyncStorage. Realm + Keychain are mocked
 // globally by tests/setup.js (per-path Realm + service-keyed Keychain), and
@@ -15,6 +17,9 @@ jest.setTimeout(30_000);
 const w = new LightningArkWallet();
 
 beforeAll(async () => {
+  // Install before the env guard: `can generate` runs init() regardless of
+  // HD_MNEMONIC_OLD, and without the stubs its background loops keep Jest alive.
+  installSdkBackgroundLoopStubs();
   if (!process.env.HD_MNEMONIC_OLD) {
     console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
     return;
@@ -25,20 +30,28 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await new Promise(resolve => setTimeout(resolve, 3_000)); // sleep
+  if (process.env.HD_MNEMONIC_OLD) {
+    await teardownArkadeWallet(w);
+  }
+  await disposeAllArkadeRuntime();
+  restoreSdkBackgroundLoopStubs();
 });
 
 describe('LightningArkWallet (integration)', () => {
   it('can generate', async () => {
     const wGenerated = new LightningArkWallet();
-    await wGenerated.generate();
+    try {
+      await wGenerated.generate();
 
-    assert.ok(wGenerated.getSecret().startsWith('arkade://'));
+      assert.ok(wGenerated.getSecret().startsWith('arkade://'));
 
-    const mnemonics = wGenerated.getSecret().replace('arkade://', '');
-    const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(mnemonics);
-    assert.ok(hd.validateMnemonic());
+      const mnemonics = wGenerated.getSecret().replace('arkade://', '');
+      const hd = new HDSegwitBech32Wallet();
+      hd.setSecret(mnemonics);
+      assert.ok(hd.validateMnemonic());
+    } finally {
+      await teardownArkadeWallet(wGenerated);
+    }
   });
 
   it('can fetch balance', async () => {

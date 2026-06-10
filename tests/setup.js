@@ -7,7 +7,8 @@ console.warn = (...args) => {
   if (
     typeof args[0] === 'string' &&
     (args[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds') ||
-      args[0].startsWith('only compressed public keys are good'))
+      args[0].startsWith('only compressed public keys are good') ||
+      args[0].startsWith('Using standard fetch instead of expo/fetch'))
   ) {
     return;
   }
