@@ -424,137 +424,95 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // now, we need to put transactions in all relevant `cells` of internal hashmaps:
     // this._txs_by_internal_index, this._txs_by_external_index & this._txs_by_payment_code_index
 
+    // address -> index lookup maps; the single pass over transactions below uses them
+    // to find which cells a transaction belongs to
+    const externalIndexByAddress = new Map<string, number>();
     for (let c = 0; c < next_free_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas)) {
-        for (const vin of tx.vin) {
-          if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-            const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = {
-              ...txRest,
-              inputs: txVin.slice(0),
-              outputs: txVout.slice(0),
-              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-            };
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_external_index[c].length; cc++) {
-              if (this._txs_by_external_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_external_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_external_index[c].push(clonedTx);
-          }
-        }
-        for (const vout of tx.vout) {
-          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-            const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = {
-              ...txRest,
-              inputs: txVin.slice(0),
-              outputs: txVout.slice(0),
-              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-            };
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_external_index[c].length; cc++) {
-              if (this._txs_by_external_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_external_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_external_index[c].push(clonedTx);
-          }
-        }
-      }
+      externalIndexByAddress.set(this._getExternalAddressByIndex(c), c);
     }
-
+    const internalIndexByAddress = new Map<string, number>();
     for (let c = 0; c < next_free_change_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas)) {
-        for (const vin of tx.vin) {
-          if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = {
-              ...txRest,
-              inputs: txVin.slice(0),
-              outputs: txVout.slice(0),
-              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-            };
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
-              if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_internal_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
-          }
-        }
-        for (const vout of tx.vout) {
-          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = {
-              ...txRest,
-              inputs: txVin.slice(0),
-              outputs: txVout.slice(0),
-              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-            };
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
-              if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_internal_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
-          }
-        }
-      }
+      internalIndexByAddress.set(this._getInternalAddressByIndex(c), c);
     }
-
+    const paymentCodeIndexByAddress = new Map<string, { pc: string; c: number }>();
     for (const pc of this._receive_payment_codes) {
       for (let c = 0; c < this._getNextFreePaymentCodeIndexReceive(pc) + this.gap_limit; c++) {
-        for (const tx of Object.values(txdatas)) {
-          // since we are iterating PCs who can pay us, we can completely ignore `tx.vin` and only iterate `tx.vout`
-          for (const vout of tx.vout) {
-            if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getBIP47AddressReceive(pc, c)) !== -1) {
-              // this TX is related to our address
-              this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
-              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
-              const { vin: txVin, vout: txVout, ...txRest } = tx;
-              const clonedTx = {
-                ...txRest,
-                inputs: txVin.slice(0),
-                outputs: txVout.slice(0),
-                timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-              };
+        paymentCodeIndexByAddress.set(this._getBIP47AddressReceive(pc, c), { pc, c });
+      }
+    }
 
-              // trying to replace tx if it exists already (because it has lower confirmations, for example)
-              let replaced = false;
-              for (let cc = 0; cc < this._txs_by_payment_code_index[pc][c].length; cc++) {
-                if (this._txs_by_payment_code_index[pc][c][cc].txid === clonedTx.txid) {
-                  replaced = true;
-                  this._txs_by_payment_code_index[pc][c][cc] = clonedTx;
-                }
-              }
-              if (!replaced) this._txs_by_payment_code_index[pc][c].push(clonedTx);
-            }
-          }
+    // per-cell txid -> position lookup, used to replace-or-push a transaction into a cell in constant time
+    const cellPositionsByTxid = new Map<Transaction[], Map<string, number>>();
+    const getCellPositions = (cell: Transaction[]): Map<string, number> => {
+      let positions = cellPositionsByTxid.get(cell);
+      if (!positions) {
+        positions = new Map();
+        for (let cc = 0; cc < cell.length; cc++) positions.set(cell[cc].txid, cc);
+        cellPositionsByTxid.set(cell, positions);
+      }
+      return positions;
+    };
+
+    for (const tx of Object.values(txdatas)) {
+      // collecting which of our address `cells` this transaction touches:
+      const externalCells = new Set<number>();
+      const internalCells = new Set<number>();
+      const paymentCodeCells = new Map<string, { pc: string; c: number }>();
+
+      const matchAddress = (address: string, isVout: boolean) => {
+        const externalIndex = externalIndexByAddress.get(address);
+        if (externalIndex !== undefined) externalCells.add(externalIndex);
+        const internalIndex = internalIndexByAddress.get(address);
+        if (internalIndex !== undefined) internalCells.add(internalIndex);
+        if (isVout) {
+          // since we are iterating PCs who can pay us, we can completely ignore `tx.vin` and only check `tx.vout`
+          const paymentCodeIndex = paymentCodeIndexByAddress.get(address);
+          if (paymentCodeIndex) paymentCodeCells.set(address, paymentCodeIndex);
         }
+      };
+
+      for (const vin of tx.vin) {
+        for (const address of vin.addresses ?? []) matchAddress(address, false);
+      }
+      for (const vout of tx.vout) {
+        for (const address of vout.scriptPubKey.addresses ?? []) matchAddress(address, true);
+      }
+
+      if (externalCells.size === 0 && internalCells.size === 0 && paymentCodeCells.size === 0) continue;
+
+      // this TX is related to our address(es)
+      const upsertClone = (cell: Transaction[]) => {
+        const { vin: txVin, vout: txVout, ...txRest } = tx;
+        const clonedTx = {
+          ...txRest,
+          inputs: txVin.slice(0),
+          outputs: txVout.slice(0),
+          timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
+        };
+
+        // trying to replace tx if it exists already (because it has lower confirmations, for example)
+        const positions = getCellPositions(cell);
+        const existingPosition = positions.get(clonedTx.txid);
+        if (existingPosition !== undefined) {
+          cell[existingPosition] = clonedTx;
+        } else {
+          positions.set(clonedTx.txid, cell.length);
+          cell.push(clonedTx);
+        }
+      };
+
+      for (const c of externalCells) {
+        this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
+        upsertClone(this._txs_by_external_index[c]);
+      }
+      for (const c of internalCells) {
+        this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
+        upsertClone(this._txs_by_internal_index[c]);
+      }
+      for (const { pc, c } of paymentCodeCells.values()) {
+        this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
+        this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
+        upsertClone(this._txs_by_payment_code_index[pc][c]);
       }
     }
 
