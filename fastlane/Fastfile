@@ -25,6 +25,8 @@ def app_store_state_readable(state)
 end
 
 require 'securerandom'
+require 'json'
+require 'base64'
 
 default_platform(:android)
 PROJECT_ROOT = File.expand_path("..", __dir__)
@@ -437,6 +439,75 @@ platform :ios do
     end
   end
 
+  def match_git_basic_auth_value(token)
+    return nil if token.nil? || token.empty?
+
+    begin
+      decoded = Base64.strict_decode64(token)
+      return token if decoded.include?(':')
+    rescue ArgumentError
+      # Token is not base64-encoded; encode it below.
+    end
+
+    Base64.strict_encode64("x-access-token:#{token}")
+  end
+
+  def catalyst_notarization_enabled?
+    ENV.fetch('CATALYST_NOTARIZE', '1') != '0'
+  end
+
+  def notarize_and_staple_catalyst_app!(app_path:, output_dir:)
+    UI.user_error!("Mac Catalyst app not found for notarization at #{app_path}") unless File.exist?(app_path)
+
+    zip_path = File.join(output_dir, 'BlueWallet-Mac-Catalyst-notarization.zip')
+    FileUtils.rm_f(zip_path)
+    sh('ditto', '-c', '-k', '--sequesterRsrc', '--keepParent', app_path, zip_path)
+
+    api_key_json_path = ENV['APPLE_API_KEY_PATH'] || './appstore_api_key.json'
+    submitted = false
+
+    if File.exist?(api_key_json_path)
+      begin
+        key_payload = JSON.parse(File.read(api_key_json_path))
+        key_id = ENV['APPLE_API_KEY_ID'] || key_payload['key_id']
+        issuer_id = ENV['APPLE_API_ISSUER_ID'] || key_payload['issuer_id']
+        private_key = key_payload['key']
+
+        if key_id && !key_id.empty? && issuer_id && !issuer_id.empty? && private_key && !private_key.empty?
+          p8_path = File.join(output_dir, 'notary_api_key.p8')
+          File.write(p8_path, private_key)
+          begin
+            UI.message('Submitting app for notarization with App Store Connect API key...')
+            sh('xcrun', 'notarytool', 'submit', zip_path, '--key', p8_path, '--key-id', key_id, '--issuer', issuer_id, '--wait')
+            submitted = true
+          ensure
+            FileUtils.rm_f(p8_path)
+          end
+        end
+      rescue JSON::ParserError => ex
+        UI.important("Could not parse #{api_key_json_path} for notarization: #{ex.message}")
+      end
+    end
+
+    unless submitted
+      apple_id = ENV['APPLE_ID'] || ENV['FASTLANE_USER']
+      app_specific_password = ENV['APPLE_APP_SPECIFIC_PASSWORD'] || ENV['FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD']
+      team_id = ENV['CATALYST_TEAM_ID'] || ENV['TEAM_ID']
+
+      UI.user_error!('Notarization credentials missing. Provide APPLE_API_KEY_PATH (+ APPLE_API_KEY_ID/APPLE_API_ISSUER_ID) or APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD + TEAM_ID/CATALYST_TEAM_ID.') if apple_id.to_s.empty? || app_specific_password.to_s.empty? || team_id.to_s.empty?
+
+      UI.message('Submitting app for notarization with Apple ID credentials...')
+      sh('xcrun', 'notarytool', 'submit', zip_path, '--apple-id', apple_id, '--password', app_specific_password, '--team-id', team_id, '--wait')
+    end
+
+    UI.message('Stapling notarization ticket to app bundle...')
+    sh('xcrun', 'stapler', 'staple', app_path)
+    sh('xcrun', 'stapler', 'validate', app_path)
+    UI.success('Mac Catalyst app notarized and stapled')
+  ensure
+    FileUtils.rm_f(zip_path) if defined?(zip_path) && zip_path
+  end
+
   desc "Register new devices from a file"
   lane :register_devices_from_txt do
     UI.message("Registering new devices from file...")
@@ -492,7 +563,7 @@ platform :ios do
       with_retry(3, "Fetching provisioning profile for #{app_identifier}") do
         UI.message("Fetching provisioning profile for #{app_identifier}...")
         match(
-          git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+          git_basic_authorization: match_git_basic_auth_value(ENV["GIT_ACCESS_TOKEN"]),
           git_url: ENV["GIT_URL"],
           type: "appstore",
           clone_branch_directly: true,
@@ -619,29 +690,53 @@ platform :ios do
                           ENV['CATALYST_TEAM_ID'] && !ENV['CATALYST_TEAM_ID'].empty?
       has_match_creds = ENV['GIT_URL'] && !ENV['GIT_URL'].empty? &&
                         ENV['GIT_ACCESS_TOKEN'] && !ENV['GIT_ACCESS_TOKEN'].empty?
-      should_sign = has_signing_creds && has_match_creds && ENV['CATALYST_SKIP_CODESIGNING'] != '1'
+      should_sign = has_signing_creds && ENV['CATALYST_SKIP_CODESIGNING'] != '1'
+      should_use_match_profiles = should_sign && has_match_creds && ENV['CATALYST_USE_MATCH'] != '0'
+      should_notarize = catalyst_notarization_enabled?
       signing_identity = ENV['CATALYST_SIGNING_IDENTITY'] || "Apple Distribution"
 
       xcargs_str = "ARCHS=arm64 ONLY_ACTIVE_ARCH=YES"
-      if should_sign
+      if should_use_match_profiles
         UI.message("Setting up Mac Catalyst provisioning profiles via match...")
         team_id = ENV['CATALYST_TEAM_ID']
         match_readonly = ENV['MATCH_READONLY'] != 'false'
+        clone_branch_directly = match_readonly
+        match_git_auth = match_git_basic_auth_value(ENV['GIT_ACCESS_TOKEN'])
 
         # Create/fetch provisioning profiles for catalyst targets
         catalyst_identifiers.each do |app_id|
-          match(
-            type: "appstore",
-            platform: "catalyst",
-            app_identifier: app_id,
-            team_id: team_id,
-            git_url: ENV['GIT_URL'],
-            git_basic_authorization: ENV['GIT_ACCESS_TOKEN'],
-            readonly: match_readonly,
-            clone_branch_directly: true,
-            keychain_name: ENV['KEYCHAIN_NAME'] || "login",
-            keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
-          )
+          begin
+            match(
+              type: "appstore",
+              platform: "catalyst",
+              app_identifier: app_id,
+              team_id: team_id,
+              git_url: ENV['GIT_URL'],
+              git_basic_authorization: match_git_auth,
+              readonly: match_readonly,
+              clone_branch_directly: clone_branch_directly,
+              keychain_name: ENV['KEYCHAIN_NAME'] || "login",
+              keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
+            )
+          rescue => ex
+            if !match_readonly && clone_branch_directly
+              UI.important("match failed for #{app_id} with clone_branch_directly=true: #{ex.message}")
+              UI.message('Retrying match without clone_branch_directly for writable setup...')
+              match(
+                type: "appstore",
+                platform: "catalyst",
+                app_identifier: app_id,
+                team_id: team_id,
+                git_url: ENV['GIT_URL'],
+                git_basic_authorization: match_git_auth,
+                readonly: match_readonly,
+                keychain_name: ENV['KEYCHAIN_NAME'] || "login",
+                keychain_password: ENV['KEYCHAIN_PASSWORD'] || ""
+              )
+            else
+              raise ex
+            end
+          end
         end
 
         xcargs_str += " DEVELOPMENT_TEAM=#{team_id}"
@@ -657,10 +752,18 @@ platform :ios do
         end
 
         UI.success("Provisioning profiles configured for Mac Catalyst")
+      elsif should_sign
+        UI.message('Skipping match profile setup and building without Xcode signing; app will be signed after build')
+        xcargs_str += " DEVELOPMENT_TEAM=#{ENV['CATALYST_TEAM_ID']}"
+        xcargs_str += " CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
       else
         # Disable code signing entirely so xcodebuild doesn't look for provisioning profiles
         xcargs_str += " CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
         UI.message("No signing credentials provided — building without code signing")
+      end
+
+      if should_notarize && !should_sign
+        UI.user_error!('CATALYST_NOTARIZE is enabled but signing credentials are missing. Set CATALYST_SIGNING_IDENTITY and CATALYST_TEAM_ID, or disable notarization with CATALYST_NOTARIZE=0.')
       end
 
       build_app(
@@ -670,7 +773,7 @@ platform :ios do
         destination: "generic/platform=macOS,variant=Mac Catalyst",
         xcargs: xcargs_str,
         clean: true,
-        skip_codesigning: !should_sign,
+        skip_codesigning: !should_use_match_profiles,
         skip_package_ipa: true,
         derived_data_path: derived_data_path,
         buildlog_path: File.join(project_root, "ios", "build_logs")
@@ -713,6 +816,12 @@ platform :ios do
            "--sign", "-",
            catalyst_app_path)
         UI.success("App ad-hoc signed")
+      end
+
+      if should_notarize
+        notarize_and_staple_catalyst_app!(app_path: catalyst_app_path, output_dir: output_dir)
+      else
+        UI.message('Skipping notarization (CATALYST_NOTARIZE=0)')
       end
 
       dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
