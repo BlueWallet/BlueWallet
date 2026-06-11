@@ -174,7 +174,7 @@ export class BlueApp {
   isPasswordInUse = async (password: string) => {
     try {
       let data = await this.getItem('data');
-      data = this.decryptData(data, password);
+      data = await this.decryptData(data, password);
       return Boolean(data);
     } catch (_e) {
       return false;
@@ -182,18 +182,37 @@ export class BlueApp {
   };
 
   /**
-   * Iterates through all values of `data` trying to
-   * decrypt each one, and returns first one successfully decrypted
+   * Iterates through all values of `data` trying to decrypt each one, and
+   * returns the first one successfully decrypted.
+   *
+   * Pass `{ upgrade: true }` to opt into the lazy v1 → v2 rewrite on success.
+   * The opt-in is deliberate: `isPasswordInUse` calls this method as a
+   * read-only probe during the create-fake-storage flow, and must NOT have
+   * the side-effect of mutating on-disk state (that would widen the same
+   * plausible-deniability fingerprint leak the lazy upgrade is closing).
+   * Only `loadFromDisk` (the real unlock path) opts in.
    */
-  decryptData(data: string, password: string): boolean | string {
-    data = JSON.parse(data);
-    let decrypted;
+  async decryptData(data: string, password: string, opts?: { upgrade?: boolean }): Promise<boolean | string> {
+    const buckets: string[] = JSON.parse(data);
     let num = 0;
-    for (const value of data) {
-      decrypted = encryption.decrypt(value, password);
+    for (const value of buckets) {
+      const decrypted = await encryption.decrypt(value, password);
 
       if (decrypted) {
         usedBucketNum = num;
+        // Lazy v1 → v2 upgrade (only when explicitly requested): if this
+        // bucket is still in the legacy `Salted__` format, re-encrypt under
+        // the same password so the on-disk fingerprint converges over time.
+        // Decoy buckets the user never unlocks stay v1 — accepted
+        // plausible-deniability tradeoff, documented in release notes.
+        if (opts?.upgrade && !value.startsWith('v2:')) {
+          try {
+            buckets[num] = await encryption.encrypt(decrypted as string, password);
+            await this.setItem('data', JSON.stringify(buckets));
+          } catch (e) {
+            console.warn('lazy v2 upgrade failed:', e);
+          }
+        }
         return decrypted;
       }
       num++;
@@ -221,7 +240,7 @@ export class BlueApp {
     let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
-    const encrypted = encryption.encrypt(data, password);
+    const encrypted = await encryption.encrypt(data, password);
     data = [];
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
@@ -248,7 +267,7 @@ export class BlueApp {
 
     let buckets = await this.getItem('data');
     buckets = JSON.parse(buckets);
-    buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
+    buckets.push(await encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
     await this.setItem('data', bucketsString);
@@ -364,7 +383,7 @@ export class BlueApp {
     }
     let dataRaw = await this.getItemWithFallbackToRealm('data');
     if (password) {
-      dataRaw = this.decryptData(dataRaw, password);
+      dataRaw = await this.decryptData(dataRaw, password, { upgrade: true });
       if (dataRaw) {
         // password is good, cache it
         this.cachedPassword = password;
@@ -704,7 +723,7 @@ export class BlueApp {
           } else {
             // we dont have `usedBucketNum` for whatever reason, so lets try to decrypt each bucket after bucket
             // till we find the right one
-            decrypted = encryption.decrypt(bucket, this.cachedPassword);
+            decrypted = await encryption.decrypt(bucket, this.cachedPassword);
           }
 
           if (!decrypted) {
@@ -713,7 +732,7 @@ export class BlueApp {
           } else {
             // decrypted ok, this is our bucket
             // we serialize our object's data, encrypt it, and add it to buckets
-            newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
+            newData.push(await encryption.encrypt(JSON.stringify(data), this.cachedPassword));
           }
         }
 
