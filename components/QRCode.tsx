@@ -14,7 +14,7 @@ type ErrorCorrectionLevel = 'H' | 'Q' | 'M' | 'L';
 
 interface QRCodeProps {
   value: string;
-  size?: number;
+  size: number;
   isLogoRendered?: boolean;
   isMenuAvailable?: boolean;
   logoSize?: number;
@@ -144,7 +144,7 @@ const getCachedPlan = (value: string, ecl: ErrorCorrectionLevel, size: number, i
 
 const QRCode: React.FC<QRCodeProps> = ({
   value = '',
-  size = 300,
+  size,
   isLogoRendered = true,
   isMenuAvailable = true,
   logoSize = 90,
@@ -216,24 +216,11 @@ const QRCode: React.FC<QRCodeProps> = ({
     const gradFill = `url(#${GRADIENT_ID})`;
 
     const finderShapes: React.ReactElement[] = [];
-    const outerR = 2 * cell;
-    const holeR = 1.25 * cell;
-    const dotR = 0.9 * cell;
     finderOrigins.forEach(([fr, fc], i) => {
       const x = (fc + 1) * cell;
       const y = (fr + 1) * cell;
       finderShapes.push(
-        <Rect
-          key={`finder-frame-${i}`}
-          testID="qr-finder-frame"
-          x={x}
-          y={y}
-          width={7 * cell}
-          height={7 * cell}
-          rx={outerR}
-          ry={outerR}
-          fill={gradFill}
-        />,
+        <Rect key={`finder-frame-${i}`} testID="qr-finder-frame" x={x} y={y} width={7 * cell} height={7 * cell} fill={gradFill} />,
         <Rect
           key={`finder-hole-${i}`}
           testID="qr-finder-hole"
@@ -241,8 +228,6 @@ const QRCode: React.FC<QRCodeProps> = ({
           y={y + cell}
           width={5 * cell}
           height={5 * cell}
-          rx={holeR}
-          ry={holeR}
           fill={BACKGROUND}
         />,
         <Rect
@@ -252,8 +237,6 @@ const QRCode: React.FC<QRCodeProps> = ({
           y={y + 2 * cell}
           width={3 * cell}
           height={3 * cell}
-          rx={dotR}
-          ry={dotR}
           fill={gradFill}
         />,
       );
@@ -277,16 +260,7 @@ const QRCode: React.FC<QRCodeProps> = ({
         {finderShapes}
         {isLogoRendered && logoCells > 0 && (
           <>
-            <Rect
-              testID="qr-logo-backdrop"
-              x={backdropX}
-              y={backdropY}
-              width={backdropSize}
-              height={backdropSize}
-              rx={cell * 0.5}
-              ry={cell * 0.5}
-              fill={LOGO_BACKGROUND}
-            />
+            <Rect testID="qr-logo-backdrop" x={backdropX} y={backdropY} width={backdropSize} height={backdropSize} fill={LOGO_BACKGROUND} />
             <SvgImage
               testID="qr-logo-image"
               href={require('../img/qr-code.png')}

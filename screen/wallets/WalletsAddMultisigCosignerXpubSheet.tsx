@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { BlueTextCentered } from '../../BlueComponents';
+import BlueTextCentered from '../../components/BlueTextCentered';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import QRCode from '../../components/QRCode';
 import Button from '../../components/Button';

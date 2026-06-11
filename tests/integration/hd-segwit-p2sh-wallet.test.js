@@ -14,11 +14,8 @@ afterAll(() => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  try {
-    await BlueElectrum.connectMain();
-  } catch (Err) {
-    console.log('failed to connect to Electrum:', Err);
-    process.exit(2);
+  if (!(await BlueElectrum.ensureConnected())) {
+    throw new Error('failed to connect to Electrum');
   }
 });
 

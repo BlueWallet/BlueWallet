@@ -1,13 +1,14 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LayoutAnimation } from 'react-native';
 import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { registerArkBackgroundTask, stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -175,6 +176,15 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const deleteWallet = useCallback((wallet: TWallet) => {
     BlueApp.deleteWallet(wallet);
     setWallets([...BlueApp.getWallets()]);
+    if (wallet.type === LightningArkWallet.type) {
+      // Fire-and-forget: cleans up the per-wallet Arkade Realm (close + delete files)
+      // and the Keychain encryption key. Errors stay scoped to the Ark wallet path
+      // and never block deletion.
+      (wallet as LightningArkWallet).onDelete().catch(e => console.warn('[StorageProvider] Ark wallet cleanup failed:', e?.message ?? e));
+      if (!BlueApp.getWallets().some(w => w.type === LightningArkWallet.type)) {
+        stopArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task stop failed:', e?.message ?? e));
+      }
+    }
   }, []);
 
   const handleWalletDeletion = useCallback(
@@ -308,7 +318,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
-      setWallets(BlueApp.getWallets());
+      const loaded = BlueApp.getWallets();
+      setWallets(loaded);
+      if (loaded.some(w => w.type === LightningArkWallet.type)) {
+        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
+      }
     }
   }, [walletsInitialized]);
 
@@ -332,24 +346,21 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
         }
         console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
-        await BlueElectrum.waitTillConnected();
-        if (!(await BlueElectrum.ping())) {
-          // above `waitTillConnected` is not reliable, as app might have returned from long sleep, so it thinks its
-          // connected but actually socket is closed. thus, we ping, and if it fails - we wait again (reconnection code
-          // should pick up)
-          console.log('[refreshAllWalletTransactions] ping failed, waiting for connection...');
-          await BlueElectrum.waitTillConnected();
+        // `ensureConnected()` ping-checks the existing socket and, only if needed,
+        // tears it down and reconnects. Replaces the old wait+ping+wait pattern
+        // which surfaced false "network error" alerts after iOS suspend/resume.
+        const connected = await BlueElectrum.ensureConnected();
+        if (!connected) {
+          console.log('[refreshAllWalletTransactions] could not establish Electrum connection, aborting refresh');
+          return;
         }
 
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
-        // Race only the post-connect work. `waitTillConnected` can take up to
-        // WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER (+ a second wait); starting the timer earlier caused refresh to abort
-        // while Electrum was still legitimately connecting.
-        const REFRESH_FETCH_PHASE_TIMEOUT_MS = Math.max(
-          120_000,
-          BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_NEVER + BlueElectrum.WAIT_TILL_CONNECTED_MAX_WALL_MS_AFTER_FIRST,
-        );
+        // Race only the post-connect work. We budget ample time so that a slow
+        // initial Electrum connection (cold start, slow TLS, flaky network) doesn't
+        // cause the fetch race to abort prematurely.
+        const REFRESH_FETCH_PHASE_TIMEOUT_MS = Math.max(120_000, BlueElectrum.ENSURE_CONNECTED_MAX_WALL_MS * 2);
         const timeoutPromise = new Promise<never>(
           (_resolve, reject) =>
             (refreshTimeout = setTimeout(() => {
@@ -419,7 +430,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         }
         _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
-        await BlueElectrum.waitTillConnected();
+        const connected = await BlueElectrum.ensureConnected();
+        if (!connected) {
+          console.log('[fetchAndSaveWalletTransactions] could not establish Electrum connection, aborting');
+          return;
+        }
         setWalletTransactionUpdateStatus(walletID);
 
         const balanceStart = Date.now();
@@ -453,6 +468,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
       w.setUserHasSavedExport(true);
       addWallet(w);
+      if (w instanceof LightningArkWallet) {
+        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
+      }
       if (getScanWasBBQR()) {
         // to avoid proxying `useBBQR` through a bunch of screens during import procedure, we use a trick:
         // on add-wallet screen we reset `lastScanWasBBQR` to false. then potentially user scans QR in BBQR format
@@ -491,7 +509,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             text: loc.wallets.details_delete,
             onPress: () => {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               onConfirmed();
             },
             style: 'destructive',

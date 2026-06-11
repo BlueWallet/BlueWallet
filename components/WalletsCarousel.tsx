@@ -383,9 +383,21 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     let latestTransactionText;
 
+    // Lightning / Ark wallets do not have on-chain confirmations — settlement is
+    // signaled by `ispaid`. Bitcoin/on-chain wallets keep the existing
+    // `confirmations === 0` rule unchanged so their pending-pill semantics
+    // never depend on a Lightning shape.
+    // `ispaid === false` alone is not "pending": it is also true for terminal
+    // failed/refunded swaps, which stay in history. Gate on `!tx.failed` so a
+    // dead swap doesn't pin the card to "pending" forever.
+    const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
+    const hasPendingTx = isLightningShaped
+      ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed)
+      : item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
+
     if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
-    } else if (item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)) {
+    } else if (hasPendingTx) {
       latestTransactionText = loc.transactions.pending;
     } else {
       latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());

@@ -70,7 +70,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
         uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
         with:
-          ruby-version: 3.4.8
+          ruby-version: 3.4.9
           bundler-cache: true
 
       - name: Install Node modules
@@ -91,9 +91,11 @@ jobs:
 
       - name: Install CocoaPods dependencies
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
-        run: bundle exec fastlane ios install_pods
         env:
           SKIP_APP_STORE_CONNECT_AUTH: '1'
+          RCT_USE_RN_DEP: "1"
+          RCT_USE_PREBUILT_RNCORE: "1"
+        run: bundle exec fastlane ios install_pods
 
       - name: Create temporary keychain for signing
         if: (github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true') && steps.labels.outputs.upload_testflight == 'true'

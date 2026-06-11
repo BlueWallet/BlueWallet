@@ -1,3 +1,6 @@
+// Translation glossary: see ./vocabulary.md for canonical Bitcoin/Lightning term renderings per language.
+// Update vocabulary.md whenever you add a new term or change a shipped translation in a locale .json.
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
@@ -9,7 +12,7 @@ import * as RNLocalize from 'react-native-localize';
 
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import { AvailableLanguages } from './languages';
+import { AvailableLanguages, LangCode } from './languages';
 import enJson from './en.json';
 
 export const STORAGE_KEY = 'lang';
@@ -23,6 +26,83 @@ interface ILocalization1 extends LocalizedStrings<typeof enJson> {}
 interface ILocalization extends Omit<ILocalization1, 'formatString'> {
   formatString: (...args: Parameters<ILocalization1['formatString']>) => string;
 }
+
+// Lazy loaders for non-en langs
+type LanguageDict = typeof enJson;
+const languageLoaders: Record<Exclude<LangCode, 'en'>, () => LanguageDict> = {
+  ar: () => require('./ar.json'),
+  be: () => require('./be@tarask.json'),
+  bg_bg: () => require('./bg_bg.json'),
+  bqi: () => require('./bqi.json'),
+  ca: () => require('./ca.json'),
+  cs_cz: () => require('./cs_cz.json'),
+  cy: () => require('./cy.json'),
+  da_dk: () => require('./da_dk.json'),
+  de_de: () => require('./de_de.json'),
+  el: () => require('./el.json'),
+  es: () => require('./es.json'),
+  es_419: () => require('./es_419.json'),
+  et: () => require('./et_EE.json'),
+  fa: () => require('./fa.json'),
+  fi_fi: () => require('./fi_fi.json'),
+  fo: () => require('./fo.json'),
+  fr_fr: () => require('./fr_fr.json'),
+  he: () => require('./he.json'),
+  hr_hr: () => require('./hr_hr.json'),
+  hu_hu: () => require('./hu_hu.json'),
+  id_id: () => require('./id_id.json'),
+  it: () => require('./it.json'),
+  jp_jp: () => require('./jp_jp.json'),
+  'kk@Cyrl': () => require('./kk@Cyrl.json'),
+  kn: () => require('./kn.json'),
+  ko_kr: () => require('./ko_KR.json'),
+  lrc: () => require('./lrc.json'),
+  ms: () => require('./ms.json'),
+  nb_no: () => require('./nb_no.json'),
+  ne: () => require('./ne.json'),
+  nl_nl: () => require('./nl_nl.json'),
+  pcm: () => require('./pcm.json'),
+  pl: () => require('./pl.json'),
+  pt_br: () => require('./pt_br.json'),
+  pt_pt: () => require('./pt_pt.json'),
+  ro: () => require('./ro.json'),
+  ru: () => require('./ru.json'),
+  si_lk: () => require('./si_LK.json'),
+  sk_sk: () => require('./sk_sk.json'),
+  sl_si: () => require('./sl_SI.json'),
+  sq_AL: () => require('./sq_AL.json'),
+  sr_rs: () => require('./sr_RS.json'),
+  sv_se: () => require('./sv_se.json'),
+  th_th: () => require('./th_th.json'),
+  tr_tr: () => require('./tr_tr.json'),
+  ua: () => require('./ua.json'),
+  vi_vn: () => require('./vi_vn.json'),
+  zar_afr: () => require('./zar_afr.json'),
+  zar_xho: () => require('./zar_xho.json'),
+  zh_cn: () => require('./zh_cn.json'),
+  zh_tw: () => require('./zh_tw.json'),
+};
+
+// Cache so toggling between languages does not re-parse the JSON.
+export const parsedLanguages: Record<string, LanguageDict> = { en: enJson };
+
+const loc = new Localization<typeof enJson>({ en: enJson }) as ILocalization;
+
+const isKnownLang = (lang: string): lang is Exclude<LangCode, 'en'> => Object.prototype.hasOwnProperty.call(languageLoaders, lang);
+
+const applyLanguage = (lang: string) => {
+  if (lang === 'en' || !isKnownLang(lang)) {
+    loc.setContent({ en: enJson });
+    loc.setLanguage('en');
+    return;
+  }
+  if (!parsedLanguages[lang]) {
+    parsedLanguages[lang] = languageLoaders[lang]();
+  }
+  // `setContent` resets active language to interface; explicit setLanguage after, with `en` as fallback.
+  loc.setContent({ en: enJson, [lang]: parsedLanguages[lang] });
+  loc.setLanguage(lang);
+};
 
 const setDateTimeLocale = async () => {
   let lang = (await AsyncStorage.getItem(STORAGE_KEY)) ?? '';
@@ -210,98 +290,26 @@ const setDateTimeLocale = async () => {
   }
 };
 
+// Fire-and-forget; `loc` starts as `{en}` until this resolves, so synchronous reads on a cold launch with non-en saved preference render English briefly.
 const init = async () => {
-  // finding out whether lang preference was saved
   const lang = await AsyncStorage.getItem(STORAGE_KEY);
   if (lang) {
     await saveLanguage(lang);
-    await loc.setLanguage(lang);
-    if (process.env.JEST_WORKER_ID === undefined) {
-      const foundLang = AvailableLanguages.find(language => language.value === lang);
-      I18nManager.allowRTL(foundLang?.isRTL ?? false);
-      I18nManager.forceRTL(foundLang?.isRTL ?? false);
-    }
-    await setDateTimeLocale();
   } else {
     const locales = RNLocalize.getLocales();
-    if (Object.values(AvailableLanguages).some(language => language.value === locales[0].languageCode)) {
-      await saveLanguage(locales[0].languageCode);
-      await loc.setLanguage(locales[0].languageCode);
-      if (process.env.JEST_WORKER_ID === undefined) {
-        I18nManager.allowRTL(locales[0].isRTL ?? false);
-        I18nManager.forceRTL(locales[0].isRTL ?? false);
-      }
+    const detected = locales[0]?.languageCode;
+    if (detected && AvailableLanguages.some(language => language.value === detected)) {
+      await saveLanguage(detected);
     } else {
       await saveLanguage('en');
-      await loc.setLanguage('en');
-      if (process.env.JEST_WORKER_ID === undefined) {
-        I18nManager.allowRTL(false);
-        I18nManager.forceRTL(false);
-      }
     }
-    await setDateTimeLocale();
   }
 };
 init();
 
-const loc: ILocalization = new Localization({
-  en: enJson,
-  ar: require('./ar.json'),
-  be: require('./be@tarask.json'),
-  bg_bg: require('./bg_bg.json'),
-  bqi: require('./bqi.json'),
-  ca: require('./ca.json'),
-  cs_cz: require('./cs_cz.json'),
-  cy: require('./cy.json'),
-  da_dk: require('./da_dk.json'),
-  de_de: require('./de_de.json'),
-  el: require('./el.json'),
-  es: require('./es.json'),
-  es_419: require('./es_419.json'),
-  et: require('./et_EE.json'),
-  fa: require('./fa.json'),
-  fi_fi: require('./fi_fi.json'),
-  fo: require('./fo.json'),
-  fr_fr: require('./fr_fr.json'),
-  he: require('./he.json'),
-  hr_hr: require('./hr_hr.json'),
-  hu_hu: require('./hu_hu.json'),
-  id_id: require('./id_id.json'),
-  it: require('./it.json'),
-  jp_jp: require('./jp_jp.json'),
-  'kk@Cyrl': require('./kk@Cyrl.json'),
-  kn: require('./kn.json'),
-  ko_kr: require('./ko_KR.json'),
-  lrc: require('./lrc.json'),
-  ms: require('./ms.json'),
-  nb_no: require('./nb_no.json'),
-  ne: require('./ne.json'),
-  nl_nl: require('./nl_nl.json'),
-  pcm: require('./pcm.json'),
-  pl: require('./pl.json'),
-  pt_br: require('./pt_br.json'),
-  pt_pt: require('./pt_pt.json'),
-  ro: require('./ro.json'),
-  ru: require('./ru.json'),
-  si_lk: require('./si_LK.json'),
-  sk_sk: require('./sk_sk.json'),
-  sl_si: require('./sl_SI.json'),
-  sq_AL: require('./sq_AL.json'),
-  sr_rs: require('./sr_RS.json'),
-  sv_se: require('./sv_se.json'),
-  th_th: require('./th_th.json'),
-  tr_tr: require('./tr_tr.json'),
-  ua: require('./ua.json'),
-  vi_vn: require('./vi_vn.json'),
-  zar_afr: require('./zar_afr.json'),
-  zar_xho: require('./zar_xho.json'),
-  zh_cn: require('./zh_cn.json'),
-  zh_tw: require('./zh_tw.json'),
-});
-
 export const saveLanguage = async (lang: string) => {
   await AsyncStorage.setItem(STORAGE_KEY, lang);
-  loc.setLanguage(lang);
+  applyLanguage(lang);
   // even tho it makes no effect changing it in this run, it will on the next run, so we are doign it here:
   if (process.env.JEST_WORKER_ID === undefined) {
     const foundLang = AvailableLanguages.find(language => language.value === lang);

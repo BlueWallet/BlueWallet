@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
-import { BlueTextCentered } from '../BlueComponents';
+import BlueTextCentered from '../components/BlueTextCentered';
 import Button from '../components/Button';
 import SafeArea from '../components/SafeArea';
 import { BiometricType, unlockWithBiometrics, useBiometrics } from '../hooks/useBiometrics';
