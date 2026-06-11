@@ -46,16 +46,40 @@ necc.utils.hmacSha256Sync = (key: Uint8Array, ...messages: Uint8Array[]): Uint8A
   return hmac(sha256, key, combinedMessages);
 };
 
-/* const normal = necc.utils._normalizePrivateKey;
+// Removed from @noble/secp256k1 v1.7; vendored from noble test vectors.
+// @see https://github.com/paulmillr/noble-secp256k1/blob/1.7.2/test/index.ts
 type Hex = string | Uint8Array;
 type PrivKey = Hex | bigint | number;
 
-necc.utils.privateAdd = (privateKey: PrivKey, tweak: Hex) => {
-  console.log({ privateKey, tweak });
-  const p = normal(privateKey);
-  const t = normal(tweak);
-  return necc.utils.privateAdd(necc.utils.mod(p + t, necc.CURVE.n));
-}; */
+const normalizePrivateKey = necc.utils._normalizePrivateKey;
+
+const tweakUtils = {
+  privateAdd: (privateKey: PrivKey, tweak: Hex): Uint8Array => {
+    const p = normalizePrivateKey(privateKey);
+    const t = normalizePrivateKey(tweak);
+    return necc.utils._bigintTo32Bytes(necc.utils.mod(p + t, necc.CURVE.n));
+  },
+
+  privateNegate: (privateKey: PrivKey): Uint8Array => {
+    const p = normalizePrivateKey(privateKey);
+    return necc.utils._bigintTo32Bytes(necc.CURVE.n - p);
+  },
+
+  pointAddScalar: (p: Hex, tweak: Hex, isCompressed?: boolean): Uint8Array => {
+    const P = necc.Point.fromHex(p);
+    const t = normalizePrivateKey(tweak);
+    const Q = necc.Point.BASE.multiplyAndAddUnsafe(P, t, 1n);
+    if (!Q) throw new Error('Tweaked point at infinity');
+    return Q.toRawBytes(isCompressed);
+  },
+
+  pointMultiply: (p: Hex, tweak: Hex, isCompressed?: boolean): Uint8Array => {
+    const P = necc.Point.fromHex(p);
+    const h = typeof tweak === 'string' ? tweak : necc.utils.bytesToHex(tweak);
+    const t = BigInt(`0x${h}`);
+    return P.multiply(t).toRawBytes(isCompressed);
+  },
+};
 
 const defaultTrue = (param?: boolean): boolean => param !== false;
 
@@ -95,7 +119,7 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
 
   xOnlyPointAddTweak: (p: Uint8Array, tweak: Uint8Array): { parity: 0 | 1; xOnlyPubkey: Uint8Array } | null =>
     throwToNull(() => {
-      const P = necc.utils.pointAddScalar(p, tweak, true);
+      const P = tweakUtils.pointAddScalar(p, tweak, true);
       const parity = P[0] % 2 === 1 ? 1 : 0;
       return { parity, xOnlyPubkey: P.slice(1) };
     }),
@@ -108,7 +132,7 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
   },
 
   pointMultiply: (a: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null =>
-    throwToNull(() => necc.utils.pointMultiply(a, tweak, defaultTrue(compressed))),
+    throwToNull(() => tweakUtils.pointMultiply(a, tweak, defaultTrue(compressed))),
 
   pointAdd: (a: Uint8Array, b: Uint8Array, compressed?: boolean): Uint8Array | null =>
     throwToNull(() => {
@@ -118,7 +142,7 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
     }),
 
   pointAddScalar: (p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null =>
-    throwToNull(() => necc.utils.pointAddScalar(p, tweak, defaultTrue(compressed))),
+    throwToNull(() => tweakUtils.pointAddScalar(p, tweak, defaultTrue(compressed))),
 
   privateAdd: (d: Uint8Array, tweak: Uint8Array): Uint8Array | null =>
     throwToNull(() => {
@@ -127,7 +151,7 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
         return new Uint8Array(d); // make test_ecc happy
       }
 
-      const ret = necc.utils.privateAdd(d, tweak);
+      const ret = tweakUtils.privateAdd(d, tweak);
       // console.log(ret);
       if (ret.join('') === '00000000000000000000000000000000') {
         return null;
@@ -135,7 +159,7 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
       return ret;
     }),
 
-  privateNegate: (d: Uint8Array): Uint8Array => necc.utils.privateNegate(d),
+  privateNegate: (d: Uint8Array): Uint8Array => tweakUtils.privateNegate(d),
 
   sign: (h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array => {
     return necc.signSync(h, d, { der: false, extraEntropy: e });
