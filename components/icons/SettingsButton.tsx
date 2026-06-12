@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Icon from '../Icon';
-import { useTheme } from '../themes';
+import { useTheme } from '../themes';watch-only\open /Wacth-only close
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import ToolTipMenu from '../TooltipMenu';
