@@ -853,6 +853,11 @@ const TransactionStatus: React.FC = () => {
 
   const showBlocksAccordion = !isPending && parsedConfirmations > 0;
 
+  const onBlocksHeaderPress = useCallback(() => {
+    if (!showBlocksAccordion) return;
+    toggleBlocksExpanded();
+  }, [showBlocksAccordion, toggleBlocksExpanded]);
+
   // Get transaction direction and date
   const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
@@ -1042,7 +1047,7 @@ const TransactionStatus: React.FC = () => {
               )}
             </>
           ) : txValue !== null && txValue < 0 ? (
-            <TouchableOpacity style={styles.stateHeaderRow} onPress={toggleBlocksExpanded} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.stateHeaderRow} onPress={onBlocksHeaderPress} activeOpacity={0.7}>
               <View style={styles.stateIndicator}>
                 <TransactionOutgoingIcon />
                 <View style={styles.stateLabelContainer}>
@@ -1056,9 +1061,12 @@ const TransactionStatus: React.FC = () => {
                   )}
                 </View>
               </View>
+              {showBlocksAccordion && (
+                <Icon name="information-circle-outline" type="ionicons" size={20} color={colors.transactionSentColor} />
+              )}
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.stateHeaderRow} onPress={toggleBlocksExpanded} activeOpacity={0.7}>
+            <TouchableOpacity style={styles.stateHeaderRow} onPress={onBlocksHeaderPress} activeOpacity={0.7}>
               <View style={styles.stateIndicator}>
                 <TransactionIncomingIcon />
                 <View style={styles.stateLabelContainer}>
@@ -1072,11 +1080,22 @@ const TransactionStatus: React.FC = () => {
                   )}
                 </View>
               </View>
+              {showBlocksAccordion && (
+                <Icon name="information-circle-outline" type="ionicons" size={20} color={colors.transactionReceivedColor} />
+              )}
             </TouchableOpacity>
           )}
         </View>
         {showBlocksAccordion && tx?.hash && (
-          <BlocksAccordion txHash={tx.hash} isSent={txValue !== null && txValue < 0} isExpanded={isBlocksExpanded} />
+          <BlocksAccordion
+            txHash={tx.hash}
+            isSent={txValue !== null && txValue < 0}
+            isExpanded={isBlocksExpanded}
+            confirmations={parsedConfirmations}
+            vsize={tx.vsize}
+            feeSats={calculatedFee}
+            feeRate={feeRate}
+          />
         )}
       </Animated.View>
 
@@ -1418,6 +1437,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    width: '100%',
   },
   stateIndicator: {
     flexDirection: 'row',

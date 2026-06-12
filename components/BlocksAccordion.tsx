@@ -1,25 +1,51 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, ListRenderItemInfo, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  LayoutChangeEvent,
+  ListRenderItemInfo,
+  StyleSheet,
+  Text,
+  TextStyle,
+  useColorScheme,
+  useWindowDimensions,
+  View,
+} from 'react-native';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import dayjs from 'dayjs';
 
 import { useTheme } from './themes';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
+import loc, { formatBalanceWithoutSuffix } from '../loc';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 
 const BLOCK_COUNT = 5;
 const COLLAPSED_HEIGHT = 0;
-const EXPANDED_HEIGHT = 130;
-const ANIMATION_DURATION = 300;
+const BLOCKS_HEIGHT = 130;
+const ANIMATION_DURATION = 280;
+const ANIMATION_EASING = Easing.out(Easing.cubic);
 const BLOCK_CARD_WIDTH = 120;
 const BLOCK_CARD_GAP = 8;
 const ITEM_LENGTH = BLOCK_CARD_WIDTH + BLOCK_CARD_GAP;
 const HORIZONTAL_PADDING = 8;
 const STATE_CARD_MARGIN_H = 24;
+const txblockAnimation = require('../img/txblock.json');
+const BLOCK_GRADIENT_EDGE_OPACITY = 0.45;
+const BLOCK_GRADIENT_TOP_START = { x: 0.5, y: 0 };
+const BLOCK_GRADIENT_TOP_END = { x: 0.5, y: 1 };
+const BLOCK_GRADIENT_BOTTOM_START = { x: 0.5, y: 1 };
+const BLOCK_GRADIENT_BOTTOM_END = { x: 0.5, y: 0 };
 
 interface BlocksAccordionProps {
   txHash: string;
   isSent: boolean;
   isExpanded: boolean;
+  confirmations: number;
+  vsize?: number | null;
+  feeSats?: number | null;
+  feeRate?: number | null;
 }
 
 interface BlockData {
@@ -33,33 +59,72 @@ const getItemLayout = (_: unknown, index: number) => ({
   index,
 });
 
-const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExpanded }) => {
+const renderBoldFormattedParts = (template: string, values: Record<string, string>, boldStyle: TextStyle): React.ReactNode[] => {
+  const regex = /\{(\w+)\}/g;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match;
+  let index = 0;
+
+  while ((match = regex.exec(template)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(template.substring(lastIndex, match.index));
+    }
+    const value = values[match[1]];
+    if (value !== undefined) {
+      parts.push(
+        <Text key={`bold-${index++}`} style={boldStyle}>
+          {value}
+        </Text>,
+      );
+    }
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < template.length) {
+    parts.push(template.substring(lastIndex));
+  }
+
+  return parts;
+};
+
+const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExpanded, confirmations, vsize, feeSats, feeRate }) => {
   const { colors } = useTheme();
+  const colorScheme = useColorScheme();
   const { width: windowWidth } = useWindowDimensions();
   const [blocks, setBlocks] = useState<BlockData[]>([]);
   const [confirmedHeight, setConfirmedHeight] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const contentHeight = useSharedValue(COLLAPSED_HEIGHT);
+  const [measuredHeight, setMeasuredHeight] = useState(0);
+  const animatedHeight = useSharedValue(COLLAPSED_HEIGHT);
+  const fetchStartedRef = useRef(false);
 
   const accentColor = isSent ? colors.transactionSentColor : colors.transactionReceivedColor;
   const borderAccent = isSent ? colors.outgoingForegroundColor : colors.incomingForegroundColor;
-  const blockCardBg = isSent ? 'rgba(208, 2, 27, 0.16)' : 'rgba(55, 192, 161, 0.16)';
-  const confirmedCardBg = isSent ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.2)';
+  const blockCardBg = isSent ? 'rgba(208, 2, 27, 0.16)' : 'rgba(30, 138, 106, 0.16)';
+
+  const lottieColorFilters = useMemo(() => [{ keypath: '**', color: borderAccent }], [borderAccent]);
+
+  const blockGradientColors = useMemo(
+    () =>
+      colorScheme === 'dark'
+        ? [`rgba(0, 0, 0, ${BLOCK_GRADIENT_EDGE_OPACITY})`, 'rgba(0, 0, 0, 0)']
+        : [`rgba(255, 255, 255, ${BLOCK_GRADIENT_EDGE_OPACITY})`, 'rgba(255, 255, 255, 0)'],
+    [colorScheme],
+  );
 
   const stylesHook = StyleSheet.create({
     blockCardBase: { backgroundColor: blockCardBg },
-    confirmedBlockCard: { borderColor: borderAccent, borderWidth: 2, backgroundColor: confirmedCardBg },
-    blockHeightText: { color: accentColor },
-    blockDateText: { color: accentColor },
+    confirmedBlockCard: { borderColor: borderAccent, borderWidth: 2, backgroundColor: 'transparent' },
+    summaryText: { color: accentColor },
+    summaryBold: { color: accentColor, fontWeight: '700' },
   });
 
   const fetchBlockData = useCallback(async () => {
+    if (fetchStartedRef.current) return;
+    fetchStartedRef.current = true;
     setLoading(true);
     try {
-      const [txHeight, currentTip] = await Promise.all([
-        BlueElectrum.getConfirmedBlockHeight(txHash),
-        BlueElectrum.getCurrentBlockTip(),
-      ]);
+      const [txHeight, currentTip] = await Promise.all([BlueElectrum.getConfirmedBlockHeight(txHash), BlueElectrum.getCurrentBlockTip()]);
 
       if (!txHeight || txHeight <= 0) {
         setLoading(false);
@@ -85,14 +150,27 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
   }, [txHash]);
 
   useEffect(() => {
-    if (isExpanded && blocks.length === 0) {
-      fetchBlockData();
-    }
-  }, [isExpanded, blocks.length, fetchBlockData]);
+    fetchStartedRef.current = false;
+    setBlocks([]);
+    setConfirmedHeight(null);
+    setMeasuredHeight(0);
+  }, [txHash]);
 
   useEffect(() => {
-    contentHeight.value = withTiming(isExpanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT, { duration: ANIMATION_DURATION });
-  }, [isExpanded, contentHeight]);
+    fetchBlockData();
+  }, [fetchBlockData]);
+
+  const onMeasureLayout = useCallback((e: LayoutChangeEvent) => {
+    const height = Math.ceil(e.nativeEvent.layout.height);
+    if (height > 0) {
+      setMeasuredHeight(height);
+    }
+  }, []);
+
+  useEffect(() => {
+    const target = isExpanded ? (measuredHeight > 0 ? measuredHeight : BLOCKS_HEIGHT) : COLLAPSED_HEIGHT;
+    animatedHeight.value = withTiming(target, { duration: ANIMATION_DURATION, easing: ANIMATION_EASING });
+  }, [isExpanded, measuredHeight, animatedHeight]);
 
   const confirmedIndex = useMemo(() => {
     if (confirmedHeight === null) return 0;
@@ -107,10 +185,52 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
   }, [confirmedIndex, containerWidth]);
 
   const animatedContentStyle = useAnimatedStyle(() => ({
-    height: contentHeight.value,
-    opacity: contentHeight.value / EXPANDED_HEIGHT,
+    height: animatedHeight.value,
     overflow: 'hidden' as const,
   }));
+
+  const blocksAgoText = useMemo(() => {
+    const blocksAgo = Math.max(0, confirmations - 1);
+    if (blocksAgo === 1) {
+      return loc.transactions.block_ago;
+    }
+    return loc.formatString(loc.transactions.blocks_ago, { count: String(blocksAgo) });
+  }, [confirmations]);
+
+  const summaryContent = useMemo(() => {
+    if (confirmedHeight === null) return null;
+
+    const confirmationParts = renderBoldFormattedParts(
+      loc.transactions.blocks_confirmed_summary,
+      {
+        blocksAgo: blocksAgoText,
+        blockHeight: String(confirmedHeight),
+      },
+      stylesHook.summaryBold,
+    );
+
+    const hasFeeDetails = vsize != null && feeRate != null && feeSats != null;
+    if (!hasFeeDetails) {
+      return <Text style={[styles.summaryText, stylesHook.summaryText]}>{confirmationParts}</Text>;
+    }
+
+    const feeDisplay = `${formatBalanceWithoutSuffix(feeSats, BitcoinUnit.SATS, true)} sats`;
+    const feeParts = renderBoldFormattedParts(
+      loc.transactions.blocks_confirmed_fee_summary,
+      {
+        vsize: `${vsize} vb`,
+        feeRate: `${Number(feeRate.toFixed(1))} sats/vb`,
+        fee: feeDisplay,
+      },
+      stylesHook.summaryBold,
+    );
+
+    return (
+      <Text style={[styles.summaryText, stylesHook.summaryText]}>
+        {confirmationParts} {feeParts}
+      </Text>
+    );
+  }, [blocksAgoText, confirmedHeight, feeRate, feeSats, stylesHook.summaryBold, stylesHook.summaryText, vsize]);
 
   const keyExtractor = useCallback((item: BlockData) => String(item.height), []);
 
@@ -119,49 +239,120 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
       const isConfirmed = confirmedHeight !== null && item.height === confirmedHeight;
       return (
         <View style={[styles.blockCard, stylesHook.blockCardBase, isConfirmed && stylesHook.confirmedBlockCard]}>
-          <Text style={[styles.blockHeight, stylesHook.blockHeightText]}>{item.height.toLocaleString()}</Text>
+          {isConfirmed && (
+            <>
+              <LottieView
+                style={styles.blockLottie}
+                source={txblockAnimation}
+                autoPlay
+                loop
+                resizeMode="cover"
+                colorFilters={lottieColorFilters}
+              />
+              <LinearGradient
+                colors={blockGradientColors}
+                locations={[0, 0.3]}
+                start={BLOCK_GRADIENT_TOP_START}
+                end={BLOCK_GRADIENT_TOP_END}
+                style={styles.blockGradient}
+                pointerEvents="none"
+              />
+              <LinearGradient
+                colors={blockGradientColors}
+                locations={[0.02, 0.3]}
+                start={BLOCK_GRADIENT_BOTTOM_START}
+                end={BLOCK_GRADIENT_BOTTOM_END}
+                style={styles.blockGradient}
+                pointerEvents="none"
+              />
+            </>
+          )}
+          <Text style={[styles.blockHeight, stylesHook.summaryText]}>{item.height}</Text>
           <View style={styles.blockDateContainer}>
-            <Text style={[styles.blockDate, stylesHook.blockDateText]}>
+            <Text style={[styles.blockDate, stylesHook.summaryText]}>
               {item.timestamp ? dayjs(item.timestamp * 1000).format('DD/MM/YYYY') : '-'}
             </Text>
           </View>
         </View>
       );
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [confirmedHeight, accentColor, borderAccent, blockCardBg],
+    [
+      blockGradientColors,
+      confirmedHeight,
+      lottieColorFilters,
+      stylesHook.blockCardBase,
+      stylesHook.confirmedBlockCard,
+      stylesHook.summaryText,
+    ],
+  );
+
+  const measureContent = loading ? (
+    <View style={styles.loadingContainer} />
+  ) : (
+    <>
+      {summaryContent && <View style={styles.summaryContainer}>{summaryContent}</View>}
+      <View style={styles.blocksList} />
+    </>
+  );
+
+  const visibleContent = loading ? (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator color={accentColor} />
+    </View>
+  ) : (
+    <>
+      {summaryContent && <View style={styles.summaryContainer}>{summaryContent}</View>}
+      <FlatList
+        data={blocks}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        keyExtractor={keyExtractor}
+        renderItem={renderBlock}
+        getItemLayout={getItemLayout}
+        contentOffset={{ x: initialOffset, y: 0 }}
+        snapToInterval={ITEM_LENGTH}
+        decelerationRate="fast"
+        style={styles.blocksList}
+      />
+    </>
   );
 
   return (
-    <Animated.View style={animatedContentStyle}>
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator color={accentColor} />
-        </View>
-      ) : (
-        <FlatList
-          data={blocks}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          keyExtractor={keyExtractor}
-          renderItem={renderBlock}
-          getItemLayout={getItemLayout}
-          contentOffset={{ x: initialOffset, y: 0 }}
-          snapToInterval={ITEM_LENGTH}
-          decelerationRate="fast"
-        />
-      )}
-    </Animated.View>
+    <>
+      <View style={styles.measureLayer} onLayout={onMeasureLayout} pointerEvents="none">
+        {measureContent}
+      </View>
+      <Animated.View style={animatedContentStyle}>{visibleContent}</Animated.View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
+  measureLayer: {
+    position: 'absolute',
+    opacity: 0,
+    width: '100%',
+    zIndex: -1,
+  },
   loadingContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    height: EXPANDED_HEIGHT,
+    minHeight: BLOCKS_HEIGHT,
+  },
+  summaryContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 0,
+    paddingBottom: 8,
+  },
+  summaryText: {
+    fontSize: 13,
+    lineHeight: 16,
+    fontWeight: '500',
+    letterSpacing: -0.5,
+  },
+  blocksList: {
+    height: BLOCKS_HEIGHT,
   },
   scrollContent: {
     paddingHorizontal: HORIZONTAL_PADDING,
@@ -176,9 +367,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
     marginRight: BLOCK_CARD_GAP,
+    overflow: 'hidden',
+  },
+  blockLottie: {
+    ...StyleSheet.absoluteFill,
+  },
+  blockGradient: {
+    ...StyleSheet.absoluteFill,
   },
   blockHeight: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '700',
   },
   blockDateContainer: {
