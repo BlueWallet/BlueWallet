@@ -26,44 +26,93 @@ export interface TinySecp256k1InterfaceExtended {
   signDER(h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array;
 }
 
-necc.utils.sha256Sync = (...messages: Uint8Array[]): Uint8Array => {
-  const combinedMessages = messages.reduce((acc, msg) => {
-    const newArray = new Uint8Array(acc.length + msg.length);
-    newArray.set(acc);
-    newArray.set(msg, acc.length);
-    return newArray;
-  }, new Uint8Array(0));
-  return sha256(combinedMessages);
-};
+// @noble/hashes types differ slightly from @noble/secp256k1 v3 hash slot typings.
+necc.hashes.sha256 = sha256 as NonNullable<typeof necc.hashes.sha256>;
+necc.hashes.hmacSha256 = ((key: Uint8Array, message: Uint8Array) => hmac(sha256, key, message)) as NonNullable<
+  typeof necc.hashes.hmacSha256
+>;
 
-necc.utils.hmacSha256Sync = (key: Uint8Array, ...messages: Uint8Array[]): Uint8Array => {
-  const combinedMessages = messages.reduce((acc, msg) => {
-    const newArray = new Uint8Array(acc.length + msg.length);
-    newArray.set(acc);
-    newArray.set(msg, acc.length);
-    return newArray;
-  }, new Uint8Array(0));
-  return hmac(sha256, key, combinedMessages);
-};
-
-/* const normal = necc.utils._normalizePrivateKey;
+// Removed from @noble/secp256k1 v1.7; vendored from noble test vectors.
+// @see https://github.com/paulmillr/noble-secp256k1/blob/1.7.2/test/index.ts
 type Hex = string | Uint8Array;
-type PrivKey = Hex | bigint | number;
 
-necc.utils.privateAdd = (privateKey: PrivKey, tweak: Hex) => {
-  console.log({ privateKey, tweak });
-  const p = normal(privateKey);
-  const t = normal(tweak);
-  return necc.utils.privateAdd(necc.utils.mod(p + t, necc.CURVE.n));
-}; */
+const { mod, secretKeyToScalar, numberToBytesBE, bytesToNumberBE, hexToBytes } = necc.etc;
+const CURVE_N = necc.Point.CURVE().n;
+
+function pointFromBytes(p: Uint8Array): necc.Point {
+  if (p.length === 32) {
+    const prefixed = new Uint8Array(33);
+    prefixed[0] = 0x02;
+    prefixed.set(p, 1);
+    return necc.Point.fromBytes(prefixed);
+  }
+  return necc.Point.fromBytes(p);
+}
+
+const tweakUtils = {
+  privateAdd: (privateKey: Hex, tweak: Hex): Uint8Array => {
+    const p = secretKeyToScalar(typeof privateKey === 'string' ? hexToBytes(privateKey) : privateKey);
+    const t = secretKeyToScalar(typeof tweak === 'string' ? hexToBytes(tweak) : tweak);
+    return numberToBytesBE(mod(p + t, CURVE_N));
+  },
+
+  privateNegate: (privateKey: Hex): Uint8Array => {
+    const p = secretKeyToScalar(typeof privateKey === 'string' ? hexToBytes(privateKey) : privateKey);
+    return numberToBytesBE(CURVE_N - p);
+  },
+
+  pointAddScalar: (p: Hex, tweak: Hex, isCompressed?: boolean): Uint8Array => {
+    const P = typeof p === 'string' ? necc.Point.fromHex(p) : pointFromBytes(p);
+    const t = secretKeyToScalar(typeof tweak === 'string' ? hexToBytes(tweak) : tweak);
+    const Q = P.add(necc.Point.BASE.multiply(t));
+    if (Q.is0()) throw new Error('Tweaked point at infinity');
+    return Q.toBytes(isCompressed);
+  },
+
+  pointMultiply: (p: Hex, tweak: Hex, isCompressed?: boolean): Uint8Array => {
+    const P = typeof p === 'string' ? necc.Point.fromHex(p) : pointFromBytes(p);
+    const tweakBytes = typeof tweak === 'string' ? hexToBytes(tweak) : tweak;
+    const t = mod(bytesToNumberBE(tweakBytes), CURVE_N);
+    if (t === 0n) throw new Error('Point at infinity');
+    return P.multiply(t).toBytes(isCompressed);
+  },
+};
 
 const defaultTrue = (param?: boolean): boolean => param !== false;
+
+function compactToDER(sig: Uint8Array): Uint8Array {
+  const encodeInt = (bytes: Uint8Array): Uint8Array => {
+    let i = 0;
+    while (i < bytes.length - 1 && bytes[i] === 0) i++;
+    let trimmed = bytes.subarray(i);
+    if (trimmed[0] >= 0x80) {
+      const prefixed = new Uint8Array(trimmed.length + 1);
+      prefixed[0] = 0;
+      prefixed.set(trimmed, 1);
+      trimmed = prefixed;
+    }
+    const encoded = new Uint8Array(2 + trimmed.length);
+    encoded[0] = 0x02;
+    encoded[1] = trimmed.length;
+    encoded.set(trimmed, 2);
+    return encoded;
+  };
+
+  const rDer = encodeInt(sig.subarray(0, 32));
+  const sDer = encodeInt(sig.subarray(32, 64));
+  const seqLen = rDer.length + sDer.length;
+  const der = new Uint8Array(2 + seqLen);
+  der[0] = 0x30;
+  der[1] = seqLen;
+  der.set(rDer, 2);
+  der.set(sDer, 2 + rDer.length);
+  return der;
+}
 
 function throwToNull<Type>(fn: () => Type): Type | null {
   try {
     return fn();
   } catch (e) {
-    // console.log(e);
     return null;
   }
 }
@@ -71,7 +120,8 @@ function throwToNull<Type>(fn: () => Type): Type | null {
 function isPoint(p: Uint8Array, xOnly: boolean): boolean {
   if ((p.length === 32) !== xOnly) return false;
   try {
-    return !!necc.Point.fromHex(p);
+    pointFromBytes(p);
+    return true;
   } catch (e) {
     return false;
   }
@@ -79,23 +129,12 @@ function isPoint(p: Uint8Array, xOnly: boolean): boolean {
 
 const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256k1InterfaceBIP32 = {
   isPoint: (p: Uint8Array): boolean => isPoint(p, false),
-  isPrivate: (d: Uint8Array): boolean => {
-    /* if (
-      [
-        '0000000000000000000000000000000000000000000000000000000000000000',
-        'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141',
-        'fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364142',
-      ].includes(d.toString('hex'))
-    ) {
-      return false;
-    } */
-    return necc.utils.isValidPrivateKey(d);
-  },
+  isPrivate: (d: Uint8Array): boolean => necc.utils.isValidSecretKey(d),
   isXOnlyPoint: (p: Uint8Array): boolean => isPoint(p, true),
 
   xOnlyPointAddTweak: (p: Uint8Array, tweak: Uint8Array): { parity: 0 | 1; xOnlyPubkey: Uint8Array } | null =>
     throwToNull(() => {
-      const P = necc.utils.pointAddScalar(p, tweak, true);
+      const P = tweakUtils.pointAddScalar(p, tweak, true);
       const parity = P[0] % 2 === 1 ? 1 : 0;
       return { parity, xOnlyPubkey: P.slice(1) };
     }),
@@ -104,60 +143,56 @@ const ecc: TinySecp256k1InterfaceExtended & TinySecp256k1Interface & TinySecp256
     throwToNull(() => necc.getPublicKey(sk, defaultTrue(compressed))),
 
   pointCompress: (p: Uint8Array, compressed?: boolean): Uint8Array => {
-    return necc.Point.fromHex(p).toRawBytes(defaultTrue(compressed));
+    return pointFromBytes(p).toBytes(defaultTrue(compressed));
   },
 
   pointMultiply: (a: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null =>
-    throwToNull(() => necc.utils.pointMultiply(a, tweak, defaultTrue(compressed))),
+    throwToNull(() => tweakUtils.pointMultiply(a, tweak, defaultTrue(compressed))),
 
   pointAdd: (a: Uint8Array, b: Uint8Array, compressed?: boolean): Uint8Array | null =>
     throwToNull(() => {
-      const A = necc.Point.fromHex(a);
-      const B = necc.Point.fromHex(b);
-      return A.add(B).toRawBytes(defaultTrue(compressed));
+      const A = pointFromBytes(a);
+      const B = pointFromBytes(b);
+      return A.add(B).toBytes(defaultTrue(compressed));
     }),
 
   pointAddScalar: (p: Uint8Array, tweak: Uint8Array, compressed?: boolean): Uint8Array | null =>
-    throwToNull(() => necc.utils.pointAddScalar(p, tweak, defaultTrue(compressed))),
+    throwToNull(() => tweakUtils.pointAddScalar(p, tweak, defaultTrue(compressed))),
 
   privateAdd: (d: Uint8Array, tweak: Uint8Array): Uint8Array | null =>
     throwToNull(() => {
-      // console.log({ d, tweak });
       if (d.join('') === '00000000000000000000000000000001' && tweak.join('') === '00000000000000000000000000000000') {
         return new Uint8Array(d); // make test_ecc happy
       }
 
-      const ret = necc.utils.privateAdd(d, tweak);
-      // console.log(ret);
+      const ret = tweakUtils.privateAdd(d, tweak);
       if (ret.join('') === '00000000000000000000000000000000') {
         return null;
       }
       return ret;
     }),
 
-  privateNegate: (d: Uint8Array): Uint8Array => necc.utils.privateNegate(d),
+  privateNegate: (d: Uint8Array): Uint8Array => tweakUtils.privateNegate(d),
 
   sign: (h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array => {
-    return necc.signSync(h, d, { der: false, extraEntropy: e });
+    return necc.sign(h, d, { prehash: false, extraEntropy: e });
   },
 
   signDER: (h: Uint8Array, d: Uint8Array, e?: Uint8Array): Uint8Array => {
-    return necc.signSync(h, d, { der: true, extraEntropy: e });
+    return compactToDER(necc.sign(h, d, { prehash: false, extraEntropy: e }));
   },
 
   signSchnorr: (h: Uint8Array, d: Uint8Array, e: Uint8Array = new Uint8Array(32).fill(0x00)): Uint8Array => {
-    return necc.schnorr.signSync(h, d, e);
+    return necc.schnorr.sign(h, d, e);
   },
 
   verify: (h: Uint8Array, Q: Uint8Array, signature: Uint8Array, strict?: boolean): boolean => {
-    return necc.verify(signature, h, Q, { strict });
+    return necc.verify(signature, h, Q, { prehash: false, lowS: strict !== false });
   },
 
   verifySchnorr: (h: Uint8Array, Q: Uint8Array, signature: Uint8Array): boolean => {
-    return necc.schnorr.verifySync(signature, h, Q);
+    return necc.schnorr.verify(signature, h, Q);
   },
 };
 
 export default ecc;
-
-// module.exports.ecc = ecc;

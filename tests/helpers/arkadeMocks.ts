@@ -19,7 +19,7 @@
  */
 
 import { closeAllArkadeRealms, __testing__ as realmTesting } from '../../blue_modules/arkade-adapters/realm/realmInstance';
-import { __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet';
 
 const Realm = require('realm');
 
@@ -81,3 +81,39 @@ export const arkadeMockState = {
     Keychain.__mockKeychainHelpers.store.set(service, { username: service, password, service });
   },
 };
+
+/**
+ * Tear down a LightningArkWallet after integration tests. Stops SDK background
+ * loops (ContractWatcher SSE, VtxoManager polling, SwapManager) via dispose()
+ * before clearing module-private caches.
+ */
+export async function teardownArkadeWallet(w: LightningArkWallet): Promise<void> {
+  try {
+    await w.onDelete();
+  } catch {
+    // onDelete already logs and swallows per-namespace errors.
+  }
+}
+
+/** Best-effort dispose of any Arkade SDK runtime still cached module-wide. */
+export async function disposeAllArkadeRuntime(): Promise<void> {
+  for (const ns of Object.keys(walletTesting.staticSwapsCache)) {
+    const swaps = walletTesting.staticSwapsCache[ns];
+    try {
+      if (typeof swaps?.dispose === 'function') await swaps.dispose();
+    } catch {}
+    delete walletTesting.staticSwapsCache[ns];
+  }
+  for (const ns of Object.keys(walletTesting.staticWalletCache)) {
+    const sdkWallet = walletTesting.staticWalletCache[ns];
+    try {
+      if (typeof sdkWallet?.dispose === 'function') await sdkWallet.dispose();
+    } catch {}
+    delete walletTesting.staticWalletCache[ns];
+  }
+  walletTesting.initInFlight.clear();
+  walletTesting.restoreInFlight.clear();
+  for (const k of Object.keys(walletTesting.boardingLock)) delete walletTesting.boardingLock[k];
+  closeAllArkadeRealms();
+  realmTesting.openInFlight.clear();
+}
