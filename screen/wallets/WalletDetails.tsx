@@ -542,6 +542,7 @@ const WalletDetails: React.FC = () => {
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   testID="WalletNameDisplay"
+                  selectable
                 >
                   {walletName}
                 </Text>
