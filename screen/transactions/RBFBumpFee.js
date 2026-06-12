@@ -33,18 +33,18 @@ export default class RBFBumpFee extends CPFP {
   }
 
   async checkPossibilityOfRBFBumpFee() {
-    if (
-      (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) ||
-      this.state.wallet?.type === HDSegwitBech32Wallet.type
-    ) {
-      const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
-      if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
-        const info = await tx.getInfo();
-        return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
-        // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
-      } else {
-        return this.setState({ nonReplaceable: true, isLoading: false });
-      }
+    let tx;
+    if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+      tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet._hdWalletInstance);
+    } else if (this.state.wallet?.type === HDSegwitBech32Wallet.type) {
+      tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
+    } else {
+      return this.setState({ nonReplaceable: true, isLoading: false });
+    }
+    if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
+      const info = await tx.getInfo();
+      return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
+      // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
     } else {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
@@ -65,8 +65,8 @@ export default class RBFBumpFee extends CPFP {
         if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
           let memo;
           // porting memo from old tx:
-          if (this.context.txMetadata[this.state.txid].memo) {
-            memo = this.context.txMetadata[this.state.txid].memo;
+          if (this.context.txMetadata[this.state.txid]?.memo) {
+            memo = this.context.txMetadata[this.state.txid]?.memo;
           }
 
           this.props.navigation

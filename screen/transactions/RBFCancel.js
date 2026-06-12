@@ -25,23 +25,23 @@ export default class RBFCancel extends CPFP {
   }
 
   async checkPossibilityOfRBFCancel() {
+    let tx;
+    if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+      tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet._hdWalletInstance);
+    } else if (this.state.wallet?.type === HDSegwitBech32Wallet.type) {
+      tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
+    } else {
+      return this.setState({ nonReplaceable: true, isLoading: false });
+    }
     if (
-      (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) ||
-      this.state.wallet?.type === HDSegwitBech32Wallet.type
+      (await tx.isOurTransaction()) &&
+      (await tx.getRemoteConfirmationsNum()) === 0 &&
+      (await tx.isSequenceReplaceable()) &&
+      (await tx.canCancelTx())
     ) {
-      const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
-      if (
-        (await tx.isOurTransaction()) &&
-        (await tx.getRemoteConfirmationsNum()) === 0 &&
-        (await tx.isSequenceReplaceable()) &&
-        (await tx.canCancelTx())
-      ) {
-        const info = await tx.getInfo();
-        return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
-        // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
-      } else {
-        return this.setState({ nonReplaceable: true, isLoading: false });
-      }
+      const info = await tx.getInfo();
+      return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
+      // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
     } else {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
@@ -65,8 +65,8 @@ export default class RBFCancel extends CPFP {
           this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid] || {};
 
           // porting tx memo
-          if (this.context.txMetadata[this.state.newTxid].memo) {
-            memo = 'Cancelled: ' + this.context.txMetadata[this.state.newTxid].memo;
+          if (this.context.txMetadata[this.state.newTxid]?.memo) {
+            memo = 'Cancelled: ' + this.context.txMetadata[this.state.newTxid]?.memo;
           } else {
             memo = 'Cancelled transaction';
           }

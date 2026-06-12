@@ -1,15 +1,12 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import BigNumber from 'bignumber.js';
-
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractWallet } from './abstract-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
 import { LegacyWallet } from './legacy-wallet';
-import { THDWalletForWatchOnly, Utxo } from './types';
+import { THDWalletForWatchOnly } from './types';
 import { HDTaprootWallet } from './hd-taproot-wallet';
 
 const bip32 = BIP32Factory(ecc);
@@ -349,72 +346,27 @@ export class WatchOnlyWallet extends LegacyWallet {
     return super.wasEverUsed();
   }
 
-  /**
-   * below copypasted from
-   * @see AbstractHDElectrumWallet.getDerivedUtxoFromOurTransaction
-   */
+  getOwnedAddressesHashmap(): Record<string, boolean> {
+    if (!this._hdWalletInstance) {
+      return super.getOwnedAddressesHashmap();
+    }
 
-  getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false): Utxo[] {
-    if (!this._hdWalletInstance) throw new Error('Should be used in watch-only HD wallets only');
-    const utxos: Utxo[] = [];
-
-    // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
-    // iterates over all addresses in hierarchy
     const ownedAddressesHashmap: Record<string, boolean> = {};
+
     for (let c = 0; c < this._hdWalletInstance.next_free_address_index + 1; c++) {
       ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
     }
+
     for (let c = 0; c < this._hdWalletInstance.next_free_change_address_index + 1; c++) {
       ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
     }
+
     for (const pc of this._hdWalletInstance._receive_payment_codes) {
       for (let c = 0; c < this._hdWalletInstance._getNextFreePaymentCodeIndexReceive(pc) + 1; c++) {
         ownedAddressesHashmap[this._hdWalletInstance._getBIP47AddressReceive(pc, c)] = true;
       }
     }
 
-    for (const tx of this.getTransactions()) {
-      for (const output of tx.outputs) {
-        let address: string | false = false;
-        if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
-          address = output.scriptPubKey.addresses[0];
-        }
-        if (ownedAddressesHashmap[String(address)]) {
-          const value = new BigNumber(output.value).multipliedBy(100000000).toNumber();
-          utxos.push({
-            txid: tx.txid,
-            vout: output.n,
-            address: String(address),
-            value,
-            confirmations: tx.confirmations,
-            wif: false,
-            height: BlueElectrum.estimateCurrentBlockheight() - (tx.confirmations ?? 0),
-          });
-        }
-      }
-    }
-
-    if (returnSpentUtxoAsWell) return utxos;
-
-    // got all utxos we ever had. lets filter out the ones that are spent:
-    const txs = this.getTransactions();
-    const ret = [];
-    for (const utxo of utxos) {
-      let spent = false;
-      for (const tx of txs) {
-        for (const input of tx.inputs) {
-          if (input.txid === utxo.txid && input.vout === utxo.vout) spent = true;
-          // utxo we got previously was actually spent right here ^^
-        }
-      }
-
-      if (!spent) {
-        // filling WIFs only for legit unspent UTXO, as it is a slow operation
-        utxo.wif = this._hdWalletInstance._getWifForAddress(utxo.address);
-        ret.push(utxo);
-      }
-    }
-
-    return ret;
+    return ownedAddressesHashmap;
   }
 }
