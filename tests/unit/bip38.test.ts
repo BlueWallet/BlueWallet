@@ -5,12 +5,12 @@ import wif from 'wif';
 jest.setTimeout(180 * 1000);
 
 it('bip38 decodes', async () => {
-  const encryptedKey = '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
+  const encryptedKey = '6PRVWUbm17bcwKNnsjGptCiiSivaKdbpA2CdiYGw7Epb7RGomHApwFWAGa';
   const decryptedKey = await bip38.decryptAsync(
     encryptedKey,
     'TestingOneTwoThree',
     () => {},
-    { N: 1, r: 8, p: 8 }, // using non-default parameters to speed it up (not-bip38 compliant)
+    { N: 2, r: 8, p: 8 }, // using non-default parameters to speed it up (not-bip38 compliant)
   );
 
   assert.strictEqual(
@@ -30,8 +30,7 @@ it.skip('bip38 decodes slow', async () => {
   const encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let callbackWasCalled = false;
   const decryptedKey = await bip38.decryptAsync(encryptedKey, 'qwerty', () => {
-    // callbacks make sense only with pure js scrypt implementation (nodejs and browsers).
-    // on RN scrypt is handled by native module and takes ~4 secs
+    // callbacks come from the pure JS noble-hashes scrypt implementation.
     callbackWasCalled = true;
   });
 

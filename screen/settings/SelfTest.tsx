@@ -1,11 +1,10 @@
+import { scryptAsync } from '@noble/hashes/scrypt';
 import BIP32Factory from 'bip32';
 import bip38 from 'bip38';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { Component } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
-// @ts-ignore theres no type declaration for this
-import BlueCrypto from 'react-native-blue-crypto';
 import wif from 'wif';
 
 import * as encryption from '../../blue_modules/encryption';
@@ -304,11 +303,18 @@ export default class SelfTest extends Component {
         // skipping RN-specific test
       }
 
-      // BlueCrypto test
+      // scrypt test
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        const hex = await BlueCrypto.scrypt('717765727479', '4749345a22b23cf3', 64, 8, 8, 32); // using non-default parameters to speed it up (not-bip38 compliant)
+        // using non-default parameters to speed it up (not-bip38 compliant)
+        const hash = await scryptAsync(hexToUint8Array('717765727479'), hexToUint8Array('4749345a22b23cf3'), {
+          N: 64,
+          r: 8,
+          p: 8,
+          dkLen: 32,
+        });
+        const hex = uint8ArrayToHex(hash);
         if (hex.toUpperCase() !== 'F36AB2DC12377C788D61E6770126D8A01028C8F6D8FE01871CE0489A1F696A90')
-          throw new Error('react-native-blue-crypto is not ok');
+          throw new Error('@noble/hashes scrypt is not ok');
       }
 
       // bip38 test
@@ -324,8 +330,7 @@ export default class SelfTest extends Component {
           'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
           'bip38 failed',
         );
-        // bip38 with BlueCrypto doesn't support progress callback
-        assertStrictEqual(callbackWasCalled, false, "bip38 doesn't use BlueCrypto");
+        assertStrictEqual(callbackWasCalled, true, 'bip38 should report scrypt progress');
       }
 
       // slip39 test
