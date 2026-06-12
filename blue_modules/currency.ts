@@ -3,6 +3,7 @@ import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
+import NativeWidgetHelper from './NativeWidgetHelper';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const PREFERRED_CURRENCY_LOCALE_STORAGE_KEY = 'preferredCurrencyLocale';
@@ -14,10 +15,11 @@ const BTC_PREFIX = 'BTC_';
 export interface CurrencyRate {
   LastUpdated: Date | null;
   Rate: number | string | null;
+  Source?: string | null;
 }
 
 interface ExchangeRates {
-  [key: string]: number | boolean | undefined;
+  [key: string]: number | boolean | string | undefined;
   LAST_UPDATED_ERROR: boolean;
 }
 
@@ -55,6 +57,26 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
     console.debug('Preferred currency set to:', item);
     console.debug('Preferred currency locale set to:', item.locale.replace('-', '_'));
     console.debug('Cleared all cached currency formatters');
+    try {
+      // Confirm the preference persisted and then tell iOS widgets to reload.
+      try {
+        const confirm = await DefaultPreference.get(PREFERRED_CURRENCY_STORAGE_KEY);
+        console.debug('Confirmed persisted preferred currency:', confirm);
+      } catch (e) {
+        console.warn('Failed to confirm persisted preferred currency', e);
+      }
+
+      // Small delay to allow shared defaults to flush before widget reload
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Tell iOS widgets to reload immediately
+      if (NativeWidgetHelper && typeof NativeWidgetHelper.reloadAllWidgets === 'function') {
+        NativeWidgetHelper.reloadAllWidgets();
+        console.debug('NativeWidgetHelper.reloadAllWidgets() called after setPreferredCurrency');
+      }
+    } catch (e) {
+      console.warn('Failed to call reloadAllWidgets after setPreferredCurrency', e);
+    }
   } catch (error) {
     console.error('Failed to set preferred currency:', error);
     throw error;
@@ -78,15 +100,29 @@ async function updateExchangeRate(): Promise<void> {
   console.log('updating exchange rate...');
 
   try {
-    const rate = await getFiatRate(preferredFiatCurrency.endPointKey);
+    const rateObj = await getFiatRate(preferredFiatCurrency.endPointKey);
     exchangeRates[LAST_UPDATED] = Date.now();
-    exchangeRates[BTC_PREFIX + preferredFiatCurrency.endPointKey] = rate;
+    exchangeRates[BTC_PREFIX + preferredFiatCurrency.endPointKey] = rateObj.rate;
+    exchangeRates[`SRC_${preferredFiatCurrency.endPointKey}`] = rateObj.source;
     exchangeRates.LAST_UPDATED_ERROR = false;
 
     try {
       const exchangeRatesString = JSON.stringify(exchangeRates);
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+      console.debug('Persisting exchangeRates:', exchangeRates);
       await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, exchangeRatesString);
+      // notify widgets that rates changed
+      try {
+        console.debug('Persisted EXCHANGE_RATES_STORAGE_KEY, waiting 300ms before reload for', preferredFiatCurrency.endPointKey);
+        await new Promise(resolve => setTimeout(resolve, 300));
+        console.debug('Calling NativeWidgetHelper.reloadAllWidgets() after persisting rates for', preferredFiatCurrency.endPointKey);
+        if (NativeWidgetHelper && typeof NativeWidgetHelper.reloadAllWidgets === 'function') {
+          NativeWidgetHelper.reloadAllWidgets();
+          console.debug('NativeWidgetHelper.reloadAllWidgets() called');
+        }
+      } catch (e) {
+        console.warn('Failed to call reloadAllWidgets after updateExchangeRate', e);
+      }
     } catch (error) {
       await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
       exchangeRates = { LAST_UPDATED_ERROR: false };
@@ -114,6 +150,7 @@ async function updateExchangeRate(): Promise<void> {
       }
       rate.LAST_UPDATED_ERROR = true;
       exchangeRates.LAST_UPDATED_ERROR = true;
+      console.debug('Persisting LAST_UPDATED_ERROR exchangeRates:', rate);
       await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify(rate));
     } catch (storageError) {
       exchangeRates = { LAST_UPDATED_ERROR: true };
@@ -326,9 +363,11 @@ async function mostRecentFetchedRate(): Promise<CurrencyRate> {
     }
 
     const rate = currencyInformation[BTC_PREFIX + preferredFiatCurrency.endPointKey];
+    const src = currencyInformation[`SRC_${preferredFiatCurrency.endPointKey}`];
     return {
       LastUpdated: currencyInformation[LAST_UPDATED] ? new Date(currencyInformation[LAST_UPDATED]) : null,
       Rate: rate ? getCurrencyFormatter().format(rate) : '...',
+      Source: typeof src === 'string' ? src : null,
     };
   } catch {
     return {

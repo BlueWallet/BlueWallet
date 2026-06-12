@@ -176,7 +176,25 @@ class MarketAPI {
              throw CurrencyError(errorDescription: "Invalid URL.")
          }
 
-         return try await fetchData(url: url, source: source, endPointKey: endPointKey)
+         do {
+             return try await fetchData(url: url, source: source, endPointKey: endPointKey)
+         } catch {
+             // Primary source failed for widget; attempt CoinGecko fallback so widget
+             // shows a usable rate (keeps behavior consistent with JS side).
+             print("Primary source \(source) failed for \(endPointKey): \(error). Attempting CoinGecko fallback.")
+             let fallbackSource = "CoinGecko"
+             let fallbackUrlString = buildURLString(source: fallbackSource, endPointKey: endPointKey)
+             if let fallbackUrl = URL(string: fallbackUrlString) {
+                 do {
+                     return try await fetchData(url: fallbackUrl, source: fallbackSource, endPointKey: endPointKey)
+                 } catch {
+                     print("CoinGecko fallback also failed for \(endPointKey): \(error)")
+                     throw error
+                 }
+             } else {
+                 throw error
+             }
+         }
      }
 
      private static func fetchData(url: URL, source: String, endPointKey: String, retries: Int = 3) async throws -> WidgetDataStore? {
