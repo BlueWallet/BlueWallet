@@ -102,6 +102,15 @@ describe('Watch only wallet', () => {
     assert.strictEqual(nextChangeAddress, 'bc1q74tz7eflqc62v8utqlazcs3tqtwmvvzud5dmrz');
   });
 
+  it('can edit master finger print', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6rERe82dmmpndd2jSsRH5o3GaDfESv1Zk2cESDuB85HFNSujcDBDZTxvdNCdXzfi83okz7VKx46FA9RxkfYHcZLKU3FRY2b4sf2DzNoMdLU');
+
+    assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
+    w.setMasterFingerprintHex('398e3e5b');
+    assert.strictEqual(w.getMasterFingerprintHex(), '398e3e5b');
+  });
+
   // skipped because its generally rare case
   // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can fetch txs for address funded by genesis txs', async () => {
