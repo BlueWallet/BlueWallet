@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Animated, Easing, Keyboard, StyleSheet, Text, TextInput, View, TextStyle, ViewStyle } from 'react-native';
+import { Animated, Easing, Keyboard, StyleSheet, Text, View, TextStyle, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SecondButton } from '../components/SecondButton';
@@ -12,6 +12,7 @@ import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList
 import { MODAL_TYPES } from './PromptPasswordConfirmationSheet.types';
 import { useStorage } from '../hooks/context/useStorage';
 import presentAlert from '../components/Alert';
+import IncognitoKeyboardTextInput from '../components/IncognitoKeyboardTextInput';
 
 type DynamicStyles = {
   modalContent: ViewStyle;
@@ -222,7 +223,7 @@ const PromptPasswordConfirmationSheet = () => {
               </Text>
               <View style={styles.inputContainer}>
                 <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-                  <TextInput
+                  <IncognitoKeyboardTextInput
                     testID="PasswordInput"
                     secureTextEntry
                     placeholder="Password"
@@ -239,7 +240,7 @@ const PromptPasswordConfirmationSheet = () => {
                 </Animated.View>
                 {(modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && (
                   <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
-                    <TextInput
+                    <IncognitoKeyboardTextInput
                       testID="ConfirmPasswordInput"
                       secureTextEntry
                       placeholder="Confirm Password"

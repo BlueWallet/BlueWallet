@@ -1,6 +1,7 @@
 import React from 'react';
-import { Platform, StyleSheet, TextInput, TextInputProps } from 'react-native';
+import { Platform, StyleSheet, TextInputProps } from 'react-native';
 
+import IncognitoKeyboardTextInput from './IncognitoKeyboardTextInput';
 import { useTheme } from './themes';
 
 const BlueFormMultiInput: React.FC<TextInputProps> = props => {
@@ -8,7 +9,7 @@ const BlueFormMultiInput: React.FC<TextInputProps> = props => {
   const { style, editable, ...restProps } = props;
 
   return (
-    <TextInput
+    <IncognitoKeyboardTextInput
       multiline
       underlineColorAndroid="transparent"
       numberOfLines={4}
