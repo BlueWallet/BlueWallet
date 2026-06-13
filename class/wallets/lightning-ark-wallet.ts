@@ -658,6 +658,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     const paymentResult = await this._arkadeSwaps.sendLightningPayment({ invoice });
 
+    this.last_paid_invoice_result = {
+      payment_preimage: paymentResult.preimage,
+      payment_hash: invoiceDetails.paymentHash,
+      payment_request: invoice,
+    };
+
     console.log('Payment successful!');
     console.log('Amount:', paymentResult.amount);
     console.log('Preimage:', paymentResult.preimage);
