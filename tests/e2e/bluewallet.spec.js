@@ -306,12 +306,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SwipeHideBalance')).tap();
     await element(by.id('NavigationCloseButton')).tap();
     await waitForId('WalletsList');
+    await sleep(1500); // ensure saveToDisk completes before app is killed
 
     // restart app — hide state must persist; swipe-right now exposes "Show" (hideBalance persisted as true)
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
     await waitForId('NavigationCloseButton');
+    await expect(element(by.id('cr34t3d'))).toBeVisible();
     await element(by.id('cr34t3d')).swipe('right', 'slow', 0.7);
     try {
       await waitForId('SwipeShowBalance', 45000);
