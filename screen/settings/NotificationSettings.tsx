@@ -1,22 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Linking, StyleSheet, TextInput, View, Pressable, AppState, Text } from 'react-native';
+import { StyleSheet, View, Pressable, AppState, Text } from 'react-native';
 import {
-  getDefaultUri,
   getPushToken,
-  getSavedUri,
   getStoredNotifications,
-  saveUri,
   isNotificationsEnabled,
   setLevels,
   tryToObtainPermissions,
   cleanUserOptOutFlag,
-  isGroundControlUriValid,
   checkPermissions,
   checkNotificationPermissionStatus,
+  enqueueTestPushNotification,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
 } from '../../blue_modules/notifications';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
 import presentAlert from '../../components/Alert';
+import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { Button } from '../../components/Button';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { useTheme } from '../../components/themes';
@@ -43,7 +40,6 @@ const NotificationSettings: React.FC = () => {
   const [isNotificationsEnabledState, setNotificationsEnabledState] = useState<boolean | undefined>(undefined);
 
   const [tokenInfo, setTokenInfo] = useState('<empty>');
-  const [URI, setURI] = useState<string | undefined>();
   const [tapCount, setTapCount] = useState(0);
   const { colors } = useTheme();
 
@@ -139,7 +135,6 @@ const NotificationSettings: React.FC = () => {
           await updateNotificationStatus();
         }
 
-        setURI((await getSavedUri()) ?? getDefaultUri());
         setTokenInfo(
           'token: ' +
             JSON.stringify(await getPushToken()) +
@@ -172,25 +167,17 @@ const NotificationSettings: React.FC = () => {
     };
   }, []);
 
-  const save = useCallback(async () => {
+  const enqueueTestPush = useCallback(async () => {
     setIsLoading(true);
     try {
-      if (URI) {
-        if (await isGroundControlUriValid(URI)) {
-          await saveUri(URI);
-          presentAlert({ message: loc.settings.saved });
-        } else {
-          presentAlert({ message: loc.settings.not_a_valid_uri });
-        }
-      } else {
-        await saveUri('');
-        presentAlert({ message: loc.settings.saved });
-      }
+      await enqueueTestPushNotification();
     } catch (error) {
-      console.error('Error saving URI:', error);
+      console.error('Error enqueueing test push:', error);
+      presentAlert({ message: (error as Error).message });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [URI]);
+  }, []);
 
   const renderDeveloperSettings = useCallback(() => {
     if (tapCount < 10) return null;
@@ -198,44 +185,9 @@ const NotificationSettings: React.FC = () => {
     return (
       <View>
         <View style={[styles.divider, { backgroundColor: colors.lightBorder ?? colors.borderTopColor }]} />
-        <SettingsCard style={styles.card}>
-          <View style={styles.cardContent}>
-            <Text style={[styles.multilineText, { color: colors.foregroundColor }]}>{loc.settings.groundcontrol_explanation}</Text>
-          </View>
-        </SettingsCard>
-
-        <SettingsListItem
-          title="github.com/BlueWallet/GroundControl"
-          iconName="github"
-          onPress={() => Linking.openURL('https://github.com/BlueWallet/GroundControl')}
-          chevron
-          position="single"
-          spacingTop
-        />
 
         <SettingsCard style={styles.card}>
           <View style={styles.cardContent}>
-            <View
-              style={[
-                styles.uri,
-                { borderColor: colors.formBorder, borderBottomColor: colors.formBorder, backgroundColor: colors.inputBackgroundColor },
-              ]}
-            >
-              <TextInput
-                placeholder={getDefaultUri()}
-                value={URI}
-                onChangeText={setURI}
-                numberOfLines={1}
-                style={[styles.uriText, { color: colors.alternativeTextColor }]}
-                placeholderTextColor="#81868e"
-                editable={!isLoading}
-                textContentType="URL"
-                autoCapitalize="none"
-                underlineColorAndroid="transparent"
-              />
-            </View>
-
-            <BlueSpacing20 />
             <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={() => setTapCount(tapCount + 1)}>
               ♪ Ground Control to Major Tom ♪
             </Text>
@@ -248,12 +200,12 @@ const NotificationSettings: React.FC = () => {
             </View>
 
             <BlueSpacing20 />
-            <Button onPress={save} title={loc.settings.save} />
+            <Button onPress={enqueueTestPush} title="Enqueue test push notification" disabled={isLoading} />
           </View>
         </SettingsCard>
       </View>
     );
-  }, [tapCount, colors, isLoading, URI, tokenInfo, save]);
+  }, [tapCount, colors, isLoading, tokenInfo, enqueueTestPush]);
 
   const renderPushNotificationsExplanation = useCallback(() => {
     return (
@@ -375,27 +327,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: horizontalPadding,
     paddingVertical: isAndroid ? 12 : 10,
   },
-  multilineText: {
-    lineHeight: 20,
-    paddingBottom: 10,
-  },
   centered: {
     textAlign: 'center',
     marginVertical: 4,
-  },
-  uri: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderBottomWidth: 0.5,
-    minHeight: 44,
-    height: 44,
-    alignItems: 'center',
-  },
-  uriText: {
-    flex: 1,
-    marginHorizontal: 8,
-    minHeight: 36,
-    height: 36,
   },
   divider: {
     marginVertical: isAndroid ? 16 : 12,

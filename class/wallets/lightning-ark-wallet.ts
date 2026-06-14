@@ -29,6 +29,7 @@ import assert from 'assert';
 import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
+import { registerArkPaymentPush } from '../../blue_modules/notifications';
 const { bech32m } = require('bech32');
 
 const bip32 = BIP32Factory(ecc);
@@ -709,6 +710,8 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Payment Hash:', result.paymentHash);
     console.log('Pending swap', result.pendingSwap);
     console.log('Preimage', result.preimage);
+
+    registerArkPaymentPush(result.paymentHash, memo, result.pendingSwap); // fire-and-forget, never throws
 
     return result.invoice;
   }
