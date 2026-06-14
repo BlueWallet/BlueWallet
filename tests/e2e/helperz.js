@@ -173,7 +173,7 @@ export async function helperDeleteWallet(label, remainingBalanceSat = false) {
   await waitForId('WalletDetails');
   await element(by.id('WalletDetails')).tap();
   await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
-  await sleep(200);
+  await sleep(1000);
   await element(by.id('DeleteWallet')).tap();
   await waitForText('Yes, delete');
   await element(by.text('Yes, delete')).tap();
@@ -368,19 +368,37 @@ export async function goBack() {
   // Try each back/close affordance in order; retry the full set up to 10 times.
   const candidates = [by.id('BackButton'), by.id('NavigationCloseButton'), by.label('Back'), by.text('Close')];
 
+  // A matcher can hit several elements across stacked screens: each nav back
+  // button exists twice (_UIButtonBarButton wrapper + UIAccessibilityBackButtonElement),
+  // and when a modal covers a stack that also has a back button, the covered
+  // one can precede the visible one in match order (seen with Reduce Motion on).
+  // Probe attributes and only tap an element detox reports as visible & hittable.
+  let lastErr;
   for (let attempt = 0; attempt < 10; attempt++) {
     for (const matcher of candidates) {
-      try {
-        await element(matcher).atIndex(0).tap();
-        return;
-      } catch (_) {
-        /* try next */
+      for (let idx = 0; idx < 6; idx++) {
+        let attrs;
+        try {
+          attrs = await element(matcher).atIndex(idx).getAttributes();
+        } catch (err) {
+          lastErr = err;
+          break; // no element at this index — try next candidate
+        }
+        if (!attrs.visible || attrs.hittable === false) continue;
+        try {
+          await element(matcher).atIndex(idx).tap();
+          return;
+        } catch (err) {
+          lastErr = err;
+        }
       }
     }
     await sleep(500);
   }
 
-  rethrowWithCallsite(new Error('goBack: no back/close affordance tappable after 10 attempts.'), callsite);
+  const wrapped = new Error('goBack: no back/close affordance tappable after 10 attempts.');
+  if (lastErr) wrapped.cause = lastErr;
+  rethrowWithCallsite(wrapped, callsite);
 }
 
 export async function typeTextIntoAlertInput(text) {
@@ -405,7 +423,7 @@ export async function scrollUpOnHomeScreen() {
     // if no wallets there will be just one scroll
     await element(by.type('RCTEnhancedScrollView')).swipe('down', 'slow', 0.5);
   }
-  await sleep(200); // bounce animation
+  await sleep(1000); // bounce animation
 }
 
 // We really only need this function when running tests locally.
