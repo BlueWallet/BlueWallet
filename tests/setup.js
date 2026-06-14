@@ -7,7 +7,8 @@ console.warn = (...args) => {
   if (
     typeof args[0] === 'string' &&
     (args[0].startsWith('WARNING: Sending to a future segwit version address can lead to loss of funds') ||
-      args[0].startsWith('only compressed public keys are good'))
+      args[0].startsWith('only compressed public keys are good') ||
+      args[0].startsWith('Using standard fetch instead of expo/fetch'))
   ) {
     return;
   }
@@ -508,6 +509,17 @@ jest.mock('../blue_modules/analytics', () => {
   const ret = jest.fn();
   ret.ENUM = { CREATED_WALLET: '' };
   return ret;
+});
+
+// addInvoice() registers a fire-and-forget payment-push callback; disable the
+// URI in unit tests so node-fetch does not leave in-flight handles after the
+// suite exits (which makes Jest fail with "did not exit one second after").
+jest.mock('../blue_modules/constants', () => {
+  const actual = jest.requireActual('../blue_modules/constants');
+  return {
+    ...actual,
+    arkadePaymentPushUri: '',
+  };
 });
 
 jest.mock('react-native-share', () => {

@@ -1,7 +1,13 @@
 import React from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
+import { _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
+
+// TransactionStatus renders fiat amounts via satoshiToLocalCurrency(), which
+// kicks off a real exchange-rate fetch when no rate is cached — leaving a TLS
+// socket open after the run ("Jest did not exit one second after...").
+_setSkipUpdateExchangeRate();
 
 type MockStorage = {
   wallets: any[];

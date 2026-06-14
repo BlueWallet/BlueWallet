@@ -21,6 +21,7 @@ interface ListItemProps {
   subtitleNumberOfLines?: number;
   rightTitle?: string;
   rightTitleStyle?: StyleProp<TextStyle>;
+  rightTitleSelectable?: boolean;
   rightSubtitle?: string | React.ReactNode;
   rightSubtitleStyle?: StyleProp<TextStyle>;
   chevron?: boolean;
@@ -45,6 +46,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     subtitleNumberOfLines,
     rightTitle,
     rightTitleStyle,
+    rightTitleSelectable,
     rightSubtitle,
     rightSubtitleStyle,
     chevron,
@@ -112,7 +114,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         {rightTitle || rightSubtitle ? (
           <View style={styles.rightColumn}>
             {rightTitle ? (
-              <Text style={rightTitleStyle} numberOfLines={1} accessibilityRole="text">
+              <Text style={rightTitleStyle} numberOfLines={1} accessibilityRole="text" selectable={rightTitleSelectable}>
                 {rightTitle}
               </Text>
             ) : null}
