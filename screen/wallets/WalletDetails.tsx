@@ -542,6 +542,7 @@ const WalletDetails: React.FC = () => {
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   testID="WalletNameDisplay"
+                  selectable
                 >
                   {walletName}
                 </Text>
@@ -779,7 +780,6 @@ const WalletDetails: React.FC = () => {
                     containerStyle={stylesHook.listItemContainerBorder}
                     onPress={navigateToXPub}
                     title={loc.wallets.details_show_xpub}
-                    chevron
                     testID="XpubButton"
                     bottomDivider
                   />
@@ -789,7 +789,6 @@ const WalletDetails: React.FC = () => {
                     containerStyle={stylesHook.listItemContainerBorder}
                     onPress={navigateToSignVerify}
                     title={loc.addresses.sign_title}
-                    chevron
                     testID="SignVerify"
                     bottomDivider={!!(wallet.type === MultisigHDWallet.type)}
                   />
@@ -840,6 +839,7 @@ const WalletDetails: React.FC = () => {
                     titleStyle={stylesHook.advancedListItemTitle}
                     rightTitle={wallet.typeReadable}
                     rightTitleStyle={stylesHook.advancedListItemRightTitle}
+                    rightTitleSelectable
                     bottomDivider={
                       !!(
                         wallet.type === MultisigHDWallet.type ||
@@ -880,6 +880,7 @@ const WalletDetails: React.FC = () => {
                         isMasterFingerPrintVisible ? (masterFingerprint ?? loc.wallets.import_derivation_loading) : loc.multisig.view
                       }
                       rightTitleStyle={stylesHook.advancedListItemRightTitle}
+                      rightTitleSelectable={isMasterFingerPrintVisible}
                       bottomDivider={!!derivationPath}
                     />
                   )}
@@ -890,6 +891,7 @@ const WalletDetails: React.FC = () => {
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={derivationPath}
                       rightTitleStyle={stylesHook.advancedListItemRightTitle}
+                      rightTitleSelectable
                       bottomDivider={false}
                       testID="DerivationPath"
                     />

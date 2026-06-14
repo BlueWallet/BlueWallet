@@ -8,16 +8,16 @@ import {
   Notifications,
 } from 'react-native-notifications';
 import { checkNotifications, requestNotifications, RESULTS } from 'react-native-permissions';
+import type { BoltzReverseSwap } from '@arkade-os/boltz-swap';
 import loc from '../loc';
-import { groundControlUri } from './constants';
+import { arkadePaymentPushUri, groundControlUri } from './constants';
 import { fetch } from '../util/fetch';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
-const GROUNDCONTROL_BASE_URI = 'GROUNDCONTROL_BASE_URI';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 const ANDROID_NOTIFICATION_CHANNEL_ID = 'channel_01';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
-let baseURI = groundControlUri;
+const baseURI = groundControlUri;
 let notificationSubscriptions: EmitterSubscription[] = [];
 let onProcessNotificationsHandler: undefined | (() => void | Promise<void>);
 const handledNotificationKeys = new Set<string>();
@@ -252,6 +252,29 @@ export const tryToObtainPermissions = async (): Promise<boolean> => {
     return false;
   }
 };
+
+export const enqueueTestPushNotification = async (): Promise<void> => {
+  const pushToken = await getPushToken();
+  if (!pushToken?.token || !pushToken?.os) {
+    throw new Error('No push token available');
+  }
+
+  const response = await fetch(`${baseURI}/enqueue`, {
+    method: 'POST',
+    headers: _getHeaders(),
+    body: JSON.stringify({
+      type: 5,
+      token: pushToken.token,
+      os: pushToken.os,
+      text: 'Test push notification',
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Enqueue request failed with status ${response.status}: ${response.statusText}`);
+  }
+};
+
 /**
  * Submits onchain bitcoin addresses and ln invoice preimage hashes to GroundControl server, so later we could
  * be notified if they were paid
@@ -324,6 +347,44 @@ export const majorTomToGroundControl = async (addresses: string[], hashes: strin
   } catch (error) {
     console.error('Error in majorTomToGroundControl:', error);
     throw error;
+  }
+};
+
+/**
+ * Registers an Ark swap with the bitcoin-payment-push-service so the device is
+ * pushed when the invoice gets paid. Fire-and-forget: never throws, gated by
+ * the same opt-out/token rules as majorTomToGroundControl(). The swap's
+ * preimage is always stripped before leaving the device.
+ */
+export const registerArkPaymentPush = async (paymentHash: string, label: string, pendingSwap: BoltzReverseSwap): Promise<void> => {
+  if (!arkadePaymentPushUri) return;
+  try {
+    const noAndDontAskFlag = await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
+    if (noAndDontAskFlag === 'true') {
+      console.warn('User has opted out of notifications.');
+      return;
+    }
+
+    const pushToken = await getPushToken();
+    if (!pushToken || !pushToken.token || !pushToken.os) {
+      return;
+    }
+
+    const response = await fetch(`${arkadePaymentPushUri}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        topic: paymentHash,
+        label,
+        swap: { ...pendingSwap, preimage: '' },
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`status ${response.status}`);
+    }
+    console.log('[ARK] payment push registration ok');
+  } catch (e: any) {
+    console.log('[ARK] payment push registration failed:', e?.message ?? e);
   }
 };
 
@@ -529,22 +590,6 @@ const configureNotifications = async (onProcessNotifications?: () => void): Prom
   }
 };
 
-/**
- * Validates whether the provided GroundControl URI is valid by pinging it.
- *
- * @param uri {string}
- * @returns {Promise<boolean>} TRUE if valid, FALSE otherwise
- */
-export const isGroundControlUriValid = async (uri: string) => {
-  try {
-    const response = await fetch(`${uri}/ping`, { headers: _getHeaders() });
-    const json = await response.json();
-    return !!json.description;
-  } catch (_) {
-    return false;
-  }
-};
-
 export const isNotificationsCapable = hasGmsSync() || hasHmsSync() || Platform.OS !== 'android';
 
 export const getPushToken = async (): Promise<TPushToken> => {
@@ -676,38 +721,6 @@ export const removeAllDeliveredNotifications = () => {
   Notifications.removeAllDeliveredNotifications();
 };
 
-export const getDefaultUri = () => {
-  return groundControlUri;
-};
-
-export const saveUri = async (uri: string) => {
-  try {
-    baseURI = uri || groundControlUri;
-    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, baseURI);
-  } catch (error) {
-    console.error('Error saving URI:', error);
-    throw error;
-  }
-};
-
-export const getSavedUri = async () => {
-  try {
-    const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
-    if (baseUriStored) {
-      baseURI = baseUriStored;
-    }
-    return baseUriStored;
-  } catch (e) {
-    console.error(e);
-    try {
-      await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri);
-    } catch (storageError) {
-      console.error('Failed to reset URI:', storageError);
-    }
-    throw e;
-  }
-};
-
 export const isNotificationsEnabled = async () => {
   try {
     const levels = await getLevels();
@@ -757,10 +770,6 @@ export const initializeNotifications = async (onProcessNotifications?: () => voi
       return;
     }
 
-    const baseUriStored = await AsyncStorage.getItem(GROUNDCONTROL_BASE_URI);
-    baseURI = baseUriStored || groundControlUri;
-    console.log('Base URI set to:', baseURI);
-
     setApplicationIconBadgeNumber(0);
 
     // Only check permissions, never request
@@ -781,7 +790,5 @@ export const initializeNotifications = async (onProcessNotifications?: () => voi
     }
   } catch (error) {
     console.error('Failed to initialize notifications:', error);
-    baseURI = groundControlUri;
-    await AsyncStorage.setItem(GROUNDCONTROL_BASE_URI, groundControlUri).catch(err => console.error('Failed to reset URI:', err));
   }
 };
