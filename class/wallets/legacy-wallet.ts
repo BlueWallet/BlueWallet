@@ -184,12 +184,21 @@ export class LegacyWallet extends AbstractWallet {
     return ret;
   }
 
+  getOwnedAddressesHashmap(): Record<string, boolean> {
+    const map: Record<string, boolean> = {};
+
+    const address = this.getAddress();
+    if (address) {
+      map[address] = true;
+    }
+
+    return map;
+  }
+
   getDerivedUtxoFromOurTransaction(returnSpentUtxoAsWell = false): Utxo[] {
     const utxos: Utxo[] = [];
 
-    const ownedAddressesHashmap: Record<string, boolean> = {};
-    const addrs = this.getAddress();
-    if (addrs) ownedAddressesHashmap[addrs] = true;
+    const ownedAddressesHashmap = this.getOwnedAddressesHashmap();
 
     /**
      * below copypasted from

@@ -32,7 +32,6 @@ export class HDSegwitBech32Transaction {
 
     if (wallet) {
       if (wallet.type === HDSegwitBech32Wallet.type) {
-        /** @type {HDSegwitBech32Wallet} */
         this._wallet = wallet;
       } else {
         throw new Error('Only HD Bech32 wallets supported');
@@ -306,6 +305,19 @@ export class HDSegwitBech32Transaction {
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
 
+    // if there is no seccret then its a watch only wallet, skip signing and also pass the masterfingerprint
+    if (!this._wallet.secret) {
+      return this._wallet.createTransaction(
+        utxos,
+        [{ address: myAddress }],
+        newFeerate,
+        myAddress,
+        (await this.getMaxUsedSequence()) + 1,
+        true,
+        parseInt(this._wallet.getMasterFingerprintHex(), 16),
+      );
+    }
+
     return this._wallet.createTransaction(
       utxos,
       [{ address: myAddress }],
@@ -340,6 +352,19 @@ export class HDSegwitBech32Transaction {
       // so we add output paying ourselves:
       targets.push({ address: this._wallet._getInternalAddressByIndex(this._wallet.next_free_change_address_index) });
       // not checking emptiness on purpose: it could unpredictably generate too far address because of unconfirmed tx.
+    }
+
+    // if there is no seccret then its a watch only wallet, skip signing and also pass the masterfingerprint
+    if (!this._wallet.secret) {
+      return this._wallet.createTransaction(
+        utxos,
+        targets,
+        newFeerate,
+        myAddress,
+        (await this.getMaxUsedSequence()) + 1,
+        true,
+        parseInt(this._wallet.getMasterFingerprintHex(), 16),
+      );
     }
 
     return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1);
