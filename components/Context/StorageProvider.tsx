@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
+import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata, TAddressMetadata } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
@@ -26,6 +26,7 @@ interface StorageContextType {
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
+  addressMetadata: TAddressMetadata;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
@@ -69,6 +70,7 @@ export const StorageContext = createContext<StorageContextType>(undefined);
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
   const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
+  const addressMetadata = useRef<TAddressMetadata>(BlueApp.address_metadata || {});
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
@@ -160,12 +162,13 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       }
       BlueApp.tx_metadata = txMetadata.current;
       BlueApp.counterparty_metadata = counterpartyMetadata.current;
+      BlueApp.address_metadata = addressMetadata.current;
       await BlueApp.saveToDisk();
       const w: TWallet[] = [...BlueApp.getWallets()];
       setWallets(w);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [txMetadata.current, counterpartyMetadata.current],
+    [txMetadata.current, counterpartyMetadata.current, addressMetadata.current],
   );
 
   const addWallet = useCallback((wallet: TWallet) => {
@@ -318,6 +321,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
+      addressMetadata.current = BlueApp.address_metadata ?? {};
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
       if (loaded.some(w => w.type === LightningArkWallet.type)) {
@@ -532,6 +536,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWalletsWithNewOrder,
       txMetadata: txMetadata.current,
       counterpartyMetadata: counterpartyMetadata.current,
+      addressMetadata: addressMetadata.current,
       saveToDisk,
       getTransactions: BlueApp.getTransactions,
       selectedWalletID,

@@ -149,7 +149,7 @@ const TransactionStatus: React.FC = () => {
     isLoading: !initialTx,
   });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
+  const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
@@ -694,6 +694,25 @@ const TransactionStatus: React.FC = () => {
     }
   }, [tx, txMetadata, saveToDisk]);
 
+  const handleAddressLabelPress = useCallback(
+    async (address: string) => {
+      const currentLabel = addressMetadata?.[address]?.label ?? '';
+      try {
+        const newLabel = await prompt(loc.transactions.address_label_placeholder, '', {
+          type: 'plain-text',
+          defaultValue: currentLabel,
+        });
+        if (newLabel === undefined) return;
+        addressMetadata[address] = { label: newLabel.trim() };
+        await saveToDisk();
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      } catch (_) {
+        // user cancelled
+      }
+    },
+    [addressMetadata, saveToDisk],
+  );
+
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
     const url = `${selectedBlockExplorer.url}/tx/${tx.hash}`;
@@ -769,14 +788,18 @@ const TransactionStatus: React.FC = () => {
   const renderSection = (array: any[]) => {
     const fromArray = [];
 
-    for (const [index, address] of array.entries()) {
+    for (const address of array) {
       const isWeOwnAddress = weOwnAddress(address);
       const addressStyle = isWeOwnAddress ? [styles.weOwnAddress, stylesHook.rowValue] : [stylesHook.rowValue];
+      const label = addressMetadata?.[address]?.label;
 
       fromArray.push(
         <View key={address} style={styles.addressRow}>
           <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} />
-          {index !== array.length - 1 && <BlueText style={addressStyle}>,</BlueText>}
+          <TouchableOpacity onPress={() => handleAddressLabelPress(address)} style={styles.addressLabelButton}>
+            <Text style={[styles.addressLabelText, stylesHook.rowValue]}>{label || loc.transactions.address_label_none}</Text>
+            <Icon name="pencil" type="font-awesome" size={12} color={colors.alternativeTextColor} />
+          </TouchableOpacity>
         </View>,
       );
     }
@@ -1573,9 +1596,22 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   addressRow: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  addressLabelButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderRadius: 4,
+  },
+  addressLabelText: {
+    fontSize: 13,
+    fontWeight: '500',
   },
   detailValue: {
     fontSize: 15,

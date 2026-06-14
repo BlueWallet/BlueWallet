@@ -288,6 +288,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
 
+    // verify the custom amount description persists as an address label in the addresses list
+    await element(by.id('NavigationCloseButton')).tap();
+    await element(by.id('WalletDetails')).tap();
+    await element(by.text('Show addresses')).tap();
+    await waitFor(element(by.text('test')))
+      .toBeVisible()
+      .withTimeout(15000);
+
     // ManageWallets: relaunch to clear receive modal, then open via long-press, swipe-to-hide, verify persists across restart
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
