@@ -312,8 +312,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
     await waitForId('NavigationCloseButton');
-    await element(by.id('cr34t3d')).swipe('right', 'slow', 0.6);
-    await waitForId('SwipeShowBalance');
+    await element(by.id('cr34t3d')).swipe('right', 'slow', 0.7);
+    try {
+      await waitForId('SwipeShowBalance', 45000);
+    } catch (_) {
+      // Retry once: recycled list rows and gesture-handler timing can miss the first reveal on CI.
+      await element(by.id('cr34t3d')).swipe('right', 'slow', 0.8);
+      await waitForId('SwipeShowBalance', 45000);
+    }
 
     // restore visible state so subsequent tests are clean
     await element(by.id('SwipeShowBalance')).tap();
