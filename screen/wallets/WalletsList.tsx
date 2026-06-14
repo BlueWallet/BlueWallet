@@ -11,7 +11,7 @@ import presentAlert from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel, { getWalletCarouselItemWidth } from '../../components/WalletsCarousel';
+import WalletsCarousel, { getWalletCarouselItemWidth, CarouselListRefType } from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -102,7 +102,7 @@ const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { isLoading } = state;
   const { sizeClass, isLarge } = useSizeClass();
-  const walletsCarousel = useRef<any>(null);
+  const walletsCarousel = useRef<CarouselListRefType>(null);
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
@@ -291,7 +291,14 @@ const WalletsList: React.FC = () => {
 
   const renderTransactionListsRow = useCallback(
     (item: ExtendedTransaction) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={item.walletPreferredBalanceUnit} walletID={item.walletID} />
+      // Ark wallet rows have no on-chain `hash` — fall back to their
+      // synthetic `txid` so each row gets a unique React key.
+      <TransactionListItem
+        key={item.hash ?? (item as { txid?: string }).txid}
+        item={item}
+        itemPriceUnit={item.walletPreferredBalanceUnit}
+        walletID={item.walletID}
+      />
     ),
     [],
   );
@@ -464,7 +471,8 @@ const WalletsList: React.FC = () => {
   }, [onScanButtonPressed, scanImage, sendButtonLongPress, wallets.length]);
 
   const sectionListKeyExtractor = useCallback((item: any, index: any) => {
-    return `${item}${index}`;
+    if (typeof item === 'string') return item;
+    return item?.hash || item?.txid || `${item}${index}`;
   }, []);
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };

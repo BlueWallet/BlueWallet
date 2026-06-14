@@ -50,6 +50,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('SettingsRoot'))
       .scroll(500, 'down');
     await element(by.id('AboutButton')).tap();
+    // Ensure About has mounted before scrolling — race seen on cold launches
+    // where the scroll fires before the FlatList is in the view hierarchy.
+    await waitFor(element(by.id('AboutScrollView')))
+      .toBeVisible()
+      .withTimeout(15_000);
     await waitFor(element(by.id('RunSelfTestButton')))
       .toBeVisible()
       .whileElement(by.id('AboutScrollView'))
@@ -57,10 +62,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapAndTapAgainIfElementIsNotVisible('RunSelfTestButton', 'SelfTestLoading');
     await element(by.id('SelfTestLoading')).tap(); // tapping START button
 
-    // Wait for the self-test to complete
-    await waitFor(element(by.id('SelfTestOk')))
-      .toBeVisible()
-      .withTimeout(300 * 1000);
+    // SelfTest runs CPU-heavy crypto loops for 100+ seconds. Detox's
+    // FabricTimersIdlingResource never goes idle during that, so a synchronized
+    // waitFor would throw IdlingResourceTimeoutException long before
+    // SelfTestOk renders. Disable synchronization just for the wait.
+    await device.disableSynchronization();
+    try {
+      await waitFor(element(by.id('SelfTestOk')))
+        .toBeVisible()
+        .withTimeout(300 * 1000);
+    } finally {
+      await device.enableSynchronization();
+    }
     await goBack();
     await goBack();
     await goBack();
@@ -506,9 +519,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     if (device.getPlatform() === 'ios') {
       // FIXME: WAllets does not exists on android
       await waitForId('Wallets');
-      await scrollUpOnHomeScreen();
     }
     await sleep(1000); // propagate
+    // Match t4's flow: scroll up so the next helperCreateWallet's
+    // whileElement(WalletsList).scroll('right') starts from a known
+    // position. Without this, Android lands the user on a list state
+    // where CreateAWallet is not visible after scroll-right and the
+    // 6s tapAndTapAgainIfElementIsNotVisible budget runs out.
+    await scrollUpOnHomeScreen();
     // created fake storage.
     // creating a wallet inside this fake storage
     await helperCreateWallet('fake_wallet');

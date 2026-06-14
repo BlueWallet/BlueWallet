@@ -199,7 +199,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
   const [isUnitSwitching, setIsUnitSwitching] = useState(false);
   const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
-    return wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible;
+    return wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible;
   });
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
@@ -272,7 +272,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [wallet, walletID]);
 
   useEffect(() => {
-    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible);
+    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
@@ -456,9 +456,22 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   });
 
   const renderItem = useCallback(
+    // react/no-unused-prop-types misfires on inline arrow renderers: it reads the
+    // destructured `item: Transaction` annotation as a propTypes definition and
+    // ignores that the value is consumed on the next line.
     // eslint-disable-next-line react/no-unused-prop-types
     ({ item }: { item: Transaction }) => (
-      <TransactionListItem key={item.hash} item={item} itemPriceUnit={displayUnit} walletID={walletID} />
+      // Ark wallet rows lack on-chain `hash` and instead carry a synthetic
+      // `txid` (`swap-…`, `ark-…`, `boarding-…`, `boarding-utxo-…`). Falling
+      // back to `txid` prevents multiple Ark rows from sharing
+      // `key={undefined}`, which made React reuse stale memoized renders
+      // across rows.
+      <TransactionListItem
+        key={item.hash ?? (item as { txid?: string }).txid}
+        item={item}
+        itemPriceUnit={displayUnit}
+        walletID={walletID}
+      />
     ),
     [displayUnit, walletID],
   );
@@ -477,7 +490,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       });
   };
 
-  const _keyExtractor = useCallback((_item: any, index: number) => index.toString(), []);
+  const _keyExtractor = useCallback((item: Transaction, index: number) => item.hash || item.txid || index.toString(), []);
 
   const pasteFromClipboard = async () => {
     onBarCodeRead({ data: await getClipboardContent() });
@@ -713,7 +726,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     [getScrolledHeaderOptions, setOptions, route, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity],
   );
 
-  const listHeader = useMemo(
+  const ListHeaderComponent = useCallback(
     () => (
       <View ref={headerRef}>
         <TransactionsNavigationHeader
@@ -730,7 +743,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             if ('setPreferredBalanceUnit' in wallet) {
               wallet.setPreferredBalanceUnit(selectedUnit);
             } else {
-              (wallet as any).preferredBalanceUnit = selectedUnit;
+              (wallet as TWallet).preferredBalanceUnit = selectedUnit;
             }
             await saveToDisk();
             console.debug('[UnitSwitch] persisted preferred unit', {
@@ -851,7 +864,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onScroll={handleScroll}
         windowSize={15}
         scrollEventThrottle={16}
-        ListHeaderComponent={listHeader}
+        ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={
           <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
             <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">

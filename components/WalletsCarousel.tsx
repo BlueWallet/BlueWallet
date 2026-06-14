@@ -383,9 +383,21 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     let latestTransactionText;
 
+    // Lightning / Ark wallets do not have on-chain confirmations — settlement is
+    // signaled by `ispaid`. Bitcoin/on-chain wallets keep the existing
+    // `confirmations === 0` rule unchanged so their pending-pill semantics
+    // never depend on a Lightning shape.
+    // `ispaid === false` alone is not "pending": it is also true for terminal
+    // failed/refunded swaps, which stay in history. Gate on `!tx.failed` so a
+    // dead swap doesn't pin the card to "pending" forever.
+    const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
+    const hasPendingTx = isLightningShaped
+      ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed)
+      : item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
+
     if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
-    } else if (item.getTransactions().find((tx: Transaction) => tx.confirmations === 0)) {
+    } else if (hasPendingTx) {
       latestTransactionText = loc.transactions.pending;
     } else {
       latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
@@ -503,15 +515,7 @@ interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   animateChanges?: boolean;
 }
 
-type FlatListRefType = FlatList<any> & {
-  scrollToEnd(params?: { animated?: boolean | null }): void;
-  scrollToIndex(params: { animated?: boolean | null; index: number; viewOffset?: number; viewPosition?: number }): void;
-  scrollToItem(params: { animated?: boolean | null; item: TWallet; viewPosition?: number }): void;
-  scrollToOffset(params: { animated?: boolean | null; offset: number }): void;
-  recordInteraction(): void;
-  flashScrollIndicators(): void;
-  getNativeScrollRef(): View;
-};
+export type CarouselListRefType = FlatList<TWallet>;
 
 const styles = StyleSheet.create({
   listHeaderSeparator: {
@@ -522,7 +526,7 @@ const styles = StyleSheet.create({
 
 const ListHeaderSeparator = () => <View style={styles.listHeaderSeparator} />;
 
-const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props, ref) => {
+const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((props, ref) => {
   const {
     horizontal = true,
     data,
@@ -557,7 +561,7 @@ const WalletsCarousel = forwardRef<FlatListRefType, WalletsCarouselProps>((props
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialMount = useRef(true);
 
-  const flatListRef = useRef<FlatList<any>>(null);
+  const flatListRef = useRef<FlatList<TWallet>>(null);
   const walletRefs = useRef<Record<string, React.MutableRefObject<View | null>>>({});
 
   const { sizeClass } = useSizeClass();

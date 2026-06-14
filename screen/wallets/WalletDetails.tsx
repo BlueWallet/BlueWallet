@@ -49,7 +49,7 @@ function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: 
 }
 
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, sleep } = useStorage();
+  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -139,6 +139,21 @@ const WalletDetails: React.FC = () => {
 
     fetchArkAddress();
   }, [wallet]);
+
+  const [isRestoringSwaps, setIsRestoringSwaps] = useState<boolean>(false);
+  const onRestoreSwapsPressed = useCallback(async () => {
+    if (wallet.type !== LightningArkWallet.type || !(wallet as unknown as LightningArkWallet).restoreSwaps) return;
+    setIsRestoringSwaps(true);
+    try {
+      await (wallet as unknown as LightningArkWallet).restoreSwaps();
+      await fetchAndSaveWalletTransactions(wallet.getID());
+      presentAlert({ message: loc.wallets.restore_swap_activity_done });
+    } catch (e: any) {
+      presentAlert({ message: e?.message ?? String(e) });
+    } finally {
+      setIsRestoringSwaps(false);
+    }
+  }, [wallet, fetchAndSaveWalletTransactions]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
@@ -527,6 +542,7 @@ const WalletDetails: React.FC = () => {
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   testID="WalletNameDisplay"
+                  selectable
                 >
                   {walletName}
                 </Text>
@@ -628,7 +644,7 @@ const WalletDetails: React.FC = () => {
               <View style={[styles.detailsCard, stylesHook.detailsCard]}>
                 <View style={stylesHook.optionsContent}>
                   <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
-                    {`Ark ${loc.wallets.details_address}`}
+                    {`Arkade ${loc.wallets.details_address}`}
                   </Text>
                   <CopyTextToClipboard
                     text={arkAddress}
@@ -764,7 +780,6 @@ const WalletDetails: React.FC = () => {
                     containerStyle={stylesHook.listItemContainerBorder}
                     onPress={navigateToXPub}
                     title={loc.wallets.details_show_xpub}
-                    chevron
                     testID="XpubButton"
                     bottomDivider
                   />
@@ -774,7 +789,6 @@ const WalletDetails: React.FC = () => {
                     containerStyle={stylesHook.listItemContainerBorder}
                     onPress={navigateToSignVerify}
                     title={loc.addresses.sign_title}
-                    chevron
                     testID="SignVerify"
                     bottomDivider={!!(wallet.type === MultisigHDWallet.type)}
                   />
@@ -825,6 +839,7 @@ const WalletDetails: React.FC = () => {
                     titleStyle={stylesHook.advancedListItemTitle}
                     rightTitle={wallet.typeReadable}
                     rightTitleStyle={stylesHook.advancedListItemRightTitle}
+                    rightTitleSelectable
                     bottomDivider={
                       !!(
                         wallet.type === MultisigHDWallet.type ||
@@ -865,6 +880,7 @@ const WalletDetails: React.FC = () => {
                         isMasterFingerPrintVisible ? (masterFingerprint ?? loc.wallets.import_derivation_loading) : loc.multisig.view
                       }
                       rightTitleStyle={stylesHook.advancedListItemRightTitle}
+                      rightTitleSelectable={isMasterFingerPrintVisible}
                       bottomDivider={!!derivationPath}
                     />
                   )}
@@ -875,6 +891,7 @@ const WalletDetails: React.FC = () => {
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={derivationPath}
                       rightTitleStyle={stylesHook.advancedListItemRightTitle}
+                      rightTitleSelectable
                       bottomDivider={false}
                       testID="DerivationPath"
                     />
@@ -900,6 +917,18 @@ const WalletDetails: React.FC = () => {
                   backgroundColor={colors.redBG}
                   textColor={colors.redText}
                 />
+                {wallet.type === LightningArkWallet.type && (
+                  <>
+                    <BlueSpacing20 />
+                    <SecondButton
+                      onPress={onRestoreSwapsPressed}
+                      testID="RestoreSwapActivity"
+                      title={loc.wallets.restore_swap_activity}
+                      disabled={isRestoringSwaps}
+                      loading={isRestoringSwaps}
+                    />
+                  </>
+                )}
               </View>
             </BlueCard>
           </>

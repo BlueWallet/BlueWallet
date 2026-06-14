@@ -147,11 +147,10 @@ export class BlueApp {
       console.warn('error reading', key, error.message);
       console.warn('fallback to realm');
       const realmKeyValue = await this.openRealmKeyValue();
-      const obj = realmKeyValue.objectForPrimaryKey('KeyValue', key); // search for a realm object with a primary key
+      const obj = realmKeyValue.objectForPrimaryKey<{ key: string; value: string }>('KeyValue', key);
       value = obj?.value;
       realmKeyValue.close();
       if (value) {
-        // @ts-ignore value.length
         console.warn('successfully recovered', value.length, 'bytes from realm for key', key);
         return value;
       }
@@ -547,10 +546,11 @@ export class BlueApp {
           (walletToInflate._txs_by_internal_index[tx.index] as Transaction[]).push(transaction);
         }
       } else {
-        if (!Array.isArray(walletToInflate._txs_by_external_index)) walletToInflate._txs_by_external_index = [];
-        walletToInflate._txs_by_external_index = walletToInflate._txs_by_external_index || [];
+        // Legacy single-address wallets - store under index 0
+        walletToInflate._txs_by_external_index = walletToInflate._txs_by_external_index || {};
+        walletToInflate._txs_by_external_index[0] = walletToInflate._txs_by_external_index[0] || [];
         const transaction = JSON.parse(tx.tx);
-        (walletToInflate._txs_by_external_index as Transaction[]).push(transaction);
+        walletToInflate._txs_by_external_index[0].push(transaction);
       }
     }
   }
@@ -559,32 +559,6 @@ export class BlueApp {
     const id = wallet.getID();
     const walletToSave = ('_hdWalletInstance' in wallet && wallet._hdWalletInstance) || wallet;
 
-    if (Array.isArray(walletToSave._txs_by_external_index)) {
-      // if this var is an array that means its a single-address wallet class, and this var is a flat array
-      // with transactions
-      realm.write(() => {
-        // cleanup all existing transactions for the wallet first
-        const walletTransactionsToDelete = realm.objects('WalletTransactions').filtered(`walletid = '${id}'`);
-        realm.delete(walletTransactionsToDelete);
-
-        // @ts-ignore walletToSave._txs_by_external_index is array
-        for (const tx of walletToSave._txs_by_external_index) {
-          realm.create(
-            'WalletTransactions',
-            {
-              walletid: id,
-              tx: JSON.stringify(tx),
-            },
-            Realm.UpdateMode.Modified,
-          );
-        }
-      });
-
-      return;
-    }
-
-    /// ########################################################################################################
-
     if (walletToSave._txs_by_external_index) {
       realm.write(() => {
         // cleanup all existing transactions for the wallet first
@@ -592,16 +566,14 @@ export class BlueApp {
         realm.delete(walletTransactionsToDelete);
 
         // insert new ones:
-        for (const index of Object.keys(walletToSave._txs_by_external_index)) {
-          // @ts-ignore index is number
-          const txs = walletToSave._txs_by_external_index[index];
+        for (const [indexStr, txs] of Object.entries(walletToSave._txs_by_external_index)) {
           for (const tx of txs) {
             realm.create(
               'WalletTransactions',
               {
                 walletid: id,
                 internal: false,
-                index: parseInt(index, 10),
+                index: parseInt(indexStr, 10),
                 tx: JSON.stringify(tx),
               },
               Realm.UpdateMode.Modified,
@@ -609,16 +581,14 @@ export class BlueApp {
           }
         }
 
-        for (const index of Object.keys(walletToSave._txs_by_internal_index)) {
-          // @ts-ignore index is number
-          const txs = walletToSave._txs_by_internal_index[index];
+        for (const [indexStr, txs] of Object.entries(walletToSave._txs_by_internal_index)) {
           for (const tx of txs) {
             realm.create(
               'WalletTransactions',
               {
                 walletid: id,
                 internal: true,
-                index: parseInt(index, 10),
+                index: parseInt(indexStr, 10),
                 tx: JSON.stringify(tx),
               },
               Realm.UpdateMode.Modified,
