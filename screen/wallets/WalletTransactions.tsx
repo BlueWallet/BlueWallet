@@ -82,7 +82,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
   const [isUnitSwitching, setIsUnitSwitching] = useState(false);
   const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
-    return wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible;
+    return wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible;
   });
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
@@ -172,7 +172,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [wallet, walletID]);
 
   useEffect(() => {
-    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as any).isWatchOnlyWarningVisible);
+    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
@@ -547,7 +547,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             if ('setPreferredBalanceUnit' in wallet) {
               wallet.setPreferredBalanceUnit(selectedUnit);
             } else {
-              (wallet as any).preferredBalanceUnit = selectedUnit;
+              (wallet as TWallet).preferredBalanceUnit = selectedUnit;
             }
             await saveToDisk();
             console.debug('[UnitSwitch] persisted preferred unit', { walletID, unit: selectedUnit });

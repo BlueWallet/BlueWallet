@@ -93,8 +93,8 @@
     "unit": "jest -b tests/unit/*"
   },
   "dependencies": {
-    "@arkade-os/boltz-swap": "0.3.38",
-    "@arkade-os/sdk": "0.4.33",
+    "@arkade-os/boltz-swap": "0.3.40",
+    "@arkade-os/sdk": "0.4.35",
     "@babel/preset-env": "7.29.5",
     "@bugsnag/react-native": "8.9.0",
     "@bugsnag/source-maps": "2.3.3",
@@ -108,7 +108,7 @@
     "@react-native-community/cli-platform-android": "20.1.3",
     "@react-native-community/cli-platform-ios": "20.1.3",
     "@react-native-documents/picker": "12.0.1",
-    "@react-native-vector-icons/entypo": "13.1.1",
+    "@react-native-vector-icons/entypo": "13.1.2",
     "@react-native-vector-icons/fontawesome": "13.1.2",
     "@react-native-vector-icons/fontawesome6": "13.1.2",
     "@react-native-vector-icons/ionicons": "13.1.2",

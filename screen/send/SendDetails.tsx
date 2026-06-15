@@ -91,7 +91,7 @@ const SendDetails = () => {
   const payjoinUrl = route.params?.payjoinUrl;
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
-  const scrollView = useRef<FlatList<any>>(null);
+  const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
   const scrollIndex = useRef(0);
   /** Used so we only clear coin-selection (utxos) when the user switches wallet, not on first mount (e.g. Send opened from wallet details with pre-selected UTXOs). */
   const prevWalletIdForCoinResetRef = useRef<string | null>(null);
@@ -221,9 +221,6 @@ const SendDetails = () => {
         }
         return updatedAddresses;
       });
-
-      // @ts-ignore: Fix later
-      setParams(prevParams => ({ ...prevParams, addRecipientParams: undefined }));
     } else {
       setAddresses([{ address: '', key: String(Math.random()), unit: amountUnit }]); // key is for the FlatList
     }
