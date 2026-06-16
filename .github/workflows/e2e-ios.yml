@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -168,7 +168,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -194,9 +194,6 @@ jobs:
           mkdir -p ios/build/Build/Products/Release-iphonesimulator
           tar -xzf BlueWallet.app.tar.gz -C ios/build/Build/Products/Release-iphonesimulator
 
-      - name: Disable simulator animations
-        run: defaults write com.apple.iphonesimulator SlowMotionAnimation -bool NO
-
       # Pre-boot simulator so first detox launchApp lands warm.
       - name: Pre-boot iOS simulator
         run: |
@@ -209,6 +206,13 @@ jobs:
           xcrun simctl boot "$UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
+
+      # Cut animations so detox sync stays steady on slow CI VMs; Reduce Motion makes reanimated skip to final value.
+      - name: Disable simulator animations
+        run: |
+          defaults write com.apple.iphonesimulator SlowMotionAnimation -bool NO
+          xcrun simctl spawn booted defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
+          xcrun simctl spawn booted notifyutil -p com.apple.Accessibility.ReduceMotionStatusDidChange
 
       - name: Run detox tests
         timeout-minutes: 360

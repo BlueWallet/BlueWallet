@@ -45,9 +45,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   _balances_by_external_index: Record<number, BalanceByIndex>;
   _balances_by_internal_index: Record<number, BalanceByIndex>;
 
-  // @ts-ignore
   _txs_by_external_index: Record<number, Transaction[]>;
-  // @ts-ignore
   _txs_by_internal_index: Record<number, Transaction[]>;
 
   _utxo: any[];
@@ -204,70 +202,37 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return child.toWIF();
   }
 
-  _getNodeAddressByIndex(node: number, index: number): string {
-    index = index * 1; // cast to int
+  _getNodeByIndex(node: 0 | 1, index: number): BIP32Interface {
+    const cachedNode = node === 0 ? this._node0 : this._node1;
+    if (cachedNode) {
+      return cachedNode.derive(index);
+    }
+
+    const xpub = this._zpubToXpub(this.getXpub());
+    const hdNode = bip32.fromBase58(xpub).derive(node);
+
     if (node === 0) {
-      if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-    }
-
-    if (node === 1) {
-      if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-    }
-
-    if (node === 0 && !this._node0) {
-      const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node0 = hdNode.derive(node);
-    }
-
-    if (node === 1 && !this._node1) {
-      const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node1 = hdNode.derive(node);
-    }
-
-    let address: string;
-    if (node === 0) {
-      // @ts-ignore
-      address = this._hdNodeToAddress(this._node0.derive(index));
+      this._node0 = hdNode;
     } else {
-      // tbh the only possible else is node === 1
-      // @ts-ignore
-      address = this._hdNodeToAddress(this._node1.derive(index));
+      this._node1 = hdNode;
     }
 
-    if (node === 0) {
-      return (this.external_addresses_cache[index] = address);
-    } else {
-      // tbh the only possible else option is node === 1
-      return (this.internal_addresses_cache[index] = address);
-    }
+    return hdNode.derive(index);
   }
 
-  _getNodePubkeyByIndex(node: number, index: number) {
-    index = index * 1; // cast to int
+  _getNodeAddressByIndex(node: 0 | 1, index: number): string {
+    const cache = node === 0 ? this.external_addresses_cache : this.internal_addresses_cache;
 
-    if (node === 0 && !this._node0) {
-      const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node0 = hdNode.derive(node);
-    }
+    if (cache[index]) return cache[index]; // cache hit
 
-    if (node === 1 && !this._node1) {
-      const xpub = this._zpubToXpub(this.getXpub());
-      const hdNode = bip32.fromBase58(xpub);
-      this._node1 = hdNode.derive(node);
-    }
+    const hdNode = this._getNodeByIndex(node, index);
+    const address = this._hdNodeToAddress(hdNode);
 
-    if (node === 0 && this._node0) {
-      return this._node0.derive(index).publicKey;
-    }
+    return (cache[index] = address);
+  }
 
-    if (node === 1 && this._node1) {
-      return this._node1.derive(index).publicKey;
-    }
-
-    throw new Error('Internal error: this._node0 or this._node1 is undefined');
+  _getNodePubkeyByIndex(node: 0 | 1, index: number) {
+    return this._getNodeByIndex(node, index).publicKey;
   }
 
   _getExternalAddressByIndex(index: number): string {
@@ -424,137 +389,95 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // now, we need to put transactions in all relevant `cells` of internal hashmaps:
     // this._txs_by_internal_index, this._txs_by_external_index & this._txs_by_payment_code_index
 
+    // address -> index lookup maps; the single pass over transactions below uses them
+    // to find which cells a transaction belongs to
+    const externalIndexByAddress = new Map<string, number>();
     for (let c = 0; c < next_free_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas)) {
-        for (const vin of tx.vin) {
-          if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-            const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = {
-              ...txRest,
-              inputs: txVin.slice(0),
-              outputs: txVout.slice(0),
-              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-            };
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_external_index[c].length; cc++) {
-              if (this._txs_by_external_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_external_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_external_index[c].push(clonedTx);
-          }
-        }
-        for (const vout of tx.vout) {
-          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-            const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = {
-              ...txRest,
-              inputs: txVin.slice(0),
-              outputs: txVout.slice(0),
-              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-            };
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_external_index[c].length; cc++) {
-              if (this._txs_by_external_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_external_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_external_index[c].push(clonedTx);
-          }
-        }
-      }
+      externalIndexByAddress.set(this._getExternalAddressByIndex(c), c);
     }
-
+    const internalIndexByAddress = new Map<string, number>();
     for (let c = 0; c < next_free_change_address_index + this.gap_limit; c++) {
-      for (const tx of Object.values(txdatas)) {
-        for (const vin of tx.vin) {
-          if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = {
-              ...txRest,
-              inputs: txVin.slice(0),
-              outputs: txVout.slice(0),
-              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-            };
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
-              if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_internal_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
-          }
-        }
-        for (const vout of tx.vout) {
-          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
-            // this TX is related to our address
-            this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-            const { vin: txVin, vout: txVout, ...txRest } = tx;
-            const clonedTx = {
-              ...txRest,
-              inputs: txVin.slice(0),
-              outputs: txVout.slice(0),
-              timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-            };
-
-            // trying to replace tx if it exists already (because it has lower confirmations, for example)
-            let replaced = false;
-            for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
-              if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
-                replaced = true;
-                this._txs_by_internal_index[c][cc] = clonedTx;
-              }
-            }
-            if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
-          }
-        }
-      }
+      internalIndexByAddress.set(this._getInternalAddressByIndex(c), c);
     }
-
+    const paymentCodeIndexByAddress = new Map<string, { pc: string; c: number }>();
     for (const pc of this._receive_payment_codes) {
       for (let c = 0; c < this._getNextFreePaymentCodeIndexReceive(pc) + this.gap_limit; c++) {
-        for (const tx of Object.values(txdatas)) {
-          // since we are iterating PCs who can pay us, we can completely ignore `tx.vin` and only iterate `tx.vout`
-          for (const vout of tx.vout) {
-            if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getBIP47AddressReceive(pc, c)) !== -1) {
-              // this TX is related to our address
-              this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
-              this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
-              const { vin: txVin, vout: txVout, ...txRest } = tx;
-              const clonedTx = {
-                ...txRest,
-                inputs: txVin.slice(0),
-                outputs: txVout.slice(0),
-                timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
-              };
+        paymentCodeIndexByAddress.set(this._getBIP47AddressReceive(pc, c), { pc, c });
+      }
+    }
 
-              // trying to replace tx if it exists already (because it has lower confirmations, for example)
-              let replaced = false;
-              for (let cc = 0; cc < this._txs_by_payment_code_index[pc][c].length; cc++) {
-                if (this._txs_by_payment_code_index[pc][c][cc].txid === clonedTx.txid) {
-                  replaced = true;
-                  this._txs_by_payment_code_index[pc][c][cc] = clonedTx;
-                }
-              }
-              if (!replaced) this._txs_by_payment_code_index[pc][c].push(clonedTx);
-            }
-          }
+    // per-cell txid -> position lookup, used to replace-or-push a transaction into a cell in constant time
+    const cellPositionsByTxid = new Map<Transaction[], Map<string, number>>();
+    const getCellPositions = (cell: Transaction[]): Map<string, number> => {
+      let positions = cellPositionsByTxid.get(cell);
+      if (!positions) {
+        positions = new Map();
+        for (let cc = 0; cc < cell.length; cc++) positions.set(cell[cc].txid, cc);
+        cellPositionsByTxid.set(cell, positions);
+      }
+      return positions;
+    };
+
+    for (const tx of Object.values(txdatas)) {
+      // collecting which of our address `cells` this transaction touches:
+      const externalCells = new Set<number>();
+      const internalCells = new Set<number>();
+      const paymentCodeCells = new Map<string, { pc: string; c: number }>();
+
+      const matchAddress = (address: string, isVout: boolean) => {
+        const externalIndex = externalIndexByAddress.get(address);
+        if (externalIndex !== undefined) externalCells.add(externalIndex);
+        const internalIndex = internalIndexByAddress.get(address);
+        if (internalIndex !== undefined) internalCells.add(internalIndex);
+        if (isVout) {
+          // since we are iterating PCs who can pay us, we can completely ignore `tx.vin` and only check `tx.vout`
+          const paymentCodeIndex = paymentCodeIndexByAddress.get(address);
+          if (paymentCodeIndex) paymentCodeCells.set(address, paymentCodeIndex);
         }
+      };
+
+      for (const vin of tx.vin) {
+        for (const address of vin.addresses ?? []) matchAddress(address, false);
+      }
+      for (const vout of tx.vout) {
+        for (const address of vout.scriptPubKey.addresses ?? []) matchAddress(address, true);
+      }
+
+      if (externalCells.size === 0 && internalCells.size === 0 && paymentCodeCells.size === 0) continue;
+
+      // this TX is related to our address(es)
+      const upsertClone = (cell: Transaction[]) => {
+        const { vin: txVin, vout: txVout, ...txRest } = tx;
+        const clonedTx = {
+          ...txRest,
+          inputs: txVin.slice(0),
+          outputs: txVout.slice(0),
+          timestamp: tx.blocktime || tx.time || Math.floor(+new Date() / 1000) - 30 /* unconfirmed */,
+        };
+
+        // trying to replace tx if it exists already (because it has lower confirmations, for example)
+        const positions = getCellPositions(cell);
+        const existingPosition = positions.get(clonedTx.txid);
+        if (existingPosition !== undefined) {
+          cell[existingPosition] = clonedTx;
+        } else {
+          positions.set(clonedTx.txid, cell.length);
+          cell.push(clonedTx);
+        }
+      };
+
+      for (const c of externalCells) {
+        this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
+        upsertClone(this._txs_by_external_index[c]);
+      }
+      for (const c of internalCells) {
+        this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
+        upsertClone(this._txs_by_internal_index[c]);
+      }
+      for (const { pc, c } of paymentCodeCells.values()) {
+        this._txs_by_payment_code_index[pc] = this._txs_by_payment_code_index[pc] || {};
+        this._txs_by_payment_code_index[pc][c] = this._txs_by_payment_code_index[pc][c] || [];
+        upsertClone(this._txs_by_payment_code_index[pc][c]);
       }
     }
 
@@ -652,8 +575,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let lastHistoriesWithUsedAddresses = null;
     for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
       const histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
-      // @ts-ignore
-      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+      if (AbstractHDElectrumWallet._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
         lastHistoriesWithUsedAddresses = histories;
@@ -695,8 +617,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let lastHistoriesWithUsedAddresses = null;
     for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
       const histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
-      // @ts-ignore
-      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+      if (AbstractHDElectrumWallet._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
         lastHistoriesWithUsedAddresses = histories;
@@ -738,8 +659,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let lastHistoriesWithUsedAddresses = null;
     for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
       const histories = await BlueElectrum.multiGetHistoryByAddress(generateChunkAddresses(c));
-      // @ts-ignore
-      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+      if (AbstractHDElectrumWallet._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
         lastHistoriesWithUsedAddresses = histories;

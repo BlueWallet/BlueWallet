@@ -27,8 +27,8 @@ export class LegacyWallet extends AbstractWallet {
   // @ts-ignore: override
   public readonly typeReadable: string;
 
-  _txs_by_external_index: Transaction[] = [];
-  _txs_by_internal_index: Transaction[] = [];
+  _txs_by_external_index: Record<number, Transaction[]> = {};
+  _txs_by_internal_index: Record<number, Transaction[]> = {};
 
   constructor(typeReadable?: string) {
     super();
@@ -353,14 +353,14 @@ export class LegacyWallet extends AbstractWallet {
       }
     }
 
-    this._txs_by_external_index = _txsByExternalIndex;
+    this._txs_by_external_index = { 0: _txsByExternalIndex };
     this._lastTxFetch = +new Date();
   }
 
   getTransactions(): Transaction[] {
     // a hacky code reuse from electrum HD wallet:
-    this._txs_by_external_index = this._txs_by_external_index || [];
-    this._txs_by_internal_index = [];
+    this._txs_by_external_index = this._txs_by_external_index || {};
+    this._txs_by_internal_index = {};
 
     const { HDSegwitBech32Wallet } = require('./hd-segwit-bech32-wallet') as {
       HDSegwitBech32Wallet: typeof HDSegwitBech32WalletT;
