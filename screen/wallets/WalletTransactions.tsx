@@ -264,10 +264,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   useEffect(() => {
     // keep local display unit in sync when wallet changes (e.g., switching wallets)
-    console.debug('[UnitSwitch] sync from wallet preferred unit', {
-      walletID,
-      preferred: wallet.preferredBalanceUnit,
-    });
     setDisplayUnit(wallet.preferredBalanceUnit);
   }, [wallet, walletID]);
 
@@ -275,14 +271,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
-
-  useEffect(() => {
-    console.debug('[UnitSwitch] display unit state changed', {
-      walletID,
-      displayUnit,
-      switching: isUnitSwitching,
-    });
-  }, [walletID, displayUnit, isUnitSwitching]);
 
   const sortedTransactions = useMemo(() => {
     const txs = wallet.getTransactions();
@@ -733,11 +721,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           headerOverlayHeight={headerOverlayHeight}
           wallet={wallet}
           onWalletUnitChange={async selectedUnit => {
-            console.debug('[UnitSwitch] requested', {
-              walletID,
-              from: displayUnit,
-              to: selectedUnit,
-            });
             setIsUnitSwitching(true);
             setDisplayUnit(selectedUnit);
             if ('setPreferredBalanceUnit' in wallet) {
@@ -746,16 +729,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
               (wallet as TWallet).preferredBalanceUnit = selectedUnit;
             }
             await saveToDisk();
-            console.debug('[UnitSwitch] persisted preferred unit', {
-              walletID,
-              unit: selectedUnit,
-            });
             setTimeout(() => {
               setIsUnitSwitching(false);
-              console.debug('[UnitSwitch] complete', {
-                walletID,
-                unit: selectedUnit,
-              });
             }, 50);
           }}
           unit={displayUnit}
