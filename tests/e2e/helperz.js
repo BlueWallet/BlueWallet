@@ -58,8 +58,20 @@ export async function waitForText(text, timeout = 33000) {
     await waitFor(element(by.text(text)))
       .toBeVisible()
       .withTimeout(timeout / 2);
+    return true;
   } catch (err) {
-    rethrowWithCallsite(err, callsite);
+    // iOS 26 liquid glass: text rendered inside/over the glass header (e.g. the wallet name on
+    // the transactions hero) can fail Detox's 75%-pixel toBeVisible check while still being
+    // present and on-screen — same root cause as the goBack() back-button workaround. Fall back
+    // to existence in the hierarchy so a glass false-negative does not fail an otherwise valid run.
+    try {
+      await waitFor(element(by.text(text)))
+        .toExist()
+        .withTimeout(3000);
+      return true;
+    } catch (_) {
+      rethrowWithCallsite(err, callsite);
+    }
   }
 }
 
