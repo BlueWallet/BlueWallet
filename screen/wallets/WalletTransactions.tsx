@@ -19,7 +19,7 @@ import {
   StyleProp,
   ViewStyle,
 } from 'react-native';
-import { useHeaderHeight } from '@react-navigation/elements';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
@@ -189,9 +189,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const { setOptions, navigate } = navigation;
   const { colors, dark } = useTheme();
   const { isElectrumDisabled } = useSettings();
-  // Use the real header height reported by the native stack (accounts for the taller iOS 26 glass bar);
-  // a hardcoded 44pt under-shoots on iOS 26 and the hero content renders under the navigation bar.
-  const headerOverlayHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
+  const navBarHeight = Platform.select({ ios: 44, android: 56, default: 44 }) ?? 44;
+  const headerOverlayHeight = insets.top + navBarHeight;
   const walletActionButtonsRef = useRef<View>(null);
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet._lastTxFetch || 0);
   const [fetchFailures, setFetchFailures] = useState(0);
