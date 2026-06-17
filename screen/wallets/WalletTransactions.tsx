@@ -20,7 +20,6 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isDesktop } from '../../blue_modules/environment';
@@ -190,14 +189,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const { setOptions, navigate } = navigation;
   const { colors, dark } = useTheme();
   const { isElectrumDisabled } = useSettings();
-  const insets = useSafeAreaInsets();
-  // The hero header underlaps a transparent navigation bar, so it pads its top by the bar height.
-  // useHeaderHeight() reports the true height, but on iOS 26 it under-reports on first mount in
-  // release builds (the native header-height event is missed on appearing screens with Fabric), so
-  // the hero content renders under the taller iOS 26 glass bar. Floor it with a deterministic value:
-  // safe-area inset + the real bar height (54pt on iOS 26 vs the legacy 44pt).
-  const navBarHeight = Platform.OS === 'ios' && isIOS26OrHigher ? 54 : (Platform.select({ ios: 44, android: 56, default: 44 }) ?? 44);
-  const headerOverlayHeight = Math.max(useHeaderHeight(), insets.top + navBarHeight);
+  // Use the real header height reported by the native stack (accounts for the taller iOS 26 glass bar);
+  // a hardcoded 44pt under-shoots on iOS 26 and the hero content renders under the navigation bar.
+  const headerOverlayHeight = useHeaderHeight();
   const walletActionButtonsRef = useRef<View>(null);
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet._lastTxFetch || 0);
   const [fetchFailures, setFetchFailures] = useState(0);
