@@ -373,8 +373,14 @@ export async function goBack() {
   // and when a modal covers a stack that also has a back button, the covered
   // one can precede the visible one in match order (seen with Reduce Motion on).
   // Probe attributes and only tap an element detox reports as visible & hittable.
+  //
+  // iOS 26 liquid glass: the native back button reports visible=false because
+  // the glass material fails Detox's 75%-pixel visibility check, yet the button
+  // IS functionally hittable. We first try (visible && hittable), then fall back
+  // to (hittable only) for the glass case.
   let lastErr;
   for (let attempt = 0; attempt < 10; attempt++) {
+    // Pass 1: prefer visible + hittable elements
     for (const matcher of candidates) {
       for (let idx = 0; idx < 6; idx++) {
         let attrs;
@@ -385,6 +391,25 @@ export async function goBack() {
           break; // no element at this index — try next candidate
         }
         if (!attrs.visible || attrs.hittable === false) continue;
+        try {
+          await element(matcher).atIndex(idx).tap();
+          return;
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+    }
+    // Pass 2: accept hittable-only elements (iOS 26 liquid glass back button)
+    for (const matcher of candidates) {
+      for (let idx = 0; idx < 6; idx++) {
+        let attrs;
+        try {
+          attrs = await element(matcher).atIndex(idx).getAttributes();
+        } catch (err) {
+          lastErr = err;
+          break;
+        }
+        if (attrs.hittable === false) continue;
         try {
           await element(matcher).atIndex(idx).tap();
           return;

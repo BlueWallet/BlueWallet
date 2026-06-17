@@ -195,22 +195,24 @@ describe('BlueWallet UI Tests - no wallets', () => {
         .withTimeout(10000);
       await element(by.id('NotificationsSwitch')).tap();
 
-      // If notifications are not enabled on the device, an alert will appear
+      // If notifications are not enabled on the device, an alert will appear.
+      // On iOS 26 the glass dialog animation can be slower; use a longer timeout.
       try {
         await waitFor(element(by.text('OK')))
           .toBeVisible()
-          .withTimeout(3000);
+          .withTimeout(8000);
         await element(by.text('OK')).tap();
       } catch (_) {
         // Alert not shown, which is fine - notifications might be enabled
       }
+
+      await sleep(500);
       await element(by.id('NotificationsSwitch')).tap();
 
-      // If notifications are not enabled on the device, an alert will appear
       try {
         await waitFor(element(by.text('OK')))
           .toBeVisible()
-          .withTimeout(3000);
+          .withTimeout(8000);
         await element(by.text('OK')).tap();
       } catch (_) {
         // Alert not shown, which is fine - notifications might be enabled
