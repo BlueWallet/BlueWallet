@@ -14,6 +14,8 @@ export const BlueDefaultTheme = {
     foregroundColor: '#0c2550',
     borderTopColor: 'rgba(0, 0, 0, 0.1)',
     buttonBackgroundColor: '#ccddf9',
+    /** Softer fill for native iOS 26+ prominent header bar buttons (derived from `buttonBackgroundColor`). */
+    headerProminentButtonBackgroundColor: 'rgba(204, 221, 249, 0.9)',
     buttonTextColor: '#0c2550',
     secondButtonTextColor: '#50555C',
     buttonAlternativeTextColor: '#2f5fb3',
@@ -101,6 +103,7 @@ export const BlueDarkTheme: Theme = {
     foregroundColor: '#ffffff',
     buttonDisabledBackgroundColor: '#3A3A3C',
     buttonBackgroundColor: '#3A3A3C',
+    headerProminentButtonBackgroundColor: 'rgba(58, 58, 60, 0.6)',
     buttonTextColor: '#ffffff',
     lightButton: 'rgba(255,255,255,.1)',
     buttonAlternativeTextColor: '#ffffff',
