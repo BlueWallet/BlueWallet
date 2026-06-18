@@ -1088,17 +1088,16 @@ const TransactionStatus: React.FC = () => {
           )}
         </View>
         {showBlocksAccordion && tx?.hash && (
-          <TouchableOpacity onPress={onBlocksHeaderPress} activeOpacity={0.7}>
-            <BlocksAccordion
-              txHash={tx.hash}
-              isSent={txValue !== null && txValue < 0}
-              isExpanded={isBlocksExpanded}
-              confirmations={parsedConfirmations}
-              vsize={tx.vsize}
-              feeSats={calculatedFee}
-              feeRate={feeRate}
-            />
-          </TouchableOpacity>
+          <BlocksAccordion
+            txHash={tx.hash}
+            isSent={txValue !== null && txValue < 0}
+            isExpanded={isBlocksExpanded}
+            confirmations={parsedConfirmations}
+            vsize={tx.vsize}
+            feeSats={calculatedFee}
+            feeRate={feeRate}
+            onPress={onBlocksHeaderPress}
+          />
         )}
       </Animated.View>
 

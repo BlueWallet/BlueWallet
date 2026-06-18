@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextStyle,
+  TouchableOpacity,
   useColorScheme,
   useWindowDimensions,
   View,
@@ -46,6 +47,7 @@ interface BlocksAccordionProps {
   vsize?: number | null;
   feeSats?: number | null;
   feeRate?: number | null;
+  onPress?: () => void;
 }
 
 interface BlockData {
@@ -87,7 +89,7 @@ const renderBoldFormattedParts = (template: string, values: Record<string, strin
   return parts;
 };
 
-const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExpanded, confirmations, vsize, feeSats, feeRate }) => {
+const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExpanded, confirmations, vsize, feeSats, feeRate, onPress }) => {
   const { colors } = useTheme();
   const colorScheme = useColorScheme();
   const { width: windowWidth } = useWindowDimensions();
@@ -301,7 +303,11 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
     </View>
   ) : (
     <>
-      {summaryContent && <View style={styles.summaryContainer}>{summaryContent}</View>}
+      {summaryContent && (
+        <TouchableOpacity onPress={onPress} activeOpacity={0.7} disabled={!onPress}>
+          <View style={styles.summaryContainer}>{summaryContent}</View>
+        </TouchableOpacity>
+      )}
       <FlatList
         data={blocks}
         horizontal
