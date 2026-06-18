@@ -106,23 +106,31 @@ export class MultisigCosigner {
       this._valid = false;
     }
 
-    // is it coldcard json?
+    // is it coldcard / unchained json?
     try {
       const json = JSON.parse(data);
-      if (json.p2sh && json.p2sh_deriv && json.xfp) {
-        const cc = new MultisigCosigner(MultisigCosigner.exportToJson(json.xfp, json.p2sh, json.p2sh_deriv));
+
+      // p2wsh_p2sh (Coldcard), p2sh_p2wsh (Unchained)
+      // same script type with reversed naming
+      const xpub = json.p2wsh_p2sh || json.p2sh_p2wsh;
+      const path = (json.p2wsh_p2sh_deriv || json.p2sh_p2wsh_deriv)?.replace(/h/g, "'");
+      const p2sh_deriv = json.p2sh_deriv?.replace(/h/g, "'");
+      const p2wsh_deriv = json.p2wsh_deriv?.replace(/h/g, "'");
+
+      if (json.p2sh && p2sh_deriv && json.xfp) {
+        const cc = new MultisigCosigner(MultisigCosigner.exportToJson(json.xfp, json.p2sh, p2sh_deriv));
         this._valid = true;
         this._cosigners.push(cc);
       }
 
-      if (json.p2wsh_p2sh && json.p2wsh_p2sh_deriv && json.xfp) {
-        const cc = new MultisigCosigner(MultisigCosigner.exportToJson(json.xfp, json.p2wsh_p2sh, json.p2wsh_p2sh_deriv));
+      if (xpub && path && json.xfp) {
+        const cc = new MultisigCosigner(MultisigCosigner.exportToJson(json.xfp, xpub, path));
         this._valid = true;
         this._cosigners.push(cc);
       }
 
-      if (json.p2wsh && json.p2wsh_deriv && json.xfp) {
-        const cc = new MultisigCosigner(MultisigCosigner.exportToJson(json.xfp, json.p2wsh, json.p2wsh_deriv));
+      if (json.p2wsh && p2wsh_deriv && json.xfp) {
+        const cc = new MultisigCosigner(MultisigCosigner.exportToJson(json.xfp, json.p2wsh, p2wsh_deriv));
         this._valid = true;
         this._cosigners.push(cc);
       }
