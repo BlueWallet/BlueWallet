@@ -553,7 +553,7 @@ const ManageWallets: React.FC = () => {
 
       return (
         <ManageWalletsListItem
-          key={`row-${resetSwipeToken}-${item.type === ItemType.WalletSection ? item.data.getID() : item.type === ItemType.TransactionSection ? item.data.hash || item.data.txid || '' : item.data.address}`}
+          key={`row-${resetSwipeToken}-${item.type === ItemType.WalletSection ? `wallet-${item.data.getID()}` : item.type === ItemType.TransactionSection ? `tx-${item.data.hash || item.data.txid || (typeof item.data.payment_hash === 'string' ? item.data.payment_hash : item.data.payment_hash?.data) || item.data.timestamp}-${item.data.walletID || ''}` : `addr-${item.data.address}-${item.data.walletID}-${item.data.index}`}`}`
           item={item}
           isDraggingDisabled={isDragDisabled}
           handleToggleHideBalance={handleToggleHideBalance}
