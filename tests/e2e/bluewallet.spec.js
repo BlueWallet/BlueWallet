@@ -296,17 +296,13 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
     // swipe wallet row left to reveal the right action (unit switch); tap it
-    await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
+    // Use the label text element as swipe target: it is typically more than 90% visible than the full row container on CI.
+    await element(by.text('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeCycleBalanceUnit');
     await element(by.id('SwipeCycleBalanceUnit')).tap();
 
     // swipe wallet row right to reveal left action (Hide); tap it
-    try {
-      await element(by.id('cr34t3d')).swipe('right', 'slow', 0.6);
-    } catch (_swipeErr1) {
-      // In CI, Detox may resolve to a recycled row that is <90% visible; try the next matching row.
-      await element(by.id('cr34t3d').atIndex(1)).swipe('right', 'slow', 0.6);
-    }
+    await element(by.text('cr34t3d')).swipe('right', 'slow', 0.6);
     await waitForId('SwipeHideBalance');
     await element(by.id('SwipeHideBalance')).tap();
     await element(by.id('NavigationCloseButton')).tap();
@@ -319,21 +315,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('cr34t3d')).longPress();
     await waitForId('NavigationCloseButton');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
-    try {
-      await element(by.id('cr34t3d')).swipe('right', 'slow', 0.7);
-    } catch (_swipeErr2) {
-      // In CI, Detox may resolve to a recycled row that is <90% visible; try the next matching row.
-      await element(by.id('cr34t3d').atIndex(1)).swipe('right', 'slow', 0.7);
-    }
+    await element(by.text('cr34t3d')).swipe('right', 'slow', 0.7);
     try {
       await waitForId('SwipeShowBalance', 45000);
     } catch (_waitErr) {
       // Retry once: recycled list rows and gesture-handler timing can miss the first reveal on CI.
-      try {
-        await element(by.id('cr34t3d')).swipe('right', 'slow', 0.8);
-      } catch (_swipeErr3) {
-        await element(by.id('cr34t3d').atIndex(1)).swipe('right', 'slow', 0.8);
-      }
+      await element(by.text('cr34t3d')).swipe('right', 'slow', 0.8);
       await waitForId('SwipeShowBalance', 45000);
     }
 
