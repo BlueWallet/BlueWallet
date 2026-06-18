@@ -855,6 +855,7 @@ const TransactionStatus: React.FC = () => {
 
   const onBlocksHeaderPress = useCallback(() => {
     if (!showBlocksAccordion) return;
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
     toggleBlocksExpanded();
   }, [showBlocksAccordion, toggleBlocksExpanded]);
 
@@ -1233,7 +1234,10 @@ const TransactionStatus: React.FC = () => {
       {/* Advanced Section */}
       <View style={[styles.detailsCard, stylesHook.detailsCard]}>
         <TouchableOpacity
-          onPress={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
+          onPress={() => {
+            triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+            setIsAdvancedExpanded(!isAdvancedExpanded);
+          }}
           style={[styles.advancedHeader, stylesHook.advancedHeader]}
           activeOpacity={0.85}
         >
