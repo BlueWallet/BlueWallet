@@ -551,9 +551,20 @@ const ManageWallets: React.FC = () => {
         );
       }
 
+      let rowBaseKey = '';
+      if (item.type === ItemType.WalletSection) {
+        rowBaseKey = `wallet-${item.data.getID()}`;
+      } else if (item.type === ItemType.TransactionSection) {
+        const paymentHash =
+          typeof item.data.payment_hash === 'string' ? item.data.payment_hash : item.data.payment_hash?.data?.toString?.() || '';
+        rowBaseKey = `tx-${item.data.hash || item.data.txid || paymentHash || item.data.timestamp}-${item.data.walletID || ''}`;
+      } else {
+        rowBaseKey = `addr-${item.data.address}-${item.data.walletID}-${item.data.index}`;
+      }
+
       return (
         <ManageWalletsListItem
-          key={`row-${resetSwipeToken}-${item.type === ItemType.WalletSection ? `wallet-${item.data.getID()}` : item.type === ItemType.TransactionSection ? `tx-${item.data.hash || item.data.txid || (typeof item.data.payment_hash === 'string' ? item.data.payment_hash : item.data.payment_hash?.data) || item.data.timestamp}-${item.data.walletID || ''}` : `addr-${item.data.address}-${item.data.walletID}-${item.data.index}`}`}`
+          key={`row-${resetSwipeToken}-${rowBaseKey}`}
           item={item}
           isDraggingDisabled={isDragDisabled}
           handleToggleHideBalance={handleToggleHideBalance}
