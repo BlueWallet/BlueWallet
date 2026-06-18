@@ -296,7 +296,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
     // swipe wallet row left to reveal the right action (unit switch); tap it
-    // Use the label text element as swipe target: it is typically more than 90% visible than the full row container on CI.
+    // Use the label text element as the swipe target: it is typically >90% visible compared to the full row container on CI.
     await element(by.text('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeCycleBalanceUnit');
     await element(by.id('SwipeCycleBalanceUnit')).tap();
