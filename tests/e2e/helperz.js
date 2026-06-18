@@ -228,15 +228,44 @@ export async function helperCreateWallet(walletName) {
   await element(by.id('ActivateBitcoinButton')).tap();
   await element(by.id('ActivateBitcoinButton')).tap();
   // why tf we need 2 taps for it to work..? mystery
-  await tapAndTapAgainIfElementIsNotVisible('Create', 'PleaseBackupScrollView');
 
-  await waitFor(element(by.id('PleasebackupOk')))
-    .toBeVisible()
-    .whileElement(by.id('PleaseBackupScrollView'))
-    .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+  // iOS 26 liquid glass: the navigation transition after tapping "Create" triggers
+  // glass animations that never fully settle, keeping the app in a "busy" state.
+  // Detox synchronization waits for idle before proceeding, causing an infinite hang.
+  // Disable sync for the remainder of wallet creation and re-enable once we're back
+  // on the home screen where the glass animations have settled.
+  const isIOS = device.getPlatform() === 'ios';
+  if (isIOS) {
+    await device.disableSynchronization();
+  }
+  try {
+    await element(by.id('Create')).tap();
+    await sleep(500);
+    try {
+      await waitFor(element(by.id('PleaseBackupScrollView')))
+        .toBeVisible()
+        .withTimeout(15000);
+    } catch (_) {
+      await element(by.id('Create')).tap();
+      await sleep(500);
+      await waitFor(element(by.id('PleaseBackupScrollView')))
+        .toBeVisible()
+        .withTimeout(15000);
+    }
 
-  await element(by.id('PleasebackupOk')).tap();
-  await scrollUpOnHomeScreen();
+    await waitFor(element(by.id('PleasebackupOk')))
+      .toBeVisible()
+      .whileElement(by.id('PleaseBackupScrollView'))
+      .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+
+    await element(by.id('PleasebackupOk')).tap();
+    await sleep(1000);
+    await scrollUpOnHomeScreen();
+  } finally {
+    if (isIOS) {
+      await device.enableSynchronization();
+    }
+  }
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await element(by.id('WalletsList')).swipe('right', 'fast', 1); // in case emu screen is small and it doesnt fit
   await sleep(200);
@@ -307,6 +336,46 @@ export async function tapIfTextPresent(text) {
     await element(by.text(text)).tap();
   } catch (_) {}
   // no need to check for visibility, just silently ignore exception if such testID is not present
+}
+
+/**
+ * Dismisses a native UIAlertController by tapping a button with the given text.
+ * On iOS 26 liquid glass, `waitFor().toBeVisible()` never resolves for alert
+ * buttons because the glass material fails Detox's pixel visibility check.
+ * This helper disables Detox synchronization (which can also hang on glass
+ * animations) and polls with direct tap attempts and label fallbacks.
+ *
+ * @returns true if the alert was dismissed, false if no alert was found
+ */
+export async function dismissAlertByText(text, timeoutMs = 10000) {
+  const isIOS = device.getPlatform() === 'ios';
+  if (isIOS) {
+    await device.disableSynchronization();
+  }
+  const deadline = Date.now() + timeoutMs;
+  let dismissed = false;
+  try {
+    while (Date.now() < deadline) {
+      // by.text — works on pre–iOS 26 and some iOS 26 alerts
+      try {
+        await element(by.text(text)).atIndex(0).tap();
+        dismissed = true;
+        break;
+      } catch (_) {}
+      // by.label — accessibility label, works when text matching differs
+      try {
+        await element(by.label(text)).atIndex(0).tap();
+        dismissed = true;
+        break;
+      } catch (_) {}
+      await sleep(500);
+    }
+  } finally {
+    if (isIOS) {
+      await device.enableSynchronization();
+    }
+  }
+  return dismissed;
 }
 
 /**
