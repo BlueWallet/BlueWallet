@@ -144,11 +144,11 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
 
   const titleContent = (
     <>
-      <Text style={[scrolledHeaderTitleStyles.walletLabel, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
+      <Text style={[scrolledHeaderTitleStyles.walletLabel, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>
         {walletLabel}
       </Text>
       {balance.length > 0 ? (
-        <Text style={[scrolledHeaderTitleStyles.balance, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
+        <Text style={[scrolledHeaderTitleStyles.balance, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>
           {balance}
         </Text>
       ) : null}
@@ -775,7 +775,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         />
         <View style={[styles.flex, styles.transactionsSection, stylesHook.backgroundContainer]}>
           <View style={styles.listHeaderTextRow}>
-            <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+            <Text allowFontScaling={false} style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           </View>
         </View>
         <View style={stylesHook.backgroundContainer}>
@@ -842,10 +842,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={
           <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
-            <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
+            <Text numberOfLines={0} allowFontScaling={false} style={styles.emptyTxs} testID="TransactionsListEmpty">
               {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
             </Text>
-            {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+            {isLightning() && <Text allowFontScaling={false} style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
           </ScrollView>
         }
         refreshControl={
