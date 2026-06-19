@@ -181,7 +181,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     >
       <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} />
       <View style={styles.contentContainer}>
-        <Text testID="WalletLabel" numberOfLines={1} allowFontScaling={false} style={[styles.walletLabel, { writingDirection: direction }]}>
+        <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
           {wallet.getLabel()}
         </Text>
         <View style={styles.balanceSection}>
@@ -203,7 +203,6 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
                     numberOfLines={1}
                     minimumFontScale={0.5}
                     adjustsFontSizeToFit
-                    allowFontScaling={false}
                     style={styles.walletBalanceText}
                   >
                     {balance}
@@ -213,7 +212,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             </ToolTipMenu>
             {!hideBalance && (
               <TouchableOpacity style={styles.walletPreferredUnitView} onPress={changeWalletBalanceUnit} disabled={unitSwitching}>
-                <Text allowFontScaling={false} style={styles.walletPreferredUnitText}>
+                <Text style={styles.walletPreferredUnitText}>
                   {unit === BitcoinUnit.LOCAL_CURRENCY ? (preferredFiatCurrency?.endPointKey ?? FiatUnit.USD) : unit}
                 </Text>
               </TouchableOpacity>
@@ -221,13 +220,13 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
           </View>
           {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
             <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={showManageFundsActionSheet}>
-              <Text allowFontScaling={false} style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
+              <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
             </TouchableOpacity>
           )}
         </View>
         {wallet.type === MultisigHDWallet.type && (
           <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={() => handleManageFundsPressed()}>
-            <Text allowFontScaling={false} style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
+            <Text style={styles.manageFundsButtonText}>{loc.multisig.manage_keys}</Text>
           </TouchableOpacity>
         )}
       </View>

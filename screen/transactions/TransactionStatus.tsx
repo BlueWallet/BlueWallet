@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } 
 import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -62,6 +62,10 @@ enum ButtonStatus {
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'TransactionStatus'>;
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'TransactionStatus'>;
+
+type TransactionStatusHeaderOptions = NativeStackNavigationOptions & {
+  headerTitleContainerStyle?: { flex: number; maxWidth: number };
+};
 
 enum ActionType {
   SetCPFPPossible,
@@ -136,8 +140,12 @@ type TransactionDetailHeaderTitleProps = {
 
 const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> = ({ direction, date, directionStyle, dateStyle }) => (
   <View style={styles.headerTitleContainer}>
-    <BlueText style={directionStyle}>{direction}</BlueText>
-    <BlueText style={dateStyle}>{date}</BlueText>
+    <BlueText style={directionStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+      {direction}
+    </BlueText>
+    <BlueText style={dateStyle} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8}>
+      {date}
+    </BlueText>
   </View>
 );
 
@@ -153,12 +161,59 @@ const TransactionStatus: React.FC = () => {
   const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
-  const { width: windowWidth } = useWindowDimensions();
+  const { width: windowWidth, fontScale } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
   const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
 
+  const scaledStyles = useMemo(
+    () => ({
+      value: {
+        lineHeight: Math.round(48 * fontScale),
+        minHeight: Math.round(38 * fontScale),
+      },
+      localCurrency: {
+        lineHeight: Math.round(20 * fontScale),
+        marginTop: Math.round(6 * fontScale),
+      },
+      headerTitleDirection: {
+        lineHeight: Math.round(22 * fontScale),
+      },
+      headerTitleDate: {
+        lineHeight: Math.round(18 * fontScale),
+      },
+      stateLabel: {
+        lineHeight: Math.round(22 * fontScale),
+      },
+      stateValue: {
+        lineHeight: Math.round(18 * fontScale),
+      },
+      advancedHeader: {
+        minHeight: Math.round(44 * fontScale),
+      },
+      explorerButton: {
+        paddingVertical: Math.round(6 * fontScale),
+        paddingHorizontal: Math.round(12 * fontScale),
+      },
+      addButton: {
+        paddingVertical: Math.round(4 * fontScale),
+        paddingHorizontal: Math.round(12 * fontScale),
+      },
+      detailRow: {
+        minHeight: Math.round(24 * fontScale),
+        paddingVertical: Math.round(12 * fontScale),
+      },
+      sectionTitle: {
+        paddingVertical: Math.round(16 * fontScale),
+      },
+    }),
+    [fontScale],
+  );
+
   // Explicit width for To/ID text so Android StaticLayout can apply ellipsis (flex alone often fails on Android)
-  const detailValueMaxWidth = useMemo(() => Math.max(0, Math.floor((windowWidth - 48) / 2)), [windowWidth]);
+  const detailValueMaxWidth = useMemo(
+    () => Math.max(0, Math.floor(((windowWidth - 48) * 0.55) / Math.max(1, fontScale))),
+    [windowWidth, fontScale],
+  );
   const detailValueWidthStyle = useMemo(() => ({ width: detailValueMaxWidth }), [detailValueMaxWidth]);
 
   // Advanced section state
@@ -921,15 +976,20 @@ const TransactionStatus: React.FC = () => {
           <TransactionDetailHeaderTitle
             direction={transactionDirection}
             date={transactionDate}
-            directionStyle={[styles.headerTitleDirection, stylesHook.headerTitleDirection]}
-            dateStyle={[styles.headerTitleDate, stylesHook.titleDate]}
+            directionStyle={[styles.headerTitleDirection, stylesHook.headerTitleDirection, scaledStyles.headerTitleDirection]}
+            dateStyle={[styles.headerTitleDate, stylesHook.titleDate, scaledStyles.headerTitleDate]}
           />
         ),
-      });
+        headerTitleAlign: 'left',
+        headerTitleContainerStyle: {
+          flex: 1,
+          maxWidth: Math.max(0, windowWidth - 96),
+        },
+      } as TransactionStatusHeaderOptions);
     }
     // stylesHook is derived from colors; omitting to avoid unnecessary effect runs
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx, transactionDirection, transactionDate, setOptions, colors]);
+  }, [tx, transactionDirection, transactionDate, setOptions, colors, windowWidth, scaledStyles]);
 
   if (loadingError) {
     return (
@@ -962,15 +1022,20 @@ const TransactionStatus: React.FC = () => {
       {/* Value Section */}
       <View style={styles.valueCard}>
         <View style={styles.valueContent}>
-          <Text style={[styles.value, stylesHook.value]} selectable numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.55}>
+          <Text
+            style={[styles.value, stylesHook.value, scaledStyles.value, styles.valueFullWidth]}
+            selectable
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.55}
+          >
             {txValue !== null ? formatBalanceWithoutSuffix(txValue, preferredBalanceUnit, true) : '-'}
-            {` `}
             {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-              <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{preferredBalanceUnit}</Text>
+              <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{` ${preferredBalanceUnit}`}</Text>
             )}
           </Text>
           {txValue !== null && (
-            <Text style={[styles.localCurrency, stylesHook.localCurrency]}>
+            <Text style={[styles.localCurrency, stylesHook.localCurrency, scaledStyles.localCurrency]}>
               {preferredBalanceUnit === BitcoinUnit.LOCAL_CURRENCY
                 ? `${formatBalanceWithoutSuffix(Math.abs(txValue), BitcoinUnit.BTC, true)} ${BitcoinUnit.BTC}`
                 : satoshiToLocalCurrency(Math.abs(txValue))}
@@ -995,9 +1060,9 @@ const TransactionStatus: React.FC = () => {
             <>
               <View style={styles.stateIndicator}>
                 <TransactionPendingIcon />
-                <View style={styles.stateLabelContainer}>
-                  <BlueText style={[styles.stateLabel, stylesHook.stateLabelPending]}>{loc.transactions.pending}</BlueText>
-                  <BlueText style={[styles.stateValue, stylesHook.stateValuePending, styles.stateValueInline]}>
+              <View style={styles.stateLabelContainer}>
+                <BlueText style={[styles.stateLabel, stylesHook.stateLabelPending, scaledStyles.stateLabel]}>{loc.transactions.pending}</BlueText>
+                <BlueText style={[styles.stateValue, stylesHook.stateValuePending, styles.stateValueInline, scaledStyles.stateValue]}>
                     {eta || loc.transactions.details_eta_analyzing}
                   </BlueText>
                 </View>
@@ -1029,9 +1094,9 @@ const TransactionStatus: React.FC = () => {
             <View style={styles.stateIndicator}>
               <TransactionOutgoingIcon />
               <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent]}>{loc.transactions.details_sent}</BlueText>
+                <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent, scaledStyles.stateLabel]}>{loc.transactions.details_sent}</BlueText>
                 {isOnChainTx && (
-                  <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline]}>
+                  <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline, scaledStyles.stateValue]}>
                     {loc.formatString(loc.transactions.confirmations_lowercase, {
                       confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
                     })}
@@ -1043,9 +1108,9 @@ const TransactionStatus: React.FC = () => {
             <View style={styles.stateIndicator}>
               <TransactionIncomingIcon />
               <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived]}>{loc.transactions.details_received}</BlueText>
+                <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived, scaledStyles.stateLabel]}>{loc.transactions.details_received}</BlueText>
                 {isOnChainTx && (
-                  <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline]}>
+                  <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline, scaledStyles.stateValue]}>
                     {loc.formatString(loc.transactions.confirmations_lowercase, {
                       confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
                     })}
@@ -1080,20 +1145,29 @@ const TransactionStatus: React.FC = () => {
       {/* Details Section */}
       <View style={[styles.detailsCard, stylesHook.detailsCard]}>
         {/* Details Title */}
-        <View style={[styles.sectionTitle, styles.sectionTitleWithButton, stylesHook.sectionTitle]}>
-          <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_section}</BlueText>
+        <View style={[styles.sectionTitle, styles.sectionTitleWithButton, stylesHook.sectionTitle, scaledStyles.sectionTitle]}>
+          <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText, styles.sectionTitleTextFlexible]}>
+            {loc.transactions.details_section}
+          </BlueText>
           {tx?.hash && (
             <TouchableOpacity
               onPress={handleOpenBlockExplorer}
-              style={[styles.explorerButton, stylesHook.explorerButton]}
+              style={[styles.explorerButton, stylesHook.explorerButton, scaledStyles.explorerButton]}
               activeOpacity={0.7}
             >
-              <BlueText style={[styles.explorerButtonText, stylesHook.explorerButtonText]}>{loc.transactions.details_explorer}</BlueText>
+              <BlueText
+                style={[styles.explorerButtonText, stylesHook.explorerButtonText]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
+                {loc.transactions.details_explorer}
+              </BlueText>
             </TouchableOpacity>
           )}
         </View>
         {/* Network Fee */}
-        <View style={[styles.detailRow, stylesHook.detailRow]}>
+        <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
           <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_network_fee}</BlueText>
           <View style={styles.detailValueContainer}>
             <CopyTextToClipboard
@@ -1117,7 +1191,7 @@ const TransactionStatus: React.FC = () => {
             const displayText = externalAddresses.map(shortenCounterpartyName).join(', ');
             const copyText = externalAddresses.join(', ');
             return (
-              <View style={[styles.detailRow, stylesHook.detailRow]}>
+              <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
                 <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_to_address}</BlueText>
                 <View style={styles.detailValueContainer}>
                   <View style={styles.detailValueCopyContainer}>
@@ -1143,7 +1217,7 @@ const TransactionStatus: React.FC = () => {
 
         {/* Transaction ID - display shortened so it stays on one line on Android; copy still gets full hash */}
         {tx.hash && (
-          <View style={[styles.detailRow, stylesHook.detailRow]}>
+          <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
               <View style={styles.detailValueCopyContainer}>
@@ -1170,7 +1244,7 @@ const TransactionStatus: React.FC = () => {
         )}
 
         {/* Note/Memo */}
-        <View style={[styles.detailRow, styles.detailRowLast, stylesHook.detailRow]}>
+        <View style={[styles.detailRow, styles.detailRowLast, stylesHook.detailRow, scaledStyles.detailRow]}>
           <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_note}</BlueText>
           <View style={styles.detailValueContainer}>
             {memo ? (
@@ -1180,8 +1254,15 @@ const TransactionStatus: React.FC = () => {
                 </BlueText>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={handleNotePress} style={[styles.addButton, stylesHook.addButton]} activeOpacity={0.7}>
-                <BlueText style={[styles.addButtonText, stylesHook.addButtonText]}>{loc.transactions.details_add_note}</BlueText>
+              <TouchableOpacity onPress={handleNotePress} style={[styles.addButton, stylesHook.addButton, scaledStyles.addButton]} activeOpacity={0.7}>
+                <BlueText
+                  style={[styles.addButtonText, stylesHook.addButtonText]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}
+                >
+                  {loc.transactions.details_add_note}
+                </BlueText>
               </TouchableOpacity>
             )}
           </View>
@@ -1192,11 +1273,13 @@ const TransactionStatus: React.FC = () => {
       <View style={[styles.detailsCard, stylesHook.detailsCard]}>
         <TouchableOpacity
           onPress={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
-          style={[styles.advancedHeader, stylesHook.advancedHeader]}
+          style={[styles.advancedHeader, stylesHook.advancedHeader, scaledStyles.advancedHeader]}
           activeOpacity={0.85}
         >
-          <View style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRow]}>
-            <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.transactions.details_advanced}</BlueText>
+          <View style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRow, scaledStyles.sectionTitle]}>
+            <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText, styles.sectionTitleTextFlexible]} numberOfLines={2}>
+              {loc.transactions.details_advanced}
+            </BlueText>
             <Icon
               name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
               type="font-awesome"
@@ -1209,7 +1292,7 @@ const TransactionStatus: React.FC = () => {
         {isAdvancedExpanded && (
           <View style={[styles.advancedContent, stylesHook.advancedContent]}>
             {/* Fee Rate */}
-            <View style={[styles.detailRow, stylesHook.detailRow]}>
+            <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
               <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_fee_rate}</BlueText>
               <View style={styles.detailValueContainer}>
                 <CopyTextToClipboard
@@ -1221,7 +1304,7 @@ const TransactionStatus: React.FC = () => {
             </View>
 
             {/* Size */}
-            <View style={[styles.detailRow, stylesHook.detailRow]}>
+            <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
               <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_size}</BlueText>
               <View style={styles.detailValueContainer}>
                 <CopyTextToClipboard
@@ -1233,7 +1316,7 @@ const TransactionStatus: React.FC = () => {
             </View>
 
             {/* Virtual Size */}
-            <View style={[styles.detailRow, stylesHook.detailRow]}>
+            <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
               <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_virtual_size}</BlueText>
               <View style={styles.detailValueContainer}>
                 <CopyTextToClipboard
@@ -1245,7 +1328,7 @@ const TransactionStatus: React.FC = () => {
             </View>
 
             {/* Transaction Hex */}
-            <View style={[styles.detailRow, stylesHook.detailRow]}>
+            <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
               <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_tx_hex}</BlueText>
               <View style={styles.detailValueContainer}>
                 {txHex ? (
@@ -1310,6 +1393,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
     flex: 1,
+    minWidth: 0,
   },
   headerTitleDirection: {
     fontSize: 17,
@@ -1357,14 +1441,19 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     overflow: 'visible',
+    width: '100%',
   },
   value: {
     fontSize: 40,
     fontWeight: '700',
     letterSpacing: -0.5,
-    lineHeight: 32,
+    lineHeight: 48,
     paddingTop: 8,
     minHeight: 38,
+  },
+  valueFullWidth: {
+    width: '100%',
+    flexShrink: 1,
   },
   valueUnit: {
     fontSize: 18,
@@ -1383,7 +1472,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginHorizontal: 24,
     marginBottom: 42,
-    overflow: 'hidden',
   },
   stateSection: {
     alignItems: 'flex-start',
@@ -1401,6 +1489,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginLeft: 8,
     flex: 1,
+    minWidth: 0,
   },
   stateLabel: {
     fontSize: 16,
@@ -1486,17 +1575,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
   sectionTitleText: {
     fontSize: 17,
     fontWeight: '600',
+  },
+  sectionTitleTextFlexible: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
   },
   explorerButton: {
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 6,
     alignSelf: 'flex-end',
-    minWidth: 50,
+    flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1507,7 +1602,7 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 0,
     minHeight: 24,
     paddingVertical: 12,
@@ -1531,6 +1626,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     lineHeight: 22,
     paddingRight: 12,
   },
@@ -1544,11 +1641,12 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0,
     maxWidth: '100%',
-    flexWrap: 'nowrap',
-    alignItems: 'center',
+    flexWrap: 'wrap',
+    alignItems: 'flex-end',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     gap: 8,
+    flexShrink: 0,
   },
   detailValueCopyContainer: {
     flex: 1,
@@ -1596,7 +1694,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 6,
     alignSelf: 'flex-end',
-    minWidth: 50,
+    flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1614,7 +1712,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
-    overflow: 'hidden',
   },
   advancedContent: {
     marginTop: 0,

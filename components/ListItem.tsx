@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleProp, StyleSheet, Switch, SwitchProps, Text, TextStyle, View, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, Switch, SwitchProps, Text, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 
 import Icon from './Icon';
@@ -55,12 +55,20 @@ const ListItem: React.FC<ListItemProps> = React.memo(
   }: ListItemProps) => {
     const { colors } = useTheme();
     const { direction } = useLocale();
+    const { fontScale } = useWindowDimensions();
     const isRtl = direction === 'rtl';
+    const contentRowStyle = useMemo(
+      () => ({
+        paddingVertical: Math.round(12 * fontScale),
+      }),
+      [fontScale],
+    );
     const stylesHook = StyleSheet.create({
       title: {
         color: disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
         fontSize: 16,
         fontWeight: '500',
+        lineHeight: Math.round(22 * fontScale),
         writingDirection: direction,
       },
       rightMemoText: {
@@ -72,7 +80,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         color: colors.alternativeTextColor,
         fontWeight: '400',
         paddingVertical: switchProps ? 8 : 0,
-        lineHeight: 20,
+        lineHeight: Math.round(20 * fontScale),
         fontSize: 14,
         marginTop: 2,
       },
@@ -93,7 +101,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     const enableFeedback = !noFeedback && !!onPress && !disabled;
 
     const renderContent = () => (
-      <View style={styles.contentRow}>
+      <View style={[styles.contentRow, contentRowStyle]}>
         {leftAvatar && (
           <View style={styles.leftAvatarContainer}>
             {leftAvatar}
@@ -114,7 +122,14 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         {rightTitle || rightSubtitle ? (
           <View style={styles.rightColumn}>
             {rightTitle ? (
-              <Text style={rightTitleStyle} numberOfLines={1} accessibilityRole="text" selectable={rightTitleSelectable}>
+              <Text
+                style={rightTitleStyle}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
+                accessibilityRole="text"
+                selectable={rightTitleSelectable}
+              >
                 {rightTitle}
               </Text>
             ) : null}
@@ -192,16 +207,20 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     justifyContent: 'center',
   },
   leftAvatarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'center',
   },
   rightColumn: {
     marginStart: 8,
-    minWidth: 0,
+    flexShrink: 0,
     alignItems: 'flex-end',
+    alignSelf: 'center',
   },
   rightMemoWrapper: {
     flexShrink: 1,

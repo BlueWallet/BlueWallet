@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Animated, Easing, Linking, Pressable, Text, TextStyle, ViewStyle, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Linking, Pressable, Text, TextStyle, ViewStyle, StyleSheet, View, useWindowDimensions } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
@@ -133,6 +133,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   const { txMetadata, counterpartyMetadata, wallets } = useStorage();
   const { language, selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();
+  const { fontScale } = useWindowDimensions();
   const containerStyle = useMemo(
     () => ({
       backgroundColor: colors.background,
@@ -248,6 +249,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
       color,
       fontSize: 14,
       fontWeight: '600' as TextStyle['fontWeight'],
+      lineHeight: Math.round(20 * fontScale),
       textAlign: 'right',
       paddingRight: insets.right,
       paddingLeft: insets.left,
@@ -262,6 +264,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     item.ispaid,
     insets.right,
     insets.left,
+    fontScale,
   ]);
 
   const determineTransactionTypeAndAvatar = () => {
@@ -549,7 +552,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         <ListItem
           leftAvatar={avatar}
           title={listTitle}
-          subtitle={<Text style={styles.dateLine}>{dateLine}</Text>}
+          subtitle={dateLine}
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}

@@ -75,6 +75,7 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 const SCROLLED_HEADER_SHOW_OFFSET = 180;
 const SCROLLED_HEADER_FADE_IN_MS = 180;
 const SCROLLED_HEADER_FADE_OUT_MS = 150;
+const TX_ROW_BASE_HEIGHT = 64;
 
 const usesIos26AnimatedScrolledHeader = Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop;
 
@@ -144,11 +145,11 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
 
   const titleContent = (
     <>
-      <Text style={[scrolledHeaderTitleStyles.walletLabel, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>
+      <Text style={[scrolledHeaderTitleStyles.walletLabel, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
         {walletLabel}
       </Text>
       {balance.length > 0 ? (
-        <Text style={[scrolledHeaderTitleStyles.balance, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail" allowFontScaling={false}>
+        <Text style={[scrolledHeaderTitleStyles.balance, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
           {balance}
         </Text>
       ) : null}
@@ -437,11 +438,17 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     [name, navigate, navigation, onWalletSelect, walletID, wallets],
   );
 
-  const getItemLayout = (_: any, index: number) => ({
-    length: 64,
-    offset: 64 * index,
-    index,
-  });
+  const { fontScale } = useWindowDimensions();
+  const txRowHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
+
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: txRowHeight,
+      offset: txRowHeight * index,
+      index,
+    }),
+    [txRowHeight],
+  );
 
   const renderItem = useCallback(
     // react/no-unused-prop-types misfires on inline arrow renderers: it reads the
@@ -775,7 +782,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         />
         <View style={[styles.flex, styles.transactionsSection, stylesHook.backgroundContainer]}>
           <View style={styles.listHeaderTextRow}>
-            <Text allowFontScaling={false} style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
+            <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           </View>
         </View>
         <View style={stylesHook.backgroundContainer}>
@@ -842,10 +849,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={
           <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
-            <Text numberOfLines={0} allowFontScaling={false} style={styles.emptyTxs} testID="TransactionsListEmpty">
+            <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
               {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
             </Text>
-            {isLightning() && <Text allowFontScaling={false} style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+            {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
           </ScrollView>
         }
         refreshControl={
