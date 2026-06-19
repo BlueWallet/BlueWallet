@@ -31,6 +31,8 @@ export { platformColors } from '../themes';
 
 export const isAndroid = Platform.OS === 'android';
 const isIOS = Platform.OS === 'ios';
+const iosMajorVersion = isIOS ? Number(String(Platform.Version).split('.')[0]) : 0;
+export const isIOS26OrHigher = isIOS && Number.isFinite(iosMajorVersion) && iosMajorVersion >= 26;
 
 export const platformSizing = {
   horizontalPadding: isIOS ? 16 : 20,
@@ -106,6 +108,15 @@ export const getSettingsHeaderOptions = (
   const defaultBackgroundColor = 'background' in colors ? colors.background : platformColors.background;
   const cardColor = colors.lightButton ?? colors.modal ?? colors.elevated ?? defaultBackgroundColor;
   const headerBackgroundColor = isIOS ? (dark ? defaultBackgroundColor : cardColor) : defaultBackgroundColor;
+
+  if (isIOS26OrHigher) {
+    return {
+      title,
+      headerLargeTitle: true,
+      headerLargeTitleShadowVisible: true,
+      headerBackButtonDisplayMode: 'minimal' as const,
+    };
+  }
 
   return {
     title,
@@ -192,6 +203,7 @@ export const SettingsScrollView = forwardRef<ScrollView, SettingsScrollViewProps
       ref={ref}
       style={[style, { backgroundColor: screenBackgroundColor }]}
       headerHeight={resolvedHeaderHeight}
+      disableDefaultTopPadding={isIOS26OrHigher}
       floatingButtonHeight={floatingButtonHeight}
       contentContainerStyle={[staticStyles.contentContainer, contentContainerStyle]}
       {...rest}
