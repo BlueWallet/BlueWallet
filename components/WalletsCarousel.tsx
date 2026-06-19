@@ -219,9 +219,6 @@ const iStyles = StyleSheet.create({
     width: 78,
     height: 74,
   },
-  br: {
-    backgroundColor: 'transparent',
-  },
   label: {
     backgroundColor: 'transparent',
     fontSize: 19,
@@ -486,32 +483,17 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
               style={[iStyles.grad, isCompact && iStyles.gradCompact, scaledCardStyles.grad]}
             >
               <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
-              <View
-                style={[
-                  iStyles.gradContent,
-                  isCompact && iStyles.gradContentCompact,
-                  !isCompact && scaledCardStyles.gradContent,
-                ]}
-              >
+              <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact, !isCompact && scaledCardStyles.gradContent]}>
                 {!isPlaceHolder && (
                   <>
                     <Text
                       numberOfLines={1}
-                      style={[
-                        iStyles.label,
-                        isCompact && iStyles.labelCompact,
-                        scaledCardStyles.label,
-                        cardTextStyle,
-                      ]}
+                      style={[iStyles.label, isCompact && iStyles.labelCompact, scaledCardStyles.label, cardTextStyle]}
                     >
                       {renderHighlightedText ? renderHighlightedText(walletLabel, searchQuery || '') : walletLabel}
                     </Text>
                     <View
-                      style={[
-                        iStyles.balanceContainer,
-                        isCompact && iStyles.balanceContainerCompact,
-                        scaledCardStyles.balanceContainer,
-                      ]}
+                      style={[iStyles.balanceContainer, isCompact && iStyles.balanceContainerCompact, scaledCardStyles.balanceContainer]}
                     >
                       {hideBalance ? (
                         <>
@@ -541,12 +523,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                       numberOfLines={1}
                       adjustsFontSizeToFit
                       minimumFontScale={0.8}
-                      style={[
-                        iStyles.latestTx,
-                        isCompact && iStyles.latestTxCompact,
-                        scaledCardStyles.latestTx,
-                        cardTextStyle,
-                      ]}
+                      style={[iStyles.latestTx, isCompact && iStyles.latestTxCompact, scaledCardStyles.latestTx, cardTextStyle]}
                     >
                       {loc.wallets.list_latest_transaction}
                     </Text>
@@ -554,12 +531,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                       numberOfLines={1}
                       adjustsFontSizeToFit
                       minimumFontScale={0.8}
-                      style={[
-                        iStyles.latestTxTime,
-                        isCompact && iStyles.latestTxTimeCompact,
-                        scaledCardStyles.latestTxTime,
-                        cardTextStyle,
-                      ]}
+                      style={[iStyles.latestTxTime, isCompact && iStyles.latestTxTimeCompact, scaledCardStyles.latestTxTime, cardTextStyle]}
                     >
                       {latestTransactionText}
                     </Text>

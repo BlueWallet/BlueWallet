@@ -29,9 +29,6 @@ import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import ListItem from './ListItem';
 
 const styles = StyleSheet.create({
-  dateLine: {
-    fontSize: 13,
-  },
   fullWidthButton: {
     width: '100%',
     alignSelf: 'stretch',

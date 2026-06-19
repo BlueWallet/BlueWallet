@@ -1060,9 +1060,11 @@ const TransactionStatus: React.FC = () => {
             <>
               <View style={styles.stateIndicator}>
                 <TransactionPendingIcon />
-              <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelPending, scaledStyles.stateLabel]}>{loc.transactions.pending}</BlueText>
-                <BlueText style={[styles.stateValue, stylesHook.stateValuePending, styles.stateValueInline, scaledStyles.stateValue]}>
+                <View style={styles.stateLabelContainer}>
+                  <BlueText style={[styles.stateLabel, stylesHook.stateLabelPending, scaledStyles.stateLabel]}>
+                    {loc.transactions.pending}
+                  </BlueText>
+                  <BlueText style={[styles.stateValue, stylesHook.stateValuePending, styles.stateValueInline, scaledStyles.stateValue]}>
                     {eta || loc.transactions.details_eta_analyzing}
                   </BlueText>
                 </View>
@@ -1094,7 +1096,9 @@ const TransactionStatus: React.FC = () => {
             <View style={styles.stateIndicator}>
               <TransactionOutgoingIcon />
               <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent, scaledStyles.stateLabel]}>{loc.transactions.details_sent}</BlueText>
+                <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent, scaledStyles.stateLabel]}>
+                  {loc.transactions.details_sent}
+                </BlueText>
                 {isOnChainTx && (
                   <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline, scaledStyles.stateValue]}>
                     {loc.formatString(loc.transactions.confirmations_lowercase, {
@@ -1108,7 +1112,9 @@ const TransactionStatus: React.FC = () => {
             <View style={styles.stateIndicator}>
               <TransactionIncomingIcon />
               <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived, scaledStyles.stateLabel]}>{loc.transactions.details_received}</BlueText>
+                <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived, scaledStyles.stateLabel]}>
+                  {loc.transactions.details_received}
+                </BlueText>
                 {isOnChainTx && (
                   <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline, scaledStyles.stateValue]}>
                     {loc.formatString(loc.transactions.confirmations_lowercase, {
@@ -1254,7 +1260,11 @@ const TransactionStatus: React.FC = () => {
                 </BlueText>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity onPress={handleNotePress} style={[styles.addButton, stylesHook.addButton, scaledStyles.addButton]} activeOpacity={0.7}>
+              <TouchableOpacity
+                onPress={handleNotePress}
+                style={[styles.addButton, stylesHook.addButton, scaledStyles.addButton]}
+                activeOpacity={0.7}
+              >
                 <BlueText
                   style={[styles.addButtonText, stylesHook.addButtonText]}
                   numberOfLines={1}

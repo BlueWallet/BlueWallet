@@ -11,7 +11,11 @@ import presentAlert from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel, { getWalletCarouselItemWidth, CarouselListRefType, getWalletCarouselHeight } from '../../components/WalletsCarousel';
+import WalletsCarousel, {
+  getWalletCarouselItemWidth,
+  CarouselListRefType,
+  getWalletCarouselHeight,
+} from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
