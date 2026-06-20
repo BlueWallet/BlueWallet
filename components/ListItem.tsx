@@ -5,6 +5,9 @@ import { useLocale } from '@react-navigation/native';
 import Icon from './Icon';
 import { useTheme } from './themes';
 
+/** Base row height for transaction list `getItemLayout` (padding + title + subtitle at fontScale 1). */
+export const TX_ROW_BASE_HEIGHT = 64;
+
 interface ListItemProps {
   leftAvatar?: React.JSX.Element;
   containerStyle?: StyleProp<ViewStyle>;

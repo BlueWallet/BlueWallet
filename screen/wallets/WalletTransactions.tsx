@@ -33,6 +33,7 @@ import presentAlert, { AlertType } from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
+import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -75,7 +76,6 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 const SCROLLED_HEADER_SHOW_OFFSET = 180;
 const SCROLLED_HEADER_FADE_IN_MS = 180;
 const SCROLLED_HEADER_FADE_OUT_MS = 150;
-const TX_ROW_BASE_HEIGHT = 64;
 
 const usesIos26AnimatedScrolledHeader = Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop;
 

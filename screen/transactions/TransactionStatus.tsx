@@ -165,11 +165,15 @@ const TransactionStatus: React.FC = () => {
   const { selectedBlockExplorer } = useSettings();
   const fetchTxInterval = useRef<NodeJS.Timeout | undefined>(undefined);
 
-  const scaledStyles = useMemo(
-    () => ({
+  const scaledStyles = useMemo(() => {
+    const valueLineHeight = Math.round(48 * fontScale);
+    const valuePaddingTop = Math.round(8 * fontScale);
+
+    return {
       value: {
-        lineHeight: Math.round(48 * fontScale),
-        minHeight: Math.round(38 * fontScale),
+        lineHeight: valueLineHeight,
+        paddingTop: valuePaddingTop,
+        minHeight: valueLineHeight + valuePaddingTop,
       },
       localCurrency: {
         lineHeight: Math.round(20 * fontScale),
@@ -205,15 +209,11 @@ const TransactionStatus: React.FC = () => {
       sectionTitle: {
         paddingVertical: Math.round(16 * fontScale),
       },
-    }),
-    [fontScale],
-  );
+    };
+  }, [fontScale]);
 
   // Explicit width for To/ID text so Android StaticLayout can apply ellipsis (flex alone often fails on Android)
-  const detailValueMaxWidth = useMemo(
-    () => Math.max(0, Math.floor(((windowWidth - 48) * 0.55) / Math.max(1, fontScale))),
-    [windowWidth, fontScale],
-  );
+  const detailValueMaxWidth = useMemo(() => Math.max(0, Math.floor((windowWidth - 48) / 2)), [windowWidth]);
   const detailValueWidthStyle = useMemo(() => ({ width: detailValueMaxWidth }), [detailValueMaxWidth]);
 
   // Advanced section state

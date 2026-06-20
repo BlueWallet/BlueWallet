@@ -8,9 +8,10 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
-import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
+import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
+import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
 import WalletsCarousel, {
   getWalletCarouselItemWidth,
   CarouselListRefType,
@@ -32,7 +33,6 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { isIOS26OrHigher } from '../../components/platform';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
-const TX_ROW_BASE_HEIGHT = 68; // ~12+12 padding + title + subtitle line heights at fontScale 1
 const SECTION_HEADER_BASE_HEIGHT = 56;
 
 /** Electrum `ping` while the list is visible; detects mid-session drops without polling when user is elsewhere. */
@@ -118,6 +118,7 @@ const WalletsList: React.FC = () => {
   const carouselHeight = getWalletCarouselHeight(fontScale);
   const transactionItemHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
   const sectionHeaderHeight = Math.round(SECTION_HEADER_BASE_HEIGHT * fontScale);
+  const floatingButtonHeight = getFloatingButtonReservedHeight(fontScale);
   const { colors, scanImage } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
@@ -556,7 +557,7 @@ const WalletsList: React.FC = () => {
         initialNumToRender={10}
         renderSectionFooter={renderSectionFooter}
         sections={sections}
-        floatingButtonHeight={70}
+        floatingButtonHeight={floatingButtonHeight}
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}
         getItemLayout={getItemLayout}

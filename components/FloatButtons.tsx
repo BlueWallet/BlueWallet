@@ -54,6 +54,12 @@ const useFloatButtonAnimation = (initialHeight: number) => {
 
 const getScaledButtonHeight = (fontScale: number): number => Math.round(LAYOUT.BUTTON_HEIGHT * fontScale);
 
+/** Scroll padding so list content clears float buttons (excludes safe-area inset). Default 70 at fontScale 1. */
+const FLOAT_BUTTON_LIST_CLEARANCE = 18;
+
+export const getFloatingButtonReservedHeight = (fontScale = 1): number =>
+  getScaledButtonHeight(fontScale) + FLOAT_BUTTON_LIST_CLEARANCE;
+
 const useFloatButtonLayout = (width: number, sizeClass: SizeClass, fontScale: number) => {
   const lastVerticalDecision = useRef(false);
 
