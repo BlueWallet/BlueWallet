@@ -1494,6 +1494,84 @@ export function getServerBanner(): Promise<string> {
   return mainClient.request('server.banner', []);
 }
 
+export function getTxBlockHeight(txHash: string): number | undefined {
+  return txhashHeightCache[txHash];
+}
+
+export async function getCurrentBlockTip(): Promise<number> {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  const header = await mainClient.blockchainHeaders_subscribe();
+  if (header && header.height) {
+    latestBlock = { height: header.height, time: Math.floor(+new Date() / 1000) };
+    return header.height;
+  }
+  return estimateCurrentBlockheight();
+}
+
+/**
+ * Returns the confirmed block height for a given txHash.
+ * 1. Tries the in-memory txhashHeightCache (populated from address history).
+ * 2. Falls back to a DIRECT server call (bypassing Realm cache) to get fresh confirmations.
+ *    Uses standard Bitcoin convention: height = tip - confirmations + 1.
+ */
+export async function getConfirmedBlockHeight(txHash: string): Promise<number | null> {
+  const cached = txhashHeightCache[txHash];
+  if (cached && cached > 0) return cached;
+
+  if (!mainClient) return null;
+
+  try {
+    const [tip, verboseTx] = await Promise.all([
+      getCurrentBlockTip(),
+      mainClient.blockchainTransaction_get(txHash, true),
+    ]);
+
+    if (typeof verboseTx === 'string') {
+      // Server didn't support verbose — decode locally.
+      // Without txhashHeightCache entry we can't determine height.
+      return null;
+    }
+
+    const confirmations = Number(verboseTx?.confirmations);
+    if (!confirmations || confirmations <= 0) return null;
+
+    const height = tip - confirmations + 1;
+    txhashHeightCache[txHash] = height;
+    return height;
+  } catch (e) {
+    console.warn('getConfirmedBlockHeight: failed', e);
+    return null;
+  }
+}
+
+/**
+ * Fetches actual block header timestamps from the Electrum server for the given heights.
+ * Parses the 80-byte hex-encoded header to extract the 4-byte LE timestamp at byte offset 68.
+ */
+export async function getBlockTimestamps(heights: number[]): Promise<Record<number, number>> {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  const result: Record<number, number> = {};
+  const promises = heights.map(async height => {
+    try {
+      const headerHex: string = await mainClient.blockchainBlock_header(height);
+      // timestamp is at bytes 68–71 of the 80-byte header (hex chars 136–143), little-endian uint32
+      const tsHex = headerHex.slice(136, 144);
+      /* eslint-disable no-bitwise */
+      const timestamp =
+        parseInt(tsHex.slice(0, 2), 16) |
+        (parseInt(tsHex.slice(2, 4), 16) << 8) |
+        (parseInt(tsHex.slice(4, 6), 16) << 16) |
+        ((parseInt(tsHex.slice(6, 8), 16) << 24) >>> 0);
+      /* eslint-enable no-bitwise */
+      result[height] = timestamp;
+    } catch (e) {
+      console.warn(`Failed to fetch block header for height ${height}:`, e);
+    }
+  });
+  await Promise.all(promises);
+  return result;
+}
+
 const splitIntoChunks = function (arr: any[], chunkSize: number) {
   const groups = [];
   let i;
