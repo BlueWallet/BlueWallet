@@ -263,7 +263,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can create wallet, reload app and it persists. then go to receive screen, set custom amount and label. Dismiss modal and go to WalletsList.', async () => {
+  it('can create wallet, reload app and it persists. then go to receive screen, set custom amount with a BIP21 label and a per-address label that persists across restarts. Dismiss modal and go to WalletsList.', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t3');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t3'), 'as it previously passed on Travis');
@@ -282,7 +282,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.text('Yes, I have.')).tap();
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
-    await element(by.id('SetCustomAmountButton')).tap();
+    await element(by.id('ReceiveMoreOptionsButton')).tap();
+    await element(by.id('ReceiveWithAmountOption')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
     await element(by.id('CustomAmountDescription')).replaceText('test');
     await element(by.id('CustomAmountDescription')).tapReturnKey();
@@ -293,6 +294,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
+
+    // add per-address label then verify it renders on the receive screen
+    await element(by.id('ReceiveMoreOptionsButton')).tap();
+    await element(by.id('AddressLabelOption')).tap();
+    await element(by.id('AddressLabelInput')).replaceText('my recv label');
+    await element(by.id('AddressLabelInput')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await element(by.id('AddressLabelSaveButton')).tap();
+    await waitForId('ReceiveAddressLabel');
+    await expect(element(by.text('my recv label'))).toBeVisible();
 
     // ManageWallets: relaunch to clear receive modal, then open via long-press, swipe-to-hide, verify persists across restart
     await device.launchApp({ newInstance: true });
@@ -320,6 +331,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SwipeShowBalance')).tap();
     await element(by.id('NavigationCloseButton')).tap();
     await waitForId('WalletsList');
+
+    // address label persisted, reopen receive and verify it's still there
+    await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
+    await element(by.id('ReceiveButton')).tap();
+    await waitForId('BitcoinAddressQRCode');
+    await waitForId('ReceiveAddressLabel');
+    await expect(element(by.text('my recv label'))).toBeVisible();
+    await goBack();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
