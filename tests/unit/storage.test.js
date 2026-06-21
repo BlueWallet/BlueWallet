@@ -521,6 +521,33 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   assert.strictEqual(Storage7.wallets[0].getLabel(), 'fakewallet');
 });
 
+it('Appstorage - address_metadata labels: set, persist, and clear', async () => {
+  const addr = 'bc1qaxxc4gwx6rd6rymq08qwpxhesd4jqu93lvjsyt';
+
+  /** @type {BlueApp} */
+  const Storage = new BlueApp();
+  const w = new SegwitP2SHWallet();
+  await w.generate();
+  Storage.wallets.push(w);
+
+  // set a label
+  Storage.address_metadata[addr] = { label: 'rent' };
+  await Storage.saveToDisk();
+
+  // survives reload
+  const Storage2 = new BlueApp();
+  await Storage2.loadFromDisk();
+  assert.strictEqual(Storage2.address_metadata[addr].label, 'rent');
+
+  // empty label removes the entry
+  delete Storage2.address_metadata[addr];
+  await Storage2.saveToDisk();
+
+  const Storage3 = new BlueApp();
+  await Storage3.loadFromDisk();
+  assert.strictEqual(Storage3.address_metadata[addr], undefined);
+});
+
 it('Appstorage - hashIt() works', async () => {
   const storage = new BlueApp();
   assert.strictEqual(storage.hashIt('hello'), '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824');

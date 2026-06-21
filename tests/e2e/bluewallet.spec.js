@@ -17,6 +17,7 @@ import {
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapIfTextPresent,
+  typeTextIntoAlertInput,
   waitForId,
   waitForKeyboardToClose,
   waitForText,
@@ -263,7 +264,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can create wallet, reload app and it persists. then go to receive screen, set custom amount and label. Dismiss modal and go to WalletsList.', async () => {
+  it('can create wallet, reload app and it persists. then go to receive screen, set custom amount with a BIP21 label and a per-address label that persists across restarts. Dismiss modal and go to WalletsList.', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t3');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t3'), 'as it previously passed on Travis');
@@ -294,6 +295,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
 
+    // add per-address label then verify it renders on the receive screen
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Add address label')).tap();
+    await typeTextIntoAlertInput('my recv label');
+    await element(by.text('OK')).tap();
+    await waitForId('ReceiveLabelLayer');
+    await expect(element(by.text('my recv label'))).toBeVisible();
+
     // ManageWallets: relaunch to clear receive modal, then open via long-press, swipe-to-hide, verify persists across restart
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
@@ -320,6 +329,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('SwipeShowBalance')).tap();
     await element(by.id('NavigationCloseButton')).tap();
     await waitForId('WalletsList');
+
+    // address label persisted, reopen receive and verify it's still there
+    await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
+    await element(by.id('ReceiveButton')).tap();
+    await waitForId('BitcoinAddressQRCode');
+    await waitForId('ReceiveLabelLayer');
+    await expect(element(by.text('my recv label'))).toBeVisible();
+    await goBack();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
