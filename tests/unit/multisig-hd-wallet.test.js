@@ -2161,6 +2161,31 @@ describe('multisig-cosigner', () => {
     assert.strictEqual(c3.getPath(), "m/48'/0'/0'/2'");
   });
 
+  it('can parse unchained json', () => {
+    const unchainedJson = require('./fixtures/unchained.json');
+
+    const cosigner = new MultisigCosigner(JSON.stringify(unchainedJson));
+    assert.ok(cosigner.isValid());
+    assert.strictEqual(cosigner.howManyCosignersWeHave(), 3);
+    assert.strictEqual(cosigner.getFp(), '');
+    assert.strictEqual(cosigner.getXpub(), '');
+    assert.strictEqual(cosigner.getPath(), '');
+
+    const [c1, c2, c3] = cosigner.getAllCosigners();
+
+    assert.strictEqual(c1.getXpub(), unchainedJson.p2sh);
+    assert.strictEqual(c1.getFp(), 'B68AF6E4');
+    assert.strictEqual(c1.getPath(), "m/45'");
+
+    assert.strictEqual(c2.getXpub(), unchainedJson.p2sh_p2wsh);
+    assert.strictEqual(c2.getFp(), 'B68AF6E4');
+    assert.strictEqual(c2.getPath(), "m/48'/0'/0'/1'");
+
+    assert.strictEqual(c3.getXpub(), unchainedJson.p2wsh);
+    assert.strictEqual(c3.getFp(), 'B68AF6E4');
+    assert.strictEqual(c3.getPath(), "m/48'/0'/0'/2'");
+  });
+
   it('can parse plain Zpub', () => {
     const cosigner = new MultisigCosigner(Zpub1);
     assert.ok(cosigner.isValid());
