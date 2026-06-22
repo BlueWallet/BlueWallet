@@ -26,7 +26,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useFocusEffect, useRoute, RouteProp, usePreventRemove, useLocale } from '@react-navigation/native';
+import { useFocusEffect, useRoute, RouteProp, useLocale } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ToolTipMenu from '../../components/TooltipMenu';
@@ -527,32 +527,12 @@ const WalletDetails: React.FC = () => {
 
   const walletMasterFingerprintInputOnBlur = useCallback(async () => {
     if (wallet.type === WatchOnlyWallet.type) {
-      let mfp = masterFingerprint?.trim().toLocaleLowerCase();
+      const mfp = masterFingerprint?.trim().toLocaleLowerCase();
 
       // masterfingerprint before editing started
       const currentMasterFingerprint = wallet.getMasterFingerprintHex();
 
       if (!mfp) {
-        presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
-
-        setMasterFingerprint(currentMasterFingerprint);
-        return;
-      }
-
-      if (mfp.startsWith('0b')) {
-        const binaryPureString = mfp.replace('0b', '');
-        mfp = parseInt(binaryPureString, 2).toString(16);
-        mfp = mfp.padStart(8, '0');
-      } else if (mfp.startsWith('0d')) {
-        const decimalPureString = mfp.replace('0d', '');
-        mfp = parseInt(decimalPureString, 10).toString(16);
-        mfp = mfp.padStart(8, '0');
-      } else if (mfp.startsWith('0x')) {
-        mfp = mfp.replace('0x', '');
-      }
-
-      // hex should be 8 characters and have only hex characters
-      if (mfp.length !== 8 || !/^[0-9a-f]{8}$/.test(mfp)) {
         presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
         setMasterFingerprint(currentMasterFingerprint);
         return;
@@ -560,23 +540,16 @@ const WalletDetails: React.FC = () => {
 
       if (mfp !== currentMasterFingerprint) {
         try {
-          console.warn('updating masterfingerprint:', mfp);
           wallet.setMasterFingerprintHex(mfp);
-          setMasterFingerprint(mfp);
-
           await saveToDisk();
+          setMasterFingerprint(mfp);
         } catch (error) {
-          console.error((error as Error).message);
+          presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
+          setMasterFingerprint(currentMasterFingerprint);
         }
-      } else {
-        setMasterFingerprint(currentMasterFingerprint);
       }
     }
   }, [wallet, masterFingerprint, setMasterFingerprint, saveToDisk]);
-
-  usePreventRemove(false, () => {
-    walletMasterFingerprintInputOnBlur();
-  });
 
   const onViewMasterFingerPrintPress = () => {
     setIsMasterFingerPrintVisible(true);
@@ -940,10 +913,6 @@ const WalletDetails: React.FC = () => {
                                 <TextInput
                                   value={masterFingerprint}
                                   onChangeText={(text: string) => {
-                                    setMasterFingerprint(text);
-                                  }}
-                                  onChange={event => {
-                                    const text = event.nativeEvent.text;
                                     setMasterFingerprint(text);
                                   }}
                                   onBlur={walletMasterFingerprintInputOnBlur}

@@ -29,7 +29,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
    * 5. provide fully signed psbt (UR)
    * 6. verify that we can see broadcast button and camera backdorr button is NOT visible
    */
-  it('can import zpub as watch-only, import psbt, and then scan signed psbt', async () => {
+  it('can import zpub as watch-only, import psbt, then scan signed psbt and edit masterfingerprint', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t31');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t31'), 'as it previously passed on Travis');
@@ -109,26 +109,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await goBack();
     await scrollUpOnHomeScreen(); // on the ios we need to scroll up to the wallet list
 
-    await helperDeleteWallet('Imported Watch-only', '10000');
-
-    process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  });
-
-  it('can edit masterfingerprint of wath-only wallet', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt('t32');
-    if (process.env.CI) {
-      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t32'), 'as it previously passed on Travis');
-    }
-    await device.clearKeychain();
-    await device.launchApp({ delete: true, permissions: { notifications: 'YES', camera: 'YES' } });
-    await helperImportWallet(
-      // MNEMONICS_KEYSTONE
-      'zpub6rgBMYrMz4hnVGjBRvd15kQuSbcKhB8rYG1oj7JU5mqTz5yXpErVzgp5kNfkLgu7c6YuBmD4HBYVnycfbwxqn21VUvELgHHUuWErMMJhs3P',
-      'watchOnly',
-      'Imported Watch-only',
-      '0',
-    );
-
+    // edit masterfingerprint test
     await waitForText('Imported Watch-only');
     await element(by.text('Imported Watch-only')).tap();
 
@@ -147,6 +128,19 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('masterfingerPrintInput')).clearText();
     await element(by.id('masterfingerPrintInput')).typeText('ff8ade64');
     await element(by.id('masterfingerPrintInput')).tapReturnKey();
+    await goBack();
+
+    await waitForText('Imported Watch-only');
+    await element(by.text('Imported Watch-only')).tap();
+
+    await element(by.id('WalletDetails')).tap();
+
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 0.5);
+    await sleep(500);
+
+    await element(by.id('advanced-details')).tap();
+
+    await element(by.id('viewMasterfingerprint')).tap();
 
     // masterfingerprint should have been edited to ff8ade64
     await expect(element(by.id('masterfingerPrintInput'))).toHaveText('ff8ade64');
@@ -159,21 +153,10 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
 
     await waitForText('Invalid Format');
     await element(by.text('OK')).tap();
-
-    // binary format
-    await element(by.id('masterfingerPrintInput')).clearText();
-    await element(by.id('masterfingerPrintInput')).typeText('0d4287290980');
-    await element(by.id('masterfingerPrintInput')).tapReturnKey();
-    await expect(element(by.id('masterfingerPrintInput'))).toHaveText('ff8ade64');
-
-    // decimal format
-    await element(by.id('masterfingerPrintInput')).clearText();
-    await element(by.id('masterfingerPrintInput')).typeText('0b11111111100010101101111001100100');
-    await element(by.id('masterfingerPrintInput')).tapReturnKey();
-    await expect(element(by.id('masterfingerPrintInput'))).toHaveText('ff8ade64');
-
     await goBack();
 
-    await helperDeleteWallet('Imported Watch-only');
+    await helperDeleteWallet('Imported Watch-only', '10000');
+
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 });
