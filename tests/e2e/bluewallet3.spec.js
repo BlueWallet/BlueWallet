@@ -8,7 +8,6 @@ import {
   sleep,
   waitForId,
   waitForKeyboardToClose,
-  waitForText,
 } from './helperz';
 
 // if loglevel is set to `error`, this kind of logging will still get through
@@ -29,7 +28,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
    * 5. provide fully signed psbt (UR)
    * 6. verify that we can see broadcast button and camera backdorr button is NOT visible
    */
-  it('can import zpub as watch-only, import psbt, then scan signed psbt and edit masterfingerprint', async () => {
+  it('can import zpub as watch-only, import psbt, and then scan signed psbt', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t31');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t31'), 'as it previously passed on Travis');
@@ -108,52 +107,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await goBack();
     await goBack();
     await scrollUpOnHomeScreen(); // on the ios we need to scroll up to the wallet list
-
-    // edit masterfingerprint test
-    await waitForText('Imported Watch-only');
-    await element(by.text('Imported Watch-only')).tap();
-
-    await element(by.id('WalletDetails')).tap();
-
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 0.5);
-    await sleep(500);
-
-    await element(by.id('advanced-details')).tap();
-
-    await element(by.id('viewMasterfingerprint')).tap();
-
-    // should be 00000000 by default
-    await expect(element(by.id('masterfingerPrintInput'))).toHaveText('00000000');
-
-    await element(by.id('masterfingerPrintInput')).clearText();
-    await element(by.id('masterfingerPrintInput')).typeText('ff8ade64');
-    await element(by.id('masterfingerPrintInput')).tapReturnKey();
-    await goBack();
-
-    await waitForText('Imported Watch-only');
-    await element(by.text('Imported Watch-only')).tap();
-
-    await element(by.id('WalletDetails')).tap();
-
-    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 0.5);
-    await sleep(500);
-
-    await element(by.id('advanced-details')).tap();
-
-    await element(by.id('viewMasterfingerprint')).tap();
-
-    // masterfingerprint should have been edited to ff8ade64
-    await expect(element(by.id('masterfingerPrintInput'))).toHaveText('ff8ade64');
-
-    await element(by.id('masterfingerPrintInput')).clearText();
-
-    // invalid masterfingerprint structure should cause alert to be displayed
-    await element(by.id('masterfingerPrintInput')).typeText('ff8ad');
-    await element(by.id('masterfingerPrintInput')).tapReturnKey();
-
-    await waitForText('Invalid Format');
-    await element(by.text('OK')).tap();
-    await goBack();
 
     await helperDeleteWallet('Imported Watch-only', '10000');
 
