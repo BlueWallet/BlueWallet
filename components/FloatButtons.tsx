@@ -52,7 +52,14 @@ const useFloatButtonAnimation = (initialHeight: number) => {
   };
 };
 
-const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
+const getScaledButtonHeight = (fontScale: number): number => Math.round(LAYOUT.BUTTON_HEIGHT * fontScale);
+
+/** Scroll padding so list content clears float buttons (excludes safe-area inset). Default 70 at fontScale 1. */
+const FLOAT_BUTTON_LIST_CLEARANCE = 18;
+
+export const getFloatingButtonReservedHeight = (fontScale = 1): number => getScaledButtonHeight(fontScale) + FLOAT_BUTTON_LIST_CLEARANCE;
+
+const useFloatButtonLayout = (width: number, sizeClass: SizeClass, fontScale: number) => {
   const lastVerticalDecision = useRef(false);
 
   const shouldUseVerticalLayout = useCallback(
@@ -152,15 +159,19 @@ const useFloatButtonLayout = (width: number, sizeClass: SizeClass) => {
     [width, sizeClass, shouldUseVerticalLayout],
   );
 
-  const calculateContainerHeight = useCallback((childrenCount: number, isVerticalLayout: boolean) => {
-    if (!isVerticalLayout) return { height: '8%', minHeight: LAYOUT.BUTTON_HEIGHT };
+  const calculateContainerHeight = useCallback(
+    (childrenCount: number, isVerticalLayout: boolean) => {
+      const buttonHeight = getScaledButtonHeight(fontScale);
+      if (!isVerticalLayout) return { height: '8%', minHeight: buttonHeight };
 
-    const totalButtonsHeight = childrenCount * LAYOUT.BUTTON_HEIGHT;
-    const totalMarginsHeight = (childrenCount - 1) * LAYOUT.BUTTON_MARGIN;
-    const calculatedHeight = totalButtonsHeight + totalMarginsHeight;
+      const totalButtonsHeight = childrenCount * buttonHeight;
+      const totalMarginsHeight = (childrenCount - 1) * LAYOUT.BUTTON_MARGIN;
+      const calculatedHeight = totalButtonsHeight + totalMarginsHeight;
 
-    return { height: calculatedHeight };
-  }, []);
+      return { height: calculatedHeight };
+    },
+    [fontScale],
+  );
 
   const calculateButtonFontSize = useMemo(() => {
     const divisor = sizeClass === SizeClass.Large ? 22 : sizeClass === SizeClass.Regular ? 24 : 28;
@@ -267,6 +278,7 @@ interface FButtonProps {
   isVertical?: boolean;
   borderRadius?: number;
   fontSize?: number;
+  buttonHeight?: number;
   disabled?: boolean;
   testID?: string;
   onPress: () => void;
@@ -277,13 +289,14 @@ interface ButtonContentProps {
   icon: ReactNode;
   text: string;
   textStyle: StyleProp<TextStyle>;
+  buttonHeight: number;
 }
 
 const getScaledIconSize = (fontSize: number): number => {
   return Math.max(Math.round(fontSize * 1.2), 16);
 };
 
-const ButtonContent = ({ icon, text, textStyle }: ButtonContentProps) => {
+const ButtonContent = ({ icon, text, textStyle, buttonHeight }: ButtonContentProps) => {
   const computedStyle = StyleSheet.flatten(textStyle);
   const fontSize = computedStyle.fontSize || LAYOUT.MAX_BUTTON_FONT_SIZE;
   const iconSize = getScaledIconSize(Number(fontSize));
@@ -307,9 +320,14 @@ const ButtonContent = ({ icon, text, textStyle }: ButtonContentProps) => {
   }
 
   return (
-    <View style={buttonContentStaticStyles.contentContainer}>
+    <View style={[buttonContentStaticStyles.contentContainer, { minHeight: buttonHeight }]}>
       <View style={buttonStyles.iconContainer}>{scaledIcon}</View>
-      <Text numberOfLines={1} adjustsFontSizeToFit style={[textStyle, buttonStyles.centeredText, { lineHeight: fontSize * 1.2 }]}>
+      <Text
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.8}
+        style={[textStyle, buttonStyles.centeredText, { lineHeight: fontSize * 1.2 }]}
+      >
         {text}
       </Text>
     </View>
@@ -325,6 +343,7 @@ export const FButton = ({
   isVertical,
   borderRadius = LAYOUT.PILL_BORDER_RADIUS,
   fontSize = LAYOUT.MAX_BUTTON_FONT_SIZE,
+  buttonHeight = LAYOUT.BUTTON_HEIGHT,
   testID,
   ...props
 }: FButtonProps) => {
@@ -347,6 +366,8 @@ export const FButton = ({
     return {
       root: {
         ...baseStyles,
+        height: buttonHeight,
+        minHeight: buttonHeight,
         backgroundColor: colors.buttonBackgroundColor,
       },
       text: {
@@ -360,7 +381,7 @@ export const FButton = ({
       marginBottom: buttonContentStaticStyles.marginBottom,
       textBase: buttonContentStaticStyles.textBase,
     };
-  }, [colors, fontSize]);
+  }, [colors, fontSize, buttonHeight]);
 
   const style: Record<string, any> = {};
   const additionalStyles = !last ? (isVertical ? customButtonStyles.marginBottom : customButtonStyles.marginRight) : {};
@@ -397,7 +418,7 @@ export const FButton = ({
         style={[buttonStyles.root, customButtonStyles.root, style, { borderRadius }]}
         {...props}
       >
-        <ButtonContent icon={icon} text={text} textStyle={textStyle} />
+        <ButtonContent icon={icon} text={text} textStyle={textStyle} buttonHeight={buttonHeight} />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -405,8 +426,9 @@ export const FButton = ({
 
 export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const insets = useSafeAreaInsets();
-  const { height, width } = useWindowDimensions();
+  const { height, width, fontScale } = useWindowDimensions();
   const { sizeClass } = useSizeClass();
+  const scaledButtonHeight = getScaledButtonHeight(fontScale);
 
   const childrenCount = React.Children.toArray(props.children).filter(Boolean).length;
 
@@ -419,6 +441,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
   const { calculateButtonWidth, calculateVisualParameters, calculateContainerHeight, buttonFontSize } = useFloatButtonLayout(
     width,
     sizeClass,
+    fontScale,
   );
 
   // Compute initial geometry up-front so the slide-in animation starts at the final (computed) size,
@@ -508,7 +531,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   useEffect(() => {
     debouncedCalculateLayout();
-  }, [debouncedCalculateLayout, width, height, childrenCount, sizeClass]);
+  }, [debouncedCalculateLayout, width, height, childrenCount, sizeClass, fontScale]);
 
   const onLayout = (event: { nativeEvent: { layout: { width: number } } }) => {
     const { width: currentLayoutWidth } = event.nativeEvent.layout;
@@ -545,6 +568,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       isVertical,
       borderRadius: buttonBorderRadius,
       fontSize: buttonFontSize,
+      buttonHeight: scaledButtonHeight,
     });
   };
 
@@ -561,10 +585,10 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
       props.inline ? containerStyles.rootInline : containerStyles.rootAbsolute,
       bottomInsets,
       effectiveNewWidth ? (isVertical ? containerStyles.rootPostVertical : containerStyles.rootPost) : containerStyles.rootPre,
-      isVertical ? containerHeight : null,
+      isVertical ? containerHeight : { minHeight: scaledButtonHeight },
       { transform: [{ translateY: slideAnimation }] },
     ],
-    [props.inline, bottomInsets, effectiveNewWidth, isVertical, containerHeight, slideAnimation],
+    [props.inline, bottomInsets, effectiveNewWidth, isVertical, containerHeight, slideAnimation, scaledButtonHeight],
   );
 
   return (

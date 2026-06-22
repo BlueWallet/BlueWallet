@@ -254,6 +254,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   contentContainer: {
+    flex: 1,
     paddingTop: WALLET_LABEL_TOP_GAP,
     paddingHorizontal: 16,
     paddingBottom: HERO_BOTTOM_PADDING,
