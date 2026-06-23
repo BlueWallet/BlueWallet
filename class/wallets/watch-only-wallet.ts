@@ -47,8 +47,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   allowRBF() {
-    if (this._hdWalletInstance) return true;
-    return false;
+    return this._hdWalletInstance?.type === HDSegwitBech32Wallet.type;
   }
 
   allowSignVerifyMessage() {
@@ -344,29 +343,5 @@ export class WatchOnlyWallet extends LegacyWallet {
   wasEverUsed(): Promise<boolean> {
     if (this._hdWalletInstance) return this._hdWalletInstance.wasEverUsed();
     return super.wasEverUsed();
-  }
-
-  getOwnedAddressesHashmap(): Record<string, boolean> {
-    if (!this._hdWalletInstance) {
-      return super.getOwnedAddressesHashmap();
-    }
-
-    const ownedAddressesHashmap: Record<string, boolean> = {};
-
-    for (let c = 0; c < this._hdWalletInstance.next_free_address_index + 1; c++) {
-      ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
-    }
-
-    for (let c = 0; c < this._hdWalletInstance.next_free_change_address_index + 1; c++) {
-      ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
-    }
-
-    for (const pc of this._hdWalletInstance._receive_payment_codes) {
-      for (let c = 0; c < this._hdWalletInstance._getNextFreePaymentCodeIndexReceive(pc) + 1; c++) {
-        ownedAddressesHashmap[this._hdWalletInstance._getBIP47AddressReceive(pc, c)] = true;
-      }
-    }
-
-    return ownedAddressesHashmap;
   }
 }

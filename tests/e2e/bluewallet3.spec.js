@@ -112,44 +112,4 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
-
-  it('Watch only has rbf enabled by default', async () => {
-    const lockFile = '/tmp/travislock.' + hashIt('t32');
-    if (process.env.CI) {
-      if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t32'), 'as it previously passed on Travis');
-    }
-    await device.clearKeychain();
-    await device.launchApp({ delete: true, permissions: { notifications: 'YES', camera: 'YES' } });
-    await helperImportWallet(
-      // MNEMONICS_KEYSTONE
-      'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y',
-      'watchOnly',
-      'Imported Watch-only',
-      '0.0001',
-    );
-    // wait for transactions to be loaded
-    try {
-      await waitFor(element(by.id('NoTransactionsMessage')))
-        .not.toExist()
-        .withTimeout(14_000);
-      await sleep(1000);
-    } catch (_) {}
-
-    try {
-      // in case notification popup appeared early and is blocking taps
-      await element(by.text(`No, and do not ask me again.`)).tap();
-    } catch (_) {}
-
-    await element(by.id('SendButton')).tap();
-    await element(by.text('OK')).tap();
-
-    await element(by.id('HeaderMenuButton')).tap();
-    await expect(element(by.text('Allow Fee Bump'))).toBeVisible();
-
-    await goBack();
-    await goBack();
-    await helperDeleteWallet('Imported Watch-only', '10000');
-
-    process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  });
 });

@@ -35,7 +35,12 @@ export default class RBFBumpFee extends CPFP {
   async checkPossibilityOfRBFBumpFee() {
     let tx;
     if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
-      tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet._hdWalletInstance);
+      tx = new HDSegwitBech32Transaction(
+        null,
+        this.state.txid,
+        this.state.wallet._hdWalletInstance,
+        this.state.wallet.getMasterFingerprint(),
+      );
     } else if (this.state.wallet?.type === HDSegwitBech32Wallet.type) {
       tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     } else {
@@ -81,6 +86,7 @@ export default class RBFBumpFee extends CPFP {
                 launchedBy: this.props.route?.params?.launchedBy,
               },
             });
+          this.setState({ isLoading: false });
           return;
         }
 

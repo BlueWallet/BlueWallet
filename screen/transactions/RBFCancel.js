@@ -27,7 +27,12 @@ export default class RBFCancel extends CPFP {
   async checkPossibilityOfRBFCancel() {
     let tx;
     if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
-      tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet._hdWalletInstance);
+      tx = new HDSegwitBech32Transaction(
+        null,
+        this.state.txid,
+        this.state.wallet._hdWalletInstance,
+        this.state.wallet.getMasterFingerprint(),
+      );
     } else if (this.state.wallet?.type === HDSegwitBech32Wallet.type) {
       tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     } else {
@@ -61,12 +66,10 @@ export default class RBFCancel extends CPFP {
         // user whether he wants to broadcast it
         if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
           let memo;
-          // porting metadata, if any
-          this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid] || {};
 
           // porting tx memo
-          if (this.context.txMetadata[this.state.newTxid]?.memo) {
-            memo = 'Cancelled: ' + this.context.txMetadata[this.state.newTxid]?.memo;
+          if (this.context.txMetadata[this.state.txid]?.memo) {
+            memo = 'Cancelled: ' + this.context.txMetadata[this.state.txid]?.memo;
           } else {
             memo = 'Cancelled transaction';
           }
@@ -83,6 +86,7 @@ export default class RBFCancel extends CPFP {
                 launchedBy: this.props.route?.params?.launchedBy,
               },
             });
+          this.setState({ isLoading: false });
           return;
         }
 

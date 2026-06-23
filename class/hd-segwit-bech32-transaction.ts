@@ -19,16 +19,21 @@ export class HDSegwitBech32Transaction {
   private _wallet: HDSegwitBech32Wallet | undefined;
   private _txDecoded: bitcoin.Transaction | undefined;
   private _remoteTx: any;
+  private _mfp?: number;
 
   /**
    * @param txhex {string|null} Object is initialized with txhex
    * @param txid {string|null} If txhex not present - txid whould be present
    * @param wallet {HDSegwitBech32Wallet|null} If set - a wallet object to which transacton belongs
    */
-  constructor(txhex: string | null, txid: string | null, wallet: HDSegwitBech32Wallet | null) {
+  constructor(txhex: string | null, txid: string | null, wallet: HDSegwitBech32Wallet | null, mfp?: number) {
     if (!txhex && !txid) throw new Error('Bad arguments');
     this._txhex = txhex;
     this._txid = txid;
+
+    if (mfp) {
+      this._mfp = mfp;
+    }
 
     if (wallet) {
       if (wallet.type === HDSegwitBech32Wallet.type) {
@@ -305,8 +310,8 @@ export class HDSegwitBech32Transaction {
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
 
-    // if there is no seccret then its a watch only wallet, skip signing and also pass the masterfingerprint
-    if (!this._wallet.secret) {
+    // if there is no secret then its a watch only wallet, skip signing and also pass the masterfingerprint
+    if (!this._wallet.secret && this?._mfp) {
       return this._wallet.createTransaction(
         utxos,
         [{ address: myAddress }],
@@ -314,7 +319,7 @@ export class HDSegwitBech32Transaction {
         myAddress,
         (await this.getMaxUsedSequence()) + 1,
         true,
-        parseInt(this._wallet.getMasterFingerprintHex(), 16),
+        this._mfp,
       );
     }
 
@@ -354,17 +359,9 @@ export class HDSegwitBech32Transaction {
       // not checking emptiness on purpose: it could unpredictably generate too far address because of unconfirmed tx.
     }
 
-    // if there is no seccret then its a watch only wallet, skip signing and also pass the masterfingerprint
-    if (!this._wallet.secret) {
-      return this._wallet.createTransaction(
-        utxos,
-        targets,
-        newFeerate,
-        myAddress,
-        (await this.getMaxUsedSequence()) + 1,
-        true,
-        parseInt(this._wallet.getMasterFingerprintHex(), 16),
-      );
+    // if there is no secret then its a watch only wallet, skip signing and also pass the masterfingerprint
+    if (!this._wallet.secret && this?._mfp) {
+      return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1, true, this._mfp);
     }
 
     return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1);
