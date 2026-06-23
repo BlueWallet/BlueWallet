@@ -542,7 +542,7 @@ const WalletDetails: React.FC = () => {
         try {
           wallet.setMasterFingerprintHex(mfp);
           await saveToDisk();
-          setMasterFingerprint(mfp);
+          setMasterFingerprint(wallet.getMasterFingerprintHex());
         } catch (error) {
           presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
           setMasterFingerprint(currentMasterFingerprint);

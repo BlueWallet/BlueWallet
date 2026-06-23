@@ -261,20 +261,10 @@ export class WatchOnlyWallet extends LegacyWallet {
       throw new Error('Master fingerprint must be exactly 8 hex characters');
     }
 
-    const bytes = hex.match(/../g);
-    if (!bytes) {
-      throw new Error('Invalid master fingerprint structure');
-    }
-
     // convert Little Endian to Big Endian
-    const reversed = bytes.reverse().join('');
-    const parsed = Number.parseInt(reversed, 16);
+    const reversed = hex.slice(6, 8) + hex.slice(4, 6) + hex.slice(2, 4) + hex.slice(0, 2);
 
-    if (Number.isNaN(parsed)) {
-      throw new Error('Invalid master fingerprint');
-    }
-
-    this.masterFingerprint = parsed;
+    this.masterFingerprint = parseInt(reversed, 16);
   }
 
   isHd() {
