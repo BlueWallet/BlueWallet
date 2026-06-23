@@ -42,7 +42,7 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
         marginBottom: Math.round(2 * fontScale),
       },
       balance: {
-        lineHeight: Math.round(38 * fontScale),
+        lineHeight: Math.round(38 * Math.max(1, fontScale)),
       },
     }),
     [fontScale],
