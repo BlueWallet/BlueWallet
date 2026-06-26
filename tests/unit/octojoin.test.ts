@@ -31,6 +31,28 @@ describe('Octojoin protocol logic', () => {
     );
   });
 
+  it('decomposeAmount conserves value for a sub-dust total (the 501-546 sat window)', () => {
+    // whole payment is below the smallest denomination AND the dust threshold:
+    // it cannot form a valid standard output, so it must not silently become a fee
+    for (const amt of [501, 520, 546]) {
+      assert.deepStrictEqual(decomposeAmount(amt), [], `expected empty decomposition for ${amt}`);
+    }
+    // just above dust it becomes a single output, with no value lost
+    assert.deepStrictEqual(decomposeAmount(547), [547]);
+  });
+
+  it('planOctojoin rejects a sub-dust payment instead of donating it to fees', () => {
+    const utxos = [
+      { value: 100000, isOctojoin: true },
+      { value: 100000, isOctojoin: true },
+      { value: 100000, isOctojoin: false },
+    ];
+    assert.throws(
+      () => planOctojoin({ utxos, paymentSats: 520, addresses: ['a', 'b'], isSilentPayment: false, numInputs: 3, feeRate: 1 }),
+      /below the dust threshold/,
+    );
+  });
+
   it('isOctojoinMemo matches case-insensitively and within longer notes', () => {
     assert.strictEqual(isOctojoinMemo('Octojoin 1'), true);
     assert.strictEqual(isOctojoinMemo('octojoin 2'), true);

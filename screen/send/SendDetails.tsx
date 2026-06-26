@@ -36,7 +36,7 @@ import { ContactList } from '../../class/contact-list';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
-import { isOctojoinMemo, OCTOJOIN_MIN_INPUTS, OCTOJOIN_MIN_OUTPUTS, planOctojoin } from '../../class/octojoin';
+import { isOctojoinMemo, OCTOJOIN_DUST_THRESHOLD, OCTOJOIN_MIN_INPUTS, OCTOJOIN_MIN_OUTPUTS, planOctojoin } from '../../class/octojoin';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
@@ -527,7 +527,7 @@ const SendDetails = () => {
       return loc.send.octojoin_outputs;
     }
     const { addressList, isSilentPayment, amountSats } = parseOctojoinDestinations();
-    if (!amountSats || amountSats <= 500) {
+    if (!amountSats || amountSats <= OCTOJOIN_DUST_THRESHOLD) {
       return loc.send.details_amount_field_is_not_valid;
     }
     if (!feeRate || parseFloat(feeRate) < 0) {

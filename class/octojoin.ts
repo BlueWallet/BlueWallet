@@ -130,6 +130,9 @@ export function planOctojoin<T extends OctojoinSelectableUtxo>(params: {
   const { utxos, paymentSats, addresses, isSilentPayment, numInputs, feeRate, inputVbytes = 68 } = params;
 
   const denominations = decomposeAmount(paymentSats);
+  if (denominations.length === 0) {
+    throw new Error(`Payment amount ${paymentSats} sat is below the dust threshold and cannot be octojoined.`);
+  }
   const paymentTargets: OctojoinTarget[] = isSilentPayment
     ? denominations.map(value => ({ address: addresses[0], value }))
     : Object.entries(distributeOutputs(denominations, addresses))
