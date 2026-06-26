@@ -24,6 +24,8 @@ export function decomposeAmount(amountInSatoshis: number): number[] {
 
   if (remaining > OCTOJOIN_DUST_THRESHOLD) {
     denominations.push(remaining);
+  } else if (remaining > 0 && denominations.length > 0) {
+    denominations[denominations.length - 1] += remaining;
   }
 
   return denominations;
