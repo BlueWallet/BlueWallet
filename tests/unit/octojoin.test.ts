@@ -200,6 +200,34 @@ describe('Octojoin planning', () => {
     assert.ok(plan.paymentTargets.every(t => t.address === 'sp1qexample'));
   });
 
+  it('silent payment honors numOutputs by bucketing denominations into that many outputs', () => {
+    const spUtxos = [
+      { value: 100000, isOctojoin: true },
+      { value: 100000, isOctojoin: true },
+      { value: 100000, isOctojoin: true },
+      { value: 2000000, isOctojoin: false },
+    ];
+    // 700000 -> [500000, 200000, ... ] decomposes into several denominations;
+    // with numOutputs = 2 the SP path must emit exactly 2 outputs, all to the sp address,
+    // and conserve the total value.
+    const plan = planOctojoin({
+      utxos: spUtxos,
+      paymentSats: 700000,
+      addresses: ['sp1qexample'],
+      isSilentPayment: true,
+      numInputs: 4,
+      numOutputs: 2,
+      feeRate: 1,
+    });
+    assert.strictEqual(plan.paymentTargets.length, 2, 'numOutputs knob must control SP output count');
+    assert.ok(plan.paymentTargets.every(t => t.address === 'sp1qexample'));
+    assert.strictEqual(
+      plan.paymentTargets.reduce((s, t) => s + t.value, 0),
+      700000,
+      'SP outputs must conserve the payment value',
+    );
+  });
+
   it('throws when inputs cannot cover payment plus fee', () => {
     const tiny = [
       { value: 100000, isOctojoin: true },

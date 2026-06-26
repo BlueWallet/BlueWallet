@@ -31,6 +31,15 @@ export function decomposeAmount(amountInSatoshis: number): number[] {
   return denominations;
 }
 
+export function bucketValues(values: number[], numBuckets: number): number[] {
+  if (!numBuckets || numBuckets <= 0) return values.filter(v => v > 0);
+  const buckets = new Array(numBuckets).fill(0);
+  values.forEach((v, i) => {
+    buckets[i % numBuckets] += v;
+  });
+  return buckets.filter(v => v > 0);
+}
+
 export function distributeOutputs(denominations: number[], addresses: string[]): Record<string, number> {
   const outputs: Record<string, number> = {};
   for (const addr of addresses) {
@@ -124,17 +133,18 @@ export function planOctojoin<T extends OctojoinSelectableUtxo>(params: {
   addresses: string[];
   isSilentPayment: boolean;
   numInputs: number;
+  numOutputs?: number;
   feeRate: number;
   inputVbytes?: number;
 }): OctojoinPlan<T> {
-  const { utxos, paymentSats, addresses, isSilentPayment, numInputs, feeRate, inputVbytes = 68 } = params;
+  const { utxos, paymentSats, addresses, isSilentPayment, numInputs, numOutputs, feeRate, inputVbytes = 68 } = params;
 
   const denominations = decomposeAmount(paymentSats);
   if (denominations.length === 0) {
     throw new Error(`Payment amount ${paymentSats} sat is below the dust threshold and cannot be octojoined.`);
   }
   const paymentTargets: OctojoinTarget[] = isSilentPayment
-    ? denominations.map(value => ({ address: addresses[0], value }))
+    ? bucketValues(denominations, numOutputs ?? denominations.length).map(value => ({ address: addresses[0], value }))
     : Object.entries(distributeOutputs(denominations, addresses))
         .filter(([, value]) => value > 0)
         .map(([address, value]) => ({ address, value }));
