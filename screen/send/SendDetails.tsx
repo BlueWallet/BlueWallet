@@ -686,6 +686,7 @@ const SendDetails = () => {
 
     if (isOctojoin) {
       const numInputs = parseInt(octojoinNumInputs, 10) || OCTOJOIN_MIN_INPUTS;
+      const numOutputs = parseInt(octojoinNumOutputs, 10) || OCTOJOIN_MIN_OUTPUTS;
       const { addressList, isSilentPayment, amountSats } = parseOctojoinDestinations();
 
       const annotated = lutxo.map(u => ({
@@ -706,6 +707,7 @@ const SendDetails = () => {
         addresses: addressList,
         isSilentPayment,
         numInputs,
+        numOutputs,
         feeRate: requestedSatPerByte,
         inputVbytes,
       });
