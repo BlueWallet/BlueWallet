@@ -47,6 +47,49 @@ describe('Octojoin protocol logic', () => {
     assert.strictEqual(selection.totalValue, 350000);
   });
 
+  it('selectOctojoinUtxos uses exactly one non-octojoin sender coin and caps inputs at numInputs', () => {
+    const utxos = [
+      { value: 150000, isOctojoin: true },
+      { value: 150000, isOctojoin: true },
+      { value: 90000, isOctojoin: false },
+      { value: 90000, isOctojoin: false },
+      { value: 90000, isOctojoin: false },
+    ];
+    const selection = selectOctojoinUtxos(utxos, 3, 320000);
+    assert.strictEqual(selection.other.length, 1, 'must spend exactly one sender coin');
+    assert.strictEqual(selection.all.length, 3, 'total inputs must equal numInputs, not more');
+    assert.strictEqual(
+      selection.other.every(u => !u.isOctojoin),
+      true,
+    );
+  });
+
+  it('selectOctojoinUtxos picks the smallest single sender coin that covers the target', () => {
+    const utxos = [
+      { value: 100000, isOctojoin: true },
+      { value: 100000, isOctojoin: true },
+      { value: 50000, isOctojoin: false },
+      { value: 130000, isOctojoin: false },
+      { value: 900000, isOctojoin: false },
+    ];
+    // swapped = 200000, remaining = 120000 -> smallest covering coin is 130000, not 900000
+    const selection = selectOctojoinUtxos(utxos, 3, 320000);
+    assert.strictEqual(selection.other.length, 1);
+    assert.strictEqual(selection.other[0].value, 130000);
+    assert.strictEqual(selection.totalValue, 330000);
+  });
+
+  it('selectOctojoinUtxos throws when no single sender coin can cover the target (no hoarding)', () => {
+    const utxos = [
+      { value: 100000, isOctojoin: true },
+      { value: 100000, isOctojoin: true },
+      { value: 60000, isOctojoin: false },
+      { value: 60000, isOctojoin: false },
+    ];
+    // swapped 200000 + any single 60000 = 260000 < 300000; must NOT combine both others
+    assert.throws(() => selectOctojoinUtxos(utxos, 3, 300000), /Insufficient funds/);
+  });
+
   it('selectOctojoinUtxos throws when not enough octojoin coins', () => {
     const utxos = [
       { value: 150000, isOctojoin: true },
