@@ -1,4 +1,5 @@
 import assert from 'assert';
+import * as bitcoin from 'bitcoinjs-lib';
 
 import {
   decomposeAmount,
@@ -295,5 +296,63 @@ describe('Octojoin transaction building (integration)', () => {
     assert.ok(feerate >= 1.9, `fee rate too low: ${feerate}`);
     // produces broadcastable hex
     assert.ok(tx!.toHex().length > 0);
+  });
+
+  it('builds and signs a silent-payment octojoin transaction honoring numOutputs', () => {
+    const hd = new HDSegwitBech32Wallet();
+    hd.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    assert.ok(hd.validateMnemonic());
+    assert.ok(hd.allowSilentPaymentSend());
+
+    const in0 = hd._getExternalAddressByIndex(0);
+    const in1 = hd._getExternalAddressByIndex(1);
+    const in2 = hd._getExternalAddressByIndex(2);
+    const utxos = [
+      { address: in0, txid: '1'.repeat(64), vout: 0, value: 100000, isOctojoin: true, wif: hd._getWIFbyAddress(in0) as string },
+      { address: in1, txid: '2'.repeat(64), vout: 0, value: 100000, isOctojoin: true, wif: hd._getWIFbyAddress(in1) as string },
+      { address: in2, txid: '3'.repeat(64), vout: 0, value: 800000, isOctojoin: false, wif: hd._getWIFbyAddress(in2) as string },
+    ];
+
+    // single silent-payment recipient; octojoin must expand it into numOutputs distinct outputs
+    const spAddress =
+      'sp1qqvvnsd3xnjpmx8hnn2ua0e9sllm34t9jydf8qfesgc7nhdxgzksjwqlrxx37nfzsg6rure5vwa92fksd6f5a6rk05kr07twhd55u3ahquy2v7t6s';
+    const plan = planOctojoin({
+      utxos,
+      paymentSats: 300000,
+      addresses: [spAddress],
+      isSilentPayment: true,
+      numInputs: 3,
+      numOutputs: 2,
+      feeRate: 2,
+    });
+    assert.strictEqual(plan.paymentTargets.length, 2);
+    assert.ok(plan.paymentTargets.every(t => t.address === spAddress));
+
+    const changeAddress = hd._getInternalAddressByIndex(hd.next_free_change_address_index);
+    const { tx, fee } = hd.createTransaction(plan.inputs as any, plan.paymentTargets, 2, changeAddress, undefined, false, 0, true);
+
+    assert.ok(tx, 'transaction should be finalized');
+    assert.strictEqual(tx!.ins.length, 3, 'all three forced inputs spent');
+
+    const decoded = tx!.outs.map(o => ({ address: bitcoin.address.fromOutputScript(o.script), value: Number(o.value) }));
+    // the single sp1 recipient resolves into two distinct taproot outputs (BIP-352)
+    const spOuts = decoded.filter(o => o.address.startsWith('bc1p'));
+    assert.strictEqual(spOuts.length, 2, 'numOutputs distinct SP outputs');
+    assert.notStrictEqual(spOuts[0].address, spOuts[1].address, 'SP outputs are unique addresses');
+    assert.strictEqual(
+      spOuts.reduce((s, o) => s + o.value, 0),
+      300000,
+      'payment value conserved across SP outputs',
+    );
+
+    // exactly one change output back to the wallet
+    const changeOuts = decoded.filter(o => o.address === changeAddress);
+    assert.strictEqual(changeOuts.length, 1, 'exactly one change output');
+
+    // value is conserved: inputs === outputs + fee
+    const totalIn = plan.inputs.reduce((s, u) => s + u.value, 0);
+    const totalOut = decoded.reduce((s, o) => s + o.value, 0);
+    assert.strictEqual(totalIn, totalOut + fee, 'inputs === outputs + fee');
+    assert.ok(tx!.toHex().length > 0, 'produces broadcastable hex');
   });
 });
