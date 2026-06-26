@@ -74,24 +74,20 @@ export function selectOctojoinUtxos<T extends OctojoinSelectableUtxo>(
   }
 
   const selectedSwapped = swappedUtxos.slice(0, requiredSwapped);
-  const selectedOther: T[] = [];
+  const swappedValue = selectedSwapped.reduce((sum, u) => sum + u.value, 0);
 
-  const sortedOther = [...otherUtxos].sort((a, b) => b.value - a.value);
+  // exactly one sender coin plus the swapped decoys, smallest that covers the target
+  const remaining = targetAmount - swappedValue;
+  const sortedOther = [...otherUtxos].sort((a, b) => a.value - b.value);
+  const sender = sortedOther.find(u => u.value >= remaining) ?? sortedOther[sortedOther.length - 1];
 
-  let currentTotalValue = selectedSwapped.reduce((sum, u) => sum + u.value, 0);
-
-  for (const other of sortedOther) {
-    selectedOther.push(other);
-    currentTotalValue += other.value;
-    if (currentTotalValue >= targetAmount) {
-      break;
-    }
-  }
+  const selectedOther = [sender];
+  const currentTotalValue = swappedValue + sender.value;
 
   if (currentTotalValue < targetAmount) {
     throw new Error(
-      `Insufficient funds. Total selected: ${(currentTotalValue / 100000000).toFixed(8)} BTC, ` +
-        `Target: ${(targetAmount / 100000000).toFixed(8)} BTC.`,
+      `Insufficient funds. A single sender coin plus the swapped decoys total ` +
+        `${(currentTotalValue / 100000000).toFixed(8)} BTC, target ${(targetAmount / 100000000).toFixed(8)} BTC. Use a larger coin.`,
     );
   }
 
