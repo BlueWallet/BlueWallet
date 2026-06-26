@@ -18,9 +18,17 @@ describe('Octojoin protocol logic', () => {
     assert.ok(denominations.includes(100000));
   });
 
-  it('decomposeAmount keeps a non-dust remainder and drops dust', () => {
+  it('decomposeAmount keeps a non-dust remainder as its own output', () => {
     assert.deepStrictEqual(decomposeAmount(101000), [100000, 1000]);
-    assert.deepStrictEqual(decomposeAmount(100500), [100000]);
+  });
+
+  it('decomposeAmount folds a sub-dust remainder into the last output instead of losing it to fees', () => {
+    // 500 sat remainder is below the 546 dust threshold but must not vanish
+    assert.deepStrictEqual(decomposeAmount(100500), [100500]);
+    assert.strictEqual(
+      decomposeAmount(100500).reduce((s, v) => s + v, 0),
+      100500,
+    );
   });
 
   it('isOctojoinMemo matches case-insensitively and within longer notes', () => {
