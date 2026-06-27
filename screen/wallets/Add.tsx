@@ -23,6 +23,7 @@ import { Action } from '../../components/types';
 import { getLNDHub } from '../../helpers/lndHub';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { RouteProp, useRoute } from '@react-navigation/native';
@@ -31,6 +32,7 @@ import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
+import { isIOS26OrHigher } from '../../components/platform';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -103,6 +105,7 @@ const walletReducer = (state: State, action: TAction): State => {
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'AddWallet'>;
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'AddWallet'>;
+type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const WalletsAdd: React.FC = () => {
   const { colors } = useTheme();
@@ -252,40 +255,128 @@ const WalletsAdd: React.FC = () => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
   }, [confirmResetEntropy]);
 
+  const handleHeaderMenuItemPress = useCallback(
+    (id: string) => {
+      if (id === LightningCustodianWallet.type) {
+        handleOnLightningButtonPressed();
+      } else if (id === '12_words') {
+        navigate('ProvideEntropy', { words: 12, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
+      } else if (id === '24_words') {
+        navigate('ProvideEntropy', { words: 24, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
+      } else if (id === CommonToolTipActions.ResetToDefault.id) {
+        confirmResetEntropy(ButtonSelected.ONCHAIN);
+      } else {
+        for (let c = 0; c < Object.values(index2walletType).length; c++) {
+          if (index2walletType[c].walletType === id) {
+            // Found selected wallet type action
+            setSelectedIndex(c);
+            break;
+          }
+        }
+      }
+    },
+    [confirmResetEntropy, entropy, handleOnLightningButtonPressed, navigate],
+  );
+
   const HeaderRight = useMemo(
     () => (
       <HeaderMenuButton
-        onPressMenuItem={(id: string) => {
-          if (id === LightningCustodianWallet.type) {
-            handleOnLightningButtonPressed();
-          } else if (id === '12_words') {
-            navigate('ProvideEntropy', { words: 12, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
-          } else if (id === '24_words') {
-            navigate('ProvideEntropy', { words: 24, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
-          } else if (id === CommonToolTipActions.ResetToDefault.id) {
-            confirmResetEntropy(ButtonSelected.ONCHAIN);
-          } else {
-            for (let c = 0; c < Object.values(index2walletType).length; c++) {
-              if (index2walletType[c].walletType === id) {
-                // found our item that was pressed
-                setSelectedIndex(c);
-                break;
-              }
-            }
-          }
-        }}
+        onPressMenuItem={handleHeaderMenuItemPress}
         actions={toolTipActions}
       />
     ),
-    [handleOnLightningButtonPressed, toolTipActions, entropy, confirmResetEntropy, navigate],
+    [handleHeaderMenuItemPress, toolTipActions],
   );
+
+  const nativeHeaderRightItems = useMemo<(() => HeaderRightItem[])>(() => {
+    const walletTypeItems = [
+      {
+        type: 'action' as const,
+        label: index2walletType[0].text,
+        onPress: () => handleHeaderMenuItemPress(index2walletType[0].walletType),
+      },
+      {
+        type: 'action' as const,
+        label: index2walletType[1].text,
+        onPress: () => handleHeaderMenuItemPress(index2walletType[1].walletType),
+      },
+      {
+        type: 'action' as const,
+        label: index2walletType[2].text,
+        onPress: () => handleHeaderMenuItemPress(index2walletType[2].walletType),
+      },
+      {
+        type: 'action' as const,
+        label: index2walletType[3].text,
+        onPress: () => handleHeaderMenuItemPress(index2walletType[3].walletType),
+      },
+    ];
+
+    const menuItems: Array<{
+      type: 'action' | 'submenu';
+      label: string;
+      onPress?: () => void;
+      items?: Array<{ type: 'action'; label: string; onPress: () => void; destructive?: boolean }>;
+    }> = [
+      {
+        type: 'submenu',
+        label: loc.multisig.wallet_type,
+        items: walletTypeItems,
+      },
+    ];
+
+    if (selectedWalletType === ButtonSelected.ONCHAIN) {
+      const entropyItems: Array<{ type: 'action'; label: string; onPress: () => void; destructive?: boolean }> = [
+        {
+          type: 'action',
+          label: loc.wallets.add_wallet_seed_length_12,
+          onPress: () => handleHeaderMenuItemPress('12_words'),
+        },
+        {
+          type: 'action',
+          label: loc.wallets.add_wallet_seed_length_24,
+          onPress: () => handleHeaderMenuItemPress('24_words'),
+        },
+      ];
+      if (entropy) {
+        entropyItems.push({
+          type: 'action',
+          label: CommonToolTipActions.ResetToDefault.text,
+          destructive: true,
+          onPress: () => handleHeaderMenuItemPress(CommonToolTipActions.ResetToDefault.id),
+        });
+      }
+
+      menuItems.push({
+        type: 'submenu',
+        label: entropyButtonText,
+        items: entropyItems,
+      });
+    }
+
+    return () => [
+      {
+        type: 'menu',
+        label: 'Options',
+        icon: {
+          type: 'sfSymbol',
+          name: 'ellipsis',
+        },
+        menu: {
+          title: 'Options',
+          items: menuItems,
+        },
+      } as HeaderRightItem,
+    ];
+  }, [entropy, entropyButtonText, handleHeaderMenuItemPress, selectedWalletType]);
 
   useEffect(() => {
     setOptions({
-      headerRight: () => HeaderRight,
+      headerRight: isIOS26OrHigher ? undefined : () => HeaderRight,
+      unstable_headerRightItems: isIOS26OrHigher ? nativeHeaderRightItems : undefined,
       statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
     });
-  }, [HeaderRight, colorScheme, colors.foregroundColor, setOptions, toolTipActions]);
+  }, [HeaderRight, colorScheme, nativeHeaderRightItems, setOptions]);
 
   useEffect(() => {
     // resetting format of last camera qr scan, in case user will use camera to
