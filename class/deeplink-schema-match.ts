@@ -153,7 +153,7 @@ class DeeplinkSchemaMatch {
           },
         },
       ]);
-    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url) && !DeeplinkSchemaMatch.isBitcoinUriSchema(event.url)) {
+    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url)) {
       completionHandler([
         'SendDetailsRoot',
         {
