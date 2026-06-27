@@ -121,6 +121,38 @@ describe('Octojoin protocol logic', () => {
     assert.throws(() => selectOctojoinUtxos(utxos, 3, 300000), /Insufficient funds/);
   });
 
+  it('selectOctojoinUtxos avoids the unnecessary input heuristic (change < smallest input)', () => {
+    const utxos = [
+      { value: 110000, isOctojoin: true },
+      { value: 120000, isOctojoin: true },
+      { value: 500000, isOctojoin: true },
+      { value: 130000, isOctojoin: false },
+      { value: 600000, isOctojoin: false },
+    ];
+    const sel = selectOctojoinUtxos(utxos, 3, 300000);
+    assert.strictEqual(sel.all.length, 3);
+    const change = sel.totalValue - 300000;
+    const minInput = Math.min(...sel.all.map(u => u.value));
+    assert.ok(change >= 0 && change < minInput, `change ${change} must be < smallest input ${minInput}`);
+  });
+
+  it('selectOctojoinUtxos prefers a UIH-clean selection over a smaller-change one with an unnecessary input', () => {
+    const utxos = [
+      { value: 5000, isOctojoin: true },
+      { value: 110000, isOctojoin: true },
+      { value: 110000, isOctojoin: true },
+      { value: 152000, isOctojoin: true },
+      { value: 110000, isOctojoin: false },
+      { value: 153000, isOctojoin: false },
+    ];
+    const sel = selectOctojoinUtxos(utxos, 3, 300000);
+    const change = sel.totalValue - 300000;
+    const minInput = Math.min(...sel.all.map(u => u.value));
+    assert.ok(change < minInput, 'selection must be UIH-clean');
+    // the clean 110000+110000+110000 (change 30000), not the 5000+152000+153000 (change 10000 but unnecessary input)
+    assert.strictEqual(sel.totalValue, 330000);
+  });
+
   it('selectOctojoinUtxos throws when not enough octojoin coins', () => {
     const utxos = [
       { value: 150000, isOctojoin: true },

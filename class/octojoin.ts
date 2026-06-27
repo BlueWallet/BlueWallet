@@ -67,6 +67,18 @@ export interface OctojoinSelection<T extends OctojoinSelectableUtxo> {
   totalValue: number;
 }
 
+function chooseCombinations<T>(arr: T[], k: number): T[][] {
+  if (k === 0) return [[]];
+  if (k > arr.length) return [];
+  const result: T[][] = [];
+  for (let i = 0; i <= arr.length - k; i++) {
+    for (const rest of chooseCombinations(arr.slice(i + 1), k - 1)) {
+      result.push([arr[i], ...rest]);
+    }
+  }
+  return result;
+}
+
 export function selectOctojoinUtxos<T extends OctojoinSelectableUtxo>(
   utxos: T[],
   numInputs: number,
@@ -84,29 +96,42 @@ export function selectOctojoinUtxos<T extends OctojoinSelectableUtxo>(
     throw new Error('Requires at least 1 non-octojoin coin.');
   }
 
-  const selectedSwapped = swappedUtxos.slice(0, requiredSwapped);
-  const swappedValue = selectedSwapped.reduce((sum, u) => sum + u.value, 0);
+  // Pick (numInputs - 1) swapped decoys plus exactly one sender coin, choosing the
+  // combination that avoids the unnecessary input heuristic: the change MUST be
+  // smaller than the smallest input, otherwise an input could be dropped while the
+  // payment is still funded, fingerprinting the transaction. Prefer a UIH-clean
+  // selection, then the smallest change. Smaller coins are searched first so totals
+  // stay tight; the pool is bounded to keep the combination search cheap.
+  const swappedPool = [...swappedUtxos].sort((a, b) => a.value - b.value).slice(0, requiredSwapped + 6);
+  const senders = [...otherUtxos].sort((a, b) => a.value - b.value).slice(0, 10);
 
-  // exactly one sender coin plus the swapped decoys, smallest that covers the target
-  const remaining = targetAmount - swappedValue;
-  const sortedOther = [...otherUtxos].sort((a, b) => a.value - b.value);
-  const sender = sortedOther.find(u => u.value >= remaining) ?? sortedOther[sortedOther.length - 1];
+  let best: { swapped: T[]; other: T; total: number; change: number; clean: boolean } | null = null;
+  for (const combo of chooseCombinations(swappedPool, requiredSwapped)) {
+    const swappedValue = combo.reduce((sum, u) => sum + u.value, 0);
+    for (const sender of senders) {
+      const total = swappedValue + sender.value;
+      if (total < targetAmount) continue;
+      const change = total - targetAmount;
+      const minInput = Math.min(sender.value, ...combo.map(u => u.value));
+      const clean = change < minInput;
+      if (!best || (clean && !best.clean) || (clean === best.clean && change < best.change)) {
+        best = { swapped: combo, other: sender, total, change, clean };
+      }
+    }
+  }
 
-  const selectedOther = [sender];
-  const currentTotalValue = swappedValue + sender.value;
-
-  if (currentTotalValue < targetAmount) {
+  if (!best) {
     throw new Error(
-      `Insufficient funds. A single sender coin plus the swapped decoys total ` +
-        `${(currentTotalValue / 100000000).toFixed(8)} BTC, target ${(targetAmount / 100000000).toFixed(8)} BTC. Use a larger coin.`,
+      `Insufficient funds. The swapped decoys plus a single sender coin cannot cover the target ` +
+        `${(targetAmount / 100000000).toFixed(8)} BTC. Use larger coins.`,
     );
   }
 
   return {
-    swapped: selectedSwapped,
-    other: selectedOther,
-    all: [...selectedSwapped, ...selectedOther],
-    totalValue: currentTotalValue,
+    swapped: best.swapped,
+    other: [best.other],
+    all: [...best.swapped, best.other],
+    totalValue: best.total,
   };
 }
 
