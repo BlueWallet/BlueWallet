@@ -1,7 +1,8 @@
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { isIOS26OrHigher } from './platform';
 import loc from '../loc';
 import { Theme } from './themes';
 
@@ -63,6 +64,18 @@ const getHandleCloseAction = (
   };
 };
 
+const renderCloseButton = (theme: Theme, isFormSheet: boolean, handleClose: () => void) => (
+  <TouchableOpacity
+    accessibilityRole="button"
+    accessibilityLabel={loc._.close}
+    style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
+    onPress={handleClose}
+    testID="NavigationCloseButton"
+  >
+    <Image source={theme.closeImage} />
+  </TouchableOpacity>
+);
+
 const navigationStyle = (
   {
     closeButtonPosition,
@@ -89,33 +102,44 @@ const navigationStyle = (
           : getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
       const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
 
+      const closeButtonElement = renderCloseButton(theme, isFormSheet, handleClose);
+      const useNativeHeaderItems = isIOS26OrHigher;
+
       let headerRight;
       let headerLeft;
+      let unstableHeaderRightItems;
+      let unstableHeaderLeftItems;
 
       if (closeButton === CloseButtonPosition.Right) {
-        headerRight = () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
-            onPress={handleClose}
-            testID="NavigationCloseButton"
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        );
+        if (useNativeHeaderItems) {
+          unstableHeaderRightItems = () => [
+            {
+              type: 'button' as const,
+              label: loc._.close,
+              icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
+              onPress: handleClose,
+              accessibilityLabel: loc._.close,
+              sharesBackground: false,
+            },
+          ];
+        } else {
+          headerRight = () => closeButtonElement;
+        }
       } else if (closeButton === CloseButtonPosition.Left) {
-        headerLeft = () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
-            onPress={handleClose}
-            testID="NavigationCloseButton"
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        );
+        if (useNativeHeaderItems) {
+          unstableHeaderLeftItems = () => [
+            {
+              type: 'button' as const,
+              label: loc._.close,
+              icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
+              onPress: handleClose,
+              accessibilityLabel: loc._.close,
+              sharesBackground: false,
+            },
+          ];
+        } else {
+          headerLeft = () => closeButtonElement;
+        }
       }
       const baseHeaderStyle = {
         headerShadowVisible: false,
@@ -139,6 +163,8 @@ const navigationStyle = (
         ...leftCloseButtonStyle,
         headerBackButtonDisplayMode: 'minimal',
         headerRight,
+        unstable_headerLeftItems: unstableHeaderLeftItems,
+        unstable_headerRightItems: unstableHeaderRightItems,
         ...opts,
         statusBarStyle,
       };
