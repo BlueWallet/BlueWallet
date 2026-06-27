@@ -35,7 +35,7 @@ const linkingConfig: LinkingOptions<DetailViewStackParamList>['config'] = {
 };
 
 const linking: LinkingOptions<DetailViewStackParamList> = {
-  prefixes: ['bitcoin:', 'bitcoin://', 'bluewallet:bitcoin:'],
+  prefixes: ['bitcoin:', 'bitcoin://', 'bluewallet:bitcoin:', 'BITCOIN:', 'BITCOIN://', 'bluewallet:BITCOIN:'],
   config: linkingConfig,
   getStateFromPath: path => {
     const uri = toBitcoinUri(path);
