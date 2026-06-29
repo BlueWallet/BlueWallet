@@ -11,24 +11,16 @@ import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
 import { DetailViewStackParamList } from './navigation/DetailViewStackParamList';
 
-const toBitcoinUri = (path: string) => {
-  const normalizedPath = path.trim().replace(/^\/+/, '');
-  if (!normalizedPath) {
-    return undefined;
-  }
-
-  if (/^bitcoin:/i.test(normalizedPath)) {
-    return normalizedPath;
-  }
-
-  return `bitcoin:${normalizedPath}`;
-};
-
 const linkingConfig: LinkingOptions<DetailViewStackParamList>['config'] = {
   screens: {
     SendDetailsRoot: {
       screens: {
-        SendDetails: 'send',
+        SendDetails: {
+          path: ':address',
+          parse: {
+            amount: Number,
+          },
+        },
       },
     },
   },
@@ -37,28 +29,6 @@ const linkingConfig: LinkingOptions<DetailViewStackParamList>['config'] = {
 const linking: LinkingOptions<DetailViewStackParamList> = {
   prefixes: ['bitcoin:', 'bitcoin://', 'bluewallet:bitcoin:', 'BITCOIN:', 'BITCOIN://', 'bluewallet:BITCOIN:'],
   config: linkingConfig,
-  getStateFromPath: path => {
-    const uri = toBitcoinUri(path);
-    if (!uri) {
-      return undefined;
-    }
-
-    return {
-      routes: [
-        {
-          name: 'SendDetailsRoot',
-          state: {
-            routes: [
-              {
-                name: 'SendDetails',
-                params: { uri },
-              },
-            ],
-          },
-        },
-      ],
-    };
-  },
 };
 
 const App = () => {
