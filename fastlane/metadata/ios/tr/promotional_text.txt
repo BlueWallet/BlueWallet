@@ -1,0 +1,10 @@
+Özellikler
+
+* Açık Kaynak
+* Tam şifreleme
+* Makul ret
+* Esnek ücretler
+* Replace-By-Fee (RBF)
+* SegWit
+* Yalnızca izleme cüzdanları
+* Lightning ağı

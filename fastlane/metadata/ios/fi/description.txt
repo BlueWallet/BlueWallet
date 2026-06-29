@@ -1,53 +1,56 @@
-Bitcoin-lompakko, jonka avulla voit tallentaa, lähettää, vastaanottaa, sekä ostaa Bitcoinia keskittyen turvallisuuteen ja yksinkertaisuuteen.
+BlueWallet on äärimmäisen yksinkertainen, tehokas ja turvallinen Bitcoin-lompakko. Säilytä, lähetä ja vastaanota bitcoineja säilyttäen täyden hallinnan — sinun avaimesi, sinun kolikkosi.
 
-Sinä omistat yksityiset avaimesi BlueWallet bitcoin-lompakossa. Bitcoin-käyttäjien tekemä Bitcoin-lompakko yhteisölle.
-
-Voit tehdä heti kauppaa kenen tahansa kanssa maailmassa ja muuttaa rahoitusjärjestelmää suoraan taskustasi.
-
-Luo ilmaiseksi rajoittamaton määrä bitcoin-lompakoita tai tuo nykyinen lompakkosi. Se on yksinkertaista ja nopeaa.
+Ilmainen ja avoimen lähdekoodin sovellus, jonka Bitcoin-käyttäjät ovat rakentaneet yhteisölle. Tee siirtoja kenen tahansa kanssa ympäri maailman ja hallitse rahojasi suoraan taskustasi. Luo rajattomasti lompakoita ilmaiseksi tai tuo olemassa oleva — se on nopeaa ja yksinkertaista.
 
 _____
 
-Nämä saat:
-
-
-1 - Suunniteltu tietoturvalliseksi
+TURVALLISUUS LÄHTÖKOHTANA
 
 Avoin lähdekoodi
-MIT-lisensoitu, voit rakentaa sen ja käyttää sitä itsenäisesti! Tehty ReactNative: lla
+MIT-lisensoitu — tarkasta, käännä ja aja se itse. Tehty React Nativella.
 
-Uskottava kiistettävyys
-Salasana, joka purkaa vale bitcoin-lompakot, jos sinun on pakko paljastaa käyttöoikeutesi
+Sinun avaimesi, sinun kolikkosi
+Yksityiset avaimet (siemenesi) eivät koskaan poistu laitteeltasi. Olet aina itse hallinnassa.
+
+Multisig-holvi
+Paras Bitcoinissa saatavilla oleva turvallisuus — varojen käyttöön tarvitaan useita avaimia, aivan kuten oikeassa holvissa.
 
 Täysi salaus
-IOS:in monikerroksisen salauksen lisäksi salaamme kaiken lisätyillä salasanoilla
+Laitteen salauksen lisäksi kaikki salataan uudelleen omalla salasanallasi.
 
-Täysi solmu
-Yhdistä täyteen Bitcoin solmuusi Electrumin kautta
+Uskottava kiistettävyys
+Aseta houkutussalasana, joka avaa valelompakot, jos sinut joskus pakotetaan avaamaan sovellus.
 
-Kylmäsäilytys
-Yhdistä laitteistolompakkoosi ja säilytä kolikkosi kylmäsäilössä
+_____
 
-2 - Kohdennettu kokemukseesi
+TEHO JA HALLINTA
 
-Kontrolloi itse
-Yksityiset avaimesi eivät koskaan poistu laitteeltasi.
-Sinä hallitset yksityisiä avaimiasi
+Modernit lompakot
+HD-lompakot, joissa on täysi tuki Legacy-, SegWit- ja Taproot-osoitteille.
 
-Joustavat siirtokulut
-Alkaen 1 Satoshista. Käyttäjän itse määrittämä
+Laitelompakot
+Yhdistä Coldcard, Keystone ja muut PSBT-allekirjoittajat ja säilytä kolikkosi kylmäsäilytyksessä.
 
-Replace-By-Fee
-(RBF) Nopeuta siirtotapahtumiasi korottamalla siirtokulua (BIP125)
+Katselulompakot
+Pidä silmällä kylmäsäilytystäsi paljastamatta koskaan yksityisiä avaimiasi.
 
-Vain lukuoikeus-lompakot
-Vain lukuoikeus-lompakot antavat sinun pitää silmällä kylmäsäilöä koskematta laitteistoon.
+Aja oma solmusi
+Yhdistä omaan Bitcoin-täyssolmuusi Electrumin kautta ja reititä yhteytesi Torin läpi.
 
-Salamaverkko
-Salamalompakko nolla-konfiguraatiolla. Luvattoman halvat ja nopeat siirrot parhaalla Bitcoin käyttökokemuksella.
+Kolikoiden hallinta
+Katsele, merkitse ja jäädytä kolikoitasi (UTXO:t) rakentaaksesi siirtotapahtumat juuri haluamallasi tavalla.
 
-Osta bitcoinia
-Osallistu avoimeen talouden vallankumoukseen kyvyllä ostaa bitcoinia suoraan lompakkoosi.
+Joustavat siirtomaksut
+Aseta oma siirtomaksusi aina 1 sat/vByteen asti. Nopeuta jumiutuneita siirtotapahtumia RBF:llä tai CPFP:llä, tai peru ne.
 
-Paikallinen kauppias
-P2p Bitcoin-vaihtoalusta, jonka avulla voit ostaa ja myydä bitcoinia suoraan muille käyttäjille ilman kolmansia osapuolia.
+_____
+
+LIGHTNING-VERKKO
+
+Epäreilun halvat ja salamannopeat maksut ilman lainkaan määrityksiä. Maksa ja vastaanota maksuja Lightning-osoitteilla ja LNURL:lla.
+
+_____
+
+Saatavilla iOS:lle, Androidille ja macOS:lle. Useita valuuttoja ja kieliä. Tumma tila. Ei tilejä eikä seurantaa — pelkkää Bitcoinia.
+
+BlueWallet — omista Bitcoinisi.
