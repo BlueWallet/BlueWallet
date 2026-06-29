@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
@@ -20,9 +20,11 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { isIOS26OrHigher } from '../../components/platform';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
+type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const FrozenBadge: React.FC = () => {
   const { colors } = useTheme();
@@ -344,12 +346,91 @@ const CoinControl: React.FC = () => {
     [toolTipOnPressMenuItem, toolTipActions],
   );
 
+  const nativeHeaderRightItems = useCallback((): HeaderRightItem[] => {
+    if (utxos.length === 0) {
+      return [];
+    }
+
+    const sortTypeItems = [
+      {
+        type: 'action' as const,
+        label: CommonToolTipActions.SortHeight.text,
+        state: sortType === ESortTypes.height ? 'on' : 'off',
+        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortHeight.id),
+      },
+      {
+        type: 'action' as const,
+        label: CommonToolTipActions.SortValue.text,
+        state: sortType === ESortTypes.value ? 'on' : 'off',
+        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortValue.id),
+      },
+      {
+        type: 'action' as const,
+        label: CommonToolTipActions.SortLabel.text,
+        state: sortType === ESortTypes.label ? 'on' : 'off',
+        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortLabel.id),
+      },
+      {
+        type: 'action' as const,
+        label: CommonToolTipActions.SortStatus.text,
+        state: sortType === ESortTypes.frozen ? 'on' : 'off',
+        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortStatus.id),
+      },
+    ];
+
+    const sortDirectionItems = [
+      {
+        type: 'action' as const,
+        label: CommonToolTipActions.SortASC.text,
+        state: sortDirection === ESortDirections.asc ? 'on' : 'off',
+        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortASC.id),
+      },
+      {
+        type: 'action' as const,
+        label: CommonToolTipActions.SortDESC.text,
+        state: sortDirection === ESortDirections.desc ? 'on' : 'off',
+        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortDESC.id),
+      },
+    ];
+
+    const menuItems = [
+      {
+        type: 'submenu' as const,
+        label: CommonToolTipActions.Sort.text,
+        inline: true,
+        items: sortDirectionItems,
+      },
+      {
+        type: 'submenu' as const,
+        label: loc.cc.sort_by,
+        inline: true,
+        items: sortTypeItems,
+      },
+    ];
+
+    return [
+      {
+        type: 'menu',
+        label: loc.cc.sort_by,
+        icon: {
+          type: 'sfSymbol',
+          name: 'ellipsis',
+        },
+        menu: {
+          title: loc.cc.sort_by,
+          items: menuItems,
+        },
+      } as HeaderRightItem,
+    ];
+  }, [sortDirection, sortType, toolTipOnPressMenuItem, utxos.length]);
+
   // Adding the ToolTipMenu to the header
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => (utxos.length > 0 ? HeaderRight : null),
+      headerRight: isIOS26OrHigher ? undefined : () => (utxos.length > 0 ? HeaderRight : null),
+      unstable_headerRightItems: isIOS26OrHigher ? nativeHeaderRightItems : undefined,
     });
-  }, [HeaderRight, navigation, utxos.length]);
+  }, [HeaderRight, nativeHeaderRightItems, navigation, utxos.length]);
 
   if (loading) {
     return (
