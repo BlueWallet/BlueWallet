@@ -96,5 +96,5 @@ Note: Filipino/Tagalog (Latin script, LTR). Bitcoin Core ships a Filipino/Tagalo
 | Memo | memo / tala | noun · borrowing / native "note". |
 | Description | paglalarawan | noun · native Filipino. |
 | Label | label / tatak | noun · borrowing / native "mark". |
-</content>
 </invoke>
+
