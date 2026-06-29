@@ -37,7 +37,9 @@ console.debug = console.log = (...args) => {
 
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-global.fetch = require('node-fetch');
+if (typeof globalThis.fetch !== 'function') {
+  throw new Error('Native fetch missing; Node >= 22.11 is required (see package.json engines)');
+}
 
 jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
 
