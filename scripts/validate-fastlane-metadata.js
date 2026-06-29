@@ -1,51 +1,61 @@
 const fs = require('fs');
 const path = require('path');
 
-// Validates iOS App Store metadata files against Apple's character limits.
-// `fastlane deliver` does not check lengths itself — it uploads as-is and the
-// App Store Connect API rejects over-limit fields, failing the release. This
-// catches those locally (in `npm run lint`) before a deploy.
-// Limits: https://developer.apple.com/help/app-store-connect/reference/app-information/app-information/
+// Validates App Store (iOS) and Google Play (Android) metadata files against the
+// stores' character limits. `fastlane deliver`/`supply` do not check lengths
+// themselves — they upload as-is and the store API rejects over-limit fields,
+// failing the release. This catches those locally (in `npm run lint`) first.
+// iOS:     https://developer.apple.com/help/app-store-connect/reference/app-information/app-information/
+// Android: https://support.google.com/googleplay/android-developer/answer/9859152
 
-const metadataDir = './fastlane/metadata/ios';
+// One config per platform: metadata dir + { filename -> max Unicode characters }.
+const platforms = [
+  {
+    dir: './fastlane/metadata/ios',
+    limits: {
+      'name.txt': 30,
+      'subtitle.txt': 30,
+      'keywords.txt': 100,
+      'promotional_text.txt': 170,
+      'description.txt': 4000,
+      'release_notes.txt': 4000,
+    },
+  },
+  {
+    dir: './fastlane/metadata/android',
+    limits: {
+      'title.txt': 30,
+      'short_description.txt': 80,
+      'full_description.txt': 4000,
+    },
+  },
+];
 
-// filename -> max number of Unicode characters
-const limits = {
-  'name.txt': 30,
-  'subtitle.txt': 30,
-  'keywords.txt': 100,
-  'promotional_text.txt': 170,
-  'description.txt': 4000,
-  'release_notes.txt': 4000,
-};
-
-if (!fs.existsSync(metadataDir)) {
-  console.error('Metadata directory not found: ' + metadataDir);
-  process.exit(1);
-}
-
-// App Store counts Unicode characters (code points), and `deliver` strips
-// surrounding whitespace before upload — mirror both here.
+// Stores count Unicode characters (code points), and deliver/supply strip
+// surrounding whitespace before upload — mirror both here. Reading follows
+// symlinks, so Android files that symlink to iOS content are validated too.
 function charCount(str) {
   return Array.from(str.trim()).length;
 }
 
 let exitCode = 0;
 
-const locales = fs
-  .readdirSync(metadataDir)
-  .filter(name => fs.statSync(path.join(metadataDir, name)).isDirectory());
+for (const { dir, limits } of platforms) {
+  if (!fs.existsSync(dir)) continue;
 
-for (const locale of locales) {
-  for (const filename of Object.keys(limits)) {
-    const filepath = path.join(metadataDir, locale, filename);
-    if (!fs.existsSync(filepath)) continue;
+  const locales = fs.readdirSync(dir).filter(name => fs.statSync(path.join(dir, name)).isDirectory());
 
-    const count = charCount(fs.readFileSync(filepath).toString('utf8'));
-    const limit = limits[filename];
-    if (count > limit) {
-      console.log(`Metadata too long: ${locale}/${filename} is ${count} chars (limit ${limit})`);
-      exitCode = 1;
+  for (const locale of locales) {
+    for (const filename of Object.keys(limits)) {
+      const filepath = path.join(dir, locale, filename);
+      if (!fs.existsSync(filepath)) continue;
+
+      const count = charCount(fs.readFileSync(filepath).toString('utf8'));
+      const limit = limits[filename];
+      if (count > limit) {
+        console.log(`Metadata too long: ${dir}/${locale}/${filename} is ${count} chars (limit ${limit})`);
+        exitCode = 1;
+      }
     }
   }
 }
