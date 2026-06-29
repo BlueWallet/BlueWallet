@@ -37,6 +37,7 @@ const _availableLanguages = Object.freeze([
   { label: 'Հայերեն (HY)', value: 'hy' },
   { label: 'Akan (AK)', value: 'ak' },
   { label: 'Sesotho (ST)', value: 'st_ZA' },
+  { label: 'አማርኛ (AM)', value: 'am' },
   { label: '日本語 (JP)', value: 'jp_jp' },
   { label: '한국어 (KO)', value: 'ko_kr' },
   { label: 'ಕನ್ನಡ (KN)', value: 'kn' },
