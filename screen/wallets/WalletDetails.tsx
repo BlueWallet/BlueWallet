@@ -546,6 +546,7 @@ const WalletDetails: React.FC = () => {
         } catch (error) {
           presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
           setMasterFingerprint(currentMasterFingerprint);
+          wallet.setMasterFingerprintHex(currentMasterFingerprint);
         }
       }
     }
