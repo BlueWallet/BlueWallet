@@ -52,6 +52,7 @@ const keys = {
   SortStatus: 'sortStatus',
   Delete: 'delete',
   Details: 'details',
+  SetLabel: 'setLabel',
 } as const;
 
 const icons = {
@@ -377,5 +378,10 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
     id: keys.Details,
     text: loc.send.create_details,
     icon: icons.Details,
+  },
+  SetLabel: {
+    id: keys.SetLabel,
+    text: loc.receive.details_add_label,
+    icon: icons.Signature,
   },
 } as const;
