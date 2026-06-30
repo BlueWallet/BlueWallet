@@ -113,11 +113,11 @@ describe('Watch only wallet', () => {
     w.setMasterFingerprintHex('0x398e3e5b');
     assert.strictEqual(w.getMasterFingerprintHex(), '398e3e5b');
 
-    assert.throws(() => w.setMasterFingerprintHex(''), /Master fingerprint must be exactly 8 hex characters/);
-
-    assert.throws(() => w.setMasterFingerprintHex('1234'), /Master fingerprint must be exactly 8 hex characters/);
-
-    assert.throws(() => w.setMasterFingerprintHex('123456789'), /Master fingerprint must be exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex(''), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex('1234'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex('123456789'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex('gggggggg'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex('398e3e5g'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
   });
 
   // skipped because its generally rare case

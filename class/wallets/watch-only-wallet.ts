@@ -258,7 +258,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     hex = hex.replace(/^0x/i, '');
 
     if (!/^[0-9a-fA-F]{8}$/.test(hex)) {
-      throw new Error('Master fingerprint must be exactly 8 hex characters');
+      throw new Error('Master fingerprint must be a valid hex of exactly 8 hex characters');
     }
 
     // convert Little Endian to Big Endian
