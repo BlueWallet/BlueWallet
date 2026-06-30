@@ -477,7 +477,7 @@
     "enter_bip38_password": "Fut fjalëkalimin për të dekriptuar",
     "export_title": "Eksporti i portofolit",
     "import_do_import": "Importo",
-    "import_passphrase": "Frazë sekrete",
+    "import_passphrase": "Frazë sekrete (BIP39)",
     "import_passphrase_title": "Frazë sekrete",
     "import_passphrase_message": "Fut frazën sekrete nëse keni përdorur ndonjë",
     "import_error": "Importimi dështoi. Ju lutemi sigurohuni që të dhënat e dhëna janë të vlefshme.",

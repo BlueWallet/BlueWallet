@@ -452,7 +452,7 @@
     "enter_bip38_password": "输入密码以解密",
     "export_title": "导出钱包",
     "import_do_import": "导入",
-    "import_passphrase": "密码短语",
+    "import_passphrase": "密码短语 (BIP39)",
     "import_passphrase_title": "密码短语",
     "import_passphrase_message": "如果您使用过密码短语，请输入。",
     "import_error": "导入失败。请确保提供的数据有效。",

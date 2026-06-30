@@ -441,7 +441,7 @@
     "enter_bip38_password": "Nhập mật khẩu để giải mã",
     "export_title": "Xuất ví",
     "import_do_import": "Nhập",
-    "import_passphrase": "Passphrase",
+    "import_passphrase": "Passphrase (BIP39)",
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Nếu bạn đã sử dụng bất kỳ passphrase thì nhập nó",
     "import_error": "Nhập đã thất bại. Vui lòng đảm bảo dữ liệu cung cấp có hợp lệ.",

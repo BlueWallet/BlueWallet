@@ -429,7 +429,7 @@
     "details_yes_delete": "Ναι, διαγραφή",
     "export_title": "Εξαγωγή πορτοφολιού",
     "import_do_import": "Εισήγαγε",
-    "import_passphrase": "Φράση κωδικός",
+    "import_passphrase": "Φράση κωδικός (BIP39)",
     "import_passphrase_title": "Φράση κωδικός",
     "import_error": "Η εισαγωγή απέτυχε. Παρακαλούμε σιγουρευτείτε ότι τα δεδομένα που εισάγετε είναι σωστά.",
     "import_imported": "Εισήχθη",

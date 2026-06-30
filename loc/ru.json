@@ -452,7 +452,7 @@
     "enter_bip38_password": "Введите пароль для расшифровки",
     "export_title": "Экспорт кошелька",
     "import_do_import": "Импортировать",
-    "import_passphrase": "Пароль",
+    "import_passphrase": "Пароль (BIP39)",
     "import_passphrase_title": "Кодовая фраза",
     "import_passphrase_message": "Введите кодовую фразу, если она используется",
     "import_error": "Не удалось импортировать. Убедитесь, что данные верны.",

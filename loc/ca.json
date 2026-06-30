@@ -456,7 +456,7 @@
     "enter_bip38_password": "Introduïu la contrasenya per desxifrar",
     "export_title": "Exportació de moneder",
     "import_do_import": "Importar",
-    "import_passphrase": "Frase de contrasenya",
+    "import_passphrase": "Frase de contrasenya (BIP39)",
     "import_passphrase_title": "Frase de contrasenya",
     "import_passphrase_message": "Introduïu la frase de contrasenya si n'heu utilitzat alguna",
     "import_error": "No s'ha pogut importar. És vàlid?",

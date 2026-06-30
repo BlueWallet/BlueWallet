@@ -456,7 +456,7 @@
     "enter_bip38_password": "Sisesta dekrüpteerimiseks parool",
     "export_title": "Rahakoti eksport",
     "import_do_import": "Impordi",
-    "import_passphrase": "Salafraas",
+    "import_passphrase": "Salafraas (BIP39)",
     "import_passphrase_title": "Salafraas",
     "import_passphrase_message": "Sisesta salafraas, kui oled seda kasutanud",
     "import_error": "Importimine ebaõnnestus. Palun veendu, et esitatud andmed on kehtivad.",

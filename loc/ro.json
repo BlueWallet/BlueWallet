@@ -490,7 +490,7 @@
     "swipe_balance_show": "Afișează",
     "drag_to_reorder": "Trage pentru a reordona",
     "clear_search": "Șterge căutarea",
-    "import_passphrase": "Frază de acces",
+    "import_passphrase": "Frază de acces (BIP39)",
     "import_passphrase_title": "Frază de acces",
     "import_passphrase_message": "Introdu fraza de acces dacă ai folosit una",
     "import_success_watchonly": "Portofelul tău a fost importat cu succes. ATENȚIE: Acesta este un portofel doar citire, NU poți cheltui din el.",

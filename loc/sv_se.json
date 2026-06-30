@@ -441,7 +441,7 @@
     "enter_bip38_password": "Ange lösenord för att dekryptera",
     "export_title": "exportera plånbok",
     "import_do_import": "Importera",
-    "import_passphrase": "Lösenordsfras ",
+    "import_passphrase": "Lösenordsfras (BIP39)",
     "import_passphrase_title": "Lösenordsfras",
     "import_passphrase_message": "Ange lösenordsfras om du har använt någon",
     "import_error": "Import misslyckades. Kontrollera att informationen du matade in är korrekt.",

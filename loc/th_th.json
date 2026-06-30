@@ -479,7 +479,7 @@
     "swipe_balance_show": "แสดง",
     "drag_to_reorder": "ลากเพื่อจัดเรียงใหม่",
     "clear_search": "ล้างการค้นหา",
-    "import_passphrase": "วลีรหัสผ่าน",
+    "import_passphrase": "วลีรหัสผ่าน (BIP39)",
     "import_passphrase_title": "วลีรหัสผ่าน",
     "import_passphrase_message": "ใส่วลีรหัสผ่านหากท่านได้ใช้",
     "import_explanation": "กรุณาใส่คำซีด กุญแจสาธารณะ WIF หรือสิ่งที่ท่านมี BlueWallet จะพยายามคาดเดารูปแบบที่ถูกต้องและนำเข้ากระเป๋าสตางค์ของท่าน",

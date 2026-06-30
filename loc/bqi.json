@@ -418,7 +418,7 @@
     "enter_bip38_password": "رزمن سی رزم گوشایی بزنین",
     "export_title": "و در کشیڌن کیف پیل",
     "import_do_import": "و من ٱووردن",
-    "import_passphrase": "پس فریز (Passphrase)",
+    "import_passphrase": "پس فریز (Passphrase) (BIP39)",
     "import_passphrase_title": "پس فریز (Passphrase)",
     "import_passphrase_message": "ٱر پس فریز (Passphrase) ن و کار گرؽڌینه، هونه بزنین",
     "import_error": "و من ٱووردن نا مووفق بی. ز زبال بیڌن داده داڌه وابیڌه موتمعن بۊین.",

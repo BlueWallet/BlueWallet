@@ -452,7 +452,7 @@
     "enter_bip38_password": "Digite a senha para descriptografar",
     "export_title": "Exportar carteira",
     "import_do_import": "Importar",
-    "import_passphrase": "Senha",
+    "import_passphrase": "Senha (BIP39)",
     "import_passphrase_title": "Senha",
     "import_passphrase_message": "Digite a senha, caso você tenha usado alguma",
     "import_error": "Erro ao importar. Por favor, confira se os dados que você passou são válidos.",

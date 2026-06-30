@@ -456,7 +456,7 @@
     "enter_bip38_password": "Ingresa la contraseña para descifrar",
     "export_title": "Exportación de Billetera",
     "import_do_import": "Importar",
-    "import_passphrase": "Frase de acceso (Passphrase)",
+    "import_passphrase": "Frase de acceso (Passphrase)(BIP39)",
     "import_passphrase_title": "Frase de contraseña",
     "import_passphrase_message": "Ingrese la frase de contraseña si ha usado alguna",
     "import_error": "No se pudo importar. Asegúrate de que los datos proporcionados sean válidos.",

@@ -486,7 +486,7 @@
     "swipe_balance_show": "顯示",
     "drag_to_reorder": "拖曳以重新排序",
     "clear_search": "清除搜尋",
-    "import_passphrase": "密語",
+    "import_passphrase": "密語 (BIP39)",
     "import_passphrase_title": "密語",
     "import_passphrase_message": "若您有使用密語，請在此輸入",
     "import_success_watchonly": "您的錢包已成功匯入。警告：這是僅觀察錢包，您無法從中花費。",

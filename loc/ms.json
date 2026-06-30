@@ -456,7 +456,7 @@
     "enter_bip38_password": "Masukkan kata laluan untuk menyahsulit",
     "export_title": "Pindah Keluar Dompet",
     "import_do_import": "Pindah Masuk",
-    "import_passphrase": "Frasa Laluan",
+    "import_passphrase": "Frasa Laluan (BIP39)",
     "import_passphrase_title": "Frasa Laluan",
     "import_passphrase_message": "Masukkan frasa laluan jika ada digunakan",
     "import_error": "Gagal untuk dipindah masuk. Sila pastikan butiran yang diberikan adalah sah.",

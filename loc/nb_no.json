@@ -454,7 +454,7 @@
     "enter_bip38_password": "Skriv inn passord for å dekryptere",
     "export_title": "Eksporter Lommebok",
     "import_do_import": "Importer",
-    "import_passphrase": "Passordfrase",
+    "import_passphrase": "Passordfrase (BIP39)",
     "import_passphrase_title": "Passordfrase",
     "import_passphrase_message": "Skriv inn passordfrase hvis du har brukt noen",
     "import_error": "Kunne ikke importere. Vennligst vær sikker på at de oppgitte dataene er gyldige.",

@@ -435,7 +435,7 @@
     "enter_bip38_password": "Voer wachtwoord in om te ontgrendelen",
     "export_title": "Wallet exporteren",
     "import_do_import": "Importeren",
-    "import_passphrase": "Wachtwoordzin",
+    "import_passphrase": "Wachtwoordzin (BIP39)",
     "import_passphrase_title": "Wachtwoord",
     "import_passphrase_message": "Voer wachtwoord in als u één heeft gebruikt",
     "import_error": "Importeren mislukt. Zorg ervoor dat de verstrekte gegevens geldig zijn.",

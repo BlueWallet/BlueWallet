@@ -456,7 +456,7 @@
     "enter_bip38_password": "Sleutel wagwoord in om te dekripteer",
     "export_title": "beursie uitvoer",
     "import_do_import": "Invoer",
-    "import_passphrase": "Wagfrase",
+    "import_passphrase": "Wagfrase (BIP39)",
     "import_passphrase_title": "Wagfrase",
     "import_passphrase_message": "Sleutel wagfrase in indien jy enige gebruik het",
     "import_error": "Jou invoer het misluk. Maak asseblief seker jou data is korrek en geldig.",

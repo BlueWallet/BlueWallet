@@ -406,7 +406,7 @@
     "details_type": "ಪ್ರಕಾರ",
     "details_use_with_hardware_wallet": "ಹಾರ್ಡ್‌ವೇರ್ ವ್ಯಾಲೆಟ್‌ನೊಂದಿಗೆ ಬಳಸಿ",
     "import_do_import": "ಆಮದು",
-    "import_passphrase": "ಪಾಸ್‌ಫ್ರೇಸ್",
+    "import_passphrase": "ಪಾಸ್‌ಫ್ರೇಸ್ (BIP39)",
     "import_passphrase_title": "ಪಾಸ್‌ಫ್ರೇಸ್",
     "import_imported": "ಆಮದು ಮಾಡಲಾಗಿದೆ",
     "import_title": "ಆಮದು",

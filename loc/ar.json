@@ -441,7 +441,7 @@
     "enter_bip38_password": "أدخل كلمة المرور لفك التشفير",
     "export_title": "تصدير المحفظة",
     "import_do_import": "الاستيراد",
-    "import_passphrase": "عبارة المرور",
+    "import_passphrase": "عبارة المرور (BIP39)",
     "import_passphrase_title": "عبارة المرور",
     "import_passphrase_message": "أدخل عبارة المرور إذا كنت قد استخدمت أيًا منها",
     "import_error": "فشل الاستيراد. يُرجى التأكد من أن البيانات المقدَّمة صالحة.",

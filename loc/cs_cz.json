@@ -456,7 +456,7 @@
     "enter_bip38_password": "Zadejte heslo pro dešifrování",
     "export_title": "Exportovat peněženku",
     "import_do_import": "Importovat",
-    "import_passphrase": "Přístupová fráze",
+    "import_passphrase": "Přístupová fráze (BIP39)",
     "import_passphrase_title": "Přístupová fráze",
     "import_passphrase_message": "Zadejte přístupovou frázi, pokud jste nějakou použili",
     "import_error": "Chyba při importu. Prosím ujistěte se, že poskytnutá data jsou správná.",

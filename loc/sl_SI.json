@@ -441,7 +441,7 @@
     "enter_bip38_password": "Vnesite geslo za dešifriranje",
     "export_title": "Izvoz denarnice",
     "import_do_import": "Uvozi",
-    "import_passphrase": "Dodatna beseda/niz (passphrase)",
+    "import_passphrase": "Dodatna beseda/niz (passphrase)(BIP39)",
     "import_passphrase_title": "Dodatna beseda/niz (passphrase)",
     "import_passphrase_message": "Vnesite dodatno besedo/niz (passphrase), če jo uporabljate",
     "import_error": "Napaka pri uvozu. Prosimo, preverite ali so podani podatki pravilni.",

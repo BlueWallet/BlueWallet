@@ -376,7 +376,7 @@
     "details_title": "Әмиян",
     "details_type": "Түрі",
     "import_do_import": "Импорттау",
-    "import_passphrase": "Құпиясөйлем",
+    "import_passphrase": "Құпиясөйлем (BIP39)",
     "import_passphrase_title": "Құпиясөйлем",
     "import_search_accounts": "Шот іздеу",
     "import_title": "Импорттау",

@@ -457,7 +457,7 @@
     "enter_bip38_password": "Увесьці пароль для расшыфроўкі",
     "export_title": "Экспарт кашалька",
     "import_do_import": "Імпартаваць",
-    "import_passphrase": "Кодавая фраза",
+    "import_passphrase": "Кодавая фраза (BIP39)",
     "import_passphrase_title": "Кодавая фраза",
     "import_passphrase_message": "Увядзіце кодавую фразу, калі вы яе выкарыстоўвалі",
     "import_error": "Не атрымалася імпартаваць. Калі ласка, праверце, што прадастаўленыя дадзеныя сапраўдныя.",

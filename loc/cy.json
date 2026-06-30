@@ -456,7 +456,7 @@
     "enter_bip38_password": "Angen cyfrinair i ddadgryptio",
     "export_title": "Waled Allfor",
     "import_do_import": "Mewnforio",
-    "import_passphrase": "Geiriau pas",
+    "import_passphrase": "Geiriau pas (BIP39)",
     "import_passphrase_title": "Geiriau pas",
     "import_passphrase_message": "Mewnosod geiriau pas os defnyddiaist rai",
     "import_error": "Methu mewnforio. Sicrha bod y data a ddarparwyd yn ddilys.",

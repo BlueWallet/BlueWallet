@@ -455,7 +455,7 @@
     "details_type": "Uhlobo",
     "details_yes_delete": "Ewe, yisuse",
     "export_title": "Ukuthunyelwa kweNgxowa",
-    "import_passphrase": "Ibinzana lokugqitha",
+    "import_passphrase": "Ibinzana lokugqitha (BIP39)",
     "import_passphrase_title": "Ibinzana lokugqitha",
     "import_passphrase_message": "Faka ibinzana lokugqitha ukuba ulisebenzisile",
     "import_do_import": "Ngeniswe",

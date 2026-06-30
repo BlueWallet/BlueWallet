@@ -469,7 +469,7 @@
     "clear_search": "Aramayı temizle",
     "details_use_with_hardware_wallet": "Donanım Cüzdanı ile Kullan",
     "enter_bip38_password": "Şifre çözmek için parola girin",
-    "import_passphrase": "Parola",
+    "import_passphrase": "Parola (BIP39)",
     "import_passphrase_title": "Parola",
     "import_passphrase_message": "Kullandıysanız parolayı girin",
     "import_explanation": "Lütfen seed kelimelerinizi, public key, WIF veya elinizde olan her şeyi girin. BlueWallet doğru formatı tahmin etmek ve cüzdanınızı içe aktarmak için elinden geleni yapacak.",

@@ -456,7 +456,7 @@
     "enter_bip38_password": "Masukkan kata sandi untuk mendekripsi",
     "export_title": "ekspor dompet",
     "import_do_import": "Impor",
-    "import_passphrase": "Frasa sandi",
+    "import_passphrase": "Frasa sandi (BIP39)",
     "import_passphrase_title": "Frasa sandi",
     "import_passphrase_message": "Masukkan frasa sandi jika Anda menggunakannya",
     "import_error": "Gagal mengimpor. Pastikan data yang diketik benar.",

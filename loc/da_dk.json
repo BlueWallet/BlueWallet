@@ -467,7 +467,7 @@
     "clear_search": "Ryd søgning",
     "details_use_with_hardware_wallet": "Brug med hardware wallet",
     "enter_bip38_password": "Indtast adgangskode for at dekryptere",
-    "import_passphrase": "Adgangsfrase",
+    "import_passphrase": "Adgangsfrase (BIP39)",
     "import_passphrase_title": "Adgangsfrase",
     "import_passphrase_message": "Indtast adgangsfrase, hvis du har brugt en",
     "import_explanation": "Indtast venligst dine seed-ord, offentlige nøgle, WIF eller hvad du har. BlueWallet vil gøre sit bedste for at gætte det korrekte format og importere din wallet.",
