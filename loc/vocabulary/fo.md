@@ -38,8 +38,8 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | **_On-chain transactions_** | | |
 | Transaction | flyting | noun, lowercase · lit. "transfer" · shipped `transactions.transaction` + Bitcoin Core fo. |
 | Address | adressa | noun, lowercase · shipped `send.details_address` + Bitcoin Core fo. |
-| Input | inntøk | noun · lit. "income/intake" · shipped `transactions.details_inputs` + `details_from`. |
-| Output | úttøk | noun · lit. "outgo/outlay" · shipped `transactions.details_outputs` + `details_to`. ⚠️ NOT the UI "Til" recipient label. |
+| Input | inntøk | noun · lit. "income/intake" · shipped `transactions.details_inputs` + `details_from`. ⚠️ English singular "Input" is rendered by the Faroese **plural** `inntøk` (singular form differs) — mind the number when a string is grammatically singular. |
+| Output | úttøk | noun · lit. "outgo/outlay" · shipped `transactions.details_outputs` + `details_to`. ⚠️ Plural form (English singular "Output" → fo plural `úttøk`); NOT the UI "Til" recipient label. |
 | UTXO | UTXO | acronym · gloss: ónýttur flytingar-úttak (Bitcoin Core fo: `ónýtt` = unspent). |
 | Change | vekslipeningur | noun, lowercase · lit. "change money" · ⚠️ NOT verb "broyta" · shipped `cc.change` + Bitcoin Core fo (`Change:` → `Vekslipeningur:`). |
 | Hex | sekstandatøl / sekstandatalsskipan | noun · short / explanatory · lit. "base-sixteen number" · shipped `send.broadcastNone` + `create_this_is_hex`. ⚠️ NOT "hash". |
@@ -48,7 +48,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Confirmed | váttað | adj · shipped Bitcoin Core fo (`Confirmed` → `Váttað`). |
 | Mempool | minnispulja | noun, lowercase · lit. "memory pool" · Bitcoin Core fo (`Memory Pool` → `Minnispulja`; `in memory pool` → `í minnispulju`). |
 | Broadcast | útvarpa / útvarping | verb / noun · shipped `send.broadcastButton` (verb) + `errors.broadcast` = `Útvarping` (noun). |
-| Block explorer | blokksjóneyka | noun, lowercase · lit. "block viewer" · shipped `settings.block_explorer`. |
+| Block explorer | blokksjóneyka | noun, lowercase · lit. "block viewer" · shipped `settings.block_explorer`. ⚠️ `transactions.details_explorer` drops "block"/`blokk`; `sjóneyka` alone is ambiguous (could read as "focus/viewer") — keep `blokk` where the context word is lost. |
 | Onchain | áketu | adj · shipped `transactions.onchain` · coined form; no established fo equivalent. |
 | Offchain | avketu | adj · shipped `transactions.offchain` · coined form; pairs with `áketu`. |
 | **_Fees & fee bumping_** | | |
@@ -56,7 +56,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Fee Bump | avgjaldshækkan | noun, lowercase · shipped `send.details_adv_fee_bump` = `Loyv avgjaldshækkan`. |
 | RBF | RBF | acronym · gloss: Replace-By-Fee · shipped `transactions.cancel_explain`, `rbf_explain` keep `RBF—Replace by Fee` · Bitcoin Core fo. |
 | CPFP | CPFP | acronym · gloss: Child Pays for Parent · shipped `transactions.cpfp_exp` keeps `CPFP—Child Pays for Parent`. ⚠️ NOT a verb. |
-| Speed Up | hækka avgjald | verb · lit. "raise fee" · shipped `transactions.cpfp_title`, `rbf_title`, `status_bump`. |
+| Speed Up | skunda undir | verb · lit. "hurry along" — keep the literal "speed up" sense · shipped `transactions.cpfp_title`, `rbf_title`, `status_bump`. ⚠️ NOT `hækka avgjald` ("raise fee") — that describes the mechanism, not the action. |
 | **_Lightning_** | | |
 | Invoice | gjaldsumbøn | noun, lowercase · lit. "payment request" · shipped `lnd.placeholder`, `errorInvoiceExpired`. |
 | Lightning Invoice | Lightning gjaldsumbøn | noun · shipped `lndViewInvoice.lightning_invoice`. |
@@ -72,8 +72,8 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Notification transaction | fráboðanarflyting | noun, lowercase · shipped `bip47.notif_tx` + `notification_tx_unconfirmed`. |
 | SilentPayment | SilentPayment | brand kept · shipped `send.cant_send_to_silentpayment_adress` · no Faroese gloss in app. |
 | **_Coin control_** | | |
-| Coin Control | mynt-val | noun, lowercase · lit. "coin selection" · shipped `cc.header`. ⚠️ NOT Title Case. |
-| Frozen | læs / frystur | adj · `læs` = "locked" (shipped `cc.freezeLabel`, `send.details_frozen`); `frystur` = "frozen". ⚠️ NOT verb "læsa/frysta". |
+| Coin Control | myntval | noun, lowercase · lit. "coin selection" · shipped `cc.header`. ⚠️ NOT Title Case, and NOT hyphenated (`myntval`, not `mynt-val`) — Faroese compounds are written closed unless an element is an abbreviation. |
+| Frozen | læstur / læs | adj · "locked" — **preferred** (the locked sense describes the UTXO state better than "frozen") · shipped `cc.freezeLabel`, `send.details_frozen`; `frystur` = literal "frozen" (less preferred). ⚠️ NOT verb "læsa/frysta". |
 | **_Security & storage_** | | |
 | Encrypted storage | bronglað goymsla | noun, lowercase · lit. "encrypted storage" · shipped `_.storage_is_encrypted` and `settings.encrypt_storage_explanation_*` use `goymslubronglan` (the encryption action) and `bronglað goymsla` (the encrypted store). ⚠️ NOT Title Case. |
 | Plausible Deniability | haldgóð avsannan | noun, lowercase · lit. "credible denial" · shipped `plausibledeniability.title` + `settings.plausible_deniability`. |
@@ -87,9 +87,10 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Redeem | útloysa | verb · lit. "release/redeem" · shipped `azteco.redeemButton` = `Útloys`. ⚠️ NOT "keypa" (buy). |
 | Send | senda / útgjald | verb / noun · `senda` (verb, Bitcoin Core fo) / `útgjald` (noun, shipped `send.header` + `transactions.outgoing_transaction`). |
 | Receive | móttaka / inngjald | verb / noun · `móttaka` (verb) / `inngjald` (noun, shipped `receive.header` + `transactions.incoming_transaction`). |
-| Settings | stillingar | noun, lowercase · shipped `settings.header`. |
+| Settings | stillingar | noun, lowercase · general app preferences · shipped `settings.header`. ⚠️ NOT the same as "Options" — see next row. |
+| Options | kostur | noun · a list of choices about a single thing (e.g. a wallet or transaction), distinct from "Settings"/`stillingar` · shipped `wallets.details_options`. |
 | Confirm | vátta / váttan | verb / noun · shipped `send.confirm_header` (verb) + `transactions.list_conf` `Váttanir` (plural noun = confirmations). |
-| QR Code | QR kota | noun · lit. "QR code" · shipped `receive.qrcode_for_the_address`, `send.qr_error_no_qrcode` + Bitcoin Core fo. |
+| QR Code | QR-kota | noun · lit. "QR code" · shipped `receive.qrcode_for_the_address`, `send.qr_error_no_qrcode` + Bitcoin Core fo. Hyphenated because one element (`QR`) is an abbreviation. |
 | Clipboard | setiborð | noun, lowercase · lit. "set-board" · shipped `_.clipboard` + Bitcoin Core fo. |
 | Memo | viðmerking | noun, lowercase · lit. "annotation/comment" · shipped `send.create_memo`, `details_note_placeholder`. |
 | Description | tekstboð / frágreiðing | noun, lowercase · `tekstboð` lit. "text message" (shipped `receive.details_label`); `frágreiðing` lit. "description" (shipped `lndViewInvoice.for`). |
