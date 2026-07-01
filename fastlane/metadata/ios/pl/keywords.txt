@@ -1,1 +1,1 @@
-bitcoin,portfel,portfel bitcoinowy,blockchain,btc,kryptowaluta,bitcoin,samourai,electrum,ethereum
+bitcoin,portfel,portfel bitcoin,blockchain,btc,kryptowaluta,lightning,segwit,multisig,electrum

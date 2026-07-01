@@ -1,8 +1,10 @@
+Ominaisuudet
+
 * Avoin lähdekoodi
 * Täysi salaus
 * Uskottava kiistettävyys
-* Joustavat siirtokulut
+* Joustavat maksut
 * Replace-By-Fee (RBF)
 * SegWit
-* Vain lukuoikeus (Vahti)-lompakot
+* Katselulompakot
 * Lightning-verkko

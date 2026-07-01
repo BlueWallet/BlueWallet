@@ -1,0 +1,1 @@
+bitcoin,dompet,dompet bitcoin,blockchain,btc,mata uang kripto,lightning,segwit,multisig,electrum

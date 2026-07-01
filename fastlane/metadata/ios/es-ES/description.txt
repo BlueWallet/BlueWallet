@@ -1,53 +1,56 @@
-Una cartera de Bitcoin que te permite guardar, mandar, recibir y comprar bitcoin centrada en la seguridad y la simplicidad.
+BlueWallet es una cartera de Bitcoin radicalmente sencilla, potente y segura. Guarda, envía y recibe Bitcoin manteniendo el control total: tus llaves, tus monedas.
 
-En BlueWallet tú controlas las llaves privadas. Una cartera de Bitcoin hecha por usuarios de Bitcoin para la comunidad.
-
-Realiza trámites al instante con cualquiera, sin importar dónde esté. Transforma el sistema financiero desde tu bolsillo.
-
-Crea todas las carteras de Bitcoin que quieras o importa una que ya tengas. Es rápido y sencillo.
+Gratuita y de código abierto, creada por usuarios de Bitcoin para la comunidad. Opera con cualquier persona del mundo y toma las riendas de tu dinero, directamente desde tu bolsillo. Crea carteras ilimitadas gratis o importa una que ya tengas: es rápido y sencillo.
 
 _____
 
-Ofrece todo esto:
-
-
-1 - Seguridad mediante diseño
+SEGURIDAD POR DISEÑO
 
 Código abierto
-Licencia MIT, compila el código tú mismo! Hecha con ReactNative
+Con licencia MIT: audítala, compílala y ejecútala tú mismo. Hecha con React Native.
+
+Tus llaves, tus monedas
+Las llaves privadas (tu semilla) nunca salen de tu dispositivo. Siempre tienes el control.
+
+Bóveda multifirma
+La mejor seguridad disponible en Bitcoin: se necesitan varias llaves para gastar, igual que en una bóveda real.
+
+Cifrado total
+Además del cifrado del dispositivo, todo se cifra de nuevo con tu propia contraseña.
 
 Negación plausible
-Desbloquea carteras de bitcoin falsas si alguien te obliga a darles tu contraseña
+Configura una contraseña señuelo que abre carteras falsas si alguna vez te obligan a desbloquear.
 
-Encriptación total
-Además de la encriptación multicapa de iOS, encriptamos todo con contraseñas adicionales
+_____
 
-Nodo completo
-Conecta a tu nodo de Bitcoin a través de Electrum
+POTENCIA Y CONTROL
 
-Almacenamiento frío
-Conecta tu cartera de hardware y guarda tus fondos en cold storage
+Carteras modernas
+Carteras HD con compatibilidad total con direcciones Legacy, SegWit y Taproot.
 
-2 - Centrada en tu experiencia
+Carteras de hardware
+Empareja Coldcard, Keystone y otros firmantes PSBT, y guarda tus monedas en almacenamiento en frío.
 
-Control total
-Las llaves privadas nunca salen de tu dispositivo
-Tú controlas las llaves privadas
+Carteras de solo lectura
+Vigila tu almacenamiento en frío sin exponer nunca tus llaves privadas.
+
+Ejecuta tu propio nodo
+Conéctate a tu propio nodo completo de Bitcoin mediante Electrum y enruta tu conexión a través de Tor.
+
+Control de monedas
+Visualiza, etiqueta y congela tus monedas (UTXOs) para construir transacciones exactamente como quieras.
 
 Comisiones flexibles
-Desde 1 Satoshi. Definido por ti, el usuario
+Establece tu propia comisión, hasta 1 sat/vByte. Acelera transacciones atascadas con RBF o CPFP, o cancélalas.
 
-Replace by Fee
-(RBF) Acelera tus transacciones incrementando la comisión (BIP125)
+_____
 
-Carteras de observación
-Las carteras de observación te permiten vigilar tus bitcoin en cold storage sin tener que tocar el hardware.
+LIGHTNING NETWORK
 
-Lightning Network
-Crea carteras Lighting con la mejor experiencia de usuario. Ofrecen comisiones muy bajas y transacciones super rápidas.
+Pagos increíblemente baratos y velocísimos sin ninguna configuración. Paga y cobra con direcciones Lightning y LNURL.
 
-Compra bitcoin
-Únete a la revolución de la economía abierta con la opción de comprar bitcoin directamente desde tu cartera.
+_____
 
-Compra-venta local
-Una plataforma P2P de compra-venta de bitcoin, que te permite comprar y vender directamente con otros usuarios sin pasar por terceros.
+Disponible en iOS, Android y macOS. Múltiples monedas e idiomas. Modo oscuro. Sin cuentas ni rastreo: solo Bitcoin.
+
+BlueWallet: tu Bitcoin es tuyo.

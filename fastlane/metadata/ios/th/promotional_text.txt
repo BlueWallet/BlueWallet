@@ -1,10 +1,10 @@
-Features
+ฟีเจอร์
 
-* Open Source
-* Full encryption
-* Plausible deniability
-* Flexible fees
+* โอเพนซอร์ส
+* การเข้ารหัสเต็มรูปแบบ
+* การปฏิเสธที่เป็นไปได้
+* ค่าธรรมเนียมที่ยืดหยุ่น
 * Replace-By-Fee (RBF)
 * SegWit
-* Watch-only (Sentinel) wallets
-* Lightning network
+* กระเป๋าดูอย่างเดียว
+* Lightning
