@@ -375,7 +375,6 @@
     "rbf_title": "Aumentar Taxa (RBF)",
     "status_bump": "Aumentar Taxa",
     "status_cancel": "Cancelar Transação",
-    "transactions_count": "Contagem das Transações",
     "txid": "ID da transação",
     "updating": "Atualizando...",
     "watchOnlyWarningTitle": "Alerta de segurança",
@@ -513,8 +512,6 @@
     "more_info": "Mais informações",
     "details_delete_wallet_error_message": "Houve um problema ao confirmar se esta carteira foi removida das notificações — isso pode ser devido a um problema de rede ou conexão ruim. Se você continuar, ainda poderá receber notificações de transações relacionadas a esta carteira, mesmo depois que ela for excluída.",
     "details_delete_anyway": "Apagar mesmo assim",
-    "swipe_balance_hide": "Ocultar",
-    "swipe_balance_show": "Mostrar",
     "drag_to_reorder": "Arraste para reordenar",
     "clear_search": "Limpar busca",
     "manage_wallets_search_placeholder": "Buscar carteiras, endereços, transações e notas"

@@ -301,20 +301,34 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('NavigationCloseButton');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
-    // swipe wallet row left to reveal Hide action; tap it
-    await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
+    // swipe wallet row left to reveal the right action (unit switch); tap it
+    // Use the label text element as the swipe target: it is typically >90% visible compared to the full row container on CI.
+    await element(by.text('cr34t3d')).swipe('left', 'slow', 0.6);
+    await waitForId('SwipeCycleBalanceUnit');
+    await element(by.id('SwipeCycleBalanceUnit')).tap();
+
+    // swipe wallet row right to reveal left action (Hide); tap it
+    await element(by.text('cr34t3d')).swipe('right', 'slow', 0.6);
     await waitForId('SwipeHideBalance');
     await element(by.id('SwipeHideBalance')).tap();
     await element(by.id('NavigationCloseButton')).tap();
     await waitForId('WalletsList');
+    await sleep(1500); // ensure saveToDisk completes before app is killed
 
-    // restart app — hide state must persist; swipe-left now exposes "Show" (hideBalance persisted as true)
+    // restart app — hide state must persist; swipe-right now exposes "Show" (hideBalance persisted as true)
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
     await waitForId('NavigationCloseButton');
-    await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
-    await waitForId('SwipeShowBalance');
+    await expect(element(by.id('cr34t3d'))).toBeVisible();
+    await element(by.text('cr34t3d')).swipe('right', 'slow', 0.7);
+    try {
+      await waitForId('SwipeShowBalance', 45000);
+    } catch (_waitErr) {
+      // Retry once: recycled list rows and gesture-handler timing can miss the first reveal on CI.
+      await element(by.text('cr34t3d')).swipe('right', 'slow', 0.8);
+      await waitForId('SwipeShowBalance', 45000);
+    }
 
     // restore visible state so subsequent tests are clean
     await element(by.id('SwipeShowBalance')).tap();

@@ -376,7 +376,6 @@
     "rbf_title": "追加矿工费（RBF）",
     "status_bump": "追加矿工费",
     "status_cancel": "取消交易",
-    "transactions_count": "交易数量",
     "txid": "交易 ID",
     "updating": "正在更新……",
     "watchOnlyWarningTitle": "安全警告",
@@ -514,8 +513,6 @@
     "more_info": "更多信息",
     "details_delete_wallet_error_message": "确认此钱包是否已从通知中移除时出现问题——这可能是由于网络问题或连接不良。如果您继续操作，即使删除此钱包，您仍可能收到与该钱包相关的交易通知。",
     "details_delete_anyway": "仍然删除",
-    "swipe_balance_hide": "隐藏",
-    "swipe_balance_show": "显示",
     "drag_to_reorder": "拖动以重新排序",
     "clear_search": "清除搜索"
   },

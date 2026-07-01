@@ -20,6 +20,9 @@ import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { FiatUnit } from '../../models/fiatUnit';
 import { TTXMetadata } from '../../class/blue-app';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
@@ -127,6 +130,8 @@ const reducer = (state: State, action: Action): State => {
 const ManageWallets: React.FC = () => {
   const { colors, closeImage, dark } = useTheme();
   const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
+  const { preferredFiatCurrency } = useSettings();
+  const preferredFiatLabel = preferredFiatCurrency?.endPointKey ?? FiatUnit.USD.endPointKey;
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
   const { navigate, setOptions, goBack } = useExtendedNavigation();
   const { direction } = useLocale();
@@ -144,6 +149,7 @@ const ManageWallets: React.FC = () => {
   const [noResultsOpacity] = useState(new Animated.Value(0));
 
   const [dragging, setDragging] = useState(false);
+  const [resetSwipeToken, setResetSwipeToken] = useState(0);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedSearch = useCallback((text: string) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
@@ -496,6 +502,33 @@ const ManageWallets: React.FC = () => {
     [state.walletsCopy, setWalletsWithNewOrder],
   );
 
+  const handleCycleBalanceUnit = useCallback(
+    (wallet: TWallet) => {
+      const walletID = wallet.getID();
+      const current = wallet.getPreferredBalanceUnit();
+      let next: BitcoinUnit;
+      if (current === BitcoinUnit.BTC) {
+        next = BitcoinUnit.SATS;
+      } else if (current === BitcoinUnit.SATS) {
+        next = BitcoinUnit.LOCAL_CURRENCY;
+      } else {
+        next = BitcoinUnit.BTC;
+      }
+
+      const updatedWallets = deepCopyWallets(state.walletsCopy).map(w => {
+        if (w.getID() === walletID) {
+          w.setPreferredBalanceUnit(next);
+        }
+        return w;
+      });
+
+      setWalletsWithNewOrder(updatedWallets);
+      dispatch({ type: SAVE_CHANGES, payload: updatedWallets });
+      triggerHapticFeedback(HapticFeedbackTypes.Selection);
+    },
+    [state.walletsCopy, setWalletsWithNewOrder],
+  );
+
   const renderListItem = useCallback(
     (item: Item, drag: (() => void) | undefined, isActive: boolean) => {
       const compatibleState = {
@@ -518,11 +551,25 @@ const ManageWallets: React.FC = () => {
         );
       }
 
+      let rowBaseKey = '';
+      if (item.type === ItemType.WalletSection) {
+        rowBaseKey = `wallet-${item.data.getID()}`;
+      } else if (item.type === ItemType.TransactionSection) {
+        const paymentHash =
+          typeof item.data.payment_hash === 'string' ? item.data.payment_hash : item.data.payment_hash?.data?.toString?.() || '';
+        rowBaseKey = `tx-${item.data.hash || item.data.txid || paymentHash || item.data.timestamp}-${item.data.walletID || ''}`;
+      } else {
+        rowBaseKey = `addr-${item.data.address}-${item.data.walletID}-${item.data.index}`;
+      }
+
       return (
         <ManageWalletsListItem
+          key={`row-${resetSwipeToken}-${rowBaseKey}`}
           item={item}
           isDraggingDisabled={isDragDisabled}
           handleToggleHideBalance={handleToggleHideBalance}
+          handleCycleBalanceUnit={handleCycleBalanceUnit}
+          preferredFiatLabel={preferredFiatLabel}
           state={compatibleState}
           navigateToWallet={navigateToWallet}
           navigateToAddress={navigateToAddress}
@@ -535,9 +582,12 @@ const ManageWallets: React.FC = () => {
     },
     [
       handleToggleHideBalance,
+      handleCycleBalanceUnit,
+      preferredFiatLabel,
       state.walletsCopy,
       state.searchQuery,
       state.isSearchFocused,
+      resetSwipeToken,
       navigateToWallet,
       navigateToAddress,
       renderHighlightedText,
@@ -661,6 +711,7 @@ const ManageWallets: React.FC = () => {
               containerStyle={styles.listContainer}
               onDragBegin={() => {
                 setDragging(true);
+                setResetSwipeToken(prev => prev + 1);
               }}
               onDragEnd={({ from, to, data }: DragEndParams<Item>) => {
                 setDragging(false);
