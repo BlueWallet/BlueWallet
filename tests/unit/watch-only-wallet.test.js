@@ -3,6 +3,7 @@ import { Psbt } from 'bitcoinjs-lib';
 
 import { BlueURDecoder, clearUseURv1, decodeUR, encodeUR, extractSingleWorkload, setUseURv1 } from '../../blue_modules/ur';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Watch only wallet', () => {
@@ -310,6 +311,76 @@ describe('Watch only wallet', () => {
     assert.strictEqual(w.getLabel(), 'Wallet');
     assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
     assert.ok(w.useWithHardwareWalletEnabled());
+  });
+
+  // Payload shape from https://github.com/BlueWallet/BlueWallet/issues/8251 — Unchained exports a
+  // flat JSON with `xfp`, per-script-type derivation paths and per-script-type extended keys. The
+  // `p2wsh` key is a BIP48 multisig cosigner (Zpub at m/48'/0'/0'/2'). BIP48 is defined only for
+  // multisig, so this key has NO single-signature meaning and must not be imported as a single-sig
+  // watch-only (class/multisig-cosigner.ts imports this same shape as a cosigner of a multisig vault).
+  const unchainedSigningDeviceJSON = JSON.stringify({
+    xfp: 'B68AF6E4',
+    account: 0,
+    p2wsh_deriv: 'm/48h/0h/0h/2h',
+    p2wsh: 'Zpub74w9dfoeurKrKXE3SPRpFquLPTkiCuSwGuhDzBgbE42w5ShB2FxMjmJyjZpSJ6WhLt8y1PeFHQELGgq2GmktviFDH8yFWYRWg4xQiw3v335',
+    p2sh_deriv: 'm/45h',
+    p2sh: 'xpub69EKPNo9Jkd6v2h7xNKw5RdbFBoaHEcstXcRNfcQ2jg71iFpobCwcxfJjaV2ycGy218f2jM1znqs1SDkqMiR7fbyBVJwzacg2QarGt1gtJg',
+    p2sh_p2wsh_deriv: 'm/48h/0h/0h/1h',
+    p2sh_p2wsh: 'Ypub6k6tL18jmAnNRGZpk4u3WPGDmWMkdZNmx3MySYdQywCwMMHqNoKHeqLAgU6pFokHKQFdi88vAW4g3TEsCAymoq5LnFXd54RkQ8m3AD9f81J',
+  });
+  // The "nowhere" address the previous (now-removed) single-sig conversion derived from the cosigner
+  // key. It matches neither the multisig vault (wrong script type) nor any standard single-sig wallet
+  // (single-sig native segwit is m/84'); nothing else would ever watch or fund it.
+  const removedSingleSigAddress = 'bc1qt4d72r6lwyupkk559cxvrd9d4mud90g0sjfml2';
+
+  // (#8251) The Unchained cosigner export is recognised and REFUSED as a single-sig watch-only:
+  // the wallet stays invalid and the cosigner key is never converted to a single-sig address.
+  it('refuses to import an Unchained multisig cosigner as a single-sig watch-only (#8251)', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(unchainedSigningDeviceJSON);
+    assert.ok(w.isMultisigCosignerImport(), 'should be recognised as a multisig cosigner export');
+    assert.ok(!w.valid(), 'a multisig cosigner must not import as a single-sig watch-only');
+    assert.strictEqual(w.getMasterFingerprintHex(), '00000000', 'no single-sig conversion should have happened');
+  });
+
+  // The detector matches BIP48 multisig paths and ignores single-sig / legacy paths.
+  it('detects BIP48 multisig-cosigner derivation paths only', () => {
+    assert.ok(WatchOnlyWallet.isMultisigCosignerDerivationPath("m/48'/0'/0'/2'")); // p2wsh
+    assert.ok(WatchOnlyWallet.isMultisigCosignerDerivationPath("m/48'/0'/0'/1'")); // p2sh-p2wsh
+    assert.ok(WatchOnlyWallet.isMultisigCosignerDerivationPath('m/48h/0h/0h/2h')); // hardened "h" notation
+    assert.ok(!WatchOnlyWallet.isMultisigCosignerDerivationPath("m/84'/0'/0'")); // single-sig native segwit
+    assert.ok(!WatchOnlyWallet.isMultisigCosignerDerivationPath("m/44'/0'/0'")); // single-sig legacy
+    assert.ok(!WatchOnlyWallet.isMultisigCosignerDerivationPath(undefined));
+  });
+
+  // A regular (non-multisig) zpub is unaffected: not flagged, imports normally.
+  it('does not flag a regular single-sig xpub/zpub import', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    w.init();
+    assert.ok(!w.isMultisigCosignerImport());
+    assert.ok(w.valid());
+    assert.ok(w._getExternalAddressByIndex(0).startsWith('bc1q'));
+  });
+
+  // The cosigner key's real home is a multisig vault: loaded into a MultisigHDWallet (BlueWallet's
+  // own path — see multisig-hd-wallet.ts setSecret, which also recognises this Unchained JSON) it
+  // derives a valid P2WSH address that is NOT the "nowhere" address the removed conversion produced.
+  it('the same cosigner builds a multisig vault address, not the single-sig address', () => {
+    const ms = new MultisigHDWallet();
+    ms.addCosigner(
+      'Zpub74w9dfoeurKrKXE3SPRpFquLPTkiCuSwGuhDzBgbE42w5ShB2FxMjmJyjZpSJ6WhLt8y1PeFHQELGgq2GmktviFDH8yFWYRWg4xQiw3v335',
+      'B68AF6E4',
+    );
+    ms.addCosigner(
+      'Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ',
+      '168DD603',
+    );
+    ms.setDerivationPath("m/48'/0'/0'/2'");
+    ms.setM(2);
+    const vaultAddress = ms._getExternalAddressByIndex(0);
+    assert.ok(vaultAddress.startsWith('bc1q'), `expected a native-segwit vault address, got ${vaultAddress}`);
+    assert.notStrictEqual(vaultAddress, removedSingleSigAddress);
   });
 
   it('can import taproot BIP86 from keystone with zpub instead of xpub', async () => {

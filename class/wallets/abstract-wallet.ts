@@ -49,6 +49,7 @@ export class AbstractWallet {
   _utxoMetadata: Record<string, UtxoMetadata>;
   use_with_hardware_wallet: boolean;
   masterFingerprint: number;
+  _isMultisigCosignerImport: boolean;
 
   constructor() {
     this.label = '';
@@ -67,6 +68,7 @@ export class AbstractWallet {
     this._utxoMetadata = {};
     this.use_with_hardware_wallet = false;
     this.masterFingerprint = 0;
+    this._isMultisigCosignerImport = false;
   }
 
   /**
@@ -221,6 +223,7 @@ export class AbstractWallet {
 
   setSecret(newSecret: string): this {
     const origSecret = newSecret;
+    this._isMultisigCosignerImport = false;
 
     // is it minikey https://en.bitcoin.it/wiki/Mini_private_key_format
     // Starts with S, is 22 length or larger, is base58
@@ -347,6 +350,23 @@ export class AbstractWallet {
         if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
         return this;
       }
+      // It is an Unchained signing-device JSON: flat shape with `xfp` and per-script-type extended
+      // keys. The `p2wsh` key sits on a BIP48 path (m/48'/.../2'), which is defined only for
+      // multisig — it has no single-signature meaning. Converting it to a single-sig p2wpkh wallet
+      // would derive addresses that match neither the user's multisig vault (wrong script type) nor
+      // any standard single-sig wallet (single-sig native segwit lives at m/84'). So we refuse the
+      // conversion and flag the secret as a multisig cosigner; the import flow tells the user to add
+      // a multisig wallet and import all of its cosigners instead (see class/multisig-cosigner.ts).
+      if (
+        parsedSecret &&
+        parsedSecret.xfp &&
+        parsedSecret.p2wsh &&
+        parsedSecret.p2wsh_deriv &&
+        AbstractWallet.isMultisigCosignerDerivationPath(parsedSecret.p2wsh_deriv.replace(/h/g, "'"))
+      ) {
+        this._isMultisigCosignerImport = true;
+        return this;
+      }
     } catch (_) {}
 
     if (!this._derivationPath) {
@@ -427,6 +447,27 @@ export class AbstractWallet {
 
   useWithHardwareWalletEnabled(): boolean {
     return false;
+  }
+
+  /**
+   * Whether the last `setSecret` recognised the secret as a multisig cosigner export (e.g. an
+   * Unchained signing-device JSON whose key sits on a BIP48 multisig path). Such a key cannot be
+   * imported as a standalone single-sig watch-only wallet — it is one cosigner of a multisig vault —
+   * so the conversion is refused and the wallet left invalid. The import flow surfaces guidance
+   * pointing the user to the multisig import instead.
+   */
+  isMultisigCosignerImport(): boolean {
+    return this._isMultisigCosignerImport;
+  }
+
+  /**
+   * Recognises a BIP48 multisig-cosigner derivation path, i.e. m/48'/{coin}'/{account}'/{script}'
+   * where script is 1' (p2sh-p2wsh) or 2' (p2wsh). A key at such a path is one cosigner of a
+   * multisig wallet, not a standalone single-sig account.
+   */
+  static isMultisigCosignerDerivationPath(path?: string): boolean {
+    if (!path) return false;
+    return /^m\/48'\/\d+'\/\d+'\/[12]'$/.test(path.replace(/h/g, "'"));
   }
 
   isBIP47Enabled(): boolean {
