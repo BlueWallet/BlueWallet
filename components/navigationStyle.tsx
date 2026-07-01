@@ -102,7 +102,7 @@ const navigationStyle = (
           : getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
       const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
 
-      const closeButtonElement = renderCloseButton(theme, isFormSheet, handleClose);
+      const renderCloseButtonElement = () => renderCloseButton(theme, isFormSheet, handleClose);
       const useNativeHeaderItems = isIOS26OrHigher;
 
       let headerRight;
@@ -124,7 +124,7 @@ const navigationStyle = (
             },
           ];
         } else {
-          headerRight = () => closeButtonElement;
+          headerRight = renderCloseButtonElement;
         }
       } else if (closeButton === CloseButtonPosition.Left) {
         if (useNativeHeaderItems) {
@@ -133,13 +133,14 @@ const navigationStyle = (
               type: 'button' as const,
               label: loc._.close,
               icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
+              identifier: 'NavigationCloseButton',
               onPress: handleClose,
               accessibilityLabel: loc._.close,
               sharesBackground: false,
             },
           ];
         } else {
-          headerLeft = () => closeButtonElement;
+          headerLeft = renderCloseButtonElement;
         }
       }
       const baseHeaderStyle = {

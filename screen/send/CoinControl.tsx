@@ -9,6 +9,7 @@ import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { mapActionsToNativeHeaderMenuItems } from '../../components/nativeHeaderMenuItems';
 import SafeArea from '../../components/SafeArea';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
@@ -346,67 +347,37 @@ const CoinControl: React.FC = () => {
     [toolTipOnPressMenuItem, toolTipActions],
   );
 
+  const nativeHeaderMenuItems = useMemo(() => {
+    const nativeActions: Action[] = [
+      {
+        id: 'sort_direction',
+        text: loc.cc.sort_by,
+        displayInline: true,
+        subactions: [
+          { ...CommonToolTipActions.SortASC, menuState: sortDirection === ESortDirections.asc },
+          { ...CommonToolTipActions.SortDESC, menuState: sortDirection === ESortDirections.desc },
+        ],
+      },
+      {
+        id: 'sort_by',
+        text: loc.cc.sort_by,
+        displayInline: true,
+        subactions: [
+          { ...CommonToolTipActions.SortHeight, menuState: sortType === ESortTypes.height },
+          { ...CommonToolTipActions.SortValue, menuState: sortType === ESortTypes.value },
+          { ...CommonToolTipActions.SortLabel, menuState: sortType === ESortTypes.label },
+          { ...CommonToolTipActions.SortStatus, menuState: sortType === ESortTypes.frozen },
+        ],
+      },
+    ];
+
+    return mapActionsToNativeHeaderMenuItems(nativeActions, toolTipOnPressMenuItem);
+  }, [sortDirection, sortType, toolTipOnPressMenuItem]);
+
   const nativeHeaderRightItems = useCallback((): HeaderRightItem[] => {
     if (utxos.length === 0) {
       return [];
     }
-
-    const sortTypeItems = [
-      {
-        type: 'action' as const,
-        label: CommonToolTipActions.SortHeight.text,
-        state: sortType === ESortTypes.height ? 'on' : 'off',
-        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortHeight.id),
-      },
-      {
-        type: 'action' as const,
-        label: CommonToolTipActions.SortValue.text,
-        state: sortType === ESortTypes.value ? 'on' : 'off',
-        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortValue.id),
-      },
-      {
-        type: 'action' as const,
-        label: CommonToolTipActions.SortLabel.text,
-        state: sortType === ESortTypes.label ? 'on' : 'off',
-        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortLabel.id),
-      },
-      {
-        type: 'action' as const,
-        label: CommonToolTipActions.SortStatus.text,
-        state: sortType === ESortTypes.frozen ? 'on' : 'off',
-        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortStatus.id),
-      },
-    ];
-
-    const sortDirectionItems = [
-      {
-        type: 'action' as const,
-        label: CommonToolTipActions.SortASC.text,
-        state: sortDirection === ESortDirections.asc ? 'on' : 'off',
-        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortASC.id),
-      },
-      {
-        type: 'action' as const,
-        label: CommonToolTipActions.SortDESC.text,
-        state: sortDirection === ESortDirections.desc ? 'on' : 'off',
-        onPress: () => toolTipOnPressMenuItem(CommonToolTipActions.SortDESC.id),
-      },
-    ];
-
-    const menuItems = [
-      {
-        type: 'submenu' as const,
-        label: CommonToolTipActions.Sort.text,
-        inline: true,
-        items: sortDirectionItems,
-      },
-      {
-        type: 'submenu' as const,
-        label: loc.cc.sort_by,
-        inline: true,
-        items: sortTypeItems,
-      },
-    ];
 
     return [
       {
@@ -418,11 +389,11 @@ const CoinControl: React.FC = () => {
         },
         menu: {
           title: loc.cc.sort_by,
-          items: menuItems,
+          items: nativeHeaderMenuItems,
         },
       } as HeaderRightItem,
     ];
-  }, [sortDirection, sortType, toolTipOnPressMenuItem, utxos.length]);
+  }, [nativeHeaderMenuItems, utxos.length]);
 
   // Adding the ToolTipMenu to the header
   useEffect(() => {

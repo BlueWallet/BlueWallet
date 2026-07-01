@@ -22,6 +22,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { Action } from '../../components/types';
 import { getLNDHub } from '../../helpers/lndHub';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { mapActionsToNativeHeaderMenuItems } from '../../components/nativeHeaderMenuItems';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -283,87 +284,86 @@ const WalletsAdd: React.FC = () => {
     [handleHeaderMenuItemPress, toolTipActions],
   );
 
-  const nativeHeaderRightItems = useMemo<() => HeaderRightItem[]>(() => {
-    const walletTypeItems = [
+  const nativeHeaderMenuItems = useMemo(() => {
+    const nativeActions: Action[] = [
       {
-        type: 'action' as const,
-        label: index2walletType[0].text,
-        onPress: () => handleHeaderMenuItemPress(index2walletType[0].walletType),
-      },
-      {
-        type: 'action' as const,
-        label: index2walletType[1].text,
-        onPress: () => handleHeaderMenuItemPress(index2walletType[1].walletType),
-      },
-      {
-        type: 'action' as const,
-        label: index2walletType[2].text,
-        onPress: () => handleHeaderMenuItemPress(index2walletType[2].walletType),
-      },
-      {
-        type: 'action' as const,
-        label: index2walletType[3].text,
-        onPress: () => handleHeaderMenuItemPress(index2walletType[3].walletType),
-      },
-    ];
-
-    const menuItems: Array<{
-      type: 'action' | 'submenu';
-      label: string;
-      onPress?: () => void;
-      items?: Array<{ type: 'action'; label: string; onPress: () => void; destructive?: boolean }>;
-    }> = [
-      {
-        type: 'submenu',
-        label: loc.multisig.wallet_type,
-        items: walletTypeItems,
+        id: 'wallet_type',
+        text: loc.multisig.wallet_type,
+        displayInline: true,
+        subactions: [
+          {
+            ...CommonToolTipActions.MoreInfo,
+            id: index2walletType[0].walletType,
+            text: index2walletType[0].text,
+            subtitle: index2walletType[0].subtitle,
+            menuState: selectedIndex === 0 && selectedWalletType === ButtonSelected.ONCHAIN,
+          },
+          {
+            ...CommonToolTipActions.MoreInfo,
+            id: index2walletType[1].walletType,
+            text: index2walletType[1].text,
+            subtitle: index2walletType[1].subtitle,
+            menuState: selectedIndex === 1 && selectedWalletType === ButtonSelected.ONCHAIN,
+          },
+          {
+            ...CommonToolTipActions.MoreInfo,
+            id: index2walletType[2].walletType,
+            text: index2walletType[2].text,
+            subtitle: index2walletType[2].subtitle,
+            menuState: selectedIndex === 2 && selectedWalletType === ButtonSelected.ONCHAIN,
+          },
+          {
+            ...CommonToolTipActions.MoreInfo,
+            id: index2walletType[3].walletType,
+            text: index2walletType[3].text,
+            subtitle: index2walletType[3].subtitle,
+            menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
+          },
+        ],
       },
     ];
 
     if (selectedWalletType === ButtonSelected.ONCHAIN) {
-      const entropyItems: Array<{ type: 'action'; label: string; onPress: () => void; destructive?: boolean }> = [
-        {
-          type: 'action',
-          label: loc.wallets.add_wallet_seed_length_12,
-          onPress: () => handleHeaderMenuItemPress('12_words'),
-        },
-        {
-          type: 'action',
-          label: loc.wallets.add_wallet_seed_length_24,
-          onPress: () => handleHeaderMenuItemPress('24_words'),
-        },
-      ];
-      if (entropy) {
-        entropyItems.push({
-          type: 'action',
-          label: CommonToolTipActions.ResetToDefault.text,
-          destructive: true,
-          onPress: () => handleHeaderMenuItemPress(CommonToolTipActions.ResetToDefault.id),
-        });
-      }
-
-      menuItems.push({
-        type: 'submenu',
-        label: entropyButtonText,
-        items: entropyItems,
+      nativeActions.push({
+        id: 'entropy',
+        text: entropyButtonText,
+        subactions: [
+          {
+            id: '12_words',
+            text: loc.wallets.add_wallet_seed_length_12,
+            subtitle: loc.wallets.add_wallet_seed_length,
+            menuState: words === 12,
+          },
+          {
+            id: '24_words',
+            text: loc.wallets.add_wallet_seed_length_24,
+            subtitle: loc.wallets.add_wallet_seed_length,
+            menuState: words === 24,
+          },
+          { ...CommonToolTipActions.ResetToDefault, hidden: !entropy },
+        ],
       });
     }
 
+    return mapActionsToNativeHeaderMenuItems(nativeActions, handleHeaderMenuItemPress);
+  }, [entropy, entropyButtonText, handleHeaderMenuItemPress, selectedIndex, selectedWalletType, words]);
+
+  const nativeHeaderRightItems = useMemo<() => HeaderRightItem[]>(() => {
     return () => [
       {
         type: 'menu',
-        label: 'Options',
+        label: loc.wallets.details_options,
         icon: {
           type: 'sfSymbol',
           name: 'ellipsis',
         },
         menu: {
-          title: 'Options',
-          items: menuItems,
+          title: loc.wallets.details_options,
+          items: nativeHeaderMenuItems,
         },
       } as HeaderRightItem,
     ];
-  }, [entropy, entropyButtonText, handleHeaderMenuItemPress, selectedWalletType]);
+  }, [nativeHeaderMenuItems]);
 
   useEffect(() => {
     setOptions({
