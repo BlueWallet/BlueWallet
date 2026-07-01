@@ -33,6 +33,7 @@ const _availableLanguages = Object.freeze([
   { label: 'Indonesia (ID)', value: 'id_id' },
   { label: 'Қазақ (KK)', value: 'kk@Cyrl' },
   { label: 'Magyar (HU)', value: 'hu_hu' },
+  { label: 'Filipino (PH)', value: 'fil_PH' },
   { label: '日本語 (JP)', value: 'jp_jp' },
   { label: '한국어 (KO)', value: 'ko_kr' },
   { label: 'ಕನ್ನಡ (KN)', value: 'kn' },
