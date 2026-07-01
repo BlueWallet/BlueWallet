@@ -132,6 +132,8 @@ const KEY_EXCEPTIONS = new Set([
 const FILE_KEY_EXCEPTIONS = {
   // French "Options" is genuinely identical to the English label.
   'fr_fr.json': new Set(['wallets.details_options']),
+  // Faroese maintainer intentionally uses the international "Send" as the button label.
+  'fo.json': new Set(['send.header']),
 };
 
 // Single tokens that are legitimate English-equal values (brands, acronyms,
