@@ -1,8 +1,10 @@
+Características
+
 * Código abierto
-* Todo los datos son cifrados
+* Cifrado total
 * Negación plausible
 * Comisiones flexibles
-* Replace by Fee (RBF)
+* Replace-By-Fee (RBF)
 * SegWit
-* Carteras de observación
-* Lightning network
+* Carteras de solo lectura
+* Red Lightning

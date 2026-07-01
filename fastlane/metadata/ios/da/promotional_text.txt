@@ -1,1 +1,10 @@
+Funktioner
 
+* Open Source
+* Fuld kryptering
+* Sandsynlig benægtelse
+* Fleksible gebyrer
+* Replace-By-Fee (RBF)
+* SegWit
+* Watch-only-wallets
+* Lightning Network

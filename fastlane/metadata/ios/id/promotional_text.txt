@@ -1,0 +1,10 @@
+Fitur
+
+* Open Source
+* Enkripsi penuh
+* Penyangkalan yang masuk akal
+* Biaya fleksibel
+* Replace-By-Fee (RBF)
+* SegWit
+* Dompet hanya-lihat
+* Lightning network

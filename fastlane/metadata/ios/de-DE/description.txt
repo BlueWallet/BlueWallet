@@ -1,46 +1,56 @@
-Eine Funktionsreiche und einfache Bitcoin-Wallet mit Fokus auf Sicherheit zum Empfangen, Halten, Senden und Kaufen von bitcoin.
+BlueWallet ist eine radikal einfache, leistungsstarke und sichere Bitcoin-Wallet. Bewahre Bitcoin auf, sende und empfange ihn und behalte die volle Kontrolle — deine Schlüssel, deine Coins.
 
-Bei BlueWallet bist Du im Besitz der privaten Schlüssel. Eine Wallet gemacht von Nutzern für die Bitcoin Gemeinschaft.
-
-Mache mit beliebigen Personen sofort weltweit Geschäfte und transformiere das Finanzsystem direkt aus deiner Tasche.
-
-Erstelle kostenlos eine unbegrenzte Anzahl von Bitcoin-Wallets oder importiere Deine vorhandene Wallet. Es ist einfach und schnell.
+Kostenlos und quelloffen, von Bitcoin-Nutzern für die Community entwickelt. Mache Geschäfte mit jedem auf der Welt und übernimm die Kontrolle über dein Geld, direkt aus deiner Tasche. Erstelle kostenlos unbegrenzt viele Wallets oder importiere eine bestehende — schnell und einfach.
 
 _____
 
-Das bekommst Du:
+SICHERHEIT VON GRUND AUF
 
+Quelloffen
+MIT-lizenziert — prüfe, kompiliere und betreibe sie selbst. Erstellt mit React Native.
 
-1 - Sicherheit by Design
+Deine Schlüssel, deine Coins
+Private Schlüssel (dein Seed) verlassen niemals dein Gerät. Du hast immer die Kontrolle.
 
-Quelloffene Software
-Eine MIT-Lizenzierung die erlaubt BlueWallet zu kompilieren und zu betreiben! Erstellt mit ReactNative.
-
-Glaubhafte Täuschung
-Ein Mechanismus, der falsche Bitcoin-Wallet entschlüsselt, falls Du gezwungen wirst Deinen Zugang preiszugeben.
+Multisig-Tresor
+Die beste Sicherheit, die es bei Bitcoin gibt — zum Ausgeben sind mehrere Schlüssel nötig, genau wie bei einem echten Tresor.
 
 Vollständige Verschlüsselung
-Eine zusätzliche, umfassende Passwortverschlüsselung zur mehrstufigen OS-Verschlüsselung.
+Zusätzlich zur Geräteverschlüsselung wird alles noch einmal mit deinem eigenen Passwort verschlüsselt.
 
-Full Node
-Eine Verbindungsmöglichkeit via Electum zum eigenen Full Node.
+Glaubhafte Abstreitbarkeit
+Lege ein Täuschungspasswort fest, das gefälschte Wallets öffnet, falls du jemals zum Entsperren gezwungen wirst.
 
-Cold Storage
-Eine Hardware-Wallet Unterstützung zur sicheren bitcoin Verwahrung.
+_____
 
-2 - Auf dein Erlebnis fokussiert
+LEISTUNG UND KONTROLLE
 
-Die alleinige Kontrolle.
-Du allein kontrollierst die Privatschlüssel. Sie verlassen dein Gerät nie. 
+Moderne Wallets
+HD-Wallets mit voller Unterstützung für Legacy-, SegWit- und Taproot-Adressen.
 
-Anpassbare Gebühren
-Freie Gebührenwahl. Beginnend bei einem Satoshi.
+Hardware Wallets
+Verbinde Coldcard, Keystone und andere PSBT-Signierer und bewahre deine Coins im Cold Storage auf.
 
-Replace-By-Fee
-(RBF) Eine nachträgliche Gebührenerhöhung für rasche Bestätigungen. (BIP125)
+Watch-only-Wallets
+Behalte dein Cold Storage im Blick, ohne jemals deine privaten Schlüssel preiszugeben.
 
-Watch-only Wallets
-Watch-only Wallets, damit deine Schlüssel offline und deine bitcoin gleichzeitig im Blick bleiben.
+Betreibe deinen eigenen Node
+Verbinde dich über Electrum mit deinem eigenen Bitcoin-Full-Node und leite deine Verbindung über Tor.
 
-Lightning Netzwerk
-Lightning Wallet ohne Konfiguration. Lightning Bezahlungen sind konkurrenzlos günstig und verblüffend schnell.
+Münzkontrolle
+Sieh, beschrifte und friere deine Coins (UTXOs) ein, um Transaktionen genau so zu erstellen, wie du es möchtest.
+
+Flexible Gebühren
+Lege deine eigene Gebühr fest, bis hinunter zu 1 sat/vByte. Beschleunige festhängende Transaktionen mit RBF oder CPFP oder storniere sie.
+
+_____
+
+LIGHTNING-NETZWERK
+
+Unfair günstige und blitzschnelle Zahlungen ganz ohne Konfiguration. Zahle und werde bezahlt mit Lightning-Adressen und LNURL.
+
+_____
+
+Verfügbar für iOS, Android und macOS. Mehrere Währungen und Sprachen. Dark Mode. Keine Konten und kein Tracking — nur Bitcoin.
+
+BlueWallet — besitze deinen Bitcoin.
