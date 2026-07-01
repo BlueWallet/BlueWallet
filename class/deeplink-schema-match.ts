@@ -19,6 +19,15 @@ type TContext = {
 type TBothBitcoinAndLightning = { bitcoin: string; lndInvoice: string } | undefined;
 
 class DeeplinkSchemaMatch {
+  static isBitcoinUriSchema(url: string): boolean {
+    if (typeof url !== 'string' || url.length === 0) {
+      return false;
+    }
+
+    const normalized = url.trim().toLowerCase();
+    return normalized.startsWith('bitcoin:') || normalized.startsWith('bluewallet:bitcoin:');
+  }
+
   static hasSchema(schemaString: string): boolean {
     if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
     const lowercaseString = schemaString.trim().toLowerCase();

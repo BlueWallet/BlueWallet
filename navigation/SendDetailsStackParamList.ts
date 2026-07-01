@@ -7,8 +7,10 @@ import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
 
 export type SendDetailsParams = {
   transactionMemo?: string;
+  label?: string;
   isTransactionReplaceable?: boolean;
   payjoinUrl?: string;
+  pj?: string;
   feeUnit?: BitcoinUnit;
   frozenBalance?: number;
   amountUnit?: BitcoinUnit;

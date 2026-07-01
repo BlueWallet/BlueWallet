@@ -282,6 +282,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
       try {
         if (!event.url) return;
+        if (DeeplinkSchemaMatch.isBitcoinUriSchema(event.url)) {
+          // NavigationContainer linking handles bitcoin deeplinks.
+          return;
+        }
         let decodedUrl: string;
         try {
           decodedUrl = decodeURIComponent(event.url);

@@ -94,7 +94,7 @@ const useDeviceQuickActions = () => {
         }
       } else {
         const url = await Linking.getInitialURL();
-        if (url && DeeplinkSchemaMatch.hasSchema(url)) {
+        if (url && DeeplinkSchemaMatch.hasSchema(url) && !DeeplinkSchemaMatch.isBitcoinUriSchema(url)) {
           handleOpenURL({ url });
         }
       }
