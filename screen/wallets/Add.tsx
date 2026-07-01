@@ -279,16 +279,11 @@ const WalletsAdd: React.FC = () => {
   );
 
   const HeaderRight = useMemo(
-    () => (
-      <HeaderMenuButton
-        onPressMenuItem={handleHeaderMenuItemPress}
-        actions={toolTipActions}
-      />
-    ),
+    () => <HeaderMenuButton onPressMenuItem={handleHeaderMenuItemPress} actions={toolTipActions} />,
     [handleHeaderMenuItemPress, toolTipActions],
   );
 
-  const nativeHeaderRightItems = useMemo<(() => HeaderRightItem[])>(() => {
+  const nativeHeaderRightItems = useMemo<() => HeaderRightItem[]>(() => {
     const walletTypeItems = [
       {
         type: 'action' as const,

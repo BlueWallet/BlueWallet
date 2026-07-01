@@ -121,6 +121,7 @@ const navigationStyle = (
               onPress: handleClose,
               accessibilityLabel: loc._.close,
               sharesBackground: false,
+            },
           ];
         } else {
           headerRight = () => closeButtonElement;
