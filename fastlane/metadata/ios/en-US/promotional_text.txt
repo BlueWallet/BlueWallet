@@ -6,5 +6,5 @@ Features
 * Flexible fees
 * Replace-By-Fee (RBF)
 * SegWit
-* Watch-only (Sentinel) wallets
+* Watch-only wallets
 * Lightning network
