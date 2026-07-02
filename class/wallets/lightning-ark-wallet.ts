@@ -10,6 +10,7 @@ import {
   isChainSwapClaimable,
   isChainSwapRefundable,
   isReverseClaimableStatus,
+  isReverseSuccessStatus,
   isReverseSwapClaimable,
   isSubmarineSwapRefundable,
 } from '@arkade-os/boltz-swap';
@@ -350,19 +351,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
    * - Submarine `swap.expired` / `invoice.expired` → kept with a `Failed: `
    *   prefix; SDK classifies them as refundable so the user needs the row
    *   to recover an on-chain lockup.
-   * - Unpaid reverse invoices with no payment in flight (`type === 'reverse'`
-   *   AND `!ispaid` AND `!memoPrefix` AND NOT isReverseClaimableStatus) are
-   *   dropped. This covers `swap.created` (invoice generated, never paid) and
-   *   `invoice.expired` / `swap.expired` (unpaid & dead). Only claimable
-   *   reverse swaps (`transaction.mempool` / `transaction.confirmed`, funds
-   *   locked on-chain) survive as genuine pending receives. The guard is gated
-   *   to (a) reverse only — submarine pending rows may have on-chain locked
-   *   funds that need recovery visibility — and (b) non-terminal rows so a
+   * - Unpaid reverse invoices that are dead (`invoice.expired` / `swap.expired`,
+   *   no funds in flight) are dropped. Open invoices (`swap.created`) are kept
+   *   so they appear in the transaction list. Claimable reverse swaps
+   *   (`transaction.mempool` / `transaction.confirmed`) also stay visible as
+   *   genuine pending receives. The guard is gated to (a) reverse only —
+   *   submarine pending rows may have on-chain locked funds that need recovery
+   *   visibility — and (b) terminal expired unpaid reverse only, so a
    *   `Failed: ` / `Refunded: ` row is still preserved for diagnosis.
-   *   This drop is display-only: `getUserInvoices()` and
-   *   `isInvoiceGeneratedByWallet()` call with `includeUnpaidInvoices=true` so a
-   *   just-created, unpaid invoice stays discoverable by the receive-screen poll
-   *   and the clipboard heuristic, even though it is hidden from the history list.
+   *   Registry callers (`getUserInvoices`, `isInvoiceGeneratedByWallet`) still
+   *   pass `includeUnpaidInvoices=true` for parity with the receive-screen poll.
    * - Failed/refunded swaps stay visible with `ispaid:false` and a
    *   `Failed: ` / `Refunded: ` memo prefix so support can diagnose them.
    */
@@ -443,6 +441,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     for (const swap of this._swapHistory) {
       let memo = '';
       let value = 0;
+      let invoiceAmountSats = 0;
       let bolt11invoice = '';
       let payment_hash = '';
       let expiry: number | undefined;
@@ -454,6 +453,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         if (bolt11invoice) {
           const invoiceDetails = this.decodeInvoice(bolt11invoice);
           value = invoiceDetails.num_satoshis;
+          invoiceAmountSats = Math.abs(value);
           memo = invoiceDetails.description;
           payment_hash = invoiceDetails.payment_hash;
           expiry = invoiceDetails.expiry;
@@ -546,9 +546,24 @@ export class LightningArkWallet extends LightningCustodianWallet {
       // amount miss is a generic memo on a row that already reads "Lightning".
       if (ispaid) {
         const arkType = direction < 0 ? TxType.TxSent : TxType.TxReceived;
-        const leg = nativeLegs.find(
+        let leg = nativeLegs.find(
           l => !l.matched && l.arkType === arkType && l.absAmount === absValue && Math.abs(l.row.timestamp - timestamp) <= MATCH_WINDOW_SEC,
         );
+        if (!leg) {
+          const looseMatches = nativeLegs.filter(l => !l.matched && l.arkType === arkType && l.absAmount === absValue);
+          if (looseMatches.length === 1) {
+            leg = looseMatches[0];
+          } else if (looseMatches.length > 1) {
+            looseMatches.sort((a, b) => Math.abs(a.row.timestamp - timestamp) - Math.abs(b.row.timestamp - timestamp));
+            if (Math.abs(looseMatches[0].row.timestamp - timestamp) <= MATCH_WINDOW_SEC) leg = looseMatches[0];
+          }
+        }
+        if (!leg && direction > 0) {
+          const invoiceMatches = nativeLegs.filter(
+            l => !l.matched && l.arkType === arkType && invoiceAmountSats > 0 && l.absAmount === invoiceAmountSats,
+          );
+          if (invoiceMatches.length === 1) leg = invoiceMatches[0];
+        }
         if (leg) {
           leg.matched = true;
           leg.row.description = memoPrefix + memo;
@@ -558,16 +573,31 @@ export class LightningArkWallet extends LightningCustodianWallet {
           leg.row.payment_request = bolt11invoice;
           // @ts-ignore preimage is required for reverse, optional for submarine
           leg.row.payment_preimage = swap.preimage;
+          if (direction < 0) {
+            // @ts-ignore invoiceAmount is present on submarine swap requests
+            const paymentAmountSats = invoiceAmountSats || Math.abs(swap.request?.invoiceAmount || 0);
+            const swapFee = absValue - paymentAmountSats;
+            if (paymentAmountSats > 0 && swapFee > 0) leg.row.fee = swapFee;
+          }
         }
         continue;
       }
 
-      // Non-settled: hide unpaid reverse invoices with no payment in flight
-      // (`swap.created`, `invoice.expired` / `swap.expired`). Claimable reverse
-      // swaps and terminal `Failed: ` / `Refunded: ` rows survive; submarine rows
+      // Non-settled: hide dead unpaid reverse invoices (`invoice.expired` /
+      // `swap.expired`). Open invoices (`swap.created`), claimable reverse swaps,
+      // and terminal `Failed: ` / `Refunded: ` rows stay visible; submarine rows
       // of any status survive (lockup may be on-chain and recoverable).
-      // Display-only drop — registry callers pass includeUnpaidInvoices=true.
-      if (!includeUnpaidInvoices && swap.type === 'reverse' && !memoPrefix && !isReverseClaimableStatus(swap.status)) continue;
+      if (
+        !includeUnpaidInvoices &&
+        swap.type === 'reverse' &&
+        !memoPrefix &&
+        !ispaid &&
+        (swap.status === 'invoice.expired' || swap.status === 'swap.expired')
+      ) {
+        continue;
+      }
+
+      const fundsInFlight = swap.type === 'reverse' ? isReverseClaimableStatus(swap.status) : true;
 
       ret.push({
         txid: `swap-${swap.id}`,
@@ -583,6 +613,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         // tell "in flight" (`ispaid:false`, no prefix) apart from "dead"
         // (`ispaid:false`, prefix set) without string-matching the memo.
         failed: memoPrefix !== '',
+        fundsInFlight,
         payment_hash,
         payment_request: bolt11invoice,
         amt: value,
@@ -593,6 +624,118 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
 
     return ret;
+  }
+
+  /**
+   * When a settled reverse swap enriched its Ark leg in `getTransactions()` but
+   * the list row still lacks `payment_request` (e.g. timestamp skew outside the
+   * ±30 min enrichment window), rebuild the Lightning detail payload from swap
+   * history without emitting an extra transaction-list row.
+   */
+  findInvoiceForArkLeg(item: {
+    txid?: string;
+    hash?: string;
+    value?: number;
+    timestamp?: number;
+    walletID?: string;
+  }): (LightningTransaction & { txid?: string }) | undefined {
+    const arkKey =
+      (typeof item.txid === 'string' && item.txid.startsWith('ark-') ? item.txid : undefined) ||
+      (typeof item.hash === 'string' && item.hash.startsWith('ark-') ? item.hash : undefined);
+    if (!arkKey || (item.value ?? 0) <= 0) return undefined;
+
+    const txs = this.getTransactions();
+    const enriched = txs.find(t => t.txid === arkKey && t.payment_request);
+    if (enriched) return enriched as LightningTransaction & { txid?: string };
+
+    const absAmount = Math.abs(item.value ?? 0);
+    const itemTs = item.timestamp ?? 0;
+    const MATCH_WINDOW_SEC = 30 * 60;
+    const walletID = item.walletID ?? this.getID();
+
+    const buildRow = (
+      swap: BoltzSwap,
+      bolt11invoice: string,
+      payment_hash: string,
+      memo: string,
+      expiry: number | undefined,
+      absValue: number,
+    ): LightningTransaction & { txid?: string } => {
+      let description = memo;
+      if (!description || description === 'Send to Arkade address') description = 'Received via Arkade';
+      return {
+        txid: arkKey,
+        type: 'user_invoice',
+        walletID,
+        description,
+        memo: description,
+        value: absValue,
+        timestamp: itemTs,
+        ispaid: true,
+        payment_hash,
+        payment_request: bolt11invoice,
+        // @ts-ignore preimage is required for reverse swaps
+        payment_preimage: swap.preimage,
+        expire_time: expiry ?? 3600,
+      };
+    };
+
+    const candidates: Array<{
+      swap: BoltzSwap;
+      bolt11invoice: string;
+      payment_hash: string;
+      memo: string;
+      expiry: number | undefined;
+      absValue: number;
+      tsDelta: number;
+    }> = [];
+
+    for (const swap of this._swapHistory) {
+      if (swap.type !== 'reverse' || !isReverseSuccessStatus(swap.status)) continue;
+
+      let bolt11invoice = '';
+      let payment_hash = '';
+      let memo = '';
+      let expiry: number | undefined;
+      let invoiceSats = 0;
+      try {
+        // @ts-ignore present on reverse and submarine variants
+        bolt11invoice = swap.request.invoice || swap.response.invoice || '';
+        if (!bolt11invoice) continue;
+        const invoiceDetails = this.decodeInvoice(bolt11invoice);
+        invoiceSats = invoiceDetails.num_satoshis;
+        memo = invoiceDetails.description;
+        payment_hash = invoiceDetails.payment_hash;
+        expiry = invoiceDetails.expiry;
+      } catch {
+        continue;
+      }
+
+      // @ts-ignore properties exist on the variant union
+      const rawValue = swap.response.onchainAmount || swap.response.expectedAmount || invoiceSats || swap.request.invoiceAmount || 0;
+      const absValue = Math.abs(rawValue);
+      const amountMatches = absValue === absAmount || invoiceSats === absAmount;
+      if (!amountMatches) continue;
+
+      candidates.push({
+        swap,
+        bolt11invoice,
+        payment_hash,
+        memo,
+        expiry,
+        absValue: absAmount,
+        tsDelta: Math.abs(swap.createdAt - itemTs),
+      });
+    }
+
+    if (candidates.length === 0) return undefined;
+
+    candidates.sort((a, b) => a.tsDelta - b.tsDelta);
+    const inWindow = candidates.filter(c => c.tsDelta <= MATCH_WINDOW_SEC);
+    const best = inWindow[0] ?? (candidates.length === 1 ? candidates[0] : undefined);
+    if (!best) return undefined;
+
+    return buildRow(best.swap, best.bolt11invoice, best.payment_hash, best.memo, best.expiry, best.absValue);
   }
 
   async fetchUserInvoices() {

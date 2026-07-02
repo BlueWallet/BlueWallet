@@ -7,10 +7,16 @@ describe('transactionDisplayState', () => {
     it('is true only when a non-empty hash string is present', () => {
       assert.strictEqual(isOnChainTransaction({ hash: 'abc123' }), true);
       assert.strictEqual(isOnChainTransaction({ hash: '' }), false);
-      assert.strictEqual(isOnChainTransaction({ txid: 'ark-deadbeef' }), false);
       assert.strictEqual(isOnChainTransaction({}), false);
       assert.strictEqual(isOnChainTransaction(null), false);
       assert.strictEqual(isOnChainTransaction(undefined), false);
+    });
+
+    it('treats synthetic Ark ids as off-chain', () => {
+      assert.strictEqual(isOnChainTransaction({ hash: 'ark-deadbeef' }), false);
+      assert.strictEqual(isOnChainTransaction({ hash: 'swap-abc' }), false);
+      assert.strictEqual(isOnChainTransaction({ hash: 'boarding-tx' }), false);
+      assert.strictEqual(isOnChainTransaction({ txid: 'ark-deadbeef' }), false);
     });
   });
 

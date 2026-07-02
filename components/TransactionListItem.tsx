@@ -26,6 +26,8 @@ import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import { isSyntheticOffChainTxKey } from '../blue_modules/transactionDisplayState';
+import { normalizeLightningDetailRow, navigateToLightningInvoice, resolveLightningInvoiceRow } from '../blue_modules/lightningInvoiceNavigation';
 import ListItem from './ListItem';
 
 const styles = StyleSheet.create({
@@ -349,30 +351,18 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     return `${formattedAmount}${unitSuffix}`;
   }, [formattedAmount, itemPriceUnit]);
 
-  const onPress = useCallback(async () => {
-    // If a custom onPress handler was provided, use it and return
-    if (customOnPress) {
-      customOnPress();
-      if (disableNavigation) return;
-    }
+  const openTransactionDetail = useCallback(async () => {
+    const resolvedWalletID = item.walletID ?? walletID;
+    const walletForItem = wallets.find(wallet => wallet?.getID() === resolvedWalletID);
+    const itemHash = typeof item.hash === 'string' ? item.hash : undefined;
+    const rowForRouting = normalizeLightningDetailRow(item);
 
-    if (item.hash) {
-      if (renderHighlightedText) {
-        pop();
-      }
-      navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
-    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice' || item.payment_request) {
-      // A settled Arkade swap is an enriched native Ark leg (type 'bitcoind_tx')
-      // carrying the swap's invoice payload (payment_request/hash/preimage). Route
-      // it to the Lightning invoice view by that payload, not by type — otherwise
-      // it falls through to the on-chain TransactionStatus branch below.
-      const lightningWallet = wallets.filter(wallet => wallet?.getID() === item.walletID);
-      if (lightningWallet.length === 1) {
-        try {
-          // is it a successful lnurl-pay?
-          const LN = new Lnurl(false, AsyncStorage);
-          const rawPaymentHash = item.payment_hash;
-          if (!rawPaymentHash) throw new Error('Missing payment hash');
+    const invoiceRow = walletForItem ? resolveLightningInvoiceRow(rowForRouting, walletForItem) : undefined;
+    if (invoiceRow && walletForItem) {
+      try {
+        const LN = new Lnurl(false, AsyncStorage);
+        const rawPaymentHash = invoiceRow.payment_hash;
+        if (rawPaymentHash) {
           const normalizedPaymentHash =
             typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array((rawPaymentHash as any).data));
           const loaded = await LN.loadSuccessfulPayment(normalizedPaymentHash);
@@ -382,54 +372,46 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
               params: {
                 paymentHash: normalizedPaymentHash,
                 justPaid: false,
-                fromWalletID: lightningWallet[0].getID(),
+                fromWalletID: walletForItem.getID(),
               },
             });
             return;
           }
-        } catch (e) {
-          console.debug(e);
         }
+      } catch (e) {
+        console.debug(e);
+      }
 
-        navigate('LNDViewInvoice', {
-          invoice: item,
-          walletID: lightningWallet[0].getID(),
-        });
-      }
-    } else if ((item as { txid?: string }).txid) {
-      // Hash-less Ark rows carry a synthetic `txid`. Native transfer legs
-      // (`ark-…`) open the hash-less-tolerant TransactionStatus detail. Refill
-      // rows (`boarding-…` / `boarding-utxo-…`) have no detail surface and are
-      // not tappable — matching master, where on-chain top-ups aren't tappable.
-      const txid = (item as { txid: string }).txid;
-      if (!txid.startsWith('boarding-')) {
-        navigate('TransactionStatus', { tx: item, hash: txid, walletID });
-      }
+      navigateToLightningInvoice(navigate, invoiceRow, walletForItem.getID());
+      return;
     }
-  }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
+
+    if (itemHash && !isSyntheticOffChainTxKey(itemHash)) {
+      if (renderHighlightedText) {
+        pop();
+      }
+      navigate('TransactionStatus', { hash: itemHash, walletID: resolvedWalletID, tx: item });
+      return;
+    }
+
+    const itemTxid = rowForRouting.txid ?? itemHash;
+    if (itemTxid && !itemTxid.startsWith('boarding-')) {
+      navigate('TransactionStatus', { tx: item, hash: itemTxid, walletID: resolvedWalletID });
+    }
+  }, [item, renderHighlightedText, navigate, walletID, wallets]);
+
+  const onPress = useCallback(async () => {
+    if (customOnPress) {
+      customOnPress();
+      if (disableNavigation) return;
+    }
+
+    await openTransactionDetail();
+  }, [customOnPress, disableNavigation, openTransactionDetail]);
 
   const handleOnDetailsPress = useCallback(() => {
-    if (walletID && item && item.hash) {
-      navigate('TransactionStatus', { hash: item.hash, walletID, tx: item });
-    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice' || item.payment_request) {
-      // Settled Arkade swaps carry invoice data on a 'bitcoind_tx' leg; route by
-      // payload so they open the Lightning invoice view (see onPress above).
-      const lightningWallet = wallets.find(wallet => wallet?.getID() === item.walletID);
-      if (lightningWallet) {
-        navigate('LNDViewInvoice', {
-          invoice: item,
-          walletID: lightningWallet.getID(),
-        });
-      }
-    } else if ((item as { txid?: string }).txid) {
-      // Match the regular tap path for Ark non-swap rows: native transfer legs
-      // open TransactionStatus; refills (`boarding-…`) are not tappable (master).
-      const txid = (item as { txid: string }).txid;
-      if (!txid.startsWith('boarding-')) {
-        navigate('TransactionStatus', { tx: item, hash: txid, walletID });
-      }
-    }
-  }, [item, navigate, walletID, wallets]);
+    void openTransactionDetail();
+  }, [openTransactionDetail]);
 
   const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
   const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
