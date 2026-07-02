@@ -4,7 +4,18 @@ import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
-import { Animated, ActivityIndicator, Keyboard, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import {
+  Animated,
+  ActivityIndicator,
+  Keyboard,
+  PixelRatio,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
@@ -21,7 +32,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { isIOS26OrHigher } from '../../components/platform';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -397,9 +407,10 @@ const CoinControl: React.FC = () => {
 
   // Adding the ToolTipMenu to the header
   useEffect(() => {
+    const useNativeHeaderItems = Platform.OS === 'ios';
     navigation.setOptions({
-      headerRight: isIOS26OrHigher ? undefined : () => (utxos.length > 0 ? HeaderRight : null),
-      unstable_headerRightItems: isIOS26OrHigher ? nativeHeaderRightItems : undefined,
+      headerRight: useNativeHeaderItems ? undefined : () => (utxos.length > 0 ? HeaderRight : null),
+      unstable_headerRightItems: useNativeHeaderItems ? nativeHeaderRightItems : undefined,
     });
   }, [HeaderRight, nativeHeaderRightItems, navigation, utxos.length]);
 

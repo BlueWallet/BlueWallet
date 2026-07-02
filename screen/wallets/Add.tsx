@@ -33,7 +33,6 @@ import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
-import { isIOS26OrHigher } from '../../components/platform';
 
 enum ButtonSelected {
   // @ts-ignore: Return later to update
@@ -366,9 +365,10 @@ const WalletsAdd: React.FC = () => {
   }, [nativeHeaderMenuItems]);
 
   useEffect(() => {
+    const useNativeHeaderItems = Platform.OS === 'ios';
     setOptions({
-      headerRight: isIOS26OrHigher ? undefined : () => HeaderRight,
-      unstable_headerRightItems: isIOS26OrHigher ? nativeHeaderRightItems : undefined,
+      headerRight: useNativeHeaderItems ? undefined : () => HeaderRight,
+      unstable_headerRightItems: useNativeHeaderItems ? nativeHeaderRightItems : undefined,
       statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
     });
   }, [HeaderRight, colorScheme, nativeHeaderRightItems, setOptions]);

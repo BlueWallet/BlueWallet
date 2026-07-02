@@ -10,14 +10,16 @@ import {
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { mapActionsToNativeHeaderMenuItems } from '../../components/nativeHeaderMenuItems';
 import { useTheme } from '../../components/themes';
+import { Action } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import loc from '../../loc';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddressInputScanButton } from '../../components/AddressInputScanButton';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
@@ -25,6 +27,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
+type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const ImportWallet = () => {
   const navigation = useExtendedNavigation<NavigationProps>();
@@ -157,6 +160,28 @@ const ImportWallet = () => {
     [toolTipOnPressMenuItem, toolTipActions],
   );
 
+  const nativeHeaderMenuItems = useMemo(
+    () => mapActionsToNativeHeaderMenuItems(toolTipActions as Action[], toolTipOnPressMenuItem),
+    [toolTipActions, toolTipOnPressMenuItem],
+  );
+
+  const nativeHeaderRightItems = useMemo<() => HeaderRightItem[]>(() => {
+    return () => [
+      {
+        type: 'menu',
+        label: loc.wallets.details_options,
+        icon: {
+          type: 'sfSymbol',
+          name: 'ellipsis',
+        },
+        menu: {
+          title: loc.wallets.details_options,
+          items: nativeHeaderMenuItems,
+        },
+      } as HeaderRightItem,
+    ];
+  }, [nativeHeaderMenuItems]);
+
   useEffect(() => {
     if (isPrivacyBlurEnabled) {
       enableScreenProtect();
@@ -172,8 +197,10 @@ const ImportWallet = () => {
 
   // Adding the ToolTipMenu to the header
   useEffect(() => {
+    const useNativeHeaderItems = Platform.OS === 'ios';
     navigation.setOptions({
-      headerRight: () => HeaderRight,
+      headerRight: useNativeHeaderItems ? undefined : () => HeaderRight,
+      unstable_headerRightItems: useNativeHeaderItems ? nativeHeaderRightItems : undefined,
       headerLeft:
         navigation.getState().index === 0
           ? () => (
@@ -189,7 +216,7 @@ const ImportWallet = () => {
             )
           : undefined,
     });
-  }, [colors, navigation, toolTipActions, HeaderRight, styles.button, closeImage]);
+  }, [HeaderRight, closeImage, nativeHeaderRightItems, navigation, styles.button]);
 
   const renderOptionsAndImportButton = (
     <>

@@ -6,7 +6,6 @@ import { DetailViewStackParamList } from '../DetailViewStackParamList';
 import { navigationRef } from '../../NavigationService';
 import { RouteProp } from '@react-navigation/native';
 import { isDesktop } from '../../blue_modules/environment';
-import { isIOS26OrHigher } from '../../components/platform';
 import loc from '../../loc';
 
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
@@ -19,7 +18,7 @@ const navigateToWalletDetails = (walletID: string) => {
   });
 };
 
-/** Material "more" button for WalletTransactions header (pre–iOS 26 and Android). */
+/** Material "more" button for WalletTransactions header fallback (Android/Desktop). */
 export const createWalletDetailsHeaderRight = ({
   walletID,
   isLoading = false,
@@ -42,7 +41,7 @@ export const createWalletDetailsHeaderRight = ({
   );
 };
 
-/** Native toolbar ellipsis for WalletTransactions on iOS 26+. */
+/** Native toolbar ellipsis for WalletTransactions on iOS. */
 export const createWalletDetailsHeaderRightItems = ({
   isLoading = false,
   walletID,
@@ -82,7 +81,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     headerRight: createWalletDetailsHeaderRight({ walletID, isLoading, iconColor: HERO_HEADER_ICON_COLOR }),
   };
 
-  if (Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop) {
+  if (Platform.OS === 'ios' && !isDesktop) {
     return {
       ...base,
       headerRight: undefined,

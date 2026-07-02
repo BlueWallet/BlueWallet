@@ -11,6 +11,11 @@ const toNativeState = (menuState: Action['menuState']): NativeStackHeaderItemMen
 const mapAction = (action: Action): NativeStackHeaderItemMenuAction | NativeStackHeaderItemMenuSubmenu | null => {
   if (action.hidden) return null;
 
+  const iconName = action.icon?.iconValue;
+  const nativeIcon = iconName
+    ? ({ type: 'sfSymbol', name: iconName } as NativeStackHeaderItemMenuAction['icon'])
+    : undefined;
+
   if (action.subactions && action.subactions.length > 0) {
     const items = action.subactions
       .map(mapAction)
@@ -21,6 +26,7 @@ const mapAction = (action: Action): NativeStackHeaderItemMenuAction | NativeStac
     return {
       type: 'submenu',
       label: action.text,
+      icon: nativeIcon,
       inline: action.displayInline,
       destructive: action.destructive,
       items,
@@ -31,6 +37,7 @@ const mapAction = (action: Action): NativeStackHeaderItemMenuAction | NativeStac
     type: 'action',
     label: action.text,
     description: action.subtitle,
+    icon: nativeIcon,
     state: toNativeState(action.menuState),
     disabled: action.disabled,
     hidden: action.hidden,

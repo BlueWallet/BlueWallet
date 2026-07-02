@@ -2,7 +2,6 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { isIOS26OrHigher } from './platform';
 import loc from '../loc';
 import { Theme } from './themes';
 
@@ -103,7 +102,7 @@ const navigationStyle = (
       const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
 
       const renderCloseButtonElement = () => renderCloseButton(theme, isFormSheet, handleClose);
-      const useNativeHeaderItems = isIOS26OrHigher;
+      const useNativeHeaderItems = Platform.OS === 'ios';
 
       let headerRight;
       let headerLeft;
