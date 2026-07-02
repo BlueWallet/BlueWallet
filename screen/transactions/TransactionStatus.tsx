@@ -352,9 +352,13 @@ const TransactionStatus: React.FC = () => {
         BlueElectrum.multiGetTransactionByTxid([hash], true, 10)
           .then(async txMap => {
             const fetchedTx = txMap[hash];
-            if (fetchedTx && fetchedTx.vin) {
+            if (!fetchedTx) return;
+            if (fetchedTx.vin) {
               await populateVinValuesFromPrevTxs(fetchedTx);
-              setTxFromElectrum(fetchedTx);
+            }
+            setTxFromElectrum(fetchedTx);
+            if (fetchedTx.confirmations != null && newTx.confirmations == null) {
+              setTX({ ...newTx, confirmations: fetchedTx.confirmations } as Transaction);
             }
           })
           .catch(err => {
@@ -736,7 +740,7 @@ const TransactionStatus: React.FC = () => {
   const handleNotePress = useCallback(async () => {
     // Ark rows have no on-chain hash; use their synthetic txid as fallback key.
     const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
-    const currentMemo = (metadataKey && txMetadata[metadataKey]?.memo) || '';
+    const currentMemo = ((metadataKey && txMetadata[metadataKey]?.memo) || tx?.memo || '').trim();
     try {
       const newMemo = await prompt(loc.send.details_note_placeholder, '', { type: 'plain-text', defaultValue: currentMemo });
       if (newMemo !== undefined && metadataKey) {
@@ -897,8 +901,9 @@ const TransactionStatus: React.FC = () => {
   const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
-  // Get memo
-  const memo = tx?.hash ? txMetadata[tx.hash]?.memo || '' : '';
+  // User-saved note wins; otherwise fall back to the row memo (e.g. Ark "Refill").
+  const metadataKey = tx ? tx.hash ?? (tx as { txid?: string }).txid : undefined;
+  const memo = ((metadataKey && txMetadata[metadataKey]?.memo) || tx?.memo || '').trim();
 
   const shortenContactName = (name: string): string => {
     if (name.length < 20) return name;

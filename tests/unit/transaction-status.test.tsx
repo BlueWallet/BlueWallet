@@ -310,4 +310,38 @@ describe('TransactionStatus regression', () => {
     // #2: the synthetic id is never handed to Electrum (the source of "hash ark-… not found").
     expect(BlueElectrum.multiGetTransactionByTxid).not.toHaveBeenCalled();
   });
+
+  it('loads a settled Arkade refill from Electrum using its on-chain hash', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    const refillRow = {
+      txid: 'boarding-deadbeef',
+      hash: 'deadbeef',
+      type: 'bitcoind_tx',
+      value: 50000,
+      memo: 'Refill',
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
+    routeParams = { tx: refillRow, hash: 'deadbeef', walletID: 'mock-wallet' };
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [refillRow]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(BlueElectrum.multiGetTransactionByTxid).toHaveBeenCalledWith(['deadbeef'], true, 10);
+    });
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+    expect(view.getByText('Refill')).toBeTruthy();
+  });
 });

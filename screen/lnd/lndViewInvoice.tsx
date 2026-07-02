@@ -257,11 +257,8 @@ const LNDViewInvoice = () => {
   // "Please pay" deliberately shows the invoice-encoded amount (what the payer
   // is actually charged), not invoice.amt — which getTransactions() resolves to
   // the post-fee on-chain amount and so differs from the BOLT11 by the swap fee.
-  // Likewise we ignore the row's synthesized description/memo: getTransactions()
-  // backfills a "BlueWallet" label there for memo-less reverse swaps (so the tx
-  // list isn't blank) and that placeholder must never surface here as
-  // "For: BlueWallet". "Send to Arkade address" is the SDK's hardcoded default
-  // for a memo-less reverse swap, so it counts as "no description" too.
+  // Likewise we ignore the row's synthesized description/memo when it is the SDK's
+  // hardcoded default for a memo-less swap invoice.
   const decodeForDisplay = (paymentRequest?: string): { amountSats?: number; description?: string } => {
     if (!paymentRequest) return {};
     try {
