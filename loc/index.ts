@@ -52,6 +52,7 @@ const languageLoaders: Record<Exclude<LangCode, 'en'>, () => LanguageDict> = {
   hu_hu: () => require('./hu_hu.json'),
   fil_PH: () => require('./fil_PH.json'),
   hy: () => require('./hy.json'),
+  ak: () => require('./ak.json'),
   id_id: () => require('./id_id.json'),
   it: () => require('./it.json'),
   jp_jp: () => require('./jp_jp.json'),
@@ -180,6 +181,10 @@ const setDateTimeLocale = async () => {
     case 'hy':
       lang = 'hy-am';
       require('dayjs/locale/hy-am');
+    case 'ak':
+      // Akan — no dayjs locale available, using English as closest match
+      lang = 'en';
+      require('dayjs/locale/en');
       break;
     case 'id_id':
       require('dayjs/locale/id');
