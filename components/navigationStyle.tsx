@@ -102,7 +102,6 @@ const navigationStyle = (
       const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
 
       const renderCloseButtonElement = () => renderCloseButton(theme, isFormSheet, handleClose);
-      const useNativeHeaderItems = Platform.OS === 'ios';
 
       let headerRight;
       let headerLeft;
@@ -110,33 +109,27 @@ const navigationStyle = (
       let unstableHeaderLeftItems;
 
       if (closeButton === CloseButtonPosition.Right) {
-        if (useNativeHeaderItems) {
-          unstableHeaderRightItems = () => [
-            {
-              type: 'button' as const,
-              label: loc._.close,
-              icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
-              onPress: handleClose,
-              accessibilityLabel: loc._.close,
-            },
-          ];
-        } else {
-          headerRight = renderCloseButtonElement;
-        }
+        headerRight = renderCloseButtonElement;
+        unstableHeaderRightItems = () => [
+          {
+            type: 'button' as const,
+            label: loc._.close,
+            icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
+            onPress: handleClose,
+            accessibilityLabel: loc._.close,
+          },
+        ];
       } else if (closeButton === CloseButtonPosition.Left) {
-        if (useNativeHeaderItems) {
-          unstableHeaderLeftItems = () => [
-            {
-              type: 'button' as const,
-              label: loc._.close,
-              icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
-              onPress: handleClose,
-              accessibilityLabel: loc._.close,
-            },
-          ];
-        } else {
-          headerLeft = renderCloseButtonElement;
-        }
+        headerLeft = renderCloseButtonElement;
+        unstableHeaderLeftItems = () => [
+          {
+            type: 'button' as const,
+            label: loc._.close,
+            icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
+            onPress: handleClose,
+            accessibilityLabel: loc._.close,
+          },
+        ];
       }
       const baseHeaderStyle = {
         headerShadowVisible: false,

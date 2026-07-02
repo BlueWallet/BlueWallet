@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   BackHandler,
   Image,
@@ -28,9 +28,11 @@ import Button from '../../components/Button';
 import CopyTextToClipboard, { CopyTextToClipboardHandle } from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { mapActionsToNativeHeaderMenuItems } from '../../components/nativeHeaderMenuItems';
 import QRCode from '../../components/QRCode';
 import SegmentedControl from '../../components/SegmentedControl';
 import { useTheme } from '../../components/themes';
+import { Action } from '../../components/types';
 import { TransactionPendingIconBig } from '../../components/TransactionPendingIconBig';
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -179,6 +181,7 @@ const ReceiveDetailsCloseButton: React.FC<ReceiveDetailsCloseButtonProps> = ({ c
 
 type NavigationProps = NativeStackNavigationProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
+type HeaderItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
@@ -362,6 +365,37 @@ const ReceiveDetails = () => {
     [onPressMenuItem, toolTipActions],
   );
 
+  const nativeHeaderMenuItems = useMemo(
+    () => mapActionsToNativeHeaderMenuItems(toolTipActions as Action[], onPressMenuItem),
+    [toolTipActions, onPressMenuItem],
+  );
+
+  const nativeCloseButtonItems = useCallback((): HeaderItem[] => {
+    return [
+      {
+        type: 'button',
+        label: loc._.close,
+        icon: { type: 'sfSymbol', name: 'xmark' },
+        onPress: goBack,
+        accessibilityLabel: loc._.close,
+      } as HeaderItem,
+    ];
+  }, [goBack]);
+
+  const nativeHeaderRightMenuItems = useCallback((): HeaderItem[] => {
+    return [
+      {
+        type: 'menu',
+        label: loc.wallets.details_options,
+        icon: { type: 'sfSymbol', name: 'ellipsis' },
+        menu: {
+          title: loc.wallets.details_options,
+          items: nativeHeaderMenuItems,
+        },
+      } as HeaderItem,
+    ];
+  }, [nativeHeaderMenuItems]);
+
   const renderHeaderCloseButton = useCallback(
     () => <ReceiveDetailsCloseButton closeImage={closeImage} onPress={goBack} />,
     [closeImage, goBack],
@@ -377,6 +411,8 @@ const ReceiveDetails = () => {
         ...androidNoDuplicateBack,
         headerLeft: renderHeaderCloseButton,
         headerRight: renderHeaderRightMenu,
+        unstable_headerLeftItems: nativeCloseButtonItems,
+        unstable_headerRightItems: nativeHeaderRightMenuItems,
       });
       return;
     }
@@ -387,8 +423,18 @@ const ReceiveDetails = () => {
       ...androidNoDuplicateBack,
       headerLeft: () => null,
       headerRight: renderHeaderCloseButton,
+      unstable_headerLeftItems: () => [],
+      unstable_headerRightItems: nativeCloseButtonItems,
     });
-  }, [isBIP47Enabled, renderHeaderCloseButton, renderHeaderRightMenu, setOptions, wallet]);
+  }, [
+    isBIP47Enabled,
+    nativeCloseButtonItems,
+    nativeHeaderRightMenuItems,
+    renderHeaderCloseButton,
+    renderHeaderRightMenu,
+    setOptions,
+    wallet,
+  ]);
 
   // re-fetching address balance periodically
   useEffect(() => {

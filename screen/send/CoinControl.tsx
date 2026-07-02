@@ -407,10 +407,9 @@ const CoinControl: React.FC = () => {
 
   // Adding the ToolTipMenu to the header
   useEffect(() => {
-    const useNativeHeaderItems = Platform.OS === 'ios';
     navigation.setOptions({
-      headerRight: useNativeHeaderItems ? undefined : () => (utxos.length > 0 ? HeaderRight : null),
-      unstable_headerRightItems: useNativeHeaderItems ? nativeHeaderRightItems : undefined,
+      headerRight: () => (utxos.length > 0 ? HeaderRight : null),
+      unstable_headerRightItems: nativeHeaderRightItems,
     });
   }, [HeaderRight, nativeHeaderRightItems, navigation, utxos.length]);
 

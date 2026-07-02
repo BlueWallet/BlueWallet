@@ -1,11 +1,10 @@
 import React from 'react';
-import { Platform, TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import { DetailViewStackParamList } from '../DetailViewStackParamList';
 import { navigationRef } from '../../NavigationService';
 import { RouteProp } from '@react-navigation/native';
-import { isDesktop } from '../../blue_modules/environment';
 import loc from '../../loc';
 
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
@@ -79,16 +78,8 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     statusBarStyle: 'light',
     headerBackTitle: undefined,
     headerRight: createWalletDetailsHeaderRight({ walletID, isLoading, iconColor: HERO_HEADER_ICON_COLOR }),
+    unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }),
   };
-
-  if (Platform.OS === 'ios' && !isDesktop) {
-    return {
-      ...base,
-      headerRight: undefined,
-      experimental_userInterfaceStyle: 'dark' as const,
-      unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }),
-    };
-  }
 
   return base;
 };
