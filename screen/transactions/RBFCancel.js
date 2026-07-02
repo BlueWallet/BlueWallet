@@ -10,6 +10,7 @@ import loc from '../../loc';
 import CPFP from './CPFP';
 import { StorageContext } from '../../components/Context/StorageProvider';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 export default class RBFCancel extends CPFP {
   static contextType = StorageContext;
@@ -24,11 +25,19 @@ export default class RBFCancel extends CPFP {
   }
 
   async checkPossibilityOfRBFCancel() {
-    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+    let tx;
+    if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+      tx = new HDSegwitBech32Transaction(
+        null,
+        this.state.txid,
+        this.state.wallet._hdWalletInstance,
+        this.state.wallet.getMasterFingerprint(),
+      );
+    } else if (this.state.wallet?.type === HDSegwitBech32Wallet.type) {
+      tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
+    } else {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
-
-    const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     if (
       (await tx.isOurTransaction()) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
@@ -36,7 +45,6 @@ export default class RBFCancel extends CPFP {
       (await tx.canCancelTx())
     ) {
       const info = await tx.getInfo();
-      console.log({ info });
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
     } else {
@@ -51,7 +59,37 @@ export default class RBFCancel extends CPFP {
       const tx = this.state.tx;
       this.setState({ isLoading: true });
       try {
-        const { tx: newTx } = await tx.createRBFcancelTx(newFeeRate);
+        const { tx: newTx, psbt } = await tx.createRBFcancelTx(newFeeRate);
+
+        // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
+        // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
+        // user whether he wants to broadcast it
+        if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+          let memo;
+
+          // porting tx memo
+          if (this.context.txMetadata[this.state.txid]?.memo) {
+            memo = 'Cancelled: ' + this.context.txMetadata[this.state.txid]?.memo;
+          } else {
+            memo = 'Cancelled transaction';
+          }
+
+          this.props.navigation
+            .getParent()
+            ?.getParent()
+            ?.navigate('SendDetailsRoot', {
+              screen: 'PsbtWithHardwareWallet',
+              params: {
+                memo,
+                walletID: this.state.wallet.getID(),
+                psbt,
+                launchedBy: this.props.route?.params?.launchedBy,
+              },
+            });
+          this.setState({ isLoading: false });
+          return;
+        }
+
         this.setState({ stage: 2, txhex: newTx.toHex(), newTxid: newTx.getId() });
         this.setState({ isLoading: false });
       } catch (_) {

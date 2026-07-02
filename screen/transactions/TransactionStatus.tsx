@@ -33,6 +33,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 dayjs.extend(relativeTime);
 
@@ -662,7 +663,13 @@ const TransactionStatus: React.FC = () => {
       return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
 
-    const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    let cpfbTx: HDSegwitBech32Transaction;
+    if (wallet?.type === WatchOnlyWallet.type && wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+      cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet._hdWalletInstance);
+    } else {
+      cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    }
+
     if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
       return setIsCPFPPossible(ButtonStatus.Possible);
     } else {
@@ -678,7 +685,12 @@ const TransactionStatus: React.FC = () => {
       return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    let rbfTx: HDSegwitBech32Transaction;
+    if (wallet?.type === WatchOnlyWallet.type && wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet._hdWalletInstance);
+    } else {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    }
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -699,7 +711,12 @@ const TransactionStatus: React.FC = () => {
       return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    let rbfTx: HDSegwitBech32Transaction;
+    if (wallet?.type === WatchOnlyWallet.type && wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet._hdWalletInstance);
+    } else {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    }
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&

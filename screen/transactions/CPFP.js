@@ -17,6 +17,7 @@ import { StorageContext } from '../../components/Context/StorageProvider';
 import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { BlueSpacing, BlueSpacing20 } from '../../components/BlueSpacing';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 const styles = StyleSheet.create({
   root: {
@@ -120,11 +121,19 @@ export default class CPFP extends Component {
   }
 
   async checkPossibilityOfCPFP() {
-    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+    let tx;
+    if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+      tx = new HDSegwitBech32Transaction(
+        null,
+        this.state.txid,
+        this.state.wallet._hdWalletInstance,
+        this.state.wallet.getMasterFingerprint(),
+      );
+    } else if (this.state.wallet?.type === HDSegwitBech32Wallet.type) {
+      tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
+    } else {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
-
-    const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
       const info = await tx.getInfo();
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
