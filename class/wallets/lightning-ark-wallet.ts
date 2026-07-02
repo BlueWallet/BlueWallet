@@ -57,6 +57,14 @@ const boardingLock: Record<string, boolean> = {};
 // from Boltz.
 const restoreInFlight: Map<string, Promise<void>> = new Map();
 
+/** SDK default BOLT11 description when a swap invoice has no user memo. */
+export const ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION = 'Send to Arkade address';
+
+function stripArkadeDefaultSwapMemo(description: string | undefined): string {
+  if (!description || description === ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION) return '';
+  return description;
+}
+
 // Test-only: exposes module-private caches so unit tests can observe / reset
 // them and verify deletion-vs-init race behavior. Not part of the public API.
 export const __testing__ = {
@@ -393,6 +401,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
           settledRefillTxids.add(histTx.key.boardingTxid);
           ret.push({
             txid: `boarding-${histTx.key.boardingTxid}`,
+            hash: histTx.key.boardingTxid,
             type: 'bitcoind_tx',
             walletID,
             description: 'Refill',
@@ -430,6 +439,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (settledRefillTxids.has(boardingTx.txid)) continue;
       ret.push({
         txid: `boarding-utxo-${boardingTx.txid}:${boardingTx.vout}`,
+        hash: boardingTx.txid,
         type: 'bitcoind_tx',
         walletID,
         description: 'Pending refill',
@@ -454,7 +464,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
         if (bolt11invoice) {
           const invoiceDetails = this.decodeInvoice(bolt11invoice);
           value = invoiceDetails.num_satoshis;
-          memo = invoiceDetails.description;
+          memo = stripArkadeDefaultSwapMemo(invoiceDetails.description);
           payment_hash = invoiceDetails.payment_hash;
           expiry = invoiceDetails.expiry;
         }
@@ -468,13 +478,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       if (swap.type === 'reverse') {
         direction = 1;
         type = 'user_invoice';
-        // The SDK hardcodes "Send to Arkade address" as the default reverse-swap
-        // invoice description, so matching that
-        // exact literal is safe. A user-supplied description
-        // is kept as-is.
-        if (!memo || memo === 'Send to Arkade address') {
-          memo = 'Received via Arkade';
-        }
         switch (swap.status) {
           case 'invoice.settled':
             ispaid = true;

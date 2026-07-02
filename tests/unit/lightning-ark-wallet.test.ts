@@ -179,7 +179,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].payment_request, 'lnbc999...receive');
   });
 
-  it('relabels the SDK default reverse-swap description as "Received via Arkade"', () => {
+  it('leaves the SDK default swap invoice description blank in the tx list', () => {
     const w2 = new LightningArkWallet();
     // The SDK stamps reverse-swap invoices with this default placeholder.
     (w2 as any).decodeInvoice = () => ({
@@ -210,11 +210,46 @@ describe('LightningArkWallet — getTransactions mapping', () => {
 
     const txs = w2.getTransactions();
     assert.strictEqual(txs.length, 1);
-    assert.strictEqual(txs[0].memo, 'Received via Arkade');
-    assert.strictEqual(txs[0].description, 'Received via Arkade');
+    assert.strictEqual(txs[0].memo, '');
+    assert.strictEqual(txs[0].description, '');
   });
 
-  it('preserves a user-supplied reverse-swap description instead of relabeling it', () => {
+  it('leaves the SDK default submarine-swap invoice description blank in the tx list', () => {
+    const w2 = new LightningArkWallet();
+    (w2 as any).decodeInvoice = () => ({
+      num_satoshis: 402,
+      description: 'Send to Arkade address',
+      payment_hash: 'ph',
+      expiry: 3600,
+    });
+    (w2 as any)._swapHistory = [
+      {
+        id: 'sub-default',
+        type: 'submarine',
+        status: 'transaction.claimed',
+        createdAt: 1700000000,
+        preimage: 'cc'.repeat(32),
+        request: { invoice: 'lnbc402...send' },
+        response: { expectedAmount: 402 },
+      },
+    ];
+    (w2 as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'sub-default-leg' },
+        type: 'SENT',
+        settled: true,
+        amount: 402,
+        createdAt: 1700000000_000,
+      },
+    ];
+
+    const txs = w2.getTransactions();
+    assert.strictEqual(txs.length, 1);
+    assert.strictEqual(txs[0].memo, '');
+    assert.strictEqual(txs[0].description, '');
+  });
+
+  it('preserves a user-supplied reverse-swap description', () => {
     const w2 = new LightningArkWallet();
     (w2 as any).decodeInvoice = () => ({
       num_satoshis: 500,
@@ -473,7 +508,8 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].value, 50000);
     assert.strictEqual(txs[0].timestamp, 1700005000);
     assert.strictEqual(txs[0].txid, 'boarding-utxo-boardtx:0');
-    // No invoice payload → TransactionListItem keeps refills on the on-chain
+    assert.strictEqual(txs[0].hash, 'boardtx');
+    // No invoice payload → TransactionListItem routes refills to on-chain
     // TransactionStatus detail (the counterpart to the enrichment assertions above).
     assert.strictEqual(txs[0].payment_request, undefined);
   });
@@ -503,6 +539,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].value, 100000);
     assert.strictEqual(txs[0].timestamp, 1700006000);
     assert.strictEqual(txs[0].txid, 'boarding-abc');
+    assert.strictEqual(txs[0].hash, 'abc');
     assert.strictEqual(txs[0].payment_request, undefined);
   });
 

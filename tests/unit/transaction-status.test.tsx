@@ -310,4 +310,141 @@ describe('TransactionStatus regression', () => {
     // #2: the synthetic id is never handed to Electrum (the source of "hash ark-… not found").
     expect(BlueElectrum.multiGetTransactionByTxid).not.toHaveBeenCalled();
   });
+
+  it('when editing a note on a refill with no saved metadata, prefills from tx.memo', async () => {
+    const refillRow = {
+      txid: 'boarding-deadbeef',
+      hash: 'deadbeef',
+      type: 'bitcoind_tx',
+      value: 50000,
+      memo: 'Refill',
+      confirmations: 1,
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
+    routeParams = { tx: refillRow, hash: 'deadbeef', walletID: 'mock-wallet' };
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [refillRow]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    mockPrompt.mockResolvedValue(undefined);
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('Refill')).toBeTruthy();
+    });
+
+    fireEvent.press(view.getByText('Refill'));
+
+    await waitFor(() => {
+      expect(mockPrompt).toHaveBeenCalledWith('Note to Self', '', { type: 'plain-text', defaultValue: 'Refill' });
+    });
+  });
+
+  it('reads a note saved under the legacy boarding- txid key', async () => {
+    const refillRow = {
+      txid: 'boarding-deadbeef',
+      hash: 'deadbeef',
+      type: 'bitcoind_tx',
+      value: 50000,
+      memo: 'Refill',
+      confirmations: 1,
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
+    routeParams = { tx: refillRow, hash: 'deadbeef', walletID: 'mock-wallet' };
+    mockStorageState.txMetadata = { 'boarding-deadbeef': { memo: 'Old refill note' } };
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [refillRow]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('Old refill note')).toBeTruthy();
+    });
+  });
+
+  it('does not flash NaN confirmations for a refill before Electrum returns', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    BlueElectrum.multiGetTransactionByTxid.mockImplementation(() => new Promise(() => {}));
+
+    const refillRow = {
+      txid: 'boarding-deadbeef',
+      hash: 'deadbeef',
+      type: 'bitcoind_tx',
+      value: 50000,
+      memo: 'Refill',
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
+    routeParams = { tx: refillRow, hash: 'deadbeef', walletID: 'mock-wallet' };
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [refillRow]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+    expect(view.queryByText(/NaN/)).toBeNull();
+    expect(view.queryByText(/confirmations/)).toBeNull();
+  });
+
+  it('loads a settled Arkade refill from Electrum using its on-chain hash', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    const refillRow = {
+      txid: 'boarding-deadbeef',
+      hash: 'deadbeef',
+      type: 'bitcoind_tx',
+      value: 50000,
+      memo: 'Refill',
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
+    routeParams = { tx: refillRow, hash: 'deadbeef', walletID: 'mock-wallet' };
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [refillRow]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(BlueElectrum.multiGetTransactionByTxid).toHaveBeenCalledWith(['deadbeef'], true, 10);
+    });
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+    expect(view.getByText('Refill')).toBeTruthy();
+  });
 });

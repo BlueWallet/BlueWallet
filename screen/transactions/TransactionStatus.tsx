@@ -32,7 +32,7 @@ import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import { formatConfirmationsForDisplay, isOnChainTransaction, resolveTransactionNote, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
 
 dayjs.extend(relativeTime);
 
@@ -352,9 +352,13 @@ const TransactionStatus: React.FC = () => {
         BlueElectrum.multiGetTransactionByTxid([hash], true, 10)
           .then(async txMap => {
             const fetchedTx = txMap[hash];
-            if (fetchedTx && fetchedTx.vin) {
+            if (!fetchedTx) return;
+            if (fetchedTx.vin) {
               await populateVinValuesFromPrevTxs(fetchedTx);
-              setTxFromElectrum(fetchedTx);
+            }
+            setTxFromElectrum(fetchedTx);
+            if (fetchedTx.confirmations != null && newTx.confirmations == null) {
+              setTX({ ...newTx, confirmations: fetchedTx.confirmations } as Transaction);
             }
           })
           .catch(err => {
@@ -734,9 +738,7 @@ const TransactionStatus: React.FC = () => {
   };
 
   const handleNotePress = useCallback(async () => {
-    // Ark rows have no on-chain hash; use their synthetic txid as fallback key.
-    const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
-    const currentMemo = (metadataKey && txMetadata[metadataKey]?.memo) || '';
+    const { metadataKey, memo: currentMemo } = resolveTransactionNote(tx, txMetadata);
     try {
       const newMemo = await prompt(loc.send.details_note_placeholder, '', { type: 'plain-text', defaultValue: currentMemo });
       if (newMemo !== undefined && metadataKey) {
@@ -889,6 +891,7 @@ const TransactionStatus: React.FC = () => {
   const parsedTxValue = Number(tx?.value);
   const txValue = Number.isFinite(parsedTxValue) ? parsedTxValue : null;
   const parsedConfirmations = Number(tx?.confirmations);
+  const confirmationsDisplay = formatConfirmationsForDisplay(tx?.confirmations);
   const isOnChainTx = isOnChainTransaction(tx);
   const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
@@ -897,8 +900,7 @@ const TransactionStatus: React.FC = () => {
   const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
-  // Get memo
-  const memo = tx?.hash ? txMetadata[tx.hash]?.memo || '' : '';
+  const { memo } = resolveTransactionNote(tx, txMetadata);
 
   const shortenContactName = (name: string): string => {
     if (name.length < 20) return name;
@@ -1099,10 +1101,10 @@ const TransactionStatus: React.FC = () => {
                 <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent, scaledStyles.stateLabel]}>
                   {loc.transactions.details_sent}
                 </BlueText>
-                {isOnChainTx && (
+                {isOnChainTx && confirmationsDisplay !== undefined && (
                   <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline, scaledStyles.stateValue]}>
                     {loc.formatString(loc.transactions.confirmations_lowercase, {
-                      confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
+                      confirmations: confirmationsDisplay,
                     })}
                   </BlueText>
                 )}
@@ -1115,10 +1117,10 @@ const TransactionStatus: React.FC = () => {
                 <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived, scaledStyles.stateLabel]}>
                   {loc.transactions.details_received}
                 </BlueText>
-                {isOnChainTx && (
+                {isOnChainTx && confirmationsDisplay !== undefined && (
                   <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline, scaledStyles.stateValue]}>
                     {loc.formatString(loc.transactions.confirmations_lowercase, {
-                      confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
+                      confirmations: confirmationsDisplay,
                     })}
                   </BlueText>
                 )}
@@ -1386,7 +1388,7 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {wallet && parsedConfirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
+      {wallet && Number.isFinite(parsedConfirmations) && parsedConfirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
     </SafeAreaScrollView>
   );
 };

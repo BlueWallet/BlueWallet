@@ -36,6 +36,24 @@ describe('transactionDisplayState', () => {
     it('native Ark send (bitcoind_tx, negative) → sent', () => {
       assert.strictEqual(resolveTxDisplayState({ txid: 'ark-deadbeef', type: 'bitcoind_tx', value: -5000 }), 'sent');
     });
+    it('settled refill with on-chain hash but no confirmations yet → received', () => {
+      assert.strictEqual(
+        resolveTxDisplayState({ txid: 'boarding-deadbeef', hash: 'deadbeef', type: 'bitcoind_tx', value: 5000 }),
+        'received',
+      );
+    });
+    it('pending refill with on-chain hash stays pending even when the boarding tx is confirmed', () => {
+      assert.strictEqual(
+        resolveTxDisplayState({ txid: 'boarding-utxo-deadbeef:0', hash: 'deadbeef', type: 'bitcoind_tx', value: 5000, confirmations: 6 }),
+        'pending',
+      );
+    });
+    it('settled refill with on-chain hash → received when confirmed', () => {
+      assert.strictEqual(
+        resolveTxDisplayState({ txid: 'boarding-deadbeef', hash: 'deadbeef', type: 'bitcoind_tx', value: 5000, confirmations: 6 }),
+        'received',
+      );
+    });
     it('refill (boarding-, positive) → received', () => {
       assert.strictEqual(resolveTxDisplayState({ txid: 'boarding-deadbeef', type: 'bitcoind_tx', value: 5000 }), 'received');
     });

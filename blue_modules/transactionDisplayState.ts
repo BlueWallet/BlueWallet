@@ -17,17 +17,39 @@ export function isOnChainTransaction(tx: any): boolean {
   return typeof tx?.hash === 'string' && tx.hash.length > 0;
 }
 
+export function formatConfirmationsForDisplay(confirmations: unknown): string | undefined {
+  const parsed = Number(confirmations);
+  if (!Number.isFinite(parsed) || parsed < 0) return undefined;
+  return parsed > 6 ? '6+' : String(parsed);
+}
+
+export function resolveTransactionNote(
+  tx: { hash?: string; txid?: string; memo?: string } | null | undefined,
+  txMetadata: Record<string, { memo?: string } | undefined>,
+): { metadataKey: string | undefined; memo: string } {
+  if (!tx) return { metadataKey: undefined, memo: '' };
+  const metadataKey = tx.hash ?? tx.txid;
+  const txidKey = tx.txid;
+  const saved =
+    (metadataKey && txMetadata[metadataKey]?.memo) ||
+    (txidKey && txidKey !== metadataKey && txMetadata[txidKey]?.memo) ||
+    '';
+  return { metadataKey, memo: (saved || tx.memo || '').trim() };
+}
+
 export function resolveTxDisplayState(tx: any): TxDisplayState {
+  // Ark refills: check synthetic txid before generic on-chain logic. Rows carry
+  // the real boarding txid in `hash` but often no `confirmations` until Electrum
+  // responds — without this, settled refills flash "pending" on open.
+  if (typeof tx?.txid === 'string' && tx.txid.startsWith('boarding-utxo-')) return 'pending';
+  if (typeof tx?.txid === 'string' && tx.txid.startsWith('boarding-')) return 'received';
+
   if (isOnChainTransaction(tx)) {
     const confs = Number(tx?.confirmations);
     const pending = Number.isFinite(confs) ? confs <= 0 : !tx?.confirmations;
     if (pending) return 'pending';
     return Number(tx?.value) < 0 ? 'sent' : 'received';
   }
-  // A refill awaiting settlement (boarding UTXO not yet swept into a VTXO) is
-  // pending until it promotes to a settled `boarding-<txid>` refill — mirror
-  // TransactionListItem.isPendingRefill so the list row and detail screen agree.
-  if (typeof tx?.txid === 'string' && tx.txid.startsWith('boarding-utxo-')) return 'pending';
   // Off-chain Ark/Lightning row — never confirmations-based.
   switch (tx?.type) {
     case 'paid_invoice':
