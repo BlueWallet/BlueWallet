@@ -64,7 +64,6 @@
     "refill": "Refill",
     "refill_create": "In order to proceed, please create a Bitcoin wallet to refill with.",
     "refill_external": "Refill with External Wallet",
-    "refill_lnd_balance": "Refill Lightning Wallet Balance",
     "sameWalletAsInvoiceError": "You cannot pay an invoice with the same wallet used to create it.",
     "title": "Manage Funds"
   },

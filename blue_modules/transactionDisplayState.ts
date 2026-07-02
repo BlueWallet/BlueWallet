@@ -17,6 +17,26 @@ export function isOnChainTransaction(tx: any): boolean {
   return typeof tx?.hash === 'string' && tx.hash.length > 0;
 }
 
+export function formatConfirmationsForDisplay(confirmations: unknown): string | undefined {
+  const parsed = Number(confirmations);
+  if (!Number.isFinite(parsed) || parsed < 0) return undefined;
+  return parsed > 6 ? '6+' : String(parsed);
+}
+
+export function resolveTransactionNote(
+  tx: { hash?: string; txid?: string; memo?: string } | null | undefined,
+  txMetadata: Record<string, { memo?: string } | undefined>,
+): { metadataKey: string | undefined; memo: string } {
+  if (!tx) return { metadataKey: undefined, memo: '' };
+  const metadataKey = tx.hash ?? tx.txid;
+  const txidKey = tx.txid;
+  const saved =
+    (metadataKey && txMetadata[metadataKey]?.memo) ||
+    (txidKey && txidKey !== metadataKey && txMetadata[txidKey]?.memo) ||
+    '';
+  return { metadataKey, memo: (saved || tx.memo || '').trim() };
+}
+
 export function resolveTxDisplayState(tx: any): TxDisplayState {
   // Ark refills: check synthetic txid before generic on-chain logic. Rows carry
   // the real boarding txid in `hash` but often no `confirmations` until Electrum

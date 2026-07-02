@@ -58,7 +58,7 @@ const boardingLock: Record<string, boolean> = {};
 const restoreInFlight: Map<string, Promise<void>> = new Map();
 
 /** SDK default BOLT11 description when a swap invoice has no user memo. */
-const ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION = 'Send to Arkade address';
+export const ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION = 'Send to Arkade address';
 
 function stripArkadeDefaultSwapMemo(description: string | undefined): string {
   if (!description || description === ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION) return '';

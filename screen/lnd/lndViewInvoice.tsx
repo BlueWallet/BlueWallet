@@ -22,7 +22,7 @@ import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION } from '../../class/wallets/lightning-ark-wallet';
 import presentAlert from '../../components/Alert';
 import { isReverseSuccessStatus } from '@arkade-os/boltz-swap';
 import type { BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
@@ -263,7 +263,7 @@ const LNDViewInvoice = () => {
     if (!paymentRequest) return {};
     try {
       const d = wallet?.decodeInvoice(paymentRequest);
-      const description = d?.description && d.description !== 'Send to Arkade address' ? d.description : undefined;
+      const description = d?.description && d.description !== ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION ? d.description : undefined;
       return { amountSats: d?.num_satoshis || undefined, description };
     } catch {
       return {};
