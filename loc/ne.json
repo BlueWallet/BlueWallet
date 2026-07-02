@@ -464,7 +464,7 @@
     "enter_bip38_password": "डिक्रिप्ट गर्न पासवर्ड प्रविष्ट गर्नुहोस्",
     "export_title": "वालेट निर्यात",
     "import_do_import": "आयात गर्नुहोस्",
-    "import_passphrase": "पासफ्रेज",
+    "import_passphrase": "पासफ्रेज (BIP39)",
     "import_passphrase_title": "पासफ्रेज",
     "import_passphrase_message": "यदि तपाईंले कुनै पासफ्रेज प्रयोग गर्नुभएको छ भने प्रविष्ट गर्नुहोस्",
     "import_error": "आयात गर्न असफल। कृपया प्रदान गरिएको डाटा मान्य भएको सुनिश्चित गर्नुहोस्।",

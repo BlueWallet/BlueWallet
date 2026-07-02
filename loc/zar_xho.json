@@ -463,6 +463,7 @@
     "details_yes_delete": "Ewe, yisuse",
     "enter_bip38_password": "Faka iphasiwedi ukuvula",
     "export_title": "Ukuthunyelwa kweNgxowa",
+    "import_passphrase": "Ibinzana lokugqitha (BIP39)",
     "import_do_import": "Ngeniswe",
     "import_passphrase": "Ibinzana lokugqitha",
     "import_passphrase_title": "Ibinzana lokugqitha",

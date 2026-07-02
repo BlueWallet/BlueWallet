@@ -464,7 +464,7 @@
     "enter_bip38_password": "විකේතනය කිරීමට මුරපදය ඇතුළත් කරන්න",
     "export_title": "පසුම්බි අපනයනය",
     "import_do_import": "ආනයනය",
-    "import_passphrase": "මුරපද",
+    "import_passphrase": "මුරපද (BIP39)",
     "import_passphrase_title": "මුරපද",
     "import_passphrase_message": "ඔබ මුරපදයක් භාවිතා කර ඇත්නම් ඇතුළත් කරන්න",
     "import_error": "ආයාත කිරීමට අසමත් විය. කරුණාකර ලබා දී ඇති දත්ත වලංගු බවට වග බලා ගන්න.",

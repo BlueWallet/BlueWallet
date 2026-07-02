@@ -464,7 +464,7 @@
     "enter_bip38_password": "Syötä salasana salauksen purkamiseksi",
     "export_title": "lompakon vienti",
     "import_do_import": "Tuo",
-    "import_passphrase": "tunnuslause",
+    "import_passphrase": "tunnuslause (BIP39)",
     "import_passphrase_title": "tunnuslause",
     "import_passphrase_message": "Anna tunnuslause, mikäli olet käyttänyt sellaista",
     "import_error": "Tuonti epäonnistui. Varmista, että annettu tieto on oikein",

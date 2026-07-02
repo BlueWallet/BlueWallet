@@ -464,7 +464,7 @@
     "enter_bip38_password": "Podaj hasło by zdeszyfrować",
     "export_title": "Eksport portfela",
     "import_do_import": "Importuj",
-    "import_passphrase": "Hasło",
+    "import_passphrase": "Hasło (BIP39)",
     "import_passphrase_title": "Hasło",
     "import_passphrase_message": "Wprowadź hasło, jeśli użyłeś jakiegokolwiek",
     "import_error": "Import nieudany. Upewnij się proszę, że dane są prawidłowe.",

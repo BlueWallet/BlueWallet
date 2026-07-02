@@ -462,7 +462,7 @@
     "enter_bip38_password": "Inntøppa loyniorð fyri at avbrongla",
     "export_title": "Mappu úttøka",
     "import_do_import": "Innles",
-    "import_passphrase": "Loynisetning",
+    "import_passphrase": "Loynisetning (BIP39)",
     "import_passphrase_title": "Loynisetning",
     "import_passphrase_message": "Inntøppa loynisetning í fall tú hevur ein",
     "import_error": "Innlesing miseydnaðist. Vinaliga syrg fyri at dáturnar eru gildigar.",

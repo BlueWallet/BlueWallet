@@ -464,7 +464,7 @@
     "enter_bip38_password": "復号化のためパスワードを入力",
     "export_title": "ウォレットのエクスポート",
     "import_do_import": "インポート",
-    "import_passphrase": "パスフレーズ",
+    "import_passphrase": "パスフレーズ (BIP39)",
     "import_passphrase_title": "パスフレーズ",
     "import_passphrase_message": "パスフレーズがある場合は入力",
     "import_error": "インポートに失敗しました。入力したデータが有効か確認してください。",

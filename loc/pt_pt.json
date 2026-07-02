@@ -464,7 +464,7 @@
     "enter_bip38_password": "Introduzir a palavra-passe para desencriptar",
     "export_title": "Exportar Carteira",
     "import_do_import": "Importar",
-    "import_passphrase": "Passphrase",
+    "import_passphrase": "Passphrase (BIP39)",
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Insira a passphrase, caso tenha utilizado alguma",
     "import_error": "Falha na importação. Certifique-se de que os dados fornecidos são válidos.",

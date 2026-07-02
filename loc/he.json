@@ -464,7 +464,7 @@
     "enter_bip38_password": "הזינו סיסמה כדי לפענח",
     "export_title": "יצוא ארנק",
     "import_do_import": "יבוא",
-    "import_passphrase": "סיסמה",
+    "import_passphrase": "סיסמה (BIP39)",
     "import_passphrase_title": "סיסמה",
     "import_passphrase_message": "הכניסו סיסמה אם השתמשתם באחת",
     "import_error": "היבוא כשל. אנא וודאו שהמידע שסופק תקין.",

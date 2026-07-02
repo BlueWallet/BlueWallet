@@ -464,7 +464,7 @@
     "enter_bip38_password": "Passwort zur Entschlüsselung eingeben",
     "export_title": "Wallet exportieren",
     "import_do_import": "Importieren",
-    "import_passphrase": "Passphrase",
+    "import_passphrase": "Passphrase (BIP39)",
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Wenn genutzt, die Passphrase eingeben",
     "import_error": "Fehler beim Import. Ist die Eingabe korrekt?",

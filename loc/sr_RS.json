@@ -464,7 +464,7 @@
     "enter_bip38_password": "Unesite lozinku za dešifrovanje",
     "export_title": "Izvoz novčanika",
     "import_do_import": "Uvezi",
-    "import_passphrase": "Pristupna fraza",
+    "import_passphrase": "Pristupna fraza (BIP39)",
     "import_passphrase_title": "Pristupna fraza",
     "import_passphrase_message": "Unesite pristupnu frazu ako ste je koristili",
     "import_error": "Uvoz nije uspeo. Uverite se da su pruženi podaci važeći.",

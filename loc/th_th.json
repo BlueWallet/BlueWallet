@@ -458,6 +458,7 @@
     "swipe_balance_show": "แสดง",
     "drag_to_reorder": "ลากเพื่อจัดเรียงใหม่",
     "clear_search": "ล้างการค้นหา",
+    "import_passphrase": "วลีรหัสผ่าน (BIP39)",
     "details_type": "ชนิด",
     "details_use_with_hardware_wallet": "ใช้ด้วยกระเป๋าฮาร์ดแวร์",
     "details_yes_delete": "ใช่, ลบเลย",

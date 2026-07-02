@@ -464,7 +464,7 @@
     "enter_bip38_password": "Enter password to decrypt",
     "export_title": "Wallet Export",
     "import_do_import": "Import",
-    "import_passphrase": "Passphrase",
+    "import_passphrase": "Passphrase (BIP39)",
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Enter passphrase if you have used any",
     "import_error": "Failed to import. Please make sure that the provided data is valid.",

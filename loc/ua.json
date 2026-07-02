@@ -464,7 +464,7 @@
     "enter_bip38_password": "Введіть пароль для розшифрування",
     "export_title": "Експорт Гаманця",
     "import_do_import": "Імпорт",
-    "import_passphrase": "Кодова фраза",
+    "import_passphrase": "Кодова фраза (BIP39)",
     "import_passphrase_title": "Кодова фраза",
     "import_passphrase_message": "Введіть кодову фразу, якщо ви її використовували",
     "import_error": "Не вдалося імпортувати. Переконайтеся, що надані дані дійсні.",

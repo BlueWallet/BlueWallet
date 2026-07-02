@@ -464,7 +464,7 @@
     "enter_bip38_password": "해독하기 위해 패스워드 입력",
     "export_title": "지갑 내보내기",
     "import_do_import": "들여오기",
-    "import_passphrase": "암호",
+    "import_passphrase": "암호 (BIP39)",
     "import_passphrase_title": "암호",
     "import_passphrase_message": "사용하신 적 있으시면 암호를 넣으세요",
     "import_error": "들여오기 실패. 제공한 데이타가 유효한지 확인하세요.",

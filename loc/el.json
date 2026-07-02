@@ -464,7 +464,7 @@
     "enter_bip38_password": "Εισάγετε κωδικό για αποκρυπτογράφηση",
     "export_title": "Εξαγωγή πορτοφολιού",
     "import_do_import": "Εισήγαγε",
-    "import_passphrase": "Φράση κωδικός",
+    "import_passphrase": "Φράση κωδικός (BIP39)",
     "import_passphrase_title": "Φράση κωδικός",
     "import_passphrase_message": "Εισάγετε κωδική φράση εάν έχετε χρησιμοποιήσει κάποια",
     "import_error": "Η εισαγωγή απέτυχε. Παρακαλούμε σιγουρευτείτε ότι τα δεδομένα που εισάγετε είναι σωστά.",

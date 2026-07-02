@@ -462,6 +462,7 @@
     "details_use_with_hardware_wallet": "Donanım Cüzdanı ile Kullan",
     "details_yes_delete": "Evet, sil",
     "enter_bip38_password": "Şifre çözmek için parola girin",
+    "import_passphrase": "Parola (BIP39)",
     "export_title": "cüzdan yedekle",
     "import_do_import": "İçe Aktar",
     "import_passphrase": "Parola",

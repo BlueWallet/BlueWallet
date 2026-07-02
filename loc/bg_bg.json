@@ -464,7 +464,7 @@
     "enter_bip38_password": "Въведете парола за декриптиране",
     "export_title": "Експорт на портфейла",
     "import_do_import": "Импортирай",
-    "import_passphrase": "Тайна фраза",
+    "import_passphrase": "Тайна фраза (BIP39)",
     "import_passphrase_title": "Тайна фраза",
     "import_passphrase_message": "Въведете тайна фраза, ако сте използвали такава",
     "import_error": "Импортирането е неуспешно. Моля, уверете се, че предоставените данни са валидни.",

@@ -464,7 +464,7 @@
     "enter_bip38_password": "گذرواژه را برای رمزگشایی وارد کنید",
     "export_title": "صادرکردن کیف پول",
     "import_do_import": "واردکردن",
-    "import_passphrase": "پس‌فریز (Passphrase)",
+    "import_passphrase": "پس‌فریز (Passphrase)(BIP39)",
     "import_passphrase_title": "پس‌فریز (Passphrase)",
     "import_passphrase_message": "درصورتی‌که از پس‌فریز (passphrase) استفاده کرده‌اید آن را وارد کنید",
     "import_error": "واردکردن ناموفق بود. لطفاً از معتبربودن دادهٔ ارائه‌شده اطمینان حاصل کنید.",

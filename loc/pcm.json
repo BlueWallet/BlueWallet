@@ -464,7 +464,7 @@
     "enter_bip38_password": "Put password to decrypt",
     "export_title": "Export the wallet",
     "import_do_import": "Import am",
-    "import_passphrase": "Passphrase wey",
+    "import_passphrase": "Passphrase wey (BIP39)",
     "import_passphrase_title": "Passphrase wey dey",
     "import_passphrase_message": "Enter passphrase if you don use any",
     "import_error": "Import no work. Abeg make sure say the data wey you provide dey valid.",

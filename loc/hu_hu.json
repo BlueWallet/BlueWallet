@@ -464,7 +464,7 @@
     "enter_bip38_password": "Írd be a jelszót a titkosításhoz",
     "export_title": "Tárca exportálása",
     "import_do_import": "Importálás",
-    "import_passphrase": "Jelszó",
+    "import_passphrase": "Jelszó (BIP39)",
     "import_passphrase_title": "Jelszó",
     "import_passphrase_message": "Add meg a jelszavadat ha használsz olyat",
     "import_error": "Importálás sikertelen. Ellenőrizd, hogy helyes adatokat adtál-e meg.",
