@@ -57,7 +57,6 @@ export const createWalletDetailsHeaderRightItems = ({
       icon: { type: 'sfSymbol', name: 'ellipsis' },
       identifier: 'WalletDetails',
       accessibilityLabel: 'WalletDetails',
-      sharesBackground: false,
       onPress: () => navigateToWalletDetails(walletID),
       disabled: isLoading,
     },

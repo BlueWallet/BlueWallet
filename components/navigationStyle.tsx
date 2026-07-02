@@ -119,7 +119,6 @@ const navigationStyle = (
               icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
               onPress: handleClose,
               accessibilityLabel: loc._.close,
-              sharesBackground: false,
             },
           ];
         } else {
@@ -134,7 +133,6 @@ const navigationStyle = (
               icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
               onPress: handleClose,
               accessibilityLabel: loc._.close,
-              sharesBackground: false,
             },
           ];
         } else {

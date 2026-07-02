@@ -258,7 +258,6 @@ const DetailViewStackScreensStack = () => {
               tintColor: theme.colors.headerProminentButtonBackgroundColor,
               identifier: 'AddWalletButton',
               accessibilityLabel: 'AddWalletButton',
-              sharesBackground: false,
               onPress: navigateToAddWallet,
             },
           ];
@@ -269,7 +268,6 @@ const DetailViewStackScreensStack = () => {
               icon: { type: 'sfSymbol', name: 'ellipsis' },
               identifier: 'SettingsButton',
               accessibilityLabel: 'SettingsButton',
-              sharesBackground: false,
               onPress: navigateToSettings,
             });
           }
