@@ -1,0 +1,10 @@
+Fonctionnalités
+
+* Code ouvert
+* Chiffrement complet
+* Déni plausible
+* Frais flexibles
+* Replace-By-Fee (RBF)
+* SegWit
+* Portefeuilles spectateurs
+* Réseau Lightning

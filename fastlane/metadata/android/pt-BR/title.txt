@@ -1,0 +1,1 @@
+../../ios/pt-BR/name.txt

@@ -1,0 +1,10 @@
+기능
+
+* 오픈 소스
+* 완전한 암호화
+* 그럴듯한 부인
+* 유연한 수수료
+* Replace-By-Fee (RBF)
+* SegWit
+* 보기 전용 지갑
+* Lightning Network

@@ -1,1 +1,10 @@
+Funksjoner
 
+* Åpen kildekode
+* Full kryptering
+* Plausibel fornektelse
+* Fleksible gebyrer
+* Replace-By-Fee (RBF)
+* SegWit
+* Observasjonslommebøker
+* Lightning network
