@@ -4,18 +4,7 @@ import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
-import {
-  Animated,
-  ActivityIndicator,
-  Keyboard,
-  PixelRatio,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  useWindowDimensions,
-  View,
-} from 'react-native';
+import { Animated, ActivityIndicator, Keyboard, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';

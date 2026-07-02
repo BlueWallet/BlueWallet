@@ -177,6 +177,7 @@ const setDateTimeLocale = async () => {
     case 'fil_PH':
       lang = 'tl-ph';
       require('dayjs/locale/tl-ph');
+      break;
     case 'hy':
       lang = 'hy-am';
       require('dayjs/locale/hy-am');

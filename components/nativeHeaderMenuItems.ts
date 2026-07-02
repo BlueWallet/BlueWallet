@@ -12,9 +12,7 @@ const mapAction = (action: Action): NativeStackHeaderItemMenuAction | NativeStac
   if (action.hidden) return null;
 
   const iconName = action.icon?.iconValue;
-  const nativeIcon = iconName
-    ? ({ type: 'sfSymbol', name: iconName } as NativeStackHeaderItemMenuAction['icon'])
-    : undefined;
+  const nativeIcon = iconName ? ({ type: 'sfSymbol', name: iconName } as NativeStackHeaderItemMenuAction['icon']) : undefined;
 
   if (action.subactions && action.subactions.length > 0) {
     const items = action.subactions
