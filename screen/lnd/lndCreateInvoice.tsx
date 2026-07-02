@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { CommonActions, RouteProp, useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
+import { CommonActions, RouteProp, useFocusEffect, useLocale, useNavigation, useRoute } from '@react-navigation/native';
 import { navigationRef, pop } from '../../NavigationService';
 import {
   ActivityIndicator,
@@ -46,6 +46,7 @@ const LNDCreateInvoice = () => {
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { colors } = useTheme();
   const { navigate, goBack, setParams } = useExtendedNavigation();
+  const navigation = useNavigation();
   const [unit, setUnit] = useState(wallet.current?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
   const [amount, setAmount] = useState<string>();
   const { direction } = useLocale();
@@ -302,16 +303,26 @@ const LNDCreateInvoice = () => {
         }
       }
 
-      setTimeout(async () => {
+      try {
         assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
-        // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
-        await wallet.current?.fetchUserInvoices();
+        if (wallet.current instanceof LightningArkWallet) {
+          await wallet.current.fetchTransactions();
+        } else {
+          await wallet.current.fetchUserInvoices();
+        }
         await saveToDisk();
-      }, 1000);
+      } catch (refreshError) {
+        console.warn('Failed to refresh wallet after invoice creation:', refreshError);
+      }
 
-      navigate('LNDViewInvoice', {
-        invoice: invoiceRequest,
-        walletID: wallet.current?.getID(),
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'LNDReceiveInvoice' as never,
+            params: { invoice: invoiceRequest, walletID: wallet.current?.getID() },
+          },
+        ],
       });
     } catch (Err: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);

@@ -149,6 +149,33 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].payment_request, 'lnbc1234...send');
   });
 
+  it('surfaces submarine swap fee on the enriched SENT leg', () => {
+    const swap = {
+      id: 'swap-out-fee',
+      type: 'submarine',
+      status: 'transaction.claimed',
+      createdAt: 1700000000,
+      preimage: 'aa'.repeat(32),
+      request: { invoice: 'lnbc1234...send', invoiceAmount: 10_000 },
+      response: { onchainAmount: 10_131 },
+    } as any;
+    (w as any)._swapHistory = [swap];
+    (w as any)._transactionsHistory = [
+      {
+        key: { boardingTxid: '', commitmentTxid: '', arkTxid: 'sub-leg-fee' },
+        type: 'SENT',
+        settled: true,
+        amount: 10_131,
+        createdAt: 1700000000_000,
+      },
+    ];
+
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 1);
+    assert.strictEqual(txs[0].fee, 131);
+    assert.strictEqual(txs[0].value, -10_131);
+  });
+
   it('enriches the native RECEIVED leg of a settled reverse swap (no separate swap row)', () => {
     const swap = {
       id: 'swap-in',
@@ -247,10 +274,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.strictEqual(txs[0].memo, 'coffee money');
   });
 
-  it('hides a created-but-unpaid reverse swap (swap.created) — an open invoice is not "pending"', () => {
-    // A reverse swap in swap.created is an invoice the user generated that
-    // nobody has paid yet. It is not a pending receive (no funds in flight),
-    // so it must not appear in history nor pin the wallet card to "Pending".
+  it('surfaces a created-but-unpaid reverse swap (swap.created) as a pending user_invoice', () => {
     const swap = {
       id: 'swap-unpaid',
       type: 'reverse',
@@ -261,7 +285,12 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     } as any;
     (w as any)._swapHistory = [swap];
 
-    assert.deepStrictEqual(w.getTransactions(), [], 'an unpaid open invoice is not surfaced');
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 1);
+    assert.strictEqual(txs[0].type, 'user_invoice');
+    assert.strictEqual(txs[0].ispaid, false);
+    assert.strictEqual((txs[0] as { fundsInFlight?: boolean }).fundsInFlight, false);
+    assert.strictEqual(txs[0].value, 100000);
   });
 
   it.each(['transaction.mempool', 'transaction.confirmed'])(
@@ -283,6 +312,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
       assert.strictEqual(txs.length, 1);
       assert.strictEqual(txs[0].ispaid, false);
       assert.ok(!txs[0].failed, 'an in-flight row must not be flagged failed');
+      assert.strictEqual((txs[0] as { fundsInFlight?: boolean }).fundsInFlight, true);
       assert.strictEqual(txs[0].value, 100000);
       assert.strictEqual(txs[0].type, 'user_invoice');
     },
@@ -726,6 +756,35 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.ok(!txs[0].ispaid, 'the unrelated native row is not enriched');
   });
 
+  it('findInvoiceForArkLeg resolves invoice metadata when list enrichment missed', () => {
+    (w as any).decodeInvoice = () => ({
+      num_satoshis: 500,
+      description: 'Received via Arkade',
+      payment_hash: 'aa'.repeat(32),
+      expiry: 3600,
+    });
+    (w as any)._swapHistory = [
+      {
+        id: 'rev-skew',
+        type: 'reverse',
+        status: 'invoice.settled',
+        createdAt: 1700011000,
+        preimage: 'ff'.repeat(32),
+        request: { invoice: 'lnbc...rev-skew' },
+        response: { invoice: 'lnbc...rev-skew', onchainAmount: 503 },
+      },
+    ];
+    (w as any)._transactionsHistory = [];
+
+    const resolved = w.findInvoiceForArkLeg({
+      txid: 'ark-skewed',
+      value: 500,
+      timestamp: 1700100000,
+    });
+    assert.strictEqual(resolved?.payment_request, 'lnbc...rev-skew');
+    assert.strictEqual(resolved?.ispaid, true);
+  });
+
   it.each(['invoice.expired', 'swap.expired'])('hides unpaid-and-dead reverse-swap invoices (%s)', status => {
     // Unpaid reverse swaps with no payment in flight are dropped regardless of
     // the BOLT11 expiry clock — the SDK status alone (not isReverseClaimableStatus)
@@ -884,7 +943,7 @@ describe('LightningArkWallet — getTransactions mapping', () => {
     assert.deepStrictEqual(txs.map((t: any) => t.txid).sort(), ['ark-leg1', 'ark-leg2']);
   });
 
-  it('exposes open unpaid invoices only when includeUnpaidInvoices is set (registry path)', () => {
+  it('exposes open unpaid invoices in the default history list', () => {
     (w as any)._swapHistory = [
       {
         id: 'open',
@@ -895,10 +954,10 @@ describe('LightningArkWallet — getTransactions mapping', () => {
         response: { invoice: 'lnbc...open', onchainAmount: 100000 },
       },
     ];
-    assert.deepStrictEqual(w.getTransactions(), [], 'hidden from the history list');
-    const reg = w.getTransactions(true);
-    assert.strictEqual(reg.length, 1, 'visible to getUserInvoices/isInvoiceGeneratedByWallet');
-    assert.strictEqual(reg[0].txid, 'swap-open');
+    const txs = w.getTransactions();
+    assert.strictEqual(txs.length, 1);
+    assert.strictEqual(txs[0].txid, 'swap-open');
+    assert.strictEqual(w.getTransactions(true).length, 1);
   });
 
   it('shows native legs as-is on a restored wallet with empty swap history', () => {
@@ -1063,7 +1122,7 @@ describe('LightningArkWallet — generate', () => {
     assert.ok(!w.isInvoiceGeneratedByWallet('lnbc999u1psomeoneelse'));
   });
 
-  it('recognizes a freshly-created (unpaid) reverse invoice as ours but keeps it out of the history list', () => {
+  it('recognizes a freshly-created (unpaid) reverse invoice as ours and surfaces it in the history list', () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     (w as any)._swapHistory = [
@@ -1076,10 +1135,9 @@ describe('LightningArkWallet — generate', () => {
         response: { invoice: 'lnbc100u1p50528cpp5...fresh' },
       },
     ];
-    // Registry view (includeUnpaidInvoices=true) sees the open invoice...
     assert.ok(w.isInvoiceGeneratedByWallet('lnbc100u1p50528cpp5...fresh'));
-    // ...but the displayed history list still hides the unpaid, not-in-flight row.
-    assert.strictEqual(w.getTransactions().length, 0);
+    assert.strictEqual(w.getTransactions().length, 1);
+    assert.strictEqual(w.getTransactions()[0].txid, 'swap-fresh');
   });
 });
 

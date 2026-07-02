@@ -19,6 +19,7 @@ const DrawerRoot = lazy(() => import('./DrawerRoot'));
 const AddWalletStack = lazy(() => import('./AddWalletStack'));
 const SendDetailsStack = lazy(() => import('./SendDetailsStack'));
 const LNDCreateInvoiceRoot = lazy(() => import('./LNDCreateInvoiceStack'));
+const LNDInvoiceRoot = lazy(() => import('./LNDInvoiceStack'));
 const ScanLNDInvoiceRoot = lazy(() => import('./ScanLNDInvoiceStack'));
 const AztecoRedeemStackRoot = lazy(() => import('./AztecoRedeemStack'));
 const ExportMultisigCoordinationSetupStack = lazy(() => import('./ExportMultisigCoordinationSetupStack'));
@@ -52,6 +53,7 @@ const LazyDrawerRoot = withLazySuspense(DrawerRoot);
 const LazyAddWalletStack = withLazySuspense(AddWalletStack);
 const LazySendDetailsStack = withLazySuspense(SendDetailsStack);
 const LazyLNDCreateInvoiceRoot = withLazySuspense(LNDCreateInvoiceRoot);
+const LazyLNDInvoiceRoot = withLazySuspense(LNDInvoiceRoot);
 const LazyScanLNDInvoiceRoot = withLazySuspense(ScanLNDInvoiceRoot);
 const LazyAztecoRedeemStackRoot = withLazySuspense(AztecoRedeemStackRoot);
 const LazyExportMultisigCoordinationSetupStack = withLazySuspense(ExportMultisigCoordinationSetupStack);
@@ -76,6 +78,7 @@ const MainRoot = () => {
           <DetailViewStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="SendDetailsRoot" component={LazySendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
           <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+          <DetailViewStack.Screen name="LNDInvoiceRoot" component={LazyLNDInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
           <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
 

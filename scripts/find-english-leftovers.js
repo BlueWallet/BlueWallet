@@ -48,7 +48,6 @@ const KEY_EXCEPTIONS = new Set([
 
   // --- Brand / protocol / acronym strings ---
   'lndViewInvoice.preimage',             // "Pre-image" — Lightning protocol term
-  'lndViewInvoice.sats',                 // "sats." — unit suffix
   'bip47.bip47_explain_subtitle',        // "BIP47"
   'multisig.legacy_title',               // "Legacy" — Bitcoin script type
   'settings.general_continuity',         // "Continuity" — Apple feature brand

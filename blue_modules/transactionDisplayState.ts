@@ -13,8 +13,15 @@
 // cases are handled defensively.
 export type TxDisplayState = 'pending' | 'sent' | 'received';
 
+export function isSyntheticOffChainTxKey(id?: string): boolean {
+  if (typeof id !== 'string' || id.length === 0) return false;
+  return id.startsWith('ark-') || id.startsWith('swap-') || id.startsWith('boarding-');
+}
+
 export function isOnChainTransaction(tx: any): boolean {
-  return typeof tx?.hash === 'string' && tx.hash.length > 0;
+  const hash = tx?.hash;
+  if (typeof hash !== 'string' || hash.length === 0) return false;
+  return !isSyntheticOffChainTxKey(hash);
 }
 
 export function resolveTxDisplayState(tx: any): TxDisplayState {
