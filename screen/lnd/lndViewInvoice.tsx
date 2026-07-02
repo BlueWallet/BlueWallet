@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
-import { RouteProp, useNavigation, useRoute, useLocale } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, BackHandler, Image, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -82,10 +82,9 @@ const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
   const { wallets, fetchAndSaveWalletTransactions, txMetadata, saveToDisk } = useStorage();
   const { colors, closeImage } = useTheme();
-  const { direction } = useLocale();
   const { goBack, setParams, setOptions } = useExtendedNavigation();
   const navigation = useNavigation();
-  const { width: windowWidth, fontScale } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
   const canGoBack = navigation.canGoBack();
 
   const wallet = wallets.find(w => w.getID() === walletID);
@@ -176,7 +175,6 @@ const LNDViewInvoice = () => {
   };
 
   const stylesHook = StyleSheet.create({
-    root: { backgroundColor: colors.background },
     headerTitleDirection: { color: colors.foregroundColor },
     headerTitleDate: { color: colors.alternativeTextColor },
     value: { color: colors.foregroundColor },
@@ -240,13 +238,13 @@ const LNDViewInvoice = () => {
   useEffect(() => {
     const currentInvoice = typeof invoice === 'object' ? invoice : undefined;
     const swapSuccess = Boolean(swap && isReverseSuccessStatus(swap.status));
-    const direction = resolveLightningDirection(invoice, swapSuccess);
+    const txDirection = resolveLightningDirection(invoice, swapSuccess);
     const headerDate = currentInvoice?.timestamp
       ? dayjs(currentInvoice.timestamp * (String(currentInvoice.timestamp).length === 10 ? 1000 : 1)).format('LLL')
       : '';
     let headerTitle = loc.transactions.pending;
     if (currentInvoice?.ispaid || currentInvoice?.type === 'paid_invoice' || swapSuccess) {
-      headerTitle = direction === 'sent' ? loc.transactions.details_sent : loc.transactions.details_received;
+      headerTitle = txDirection === 'sent' ? loc.transactions.details_sent : loc.transactions.details_received;
     } else if (refundable) {
       headerTitle = loc.lndViewInvoice.status_refundable;
     } else if (claimable) {
@@ -326,7 +324,7 @@ const LNDViewInvoice = () => {
   // list isn't blank) and that placeholder must never surface here as
   // "For: BlueWallet". "Send to Arkade address" is the SDK's hardcoded default
   // for a memo-less reverse swap, so it counts as "no description" too.
-  const decodeForDisplay = (paymentRequest?: string): { amountSats?: number; description?: string } => {
+  const decodeForDisplay = useCallback((paymentRequest?: string): { amountSats?: number; description?: string } => {
     if (!paymentRequest) return {};
     try {
       const d = lightningWallet?.decodeInvoice(paymentRequest);
@@ -335,7 +333,7 @@ const LNDViewInvoice = () => {
     } catch {
       return {};
     }
-  };
+  }, [lightningWallet]);
 
   const viewModel = useMemo<LightningViewModel | null>(() => {
     if (!invoice) return null;
@@ -348,10 +346,10 @@ const LNDViewInvoice = () => {
     const isExpired = typeof invoice === 'object' ? Boolean(invoiceExpiration && invoiceExpiration < now && !invoice.ispaid) : false;
     const swapSuccess = Boolean(swap && isReverseSuccessStatus(swap.status));
     const isPaid = typeof invoice === 'object' && (invoice.ispaid || invoice.type === 'paid_invoice' || swapSuccess);
-    const direction = resolveLightningDirection(invoice, swapSuccess);
+    const txDirection = resolveLightningDirection(invoice, swapSuccess);
 
     let amountSats: number | undefined;
-    let description: string | undefined = decoded.description;
+    let description: string | undefined;
     let paymentHash: string | undefined;
     let preimage: string | undefined;
     let dateText = '';
@@ -394,7 +392,7 @@ const LNDViewInvoice = () => {
       statusTitle = loc.lndViewInvoice.status_receiving;
       statusDetail = loc.lndViewInvoice.receiving_payment;
     } else if (isPaid) {
-      statusKind = direction === 'sent' ? 'sent' : 'received';
+      statusKind = txDirection === 'sent' ? 'sent' : 'received';
       statusTitle = statusKind === 'sent' ? loc.transactions.details_sent : loc.transactions.details_received;
       statusDetail = undefined;
     }
@@ -643,9 +641,6 @@ const LNDViewInvoice = () => {
 export default LNDViewInvoice;
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   scrollContent: {
     paddingTop: 42,
     paddingBottom: 42,

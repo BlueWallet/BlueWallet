@@ -69,10 +69,8 @@
     "title": "Manage Funds"
   },
   "lndViewInvoice": {
-    "additional_info": "Additional Information",
     "amount": "Amount",
     "expiry": "Expiry",
-    "for": "For:",
     "internal_error": "Invoice data is missing.",
     "lightning_invoice": "Lightning Invoice",
     "payment_hash": "Payment hash",
@@ -80,12 +78,10 @@
     "please_pay": "Please pay",
     "preimage": "Pre-image",
     "refundable_detail": "Funds can be refunded",
-    "sats": "sats.",
     "status_receiving": "Receiving",
     "status_refundable": "Refundable",
     "swap_id": "Swap ID",
     "swap_status": "Swap status",
-    "date_time": "Date and Time",
     "wasnt_paid_and_expired": "This invoice was not paid and has expired.",
     "receiving_payment": "Receiving payment…",
     "refund_funds": "Refund funds",

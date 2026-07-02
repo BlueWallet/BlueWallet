@@ -9,7 +9,6 @@ import {
   resolveLightningInvoiceRow,
   shouldOpenLightningReceiveScreen,
 } from '../../blue_modules/lightningInvoiceNavigation';
-import { Chain } from '../../models/bitcoinUnits';
 import { LND_INVOICE_MODAL_ROOT } from '../../navigation/LNDInvoiceStackParamList';
 
 describe('lightningInvoiceNavigation', () => {

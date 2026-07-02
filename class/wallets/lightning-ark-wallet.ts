@@ -591,7 +591,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
         !includeUnpaidInvoices &&
         swap.type === 'reverse' &&
         !memoPrefix &&
-        !ispaid &&
         (swap.status === 'invoice.expired' || swap.status === 'swap.expired')
       ) {
         continue;
