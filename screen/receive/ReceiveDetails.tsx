@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import Animated, { Easing, Layout, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Share from 'react-native-share';
+import Svg, { Line } from 'react-native-svg';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -28,6 +29,7 @@ import Button from '../../components/Button';
 import CopyTextToClipboard, { CopyTextToClipboardHandle } from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import Icon from '../../components/Icon';
 import QRCode from '../../components/QRCode';
 import SegmentedControl from '../../components/SegmentedControl';
 import { useTheme } from '../../components/themes';
@@ -39,8 +41,9 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTipActions';
 import { SuccessView } from '../send/success';
+import prompt from '../../helpers/prompt';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
@@ -58,6 +61,8 @@ const QR_SCROLL_RESERVED_WIDTH = (CARD_HORIZONTAL_MARGIN + CARD_INTERNAL_PADDING
 const QR_PORTRAIT_HEIGHT_FRACTION = 0.44;
 const QR_LANDSCAPE_HEIGHT_FRACTION = 0.52;
 const QR_WIDTH_USE_FRACTION = 0.92;
+
+const TICKET_NOTCH_DIAMETER = 16;
 
 /** Staggered “reveal” for the QR: white tiles fade out in random order */
 const QR_STAGGER_GRID = 5;
@@ -91,7 +96,56 @@ const receiveAuxStyles = StyleSheet.create({
   qrStaggerHost: {
     overflow: 'hidden',
   },
+  // two half-circle notches bitten out of the card edges,
+  // joined by a dashed perforation. Sits centered on the label layer's top edge.
+  tearLine: {
+    position: 'absolute',
+    top: -TICKET_NOTCH_DIAMETER / 2,
+    left: 0,
+    right: 0,
+    height: TICKET_NOTCH_DIAMETER,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tearNotch: {
+    width: TICKET_NOTCH_DIAMETER,
+    height: TICKET_NOTCH_DIAMETER,
+    borderRadius: TICKET_NOTCH_DIAMETER / 2,
+  },
+  tearNotchLeft: {
+    marginLeft: -TICKET_NOTCH_DIAMETER / 2,
+  },
+  tearNotchRight: {
+    marginRight: -TICKET_NOTCH_DIAMETER / 2,
+  },
+  tearDashes: {
+    flex: 1,
+    height: 2,
+    marginHorizontal: 6,
+  },
 });
+
+type TicketTearLineProps = {
+  notchColor: string;
+  dashColor: string;
+};
+
+const TicketTearLine: React.FC<TicketTearLineProps> = ({ notchColor, dashColor }) => {
+  const [dashWidth, setDashWidth] = useState(0);
+  return (
+    <View style={receiveAuxStyles.tearLine} pointerEvents="none">
+      <View style={[receiveAuxStyles.tearNotch, receiveAuxStyles.tearNotchLeft, { backgroundColor: notchColor }]} />
+      <View style={receiveAuxStyles.tearDashes} onLayout={e => setDashWidth(Math.round(e.nativeEvent.layout.width))}>
+        {dashWidth > 0 && (
+          <Svg height={2} width={dashWidth}>
+            <Line x1="0" y1="1" x2={dashWidth} y2="1" stroke={dashColor} strokeWidth={2} strokeDasharray="5,4" strokeLinecap="round" />
+          </Svg>
+        )}
+      </View>
+      <View style={[receiveAuxStyles.tearNotch, receiveAuxStyles.tearNotchRight, { backgroundColor: notchColor }]} />
+    </View>
+  );
+};
 
 type QrRevealTileProps = {
   width: number;
@@ -183,11 +237,12 @@ type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
   const { walletID, address } = route.params;
-  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
+  const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions, addressMetadata } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors, closeImage } = useTheme();
   const isDarkTheme = useColorScheme() === 'dark';
   const [customLabel, setCustomLabel] = useState('');
+  const [addressLabel, setAddressLabel] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [customUnit, setCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState('');
@@ -327,14 +382,6 @@ const ReceiveDetails = () => {
     }
   }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
-  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
-    if (wallet && wallet.allowBIP47()) {
-      wallet.switchBIP47(!wallet.isBIP47Enabled());
-    }
-    saveToDisk();
-    obtainWalletAddress();
-  }, [wallet, saveToDisk, obtainWalletAddress]);
-
   useEffect(() => {
     if (showConfirmedBalance) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -347,19 +394,68 @@ const ReceiveDetails = () => {
     }
   }, [address, isCustom, setAddressBIP21Encoded]);
 
-  const toolTipActions = useMemo(() => {
-    const action = { ...CommonToolTipActions.PaymentsCode };
-    action.menuState = isBIP47Enabled;
-    return [action];
-  }, [isBIP47Enabled]);
+  useEffect(() => {
+    setAddressLabel(address ? (addressMetadata?.[address]?.label ?? '') : '');
+  }, [address, addressMetadata]);
 
-  const onPressMenuItem = useCallback(() => {
-    onEnablePaymentsCodeSwitchValue();
-  }, [onEnablePaymentsCodeSwitchValue]);
+  const handleAddressLabelPress = useCallback(async () => {
+    if (!address) return;
+
+    try {
+      const newLabel = await prompt(loc.transactions.address_label_placeholder, '', {
+        type: 'plain-text',
+        defaultValue: addressLabel,
+      });
+      if (newLabel === undefined) return;
+      const trimmed = newLabel.trim();
+
+      setAddressLabel(trimmed);
+      if (trimmed) {
+        addressMetadata[address] = { label: trimmed };
+      } else {
+        delete addressMetadata[address];
+      }
+      await saveToDisk();
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    } catch (error) {
+      console.debug('Error saving address label:', error);
+    }
+  }, [address, addressLabel, addressMetadata, saveToDisk]);
+
+  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
+    if (wallet && wallet.allowBIP47()) {
+      wallet.switchBIP47(!wallet.isBIP47Enabled());
+    }
+    saveToDisk();
+    obtainWalletAddress();
+  }, [wallet, saveToDisk, obtainWalletAddress]);
+
+  const headerMenuActions = useMemo(() => {
+    const actions: ToolTipAction[] = [];
+    // Only offer the label action on the address tab once an address has loaded; otherwise it's a no-op.
+    if (currentTab === segmentControlValues[0] && address) {
+      actions.push(CommonToolTipActions.SetLabel);
+    }
+    if (wallet?.allowBIP47()) {
+      actions.push({ ...CommonToolTipActions.PaymentsCode, menuState: isBIP47Enabled });
+    }
+    return actions;
+  }, [wallet, isBIP47Enabled, currentTab, address]);
+
+  const onPressMenuItem = useCallback(
+    (id: string) => {
+      if (id === CommonToolTipActions.PaymentsCode.id) {
+        onEnablePaymentsCodeSwitchValue();
+      } else if (id === CommonToolTipActions.SetLabel.id) {
+        handleAddressLabelPress();
+      }
+    },
+    [onEnablePaymentsCodeSwitchValue, handleAddressLabelPress],
+  );
 
   const HeaderRight = useMemo(
-    () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
-    [onPressMenuItem, toolTipActions],
+    () => (headerMenuActions.length > 0 ? <HeaderMenuButton actions={headerMenuActions} onPressMenuItem={onPressMenuItem} /> : null),
+    [headerMenuActions, onPressMenuItem],
   );
 
   const renderHeaderCloseButton = useCallback(
@@ -372,23 +468,12 @@ const ReceiveDetails = () => {
   useEffect(() => {
     const androidNoDuplicateBack = Platform.OS === 'android' ? { headerBackVisible: false as const } : {};
 
-    if (wallet?.allowBIP47() && isBIP47Enabled) {
-      setOptions({
-        ...androidNoDuplicateBack,
-        headerLeft: renderHeaderCloseButton,
-        headerRight: renderHeaderRightMenu,
-      });
-      return;
-    }
-
-    // When payment-code menu is hidden, move close button to the right.
-    // Android: static `navigationStyle` uses `headerBackImageSource` for left "close"; hide back so only `headerRight` shows.
     setOptions({
       ...androidNoDuplicateBack,
-      headerLeft: () => null,
-      headerRight: renderHeaderCloseButton,
+      headerLeft: renderHeaderCloseButton,
+      headerRight: renderHeaderRightMenu,
     });
-  }, [isBIP47Enabled, renderHeaderCloseButton, renderHeaderRightMenu, setOptions, wallet]);
+  }, [renderHeaderCloseButton, renderHeaderRightMenu, setOptions]);
 
   // re-fetching address balance periodically
   useEffect(() => {
@@ -660,6 +745,25 @@ const ReceiveDetails = () => {
               </View>
             </>
           )}
+
+          {isAddressTab && addressLabel ? (
+            <>
+              <View style={styles.cardSpacer} />
+              <TouchableOpacity
+                onPress={handleAddressLabelPress}
+                style={styles.labelLayer}
+                accessibilityRole="button"
+                accessibilityLabel={loc.transactions.address_label_placeholder}
+                testID="ReceiveLabelLayer"
+              >
+                <TicketTearLine notchColor={colors.elevated} dashColor={isDarkTheme ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.18)'} />
+                <Text numberOfLines={1} style={[styles.labelLayerText, stylesHook.label]}>
+                  {addressLabel}
+                </Text>
+                <Icon name="pencil" type="font-awesome" size={13} color={colors.alternativeTextColor} />
+              </TouchableOpacity>
+            </>
+          ) : null}
         </Animated.View>
       </Pressable>
     );
@@ -912,7 +1016,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   cardSpacer: {
-    height: 24,
+    height: 13,
   },
   addressRow: {
     alignSelf: 'stretch',
@@ -920,6 +1024,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     minHeight: 48,
     justifyContent: 'center',
+  },
+  labelLayer: {
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginHorizontal: -CARD_INTERNAL_PADDING,
+    marginTop: 12,
+    marginBottom: -16,
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    minHeight: 48,
+  },
+  labelLayerText: {
+    flexShrink: 1,
+    fontSize: 15,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   bip47NotFoundContainer: {
     paddingVertical: 40,
