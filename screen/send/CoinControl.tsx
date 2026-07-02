@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
@@ -9,6 +9,7 @@ import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { mapActionsToNativeHeaderMenuItems } from '../../components/nativeHeaderMenuItems';
 import SafeArea from '../../components/SafeArea';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
@@ -23,6 +24,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
+type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const FrozenBadge: React.FC = () => {
   const { colors } = useTheme();
@@ -344,12 +346,61 @@ const CoinControl: React.FC = () => {
     [toolTipOnPressMenuItem, toolTipActions],
   );
 
+  const nativeHeaderMenuItems = useMemo(() => {
+    const nativeActions: Action[] = [
+      {
+        id: 'sort_direction',
+        text: loc.cc.sort_by,
+        displayInline: true,
+        subactions: [
+          { ...CommonToolTipActions.SortASC, menuState: sortDirection === ESortDirections.asc },
+          { ...CommonToolTipActions.SortDESC, menuState: sortDirection === ESortDirections.desc },
+        ],
+      },
+      {
+        id: 'sort_by',
+        text: loc.cc.sort_by,
+        displayInline: true,
+        subactions: [
+          { ...CommonToolTipActions.SortHeight, menuState: sortType === ESortTypes.height },
+          { ...CommonToolTipActions.SortValue, menuState: sortType === ESortTypes.value },
+          { ...CommonToolTipActions.SortLabel, menuState: sortType === ESortTypes.label },
+          { ...CommonToolTipActions.SortStatus, menuState: sortType === ESortTypes.frozen },
+        ],
+      },
+    ];
+
+    return mapActionsToNativeHeaderMenuItems(nativeActions, toolTipOnPressMenuItem);
+  }, [sortDirection, sortType, toolTipOnPressMenuItem]);
+
+  const nativeHeaderRightItems = useCallback((): HeaderRightItem[] => {
+    if (utxos.length === 0) {
+      return [];
+    }
+
+    return [
+      {
+        type: 'menu',
+        label: loc.cc.sort_by,
+        icon: {
+          type: 'sfSymbol',
+          name: 'ellipsis',
+        },
+        menu: {
+          title: loc.cc.sort_by,
+          items: nativeHeaderMenuItems,
+        },
+      } as HeaderRightItem,
+    ];
+  }, [nativeHeaderMenuItems, utxos.length]);
+
   // Adding the ToolTipMenu to the header
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (utxos.length > 0 ? HeaderRight : null),
+      unstable_headerRightItems: nativeHeaderRightItems,
     });
-  }, [HeaderRight, navigation, utxos.length]);
+  }, [HeaderRight, nativeHeaderRightItems, navigation, utxos.length]);
 
   if (loading) {
     return (

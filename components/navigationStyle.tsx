@@ -1,4 +1,4 @@
-import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -63,6 +63,18 @@ const getHandleCloseAction = (
   };
 };
 
+const renderCloseButton = (theme: Theme, isFormSheet: boolean, handleClose: () => void) => (
+  <TouchableOpacity
+    accessibilityRole="button"
+    accessibilityLabel={loc._.close}
+    style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
+    onPress={handleClose}
+    testID="NavigationCloseButton"
+  >
+    <Image source={theme.closeImage} />
+  </TouchableOpacity>
+);
+
 const navigationStyle = (
   {
     closeButtonPosition,
@@ -89,33 +101,35 @@ const navigationStyle = (
           : getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
       const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
 
+      const renderCloseButtonElement = () => renderCloseButton(theme, isFormSheet, handleClose);
+
       let headerRight;
       let headerLeft;
+      let unstableHeaderRightItems;
+      let unstableHeaderLeftItems;
 
       if (closeButton === CloseButtonPosition.Right) {
-        headerRight = () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
-            onPress={handleClose}
-            testID="NavigationCloseButton"
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        );
+        headerRight = renderCloseButtonElement;
+        unstableHeaderRightItems = () => [
+          {
+            type: 'button' as const,
+            label: loc._.close,
+            icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
+            onPress: handleClose,
+            accessibilityLabel: loc._.close,
+          },
+        ];
       } else if (closeButton === CloseButtonPosition.Left) {
-        headerLeft = () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
-            onPress={handleClose}
-            testID="NavigationCloseButton"
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        );
+        headerLeft = renderCloseButtonElement;
+        unstableHeaderLeftItems = () => [
+          {
+            type: 'button' as const,
+            label: loc._.close,
+            icon: { type: 'sfSymbol' as const, name: 'xmark' as const },
+            onPress: handleClose,
+            accessibilityLabel: loc._.close,
+          },
+        ];
       }
       const baseHeaderStyle = {
         headerShadowVisible: false,
@@ -139,6 +153,8 @@ const navigationStyle = (
         ...leftCloseButtonStyle,
         headerBackButtonDisplayMode: 'minimal',
         headerRight,
+        unstable_headerLeftItems: unstableHeaderLeftItems,
+        unstable_headerRightItems: unstableHeaderRightItems,
         ...opts,
         statusBarStyle,
       };

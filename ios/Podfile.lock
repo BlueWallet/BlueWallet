@@ -1603,12 +1603,12 @@ PODS:
   - react-native-tcp-socket (6.4.1):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-vector-icons-entypo (13.1.1)
-  - react-native-vector-icons-fontawesome (13.1.1)
-  - react-native-vector-icons-fontawesome6 (13.1.1)
-  - react-native-vector-icons-ionicons (13.1.1)
-  - react-native-vector-icons-material-design-icons (13.1.1)
-  - react-native-vector-icons-material-icons (13.1.1)
+  - react-native-vector-icons-entypo (13.1.2)
+  - react-native-vector-icons-fontawesome (13.1.2)
+  - react-native-vector-icons-fontawesome6 (13.1.2)
+  - react-native-vector-icons-ionicons (13.1.2)
+  - react-native-vector-icons-material-design-icons (13.1.2)
+  - react-native-vector-icons-material-icons (13.1.2)
   - React-NativeModulesApple (0.85.3):
     - hermes-engine
     - React-callinvoker
@@ -2138,7 +2138,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNPermissions (5.5.1):
+  - RNPermissions (5.5.3):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2811,7 +2811,7 @@ SPEC CHECKSUMS:
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
-  hermes-engine: 4ed74710a31e8e31f20356c641eab1d8f7d54595
+  hermes-engine: 86cdbf283775c54dc008895c3eacd24a1f2a40b4
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
   lottie-react-native: ee142214581f3bb68fbda7efcf07b835a189eeda
   RCTDeprecation: a4c521821fab57cbb125b36effe84d897d0dfa12
@@ -2822,7 +2822,7 @@ SPEC CHECKSUMS:
   React: e2dc35338068bbd299c66f043ae0d7f25de8499e
   React-callinvoker: 28b25d21b124c26cebaea713ba7d801b9351dc48
   React-Core: 02ed7d2ffb70437bdf2aba074a13078a7b0b9ff0
-  React-Core-prebuilt: 3445f1028d9b206cd45c8bbb7e2427ee891f810e
+  React-Core-prebuilt: 9e875134f667c471ab68bf9edf1661fa11b86540
   React-CoreModules: b3a5a42dadcde3b5d47b325bd912eb2ced89e146
   React-cxxreact: fe8f88dda044e5905e99a00f41b7a874c3908716
   React-debug: 92944dc4d89f56d640e75498266cbde557a48189
@@ -2863,12 +2863,12 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: fb5c8ee9f6dd62ef710611b3d370c501f42a4ac0
   react-native-secure-key-store: eb45b44bdec3f48e9be5cdfca0f49ddf64892ea6
   react-native-tcp-socket: 7c7e53a07f122ecf00fb3626684bc0ca82c4f044
-  react-native-vector-icons-entypo: f9de1c24005da510dde0de27caf0d2f5471bd433
-  react-native-vector-icons-fontawesome: 7fb9da054077e3f34a33a096210ef2b2d55ac4b6
-  react-native-vector-icons-fontawesome6: 9e06c3add7acc69821381f36140969a41c7f501c
-  react-native-vector-icons-ionicons: c416c2cdf94f4cd9957ec77fde502e3410e40d14
-  react-native-vector-icons-material-design-icons: 99c750d15cbc5df6f240bf1e7a45a0c07d42a015
-  react-native-vector-icons-material-icons: 1c5ff7b5da7188a9885b2f0b8f12ed8afa4a0ea2
+  react-native-vector-icons-entypo: bd991a0d2dc9cf40b7fe8a83be44a072a6c60faa
+  react-native-vector-icons-fontawesome: 9a819e97393c0e60e3ae9defbe28248002a8957c
+  react-native-vector-icons-fontawesome6: 9014730aa0e219382da1f109d47d1a378215cbf8
+  react-native-vector-icons-ionicons: 6831196cf1486bfd26b715d749c5c9a7d67bc0eb
+  react-native-vector-icons-material-design-icons: a4b6ec02814573c09203a725ee3767a7e8d5eb77
+  react-native-vector-icons-material-icons: bc2d8d3847160ef62b3f66c671bcdcd50d362474
   React-NativeModulesApple: deba264b03bd79c6bd61014fa30e40321b5e443a
   React-networking: 35e6070b084f435429f85c5db40b4d5b38652fe9
   React-oscompat: 64a0c7ef5441855dc6e2a6afe8ba8f92aa05075e
@@ -2903,7 +2903,7 @@ SPEC CHECKSUMS:
   ReactCodegen: 1bd7f2174582b0e142f8671735b5c906c08b72ea
   ReactCommon: 7dfc3250793bf36cf221096ff59e1179e13eef7f
   ReactNativeCameraKit: 5974256fc608631c1c812710cd98abe95dae0f88
-  ReactNativeDependencies: 75299c281f422106c723e79dc1f6ce7ef03241be
+  ReactNativeDependencies: 0a5c93845772e4b1c5ad065c59a859518b13a6b7
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
   RNBackgroundFetch: 64b1215fbb8ec58afba877ca0ce177e009ce12b7
   RNCAsyncStorage: 2ad919e88b8bc2cd80e8697ce66d04d006743283
@@ -2915,7 +2915,7 @@ SPEC CHECKSUMS:
   RNHandoff: bc8af5a86853ff13b033e7ba1114c3c5b38e6385
   RNKeychain: 6778b35b5bd067c322f8479526ac09b1d61f31d0
   RNLocalize: f370284ea42c48f29f0d8dd3a7bcc28a04f82155
-  RNPermissions: dfbe915a8ee532bc55018cf5e387407847713b02
+  RNPermissions: 4c85ea4805cc155c053385b5ab65a6223c5f9058
   RNQuickAction: c2c8f379e614428be0babe4d53a575739667744d
   RNReactNativeHapticFeedback: 576e23c1ad2d800ded4502be3f66b767308b63a1
   RNReanimated: f735b1747a7a93bda7ca102c6d37a3cf54b6d5e8
@@ -2928,4 +2928,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: a6ebefd60fd3fd993430ecd1d3feb222ff502eb0
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2

@@ -2,6 +2,9 @@ export type ReceiveDetailsStackParamList = {
   ReceiveDetails: {
     walletID?: string;
     address?: string;
+    allowBIP47?: boolean;
+    isBIP47Enabled?: boolean;
+    toggleBIP47RequestedAt?: number;
     customLabel?: string;
     customAmount?: string;
     customUnit?: import('../models/bitcoinUnits').BitcoinUnit;

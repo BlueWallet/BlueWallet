@@ -298,27 +298,27 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
-    await waitForId('NavigationCloseButton');
+    await waitForLabel('Close');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
     // swipe wallet row left to reveal Hide action; tap it
     await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeHideBalance');
     await element(by.id('SwipeHideBalance')).tap();
-    await element(by.id('NavigationCloseButton')).tap();
+    await goBack();
     await waitForId('WalletsList');
 
     // restart app — hide state must persist; swipe-left now exposes "Show" (hideBalance persisted as true)
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
     await element(by.id('cr34t3d')).longPress();
-    await waitForId('NavigationCloseButton');
+    await waitForLabel('Close');
     await element(by.id('cr34t3d')).swipe('left', 'slow', 0.6);
     await waitForId('SwipeShowBalance');
 
     // restore visible state so subsequent tests are clean
     await element(by.id('SwipeShowBalance')).tap();
-    await element(by.id('NavigationCloseButton')).tap();
+    await goBack();
     await waitForId('WalletsList');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
@@ -1015,7 +1015,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('MultisigCoordinationSetup')).tap({ x: 120, y: 18 });
     await device.disableSynchronization();
     await waitForId('ExportMultisigCoordinationSetupView');
-    await element(by.id('NavigationCloseButton')).atIndex(0).tap();
+    await element(by.label('Close')).atIndex(0).tap();
     await device.enableSynchronization();
 
     // go to receive screen and capture current receive address

@@ -637,7 +637,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         ? {
             headerTintColor: scrolledHeaderIconColor,
             statusBarStyle: 'light',
-            ...(isIOS26OrHigher && !isDesktop
+            ...(!isDesktop
               ? {
                   headerRight: undefined,
                   unstable_headerRightItems: createWalletDetailsHeaderRightItems({

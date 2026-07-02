@@ -1,12 +1,10 @@
 import React from 'react';
-import { Platform, TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import { DetailViewStackParamList } from '../DetailViewStackParamList';
 import { navigationRef } from '../../NavigationService';
 import { RouteProp } from '@react-navigation/native';
-import { isDesktop } from '../../blue_modules/environment';
-import { isIOS26OrHigher } from '../../components/platform';
 import loc from '../../loc';
 
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
@@ -19,7 +17,7 @@ const navigateToWalletDetails = (walletID: string) => {
   });
 };
 
-/** Material "more" button for WalletTransactions header (pre–iOS 26 and Android). */
+/** Material "more" button for WalletTransactions header fallback (Android/Desktop). */
 export const createWalletDetailsHeaderRight = ({
   walletID,
   isLoading = false,
@@ -42,7 +40,7 @@ export const createWalletDetailsHeaderRight = ({
   );
 };
 
-/** Native toolbar ellipsis for WalletTransactions on iOS 26+. */
+/** Native toolbar ellipsis for WalletTransactions on iOS. */
 export const createWalletDetailsHeaderRightItems = ({
   isLoading = false,
   walletID,
@@ -57,7 +55,6 @@ export const createWalletDetailsHeaderRightItems = ({
       icon: { type: 'sfSymbol', name: 'ellipsis' },
       identifier: 'WalletDetails',
       accessibilityLabel: 'WalletDetails',
-      sharesBackground: false,
       onPress: () => navigateToWalletDetails(walletID),
       disabled: isLoading,
     },
@@ -81,16 +78,8 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     statusBarStyle: 'light',
     headerBackTitle: undefined,
     headerRight: createWalletDetailsHeaderRight({ walletID, isLoading, iconColor: HERO_HEADER_ICON_COLOR }),
+    unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }),
   };
-
-  if (Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop) {
-    return {
-      ...base,
-      headerRight: undefined,
-      experimental_userInterfaceStyle: 'dark' as const,
-      unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }),
-    };
-  }
 
   return base;
 };

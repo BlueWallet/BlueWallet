@@ -18,17 +18,14 @@ import WalletButton from '../../components/WalletButton';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { Action } from '../../components/types';
 import { getLNDHub } from '../../helpers/lndHub';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
-import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
 
@@ -119,7 +116,8 @@ const WalletsAdd: React.FC = () => {
   const colorScheme = useColorScheme();
   //
   const { addWallet, saveToDisk } = useStorage();
-  const { entropy: entropyHex, words } = useRoute<RouteProps>().params || {};
+  const routeParams = useRoute<RouteProps>().params || {};
+  const { entropy: entropyHex, words, selectedIndex: routeSelectedIndex, selectedWalletType: routeSelectedWalletType } = routeParams;
   const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
   const { navigate, goBack, setOptions, setParams } = useExtendedNavigation<NavigationProps>();
   const stylesHook = {
@@ -144,15 +142,6 @@ const WalletsAdd: React.FC = () => {
     },
   };
 
-  const entropyButtonText = useMemo(() => {
-    if (!entropy) {
-      return loc.wallets.add_entropy_provide;
-    }
-    return loc.formatString(loc.wallets.add_entropy_bytes, {
-      bytes: entropy?.length,
-    });
-  }, [entropy]);
-
   const hasStoredLndHub = (walletBaseURI ?? '').trim().length > 0;
 
   const confirmResetEntropy = useCallback(
@@ -170,79 +159,24 @@ const WalletsAdd: React.FC = () => {
               text: loc._.ok,
               style: 'destructive',
               onPress: () => {
-                setParams({ entropy: undefined, words: undefined });
-                setSelectedWalletType(newWalletType);
+                setParams({
+                  entropy: undefined,
+                  words: undefined,
+                  selectedWalletType: newWalletType as AddWalletStackParamList['AddWallet']['selectedWalletType'],
+                });
+                dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: newWalletType });
               },
             },
           ],
           { cancelable: true },
         );
       } else {
-        setSelectedWalletType(newWalletType);
+        setParams({ selectedWalletType: newWalletType as AddWalletStackParamList['AddWallet']['selectedWalletType'] });
+        dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: newWalletType });
       }
     },
     [entropy, setParams, words],
   );
-
-  const toolTipActions = useMemo(() => {
-    const walletSubactions: Action[] = [
-      {
-        id: index2walletType[0].walletType,
-        text: index2walletType[0].text,
-        subtitle: index2walletType[0].subtitle,
-        menuState: selectedIndex === 0 && selectedWalletType === ButtonSelected.ONCHAIN,
-      },
-      {
-        id: index2walletType[1].walletType,
-        text: index2walletType[1].text,
-        subtitle: index2walletType[1].subtitle,
-        menuState: selectedIndex === 1 && selectedWalletType === ButtonSelected.ONCHAIN,
-      },
-      {
-        id: index2walletType[2].walletType,
-        text: index2walletType[2].text,
-        subtitle: index2walletType[2].subtitle,
-        menuState: selectedIndex === 2 && selectedWalletType === ButtonSelected.ONCHAIN,
-      },
-      {
-        id: index2walletType[3].walletType,
-        text: index2walletType[3].text,
-        subtitle: index2walletType[3].subtitle,
-        menuState: selectedWalletType === ButtonSelected.OFFCHAIN,
-      },
-    ];
-
-    const walletAction: Action = {
-      id: 'wallets',
-      text: loc.multisig.wallet_type,
-      subactions: walletSubactions,
-      displayInline: true,
-    };
-
-    const entropySubActions: Action[] = [
-      {
-        id: '12_words',
-        text: loc.wallets.add_wallet_seed_length_12,
-        subtitle: loc.wallets.add_wallet_seed_length,
-        menuState: words === 12,
-      },
-      {
-        id: '24_words',
-        text: loc.wallets.add_wallet_seed_length_24,
-        subtitle: loc.wallets.add_wallet_seed_length,
-        menuState: words === 24,
-      },
-      { ...CommonToolTipActions.ResetToDefault, hidden: !entropy },
-    ];
-
-    const entropyActions: Action = {
-      ...CommonToolTipActions.Entropy,
-      text: entropyButtonText,
-      subactions: entropySubActions,
-    };
-
-    return selectedWalletType === ButtonSelected.ONCHAIN ? [walletAction, entropyActions] : [walletAction];
-  }, [selectedWalletType, selectedIndex, entropy, words, entropyButtonText]);
 
   const handleOnLightningArkButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.ARK);
@@ -252,40 +186,23 @@ const WalletsAdd: React.FC = () => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
   }, [confirmResetEntropy]);
 
-  const HeaderRight = useMemo(
-    () => (
-      <HeaderMenuButton
-        onPressMenuItem={(id: string) => {
-          if (id === LightningCustodianWallet.type) {
-            handleOnLightningButtonPressed();
-          } else if (id === '12_words') {
-            navigate('ProvideEntropy', { words: 12, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
-          } else if (id === '24_words') {
-            navigate('ProvideEntropy', { words: 24, entropy: entropy ? uint8ArrayToHex(entropy) : undefined });
-          } else if (id === CommonToolTipActions.ResetToDefault.id) {
-            confirmResetEntropy(ButtonSelected.ONCHAIN);
-          } else {
-            for (let c = 0; c < Object.values(index2walletType).length; c++) {
-              if (index2walletType[c].walletType === id) {
-                // found our item that was pressed
-                setSelectedIndex(c);
-                break;
-              }
-            }
-          }
-        }}
-        actions={toolTipActions}
-      />
-    ),
-    [handleOnLightningButtonPressed, toolTipActions, entropy, confirmResetEntropy, navigate],
-  );
-
   useEffect(() => {
     setOptions({
-      headerRight: () => HeaderRight,
       statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
     });
-  }, [HeaderRight, colorScheme, colors.foregroundColor, setOptions, toolTipActions]);
+  }, [colorScheme, setOptions]);
+
+  useEffect(() => {
+    if (typeof routeSelectedIndex === 'number' && routeSelectedIndex !== selectedIndex) {
+      dispatch({ type: 'SET_SELECTED_INDEX', payload: routeSelectedIndex });
+    }
+  }, [routeSelectedIndex, selectedIndex]);
+
+  useEffect(() => {
+    if (routeSelectedWalletType && routeSelectedWalletType !== selectedWalletType) {
+      dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: routeSelectedWalletType });
+    }
+  }, [routeSelectedWalletType, selectedWalletType]);
 
   useEffect(() => {
     // resetting format of last camera qr scan, in case user will use camera to
@@ -306,16 +223,13 @@ const WalletsAdd: React.FC = () => {
     dispatch({ type: 'SET_WALLET_BASE_URI', payload: value });
   };
 
-  const setSelectedIndex = (value: number) => {
-    dispatch({ type: 'SET_SELECTED_INDEX', payload: value });
-  };
-
   const setLabel = (value: string) => {
     dispatch({ type: 'SET_LABEL', payload: value });
   };
 
   const setSelectedWalletType = (value: ButtonSelected) => {
     dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: value });
+    setParams({ selectedWalletType: value as AddWalletStackParamList['AddWallet']['selectedWalletType'] });
   };
 
   const createWallet = async () => {
