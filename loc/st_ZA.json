@@ -464,7 +464,7 @@
     "enter_bip38_password": "Kenya phasewete ho bula",
     "export_title": "Ho Ntsha Sepache",
     "import_do_import": "Kenya",
-    "import_passphrase": "Polelwana ya phasewete",
+    "import_passphrase": "Polelwana ya phasewete (BIP39)",
     "import_passphrase_title": "Polelwana ya phasewete",
     "import_passphrase_message": "Kenya polelwana ya phasewete haeba o sebedisitse e nngwe",
     "import_error": "Ho kenya ho hlolehile. Ka kopo etsa bonnete ba hore data e fanweng e nepahetse.",

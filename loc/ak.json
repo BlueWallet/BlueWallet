@@ -464,7 +464,7 @@
     "enter_bip38_password": "Hyɛ password na bue mu",
     "export_title": "Sika Kotokuo a Wɔafa Adi",
     "import_do_import": "Fa ba mu",
-    "import_passphrase": "Ahintasɛm",
+    "import_passphrase": "Ahintasɛm (BIP39)",
     "import_passphrase_title": "Ahintasɛm",
     "import_passphrase_message": "Hyɛ ahintasɛm sɛ wode bi adi dwuma a",
     "import_error": "Wɔantumi amfa amma mu. Yɛsrɛ wo, hwɛ hu sɛ nsɛm a wɔde maa no yɛ papa.",

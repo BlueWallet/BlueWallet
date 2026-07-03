@@ -464,7 +464,7 @@
     "enter_bip38_password": "Ilagay ang password upang i-decrypt",
     "export_title": "Pag-export ng Wallet",
     "import_do_import": "Mag-import",
-    "import_passphrase": "Passphrase",
+    "import_passphrase": "Passphrase (BIP39)",
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Ilagay ang passphrase kung mayroon kang ginamit",
     "import_error": "Nabigo ang pag-import. Mangyaring tiyaking wasto ang ibinigay na data.",
