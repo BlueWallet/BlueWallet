@@ -54,6 +54,21 @@ const languageLoaders: Record<Exclude<LangCode, 'en'>, () => LanguageDict> = {
   hy: () => require('./hy.json'),
   ak: () => require('./ak.json'),
   st_ZA: () => require('./st_ZA.json'),
+  hi: () => require('./hi.json'),
+  bn: () => require('./bn.json'),
+  ur: () => require('./ur.json'),
+  sw: () => require('./sw.json'),
+  pa: () => require('./pa.json'),
+  am: () => require('./am.json'),
+  ff: () => require('./ff.json'),
+  az: () => require('./az.json'),
+  zu_ZA: () => require('./zu_ZA.json'),
+  km: () => require('./km.json'),
+  hak: () => require('./hak.json'),
+  lv: () => require('./lv.json'),
+  eu: () => require('./eu.json'),
+  gug_PY: () => require('./gug_PY.json'),
+  ka: () => require('./ka.json'),
   id_id: () => require('./id_id.json'),
   it: () => require('./it.json'),
   jp_jp: () => require('./jp_jp.json'),
@@ -186,8 +201,39 @@ const setDateTimeLocale = async () => {
       // Akan — no dayjs locale available, using English as closest match
     case 'st_ZA':
       // Sesotho — no dayjs locale available, using English as closest match
+    case 'ff':
+      // Fula — no dayjs locale available, using English as closest match
+    case 'zu_ZA':
+      // Zulu — no dayjs locale available, using English as closest match
+    case 'hak':
+      // Hakka — no dayjs locale available, using English as closest match
+    case 'gug_PY':
+      // Guaraní — no dayjs locale available, using English as closest match
       lang = 'en';
       require('dayjs/locale/en');
+    case 'hi':
+      require('dayjs/locale/hi');
+    case 'bn':
+      require('dayjs/locale/bn');
+    case 'ur':
+      require('dayjs/locale/ur');
+    case 'sw':
+      require('dayjs/locale/sw');
+    case 'pa':
+      lang = 'pa-in';
+      require('dayjs/locale/pa-in');
+    case 'am':
+      require('dayjs/locale/am');
+    case 'az':
+      require('dayjs/locale/az');
+    case 'km':
+      require('dayjs/locale/km');
+    case 'lv':
+      require('dayjs/locale/lv');
+    case 'eu':
+      require('dayjs/locale/eu');
+    case 'ka':
+      require('dayjs/locale/ka');
       break;
     case 'id_id':
       require('dayjs/locale/id');
