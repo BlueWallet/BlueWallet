@@ -538,7 +538,7 @@ const DetailViewStackScreensStack = () => {
           component={ElectrumSettings}
           options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server), (options, { route }) => ({
             ...options,
-            headerRight: route.params?.headerRight ?? options.headerRight,
+            headerRight: route.params?.headerRight !== undefined ? route.params.headerRight : options.headerRight,
           }))(theme)}
           initialParams={{ server: undefined }}
         />
