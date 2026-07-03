@@ -194,7 +194,7 @@ const MultisigAdvanced: React.FC = () => {
 
   React.useLayoutEffect(() => {
     if (Platform.OS !== 'android') {
-      navigation.setOptions({
+      navigation.setParams({
         headerRight: SaveButton,
       });
     }

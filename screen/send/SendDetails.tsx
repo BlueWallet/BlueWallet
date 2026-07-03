@@ -1208,10 +1208,10 @@ const SendDetails = () => {
   );
 
   const setHeaderRightOptions = useCallback(() => {
-    navigation.setOptions({
+    setParams({
       headerRight: HeaderRight,
     });
-  }, [HeaderRight, navigation]);
+  }, [HeaderRight, setParams]);
 
   useEffect(() => {
     console.log('send/details - useEffect');

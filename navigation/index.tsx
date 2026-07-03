@@ -98,13 +98,19 @@ const MainRoot = () => {
           <DetailViewStack.Screen
             name="ViewEditMultisigCosigners"
             component={LazyViewEditMultisigCosigners}
-            options={navigationStyle({
-              title: loc.multisig.view_edit_cosigners,
-              presentation: 'modal',
-              headerShown: true,
-              gestureEnabled: false,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
+            options={navigationStyle(
+              {
+                title: loc.multisig.view_edit_cosigners,
+                presentation: 'modal',
+                headerShown: true,
+                gestureEnabled: false,
+                closeButtonPosition: CloseButtonPosition.Right,
+              },
+              (options, { route }) => ({
+                ...options,
+                headerRight: route.params?.isSaving ? () => null : options.headerRight,
+              }),
+            )(theme)}
           />
           <DetailViewStack.Screen
             name="ViewEditMultisigCosignerViewSheet"

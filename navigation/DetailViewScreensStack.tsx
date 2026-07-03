@@ -1,5 +1,5 @@
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable } from 'react-native';
+import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -184,6 +184,21 @@ const DetailViewStackScreensStack = () => {
       navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
     }
   }, [navigation]);
+
+  const renderManageWalletsHeaderLeft = useCallback(
+    () => (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={loc._.close}
+        style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+        onPress={navigation.goBack}
+        testID="NavigationCloseButton"
+      >
+        <Image source={theme.closeImage} />
+      </Pressable>
+    ),
+    [navigation.goBack, theme.closeImage],
+  );
 
   const walletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const isUpdating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
@@ -401,6 +416,7 @@ const DetailViewStackScreensStack = () => {
           component={LNDViewInvoice}
           options={navigationStyle({
             headerTitle: loc.lndViewInvoice.lightning_invoice,
+            headerRight: () => null,
             headerStyle: {
               backgroundColor: theme.colors.customHeader,
             },
@@ -520,7 +536,10 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ElectrumSettings"
           component={ElectrumSettings}
-          options={settingsScreenOptions(loc.settings.electrum_settings_server)}
+          options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server), (options, { route }) => ({
+            ...options,
+            headerRight: route.params?.headerRight ?? options.headerRight,
+          }))(theme)}
           initialParams={{ server: undefined }}
         />
         <DetailViewStack.Screen
@@ -565,6 +584,8 @@ const DetailViewStackScreensStack = () => {
             presentation: 'fullScreenModal',
             title: loc.wallets.manage_title,
             headerShown: true,
+            headerLeft: renderManageWalletsHeaderLeft,
+            headerRight: undefined,
             headerStyle: {
               backgroundColor: theme.colors.customHeader,
             },
@@ -573,12 +594,20 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ReceiveDetails"
           component={ReceiveDetails}
-          options={navigationStyle({
-            title: loc.receive.header,
-            closeButtonPosition: CloseButtonPosition.Left,
-            headerShown: true,
-            presentation: 'modal',
-          })(theme)}
+          options={navigationStyle(
+            {
+              title: loc.receive.header,
+              closeButtonPosition: CloseButtonPosition.Left,
+              headerShown: true,
+              presentation: 'modal',
+            },
+            (options, { route }) => ({
+              ...options,
+              headerLeft: route.params?.headerLeft ?? options.headerLeft,
+              headerRight: route.params?.headerRight ?? options.headerRight,
+              headerBackVisible: route.params?.headerBackVisible ?? options.headerBackVisible,
+            }),
+          )(theme)}
         />
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
@@ -599,6 +628,15 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = StyleSheet.create({
+  headerIconButton: {
+    minWidth: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerIconButtonPressed: {
+    opacity: 0.6,
+  },
   width24: {
     width: 24,
   },

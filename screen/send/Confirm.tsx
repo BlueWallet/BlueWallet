@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useReducer } from 'react';
-import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
@@ -76,7 +76,7 @@ const Confirm: React.FC = () => {
   const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate, setOptions, goBack } = navigation;
+  const { navigate, setParams, goBack } = navigation;
   const wallet = wallets.find((w: TWallet) => w.getID() === walletID) as TWallet;
   const feeSatoshi = new BigNumber(fee).multipliedBy(100000000).toNumber();
   const { colors } = useTheme();
@@ -119,10 +119,10 @@ const Confirm: React.FC = () => {
 
   const HeaderRightButton = useMemo(
     () => (
-      <TouchableOpacity
+      <Pressable
         accessibilityRole="button"
         testID="TransactionDetailsButton"
-        style={[styles.txDetails, stylesHook.txDetails]}
+        style={({ pressed }) => [styles.txDetails, stylesHook.txDetails, pressed && styles.txDetailsPressed]}
         onPress={async () => {
           if (await isBiometricUseCapableAndEnabled()) {
             if (!(await unlockWithBiometrics())) {
@@ -140,7 +140,7 @@ const Confirm: React.FC = () => {
         }}
       >
         <Text style={[styles.txText, stylesHook.valueUnit]}>{loc.send.create_details}</Text>
-      </TouchableOpacity>
+      </Pressable>
     ),
     [
       stylesHook.txDetails,
@@ -162,10 +162,10 @@ const Confirm: React.FC = () => {
   }, [recipients]);
 
   useEffect(() => {
-    setOptions({
+    setParams({
       headerRight: () => HeaderRightButton,
     });
-  }, [HeaderRightButton, colors, fee, feeSatoshi, memo, recipients, satoshiPerByte, setOptions, tx, wallet]);
+  }, [HeaderRightButton, setParams]);
 
   const getPaymentScript = (): Uint8Array | undefined => {
     if (!(recipients.length > 0) || !recipients[0].address) {
@@ -436,6 +436,9 @@ const styles = StyleSheet.create({
     width: 80,
     borderRadius: 8,
     height: 38,
+  },
+  txDetailsPressed: {
+    opacity: 0.7,
   },
   txText: {
     fontSize: 15,

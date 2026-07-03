@@ -39,7 +39,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { dispatch, setOptions, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
+  const { dispatch, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -74,6 +74,10 @@ const ViewEditMultisigCosigners: React.FC = () => {
       color: colors.buttonTextColor,
     },
   });
+
+  useEffect(() => {
+    setParams({ isSaving: false });
+  }, [setParams]);
 
   usePreventRemove(!isSaveButtonDisabled, ({ data }) => {
     if (isDesktop) {
@@ -121,7 +125,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
       }
     }
 
-    setOptions({ headerRight: () => null });
+    setParams({ isSaving: true });
 
     setTimeout(async () => {
       // eslint-disable-next-line prefer-const

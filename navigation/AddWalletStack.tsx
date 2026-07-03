@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 import { Platform } from 'react-native';
 
@@ -8,15 +9,20 @@ import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
 
+type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+
 export type AddWalletStackParamList = {
   AddWallet: {
     entropy?: string;
     words?: number;
+    headerRight?: HeaderRightRenderer;
+    statusBarStyle?: NativeStackNavigationOptions['statusBarStyle'];
   };
   ImportWallet?: {
     label?: string;
     triggerImport?: boolean;
     onBarScanned?: string;
+    headerRight?: HeaderRightRenderer;
   };
   ImportWalletDiscovery: {
     importText: string;
@@ -46,6 +52,7 @@ export type AddWalletStackParamList = {
     n: number;
     format: string;
     onSave: (m: number, n: number, format: string) => void;
+    headerRight?: HeaderRightRenderer;
   };
   WalletsAddMultisigStep2: {
     m: number;
@@ -56,6 +63,7 @@ export type AddWalletStackParamList = {
     sheetAction?: string;
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
+    headerRight?: HeaderRightRenderer;
   };
   WalletsAddMultisigVaultKeySheet: {
     keyIndex: number;
@@ -118,10 +126,17 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="AddWallet"
         component={AddComponent}
-        options={navigationStyle({
-          closeButtonPosition: CloseButtonPosition.Left,
-          title: loc.wallets.add_title,
-        })(theme)}
+        options={navigationStyle(
+          {
+            closeButtonPosition: CloseButtonPosition.Left,
+            title: loc.wallets.add_title,
+          },
+          (options, { route }) => ({
+            ...options,
+            headerRight: route.params?.headerRight ?? options.headerRight,
+            statusBarStyle: route.params?.statusBarStyle ?? options.statusBarStyle,
+          }),
+        )(theme)}
       />
       <Stack.Screen
         name="ImportCustomDerivationPath"
@@ -131,7 +146,16 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="ImportWallet"
         component={ImportWalletComponent}
-        options={navigationStyle({ title: loc.wallets.import_title })(theme)}
+        options={navigationStyle(
+          {
+            title: loc.wallets.import_title,
+            closeButtonIfFirstInStack: CloseButtonPosition.Left,
+          },
+          (options, { route }) => ({
+            ...options,
+            headerRight: route.params?.headerRight ?? options.headerRight,
+          }),
+        )(theme)}
       />
       <Stack.Screen
         name="ImportSpeed"
@@ -173,19 +197,28 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="MultisigAdvanced"
         component={MultisigAdvancedComponent}
-        options={navigationStyle({
-          title: loc.multisig.vault_advanced_customize,
-          presentation: 'formSheet',
-          sheetAllowedDetents: multisigSheetAllowedDetents,
-          sheetGrabberVisible: true,
-          headerShown: true,
-          headerTitle: loc.multisig.vault_advanced_customize,
-        })(theme)}
+        options={navigationStyle(
+          {
+            title: loc.multisig.vault_advanced_customize,
+            presentation: 'formSheet',
+            sheetAllowedDetents: multisigSheetAllowedDetents,
+            sheetGrabberVisible: true,
+            headerShown: true,
+            headerTitle: loc.multisig.vault_advanced_customize,
+          },
+          (options, { route }) => ({
+            ...options,
+            headerRight: route.params?.headerRight ?? options.headerRight,
+          }),
+        )(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigStep2"
         component={WalletsAddMultisigStep2Component}
-        options={navigationStyle({ title: '', gestureEnabled: false })(theme)}
+        options={navigationStyle({ title: '', gestureEnabled: false }, (options, { route }) => ({
+          ...options,
+          headerRight: route.params?.headerRight ?? options.headerRight,
+        }))(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigVaultKeySheet"

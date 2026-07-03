@@ -18,11 +18,19 @@ const ReceiveDetailsStack = () => {
       <Stack.Screen
         name="ReceiveDetails"
         component={ReceiveDetails}
-        options={navigationStyle({
-          title: loc.receive.header,
-          closeButtonPosition: CloseButtonPosition.Left,
-          headerShown: true,
-        })(theme)}
+        options={navigationStyle(
+          {
+            title: loc.receive.header,
+            closeButtonPosition: CloseButtonPosition.Left,
+            headerShown: true,
+          },
+          (options, { route }) => ({
+            ...options,
+            headerLeft: route.params?.headerLeft ?? options.headerLeft,
+            headerRight: route.params?.headerRight ?? options.headerRight,
+            headerBackVisible: route.params?.headerBackVisible ?? options.headerBackVisible,
+          }),
+        )(theme)}
       />
       <Stack.Screen
         name="ReceiveCustomAmount"

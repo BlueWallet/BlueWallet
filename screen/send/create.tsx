@@ -1,9 +1,9 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect } from 'react';
-import { Alert, FlatList, Linking, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, ListRenderItemInfo } from 'react-native';
+import { Alert, FlatList, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View, ListRenderItemInfo } from 'react-native';
 import Icon from '../../components/Icon';
 import RNFS from 'react-native-fs';
 import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
@@ -18,6 +18,7 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
+import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CreateTransactionTarget } from '../../class/wallets/types';
@@ -36,7 +37,7 @@ const SendCreate = () => {
   const size = transaction.virtualSize();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
-  const { setOptions } = useNavigation();
+  const navigation = useExtendedNavigation();
 
   const styleHooks = StyleSheet.create({
     transactionDetailsTitle: {
@@ -112,16 +113,20 @@ const SendCreate = () => {
     }
   }, [tx]);
 
+  const renderHeaderRight = useCallback(
+    () => (
+      <Pressable accessibilityRole="button" onPress={exportTXN} style={({ pressed }) => pressed && styles.iconPressablePressed}>
+        <Icon size={22} name="share-alternative" type="entypo" color={colors.foregroundColor} />
+      </Pressable>
+    ),
+    [colors.foregroundColor, exportTXN],
+  );
+
   useEffect(() => {
-    setOptions({
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <TouchableOpacity accessibilityRole="button" onPress={exportTXN}>
-          <Icon size={22} name="share-alternative" type="entypo" color={colors.foregroundColor} />
-        </TouchableOpacity>
-      ),
+    navigation.setParams({
+      headerRight: renderHeaderRight,
     });
-  }, [colors, exportTXN, setOptions]);
+  }, [navigation, renderHeaderRight]);
 
   const _renderItem = ({ index, item }: ListRenderItemInfo<CreateTransactionTarget>) => {
     return (
@@ -157,16 +162,20 @@ const SendCreate = () => {
       <BlueText style={[styles.cardText, styleHooks.cardText]}>{loc.send.create_this_is_hex}</BlueText>
       <TextInput testID="TxhexInput" style={styles.cardTx} multiline editable={false} value={tx} />
 
-      <TouchableOpacity accessibilityRole="button" style={styles.actionTouch} onPress={() => Clipboard.setString(tx)}>
-        <Text style={styles.actionText}>{loc.send.create_copy}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
+      <Pressable
         accessibilityRole="button"
-        style={styles.actionTouch}
+        style={({ pressed }) => [styles.actionTouch, pressed && styles.actionTouchPressed]}
+        onPress={() => Clipboard.setString(tx)}
+      >
+        <Text style={styles.actionText}>{loc.send.create_copy}</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        style={({ pressed }) => [styles.actionTouch, pressed && styles.actionTouchPressed]}
         onPress={() => Linking.openURL('https://coinb.in/?verify=' + tx)}
       >
         <Text style={styles.actionText}>{loc.send.create_verify}</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 
@@ -246,6 +255,12 @@ const styles = StyleSheet.create({
   },
   actionTouch: {
     marginVertical: 24,
+  },
+  actionTouchPressed: {
+    opacity: 0.7,
+  },
+  iconPressablePressed: {
+    opacity: 0.6,
   },
   actionText: {
     color: '#9aa0aa',

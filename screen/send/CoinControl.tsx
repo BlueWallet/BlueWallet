@@ -346,7 +346,7 @@ const CoinControl: React.FC = () => {
 
   // Adding the ToolTipMenu to the header
   useEffect(() => {
-    navigation.setOptions({
+    navigation.setParams({
       headerRight: () => (utxos.length > 0 ? HeaderRight : null),
     });
   }, [HeaderRight, navigation, utxos.length]);

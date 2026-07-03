@@ -1,4 +1,5 @@
 import { AztecoVoucher } from '../class/azteco';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { LightningTransaction, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
@@ -30,6 +31,9 @@ type VaultKeyData = {
   exportFilename: string;
   exportString?: string;
 };
+
+type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
+type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export type DetailViewStackParamList = {
   DrawerRoot: undefined;
@@ -95,7 +99,7 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
-  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
+  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string; headerRight?: HeaderRightRenderer | null };
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
@@ -111,6 +115,7 @@ export type DetailViewStackParamList = {
   ViewEditMultisigCosigners: {
     walletID: string;
     cosigners: string[];
+    isSaving?: boolean;
     sheetAction?: string;
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
@@ -140,6 +145,9 @@ export type DetailViewStackParamList = {
   ReceiveDetails: {
     walletID?: string;
     address: string;
+    headerLeft?: HeaderLeftRenderer;
+    headerRight?: HeaderRightRenderer;
+    headerBackVisible?: boolean;
   };
   ReceiveCustomAmount: {
     address: string;

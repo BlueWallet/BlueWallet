@@ -49,11 +49,17 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="SendDetails"
         component={SendDetailsComponent}
-        options={navigationStyle({
-          title: loc.send.header,
-          statusBarStyle: 'light',
-          closeButtonPosition: CloseButtonPosition.Left,
-        })(theme)}
+        options={navigationStyle(
+          {
+            title: loc.send.header,
+            statusBarStyle: 'light',
+            closeButtonPosition: CloseButtonPosition.Left,
+          },
+          (options, { route }) => ({
+            ...options,
+            headerRight: route.params?.headerRight ?? options.headerRight,
+          }),
+        )(theme)}
         initialParams={{ isEditable: true, feeUnit: BitcoinUnit.BTC, amountUnit: BitcoinUnit.BTC }} // Correctly typed now
       />
       <Stack.Screen
@@ -72,7 +78,10 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="Confirm"
         component={ConfirmComponent}
-        options={navigationStyle({ title: loc.send.confirm_header, headerRight: () => DetailsButton })(theme)}
+        options={navigationStyle({ title: loc.send.confirm_header, headerRight: () => DetailsButton }, (options, { route }) => ({
+          ...options,
+          headerRight: route.params?.headerRight ?? options.headerRight,
+        }))(theme)}
       />
       <Stack.Screen
         name="PsbtWithHardwareWallet"
@@ -82,7 +91,10 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CreateTransaction"
         component={CreateTransactionComponent}
-        options={navigationStyle({ title: loc.send.create_details })(theme)}
+        options={navigationStyle({ title: loc.send.create_details }, (options, { route }) => ({
+          ...options,
+          headerRight: route.params?.headerRight ?? options.headerRight,
+        }))(theme)}
       />
       <Stack.Screen
         name="PsbtMultisig"
@@ -118,10 +130,16 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CoinControl"
         component={CoinControlComponent}
-        options={navigationStyle({
-          title: loc.cc.header,
-          closeButtonIfFirstInStack: CloseButtonPosition.Left,
-        })(theme)}
+        options={navigationStyle(
+          {
+            title: loc.cc.header,
+            closeButtonIfFirstInStack: CloseButtonPosition.Left,
+          },
+          (options, { route }) => ({
+            ...options,
+            headerRight: route.params?.headerRight ?? options.headerRight,
+          }),
+        )(theme)}
       />
       <Stack.Screen
         name="PaymentCodeList"

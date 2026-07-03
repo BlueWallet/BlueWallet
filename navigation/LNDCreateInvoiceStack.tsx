@@ -44,6 +44,9 @@ const LNDCreateInvoiceRoot = () => {
         component={LNDViewInvoiceComponent}
         options={navigationStyle({
           headerTitle: loc.lndViewInvoice.lightning_invoice,
+          closeButtonPosition: CloseButtonPosition.Right,
+          headerBackVisible: false,
+          gestureEnabled: false,
           headerStyle: {
             backgroundColor: theme.colors.customHeader,
           },
