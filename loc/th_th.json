@@ -465,7 +465,6 @@
     "enter_bip38_password": "ใส่รหัสผ่านเพื่อถอดรหัส",
     "export_title": "ส่งออกกระเป๋าสตางค์",
     "import_do_import": "นำเข้า",
-    "import_passphrase": "วลีรหัสผ่าน",
     "import_passphrase_title": "วลีรหัสผ่าน",
     "import_passphrase_message": "ใส่วลีรหัสผ่านหากท่านได้ใช้",
     "import_error": "ไม่สามารถนำเข้าได้. กรุณาตรวจสอบข้อมูลให้ถูกต้อง.",

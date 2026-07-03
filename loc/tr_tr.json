@@ -465,7 +465,6 @@
     "import_passphrase": "Parola (BIP39)",
     "export_title": "cüzdan yedekle",
     "import_do_import": "İçe Aktar",
-    "import_passphrase": "Parola",
     "import_passphrase_title": "Parola",
     "import_passphrase_message": "Kullandıysanız parolayı girin",
     "import_error": "İçeri aktarma başarısız oldu. Lütfen girilen bilginin doğru olduğundan emin olun.",
