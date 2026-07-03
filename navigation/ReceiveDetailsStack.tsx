@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { ReceiveDetailsStackParamList } from './ReceiveDetailsStackParamList';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import { Platform } from 'react-native';
@@ -24,12 +24,7 @@ const ReceiveDetailsStack = () => {
             closeButtonPosition: CloseButtonPosition.Left,
             headerShown: true,
           },
-          (options, { route }) => ({
-            ...options,
-            headerLeft: route.params?.headerLeft ?? options.headerLeft,
-            headerRight: route.params?.headerRight ?? options.headerRight,
-            headerBackVisible: route.params?.headerBackVisible ?? options.headerBackVisible,
-          }),
+          withRouteParamHeaderOptions({ headerLeft: true, headerRight: true, headerBackVisible: true }),
         )(theme)}
       />
       <Stack.Screen

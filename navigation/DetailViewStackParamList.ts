@@ -115,7 +115,7 @@ export type DetailViewStackParamList = {
   ViewEditMultisigCosigners: {
     walletID: string;
     cosigners: string[];
-    isSaving?: boolean;
+    headerRight?: HeaderRightRenderer | null;
     sheetAction?: string;
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;

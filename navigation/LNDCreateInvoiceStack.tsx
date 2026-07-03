@@ -45,6 +45,7 @@ const LNDCreateInvoiceRoot = () => {
         options={navigationStyle({
           headerTitle: loc.lndViewInvoice.lightning_invoice,
           closeButtonPosition: CloseButtonPosition.Right,
+          onCloseButtonPressed: ({ navigation }) => navigation.getParent()?.pop(),
           headerBackVisible: false,
           gestureEnabled: false,
           headerStyle: {

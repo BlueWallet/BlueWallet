@@ -3,7 +3,7 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import React, { lazy } from 'react';
 import { Platform } from 'react-native';
 
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
@@ -131,11 +131,7 @@ const AddWalletStack = () => {
             closeButtonPosition: CloseButtonPosition.Left,
             title: loc.wallets.add_title,
           },
-          (options, { route }) => ({
-            ...options,
-            headerRight: route.params?.headerRight ?? options.headerRight,
-            statusBarStyle: route.params?.statusBarStyle ?? options.statusBarStyle,
-          }),
+          withRouteParamHeaderOptions({ headerRight: true, statusBarStyle: true }),
         )(theme)}
       />
       <Stack.Screen
@@ -151,10 +147,7 @@ const AddWalletStack = () => {
             title: loc.wallets.import_title,
             closeButtonIfFirstInStack: CloseButtonPosition.Left,
           },
-          (options, { route }) => ({
-            ...options,
-            headerRight: route.params?.headerRight ?? options.headerRight,
-          }),
+          withRouteParamHeaderOptions({ headerRight: true }),
         )(theme)}
       />
       <Stack.Screen
@@ -206,19 +199,13 @@ const AddWalletStack = () => {
             headerShown: true,
             headerTitle: loc.multisig.vault_advanced_customize,
           },
-          (options, { route }) => ({
-            ...options,
-            headerRight: route.params?.headerRight ?? options.headerRight,
-          }),
+          withRouteParamHeaderOptions({ headerRight: true }),
         )(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigStep2"
         component={WalletsAddMultisigStep2Component}
-        options={navigationStyle({ title: '', gestureEnabled: false }, (options, { route }) => ({
-          ...options,
-          headerRight: route.params?.headerRight ?? options.headerRight,
-        }))(theme)}
+        options={navigationStyle({ title: '', gestureEnabled: false }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
       />
       <Stack.Screen
         name="WalletsAddMultisigVaultKeySheet"

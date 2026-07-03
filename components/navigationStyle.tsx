@@ -33,7 +33,29 @@ type OptionsFormatter = (
   deps: { theme: Theme; navigation: any; route: any },
 ) => NativeStackNavigationOptions;
 
+type RouteParamHeaderOptions = {
+  headerLeft?: boolean;
+  headerRight?: boolean;
+  headerBackVisible?: boolean;
+  statusBarStyle?: boolean;
+};
+
 export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any; route: any }) => NativeStackNavigationOptions;
+
+const withRouteParamHeaderOptions =
+  (config: RouteParamHeaderOptions): OptionsFormatter =>
+  (options, { route }) => {
+    const routeParams = route?.params ?? {};
+    return {
+      ...options,
+      ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
+      ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
+      ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
+        ? { headerBackVisible: routeParams.headerBackVisible }
+        : {}),
+      ...(config.statusBarStyle && routeParams.statusBarStyle !== undefined ? { statusBarStyle: routeParams.statusBarStyle } : {}),
+    };
+  };
 
 const getCloseButtonPosition = (
   closeButtonPosition: CloseButtonPosition | undefined,
@@ -152,4 +174,4 @@ const navigationStyle = (
 };
 
 export default navigationStyle;
-export { CloseButtonPosition };
+export { CloseButtonPosition, withRouteParamHeaderOptions };

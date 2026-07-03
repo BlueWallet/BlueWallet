@@ -1,7 +1,7 @@
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
@@ -536,10 +536,10 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ElectrumSettings"
           component={ElectrumSettings}
-          options={navigationStyle(getSettingsHeaderOptions(loc.settings.electrum_settings_server), (options, { route }) => ({
-            ...options,
-            headerRight: route.params?.headerRight ?? options.headerRight,
-          }))(theme)}
+          options={navigationStyle(
+            getSettingsHeaderOptions(loc.settings.electrum_settings_server),
+            withRouteParamHeaderOptions({ headerRight: true }),
+          )(theme)}
           initialParams={{ server: undefined }}
         />
         <DetailViewStack.Screen
@@ -601,12 +601,7 @@ const DetailViewStackScreensStack = () => {
               headerShown: true,
               presentation: 'modal',
             },
-            (options, { route }) => ({
-              ...options,
-              headerLeft: route.params?.headerLeft ?? options.headerLeft,
-              headerRight: route.params?.headerRight ?? options.headerRight,
-              headerBackVisible: route.params?.headerBackVisible ?? options.headerBackVisible,
-            }),
+            withRouteParamHeaderOptions({ headerLeft: true, headerRight: true, headerBackVisible: true }),
           )(theme)}
         />
         <DetailViewStack.Screen

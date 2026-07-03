@@ -6,7 +6,7 @@ import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import WalletXpub from '../screen/wallets/xpub';
 import WalletExport from '../screen/wallets/WalletExport';
@@ -106,10 +106,7 @@ const MainRoot = () => {
                 gestureEnabled: false,
                 closeButtonPosition: CloseButtonPosition.Right,
               },
-              (options, { route }) => ({
-                ...options,
-                headerRight: route.params?.isSaving ? () => null : options.headerRight,
-              }),
+              withRouteParamHeaderOptions({ headerRight: true }),
             )(theme)}
           />
           <DetailViewStack.Screen
