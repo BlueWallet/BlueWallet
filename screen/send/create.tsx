@@ -123,7 +123,7 @@ const SendCreate = () => {
   );
 
   useEffect(() => {
-    navigation.setParams({
+    navigation.setOptions({
       headerRight: renderHeaderRight,
     });
   }, [navigation, renderHeaderRight]);

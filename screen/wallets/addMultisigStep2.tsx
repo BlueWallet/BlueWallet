@@ -91,6 +91,24 @@ const WalletsAddMultisigStep2 = () => {
     navigation.navigate('WalletsAddMultisigHelp');
   }, [navigation]);
 
+  const renderHeaderRight = useCallback(
+    () => (
+      <Pressable
+        accessibilityRole="button"
+        style={({ pressed }) => [
+          styles.helpButton,
+          { backgroundColor: colors.buttonDisabledBackgroundColor },
+          pressed && styles.helpButtonPressed,
+        ]}
+        onPress={handleOnHelpPress}
+      >
+        <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
+        <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
+      </Pressable>
+    ),
+    [colors.buttonDisabledBackgroundColor, colors.foregroundColor, handleOnHelpPress],
+  );
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -98,24 +116,10 @@ const WalletsAddMultisigStep2 = () => {
   });
 
   useLayoutEffect(() => {
-    navigation.setParams({
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <Pressable
-          accessibilityRole="button"
-          style={({ pressed }) => [
-            styles.helpButton,
-            { backgroundColor: colors.buttonDisabledBackgroundColor },
-            pressed && styles.helpButtonPressed,
-          ]}
-          onPress={handleOnHelpPress}
-        >
-          <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
-          <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
-        </Pressable>
-      ),
+    navigation.setOptions({
+      headerRight: renderHeaderRight,
     });
-  }, [colors.buttonDisabledBackgroundColor, colors.foregroundColor, handleOnHelpPress, navigation]);
+  }, [navigation, renderHeaderRight]);
 
   const onCreate = async () => {
     setIsLoading(true);

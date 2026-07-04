@@ -154,6 +154,8 @@ const ImportWallet = () => {
     [toolTipOnPressMenuItem, toolTipActions],
   );
 
+  const renderHeaderRight = useCallback(() => HeaderRight, [HeaderRight]);
+
   useEffect(() => {
     if (isPrivacyBlurEnabled) {
       enableScreenProtect();
@@ -169,10 +171,10 @@ const ImportWallet = () => {
 
   // Adding the ToolTipMenu to the header
   useEffect(() => {
-    navigation.setParams({
-      headerRight: () => HeaderRight,
+    navigation.setOptions({
+      headerRight: renderHeaderRight,
     });
-  }, [navigation, HeaderRight]);
+  }, [navigation, renderHeaderRight]);
 
   const renderOptionsAndImportButton = (
     <>

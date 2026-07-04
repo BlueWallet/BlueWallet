@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
@@ -76,7 +76,7 @@ const Confirm: React.FC = () => {
   const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
 
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { navigate, setParams, goBack } = navigation;
+  const { navigate, setOptions, goBack } = navigation;
   const wallet = wallets.find((w: TWallet) => w.getID() === walletID) as TWallet;
   const feeSatoshi = new BigNumber(fee).multipliedBy(100000000).toNumber();
   const { colors } = useTheme();
@@ -87,35 +87,69 @@ const Confirm: React.FC = () => {
     }
   }, [wallet, goBack]);
 
-  const stylesHook = StyleSheet.create({
-    transactionDetailsTitle: {
-      color: colors.foregroundColor,
-    },
-    transactionDetailsSubtitle: {
-      color: colors.feeText,
-    },
-    transactionAmountFiat: {
-      color: colors.feeText,
-    },
-    txDetails: {
-      backgroundColor: colors.lightButton,
-    },
-    valueValue: {
-      color: colors.alternativeTextColor2,
-    },
-    valueUnit: {
-      color: colors.buttonTextColor,
-    },
-    root: {
-      backgroundColor: colors.elevated,
-    },
-    payjoinWrapper: {
-      backgroundColor: colors.buttonDisabledBackgroundColor,
-    },
-    addressSection: {
-      color: colors.alternativeTextColor2,
-    },
-  });
+  const stylesHook = useMemo(
+    () =>
+      StyleSheet.create({
+        transactionDetailsTitle: {
+          color: colors.foregroundColor,
+        },
+        transactionDetailsSubtitle: {
+          color: colors.feeText,
+        },
+        transactionAmountFiat: {
+          color: colors.feeText,
+        },
+        txDetails: {
+          backgroundColor: colors.lightButton,
+        },
+        valueValue: {
+          color: colors.alternativeTextColor2,
+        },
+        valueUnit: {
+          color: colors.buttonTextColor,
+        },
+        root: {
+          backgroundColor: colors.elevated,
+        },
+        payjoinWrapper: {
+          backgroundColor: colors.buttonDisabledBackgroundColor,
+        },
+        addressSection: {
+          color: colors.alternativeTextColor2,
+        },
+      }),
+    [
+      colors.foregroundColor,
+      colors.feeText,
+      colors.lightButton,
+      colors.alternativeTextColor2,
+      colors.buttonTextColor,
+      colors.elevated,
+      colors.buttonDisabledBackgroundColor,
+    ],
+  );
+
+  const biometricCapabilityRef = useRef(isBiometricUseCapableAndEnabled);
+
+  useEffect(() => {
+    biometricCapabilityRef.current = isBiometricUseCapableAndEnabled;
+  }, [isBiometricUseCapableAndEnabled]);
+
+  const handleOpenCreateTransaction = useCallback(async () => {
+    if (await biometricCapabilityRef.current()) {
+      if (!(await unlockWithBiometrics())) {
+        return;
+      }
+    }
+    navigate('CreateTransaction', {
+      fee,
+      recipients,
+      memo,
+      tx,
+      satoshiPerByte,
+      feeSatoshi,
+    });
+  }, [navigate, fee, recipients, memo, tx, satoshiPerByte, feeSatoshi]);
 
   const HeaderRightButton = useMemo(
     () => (
@@ -123,21 +157,7 @@ const Confirm: React.FC = () => {
         accessibilityRole="button"
         testID="TransactionDetailsButton"
         style={({ pressed }) => [styles.txDetails, stylesHook.txDetails, pressed && styles.txDetailsPressed]}
-        onPress={async () => {
-          if (await isBiometricUseCapableAndEnabled()) {
-            if (!(await unlockWithBiometrics())) {
-              return;
-            }
-          }
-          navigate('CreateTransaction', {
-            fee,
-            recipients,
-            memo,
-            tx,
-            satoshiPerByte,
-            feeSatoshi,
-          });
-        }}
+        onPress={handleOpenCreateTransaction}
       >
         <Text style={[styles.txText, stylesHook.valueUnit]}>{loc.send.create_details}</Text>
       </Pressable>
@@ -145,16 +165,11 @@ const Confirm: React.FC = () => {
     [
       stylesHook.txDetails,
       stylesHook.valueUnit,
-      isBiometricUseCapableAndEnabled,
-      navigate,
-      fee,
-      recipients,
-      memo,
-      tx,
-      satoshiPerByte,
-      feeSatoshi,
+      handleOpenCreateTransaction,
     ],
   );
+
+  const renderHeaderRight = useCallback(() => HeaderRightButton, [HeaderRightButton]);
 
   useEffect(() => {
     console.log('send/confirm - useEffect');
@@ -162,10 +177,10 @@ const Confirm: React.FC = () => {
   }, [recipients]);
 
   useEffect(() => {
-    setParams({
-      headerRight: () => HeaderRightButton,
+    setOptions({
+      headerRight: renderHeaderRight,
     });
-  }, [HeaderRightButton, setParams]);
+  }, [renderHeaderRight, setOptions]);
 
   const getPaymentScript = (): Uint8Array | undefined => {
     if (!(recipients.length > 0) || !recipients[0].address) {
