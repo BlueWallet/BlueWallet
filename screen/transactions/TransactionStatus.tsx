@@ -32,7 +32,12 @@ import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { formatConfirmationsForDisplay, isOnChainTransaction, resolveTransactionNote, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import {
+  formatConfirmationsForDisplay,
+  isOnChainTransaction,
+  resolveTransactionNote,
+  resolveTxDisplayState,
+} from '../../blue_modules/transactionDisplayState';
 
 dayjs.extend(relativeTime);
 
@@ -1388,7 +1393,9 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {wallet && Number.isFinite(parsedConfirmations) && parsedConfirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
+      {wallet && Number.isFinite(parsedConfirmations) && parsedConfirmations > 0 && (
+        <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>
+      )}
     </SafeAreaScrollView>
   );
 };

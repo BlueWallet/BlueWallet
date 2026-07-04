@@ -146,7 +146,8 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
   }
   const metadataKey = resolveTransactionNoteMetadataKey(item);
-  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (metadataKey ? (txMetadata[metadataKey]?.memo ?? '') : '');
+  const txMemo =
+    (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (metadataKey ? (txMetadata[metadataKey]?.memo ?? '') : '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
 
   // LightningArkWallet rows are tagged by synthetic txid in

@@ -23,9 +23,7 @@ export function formatConfirmationsForDisplay(confirmations: unknown): string | 
   return parsed > 6 ? '6+' : String(parsed);
 }
 
-export function resolveTransactionNoteMetadataKey(
-  tx: { hash?: string; txid?: string } | null | undefined,
-): string | undefined {
+export function resolveTransactionNoteMetadataKey(tx: { hash?: string; txid?: string } | null | undefined): string | undefined {
   if (!tx) return undefined;
   const txid = tx.txid;
   // Ark refills keep the synthetic boarding- id as the note key (not the on-chain hash).

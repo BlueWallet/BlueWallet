@@ -1,6 +1,11 @@
 import assert from 'assert';
 
-import { isOnChainTransaction, resolveTransactionNote, resolveTransactionNoteMetadataKey, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import {
+  isOnChainTransaction,
+  resolveTransactionNote,
+  resolveTransactionNoteMetadataKey,
+  resolveTxDisplayState,
+} from '../../blue_modules/transactionDisplayState';
 
 describe('transactionDisplayState', () => {
   describe('isOnChainTransaction', () => {
@@ -16,10 +21,7 @@ describe('transactionDisplayState', () => {
 
   describe('resolveTransactionNoteMetadataKey', () => {
     it('uses the boarding- txid for Ark refills, not the on-chain hash', () => {
-      assert.strictEqual(
-        resolveTransactionNoteMetadataKey({ txid: 'boarding-deadbeef', hash: 'deadbeef' }),
-        'boarding-deadbeef',
-      );
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'boarding-deadbeef', hash: 'deadbeef' }), 'boarding-deadbeef');
     });
 
     it('uses hash for normal on-chain rows', () => {
