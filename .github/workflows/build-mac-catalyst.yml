@@ -68,9 +68,9 @@ jobs:
 
       - name: Set up Ruby
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
-        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
+        uses: ruby/setup-ruby@0dafeac902942906541bc140009cdbf32665b601 # v1.315.0
         with:
-          ruby-version: 3.4.9
+          ruby-version: 3.4.10
           bundler-cache: true
 
       - name: Install Node modules
@@ -79,7 +79,7 @@ jobs:
 
       - name: Cache CocoaPods
         if: github.event_name == 'workflow_dispatch' || steps.labels.outputs.has_mac_dmg == 'true'
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: |
             ios/Pods
