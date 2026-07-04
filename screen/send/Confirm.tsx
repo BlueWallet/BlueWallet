@@ -88,36 +88,35 @@ const Confirm: React.FC = () => {
   }, [wallet, goBack]);
 
   const stylesHook = useMemo(
-    () =>
-      StyleSheet.create({
-        transactionDetailsTitle: {
-          color: colors.foregroundColor,
-        },
-        transactionDetailsSubtitle: {
-          color: colors.feeText,
-        },
-        transactionAmountFiat: {
-          color: colors.feeText,
-        },
-        txDetails: {
-          backgroundColor: colors.lightButton,
-        },
-        valueValue: {
-          color: colors.alternativeTextColor2,
-        },
-        valueUnit: {
-          color: colors.buttonTextColor,
-        },
-        root: {
-          backgroundColor: colors.elevated,
-        },
-        payjoinWrapper: {
-          backgroundColor: colors.buttonDisabledBackgroundColor,
-        },
-        addressSection: {
-          color: colors.alternativeTextColor2,
-        },
-      }),
+    () => ({
+      transactionDetailsTitle: {
+        color: colors.foregroundColor,
+      },
+      transactionDetailsSubtitle: {
+        color: colors.feeText,
+      },
+      transactionAmountFiat: {
+        color: colors.feeText,
+      },
+      txDetails: {
+        backgroundColor: colors.lightButton,
+      },
+      valueValue: {
+        color: colors.alternativeTextColor2,
+      },
+      valueUnit: {
+        color: colors.buttonTextColor,
+      },
+      root: {
+        backgroundColor: colors.elevated,
+      },
+      payjoinWrapper: {
+        backgroundColor: colors.buttonDisabledBackgroundColor,
+      },
+      addressSection: {
+        color: colors.alternativeTextColor2,
+      },
+    }),
     [
       colors.foregroundColor,
       colors.feeText,
@@ -162,11 +161,7 @@ const Confirm: React.FC = () => {
         <Text style={[styles.txText, stylesHook.valueUnit]}>{loc.send.create_details}</Text>
       </Pressable>
     ),
-    [
-      stylesHook.txDetails,
-      stylesHook.valueUnit,
-      handleOpenCreateTransaction,
-    ],
+    [stylesHook.txDetails, stylesHook.valueUnit, handleOpenCreateTransaction],
   );
 
   const renderHeaderRight = useCallback(() => HeaderRightButton, [HeaderRightButton]);
