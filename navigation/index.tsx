@@ -6,7 +6,7 @@ import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import WalletXpub from '../screen/wallets/xpub';
 import WalletExport from '../screen/wallets/WalletExport';
@@ -98,13 +98,16 @@ const MainRoot = () => {
           <DetailViewStack.Screen
             name="ViewEditMultisigCosigners"
             component={LazyViewEditMultisigCosigners}
-            options={navigationStyle({
-              title: loc.multisig.view_edit_cosigners,
-              presentation: 'modal',
-              headerShown: true,
-              gestureEnabled: false,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
+            options={navigationStyle(
+              {
+                title: loc.multisig.view_edit_cosigners,
+                presentation: 'modal',
+                headerShown: true,
+                gestureEnabled: false,
+                closeButtonPosition: CloseButtonPosition.Right,
+              },
+              withRouteParamHeaderOptions({ headerRight: true }),
+            )(theme)}
           />
           <DetailViewStack.Screen
             name="ViewEditMultisigCosignerViewSheet"

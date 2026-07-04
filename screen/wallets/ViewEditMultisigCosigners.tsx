@@ -39,7 +39,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { dispatch, setOptions, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
+  const { dispatch, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -121,22 +121,28 @@ const ViewEditMultisigCosigners: React.FC = () => {
       }
     }
 
-    setOptions({ headerRight: () => null });
+    setParams({ headerRight: null });
 
     setTimeout(async () => {
-      // eslint-disable-next-line prefer-const
-      let newWallets = wallets.filter(newWallet => {
-        return newWallet.getID() !== walletID;
-      }) as MultisigHDWallet[];
-      if (!isElectrumDisabled) {
-        await wallet?.fetchBalance();
+      try {
+        // eslint-disable-next-line prefer-const
+        let newWallets = wallets.filter(newWallet => {
+          return newWallet.getID() !== walletID;
+        }) as MultisigHDWallet[];
+        if (!isElectrumDisabled) {
+          await wallet?.fetchBalance();
+        }
+        newWallets.push(wallet);
+        setIsSaveButtonDisabled(true);
+        setWalletsWithNewOrder(newWallets);
+        setTimeout(() => {
+          navigateToWalletsList();
+        }, 500);
+      } catch (error: any) {
+        setIsLoading(false);
+        setParams({ headerRight: undefined });
+        presentAlert({ message: error?.message ?? String(error) });
       }
-      newWallets.push(wallet);
-      setIsSaveButtonDisabled(true);
-      setWalletsWithNewOrder(newWallets);
-      setTimeout(() => {
-        navigateToWalletsList();
-      }, 500);
     }, 100);
   };
 
