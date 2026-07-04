@@ -1521,10 +1521,7 @@ export async function getConfirmedBlockHeight(txHash: string): Promise<number | 
   if (!mainClient) return null;
 
   try {
-    const [tip, verboseTx] = await Promise.all([
-      getCurrentBlockTip(),
-      mainClient.blockchainTransaction_get(txHash, true),
-    ]);
+    const [tip, verboseTx] = await Promise.all([getCurrentBlockTip(), mainClient.blockchainTransaction_get(txHash, true)]);
 
     if (typeof verboseTx === 'string') {
       // Server didn't support verbose — decode locally.

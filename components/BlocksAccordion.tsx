@@ -89,7 +89,16 @@ const renderBoldFormattedParts = (template: string, values: Record<string, strin
   return parts;
 };
 
-const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExpanded, confirmations, vsize, feeSats, feeRate, onPress }) => {
+const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
+  txHash,
+  isSent,
+  isExpanded,
+  confirmations,
+  vsize,
+  feeSats,
+  feeRate,
+  onPress,
+}) => {
   const { colors } = useTheme();
   const colorScheme = useColorScheme();
   const { width: windowWidth } = useWindowDimensions();
