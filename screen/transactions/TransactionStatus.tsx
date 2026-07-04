@@ -1197,7 +1197,6 @@ const TransactionStatus: React.FC = () => {
             txHash={tx.hash}
             isSent={txValue !== null && txValue < 0}
             isExpanded={isBlocksExpanded}
-            confirmations={parsedConfirmations}
             vsize={tx.vsize}
             feeSats={calculatedFee}
             feeRate={feeRate}

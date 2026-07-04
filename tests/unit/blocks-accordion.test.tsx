@@ -1,6 +1,8 @@
 import React from 'react';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 
+import BlocksAccordion from '../../components/BlocksAccordion';
+
 const mockGetConfirmedBlockHeight = jest.fn();
 const mockGetCurrentBlockTip = jest.fn();
 const mockGetBlockTimestamps = jest.fn();
@@ -40,13 +42,10 @@ jest.mock('../../loc', () => ({
   formatBalanceWithoutSuffix: (value: number | string) => String(value),
 }));
 
-import BlocksAccordion from '../../components/BlocksAccordion';
-
 const defaultProps = {
   txHash: 'abc123',
   isSent: false,
   isExpanded: false,
-  confirmations: 3,
   vsize: 140,
   feeSats: 1000,
   feeRate: 7.1,
@@ -124,9 +123,7 @@ describe('BlocksAccordion', () => {
     );
     mockGetCurrentBlockTip.mockResolvedValue(800005);
 
-    const { rerender, getByText, queryByText } = render(
-      <BlocksAccordion {...defaultProps} isExpanded txHash="first-tx" />,
-    );
+    const { rerender, getByText, queryByText } = render(<BlocksAccordion {...defaultProps} isExpanded txHash="first-tx" />);
 
     await waitFor(() => {
       expect(mockGetConfirmedBlockHeight).toHaveBeenCalledWith('first-tx');

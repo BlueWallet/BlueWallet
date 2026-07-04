@@ -153,9 +153,7 @@ jest.mock('../../blue_modules/BlueElectrum', () => ({
   estimateFees: jest.fn(() => Promise.resolve({ fast: 1, medium: 1, slow: 1 })),
   getConfirmedBlockHeight: jest.fn(() => Promise.resolve(800000)),
   getCurrentBlockTip: jest.fn(() => Promise.resolve(800002)),
-  getBlockTimestamps: jest.fn((heights: number[]) =>
-    Promise.resolve(Object.fromEntries(heights.map((h: number) => [h, 1700000000]))),
-  ),
+  getBlockTimestamps: jest.fn((heights: number[]) => Promise.resolve(Object.fromEntries(heights.map((h: number) => [h, 1700000000])))),
 }));
 
 jest.mock('../../loc', () => ({

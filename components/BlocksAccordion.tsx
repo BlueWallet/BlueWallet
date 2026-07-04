@@ -45,7 +45,6 @@ interface BlocksAccordionProps {
   txHash: string;
   isSent: boolean;
   isExpanded: boolean;
-  confirmations: number;
   vsize?: number | null;
   feeSats?: number | null;
   feeRate?: number | null;
@@ -92,15 +91,7 @@ const renderBoldFormattedParts = (template: string, values: Record<string, strin
   return parts;
 };
 
-const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
-  txHash,
-  isSent,
-  isExpanded,
-  vsize,
-  feeSats,
-  feeRate,
-  onPress,
-}) => {
+const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExpanded, vsize, feeSats, feeRate, onPress }) => {
   const { colors } = useTheme();
   const colorScheme = useColorScheme();
   const { width: windowWidth } = useWindowDimensions();
@@ -142,10 +133,7 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
     setError(false);
     setLoading(true);
     try {
-      const [txHeight, tip] = await Promise.all([
-        BlueElectrum.getConfirmedBlockHeight(fetchTxHash),
-        BlueElectrum.getCurrentBlockTip(),
-      ]);
+      const [txHeight, tip] = await Promise.all([BlueElectrum.getConfirmedBlockHeight(fetchTxHash), BlueElectrum.getCurrentBlockTip()]);
 
       if (fetchTxHash !== activeTxHashRef.current) return;
 
