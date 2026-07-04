@@ -344,12 +344,14 @@ const CoinControl: React.FC = () => {
     [toolTipOnPressMenuItem, toolTipActions],
   );
 
+  const renderHeaderRight = useCallback(() => (utxos.length > 0 ? HeaderRight : null), [HeaderRight, utxos.length]);
+
   // Adding the ToolTipMenu to the header
   useEffect(() => {
     navigation.setOptions({
-      headerRight: () => (utxos.length > 0 ? HeaderRight : null),
+      headerRight: renderHeaderRight,
     });
-  }, [HeaderRight, navigation, utxos.length]);
+  }, [navigation, renderHeaderRight]);
 
   if (loading) {
     return (
