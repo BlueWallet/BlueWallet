@@ -135,6 +135,7 @@ const navigationStyle = (
           type: 'button',
           label: loc._.close,
           icon: { type: 'sfSymbol', name: 'xmark' },
+          identifier: 'NavigationCloseButton',
           onPress: handleClose,
           accessibilityLabel: loc._.close,
         },
