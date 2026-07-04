@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | carteira de hardware | noun, lowercase · Bitcoin Core pt + Electrum pt_PT. ⚠️ avoid Title Case `Carteira de Hardware`. |
 | Seed | seed / semente | noun · technical loanword / mainstream · Electrum pt_PT uses `semente`. App ships `Seed` today. |
 | Mnemonic | frase mnemónica / frase de recuperação | noun · technical / mainstream · PT-PT spelling `mnemónica` (Acordo Ortográfico 1990). |
-| Passphrase | frase-passe / frase de segurança | noun · ⚠️ NOT `palavra-passe` (= password) and NOT `senha` · `frase-passe` per Electrum pt_PT; `frase de segurança` per Bitcoin Core pt. App ships English `Passphrase` today. |
+| Passphrase | frase-passe / frase de segurança | noun · ⚠️ NOT `palavra-passe` (= password) and NOT `senha` · `frase-passe` per Electrum pt_PT; `frase de segurança` per Bitcoin Core pt. |
 | Public key | chave pública | noun, lowercase · Electrum pt_PT. |
 | Private key | chave privada | noun, lowercase · Bitcoin Core pt + Electrum pt_PT. |
 | WIF | WIF | acronym · gloss: formato de importação de carteira. |

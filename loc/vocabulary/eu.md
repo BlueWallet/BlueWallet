@@ -28,7 +28,7 @@ Note: upstream wallet projects have limited Basque coverage. Bitcoin Core ships 
 | Hardware wallet | hardware diru-zorroa | noun · "hardware" kept Latin + diru-zorroa (no upstream wallet citation). |
 | Seed | hazia | noun · "seed" (literal) used for the recovery seed. |
 | Mnemonic / Seed phrase | esaldi mnemonikoa / berreskuratze-esaldia | noun · technical / mainstream "recovery phrase" (no upstream wallet citation). |
-| Passphrase | pasaesaldia | noun · ⚠️ NOT pasahitza (password) — distinct compound (pasa + esaldi). |
+| Passphrase | pasaesaldia | noun · ⚠️ NOT pasahitza (password) — distinct compound (pasa + esaldi). Bitcoin Core eu collapses to `pasahitza`; no upstream wallet citation for `pasaesaldia`. |
 | Public key | gako publikoa | noun · "public key" · cf. Bitcoin Core eu. |
 | Private key | gako pribatua | noun · parallel to gako publikoa · cf. Bitcoin Core eu. |
 | WIF | WIF | acronym kept. |
