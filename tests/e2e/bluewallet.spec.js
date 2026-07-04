@@ -116,6 +116,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // language
     // change language to Chinese (ZH), test it and switch back to English
     await element(by.id('Language')).tap();
+    await element(by.id('LanguageFlatList')).scroll(250, 'down');
     await element(by.text('Chinese (ZH)')).tap();
     await goBack();
     await expect(element(by.text('语言'))).toBeVisible();

@@ -460,6 +460,35 @@ export const setLevels = async (levelAll: boolean) => {
   }
 };
 
+/**
+ * Posts to groundcontrol whether push notification text/data
+ *  for this device should be redacted
+ *
+ * @param redacted {Boolean}
+ * @returns {Promise<void>}
+ */
+export const setRedactNotifications = async (redacted: boolean) => {
+  const pushToken = await getPushToken();
+  if (!pushToken?.token || !pushToken?.os) {
+    throw new Error('No push token available');
+  }
+
+  const response = await fetch(`${baseURI}/setTokenConfiguration`, {
+    method: 'POST',
+    headers: _getHeaders(),
+    body: JSON.stringify({ redacted, token: pushToken.token, os: pushToken.os }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to set redact configuration: ' + response.statusText);
+  }
+};
+
+export const isNotificationsRedacted = async (): Promise<boolean> => {
+  const levels = await getLevels();
+  return !!levels?.redacted;
+};
+
 export const addNotification = async (notification: TPayload) => {
   let notifications = [];
   try {
