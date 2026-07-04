@@ -316,4 +316,22 @@ describe('BlueElectrum', () => {
     );
     if (disableBatching) BlueElectrum.setBatchingEnabled();
   });
+
+  it('getCurrentBlockTip() returns a positive block height', async () => {
+    const tip = await BlueElectrum.getCurrentBlockTip();
+    assert.ok(tip > 600_000);
+  });
+
+  it('getBlockTimestamps() returns unix timestamps for recent blocks', async () => {
+    const tip = await BlueElectrum.getCurrentBlockTip();
+    const timestamps = await BlueElectrum.getBlockTimestamps([tip, tip - 1]);
+    assert.ok(timestamps[tip] > 1_000_000_000);
+    assert.ok(timestamps[tip - 1] > 1_000_000_000);
+  });
+
+  it('getConfirmedBlockHeight() returns height for a known confirmed tx', async () => {
+    const txid = '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e';
+    const height = await BlueElectrum.getConfirmedBlockHeight(txid);
+    assert.ok(height !== null && height > 0);
+  });
 });

@@ -1494,11 +1494,10 @@ export function getServerBanner(): Promise<string> {
   return mainClient.request('server.banner', []);
 }
 
-export function getTxBlockHeight(txHash: string): number | undefined {
-  return txhashHeightCache[txHash];
-}
-
 export async function getCurrentBlockTip(): Promise<number> {
+  if (latestBlock.height) {
+    return estimateCurrentBlockheight();
+  }
   if (!mainClient) throw new Error('Electrum client is not connected');
   const header = await mainClient.blockchainHeaders_subscribe();
   if (header && header.height) {

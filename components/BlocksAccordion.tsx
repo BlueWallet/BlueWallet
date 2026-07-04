@@ -25,6 +25,8 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 const BLOCK_COUNT = 5;
 const COLLAPSED_HEIGHT = 0;
 const BLOCKS_HEIGHT = 130;
+const SUMMARY_HEIGHT_ESTIMATE = 40;
+const EXPANDED_HEIGHT_ESTIMATE = SUMMARY_HEIGHT_ESTIMATE + BLOCKS_HEIGHT;
 const ANIMATION_DURATION = 280;
 const ANIMATION_EASING = Easing.out(Easing.cubic);
 const BLOCK_CARD_WIDTH = 120;
@@ -61,6 +63,7 @@ const getItemLayout = (_: unknown, index: number) => ({
   index,
 });
 
+/** Bolds substituted placeholder values only — templates must use flat keys with primitive values, not nested phrases. */
 const renderBoldFormattedParts = (template: string, values: Record<string, string>, boldStyle: TextStyle): React.ReactNode[] => {
   const regex = /\{(\w+)\}/g;
   const parts: React.ReactNode[] = [];
@@ -93,7 +96,6 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
   txHash,
   isSent,
   isExpanded,
-  confirmations,
   vsize,
   feeSats,
   feeRate,
@@ -104,10 +106,13 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
   const { width: windowWidth } = useWindowDimensions();
   const [blocks, setBlocks] = useState<BlockData[]>([]);
   const [confirmedHeight, setConfirmedHeight] = useState<number | null>(null);
+  const [currentTip, setCurrentTip] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [measuredHeight, setMeasuredHeight] = useState(0);
   const animatedHeight = useSharedValue(COLLAPSED_HEIGHT);
   const fetchStartedRef = useRef(false);
+  const activeTxHashRef = useRef(txHash);
 
   const accentColor = isSent ? colors.transactionSentColor : colors.transactionReceivedColor;
   const borderAccent = isSent ? colors.outgoingForegroundColor : colors.incomingForegroundColor;
@@ -133,55 +138,85 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
   const fetchBlockData = useCallback(async () => {
     if (fetchStartedRef.current) return;
     fetchStartedRef.current = true;
+    const fetchTxHash = txHash;
+    setError(false);
     setLoading(true);
     try {
-      const [txHeight, currentTip] = await Promise.all([BlueElectrum.getConfirmedBlockHeight(txHash), BlueElectrum.getCurrentBlockTip()]);
+      const [txHeight, tip] = await Promise.all([
+        BlueElectrum.getConfirmedBlockHeight(fetchTxHash),
+        BlueElectrum.getCurrentBlockTip(),
+      ]);
+
+      if (fetchTxHash !== activeTxHashRef.current) return;
 
       if (!txHeight || txHeight <= 0) {
-        setLoading(false);
+        setError(true);
         return;
       }
 
       setConfirmedHeight(txHeight);
+      setCurrentTip(tip);
 
-      const distance = currentTip - txHeight;
+      const distance = tip - txHeight;
       let startHeight = txHeight - 2;
       if (distance < 2) {
-        startHeight = currentTip - (BLOCK_COUNT - 1);
+        startHeight = tip - (BLOCK_COUNT - 1);
       }
       const heights = Array.from({ length: BLOCK_COUNT }, (_, i) => startHeight + i);
 
       const timestamps = await BlueElectrum.getBlockTimestamps(heights);
+
+      if (fetchTxHash !== activeTxHashRef.current) return;
+
       setBlocks(heights.map(h => ({ height: h, timestamp: timestamps[h] })));
     } catch (e) {
       console.warn('BlocksAccordion: failed to fetch block data', e);
+      setError(true);
     } finally {
+      fetchStartedRef.current = false;
       setLoading(false);
     }
   }, [txHash]);
 
+  const handleRetry = useCallback(() => {
+    setError(false);
+    fetchBlockData();
+  }, [fetchBlockData]);
+
   useEffect(() => {
+    activeTxHashRef.current = txHash;
     fetchStartedRef.current = false;
     setBlocks([]);
     setConfirmedHeight(null);
+    setCurrentTip(null);
+    setError(false);
     setMeasuredHeight(0);
   }, [txHash]);
 
   useEffect(() => {
+    if (!isExpanded) return;
+    if (loading || fetchStartedRef.current) return;
+    if (confirmedHeight !== null && blocks.length > 0) return;
+    if (error) return;
     fetchBlockData();
-  }, [fetchBlockData]);
+  }, [isExpanded, loading, confirmedHeight, blocks.length, error, fetchBlockData]);
 
-  const onMeasureLayout = useCallback((e: LayoutChangeEvent) => {
-    const height = Math.ceil(e.nativeEvent.layout.height);
-    if (height > 0) {
-      setMeasuredHeight(height);
-    }
-  }, []);
+  const onContentLayout = useCallback(
+    (e: LayoutChangeEvent) => {
+      if (!isExpanded) return;
+      const height = Math.ceil(e.nativeEvent.layout.height);
+      if (height > 0) {
+        setMeasuredHeight(height);
+      }
+    },
+    [isExpanded],
+  );
 
   useEffect(() => {
-    const target = isExpanded ? (measuredHeight > 0 ? measuredHeight : BLOCKS_HEIGHT) : COLLAPSED_HEIGHT;
+    const fallbackHeight = loading || error ? BLOCKS_HEIGHT : EXPANDED_HEIGHT_ESTIMATE;
+    const target = isExpanded ? (measuredHeight > 0 ? measuredHeight : fallbackHeight) : COLLAPSED_HEIGHT;
     animatedHeight.value = withTiming(target, { duration: ANIMATION_DURATION, easing: ANIMATION_EASING });
-  }, [isExpanded, measuredHeight, animatedHeight]);
+  }, [isExpanded, measuredHeight, animatedHeight, loading, error]);
 
   const confirmedIndex = useMemo(() => {
     if (confirmedHeight === null) return 0;
@@ -200,23 +235,14 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
     overflow: 'hidden' as const,
   }));
 
-  const blocksAgoText = useMemo(() => {
-    const blocksAgo = Math.max(0, confirmations - 1);
-    if (blocksAgo === 1) {
-      return loc.transactions.block_ago;
-    }
-    return loc.formatString(loc.transactions.blocks_ago, { count: String(blocksAgo) });
-  }, [confirmations]);
-
   const summaryContent = useMemo(() => {
-    if (confirmedHeight === null) return null;
+    if (confirmedHeight === null || currentTip === null) return null;
 
+    const blocksBehind = currentTip - confirmedHeight;
+    const blockHeight = String(confirmedHeight);
     const confirmationParts = renderBoldFormattedParts(
-      loc.transactions.blocks_confirmed_summary,
-      {
-        blocksAgo: blocksAgoText,
-        blockHeight: String(confirmedHeight),
-      },
+      blocksBehind === 0 ? loc.transactions.blocks_confirmed_latest : loc.transactions.blocks_confirmed_summary,
+      blocksBehind === 0 ? { blockHeight } : { count: String(blocksBehind), blockHeight },
       stylesHook.summaryBold,
     );
 
@@ -241,7 +267,7 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
         {confirmationParts} {feeParts}
       </Text>
     );
-  }, [blocksAgoText, confirmedHeight, feeRate, feeSats, stylesHook.summaryBold, stylesHook.summaryText, vsize]);
+  }, [confirmedHeight, currentTip, feeRate, feeSats, stylesHook.summaryBold, stylesHook.summaryText, vsize]);
 
   const keyExtractor = useCallback((item: BlockData) => String(item.height), []);
 
@@ -281,7 +307,7 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
           <Text style={[styles.blockHeight, stylesHook.summaryText]}>{item.height}</Text>
           <View style={styles.blockDateContainer}>
             <Text style={[styles.blockDate, stylesHook.summaryText]}>
-              {item.timestamp ? dayjs(item.timestamp * 1000).format('DD/MM/YYYY') : '-'}
+              {item.timestamp ? dayjs(item.timestamp * 1000).format('LT') : '-'}
             </Text>
           </View>
         </View>
@@ -297,63 +323,69 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({
     ],
   );
 
-  const measureContent = loading ? (
-    <View style={styles.loadingContainer} />
-  ) : (
-    <>
-      {summaryContent && <View style={styles.summaryContainer}>{summaryContent}</View>}
-      <View style={styles.blocksList} />
-    </>
-  );
-
-  const visibleContent = loading ? (
-    <View style={styles.loadingContainer}>
-      <ActivityIndicator color={accentColor} />
-    </View>
-  ) : (
-    <>
-      {summaryContent && (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.7} disabled={!onPress}>
-          <View style={styles.summaryContainer}>{summaryContent}</View>
-        </TouchableOpacity>
-      )}
-      <FlatList
-        data={blocks}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-        keyExtractor={keyExtractor}
-        renderItem={renderBlock}
-        getItemLayout={getItemLayout}
-        contentOffset={{ x: initialOffset, y: 0 }}
-        snapToInterval={ITEM_LENGTH}
-        decelerationRate="fast"
-        style={styles.blocksList}
-      />
-    </>
-  );
+  let bodyContent: React.ReactNode;
+  if (loading) {
+    bodyContent = (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator color={accentColor} />
+      </View>
+    );
+  } else if (error) {
+    bodyContent = (
+      <TouchableOpacity onPress={handleRetry} activeOpacity={0.7} style={styles.errorContainer}>
+        <Text style={[styles.errorText, stylesHook.summaryText]}>{loc.transactions.blocks_load_error}</Text>
+      </TouchableOpacity>
+    );
+  } else {
+    bodyContent = (
+      <>
+        {summaryContent && (
+          <TouchableOpacity onPress={onPress} activeOpacity={0.7} disabled={!onPress}>
+            <View style={styles.summaryContainer}>{summaryContent}</View>
+          </TouchableOpacity>
+        )}
+        <FlatList
+          data={blocks}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          keyExtractor={keyExtractor}
+          renderItem={renderBlock}
+          getItemLayout={getItemLayout}
+          contentOffset={{ x: initialOffset, y: 0 }}
+          snapToInterval={ITEM_LENGTH}
+          decelerationRate="fast"
+          style={styles.blocksList}
+        />
+      </>
+    );
+  }
 
   return (
-    <>
-      <View style={styles.measureLayer} onLayout={onMeasureLayout} pointerEvents="none">
-        {measureContent}
-      </View>
-      <Animated.View style={animatedContentStyle}>{visibleContent}</Animated.View>
-    </>
+    <Animated.View style={animatedContentStyle}>
+      <View onLayout={onContentLayout}>{bodyContent}</View>
+    </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
-  measureLayer: {
-    position: 'absolute',
-    opacity: 0,
-    width: '100%',
-    zIndex: -1,
-  },
   loadingContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: BLOCKS_HEIGHT,
+  },
+  errorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: BLOCKS_HEIGHT,
+    paddingHorizontal: 16,
+  },
+  errorText: {
+    fontSize: 13,
+    lineHeight: 16,
+    fontWeight: '500',
+    letterSpacing: -0.5,
+    textAlign: 'center',
   },
   summaryContainer: {
     paddingHorizontal: 16,
