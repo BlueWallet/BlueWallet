@@ -439,7 +439,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     // dead swap doesn't pin the card to "pending" forever.
     const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
     const hasPendingTx = isLightningShaped
-      ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed)
+      ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed && tx.fundsInFlight !== false)
       : item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
 
     if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {

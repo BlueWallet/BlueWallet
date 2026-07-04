@@ -4,6 +4,7 @@ import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import { LNDInvoiceRootParams } from './LNDInvoiceStackParamList';
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -53,9 +54,9 @@ export type DetailViewStackParamList = {
     onChainRequireSend?: boolean;
     selectedWalletID?: string; // Add this parameter to scroll to a specific wallet
   };
-  LNDViewInvoice: { invoice: LightningTransaction; walletID: string };
+  LNDInvoiceRoot: LNDInvoiceRootParams;
+  LNDViewInvoice: { invoice: LightningTransaction | string; walletID: string };
   LNDViewAdditionalInvoiceInformation: { invoiceId: string };
-  LNDViewAdditionalInvoicePreImage: { invoiceId: string };
   Broadcast: object;
   IsItMyAddress: object;
   GenerateWord: undefined;

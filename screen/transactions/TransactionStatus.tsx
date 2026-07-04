@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
@@ -32,7 +32,8 @@ import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import { isOnChainTransaction, isSyntheticOffChainTxKey, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import { resolveLightningInvoiceRow } from '../../blue_modules/lightningInvoiceNavigation';
 
 dayjs.extend(relativeTime);
 
@@ -159,7 +160,9 @@ const TransactionStatus: React.FC = () => {
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
+  const navigation = useNavigation<NavigationProps>();
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
+  const lightningRedirectedRef = useRef(false);
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
@@ -326,11 +329,26 @@ const TransactionStatus: React.FC = () => {
     }
   }, [initialTx, tx]);
 
+  // Misrouted Lightning rows (e.g. Ark legs with a synthetic `ark-` hash) belong on LNDViewInvoice.
+  useEffect(() => {
+    if (lightningRedirectedRef.current || !walletID || !tx) return;
+    const walletForTx = subscribedWallet ?? wallets.find(w => w.getID() === walletID);
+    if (!walletForTx) return;
+
+    const invoiceRow = resolveLightningInvoiceRow(tx, walletForTx);
+    if (!invoiceRow) return;
+
+    lightningRedirectedRef.current = true;
+    navigation.replace('LNDViewInvoice', { invoice: invoiceRow, walletID });
+  }, [tx, walletID, subscribedWallet, wallets, navigation]);
+
   // Load transaction data from subscribed wallet and Electrum
   useEffect(() => {
     if (subscribedWallet && hash) {
       const transactions = subscribedWallet.getTransactions();
-      const newTx = transactions.find((t: Transaction) => t.hash === hash);
+      const newTx = transactions.find(
+        (t: Transaction) => t.hash === hash || (t as { txid?: string }).txid === hash,
+      );
       if (newTx) {
         setTX(newTx);
         // Extract from/to addresses
@@ -346,6 +364,8 @@ const TransactionStatus: React.FC = () => {
         }
         setFrom(newFrom);
         setTo(newTo);
+
+        if (isSyntheticOffChainTxKey(hash)) return;
 
         // Also fetch from Electrum to get complete transaction data including fee
         // For received transactions, we need to populate vin.value by fetching previous transactions
@@ -1155,7 +1175,7 @@ const TransactionStatus: React.FC = () => {
           <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText, styles.sectionTitleTextFlexible]}>
             {loc.transactions.details_section}
           </BlueText>
-          {tx?.hash && (
+          {tx?.hash && !isSyntheticOffChainTxKey(tx.hash) && (
             <TouchableOpacity
               onPress={handleOpenBlockExplorer}
               style={[styles.explorerButton, stylesHook.explorerButton, scaledStyles.explorerButton]}
@@ -1173,20 +1193,22 @@ const TransactionStatus: React.FC = () => {
           )}
         </View>
         {/* Network Fee */}
-        <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
-          <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_network_fee}</BlueText>
-          <View style={styles.detailValueContainer}>
-            <CopyTextToClipboard
-              text={
-                calculatedFee !== null && calculatedFee !== undefined
-                  ? `${formatBalanceWithoutSuffix(calculatedFee, BitcoinUnit.SATS, true)} sats / ${satoshiToLocalCurrency(calculatedFee)}`
-                  : '-'
-              }
-              style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
-              textAlign="right"
-            />
+        {isOnChainTx && (
+          <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
+            <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_network_fee}</BlueText>
+            <View style={styles.detailValueContainer}>
+              <CopyTextToClipboard
+                text={
+                  calculatedFee !== null && calculatedFee !== undefined
+                    ? `${formatBalanceWithoutSuffix(calculatedFee, BitcoinUnit.SATS, true)} sats / ${satoshiToLocalCurrency(calculatedFee)}`
+                    : '-'
+                }
+                style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
+                textAlign="right"
+              />
+            </View>
           </View>
-        </View>
+        )}
 
         {/* To address - sent transactions only, when exactly one external output (single recipient or rest is change) */}
         {txValue !== null &&
@@ -1222,7 +1244,7 @@ const TransactionStatus: React.FC = () => {
           })()}
 
         {/* Transaction ID - display shortened so it stays on one line on Android; copy still gets full hash */}
-        {tx.hash && (
+        {tx.hash && !isSyntheticOffChainTxKey(tx.hash) && (
           <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
@@ -1280,6 +1302,7 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* Advanced Section */}
+      {isOnChainTx && (
       <View style={[styles.detailsCard, stylesHook.detailsCard]}>
         <TouchableOpacity
           onPress={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
@@ -1384,6 +1407,7 @@ const TransactionStatus: React.FC = () => {
           </View>
         )}
       </View>
+      )}
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
       {wallet && parsedConfirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}

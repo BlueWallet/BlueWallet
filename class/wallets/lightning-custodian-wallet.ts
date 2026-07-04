@@ -176,6 +176,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.user_invoices_raw = json.sort(function (a: { timestamp: number }, b: { timestamp: number }) {
       return a.timestamp - b.timestamp;
     });
+    this._lastTxFetch = +new Date();
 
     return this.user_invoices_raw;
   }

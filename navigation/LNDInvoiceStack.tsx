@@ -1,46 +1,26 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
+import { LNDInvoiceStackParamList } from './LNDInvoiceStackParamList';
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<LNDInvoiceStackParamList>();
 
-const LNDCreateInvoice = lazy(() => import('../screen/lnd/lndCreateInvoice'));
-const SelectWallet = lazy(() => import('../screen/wallets/SelectWallet'));
 const LNDReceiveInvoice = lazy(() => import('../screen/lnd/lndReceiveInvoice'));
 const LNDViewInvoice = lazy(() => import('../screen/lnd/lndViewInvoice'));
 const Success = lazy(() => import('../screen/send/success'));
-const ScanQRCode = lazy(() => import('../screen/send/ScanQRCode'));
 
-const LNDCreateInvoiceComponent = withLazySuspense(LNDCreateInvoice);
-const SelectWalletComponent = withLazySuspense(SelectWallet);
 const LNDReceiveInvoiceComponent = withLazySuspense(LNDReceiveInvoice);
 const LNDViewInvoiceComponent = withLazySuspense(LNDViewInvoice);
 const SuccessComponent = withLazySuspense(Success);
-const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 
-const LNDCreateInvoiceRoot = () => {
+const LNDInvoiceRoot = () => {
   const theme = useTheme();
 
   return (
     <Stack.Navigator screenOptions={{ headerShadowVisible: false }}>
-      <Stack.Screen
-        name="LNDCreateInvoice"
-        component={LNDCreateInvoiceComponent}
-        options={navigationStyle({
-          title: loc.receive.header,
-          closeButtonPosition: CloseButtonPosition.Right,
-          headerBackVisible: false,
-          statusBarStyle: 'light',
-        })(theme)}
-      />
-      <Stack.Screen
-        name="SelectWallet"
-        component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
-      />
       <Stack.Screen
         name="LNDReceiveInvoice"
         component={LNDReceiveInvoiceComponent}
@@ -67,18 +47,8 @@ const LNDCreateInvoiceRoot = () => {
         component={SuccessComponent}
         options={navigationStyle({ headerShown: false, gestureEnabled: false })(theme)}
       />
-      <Stack.Screen
-        name="ScanQRCode"
-        component={ScanQRCodeComponent}
-        options={navigationStyle({
-          headerShown: false,
-          statusBarHidden: true,
-          presentation: 'fullScreenModal',
-          headerShadowVisible: false,
-        })(theme)}
-      />
     </Stack.Navigator>
   );
 };
 
-export default LNDCreateInvoiceRoot;
+export default LNDInvoiceRoot;
