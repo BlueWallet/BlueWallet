@@ -697,10 +697,22 @@ const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
         };
       }
 
+      const renderCloseRight = () => (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc._.close}
+          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+          onPress={navigation.goBack}
+          testID="NavigationCloseButton"
+        >
+          <Image source={theme.closeImage} />
+        </Pressable>
+      );
+
       return {
         ...options,
         headerLeft: emptyLeft,
-        headerRight: options.headerLeft,
+        headerRight: renderCloseRight,
         unstable_headerLeftItems: () => [],
         unstable_headerRightItems: options.unstable_headerLeftItems,
       };
