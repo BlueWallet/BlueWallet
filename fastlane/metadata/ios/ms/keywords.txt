@@ -1,1 +1,1 @@
-bitcoin,dompet,dompet bitcoin ,rabong,btc,kriptowang,beli bitcoin,samourai,electrum,ethereum
+bitcoin,dompet,dompet bitcoin,rantaian blok,btc,mata wang kripto,lightning,segwit,multisig,electrum

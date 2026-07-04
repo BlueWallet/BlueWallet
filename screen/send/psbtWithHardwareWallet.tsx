@@ -198,7 +198,7 @@ const PsbtWithHardwareWallet = () => {
       <View style={[styles.rootPadding, stylesHook.rootPadding]}>
         <BlueCard style={[styles.hexWrap, stylesHook.hexWrap]}>
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
-          <TextInput style={[styles.hexInput, stylesHook.hexInput]} multiline editable value={txHex} />
+          <TextInput style={[styles.hexInput, stylesHook.hexInput]} multiline editable={false} value={txHex} />
 
           <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
@@ -342,13 +342,17 @@ const styles = StyleSheet.create({
   hexWrap: {
     alignItems: 'center',
     flex: 1,
+    width: '100%',
   },
   hexLabel: {
     fontWeight: '500',
   },
   hexInput: {
+    alignSelf: 'stretch',
     borderRadius: 4,
     marginTop: 20,
+    maxHeight: 220,
+    minHeight: 120,
     fontWeight: '500',
     fontSize: 14,
     paddingHorizontal: 16,

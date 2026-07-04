@@ -43,4 +43,19 @@ describe('unit - encryption', function () {
     const decrypted = c.decrypt(crypted, 'password');
     assert.deepEqual(data2decrypt, decrypted);
   });
+
+  it('can decrypt a ciphertext produced by the OpenSSL CLI (wire-format check)', () => {
+    // Regenerate this fixture with (copy-pasteable, verified to reproduce the byte string below):
+    //
+    //   { printf 'Salted__\x01\x02\x03\x04\x05\x06\x07\x08'; \
+    //     printf 'hello world this is plaintext' \
+    //       | openssl enc -aes-256-cbc -k mypassword -S 0102030405060708 -md md5; \
+    //   } | base64
+    //
+    // OpenSSL's `enc` only emits the `Salted__` envelope when it picks the salt itself;
+    // passing `-S <hex>` suppresses the header, so we prepend it manually. Pins the
+    // on-disk format against an independent reference beyond crypto-js.
+    const crypted = 'U2FsdGVkX18BAgMEBQYHCMqtJuZaneiHrVN/oMPPLvFplovZbI1K+lulGJn7NAvn';
+    assert.strictEqual(c.decrypt(crypted, 'mypassword'), 'hello world this is plaintext');
+  });
 });

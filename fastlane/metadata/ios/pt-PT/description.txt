@@ -1,45 +1,56 @@
-Uma carteira de Bitcoin que permite guardar, enviar Bitcoin, receber Bitcoin e comprar Bitcoin, focada na segurança e simplicidade.
+A BlueWallet é uma carteira de Bitcoin radicalmente simples, poderosa e segura. Guarda, envia e recebe Bitcoin mantendo o controlo total — as tuas chaves, as tuas moedas.
 
-Com a BlueWallet, uma Carteira de Bitcoin em que controlas as chaves privadas. Uma Carteira de Bitcoin criada por utilizadores de Bitcoin para a comunidade.
+Gratuita e de código aberto, criada por utilizadores de Bitcoin para a comunidade. Faz transações com qualquer pessoa no mundo e assume o controlo do teu dinheiro, diretamente do teu bolso. Cria carteiras ilimitadas gratuitamente ou importa uma já existente — é rápido e simples.
 
-Podes fazer transações com qualquer pessoa no mundo e transformar o sistema financeiro directamente do teu bolso.
+_____
 
-Podes criar gratuitamente uma quantidade ilimitada de carteiras de Bitcoin ou importar as carteiras que já tens para a tua app BlueWallet. É fácil e rápido!
+SEGURANÇA DESDE A CONCEÇÃO
 
----
+Código aberto
+Licença MIT — audita-a, compila-a e executa-a por ti próprio. Feita com React Native.
 
-O que vais encontrar:
+As tuas chaves, as tuas moedas
+As chaves privadas (a tua seed) nunca saem do teu dispositivo. Tens sempre o controlo.
 
-1 - Segurança em primeiro lugar
-
-Código aberto/Open Source
-Com licença MIT, podes construí-la e executá-la por conta própria. Feita em React Native.
-
-Negação plausível
-Password que decripta carteiras falsas. Para casos especias onde possas ser obrigado a revelar a sua password, podes revelar a password falsa. Matem as tuas bitcoin protegidas.
+Cofre Multiassinatura
+A melhor segurança disponível no Bitcoin — são necessárias várias chaves para gastar, tal como num cofre real.
 
 Encriptação completa
-Construída em cima da multi-camada criptografica do iOS, A BlueWallet encripta tudo com uma password adicional.
+Além da encriptação do dispositivo, tudo é encriptado novamente com a tua própria palavra-passe.
 
-Carteiras SegWit e HD
-SegWit suportado (Ajuda a diminuir as fees ainda mais) e carteiras HD activadas.
+Negação plausível
+Define uma palavra-passe falsa que abre carteiras falsas caso sejas alguma vez forçado a desbloquear.
 
-2 - Focada na tua experiência
+_____
 
-Sempre em control
-As chaves privadas nunca deixam o telemóvel, controlas as tuas chaves privadas.
+PODER E CONTROLO
 
-Fees flexíveis
-A começar em 1 Satoshi. Não pages a mais por transações.
+Carteiras modernas
+Carteiras HD com suporte total para endereços Legacy, SegWit e Taproot.
 
-Substituição de Fee (RBF)
-Acelera as tuas transacções aumentando a fee (BIP125). Podes também alterar o endereço de destinatário em transações não confirmadas.
+Carteiras de hardware
+Emparelha a Coldcard, a Keystone e outros assinadores PSBT, e mantém as tuas moedas em cold storage.
 
-Carteira Watch-only
-Carteira de Watch-only/ver apenas, observa o teu cold storage de Bitcoin sem ter de lhe tocar.
+Carteiras só de observação
+Vigia o teu cold storage sem nunca expores as tuas chaves privadas.
 
-Lightning Network
-Carteira Lightning sem configurações. Transacções baratas e ultra rápidas com a melhor experiência do Bitcoin.
+Executa o teu próprio nó
+Liga-te ao teu próprio nó completo de Bitcoin através de Electrum e encaminha a tua ligação através de Tor.
 
-Comprar Bitcoin
-Agora já podes comprar Bitcoin directamente sem sair da tua carteira e com as tuas chaves privadas.
+Controlo de moedas
+Vê, etiqueta e congela as tuas moedas (UTXOs) para construir transações exatamente como queres.
+
+Taxas flexíveis
+Define a tua própria taxa, até 1 sat/vByte. Acelera transações presas com RBF ou CPFP, ou cancela-as.
+
+_____
+
+LIGHTNING NETWORK
+
+Pagamentos absurdamente baratos e extremamente rápidos sem qualquer configuração. Paga e recebe pagamentos com endereços Lightning e LNURL.
+
+_____
+
+Disponível em iOS, Android e macOS. Várias moedas e idiomas. Modo escuro. Sem contas e sem rastreio — apenas Bitcoin.
+
+BlueWallet — sê dono do teu Bitcoin.

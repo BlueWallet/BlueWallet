@@ -1,0 +1,1 @@
+bitcoin,ví,ví bitcoin,blockchain,btc,tiền điện tử,lightning,segwit,multisig,electrum

@@ -10,6 +10,8 @@ import {
   checkPermissions,
   checkNotificationPermissionStatus,
   enqueueTestPushNotification,
+  setRedactNotifications,
+  isNotificationsRedacted,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
 } from '../../blue_modules/notifications';
 import presentAlert from '../../components/Alert';
@@ -38,6 +40,7 @@ interface SettingItem extends SettingsListItemProps {
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsEnabledState, setNotificationsEnabledState] = useState<boolean | undefined>(undefined);
+  const [isRedactedState, setRedactedState] = useState(false);
 
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [tapCount, setTapCount] = useState(0);
@@ -107,6 +110,17 @@ const NotificationSettings: React.FC = () => {
     [showNotificationPermissionAlert, setNotificationsEnabledState],
   );
 
+  const onRedactSwitch = useCallback(async (value: boolean) => {
+    setRedactedState(value);
+    try {
+      await setRedactNotifications(value);
+    } catch (error) {
+      console.error(error);
+      presentAlert({ message: (error as Error).message });
+      setRedactedState(!value); // revert on failure
+    }
+  }, []);
+
   const updateNotificationStatus = async () => {
     try {
       const currentStatus = await checkNotificationPermissionStatus();
@@ -133,6 +147,7 @@ const NotificationSettings: React.FC = () => {
           setNotificationsEnabledState(false);
         } else {
           await updateNotificationStatus();
+          setRedactedState(await isNotificationsRedacted());
         }
 
         setTokenInfo(
@@ -235,6 +250,22 @@ const NotificationSettings: React.FC = () => {
         Component: View,
         section: 1,
       },
+      ...(isNotificationsEnabledState
+        ? [
+            {
+              id: 'redactNotifications',
+              title: loc.notifications.redact_notifications,
+              subtitle: loc.notifications.redact_notifications_subtitle,
+              switch: {
+                value: isRedactedState,
+                onValueChange: onRedactSwitch,
+                disabled: isLoading,
+              },
+              Component: View,
+              section: 1,
+            },
+          ]
+        : []),
       {
         id: 'notificationsExplanation',
         title: '',
@@ -271,6 +302,8 @@ const NotificationSettings: React.FC = () => {
   }, [
     isNotificationsEnabledState,
     onNotificationsSwitch,
+    isRedactedState,
+    onRedactSwitch,
     isLoading,
     renderDeveloperSettings,
     renderPushNotificationsExplanation,

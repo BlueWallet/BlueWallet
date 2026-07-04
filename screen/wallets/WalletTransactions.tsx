@@ -33,6 +33,7 @@ import presentAlert, { AlertType } from '../../components/Alert';
 import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
+import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -437,11 +438,17 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     [name, navigate, navigation, onWalletSelect, walletID, wallets],
   );
 
-  const getItemLayout = (_: any, index: number) => ({
-    length: 64,
-    offset: 64 * index,
-    index,
-  });
+  const { fontScale } = useWindowDimensions();
+  const txRowHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
+
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: txRowHeight,
+      offset: txRowHeight * index,
+      index,
+    }),
+    [txRowHeight],
+  );
 
   const renderItem = useCallback(
     // react/no-unused-prop-types misfires on inline arrow renderers: it reads the
