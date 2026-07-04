@@ -186,18 +186,21 @@ const DetailViewStackScreensStack = () => {
   }, [navigation]);
 
   const renderManageWalletsHeaderLeft = useCallback(
-    () => (
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={loc._.close}
-        style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-        onPress={navigation.goBack}
-        testID="NavigationCloseButton"
-      >
-        <Image source={theme.closeImage} />
-      </Pressable>
-    ),
-    [navigation.goBack, theme.closeImage],
+    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
+      ...options,
+      headerLeft: () => (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc._.close}
+          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+          onPress={screenNavigation.goBack}
+          testID="NavigationCloseButton"
+        >
+          <Image source={theme.closeImage} />
+        </Pressable>
+      ),
+    }),
+    [theme.closeImage],
   );
 
   const walletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
@@ -580,16 +583,18 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ManageWallets"
           component={ManageWallets}
-          options={navigationStyle({
-            presentation: 'fullScreenModal',
-            title: loc.wallets.manage_title,
-            headerShown: true,
-            headerLeft: renderManageWalletsHeaderLeft,
-            headerRight: undefined,
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
+          options={navigationStyle(
+            {
+              presentation: 'fullScreenModal',
+              title: loc.wallets.manage_title,
+              headerShown: true,
+              headerRight: undefined,
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
             },
-          })(theme)}
+            renderManageWalletsHeaderLeft,
+          )(theme)}
         />
         <DetailViewStack.Screen
           name="ReceiveDetails"
