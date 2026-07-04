@@ -9,9 +9,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   } as ViewStyle,
   ballIncoming: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     transform: [{ rotate: '-45deg' }],
     justifyContent: 'center',
     alignItems: 'center',

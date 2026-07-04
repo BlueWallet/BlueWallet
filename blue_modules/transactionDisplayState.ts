@@ -23,17 +23,23 @@ export function formatConfirmationsForDisplay(confirmations: unknown): string | 
   return parsed > 6 ? '6+' : String(parsed);
 }
 
+export function resolveTransactionNoteMetadataKey(
+  tx: { hash?: string; txid?: string } | null | undefined,
+): string | undefined {
+  if (!tx) return undefined;
+  const txid = tx.txid;
+  // Ark refills keep the synthetic boarding- id as the note key (not the on-chain hash).
+  if (typeof txid === 'string' && txid.startsWith('boarding-')) return txid;
+  return tx.hash ?? txid;
+}
+
 export function resolveTransactionNote(
   tx: { hash?: string; txid?: string; memo?: string } | null | undefined,
   txMetadata: Record<string, { memo?: string } | undefined>,
 ): { metadataKey: string | undefined; memo: string } {
   if (!tx) return { metadataKey: undefined, memo: '' };
-  const metadataKey = tx.hash ?? tx.txid;
-  const txidKey = tx.txid;
-  const saved =
-    (metadataKey && txMetadata[metadataKey]?.memo) ||
-    (txidKey && txidKey !== metadataKey && txMetadata[txidKey]?.memo) ||
-    '';
+  const metadataKey = resolveTransactionNoteMetadataKey(tx);
+  const saved = (metadataKey && txMetadata[metadataKey]?.memo) || '';
   return { metadataKey, memo: (saved || tx.memo || '').trim() };
 }
 

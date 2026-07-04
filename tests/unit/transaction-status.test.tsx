@@ -311,7 +311,7 @@ describe('TransactionStatus regression', () => {
     expect(BlueElectrum.multiGetTransactionByTxid).not.toHaveBeenCalled();
   });
 
-  it('when editing a note on a refill with no saved metadata, prefills from tx.memo', async () => {
+  it('when editing a note on a refill, saves under the boarding- txid key', async () => {
     const refillRow = {
       txid: 'boarding-deadbeef',
       hash: 'deadbeef',
@@ -334,7 +334,7 @@ describe('TransactionStatus regression', () => {
     mockStorageState = { ...mockStorageState, wallets: [walletMock] };
     mockWalletSubscribe = walletMock;
 
-    mockPrompt.mockResolvedValue(undefined);
+    mockPrompt.mockResolvedValue('My refill note');
 
     const view = render(<TransactionStatus />);
 
@@ -346,10 +346,12 @@ describe('TransactionStatus regression', () => {
 
     await waitFor(() => {
       expect(mockPrompt).toHaveBeenCalledWith('Note to Self', '', { type: 'plain-text', defaultValue: 'Refill' });
+      expect(mockStorageState.txMetadata['boarding-deadbeef']).toEqual({ memo: 'My refill note' });
+      expect(mockStorageState.txMetadata.deadbeef).toBeUndefined();
     });
   });
 
-  it('reads a note saved under the legacy boarding- txid key', async () => {
+  it('reads a note saved under the boarding- txid key', async () => {
     const refillRow = {
       txid: 'boarding-deadbeef',
       hash: 'deadbeef',

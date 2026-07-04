@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import { isOnChainTransaction, resolveTransactionNote, resolveTransactionNoteMetadataKey, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
 
 describe('transactionDisplayState', () => {
   describe('isOnChainTransaction', () => {
@@ -11,6 +11,39 @@ describe('transactionDisplayState', () => {
       assert.strictEqual(isOnChainTransaction({}), false);
       assert.strictEqual(isOnChainTransaction(null), false);
       assert.strictEqual(isOnChainTransaction(undefined), false);
+    });
+  });
+
+  describe('resolveTransactionNoteMetadataKey', () => {
+    it('uses the boarding- txid for Ark refills, not the on-chain hash', () => {
+      assert.strictEqual(
+        resolveTransactionNoteMetadataKey({ txid: 'boarding-deadbeef', hash: 'deadbeef' }),
+        'boarding-deadbeef',
+      );
+    });
+
+    it('uses hash for normal on-chain rows', () => {
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'abc', hash: 'deadbeef' }), 'deadbeef');
+    });
+
+    it('falls back to txid when hash is missing', () => {
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'ark-deadbeef' }), 'ark-deadbeef');
+    });
+  });
+
+  describe('resolveTransactionNote', () => {
+    it('reads saved notes from the boarding- txid key for refills', () => {
+      const { metadataKey, memo } = resolveTransactionNote(
+        { txid: 'boarding-deadbeef', hash: 'deadbeef', memo: 'Refill' },
+        { 'boarding-deadbeef': { memo: 'My note' } },
+      );
+      assert.strictEqual(metadataKey, 'boarding-deadbeef');
+      assert.strictEqual(memo, 'My note');
+    });
+
+    it('falls back to row memo when no saved note exists', () => {
+      const { memo } = resolveTransactionNote({ txid: 'boarding-deadbeef', hash: 'deadbeef', memo: 'Refill' }, {});
+      assert.strictEqual(memo, 'Refill');
     });
   });
 

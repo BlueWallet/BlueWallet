@@ -2,17 +2,11 @@ import React, { memo, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Animated, Easing, Linking, Pressable, Text, TextStyle, ViewStyle, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { resolveTransactionNoteMetadataKey } from '../blue_modules/transactionDisplayState';
 import Lnurl from '../class/lnurl';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
-import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
-import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
-import TransactionLightningIncomingIcon from '../components/icons/TransactionLightningIncomingIcon';
-import TransactionLightningOutgoingIcon from '../components/icons/TransactionLightningOutgoingIcon';
-import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
-import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
-import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
-import TransactionRefillIcon from '../components/icons/TransactionRefillIcon';
+import TransactionListIcon, { resolveTransactionListIconVariant } from '../components/icons/TransactionListIcon';
 import loc, { formatBalanceWithoutSuffix, formatTransactionListDate, transactionTimeToReadable } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useSettings } from '../hooks/context/useSettings';
@@ -151,7 +145,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   if (item.counterparty) {
     counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
   }
-  const metadataKey = item.hash ?? (item as { txid?: string }).txid;
+  const metadataKey = resolveTransactionNoteMetadataKey(item);
   const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (metadataKey ? (txMetadata[metadataKey]?.memo ?? '') : '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
 
@@ -274,88 +268,29 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   ]);
 
   const determineTransactionTypeAndAvatar = () => {
-    // A refill awaiting settlement: show it as pending, not as a completed receive.
-    if (isPendingRefill) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    }
+    const iconVariant = resolveTransactionListIconVariant({ item, arkRowKind, isPendingRefill });
 
-    if (item.category === 'receive' && item.confirmations! < 3) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    }
-
-    if (arkRowKind === 'Refill') {
-      return {
-        label: loc.transactions.incoming_transaction,
-        icon: <TransactionRefillIcon />,
-      };
-    }
-
-    // Arkade Lightning legs are bitcoind_tx but represent Boltz swaps — on-chain
-    // send/receive arrows with a small Lightning bolt badge.
-    if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
-      return item.value! < 0
-        ? { label: loc.transactions.outgoing_transaction, icon: <TransactionLightningOutgoingIcon /> }
-        : { label: loc.transactions.incoming_transaction, icon: <TransactionLightningIncomingIcon /> };
-    }
-
-    if (item.type && item.type === 'bitcoind_tx') {
-      return {
-        label: loc.transactions.onchain,
-        icon: <TransactionOnchainIcon />,
-      };
-    }
-
+    let label: string;
     if (item.type === 'paid_invoice') {
-      return {
-        label: loc.transactions.offchain,
-        icon: <TransactionLightningOutgoingIcon />,
-      };
-    }
-
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
-      if (!item.ispaid && invoiceExpiration < now) {
-        return {
-          label: loc.transactions.expired_transaction,
-          icon: <TransactionExpiredIcon />,
-        };
-      } else if (!item.ispaid) {
-        return {
-          label: loc.transactions.expired_transaction,
-          icon: <TransactionPendingIcon />,
-        };
-      } else {
-        return {
-          label: loc.transactions.incoming_transaction,
-          icon: <TransactionLightningIncomingIcon />,
-        };
-      }
-    }
-
-    if (!item.confirmations) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    } else if (item.value! < 0) {
-      return {
-        label: loc.transactions.outgoing_transaction,
-        icon: <TransactionOutgoingIcon />,
-      };
+      label = loc.transactions.offchain;
+    } else if (iconVariant === 'expired') {
+      label = loc.transactions.expired_transaction;
+    } else if (iconVariant === 'pending' && (item.type === 'user_invoice' || item.type === 'payment_request') && !item.ispaid) {
+      label = loc.transactions.expired_transaction;
+    } else if (iconVariant === 'pending') {
+      label = loc.transactions.pending_transaction;
+    } else if (iconVariant === 'onchain') {
+      label = loc.transactions.onchain;
+    } else if (iconVariant === 'outgoing' || iconVariant === 'lightning-outgoing') {
+      label = loc.transactions.outgoing_transaction;
     } else {
-      return {
-        label: loc.transactions.incoming_transaction,
-        icon: <TransactionIncomingIcon />,
-      };
+      label = loc.transactions.incoming_transaction;
     }
+
+    return {
+      label,
+      icon: <TransactionListIcon variant={iconVariant} />,
+    };
   };
 
   const { label: transactionTypeLabel, icon: avatar } = determineTransactionTypeAndAvatar();

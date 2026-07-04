@@ -9,9 +9,9 @@ const styles = StyleSheet.create({
     position: 'relative',
   } as ViewStyle,
   ballOutgoingExpired: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
   } as ViewStyle,
