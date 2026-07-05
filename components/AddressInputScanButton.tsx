@@ -14,7 +14,7 @@ import { scanQrHelper } from '../helpers/scan-qr.ts';
 interface AddressInputScanButtonProps {
   isLoading?: boolean;
   onChangeText: (text: string) => void;
-  type?: 'default' | 'link';
+  type?: 'default' | 'link' | 'compact';
   testID?: string;
   beforePress?: () => Promise<void> | void;
 }
@@ -124,7 +124,15 @@ export const AddressInputScanButton = ({
     [onChangeText],
   );
 
-  const menuButtonStyle = useMemo(() => (type === 'default' ? [styles.scan, stylesHook.scan] : undefined), [stylesHook.scan, type]);
+  const menuButtonStyle = useMemo(() => {
+    if (type === 'default') {
+      return [styles.scan, stylesHook.scan];
+    }
+    if (type === 'compact') {
+      return [styles.compact, stylesHook.scan];
+    }
+    return undefined;
+  }, [stylesHook.scan, type]);
 
   return (
     <ToolTipMenu
@@ -134,7 +142,7 @@ export const AddressInputScanButton = ({
       shouldOpenOnLongPress
       disabled={isLoading}
       onPress={toolTipOnPress}
-      testID={type === 'default' ? testID : undefined}
+      testID={type === 'default' || type === 'compact' ? testID : undefined}
       buttonStyle={menuButtonStyle}
       accessibilityLabel={loc.send.details_scan}
       accessibilityHint={loc.send.details_scan_hint}
@@ -143,6 +151,12 @@ export const AddressInputScanButton = ({
         <View style={styles.scanContent}>
           <Image source={require('../img/scan-white.png')} accessible={false} />
           <Text numberOfLines={1} style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+            {loc.send.details_scan}
+          </Text>
+        </View>
+      ) : type === 'compact' ? (
+        <View style={styles.compactContent}>
+          <Text numberOfLines={1} style={[styles.compactText, stylesHook.scanText]} accessible={false}>
             {loc.send.details_scan}
           </Text>
         </View>
@@ -173,6 +187,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginHorizontal: 4,
     alignSelf: 'center',
+  },
+  compact: {
+    height: 28,
+    minWidth: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    borderRadius: 4,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    marginHorizontal: 2,
+    alignSelf: 'center',
+  },
+  compactContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  compactText: {
+    fontSize: 13,
+    flexShrink: 0,
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   scanText: {
     marginLeft: 4,
