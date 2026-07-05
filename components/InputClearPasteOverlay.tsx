@@ -1,16 +1,20 @@
 import React, { useCallback } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, Text, TextStyle, View } from 'react-native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { AddressInputScanButton } from './AddressInputScanButton';
 import loc from '../loc';
 import { useTheme } from './themes';
+
+interface InputClearPasteOverlayChildProps {
+  style?: StyleProp<TextStyle>;
+}
 
 interface InputClearPasteOverlayProps {
   onClear: () => void;
   onPaste: (text: string) => void;
   onScan: (text: string) => void;
   scanTestID?: string;
-  children: React.ReactElement;
+  children: React.ReactElement<InputClearPasteOverlayChildProps>;
 }
 
 interface InputOverlayActionButtonProps {
