@@ -239,6 +239,7 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
           type: 'menu',
           label: loc.wallets.details_options,
           icon: { type: 'sfSymbol', name: 'ellipsis' },
+          identifier: 'HeaderMenuButton',
           menu: {
             title: loc.wallets.details_options,
             items: nativeHeaderMenuItems,
@@ -280,6 +281,7 @@ const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
           type: 'menu',
           label: loc.wallets.details_options,
           icon: { type: 'sfSymbol', name: 'ellipsis' },
+          identifier: 'HeaderMenuButton',
           menu: {
             title: loc.wallets.details_options,
             items: nativeHeaderMenuItems,
