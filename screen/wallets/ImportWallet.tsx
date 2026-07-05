@@ -1,7 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Keyboard, Platform, ScrollView, StyleSheet, TextInput, TextInputSelectionChangeEvent, TouchableWithoutFeedback, View } from 'react-native';
+import {
+  Keyboard,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TextInputSelectionChangeEvent,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import BlueFormLabel from '../../components/BlueFormLabel';
 import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import Button from '../../components/Button';
@@ -31,7 +40,10 @@ const ImportWallet = () => {
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
   const [importText, setImportText] = useState<string>(label);
-  const [selection, setSelection] = useState({ start: label.length, end: label.length });
+  const [selection, setSelection] = useState({
+    start: label.length,
+    end: label.length,
+  });
   const { isVisible: isKeyboardVisible, screenY: keyboardScreenY, height: keyboardHeight } = useKeyboard();
   const speedBackdoorTapCountRef = useRef(0);
   const inputRef = useRef<TextInput>(null);
@@ -112,7 +124,9 @@ const ImportWallet = () => {
       setImportText(newText);
       setSelection({ start: newCursor, end: newCursor });
       requestAnimationFrame(() => {
-        inputRef.current?.setNativeProps({ selection: { start: newCursor, end: newCursor } });
+        inputRef.current?.setNativeProps({
+          selection: { start: newCursor, end: newCursor },
+        });
       });
     },
     [importText, selection.start],
@@ -205,8 +219,14 @@ const ImportWallet = () => {
   const toolTipActions = useMemo(() => {
     return [
       { ...CommonToolTipActions.Passphrase, menuState: askPassphraseMenuState },
-      { ...CommonToolTipActions.SearchAccount, menuState: searchAccountsMenuState },
-      { ...CommonToolTipActions.ClearClipboard, menuState: clearClipboardMenuState },
+      {
+        ...CommonToolTipActions.SearchAccount,
+        menuState: searchAccountsMenuState,
+      },
+      {
+        ...CommonToolTipActions.ClearClipboard,
+        menuState: clearClipboardMenuState,
+      },
     ];
   }, [askPassphraseMenuState, clearClipboardMenuState, searchAccountsMenuState]);
 
@@ -246,8 +266,6 @@ const ImportWallet = () => {
     </>
   );
 
-  const showAndroidKeyboardAccessory = isKeyboardVisible;
-
   return (
     <View ref={screenRef} onLayout={updateAnchorPosition} style={styles.screen}>
       <SafeArea style={styles.safeArea} ignoreTopInset>
@@ -258,32 +276,30 @@ const ImportWallet = () => {
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
           contentInsetAdjustmentBehavior="never"
         >
-        <BlueSpacing20 />
-        <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
-          <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
-        </TouchableWithoutFeedback>
-        <BlueSpacing20 />
-        <InputClearPasteOverlay onClear={handleClearTapped} onPaste={handlePasteTapped} onScan={onBarScanned} scanTestID="ScanImport">
-          <BlueFormMultiInput
-            ref={inputRef}
-            value={importText}
-            onBlur={onBlur}
-            onChangeText={setImportText}
-            onSelectionChange={handleSelectionChange}
-            testID="MnemonicInput"
-            numberOfLines={12}
-            style={styles.importInput}
-            inputAccessoryViewID={ImportWalletKeyboardAccessoryViewID}
-          />
-        </InputClearPasteOverlay>
+          <BlueSpacing20 />
+          <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
+            <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
+          </TouchableWithoutFeedback>
+          <BlueSpacing20 />
+          <InputClearPasteOverlay onClear={handleClearTapped} onPaste={handlePasteTapped} onScan={onBarScanned} scanTestID="ScanImport">
+            <BlueFormMultiInput
+              ref={inputRef}
+              value={importText}
+              onBlur={onBlur}
+              onChangeText={setImportText}
+              onSelectionChange={handleSelectionChange}
+              testID="MnemonicInput"
+              numberOfLines={12}
+              style={styles.importInput}
+              inputAccessoryViewID={ImportWalletKeyboardAccessoryViewID}
+            />
+          </InputClearPasteOverlay>
 
-        {renderOptionsAndImportButton}
+          {renderOptionsAndImportButton}
         </ScrollView>
-        {Platform.OS === 'ios' && (
-          <ImportWalletKeyboardAccessory suggestions={suggestions} onSuggestionTapped={handleSuggestionTapped} />
-        )}
+        {Platform.OS === 'ios' && <ImportWalletKeyboardAccessory suggestions={suggestions} onSuggestionTapped={handleSuggestionTapped} />}
       </SafeArea>
-      {Platform.OS === 'android' && showAndroidKeyboardAccessory && keyboardHeight > 0 && (
+      {Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0 && (
         <ImportWalletKeyboardAccessory
           suggestions={suggestions}
           onSuggestionTapped={handleSuggestionTapped}

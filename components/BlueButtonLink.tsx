@@ -1,17 +1,18 @@
 import React, { forwardRef } from 'react';
-import { Pressable, PressableProps, StyleSheet, Text } from 'react-native';
+import { Pressable, PressableProps, StyleSheet, Text, TextStyle } from 'react-native';
 
 import { useTheme } from './themes';
 
 interface BlueButtonLinkProps extends PressableProps {
   title: string;
+  titleStyle?: TextStyle;
 }
 
-const BlueButtonLink = forwardRef<React.ElementRef<typeof Pressable>, BlueButtonLinkProps>((props, ref) => {
+const BlueButtonLink = forwardRef<React.ElementRef<typeof Pressable>, BlueButtonLinkProps>(({ title, titleStyle, ...props }, ref) => {
   const { colors } = useTheme();
   return (
     <Pressable accessibilityRole="button" style={({ pressed }) => [styles.blueButtonLink, pressed && styles.pressed]} {...props} ref={ref}>
-      <Text style={[styles.blueButtonLinkText, { color: colors.foregroundColor }]}>{props.title}</Text>
+      <Text style={[styles.blueButtonLinkText, { color: colors.foregroundColor }, titleStyle]}>{title}</Text>
     </Pressable>
   );
 });

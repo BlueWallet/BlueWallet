@@ -7,6 +7,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useColorScheme,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -18,6 +19,32 @@ import { withAlpha } from './color';
 
 const FADE_WIDTH = 24;
 const BAR_HEIGHT = 44;
+
+/**
+ * Edge-to-edge Android: extra lift above IME-reported keyboard top so the bar sits on the visible keys.
+ * Tune on device: increase if the bar hides behind the keyboard, decrease if it floats with a gap.
+ */
+const ANDROID_KEYBOARD_TOP_EXTRA_OFFSET = 24;
+
+function computeAndroidAccessoryTop(
+  keyboardTop: number,
+  anchorScreenY: number,
+  barHeight: number = BAR_HEIGHT,
+  extraOffset: number = ANDROID_KEYBOARD_TOP_EXTRA_OFFSET,
+): number {
+  return keyboardTop - anchorScreenY - barHeight - extraOffset;
+}
+
+function computeKeyboardTop(keyboardScreenY: number, keyboardHeight: number, windowHeight: number): number {
+  if (keyboardHeight <= 0) {
+    return keyboardScreenY;
+  }
+  const topFromHeight = windowHeight - keyboardHeight;
+  if (keyboardScreenY <= 0) {
+    return topFromHeight;
+  }
+  return Math.min(keyboardScreenY, topFromHeight);
+}
 
 interface ImportWalletKeyboardAccessoryProps {
   suggestions: string[];
@@ -43,16 +70,24 @@ const ImportWalletKeyboardAccessory: React.FC<ImportWalletKeyboardAccessoryProps
 }) => {
   const { height: windowHeight } = useWindowDimensions();
   const { colors } = useTheme();
+  const isAndroid = Platform.OS === 'android';
+  const isDark = useColorScheme() === 'dark';
 
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.inputBackgroundColor,
     },
     chip: {
-      backgroundColor: withAlpha(colors.shadowColor, 0.06),
+      backgroundColor: isDark ? colors.buttonDisabledBackgroundColor : withAlpha(colors.shadowColor, 0.06),
     },
     chipText: {
-      color: colors.alternativeTextColor,
+      color: isDark ? colors.buttonDisabledTextColor : colors.alternativeTextColor,
+      fontSize: isDark ? 15 : 13,
+      fontWeight: isDark ? '500' : '400',
+      textAlign: 'center',
+    },
+    androidSeparator: {
+      borderTopColor: colors.formBorder,
     },
   });
 
@@ -65,20 +100,18 @@ const ImportWalletKeyboardAccessory: React.FC<ImportWalletKeyboardAccessoryProps
     [colors.inputBackgroundColor],
   );
 
-  // On edge-to-edge Android, screenY can sit below the visible keyboard top; derive from window height when possible.
   const keyboardTop = useMemo(() => {
-    if (Platform.OS !== 'android' || keyboardHeight <= 0) {
-      return keyboardScreenY;
+    if (!isAndroid) {
+      return 0;
     }
-    const topFromHeight = windowHeight - keyboardHeight;
-    if (keyboardScreenY <= 0) {
-      return topFromHeight;
-    }
-    return Math.min(keyboardScreenY, topFromHeight);
-  }, [keyboardHeight, keyboardScreenY, windowHeight]);
+    return computeKeyboardTop(keyboardScreenY, keyboardHeight, windowHeight);
+  }, [isAndroid, keyboardHeight, keyboardScreenY, windowHeight]);
 
   const inputView = (
-    <View style={[styles.root, stylesHook.root]} testID="ImportWalletKeyboardAccessoryBar">
+    <View
+      style={[styles.root, isAndroid ? styles.rootAndroid : styles.rootIOS, isAndroid && stylesHook.androidSeparator, stylesHook.root]}
+      testID="ImportWalletKeyboardAccessoryBar"
+    >
       <View style={styles.suggestionsContainer}>
         <ScrollView
           horizontal
@@ -96,7 +129,7 @@ const ImportWalletKeyboardAccessory: React.FC<ImportWalletKeyboardAccessoryProps
               onPress={() => onSuggestionTapped(word)}
               style={({ pressed }) => [styles.chip, stylesHook.chip, pressed && styles.chipPressed]}
             >
-              <Text style={[styles.chipText, stylesHook.chipText]}>{word}</Text>
+              <Text style={stylesHook.chipText}>{word}</Text>
             </Pressable>
           ))}
         </ScrollView>
@@ -108,17 +141,21 @@ const ImportWalletKeyboardAccessory: React.FC<ImportWalletKeyboardAccessoryProps
         </View>
       </View>
       <View style={styles.right}>
-        <BlueButtonLink style={styles.done} title={loc.send.input_done} onPress={onDone} />
+        <BlueButtonLink
+          style={isAndroid ? styles.doneAndroid : styles.doneIOS}
+          titleStyle={styles.doneTitle}
+          title={loc.send.input_done}
+          onPress={onDone}
+        />
       </View>
     </View>
   );
 
-  if (Platform.OS === 'ios') {
+  if (!isAndroid) {
     return <InputAccessoryView nativeID={ImportWalletKeyboardAccessoryViewID}>{inputView}</InputAccessoryView>;
   }
 
-  // Edge-to-edge Android: keyboardTop tracks the IME frame, not the visible key row — needs 2× bar height offset.
-  const androidTop = keyboardTop - anchorScreenY - BAR_HEIGHT * 2;
+  const androidTop = computeAndroidAccessoryTop(keyboardTop, anchorScreenY);
 
   return (
     <View pointerEvents="box-none" style={[styles.androidFloating, { top: androidTop, height: BAR_HEIGHT }]}>
@@ -131,18 +168,23 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     flexDirection: 'row',
-    maxHeight: 44,
+    maxHeight: BAR_HEIGHT,
     alignItems: 'center',
+    overflow: 'hidden',
+  },
+  rootIOS: {
     marginHorizontal: 8,
     marginBottom: 4,
     borderRadius: 20,
-    overflow: 'hidden',
+  },
+  rootAndroid: {
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
   suggestionsContainer: {
     flex: 1,
     flexShrink: 1,
     minWidth: 0,
-    height: 44,
+    height: BAR_HEIGHT,
     position: 'relative',
     overflow: 'hidden',
   },
@@ -177,7 +219,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 8,
     gap: 6,
-    minHeight: 44,
+    minHeight: BAR_HEIGHT,
   },
   chip: {
     borderRadius: 20,
@@ -187,21 +229,25 @@ const styles = StyleSheet.create({
   chipPressed: {
     opacity: 0.6,
   },
-  chipText: {
-    fontSize: 15,
-    fontWeight: '500',
-  },
   right: {
     flexShrink: 0,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
   },
-  done: {
+  doneIOS: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    minHeight: 44,
+    minHeight: BAR_HEIGHT,
     justifyContent: 'center',
+  },
+  doneAndroid: {
+    paddingHorizontal: 16,
+    minHeight: BAR_HEIGHT,
+    justifyContent: 'center',
+  },
+  doneTitle: {
+    fontWeight: '500',
   },
   androidFloating: {
     position: 'absolute',
