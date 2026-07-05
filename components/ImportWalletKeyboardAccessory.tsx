@@ -17,7 +17,6 @@ import loc from '../loc';
 import { useTheme } from './themes';
 import { withAlpha } from './color';
 
-const FADE_WIDTH = 24;
 const BAR_HEIGHT = 44;
 
 /**
@@ -82,8 +81,8 @@ const ImportWalletKeyboardAccessory: React.FC<ImportWalletKeyboardAccessoryProps
     },
     chipText: {
       color: isDark ? colors.buttonDisabledTextColor : colors.alternativeTextColor,
-      fontSize: isDark ? 15 : 13,
-      fontWeight: isDark ? '500' : '400',
+      fontSize: 15,
+      fontWeight: '500',
       textAlign: 'center',
     },
     androidSeparator: {
@@ -196,7 +195,7 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    width: FADE_WIDTH,
+    width: 2,
     zIndex: 2,
     elevation: 2,
   },
@@ -205,13 +204,13 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    width: FADE_WIDTH,
+    width: 24,
     zIndex: 2,
     elevation: 2,
   },
   fadeGradient: {
     flex: 1,
-    width: FADE_WIDTH,
+    width: 24,
     height: '100%',
   },
   suggestionsContent: {
@@ -223,8 +222,8 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
   chipPressed: {
     opacity: 0.6,
@@ -242,7 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   doneAndroid: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
     minHeight: BAR_HEIGHT,
     justifyContent: 'center',
   },
