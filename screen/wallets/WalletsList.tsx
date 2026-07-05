@@ -29,6 +29,7 @@ import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scanQrHelper } from '../../helpers/scan-qr';
 import { isIOS26OrHigher } from '../../components/platform';
 
@@ -115,10 +116,11 @@ const WalletsList: React.FC = () => {
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width, fontScale } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const carouselHeight = getWalletCarouselHeight(fontScale);
   const transactionItemHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
   const sectionHeaderHeight = Math.round(SECTION_HEADER_BASE_HEIGHT * fontScale);
-  const floatingButtonHeight = getFloatingButtonReservedHeight(fontScale);
+  const floatingButtonHeight = getFloatingButtonReservedHeight(fontScale, insets.bottom);
   const { colors, scanImage } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
