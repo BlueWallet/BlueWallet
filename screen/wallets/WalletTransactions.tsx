@@ -30,7 +30,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
-import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
+import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
@@ -191,6 +191,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const { colors, dark } = useTheme();
   const { isElectrumDisabled } = useSettings();
   const insets = useSafeAreaInsets();
+  const { fontScale } = useWindowDimensions();
   const navBarHeight = Platform.select({ ios: 44, android: 56, default: 44 }) ?? 44;
   const headerOverlayHeight = insets.top + navBarHeight;
   const walletActionButtonsRef = useRef<View>(null);
@@ -218,6 +219,9 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     },
     backgroundContainer: {
       backgroundColor: colors.background,
+    },
+    contentBottomInset: {
+      paddingBottom: insets.bottom + getFloatingButtonReservedHeight(fontScale, insets.bottom),
     },
     activityIndicatorStyle: {
       backgroundColor: colors.background,
@@ -438,7 +442,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     [name, navigate, navigation, onWalletSelect, walletID, wallets],
   );
 
-  const { fontScale } = useWindowDimensions();
   const txRowHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
 
   const getItemLayout = useCallback(
@@ -839,9 +842,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         renderItem={renderItem}
         initialNumToRender={10}
         removeClippedSubviews={false}
-        contentContainerStyle={[styles.contentContainer, stylesHook.backgroundContainer]}
+        contentContainerStyle={[styles.contentContainer, stylesHook.backgroundContainer, stylesHook.contentBottomInset]}
         contentInsetAdjustmentBehavior="never"
-        contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
         maxToRenderPerBatch={10}
         onScroll={handleScroll}
         windowSize={15}
