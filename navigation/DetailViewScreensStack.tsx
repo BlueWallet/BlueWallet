@@ -1,7 +1,7 @@
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable } from 'react-native';
+import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
@@ -184,6 +184,24 @@ const DetailViewStackScreensStack = () => {
       navigation.navigate('DetailViewStackScreensStack', { screen: 'ElectrumSettings' });
     }
   }, [navigation]);
+
+  const renderManageWalletsHeaderLeft = useCallback(
+    (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
+      ...options,
+      headerLeft: () => (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc._.close}
+          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+          onPress={screenNavigation.goBack}
+          testID="NavigationCloseButton"
+        >
+          <Image source={theme.closeImage} />
+        </Pressable>
+      ),
+    }),
+    [theme.closeImage],
+  );
 
   const walletListScreenOptions = useMemo<NativeStackNavigationOptions>(() => {
     const isUpdating = walletTransactionUpdateStatus !== WalletTransactionsStatus.NONE;
@@ -401,6 +419,7 @@ const DetailViewStackScreensStack = () => {
           component={LNDViewInvoice}
           options={navigationStyle({
             headerTitle: loc.lndViewInvoice.lightning_invoice,
+            headerRight: () => null,
             headerStyle: {
               backgroundColor: theme.colors.customHeader,
             },
@@ -520,7 +539,10 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ElectrumSettings"
           component={ElectrumSettings}
-          options={settingsScreenOptions(loc.settings.electrum_settings_server)}
+          options={navigationStyle(
+            getSettingsHeaderOptions(loc.settings.electrum_settings_server),
+            withRouteParamHeaderOptions({ headerRight: true }),
+          )(theme)}
           initialParams={{ server: undefined }}
         />
         <DetailViewStack.Screen
@@ -561,24 +583,31 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ManageWallets"
           component={ManageWallets}
-          options={navigationStyle({
-            presentation: 'fullScreenModal',
-            title: loc.wallets.manage_title,
-            headerShown: true,
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
+          options={navigationStyle(
+            {
+              presentation: 'fullScreenModal',
+              title: loc.wallets.manage_title,
+              headerShown: true,
+              headerRight: undefined,
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
             },
-          })(theme)}
+            renderManageWalletsHeaderLeft,
+          )(theme)}
         />
         <DetailViewStack.Screen
           name="ReceiveDetails"
           component={ReceiveDetails}
-          options={navigationStyle({
-            title: loc.receive.header,
-            closeButtonPosition: CloseButtonPosition.Left,
-            headerShown: true,
-            presentation: 'modal',
-          })(theme)}
+          options={navigationStyle(
+            {
+              title: loc.receive.header,
+              closeButtonPosition: CloseButtonPosition.Left,
+              headerShown: true,
+              presentation: 'modal',
+            },
+            withRouteParamHeaderOptions({ headerLeft: true, headerRight: true, headerBackVisible: true }),
+          )(theme)}
         />
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
@@ -599,6 +628,15 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = StyleSheet.create({
+  headerIconButton: {
+    minWidth: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerIconButtonPressed: {
+    opacity: 0.6,
+  },
   width24: {
     width: 24,
   },
