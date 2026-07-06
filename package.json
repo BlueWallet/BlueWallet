@@ -49,7 +49,7 @@
     "jest-environment-node": "^29.7.0",
     "patch-package": "^8.0.0",
     "prettier": "^3.2.5",
-    "react-test-renderer": "19.2.7",
+    "react-test-renderer": "19.2.3",
     "ts-jest": "^29.1.1",
     "typescript": "^5.9.3"
   },
@@ -150,7 +150,7 @@
     "payjoin-client": "1.0.1",
     "prop-types": "15.8.1",
     "qr": "0.6.0",
-    "react": "19.2.7",
+    "react": "19.2.3",
     "react-localization": "github:BlueWallet/react-localization#ae7969a",
     "react-native": "0.85.3",
     "react-native-background-fetch": "4.4.2",
