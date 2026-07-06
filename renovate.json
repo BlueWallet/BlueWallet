@@ -5,7 +5,13 @@
     ":disableMajorUpdates",
     ":preserveSemverRanges"
   ],
-  "ignoreDeps": ["react-native"],
+  "ignoreDeps": [
+    "react-native",
+    "react",
+    "react-test-renderer",
+    "react-native-share",
+    "gradle"
+  ],
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 1,
   "prHourlyLimit": 0,
