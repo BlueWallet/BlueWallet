@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
-import { Image, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import HeaderMenuButton from '../components/HeaderMenuButton';
 import { mapActionsToNativeHeaderMenuItems } from '../components/nativeHeaderMenuItems';
@@ -249,13 +249,14 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
     };
   })(theme);
 
-const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
+export const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
   navigationStyle({ title: loc.wallets.import_title }, (options, { navigation, route }) => {
     const askPassphraseMenuState = route.params?.askPassphraseMenuState ?? false;
     const searchAccountsMenuState = route.params?.searchAccountsMenuState ?? false;
     const clearClipboardMenuState = route.params?.clearClipboardMenuState ?? true;
 
     const onPressMenuItem = (menuItem: string) => {
+      Keyboard.dismiss();
       if (menuItem === CommonToolTipActions.Passphrase.id) {
         navigation.setParams({ askPassphraseMenuState: !askPassphraseMenuState });
       } else if (menuItem === CommonToolTipActions.SearchAccount.id) {
