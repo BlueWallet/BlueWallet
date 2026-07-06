@@ -262,9 +262,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
         if (this._wallet) {
           this._transactionsHistory = await this._wallet.getTransactionHistory();
           const balance = await this._wallet.getBalance();
-          // Keep this in sync with fetchBalance(): offchain spendable + recoverable,
-          // boarding excluded (see fetchBalance for the double-count rationale).
-          this.balance = balance.available + balance.recoverable;
+          // Keep this in sync with fetchBalance(): SDK `total` minus boarding
+          // (all offchain funds incl. pendingRecovery; see fetchBalance).
+          this.balance = balance.total - balance.boarding.total;
         }
         this._lastBalanceFetch = +new Date();
         this._lastTxFetch = +new Date();
@@ -617,8 +617,9 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     const balance = await this._wallet.getBalance();
     this._lastBalanceFetch = +new Date();
-    // Headline balance = spendable offchain + recoverable, i.e. SDK `total`
-    // minus `boarding.total`. A refill stays OUT of the balance until the SDK
+    // Headline balance = SDK `total` minus `boarding.total`, i.e. every offchain
+    // sat the wallet owns (settled + preconfirmed + recoverable + pendingRecovery)
+    // with boarding excluded. A refill stays OUT of the balance until the SDK
     // settles its boarding UTXO into a VTXO — the same moment its history row
     // flips from "Pending" to a confirmed "Refill". Two reasons boarding is
     // excluded here:
@@ -626,10 +627,15 @@ export class LightningArkWallet extends LightningCustodianWallet {
     //      is usable; it is surfaced as a "Pending" row instead (getTransactions).
     //   2. While settling, the SDK briefly reports BOTH the boarding UTXO (still
     //      unspent in getCoins) AND the freshly-minted preconfirmed VTXO, so
-    //      `balance.total` transiently double-counts the refill. Counting only
-    //      offchain+recoverable means each sat is counted once, at settlement.
-    // Mirrors the reference wallets (trixie's headline is `available`).
-    this.balance = balance.available + balance.recoverable;
+    //      `balance.total` transiently double-counts the refill. Subtracting
+    //      `boarding.total` removes the boarding leg, so each sat counts once.
+    // NOTE: `pendingRecovery` (funds under a now-deprecated server signer past
+    // its cutoff, awaiting the SDK's automatic migration) MUST be included — it
+    // is still the user's money and is what `total` counts. Summing only
+    // `available + recoverable` here dropped it, so after a signer-rotation
+    // cutoff an imported wallet whose funds are all deprecated-signer VTXOs
+    // showed a balance of 0.
+    this.balance = balance.total - balance.boarding.total;
   }
 
   async payInvoice(invoice: string, freeAmount: number = 0) {
