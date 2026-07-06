@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Icon, { FontAwesomeIconName } from '../Icon';
 import { useTheme } from '../themes';
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     alignSelf: 'flex-start',
     overflow: 'visible',
-  } as ViewStyle,
+  },
   badge: {
     position: 'absolute',
     right: BADGE_OFFSET,
@@ -30,10 +30,10 @@ const styles = StyleSheet.create({
     borderRadius: BADGE_SIZE / 2,
     justifyContent: 'center',
     alignItems: 'center',
-  } as ViewStyle,
+  },
   onchainBox: {
     position: 'relative',
-  } as ViewStyle,
+  },
   onchainBall: {
     width: 36,
     height: 36,
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-45deg' }],
     justifyContent: 'center',
     alignItems: 'center',
-  } as ViewStyle,
+  },
 });
 
 export type TransactionListIconVariant =

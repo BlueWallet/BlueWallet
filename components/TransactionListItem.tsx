@@ -249,12 +249,12 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     return {
       color,
       fontSize: 14,
-      fontWeight: '600' as TextStyle['fontWeight'],
+      fontWeight: '600',
       lineHeight: Math.round(20 * fontScale),
       textAlign: 'right',
       paddingRight: insets.right,
       paddingLeft: insets.left,
-    } as TextStyle;
+    };
   }, [
     colors.successColor,
     colors.foregroundColor,
