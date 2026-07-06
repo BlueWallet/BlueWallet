@@ -30,6 +30,7 @@ import ecc from '../../blue_modules/noble_ecc.ts';
 import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
 import { registerArkPaymentPush } from '../../blue_modules/notifications';
+import { transactionTimeToReadable } from '../../loc';
 const { bech32m } = require('bech32');
 
 const bip32 = BIP32Factory(ecc);
@@ -672,10 +673,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     const spendable = balance.available + balance.recoverable;
     const estFee = this.getSubmarineFeeEstimate(invoiceDetails.amountSats) ?? 0;
     if (balance.pendingRecovery > 0 && invoiceDetails.amountSats + estFee > spendable) {
-      throw new Error(
-        `${balance.pendingRecovery} sats are still recovering after a network upgrade and are not spendable yet. ` +
-          `They will become available once recovery completes. Spendable now: ${spendable} sats.`,
-      );
+      throw new Error(await this._recoveringFundsMessage(balance.pendingRecovery, spendable));
     }
 
     const paymentResult = await this._arkadeSwaps.sendLightningPayment({ invoice });
@@ -690,6 +688,39 @@ export class LightningArkWallet extends LightningCustodianWallet {
     console.log('Amount:', paymentResult.amount);
     console.log('Preimage:', paymentResult.preimage);
     console.log('Transaction ID:', paymentResult.txid);
+  }
+
+  /**
+   * Human-readable "your funds are recovering" error for a send blocked by
+   * pendingRecovery. Adds a concrete ETA when the SDK advertises one: each
+   * deprecated-signer report carries `nextSweepEta` (ms epoch = the soonest
+   * batch expiry, i.e. when the server sweeps those VTXOs and they become
+   * spendable). We surface the earliest across signers; if none is advertised
+   * (or it is already in the past), we fall back to open-ended wording.
+   */
+  private async _recoveringFundsMessage(pendingRecovery: number, spendable: number): Promise<string> {
+    let whenClause = ' They will become available once recovery completes.';
+    try {
+      if (this._wallet) {
+        const manager = await this._wallet.getVtxoManager();
+        const reports = await manager.getDeprecatedSignerStatus();
+        let soonest: number | undefined;
+        for (const r of reports) {
+          if (typeof r.nextSweepEta !== 'number') continue;
+          soonest = soonest === undefined ? r.nextSweepEta : Math.min(soonest, r.nextSweepEta);
+        }
+        if (soonest !== undefined && soonest > Date.now()) {
+          whenClause = ` They should become available ${transactionTimeToReadable(soonest)}.`;
+        }
+      }
+    } catch {
+      // ETA is best-effort; keep the open-ended wording on any failure.
+    }
+    return (
+      `${pendingRecovery} sats are still recovering after a network upgrade and are not spendable yet.` +
+      whenClause +
+      ` Spendable now: ${spendable} sats.`
+    );
   }
 
   /**

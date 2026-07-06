@@ -1089,7 +1089,11 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
   // directly. We exercise the wallet's wiring — fee math, BOLT11 vs Ark
   // address routing, parameter forwarding — not the SDK's network behavior.
   let w: LightningArkWallet;
-  const fakeWallet: { sendBitcoin: jest.Mock } = { sendBitcoin: jest.fn() };
+  const fakeWallet: { sendBitcoin: jest.Mock; getBalance: jest.Mock; getVtxoManager: jest.Mock } = {
+    sendBitcoin: jest.fn(),
+    getBalance: jest.fn(),
+    getVtxoManager: jest.fn(),
+  };
   const fakeArkadeSwaps: {
     createLightningInvoice: jest.Mock;
     sendLightningPayment: jest.Mock;
@@ -1098,10 +1102,32 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
     sendLightningPayment: jest.fn(),
   };
 
+  // A WalletBalance with everything spendable and nothing recovering, so the
+  // payInvoice recovering-funds guard is a no-op by default.
+  const balanceWith = (over: Partial<Record<'available' | 'recoverable' | 'pendingRecovery', number>> = {}) => {
+    const available = over.available ?? 1_000_000;
+    const recoverable = over.recoverable ?? 0;
+    const pendingRecovery = over.pendingRecovery ?? 0;
+    return {
+      boarding: { confirmed: 0, unconfirmed: 0, total: 0 },
+      settled: available,
+      preconfirmed: 0,
+      available,
+      recoverable,
+      pendingRecovery,
+      total: available + recoverable + pendingRecovery,
+      assets: [],
+    };
+  };
+
   beforeEach(() => {
     w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     fakeWallet.sendBitcoin.mockReset().mockResolvedValue(undefined);
+    fakeWallet.getBalance.mockReset().mockResolvedValue(balanceWith());
+    fakeWallet.getVtxoManager.mockReset().mockResolvedValue({
+      getDeprecatedSignerStatus: jest.fn().mockResolvedValue([]),
+    });
     fakeArkadeSwaps.createLightningInvoice.mockReset();
     fakeArkadeSwaps.sendLightningPayment.mockReset();
     // Wire the wallet up as if init() had already completed.
@@ -1173,6 +1199,28 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
       payment_hash: expectedPaymentHash,
       payment_request: invoice,
     });
+  });
+
+  it('payInvoice blocks with a recovering-funds message when the balance is mostly pendingRecovery', async () => {
+    const invoice =
+      'lnbc100u1p50528cpp5rhy4fgs0ff23asecxtxt9zvc3apn0p8h7fxsj0d5k7j3x92zwhlqdq5w3jhxapqd9h8vmmfvdjscqrp80xqyf8ucsp5vcsrzye432n9wh0zwuv5z8y5n9zvkwpctr685e80utzc2yueccms9qxpqysgqd87swq3hput9k6llp0wxg098hc7ge3e5nrtnvak6zreywzaf4k9s8d3u4hrmt3m22kf0jt7ruqj0caknk5ykzdenjdphz50t7xrstnqqn6aw0m';
+    // 10_000 sat invoice, but nothing spendable and 44_665 stuck in recovery.
+    fakeWallet.getBalance.mockResolvedValue(balanceWith({ available: 0, recoverable: 0, pendingRecovery: 44_665 }));
+
+    await assert.rejects(() => w.payInvoice(invoice), /44665 sats are still recovering.*Spendable now: 0 sats/s);
+    assert.strictEqual(fakeArkadeSwaps.sendLightningPayment.mock.calls.length, 0, 'must not attempt the swap for unspendable funds');
+  });
+
+  it('payInvoice recovering-funds message includes the sweep ETA when advertised', async () => {
+    const invoice =
+      'lnbc100u1p50528cpp5rhy4fgs0ff23asecxtxt9zvc3apn0p8h7fxsj0d5k7j3x92zwhlqdq5w3jhxapqd9h8vmmfvdjscqrp80xqyf8ucsp5vcsrzye432n9wh0zwuv5z8y5n9zvkwpctr685e80utzc2yueccms9qxpqysgqd87swq3hput9k6llp0wxg098hc7ge3e5nrtnvak6zreywzaf4k9s8d3u4hrmt3m22kf0jt7ruqj0caknk5ykzdenjdphz50t7xrstnqqn6aw0m';
+    fakeWallet.getBalance.mockResolvedValue(balanceWith({ available: 0, recoverable: 0, pendingRecovery: 44_665 }));
+    const etaMs = Date.now() + 2 * 24 * 60 * 60 * 1000; // ~2 days out
+    fakeWallet.getVtxoManager.mockResolvedValue({
+      getDeprecatedSignerStatus: jest.fn().mockResolvedValue([{ status: 'expired', awaitingSweepValue: 44_665, nextSweepEta: etaMs }]),
+    });
+
+    await assert.rejects(() => w.payInvoice(invoice), /should become available in/s);
   });
 
   it('payInvoice routes a valid Ark address through Wallet.sendBitcoin', async () => {
