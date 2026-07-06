@@ -662,6 +662,22 @@ export class LightningArkWallet extends LightningCustodianWallet {
     assert(invoiceDetails.amountSats > this._limitMin, `Minimum you can send is ${this._limitMin} sat`);
     assert(invoiceDetails.amountSats < this._limitMax, `Maximum you can is ${this._limitMax} sat`);
 
+    // Recovering-funds guard. The displayed balance includes `pendingRecovery`
+    // (deprecated-signer funds past their rotation cutoff), but the SDK's send
+    // coin-selection excludes them until the Ark server sweeps them. Without
+    // this, sending against a balance that is mostly pendingRecovery fails with
+    // a bare "insufficient funds" that contradicts the on-screen amount. Detect
+    // that case and surface an honest message instead.
+    const balance = await this._wallet.getBalance();
+    const spendable = balance.available + balance.recoverable;
+    const estFee = this.getSubmarineFeeEstimate(invoiceDetails.amountSats) ?? 0;
+    if (balance.pendingRecovery > 0 && invoiceDetails.amountSats + estFee > spendable) {
+      throw new Error(
+        `${balance.pendingRecovery} sats are still recovering after a network upgrade and are not spendable yet. ` +
+          `They will become available once recovery completes. Spendable now: ${spendable} sats.`,
+      );
+    }
+
     const paymentResult = await this._arkadeSwaps.sendLightningPayment({ invoice });
 
     this.last_paid_invoice_result = {
