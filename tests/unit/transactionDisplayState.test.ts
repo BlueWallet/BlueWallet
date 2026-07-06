@@ -31,6 +31,11 @@ describe('transactionDisplayState', () => {
     it('falls back to txid when hash is missing', () => {
       assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'ark-deadbeef' }), 'ark-deadbeef');
     });
+
+    it('normalizes pending boarding-utxo- rows to the settled boarding- key so notes survive settlement', () => {
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'boarding-utxo-deadbeef:0', hash: 'deadbeef' }), 'boarding-deadbeef');
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'boarding-utxo-deadbeef:1' }), 'boarding-deadbeef');
+    });
   });
 
   describe('resolveTransactionNote', () => {

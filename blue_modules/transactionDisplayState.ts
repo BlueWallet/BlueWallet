@@ -27,6 +27,11 @@ export function resolveTransactionNoteMetadataKey(tx: { hash?: string; txid?: st
   if (!tx) return undefined;
   const txid = tx.txid;
   // Ark refills keep the synthetic boarding- id as the note key (not the on-chain hash).
+  // Pending rows (`boarding-utxo-<txid>:<vout>`) settle into `boarding-<txid>`, so
+  // normalize to the settled form — otherwise a note saved while pending is orphaned.
+  if (typeof txid === 'string' && txid.startsWith('boarding-utxo-')) {
+    return `boarding-${txid.slice('boarding-utxo-'.length).split(':')[0]}`;
+  }
   if (typeof txid === 'string' && txid.startsWith('boarding-')) return txid;
   return tx.hash ?? txid;
 }
