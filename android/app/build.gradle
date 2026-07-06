@@ -134,11 +134,11 @@ dependencies {
 		androidTestImplementation('com.wix:detox:+')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.core:core-ktx:1.19.0'
     implementation 'androidx.work:work-runtime-ktx:2.11.2'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.compose.ui:ui:1.10.6'
-    implementation 'androidx.compose.material3:material3:1.3.2'
+    implementation 'com.google.android.material:material:1.14.0'
+    implementation 'androidx.compose.ui:ui:1.11.4'
+    implementation 'androidx.compose.material3:material3:1.4.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
 
     if (hermesEnabled.toBoolean()) {
