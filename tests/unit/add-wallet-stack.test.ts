@@ -12,7 +12,7 @@ jest.mock('../../typings/CommonToolTipActions', () => ({
 
 describe('createImportWalletOptions', () => {
   it('dismisses the keyboard before toggling ImportWallet menu state', () => {
-    const dismissSpy = jest.spyOn(Keyboard, 'dismiss').mockImplementation(jest.fn());
+    const dismissSpy = jest.spyOn(Keyboard, 'dismiss').mockImplementation(() => {});
     const setParams = jest.fn();
     const options = createImportWalletOptions({
       barStyle: 'dark-content',
