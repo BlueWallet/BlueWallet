@@ -20,10 +20,9 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
-import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import BlocksAccordion from '../../components/BlocksAccordion';
+import TransactionStateHeader from '../../components/TransactionStateHeader';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
@@ -228,6 +227,10 @@ const TransactionStatus: React.FC = () => {
     setIsBlocksExpanded(prev => !prev);
     stateCardScale.value = withSequence(withTiming(0.98, { duration: 100 }), withTiming(1, { duration: 150 }));
   }, [stateCardScale]);
+
+  useEffect(() => {
+    setIsBlocksExpanded(false);
+  }, [hash]);
 
   // Advanced section state
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
@@ -906,7 +909,7 @@ const TransactionStatus: React.FC = () => {
   const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
 
-  const showBlocksAccordion = !isPending && parsedConfirmations > 0;
+  const showBlocksAccordion = isOnChainTx && !isPending && parsedConfirmations > 0;
 
   const onBlocksHeaderPress = useCallback(() => {
     if (!showBlocksAccordion) return;
@@ -1115,81 +1118,27 @@ const TransactionStatus: React.FC = () => {
               )}
             </>
           ) : txValue !== null && txValue < 0 ? (
-            showBlocksAccordion ? (
-              <TouchableOpacity style={styles.stateHeaderRow} onPress={onBlocksHeaderPress} activeOpacity={0.7}>
-                <View style={styles.stateIndicator}>
-                  <TransactionOutgoingIcon />
-                  <View style={styles.stateLabelContainer}>
-                    <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent, scaledStyles.stateLabel]}>
-                      {loc.transactions.details_sent}
-                    </BlueText>
-                    {isOnChainTx && (
-                      <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline, scaledStyles.stateValue]}>
-                        {loc.formatString(loc.transactions.confirmations_lowercase, {
-                          confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                        })}
-                      </BlueText>
-                    )}
-                  </View>
-                </View>
-                <Icon name="information-circle-outline" type="ionicons" size={20} color={colors.transactionSentColor} />
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.stateHeaderRow}>
-                <View style={styles.stateIndicator}>
-                  <TransactionOutgoingIcon />
-                  <View style={styles.stateLabelContainer}>
-                    <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent, scaledStyles.stateLabel]}>
-                      {loc.transactions.details_sent}
-                    </BlueText>
-                    {isOnChainTx && (
-                      <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline, scaledStyles.stateValue]}>
-                        {loc.formatString(loc.transactions.confirmations_lowercase, {
-                          confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                        })}
-                      </BlueText>
-                    )}
-                  </View>
-                </View>
-              </View>
-            )
-          ) : showBlocksAccordion ? (
-            <TouchableOpacity style={styles.stateHeaderRow} onPress={onBlocksHeaderPress} activeOpacity={0.7}>
-              <View style={styles.stateIndicator}>
-                <TransactionIncomingIcon />
-                <View style={styles.stateLabelContainer}>
-                  <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived, scaledStyles.stateLabel]}>
-                    {loc.transactions.details_received}
-                  </BlueText>
-                  {isOnChainTx && (
-                    <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline, scaledStyles.stateValue]}>
-                      {loc.formatString(loc.transactions.confirmations_lowercase, {
-                        confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                      })}
-                    </BlueText>
-                  )}
-                </View>
-              </View>
-              <Icon name="information-circle-outline" type="ionicons" size={20} color={colors.transactionReceivedColor} />
-            </TouchableOpacity>
+            <TransactionStateHeader
+              direction="sent"
+              confirmations={parsedConfirmations}
+              isOnChainTx={isOnChainTx}
+              isExpanded={isBlocksExpanded}
+              onPress={showBlocksAccordion ? onBlocksHeaderPress : undefined}
+              labelStyle={[stylesHook.stateLabelSent, scaledStyles.stateLabel]}
+              valueStyle={[stylesHook.stateValueSent, scaledStyles.stateValue]}
+              accentColor={colors.transactionSentColor}
+            />
           ) : (
-            <View style={styles.stateHeaderRow}>
-              <View style={styles.stateIndicator}>
-                <TransactionIncomingIcon />
-                <View style={styles.stateLabelContainer}>
-                  <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived, scaledStyles.stateLabel]}>
-                    {loc.transactions.details_received}
-                  </BlueText>
-                  {isOnChainTx && (
-                    <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline, scaledStyles.stateValue]}>
-                      {loc.formatString(loc.transactions.confirmations_lowercase, {
-                        confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                      })}
-                    </BlueText>
-                  )}
-                </View>
-              </View>
-            </View>
+            <TransactionStateHeader
+              direction="received"
+              confirmations={parsedConfirmations}
+              isOnChainTx={isOnChainTx}
+              isExpanded={isBlocksExpanded}
+              onPress={showBlocksAccordion ? onBlocksHeaderPress : undefined}
+              labelStyle={[stylesHook.stateLabelReceived, scaledStyles.stateLabel]}
+              valueStyle={[stylesHook.stateValueReceived, scaledStyles.stateValue]}
+              accentColor={colors.transactionReceivedColor}
+            />
           )}
         </View>
         {showBlocksAccordion && tx?.hash && (
@@ -1568,12 +1517,6 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
     paddingHorizontal: 20,
-  },
-  stateHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
   },
   stateIndicator: {
     flexDirection: 'row',

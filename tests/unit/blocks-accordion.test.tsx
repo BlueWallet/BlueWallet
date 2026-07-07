@@ -4,12 +4,10 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import BlocksAccordion from '../../components/BlocksAccordion';
 
 const mockGetConfirmedBlockHeight = jest.fn();
-const mockGetCurrentBlockTip = jest.fn();
 const mockGetBlockTimestamps = jest.fn();
 
 jest.mock('../../blue_modules/BlueElectrum', () => ({
   getConfirmedBlockHeight: (...args: unknown[]) => mockGetConfirmedBlockHeight(...args),
-  getCurrentBlockTip: (...args: unknown[]) => mockGetCurrentBlockTip(...args),
   getBlockTimestamps: (...args: unknown[]) => mockGetBlockTimestamps(...args),
 }));
 
@@ -35,7 +33,7 @@ jest.mock('../../loc', () => ({
     transactions: {
       blocks_load_error: 'Could not load block details. Tap to try again.',
       blocks_confirmed_latest: 'Confirmed in the latest block ({blockHeight}).',
-      blocks_confirmed_summary: 'Confirmed {count} blocks ago, on block {blockHeight}.',
+      blocks_confirmed_summary: 'Included in block {blockHeight}.',
       blocks_confirmed_fee_summary: 'With a size of {vsize} and a fee rate of {feeRate}, paying {fee} fee.',
     },
   },
@@ -54,8 +52,7 @@ const defaultProps = {
 describe('BlocksAccordion', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetConfirmedBlockHeight.mockResolvedValue(800000);
-    mockGetCurrentBlockTip.mockResolvedValue(800000);
+    mockGetConfirmedBlockHeight.mockResolvedValue({ height: 800000, tip: 800000 });
     mockGetBlockTimestamps.mockImplementation((heights: number[]) =>
       Promise.resolve(Object.fromEntries(heights.map(h => [h, 1700000000]))),
     );
@@ -67,7 +64,6 @@ describe('BlocksAccordion', () => {
       await Promise.resolve();
     });
     expect(mockGetConfirmedBlockHeight).not.toHaveBeenCalled();
-    expect(mockGetCurrentBlockTip).not.toHaveBeenCalled();
   });
 
   it('fetches when expanded and shows latest-block summary when tip equals tx height', async () => {
@@ -80,13 +76,72 @@ describe('BlocksAccordion', () => {
     });
   });
 
-  it('shows blocks-ago summary when tx is behind tip', async () => {
-    mockGetConfirmedBlockHeight.mockResolvedValue(800000);
-    mockGetCurrentBlockTip.mockResolvedValue(800003);
+  it('shows block inclusion summary when tx is behind tip', async () => {
+    mockGetConfirmedBlockHeight.mockResolvedValue({ height: 800000, tip: 800003 });
     const { getByText } = render(<BlocksAccordion {...defaultProps} isExpanded />);
     await waitFor(() => {
-      expect(getByText(/Confirmed 3 blocks ago, on block 800000/)).toBeTruthy();
+      expect(getByText(/Included in block 800000\./)).toBeTruthy();
     });
+  });
+
+  it('renders fee summary alongside block inclusion text', async () => {
+    const { getAllByText, getByText } = render(<BlocksAccordion {...defaultProps} isExpanded />);
+    await waitFor(() => {
+      expect(getByText(/Confirmed in the latest block/)).toBeTruthy();
+      expect(getAllByText('800000').length).toBeGreaterThan(0);
+      expect(getByText(/With a size of/)).toBeTruthy();
+      expect(getByText('140 vb')).toBeTruthy();
+      expect(getByText('7.1 sats/vb')).toBeTruthy();
+      expect(getByText('1000 sats')).toBeTruthy();
+    });
+  });
+
+  it('renders block heights and timestamps in the carousel', async () => {
+    mockGetConfirmedBlockHeight.mockResolvedValue({ height: 800000, tip: 800003 });
+    const { getByText } = render(<BlocksAccordion {...defaultProps} isExpanded />);
+    await waitFor(() => {
+      expect(mockGetBlockTimestamps).toHaveBeenCalledWith([799998, 799999, 800000, 800001, 800002]);
+    });
+    await waitFor(() => {
+      expect(getByText('799998')).toBeTruthy();
+      expect(getByText('800002')).toBeTruthy();
+    });
+  });
+
+  it('requests timestamps for the latest-block window when tip equals tx height', async () => {
+    render(<BlocksAccordion {...defaultProps} isExpanded />);
+    await waitFor(() => {
+      expect(mockGetBlockTimestamps).toHaveBeenCalledWith([799996, 799997, 799998, 799999, 800000]);
+    });
+  });
+
+  it('treats negative tip lag as inclusion summary', async () => {
+    mockGetConfirmedBlockHeight.mockResolvedValue({ height: 800001, tip: 800000 });
+    const { getByText, queryByText } = render(<BlocksAccordion {...defaultProps} isExpanded />);
+    await waitFor(() => {
+      expect(getByText(/Included in block 800001\./)).toBeTruthy();
+    });
+    expect(queryByText(/Confirmed in the latest block/)).toBeNull();
+  });
+
+  it('centers carousel on confirmed block when tip lags behind height', async () => {
+    mockGetConfirmedBlockHeight.mockResolvedValue({ height: 800001, tip: 800000 });
+    const { getAllByText } = render(<BlocksAccordion {...defaultProps} isExpanded />);
+    await waitFor(() => {
+      expect(mockGetBlockTimestamps).toHaveBeenCalledWith([799999, 800000, 800001, 800002, 800003]);
+    });
+    await waitFor(() => {
+      expect(getAllByText('800001').length).toBeGreaterThan(0);
+    });
+  });
+
+  it('still renders summary when block timestamps fetch fails', async () => {
+    mockGetBlockTimestamps.mockRejectedValueOnce(new Error('network'));
+    const { getByText, queryByText } = render(<BlocksAccordion {...defaultProps} isExpanded />);
+    await waitFor(() => {
+      expect(getByText(/Confirmed in the latest block/)).toBeTruthy();
+    });
+    expect(queryByText('Could not load block details. Tap to try again.')).toBeNull();
   });
 
   it('shows error message when block height lookup fails', async () => {
@@ -98,8 +153,7 @@ describe('BlocksAccordion', () => {
   });
 
   it('retries fetch after error tap', async () => {
-    mockGetConfirmedBlockHeight.mockResolvedValueOnce(null).mockResolvedValueOnce(800000);
-    mockGetCurrentBlockTip.mockResolvedValue(800000);
+    mockGetConfirmedBlockHeight.mockResolvedValueOnce(null).mockResolvedValueOnce({ height: 800000, tip: 800000 });
     const { getByText } = render(<BlocksAccordion {...defaultProps} isExpanded />);
     await waitFor(() => {
       expect(getByText('Could not load block details. Tap to try again.')).toBeTruthy();
@@ -113,15 +167,33 @@ describe('BlocksAccordion', () => {
     });
   });
 
+  it('retries fetch when re-expanded after collapse during error', async () => {
+    mockGetConfirmedBlockHeight.mockResolvedValueOnce(null).mockResolvedValueOnce({ height: 800000, tip: 800000 });
+    const { getByText, rerender, queryByText } = render(<BlocksAccordion {...defaultProps} isExpanded />);
+    await waitFor(() => {
+      expect(getByText('Could not load block details. Tap to try again.')).toBeTruthy();
+    });
+
+    rerender(<BlocksAccordion {...defaultProps} isExpanded={false} />);
+    rerender(<BlocksAccordion {...defaultProps} isExpanded />);
+
+    await waitFor(() => {
+      expect(mockGetConfirmedBlockHeight).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(getByText(/Confirmed in the latest block \(800000\)/)).toBeTruthy();
+    });
+    expect(queryByText('Could not load block details. Tap to try again.')).toBeNull();
+  });
+
   it('ignores stale fetch results after txHash changes mid-flight', async () => {
-    const pending: Record<string, { resolve: (value: number | null) => void }> = {};
+    const pending: Record<string, { resolve: (value: { height: number; tip: number } | null) => void }> = {};
     mockGetConfirmedBlockHeight.mockImplementation(
       (hash: string) =>
-        new Promise<number | null>(resolve => {
+        new Promise<{ height: number; tip: number } | null>(resolve => {
           pending[hash] = { resolve };
         }),
     );
-    mockGetCurrentBlockTip.mockResolvedValue(800005);
 
     const { rerender, getByText, queryByText } = render(<BlocksAccordion {...defaultProps} isExpanded txHash="first-tx" />);
 
@@ -132,7 +204,7 @@ describe('BlocksAccordion', () => {
     rerender(<BlocksAccordion {...defaultProps} isExpanded txHash="second-tx" />);
 
     await act(async () => {
-      pending['first-tx'].resolve(800001);
+      pending['first-tx'].resolve({ height: 800001, tip: 800005 });
       await Promise.resolve();
     });
 
@@ -141,13 +213,13 @@ describe('BlocksAccordion', () => {
     });
 
     await act(async () => {
-      pending['second-tx'].resolve(800002);
+      pending['second-tx'].resolve({ height: 800002, tip: 800005 });
       await Promise.resolve();
     });
 
     await waitFor(() => {
-      expect(getByText(/Confirmed 3 blocks ago, on block 800002/)).toBeTruthy();
+      expect(getByText(/Included in block 800002\./)).toBeTruthy();
     });
-    expect(queryByText(/Confirmed 3 blocks ago, on block 800001/)).toBeNull();
+    expect(queryByText(/Included in block 800001\./)).toBeNull();
   });
 });

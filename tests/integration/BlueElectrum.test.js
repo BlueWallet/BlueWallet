@@ -329,9 +329,9 @@ describe('BlueElectrum', () => {
     assert.ok(timestamps[tip - 1] > 1_000_000_000);
   });
 
-  it('getConfirmedBlockHeight() returns height for a known confirmed tx', async () => {
+  it('getConfirmedBlockHeight() returns height and tip for a known confirmed tx', async () => {
     const txid = '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e';
-    const height = await BlueElectrum.getConfirmedBlockHeight(txid);
-    assert.ok(height !== null && height > 0);
+    const info = await BlueElectrum.getConfirmedBlockHeight(txid);
+    assert.ok(info !== null && info.height > 0 && info.tip >= info.height);
   });
 });

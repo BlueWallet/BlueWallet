@@ -1494,33 +1494,87 @@ export function getServerBanner(): Promise<string> {
   return mainClient.request('server.banner', []);
 }
 
+/** Seconds before `getCurrentBlockTip()` re-requests the header from the server. */
+const TIP_CACHE_TTL_SEC = 60;
+
+/** Max blocks a cached tx height may lead the tip before we treat the cache entry as poisoned. */
+const MAX_CACHE_AHEAD_OF_TIP = 6;
+
+async function fetchBlockTipFromServer(): Promise<number | null> {
+  if (!mainClient) {
+    return latestBlock.height ?? null;
+  }
+
+  const now = Math.floor(+new Date() / 1000);
+  try {
+    const header = await mainClient.blockchainHeaders_subscribe();
+    if (header && header.height) {
+      latestBlock = { height: header.height, time: now };
+      return header.height;
+    }
+  } catch (e) {
+    console.warn('getCurrentBlockTip: subscribe failed', e);
+  }
+
+  return latestBlock.height ?? null;
+}
+
 export async function getCurrentBlockTip(): Promise<number> {
-  if (latestBlock.height) {
-    return estimateCurrentBlockheight();
+  const now = Math.floor(+new Date() / 1000);
+  if (latestBlock.height && now - latestBlock.time < TIP_CACHE_TTL_SEC) {
+    return latestBlock.height;
   }
-  if (!mainClient) throw new Error('Electrum client is not connected');
-  const header = await mainClient.blockchainHeaders_subscribe();
-  if (header && header.height) {
-    latestBlock = { height: header.height, time: Math.floor(+new Date() / 1000) };
-    return header.height;
+
+  if (!mainClient) {
+    if (latestBlock.height) return latestBlock.height;
+    throw new Error('Electrum client is not connected');
   }
+
+  const refreshed = await fetchBlockTipFromServer();
+  if (refreshed) return refreshed;
   return estimateCurrentBlockheight();
 }
 
+export type ConfirmedBlockInfo = { height: number; tip: number };
+
 /**
- * Returns the confirmed block height for a given txHash.
+ * Returns the confirmed block height and current tip for a given txHash.
+ * Both values share the same tip source so callers never mix an estimated tip with a real height.
  * 1. Tries the in-memory txhashHeightCache (populated from address history).
  * 2. Falls back to a DIRECT server call (bypassing Realm cache) to get fresh confirmations.
  *    Uses standard Bitcoin convention: height = tip - confirmations + 1.
  */
-export async function getConfirmedBlockHeight(txHash: string): Promise<number | null> {
+export async function getConfirmedBlockHeight(txHash: string): Promise<ConfirmedBlockInfo | null> {
+  let tip = await getCurrentBlockTip();
+
   const cached = txhashHeightCache[txHash];
-  if (cached && cached > 0) return cached;
+  if (cached && cached > 0) {
+    if (cached <= tip) {
+      return { height: cached, tip };
+    }
+
+    // Cached height ahead of tip: refresh tip (TTL may be stale), then re-validate.
+    const refreshedTip = await fetchBlockTipFromServer();
+    if (refreshedTip != null) {
+      tip = refreshedTip;
+    }
+    if (cached <= tip) {
+      return { height: cached, tip };
+    }
+
+    const aheadBy = cached - tip;
+    if (aheadBy <= MAX_CACHE_AHEAD_OF_TIP) {
+      // Address-history height is trustworthy; our tip is just lagging.
+      return { height: cached, tip };
+    }
+
+    delete txhashHeightCache[txHash];
+  }
 
   if (!mainClient) return null;
 
   try {
-    const [tip, verboseTx] = await Promise.all([getCurrentBlockTip(), mainClient.blockchainTransaction_get(txHash, true)]);
+    const verboseTx = await mainClient.blockchainTransaction_get(txHash, true);
 
     if (typeof verboseTx === 'string') {
       // Server didn't support verbose — decode locally.
@@ -1532,8 +1586,11 @@ export async function getConfirmedBlockHeight(txHash: string): Promise<number | 
     if (!confirmations || confirmations <= 0) return null;
 
     const height = tip - confirmations + 1;
+    if (height <= 0 || height > tip) {
+      return null;
+    }
     txhashHeightCache[txHash] = height;
-    return height;
+    return { height, tip };
   } catch (e) {
     console.warn('getConfirmedBlockHeight: failed', e);
     return null;

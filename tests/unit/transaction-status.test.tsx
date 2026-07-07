@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import { _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
@@ -151,8 +151,7 @@ jest.mock('../../blue_modules/BlueElectrum', () => ({
   ),
   getMempoolTransactionsByAddress: jest.fn(() => Promise.resolve([])),
   estimateFees: jest.fn(() => Promise.resolve({ fast: 1, medium: 1, slow: 1 })),
-  getConfirmedBlockHeight: jest.fn(() => Promise.resolve(800000)),
-  getCurrentBlockTip: jest.fn(() => Promise.resolve(800002)),
+  getConfirmedBlockHeight: jest.fn(() => Promise.resolve({ height: 800000, tip: 800002 })),
   getBlockTimestamps: jest.fn((heights: number[]) => Promise.resolve(Object.fromEntries(heights.map((h: number) => [h, 1700000000])))),
 }));
 
@@ -203,7 +202,7 @@ jest.mock('../../loc', () => ({
       open_url_error: 'Unable to open URL',
       blocks_load_error: 'Could not load block details. Tap to try again.',
       blocks_confirmed_latest: 'Confirmed in the latest block ({blockHeight}).',
-      blocks_confirmed_summary: 'Confirmed {count} blocks ago, on block {blockHeight}.',
+      blocks_confirmed_summary: 'Included in block {blockHeight}.',
       blocks_confirmed_fee_summary: 'With a size of {vsize} and a fee rate of {feeRate}, paying {fee} fee.',
     },
     send: {
@@ -364,7 +363,6 @@ describe('TransactionStatus regression', () => {
 
     await waitFor(() => {
       expect(BlueElectrum.getConfirmedBlockHeight).not.toHaveBeenCalled();
-      expect(BlueElectrum.getCurrentBlockTip).not.toHaveBeenCalled();
     });
   });
 
@@ -380,10 +378,101 @@ describe('TransactionStatus regression', () => {
 
     await waitFor(() => {
       expect(BlueElectrum.getConfirmedBlockHeight).toHaveBeenCalledWith('mock-tx');
+      expect(BlueElectrum.getBlockTimestamps).toHaveBeenCalled();
     });
 
     await waitFor(() => {
-      expect(view.getByText(/Confirmed 2 blocks ago, on block 800000/)).toBeTruthy();
+      expect(view.getByText(/Included in block 800000\./)).toBeTruthy();
     });
+  });
+
+  it('does not refetch block data when collapsing and re-expanding', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    const { view } = setup(3, 1000);
+
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+
+    fireEvent.press(view.getByText('received'));
+    await waitFor(() => {
+      expect(BlueElectrum.getConfirmedBlockHeight).toHaveBeenCalledTimes(1);
+    });
+
+    fireEvent.press(view.getByText('received'));
+    fireEvent.press(view.getByText('received'));
+
+    await waitFor(() => {
+      expect(view.getByText(/Included in block 800000\./)).toBeTruthy();
+    });
+    expect(BlueElectrum.getConfirmedBlockHeight).toHaveBeenCalledTimes(1);
+  });
+
+  it('collapses accordion when navigating to another tx so Electrum is not auto-fetched', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [
+        { ...mockTxBase, hash: 'mock-tx', confirmations: 3 },
+        { ...mockTxBase, hash: 'other-tx', confirmations: 5 },
+      ]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+
+    fireEvent.press(view.getByText('received'));
+    await waitFor(() => {
+      expect(BlueElectrum.getConfirmedBlockHeight).toHaveBeenCalledTimes(1);
+    });
+
+    routeParams = { hash: 'other-tx', walletID: 'mock-wallet' };
+    view.rerender(<TransactionStatus />);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(BlueElectrum.getConfirmedBlockHeight).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fetch block accordion data for off-chain Ark rows', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    const arkRow = { txid: 'ark-deadbeef', type: 'bitcoind_tx', value: 1200, walletID: 'mock-wallet', timestamp: 1700000000 };
+    routeParams = { tx: arkRow, hash: 'ark-deadbeef', walletID: 'mock-wallet' };
+
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => [arkRow]),
+      getLastTxFetch: jest.fn(() => 1000),
+      allowRBF: jest.fn(() => false),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    mockWalletSubscribe = walletMock;
+
+    const view = render(<TransactionStatus />);
+
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+
+    fireEvent.press(view.getByText('received'));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(BlueElectrum.getConfirmedBlockHeight).not.toHaveBeenCalled();
+    expect(BlueElectrum.getBlockTimestamps).not.toHaveBeenCalled();
   });
 });

@@ -41,6 +41,28 @@ const BLOCK_GRADIENT_TOP_END = { x: 0.5, y: 1 };
 const BLOCK_GRADIENT_BOTTOM_START = { x: 0.5, y: 1 };
 const BLOCK_GRADIENT_BOTTOM_END = { x: 0.5, y: 0 };
 
+const hexToRgba = (hex: string, alpha: number): string => {
+  const normalized = hex.replace('#', '');
+  const r = parseInt(normalized.slice(0, 2), 16);
+  const g = parseInt(normalized.slice(2, 4), 16);
+  const b = parseInt(normalized.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+const computeBlockHeights = (txHeight: number, tip: number): number[] => {
+  const distance = Math.max(0, tip - txHeight);
+  let startHeight = txHeight - 2;
+  if (distance < 2) {
+    startHeight = tip - (BLOCK_COUNT - 1);
+  }
+  let heights = Array.from({ length: BLOCK_COUNT }, (_, i) => startHeight + i);
+  if (!heights.includes(txHeight)) {
+    const centeredStart = txHeight - Math.floor((BLOCK_COUNT - 1) / 2);
+    heights = Array.from({ length: BLOCK_COUNT }, (_, i) => centeredStart + i);
+  }
+  return heights;
+};
+
 interface BlocksAccordionProps {
   txHash: string;
   isSent: boolean;
@@ -104,10 +126,11 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
   const animatedHeight = useSharedValue(COLLAPSED_HEIGHT);
   const fetchStartedRef = useRef(false);
   const activeTxHashRef = useRef(txHash);
+  const blocksListRef = useRef<FlatList<BlockData>>(null);
 
   const accentColor = isSent ? colors.transactionSentColor : colors.transactionReceivedColor;
   const borderAccent = isSent ? colors.outgoingForegroundColor : colors.incomingForegroundColor;
-  const blockCardBg = isSent ? 'rgba(208, 2, 27, 0.16)' : 'rgba(30, 138, 106, 0.16)';
+  const blockCardBg = hexToRgba(isSent ? colors.transactionSentColor : colors.transactionReceivedColor, 0.16);
 
   const lottieColorFilters = useMemo(() => [{ keypath: '**', color: borderAccent }], [borderAccent]);
 
@@ -133,29 +156,29 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
     setError(false);
     setLoading(true);
     try {
-      const [txHeight, tip] = await Promise.all([BlueElectrum.getConfirmedBlockHeight(fetchTxHash), BlueElectrum.getCurrentBlockTip()]);
+      const blockInfo = await BlueElectrum.getConfirmedBlockHeight(fetchTxHash);
 
       if (fetchTxHash !== activeTxHashRef.current) return;
 
-      if (!txHeight || txHeight <= 0) {
+      if (!blockInfo || blockInfo.height <= 0) {
         setError(true);
         return;
       }
 
-      setConfirmedHeight(txHeight);
-      setCurrentTip(tip);
+      const { height: txHeight, tip } = blockInfo;
+      const heights = computeBlockHeights(txHeight, tip);
 
-      const distance = tip - txHeight;
-      let startHeight = txHeight - 2;
-      if (distance < 2) {
-        startHeight = tip - (BLOCK_COUNT - 1);
+      let timestamps: Record<number, number> = {};
+      try {
+        timestamps = await BlueElectrum.getBlockTimestamps(heights);
+      } catch (e) {
+        console.warn('BlocksAccordion: block timestamps fetch failed', e);
       }
-      const heights = Array.from({ length: BLOCK_COUNT }, (_, i) => startHeight + i);
-
-      const timestamps = await BlueElectrum.getBlockTimestamps(heights);
 
       if (fetchTxHash !== activeTxHashRef.current) return;
 
+      setConfirmedHeight(txHeight);
+      setCurrentTip(tip);
       setBlocks(heights.map(h => ({ height: h, timestamp: timestamps[h] })));
     } catch (e) {
       console.warn('BlocksAccordion: failed to fetch block data', e);
@@ -182,7 +205,10 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
   }, [txHash]);
 
   useEffect(() => {
-    if (!isExpanded) return;
+    if (!isExpanded) {
+      setError(false);
+      return;
+    }
     if (loading || fetchStartedRef.current) return;
     if (confirmedHeight !== null && blocks.length > 0) return;
     if (error) return;
@@ -212,11 +238,19 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
   }, [blocks, confirmedHeight]);
 
   const containerWidth = windowWidth - STATE_CARD_MARGIN_H * 2;
-  const initialOffset = useMemo(() => {
+  const scrollOffset = useMemo(() => {
     if (confirmedIndex <= 0) return 0;
     const itemCenter = HORIZONTAL_PADDING + confirmedIndex * ITEM_LENGTH + BLOCK_CARD_WIDTH / 2;
     return Math.max(0, itemCenter - containerWidth / 2);
   }, [confirmedIndex, containerWidth]);
+
+  useEffect(() => {
+    if (!isExpanded || blocks.length === 0 || scrollOffset === 0) return;
+    const frame = requestAnimationFrame(() => {
+      blocksListRef.current?.scrollToOffset({ offset: scrollOffset, animated: false });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isExpanded, blocks.length, scrollOffset]);
 
   const animatedContentStyle = useAnimatedStyle(() => ({
     height: animatedHeight.value,
@@ -226,11 +260,12 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
   const summaryContent = useMemo(() => {
     if (confirmedHeight === null || currentTip === null) return null;
 
-    const blocksBehind = currentTip - confirmedHeight;
+    const rawBehind = currentTip - confirmedHeight;
+    const isLatestBlock = rawBehind === 0;
     const blockHeight = String(confirmedHeight);
     const confirmationParts = renderBoldFormattedParts(
-      blocksBehind === 0 ? loc.transactions.blocks_confirmed_latest : loc.transactions.blocks_confirmed_summary,
-      blocksBehind === 0 ? { blockHeight } : { count: String(blocksBehind), blockHeight },
+      isLatestBlock ? loc.transactions.blocks_confirmed_latest : loc.transactions.blocks_confirmed_summary,
+      { blockHeight },
       stylesHook.summaryBold,
     );
 
@@ -333,6 +368,7 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
           </TouchableOpacity>
         )}
         <FlatList
+          ref={blocksListRef}
           data={blocks}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -340,7 +376,6 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
           keyExtractor={keyExtractor}
           renderItem={renderBlock}
           getItemLayout={getItemLayout}
-          contentOffset={{ x: initialOffset, y: 0 }}
           snapToInterval={ITEM_LENGTH}
           decelerationRate="fast"
           style={styles.blocksList}
