@@ -36,6 +36,8 @@ type OptionsFormatter = (
 type RouteParamHeaderOptions = {
   headerLeft?: boolean;
   headerRight?: boolean;
+  unstable_headerLeftItems?: boolean;
+  unstable_headerRightItems?: boolean;
   headerBackVisible?: boolean;
   statusBarStyle?: boolean;
 };
@@ -50,6 +52,12 @@ const withRouteParamHeaderOptions =
       ...options,
       ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
       ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
+      ...(config.unstable_headerLeftItems && routeParams.unstable_headerLeftItems !== undefined
+        ? { unstable_headerLeftItems: routeParams.unstable_headerLeftItems }
+        : {}),
+      ...(config.unstable_headerRightItems && routeParams.unstable_headerRightItems !== undefined
+        ? { unstable_headerRightItems: routeParams.unstable_headerRightItems }
+        : {}),
       ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
         ? { headerBackVisible: routeParams.headerBackVisible }
         : {}),

@@ -166,6 +166,8 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
   navigationStyle({ closeButtonPosition: CloseButtonPosition.Left, title: loc.wallets.add_title }, (options, { navigation, route }) => {
     const selectedIndex = route.params?.selectedIndex ?? 0;
     const selectedWalletType = route.params?.selectedWalletType ?? Chain.ONCHAIN;
+    const routeHeaderRight = route.params?.headerRight;
+    const routeStatusBarStyle = route.params?.statusBarStyle;
     const words = route.params?.words;
     const entropyHex = route.params?.entropy;
     const hasEntropy = !!entropyHex;
@@ -233,7 +235,7 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
 
     return {
       ...options,
-      headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions }),
+      headerRight: routeHeaderRight ?? (() => React.createElement(HeaderMenuButton, { onPressMenuItem, actions })),
       unstable_headerRightItems: () => [
         {
           type: 'menu',
@@ -246,6 +248,7 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
           },
         },
       ],
+      ...(routeStatusBarStyle ? { statusBarStyle: routeStatusBarStyle } : {}),
     };
   })(theme);
 

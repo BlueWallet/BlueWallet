@@ -122,7 +122,7 @@ const WalletsAdd: React.FC = () => {
   const route = useRoute<RouteProps>();
   const { entropy: entropyHex, words } = route.params || {};
   const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
-  const { navigate, goBack, setParams, setOptions } = useExtendedNavigation<NavigationProps>();
+  const { navigate, goBack, setParams } = useExtendedNavigation<NavigationProps>();
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
@@ -289,11 +289,11 @@ const WalletsAdd: React.FC = () => {
       ios: 'light',
       default: defaultStatusBarStyle,
     });
-    setOptions({
+    setParams({
       headerRight: renderHeaderRight,
       statusBarStyle,
     });
-  }, [colorScheme, renderHeaderRight, setOptions]);
+  }, [colorScheme, renderHeaderRight, setParams]);
 
   useEffect(() => {
     // resetting format of last camera qr scan, in case user will use camera to

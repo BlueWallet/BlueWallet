@@ -196,9 +196,7 @@ const MultisigAdvanced: React.FC = () => {
 
   React.useLayoutEffect(() => {
     if (Platform.OS !== 'android') {
-      navigation.setOptions({
-        headerRight: renderHeaderRight,
-      });
+      navigation.setParams({ headerRight: renderHeaderRight });
     }
   }, [navigation, renderHeaderRight]);
 

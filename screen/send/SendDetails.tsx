@@ -1234,11 +1234,11 @@ const SendDetails = () => {
   }, [nativeHeaderMenuItems]);
 
   const setHeaderRightOptions = useCallback(() => {
-    navigation.setOptions({
+    setParams({
       headerRight: HeaderRight,
       unstable_headerRightItems: nativeHeaderRightItems,
     });
-  }, [HeaderRight, navigation, nativeHeaderRightItems]);
+  }, [HeaderRight, nativeHeaderRightItems, setParams]);
 
   useEffect(() => {
     console.log('send/details - useEffect');

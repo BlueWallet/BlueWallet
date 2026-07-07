@@ -7,6 +7,7 @@ import { IFee } from '../screen/send/SendDetails';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
 
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+type UnstableHeaderItemsRenderer = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 
 export type SendDetailsParams = {
   transactionMemo?: string;
@@ -48,6 +49,7 @@ export type TNavigationWrapper = {
 export type SendDetailsStackParamList = {
   SendDetails: SendDetailsParams & {
     headerRight?: HeaderRightRenderer;
+    unstable_headerRightItems?: UnstableHeaderItemsRenderer;
   };
   CoinControlOutput: {
     walletID: string;
@@ -76,6 +78,7 @@ export type SendDetailsStackParamList = {
     payjoinUrl?: string | null;
     psbt: Psbt;
     headerRight?: HeaderRightRenderer;
+    unstable_headerRightItems?: UnstableHeaderItemsRenderer;
   };
   PsbtWithHardwareWallet: {
     memo?: string;
@@ -97,6 +100,7 @@ export type SendDetailsStackParamList = {
     satoshiPerByte: number;
     feeSatoshi?: number;
     headerRight?: HeaderRightRenderer;
+    unstable_headerRightItems?: UnstableHeaderItemsRenderer;
   };
   PsbtMultisig: {
     memo?: string;
@@ -130,6 +134,7 @@ export type SendDetailsStackParamList = {
   CoinControl: {
     walletID: string;
     headerRight?: HeaderRightRenderer;
+    unstable_headerRightItems?: UnstableHeaderItemsRenderer;
   };
   PaymentCodeList: {
     walletID: string;
