@@ -630,11 +630,10 @@ export class LightningArkWallet extends LightningCustodianWallet {
     //      unspent in getCoins) AND the freshly-minted preconfirmed VTXO, so
     //      `balance.total` transiently double-counts the refill. Subtracting
     //      `boarding.total` removes the boarding leg, so each sat counts once.
-    // NOTE: `pendingRecovery` (funds under a now-deprecated server signer past
-    // its cutoff, awaiting the SDK's automatic migration) MUST be included — it
-    // is still the user's money and is what `total` counts. Summing only
-    // `available + recoverable` here dropped it, so after a signer-rotation
-    // cutoff an imported wallet whose funds are all deprecated-signer VTXOs
+    // The included `pendingRecovery` leg (funds under a now-deprecated server
+    // signer awaiting the SDK's automatic migration) is what makes this differ
+    // from a bare `available + recoverable`: that sum dropped it, so after a
+    // signer-rotation cutoff a wallet holding only deprecated-signer VTXOs
     // showed a balance of 0.
     this.balance = balance.total - balance.boarding.total;
   }
@@ -695,8 +694,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
    * pendingRecovery. Adds a concrete ETA when the SDK advertises one: each
    * deprecated-signer report carries `nextSweepEta` (ms epoch = the soonest
    * batch expiry, i.e. when the server sweeps those VTXOs and they become
-   * spendable). We surface the earliest across signers; if none is advertised
-   * (or it is already in the past), we fall back to open-ended wording.
+   * spendable).
    */
   private async _recoveringFundsMessage(pendingRecovery: number, spendable: number): Promise<string> {
     let whenClause = ' They will become available once recovery completes.';
