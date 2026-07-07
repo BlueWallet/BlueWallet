@@ -10,6 +10,7 @@
     "react",
     "react-test-renderer",
     "react-native-share",
+    "qr",
     "gradle",
     "androidx.core:core-ktx",
     "com.google.android.material:material",
