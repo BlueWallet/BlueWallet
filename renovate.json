@@ -5,7 +5,18 @@
     ":disableMajorUpdates",
     ":preserveSemverRanges"
   ],
-  "ignoreDeps": ["react-native"],
+  "ignoreDeps": [
+    "react-native",
+    "react",
+    "react-test-renderer",
+    "react-native-share",
+    "qr",
+    "gradle",
+    "androidx.core:core-ktx",
+    "com.google.android.material:material",
+    "androidx.compose.ui:ui",
+    "androidx.compose.material3:material3"
+  ],
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 1,
   "prHourlyLimit": 0,
