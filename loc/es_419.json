@@ -329,6 +329,8 @@
   "notifications": {
     "would_you_like_to_receive_notifications": "¿Te gustaría recibir notificaciones cuando recibas pagos entrantes?",
     "notifications_subtitle": "Pagos entrantes y confirmaciones de transacciones",
+    "redact_notifications": "Ocultar detalles de pago",
+    "redact_notifications_subtitle": "Las notificaciones no mostrarán importes ni información de transacciones en la pantalla de bloqueo.",
     "no_and_dont_ask": "No, y no me vuelvas a preguntar.",
     "permission_denied_message": "Has denegado el envío de notificaciones. Si deseas recibirlas, actívalas en la configuración de tu dispositivo."
   },
@@ -705,7 +707,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }

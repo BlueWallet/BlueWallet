@@ -96,5 +96,3 @@ Note: Akan (Twi/Fante) is a Niger-Congo Kwa language written in the Latin script
 | Memo | nkaeɛ | noun · "note / reminder" (no upstream wallet citation). |
 | Description | nkyerɛkyerɛmu | noun · "explanation / description" (no upstream wallet citation). |
 | Label | din | noun · "name / label" · ⚠️ must be a noun, not "to label" (no upstream wallet citation). |
-</invoke>
-

@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
-import { RouteProp, useNavigation, useNavigationState, useRoute, useLocale } from '@react-navigation/native';
-import { ActivityIndicator, BackHandler, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RouteProp, useRoute, useLocale } from '@react-navigation/native';
+import { ActivityIndicator, BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Icon from '../../components/Icon';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -13,7 +13,6 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
-import LNDCreateInvoice from './lndCreateInvoice';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import BigNumber from 'bignumber.js';
@@ -35,10 +34,9 @@ type LNDViewInvoiceRouteParams = {
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
-  const { colors, closeImage } = useTheme();
+  const { colors } = useTheme();
   const { direction } = useLocale();
-  const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
-  const navigation = useNavigation();
+  const { goBack, navigate, setParams } = useExtendedNavigation();
 
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
   const arkWallet =
@@ -47,8 +45,6 @@ const LNDViewInvoice = () => {
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const fetchInvoiceInterval = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-  const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
-
   // Per-swap claim/refund lookup, by the `swap-${id}` prefix mapped onto
   // the row's `txid` field by lightning-ark-wallet getTransactions(). The
   // route param is typed as LightningTransaction (which doesn't declare
@@ -135,39 +131,6 @@ const LNDViewInvoice = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    setOptions(
-      isModal
-        ? {
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-            },
-            gestureEnabled: false,
-            headerBackVisible: false,
-            // eslint-disable-next-line react/no-unstable-nested-components
-            headerRight: () => (
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => {
-                  // @ts-ignore: navigation
-                  navigation?.getParent().pop();
-                }}
-                testID="NavigationCloseButton"
-              >
-                <Image source={closeImage} />
-              </TouchableOpacity>
-            ),
-          }
-        : {
-            headerRight: () => {},
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-            },
-          },
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, isModal]);
 
   useEffect(() => {
     console.log('LNDViewInvoice - useEffect', { invoice });
@@ -320,9 +283,9 @@ const LNDViewInvoice = () => {
                 {loc.lndViewInvoice.date_time}: {invoiceDate}
               </Text>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-                <TouchableOpacity
+                <Pressable
                   accessibilityRole="button"
-                  style={styles.detailsTouch}
+                  style={({ pressed }) => [styles.detailsTouch, pressed && styles.detailsTouchPressed]}
                   onPress={() => navigateToPreImageScreen(String(invoice.payment_preimage))}
                 >
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
@@ -332,7 +295,7 @@ const LNDViewInvoice = () => {
                     type="font-awesome"
                     color={colors.alternativeTextColor}
                   />
-                </TouchableOpacity>
+                </Pressable>
               ) : undefined}
             </View>
           </View>
@@ -468,6 +431,9 @@ const styles = StyleSheet.create({
   detailsTouch: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  detailsTouchPressed: {
+    opacity: 0.7,
   },
   detailsText: {
     fontSize: 14,

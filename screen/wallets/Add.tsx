@@ -119,9 +119,10 @@ const WalletsAdd: React.FC = () => {
   const colorScheme = useColorScheme();
   //
   const { addWallet, saveToDisk } = useStorage();
-  const { entropy: entropyHex, words } = useRoute<RouteProps>().params || {};
+  const route = useRoute<RouteProps>();
+  const { entropy: entropyHex, words } = route.params || {};
   const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
-  const { navigate, goBack, setOptions, setParams } = useExtendedNavigation<NavigationProps>();
+  const { navigate, goBack, setParams, setOptions } = useExtendedNavigation<NavigationProps>();
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
@@ -280,12 +281,19 @@ const WalletsAdd: React.FC = () => {
     [handleOnLightningButtonPressed, toolTipActions, entropy, confirmResetEntropy, navigate],
   );
 
+  const renderHeaderRight = useCallback(() => HeaderRight, [HeaderRight]);
+
   useEffect(() => {
-    setOptions({
-      headerRight: () => HeaderRight,
-      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
+    const defaultStatusBarStyle: 'light' | 'dark' = colorScheme === 'dark' ? 'light' : 'dark';
+    const statusBarStyle = Platform.select<'light' | 'dark'>({
+      ios: 'light',
+      default: defaultStatusBarStyle,
     });
-  }, [HeaderRight, colorScheme, colors.foregroundColor, setOptions, toolTipActions]);
+    setOptions({
+      headerRight: renderHeaderRight,
+      statusBarStyle,
+    });
+  }, [colorScheme, renderHeaderRight, setOptions]);
 
   useEffect(() => {
     // resetting format of last camera qr scan, in case user will use camera to

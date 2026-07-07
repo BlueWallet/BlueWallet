@@ -409,11 +409,14 @@ const ElectrumSettings: React.FC = () => {
     [onPressMenuItem, generateToolTipActions],
   );
 
+  const renderHeaderRight = useCallback(() => HeaderRight, [HeaderRight]);
+
   useEffect(() => {
+    const nextHeaderRight = isElectrumDisabled ? null : renderHeaderRight;
     navigation.setOptions({
-      headerRight: isElectrumDisabled ? null : () => HeaderRight,
+      headerRight: nextHeaderRight,
     });
-  }, [HeaderRight, isElectrumDisabled, navigation]);
+  }, [isElectrumDisabled, navigation, renderHeaderRight]);
 
   const checkServer = async () => {
     setIsLoading(true);

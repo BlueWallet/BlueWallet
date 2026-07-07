@@ -1,9 +1,12 @@
 import { Psbt } from 'bitcoinjs-lib';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet, Utxo } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
 import { IFee } from '../screen/send/SendDetails';
 import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
+
+type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
 export type SendDetailsParams = {
   transactionMemo?: string;
@@ -43,7 +46,9 @@ export type TNavigationWrapper = {
 };
 
 export type SendDetailsStackParamList = {
-  SendDetails: SendDetailsParams;
+  SendDetails: SendDetailsParams & {
+    headerRight?: HeaderRightRenderer;
+  };
   CoinControlOutput: {
     walletID: string;
     utxo: Utxo;
@@ -70,6 +75,7 @@ export type SendDetailsStackParamList = {
     satoshiPerByte: number;
     payjoinUrl?: string | null;
     psbt: Psbt;
+    headerRight?: HeaderRightRenderer;
   };
   PsbtWithHardwareWallet: {
     memo?: string;
@@ -90,6 +96,7 @@ export type SendDetailsStackParamList = {
     recipients: CreateTransactionTarget[];
     satoshiPerByte: number;
     feeSatoshi?: number;
+    headerRight?: HeaderRightRenderer;
   };
   PsbtMultisig: {
     memo?: string;
@@ -122,6 +129,7 @@ export type SendDetailsStackParamList = {
   };
   CoinControl: {
     walletID: string;
+    headerRight?: HeaderRightRenderer;
   };
   PaymentCodeList: {
     walletID: string;
