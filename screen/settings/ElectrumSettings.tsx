@@ -413,7 +413,7 @@ const ElectrumSettings: React.FC = () => {
 
   useEffect(() => {
     const nextHeaderRight = isElectrumDisabled ? null : renderHeaderRight;
-    navigation.setOptions({
+    navigation.setParams({
       headerRight: nextHeaderRight,
     });
   }, [isElectrumDisabled, navigation, renderHeaderRight]);

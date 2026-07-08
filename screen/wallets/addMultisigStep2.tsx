@@ -116,9 +116,7 @@ const WalletsAddMultisigStep2 = () => {
   });
 
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: renderHeaderRight,
-    });
+    navigation.setParams({ headerRight: renderHeaderRight });
   }, [navigation, renderHeaderRight]);
 
   const onCreate = async () => {

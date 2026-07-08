@@ -276,7 +276,6 @@ const DetailViewStackScreensStack = () => {
               tintColor: theme.colors.headerProminentButtonBackgroundColor,
               identifier: 'AddWalletButton',
               accessibilityLabel: 'AddWalletButton',
-              sharesBackground: false,
               onPress: navigateToAddWallet,
             },
           ];
@@ -287,7 +286,6 @@ const DetailViewStackScreensStack = () => {
               icon: { type: 'sfSymbol', name: 'ellipsis' },
               identifier: 'SettingsButton',
               accessibilityLabel: 'SettingsButton',
-              sharesBackground: false,
               onPress: navigateToSettings,
             });
           }
@@ -596,19 +594,7 @@ const DetailViewStackScreensStack = () => {
             renderManageWalletsHeaderLeft,
           )(theme)}
         />
-        <DetailViewStack.Screen
-          name="ReceiveDetails"
-          component={ReceiveDetails}
-          options={navigationStyle(
-            {
-              title: loc.receive.header,
-              closeButtonPosition: CloseButtonPosition.Left,
-              headerShown: true,
-              presentation: 'modal',
-            },
-            withRouteParamHeaderOptions({ headerLeft: true, headerRight: true, headerBackVisible: true }),
-          )(theme)}
-        />
+        <DetailViewStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={createReceiveDetailsOptions(theme)} />
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
           component={ReceiveCustomAmountSheet}
@@ -663,3 +649,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
+
+const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
+  navigationStyle(
+    {
+      title: loc.receive.header,
+      closeButtonPosition: CloseButtonPosition.Left,
+      headerShown: true,
+      presentation: 'modal',
+    },
+    withRouteParamHeaderOptions({ headerLeft: true, headerRight: true, headerBackVisible: true }),
+  )(theme);

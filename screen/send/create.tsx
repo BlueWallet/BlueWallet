@@ -1,5 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import { RouteProp, useRoute } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect } from 'react';
@@ -23,6 +24,8 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CreateTransactionTarget } from '../../class/wallets/types';
 
+type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CreateTransaction'>;
+
 const SendCreate = () => {
   const {
     fee,
@@ -37,7 +40,7 @@ const SendCreate = () => {
   const size = transaction.virtualSize();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
-  const navigation = useExtendedNavigation();
+  const { setParams } = useExtendedNavigation<NavigationProps>();
 
   const styleHooks = StyleSheet.create({
     transactionDetailsTitle: {
@@ -123,10 +126,8 @@ const SendCreate = () => {
   );
 
   useEffect(() => {
-    navigation.setOptions({
-      headerRight: renderHeaderRight,
-    });
-  }, [navigation, renderHeaderRight]);
+    setParams({ headerRight: renderHeaderRight });
+  }, [renderHeaderRight, setParams]);
 
   const _renderItem = ({ index, item }: ListRenderItemInfo<CreateTransactionTarget>) => {
     return (

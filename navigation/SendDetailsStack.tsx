@@ -55,7 +55,7 @@ const SendDetailsStack = () => {
             statusBarStyle: 'light',
             closeButtonPosition: CloseButtonPosition.Left,
           },
-          withRouteParamHeaderOptions({ headerRight: true }),
+          withRouteParamHeaderOptions({ headerRight: true, unstable_headerRightItems: true }),
         )(theme)}
         initialParams={{ isEditable: true, feeUnit: BitcoinUnit.BTC, amountUnit: BitcoinUnit.BTC }} // Correctly typed now
       />
@@ -77,7 +77,7 @@ const SendDetailsStack = () => {
         component={ConfirmComponent}
         options={navigationStyle(
           { title: loc.send.confirm_header, headerRight: () => DetailsButton },
-          withRouteParamHeaderOptions({ headerRight: true }),
+          withRouteParamHeaderOptions({ headerRight: true, unstable_headerRightItems: true }),
         )(theme)}
       />
       <Stack.Screen
@@ -88,7 +88,10 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CreateTransaction"
         component={CreateTransactionComponent}
-        options={navigationStyle({ title: loc.send.create_details }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
+        options={navigationStyle(
+          { title: loc.send.create_details },
+          withRouteParamHeaderOptions({ headerRight: true, unstable_headerRightItems: true }),
+        )(theme)}
       />
       <Stack.Screen
         name="PsbtMultisig"
@@ -129,7 +132,7 @@ const SendDetailsStack = () => {
             title: loc.cc.header,
             closeButtonIfFirstInStack: CloseButtonPosition.Left,
           },
-          withRouteParamHeaderOptions({ headerRight: true }),
+          withRouteParamHeaderOptions({ headerRight: true, unstable_headerRightItems: true }),
         )(theme)}
       />
       <Stack.Screen

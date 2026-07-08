@@ -34,12 +34,20 @@ type VaultKeyData = {
 
 type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+type UnstableHeaderItemsRenderer = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
 
 export type DetailViewStackParamList = {
   DrawerRoot: undefined;
   UnlockWithScreen: undefined;
   WalletsList: { onBarScanned?: string };
-  WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
+  WalletTransactions: {
+    isLoading?: boolean;
+    walletID: string;
+    walletType: string;
+    onBarScanned?: string;
+    headerRight?: HeaderRightRenderer;
+    unstable_headerRightItems?: UnstableHeaderItemsRenderer;
+  };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
   TransactionStatus: { hash: string; walletID: string; tx?: any };

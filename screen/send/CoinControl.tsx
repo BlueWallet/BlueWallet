@@ -9,10 +9,12 @@ import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
+import { mapActionsToNativeHeaderMenuItems } from '../../components/nativeHeaderMenuItems';
 import SafeArea from '../../components/SafeArea';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
@@ -23,6 +25,7 @@ import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
+type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const FrozenBadge: React.FC = () => {
   const { colors } = useTheme();
@@ -165,6 +168,7 @@ enum ESortTypes {
 const CoinControl: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
+  const { setParams } = navigation;
   const { width } = useWindowDimensions();
   const { walletID } = useRoute<RouteProps>().params;
   const { wallets, saveToDisk, sleep } = useStorage();
@@ -346,12 +350,37 @@ const CoinControl: React.FC = () => {
 
   const renderHeaderRight = useCallback(() => (utxos.length > 0 ? HeaderRight : null), [HeaderRight, utxos.length]);
 
+  const nativeHeaderMenuItems = useMemo(
+    () => mapActionsToNativeHeaderMenuItems(toolTipActions.flat(), toolTipOnPressMenuItem),
+    [toolTipActions, toolTipOnPressMenuItem],
+  );
+
+  const nativeHeaderRightItems = useCallback((): HeaderRightItem[] => {
+    if (utxos.length === 0) return [];
+    return [
+      {
+        type: 'menu',
+        label: loc.cc.sort_by,
+        icon: {
+          type: 'sfSymbol',
+          name: 'ellipsis',
+        },
+        identifier: 'HeaderMenuButton',
+        menu: {
+          title: loc.cc.sort_by,
+          items: nativeHeaderMenuItems,
+        },
+      } as HeaderRightItem,
+    ];
+  }, [nativeHeaderMenuItems, utxos.length]);
+
   // Adding the ToolTipMenu to the header
   useEffect(() => {
-    navigation.setOptions({
+    setParams({
       headerRight: renderHeaderRight,
+      unstable_headerRightItems: nativeHeaderRightItems,
     });
-  }, [navigation, renderHeaderRight]);
+  }, [nativeHeaderRightItems, renderHeaderRight, setParams]);
 
   if (loading) {
     return (

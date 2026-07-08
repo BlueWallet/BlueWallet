@@ -45,11 +45,7 @@ import WatchOnlyWarning from '../../components/WatchOnlyWarning';
 import { NativeStackNavigationOptions, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { Transaction, TWallet } from '../../class/wallets/types';
-import getWalletTransactionsOptions, {
-  WalletTransactionsRouteProps,
-  createWalletDetailsHeaderRight,
-  createWalletDetailsHeaderRightItems,
-} from '../../navigation/helpers/getWalletTransactionsOptions';
+import getWalletTransactionsOptions, { WalletTransactionsRouteProps } from '../../navigation/helpers/getWalletTransactionsOptions';
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
@@ -82,6 +78,15 @@ const usesIos26AnimatedScrolledHeader = Platform.OS === 'ios' && isIOS26OrHigher
 /** Native stack options used when scrolled; includes props missing from the published TS types. */
 type WalletTransactionsScrolledHeaderOptions = NativeStackNavigationOptions & {
   headerTitleContainerStyle?: StyleProp<ViewStyle>;
+};
+
+const stripHeaderActionOptions = (options: WalletTransactionsScrolledHeaderOptions): WalletTransactionsScrolledHeaderOptions => {
+  const rest = { ...options };
+  delete rest.headerLeft;
+  delete rest.headerRight;
+  delete rest.unstable_headerLeftItems;
+  delete rest.unstable_headerRightItems;
+  return rest;
 };
 
 /** Horizontal space reserved so the scrolled title does not run under back / header-right actions. */
@@ -612,7 +617,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
   const getScrolledHeaderOptions = useCallback((): WalletTransactionsScrolledHeaderOptions => {
     const { titleInsetRight } = getScrolledHeaderTitleLayout(screenWidth);
-    const routeIsLoading = route.params.isLoading ?? false;
     const scrolledHeaderIconColor = colors.foregroundColor;
 
     return {
@@ -639,29 +643,19 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             statusBarStyle: 'light',
             ...(isIOS26OrHigher && !isDesktop
               ? {
-                  headerRight: undefined,
-                  unstable_headerRightItems: createWalletDetailsHeaderRightItems({
-                    isLoading: routeIsLoading,
-                    walletID,
-                  }),
                   experimental_userInterfaceStyle: dark ? ('dark' as const) : ('light' as const),
                 }
               : {
                   headerBlurEffect: dark ? ('dark' as const) : ('light' as const),
-                  headerRight: createWalletDetailsHeaderRight({
-                    walletID,
-                    isLoading: routeIsLoading,
-                    iconColor: scrolledHeaderIconColor,
-                  }),
                 }),
           }
         : {}),
     };
-  }, [scrolledHeaderTitle, screenWidth, colors.foregroundColor, dark, route.params.isLoading, walletID, wallet.type]);
+  }, [scrolledHeaderTitle, screenWidth, colors.foregroundColor, dark, wallet.type]);
 
   useEffect(() => {
     if (!headerScrolledRef.current) return;
-    setOptions(getScrolledHeaderOptions());
+    setOptions(stripHeaderActionOptions(getScrolledHeaderOptions()));
   }, [walletBalance, getScrolledHeaderOptions, setOptions]);
 
   useFocusEffect(
@@ -670,13 +664,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         headerScrolledRef.current = false;
         scrolledHeaderOpacity.value = 0;
         setOptions({
-          ...getWalletTransactionsOptions({ route }),
+          ...stripHeaderActionOptions(getWalletTransactionsOptions({ route })),
           ...buildIos26HeaderTitleLayoutOptions(screenWidth),
           headerTitle: scrolledHeaderTitle,
         });
         return;
       }
-      setOptions(getWalletTransactionsOptions({ route }));
+      setOptions(stripHeaderActionOptions(getWalletTransactionsOptions({ route })));
     }, [route, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity, setOptions]),
   );
 
@@ -692,10 +686,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           duration: scrolled ? SCROLLED_HEADER_FADE_IN_MS : SCROLLED_HEADER_FADE_OUT_MS,
         });
         if (scrolled) {
-          setOptions(getScrolledHeaderOptions());
+          setOptions(stripHeaderActionOptions(getScrolledHeaderOptions()));
         } else {
           setOptions({
-            ...getWalletTransactionsOptions({ route }),
+            ...stripHeaderActionOptions(getWalletTransactionsOptions({ route })),
             ...buildIos26HeaderTitleLayoutOptions(screenWidth),
             headerTitle: scrolledHeaderTitle,
           });
@@ -708,14 +702,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
 
       if (!scrolled) {
         setOptions({
-          ...getWalletTransactionsOptions({ route }),
+          ...stripHeaderActionOptions(getWalletTransactionsOptions({ route })),
           headerTitle: undefined,
           headerTitleAlign: undefined,
           headerTitleContainerStyle: undefined,
           headerBlurEffect: undefined,
         });
       } else {
-        setOptions(getScrolledHeaderOptions());
+        setOptions(stripHeaderActionOptions(getScrolledHeaderOptions()));
       }
     },
     [getScrolledHeaderOptions, setOptions, route, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity],

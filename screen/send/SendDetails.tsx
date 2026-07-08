@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import assert from 'assert';
@@ -44,6 +45,7 @@ import CoinsSelected from '../../components/CoinsSelected';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
+import { mapActionsToNativeHeaderMenuItems } from '../../components/nativeHeaderMenuItems';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
@@ -75,6 +77,7 @@ export interface IFee {
 }
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
+type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
@@ -1207,11 +1210,35 @@ const SendDetails = () => {
     [headerRightOnPress, isLoading, headerRightActions],
   );
 
+  const nativeHeaderMenuItems = useMemo(
+    () => mapActionsToNativeHeaderMenuItems(headerRightActions().flat(), headerRightOnPress),
+    [headerRightActions, headerRightOnPress],
+  );
+
+  const nativeHeaderRightItems = useCallback((): HeaderRightItem[] => {
+    return [
+      {
+        type: 'menu',
+        label: loc.wallets.details_options,
+        icon: {
+          type: 'sfSymbol',
+          name: 'ellipsis',
+        },
+        identifier: 'HeaderMenuButton',
+        menu: {
+          title: loc.wallets.details_options,
+          items: nativeHeaderMenuItems,
+        },
+      } as HeaderRightItem,
+    ];
+  }, [nativeHeaderMenuItems]);
+
   const setHeaderRightOptions = useCallback(() => {
-    navigation.setOptions({
+    setParams({
       headerRight: HeaderRight,
+      unstable_headerRightItems: nativeHeaderRightItems,
     });
-  }, [HeaderRight, navigation]);
+  }, [HeaderRight, nativeHeaderRightItems, setParams]);
 
   useEffect(() => {
     console.log('send/details - useEffect');
