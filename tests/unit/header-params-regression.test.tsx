@@ -7,13 +7,11 @@ import MultisigAdvanced from '../../screen/wallets/MultisigAdvanced';
 let routeParams: any = {};
 
 const setParamsMock = jest.fn();
-const setOptionsMock = jest.fn();
 const navigateMock = jest.fn();
 const goBackMock = jest.fn();
 
 const navigationMock = {
   setParams: setParamsMock,
-  setOptions: setOptionsMock,
   navigate: navigateMock,
   goBack: goBackMock,
 };
@@ -152,7 +150,6 @@ jest.mock('../../loc', () => ({
 describe('Header options regression guards', () => {
   beforeEach(() => {
     setParamsMock.mockClear();
-    setOptionsMock.mockClear();
     navigateMock.mockClear();
     goBackMock.mockClear();
   });
@@ -173,13 +170,13 @@ describe('Header options regression guards', () => {
     const screen = render(<Confirm />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
 
     screen.rerender(<Confirm />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -194,13 +191,13 @@ describe('Header options regression guards', () => {
     const screen = render(<MultisigAdvanced />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
 
     screen.rerender(<MultisigAdvanced />);
 
     await waitFor(() => {
-      expect(setOptionsMock).toHaveBeenCalledTimes(1);
+      expect(setParamsMock).toHaveBeenCalledTimes(1);
     });
   });
 });
