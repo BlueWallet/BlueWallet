@@ -182,10 +182,15 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
       setBlocks(heights.map(h => ({ height: h, timestamp: timestamps[h] })));
     } catch (e) {
       console.warn('BlocksAccordion: failed to fetch block data', e);
-      setError(true);
+      if (fetchTxHash === activeTxHashRef.current) {
+        setError(true);
+      }
     } finally {
-      fetchStartedRef.current = false;
-      setLoading(false);
+      // Prevent stale requests from mutating UI/loading for a newer txHash.
+      if (fetchTxHash === activeTxHashRef.current) {
+        fetchStartedRef.current = false;
+        setLoading(false);
+      }
     }
   }, [txHash]);
 
@@ -197,6 +202,9 @@ const BlocksAccordion: React.FC<BlocksAccordionProps> = ({ txHash, isSent, isExp
   useEffect(() => {
     activeTxHashRef.current = txHash;
     fetchStartedRef.current = false;
+    // Allow the new `txHash` request to start even if the previous request is still in-flight.
+    // The stale request's guarded `finally` must not clear `loading`, but the new request needs a clean start.
+    setLoading(false);
     setBlocks([]);
     setConfirmedHeight(null);
     setCurrentTip(null);

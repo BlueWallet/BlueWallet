@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { ActivityIndicator } from 'react-native';
 
 import BlocksAccordion from '../../components/BlocksAccordion';
 
@@ -184,6 +185,46 @@ describe('BlocksAccordion', () => {
       expect(getByText(/Confirmed in the latest block \(800000\)/)).toBeTruthy();
     });
     expect(queryByText('Could not load block details. Tap to try again.')).toBeNull();
+  });
+
+  it('keeps loading indicator when txHash changes mid-flight', async () => {
+    const pending: Record<string, { resolve: (value: { height: number; tip: number } | null) => void }> = {};
+    mockGetConfirmedBlockHeight.mockImplementation(
+      (hash: string) =>
+        new Promise<{ height: number; tip: number } | null>(resolve => {
+          pending[hash] = { resolve };
+        }),
+    );
+
+    const { rerender, getByText, UNSAFE_getAllByType } = render(<BlocksAccordion {...defaultProps} isExpanded txHash="first-tx" />);
+
+    await waitFor(() => {
+      expect(UNSAFE_getAllByType(ActivityIndicator).length).toBeGreaterThan(0);
+    });
+
+    rerender(<BlocksAccordion {...defaultProps} isExpanded txHash="second-tx" />);
+
+    await waitFor(() => {
+      expect(UNSAFE_getAllByType(ActivityIndicator).length).toBeGreaterThan(0);
+    });
+
+    await act(async () => {
+      pending['first-tx'].resolve({ height: 800001, tip: 800005 });
+      await Promise.resolve();
+    });
+
+    // The first (stale) request must not clear the loading state of the second request.
+    expect(UNSAFE_getAllByType(ActivityIndicator).length).toBeGreaterThan(0);
+    expect(mockGetBlockTimestamps).not.toHaveBeenCalled();
+
+    await act(async () => {
+      pending['second-tx'].resolve({ height: 800002, tip: 800005 });
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(getByText(/Included in block 800002\./)).toBeTruthy();
+    });
   });
 
   it('ignores stale fetch results after txHash changes mid-flight', async () => {
