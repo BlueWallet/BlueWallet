@@ -236,18 +236,20 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
     return {
       ...options,
       headerRight: routeHeaderRight ?? (() => React.createElement(HeaderMenuButton, { onPressMenuItem, actions })),
-      unstable_headerRightItems: () => [
-        {
-          type: 'menu',
-          label: loc.wallets.details_options,
-          icon: { type: 'sfSymbol', name: 'ellipsis' },
-          identifier: 'HeaderMenuButton',
-          menu: {
-            title: loc.wallets.details_options,
-            items: nativeHeaderMenuItems,
-          },
-        },
-      ],
+      unstable_headerRightItems: routeHeaderRight
+        ? undefined
+        : () => [
+            {
+              type: 'menu',
+              label: loc.wallets.details_options,
+              icon: { type: 'sfSymbol', name: 'ellipsis' },
+              identifier: 'HeaderMenuButton',
+              menu: {
+                title: loc.wallets.details_options,
+                items: nativeHeaderMenuItems,
+              },
+            },
+          ],
       ...(routeStatusBarStyle ? { statusBarStyle: routeStatusBarStyle } : {}),
     };
   })(theme);
