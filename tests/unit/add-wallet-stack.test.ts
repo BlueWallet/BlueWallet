@@ -5,7 +5,7 @@ import { createImportWalletOptions } from '../../navigation/AddWalletStack';
 jest.mock('../../typings/CommonToolTipActions', () => ({
   CommonToolTipActions: {
     Passphrase: { id: 'passphrase', text: 'Passphrase' },
-    SearchAccount: { id: 'searchAccounts', text: 'Search accounts' },
+    SearchAccount: { id: 'searchAccount', text: 'Search accounts' },
     ClearClipboard: { id: 'clearClipboard', text: 'Clear clipboard' },
   },
 }));
