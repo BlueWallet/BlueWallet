@@ -3,7 +3,6 @@ import { Alert, Platform } from 'react-native';
 import ReactNativeBiometrics, { BiometryTypes as RNBiometryTypes } from 'react-native-biometrics';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import loc from '../loc';
-import * as NavigationService from '../NavigationService';
 import presentAlert from '../components/Alert';
 import { useStorage } from './context/useStorage';
 
@@ -28,7 +27,6 @@ const clearKeychain = async () => {
     console.debug('Wiping key: STORAGEKEY');
     await RNSecureKeyStore.set(STORAGEKEY, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
     console.debug('Wiped key: STORAGEKEY');
-    NavigationService.reset();
   } catch (error: any) {
     console.warn(error);
     presentAlert({ message: error.message });
@@ -66,7 +64,7 @@ const unlockWithBiometrics = async () => {
   }
 };
 
-const showKeychainWipeAlert = () => {
+const showKeychainWipeAlert = (onCleared?: () => void) => {
   if (Platform.OS === 'ios') {
     Alert.alert(
       loc.settings.encrypt_tstorage,
@@ -97,7 +95,10 @@ const showKeychainWipeAlert = () => {
                   {
                     text: loc._.ok,
                     style: 'destructive',
-                    onPress: async () => await clearKeychain(),
+                    onPress: async () => {
+                      await clearKeychain();
+                      onCleared?.();
+                    },
                   },
                 ],
                 { cancelable: false },
@@ -113,7 +114,7 @@ const showKeychainWipeAlert = () => {
 };
 
 const useBiometrics = () => {
-  const { getItem, setItem } = useStorage();
+  const { getItem, setItem, setWalletsInitialized } = useStorage();
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [deviceBiometricType, setDeviceBiometricType] = useState<'TouchID' | 'FaceID' | 'Biometrics' | undefined>(undefined);
 
@@ -187,7 +188,10 @@ const useBiometrics = () => {
     isBiometricUseEnabled,
     isBiometricUseCapableAndEnabled,
     setBiometricUseEnabled,
-    clearKeychain,
+    clearKeychain: async () => {
+      await clearKeychain();
+      setWalletsInitialized(false);
+    },
     biometricEnabled,
   };
 };

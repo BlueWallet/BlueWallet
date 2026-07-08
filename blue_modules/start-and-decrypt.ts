@@ -10,8 +10,13 @@ const BlueApp = BlueAppClass.getInstance();
 let unlockAttempt = 0;
 
 type PasswordPromptCallback = () => Promise<string | undefined>;
+type KeychainWipeCallback = () => void;
 
-export const startAndDecrypt = async (retry?: boolean, passwordPrompt?: PasswordPromptCallback): Promise<boolean> => {
+export const startAndDecrypt = async (
+  retry?: boolean,
+  passwordPrompt?: PasswordPromptCallback,
+  onKeychainWipe?: KeychainWipeCallback,
+): Promise<boolean> => {
   // If wallets are already loaded, no need to migrate, decrypt, or load from disk.
   if (BlueApp.getWallets().length > 0) {
     return true;
@@ -61,7 +66,7 @@ export const startAndDecrypt = async (retry?: boolean, passwordPrompt?: Password
       return false;
     } else {
       unlockAttempt = 0;
-      showKeychainWipeAlert();
+      showKeychainWipeAlert(onKeychainWipe);
       // We want to return false to let the UnlockWith screen that it is NOT ok to proceed.
       return false;
     }

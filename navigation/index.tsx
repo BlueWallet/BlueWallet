@@ -1,10 +1,8 @@
 import { createNativeStackNavigator, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React, { lazy } from 'react';
 import { Platform } from 'react-native';
-import UnlockWith from '../screen/UnlockWith';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
-import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -61,118 +59,111 @@ const LazyScanQRCodeComponent = withLazySuspense(ScanQRCode);
 const multisigSheetAllowedDetents = Platform.OS === 'ios' ? 'fitToContents' : [0.9];
 
 const MainRoot = () => {
-  const { walletsInitialized } = useStorage();
   const theme = useTheme();
 
   return (
     <DetailViewStack.Navigator screenOptions={{ headerShown: false }}>
-      {!walletsInitialized ? (
-        <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
-      ) : (
-        <>
-          <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
+      <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
 
-          {/* Modal stacks */}
-          <DetailViewStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="SendDetailsRoot" component={LazySendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
-          <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
+      {/* Modal stacks */}
+      <DetailViewStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="SendDetailsRoot" component={LazySendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
+      <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
+      <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
 
-          <DetailViewStack.Screen
-            name="WalletExport"
-            component={WalletExport}
-            options={navigationStyle({
-              headerBackVisible: false,
-              title: loc.wallets.export_title,
-              presentation: 'modal',
-              headerShown: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
-          />
-          <DetailViewStack.Screen
-            name="ExportMultisigCoordinationSetupRoot"
-            component={LazyExportMultisigCoordinationSetupStack}
-            options={NavigationDefaultOptions}
-          />
-          <DetailViewStack.Screen
-            name="ViewEditMultisigCosigners"
-            component={LazyViewEditMultisigCosigners}
-            options={navigationStyle(
-              {
-                title: loc.multisig.view_edit_cosigners,
-                presentation: 'modal',
-                headerShown: true,
-                gestureEnabled: false,
-                closeButtonPosition: CloseButtonPosition.Right,
-              },
-              withRouteParamHeaderOptions({ headerRight: true }),
-            )(theme)}
-          />
-          <DetailViewStack.Screen
-            name="ViewEditMultisigCosignerViewSheet"
-            component={ViewEditMultisigCosignerViewSheet}
-            options={navigationStyle({
-              presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
-              sheetGrabberVisible: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
-              headerTitle: '',
-            })(theme)}
-          />
-          <DetailViewStack.Screen
-            name="ViewEditMultisigProvideMnemonicsSheet"
-            component={ViewEditMultisigProvideMnemonicsSheet}
-            options={navigationStyle({
-              presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
-              sheetGrabberVisible: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
-              headerTitle: '',
-            })(theme)}
-          />
-          <DetailViewStack.Screen
-            name="ViewEditMultisigShareCosignerSheet"
-            component={ViewEditMultisigShareCosignerSheet}
-            options={navigationStyle({
-              presentation: 'formSheet',
-              sheetAllowedDetents: multisigSheetAllowedDetents,
-              sheetGrabberVisible: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-              headerShown: true,
-              headerTitle: '',
-            })(theme)}
-          />
-          <DetailViewStack.Screen
-            name="WalletXpub"
-            component={WalletXpub}
-            options={navigationStyle({
-              title: loc.wallets.xpub_title,
-              presentation: 'modal',
-              headerShown: true,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
-          />
-          <DetailViewStack.Screen
-            name="SignVerifyRoot"
-            component={LazySignVerifyStackRoot}
-            options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
-          />
+      <DetailViewStack.Screen
+        name="WalletExport"
+        component={WalletExport}
+        options={navigationStyle({
+          headerBackVisible: false,
+          title: loc.wallets.export_title,
+          presentation: 'modal',
+          headerShown: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ExportMultisigCoordinationSetupRoot"
+        component={LazyExportMultisigCoordinationSetupStack}
+        options={NavigationDefaultOptions}
+      />
+      <DetailViewStack.Screen
+        name="ViewEditMultisigCosigners"
+        component={LazyViewEditMultisigCosigners}
+        options={navigationStyle(
+          {
+            title: loc.multisig.view_edit_cosigners,
+            presentation: 'modal',
+            headerShown: true,
+            gestureEnabled: false,
+            closeButtonPosition: CloseButtonPosition.Right,
+          },
+          withRouteParamHeaderOptions({ headerRight: true }),
+        )(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ViewEditMultisigCosignerViewSheet"
+        component={ViewEditMultisigCosignerViewSheet}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: multisigSheetAllowedDetents,
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+          headerShown: true,
+          headerTitle: '',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ViewEditMultisigProvideMnemonicsSheet"
+        component={ViewEditMultisigProvideMnemonicsSheet}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: multisigSheetAllowedDetents,
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+          headerShown: true,
+          headerTitle: '',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="ViewEditMultisigShareCosignerSheet"
+        component={ViewEditMultisigShareCosignerSheet}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: multisigSheetAllowedDetents,
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+          headerShown: true,
+          headerTitle: '',
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="WalletXpub"
+        component={WalletXpub}
+        options={navigationStyle({
+          title: loc.wallets.xpub_title,
+          presentation: 'modal',
+          headerShown: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+        })(theme)}
+      />
+      <DetailViewStack.Screen
+        name="SignVerifyRoot"
+        component={LazySignVerifyStackRoot}
+        options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
+      />
 
-          <DetailViewStack.Screen
-            name="ScanQRCode"
-            component={LazyScanQRCodeComponent}
-            options={{
-              headerShown: false,
-              statusBarHidden: true,
-              orientation: 'portrait',
-              presentation: 'fullScreenModal',
-            }}
-          />
-        </>
-      )}
+      <DetailViewStack.Screen
+        name="ScanQRCode"
+        component={LazyScanQRCodeComponent}
+        options={{
+          headerShown: false,
+          statusBarHidden: true,
+          orientation: 'portrait',
+          presentation: 'fullScreenModal',
+        }}
+      />
     </DetailViewStack.Navigator>
   );
 };

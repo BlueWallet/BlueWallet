@@ -14,15 +14,6 @@ export function dispatch(action: NavigationAction) {
   }
 }
 
-export function reset() {
-  if (navigationRef.isReady()) {
-    navigationRef.current?.reset({
-      index: 0,
-      routes: [{ name: 'UnlockWithScreen' }],
-    });
-  }
-}
-
 export function popToTop() {
   if (navigationRef.isReady()) {
     navigationRef.current?.dispatch(StackActions.popToTop());

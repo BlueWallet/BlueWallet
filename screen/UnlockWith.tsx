@@ -87,6 +87,9 @@ const UnlockWith: React.FC = () => {
   const passwordResolveRef = useRef<((password: string | undefined) => void) | null>(null);
   const { setWalletsInitialized, isStorageEncrypted, startAndDecrypt } = useStorage();
   const { deviceBiometricType, isBiometricUseCapableAndEnabled, isBiometricUseEnabled } = useBiometrics();
+  const relockApp = useCallback(() => {
+    setWalletsInitialized(false);
+  }, [setWalletsInitialized]);
 
   useEffect(() => {
     setWalletsInitialized(false);
@@ -141,14 +144,13 @@ const UnlockWith: React.FC = () => {
     dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
 
     if (await unlockWithBiometrics()) {
-      await startAndDecrypt();
+      await startAndDecrypt(false, undefined, relockApp);
       successfullyAuthenticated();
     }
 
     dispatch({ type: SET_IS_AUTHENTICATING, payload: false });
     isUnlockingWallets.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.isAuthenticating]);
+  }, [state.isAuthenticating, relockApp, startAndDecrypt, successfullyAuthenticated]);
 
   const promptForPassword = useCallback(async (): Promise<string | undefined> => {
     return new Promise(resolve => {
@@ -179,7 +181,7 @@ const UnlockWith: React.FC = () => {
       isUnlockingWallets.current = true;
       dispatch({ type: SET_IS_AUTHENTICATING, payload: true });
 
-      const result = await startAndDecrypt(isRetry, promptForPassword);
+      const result = await startAndDecrypt(isRetry, promptForPassword, relockApp);
 
       if (result) {
         dispatch({ type: SET_SUCCESS, payload: true });
@@ -200,7 +202,7 @@ const UnlockWith: React.FC = () => {
         }, 500); // After shake animation completes (320ms) + small delay
       }
     },
-    [state.isAuthenticating, startAndDecrypt, successfullyAuthenticated, promptForPassword],
+    [relockApp, state.isAuthenticating, startAndDecrypt, successfullyAuthenticated, promptForPassword],
   );
 
   useEffect(() => {
