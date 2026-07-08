@@ -299,10 +299,15 @@ export const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
           ? () =>
               React.createElement(
                 TouchableOpacity,
+                {
+                  accessibilityRole: 'button',
+                  accessibilityLabel: loc._.close,
+                  style: styles.closeButton,
                   onPress: () => {
                     Keyboard.dismiss();
                     navigation.goBack();
                   },
+                  testID: 'NavigationCloseButton',
                 },
                 React.createElement(Image, { source: theme.closeImage }),
               )
