@@ -688,6 +688,8 @@ const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
               type: 'menu',
               label: loc.wallets.details_options,
               icon: { type: 'sfSymbol', name: 'ellipsis' },
+              identifier: 'HeaderMenuButton',
+              accessibilityLabel: 'HeaderMenuButton',
               menu: {
                 title: loc.wallets.details_options,
                 items: nativeHeaderMenuItems,
