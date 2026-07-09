@@ -199,23 +199,13 @@ const setDateTimeLocale = async () => {
       lang = 'hy-am';
       require('dayjs/locale/hy-am');
       break;
+    // Akan, Sesotho, Fula, Zulu, Hakka, Guaraní — no dayjs locale available, using English as closest match
     case 'ak':
-    // Akan — no dayjs locale available, using English as closest match
-    // falls through
     case 'st_ZA':
-    // Sesotho — no dayjs locale available, using English as closest match
-    // falls through
     case 'ff':
-    // Fula — no dayjs locale available, using English as closest match
-    // falls through
     case 'zu_ZA':
-    // Zulu — no dayjs locale available, using English as closest match
-    // falls through
     case 'hak':
-    // Hakka — no dayjs locale available, using English as closest match
-    // falls through
     case 'gug_PY':
-      // Guaraní — no dayjs locale available, using English as closest match
       lang = 'en';
       require('dayjs/locale/en');
       break;
