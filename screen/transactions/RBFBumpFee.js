@@ -10,7 +10,7 @@ import loc from '../../loc';
 import CPFP from './CPFP';
 import { StorageContext } from '../../components/Context/StorageProvider';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 
 const styles = StyleSheet.create({
   root: {
@@ -34,7 +34,7 @@ export default class RBFBumpFee extends CPFP {
 
   async checkPossibilityOfRBFBumpFee() {
     let tx;
-    if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+    if (isWatchOnlySegwitBech32(this.state.wallet)) {
       tx = new HDSegwitBech32Transaction(
         null,
         this.state.txid,
@@ -67,7 +67,7 @@ export default class RBFBumpFee extends CPFP {
         // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
         // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
         // user whether he wants to broadcast it
-        if (this.state.wallet?.type === WatchOnlyWallet.type && this.state.wallet?._hdWalletInstance?.type === HDSegwitBech32Wallet.type) {
+        if (isWatchOnlySegwitBech32(this.state.wallet)) {
           let memo;
           // porting memo from old tx:
           if (this.context.txMetadata[this.state.txid]?.memo) {
@@ -83,7 +83,6 @@ export default class RBFBumpFee extends CPFP {
                 memo,
                 walletID: this.state.wallet.getID(),
                 psbt,
-                launchedBy: this.props.route?.params?.launchedBy,
               },
             });
           this.setState({ isLoading: false });

@@ -58,6 +58,7 @@ import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTip
 import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
+import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -281,9 +282,7 @@ const SendDetails = () => {
     setParams({
       ...(walletActuallyChanged ? { utxos: null } : {}),
       isTransactionReplaceable:
-        (wallet.type === HDSegwitBech32Wallet.type ||
-          (wallet.type === WatchOnlyWallet.type && wallet._hdWalletInstance?.type === HDSegwitBech32Wallet.type)) &&
-        !routeParams.isTransactionReplaceable
+        (wallet.type === HDSegwitBech32Wallet.type || isWatchOnlySegwitBech32(wallet)) && !routeParams.isTransactionReplaceable
           ? true
           : undefined,
     });
@@ -1166,11 +1165,7 @@ const SendDetails = () => {
       {
         ...CommonToolTipActions.AllowRBF,
         menuState: isTransactionReplaceable,
-        hidden: !(
-          (wallet.type === HDSegwitBech32Wallet.type ||
-            (wallet.type === WatchOnlyWallet.type && wallet._hdWalletInstance?.type === HDSegwitBech32Wallet.type)) &&
-          isTransactionReplaceable !== undefined
-        ),
+        hidden: !((wallet.type === HDSegwitBech32Wallet.type || isWatchOnlySegwitBech32(wallet)) && isTransactionReplaceable !== undefined),
       },
     ];
     walletActions.push(rbfAction);
