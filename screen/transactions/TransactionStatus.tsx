@@ -734,7 +734,7 @@ const TransactionStatus: React.FC = () => {
     }
   };
 
-  const navigateToRBFBumpFee = (transaction: Transaction, w: TWallet) => {
+  const navigateToRBF = (route: 'RBFBumpFee' | 'RBFCancel', transaction: Transaction, w: TWallet) => {
     if (isWatchOnlySegwitBech32(w) && !w.useWithHardwareWalletEnabled()) {
       return Alert.alert(
         loc.wallets.details_title,
@@ -745,51 +745,21 @@ const TransactionStatus: React.FC = () => {
             onPress: async () => {
               w.setUseWithHardwareWalletEnabled(true);
               await saveToDisk();
-              navigate('RBFBumpFee', {
+              navigate(route, {
                 txid: transaction.hash,
                 wallet: w,
               });
             },
             style: 'default',
           },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
-        ],
-        { cancelable: false },
-      );
-    }
-    navigate('RBFBumpFee', {
-      txid: transaction.hash,
-      wallet: w,
-    });
-  };
-
-  const navigateToRBFCancel = (transaction: Transaction, w: TWallet) => {
-    if (isWatchOnlySegwitBech32(w) && !w.useWithHardwareWalletEnabled()) {
-      return Alert.alert(
-        loc.wallets.details_title,
-        loc.transactions.enable_offline_signing,
-        [
           {
-            text: loc._.ok,
-            onPress: async () => {
-              w.setUseWithHardwareWalletEnabled(true);
-              await saveToDisk();
-              navigate('RBFCancel', {
-                txid: transaction.hash,
-                wallet: w,
-              });
-            },
-            style: 'default',
+            text: loc._.cancel,
+            style: 'cancel',
           },
-          { text: loc._.cancel, onPress: () => {}, style: 'cancel' },
         ],
         { cancelable: false },
       );
     }
-    navigate('RBFCancel', {
-      txid: transaction.hash,
-      wallet: w,
-    });
   };
 
   const navigateToCPFP = (transaction: Transaction, w: TWallet) => {
@@ -1139,7 +1109,7 @@ const TransactionStatus: React.FC = () => {
                 <View style={styles.stateButtons}>
                   {isRBFBumpFeePossible === ButtonStatus.Possible && (
                     <TouchableOpacity
-                      onPress={() => navigateToRBFBumpFee(tx, wallet)}
+                      onPress={() => navigateToRBF('RBFBumpFee', tx, wallet)}
                       style={[styles.speedUpButton, stylesHook.speedUpButton]}
                       accessibilityRole="button"
                     >
@@ -1148,7 +1118,7 @@ const TransactionStatus: React.FC = () => {
                   )}
                   {isRBFCancelPossible === ButtonStatus.Possible && (
                     <TouchableOpacity
-                      onPress={() => navigateToRBFCancel(tx, wallet)}
+                      onPress={() => navigateToRBF('RBFCancel', tx, wallet)}
                       style={[styles.cancelButton, stylesHook.cancelButton]}
                       accessibilityRole="button"
                     >
