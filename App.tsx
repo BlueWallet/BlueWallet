@@ -22,12 +22,19 @@ const AppContent = () => {
 
   const processDeepLink = useCallback(
     (url: string) => {
-      DeeplinkSchemaMatch.navigationRouteFor({ url }, (value: [string, any]) => navigationRef.navigate(...value), {
-        wallets,
-        addWallet,
-        saveToDisk,
-        setSharedCosigner,
-      });
+      DeeplinkSchemaMatch.navigationRouteFor(
+        { url },
+        (value: [string, any]) => {
+          if (!navigationRef.isReady()) return;
+          navigationRef.navigate(...value);
+        },
+        {
+          wallets,
+          addWallet,
+          saveToDisk,
+          setSharedCosigner,
+        },
+      );
     },
     [addWallet, saveToDisk, setSharedCosigner, wallets],
   );
