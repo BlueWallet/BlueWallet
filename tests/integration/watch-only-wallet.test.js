@@ -110,7 +110,7 @@ describe('Watch only wallet', () => {
 
     let tt = new HDSegwitBech32Transaction(
       null,
-      '459929d2236ccd3fe155cc9b79909354d1ebfb3ae911edf183537ffa25f76188',
+      '3f259914c38abf10af40086b196a724b3b9da27095c3d7b627c83335f7d17400',
       w._hdWalletInstance,
       4056346968,
     );
@@ -128,7 +128,7 @@ describe('Watch only wallet', () => {
     }
 
     // without mfp or mfp = 0
-    tt = new HDSegwitBech32Transaction(null, '459929d2236ccd3fe155cc9b79909354d1ebfb3ae911edf183537ffa25f76188', w._hdWalletInstance);
+    tt = new HDSegwitBech32Transaction(null, '3f259914c38abf10af40086b196a724b3b9da27095c3d7b627c83335f7d17400', w._hdWalletInstance);
     result = await tt.createRBFbumpFee(5);
     assert.strictEqual(result.tx, undefined);
     assert.ok(result.psbt);
@@ -141,7 +141,7 @@ describe('Watch only wallet', () => {
 
     // should throw if w and not w._hdWalletInstance is passed
     assert.throws(
-      () => new HDSegwitBech32Transaction(null, '459929d2236ccd3fe155cc9b79909354d1ebfb3ae911edf183537ffa25f76188', w),
+      () => new HDSegwitBech32Transaction(null, '3f259914c38abf10af40086b196a724b3b9da27095c3d7b627c83335f7d17400', w),
       /Only HD Bech32 wallets supported/,
     );
   });
@@ -153,7 +153,7 @@ describe('Watch only wallet', () => {
 
     let tt = new HDSegwitBech32Transaction(
       null,
-      '459929d2236ccd3fe155cc9b79909354d1ebfb3ae911edf183537ffa25f76188',
+      '3f259914c38abf10af40086b196a724b3b9da27095c3d7b627c83335f7d17400',
       w._hdWalletInstance,
       4056346968,
     );
@@ -171,7 +171,7 @@ describe('Watch only wallet', () => {
     }
 
     // without mfp or mfp = 0
-    tt = new HDSegwitBech32Transaction(null, '459929d2236ccd3fe155cc9b79909354d1ebfb3ae911edf183537ffa25f76188', w._hdWalletInstance);
+    tt = new HDSegwitBech32Transaction(null, '3f259914c38abf10af40086b196a724b3b9da27095c3d7b627c83335f7d17400', w._hdWalletInstance);
     result = await tt.createRBFcancelTx(5);
     assert.strictEqual(result.tx, undefined);
     assert.ok(result.psbt);
@@ -184,7 +184,7 @@ describe('Watch only wallet', () => {
 
     // should throw if w and not w._hdWalletInstance is passed
     assert.throws(
-      () => new HDSegwitBech32Transaction(null, '459929d2236ccd3fe155cc9b79909354d1ebfb3ae911edf183537ffa25f76188', w),
+      () => new HDSegwitBech32Transaction(null, '3f259914c38abf10af40086b196a724b3b9da27095c3d7b627c83335f7d17400', w),
       /Only HD Bech32 wallets supported/,
     );
   });
