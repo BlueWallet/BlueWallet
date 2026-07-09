@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Hardware wallet | ví phần cứng | noun, lowercase. |
 | Seed | cụm từ khôi phục / seed | noun · mainstream / loanword · ⚠️ NOT `hạt giống` (botanical). |
 | Mnemonic | cụm từ ghi nhớ / cụm từ khôi phục | noun · technical / mainstream. |
-| Passphrase | cụm mật khẩu | noun · ⚠️ NOT `mật khẩu` (= password) and NOT `mã PIN` (= passcode). |
+| Passphrase | cụm mật khẩu | noun · ⚠️ NOT `mật khẩu` (= password) and NOT `mã PIN` (= passcode). Bitcoin Core vi `cụm mật khẩu`; Electrum vi's `mật khẩu` collides with password — do not adopt. |
 | Public key | khóa công khai | noun, lowercase. |
 | Private key | khóa riêng tư | noun, lowercase · prefer `riêng tư` over `cá nhân` for asymmetric-crypto sense. |
 | WIF | WIF | acronym · gloss: định dạng nhập ví. |
