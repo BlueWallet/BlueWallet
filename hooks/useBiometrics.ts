@@ -114,7 +114,7 @@ const showKeychainWipeAlert = (onCleared?: () => void) => {
 };
 
 const useBiometrics = () => {
-  const { getItem, setItem, setWalletsInitialized } = useStorage();
+  const { getItem, setItem, setWalletsInitialized, resetWallets } = useStorage();
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [deviceBiometricType, setDeviceBiometricType] = useState<'TouchID' | 'FaceID' | 'Biometrics' | undefined>(undefined);
 
