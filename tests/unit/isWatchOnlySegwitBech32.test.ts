@@ -32,7 +32,7 @@ describe('isWatchOnlySegwitBech32', () => {
 
   test('returns false when HD wallet instance is not Bech32', () => {
     const w = new WatchOnlyWallet();
-    w.setSecret('xpub6Cf1vJbFa7yELW81rEgLvna3FJep5Ubryz7pX1E8LEVvcKWz6goRqjZPiUt2jU95DQ4ic46AvniS3Rf4VCs7QkLz2rzs4ZVMF4nWmPk3Rhg)');
+    w.setSecret('xpub6Cf1vJbFa7yELW81rEgLvna3FJep5Ubryz7pX1E8LEVvcKWz6goRqjZPiUt2jU95DQ4ic46AvniS3Rf4VCs7QkLz2rzs4ZVMF4nWmPk3Rhg');
     w.init();
 
     expect(isWatchOnlySegwitBech32(w)).toBe(false);
