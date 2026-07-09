@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | donanım cüzdanı | noun · native possessive compound preferred. |
 | Seed | seed | noun · loanword retained for Bitcoin context; native equivalent rare. |
 | Mnemonic | mnemonik | noun · transliterated loanword (Turkish-flavored). |
-| Passphrase | parola | noun · ⚠️ NOT `şifre` (= app password) / NOT `PIN` (= passcode) — distinct word · Trezor tr + tr.wikipedia.org/wiki/Parola |
+| Passphrase | parola | noun · ⚠️ NOT `şifre` (= app password) / NOT `PIN` (= passcode) — distinct word; app password is always `şifre`, `parola` is reserved for BIP39 passphrase · Bitcoin Core tr + Electrum tr (both `parola`; Trezor no longer ships tr) |
 | Public key | açık anahtar | noun, lowercase · Electrum tr (Bitcoin Core tr uses `Ortak Anahtar`) |
 | Private key | gizli anahtar | noun, lowercase · Bitcoin Core tr + Electrum tr |
 | WIF | WIF | acronym · gloss: Wallet Import Format. |

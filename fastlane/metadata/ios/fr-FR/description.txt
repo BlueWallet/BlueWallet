@@ -1,50 +1,56 @@
-Un portefeuille Bitcoin vous permettant de stocker, envoyer, recevoir et acheter du Bitcoin en se concentrant sur la sécurité et la simplicité.
+BlueWallet est un portefeuille Bitcoin radicalement simple, puissant et sécurisé. Stockez, envoyez et recevez des bitcoins tout en gardant le contrôle total — vos clés, vos bitcoins.
 
-Sur BlueWallet, un portefeuille Bitcoin où vous possédez vos clés privés. Un portefeuille Bitcoin fait par des utilisateurs de Bitcoin, pour la communauté.
-
-Vous pouvez faire une transaction instanément, vers n'importe où dans le monde, et transformer le système financier depuis votre poche.
-
-Créez gratuitement une infinité de portefeuilles Bitcoin ou importez votre portefeuille existant. C'est simple et rapide.
+Gratuit et open source, conçu par des utilisateurs de Bitcoin pour la communauté. Effectuez des transactions avec n'importe qui dans le monde et prenez le contrôle de votre argent, directement depuis votre poche. Créez un nombre illimité de portefeuilles gratuitement ou importez-en un existant — c'est rapide et simple.
 
 _____
 
-Voici ce que vous obtenez :
+SÉCURITÉ DÈS LA CONCEPTION
 
+Open source
+Sous licence MIT — auditez-le, compilez-le et exécutez-le vous-même. Réalisé avec React Native.
 
-1 - Sécurité dès la conception
+Vos clés, vos bitcoins
+Les clés privées (votre graine) ne quittent jamais votre appareil. Vous gardez toujours le contrôle.
 
-Open Source
-Sous license MIT, vous pouvez le compiler et le lancer dans votre coin ! Conçu avec ReactNative
-
-Possibilité de démenti plausible
-Un mot de passe qui déchiffre un faux portefeuille Bitcoin si vous êtes forcé d'en donner l'accès
+Coffre-fort multisig
+La meilleure sécurité disponible sur Bitcoin — plusieurs clés sont nécessaires pour dépenser, comme un véritable coffre-fort.
 
 Chiffrement complet
-Au-dessus du chiffrement multi-niveaux d'iOS, nous chiffrons tout avec des mots de passe supplémentaires
+En plus du chiffrement de l'appareil, tout est à nouveau chiffré avec votre propre mot de passe.
 
-Noeud complet
-Connectez-vous à votre noeud complet via Electrum
+Déni plausible
+Définissez un mot de passe leurre qui ouvre de faux portefeuilles si vous êtes un jour contraint de déverrouiller.
 
-Stockage au froid
-Connectez vous à votre portefeuille matériel et gardez vos bitcoins à l'abri
+_____
 
-2 - Un accent mis sur votre expérience
+PUISSANCE ET CONTRÔLE
 
-Vous avez les commandes
-Les clés privées ne quittent jamais votre appareil.
-Vous contrôlez vos clés privées
+Portefeuilles modernes
+Portefeuilles HD avec prise en charge complète des adresses Legacy, SegWit et Taproot.
+
+Portefeuilles matériels
+Associez Coldcard, Keystone et d'autres signataires PSBT, et conservez vos bitcoins en stockage à froid.
+
+Portefeuilles en lecture seule
+Gardez un œil sur votre stockage à froid sans jamais exposer vos clés privées.
+
+Exécutez votre propre nœud
+Connectez-vous à votre propre nœud Bitcoin complet via Electrum, et faites passer votre connexion par Tor.
+
+Contrôle des pièces
+Visualisez, étiquetez et gelez vos pièces (UTXO) pour construire des transactions exactement comme vous le souhaitez.
 
 Frais flexibles
-A partir de 1 Satoshi. Définis par vous, l'utilisateur
+Définissez vos propres frais, jusqu'à 1 sat/vByte. Accélérez les transactions bloquées avec RBF ou CPFP, ou annulez-les.
 
-Remplacer-Les-Frais
-(RBF) Accélérez vos transactions en augmentant les frais (BIP125)
+_____
 
-Portefeuilles spectateurs
-Les portefeuilles spectateurs vous permettent de garder un oeil sur votre stockage sécurisé (cold storage) sans toucher le portefeuille matériel.
+RÉSEAU LIGHTNING
 
-Réseau Lightning
-Un portefeuille Lightning sans aucune configuration nécessaire. Des transactions rapides et très peu chères avec la meilleure expérience utilisateur Bitcoin.
+Des paiements incroyablement bon marché et ultra-rapides, sans aucune configuration. Payez et soyez payé avec les adresses Lightning et LNURL.
 
-Acheter du bitcoin
-Rejoignez la révolution la finance ouverte avec la possibilité d'acheter du bitcoin directement depuis votre portefeuille.
+_____
+
+Disponible sur iOS, Android et macOS. Plusieurs devises et langues. Mode sombre. Aucun compte ni suivi — juste Bitcoin.
+
+BlueWallet — possédez vos bitcoins.
