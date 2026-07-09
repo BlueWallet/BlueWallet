@@ -190,6 +190,10 @@ const useBiometrics = () => {
     setBiometricUseEnabled,
     clearKeychain: async () => {
       await clearKeychain();
+      BlueApp.wallets = [];
+      BlueApp.tx_metadata = {};
+      BlueApp.counterparty_metadata = {};
+      resetWallets();
       setWalletsInitialized(false);
     },
     biometricEnabled,
