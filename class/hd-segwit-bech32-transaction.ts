@@ -25,13 +25,14 @@ export class HDSegwitBech32Transaction {
    * @param txhex {string|null} Object is initialized with txhex
    * @param txid {string|null} If txhex not present - txid whould be present
    * @param wallet {HDSegwitBech32Wallet|null} If set - a wallet object to which transacton belongs
+   * @param mfp {number|undefined} set mfp if it is an HD Segwit Bech32 watch-only wallet
    */
   constructor(txhex: string | null, txid: string | null, wallet: HDSegwitBech32Wallet | null, mfp?: number) {
     if (!txhex && !txid) throw new Error('Bad arguments');
     this._txhex = txhex;
     this._txid = txid;
 
-    if (mfp) {
+    if (mfp !== undefined) {
       this._mfp = mfp;
     }
 
@@ -311,7 +312,7 @@ export class HDSegwitBech32Transaction {
     const myAddress = await this._wallet.getChangeAddressAsync();
 
     // if there is no secret then its a watch only wallet, skip signing and also pass the masterfingerprint
-    if (!this._wallet.secret && this?._mfp) {
+    if (!this._wallet.secret) {
       return this._wallet.createTransaction(
         utxos,
         [{ address: myAddress }],
@@ -319,7 +320,7 @@ export class HDSegwitBech32Transaction {
         myAddress,
         (await this.getMaxUsedSequence()) + 1,
         true,
-        this._mfp,
+        this._mfp ?? 0,
       );
     }
 
@@ -360,8 +361,16 @@ export class HDSegwitBech32Transaction {
     }
 
     // if there is no secret then its a watch only wallet, skip signing and also pass the masterfingerprint
-    if (!this._wallet.secret && this?._mfp) {
-      return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1, true, this._mfp);
+    if (!this._wallet.secret) {
+      return this._wallet.createTransaction(
+        utxos,
+        targets,
+        newFeerate,
+        myAddress,
+        (await this.getMaxUsedSequence()) + 1,
+        true,
+        this._mfp ?? 0,
+      );
     }
 
     return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1);
