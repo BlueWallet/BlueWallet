@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | hardware wallet | noun · en passthrough (no upstream) |
 | Seed | imbewu | Literal "seed". |
 | Mnemonic | mnemonic | noun · en passthrough (no upstream) |
-| Passphrase | passphrase | noun · ⚠️ NOT password / NOT passcode. · en passthrough (no upstream) |
+| Passphrase | ibinzana lokugqitha | noun · "pass phrase" · ⚠️ NOT iphasiwedi (= password) / NOT passcode (no upstream wallet citation). |
 | Public key | public key | noun · en passthrough (no upstream) |
 | Private key | private key | noun · en passthrough (no upstream) |
 | WIF | WIF | Acronym kept · English passthrough (no upstream). |

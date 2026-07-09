@@ -28,7 +28,7 @@ Note: Georgian uses the Mkhedruli script and has **no letter casing** (no upper/
 | Hardware wallet | აპარატული საფულე | noun · "hardware" + საფულე (Bitcoin Core ka). |
 | Seed | საწყისი ფრაზა / seed-ფრაზა | noun · "recovery phrase" preferred over transliteration (no upstream wallet citation). |
 | Mnemonic | მნემონიკური ფრაზა | noun · transliteration of "mnemonic" + ფრაზა (no upstream wallet citation). |
-| Passphrase | საკვანძო ფრაზა | noun · ⚠️ NOT `პაროლი` (password) and NOT the device passcode — distinct term (no upstream wallet citation). |
+| Passphrase | საკვანძო ფრაზა | noun · ⚠️ NOT `პაროლი` (password) and NOT the device passcode. Bitcoin Core ka uses `საიდუმლო ფრაზა` (wallet-encryption context); we keep the established distinct term. |
 | Public key | საჯარო გასაღები | noun · Bitcoin Core ka |
 | Private key | პირადი გასაღები | noun · Bitcoin Core ka |
 | WIF | WIF | acronym (Wallet Import Format). |

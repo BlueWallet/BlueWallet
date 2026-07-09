@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | dompet perkakas | noun, lowercase · shipped form. |
 | Seed | frasa mnemonik / benih | noun · `frasa mnemonik` mainstream recovery-phrase form (preferred per glossary); `benih` literal/technical (shipped). |
 | Mnemonic | mnemonik / frasa mnemonik | noun · `mnemonik` per Kamus Dewan (technical); `frasa mnemonik` for body-text. |
-| Passphrase | frasa nyahsulit / frasa laluan | noun · `frasa nyahsulit` (= decryption phrase) disambiguates from `kata laluan` (password); `frasa laluan` retained as fallback but collides with password term. |
+| Passphrase | frasa laluan | noun · ⚠️ NOT `kata laluan` (password) — distinct head noun (frasa vs kata) · Bitcoin Core ms uses `frasa laluan` throughout. |
 | Public key | kunci awam / kunci umum | noun, lowercase · `kunci awam` per ms.wikipedia.org/wiki/Bitcoin; `kunci umum` also shipped. |
 | Private key | kunci persendirian / kunci peribadi | noun, lowercase · `kunci persendirian` shipped; `kunci peribadi` also natural. |
 | WIF | WIF | acronym · gloss: format pindah masuk dompet. |
