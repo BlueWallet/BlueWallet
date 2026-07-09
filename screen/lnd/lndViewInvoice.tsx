@@ -21,7 +21,7 @@ import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION } from '../../class/wallets/lightning-ark-wallet';
 import presentAlert from '../../components/Alert';
 import { isReverseSuccessStatus } from '@arkade-os/boltz-swap';
 import type { BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
@@ -220,16 +220,13 @@ const LNDViewInvoice = () => {
   // "Please pay" deliberately shows the invoice-encoded amount (what the payer
   // is actually charged), not invoice.amt — which getTransactions() resolves to
   // the post-fee on-chain amount and so differs from the BOLT11 by the swap fee.
-  // Likewise we ignore the row's synthesized description/memo: getTransactions()
-  // backfills a "BlueWallet" label there for memo-less reverse swaps (so the tx
-  // list isn't blank) and that placeholder must never surface here as
-  // "For: BlueWallet". "Send to Arkade address" is the SDK's hardcoded default
-  // for a memo-less reverse swap, so it counts as "no description" too.
+  // Likewise we ignore the row's synthesized description/memo when it is the SDK's
+  // hardcoded default for a memo-less swap invoice.
   const decodeForDisplay = (paymentRequest?: string): { amountSats?: number; description?: string } => {
     if (!paymentRequest) return {};
     try {
       const d = wallet?.decodeInvoice(paymentRequest);
-      const description = d?.description && d.description !== 'Send to Arkade address' ? d.description : undefined;
+      const description = d?.description && d.description !== ARKADE_SWAP_DEFAULT_INVOICE_DESCRIPTION ? d.description : undefined;
       return { amountSats: d?.num_satoshis || undefined, description };
     } catch {
       return {};

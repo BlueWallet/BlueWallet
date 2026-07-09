@@ -2,16 +2,11 @@ import React, { memo, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Animated, Easing, Linking, Pressable, Text, TextStyle, ViewStyle, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { resolveTransactionNoteMetadataKey } from '../blue_modules/transactionDisplayState';
 import Lnurl from '../class/lnurl';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
-import TransactionExpiredIcon from '../components/icons/TransactionExpiredIcon';
-import TransactionIncomingIcon from '../components/icons/TransactionIncomingIcon';
-import TransactionOffchainIcon from '../components/icons/TransactionOffchainIcon';
-import TransactionOffchainIncomingIcon from '../components/icons/TransactionOffchainIncomingIcon';
-import TransactionOnchainIcon from '../components/icons/TransactionOnchainIcon';
-import TransactionOutgoingIcon from '../components/icons/TransactionOutgoingIcon';
-import TransactionPendingIcon from '../components/icons/TransactionPendingIcon';
+import TransactionListIcon, { resolveTransactionListIconVariant } from '../components/icons/TransactionListIcon';
 import loc, { formatBalanceWithoutSuffix, formatTransactionListDate, transactionTimeToReadable } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useSettings } from '../hooks/context/useSettings';
@@ -150,14 +145,15 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   if (item.counterparty) {
     counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
   }
-  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
+  const metadataKey = resolveTransactionNoteMetadataKey(item);
+  const txMemo =
+    (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (metadataKey ? (txMetadata[metadataKey]?.memo ?? '') : '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
 
-  // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
-  // wallet transacts entirely via Boltz swaps, so every row is Lightning; the
-  // only genuinely on-chain activity is onboarding/refill (boarding UTXOs),
-  // tagged from the synthetic `boarding-…` txid set in
-  // lightning-ark-wallet.getTransactions(). Other wallet types are unaffected.
+  // LightningArkWallet rows are tagged by synthetic txid in
+  // lightning-ark-wallet.getTransactions(): `boarding-…` for refills, everything
+  // else is Lightning. Used for pending-refill state and off-chain icons, not
+  // the date subtitle (which matches on-chain wallets: timestamp only).
   const arkRowKind = useMemo<'Lightning' | 'Refill' | undefined>(() => {
     const wallet = wallets.find(w => w.getID() === item.walletID);
     if (wallet?.type !== LightningArkWallet.type) return undefined;
@@ -197,15 +193,23 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   const isPending = listTitleKey === 'pending';
 
   const dateLine = useMemo(() => {
-    const formatted = isPending ? transactionTimeToReadable(item.timestamp) : formatTransactionListDate(item.timestamp * 1000);
-    return arkRowKind ? `${arkRowKind} · ${formatted}` : formatted;
+    return isPending ? transactionTimeToReadable(item.timestamp) : formatTransactionListDate(item.timestamp * 1000);
     // language in deps so date format updates when locale changes (formatters use global locale)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPending, item.timestamp, language, arkRowKind]);
+  }, [isPending, item.timestamp, language]);
 
   const formattedAmount = useMemo(() => {
     return formatBalanceWithoutSuffix(item.value, itemPriceUnit, true).toString();
   }, [item.value, itemPriceUnit]);
+
+  const transactionIdentifier = useMemo(() => {
+    if (item.hash) return item.hash;
+    const txid = (item as { txid?: string }).txid;
+    if (txid) return txid;
+    const rawPaymentHash = item.payment_hash;
+    if (!rawPaymentHash) return undefined;
+    return typeof rawPaymentHash === 'string' ? rawPaymentHash : uint8ArrayToHex(new Uint8Array((rawPaymentHash as any).data));
+  }, [item]);
 
   const rowTitle = useMemo(() => {
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
@@ -245,12 +249,12 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     return {
       color,
       fontSize: 14,
-      fontWeight: '600' as TextStyle['fontWeight'],
+      fontWeight: '600',
       lineHeight: Math.round(20 * fontScale),
       textAlign: 'right',
       paddingRight: insets.right,
       paddingLeft: insets.left,
-    } as TextStyle;
+    };
   }, [
     colors.successColor,
     colors.foregroundColor,
@@ -265,81 +269,29 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   ]);
 
   const determineTransactionTypeAndAvatar = () => {
-    // A refill awaiting settlement: show it as pending, not as a completed receive.
-    if (isPendingRefill) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    }
+    const iconVariant = resolveTransactionListIconVariant({ item, arkRowKind, isPendingRefill });
 
-    if (item.category === 'receive' && item.confirmations! < 3) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    }
-
-    // Recovered Arkade Lightning legs are bitcoind_tx but represent Boltz swaps,
-    // not on-chain transfers — render them with the off-chain (Lightning) icon.
-    if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
-      return item.value! < 0
-        ? { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> }
-        : { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };
-    }
-
-    if (item.type && item.type === 'bitcoind_tx') {
-      return {
-        label: loc.transactions.onchain,
-        icon: <TransactionOnchainIcon />,
-      };
-    }
-
+    let label: string;
     if (item.type === 'paid_invoice') {
-      return {
-        label: loc.transactions.offchain,
-        icon: <TransactionOffchainIcon />,
-      };
-    }
-
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
-      if (!item.ispaid && invoiceExpiration < now) {
-        return {
-          label: loc.transactions.expired_transaction,
-          icon: <TransactionExpiredIcon />,
-        };
-      } else if (!item.ispaid) {
-        return {
-          label: loc.transactions.expired_transaction,
-          icon: <TransactionPendingIcon />,
-        };
-      } else {
-        return {
-          label: loc.transactions.incoming_transaction,
-          icon: <TransactionOffchainIncomingIcon />,
-        };
-      }
-    }
-
-    if (!item.confirmations) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    } else if (item.value! < 0) {
-      return {
-        label: loc.transactions.outgoing_transaction,
-        icon: <TransactionOutgoingIcon />,
-      };
+      label = loc.transactions.offchain;
+    } else if (iconVariant === 'expired') {
+      label = loc.transactions.expired_transaction;
+    } else if (iconVariant === 'pending' && (item.type === 'user_invoice' || item.type === 'payment_request') && !item.ispaid) {
+      label = loc.transactions.expired_transaction;
+    } else if (iconVariant === 'pending') {
+      label = loc.transactions.pending_transaction;
+    } else if (iconVariant === 'onchain') {
+      label = loc.transactions.onchain;
+    } else if (iconVariant === 'outgoing' || iconVariant === 'lightning-outgoing') {
+      label = loc.transactions.outgoing_transaction;
     } else {
-      return {
-        label: loc.transactions.incoming_transaction,
-        icon: <TransactionIncomingIcon />,
-      };
+      label = loc.transactions.incoming_transaction;
     }
+
+    return {
+      label,
+      icon: <TransactionListIcon variant={iconVariant} />,
+    };
   };
 
   const { label: transactionTypeLabel, icon: avatar } = determineTransactionTypeAndAvatar();
@@ -397,14 +349,11 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         });
       }
     } else if ((item as { txid?: string }).txid) {
-      // Hash-less Ark rows carry a synthetic `txid`. Native transfer legs
-      // (`ark-…`) open the hash-less-tolerant TransactionStatus detail. Refill
-      // rows (`boarding-…` / `boarding-utxo-…`) have no detail surface and are
-      // not tappable — matching master, where on-chain top-ups aren't tappable.
+      // Hash-less Ark rows carry a synthetic `txid`. Native transfer legs (`ark-…`)
+      // open the hash-less-tolerant TransactionStatus detail. Refill rows carry the
+      // real on-chain txid in `hash` and are handled by the branch above.
       const txid = (item as { txid: string }).txid;
-      if (!txid.startsWith('boarding-')) {
-        navigate('TransactionStatus', { tx: item, hash: txid, walletID });
-      }
+      navigate('TransactionStatus', { tx: item, hash: txid, walletID });
     }
   }, [item, renderHighlightedText, navigate, walletID, wallets, customOnPress, disableNavigation]);
 
@@ -422,17 +371,13 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
         });
       }
     } else if ((item as { txid?: string }).txid) {
-      // Match the regular tap path for Ark non-swap rows: native transfer legs
-      // open TransactionStatus; refills (`boarding-…`) are not tappable (master).
       const txid = (item as { txid: string }).txid;
-      if (!txid.startsWith('boarding-')) {
-        navigate('TransactionStatus', { tx: item, hash: txid, walletID });
-      }
+      navigate('TransactionStatus', { tx: item, hash: txid, walletID });
     }
   }, [item, navigate, walletID, wallets]);
 
   const handleOnCopyAmountTap = useCallback(() => Clipboard.setString(rowTitle.replace(/[\s\\-]/g, '')), [rowTitle]);
-  const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(item.hash), [item.hash]);
+  const handleOnCopyTransactionID = useCallback(() => Clipboard.setString(transactionIdentifier ?? ''), [transactionIdentifier]);
   const handleOnCopyNote = useCallback(() => Clipboard.setString(noteForCopy ?? ''), [noteForCopy]);
   const handleOnViewOnBlockExplorer = useCallback(() => {
     const url = `${selectedBlockExplorer.url}/tx/${item.hash}`;
@@ -483,7 +428,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
       },
       {
         ...CommonToolTipActions.CopyTXID,
-        hidden: !item.hash,
+        hidden: !transactionIdentifier,
       },
       {
         ...CommonToolTipActions.CopyBlockExplorerLink,
@@ -493,7 +438,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     ];
 
     return actions as Action[];
-  }, [rowTitle, noteForCopy, item.hash]);
+  }, [rowTitle, noteForCopy, transactionIdentifier, item.hash]);
 
   const title = listTitle;
   const subtitle = dateLine;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Icon from '../Icon';
 
 import { useTheme } from '../themes';
@@ -7,15 +7,15 @@ import { useTheme } from '../themes';
 const styles = StyleSheet.create({
   boxIncoming: {
     position: 'relative',
-  } as ViewStyle,
+  },
   ballIncoming: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     transform: [{ rotate: '-45deg' }],
     justifyContent: 'center',
     alignItems: 'center',
-  } as ViewStyle,
+  },
 });
 
 const TransactionIncomingIcon: React.FC = () => {

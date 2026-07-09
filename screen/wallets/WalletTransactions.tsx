@@ -407,7 +407,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       navigate('SendDetailsRoot', {
         screen: 'SendDetails',
         params: {
-          transactionMemo: loc.lnd.refill_lnd_balance,
+          transactionMemo: loc.lnd.refill,
           address: toAddress,
           walletID: selectedWallet.getID(),
         },
@@ -485,7 +485,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       });
   };
 
-  const _keyExtractor = useCallback((item: Transaction, index: number) => item.hash || item.txid || index.toString(), []);
+  const _keyExtractor = useCallback((item: Transaction, index: number) => item.txid || item.hash || index.toString(), []);
 
   const pasteFromClipboard = async () => {
     onBarCodeRead({ data: await getClipboardContent() });

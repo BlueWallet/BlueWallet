@@ -1,6 +1,11 @@
 import assert from 'assert';
 
-import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import {
+  isOnChainTransaction,
+  resolveTransactionNote,
+  resolveTransactionNoteMetadataKey,
+  resolveTxDisplayState,
+} from '../../blue_modules/transactionDisplayState';
 
 describe('transactionDisplayState', () => {
   describe('isOnChainTransaction', () => {
@@ -11,6 +16,41 @@ describe('transactionDisplayState', () => {
       assert.strictEqual(isOnChainTransaction({}), false);
       assert.strictEqual(isOnChainTransaction(null), false);
       assert.strictEqual(isOnChainTransaction(undefined), false);
+    });
+  });
+
+  describe('resolveTransactionNoteMetadataKey', () => {
+    it('uses the boarding- txid for Ark refills, not the on-chain hash', () => {
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'boarding-deadbeef', hash: 'deadbeef' }), 'boarding-deadbeef');
+    });
+
+    it('uses hash for normal on-chain rows', () => {
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'abc', hash: 'deadbeef' }), 'deadbeef');
+    });
+
+    it('falls back to txid when hash is missing', () => {
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'ark-deadbeef' }), 'ark-deadbeef');
+    });
+
+    it('normalizes pending boarding-utxo- rows to the settled boarding- key so notes survive settlement', () => {
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'boarding-utxo-deadbeef:0', hash: 'deadbeef' }), 'boarding-deadbeef');
+      assert.strictEqual(resolveTransactionNoteMetadataKey({ txid: 'boarding-utxo-deadbeef:1' }), 'boarding-deadbeef');
+    });
+  });
+
+  describe('resolveTransactionNote', () => {
+    it('reads saved notes from the boarding- txid key for refills', () => {
+      const { metadataKey, memo } = resolveTransactionNote(
+        { txid: 'boarding-deadbeef', hash: 'deadbeef', memo: 'Refill' },
+        { 'boarding-deadbeef': { memo: 'My note' } },
+      );
+      assert.strictEqual(metadataKey, 'boarding-deadbeef');
+      assert.strictEqual(memo, 'My note');
+    });
+
+    it('falls back to row memo when no saved note exists', () => {
+      const { memo } = resolveTransactionNote({ txid: 'boarding-deadbeef', hash: 'deadbeef', memo: 'Refill' }, {});
+      assert.strictEqual(memo, 'Refill');
     });
   });
 
@@ -35,6 +75,24 @@ describe('transactionDisplayState', () => {
     });
     it('native Ark send (bitcoind_tx, negative) → sent', () => {
       assert.strictEqual(resolveTxDisplayState({ txid: 'ark-deadbeef', type: 'bitcoind_tx', value: -5000 }), 'sent');
+    });
+    it('settled refill with on-chain hash but no confirmations yet → received', () => {
+      assert.strictEqual(
+        resolveTxDisplayState({ txid: 'boarding-deadbeef', hash: 'deadbeef', type: 'bitcoind_tx', value: 5000 }),
+        'received',
+      );
+    });
+    it('pending refill with on-chain hash stays pending even when the boarding tx is confirmed', () => {
+      assert.strictEqual(
+        resolveTxDisplayState({ txid: 'boarding-utxo-deadbeef:0', hash: 'deadbeef', type: 'bitcoind_tx', value: 5000, confirmations: 6 }),
+        'pending',
+      );
+    });
+    it('settled refill with on-chain hash → received when confirmed', () => {
+      assert.strictEqual(
+        resolveTxDisplayState({ txid: 'boarding-deadbeef', hash: 'deadbeef', type: 'bitcoind_tx', value: 5000, confirmations: 6 }),
+        'received',
+      );
     });
     it('refill (boarding-, positive) → received', () => {
       assert.strictEqual(resolveTxDisplayState({ txid: 'boarding-deadbeef', type: 'bitcoind_tx', value: 5000 }), 'received');
