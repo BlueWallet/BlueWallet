@@ -2,12 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { Alert, Platform } from 'react-native';
 import ReactNativeBiometrics, { BiometryTypes as RNBiometryTypes } from 'react-native-biometrics';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import { BlueApp as BlueAppClass } from '../class/blue-app';
 import loc from '../loc';
 import presentAlert from '../components/Alert';
 import { useStorage } from './context/useStorage';
 
 const STORAGEKEY = 'Biometrics';
 const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
+const BlueApp = BlueAppClass.getInstance();
 
 const FaceID = 'Face ID';
 const TouchID = 'Touch ID';
