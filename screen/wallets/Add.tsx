@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { ActivityIndicator, Alert, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { Layout } from 'react-native-reanimated';
-import assert from 'assert';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueButtonLink from '../../components/BlueButtonLink';
@@ -250,28 +249,24 @@ const WalletsAdd: React.FC = () => {
     } else if (selectedWalletType === ButtonSelected.ARK) {
       createLightningArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
+      const walletType = index2walletType[selectedIndex]?.walletType;
       let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
 
-      for (let c = 0; c < Object.values(index2walletType).length; c++) {
-        if (c === selectedIndex) {
-          switch (index2walletType[c].walletType) {
-            case HDTaprootWallet.type:
-              w = new HDTaprootWallet();
-              w.setLabel(label || loc.wallets.details_title);
-              break;
-            case HDLegacyP2PKHWallet.type:
-              w = new HDLegacyP2PKHWallet();
-              w.setLabel(label || loc.wallets.details_title);
-              break;
-            case HDSegwitBech32Wallet.type:
-              w = new HDSegwitBech32Wallet();
-              w.setLabel(label || loc.wallets.details_title);
-              break;
-          }
-        }
+      switch (walletType) {
+        case HDTaprootWallet.type:
+          w = new HDTaprootWallet();
+          break;
+        case HDLegacyP2PKHWallet.type:
+          w = new HDLegacyP2PKHWallet();
+          break;
+        case HDSegwitBech32Wallet.type:
+        default:
+          // Guard against stale/invalid index values (e.g. transient menu-sync mismatch).
+          w = new HDSegwitBech32Wallet();
+          break;
       }
 
-      assert(w!, 'Internal error: could not decide which wallet to create');
+      w.setLabel(label || loc.wallets.details_title);
 
       if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
