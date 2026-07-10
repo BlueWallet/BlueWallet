@@ -28,7 +28,7 @@ Note: upstream wallet projects (Bitcoin Core, Electrum, Phoenix, Zeus, Trezor, C
 | Hardware wallet | viru ryru hardware | noun · *hardware* kept Latin (no upstream wallet citation). |
 | Seed | raʼỹi | noun · native "seed/grain"; used for the recovery seed (no upstream wallet citation). |
 | Mnemonic | ñeʼẽ momanduʼaha | noun · lit. "words that make remember" = mnemonic phrase (no upstream wallet citation). |
-| Passphrase | ñeʼẽñemi pukukue | noun · "long secret phrase"; distinct from password. ⚠️ NOT the app password (*ñeʼẽñemi*) nor the device passcode. |
+| Passphrase | ñeʼẽñemi pukukue | noun · "long secret phrase"; distinct from password (no upstream wallet citation). ⚠️ NOT the app password (*ñeʼẽñemi*) nor the device passcode. |
 | Public key | llave pública | noun · *llave* < Sp. "key" (fem., agreement kept) · Jopará. ⚠️ NOT title case. |
 | Private key | llave ñemi | noun · *llave* (Sp.) + *ñemi* (Guaraní "secret") · Jopará. |
 | WIF | WIF | acronym kept. |
