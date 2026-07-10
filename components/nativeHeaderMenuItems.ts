@@ -62,3 +62,22 @@ export const mapActionsToNativeHeaderMenuItems = (actions: Action[], onPressMenu
     .map(action => mapActionToNativeItem(action, onPressMenuItem))
     .filter((item): item is NativeHeaderMenuItem => item !== null);
 };
+
+export const mapActionGroupsToNativeHeaderMenuItems = (
+  actionGroups: Action[][],
+  onPressMenuItem: (id: string) => void,
+  preserveGroups = false,
+): NativeHeaderMenuItem[] => {
+  const groups = actionGroups.map(group => mapActionsToNativeHeaderMenuItems(group, onPressMenuItem)).filter(group => group.length > 0);
+
+  if (!preserveGroups) {
+    return groups.flat();
+  }
+
+  return groups.map(items => ({
+    type: 'submenu',
+    label: '',
+    inline: true,
+    items,
+  }));
+};

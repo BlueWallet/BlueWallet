@@ -1,6 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
-import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import assert from 'assert';
@@ -45,7 +44,7 @@ import CoinsSelected from '../../components/CoinsSelected';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
-import { mapActionsToNativeHeaderMenuItems } from '../../components/nativeHeaderMenuItems';
+import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
@@ -77,8 +76,6 @@ export interface IFee {
 }
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
-type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
-
 const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
@@ -1205,40 +1202,29 @@ const SendDetails = () => {
     return walletActions;
   }, [addresses, isEditable, wallet, isTransactionReplaceable]);
 
+  const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
+
   const HeaderRight = useCallback(
-    () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActions()} />,
-    [headerRightOnPress, isLoading, headerRightActions],
+    () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActionGroups} />,
+    [headerRightActionGroups, headerRightOnPress, isLoading],
   );
 
-  const nativeHeaderMenuItems = useMemo(
-    () => mapActionsToNativeHeaderMenuItems(headerRightActions().flat(), headerRightOnPress),
-    [headerRightActions, headerRightOnPress],
+  const headerMenuOptions = useMemo(
+    () =>
+      createEllipsisHeaderMenuOptions({
+        actions: headerRightActionGroups,
+        onPressMenuItem: headerRightOnPress,
+        preserveGroups: true,
+      }),
+    [headerRightActionGroups, headerRightOnPress],
   );
-
-  const nativeHeaderRightItems = useCallback((): HeaderRightItem[] => {
-    return [
-      {
-        type: 'menu',
-        label: loc.wallets.details_options,
-        icon: {
-          type: 'sfSymbol',
-          name: 'ellipsis',
-        },
-        identifier: 'HeaderMenuButton',
-        menu: {
-          title: loc.wallets.details_options,
-          items: nativeHeaderMenuItems,
-        },
-      } as HeaderRightItem,
-    ];
-  }, [nativeHeaderMenuItems]);
 
   const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({
-      headerRight: HeaderRight,
-      unstable_headerRightItems: nativeHeaderRightItems,
+      headerRight: headerMenuOptions.headerRight ?? HeaderRight,
+      unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
     });
-  }, [HeaderRight, navigation, nativeHeaderRightItems]);
+  }, [HeaderRight, headerMenuOptions, navigation]);
 
   useEffect(() => {
     console.log('send/details - useEffect');

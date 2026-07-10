@@ -3,10 +3,10 @@ import type { NativeStackNavigationOptions } from '@react-navigation/native-stac
 import React, { lazy } from 'react';
 import { Image, Keyboard, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
-import HeaderMenuButton from '../components/HeaderMenuButton';
-import { mapActionsToNativeHeaderMenuItems } from '../components/nativeHeaderMenuItems';
+import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import { Action } from '../components/types';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import { isIOS26OrHigher } from '../components/platform';
 import { useTheme } from '../components/themes';
 import { HDLegacyP2PKHWallet } from '../class/wallets/hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from '../class/wallets/hd-segwit-bech32-wallet';
@@ -229,23 +229,12 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
       });
     }
 
-    const nativeHeaderMenuItems = mapActionsToNativeHeaderMenuItems(actions, onPressMenuItem);
+    const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem });
 
     return {
       ...options,
-      headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions }),
-      unstable_headerRightItems: () => [
-        {
-          type: 'menu',
-          label: loc.wallets.details_options,
-          icon: { type: 'sfSymbol', name: 'ellipsis' },
-          identifier: 'HeaderMenuButton',
-          menu: {
-            title: loc.wallets.details_options,
-            items: nativeHeaderMenuItems,
-          },
-        },
-      ],
+      headerRight: headerMenuOptions.headerRight,
+      ...(isIOS26OrHigher ? { unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems } : {}),
     };
   })(theme);
 
@@ -272,23 +261,12 @@ export const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
       { ...CommonToolTipActions.ClearClipboard, menuState: clearClipboardMenuState },
     ];
 
-    const nativeHeaderMenuItems = mapActionsToNativeHeaderMenuItems(actions, onPressMenuItem);
+    const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem });
 
     return {
       ...options,
-      headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions }),
-      unstable_headerRightItems: () => [
-        {
-          type: 'menu',
-          label: loc.wallets.details_options,
-          icon: { type: 'sfSymbol', name: 'ellipsis' },
-          identifier: 'HeaderMenuButton',
-          menu: {
-            title: loc.wallets.details_options,
-            items: nativeHeaderMenuItems,
-          },
-        },
-      ],
+      headerRight: headerMenuOptions.headerRight,
+      ...(isIOS26OrHigher ? { unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems } : {}),
       headerLeft:
         navigation.getState().index === 0
           ? () =>
