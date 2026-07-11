@@ -147,9 +147,6 @@ const OutputList: React.FC<TOutputListProps> = ({
   );
 };
 
-type SortDirection = SendDetailsStackParamList['CoinControl']['sortDirection'];
-type SortType = SendDetailsStackParamList['CoinControl']['sortType'];
-
 const CoinControl: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
@@ -157,8 +154,8 @@ const CoinControl: React.FC = () => {
   const route = useRoute<RouteProps>();
   const { walletID } = route.params;
   const { wallets, saveToDisk, sleep } = useStorage();
-  const [sortDirection, setSortDirection] = useState<SortDirection>(route.params?.sortDirection ?? CoinControlSortDirection.ASC);
-  const [sortType, setSortType] = useState<SortType>(route.params?.sortType ?? CoinControlSortType.HEIGHT);
+  const sortDirection = route.params?.sortDirection ?? CoinControlSortDirection.ASC;
+  const sortType = route.params?.sortType ?? CoinControlSortType.HEIGHT;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID) as TWallet, [walletID, wallets]);
   const [frozen, setFrozen] = useState<string[]>(
     wallet
@@ -234,27 +231,8 @@ const CoinControl: React.FC = () => {
   );
 
   useEffect(() => {
-    const routeSortDirection = route.params?.sortDirection;
-    if (routeSortDirection && routeSortDirection !== sortDirection) {
-      setSortDirection(routeSortDirection);
-    }
-
-    const routeSortType = route.params?.sortType;
-    if (routeSortType && routeSortType !== sortType) {
-      setSortType(routeSortType);
-    }
-  }, [route.params?.sortDirection, route.params?.sortType, sortDirection, sortType]);
-
-  useEffect(() => {
     const hasUtxos = utxos.length > 0;
     const nextParams: Partial<SendDetailsStackParamList['CoinControl']> = {};
-
-    if (route.params?.sortDirection !== sortDirection) {
-      nextParams.sortDirection = sortDirection;
-    }
-    if (route.params?.sortType !== sortType) {
-      nextParams.sortType = sortType;
-    }
     if (route.params?.hasUtxos !== hasUtxos) {
       nextParams.hasUtxos = hasUtxos;
     }
@@ -262,7 +240,7 @@ const CoinControl: React.FC = () => {
     if (Object.keys(nextParams).length > 0) {
       navigation.setParams(nextParams);
     }
-  }, [navigation, route.params?.hasUtxos, route.params?.sortDirection, route.params?.sortType, sortDirection, sortType, utxos.length]);
+  }, [navigation, route.params?.hasUtxos, utxos.length]);
 
   const tipText = useMemo(() => {
     if (utxos.length === 0) return '';
