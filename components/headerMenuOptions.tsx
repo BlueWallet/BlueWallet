@@ -27,7 +27,7 @@ export const createEllipsisHeaderMenuOptions = ({
   onPressMenuItem,
   preserveGroups = false,
   identifier = 'HeaderMenuButton',
-  title = loc.wallets.details_options,
+  title = '',
 }: HeaderMenuOptionsParams): HeaderMenuOptions => {
   const hasGroups = Array.isArray(actions[0]);
   const nativeHeaderMenuItems = hasGroups
