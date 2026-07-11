@@ -1,7 +1,6 @@
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import React from 'react';
 
-import loc from '../loc';
 import HeaderMenuButton from './HeaderMenuButton';
 import { mapActionGroupsToNativeHeaderMenuItems, mapActionsToNativeHeaderMenuItems } from './nativeHeaderMenuItems';
 import { Action } from './types';
