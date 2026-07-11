@@ -11,6 +11,8 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     shouldOpenOnLongPress = true,
     disabled = false,
     onPress,
+    onPressIn,
+    onPressOut,
     isButton = false,
     buttonStyle,
     onPressMenuItem,
@@ -113,6 +115,8 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   return (
     <Pressable
       onPress={onPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
       onLongPress={() => {}}
       delayLongPress={250}
       android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}

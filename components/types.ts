@@ -33,6 +33,8 @@ export interface ToolTipMenuProps {
   // Pressable so that a quick tap fires this callback while a long-press
   // (or single tap in dropdown mode) still opens the native menu.
   onPress?: (event: GestureResponderEvent) => void;
+  onPressIn?: (event: GestureResponderEvent) => void;
+  onPressOut?: (event: GestureResponderEvent) => void;
   accessibilityRole?: AccessibilityRole;
   disabled?: boolean;
   testID?: string;
