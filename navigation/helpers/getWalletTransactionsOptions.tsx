@@ -5,8 +5,7 @@ import Icon from '../../components/Icon';
 import { DetailViewStackParamList } from '../DetailViewStackParamList';
 import { navigationRef } from '../../NavigationService';
 import { RouteProp } from '@react-navigation/native';
-import { isDesktop } from '../../blue_modules/environment';
-import { isIOS26OrHigher } from '../../components/platform';
+import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
 import loc from '../../loc';
 
 export type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
