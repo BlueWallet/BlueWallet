@@ -190,5 +190,4 @@ const styles = StyleSheet.create({
 // Shared styles for screens that build card content or FlatList-based cards themselves
 export const settingsCardContent = styles.cardContent;
 export const settingsListCard = styles.listCard;
-export const settingsSectionHeader = styles.header;
 export const settingsSectionHeaderText = styles.headerText;
