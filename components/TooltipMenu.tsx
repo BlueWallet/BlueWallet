@@ -26,7 +26,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   } = props;
 
   const { language } = useSettings();
-  const pressStartedAt = useRef<number | null>(null);
   const longPressDetected = useRef(false);
 
   const { items, ids } = useMemo(() => buildMenu(actions, Platform.OS as 'ios' | 'android'), [actions]);
@@ -43,7 +42,6 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   );
 
   const handlePressIn = useCallback(() => {
-    pressStartedAt.current = Date.now();
     longPressDetected.current = false;
   }, []);
 
@@ -53,10 +51,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
   const handlePress = useCallback(
     (event: GestureResponderEvent) => {
-      const startedAt = pressStartedAt.current;
-      const pressDuration = startedAt ? Date.now() - startedAt : 0;
-
-      if (longPressDetected.current || pressDuration >= 400) {
+      if (longPressDetected.current) {
         return;
       }
 
