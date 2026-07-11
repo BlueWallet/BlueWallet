@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { GestureResponderEvent, NativeSyntheticEvent, Platform, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 import { ToolTipMenuProps } from './types';
 import { useSettings } from '../hooks/context/useSettings';
@@ -26,6 +26,8 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
   } = props;
 
   const { language } = useSettings();
+  const pressStartedAt = useRef<number | null>(null);
+  const longPressDetected = useRef(false);
 
   const { items, ids } = useMemo(() => buildMenu(actions, Platform.OS as 'ios' | 'android'), [actions]);
 
@@ -38,6 +40,29 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
       else if (name) onPressMenuItem(name); // last-resort fallback
     },
     [ids, onPressMenuItem],
+  );
+
+  const handlePressIn = useCallback(() => {
+    pressStartedAt.current = Date.now();
+    longPressDetected.current = false;
+  }, []);
+
+  const handleLongPress = useCallback(() => {
+    longPressDetected.current = true;
+  }, []);
+
+  const handlePress = useCallback(
+    (event: GestureResponderEvent) => {
+      const startedAt = pressStartedAt.current;
+      const pressDuration = startedAt ? Date.now() - startedAt : 0;
+
+      if (longPressDetected.current || pressDuration >= 400) {
+        return;
+      }
+
+      onPress?.(event);
+    },
+    [onPress],
   );
 
   if (disabled || actions.length === 0) return null;
@@ -112,7 +137,9 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onLongPress={handleLongPress}
       android_ripple={enableAndroidRipple ? { color: '#d9d9d9', foreground: true } : undefined}
       style={({ pressed }) =>
         StyleSheet.flatten([visibleStyle, pressed && enableAndroidRipple && Platform.OS === 'android' ? styles.pressed : null])
