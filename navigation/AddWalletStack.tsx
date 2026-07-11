@@ -198,17 +198,12 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
         id: 'wallets',
         text: loc.multisig.wallet_type,
         displayInline: true,
-        subactions: addWalletTypes.map((walletType, index) => {
-          const isLightning = walletType.id === LightningCustodianWallet.type;
-          return {
-            id: walletType.id,
-            text: walletType.text,
-            subtitle: walletType.subtitle,
-            menuState: isLightning
-              ? selectedWalletType === Chain.OFFCHAIN
-              : index === selectedIndex && selectedWalletType === Chain.ONCHAIN,
-          };
-        }),
+        subactions: addWalletTypes.map((walletType, index) => ({
+          id: walletType.id,
+          text: walletType.text,
+          subtitle: walletType.subtitle,
+          menuState: index === selectedIndex && selectedWalletType === Chain.ONCHAIN,
+        })),
       },
     ];
 
@@ -234,7 +229,7 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
       });
     }
 
-    const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem });
+    const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem, title: '' });
 
     return {
       ...options,
