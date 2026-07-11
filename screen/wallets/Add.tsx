@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { ActivityIndicator, Alert, Keyboard, Linking, StyleSheet, TextInput, View } from 'react-native';
 import Animated, { Layout } from 'react-native-reanimated';
+import assert from 'assert';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueButtonLink from '../../components/BlueButtonLink';
@@ -109,13 +110,22 @@ const WalletsAdd: React.FC = () => {
   const [backdoorPressed, setBackdoorPressed] = useState(0);
   const isLoading = state.isLoading;
   const walletBaseURI = state.walletBaseURI;
-  const selectedIndex = state.selectedIndex;
   const label = state.label;
-  const selectedWalletType = state.selectedWalletType;
   //
   const { addWallet, saveToDisk } = useStorage();
   const route = useRoute<RouteProps>();
   const { entropy: entropyHex, words, selectedIndex: routeSelectedIndex, selectedWalletType: routeSelectedWalletType } = route.params || {};
+  const selectedIndex = typeof routeSelectedIndex === 'number' ? routeSelectedIndex : state.selectedIndex;
+  const selectedWalletType: ButtonSelected =
+    routeSelectedWalletType === Chain.OFFCHAIN
+      ? ButtonSelected.OFFCHAIN
+      : routeSelectedWalletType === Chain.ONCHAIN
+        ? ButtonSelected.ONCHAIN
+        : routeSelectedWalletType === ButtonSelected.VAULT
+          ? ButtonSelected.VAULT
+          : routeSelectedWalletType === ButtonSelected.ARK
+            ? ButtonSelected.ARK
+            : state.selectedWalletType;
   const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
   const { navigate, goBack, setParams } = useExtendedNavigation<NavigationProps>();
   const stylesHook = {
@@ -141,6 +151,18 @@ const WalletsAdd: React.FC = () => {
   };
 
   const hasStoredLndHub = (walletBaseURI ?? '').trim().length > 0;
+
+  const setSelectedWalletType = useCallback(
+    (value: ButtonSelected) => {
+      const paramWalletType: Chain | 'VAULT' | 'ARK' =
+        value === ButtonSelected.ONCHAIN ? Chain.ONCHAIN : value === ButtonSelected.OFFCHAIN ? Chain.OFFCHAIN : value;
+      setParams({
+        selectedWalletType: paramWalletType,
+        selectedIndex,
+      });
+    },
+    [selectedIndex, setParams],
+  );
 
   const confirmResetEntropy = useCallback(
     (newWalletType: ButtonSelected) => {
@@ -168,7 +190,7 @@ const WalletsAdd: React.FC = () => {
         setSelectedWalletType(newWalletType);
       }
     },
-    [entropy, setParams, words],
+    [entropy, setParams, setSelectedWalletType, words],
   );
 
   const handleOnLightningArkButtonPressed = useCallback(() => {
@@ -178,37 +200,6 @@ const WalletsAdd: React.FC = () => {
   const handleOnLightningButtonPressed = useCallback(() => {
     confirmResetEntropy(ButtonSelected.OFFCHAIN);
   }, [confirmResetEntropy]);
-
-  useEffect(() => {
-    if (routeSelectedWalletType === Chain.OFFCHAIN && selectedWalletType !== ButtonSelected.OFFCHAIN) {
-      setSelectedWalletType(ButtonSelected.OFFCHAIN);
-      return;
-    }
-
-    if (routeSelectedWalletType === Chain.ONCHAIN && selectedWalletType !== ButtonSelected.ONCHAIN) {
-      setSelectedWalletType(ButtonSelected.ONCHAIN);
-    }
-
-    if (typeof routeSelectedIndex === 'number' && routeSelectedIndex !== selectedIndex) {
-      setSelectedIndex(routeSelectedIndex);
-    }
-  }, [routeSelectedIndex, routeSelectedWalletType, selectedIndex, selectedWalletType]);
-
-  useEffect(() => {
-    const paramWalletType: Chain | 'VAULT' | 'ARK' =
-      selectedWalletType === ButtonSelected.ONCHAIN
-        ? Chain.ONCHAIN
-        : selectedWalletType === ButtonSelected.OFFCHAIN
-          ? Chain.OFFCHAIN
-          : selectedWalletType;
-
-    if (routeSelectedWalletType !== paramWalletType || routeSelectedIndex !== selectedIndex) {
-      setParams({
-        selectedWalletType: paramWalletType,
-        selectedIndex,
-      });
-    }
-  }, [routeSelectedIndex, routeSelectedWalletType, selectedIndex, selectedWalletType, setParams]);
 
   useEffect(() => {
     // resetting format of last camera qr scan, in case user will use camera to
@@ -229,16 +220,8 @@ const WalletsAdd: React.FC = () => {
     dispatch({ type: 'SET_WALLET_BASE_URI', payload: value });
   };
 
-  const setSelectedIndex = (value: number) => {
-    dispatch({ type: 'SET_SELECTED_INDEX', payload: value });
-  };
-
   const setLabel = (value: string) => {
     dispatch({ type: 'SET_LABEL', payload: value });
-  };
-
-  const setSelectedWalletType = (value: ButtonSelected) => {
-    dispatch({ type: 'SET_SELECTED_WALLET_TYPE', payload: value });
   };
 
   const createWallet = async () => {
@@ -249,24 +232,28 @@ const WalletsAdd: React.FC = () => {
     } else if (selectedWalletType === ButtonSelected.ARK) {
       createLightningArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
-      const walletType = index2walletType[selectedIndex]?.walletType;
       let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
 
-      switch (walletType) {
-        case HDTaprootWallet.type:
-          w = new HDTaprootWallet();
-          break;
-        case HDLegacyP2PKHWallet.type:
-          w = new HDLegacyP2PKHWallet();
-          break;
-        case HDSegwitBech32Wallet.type:
-        default:
-          // Guard against stale/invalid index values (e.g. transient menu-sync mismatch).
-          w = new HDSegwitBech32Wallet();
-          break;
+      for (let c = 0; c < Object.values(index2walletType).length; c++) {
+        if (c === selectedIndex) {
+          switch (index2walletType[c].walletType) {
+            case HDTaprootWallet.type:
+              w = new HDTaprootWallet();
+              w.setLabel(label || loc.wallets.details_title);
+              break;
+            case HDLegacyP2PKHWallet.type:
+              w = new HDLegacyP2PKHWallet();
+              w.setLabel(label || loc.wallets.details_title);
+              break;
+            case HDSegwitBech32Wallet.type:
+              w = new HDSegwitBech32Wallet();
+              w.setLabel(label || loc.wallets.details_title);
+              break;
+          }
+        }
       }
 
-      w.setLabel(label || loc.wallets.details_title);
+      assert(w!, 'Internal error: could not decide which wallet to create');
 
       if (selectedWalletType === ButtonSelected.ONCHAIN) {
         if (entropy) {
