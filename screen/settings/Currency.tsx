@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Keyboard, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, Keyboard, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
 
 import {
   CurrencyRate,
@@ -39,6 +39,7 @@ const Currency: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
+  const listRef = useRef<FlatList<FiatUnitType>>(null);
 
   const filteredCurrencies = useMemo(() => {
     const searchLower = search.toLowerCase();
@@ -79,6 +80,10 @@ const Currency: React.FC = () => {
       },
     });
   }, [setOptions, handleSearchChange]);
+
+  useEffect(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [search]);
 
   const selectedCurrencyVisible = useMemo(
     () => filteredCurrencies.some(item => item.endPointKey === selectedCurrency.endPointKey),
@@ -156,6 +161,7 @@ const Currency: React.FC = () => {
 
   return (
     <SettingsFlatList
+      ref={listRef}
       data={filteredCurrencies}
       renderItem={renderItem}
       keyExtractor={keyExtractor}

@@ -1,5 +1,5 @@
-import React, { useLayoutEffect, useState, useCallback } from 'react';
-import { Keyboard, NativeSyntheticEvent } from 'react-native';
+import React, { useLayoutEffect, useState, useCallback, useEffect, useRef } from 'react';
+import { FlatList, Keyboard, NativeSyntheticEvent } from 'react-native';
 import presentAlert from '../../components/Alert';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -11,6 +11,7 @@ const Language = () => {
   const { setLanguageStorage, language } = useSettings();
   const { setOptions } = useExtendedNavigation();
   const [search, setSearch] = useState('');
+  const listRef = useRef<FlatList<TLanguage>>(null);
   // Set header options - navigation stack already handles transparent header,
   // we just need to configure the search bar and ensure title is updated when language changes
   useLayoutEffect(() => {
@@ -21,6 +22,10 @@ const Language = () => {
       },
     });
   }, [setOptions, language]);
+
+  useEffect(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [search]);
 
   const filteredLanguages = AvailableLanguages.filter(l => l.label.toLowerCase().includes(search.toLowerCase()));
 
@@ -62,6 +67,7 @@ const Language = () => {
 
   return (
     <SettingsFlatList
+      ref={listRef}
       testID="LanguageFlatList"
       data={filteredLanguages}
       renderItem={renderItem}
