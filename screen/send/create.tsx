@@ -3,7 +3,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View, ListRenderItemInfo } from 'react-native';
+import { FlatList, Linking, Pressable, StyleSheet, Text, TextInput, View, ListRenderItemInfo } from 'react-native';
 import Icon from '../../components/Icon';
 import { satoshiToBTC } from '../../blue_modules/currency';
 import BlueText from '../../components/BlueText';
