@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -69,7 +69,7 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-  const { setOptions, navigate, navigateToWalletsList } = useExtendedNavigation();
+  const { navigate, navigateToWalletsList } = useExtendedNavigation();
   const { colors } = useTheme();
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
@@ -291,12 +291,6 @@ const WalletDetails: React.FC = () => {
     ],
     [walletTransactionsLength],
   );
-
-  useEffect(() => {
-    setOptions({
-      headerRight: undefined,
-    });
-  }, [setOptions]);
 
   useEffect(() => {
     setIsContactsVisible(wallet.allowBIP47 && wallet.allowBIP47() && isBIP47Enabled);
@@ -546,16 +540,15 @@ const WalletDetails: React.FC = () => {
                 >
                   {walletName}
                 </Text>
-                <TouchableOpacity
-                  style={[styles.editButton, stylesHook.editButton]}
+                <Pressable
+                  style={({ pressed }) => [styles.editButton, stylesHook.editButton, pressed && styles.pressablePressed]}
                   onPress={handleEditWalletName}
                   disabled={isLoading}
                   accessibilityRole="button"
                   testID="WalletNameEditButton"
-                  activeOpacity={0.7}
                 >
                   <BlueText style={[styles.editButtonText, stylesHook.editButtonText]}>{loc.wallets.details_edit}</BlueText>
-                </TouchableOpacity>
+                </Pressable>
               </View>
               {wallet.type === LightningCustodianWallet.type && (
                 <>
@@ -613,10 +606,9 @@ const WalletDetails: React.FC = () => {
                   <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{wallet.getTransactions().length}</BlueText>
                 </View>
                 {hasCoinControl && utxoCount !== null && utxoCount > 0 ? (
-                  <TouchableOpacity
-                    style={[styles.statsBox, stylesHook.statsBox]}
+                  <Pressable
+                    style={({ pressed }) => [styles.statsBox, stylesHook.statsBox, pressed && styles.pressablePressed]}
                     onPress={() => navigate('SendDetailsRoot', { screen: 'CoinControl', params: { walletID } })}
-                    activeOpacity={0.8}
                     testID="CoinsStatsBox"
                   >
                     <View style={styles.statsBoxTitleRow}>
@@ -624,7 +616,7 @@ const WalletDetails: React.FC = () => {
                       <View style={styles.statsBoxTitleRowSpacer} />
                     </View>
                     <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{utxoCount}</BlueText>
-                  </TouchableOpacity>
+                  </Pressable>
                 ) : (
                   <View style={[styles.statsBox, stylesHook.statsBox]} testID="CoinsStatsBox">
                     <View style={styles.statsBoxTitleRow}>
@@ -818,10 +810,14 @@ const WalletDetails: React.FC = () => {
 
             {/* Advanced */}
             <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => setIsAdvancedExpanded(prev => !prev)}
-                style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRowContainer]}
-                activeOpacity={0.85}
+                style={({ pressed }) => [
+                  styles.sectionTitle,
+                  stylesHook.sectionTitle,
+                  styles.sectionTitleRowContainer,
+                  pressed && styles.pressablePressed,
+                ]}
               >
                 <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.wallets.details_advanced}</BlueText>
                 <Icon
@@ -830,7 +826,7 @@ const WalletDetails: React.FC = () => {
                   size={16}
                   color={colors.alternativeTextColor}
                 />
-              </TouchableOpacity>
+              </Pressable>
               {isAdvancedExpanded && (
                 <View style={[styles.advancedContent, stylesHook.advancedContent]}>
                   <ListItem
@@ -1004,6 +1000,9 @@ const styles = StyleSheet.create({
   sectionTitleText: {
     fontSize: 17,
     fontWeight: '600',
+  },
+  pressablePressed: {
+    opacity: 0.75,
   },
   optionsSubheader: {
     paddingTop: 8,

@@ -28,16 +28,16 @@ jobs:
           cache: 'npm'
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
+        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
-          ruby-version: "3.4.9"
+          ruby-version: "3.4.10"
           bundler-cache: true
 
       - name: Install Node dependencies
         run: npm ci || npm ci
 
       - name: Cache CocoaPods
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: |
             ios/Pods
@@ -51,7 +51,7 @@ jobs:
         run: brew install ccache
 
       - name: Cache ccache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.ccache
           key: ${{ runner.os }}-ccache-${{ github.sha }}
@@ -182,6 +182,7 @@ jobs:
       - name: Install applesimutils
         run: |
           brew tap wix/brew
+          brew trust wix/brew
           brew install applesimutils
 
       - name: Download simulator app

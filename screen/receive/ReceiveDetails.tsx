@@ -1,18 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import {
-  BackHandler,
-  Image,
-  ImageSourcePropType,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { BackHandler, Image, ImageSourcePropType, Platform, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Animated, { Easing, Layout, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -87,6 +76,9 @@ const receiveAuxStyles = StyleSheet.create({
   },
   qrRevealTile: {
     position: 'absolute',
+  },
+  headerCloseButtonPressed: {
+    opacity: 0.6,
   },
   qrStaggerHost: {
     overflow: 'hidden',
@@ -166,15 +158,15 @@ type ReceiveDetailsCloseButtonProps = {
 };
 
 const ReceiveDetailsCloseButton: React.FC<ReceiveDetailsCloseButtonProps> = ({ closeImage, onPress }) => (
-  <TouchableOpacity
+  <Pressable
     accessibilityRole="button"
     accessibilityLabel={loc._.close}
-    style={receiveAuxStyles.headerCloseButton}
+    style={({ pressed }) => [receiveAuxStyles.headerCloseButton, pressed && receiveAuxStyles.headerCloseButtonPressed]}
     onPress={onPress}
     testID="NavigationCloseButton"
   >
     <Image source={closeImage} />
-  </TouchableOpacity>
+  </Pressable>
 );
 
 type NavigationProps = NativeStackNavigationProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
@@ -196,7 +188,7 @@ const ReceiveDetails = () => {
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
-  const { goBack, setParams, setOptions, navigate } = useExtendedNavigation<NavigationProps>();
+  const { goBack, setParams, navigate } = useExtendedNavigation<NavigationProps>();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
@@ -373,7 +365,7 @@ const ReceiveDetails = () => {
     const androidNoDuplicateBack = Platform.OS === 'android' ? { headerBackVisible: false as const } : {};
 
     if (wallet?.allowBIP47() && isBIP47Enabled) {
-      setOptions({
+      setParams({
         ...androidNoDuplicateBack,
         headerLeft: renderHeaderCloseButton,
         headerRight: renderHeaderRightMenu,
@@ -383,12 +375,12 @@ const ReceiveDetails = () => {
 
     // When payment-code menu is hidden, move close button to the right.
     // Android: static `navigationStyle` uses `headerBackImageSource` for left "close"; hide back so only `headerRight` shows.
-    setOptions({
+    setParams({
       ...androidNoDuplicateBack,
       headerLeft: () => null,
       headerRight: renderHeaderCloseButton,
     });
-  }, [isBIP47Enabled, renderHeaderCloseButton, renderHeaderRightMenu, setOptions, wallet]);
+  }, [isBIP47Enabled, renderHeaderCloseButton, renderHeaderRightMenu, setParams, wallet]);
 
   // re-fetching address balance periodically
   useEffect(() => {

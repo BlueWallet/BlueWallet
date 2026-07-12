@@ -31,6 +31,8 @@ type FakeClient = {
   port: number;
   initElectrum: jest.Mock;
   blockchainHeaders_subscribe: jest.Mock;
+  blockchainScripthash_getHistory: jest.Mock;
+  blockchainTransaction_get: jest.Mock;
   server_ping: jest.Mock;
   close: jest.Mock;
 };
@@ -63,6 +65,8 @@ function makeFakeClient(host = 'fake.host', port = 50002): FakeClient {
   };
   fc.initElectrum = jest.fn(() => fc.initElectrumDeferred!.promise);
   fc.blockchainHeaders_subscribe = jest.fn(() => fc.headersDeferred!.promise);
+  fc.blockchainScripthash_getHistory = jest.fn();
+  fc.blockchainTransaction_get = jest.fn();
   fc.server_ping = jest.fn(() => {
     fc.pingDeferred = deferred<unknown>();
     if (fc.pingShouldReject) {
@@ -223,6 +227,67 @@ describe('BlueElectrum lifecycle', () => {
 
       expect(BlueElectrum.isConnected()).toBe(true);
       expect(BlueElectrum.getConnectionState()).toBe('connected');
+    });
+  });
+
+  describe('getConfirmedBlockHeight', () => {
+    const TEST_ADDRESS = 'bc1qe7q08prc2spln2l7qdvvlcgqxm9za9z7mjnpzc';
+    const TX_HASH = 'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
+
+    async function connectAtTip(height: number) {
+      const connectPromise = BlueElectrum.ensureConnected();
+      await flush();
+      const client = created[created.length - 1];
+      client.initElectrumDeferred.resolve(['Fulcrum 1.10.0', '1.4']);
+      client.headersDeferred.resolve({ height });
+      await connectPromise;
+      return client;
+    }
+
+    async function seedTxHeightCache(client: FakeClient, txHash: string, height: number) {
+      client.blockchainScripthash_getHistory.mockResolvedValue([{ tx_hash: txHash, height }]);
+      await BlueElectrum.getTransactionsByAddress(TEST_ADDRESS);
+    }
+
+    it('returns null for implausible height without caching', async () => {
+      const client = await connectAtTip(1000);
+
+      client.blockchainTransaction_get.mockResolvedValue({ confirmations: 2000 });
+
+      const result = await BlueElectrum.getConfirmedBlockHeight('deadbeef');
+      expect(result).toBeNull();
+    });
+
+    it('returns cached height when cache is within tip', async () => {
+      const client = await connectAtTip(1000);
+      await seedTxHeightCache(client, TX_HASH, 995);
+
+      const result = await BlueElectrum.getConfirmedBlockHeight(TX_HASH);
+      expect(result).toEqual({ height: 995, tip: 1000 });
+      expect(client.blockchainTransaction_get).not.toHaveBeenCalled();
+    });
+
+    it('refreshes tip when cached height is slightly ahead of TTL tip', async () => {
+      const client = await connectAtTip(1000);
+      await seedTxHeightCache(client, TX_HASH, 1001);
+
+      client.blockchainHeaders_subscribe.mockResolvedValue({ height: 1001 });
+
+      const result = await BlueElectrum.getConfirmedBlockHeight(TX_HASH);
+      expect(result).toEqual({ height: 1001, tip: 1001 });
+      expect(client.blockchainTransaction_get).not.toHaveBeenCalled();
+    });
+
+    it('discards poisoned cache and fetches height from server', async () => {
+      const client = await connectAtTip(1000);
+      await seedTxHeightCache(client, TX_HASH, 2000);
+
+      client.blockchainHeaders_subscribe.mockResolvedValue({ height: 1000 });
+      client.blockchainTransaction_get.mockResolvedValue({ confirmations: 5 });
+
+      const result = await BlueElectrum.getConfirmedBlockHeight(TX_HASH);
+      expect(result).toEqual({ height: 996, tip: 1000 });
+      expect(client.blockchainTransaction_get).toHaveBeenCalledWith(TX_HASH, true);
     });
   });
 });
