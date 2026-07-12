@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import { pick, types, keepLocalCopy, errorCodes } from '@react-native-documents/picker';
+import { pick, types, keepLocalCopy, errorCodes, saveDocuments } from '@react-native-documents/picker';
 import RNFS from 'react-native-fs';
 import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
 import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
@@ -20,6 +20,78 @@ export const isCancel = (err: any): boolean => {
   return err.code && err.code === errorCodes.OPERATION_CANCELED;
 };
 
+const _safeUnlink = async (filePath: string) => {
+  try {
+    if (await RNFS.exists(filePath)) {
+      await RNFS.unlink(filePath);
+    }
+  } catch {
+    // best effort cleanup
+  }
+};
+
+const _toFileUri = (filePath: string) => {
+  return encodeURI(filePath.startsWith('file://') ? filePath : `file://${filePath}`);
+};
+
+const _createTempExportPath = (fileName: string) => {
+  const basePath = RNFS.CachesDirectoryPath || RNFS.TemporaryDirectoryPath;
+  return `${basePath}/${Date.now()}-${fileName}`;
+};
+
+const _mimeTypeFromFileName = (fileName: string): string => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'txt':
+    case 'txn':
+      return 'text/plain';
+    case 'json':
+      return 'application/json';
+    case 'csv':
+      return 'text/csv';
+    case 'pdf':
+      return 'application/pdf';
+    case 'png':
+      return 'image/png';
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    default:
+      return 'application/octet-stream';
+  }
+};
+
+const _transactionFilePickerTypes = ['application/octet-stream', 'text/plain'];
+
+const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]) => {
+  const [pickedFile] = await pick({
+    type,
+  });
+
+  if (!pickedFile.hasRequestedType) {
+    throw new Error(loc.send.details_unrecognized_file_format);
+  }
+
+  const [localCopy] = await keepLocalCopy({
+    files: [
+      {
+        uri: pickedFile.uri,
+        fileName: pickedFile.name ?? 'unnamed',
+      },
+    ],
+    destination: 'cachesDirectory',
+  });
+
+  if (localCopy.status !== 'success') {
+    throw new Error(localCopy.copyError || 'Could not create local file copy');
+  }
+
+  return {
+    localUri: decodeURI(localCopy.localUri),
+    fileName: pickedFile.name ?? 'unnamed',
+  };
+};
+
 const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
   try {
     await Share.open({
@@ -36,7 +108,7 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
       presentAlert({ message: error.message });
     }
   } finally {
-    await RNFS.unlink(filePath);
+    await _safeUnlink(filePath);
   }
 };
 
@@ -48,16 +120,38 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
 export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
   const sanitizedFileName = _sanitizeFileName(fileName);
   try {
+    if (Platform.OS === 'android' && !showShareDialog) {
+      const sourceFilePath = _createTempExportPath(sanitizedFileName);
+      try {
+        await RNFS.writeFile(sourceFilePath, contents);
+        const [savedFile] = await saveDocuments({
+          sourceUris: [_toFileUri(sourceFilePath)],
+          fileName: sanitizedFileName,
+          mimeType: _mimeTypeFromFileName(sanitizedFileName),
+        });
+
+        if (savedFile.error) {
+          throw new Error(savedFile.error);
+        }
+
+        const filePath = decodeURI(savedFile.uri || sanitizedFileName);
+        presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
+      } finally {
+        await _safeUnlink(sourceFilePath);
+      }
+      return;
+    }
+
     if (Platform.OS === 'ios') {
-      const filePath = `${RNFS.TemporaryDirectoryPath}/${sanitizedFileName}`;
+      const filePath = _createTempExportPath(sanitizedFileName);
       await RNFS.writeFile(filePath, contents);
       await _shareOpen(filePath, showShareDialog);
     } else if (Platform.OS === 'android') {
-      const filePath = `${RNFS.DownloadDirectoryPath}/${sanitizedFileName}`;
+      const filePath = _createTempExportPath(sanitizedFileName);
       try {
         await RNFS.writeFile(filePath, contents);
         if (showShareDialog) {
-          await _shareOpen(filePath);
+          await _shareOpen(filePath, true);
         } else {
           presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
         }
@@ -67,6 +161,9 @@ export const writeFileAndExport = async function (fileName: string, contents: st
       }
     }
   } catch (error: any) {
+    if (isCancel(error)) {
+      return;
+    }
     console.error(error);
     presentAlert({ message: error.message });
   }
@@ -77,11 +174,8 @@ export const writeFileAndExport = async function (fileName: string, contents: st
  */
 export const openSignedTransaction = async function (): Promise<string | false> {
   try {
-    const [res] = await pick({
-      type: [types.allFiles],
-    });
-
-    return await _readPsbtFileIntoBase64(res.uri);
+    const { localUri } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
+    return await _readPsbtFileIntoBase64(localUri);
   } catch (err) {
     if (!isCancel(err)) {
       presentAlert({ message: loc.send.details_no_signed_tx });
@@ -138,35 +232,16 @@ export const showImagePickerAndReadImage = async (): Promise<string | undefined>
 
 export const showFilePickerAndReadFile = async function (): Promise<{ data: string | false; uri: string | false }> {
   try {
-    const [pickedFile] = await pick({
-      type: [types.allFiles],
-    });
+    const { localUri: fileCopyUri } = await _pickSingleFileAndKeepLocalCopy();
+    const lowerCasePath = fileCopyUri.toLowerCase();
 
-    const [localCopy] = await keepLocalCopy({
-      files: [
-        {
-          uri: pickedFile.uri,
-          fileName: pickedFile.name ?? 'unnamed',
-        },
-      ],
-      destination: 'cachesDirectory',
-    });
-
-    if (localCopy.status !== 'success') {
-      // to make ts happy, should not need this check here
-      presentAlert({ message: 'Picking and caching a file failed: ' + localCopy.copyError });
-      return { data: false, uri: false };
-    }
-
-    const fileCopyUri = decodeURI(localCopy.localUri);
-
-    if (localCopy.localUri.toLowerCase().endsWith('.psbt')) {
+    if (lowerCasePath.endsWith('.psbt')) {
       // this is either binary file from ElectrumDesktop OR string file with base64 string in there
       const file = await _readPsbtFileIntoBase64(fileCopyUri);
       return { data: file, uri: fileCopyUri };
     }
 
-    if (localCopy.localUri.endsWith('.png') || localCopy.localUri.endsWith('.jpg') || localCopy.localUri.endsWith('.jpeg')) {
+    if (lowerCasePath.endsWith('.png') || lowerCasePath.endsWith('.jpg') || lowerCasePath.endsWith('.jpeg')) {
       return await handleImageFile(fileCopyUri);
     }
 
@@ -210,10 +285,8 @@ export const readFileOutsideSandbox = (filePath: string) => {
 
 export const openSignedTransactionRaw: () => Promise<string> = async () => {
   try {
-    const [res] = await pick({
-      type: [types.allFiles],
-    });
-    const file = await RNFS.readFile(res.uri);
+    const { localUri } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
+    const file = await RNFS.readFile(localUri);
     if (file) {
       return file;
     } else {
@@ -229,9 +302,9 @@ export const openSignedTransactionRaw: () => Promise<string> = async () => {
 };
 
 export const pickTransaction = async () => {
-  const [res] = await pick({
-    type: [types.allFiles],
-  });
-
-  return res;
+  const { localUri, fileName } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
+  return {
+    uri: localUri,
+    name: fileName,
+  };
 };
