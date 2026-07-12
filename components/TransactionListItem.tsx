@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Animated, Easing, Linking, Text, TextStyle, ViewStyle, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Animated, Easing, Linking, TextStyle, ViewStyle, StyleSheet, useWindowDimensions } from 'react-native';
 import Lnurl from '../class/lnurl';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { LightningTransaction, Transaction } from '../class/wallets/types';
@@ -33,35 +33,10 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'stretch',
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-  },
-  avatarContainer: {
-    marginRight: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  textContainer: {
-    flex: 1,
-    paddingRight: 8,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  subtitle: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
   rightColumn: {
     marginLeft: 8,
     alignItems: 'flex-end',
     justifyContent: 'center',
-  },
-  rightTitle: {
-    textAlign: 'right',
   },
   animatedScaleContainer: {
     width: '100%',
@@ -314,12 +289,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     }
   };
 
-  const { label: transactionTypeLabel, icon: avatar } = determineTransactionTypeAndAvatar();
-
-  const amountWithUnit = useMemo(() => {
-    const unitSuffix = itemPriceUnit === BitcoinUnit.BTC || itemPriceUnit === BitcoinUnit.SATS ? ` ${itemPriceUnit}` : ' ';
-    return `${formattedAmount}${unitSuffix}`;
-  }, [formattedAmount, itemPriceUnit]);
+  const { icon: avatar } = determineTransactionTypeAndAvatar();
 
   const onPress = useCallback(async () => {
     // If a custom onPress handler was provided, use it and return
@@ -467,9 +437,6 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     return actions as Action[];
   }, [rowTitle, noteForCopy, item.hash]);
 
-  const title = listTitle;
-  const subtitle = dateLine;
-  const subtitleNumberOfLines: number = 1;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const animateTo = useCallback(
@@ -484,42 +451,6 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     [scaleAnim],
   );
 
-  const titleStyle = useMemo(() => ({ color: colors.foregroundColor }), [colors.foregroundColor]);
-  const subtitleStyle = useMemo(() => ({ color: colors.alternativeTextColor }), [colors.alternativeTextColor]);
-
-  const subtitleContent = useMemo(() => {
-    if (!subtitle) return null;
-    const maxLines = subtitleNumberOfLines === 0 ? undefined : subtitleNumberOfLines;
-
-    if (renderHighlightedText && searchQuery) {
-      const highlighted = renderHighlightedText(subtitle, searchQuery);
-      if (React.isValidElement(highlighted)) {
-        const highlightedElement = highlighted as React.ReactElement<{
-          numberOfLines?: number;
-          style?: TextStyle | TextStyle[];
-        }>;
-        const existingStyle = highlightedElement.props?.style;
-        const mergedStyle: TextStyle[] = (
-          Array.isArray(existingStyle)
-            ? [styles.subtitle, subtitleStyle, ...existingStyle]
-            : [styles.subtitle, subtitleStyle, existingStyle]
-        ).filter(Boolean) as TextStyle[];
-
-        return React.cloneElement(highlightedElement, {
-          numberOfLines: maxLines,
-          style: mergedStyle,
-        });
-      }
-      return highlighted;
-    }
-
-    return (
-      <Text style={[styles.subtitle, subtitleStyle]} numberOfLines={maxLines}>
-        {subtitle}
-      </Text>
-    );
-  }, [subtitle, subtitleNumberOfLines, renderHighlightedText, searchQuery, subtitleStyle]);
-
   return (
     <ToolTipMenu
       actions={toolTipActions}
@@ -529,7 +460,6 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
       onPressOut={() => animateTo(1)}
       shouldOpenOnLongPress
       style={styles.fullWidthButton}
-      accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
       accessibilityRole="button"
     >
       <AnimatedPressableRow>
@@ -546,24 +476,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
             rightSubtitleStyle={styles.rightColumn}
             containerStyle={combinedStyle}
             testID="TransactionListItem"
-            accessibilityRole="button"
-            accessibilityLabel={`${transactionTypeLabel}, ${amountWithUnit}, ${subtitle ?? title}`}
-          >
-            <View style={styles.row}>
-              <View style={styles.avatarContainer}>{avatar}</View>
-              <View style={styles.textContainer}>
-                <Text style={[styles.title, titleStyle]} numberOfLines={1}>
-                  {title}
-                </Text>
-                {subtitleContent}
-              </View>
-              <View style={styles.rightColumn}>
-                <Text style={[styles.rightTitle, rowTitleStyle]} numberOfLines={1}>
-                  {rowTitle}
-                </Text>
-              </View>
-            </View>
-          </ListItem>
+          />
         </Animated.View>
       </AnimatedPressableRow>
     </ToolTipMenu>
