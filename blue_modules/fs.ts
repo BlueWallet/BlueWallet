@@ -104,8 +104,9 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
   } catch (error: any) {
     console.log(error);
     // If user cancels sharing, we dont want to show an error. for some reason we get 'CANCELLED' string as error
-    if (error.message !== 'CANCELLED') {
-      presentAlert({ message: error.message });
+    const errorMessage = typeof error === 'string' ? error : error?.message;
+    if (errorMessage !== 'CANCELLED') {
+      presentAlert({ message: errorMessage });
     }
   } finally {
     await _safeUnlink(filePath);
