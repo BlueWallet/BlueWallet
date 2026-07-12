@@ -21,12 +21,27 @@ export const isCancel = (err: any): boolean => {
 };
 
 const _safeUnlink = async (filePath: string) => {
-  try {
-    if (await RNFS.exists(filePath)) {
-      await RNFS.unlink(filePath);
+  const normalizedPath = decodeURI(filePath).replace(/^file:\/\//, '');
+  const candidates = [normalizedPath, filePath].filter((value, index, all) => all.indexOf(value) === index);
+
+  for (const candidate of candidates) {
+    try {
+      if (!(await RNFS.exists(candidate))) {
+        continue;
+      }
+
+      await RNFS.unlink(candidate);
+      return;
+    } catch (error: any) {
+      const message = String(error?.message || '').toLowerCase();
+      const notFound = message.includes('no such file') || message.includes('does not exist') || message.includes('enoent');
+
+      if (notFound) {
+        return;
+      }
+
+      console.warn('Failed to remove temporary file:', candidate, error);
     }
-  } catch {
-    // best effort cleanup
   }
 };
 
