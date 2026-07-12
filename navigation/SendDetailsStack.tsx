@@ -75,13 +75,13 @@ const SendDetailsStack = () => {
       };
 
       const actions: Action[] | Action[][] = [
-        [sortDirection === CoinControlSortDirection.ASC ? CommonToolTipActions.SortASC : CommonToolTipActions.SortDESC],
         [
           { ...CommonToolTipActions.SortHeight, menuState: sortType === CoinControlSortType.HEIGHT },
           { ...CommonToolTipActions.SortValue, menuState: sortType === CoinControlSortType.VALUE },
           { ...CommonToolTipActions.SortLabel, menuState: sortType === CoinControlSortType.LABEL },
           { ...CommonToolTipActions.SortStatus, menuState: sortType === CoinControlSortType.FROZEN },
         ],
+        [sortDirection === CoinControlSortDirection.ASC ? CommonToolTipActions.SortASC : CommonToolTipActions.SortDESC],
       ];
 
       const headerMenuOptions = createEllipsisHeaderMenuOptions({
