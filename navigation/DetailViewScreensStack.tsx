@@ -93,6 +93,20 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
   );
 };
 
+const createManageWalletsHeaderLeft = (goBack: () => void, closeImage: any) => {
+  return () => (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={loc._.close}
+      style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+      onPress={goBack}
+      testID="NavigationCloseButton"
+    >
+      <Image source={closeImage} />
+    </Pressable>
+  );
+};
+
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
@@ -162,7 +176,7 @@ const DetailViewStackScreensStack = () => {
     });
   }, [navigation]);
 
-  const RightBarButtons = useMemo(
+  const rightBarButtons = useMemo(
     () =>
       sizeClass === SizeClass.Large ? (
         <AddWalletButton onPress={navigateToAddWallet} />
@@ -188,17 +202,7 @@ const DetailViewStackScreensStack = () => {
   const renderManageWalletsHeaderLeft = useCallback(
     (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
       ...options,
-      headerLeft: () => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={loc._.close}
-          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-          onPress={screenNavigation.goBack}
-          testID="NavigationCloseButton"
-        >
-          <Image source={theme.closeImage} />
-        </Pressable>
-      ),
+      headerLeft: createManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
     }),
     [theme.closeImage],
   );
@@ -304,10 +308,10 @@ const DetailViewStackScreensStack = () => {
         backgroundColor: theme.colors.customHeader,
       },
       headerLeft: renderHeaderLeft,
-      headerRight: () => (isDesktop ? undefined : RightBarButtons),
+      headerRight: () => (isDesktop ? undefined : rightBarButtons),
     };
   }, [
-    RightBarButtons,
+    rightBarButtons,
     sizeClass,
     theme.colors.customHeader,
     theme.colors.headerProminentButtonBackgroundColor,

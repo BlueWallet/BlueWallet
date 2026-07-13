@@ -1,6 +1,7 @@
 import React, { forwardRef, useMemo } from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   FlatListProps,
   I18nManager,
   Platform,
@@ -219,7 +220,7 @@ interface SettingsFlatListProps<ItemT> extends Omit<FlatListProps<ItemT>, 'conte
   floatingButtonHeight?: number;
 }
 
-export const SettingsFlatList = <ItemT,>(props: SettingsFlatListProps<ItemT>) => {
+export const SettingsFlatList = forwardRef(<ItemT,>(props: SettingsFlatListProps<ItemT>, ref: React.ForwardedRef<FlatList<ItemT>>) => {
   const { contentContainerStyle, headerHeight, floatingButtonHeight, style, ...rest } = props;
   const { colors, dark } = useTheme();
   const insets = useSafeAreaInsets();
@@ -229,6 +230,7 @@ export const SettingsFlatList = <ItemT,>(props: SettingsFlatListProps<ItemT>) =>
 
   return (
     <SafeAreaFlatList
+      ref={ref}
       style={[style, { backgroundColor: screenBackgroundColor }]}
       headerHeight={resolvedHeaderHeight}
       floatingButtonHeight={floatingButtonHeight}
@@ -236,7 +238,7 @@ export const SettingsFlatList = <ItemT,>(props: SettingsFlatListProps<ItemT>) =>
       {...rest}
     />
   );
-};
+}) as <ItemT>(props: SettingsFlatListProps<ItemT> & React.RefAttributes<FlatList<ItemT>>) => React.ReactElement;
 
 export type SettingsIconName =
   | 'settings'
