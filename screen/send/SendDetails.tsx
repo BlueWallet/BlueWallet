@@ -42,7 +42,6 @@ import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
 import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
 import SafeArea from '../../components/SafeArea';
@@ -1204,27 +1203,23 @@ const SendDetails = () => {
 
   const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
 
-  const HeaderRight = useCallback(
-    () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActionGroups} />,
-    [headerRightActionGroups, headerRightOnPress, isLoading],
-  );
-
   const headerMenuOptions = useMemo(
     () =>
       createEllipsisHeaderMenuOptions({
         actions: headerRightActionGroups,
         onPressMenuItem: headerRightOnPress,
+        disabled: isLoading,
         preserveGroups: true,
       }),
-    [headerRightActionGroups, headerRightOnPress],
+    [headerRightActionGroups, headerRightOnPress, isLoading],
   );
 
   const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({
-      headerRight: headerMenuOptions.headerRight ?? HeaderRight,
+      headerRight: headerMenuOptions.headerRight,
       unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
     });
-  }, [HeaderRight, headerMenuOptions, navigation]);
+  }, [headerMenuOptions, navigation]);
 
   useEffect(() => {
     console.log('send/details - useEffect');

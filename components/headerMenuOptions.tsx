@@ -16,6 +16,7 @@ type HeaderMenuOptions = {
 type HeaderMenuOptionsParams = {
   actions: Action[] | Action[][];
   onPressMenuItem: (id: string) => void;
+  disabled?: boolean;
   preserveGroups?: boolean;
   identifier?: string;
   title?: string;
@@ -24,6 +25,7 @@ type HeaderMenuOptionsParams = {
 export const createEllipsisHeaderMenuOptions = ({
   actions,
   onPressMenuItem,
+  disabled = false,
   preserveGroups = false,
   identifier = 'HeaderMenuButton',
   title = '',
@@ -34,7 +36,7 @@ export const createEllipsisHeaderMenuOptions = ({
     : mapActionsToNativeHeaderMenuItems(actions as Action[], onPressMenuItem);
 
   return {
-    headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions }),
+    headerRight: () => React.createElement(HeaderMenuButton, { onPressMenuItem, actions, disabled }),
     unstable_headerRightItems: () => [
       {
         type: 'menu',

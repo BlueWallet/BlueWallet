@@ -96,6 +96,63 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
   );
 };
 
+type ManageWalletsCloseButtonProps = {
+  onPress: () => void;
+  closeImage: any;
+};
+
+const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onPress, closeImage }) => (
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={loc._.close}
+    style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+    onPress={onPress}
+    testID="NavigationCloseButton"
+  >
+    <Image source={closeImage} />
+  </Pressable>
+);
+
+const makeManageWalletsHeaderLeft = (onPress: () => void, closeImage: any): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
+  return () => React.createElement(ManageWalletsCloseButton, { onPress, closeImage });
+};
+
+type OfflineModePillProps = {
+  onPress: () => void;
+  backgroundColor: string;
+};
+
+const OfflineModePill: React.FC<OfflineModePillProps> = ({ onPress, backgroundColor }) => (
+  <Pressable onPress={onPress} style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor }]}>
+    <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
+    <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
+  </Pressable>
+);
+
+type NotConnectedPillProps = {
+  onPress: () => void;
+  backgroundColor: string;
+  textColor: string;
+};
+
+const NotConnectedPill: React.FC<NotConnectedPillProps> = ({ onPress, backgroundColor, textColor }) => (
+  <Pressable onPress={onPress} style={[styles.updatingLabelContainer, { backgroundColor }]}>
+    <Text style={[styles.updatingLabelText, { color: textColor }]}>{loc.settings.electrum_connected_not}</Text>
+  </Pressable>
+);
+
+type UpdatingPillProps = {
+  backgroundColor: string;
+  textColor: string;
+};
+
+const UpdatingPill: React.FC<UpdatingPillProps> = ({ backgroundColor, textColor }) => (
+  <UpdatingLabel
+    containerStyle={[styles.updatingLabelContainer, { backgroundColor }]}
+    textStyle={[styles.updatingLabelText, { color: textColor }]}
+  />
+);
+
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
@@ -191,17 +248,7 @@ const DetailViewStackScreensStack = () => {
   const renderManageWalletsHeaderLeft = useCallback(
     (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
       ...options,
-      headerLeft: () => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={loc._.close}
-          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-          onPress={screenNavigation.goBack}
-          testID="NavigationCloseButton"
-        >
-          <Image source={theme.closeImage} />
-        </Pressable>
-      ),
+      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
     }),
     [theme.closeImage],
   );
@@ -217,37 +264,24 @@ const DetailViewStackScreensStack = () => {
     const renderHeaderLeft = () => {
       if (showOffline) {
         const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
-        return (
-          <Pressable
-            onPress={navigateToElectrumSettings}
-            style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor: offlineBg }]}
-          >
-            <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
-            <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
-          </Pressable>
-        );
+        return React.createElement(OfflineModePill, { onPress: navigateToElectrumSettings, backgroundColor: offlineBg });
       }
       if (showNotConnected) {
-        return (
-          <Pressable
-            onPress={() => {
-              BlueElectrum.presentElectrumDisconnectedHelpAlert().catch(() => {
-                /* alert helper failed; ignore */
-              });
-            }}
-            style={[styles.updatingLabelContainer, { backgroundColor: theme.colors.redBG }]}
-          >
-            <Text style={[styles.updatingLabelText, { color: theme.colors.redText }]}>{loc.settings.electrum_connected_not}</Text>
-          </Pressable>
-        );
+        return React.createElement(NotConnectedPill, {
+          onPress: () => {
+            BlueElectrum.presentElectrumDisconnectedHelpAlert().catch(() => {
+              /* alert helper failed; ignore */
+            });
+          },
+          backgroundColor: theme.colors.redBG,
+          textColor: theme.colors.redText,
+        });
       }
       if (showUpdating) {
-        return (
-          <UpdatingLabel
-            containerStyle={[styles.updatingLabelContainer, { backgroundColor: theme.colors.lightButton }]}
-            textStyle={[styles.updatingLabelText, { color: theme.colors.foregroundColor }]}
-          />
-        );
+        return React.createElement(UpdatingPill, {
+          backgroundColor: theme.colors.lightButton,
+          textColor: theme.colors.foregroundColor,
+        });
       }
       return null;
     };
