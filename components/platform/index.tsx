@@ -215,13 +215,14 @@ export const SettingsScrollView = forwardRef<ScrollView, SettingsScrollViewProps
 SettingsScrollView.displayName = 'SettingsScrollView';
 
 interface SettingsFlatListProps<ItemT> extends Omit<FlatListProps<ItemT>, 'contentContainerStyle'> {
+  ref?: React.Ref<FlatList<ItemT>>;
   contentContainerStyle?: FlatListProps<ItemT>['contentContainerStyle'];
   headerHeight?: number;
   floatingButtonHeight?: number;
 }
 
-export const SettingsFlatList = forwardRef(<ItemT,>(props: SettingsFlatListProps<ItemT>, ref: React.ForwardedRef<FlatList<ItemT>>) => {
-  const { contentContainerStyle, headerHeight, floatingButtonHeight, style, ...rest } = props;
+export const SettingsFlatList = <ItemT,>(props: SettingsFlatListProps<ItemT>) => {
+  const { ref, contentContainerStyle, headerHeight, floatingButtonHeight, style, ...rest } = props;
   const { colors, dark } = useTheme();
   const insets = useSafeAreaInsets();
   const resolvedHeaderHeight = useMemo(() => headerHeight ?? getSettingsHeaderHeight(insets.top), [headerHeight, insets.top]);
@@ -238,7 +239,7 @@ export const SettingsFlatList = forwardRef(<ItemT,>(props: SettingsFlatListProps
       {...rest}
     />
   );
-}) as <ItemT>(props: SettingsFlatListProps<ItemT> & React.RefAttributes<FlatList<ItemT>>) => React.ReactElement;
+};
 
 export type SettingsIconName =
   | 'settings'
