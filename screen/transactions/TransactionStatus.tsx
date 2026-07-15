@@ -995,7 +995,6 @@ const TransactionStatus: React.FC = () => {
   useEffect(() => {
     if (tx) {
       setOptions({
-        // eslint-disable-next-line react/no-unstable-nested-components -- React Navigation setOptions expects a render function
         headerTitle: () => (
           <TransactionDetailHeaderTitle
             direction={transactionDirection}
