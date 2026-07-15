@@ -152,7 +152,7 @@
     "qr": "0.6.0",
     "react": "19.2.3",
     "react-localization": "github:BlueWallet/react-localization#ae7969a",
-    "react-native": "0.86.0",
+    "react-native": "0.85.3",
     "react-native-background-fetch": "4.4.2",
     "react-native-biometrics": "3.0.1",
     "react-native-blue-crypto": "github:BlueWallet/react-native-blue-crypto#3cb5442",
