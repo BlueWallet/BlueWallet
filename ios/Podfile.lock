@@ -1993,7 +1993,7 @@ PODS:
     - React-perflogger (= 0.85.3)
     - React-utils (= 0.85.3)
     - ReactNativeDependencies
-  - ReactNativeCameraKit (17.0.4):
+  - ReactNativeCameraKit (18.0.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2304,7 +2304,7 @@ PODS:
     - ReactNativeDependencies
     - RNWorklets
     - Yoga
-  - RNScreens (4.25.2):
+  - RNScreens (4.26.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2326,9 +2326,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNScreens/common (= 4.25.2)
+    - RNScreens/common (= 4.26.1)
     - Yoga
-  - RNScreens/common (4.25.2):
+  - RNScreens/common (4.26.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2420,7 +2420,7 @@ PODS:
     - Yoga
   - RNWatch (1.1.0):
     - React
-  - RNWorklets (0.10.1):
+  - RNWorklets (0.10.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2442,10 +2442,10 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNWorklets/apple (= 0.10.1)
-    - RNWorklets/common (= 0.10.1)
+    - RNWorklets/apple (= 0.10.2)
+    - RNWorklets/common (= 0.10.2)
     - Yoga
-  - RNWorklets/apple (0.10.1):
+  - RNWorklets/apple (0.10.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2468,7 +2468,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNWorklets/common (0.10.1):
+  - RNWorklets/common (0.10.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2950,7 +2950,7 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: a54c0c9b976766e1b6d5e2bb4d1ad0d15913e9e1
   ReactCodegen: 8682262fefb44dabb7c1251233a1af62e17d296e
   ReactCommon: 3ec2a55999d296af90c24beb66c8a77dc660d3ef
-  ReactNativeCameraKit: 4f0885e510f6a9cccfec50d49f1f5ade932a6a27
+  ReactNativeCameraKit: 6d499e0906dc8831d1014096ecf7c8fbe036890a
   ReactNativeDependencies: 0a5c93845772e4b1c5ad065c59a859518b13a6b7
   RealmJS: 4066e1880bf38995e96c78a1be19a97f6530488a
   RNBackgroundFetch: 8e6a3286d7910a148116dc77df9dcad855ae1361
@@ -2967,11 +2967,11 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNReactNativeHapticFeedback: ee768bc7aca1ccc1f24ae5d625f9667c593ea511
   RNReanimated: 516d842d105966ae05a6a1ad7ad2a0dc1e968d6b
-  RNScreens: 991cc417cd396602a6cf59a42139e5a9d91462a9
+  RNScreens: 51a84aa8ad2e99de8451df43f14173e540440682
   RNShare: 61a266b44bfc54e17dedbc81202f5e67cda93674
   RNSVG: a37350c7bc37452fd2b209efa0806f1de0f847ae
   RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
-  RNWorklets: ca7e0a49681a74e09f09e389aefd9e453fa0079b
+  RNWorklets: 82a5f27dcf3bb69267ec6ce662a756a4d3f61522
   TSBackgroundFetch: 18918b6449a1e3f01eb0f5b44d6d79ce6160a5a5
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
 
