@@ -71,12 +71,8 @@ export const useExtendedNavigation = <T extends NavigationProp<ParamListBase>>()
               },
             });
           } else {
-            // Normal navigation
-            if (typeof screenOrOptions === 'string') {
-              originalNavigation.navigate({ name: screenOrOptions, params, merge: options?.merge });
-            } else {
-              originalNavigation.navigate({ ...screenOrOptions, params, merge: options?.merge });
-            }
+            // Normal navigation (avoid deprecated object-based navigate signature).
+            (originalNavigation as NavigationProp<ParamListBase>).navigate(screenName, params, options);
           }
         }
       };

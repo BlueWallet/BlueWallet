@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Keyboard, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, Keyboard, StyleSheet, View } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 
 import {
   CurrencyRate,
@@ -20,7 +21,6 @@ import {
   SettingsText,
 } from '../../components/platform';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 
@@ -36,9 +36,9 @@ const Currency: React.FC = () => {
     LastUpdated: null,
     Rate: null,
   });
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const { setOptions } = useExtendedNavigation();
-  const [search, setSearch] = useState('');
+  const route = useRoute<any>();
+  const search = route.params?.search ?? '';
+  const isSearchFocused = Boolean(route.params?.searchFocused);
   const listRef = useRef<FlatList<FiatUnitType>>(null);
 
   const filteredCurrencies = useMemo(() => {
@@ -66,20 +66,6 @@ const Currency: React.FC = () => {
   useEffect(() => {
     fetchCurrency();
   }, [fetchCurrency]);
-
-  const handleSearchChange = useCallback((event: NativeSyntheticEvent<{ text: string }>) => {
-    setSearch(event.nativeEvent.text);
-  }, []);
-
-  useLayoutEffect(() => {
-    setOptions({
-      headerSearchBarOptions: {
-        onChangeText: handleSearchChange,
-        onFocus: () => setIsSearchFocused(true),
-        onBlur: () => setIsSearchFocused(false),
-      },
-    });
-  }, [setOptions, handleSearchChange]);
 
   useEffect(() => {
     listRef.current?.scrollToOffset({ offset: 0, animated: false });

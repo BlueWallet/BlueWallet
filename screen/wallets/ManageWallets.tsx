@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState, startTransition } from 'react';
+import React, { useEffect, useReducer, useCallback, useMemo, useRef, useState, startTransition } from 'react';
 import {
   StyleSheet,
   Animated,
@@ -13,11 +13,12 @@ import {
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocale } from '@react-navigation/native';
+import { useLocale, useRoute, RouteProp } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { TTXMetadata } from '../../class/blue-app';
 import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
@@ -78,6 +79,7 @@ interface SetInitialDataAction {
 }
 
 type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetInitialDataAction | SaveChangesAction;
+type ManageWalletsRouteProps = RouteProp<DetailViewStackParamList, 'ManageWallets'>;
 
 interface State {
   searchQuery: string;
@@ -126,7 +128,10 @@ const ManageWallets: React.FC = () => {
   const { colors, dark } = useTheme();
   const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
-  const { navigate, setOptions, goBack } = useExtendedNavigation();
+  const { navigate, goBack, setParams } = useExtendedNavigation();
+  const route = useRoute<ManageWalletsRouteProps>();
+  const routeSearchQuery = route.params?.search ?? '';
+  const routeSearchFocused = Boolean(route.params?.searchFocused);
   const { direction } = useLocale();
   const [state, dispatch] = useReducer(reducer, initialState);
   const bounceAnim = useBounceAnimation(state.searchQuery);
@@ -161,6 +166,14 @@ const ManageWallets: React.FC = () => {
       if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    debouncedSearch(routeSearchQuery);
+  }, [debouncedSearch, routeSearchQuery]);
+
+  useEffect(() => {
+    dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: routeSearchFocused });
+  }, [routeSearchFocused]);
 
   const getFilteredWalletsData = useCallback((search: string, walletsSource: TWallet[], metadataSource: TTXMetadata): Item[] => {
     if (search) {
@@ -406,20 +419,6 @@ const ManageWallets: React.FC = () => {
     }
   }, [listData.length, state.searchQuery, noResultsOpacity]);
 
-  useLayoutEffect(() => {
-    const searchBarOptions = {
-      hideWhenScrolling: false,
-      onChangeText: (event: { nativeEvent: { text: any } }) => debouncedSearch(event.nativeEvent.text),
-      onClear: () => debouncedSearch(''),
-      onFocus: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: true }),
-      onBlur: () => dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false }),
-      placeholder: loc.wallets.manage_wallets_search_placeholder,
-    };
-    setOptions({
-      headerSearchBarOptions: searchBarOptions,
-    });
-  }, [setOptions, debouncedSearch]);
-
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {
       return (
@@ -599,8 +598,7 @@ const ManageWallets: React.FC = () => {
           style={({ pressed }) => [styles.clearSearchButton, stylesHook.clearSearchButton, pressed && styles.clearSearchButtonPressed]}
           android_ripple={{ color: colors.buttonDisabledTextColor, borderless: false }}
           onPress={() => {
-            dispatch({ type: SET_SEARCH_QUERY, payload: '' });
-            dispatch({ type: SET_IS_SEARCH_FOCUSED, payload: false });
+            setParams({ search: '', searchFocused: false });
           }}
         >
           <Text style={[styles.clearSearchText, { color: colors.buttonTextColor }]}>{loc.wallets.clear_search}</Text>
@@ -611,6 +609,7 @@ const ManageWallets: React.FC = () => {
     colors.buttonDisabledTextColor,
     colors.buttonTextColor,
     noResultsOpacity,
+    setParams,
     state.searchQuery,
     stylesHook.clearSearchButton,
     stylesHook.noResultsText,
