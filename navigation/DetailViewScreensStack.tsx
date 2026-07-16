@@ -93,20 +93,6 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
   );
 };
 
-const createManageWalletsHeaderLeft = (goBack: () => void, closeImage: any) => {
-  return () => (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={loc._.close}
-      style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-      onPress={goBack}
-      testID="NavigationCloseButton"
-    >
-      <Image source={closeImage} />
-    </Pressable>
-  );
-};
-
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
   const navigation = useExtendedNavigation();
@@ -176,7 +162,7 @@ const DetailViewStackScreensStack = () => {
     });
   }, [navigation]);
 
-  const rightBarButtons = useMemo(
+  const RightBarButtons = useMemo(
     () =>
       sizeClass === SizeClass.Large ? (
         <AddWalletButton onPress={navigateToAddWallet} />
@@ -202,7 +188,18 @@ const DetailViewStackScreensStack = () => {
   const renderManageWalletsHeaderLeft = useCallback(
     (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
       ...options,
-      headerLeft: createManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
+      // eslint-disable-next-line react/no-unstable-nested-components
+      headerLeft: () => (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc._.close}
+          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+          onPress={screenNavigation.goBack}
+          testID="NavigationCloseButton"
+        >
+          <Image source={theme.closeImage} />
+        </Pressable>
+      ),
     }),
     [theme.closeImage],
   );
@@ -308,10 +305,10 @@ const DetailViewStackScreensStack = () => {
         backgroundColor: theme.colors.customHeader,
       },
       headerLeft: renderHeaderLeft,
-      headerRight: () => (isDesktop ? undefined : rightBarButtons),
+      headerRight: () => (isDesktop ? undefined : RightBarButtons),
     };
   }, [
-    rightBarButtons,
+    RightBarButtons,
     sizeClass,
     theme.colors.customHeader,
     theme.colors.headerProminentButtonBackgroundColor,
@@ -367,6 +364,11 @@ const DetailViewStackScreensStack = () => {
 
   const settingsScreenOptions = (title: string) =>
     isIOS26OrHigher ? getSettingsHeaderOptions(title) : navigationStyle(getSettingsHeaderOptions(title))(theme);
+
+  const resolveSettingsScreenOptions = (title: string, deps: { navigation: any; route: any }): NativeStackNavigationOptions => {
+    const base = settingsScreenOptions(title);
+    return typeof base === 'function' ? base(deps) : base;
+  };
 
   return (
     <ConnectionPollContext.Provider value={connectionPollContextValue}>
@@ -484,7 +486,7 @@ const DetailViewStackScreensStack = () => {
             navigationStyle({
               title: loc.addresses.addresses_title,
               headerSearchBarOptions: {
-                onChangeText: (event: any) => nav.setParams({ search: event.nativeEvent.text }),
+                onChangeText: (event: { nativeEvent: { text: string } }) => nav.setParams({ search: event.nativeEvent.text }),
               },
             })(theme)({ navigation: nav, route })
           }
@@ -531,10 +533,10 @@ const DetailViewStackScreensStack = () => {
           name="Currency"
           component={Currency}
           initialParams={{ search: '', searchFocused: false }}
-          options={({ navigation: nav }) => ({
-            ...(settingsScreenOptions(loc.settings.currency) as any),
+          options={({ navigation: nav, route }) => ({
+            ...resolveSettingsScreenOptions(loc.settings.currency, { navigation: nav, route }),
             headerSearchBarOptions: {
-              onChangeText: (event: any) => nav.setParams({ search: event.nativeEvent.text }),
+              onChangeText: (event: { nativeEvent: { text: string } }) => nav.setParams({ search: event.nativeEvent.text }),
               onFocus: () => nav.setParams({ searchFocused: true }),
               onBlur: () => nav.setParams({ searchFocused: false }),
             },
@@ -578,10 +580,10 @@ const DetailViewStackScreensStack = () => {
           name="Language"
           component={Language}
           initialParams={{ search: '' }}
-          options={({ navigation: nav }) => ({
-            ...(settingsScreenOptions(loc.settings.language) as any),
+          options={({ navigation: nav, route }) => ({
+            ...resolveSettingsScreenOptions(loc.settings.language, { navigation: nav, route }),
             headerSearchBarOptions: {
-              onChangeText: (event: any) => nav.setParams({ search: event.nativeEvent.text }),
+              onChangeText: (event: { nativeEvent: { text: string } }) => nav.setParams({ search: event.nativeEvent.text }),
             },
           })}
         />
@@ -628,7 +630,7 @@ const DetailViewStackScreensStack = () => {
                 headerSearchBarOptions: {
                   hideWhenScrolling: false,
                   placeholder: loc.wallets.manage_wallets_search_placeholder,
-                  onChangeText: (event: any) => nav.setParams({ search: event.nativeEvent.text }),
+                  onChangeText: (event: { nativeEvent: { text: string } }) => nav.setParams({ search: event.nativeEvent.text }),
                   onFocus: () => nav.setParams({ searchFocused: true }),
                   onBlur: () => nav.setParams({ searchFocused: false }),
                 },

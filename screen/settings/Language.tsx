@@ -1,15 +1,18 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { FlatList, Keyboard } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
 import { SettingsFlatList, SettingsListItem } from '../../components/platform';
 
+type LanguageRouteProp = RouteProp<DetailViewStackParamList, 'Language'>;
+
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
-  const route = useRoute<any>();
+  const route = useRoute<LanguageRouteProp>();
   const search = route.params?.search ?? '';
   const listRef = useRef<FlatList<TLanguage>>(null);
   // Set header options - navigation stack already handles transparent header,
