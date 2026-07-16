@@ -11,7 +11,6 @@ import SwiftUI
 
 struct WalletInformationWidgetProvider: TimelineProvider {
     typealias Entry = WalletInformationWidgetEntry
-    static var lastSuccessfulEntries: [WalletInformationWidgetEntry] = []
 
     func placeholder(in context: Context) -> WalletInformationWidgetEntry {
         return WalletInformationWidgetEntry.placeholder
@@ -22,34 +21,19 @@ struct WalletInformationWidgetProvider: TimelineProvider {
         if (context.isPreview) {
             entry = WalletInformationWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "26", sats: "9 134", price: "$10,000", rate: 10000), allWalletsBalance: WalletData(balance: 1000000, latestTransactionTime: LatestTransaction(isUnconfirmed: false, epochValue: 1568804029000)))
         } else {
-            entry = WalletInformationWidgetEntry(date: Date(), marketData: emptyMarketData)
+            entry = WalletInformationWidgetEntry(date: Date(), marketData: WidgetMarketDataStore.loadFallback())
         }
         completion(entry)
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [WalletInformationWidgetEntry] = []
         let userPreferredCurrency = Currency.getUserPreferredCurrency()
         let allwalletsBalance = WalletData(balance: UserDefaultsGroup.getAllWalletsBalance(), latestTransactionTime: UserDefaultsGroup.getAllWalletsLatestTransactionTime())
 
-        MarketAPI.fetchPrice(currency: userPreferredCurrency) { (result, error) in
-            let entry: WalletInformationWidgetEntry
-
-            if let result = result {
-                entry = WalletInformationWidgetEntry(date: Date(), marketData: MarketData(nextBlock: "", sats: "", price: result.formattedRate ?? "!", rate: result.rateDouble), allWalletsBalance: allwalletsBalance)
-                WalletInformationWidgetProvider.lastSuccessfulEntries.append(entry)
-                if WalletInformationWidgetProvider.lastSuccessfulEntries.count > 5 {
-                    WalletInformationWidgetProvider.lastSuccessfulEntries.removeFirst()
-                }
-            } else {
-                if let lastEntry = WalletInformationWidgetProvider.lastSuccessfulEntries.last {
-                    entry = lastEntry
-                } else {
-                    entry = WalletInformationWidgetEntry.placeholder
-                }
-            }
-            entries.append(entry)
-            let timeline = Timeline(entries: entries, policy: .atEnd)
+        Task {
+            let marketData = await WidgetMarketDataLoader.load(currency: userPreferredCurrency)
+            let entry = WalletInformationWidgetEntry(date: Date(), marketData: marketData, allWalletsBalance: allwalletsBalance)
+            let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(15 * 60)))
             completion(timeline)
         }
     }

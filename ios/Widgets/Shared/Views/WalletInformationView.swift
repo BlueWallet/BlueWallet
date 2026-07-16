@@ -39,14 +39,14 @@ struct WalletInformationView: View {
   
     var body: some View {
         VStack(alignment: .leading, spacing:nil , content: {
-            Text(allWalletsBalance.formattedBalanceBTC).font(Font.system(size: 15, weight: .medium, design: .default)).foregroundColor(.textColorLightGray).lineLimit(1).minimumScaleFactor(0.01)
+            Text(allWalletsBalance.formattedBalanceBTC).accessibilityIdentifier("wallet-widget-btc-balance").font(Font.system(size: 15, weight: .medium, design: .default)).foregroundColor(.textColorLightGray).lineLimit(1).minimumScaleFactor(0.01)
           
   
-          Text(formattedBalance).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:28, weight: .bold, design: .default)).minimumScaleFactor(0.01)
+          Text(formattedBalance).accessibilityIdentifier("wallet-widget-fiat-balance").lineLimit(1).foregroundColor(.textColor).font(Font.system(size:28, weight: .bold, design: .default)).minimumScaleFactor(0.01)
       Spacer()
         
-              Text("Latest transaction").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(.textColorLightGray)
-              Text(formattedLatestTransactionTime).lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01)
+              Text("Latest transaction").accessibilityIdentifier("wallet-widget-latest-transaction-label").font(Font.system(size: 11, weight: .regular, design: .default)).foregroundColor(.textColorLightGray)
+              Text(formattedLatestTransactionTime).accessibilityIdentifier("wallet-widget-latest-transaction-value").lineLimit(1).foregroundColor(.textColor).font(Font.system(size:13, weight: .regular, design: .default)).minimumScaleFactor(0.01)
         
       }).frame(minWidth: 0,
                maxWidth: .infinity,

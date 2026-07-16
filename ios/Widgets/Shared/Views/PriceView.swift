@@ -63,14 +63,17 @@ struct PriceView: View {
     
     return VStack(alignment: .center, spacing: 4) {
       Text("BTC")
+        .accessibilityIdentifier("price-widget-btc-label")
         .font(.caption)
         .minimumScaleFactor(0.1)
       Text(priceString)
+        .accessibilityIdentifier("price-widget-price-value")
         .font(.body)
         .minimumScaleFactor(0.1)
         .lineLimit(1)
       if let priceChangePercentage = priceChangePercentage {
         Text(priceChangePercentage)
+          .accessibilityIdentifier("price-widget-change-value")
           .font(.caption2)
           .foregroundColor(priceChangePercentage.contains("-") ? .red : .green)
       }
@@ -84,6 +87,7 @@ struct PriceView: View {
     
     return HStack {
       Text(priceString)
+        .accessibilityIdentifier("price-widget-inline-price-value")
         .font(.body)
         .minimumScaleFactor(0.1)
       if let priceChangePercentage = priceChangePercentage {
@@ -98,10 +102,12 @@ struct PriceView: View {
     
     return VStack(alignment: .leading, spacing: 4) {
       Text("Bitcoin (\(Currency.getUserPreferredCurrency()))")
+        .accessibilityIdentifier("price-widget-rectangular-title")
         .font(.caption)
         .foregroundColor(.secondary)
       HStack {
         Text(currentPrice)
+          .accessibilityIdentifier("price-widget-rectangular-price-value")
           .font(.caption)
           .fontWeight(.bold)
         if let currentMarketDataRate = entry.currentMarketData?.rate,
@@ -113,11 +119,13 @@ struct PriceView: View {
       
       if let previousMarketDataPrice = entry.previousMarketData?.price, Int(entry.currentMarketData?.rate ?? 0) != Int(entry.previousMarketData?.rate ?? 0) {
         Text("From \(previousMarketDataPrice)")
+          .accessibilityIdentifier("price-widget-rectangular-previous-price")
           .font(.caption)
           .foregroundColor(.secondary)
       }
       
       Text("at \(entry.currentMarketData?.formattedDate ?? "--")")
+        .accessibilityIdentifier("price-widget-rectangular-date")
         .font(.caption2)
         .foregroundColor(.secondary)
     }
@@ -129,14 +137,14 @@ struct PriceView: View {
   
   private var defaultView: some View {
     VStack(alignment: .trailing, spacing: nil, content: {
-      Text("Last Updated").font(Font.system(size: 11, weight: .regular)).foregroundColor(Color(UIColor.lightGray))
+      Text("Last Updated").accessibilityIdentifier("price-widget-last-updated-label").font(Font.system(size: 11, weight: .regular)).foregroundColor(Color(UIColor.lightGray))
       HStack(alignment: .lastTextBaseline, spacing: nil, content: {
-        Text(entry.currentMarketData?.formattedDate ?? "").lineLimit(1).foregroundColor(.primary).font(Font.system(size: 13, weight: .regular)).minimumScaleFactor(0.01).transition(.opacity)
+        Text(entry.currentMarketData?.formattedDate ?? "").accessibilityIdentifier("price-widget-last-updated-value").lineLimit(1).foregroundColor(.primary).font(Font.system(size: 13, weight: .regular)).minimumScaleFactor(0.01).transition(.opacity)
       })
       Spacer()
       VStack(alignment: .trailing, spacing: 16, content: {
         HStack(alignment: .lastTextBaseline, spacing: nil, content: {
-          Text(entry.currentMarketData?.price ?? "").lineLimit(1).foregroundColor(.primary).font(Font.system(size: 28, weight: .bold)).minimumScaleFactor(0.01).transition(.opacity)
+          Text(entry.currentMarketData?.price ?? "").accessibilityIdentifier("price-widget-default-price-value").lineLimit(1).foregroundColor(.primary).font(Font.system(size: 28, weight: .bold)).minimumScaleFactor(0.01).transition(.opacity)
         })
         if let previousMarketDataPrice = entry.previousMarketData?.price, let currentMarketDataRate = entry.currentMarketData?.rate, let previousMarketDataRate = entry.previousMarketData?.rate, previousMarketDataRate > 0, currentMarketDataRate != previousMarketDataRate {
           HStack(alignment: .lastTextBaseline, spacing: nil, content: {

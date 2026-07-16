@@ -49,9 +49,9 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "B47B21E82B2128B8001F6690"
-               BuildableName = "BlueWalletUITests.xctest"
-               BlueprintName = "BlueWalletUITests"
+               BlueprintIdentifier = "C1A2B3D7CC377F00162242"
+               BuildableName = "WidgetTests.xctest"
+               BlueprintName = "WidgetTests"
                ReferencedContainer = "container:BlueWallet.xcodeproj">
             </BuildableReference>
          </TestableReference>
