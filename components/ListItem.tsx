@@ -1,5 +1,17 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleProp, StyleSheet, Switch, SwitchProps, Text, TextStyle, useWindowDimensions, View, ViewStyle } from 'react-native';
+import {
+  AccessibilityRole,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Switch,
+  SwitchProps,
+  Text,
+  TextStyle,
+  useWindowDimensions,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { useLocale } from '@react-navigation/native';
 
 import Icon from './Icon';
@@ -9,11 +21,14 @@ import { useTheme } from './themes';
 export const TX_ROW_BASE_HEIGHT = 64;
 
 interface ListItemProps {
+  children?: React.ReactNode;
   leftAvatar?: React.JSX.Element;
   containerStyle?: StyleProp<ViewStyle>;
   noFeedback?: boolean;
   bottomDivider?: boolean;
   testID?: string;
+  accessibilityRole?: AccessibilityRole;
+  accessibilityLabel?: string;
   switchTestID?: string;
   onPress?: () => void;
   disabled?: boolean;
@@ -39,6 +54,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     noFeedback = false,
     bottomDivider = true,
     testID,
+    accessibilityRole,
+    accessibilityLabel,
     switchTestID,
     onPress,
     disabled,
@@ -168,7 +185,12 @@ const ListItem: React.FC<ListItemProps> = React.memo(
 
     if (!onPress) {
       return (
-        <View testID={testID} style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}>
+        <View
+          testID={testID}
+          accessibilityRole={accessibilityRole}
+          accessibilityLabel={accessibilityLabel}
+          style={[stylesHook.containerStyle, stylesHook.divider, containerStyle, disabled && styles.disabled]}
+        >
           {renderContent()}
         </View>
       );
@@ -179,7 +201,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         testID={testID}
         onPress={onPress}
         disabled={disabled}
-        accessibilityRole="button"
+        accessibilityRole={accessibilityRole ?? 'button'}
+        accessibilityLabel={accessibilityLabel}
         android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}
         style={({ pressed }) => [
           stylesHook.containerStyle,

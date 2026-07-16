@@ -25,6 +25,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     testID,
     style,
     enableAndroidRipple = true,
+    disablePreview = false,
   } = props;
 
   const { language } = useSettings();
@@ -71,6 +72,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
     <ContextMenu
       title={title}
       previewBackgroundColor="transparent"
+      preview={disablePreview ? <View /> : undefined}
       onPress={handlePressMenuItem}
       actions={items}
       dropdownMenuMode={!shouldOpenOnLongPress}
@@ -101,6 +103,7 @@ const ToolTipMenu = (props: ToolTipMenuProps) => {
         <ContextMenu
           title={title}
           previewBackgroundColor="transparent"
+          preview={disablePreview ? <View /> : undefined}
           onPress={handlePressMenuItem}
           actions={items}
           dropdownMenuMode={!shouldOpenOnLongPress}

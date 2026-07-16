@@ -63,8 +63,7 @@ const TransactionStateHeader: React.FC<TransactionStateHeaderProps> = ({
 }) => {
   const DirectionIcon = direction === 'sent' ? TransactionOutgoingIcon : TransactionIncomingIcon;
   const label = direction === 'sent' ? loc.transactions.details_sent : loc.transactions.details_received;
-  const displayConfirmations =
-    !Number.isFinite(confirmations) || confirmations <= 0 ? null : confirmations > 6 ? '6+' : confirmations;
+  const displayConfirmations = !Number.isFinite(confirmations) || confirmations <= 0 ? null : confirmations > 6 ? '6+' : confirmations;
 
   const content = (
     <>
@@ -75,9 +74,7 @@ const TransactionStateHeader: React.FC<TransactionStateHeaderProps> = ({
         <BlueText style={[styles.stateLabel, labelStyle]}>{label}</BlueText>
         {isOnChainTx && displayConfirmations !== null && (
           <BlueText style={[styles.stateValue, valueStyle]}>
-            {loc.formatString(loc.transactions.confirmations_lowercase, {
-              confirmations: displayConfirmations,
-            })}
+            {loc.formatString(loc.transactions.confirmations_lowercase, { confirmations: displayConfirmations })}
           </BlueText>
         )}
       </View>

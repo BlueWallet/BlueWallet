@@ -108,7 +108,13 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
   if (!isTotalBalanceEnabled) return null;
 
   return (
-    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress style={styles.menuContainer}>
+    <ToolTipMenu
+      actions={toolTipActions}
+      onPressMenuItem={onPressMenuItem}
+      shouldOpenOnLongPress
+      disablePreview
+      style={styles.menuContainer}
+    >
       <View style={[styles.container, scaledStyles.container]}>
         <Text style={[styles.label, scaledStyles.label]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
           {loc.wallets.total_balance}

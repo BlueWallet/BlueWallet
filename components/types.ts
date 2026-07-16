@@ -22,6 +22,8 @@ export interface ToolTipMenuProps {
   actions: Action[] | Action[][];
   children: React.ReactNode;
   enableAndroidRipple?: boolean;
+  // On iOS, disables the default zoomed context-menu preview while keeping the menu itself.
+  disablePreview?: boolean;
   onPressMenuItem: (id: string) => void;
   title?: string;
   // When true (default) the menu opens on long-press; when false it opens
