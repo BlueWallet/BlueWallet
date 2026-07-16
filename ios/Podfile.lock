@@ -1608,6 +1608,7 @@ PODS:
   - react-native-vector-icons-fontawesome6 (13.1.2)
   - react-native-vector-icons-ionicons (13.1.2)
   - react-native-vector-icons-material-design-icons (13.1.2)
+  - react-native-vector-icons-material-icons (13.1.2)
   - React-NativeModulesApple (0.85.3):
     - hermes-engine
     - React-callinvoker
