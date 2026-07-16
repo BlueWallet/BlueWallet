@@ -209,7 +209,6 @@
     "reset_amount_confirm": "금액을 재설정하기 원하십니까?",
     "success_done": "완료되었습니다",
     "txSaved": "트랜잭션 파일({filePath}) 이 저장되었습니다.",
-    "file_saved_at_path": "파일({filePath}) 이 저장되었습니다.",
     "cant_send_to_silentpayment_adress": "이 지갑은 SilentPayment 주소로 송금할 수 없습니다.",
     "cant_send_to_bip47": "이 지갑은 BIP47 결제 코드로 송금할 수 없습니다.",
     "cant_find_bip47_notification": "이 결제 코드를 먼저 연락처에 추가해 주세요.",

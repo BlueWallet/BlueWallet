@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Vrei să resetezi suma?",
     "success_done": "Gata",
     "txSaved": "Fișierul tranzacției ({filePath}) a fost salvat.",
-    "file_saved_at_path": "Fișierul ({filePath}) a fost salvat.",
     "cant_send_to_silentpayment_adress": "Acest portofel nu poate trimite către adrese SilentPayment",
     "cant_send_to_bip47": "Acest portofel nu poate trimite către coduri de plată BIP47",
     "cant_find_bip47_notification": "Adaugă mai întâi acest cod de plată la contacte",

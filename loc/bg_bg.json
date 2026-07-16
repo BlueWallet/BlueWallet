@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Искате ли да нулирате сумата?",
     "success_done": "Готово",
     "txSaved": "Файлът с транзакцията ({filePath}) беше запазен.",
-    "file_saved_at_path": "Файлът ({filePath}) беше запазен.",
     "cant_send_to_silentpayment_adress": "Този портфейл не може да изпраща към Silent Payments адреси",
     "cant_send_to_bip47": "Този портфейл не може да изпраща към BIP47 платежни кодове",
     "cant_find_bip47_notification": "Първо добавете този платежен код към контактите",

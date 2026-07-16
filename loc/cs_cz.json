@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Chcete částku vynulovat?",
     "success_done": "Hotovo",
     "txSaved": "Soubor s transakcemi ({filePath}) byl uložen.",
-    "file_saved_at_path": "Soubor ({filePath}) byl uložen.",
     "cant_send_to_silentpayment_adress": "Tato peněženka nedokáže odesílat prostředky na SilentPayment adresy",
     "cant_send_to_bip47": "Tato peněženka nedokáže odesílat prostředky na platební kódy BIP47",
     "cant_find_bip47_notification": "Nejdříve tento platební kód přidejte mezi kontakty",

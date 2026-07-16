@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Məbləği sıfırlamaq istərdiniz?",
     "success_done": "Hazırdır",
     "txSaved": "Tranzaksiya faylı ({filePath}) yadda saxlanıldı.",
-    "file_saved_at_path": "Fayl ({filePath}) yadda saxlanıldı.",
     "cant_send_to_silentpayment_adress": "Bu cüzdan SilentPayment ünvanlarına göndərə bilməz",
     "cant_send_to_bip47": "Bu cüzdan BIP47 ödəniş kodlarına göndərə bilməz",
     "cant_find_bip47_notification": "Əvvəlcə bu Ödəniş Kodunu kontaktlara əlavə edin",

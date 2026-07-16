@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Ցանկանու՞մ եք վերակայել գումարը:",
     "success_done": "Պատրաստ է",
     "txSaved": "Գործարքի ֆայլը ({filePath}) պահպանվել է:",
-    "file_saved_at_path": "Ֆայլը ({filePath}) պահպանվել է:",
     "cant_send_to_silentpayment_adress": "Այս դրամապանակը չի կարող ուղարկել Silent Payments հասցեների",
     "cant_send_to_bip47": "Այս դրամապանակը չի կարող ուղարկել BIP47 վճարման կոդերի",
     "cant_find_bip47_notification": "Նախ ավելացրեք այս վճարման կոդը կոնտակտներին",

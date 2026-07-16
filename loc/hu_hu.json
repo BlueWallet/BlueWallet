@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Valóban visszaállítja az összeget?",
     "success_done": "Kész!",
     "txSaved": "A tranzakciós fájl ({filePath}) elmentve.",
-    "file_saved_at_path": "A fájl ({filePath}) elmentve.",
     "cant_send_to_silentpayment_adress": "Ez a tárca nem tud küldeni Silent Payments címekre",
     "cant_send_to_bip47": "Ez a tárca nem tud küldeni BIP47 fizetési kódokra",
     "cant_find_bip47_notification": "Először add hozzá ezt a fizetési kódot a kapcsolatokhoz",

@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Zenbatekoa berrezarri nahi duzu?",
     "success_done": "Eginda",
     "txSaved": "Transakzio-fitxategia ({filePath}) gorde da.",
-    "file_saved_at_path": "Fitxategia ({filePath}) gorde da.",
     "cant_send_to_silentpayment_adress": "Diru-zorro honek ezin du SilentPayment helbideetara bidali",
     "cant_send_to_bip47": "Diru-zorro honek ezin du BIP47 ordainketa-kodeetara bidali",
     "cant_find_bip47_notification": "Gehitu ordainketa-kode hau lehenik kontaktuetara",

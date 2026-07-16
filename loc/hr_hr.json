@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Želite li poništiti iznos?",
     "success_done": "U redu",
     "txSaved": "Datoteka transakcije ({filePath}) je spremljena.",
-    "file_saved_at_path": "Datoteka ({filePath}) je spremljena.",
     "cant_send_to_silentpayment_adress": "Ovaj novčanik ne može slati na Silent Payment adrese",
     "cant_send_to_bip47": "Ovaj novčanik ne može slati na BIP47 kodove plaćanja",
     "cant_find_bip47_notification": "Najprije dodajte ovaj kod plaćanja u kontakte",

@@ -149,9 +149,6 @@ export const writeFileAndExport = async function (fileName: string, contents: st
         if (savedFile.error) {
           throw new Error(savedFile.error);
         }
-
-        const filePath = decodeURI(savedFile.uri || sanitizedFileName);
-        presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
       } finally {
         await _safeUnlink(sourceFilePath);
       }
@@ -168,8 +165,6 @@ export const writeFileAndExport = async function (fileName: string, contents: st
         await RNFS.writeFile(filePath, contents);
         if (showShareDialog) {
           await _shareOpen(filePath, true);
-        } else {
-          presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath }) });
         }
       } catch (e: any) {
         console.error(e);

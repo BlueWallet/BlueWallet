@@ -209,7 +209,6 @@
     "reset_amount_confirm": "ท่านต้องการรีเซ็ตจำนวนหรือไม่?",
     "success_done": "สำเร็จ",
     "txSaved": "ไฟล์ธุรกรรม ({filePath}) ถูกบันทึกแล้ว",
-    "file_saved_at_path": "ไฟล์ ({filePath}) ถูกบันทึกแล้ว",
     "cant_send_to_silentpayment_adress": "กระเป๋าสตางค์นี้ไม่สามารถส่งไปยังแอดเดรส Silent Payments ได้",
     "cant_send_to_bip47": "กระเป๋าสตางค์นี้ไม่สามารถส่งไปยังรหัสการชำระเงิน BIP47 ได้",
     "cant_find_bip47_notification": "เพิ่มรหัสการชำระเงินนี้ไปยังผู้ติดต่อก่อน",
