@@ -188,6 +188,7 @@ const DetailViewStackScreensStack = () => {
   const renderManageWalletsHeaderLeft = useCallback(
     (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
       ...options,
+      // eslint-disable-next-line react/no-unstable-nested-components
       headerLeft: () => (
         <Pressable
           accessibilityRole="button"
@@ -364,6 +365,11 @@ const DetailViewStackScreensStack = () => {
   const settingsScreenOptions = (title: string) =>
     isIOS26OrHigher ? getSettingsHeaderOptions(title) : navigationStyle(getSettingsHeaderOptions(title))(theme);
 
+  const resolveSettingsScreenOptions = (title: string, deps: { navigation: any; route: any }): NativeStackNavigationOptions => {
+    const base = settingsScreenOptions(title);
+    return typeof base === 'function' ? base(deps) : base;
+  };
+
   return (
     <ConnectionPollContext.Provider value={connectionPollContextValue}>
       <DetailViewStack.Navigator
@@ -475,7 +481,15 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletAddresses"
           component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
+          initialParams={{ search: '' }}
+          options={({ navigation: nav, route }) =>
+            navigationStyle({
+              title: loc.addresses.addresses_title,
+              headerSearchBarOptions: {
+                onChangeText: (event: { nativeEvent: { text: string } }) => nav.setParams({ search: event.nativeEvent.text }),
+              },
+            })(theme)({ navigation: nav, route })
+          }
         />
 
         <DetailViewStack.Screen
@@ -515,7 +529,19 @@ const DetailViewStackScreensStack = () => {
                 })(theme)
           }
         />
-        <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
+        <DetailViewStack.Screen
+          name="Currency"
+          component={Currency}
+          initialParams={{ search: '', searchFocused: false }}
+          options={({ navigation: nav, route }) => ({
+            ...resolveSettingsScreenOptions(loc.settings.currency, { navigation: nav, route }),
+            headerSearchBarOptions: {
+              onChangeText: (event: { nativeEvent: { text: string } }) => nav.setParams({ search: event.nativeEvent.text }),
+              onFocus: () => nav.setParams({ searchFocused: true }),
+              onBlur: () => nav.setParams({ searchFocused: false }),
+            },
+          })}
+        />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
@@ -550,7 +576,17 @@ const DetailViewStackScreensStack = () => {
           component={EncryptStorage}
           options={settingsScreenOptions(loc.settings.encrypt_title)}
         />
-        <DetailViewStack.Screen name="Language" component={Language} options={settingsScreenOptions(loc.settings.language)} />
+        <DetailViewStack.Screen
+          name="Language"
+          component={Language}
+          initialParams={{ search: '' }}
+          options={({ navigation: nav, route }) => ({
+            ...resolveSettingsScreenOptions(loc.settings.language, { navigation: nav, route }),
+            headerSearchBarOptions: {
+              onChangeText: (event: { nativeEvent: { text: string } }) => nav.setParams({ search: event.nativeEvent.text }),
+            },
+          })}
+        />
         <DetailViewStack.Screen
           name="LightningSettings"
           component={LightningSettings}
@@ -583,18 +619,28 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ManageWallets"
           component={ManageWallets}
-          options={navigationStyle(
-            {
-              presentation: 'fullScreenModal',
-              title: loc.wallets.manage_title,
-              headerShown: true,
-              headerRight: undefined,
-              headerStyle: {
-                backgroundColor: theme.colors.customHeader,
+          initialParams={{ search: '', searchFocused: false }}
+          options={({ navigation: nav, route }) =>
+            navigationStyle(
+              {
+                presentation: 'fullScreenModal',
+                title: loc.wallets.manage_title,
+                headerShown: true,
+                headerRight: undefined,
+                headerSearchBarOptions: {
+                  hideWhenScrolling: false,
+                  placeholder: loc.wallets.manage_wallets_search_placeholder,
+                  onChangeText: (event: { nativeEvent: { text: string } }) => nav.setParams({ search: event.nativeEvent.text }),
+                  onFocus: () => nav.setParams({ searchFocused: true }),
+                  onBlur: () => nav.setParams({ searchFocused: false }),
+                },
+                headerStyle: {
+                  backgroundColor: theme.colors.customHeader,
+                },
               },
-            },
-            renderManageWalletsHeaderLeft,
-          )(theme)}
+              renderManageWalletsHeaderLeft,
+            )(theme)({ navigation: nav, route })
+          }
         />
         <DetailViewStack.Screen
           name="ReceiveDetails"

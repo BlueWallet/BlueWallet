@@ -71,7 +71,7 @@ export type DetailViewStackParamList = {
   };
   LnurlAuth: undefined;
   Success: undefined;
-  WalletAddresses: { walletID: string };
+  WalletAddresses: { walletID: string; search?: string };
   AddWalletRoot: undefined;
   SendDetailsRoot: SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
@@ -93,7 +93,7 @@ export type DetailViewStackParamList = {
   WalletExport: undefined;
   ExportMultisigCoordinationSetupRoot: undefined;
   Settings: undefined;
-  Currency: undefined;
+  Currency: { search?: string; searchFocused?: boolean } | undefined;
   GeneralSettings: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
@@ -103,7 +103,7 @@ export type DetailViewStackParamList = {
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
-  Language: undefined;
+  Language: { search?: string } | undefined;
   LightningSettings: {
     url?: string;
     onBarScanned?: string;
@@ -162,5 +162,5 @@ export type DetailViewStackParamList = {
     walletID: string;
   };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
-  ManageWallets: undefined;
+  ManageWallets: { search?: string; searchFocused?: boolean } | undefined;
 };

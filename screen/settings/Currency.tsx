@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Keyboard, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, Keyboard, StyleSheet, View } from 'react-native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 
 import {
   CurrencyRate,
@@ -20,13 +21,14 @@ import {
   SettingsText,
 } from '../../components/platform';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 
 dayjs.extend(calendar);
 
 const MAX_DISPLAY_ITEMS = 50;
+type CurrencyRouteProp = RouteProp<DetailViewStackParamList, 'Currency'>;
 
 const Currency: React.FC = () => {
   const { setPreferredFiatCurrencyStorage } = useSettings();
@@ -36,9 +38,10 @@ const Currency: React.FC = () => {
     LastUpdated: null,
     Rate: null,
   });
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const { setOptions } = useExtendedNavigation();
-  const [search, setSearch] = useState('');
+  const route = useRoute<CurrencyRouteProp>();
+  const search = route.params?.search ?? '';
+  const isSearchFocused = Boolean(route.params?.searchFocused);
+  const listRef = useRef<FlatList<FiatUnitType>>(null);
 
   const filteredCurrencies = useMemo(() => {
     const searchLower = search.toLowerCase();
@@ -66,19 +69,9 @@ const Currency: React.FC = () => {
     fetchCurrency();
   }, [fetchCurrency]);
 
-  const handleSearchChange = useCallback((event: NativeSyntheticEvent<{ text: string }>) => {
-    setSearch(event.nativeEvent.text);
-  }, []);
-
-  useLayoutEffect(() => {
-    setOptions({
-      headerSearchBarOptions: {
-        onChangeText: handleSearchChange,
-        onFocus: () => setIsSearchFocused(true),
-        onBlur: () => setIsSearchFocused(false),
-      },
-    });
-  }, [setOptions, handleSearchChange]);
+  useEffect(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [search]);
 
   const selectedCurrencyVisible = useMemo(
     () => filteredCurrencies.some(item => item.endPointKey === selectedCurrency.endPointKey),
@@ -156,6 +149,7 @@ const Currency: React.FC = () => {
 
   return (
     <SettingsFlatList
+      ref={listRef}
       data={filteredCurrencies}
       renderItem={renderItem}
       keyExtractor={keyExtractor}

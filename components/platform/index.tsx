@@ -1,6 +1,7 @@
 import React, { forwardRef, useMemo } from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   FlatListProps,
   I18nManager,
   Platform,
@@ -214,13 +215,14 @@ export const SettingsScrollView = forwardRef<ScrollView, SettingsScrollViewProps
 SettingsScrollView.displayName = 'SettingsScrollView';
 
 interface SettingsFlatListProps<ItemT> extends Omit<FlatListProps<ItemT>, 'contentContainerStyle'> {
+  ref?: React.Ref<FlatList<ItemT>>;
   contentContainerStyle?: FlatListProps<ItemT>['contentContainerStyle'];
   headerHeight?: number;
   floatingButtonHeight?: number;
 }
 
 export const SettingsFlatList = <ItemT,>(props: SettingsFlatListProps<ItemT>) => {
-  const { contentContainerStyle, headerHeight, floatingButtonHeight, style, ...rest } = props;
+  const { ref, contentContainerStyle, headerHeight, floatingButtonHeight, style, ...rest } = props;
   const { colors, dark } = useTheme();
   const insets = useSafeAreaInsets();
   const resolvedHeaderHeight = useMemo(() => headerHeight ?? getSettingsHeaderHeight(insets.top), [headerHeight, insets.top]);
@@ -229,6 +231,7 @@ export const SettingsFlatList = <ItemT,>(props: SettingsFlatListProps<ItemT>) =>
 
   return (
     <SafeAreaFlatList
+      ref={ref}
       style={[style, { backgroundColor: screenBackgroundColor }]}
       headerHeight={resolvedHeaderHeight}
       floatingButtonHeight={floatingButtonHeight}

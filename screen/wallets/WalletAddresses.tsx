@@ -1,13 +1,11 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useReducer, useMemo } from 'react';
 import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import SegmentedControl from '../../components/SegmentedControl';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -109,14 +107,15 @@ export const filterByAddressType = (
   return currentType === type ? isInternal === true : isInternal === false;
 };
 
-type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletAddresses'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletAddresses'>;
 
 const WalletAddresses: React.FC = () => {
   const [{ showAddresses, addresses, currentTab, search }, dispatch] = useReducer(reducer, initialState);
 
   const { wallets } = useStorage();
-  const { walletID } = useRoute<RouteProps>().params;
+  const route = useRoute<RouteProps>();
+  const { walletID } = route.params;
+  const routeSearch = route.params?.search ?? '';
 
   const addressList = useRef<FlatList<Address>>(null);
   const wallet = wallets.find((w: any) => w.getID() === walletID);
@@ -129,7 +128,6 @@ const WalletAddresses: React.FC = () => {
   const { colors } = useTheme();
   const { isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { setOptions } = useExtendedNavigation<NavigationProps>();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -183,18 +181,20 @@ const WalletAddresses: React.FC = () => {
   );
 
   useEffect(() => {
-    if (showAddresses && addressList.current) {
-      addressList.current.scrollToIndex({ animated: false, index: 0 });
+    if (showAddresses && addressList.current && filteredAddresses.length > 0) {
+      addressList.current.scrollToOffset({ animated: false, offset: 0 });
     }
-  }, [showAddresses]);
+  }, [showAddresses, filteredAddresses.length]);
 
-  useLayoutEffect(() => {
-    setOptions({
-      headerSearchBarOptions: {
-        onChangeText: (event: { nativeEvent: { text: string } }) => dispatch({ type: SET_SEARCH, payload: event.nativeEvent.text }),
-      },
-    });
-  }, [setOptions]);
+  useEffect(() => {
+    dispatch({ type: SET_SEARCH, payload: routeSearch });
+  }, [routeSearch]);
+
+  useEffect(() => {
+    if (addressList.current && filteredAddresses.length > 0) {
+      addressList.current.scrollToOffset({ animated: false, offset: 0 });
+    }
+  }, [search, filteredAddresses.length]);
 
   const data =
     search.length > 0 ? filteredAddresses.filter(item => item.address.toLowerCase().includes(search.toLowerCase())) : filteredAddresses;
