@@ -33,7 +33,29 @@ type OptionsFormatter = (
   deps: { theme: Theme; navigation: any; route: any },
 ) => NativeStackNavigationOptions;
 
+type RouteParamHeaderOptions = {
+  headerLeft?: boolean;
+  headerRight?: boolean;
+  headerBackVisible?: boolean;
+  statusBarStyle?: boolean;
+};
+
 export type NavigationOptionsGetter = (theme: Theme) => (deps: { navigation: any; route: any }) => NativeStackNavigationOptions;
+
+const withRouteParamHeaderOptions =
+  (config: RouteParamHeaderOptions): OptionsFormatter =>
+  (options, { route }) => {
+    const routeParams = route?.params ?? {};
+    return {
+      ...options,
+      ...(config.headerLeft && routeParams.headerLeft !== undefined ? { headerLeft: routeParams.headerLeft } : {}),
+      ...(config.headerRight && routeParams.headerRight !== undefined ? { headerRight: routeParams.headerRight } : {}),
+      ...(config.headerBackVisible && routeParams.headerBackVisible !== undefined
+        ? { headerBackVisible: routeParams.headerBackVisible }
+        : {}),
+      ...(config.statusBarStyle && routeParams.statusBarStyle !== undefined ? { statusBarStyle: routeParams.statusBarStyle } : {}),
+    };
+  };
 
 const getCloseButtonPosition = (
   closeButtonPosition: CloseButtonPosition | undefined,
@@ -66,10 +88,13 @@ const getHandleCloseAction = (
 const navigationStyle = (
   {
     closeButtonPosition,
+    closeButtonIfFirstInStack,
     onCloseButtonPressed,
     ...opts
   }: NativeStackNavigationOptions & {
     closeButtonPosition?: CloseButtonPosition;
+    /** When set, show this close control only if this screen is the first route in the stack (e.g. Coin Control opened from wallet details). */
+    closeButtonIfFirstInStack?: CloseButtonPosition;
     onCloseButtonPressed?: (deps: { navigation: any; route: any }) => void;
   },
   formatter?: OptionsFormatter,
@@ -80,7 +105,10 @@ const navigationStyle = (
       const isModal = route.params?.presentation === 'modal' || route.params?.presentation === 'transparentModal';
       const isFormSheet = route.params?.presentation === 'formSheet';
 
-      const closeButton = getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
+      const closeButton =
+        closeButtonIfFirstInStack && isFirstRouteInStack
+          ? closeButtonIfFirstInStack
+          : getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
       const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
 
       let headerRight;
@@ -146,4 +174,4 @@ const navigationStyle = (
 };
 
 export default navigationStyle;
-export { CloseButtonPosition };
+export { CloseButtonPosition, withRouteParamHeaderOptions };

@@ -1,39 +1,56 @@
-Store, send and receive bitcoin with the wallet focus on security and simplicity.
+BlueWallet er en radikalt enkel, kraftig og sikker Bitcoin-lommebok. Oppbevar, send og motta Bitcoin mens du beholder full kontroll — dine nøkler, dine mynter.
 
-On BlueWallet you own your private keys. A Bitcoin wallet focused on us the users.
-
-You can instantly transact with anyone in the world and transform the financial system right from your pocket.
-
-Create for free unlimited number of bitcoin wallets or access your existing one on your iOS device. It's simple and fast.
+Gratis og åpen kildekode, laget av Bitcoin-brukere for fellesskapet. Handle med hvem som helst i verden og ta kontroll over pengene dine, rett fra lommen. Opprett ubegrenset antall lommebøker gratis eller importer en eksisterende — det er raskt og enkelt.
 
 _____
 
-Here's what you get:
+SIKKERHET I DESIGNET
 
-1 - Security by design
+Åpen kildekode
+MIT-lisensiert — gransk den, bygg den og kjør den selv. Laget med React Native.
 
-Open Source
-MIT licensed, you can build it and run it on your own! Made with ReactNative
+Dine nøkler, dine mynter
+Private nøkler (din seed) forlater aldri enheten din. Du har alltid kontrollen.
 
-Plausible deniability
-Password which decrypts fake wallets if you are forced to disclose your access
+Multisig-hvelv
+Den beste sikkerheten som finnes på Bitcoin — flere nøkler kreves for å bruke midlene, akkurat som et ekte hvelv.
 
-Full encryption
-On top of iOS multi-layer encryption, we encrypt everything with added passwords
+Full kryptering
+I tillegg til enhetens kryptering krypteres alt på nytt med ditt eget passord.
 
-SegWit & HD wallets
-SegWit supported and HD wallets enable
+Plausibel fornektelse
+Sett et lokkepassord som åpner falske lommebøker hvis du noen gang blir tvunget til å låse opp.
 
-2 - Focused on your experience
+_____
 
-Be in control
-On the Bitcoin wallet the Private keys never leave your device.  You control your private keys
+KRAFT OG KONTROLL
 
-Flexible fees
-Starting from 1 Satoshi.  Defined by you, the user
+Moderne lommebøker
+HD-lommebøker med full støtte for Legacy-, SegWit- og Taproot-adresser.
 
-Replace-By-Fee
-(RBF) Speed-up your transactions by increasing the fee (BIP125)
+Maskinvarelommebøker
+Koble til Coldcard, Keystone og andre PSBT-signerere, og hold myntene dine i kald lagring.
 
-Watch-only wallets
-Allows you to keep an eye on your cold storage without touching the hardware.
+Kun-observasjon-lommebøker
+Hold øye med den kalde lagringen din uten å noen gang eksponere dine private nøkler.
+
+Kjør din egen node
+Koble til din egen Bitcoin-fullnode via Electrum, og rut tilkoblingen din gjennom Tor.
+
+Myntkontroll
+Se, merk og frys myntene dine (UTXO-er) for å bygge transaksjoner akkurat slik du vil.
+
+Fleksible gebyrer
+Sett ditt eget gebyr, helt ned til 1 sat/vByte. Fremskynd fastlåste transaksjoner med RBF eller CPFP, eller kanseller dem.
+
+_____
+
+LIGHTNING NETWORK
+
+Urettferdig billige og lynraske betalinger uten oppsett. Betal og få betalt med Lightning-adresser og LNURL.
+
+_____
+
+Tilgjengelig på iOS, Android og macOS. Flere valutaer og språk. Mørk modus. Ingen kontoer og ingen sporing — bare Bitcoin.
+
+BlueWallet — eie din egen Bitcoin.

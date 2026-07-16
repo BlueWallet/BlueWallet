@@ -104,7 +104,7 @@ Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/issues
 
 ## Translations
 
-We accept translations via [Transifex](https://www.transifex.com/bluewallet/bluewallet/)
+We accept translations via [Transifex](https://explore.transifex.com/bluewallet/bluewallet/)
 
 To participate you need to:
 1. Sign up to Transifex
@@ -115,6 +115,10 @@ To participate you need to:
 Please note the values in curly braces should not be translated. These are the names of the variables that will be inserted into the translated string. For example, the original string `"{number} of {total}"` in Russian will be `"{number} из {total}"`.
 
 Transifex automatically creates Pull Request when language reaches 100% translation. We also trigger this by hand before each release, so don't worry if you can't translate everything, every word counts.
+
+### Vocabulary glossaries
+
+[`loc/vocabulary.md`](loc/vocabulary.md) + the per-language files under [`loc/vocabulary/`](loc/vocabulary/) are the canonical glossary of Bitcoin/Lightning terms (Wallet, Vault, Seed, Mnemonic, Passphrase, Multisig, Payment Code, Coin Control, …) and their chosen rendering in each locale, with the reasoning behind each choice and ⚠️ anti-meaning callouts (e.g. Passcode ≠ Password, Change-output ≠ verb "to change"). Use them as ground truth when translating by hand or when feeding `loc/<lang>.json` to an LLM — terminology consistency across screens is the difference between "looks translated" and "is correct for a Bitcoin wallet". When you change a shipped string, update the matching row in the same PR.
 
 ## Q&A
 

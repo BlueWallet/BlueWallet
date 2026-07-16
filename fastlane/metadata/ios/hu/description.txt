@@ -1,53 +1,56 @@
-Egy Bitcoin tárca, amiben biztonságosan és egyszerűen tárolhatod-, utalhatod a Bitcoinodat, fogadhatsz Bitcoin utalást és vásárolhatsz Bitcoint.
+A BlueWallet egy rendkívül egyszerű, hatékony és biztonságos Bitcoin tárca. Tárold, küldd és fogadd a Bitcoint úgy, hogy közben végig te irányítasz — a te kulcsaid, a te érméid.
 
-A BlueWallet egy Bitcoin tárca, ahol te irányítod a privát kulcsokat. Egy Bitcoin tárca, amit Bitcoin felhasználok készítettek a közösségnek. 
-
-Azonnal indíthatsz közvetlen tranzakciókat bárkinek a világon, egy gombnyomással megváltoztatva a pénzügyi rendszert. 
-
-Hozz létre korlátlan számú, ingyenes Bitcoin tárcát vagy importáld a már meglévő tárcáidat. Egyszerűen és gyorsan.
+Ingyenes és nyílt forráskódú, Bitcoin felhasználók készítették a közösségnek. Bonyolíts tranzakciókat bárkivel a világon, és vedd kézbe a pénzed, egyenesen a zsebedből. Hozz létre korlátlan számú tárcát ingyen, vagy importálj egy meglévőt — gyors és egyszerű.
 
 _____
 
-Amit kínálunk:
-
-
-1 - Tervezett biztonság 
+TERVEZETT BIZTONSÁG
 
 Nyílt forráskód
-MIT szabadalom alapján, fejlesztheted és futtasd: a sajátod!  Készült a ReactNative támogatásával.
+MIT licenc alatt — auditáld, fordítsd és futtasd te magad. React Native technológiával készült.
 
-Feltételes elutasítás
-Jelszó, ami hamis tárca adatokat old fel, ha kényszerítenek a belépésre.
+A te kulcsaid, a te érméid
+A privát kulcsok (a mag-kifejezésed) soha nem hagyják el az eszközöd. Mindig te irányítasz.
+
+Multisig széf
+A Bitcoinon elérhető legjobb biztonság — több kulcs kell a költéshez, akárcsak egy igazi széfnél.
 
 Teljes titkosítás
-Az iOS többszintű titkosításán felül, mi jelszóval titkosítunk mindent 
+Az eszköz titkosításán felül minden újra titkosításra kerül a saját jelszavaddal.
 
-Teljes node
-Csatlakozz a saját Bitcoin teljes node-hoz, Electrum tárcán keresztül.
+Elfogadható tagadhatóság
+Állíts be egy csali jelszót, amely hamis tárcákat nyit meg, ha valaha is feloldásra kényszerítenének.
 
-Offline háttértár 
-Csatlakozz a hardver tárcádhoz és tartsd a Bitcoint offline.
+_____
 
-2 - Fókuszban a felhasználói élmény
+ERŐ ÉS IRÁNYÍTÁS
 
-Te irányítasz
-A privát kulcsok soha nem hagyják el az eszközöd.
-Te irányítod a privát kulcsaid,
+Modern tárcák
+HD tárcák, teljes támogatással a Legacy, SegWit és Taproot címekhez.
 
-Rugalmas tranzakciós díjjak
-Már 1 satoshi-tól. Te, a felhasználó választasz.
+Hardveres tárcák
+Párosíts Coldcard, Keystone és más PSBT aláírókat, és tartsd az érméid hideg tárolóban.
 
-Tranzakciós Díj Pótlás (RBF)
-(RBF) Gyorsítsd meg a tranzakciódat a tranzakciós díj növelésével (BIP125)
+Csak megtekintésre szolgáló tárcák
+Tartsd szemmel a hideg tárolód anélkül, hogy valaha is felfednéd a privát kulcsaid.
 
-Tárca - csak megtekintésre
-"Tárca - csak megtekintésre" lehetővé teszi, hogy szemmel tartsd az offline tárcád a hardver érintése nélkül.
+Futtasd a saját node-od
+Csatlakozz a saját Bitcoin teljes node-odhoz Electrumon keresztül, és vezesd a kapcsolatod a Tor hálózaton át.
 
-Lightning hálózat
-Lightning tárca, konfigurálás nélkül. Rendkívül olcsó és gyors tranzakció a legjobb Bitcoin felhasználói élménnyel.
+Érmekezelés
+Nézd meg, címkézd és fagyaszd be az érméid (UTXO-kat), hogy pontosan úgy állítsd össze a tranzakcióidat, ahogy szeretnéd.
 
-Bitcoin vétel
-Kapcsolódj be a nyílt pénzügyi forradalomba és vegyél Bitcoint közvetlenül a tárcádba.
+Rugalmas díjak
+Állítsd be a saját díjad, akár 1 sat/vByte-ig. Gyorsítsd fel a beragadt tranzakciókat RBF vagy CPFP segítségével, vagy mondd vissza őket.
 
-Közeli elfogadóhelyek
-A peer-to-peer Bitcoin kereskedési platform lehetővé teszi, hogy közvetlenül vegyél- és eladj Bitcoint más felhasználóknak, közvetítő nélkül.
+_____
+
+LIGHTNING HÁLÓZAT
+
+Hihetetlenül olcsó és villámgyors fizetések, nulla konfigurációval. Fizess és fogadj fizetéseket Lightning címekkel és LNURL-lel.
+
+_____
+
+Elérhető iOS-en, Androidon és macOS-en. Több pénznem és nyelv. Sötét mód. Nincsenek fiókok és nincs nyomkövetés — csak Bitcoin.
+
+BlueWallet — birtokold a Bitcoinodat.

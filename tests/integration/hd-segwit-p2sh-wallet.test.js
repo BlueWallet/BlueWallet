@@ -2,7 +2,7 @@ import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { HDSegwitP2SHWallet } from '../../class';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 
 jest.setTimeout(300 * 1000);
 
@@ -14,11 +14,8 @@ afterAll(() => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  try {
-    await BlueElectrum.connectMain();
-  } catch (Err) {
-    console.log('failed to connect to Electrum:', Err);
-    process.exit(2);
+  if (!(await BlueElectrum.ensureConnected())) {
+    throw new Error('failed to connect to Electrum');
   }
 });
 

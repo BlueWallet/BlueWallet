@@ -4,8 +4,13 @@ import Animated, { Layout } from 'react-native-reanimated';
 import assert from 'assert';
 
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueButtonLink, BlueFormLabel, BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Wallet, HDTaprootWallet, LightningCustodianWallet, HDLegacyP2PKHWallet } from '../../class';
+import BlueButtonLink from '../../components/BlueButtonLink';
+import BlueFormLabel from '../../components/BlueFormLabel';
+import BlueText from '../../components/BlueText';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -114,9 +119,10 @@ const WalletsAdd: React.FC = () => {
   const colorScheme = useColorScheme();
   //
   const { addWallet, saveToDisk } = useStorage();
-  const { entropy: entropyHex, words } = useRoute<RouteProps>().params || {};
+  const route = useRoute<RouteProps>();
+  const { entropy: entropyHex, words } = route.params || {};
   const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
-  const { navigate, goBack, setOptions, setParams } = useExtendedNavigation<NavigationProps>();
+  const { navigate, goBack, setParams, setOptions } = useExtendedNavigation<NavigationProps>();
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
@@ -147,6 +153,8 @@ const WalletsAdd: React.FC = () => {
       bytes: entropy?.length,
     });
   }, [entropy]);
+
+  const hasStoredLndHub = (walletBaseURI ?? '').trim().length > 0;
 
   const confirmResetEntropy = useCallback(
     (newWalletType: ButtonSelected) => {
@@ -273,12 +281,19 @@ const WalletsAdd: React.FC = () => {
     [handleOnLightningButtonPressed, toolTipActions, entropy, confirmResetEntropy, navigate],
   );
 
+  const renderHeaderRight = useCallback(() => HeaderRight, [HeaderRight]);
+
   useEffect(() => {
-    setOptions({
-      headerRight: () => HeaderRight,
-      statusBarStyle: Platform.select({ ios: 'light', default: colorScheme === 'dark' ? 'light' : 'dark' }),
+    const defaultStatusBarStyle: 'light' | 'dark' = colorScheme === 'dark' ? 'light' : 'dark';
+    const statusBarStyle = Platform.select<'light' | 'dark'>({
+      ios: 'light',
+      default: defaultStatusBarStyle,
     });
-  }, [HeaderRight, colorScheme, colors.foregroundColor, setOptions, toolTipActions]);
+    setOptions({
+      headerRight: renderHeaderRight,
+      statusBarStyle,
+    });
+  }, [colorScheme, renderHeaderRight, setOptions]);
 
   useEffect(() => {
     // resetting format of last camera qr scan, in case user will use camera to
@@ -511,7 +526,7 @@ const WalletsAdd: React.FC = () => {
               size={styles.button}
             />
           ) : null}
-          {selectedWalletType === ButtonSelected.OFFCHAIN && LightningButtonMemo}
+          {(selectedWalletType === ButtonSelected.OFFCHAIN || hasStoredLndHub) && LightningButtonMemo}
         </View>
         <View style={styles.advanced}>
           {selectedWalletType === ButtonSelected.OFFCHAIN && (
@@ -587,6 +602,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     color: '#81868e',
+    fontSize: 15,
+    lineHeight: 19,
   },
   buttons: {
     flexDirection: 'column',

@@ -14,8 +14,7 @@ import { scanQrHelper } from '../../helpers/scan-qr';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
 import { useTheme } from '../../components/themes';
-import { BlueButtonLink } from '../../BlueComponents';
-
+import BlueButtonLink from '../../components/BlueButtonLink';
 const IsItMyAddress: React.FC = () => {
   const { navigate } = useExtendedNavigation();
   const { wallets } = useStorage();
@@ -202,6 +201,7 @@ const IsItMyAddress: React.FC = () => {
               <View style={styles.walletCardContainer}>
                 <WalletCarouselItem
                   item={wallet}
+                  hideBalance={wallet.hideBalance}
                   onPress={item => {
                     navigate('WalletTransactions', {
                       walletID: item.getID(),

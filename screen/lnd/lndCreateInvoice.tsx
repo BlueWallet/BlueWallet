@@ -30,7 +30,8 @@ import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } fr
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueLoading } from '../../components/BlueLoading';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
-import { LightningArkWallet, LightningCustodianWallet } from '../../class';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import assert from 'assert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
 
@@ -509,6 +510,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
+    fontSize: 15,
+    lineHeight: 19,
     color: '#81868e',
   },
 });

@@ -1,7 +1,7 @@
 import assert from 'assert';
 import * as bitcoin from 'bitcoinjs-lib';
 
-import { TaprootWallet } from '../../class';
+import { TaprootWallet } from '../../class/wallets/taproot-wallet';
 
 describe('Taproot wallet', () => {
   it('can convert scriptPubKey to address', () => {

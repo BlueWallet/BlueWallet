@@ -35,6 +35,8 @@ else
 	GRADLE_ARCH_ARGS+=("-PreactNativeArchitectures=${ARCHITECTURES}")
 	(cd android && ./gradlew assembleRelease assembleReleaseAndroidTest -DtestBuildType=release "${GRADLE_ARCH_ARGS[@]}")
 	RELEASE_APK=./android/app/build/outputs/apk/release/app-release.apk
+	UNSIGNED_RELEASE_APK=./android/app/build/outputs/apk/release/app-release-unsigned.apk
+	mv "$UNSIGNED_RELEASE_APK" "$RELEASE_APK"
 	TEST_APK=./android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
 fi
 

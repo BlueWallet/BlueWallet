@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
-import { TouchableOpacity, Text, StyleSheet, LayoutAnimation, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import loc, { formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -22,6 +22,7 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
     setTotalBalancePreferredUnitStorage,
   } = useSettings();
   const { colors } = useTheme();
+  const { fontScale } = useWindowDimensions();
 
   const totalBalanceFormatted = useMemo(() => {
     const totalBalance = wallets.reduce((prev, curr) => {
@@ -30,6 +31,22 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
     return formatBalanceWithoutSuffix(totalBalance, totalBalancePreferredUnit, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, totalBalancePreferredUnit, preferredFiatCurrency]);
+
+  const scaledStyles = useMemo(
+    () => ({
+      container: {
+        paddingVertical: Math.round(8 * fontScale),
+      },
+      label: {
+        lineHeight: Math.round(18 * fontScale),
+        marginBottom: Math.round(2 * fontScale),
+      },
+      balance: {
+        lineHeight: Math.round(38 * Math.max(1, fontScale)),
+      },
+    }),
+    [fontScale],
+  );
 
   const toolTipActions = useMemo(
     () => [
@@ -55,7 +72,6 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
 
   const onPressMenuItem = useCallback(
     async (id: string) => {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       switch (id) {
         case CommonToolTipActions.ViewInFiat.id:
           await setTotalBalancePreferredUnitStorage(BitcoinUnit.LOCAL_CURRENCY);
@@ -80,7 +96,6 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
   );
 
   const handleBalanceOnPress = useCallback(async () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     const nextUnit =
       totalBalancePreferredUnit === BitcoinUnit.BTC
         ? BitcoinUnit.SATS
@@ -93,14 +108,21 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
   if (!isTotalBalanceEnabled) return null;
 
   return (
-    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress>
-      <View style={styles.container}>
-        <Text style={styles.label}>{loc.wallets.total_balance}</Text>
-        <TouchableOpacity onPress={handleBalanceOnPress}>
-          <Text style={[styles.balance, { color: colors.foregroundColor }]}>
-            {totalBalanceFormatted}{' '}
+    <ToolTipMenu actions={toolTipActions} onPressMenuItem={onPressMenuItem} shouldOpenOnLongPress style={styles.menuContainer}>
+      <View style={[styles.container, scaledStyles.container]}>
+        <Text style={[styles.label, scaledStyles.label]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+          {loc.wallets.total_balance}
+        </Text>
+        <TouchableOpacity onPress={handleBalanceOnPress} style={styles.balanceTouchable}>
+          <Text
+            style={[styles.balance, scaledStyles.balance, { color: colors.foregroundColor }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.55}
+          >
+            {totalBalanceFormatted}
             {totalBalancePreferredUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-              <Text style={[styles.currency, { color: colors.foregroundColor }]}>{totalBalancePreferredUnit}</Text>
+              <Text style={[styles.currency, { color: colors.foregroundColor }]}>{` ${totalBalancePreferredUnit}`}</Text>
             )}
           </Text>
         </TouchableOpacity>
@@ -110,19 +132,29 @@ const TotalWalletsBalance: React.FC = React.memo(() => {
 });
 
 const styles = StyleSheet.create({
+  menuContainer: {
+    alignSelf: 'stretch',
+  },
   container: {
     flexDirection: 'column',
     alignItems: 'flex-start',
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    width: '100%',
+  },
+  balanceTouchable: {
+    alignSelf: 'stretch',
+    width: '100%',
   },
   label: {
     fontSize: 14,
-    marginBottom: 4,
+    marginBottom: 2,
     color: '#9BA0A9',
   },
   balance: {
     fontSize: 32,
     fontWeight: 'bold',
+    lineHeight: 38,
   },
   currency: {
     fontSize: 18,

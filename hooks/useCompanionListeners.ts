@@ -1,6 +1,7 @@
 import { CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
+import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
 import { getClipboardContent } from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
@@ -12,14 +13,16 @@ import {
   removeAllDeliveredNotifications,
   setApplicationIconBadgeNumber,
 } from '../blue_modules/notifications';
-import { LightningCustodianWallet } from '../class';
+import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
 import ActionSheet from '../screen/ActionSheet';
 import { useStorage } from './context/useStorage';
-import RNQRGenerator from 'rn-qr-generator';
+import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
+import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
 import useWatchConnectivity from './useWatchConnectivity';
@@ -85,6 +88,47 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
         console.log('processing push notification:', payload);
+
+        // Local notification for actionable Ark swaps. Routed by walletID
+        // rather than address/txid because the payload is locally generated;
+        // see blue_modules/arkade-notifications.ts.
+        if (+payload.type === 100) {
+          const arkWallet = wallets.find(w => w.getID() === payload.walletID);
+          if (!arkWallet || !(arkWallet instanceof LightningArkWallet)) {
+            if (wasTapped) {
+              navigation.navigate('WalletTransactions', {
+                walletID: payload.walletID,
+                walletType: arkWallet?.type,
+              });
+              return true;
+            }
+            continue;
+          }
+          // Refresh swap-derived rows directly via the wallet method to
+          // bypass the 5-second NOP throttle in StorageProvider.fetchAndSaveWalletTransactions:
+          // reconcileArkBackgroundTaskResults often runs on app resume immediately
+          // before this handler, which would make a throttled call NOP and
+          // leave the synthetic row stale.
+          try {
+            await arkWallet.fetchTransactions();
+            await saveToDisk();
+          } catch (e: any) {
+            console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
+          }
+
+          if (wasTapped) {
+            const arkWalletID = arkWallet.getID();
+            const row = arkWallet.getTransactions().find(tx => tx.txid === `swap-${payload.swapId}`);
+            if (row) {
+              navigation.navigate('LNDViewInvoice', { invoice: row, walletID: arkWalletID });
+            } else {
+              navigation.navigate('WalletTransactions', { walletID: arkWalletID, walletType: arkWallet.type });
+            }
+            return true;
+          }
+          continue;
+        }
+
         let wallet;
         switch (+payload.type) {
           case 2:
@@ -125,6 +169,51 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           const wasTapped = payload.foreground === false || (payload.foreground === true && payload.userInteraction);
 
           console.log('processing push notification:', payload);
+
+          if (+payload.type === 100) {
+            const arkWallet = wallets.find(w => w.getID() === payload.walletID);
+            if (!arkWallet || !(arkWallet instanceof LightningArkWallet)) {
+              if (wasTapped) {
+                navigationRef.dispatch(
+                  CommonActions.navigate({
+                    name: 'WalletTransactions',
+                    params: { walletID: payload.walletID, walletType: arkWallet?.type },
+                  }),
+                );
+                return true;
+              }
+              continue;
+            }
+            try {
+              await arkWallet.fetchTransactions();
+              await saveToDisk();
+            } catch (e: any) {
+              console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
+            }
+
+            if (wasTapped) {
+              const arkWalletID = arkWallet.getID();
+              const row = arkWallet.getTransactions().find(tx => tx.txid === `swap-${payload.swapId}`);
+              if (row) {
+                navigationRef.dispatch(
+                  CommonActions.navigate({
+                    name: 'LNDViewInvoice',
+                    params: { invoice: row, walletID: arkWalletID },
+                  }),
+                );
+              } else {
+                navigationRef.dispatch(
+                  CommonActions.navigate({
+                    name: 'WalletTransactions',
+                    params: { walletID: arkWalletID, walletType: arkWallet.type },
+                  }),
+                );
+              }
+              return true;
+            }
+            continue;
+          }
+
           let wallet;
           switch (+payload.type) {
             case 2:
@@ -178,7 +267,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
       console.error('Failed to process push notifications:', error);
     }
     return false;
-  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, navigation, refreshAllWalletTransactions]);
+  }, [shouldActivateListeners, wallets, fetchAndSaveWalletTransactions, saveToDisk, navigation, refreshAllWalletTransactions]);
 
   useEffect(() => {
     if (!shouldActivateListeners) return;
@@ -202,35 +291,23 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         }
         const fileName = decodedUrl.split('/').pop()?.toLowerCase() || '';
         if (/\.(jpe?g|png)$/i.test(fileName)) {
-          let qrResult;
+          let base64: string;
           try {
-            qrResult = await RNQRGenerator.detect({ uri: decodedUrl });
-          } catch (e) {
-            console.error('QR detection first attempt failed:', e);
+            base64 = await RNFS.readFile(decodedUrl, 'base64');
+          } catch {
+            base64 = await RNFS.readFile(decodedUrl.replace(/^file:\/\//, ''), 'base64');
           }
-          if (!qrResult || !qrResult.values || qrResult.values.length === 0) {
-            const altUrl = decodedUrl.replace(/^file:\/\//, '');
-            try {
-              qrResult = await RNQRGenerator.detect({ uri: altUrl });
-            } catch (e) {
-              console.error('QR detection second attempt failed:', e);
-            }
-          }
-          if (qrResult?.values?.length) {
-            triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-            DeeplinkSchemaMatch.navigationRouteFor(
-              { url: qrResult.values[0] },
-              (value: [string, any]) => navigationRef.navigate(...value),
-              {
-                wallets,
-                addWallet,
-                saveToDisk,
-                setSharedCosigner,
-              },
-            );
-          } else {
+          const qrValue = await detectQRCodeInImage(base64);
+          if (!qrValue) {
             throw new Error(loc.send.qr_error_no_qrcode);
           }
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+          DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, (value: [string, any]) => navigationRef.navigate(...value), {
+            wallets,
+            addWallet,
+            saveToDisk,
+            setSharedCosigner,
+          });
         } else {
           DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
             wallets,
@@ -284,6 +361,12 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
       if ((appState.current.match(/inactive|background/) && nextAppState === 'active') || nextAppState === undefined) {
         updateExchangeRate();
         const processed = await processPushNotifications();
+        // Reconcile in-process Ark background task results before the
+        // notification-handled early return: if the background task observed
+        // status changes while the app was backgrounded, the affected
+        // wallets need a transactions refresh whether or not a notification
+        // also fired.
+        reconcileArkBackgroundTaskResults(fetchAndSaveWalletTransactions);
         if (processed) return;
         const clipboard = await getClipboardContent();
         if (!clipboard) return;
@@ -319,7 +402,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         appState.current = nextAppState;
       }
     },
-    [processPushNotifications, showClipboardAlert, wallets, shouldActivateListeners],
+    [processPushNotifications, fetchAndSaveWalletTransactions, showClipboardAlert, wallets, shouldActivateListeners],
   );
 
   const addListeners = useCallback(() => {

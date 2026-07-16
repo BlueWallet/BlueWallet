@@ -60,6 +60,8 @@ React Navigation 7.x with native stack. Typed params in `navigation/DetailViewSt
 
 **Dependencies:** Do not add new dependencies without strong justification. Bonus for removing dependencies.
 
+**Patches:** Local fixes to `node_modules` live in `patches/` and are applied by `patch-package` on `postinstall`. Each patch is documented in `patches/README.md` (what/why + upstream issue link); update it when adding or removing a patch.
+
 **Components:** New components go in `components/`, not legacy `BlueComponents.js`.
 
 **Linting Rules:**
@@ -67,7 +69,7 @@ React Navigation 7.x with native stack. Typed params in `navigation/DetailViewSt
 - No unused styles (`react-native/no-unused-styles`: error)
 - Prettier: single quotes, 140 char width, trailing commas
 
-**Localization:** Keys in `loc/en.json`. Run `find-unused-loc.js` to detect unused keys.
+**Localization:** Keys in `loc/en.json`. Run `find-unused-loc.js` to detect unused keys. See `loc/vocabulary.md` for the canonical glossary of Bitcoin/Lightning terms and their per-language renderings — use it as ground truth when translating or generating translations with LLMs.
 
 ## Testing
 

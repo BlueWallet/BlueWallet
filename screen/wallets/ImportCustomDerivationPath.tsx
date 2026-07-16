@@ -1,10 +1,14 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FlatList, StyleSheet, TextInput, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
-import { BlueFormLabel, BlueTextCentered } from '../../BlueComponents';
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, HDTaprootWallet } from '../../class';
+import BlueFormLabel from '../../components/BlueFormLabel';
+import BlueTextCentered from '../../components/BlueTextCentered';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { validateBip32 } from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
@@ -152,6 +156,12 @@ const ImportCustomDerivationPath: React.FC = () => {
 
   const disabled = wallets[path] === WRONG_PATH || wallets[path]?.[selected] === undefined;
 
+  // iOS smart punctuation turns ' into ’ and " into ”. Normalize back to ASCII so derivation paths parse.
+  const handlePathChange = useCallback((text: string) => {
+    const normalized = text.split('‘').join("'").split('’').join("'").split('“').join('"').split('”').join('"');
+    setPath(normalized);
+  }, []);
+
   return (
     <SafeArea style={[styles.root, stylesHook.root]}>
       <BlueSpacing20 />
@@ -160,11 +170,14 @@ const ImportCustomDerivationPath: React.FC = () => {
       <TextInput
         testID="DerivationPathInput"
         autoCapitalize="none"
+        autoCorrect={false}
+        spellCheck={false}
+        keyboardType="ascii-capable"
         placeholder={loc.send.details_note_placeholder}
         value={path}
         placeholderTextColor="#81868e"
         style={[styles.pathInput, stylesHook.pathInput]}
-        onChangeText={setPath}
+        onChangeText={handlePathChange}
       />
       <FlatList
         data={items}

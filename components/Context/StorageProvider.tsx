@@ -1,11 +1,14 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LayoutAnimation } from 'react-native';
-import { BlueApp as BlueAppClass, LegacyWallet, TCounterpartyMetadata, TTXMetadata, WatchOnlyWallet } from '../../class';
+import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
+import { LegacyWallet } from '../../class/wallets/legacy-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import type { TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { registerArkBackgroundTask, stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -173,6 +176,15 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const deleteWallet = useCallback((wallet: TWallet) => {
     BlueApp.deleteWallet(wallet);
     setWallets([...BlueApp.getWallets()]);
+    if (wallet.type === LightningArkWallet.type) {
+      // Fire-and-forget: cleans up the per-wallet Arkade Realm (close + delete files)
+      // and the Keychain encryption key. Errors stay scoped to the Ark wallet path
+      // and never block deletion.
+      (wallet as LightningArkWallet).onDelete().catch(e => console.warn('[StorageProvider] Ark wallet cleanup failed:', e?.message ?? e));
+      if (!BlueApp.getWallets().some(w => w.type === LightningArkWallet.type)) {
+        stopArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task stop failed:', e?.message ?? e));
+      }
+    }
   }, []);
 
   const handleWalletDeletion = useCallback(
@@ -306,7 +318,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
-      setWallets(BlueApp.getWallets());
+      const loaded = BlueApp.getWallets();
+      setWallets(loaded);
+      if (loaded.some(w => w.type === LightningArkWallet.type)) {
+        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
+      }
     }
   }, [walletsInitialized]);
 
@@ -322,15 +338,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       console.debug('[refreshAllWalletTransactions] Starting refresh');
       refreshingRef.current = true;
 
-      const TIMEOUT_DURATION = 30000;
-      let refreshTimeout;
-      const timeoutPromise = new Promise<never>(
-        (_resolve, reject) =>
-          (refreshTimeout = setTimeout(() => {
-            console.debug('[refreshAllWalletTransactions] Timeout reached');
-            reject(new Error('Timeout reached'));
-          }, TIMEOUT_DURATION)),
-      );
+      let refreshTimeout: ReturnType<typeof setTimeout> | undefined;
 
       try {
         if (showUpdateStatusIndicator) {
@@ -338,42 +346,58 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           setWalletTransactionUpdateStatus(WalletTransactionsStatus.ALL);
         }
         console.debug('[refreshAllWalletTransactions] Waiting for connectivity...');
-        await BlueElectrum.waitTillConnected();
-        if (!(await BlueElectrum.ping())) {
-          // above `waitTillConnected` is not reliable, as app might have returned from long sleep, so it thinks its
-          // connected but actually socket is closed. thus, we ping, and if it fails - we wait again (reconnection code
-          // should pick up)
-          console.log('[refreshAllWalletTransactions] ping failed, waiting for connection...');
-          await BlueElectrum.waitTillConnected();
+        // `ensureConnected()` ping-checks the existing socket and, only if needed,
+        // tears it down and reconnects. Replaces the old wait+ping+wait pattern
+        // which surfaced false "network error" alerts after iOS suspend/resume.
+        const connected = await BlueElectrum.ensureConnected();
+        if (!connected) {
+          console.log('[refreshAllWalletTransactions] could not establish Electrum connection, aborting refresh');
+          return;
         }
 
         console.debug('[refreshAllWalletTransactions] Connected to Electrum');
 
-        // Restore fetch payment codes timing measurement
-        if (typeof BlueApp.fetchSenderPaymentCodes === 'function') {
-          const codesStart = Date.now();
-          console.debug('[refreshAllWalletTransactions] Fetching sender payment codes');
-          await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
-          const codesEnd = Date.now();
-          console.debug('[refreshAllWalletTransactions] fetch payment codes took', (codesEnd - codesStart) / 1000, 'sec');
-        } else {
+        // Race only the post-connect work. We budget ample time so that a slow
+        // initial Electrum connection (cold start, slow TLS, flaky network) doesn't
+        // cause the fetch race to abort prematurely.
+        const REFRESH_FETCH_PHASE_TIMEOUT_MS = Math.max(120_000, BlueElectrum.ENSURE_CONNECTED_MAX_WALL_MS * 2);
+        const timeoutPromise = new Promise<never>(
+          (_resolve, reject) =>
+            (refreshTimeout = setTimeout(() => {
+              console.debug('[refreshAllWalletTransactions] Timeout reached');
+              reject(new Error('Timeout reached'));
+            }, REFRESH_FETCH_PHASE_TIMEOUT_MS)),
+        );
+
+        if (typeof BlueApp.fetchSenderPaymentCodes !== 'function') {
           console.warn('[refreshAllWalletTransactions] fetchSenderPaymentCodes is not available');
         }
+
+        const paymentCodesPromise =
+          typeof BlueApp.fetchSenderPaymentCodes === 'function'
+            ? (async () => {
+                const codesStart = Date.now();
+                console.debug('[refreshAllWalletTransactions] Fetching sender payment codes (parallel)');
+                await BlueApp.fetchSenderPaymentCodes(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch payment codes took', (Date.now() - codesStart) / 1000, 'sec');
+              })()
+            : Promise.resolve();
 
         console.debug('[refreshAllWalletTransactions] Fetching wallet balances and transactions');
         await Promise.race([
           (async () => {
-            const balanceStart = Date.now();
-            await BlueApp.fetchWalletBalances(lastSnappedTo);
-            const balanceEnd = Date.now();
-            console.debug('[refreshAllWalletTransactions] fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+            await Promise.all([
+              paymentCodesPromise,
+              (async () => {
+                const balanceStart = Date.now();
+                await BlueApp.fetchWalletBalances(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch balance took', (Date.now() - balanceStart) / 1000, 'sec');
 
-            const txStart = Date.now();
-            await BlueApp.fetchWalletTransactions(lastSnappedTo);
-            const txEnd = Date.now();
-            console.debug('[refreshAllWalletTransactions] fetch tx took', (txEnd - txStart) / 1000, 'sec');
-
-            clearTimeout(refreshTimeout);
+                const txStart = Date.now();
+                await BlueApp.fetchWalletTransactions(lastSnappedTo);
+                console.debug('[refreshAllWalletTransactions] fetch tx took', (Date.now() - txStart) / 1000, 'sec');
+              })(),
+            ]);
 
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
             await saveToDisk();
@@ -384,9 +408,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       } catch (error) {
         console.error('[refreshAllWalletTransactions] Error:', error);
       } finally {
+        if (refreshTimeout !== undefined) {
+          clearTimeout(refreshTimeout);
+        }
         console.debug('[refreshAllWalletTransactions] Resetting wallet transaction status and refresh lock');
-        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
         refreshingRef.current = false;
+        setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
       }
     },
     [saveToDisk],
@@ -403,7 +430,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         }
         _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
-        await BlueElectrum.waitTillConnected();
+        const connected = await BlueElectrum.ensureConnected();
+        if (!connected) {
+          console.log('[fetchAndSaveWalletTransactions] could not establish Electrum connection, aborting');
+          return;
+        }
         setWalletTransactionUpdateStatus(walletID);
 
         const balanceStart = Date.now();
@@ -437,6 +468,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
       w.setUserHasSavedExport(true);
       addWallet(w);
+      if (w instanceof LightningArkWallet) {
+        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
+      }
       if (getScanWasBBQR()) {
         // to avoid proxying `useBBQR` through a bunch of screens during import procedure, we use a trick:
         // on add-wallet screen we reset `lastScanWasBBQR` to false. then potentially user scans QR in BBQR format
@@ -475,7 +509,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             text: loc.wallets.details_delete,
             onPress: () => {
               triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-              LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
               onConfirmed();
             },
             style: 'destructive',

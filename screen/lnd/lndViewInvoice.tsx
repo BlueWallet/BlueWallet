@@ -1,18 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { RouteProp, useNavigation, useNavigationState, useRoute, useLocale } from '@react-navigation/native';
-import { BackHandler, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useReducer, useRef, useState } from 'react';
+import { RouteProp, useRoute, useLocale } from '@react-navigation/native';
+import { ActivityIndicator, BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Icon from '../../components/Icon';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueText, BlueTextCentered } from '../../BlueComponents';
+import BlueText from '../../components/BlueText';
+import BlueTextCentered from '../../components/BlueTextCentered';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import QRCodeComponent from '../../components/QRCodeComponent';
+import QRCode from '../../components/QRCode';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
-import LNDCreateInvoice from './lndCreateInvoice';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import BigNumber from 'bignumber.js';
@@ -20,7 +20,11 @@ import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { LightningCustodianWallet } from '../../class';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import presentAlert from '../../components/Alert';
+import { isReverseSuccessStatus } from '@arkade-os/boltz-swap';
+import type { BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -30,17 +34,77 @@ type LNDViewInvoiceRouteParams = {
 const LNDViewInvoice = () => {
   const { invoice, walletID } = useRoute<RouteProp<{ params: LNDViewInvoiceRouteParams }, 'params'>>().params;
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
-  const { colors, closeImage } = useTheme();
+  const { colors } = useTheme();
   const { direction } = useLocale();
-  const { goBack, navigate, setParams, setOptions } = useExtendedNavigation();
-  const navigation = useNavigation();
+  const { goBack, navigate, setParams } = useExtendedNavigation();
 
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
+  const arkWallet =
+    wallet && (wallet as { type?: string }).type === LightningArkWallet.type ? (wallet as unknown as LightningArkWallet) : undefined;
   const [isFetchingInvoices, setIsFetchingInvoices] = useState<boolean>(true);
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
-  const fetchInvoiceInterval = useRef<any>(null);
-  const isModal = useNavigationState(state => state.routeNames[0] === LNDCreateInvoice.routeName);
+  const fetchInvoiceInterval = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  // Per-swap claim/refund lookup, by the `swap-${id}` prefix mapped onto
+  // the row's `txid` field by lightning-ark-wallet getTransactions(). The
+  // route param is typed as LightningTransaction (which doesn't declare
+  // txid) but at runtime carries the merged `Transaction & LightningTransaction`
+  // shape, so we read txid through a narrow local cast. For non-Ark wallets
+  // and non-swap rows this resolves to undefined and the UI falls through
+  // to the existing branches.
+  const invoiceTxid = typeof invoice === 'object' ? (invoice as { txid?: unknown }).txid : undefined;
+  const swapId = typeof invoiceTxid === 'string' && invoiceTxid.startsWith('swap-') ? invoiceTxid.slice('swap-'.length) : undefined;
+  // Force-render token: bumped by the swap-event subscription below so live
+  // `swap.status` lookups (via getSwapById → _swapHistory) re-evaluate the
+  // moment the SDK observes a status transition, without waiting for the
+  // 3s polling tick to update the route-param snapshot.
+  const [, forceRender] = useReducer((x: number) => x + 1, 0);
+  const swap = swapId && arkWallet ? arkWallet.getSwapById(swapId) : undefined;
+  const [isActioning, setIsActioning] = useState<boolean>(false);
+  const claimable = arkWallet && swap ? arkWallet.isSwapClaimable(swap) : false;
+  const refundable = arkWallet && swap ? arkWallet.isSwapRefundable(swap) : false;
+
+  // Subscribe to SwapManager status transitions for our swap so the spinner
+  // → success transition is driven by SDK events, not the 3s polling lag.
+  // The SDK mutates `swap.status` in place before invoking listeners, so by
+  // the time we force a render `getSwapById(swapId).status` reflects the
+  // new state and the success/refund branches re-evaluate correctly.
+  useEffect(() => {
+    if (!arkWallet || !swapId) return;
+    return arkWallet.subscribeToSwapEvents(updatedSwap => {
+      if (updatedSwap.id === swapId) forceRender();
+    });
+  }, [arkWallet, swapId]);
+
+  const refreshAfterAction = async () => {
+    if (!arkWallet || !swapId) return;
+    const updatedRow = arkWallet.getTransactions().find(tx => tx.txid === `swap-${swapId}`);
+    if (updatedRow) setParams({ invoice: updatedRow });
+    setInvoiceStatusChanged(true);
+    fetchAndSaveWalletTransactions(walletID);
+  };
+
+  const onRefundPressed = async () => {
+    if (!arkWallet || !swap || isActioning) return;
+    setIsActioning(true);
+    try {
+      const outcome = await arkWallet.refundSwap(swap as BoltzSubmarineSwap);
+      if (outcome.swept === 0) {
+        // Lockup not yet refundable (CLTV not reached / Boltz declined to
+        // co-sign). Surface as info, not an error: the row stays refundable
+        // and the user can retry later.
+        presentAlert({ message: loc.lndViewInvoice.refund_deferred });
+      } else {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      }
+      await refreshAfterAction();
+    } catch (e: any) {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: e?.message ?? String(e) });
+    } finally {
+      setIsActioning(false);
+    }
+  };
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -69,39 +133,6 @@ const LNDViewInvoice = () => {
   }, []);
 
   useEffect(() => {
-    setOptions(
-      isModal
-        ? {
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-            },
-            gestureEnabled: false,
-            headerBackVisible: false,
-            // eslint-disable-next-line react/no-unstable-nested-components
-            headerRight: () => (
-              <TouchableOpacity
-                accessibilityRole="button"
-                onPress={() => {
-                  // @ts-ignore: navigation
-                  navigation?.getParent().pop();
-                }}
-                testID="NavigationCloseButton"
-              >
-                <Image source={closeImage} />
-              </TouchableOpacity>
-            ),
-          }
-        : {
-            headerRight: () => {},
-            headerStyle: {
-              backgroundColor: colors.customHeader,
-            },
-          },
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [colors, isModal]);
-
-  useEffect(() => {
     console.log('LNDViewInvoice - useEffect', { invoice });
 
     if (!wallet) {
@@ -111,7 +142,6 @@ const LNDViewInvoice = () => {
       fetchInvoiceInterval.current = setInterval(async () => {
         if (isFetchingInvoices) {
           try {
-            // @ts-ignore - getUserInvoices is not set on TWallet
             const userInvoices: LightningTransaction[] = await wallet.getUserInvoices(20);
             // fetching only last 20 invoices
             // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
@@ -159,8 +189,9 @@ const LNDViewInvoice = () => {
   };
 
   const handleOnSharePressed = () => {
-    if (typeof invoice === 'string' || !invoice.payment_request) return;
-    Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
+    const paymentRequest = typeof invoice === 'string' ? invoice : invoice.payment_request;
+    if (!paymentRequest) return;
+    Share.open({ message: `lightning:${paymentRequest}` }).catch(error => console.log(error));
   };
 
   useEffect(() => {
@@ -182,12 +213,42 @@ const LNDViewInvoice = () => {
     setQRCodeSize(height > width ? width - 40 : e.nativeEvent.layout.width / 1.8);
   };
 
+  // Drive both the amount and the description straight off the BOLT11 — the
+  // source of truth, and the one thing identical whether the route param is
+  // still the raw string or the polled-in object, so both render phases agree
+  // and nothing changes after the page first paints. Decode is sync + cached.
+  // "Please pay" deliberately shows the invoice-encoded amount (what the payer
+  // is actually charged), not invoice.amt — which getTransactions() resolves to
+  // the post-fee on-chain amount and so differs from the BOLT11 by the swap fee.
+  // Likewise we ignore the row's synthesized description/memo: getTransactions()
+  // backfills a "BlueWallet" label there for memo-less reverse swaps (so the tx
+  // list isn't blank) and that placeholder must never surface here as
+  // "For: BlueWallet". "Send to Arkade address" is the SDK's hardcoded default
+  // for a memo-less reverse swap, so it counts as "no description" too.
+  const decodeForDisplay = (paymentRequest?: string): { amountSats?: number; description?: string } => {
+    if (!paymentRequest) return {};
+    try {
+      const d = wallet?.decodeInvoice(paymentRequest);
+      const description = d?.description && d.description !== 'Send to Arkade address' ? d.description : undefined;
+      return { amountSats: d?.num_satoshis || undefined, description };
+    } catch {
+      return {};
+    }
+  };
+
   const render = () => {
     if (typeof invoice === 'object') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = invoice?.timestamp && invoice?.expire_time ? invoice.timestamp + invoice.expire_time : undefined;
-      if (invoice.ispaid || invoice.type === 'paid_invoice') {
+
+      // Settlement wins over any claim/refund CTA. The SDK auto-claims
+      // reverse swaps as soon as Boltz funds the VHTLC, so a stale
+      // route-param snapshot (`invoice.ispaid:false`) can race a live
+      // `_swapHistory` already at `invoice.settled`; checking the live
+      // swap status alongside the snapshot prevents Claim from rendering
+      // (and failing) after the SDK has already claimed.
+      if (invoice.ispaid || invoice.type === 'paid_invoice' || (swap && isReverseSuccessStatus(swap.status))) {
         let amount = 0;
         let description;
         let invoiceDate;
@@ -195,6 +256,10 @@ const LNDViewInvoice = () => {
           amount = invoice.value;
         } else if (invoice.type === 'user_invoice' && invoice.amt) {
           amount = invoice.amt;
+        } else if (invoice.value) {
+          // Settled Arkade swap: an enriched native Ark leg (type 'bitcoind_tx')
+          // has no `amt`; its magnitude lives in the signed `value`.
+          amount = Math.abs(invoice.value);
         }
         if (invoice.description) {
           description = invoice.description;
@@ -218,9 +283,9 @@ const LNDViewInvoice = () => {
                 {loc.lndViewInvoice.date_time}: {invoiceDate}
               </Text>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-                <TouchableOpacity
+                <Pressable
                   accessibilityRole="button"
-                  style={styles.detailsTouch}
+                  style={({ pressed }) => [styles.detailsTouch, pressed && styles.detailsTouchPressed]}
                   onPress={() => navigateToPreImageScreen(String(invoice.payment_preimage))}
                 >
                   <Text style={[styles.detailsText, stylesHook.detailsText]}>{loc.send.create_details}</Text>
@@ -230,12 +295,42 @@ const LNDViewInvoice = () => {
                     type="font-awesome"
                     color={colors.alternativeTextColor}
                   />
-                </TouchableOpacity>
+                </Pressable>
               ) : undefined}
             </View>
           </View>
         );
       }
+
+      // Reverse swap mid-flight: Boltz funded the VHTLC and the SDK is
+      // auto-claiming (SwapManager.executeAutonomousAction → claimVHTLC).
+      // No manual CTA — the SDK owns claim reliability — so we just show
+      // a "Receiving" indicator until the status transitions to
+      // `invoice.settled` and the success branch above catches it.
+      if (claimable) {
+        return (
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <ActivityIndicator size="large" color={colors.foregroundColor} />
+            <BlueSpacing20 />
+            <BlueTextCentered>{loc.lndViewInvoice.receiving_payment}</BlueTextCentered>
+          </View>
+        );
+      }
+      if (refundable) {
+        return (
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <BlueTextCentered>{invoice.description ?? invoice.memo ?? ''}</BlueTextCentered>
+            <BlueSpacing20 />
+            <Button
+              onPress={onRefundPressed}
+              title={loc.lndViewInvoice.refund_funds}
+              disabled={isActioning}
+              showActivityIndicator={isActioning}
+            />
+          </View>
+        );
+      }
+
       if (invoiceExpiration ? invoiceExpiration < now : undefined) {
         return (
           <View style={[styles.root, stylesHook.root, styles.justifyContentCenter]}>
@@ -248,36 +343,62 @@ const LNDViewInvoice = () => {
       }
       // Invoice has not expired, nor has it been paid for.
       if (invoice.payment_request) {
+        const { amountSats: bolt11Amount, description } = decodeForDisplay(invoice.payment_request);
+        const amountSats = bolt11Amount ?? invoice.amt;
         return (
           <ScrollView>
             <View style={[styles.activeRoot, stylesHook.root]}>
               <View style={styles.activeQrcode}>
-                <QRCodeComponent value={invoice.payment_request} size={qrCodeSize} />
+                <QRCode value={invoice.payment_request} size={qrCodeSize} />
               </View>
               <BlueSpacing20 />
               <BlueText>
-                {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+                {loc.lndViewInvoice.please_pay} {amountSats} {loc.lndViewInvoice.sats}
               </BlueText>
-              {'description' in invoice && (invoice.description?.length ?? 0) > 0 && (
+              {description ? (
                 <BlueText>
-                  {loc.lndViewInvoice.for} {invoice.description ?? ''}
+                  {loc.lndViewInvoice.for} {description}
                 </BlueText>
-              )}
-              <CopyTextToClipboard truncated text={invoice.payment_request} />
+              ) : null}
+              <View style={styles.copyText}>
+                <CopyTextToClipboard truncated text={invoice.payment_request} />
+              </View>
               <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
             </View>
           </ScrollView>
         );
       }
     } else if (invoice) {
-      // `invoice` is string, just not decoded yet. lets just display it as a QR code first (till it gets decoded
-      // and more data is rendered)
+      // `invoice` is the raw BOLT11 string — the polling effect hasn't yet swapped
+      // it for the decoded object. Don't make the amount/description wait for that
+      // 3s round-trip: both are encoded in the string and decode synchronously
+      // (offline, cached) via the same decodeForDisplay() the object branch uses,
+      // so we render the full "please pay" block now and it doesn't change when
+      // the object arrives. A malformed string just falls back to QR + copy.
+      const { amountSats, description } = decodeForDisplay(invoice);
       return (
-        <View style={[styles.activeRoot, stylesHook.root]}>
-          <View style={styles.activeQrcode}>
-            <QRCodeComponent value={invoice} size={qrCodeSize} />
+        <ScrollView>
+          <View style={[styles.activeRoot, stylesHook.root]}>
+            <View style={styles.activeQrcode}>
+              <QRCode value={invoice} size={qrCodeSize} />
+            </View>
+            <BlueSpacing20 />
+            {amountSats ? (
+              <BlueText>
+                {loc.lndViewInvoice.please_pay} {amountSats} {loc.lndViewInvoice.sats}
+              </BlueText>
+            ) : null}
+            {description ? (
+              <BlueText>
+                {loc.lndViewInvoice.for} {description}
+              </BlueText>
+            ) : null}
+            <View style={styles.copyText}>
+              <CopyTextToClipboard truncated text={invoice} />
+            </View>
+            <Button onPress={handleOnSharePressed} title={loc.receive.details_share} />
           </View>
-        </View>
+        </ScrollView>
       );
     } else {
       // something is not right
@@ -311,6 +432,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  detailsTouchPressed: {
+    opacity: 0.7,
+  },
   detailsText: {
     fontSize: 14,
     marginRight: 8,
@@ -320,6 +444,7 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     alignSelf: 'center',
+    alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 30,
   },
@@ -332,5 +457,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 16,
+  },
+  copyText: {
+    marginVertical: 32,
+    paddingHorizontal: 16,
   },
 });

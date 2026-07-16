@@ -1,37 +1,44 @@
 [main]
 host = https://www.transifex.com
 
+# fastlane App Store metadata. lang_map remaps Transifex language codes to the
+# App Store locale folder names fastlane deliver expects under fastlane/metadata/ios/<lang>/.
+# All 4 resources share the same map.
+
 [o:bluewallet:p:bluewallet-fastlane:r:ios-fastlane-metadata-en-us-description-txt--master]
-file_filter  = ios/fastlane/metadata/<lang>/description.txt
-source_file  = ios/fastlane/metadata/en-US/description.txt
+file_filter  = fastlane/metadata/ios/<lang>/description.txt
+source_file  = fastlane/metadata/ios/en-US/description.txt
 source_lang  = en_US
 type         = TXT
 minimum_perc = 1
-lang_map     = fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, zh_CN: zh-Hans, zh_HK: zh-Hant, ar_SA: ar-SA, es_MX: es-MX, fr_CA: fr-CA, pt_PT: pt-PT, de_DE: de-DE, es_ES: es-ES
+lang_map     = ar_SA: ar-SA, de_DE: de-DE, es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, zh_HK: zh-Hant
 
 [o:bluewallet:p:bluewallet-fastlane:r:ios-fastlane-metadata-en-us-keywords-txt--master]
-file_filter  = ios/fastlane/metadata/<lang>/keywords.txt
-source_file  = ios/fastlane/metadata/en-US/keywords.txt
+file_filter  = fastlane/metadata/ios/<lang>/keywords.txt
+source_file  = fastlane/metadata/ios/en-US/keywords.txt
 source_lang  = en_US
 type         = TXT
 minimum_perc = 1
-lang_map     = es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, zh_CN: zh-Hans, ar_SA: ar-SA, de_DE: de-DE, pt_PT: pt-PT, zh_HK: zh-Hant
+lang_map     = ar_SA: ar-SA, de_DE: de-DE, es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, zh_HK: zh-Hant
 
 [o:bluewallet:p:bluewallet-fastlane:r:ios-fastlane-metadata-en-us-name-txt--master]
-file_filter  = ios/fastlane/metadata/<lang>/name.txt
-source_file  = ios/fastlane/metadata/en-US/name.txt
+file_filter  = fastlane/metadata/ios/<lang>/name.txt
+source_file  = fastlane/metadata/ios/en-US/name.txt
 source_lang  = en_US
 type         = TXT
 minimum_perc = 1
-lang_map     = zh_HK: zh-Hant, ar_SA: ar-SA, es_MX: es-MX, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, de_DE: de-DE, es_ES: es-ES, fr_CA: fr-CA
+lang_map     = ar_SA: ar-SA, de_DE: de-DE, es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, zh_HK: zh-Hant
 
 [o:bluewallet:p:bluewallet-fastlane:r:ios-fastlane-metadata-en-us-promotional-text-txt--master]
-file_filter  = ios/fastlane/metadata/<lang>/promotional_text.txt
-source_file  = ios/fastlane/metadata/en-US/promotional_text.txt
+file_filter  = fastlane/metadata/ios/<lang>/promotional_text.txt
+source_file  = fastlane/metadata/ios/en-US/promotional_text.txt
 source_lang  = en_US
 type         = TXT
 minimum_perc = 1
-lang_map     = zh_CN: zh-Hans, zh_HK: zh-Hant, ar_SA: ar-SA, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, pt_PT: pt-PT, de_DE: de-DE, es_ES: es-ES, nl_NL: nl-NL, pt_BR: pt-BR
+lang_map     = ar_SA: ar-SA, de_DE: de-DE, es_ES: es-ES, es_MX: es-MX, fr_CA: fr-CA, fr_FR: fr-FR, nl_NL: nl-NL, pt_BR: pt-BR, pt_PT: pt-PT, zh_CN: zh-Hans, zh_HK: zh-Hant
+
+# App UI strings. lang_map remaps Transifex language codes to the loc/<lang>.json
+# filenames the app loads (separate, larger map than the fastlane resources above).
 
 [o:bluewallet:p:bluewallet:r:loc-en-json--master]
 file_filter  = loc/<lang>.json

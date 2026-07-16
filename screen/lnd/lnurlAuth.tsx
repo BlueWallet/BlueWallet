@@ -3,7 +3,8 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 import URL from 'url';
-import { BlueCard, BlueText } from '../../BlueComponents';
+import BlueCard from '../../components/BlueCard';
+import BlueText from '../../components/BlueText';
 import Lnurl from '../../class/lnurl';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -17,7 +18,8 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import assert from 'assert';
-import { LightningArkWallet, LightningCustodianWallet } from '../../class';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 
 const AuthState = {
   USER_PROMPT: 0,

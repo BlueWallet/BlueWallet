@@ -4,8 +4,10 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import PropTypes from 'prop-types';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueText } from '../../BlueComponents';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import BlueCard from '../../components/BlueCard';
+import BlueText from '../../components/BlueText';
+import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -76,8 +78,9 @@ export default class CPFP extends Component {
   broadcast = () => {
     this.setState({ isLoading: true }, async () => {
       try {
-        await BlueElectrum.ping();
-        await BlueElectrum.waitTillConnected();
+        if (!(await BlueElectrum.ensureConnected())) {
+          throw new Error(loc.errors.network);
+        }
         const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
           this.onSuccessBroadcast();

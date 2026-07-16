@@ -1,5 +1,6 @@
 import { AztecoVoucher } from '../class/azteco';
-import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { LightningTransaction, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
@@ -31,14 +32,17 @@ type VaultKeyData = {
   exportString?: string;
 };
 
+type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
+type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+
 export type DetailViewStackParamList = {
   DrawerRoot: undefined;
   UnlockWithScreen: undefined;
   WalletsList: { onBarScanned?: string };
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
   WalletDetails: { walletID: string };
-  TransactionDetails: { tx: Transaction; hash: string; walletID: string };
-  TransactionStatus: { hash: string; walletID?: string };
+  // TODO: type tx properly once Transaction and ElectrumTransaction are unified
+  TransactionStatus: { hash: string; walletID: string; tx?: any };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
@@ -95,7 +99,7 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
-  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string };
+  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string; headerRight?: HeaderRightRenderer | null };
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
@@ -111,6 +115,7 @@ export type DetailViewStackParamList = {
   ViewEditMultisigCosigners: {
     walletID: string;
     cosigners: string[];
+    headerRight?: HeaderRightRenderer | null;
     sheetAction?: string;
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
@@ -140,6 +145,9 @@ export type DetailViewStackParamList = {
   ReceiveDetails: {
     walletID?: string;
     address: string;
+    headerLeft?: HeaderLeftRenderer;
+    headerRight?: HeaderRightRenderer;
+    headerBackVisible?: boolean;
   };
   ReceiveCustomAmount: {
     address: string;
@@ -153,7 +161,6 @@ export type DetailViewStackParamList = {
     paymentCode: string;
     walletID: string;
   };
-  SettingsPrivacy: undefined;
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
 };

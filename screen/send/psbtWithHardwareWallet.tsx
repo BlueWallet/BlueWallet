@@ -5,7 +5,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { BlueCard, BlueText } from '../../BlueComponents';
+import BlueCard from '../../components/BlueCard';
+import BlueText from '../../components/BlueText';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -21,7 +22,7 @@ import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
-import { WatchOnlyWallet } from '../../class';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
@@ -146,8 +147,9 @@ const PsbtWithHardwareWallet = () => {
       }
     }
     try {
-      await BlueElectrum.ping();
-      await BlueElectrum.waitTillConnected();
+      if (!(await BlueElectrum.ensureConnected())) {
+        throw new Error(loc.errors.network);
+      }
 
       if (!txHex) {
         setIsLoading(false);
@@ -196,7 +198,7 @@ const PsbtWithHardwareWallet = () => {
       <View style={[styles.rootPadding, stylesHook.rootPadding]}>
         <BlueCard style={[styles.hexWrap, stylesHook.hexWrap]}>
           <BlueText style={[styles.hexLabel, stylesHook.hexLabel]}>{loc.send.create_this_is_hex}</BlueText>
-          <TextInput style={[styles.hexInput, stylesHook.hexInput]} multiline editable value={txHex} />
+          <TextInput style={[styles.hexInput, stylesHook.hexInput]} multiline editable={false} value={txHex} />
 
           <TouchableOpacity accessibilityRole="button" style={styles.hexTouch} onPress={copyHexToClipboard}>
             <Text style={[styles.hexText, stylesHook.hexText]}>{loc.send.create_copy}</Text>
@@ -340,13 +342,17 @@ const styles = StyleSheet.create({
   hexWrap: {
     alignItems: 'center',
     flex: 1,
+    width: '100%',
   },
   hexLabel: {
     fontWeight: '500',
   },
   hexInput: {
+    alignSelf: 'stretch',
     borderRadius: 4,
     marginTop: 20,
+    maxHeight: 220,
+    minHeight: 120,
     fontWeight: '500',
     fontSize: 14,
     paddingHorizontal: 16,

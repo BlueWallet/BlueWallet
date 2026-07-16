@@ -9,8 +9,7 @@ buildscript {
         googlePlayServicesVersion = "16.+"
         googlePlayServicesIidVersion = "16.0.1"
         firebaseVersion = "21.1.0"
-        ndkVersion = "27.1.12297006"
-        kotlin_version = '2.1.20'
+        ndkVersion = "28.2.13676358"
         kotlinVersion = '2.1.20'
     }
     repositories {
@@ -18,10 +17,10 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.7.2")
+        classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
-	    classpath 'com.google.gms:google-services:4.4.4'  // Google Services plugin
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+	    classpath 'com.google.gms:google-services:4.5.0'  // Google Services plugin
         classpath("com.bugsnag:bugsnag-android-gradle-plugin:8.2.0")
     }
 }
@@ -58,6 +57,13 @@ allprojects {
         maven {
             url("$rootDir/../node_modules/detox/Detox-android")
         }
+        // react-native-background-fetch ships com.transistorsoft:tsbackgroundfetch
+        // as a bundled local Maven repo; the package's own build.gradle adds it
+        // for itself, but :app's runtime classpath resolution needs it visible
+        // at the root level too.
+        maven {
+            url("$rootDir/../node_modules/react-native-background-fetch/android/libs")
+        }
 
             mavenCentral {
 	            // We don't want to fetch react-native from Maven Central as there are
@@ -66,15 +72,6 @@ allprojects {
 	                excludeGroup "com.facebook.react"
 	            }
 	        }
-        mavenLocal()
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url("$rootDir/../node_modules/react-native/android")
-        }
-        maven {
-            // Android JSC is installed from npm
-            url("$rootDir/../node_modules/jsc-android/dist")
-        }
         google()
                 maven { url 'https://www.jitpack.io' }
     }
@@ -95,6 +92,17 @@ if (buildscript != null) {
 }
 
 subprojects { project ->
+    // react-native-device-info's androidTest classpath pulls
+    // play-services-iid:16.0.1 -> play-services-base:16.0.1 -> support-v4:26.1.0,
+    // which collides with androidx.core:core:1.13.1 (Duplicate class
+    // android.support.v4.app.INotificationSideChannel). Exclude the pre-AndroidX
+    // support-* modules so the AndroidX equivalents in core win.
+    configurations.all {
+        exclude group: 'com.android.support', module: 'support-compat'
+        exclude group: 'com.android.support', module: 'support-annotations'
+        exclude group: 'com.android.support', module: 'support-core-utils'
+    }
+
     // Remove and block any jcenter() repositories at both project and buildscript levels
     def scrub = { repoContainer ->
         repoContainer.all { repo ->
@@ -159,3 +167,5 @@ gradle.projectsEvaluated {
         }
     }
 }
+
+apply plugin: "com.facebook.react.rootproject"

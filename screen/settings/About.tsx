@@ -5,8 +5,8 @@ import { getApplicationName, getBuildNumber, getBundleId, getUniqueIdSync, getVe
 import Icon from '@react-native-vector-icons/fontawesome6';
 
 import A from '../../blue_modules/analytics';
-import { BlueTextCentered } from '../../BlueComponents';
-import { HDSegwitBech32Wallet } from '../../class';
+import BlueTextCentered from '../../components/BlueTextCentered';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert from '../../components/Alert';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';

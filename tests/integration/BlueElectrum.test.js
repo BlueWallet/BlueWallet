@@ -12,11 +12,8 @@ afterAll(() => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  try {
-    await BlueElectrum.connectMain();
-  } catch (err) {
-    console.log('failed to connect to Electrum:', err);
-    process.exit(1);
+  if (!(await BlueElectrum.ensureConnected())) {
+    throw new Error('failed to connect to Electrum');
   }
 });
 
@@ -103,7 +100,7 @@ describe('BlueElectrum', () => {
     assert.ok(!(await BlueElectrum.testConnection('joyreactor.cc', 80, false)));
     assert.ok(!(await BlueElectrum.testConnection('joyreactor.cc', false, 80)));
 
-    assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', '50001'));
+    assert.ok(await BlueElectrum.testConnection('mainnet.foundationdevices.com', false, 50002));
     assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', false, 443));
   });
 
@@ -318,5 +315,23 @@ describe('BlueElectrum', () => {
       '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
     );
     if (disableBatching) BlueElectrum.setBatchingEnabled();
+  });
+
+  it('getCurrentBlockTip() returns a positive block height', async () => {
+    const tip = await BlueElectrum.getCurrentBlockTip();
+    assert.ok(tip > 600_000);
+  });
+
+  it('getBlockTimestamps() returns unix timestamps for recent blocks', async () => {
+    const tip = await BlueElectrum.getCurrentBlockTip();
+    const timestamps = await BlueElectrum.getBlockTimestamps([tip, tip - 1]);
+    assert.ok(timestamps[tip] > 1_000_000_000);
+    assert.ok(timestamps[tip - 1] > 1_000_000_000);
+  });
+
+  it('getConfirmedBlockHeight() returns height and tip for a known confirmed tx', async () => {
+    const txid = '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e';
+    const info = await BlueElectrum.getConfirmedBlockHeight(txid);
+    assert.ok(info !== null && info.height > 0 && info.tip >= info.height);
   });
 });

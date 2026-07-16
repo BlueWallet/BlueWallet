@@ -1,21 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
-import {
-  Alert,
-  findNodeHandle,
-  FlatList,
-  GestureResponderEvent,
-  LayoutAnimation,
-  ListRenderItemInfo,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 import Badge from '../../components/Badge';
 import { isDesktop } from '../../blue_modules/environment';
 import { encodeUR } from '../../blue_modules/ur';
-import { BlueCard } from '../../BlueComponents';
-import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import BlueCard from '../../components/BlueCard';
+import { MultisigCosigner } from '../../class/multisig-cosigner';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import MultipleStepsListItem, {
@@ -47,7 +39,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { dispatch, setOptions, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
+  const { dispatch, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -129,22 +121,28 @@ const ViewEditMultisigCosigners: React.FC = () => {
       }
     }
 
-    setOptions({ headerRight: () => null });
+    setParams({ headerRight: null });
 
     setTimeout(async () => {
-      // eslint-disable-next-line prefer-const
-      let newWallets = wallets.filter(newWallet => {
-        return newWallet.getID() !== walletID;
-      }) as MultisigHDWallet[];
-      if (!isElectrumDisabled) {
-        await wallet?.fetchBalance();
+      try {
+        // eslint-disable-next-line prefer-const
+        let newWallets = wallets.filter(newWallet => {
+          return newWallet.getID() !== walletID;
+        }) as MultisigHDWallet[];
+        if (!isElectrumDisabled) {
+          await wallet?.fetchBalance();
+        }
+        newWallets.push(wallet);
+        setIsSaveButtonDisabled(true);
+        setWalletsWithNewOrder(newWallets);
+        setTimeout(() => {
+          navigateToWalletsList();
+        }, 500);
+      } catch (error: any) {
+        setIsLoading(false);
+        setParams({ headerRight: undefined });
+        presentAlert({ message: error?.message ?? String(error) });
       }
-      newWallets.push(wallet);
-      setIsSaveButtonDisabled(true);
-      setWalletsWithNewOrder(newWallets);
-      setTimeout(() => {
-        navigateToWalletsList();
-      }, 500);
     }, 100);
   };
 
@@ -364,7 +362,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
                 onPress: (e: number | GestureResponderEvent) => {
                   if (e === 0) return;
-                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                   setVaultKeyData({
                     ...vaultKeyData,
                     isLoading: true,
@@ -373,7 +370,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
                   setTimeout(
                     () =>
                       xpubInsteadOfSeed(el.index + 1).finally(() => {
-                        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
                         setVaultKeyData({
                           ...vaultKeyData,
                           isLoading: false,
@@ -409,7 +405,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
         return presentAlert({ message: e.message });
       }
 
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setWallet(wallet);
       setIsSaveButtonDisabled(false);
       setImportText('');
@@ -452,7 +447,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
         reject(e);
         return presentAlert({ message: e.message });
       }
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setWallet(wallet);
       setIsSaveButtonDisabled(false);
       resolve();

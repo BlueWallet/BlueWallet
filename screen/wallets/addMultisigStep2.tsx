@@ -1,11 +1,13 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { encodeUR } from '../../blue_modules/ur';
-import { HDSegwitBech32Wallet, MultisigCosigner, MultisigHDWallet } from '../../class';
+import { MultisigCosigner } from '../../class/multisig-cosigner';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -89,6 +91,24 @@ const WalletsAddMultisigStep2 = () => {
     navigation.navigate('WalletsAddMultisigHelp');
   }, [navigation]);
 
+  const renderHeaderRight = useCallback(
+    () => (
+      <Pressable
+        accessibilityRole="button"
+        style={({ pressed }) => [
+          styles.helpButton,
+          { backgroundColor: colors.buttonDisabledBackgroundColor },
+          pressed && styles.helpButtonPressed,
+        ]}
+        onPress={handleOnHelpPress}
+      >
+        <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
+        <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
+      </Pressable>
+    ),
+    [colors.buttonDisabledBackgroundColor, colors.foregroundColor, handleOnHelpPress],
+  );
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -97,19 +117,9 @@ const WalletsAddMultisigStep2 = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <TouchableOpacity
-          accessibilityRole="button"
-          style={[styles.helpButton, { backgroundColor: colors.buttonDisabledBackgroundColor }]}
-          onPress={handleOnHelpPress}
-        >
-          <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
-          <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
-        </TouchableOpacity>
-      ),
+      headerRight: renderHeaderRight,
     });
-  }, [colors.buttonDisabledBackgroundColor, colors.foregroundColor, handleOnHelpPress, navigation]);
+  }, [navigation, renderHeaderRight]);
 
   const onCreate = async () => {
     setIsLoading(true);
@@ -284,7 +294,7 @@ const WalletsAddMultisigStep2 = () => {
         //  do nothing, it's already set
       } else {
         try {
-          fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, true, 'plain-text');
+          fp = await prompt(loc.multisig.input_fp, loc.multisig.input_fp_explain, { type: 'plain-text' });
           fp = (fp + '').toUpperCase();
           if (!MultisigHDWallet.isFpValid(fp)) fp = '00000000';
         } catch (e) {
@@ -295,12 +305,9 @@ const WalletsAddMultisigStep2 = () => {
         //  do nothing, it's already set
       } else {
         try {
-          path = await prompt(
-            loc.multisig.input_path,
-            loc.formatString(loc.multisig.input_path_explain, { default: getPath() }),
-            true,
-            'plain-text',
-          );
+          path = await prompt(loc.multisig.input_path, loc.formatString(loc.multisig.input_path_explain, { default: getPath() }), {
+            type: 'plain-text',
+          });
           if (!MultisigHDWallet.isPathValid(path)) path = getPath();
         } catch {
           return setIsLoading(false);
@@ -598,8 +605,6 @@ const WalletsAddMultisigStep2 = () => {
           renderItem={_renderKeyItem}
           keyExtractor={(_item, index) => `${index}`}
           extraData={cosigners}
-          // @ts-expect-error Reanimated itemLayoutAnimation prop not in RN types
-          itemLayoutAnimation={LinearTransition}
         />
       </View>
       {footer}
@@ -634,6 +639,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
+  },
+  helpButtonPressed: {
+    opacity: 0.75,
   },
 });
 

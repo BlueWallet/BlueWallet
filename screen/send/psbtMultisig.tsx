@@ -8,7 +8,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  LayoutAnimation,
   ListRenderItemInfo,
   NativeSyntheticEvent,
   LayoutRectangle,
@@ -17,7 +16,8 @@ import {
 import Icon from '../../components/Icon';
 
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
-import { BlueCard, BlueText } from '../../BlueComponents';
+import BlueCard from '../../components/BlueCard';
+import BlueText from '../../components/BlueText';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -27,7 +27,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { combinePSBTs } from '../../util/combinePSBTs.ts';
-import { MultisigHDWallet } from '../../class';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import assert from 'assert';
 
 type RouteParams = {
@@ -299,7 +299,6 @@ const PsbtMultisig = () => {
   };
 
   const handleToggleFilter = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIsFiltered(prev => !prev);
   };
 

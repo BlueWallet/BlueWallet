@@ -4,7 +4,7 @@ import { ActivityIndicator, Keyboard, Linking, StyleSheet, TextInput, View, Text
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -98,8 +98,9 @@ const Broadcast: React.FC = () => {
     Keyboard.dismiss();
     setBroadcastResult(BROADCAST_RESULT.pending);
     try {
-      await BlueElectrum.ping();
-      await BlueElectrum.waitTillConnected();
+      if (!(await BlueElectrum.ensureConnected())) {
+        throw new Error(loc.errors.network);
+      }
       const walletObj = new HDSegwitBech32Wallet();
       if (txHex) {
         const result = await walletObj.broadcastTx(txHex);

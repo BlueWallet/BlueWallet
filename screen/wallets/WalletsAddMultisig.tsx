@@ -2,7 +2,7 @@ import React, { useReducer, useCallback } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import { MultisigHDWallet } from '../../class';
+import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import Button from '../../components/Button';
 import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';

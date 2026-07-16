@@ -2,9 +2,9 @@
 
 * קוד פתוח
 * הצפנה מלאה
-* הכחשה סבירה (Plausible deniability)
+* הכחשה סבירה
 * עמלות גמישות
 * Replace-By-Fee (RBF)
 * SegWit
 * ארנקי צפייה בלבד
-* רשת הברק
+* רשת Lightning

@@ -14,8 +14,10 @@ import com.facebook.react.ReactNativeHost
 import com.facebook.react.ReactNativeApplicationEntryPoint.loadReactNative
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
+import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.react.modules.fresco.FrescoModule
 import com.facebook.react.modules.i18nmanager.I18nUtil
-import io.bluewallet.bluewallet.components.segmentedcontrol.CustomSegmentedControlPackage
+import io.bluewallet.bluewallet.components.segmentedcontrol.SegmentedControlPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -69,7 +71,7 @@ class MainApplication : Application(), ReactApplication {
                 PackageList(this).packages.apply {
                     // Packages that cannot be autolinked yet can be added manually here, for example:
                     // add(MyReactNativePackage())
-                    add(CustomSegmentedControlPackage())
+                    add(SegmentedControlPackage())
                     add(SettingsPackage())
                 }
 
@@ -97,6 +99,13 @@ class MainApplication : Application(), ReactApplication {
         
         val sharedI18nUtilInstance = I18nUtil.getInstance()
         sharedI18nUtilInstance.allowRTL(applicationContext, true)
+
+        // Initialize Fresco before RN mounts views. FrescoModule init can lag behind the first
+        // frame (e.g. UnlockWith logo) when OkHttp/SSL warms up network security config.
+        if (!FrescoModule.hasBeenInitialized()) {
+            Fresco.initialize(this)
+        }
+
         loadReactNative(this)
 
         initializeDeviceUID()

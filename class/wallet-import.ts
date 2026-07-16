@@ -2,27 +2,23 @@ import bip38 from 'bip38';
 import wif from 'wif';
 
 import loc from '../loc';
-import {
-  HDAezeedWallet,
-  HDLegacyBreadwalletWallet,
-  HDLegacyElectrumSeedP2PKHWallet,
-  HDLegacyP2PKHWallet,
-  HDSegwitBech32Wallet,
-  HDSegwitElectrumSeedP2WPKHWallet,
-  HDSegwitP2SHWallet,
-  HDTaprootWallet,
-  LegacyWallet,
-  LightningCustodianWallet,
-  LightningArkWallet,
-  MultisigHDWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
-  SLIP39LegacyP2PKHWallet,
-  SLIP39SegwitBech32Wallet,
-  SLIP39SegwitP2SHWallet,
-  TaprootWallet,
-  WatchOnlyWallet,
-} from '.';
+import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
+import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
+import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
+import { HDLegacyP2PKHWallet } from './wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
+import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
+import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
+import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
+import { LegacyWallet } from './wallets/legacy-wallet';
+import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet';
+import { LightningArkWallet } from './wallets/lightning-ark-wallet';
+import { MultisigHDWallet } from './wallets/multisig-hd-wallet';
+import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
+import { SegwitP2SHWallet } from './wallets/segwit-p2sh-wallet';
+import { SLIP39LegacyP2PKHWallet, SLIP39SegwitBech32Wallet, SLIP39SegwitP2SHWallet } from './wallets/slip39-wallets';
+import { TaprootWallet } from './wallets/taproot-wallet';
+import { WatchOnlyWallet } from './wallets/watch-only-wallet';
 import bip39WalletFormatsElectrum from './bip39_wallet_formats.json'; // https://github.com/spesmilo/electrum/blob/master/electrum/bip39_wallet_formats.json
 import bip39WalletFormatsBlueWallet from './bip39_wallet_formats_bluewallet.json';
 import type { TWallet } from './wallets/types';
@@ -220,10 +216,35 @@ const startImport = (
     if (text.startsWith('arkade://')) {
       const ark = new LightningArkWallet();
       ark.setSecret(text);
-      await ark.init();
+      // Defer init() to first wallet open when offline — init touches the ASP
+      // and delegator over the network. We still detect the wallet by prefix
+      // and persist it with its secret.
+      // A network or SDK failure during init must not abort the import: the
+      // wallet type and secret are known, and the SDK runtime can be brought
+      // up the next time the wallet is opened.
       if (!offline) {
-        await ark.fetchBalance();
-        await ark.fetchTransactions();
+        try {
+          await ark.init();
+          // Restore any previous Boltz swap activity for this seed exactly
+          // once, here at import time. We never run this on later wallet
+          // opens — the app does not sweep all swaps on bootstrap. A failure
+          // must not block the import: the wallet itself is fine, the
+          // restored rows are an optional bonus for imported-from-elsewhere
+          // wallets.
+          try {
+            await ark.restoreSwaps();
+          } catch (e: any) {
+            console.log('[wallet-import] restoreSwaps failed:', e?.message ?? e);
+          }
+          try {
+            await ark.fetchBalance();
+            await ark.fetchTransactions();
+          } catch (e: any) {
+            console.log('[wallet-import] initial Ark sync failed:', e?.message ?? e);
+          }
+        } catch (e: any) {
+          console.log('[wallet-import] Ark init failed; deferring to next open:', e?.message ?? e);
+        }
       }
       yield { wallet: ark };
     }
@@ -323,6 +344,7 @@ const startImport = (
     }
 
     yield { progress: 'wif' };
+
     const segwitWallet = new SegwitP2SHWallet();
     segwitWallet.setSecret(text);
     if (segwitWallet.getAddress()) {
@@ -384,6 +406,89 @@ const startImport = (
     if (legacyWallet.getAddress()) {
       await fetch(legacyWallet, true, true);
       yield { wallet: legacyWallet };
+    }
+
+    yield { progress: 'Private key in hex/base64' };
+
+    // check if text is in hex or base64 format
+    const isHexKey = /^[0-9a-fA-F]{64}$/.test(text);
+    const isBase64Key = /^[A-Za-z0-9+/=]{43,44}$/.test(text);
+
+    let rawKeyBuffer;
+    let privateKey;
+
+    if (isHexKey) {
+      rawKeyBuffer = Buffer.from(text, 'hex');
+    } else if (isBase64Key) {
+      rawKeyBuffer = Buffer.from(text, 'base64');
+    }
+
+    if (rawKeyBuffer && rawKeyBuffer.length === 32) {
+      let walletFound = false;
+
+      // convert the bytes to Wallet import format, 0x80 for mainnet,
+      // start with uncompressed p2pkh
+      privateKey = wif.encode(0x80, rawKeyBuffer, false);
+
+      yield { progress: 'p2pkh uncompressed' };
+      const legacyWalletUncompressed = new LegacyWallet('Legacy (P2PKH) - Uncompressed');
+      legacyWalletUncompressed.setSecret(privateKey);
+
+      if (await wasUsed(legacyWalletUncompressed)) {
+        await fetch(legacyWalletUncompressed, true);
+        walletFound = true;
+        yield { wallet: legacyWalletUncompressed };
+      }
+
+      // compressed is true for other wallet types
+      privateKey = wif.encode(0x80, rawKeyBuffer, true);
+
+      yield { progress: 'p2wpkh' };
+      const segwitBech32Wallet = new SegwitBech32Wallet();
+      segwitBech32Wallet.setSecret(privateKey);
+
+      if (await wasUsed(segwitBech32Wallet)) {
+        await fetch(segwitBech32Wallet, true);
+        walletFound = true;
+        yield { wallet: segwitBech32Wallet };
+      }
+
+      yield { progress: 'p2tr' };
+      const taprootWallet = new TaprootWallet();
+
+      taprootWallet.setSecret(privateKey);
+      if (await wasUsed(taprootWallet)) {
+        await fetch(taprootWallet, true);
+        walletFound = true;
+        yield { wallet: taprootWallet };
+      }
+
+      yield { progress: 'p2wpkh-p2sh' };
+
+      segwitWallet.setSecret(privateKey);
+      if (await wasUsed(segwitWallet)) {
+        await fetch(segwitWallet, true);
+        walletFound = true;
+        yield { wallet: segwitWallet };
+      }
+
+      yield { progress: 'p2pkh compressed' };
+      const legacyWalletCompressed = new LegacyWallet('Legacy (P2PKH) - Compressed');
+      legacyWalletCompressed.setSecret(privateKey);
+
+      if (await wasUsed(legacyWalletCompressed)) {
+        await fetch(legacyWalletCompressed, true);
+        walletFound = true;
+        yield { wallet: legacyWalletCompressed };
+      }
+
+      if (!walletFound) {
+        yield { wallet: segwitBech32Wallet };
+        yield { wallet: segwitWallet };
+        yield { wallet: legacyWalletCompressed };
+        yield { wallet: taprootWallet };
+        yield { wallet: legacyWalletUncompressed };
+      }
     }
 
     // maybe its a watch-only address?

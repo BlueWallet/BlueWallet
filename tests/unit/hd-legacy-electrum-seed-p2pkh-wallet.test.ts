@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { HDLegacyElectrumSeedP2PKHWallet } from '../../class';
+import { HDLegacyElectrumSeedP2PKHWallet } from '../../class/wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('HDLegacyElectrumSeedP2PKHWallet', () => {

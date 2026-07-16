@@ -1,11 +1,12 @@
 import assert from 'assert';
 
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import { HDSegwitBech32Wallet, LightningCustodianWallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
-    connectMain: jest.fn(),
+    ensureConnected: jest.fn().mockResolvedValue(true),
   };
 });
 
