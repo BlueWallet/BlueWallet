@@ -171,6 +171,7 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 17,
     fontWeight: '600',
+    flexShrink: 1,
   },
   headerPressed: {
     opacity: 0.75,
