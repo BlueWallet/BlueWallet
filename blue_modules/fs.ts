@@ -112,8 +112,6 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
     await Share.open({
       url: 'file://' + filePath,
       saveToFiles: isDesktop || !showShareDialog,
-      // @ts-ignore: Website claims this propertie exists, but TS cant find it. Send anyways.
-      useInternalStorage: Platform.OS === 'android',
       failOnCancel: false,
     });
   } catch (error: any) {
