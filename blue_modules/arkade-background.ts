@@ -28,6 +28,7 @@ import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
 import { BlueApp as BlueAppClass } from '../class/blue-app';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { getArkadeRealm } from './arkade-adapters/realm/realmInstance';
+import { refreshWalletBalancesIfStorageIsUnencrypted } from './wallet-background-refresh';
 import {
   RealmNotificationSuppressionRepository,
   type ArkSwapNotificationAction,
@@ -270,16 +271,6 @@ async function processWallet(wallet: LightningArkWallet): Promise<void> {
   }
 }
 
-async function refreshWalletBalancesIfStorageIsUnencrypted(): Promise<void> {
-  const storageIsEncrypted = await BlueApp.storageIsEncrypted();
-  if (storageIsEncrypted) {
-    return;
-  }
-
-  await BlueApp.fetchWalletBalances();
-  await BlueApp.saveToDisk();
-}
-
 export async function runArkBackgroundTask(taskId: string): Promise<void> {
   if (running) {
     BackgroundFetch.finish(taskId);
@@ -333,7 +324,7 @@ function availabilityFromStatus(status: number): ArkTaskState['availability'] {
   return 'unknown';
 }
 
-export async function registerArkBackgroundTask(): Promise<void> {
+export async function registerWalletBackgroundTask(): Promise<void> {
   if (configured) {
     await BackgroundFetch.start();
     state.lastRegisteredAt = Date.now();
@@ -362,7 +353,7 @@ export async function registerArkBackgroundTask(): Promise<void> {
   }
 }
 
-export async function stopArkBackgroundTask(): Promise<void> {
+export async function stopWalletBackgroundTask(): Promise<void> {
   cancelRequested = true;
   try {
     await BackgroundFetch.stop();
@@ -385,6 +376,10 @@ export async function stopArkBackgroundTask(): Promise<void> {
   lastSeenActionMap.clear();
   state.lastUnregisteredAt = Date.now();
 }
+
+// Backward-compatible aliases.
+export const registerArkBackgroundTask = registerWalletBackgroundTask;
+export const stopArkBackgroundTask = stopWalletBackgroundTask;
 
 export function reconcileArkBackgroundTaskResults(triggerRefreshForWallet: (walletId: string) => void): void {
   if (state.lastSwapUpdateAt <= state.lastReconciledAt) return;
