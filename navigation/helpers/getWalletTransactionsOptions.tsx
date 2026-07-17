@@ -79,6 +79,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     headerTintColor: HERO_HEADER_ICON_COLOR,
     headerBlurEffect: undefined,
     statusBarStyle: 'light',
+    experimental_userInterfaceStyle: 'dark',
     headerBackTitle: undefined,
     headerRight: createWalletDetailsHeaderRight({ walletID, isLoading, iconColor: HERO_HEADER_ICON_COLOR }),
   };

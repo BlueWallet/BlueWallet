@@ -41,7 +41,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t1'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
 
     // go to settings, press SelfTest and wait for OK
@@ -270,7 +270,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t3'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
 
     await helperCreateWallet();
@@ -331,7 +331,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t4'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
 
     // lets create a wallet
@@ -492,7 +492,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t5'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
     await helperCreateWallet();
     await element(by.id('SettingsButton')).tap();
@@ -770,7 +770,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t6'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()
@@ -935,7 +935,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t8'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
     await helperCreateWallet();
     // nop

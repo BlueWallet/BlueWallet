@@ -206,6 +206,7 @@
     "reset_amount": "Reset Amount",
     "reset_amount_confirm": "Would you like to reset the amount?",
     "success_done": "Done",
+    "file_saved_at_path": "The file ({filePath}) has been saved.",
     "cant_send_to_silentpayment_adress": "This wallet cannot send to SilentPayment addresses",
     "cant_send_to_bip47": "This wallet cannot send to BIP47 payment codes",
     "cant_find_bip47_notification": "Add this Payment Code to contacts first",

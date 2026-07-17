@@ -76,16 +76,12 @@ const _mimeTypeFromFileName = (fileName: string): string => {
   }
 };
 
-const _transactionFilePickerTypes = ['application/octet-stream', 'text/plain'];
+const _transactionFilePickerTypes = [types.allFiles];
 
 const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]) => {
   const [pickedFile] = await pick({
     type,
   });
-
-  if (!pickedFile.hasRequestedType) {
-    throw new Error(loc.send.details_unrecognized_file_format);
-  }
 
   const [localCopy] = await keepLocalCopy({
     files: [
@@ -147,6 +143,8 @@ export const writeFileAndExport = async function (fileName: string, contents: st
         if (savedFile.error) {
           throw new Error(savedFile.error);
         }
+
+        presentAlert({ message: loc.formatString(loc.send.file_saved_at_path, { filePath: savedFile.name || sanitizedFileName }) });
       } finally {
         await _safeUnlink(sourceFilePath);
       }
