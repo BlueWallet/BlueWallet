@@ -37,6 +37,7 @@ type TState = {
   isLoading?: boolean;
   isOk?: boolean;
   errorMessage?: string;
+  documentPickerLog?: string[];
 };
 
 function assertStrictEqual<T>(actual: T, expected: T, message?: string) {
@@ -62,19 +63,71 @@ export default class SelfTest extends Component {
     this.state = {
       started: false,
       isLoading: false,
+      documentPickerLog: [],
     };
   }
 
+  appendDocumentPickerLog = (title: string, details: string) => {
+    const line = `[${new Date().toLocaleTimeString()}] ${title}: ${details}`;
+    this.setState(prevState => ({
+      documentPickerLog: [line, ...(prevState.documentPickerLog || [])].slice(0, 8),
+    }));
+  };
+
   onPressImportDocument = async () => {
     try {
-      fs.showFilePickerAndReadFile().then(file => {
-        if (file && file.data && file.data.length > 0) {
-          presentAlert({ message: file.data });
-        } else {
-          presentAlert({ message: 'Error reading file' });
-        }
-      });
-    } catch (err) {
+      const file = await fs.showFilePickerAndReadFile();
+      if (file?.data && typeof file.data === 'string' && file.data.length > 0) {
+        this.appendDocumentPickerLog('Any File Import', `Read ${file.data.length} chars from ${String(file.uri)}`);
+        presentAlert({ message: file.data });
+        return;
+      }
+
+      this.appendDocumentPickerLog('Any File Import', 'No data returned (possibly canceled)');
+      presentAlert({ message: 'Error reading file' });
+    } catch (err: any) {
+      this.appendDocumentPickerLog('Any File Import', err?.message || String(err));
+      console.log(err);
+    }
+  };
+
+  onPressImportTransactionFile = async () => {
+    try {
+      const file = await fs.pickTransaction();
+      this.appendDocumentPickerLog('Transaction Picker', `${String(file?.name)} (${String(file?.uri)})`);
+      presentAlert({ message: `Picked: ${String(file?.name)}` });
+    } catch (err: any) {
+      this.appendDocumentPickerLog('Transaction Picker', err?.message || String(err));
+      console.log(err);
+    }
+  };
+
+  onPressImportSignedTransaction = async () => {
+    try {
+      const base64 = await fs.openSignedTransaction();
+      if (base64) {
+        this.appendDocumentPickerLog('Signed Tx Import', `Loaded ${base64.length} base64 chars`);
+        presentAlert({ message: `Loaded signed transaction (${base64.length} chars)` });
+      } else {
+        this.appendDocumentPickerLog('Signed Tx Import', 'No transaction returned (possibly canceled)');
+      }
+    } catch (err: any) {
+      this.appendDocumentPickerLog('Signed Tx Import', err?.message || String(err));
+      console.log(err);
+    }
+  };
+
+  onPressImportSignedTransactionRaw = async () => {
+    try {
+      const raw = await fs.openSignedTransactionRaw();
+      if (raw) {
+        this.appendDocumentPickerLog('Signed Tx Raw Import', `Loaded ${raw.length} chars`);
+        presentAlert({ message: `Loaded raw transaction (${raw.length} chars)` });
+      } else {
+        this.appendDocumentPickerLog('Signed Tx Raw Import', 'No transaction returned (possibly canceled)');
+      }
+    } catch (err: any) {
+      this.appendDocumentPickerLog('Signed Tx Raw Import', err?.message || String(err));
       console.log(err);
     }
   };
@@ -365,13 +418,32 @@ export default class SelfTest extends Component {
   };
 
   render() {
-    return <SelfTestContent state={this.state} onPressImportDocument={this.onPressImportDocument} onPressRunSelfTest={this.runSelfTest} />;
+    return (
+      <SelfTestContent
+        state={this.state}
+        onPressImportDocument={this.onPressImportDocument}
+        onPressImportTransactionFile={this.onPressImportTransactionFile}
+        onPressImportSignedTransaction={this.onPressImportSignedTransaction}
+        onPressImportSignedTransactionRaw={this.onPressImportSignedTransactionRaw}
+        onPressRunSelfTest={this.runSelfTest}
+      />
+    );
   }
 }
 
-const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => void; onPressRunSelfTest: () => void }> = ({
+const SelfTestContent: React.FC<{
+  state: TState;
+  onPressImportDocument: () => void;
+  onPressImportTransactionFile: () => void;
+  onPressImportSignedTransaction: () => void;
+  onPressImportSignedTransactionRaw: () => void;
+  onPressRunSelfTest: () => void;
+}> = ({
   state,
   onPressImportDocument,
+  onPressImportTransactionFile,
+  onPressImportSignedTransaction,
+  onPressImportSignedTransactionRaw,
   onPressRunSelfTest,
 }) => {
   let selfTestResult: React.ReactNode = null;
@@ -426,6 +498,27 @@ const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => vo
             <View style={styles.fullWidth}>
               <Button title="Test File Import" onPress={onPressImportDocument} />
             </View>
+            <BlueSpacing20 />
+            <View style={styles.fullWidth}>
+              <Button title="Test Transaction Picker" onPress={onPressImportTransactionFile} />
+            </View>
+            <BlueSpacing20 />
+            <View style={styles.fullWidth}>
+              <Button title="Test Signed Tx Import" onPress={onPressImportSignedTransaction} />
+            </View>
+            <BlueSpacing20 />
+            <View style={styles.fullWidth}>
+              <Button title="Test Signed Tx Raw Import" onPress={onPressImportSignedTransactionRaw} />
+            </View>
+            <BlueSpacing20 />
+            {!!state.documentPickerLog?.length && (
+              <View style={styles.fullWidth}>
+                <BlueText>Document picker checks:</BlueText>
+                {state.documentPickerLog.map(line => (
+                  <BlueText key={line}>{line}</BlueText>
+                ))}
+              </View>
+            )}
             <BlueSpacing20 />
           </>
         )}
