@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { linking, normalizeBitcoinDeepLinkUrl } from '../../navigation/linking';
+import { linking, normalizeBitcoinDeepLinkUrl, parseBitcoinUriRecipients } from '../../navigation/linking';
 
 describe('navigation linking - bitcoin deeplinks', () => {
   it('normalizes supported bitcoin URI variants', () => {
@@ -29,8 +29,18 @@ describe('navigation linking - bitcoin deeplinks', () => {
 
   it('filters out non-bitcoin and auth-session URLs', () => {
     assert.strictEqual(linking.filter?.('bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'), true);
+    assert.strictEqual(linking.filter?.('bluewallet://widget?action=openReceive'), true);
     assert.strictEqual(linking.filter?.('bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG+expo-auth-session'), false);
     assert.strictEqual(linking.filter?.('https://example.com'), false);
+  });
+
+  it('maps widget openReceive deeplink to nested ReceiveDetails route', () => {
+    const state = linking.getStateFromPath?.('bluewallet://widget?action=openReceive', undefined as never);
+    const firstRoute = state?.routes?.[0] as any;
+
+    assert.strictEqual(firstRoute?.name, 'DrawerRoot');
+    assert.strictEqual(firstRoute?.params?.screen, 'DetailViewStackScreensStack');
+    assert.strictEqual(firstRoute?.params?.params?.screen, 'ReceiveDetails');
   });
 
   it('maps bitcoin deeplinks to SendDetailsRoot/SendDetails state', () => {
@@ -79,5 +89,17 @@ describe('navigation linking - bitcoin deeplinks', () => {
 
     const path = linking.getPathFromState?.(state, undefined as never);
     assert.strictEqual(path, 'bitcoin:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=1');
+  });
+
+  it('parses bip21 recipients and indexed recipient fields', () => {
+    const parsed = parseBitcoinUriRecipients(
+      'bitcoin:bc1qykcp2x3djgdtdwelxn9z4j2y956npte0a4sref?amount=0.001&address_1=bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk&amount_1=0.002&message=Batch%20Pay',
+    );
+
+    assert.deepStrictEqual(parsed.recipients, [
+      { address: 'bc1qykcp2x3djgdtdwelxn9z4j2y956npte0a4sref', amount: 0.001 },
+      { address: 'bc1q8flg3jcnv6x6mpjrqty8h8h9mg0shgp5jc9smk', amount: 0.002 },
+    ]);
+    assert.strictEqual(parsed.memo, 'Batch Pay');
   });
 });

@@ -128,7 +128,16 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
     const events = [
       {
         argument: { url: `12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG` },
-        expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
+        expected: [
+          'AddWalletRoot',
+          {
+            screen: 'ImportWallet',
+            params: {
+              triggerImport: true,
+              label: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
+            },
+          },
+        ],
       },
       {
         argument: {
