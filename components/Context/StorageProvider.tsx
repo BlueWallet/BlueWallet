@@ -320,9 +320,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
-      if (loaded.some(w => w.type === LightningArkWallet.type)) {
-        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
-      }
+      registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
     }
   }, [walletsInitialized]);
 

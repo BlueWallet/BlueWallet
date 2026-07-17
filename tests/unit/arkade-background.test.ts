@@ -117,6 +117,8 @@ const updateChainSwapStatusMock = updateChainSwapStatus as unknown as jest.Mock;
 const getAllSwapsMock = (RealmSwapRepository as any).__getAllSwaps as jest.Mock;
 const getArkadeRealmMock = getArkadeRealm as unknown as jest.Mock;
 
+let storageIsEncryptedSpy: jest.SpyInstance;
+
 const suppressionMockModule = jest.requireMock('../../blue_modules/arkade-adapters/realm/notificationSuppressionRepository') as any;
 const suppressionStore: Map<string, true> = suppressionMockModule.RealmNotificationSuppressionRepository.__store;
 const suppressionHasMock = suppressionMockModule.RealmNotificationSuppressionRepository.__has as jest.Mock;
@@ -140,6 +142,7 @@ function makeArkWallet(secret: string): LightningArkWallet {
 }
 
 beforeEach(() => {
+  storageIsEncryptedSpy = jest.spyOn(BlueApp.getInstance(), 'storageIsEncrypted').mockResolvedValue(true);
   configureMock.mockClear();
   configureMock.mockResolvedValue(BackgroundFetch.STATUS_AVAILABLE);
   startMock.mockClear();
@@ -178,6 +181,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  storageIsEncryptedSpy.mockRestore();
   jest.useRealTimers();
 });
 
@@ -428,6 +432,42 @@ describe('onArkBackgroundTaskTimeout', () => {
     assert.strictEqual(getArkTaskState().lastError, 'timeout');
     assert.strictEqual(finishMock.mock.calls.length, 1);
     assert.strictEqual(finishMock.mock.calls[0][0], 'task-to');
+  });
+
+  it('refreshes wallet balances when storage is not encrypted', async () => {
+    storageIsEncryptedSpy.mockResolvedValue(false);
+    const blueApp = BlueApp.getInstance();
+    const fetchWalletBalancesSpy = jest.spyOn(blueApp, 'fetchWalletBalances').mockResolvedValue(undefined);
+    const saveToDiskSpy = jest.spyOn(blueApp, 'saveToDisk').mockResolvedValue(undefined);
+
+    await runArkBackgroundTask('task-2');
+
+    assert.strictEqual(storageIsEncryptedSpy.mock.calls.length, 1);
+    assert.strictEqual(fetchWalletBalancesSpy.mock.calls.length, 1);
+    assert.strictEqual(saveToDiskSpy.mock.calls.length, 1);
+    assert.strictEqual(finishMock.mock.calls.length, 1);
+    assert.strictEqual(finishMock.mock.calls[0][0], 'task-2');
+
+    fetchWalletBalancesSpy.mockRestore();
+    saveToDiskSpy.mockRestore();
+  });
+
+  it('skips balance refresh when storage is encrypted', async () => {
+    storageIsEncryptedSpy.mockResolvedValue(true);
+    const blueApp = BlueApp.getInstance();
+    const fetchWalletBalancesSpy = jest.spyOn(blueApp, 'fetchWalletBalances').mockResolvedValue(undefined);
+    const saveToDiskSpy = jest.spyOn(blueApp, 'saveToDisk').mockResolvedValue(undefined);
+
+    await runArkBackgroundTask('task-3');
+
+    assert.strictEqual(storageIsEncryptedSpy.mock.calls.length, 1);
+    assert.strictEqual(fetchWalletBalancesSpy.mock.calls.length, 0);
+    assert.strictEqual(saveToDiskSpy.mock.calls.length, 0);
+    assert.strictEqual(finishMock.mock.calls.length, 1);
+    assert.strictEqual(finishMock.mock.calls[0][0], 'task-3');
+
+    fetchWalletBalancesSpy.mockRestore();
+    saveToDiskSpy.mockRestore();
   });
 });
 

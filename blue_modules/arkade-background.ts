@@ -270,6 +270,16 @@ async function processWallet(wallet: LightningArkWallet): Promise<void> {
   }
 }
 
+async function refreshWalletBalancesIfStorageIsUnencrypted(): Promise<void> {
+  const storageIsEncrypted = await BlueApp.storageIsEncrypted();
+  if (storageIsEncrypted) {
+    return;
+  }
+
+  await BlueApp.fetchWalletBalances();
+  await BlueApp.saveToDisk();
+}
+
 export async function runArkBackgroundTask(taskId: string): Promise<void> {
   if (running) {
     BackgroundFetch.finish(taskId);
@@ -287,16 +297,19 @@ export async function runArkBackgroundTask(taskId: string): Promise<void> {
 
   try {
     const wallets = BlueApp.getWallets().filter((w): w is LightningArkWallet => w instanceof LightningArkWallet);
-    if (wallets.length === 0) return;
 
-    for (const wallet of wallets) {
-      if (shouldStopRun()) break;
-      try {
-        await processWallet(wallet);
-      } catch (e: any) {
-        recordError(`processWallet: ${e?.message ?? e}`);
+    if (wallets.length > 0) {
+      for (const wallet of wallets) {
+        if (shouldStopRun()) break;
+        try {
+          await processWallet(wallet);
+        } catch (e: any) {
+          recordError(`processWallet: ${e?.message ?? e}`);
+        }
       }
     }
+
+    await refreshWalletBalancesIfStorageIsUnencrypted();
   } finally {
     state.lastRunFinishedAt = Date.now();
     runDeadline = null;
