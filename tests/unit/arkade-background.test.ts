@@ -436,8 +436,8 @@ describe('onArkBackgroundTaskTimeout', () => {
 
   it('refreshes wallet balances when storage is not encrypted', async () => {
     storageIsEncryptedSpy.mockResolvedValue(false);
-    BlueApp.getInstance().wallets = [makeArkWallet(TEST_SECRET_A)];
     const blueApp = BlueApp.getInstance();
+    blueApp.wallets = [makeArkWallet(TEST_SECRET_A)];
     const fetchWalletBalancesSpy = jest.spyOn(blueApp, 'fetchWalletBalances').mockResolvedValue(undefined);
     const saveToDiskSpy = jest.spyOn(blueApp, 'saveToDisk').mockResolvedValue(undefined);
 
