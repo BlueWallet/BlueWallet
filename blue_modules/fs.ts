@@ -134,7 +134,7 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
 export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
   const sanitizedFileName = _sanitizeFileName(fileName);
   try {
-    if (Platform.OS === 'android' && !showShareDialog) {
+    if (!showShareDialog) {
       const sourceFilePath = _createTempExportPath(sanitizedFileName);
       try {
         await RNFS.writeFile(sourceFilePath, contents);
@@ -142,6 +142,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
           sourceUris: [_toFileUri(sourceFilePath)],
           fileName: sanitizedFileName,
           mimeType: _mimeTypeFromFileName(sanitizedFileName),
+          copy: true,
         });
 
         if (savedFile.error) {
@@ -153,22 +154,9 @@ export const writeFileAndExport = async function (fileName: string, contents: st
       return;
     }
 
-    if (Platform.OS === 'ios') {
-      const filePath = _createTempExportPath(sanitizedFileName);
-      await RNFS.writeFile(filePath, contents);
-      await _shareOpen(filePath, showShareDialog);
-    } else if (Platform.OS === 'android') {
-      const filePath = _createTempExportPath(sanitizedFileName);
-      try {
-        await RNFS.writeFile(filePath, contents);
-        if (showShareDialog) {
-          await _shareOpen(filePath, true);
-        }
-      } catch (e: any) {
-        console.error(e);
-        presentAlert({ message: e.message });
-      }
-    }
+    const filePath = _createTempExportPath(sanitizedFileName);
+    await RNFS.writeFile(filePath, contents);
+    await _shareOpen(filePath, true);
   } catch (error: any) {
     if (isCancel(error)) {
       return;
