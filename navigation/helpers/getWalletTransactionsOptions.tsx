@@ -87,6 +87,7 @@ const getWalletTransactionsOptions = ({ route }: { route: WalletTransactionsRout
     return {
       ...base,
       headerRight: undefined,
+      experimental_userInterfaceStyle: 'dark' as const,
       unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }),
     };
   }
