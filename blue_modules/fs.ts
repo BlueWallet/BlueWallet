@@ -142,6 +142,7 @@ export const writeFileAndExport = async function (fileName: string, contents: st
 
         if (savedFile.error) {
           // User dismissed the save dialog or the provider reported an error; treat as cancel.
+          console.warn('saveDocuments returned error (user may have cancelled):', savedFile.error);
           return;
         }
       } finally {
