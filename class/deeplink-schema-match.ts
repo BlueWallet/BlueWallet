@@ -134,6 +134,16 @@ class DeeplinkSchemaMatch {
           },
         },
       ]);
+    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url)) {
+      completionHandler([
+        'SendDetailsRoot',
+        {
+          screen: 'SendDetails',
+          params: {
+            uri: event.url.replace('://', ':'),
+          },
+        },
+      ]);
     } else if (DeeplinkSchemaMatch.isLightningInvoice(event.url)) {
       completionHandler([
         'ScanLNDInvoiceRoot',
