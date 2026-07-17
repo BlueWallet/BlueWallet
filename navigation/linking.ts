@@ -117,7 +117,7 @@ const createSendDetailsState = (uri: string): PartialState<NavigationState> => (
         params: {
           uri,
         },
-      } as DetailViewStackParamList['SendDetailsRoot'],
+      },
     },
   ],
 });
@@ -133,18 +133,10 @@ export const linking: LinkingOptions<DetailViewStackParamList> = {
     'bluewallet:bitcoin://',
     'bluewallet:BITCOIN://',
   ],
-  config: {
-    screens: {
-      SendDetailsRoot: {
-        screens: {
-          SendDetails: 'bitcoin/:uri?',
-        },
-      },
-    },
-  },
   filter: url => shouldHandleIncomingUrl(url),
   async getInitialURL() {
     const initialUrl = await Linking.getInitialURL();
+    if (typeof initialUrl !== 'string') return null;
     if (!shouldHandleIncomingUrl(initialUrl)) return null;
 
     if (!isBitcoinDeepLinkDispatchReady) {
