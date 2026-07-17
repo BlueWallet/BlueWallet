@@ -9,6 +9,7 @@ import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
+import { linking, syncBitcoinDeepLinkDispatchFromNavigation } from './navigation/linking';
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -17,7 +18,13 @@ const App = () => {
 
   return (
     <SizeClassProvider>
-      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+      <NavigationContainer
+        ref={navigationRef}
+        linking={linking}
+        theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
+        onReady={syncBitcoinDeepLinkDispatchFromNavigation}
+        onStateChange={syncBitcoinDeepLinkDispatchFromNavigation}
+      >
         <SafeAreaProvider>
           <StorageProvider>
             <SettingsProvider>

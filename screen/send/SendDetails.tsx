@@ -73,6 +73,117 @@ export interface IFee {
   mediumFee: number | null;
   fastestFee: number | null;
 }
+
+type ParsedBitcoinRecipient = {
+  address: string;
+  amount?: number;
+};
+
+type ParsedBitcoinUri = {
+  recipients: ParsedBitcoinRecipient[];
+  memo: string;
+  payjoinUrl: string;
+};
+
+const normalizeBitcoinUri = (uri: string) => {
+  let normalized = uri.trim();
+
+  if (/^bitcoin:\/\//i.test(normalized)) {
+    normalized = normalized.replace(/^bitcoin:\/\//i, 'bitcoin:');
+  }
+
+  if (!/^bitcoin:/i.test(normalized)) {
+    normalized = `bitcoin:${normalized.replace(/^\/+/, '')}`;
+  }
+
+  return normalized;
+};
+
+const toValidAmount = (value?: string | null): number | undefined => {
+  if (value === null || value === undefined || String(value).trim().length === 0) return undefined;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
+  return parsed;
+};
+
+const isBitcoinAddressValid = (address: string): boolean => {
+  try {
+    bitcoin.address.toOutputScript(address);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const parseBitcoinUriRecipients = (uri: string): ParsedBitcoinUri => {
+  const normalized = normalizeBitcoinUri(uri);
+  const { address, amount, memo, payjoinUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(normalized);
+  const recipients: ParsedBitcoinRecipient[] = [];
+
+  if (address && isBitcoinAddressValid(address)) {
+    recipients.push({ address, amount: toValidAmount(String(amount)) });
+  }
+
+  const query = normalized.split('?')[1] ?? '';
+  const params = new URLSearchParams(query);
+
+  const extraAddresses = params
+    .getAll('address')
+    .map(value => value.trim())
+    .filter(Boolean)
+    .filter(value => isBitcoinAddressValid(value));
+  const extraAmounts = params.getAll('amount');
+  const amountOffset = recipients.length > 0 ? 1 : 0;
+
+  extraAddresses.forEach((value, index) => {
+    recipients.push({
+      address: value,
+      amount: toValidAmount(extraAmounts[index + amountOffset]),
+    });
+  });
+
+  const indexedRecipients = new Map<number, Partial<ParsedBitcoinRecipient>>();
+  for (const [key, rawValue] of params.entries()) {
+    const value = rawValue.trim();
+    const addressMatch = key.match(/^address[._](\d+)$/i);
+    if (addressMatch) {
+      const idx = Number(addressMatch[1]);
+      if (!Number.isInteger(idx) || idx < 0 || !isBitcoinAddressValid(value)) continue;
+      indexedRecipients.set(idx, { ...indexedRecipients.get(idx), address: value });
+      continue;
+    }
+
+    const amountMatch = key.match(/^amount[._](\d+)$/i);
+    if (amountMatch) {
+      const idx = Number(amountMatch[1]);
+      if (!Number.isInteger(idx) || idx < 0) continue;
+      indexedRecipients.set(idx, { ...indexedRecipients.get(idx), amount: toValidAmount(value) });
+    }
+  }
+
+  Array.from(indexedRecipients.entries())
+    .sort(([a], [b]) => a - b)
+    .forEach(([idx, recipient]) => {
+      if (!recipient.address) return;
+      if (idx === 0 && recipients.length > 0) {
+        recipients[0] = { ...recipients[0], ...recipient };
+      } else {
+        recipients.push(recipient as ParsedBitcoinRecipient);
+      }
+    });
+
+  const uniqueRecipients = recipients.filter((recipient, idx, array) => {
+    const recipientAmount = recipient.amount ?? null;
+    return array.findIndex(item => item.address === recipient.address && (item.amount ?? null) === recipientAmount) === idx;
+  });
+
+  return {
+    recipients: uniqueRecipients,
+    memo: memo || params.get('message') || '',
+    payjoinUrl,
+  };
+};
+
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 
@@ -159,34 +270,28 @@ const SendDetails = () => {
 
   useEffect(() => {
     // decode route params
-    const currentAddress = addresses[scrollIndex.current];
     if (routeParams.uri) {
       try {
-        const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(routeParams.uri);
+        const parsed = parseBitcoinUriRecipients(routeParams.uri);
+        const nextAddresses = parsed.recipients.map(recipient => ({
+          address: recipient.address,
+          amount: recipient.amount,
+          amountSats: recipient.amount ? btcToSatoshi(recipient.amount) : undefined,
+          key: String(Math.random()),
+          unit: recipient.amount ? BitcoinUnit.BTC : amountUnit,
+        }));
 
-        setAddresses(addrs => {
-          addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
-          return [...addrs];
-        });
+        setAddresses(nextAddresses.length > 0 ? nextAddresses : [{ address: '', key: String(Math.random()), unit: amountUnit }]);
 
-        setAddresses(addrs => {
-          if (currentAddress) {
-            currentAddress.address = address;
-            if (Number(amount) > 0) {
-              currentAddress.amount = amount!;
-              currentAddress.amountSats = btcToSatoshi(amount!);
-            }
-            addrs[scrollIndex.current] = currentAddress;
-            return [...addrs];
-          } else {
-            return [...addrs, { address, amount, amountSats: btcToSatoshi(amount!), key: String(Math.random()), unit: amountUnit }];
-          }
-        });
-
-        if (memo?.trim().length > 0) {
-          setParams({ transactionMemo: memo });
+        if (parsed.memo.trim().length > 0) {
+          setParams({ transactionMemo: parsed.memo });
         }
-        setParams({ payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC });
+
+        const hasAnyAmount = nextAddresses.some(item => Number(item.amountSats) > 0);
+        setParams({
+          payjoinUrl: parsed.recipients.length === 1 ? parsed.payjoinUrl : undefined,
+          ...(hasAnyAmount ? { amountUnit: BitcoinUnit.BTC } : {}),
+        });
       } catch (error) {
         console.log(error);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
@@ -1443,27 +1548,52 @@ const SendDetails = () => {
           <AddressInput
             onChangeText={text => {
               const trimmedText = text.trim();
-              const { address, amount, memo, payjoinUrl: pjUrl } = DeeplinkSchemaMatch.decodeBitcoinUri(trimmedText);
-              const hasPositiveAmount = Number(amount) > 0;
+              const parsed = parseBitcoinUriRecipients(trimmedText);
+              const hasPositiveAmount = parsed.recipients.some(recipient => Number(recipient.amount) > 0);
+
+              if (parsed.recipients.length > 1) {
+                const nextAddresses = parsed.recipients.map(recipient => ({
+                  address: recipient.address,
+                  amount: recipient.amount,
+                  amountSats: recipient.amount ? btcToSatoshi(recipient.amount) : undefined,
+                  key: String(Math.random()),
+                  unit: recipient.amount ? BitcoinUnit.BTC : amountUnit,
+                }));
+
+                setAddresses(nextAddresses);
+                if (parsed.memo) {
+                  setParams({ transactionMemo: parsed.memo });
+                }
+                setIsLoading(false);
+                setParams({
+                  payjoinUrl: undefined,
+                  ...(hasPositiveAmount ? { amountUnit: BitcoinUnit.BTC } : {}),
+                });
+                return;
+              }
+
+              const singleRecipient = parsed.recipients[0];
               setAddresses(addrs => {
                 const updatedAddresses = [...addrs];
                 const updatedItem = { ...updatedAddresses[index] };
-                updatedItem.address = address || trimmedText;
+                updatedItem.address = singleRecipient?.address || trimmedText;
 
                 if (hasPositiveAmount) {
-                  updatedItem.amount = amount;
-                  updatedItem.amountSats = btcToSatoshi(amount!);
+                  updatedItem.amount = singleRecipient?.amount;
+                  updatedItem.amountSats = singleRecipient?.amount ? btcToSatoshi(singleRecipient.amount) : undefined;
                   updatedItem.unit = BitcoinUnit.BTC;
                 }
 
                 updatedAddresses[index] = updatedItem;
                 return updatedAddresses;
               });
-              if (memo) {
-                setParams({ transactionMemo: memo });
+              if (parsed.memo) {
+                setParams({ transactionMemo: parsed.memo });
               }
               setIsLoading(false);
-              setParams(hasPositiveAmount ? { payjoinUrl: pjUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: pjUrl });
+              setParams(
+                hasPositiveAmount ? { payjoinUrl: parsed.payjoinUrl, amountUnit: BitcoinUnit.BTC } : { payjoinUrl: parsed.payjoinUrl },
+              );
             }}
             address={item.address}
             isLoading={isLoading}
