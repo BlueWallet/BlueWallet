@@ -11,6 +11,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import AddressLabelBadge from '../../components/AddressLabelBadge';
 import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
@@ -158,7 +159,7 @@ const TransactionStatus: React.FC = () => {
     isLoading: !initialTx,
   });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
+  const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
   const { colors } = useTheme();
@@ -765,6 +766,13 @@ const TransactionStatus: React.FC = () => {
     }
   }, [tx, txMetadata, saveToDisk]);
 
+  const handleAddressLabelPress = useCallback(
+    (address: string) => {
+      navigate('ReceiveAddressLabel', { address });
+    },
+    [navigate],
+  );
+
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
     const url = `${selectedBlockExplorer.url}/tx/${tx.hash}`;
@@ -840,14 +848,22 @@ const TransactionStatus: React.FC = () => {
   const renderSection = (array: any[]) => {
     const fromArray = [];
 
-    for (const [index, address] of array.entries()) {
+    for (const address of array) {
       const isWeOwnAddress = weOwnAddress(address);
       const addressStyle = isWeOwnAddress ? [styles.weOwnAddress, stylesHook.rowValue] : [stylesHook.rowValue];
+      const label = addressMetadata[address]?.label;
 
       fromArray.push(
         <View key={address} style={styles.addressRow}>
           <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} />
-          {index !== array.length - 1 && <BlueText style={addressStyle}>,</BlueText>}
+          {label ? (
+            <AddressLabelBadge
+              label={label}
+              style={styles.addressLabelPill}
+              onPress={() => handleAddressLabelPress(address)}
+              accessibilityLabel={loc.transactions.address_label_placeholder}
+            />
+          ) : null}
         </View>,
       );
     }
@@ -1711,9 +1727,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  addressLabelPill: {
+    maxWidth: '86%',
+    marginTop: 4,
   },
   detailValue: {
     fontSize: 15,

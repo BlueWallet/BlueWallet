@@ -127,7 +127,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
 }: TransactionListItemProps) => {
   const { colors } = useTheme();
   const { navigate } = useExtendedNavigation<NavigationProps>();
-  const { txMetadata, counterpartyMetadata, wallets } = useStorage();
+  const { txMetadata, counterpartyMetadata, addressMetadata, wallets } = useStorage();
   const { language, selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
@@ -152,6 +152,24 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   }
   const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
+
+  // All labeled addresses in this tx (outputs for incoming, inputs for spends from a labeled address), comma separated.
+  // Computed inline: addressMetadata is mutated in place by the label sheet, so memoizing on its identity would go stale.
+  const addressLabels = new Set<string>();
+  const txAddresses = [
+    ...(item.outputs ?? []).flatMap(o => o?.scriptPubKey?.addresses ?? []),
+    ...(item.inputs ?? []).flatMap(i => i?.addresses ?? (i?.address ? [i.address] : [])),
+  ];
+  for (const addr of txAddresses) {
+    const label = addressMetadata[addr]?.label;
+    if (label) addressLabels.add(label);
+  }
+  const addressLabel = addressLabels.size > 0 ? [...addressLabels].join(', ') : undefined;
+
+  // What this tx is associated with: Contact (with memo, as before) > address label > memo/note > empty.
+  const rightSubtitle = counterparty
+    ? noteForCopy
+    : (addressLabel ?? ((txMetadata[item.hash]?.memo || item.memo || '').trim() || undefined));
 
   // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
   // wallet transacts entirely via Boltz swaps, so every row is Lightning; the
@@ -553,7 +571,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
-          rightSubtitle={noteForCopy}
+          rightSubtitle={rightSubtitle}
           rightSubtitleStyle={styles.rightColumn}
           containerStyle={combinedStyle}
           testID="TransactionListItem"

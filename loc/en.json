@@ -104,9 +104,14 @@
     "title": "Your wallet has been created."
   },
   "receive": {
-    "details_create": "Create",
+    "details_add": "Add",
+    "details_save": "Save",
     "details_label": "Description",
     "details_setAmount": "Receive with amount",
+    "details_more_options": "More options",
+    "option_amount_subtitle": "Receiver sees suggested amount and description",
+    "option_label": "Label",
+    "option_label_subtitle": "Tag this address for future reference",
     "details_share": "Share...",
     "address_not_found": "Unable to generate receiving address.",
     "header": "Receive",
@@ -346,6 +351,7 @@
     "blocks_confirmed_summary": "Included in block {blockHeight}.",
     "blocks_confirmed_fee_summary": "With a size of {vsize} and a fee rate of {feeRate}, paying {fee} fee.",
     "expand_note": "Expand Note",
+    "address_label_placeholder": "Label for this address",
     "cpfp_create": "Create",
     "cpfp_exp": "We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP—Child Pays for Parent.",
     "cpfp_no_bump": "This transaction is not bumpable.",
