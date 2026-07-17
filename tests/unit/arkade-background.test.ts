@@ -436,20 +436,23 @@ describe('onArkBackgroundTaskTimeout', () => {
 
   it('refreshes wallet balances when storage is not encrypted', async () => {
     storageIsEncryptedSpy.mockResolvedValue(false);
+    BlueApp.getInstance().wallets = [makeArkWallet(TEST_SECRET_A)];
     const blueApp = BlueApp.getInstance();
     const fetchWalletBalancesSpy = jest.spyOn(blueApp, 'fetchWalletBalances').mockResolvedValue(undefined);
     const saveToDiskSpy = jest.spyOn(blueApp, 'saveToDisk').mockResolvedValue(undefined);
 
-    await runArkBackgroundTask('task-2');
+    try {
+      await runArkBackgroundTask('task-2');
 
-    assert.strictEqual(storageIsEncryptedSpy.mock.calls.length, 1);
-    assert.strictEqual(fetchWalletBalancesSpy.mock.calls.length, 1);
-    assert.strictEqual(saveToDiskSpy.mock.calls.length, 1);
-    assert.strictEqual(finishMock.mock.calls.length, 1);
-    assert.strictEqual(finishMock.mock.calls[0][0], 'task-2');
-
-    fetchWalletBalancesSpy.mockRestore();
-    saveToDiskSpy.mockRestore();
+      assert.strictEqual(storageIsEncryptedSpy.mock.calls.length, 1);
+      assert.strictEqual(fetchWalletBalancesSpy.mock.calls.length, 1);
+      assert.strictEqual(saveToDiskSpy.mock.calls.length, 1);
+      assert.strictEqual(finishMock.mock.calls.length, 1);
+      assert.strictEqual(finishMock.mock.calls[0][0], 'task-2');
+    } finally {
+      fetchWalletBalancesSpy.mockRestore();
+      saveToDiskSpy.mockRestore();
+    }
   });
 
   it('skips balance refresh when storage is encrypted', async () => {
@@ -458,16 +461,18 @@ describe('onArkBackgroundTaskTimeout', () => {
     const fetchWalletBalancesSpy = jest.spyOn(blueApp, 'fetchWalletBalances').mockResolvedValue(undefined);
     const saveToDiskSpy = jest.spyOn(blueApp, 'saveToDisk').mockResolvedValue(undefined);
 
-    await runArkBackgroundTask('task-3');
+    try {
+      await runArkBackgroundTask('task-3');
 
-    assert.strictEqual(storageIsEncryptedSpy.mock.calls.length, 1);
-    assert.strictEqual(fetchWalletBalancesSpy.mock.calls.length, 0);
-    assert.strictEqual(saveToDiskSpy.mock.calls.length, 0);
-    assert.strictEqual(finishMock.mock.calls.length, 1);
-    assert.strictEqual(finishMock.mock.calls[0][0], 'task-3');
-
-    fetchWalletBalancesSpy.mockRestore();
-    saveToDiskSpy.mockRestore();
+      assert.strictEqual(storageIsEncryptedSpy.mock.calls.length, 1);
+      assert.strictEqual(fetchWalletBalancesSpy.mock.calls.length, 0);
+      assert.strictEqual(saveToDiskSpy.mock.calls.length, 0);
+      assert.strictEqual(finishMock.mock.calls.length, 1);
+      assert.strictEqual(finishMock.mock.calls[0][0], 'task-3');
+    } finally {
+      fetchWalletBalancesSpy.mockRestore();
+      saveToDiskSpy.mockRestore();
+    }
   });
 });
 

@@ -300,7 +300,13 @@ export async function runArkBackgroundTask(taskId: string): Promise<void> {
       }
     }
 
-    await refreshWalletBalancesIfStorageIsUnencrypted();
+    if (!shouldStopRun()) {
+      try {
+        await refreshWalletBalancesIfStorageIsUnencrypted();
+      } catch (e: any) {
+        recordError(`refreshWalletBalances: ${e?.message ?? e}`);
+      }
+    }
   } finally {
     state.lastRunFinishedAt = Date.now();
     runDeadline = null;
