@@ -58,7 +58,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ccache-
 
-      - name: Delete extension and watch targets
+      - name: Delete extension targets
         run: |
           bundle exec ruby <<'RUBY'
           require 'xcodeproj'
@@ -66,7 +66,7 @@ jobs:
           project_path = 'ios/BlueWallet.xcodeproj'
           project = Xcodeproj::Project.open(project_path)
 
-          target_names = %w[BlueWalletWatch WidgetsExtension Stickers]
+          target_names = %w[WidgetsExtension Stickers]
           embed_phase_names = ['Embed Watch Content', 'Embed Foundation Extensions']
           removed_any = false
 
@@ -99,9 +99,8 @@ jobs:
           end
           RUBY
 
-      - name: Remove extension and watch schemes
+      - name: Remove extension schemes
         run: |
-          rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/BlueWalletWatch.xcscheme
           rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/WidgetsExtension.xcscheme
           rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/Stickers.xcscheme
 

@@ -25,7 +25,6 @@ import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import RNFS from 'react-native-fs';
 import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
-import useWatchConnectivity from './useWatchConnectivity';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
@@ -59,7 +58,6 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
   // Initialize other hooks regardless of activation status
   // They'll handle their own conditional logic internally
-  useWatchConnectivity();
   useWidgetCommunication();
   useMenuElements();
   useDeviceQuickActions();
