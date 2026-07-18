@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Wopɛ sɛ wosan yɛ dodoɔ no foforɔ anaa?",
     "success_done": "Awie",
     "txSaved": "Wɔasie nsesaeɛ file no ({filePath}).",
-    "file_saved_at_path": "Wɔasie file no ({filePath}).",
     "cant_send_to_silentpayment_adress": "Saa sika kotokuo yi ntumi nsoma nkɔ SilentPayment address mu",
     "cant_send_to_bip47": "Saa sika kotokuo yi ntumi nsoma nkɔ BIP47 akatua koodu mu",
     "cant_find_bip47_notification": "Di kan fa saa Akatua Koodu yi ka contacts ho",

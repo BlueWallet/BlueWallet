@@ -209,7 +209,6 @@
     "reset_amount_confirm": "هل تريد إعادة تعيين المبلغ؟",
     "success_done": "تم",
     "txSaved": "تم حفظ ملف المعاملة ({filePath}).",
-    "file_saved_at_path": "تم حفظ الملف ({filePath}).",
     "cant_send_to_silentpayment_adress": "لا يمكن لهذه المحفظة الإرسال إلى عناوين Silent Payments",
     "cant_send_to_bip47": "لا يمكن لهذه المحفظة الإرسال إلى رموز الدفع BIP47",
     "cant_find_bip47_notification": "أضف رمز الدفع هذا إلى جهات الاتصال أولاً",

@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Je, ungependa kuweka upya kiasi?",
     "success_done": "Imekamilika",
     "txSaved": "Faili la muamala ({filePath}) limehifadhiwa.",
-    "file_saved_at_path": "Faili ({filePath}) limehifadhiwa.",
     "cant_send_to_silentpayment_adress": "Pochi hii haiwezi kutuma kwa anwani za SilentPayment",
     "cant_send_to_bip47": "Pochi hii haiwezi kutuma kwa misimbo ya malipo ya BIP47",
     "cant_find_bip47_notification": "Ongeza Msimbo huu wa Malipo kwenye mawasiliano kwanza",

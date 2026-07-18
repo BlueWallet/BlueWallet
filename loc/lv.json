@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Vai vēlaties atiestatīt summu?",
     "success_done": "Gatavs",
     "txSaved": "Darījuma fails ({filePath}) ir saglabāts.",
-    "file_saved_at_path": "Fails ({filePath}) ir saglabāts.",
     "cant_send_to_silentpayment_adress": "Šis maks nevar sūtīt uz SilentPayment adresēm",
     "cant_send_to_bip47": "Šis maks nevar sūtīt uz BIP47 maksājuma kodiem",
     "cant_find_bip47_notification": "Vispirms pievienojiet šo maksājuma kodu kontaktiem",

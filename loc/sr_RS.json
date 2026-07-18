@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Da li želite da resetujete iznos?",
     "success_done": "Gotovo",
     "txSaved": "Fajl transakcije ({filePath}) je sačuvan.",
-    "file_saved_at_path": "Fajl ({filePath}) je sačuvan.",
     "cant_send_to_silentpayment_adress": "Ovaj novčanik ne može da šalje na SilentPayment adrese",
     "cant_send_to_bip47": "Ovaj novčanik ne može da šalje na BIP47 Payment kodove",
     "cant_find_bip47_notification": "Prvo dodajte ovaj Payment kod u kontakte",

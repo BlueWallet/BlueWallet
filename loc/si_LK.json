@@ -209,7 +209,6 @@
     "reset_amount_confirm": "මුදල නැවත සැකසීමට ඔබ කැමතිද?",
     "success_done": "කළා",
     "txSaved": "ගනුදෙනු ගොනුව ({filePath}) සුරැකී ඇත.",
-    "file_saved_at_path": "ගොනුව ({filePath}) සුරැකී ඇත.",
     "cant_send_to_silentpayment_adress": "මෙම පසුම්බියට Silent Payments ලිපිනවලට යැවිය නොහැක",
     "cant_send_to_bip47": "මෙම පසුම්බියට BIP47 ගෙවීම් කේතවලට යැවිය නොහැක",
     "cant_find_bip47_notification": "මුලින්ම මෙම ගෙවීම් කේතය සම්බන්ධතාවලට එක් කරන්න",
