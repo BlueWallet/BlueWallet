@@ -33,6 +33,7 @@ import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import BlocksAccordion from '../../components/BlocksAccordion';
 import TransactionStateHeader from '../../components/TransactionStateHeader';
+import { SettingsSection } from '../../components/SettingsSection';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
@@ -203,9 +204,6 @@ const TransactionStatus: React.FC = () => {
       stateValue: {
         lineHeight: Math.round(18 * fontScale),
       },
-      advancedHeader: {
-        minHeight: Math.round(44 * fontScale),
-      },
       explorerButton: {
         paddingVertical: Math.round(6 * fontScale),
         paddingHorizontal: Math.round(12 * fontScale),
@@ -217,9 +215,6 @@ const TransactionStatus: React.FC = () => {
       detailRow: {
         minHeight: Math.round(24 * fontScale),
         paddingVertical: Math.round(12 * fontScale),
-      },
-      sectionTitle: {
-        paddingVertical: Math.round(16 * fontScale),
       },
     };
   }, [fontScale]);
@@ -280,9 +275,6 @@ const TransactionStatus: React.FC = () => {
     stateCardSent: { backgroundColor: colors.outgoingBackgroundColor },
     stateCardReceived: { backgroundColor: colors.incomingBackgroundColor },
     card: { backgroundColor: colors.elevated || colors.background },
-    sectionTitle: { backgroundColor: colors.cardSectionHeaderBackground },
-    sectionTitleText: { color: colors.foregroundColor },
-    detailsCard: { borderColor: colors.cardBorderColor },
     detailRow: {
       backgroundColor: colors.cardSectionBackground,
       borderBottomColor: colors.cardBorderColor,
@@ -295,7 +287,6 @@ const TransactionStatus: React.FC = () => {
     speedUpButtonText: { color: colors.transactionPendingColor },
     cancelButton: { backgroundColor: colors.transactionStateCancelButtonBackground },
     cancelButtonText: { color: colors.transactionPendingColor },
-    advancedHeader: { borderColor: colors.cardBorderColor },
     advancedContent: { borderTopColor: colors.cardBorderColor },
     rowValue: { color: colors.alternativeTextColor },
   });
@@ -1211,13 +1202,11 @@ const TransactionStatus: React.FC = () => {
       )}
 
       {/* Details Section */}
-      <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-        {/* Details Title */}
-        <View style={[styles.sectionTitle, styles.sectionTitleWithButton, stylesHook.sectionTitle, scaledStyles.sectionTitle]}>
-          <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText, styles.sectionTitleTextFlexible]}>
-            {loc.transactions.details_section}
-          </BlueText>
-          {tx?.hash && (
+      <SettingsSection
+        title={loc.transactions.details_section}
+        containerStyle={styles.sectionMargins}
+        headerRight={
+          tx?.hash ? (
             <TouchableOpacity
               onPress={handleOpenBlockExplorer}
               style={[styles.explorerButton, stylesHook.explorerButton, scaledStyles.explorerButton]}
@@ -1232,8 +1221,9 @@ const TransactionStatus: React.FC = () => {
                 {loc.transactions.details_explorer}
               </BlueText>
             </TouchableOpacity>
-          )}
-        </View>
+          ) : undefined
+        }
+      >
         {/* Network Fee */}
         <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
           <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_network_fee}</BlueText>
@@ -1339,31 +1329,25 @@ const TransactionStatus: React.FC = () => {
             )}
           </View>
         </View>
-      </View>
+      </SettingsSection>
 
       {/* Advanced Section */}
-      <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-        <TouchableOpacity
-          onPress={() => {
-            triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-            setIsAdvancedExpanded(!isAdvancedExpanded);
-          }}
-          style={[styles.advancedHeader, stylesHook.advancedHeader, scaledStyles.advancedHeader]}
-          activeOpacity={0.85}
-        >
-          <View style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRow, scaledStyles.sectionTitle]}>
-            <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText, styles.sectionTitleTextFlexible]} numberOfLines={2}>
-              {loc.transactions.details_advanced}
-            </BlueText>
-            <Icon
-              name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
-              type="font-awesome"
-              size={16}
-              color={colors.alternativeTextColor}
-            />
-          </View>
-        </TouchableOpacity>
-
+      <SettingsSection
+        title={loc.transactions.details_advanced}
+        containerStyle={styles.sectionMargins}
+        onHeaderPress={() => {
+          triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+          setIsAdvancedExpanded(!isAdvancedExpanded);
+        }}
+        headerRight={
+          <Icon
+            name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
+            type="font-awesome"
+            size={16}
+            color={colors.alternativeTextColor}
+          />
+        }
+      >
         {isAdvancedExpanded && (
           <View style={[styles.advancedContent, stylesHook.advancedContent]}>
             {/* Fee Rate */}
@@ -1448,7 +1432,7 @@ const TransactionStatus: React.FC = () => {
             )}
           </View>
         )}
-      </View>
+      </SettingsSection>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
       {wallet && parsedConfirmations === 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
@@ -1628,39 +1612,9 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     flexShrink: 1,
   },
-  detailsCard: {
+  sectionMargins: {
     marginHorizontal: 24,
     marginBottom: 42,
-    padding: 0,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  sectionTitle: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  sectionTitleRow: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionTitleWithButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  sectionTitleText: {
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  sectionTitleTextFlexible: {
-    flex: 1,
-    flexShrink: 1,
-    minWidth: 0,
   },
   explorerButton: {
     paddingVertical: 6,
@@ -1778,16 +1732,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     lineHeight: 20,
-  },
-  advancedHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 0,
-    minHeight: 44,
-    borderWidth: 1,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
   },
   advancedContent: {
     marginTop: 0,
