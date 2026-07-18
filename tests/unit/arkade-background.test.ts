@@ -11,6 +11,7 @@ import {
   onArkBackgroundTaskTimeout,
   reconcileArkBackgroundTaskResults,
   registerArkBackgroundTask,
+  setWalletBackgroundTaskContext,
   runArkBackgroundTask,
   stopArkBackgroundTask,
   __testing__ as backgroundTesting,
@@ -143,6 +144,7 @@ function makeArkWallet(secret: string): LightningArkWallet {
 
 beforeEach(() => {
   storageIsEncryptedSpy = jest.spyOn(BlueApp.getInstance(), 'storageIsEncrypted').mockResolvedValue(true);
+  setWalletBackgroundTaskContext({});
   configureMock.mockClear();
   configureMock.mockResolvedValue(BackgroundFetch.STATUS_AVAILABLE);
   startMock.mockClear();
@@ -181,6 +183,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  setWalletBackgroundTaskContext({});
   storageIsEncryptedSpy.mockRestore();
   jest.useRealTimers();
 });
@@ -441,6 +444,15 @@ describe('onArkBackgroundTaskTimeout', () => {
     const fetchWalletBalancesSpy = jest.spyOn(blueApp, 'fetchWalletBalances').mockResolvedValue(undefined);
     const saveToDiskSpy = jest.spyOn(blueApp, 'saveToDisk').mockResolvedValue(undefined);
 
+    setWalletBackgroundTaskContext({
+      refreshWalletBalances: async () => {
+        const isEncrypted = await blueApp.storageIsEncrypted();
+        if (isEncrypted) return;
+        await blueApp.fetchWalletBalances();
+        await blueApp.saveToDisk();
+      },
+    });
+
     try {
       await runArkBackgroundTask('task-2');
 
@@ -460,6 +472,15 @@ describe('onArkBackgroundTaskTimeout', () => {
     const blueApp = BlueApp.getInstance();
     const fetchWalletBalancesSpy = jest.spyOn(blueApp, 'fetchWalletBalances').mockResolvedValue(undefined);
     const saveToDiskSpy = jest.spyOn(blueApp, 'saveToDisk').mockResolvedValue(undefined);
+
+    setWalletBackgroundTaskContext({
+      refreshWalletBalances: async () => {
+        const isEncrypted = await blueApp.storageIsEncrypted();
+        if (isEncrypted) return;
+        await blueApp.fetchWalletBalances();
+        await blueApp.saveToDisk();
+      },
+    });
 
     try {
       await runArkBackgroundTask('task-3');

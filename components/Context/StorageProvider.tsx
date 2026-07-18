@@ -8,7 +8,7 @@ import presentAlert from '../../components/Alert';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { registerWalletBackgroundTask } from '../../blue_modules/arkade-background';
+import { registerWalletBackgroundTask, setWalletBackgroundTaskContext } from '../../blue_modules/arkade-background';
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { isNotificationsEnabled, majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -309,6 +309,35 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     },
     [saveToDisk],
   );
+
+  const refreshWalletBalancesForBackgroundTask = useCallback(async (): Promise<void> => {
+    const storageIsEncrypted = await BlueApp.storageIsEncrypted();
+    if (storageIsEncrypted) {
+      return;
+    }
+
+    // In some wake paths the in-memory wallets list may still be empty.
+    if (BlueApp.getWallets().length === 0) {
+      await BlueApp.loadFromDisk();
+    }
+    if (BlueApp.getWallets().length === 0) {
+      return;
+    }
+
+    await BlueApp.fetchWalletBalances();
+    await saveToDisk();
+  }, [saveToDisk]);
+
+  useEffect(() => {
+    setWalletBackgroundTaskContext({
+      getArkWallets: () => BlueApp.getWallets().filter((w): w is LightningArkWallet => w instanceof LightningArkWallet),
+      refreshWalletBalances: refreshWalletBalancesForBackgroundTask,
+    });
+
+    return () => {
+      setWalletBackgroundTaskContext({});
+    };
+  }, [refreshWalletBalancesForBackgroundTask]);
 
   // Initialize wallets
   useEffect(() => {

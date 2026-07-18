@@ -28,7 +28,6 @@ import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
 import { BlueApp as BlueAppClass } from '../class/blue-app';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
 import { getArkadeRealm } from './arkade-adapters/realm/realmInstance';
-import { refreshWalletBalancesIfStorageIsUnencrypted } from './wallet-background-refresh';
 import {
   RealmNotificationSuppressionRepository,
   type ArkSwapNotificationAction,
@@ -92,6 +91,17 @@ let configured = false;
 let running = false;
 let cancelRequested = false;
 let runDeadline: number | null = null;
+
+type WalletBackgroundTaskContext = {
+  getArkWallets?: () => LightningArkWallet[];
+  refreshWalletBalances?: () => Promise<void>;
+};
+
+let walletBackgroundTaskContext: WalletBackgroundTaskContext = {};
+
+export const setWalletBackgroundTaskContext = (context: WalletBackgroundTaskContext): void => {
+  walletBackgroundTaskContext = context;
+};
 
 export function getArkTaskState(): Readonly<ArkTaskState> {
   return Object.freeze({ ...state });
@@ -287,7 +297,9 @@ export async function runArkBackgroundTask(taskId: string): Promise<void> {
   state.exitedDueToUnavailableStorage = false;
 
   try {
-    const wallets = BlueApp.getWallets().filter((w): w is LightningArkWallet => w instanceof LightningArkWallet);
+    const wallets = walletBackgroundTaskContext.getArkWallets
+      ? walletBackgroundTaskContext.getArkWallets()
+      : BlueApp.getWallets().filter((w): w is LightningArkWallet => w instanceof LightningArkWallet);
 
     if (wallets.length > 0) {
       for (const wallet of wallets) {
@@ -300,9 +312,9 @@ export async function runArkBackgroundTask(taskId: string): Promise<void> {
       }
     }
 
-    if (!shouldStopRun()) {
+    if (!shouldStopRun() && walletBackgroundTaskContext.refreshWalletBalances) {
       try {
-        await refreshWalletBalancesIfStorageIsUnencrypted();
+        await walletBackgroundTaskContext.refreshWalletBalances();
       } catch (e: any) {
         recordError(`refreshWalletBalances: ${e?.message ?? e}`);
       }
@@ -433,5 +445,6 @@ export const __testing__ = {
     cancelRequested = false;
     runDeadline = null;
     maxRunMs = DEFAULT_MAX_RUN_MS;
+    walletBackgroundTaskContext = {};
   },
 };
