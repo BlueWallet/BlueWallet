@@ -1,5 +1,5 @@
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
@@ -53,13 +53,13 @@ import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
-import { isDesktop } from '../blue_modules/environment';
+import { getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
+import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
-import { isIOS26OrHigher } from '../components/platform';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
@@ -360,44 +360,8 @@ const DetailViewStackScreensStack = () => {
     walletTransactionUpdateStatus,
   ]);
 
-  const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
-  const settingsCardColor = theme.colors.lightButton ?? theme.colors.modal ?? theme.colors.elevated ?? theme.colors.background;
-  const settingsHeaderBackgroundColor = isIOSLightMode ? settingsCardColor : theme.colors.customHeader;
-
-  // Consistent header configuration for all settings screens
-  const getSettingsHeaderOptions = (title: string) => {
-    if (isIOS26OrHigher) {
-      return {
-        title,
-        headerLargeTitle: true,
-        headerLargeTitleShadowVisible: true,
-        headerBackButtonDisplayMode: 'minimal' as const,
-      };
-    }
-    // Use PlatformColor for iOS to match the Settings component, fallback to theme color
-    const titleColor = Platform.OS === 'ios' ? PlatformColor('label') : theme.colors.foregroundColor;
-    // Convert PlatformColor to string for TypeScript compatibility
-    const titleColorString = typeof titleColor === 'string' ? titleColor : String(titleColor);
-    return {
-      title,
-      headerBackButtonDisplayMode: 'default' as const,
-      headerBackVisible: true, // Show back button on Android
-      headerShadowVisible: false,
-      headerLargeTitle: false,
-      headerLargeTitleStyle: undefined,
-      headerTitleStyle: {
-        color: titleColorString,
-      },
-      headerTransparent: false,
-      headerBlurEffect: undefined,
-      headerStyle: {
-        backgroundColor: settingsHeaderBackgroundColor,
-      },
-    };
-  };
-
   const settingsScreenOptions = (title: string) =>
-    isIOS26OrHigher ? getSettingsHeaderOptions(title) : navigationStyle(getSettingsHeaderOptions(title))(theme);
+    isIOS26OrHigher ? getSettingsHeaderOptions(title, theme) : navigationStyle(getSettingsHeaderOptions(title, theme))(theme);
 
   return (
     <ConnectionPollContext.Provider value={connectionPollContextValue}>
@@ -518,7 +482,7 @@ const DetailViewStackScreensStack = () => {
           component={Settings}
           options={
             isIOS26OrHigher
-              ? getSettingsHeaderOptions(loc.settings.header)
+              ? getSettingsHeaderOptions(loc.settings.header, theme)
               : navigationStyle({
                   title: loc.settings.header,
                   headerBackButtonDisplayMode: 'minimal',
@@ -544,7 +508,7 @@ const DetailViewStackScreensStack = () => {
                   headerTransparent: false,
                   headerBlurEffect: undefined,
                   headerStyle: {
-                    backgroundColor: settingsHeaderBackgroundColor,
+                    backgroundColor: theme.colors.background,
                   },
                   animationTypeForReplace: 'push',
                 })(theme)
@@ -575,7 +539,7 @@ const DetailViewStackScreensStack = () => {
           name="ElectrumSettings"
           component={ElectrumSettings}
           options={navigationStyle(
-            getSettingsHeaderOptions(loc.settings.electrum_settings_server),
+            getSettingsHeaderOptions(loc.settings.electrum_settings_server, theme),
             withRouteParamHeaderOptions({ headerRight: true }),
           )(theme)}
           initialParams={{ server: undefined }}
