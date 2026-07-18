@@ -91,6 +91,18 @@ module AndroidHelpers
     Actions.sh("cd android && ./gradlew assembleRelease --no-daemon --stacktrace --console=plain | tee #{log_path}") do |status|
       UI.user_error!("Gradle assembleRelease failed") unless status.success?
     end
+    # RN 0.71+ cannot use bugsnag-android-gradle-plugin's uploadReactNativeMappings
+    # (bundle task renamed). Official upload path is BugSnag CLI:
+    # https://docs.bugsnag.com/platforms/react-native/react-native/showing-full-stacktraces/
+    upload_bugsnag_react_native_android!
+  end
+
+  def upload_bugsnag_react_native_android!
+    UI.message("Uploading React Native Android source maps to BugSnag...")
+    Actions.sh("npm run bugsnag:upload-rn-android") do |status|
+      UI.user_error!("BugSnag React Native Android source map upload failed") unless status.success?
+    end
+    UI.success("React Native Android source maps uploaded to BugSnag")
   end
 
   def resolve_apk_paths(version_name:, build_number:, branch_name:)

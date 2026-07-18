@@ -17,6 +17,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/runtime": "^7.26.0",
+    "@bugsnag/cli": "3.10.3",
     "@jest/reporters": "^27.5.1",
     "@react-native/eslint-config": "^0.86.0",
     "@react-native/jest-preset": "0.86.0",
@@ -88,7 +89,8 @@
     "lint": " npm run tslint && node scripts/find-unused-loc.js && node scripts/find-english-leftovers.js && node scripts/validate-fastlane-metadata.js && eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components navigation typings",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
-    "unit": "jest -b tests/unit/*"
+    "unit": "jest -b tests/unit/*",
+    "bugsnag:upload-rn-android": "bugsnag-cli upload react-native-android"
   },
   "dependencies": {
     "@arkade-os/boltz-swap": "0.3.48",
