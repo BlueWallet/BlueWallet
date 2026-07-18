@@ -60,7 +60,6 @@ import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
-import { isIOS26OrHigher } from '../components/platform';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
