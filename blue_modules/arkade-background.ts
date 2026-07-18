@@ -92,6 +92,17 @@ let running = false;
 let cancelRequested = false;
 let runDeadline: number | null = null;
 
+type WalletBackgroundTaskContext = {
+  getArkWallets?: () => LightningArkWallet[];
+  refreshWalletBalances?: () => Promise<void>;
+};
+
+let walletBackgroundTaskContext: WalletBackgroundTaskContext = {};
+
+export const setWalletBackgroundTaskContext = (context: WalletBackgroundTaskContext): void => {
+  walletBackgroundTaskContext = context;
+};
+
 export function getArkTaskState(): Readonly<ArkTaskState> {
   return Object.freeze({ ...state });
 }
@@ -286,15 +297,26 @@ export async function runArkBackgroundTask(taskId: string): Promise<void> {
   state.exitedDueToUnavailableStorage = false;
 
   try {
-    const wallets = BlueApp.getWallets().filter((w): w is LightningArkWallet => w instanceof LightningArkWallet);
-    if (wallets.length === 0) return;
+    const wallets = walletBackgroundTaskContext.getArkWallets
+      ? walletBackgroundTaskContext.getArkWallets()
+      : BlueApp.getWallets().filter((w): w is LightningArkWallet => w instanceof LightningArkWallet);
 
-    for (const wallet of wallets) {
-      if (shouldStopRun()) break;
+    if (wallets.length > 0) {
+      for (const wallet of wallets) {
+        if (shouldStopRun()) break;
+        try {
+          await processWallet(wallet);
+        } catch (e: any) {
+          recordError(`processWallet: ${e?.message ?? e}`);
+        }
+      }
+    }
+
+    if (!shouldStopRun() && walletBackgroundTaskContext.refreshWalletBalances) {
       try {
-        await processWallet(wallet);
+        await walletBackgroundTaskContext.refreshWalletBalances();
       } catch (e: any) {
-        recordError(`processWallet: ${e?.message ?? e}`);
+        recordError(`refreshWalletBalances: ${e?.message ?? e}`);
       }
     }
   } finally {
@@ -320,7 +342,7 @@ function availabilityFromStatus(status: number): ArkTaskState['availability'] {
   return 'unknown';
 }
 
-export async function registerArkBackgroundTask(): Promise<void> {
+export async function registerWalletBackgroundTask(): Promise<void> {
   if (configured) {
     await BackgroundFetch.start();
     state.lastRegisteredAt = Date.now();
@@ -349,7 +371,7 @@ export async function registerArkBackgroundTask(): Promise<void> {
   }
 }
 
-export async function stopArkBackgroundTask(): Promise<void> {
+export async function stopWalletBackgroundTask(): Promise<void> {
   cancelRequested = true;
   try {
     await BackgroundFetch.stop();
@@ -372,6 +394,10 @@ export async function stopArkBackgroundTask(): Promise<void> {
   lastSeenActionMap.clear();
   state.lastUnregisteredAt = Date.now();
 }
+
+// Backward-compatible aliases.
+export const registerArkBackgroundTask = registerWalletBackgroundTask;
+export const stopArkBackgroundTask = stopWalletBackgroundTask;
 
 export function reconcileArkBackgroundTaskResults(triggerRefreshForWallet: (walletId: string) => void): void {
   if (state.lastSwapUpdateAt <= state.lastReconciledAt) return;
@@ -419,5 +445,6 @@ export const __testing__ = {
     cancelRequested = false;
     runDeadline = null;
     maxRunMs = DEFAULT_MAX_RUN_MS;
+    walletBackgroundTaskContext = {};
   },
 };
