@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Nais mo bang i-reset ang halaga?",
     "success_done": "Tapos na",
     "txSaved": "Na-save na ang file ng transaksiyon ({filePath}).",
-    "file_saved_at_path": "Na-save na ang file ({filePath}).",
     "cant_send_to_silentpayment_adress": "Hindi makakapagpadala ang wallet na ito sa mga SilentPayment address",
     "cant_send_to_bip47": "Hindi makakapagpadala ang wallet na ito sa mga BIP47 payment code",
     "cant_find_bip47_notification": "Idagdag muna ang Payment Code na ito sa mga contact",

@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Жадаеце скінуць суму?",
     "success_done": "Гатова",
     "txSaved": "Файл трансакцыі ({filePath}) быў захаваны.",
-    "file_saved_at_path": "Файл ({filePath}) быў захаваны.",
     "cant_send_to_silentpayment_adress": "Гэты кашалёк ня можа адсылаць на адрасы Silent Payments",
     "cant_send_to_bip47": "Гэты кашалёк ня можа адсылаць на плацежныя коды BIP47",
     "cant_find_bip47_notification": "Спачатку дадайце гэты плацежны код у кантакты",

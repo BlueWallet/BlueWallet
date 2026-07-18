@@ -145,6 +145,9 @@ export type DetailViewStackParamList = {
   ReceiveDetails: {
     walletID?: string;
     address: string;
+    allowBIP47?: boolean;
+    isBIP47Enabled?: boolean;
+    toggleBIP47RequestedAt?: number;
     headerLeft?: HeaderLeftRenderer;
     headerRight?: HeaderRightRenderer;
     headerBackVisible?: boolean;

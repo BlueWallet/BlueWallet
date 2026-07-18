@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -34,6 +44,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 
 dayjs.extend(relativeTime);
 
@@ -674,11 +685,12 @@ const TransactionStatus: React.FC = () => {
     if (!wallet || !tx?.hash) {
       return setIsCPFPPossible(ButtonStatus.Unknown);
     }
-    if (!wallet?.allowRBF()) {
+    if (!wallet?.allowRBF() || isWatchOnlySegwitBech32(wallet)) {
       return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
 
     const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+
     if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
       return setIsCPFPPossible(ButtonStatus.Possible);
     } else {
@@ -694,7 +706,12 @@ const TransactionStatus: React.FC = () => {
       return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    let rbfTx: HDSegwitBech32Transaction;
+    if (isWatchOnlySegwitBech32(wallet)) {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet._hdWalletInstance);
+    } else {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    }
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -715,7 +732,12 @@ const TransactionStatus: React.FC = () => {
       return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    let rbfTx: HDSegwitBech32Transaction;
+    if (isWatchOnlySegwitBech32(wallet)) {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet._hdWalletInstance);
+    } else {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    }
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -728,18 +750,32 @@ const TransactionStatus: React.FC = () => {
     }
   };
 
-  const navigateToRBFBumpFee = (transaction: Transaction, w: TWallet) => {
-    navigate('RBFBumpFee', {
-      txid: transaction.hash,
-      wallet: w,
-    });
-  };
-
-  const navigateToRBFCancel = (transaction: Transaction, w: TWallet) => {
-    navigate('RBFCancel', {
-      txid: transaction.hash,
-      wallet: w,
-    });
+  const navigateToRBF = (route: 'RBFBumpFee' | 'RBFCancel', transaction: Transaction, w: TWallet) => {
+    if (isWatchOnlySegwitBech32(w) && !w.useWithHardwareWalletEnabled()) {
+      return Alert.alert(
+        loc.wallets.details_title,
+        loc.transactions.enable_offline_signing,
+        [
+          {
+            text: loc._.ok,
+            onPress: async () => {
+              w.setUseWithHardwareWalletEnabled(true);
+              await saveToDisk();
+              navigate(route, {
+                txid: transaction.hash,
+                wallet: w,
+              });
+            },
+            style: 'default',
+          },
+          {
+            text: loc._.cancel,
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false },
+      );
+    }
   };
 
   const navigateToCPFP = (transaction: Transaction, w: TWallet) => {
@@ -1098,7 +1134,7 @@ const TransactionStatus: React.FC = () => {
                 <View style={styles.stateButtons}>
                   {isRBFBumpFeePossible === ButtonStatus.Possible && (
                     <TouchableOpacity
-                      onPress={() => navigateToRBFBumpFee(tx, wallet)}
+                      onPress={() => navigateToRBF('RBFBumpFee', tx, wallet)}
                       style={[styles.speedUpButton, stylesHook.speedUpButton]}
                       accessibilityRole="button"
                     >
@@ -1107,7 +1143,7 @@ const TransactionStatus: React.FC = () => {
                   )}
                   {isRBFCancelPossible === ButtonStatus.Possible && (
                     <TouchableOpacity
-                      onPress={() => navigateToRBFCancel(tx, wallet)}
+                      onPress={() => navigateToRBF('RBFCancel', tx, wallet)}
                       style={[styles.cancelButton, stylesHook.cancelButton]}
                       accessibilityRole="button"
                     >
@@ -1415,7 +1451,7 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {wallet && parsedConfirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
+      {wallet && parsedConfirmations === 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
     </SafeAreaScrollView>
   );
 };

@@ -209,7 +209,6 @@
     "reset_amount_confirm": "האם ברצונך לאפס את הסכום?",
     "success_done": "בוצע",
     "txSaved": "קובץ הפעולה ({filePath}) נשמר.",
-    "file_saved_at_path": "הקובץ ({filePath}) נשמר.",
     "cant_send_to_silentpayment_adress": "ארנק זה אינו יכול לשלוח לכתובות תשלום שקט",
     "cant_send_to_bip47": "ארנק אינו יכול לשלוח לקודי תשלום BIP47",
     "cant_find_bip47_notification": "הוספת קוד תשלום זה לרשימת אנשי קשר",

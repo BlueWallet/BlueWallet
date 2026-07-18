@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Miktarı sıfırlamak ister misiniz?",
     "success_done": "Tamam",
     "txSaved": "İşlem dosyası ({filePath}) kaydedildi.",
-    "file_saved_at_path": "Dosya ({filePath}) kaydedildi.",
     "cant_send_to_silentpayment_adress": "Bu cüzdan Silent Payments adreslerine gönderim yapamaz",
     "cant_send_to_bip47": "Bu cüzdan BIP47 ödeme kodlarına gönderim yapamaz",
     "cant_find_bip47_notification": "Önce bu Ödeme Kodunu kişilere ekleyin",

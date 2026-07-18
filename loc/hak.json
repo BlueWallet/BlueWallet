@@ -209,7 +209,6 @@
     "reset_amount_confirm": "你想愛重設金額係無？",
     "success_done": "完成",
     "txSaved": "交易檔案（{filePath}）已經保存。",
-    "file_saved_at_path": "檔案（{filePath}）已經保存。",
     "cant_send_to_silentpayment_adress": "這隻錢包毋做得寄到 SilentPayment 地址",
     "cant_send_to_bip47": "這隻錢包毋做得寄到 BIP47 支付代碼",
     "cant_find_bip47_notification": "請先將這隻支付代碼加到聯絡人",
