@@ -209,7 +209,6 @@
     "reset_amount_confirm": "ਕੀ ਤੁਸੀਂ ਰਕਮ ਮੁੜ-ਸੈੱਟ ਕਰਨਾ ਚਾਹੋਗੇ?",
     "success_done": "ਮੁਕੰਮਲ",
     "txSaved": "ਲੈਣ-ਦੇਣ ਫਾਈਲ ({filePath}) ਸੰਭਾਲ ਲਈ ਗਈ ਹੈ।",
-    "file_saved_at_path": "ਫਾਈਲ ({filePath}) ਸੰਭਾਲ ਲਈ ਗਈ ਹੈ।",
     "cant_send_to_silentpayment_adress": "ਇਹ ਵਾਲਿਟ SilentPayment ਪਤਿਆਂ 'ਤੇ ਨਹੀਂ ਭੇਜ ਸਕਦਾ",
     "cant_send_to_bip47": "ਇਹ ਵਾਲਿਟ BIP47 ਭੁਗਤਾਨ ਕੋਡਾਂ 'ਤੇ ਨਹੀਂ ਭੇਜ ਸਕਦਾ",
     "cant_find_bip47_notification": "ਪਹਿਲਾਂ ਇਸ ਭੁਗਤਾਨ ਕੋਡ ਨੂੰ ਸੰਪਰਕਾਂ ਵਿੱਚ ਜੋੜੋ",

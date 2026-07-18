@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Ynskir tú at tómstilla upphæddina?",
     "success_done": "Avgreitt",
     "txSaved": "Flytingarfílan ({filePath}) er goymd.",
-    "file_saved_at_path": "Fílan ({filePath}) er goymd.",
     "cant_send_to_silentpayment_adress": "Frá hesi mappuni ber ikki til at senda til SilentPayment adressur",
     "cant_send_to_bip47": "Ber ikki til at senda til BIP47 gjaldkotur frá hesi mappuni",
     "cant_find_bip47_notification": "Tú noyðist at leggja gjaldkotuna í BIP47 móttakaralistan fyrst",

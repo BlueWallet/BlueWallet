@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Na o ka rata ho setha tjhelete hape?",
     "success_done": "E entswe",
     "txSaved": "Faele ya tshebetsano ({filePath}) e bolokilwe.",
-    "file_saved_at_path": "Faele ({filePath}) e bolokilwe.",
     "cant_send_to_silentpayment_adress": "Sepache sena se ke ke sa romela ho diaterese tsa SilentPayment",
     "cant_send_to_bip47": "Sepache sena se ke ke sa romela ho dikhoutu tsa tefo tsa BIP47",
     "cant_find_bip47_notification": "Eketsa Khoutu ena ya Tefo ho dikontaka pele",

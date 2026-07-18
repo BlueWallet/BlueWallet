@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Apakah Anda ingin mengatur ulang nominal?",
     "success_done": "Selesai",
     "txSaved": "File transaksi ({filePath}) telah disimpan.",
-    "file_saved_at_path": "File ({filePath}) telah disimpan.",
     "cant_send_to_silentpayment_adress": "Dompet ini tidak dapat mengirim ke alamat SilentPayment",
     "cant_send_to_bip47": "Dompet ini tidak dapat mengirim ke kode pembayaran BIP47",
     "cant_find_bip47_notification": "Tambahkan Kode Pembayaran ini ke kontak terlebih dahulu",

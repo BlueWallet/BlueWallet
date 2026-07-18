@@ -42,8 +42,8 @@ import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
+import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
@@ -76,7 +76,6 @@ export interface IFee {
 }
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
-
 const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
@@ -1206,16 +1205,25 @@ const SendDetails = () => {
     return walletActions;
   }, [addresses, isEditable, wallet, isTransactionReplaceable]);
 
-  const HeaderRight = useCallback(
-    () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActions()} />,
-    [headerRightOnPress, isLoading, headerRightActions],
+  const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
+
+  const headerMenuOptions = useMemo(
+    () =>
+      createEllipsisHeaderMenuOptions({
+        actions: headerRightActionGroups,
+        onPressMenuItem: headerRightOnPress,
+        disabled: isLoading,
+        preserveGroups: true,
+      }),
+    [headerRightActionGroups, headerRightOnPress, isLoading],
   );
 
   const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({
-      headerRight: HeaderRight,
+      headerRight: headerMenuOptions.headerRight,
+      unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
     });
-  }, [HeaderRight, navigation]);
+  }, [headerMenuOptions, navigation]);
 
   useEffect(() => {
     console.log('send/details - useEffect');

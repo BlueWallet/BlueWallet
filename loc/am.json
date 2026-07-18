@@ -209,7 +209,6 @@
     "reset_amount_confirm": "መጠኑን ዳግም ማስጀመር ይፈልጋሉ?",
     "success_done": "ተጠናቅቋል",
     "txSaved": "የግብይቱ ፋይል ({filePath}) ተቀምጧል።",
-    "file_saved_at_path": "ፋይሉ ({filePath}) ተቀምጧል።",
     "cant_send_to_silentpayment_adress": "ይህ ቦርሳ ወደ SilentPayment አድራሻዎች መላክ አይችልም",
     "cant_send_to_bip47": "ይህ ቦርሳ ወደ BIP47 የክፍያ ኮዶች መላክ አይችልም",
     "cant_find_bip47_notification": "መጀመሪያ ይህን የክፍያ ኮድ ወደ እውቂያዎች ያክሉ",

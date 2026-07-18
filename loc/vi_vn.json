@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Bạn có muốn đặt lại số tiền không?",
     "success_done": "Đã xong",
     "txSaved": "Tệp giao dịch ({filePath}) đã được lưu.",
-    "file_saved_at_path": "Tệp ({filePath}) đã được lưu.",
     "cant_send_to_silentpayment_adress": "Ví này không thể gửi đến các địa chỉ SilentPayment",
     "cant_send_to_bip47": "Ví này không thể gửi đến các mã thanh toán BIP47",
     "cant_find_bip47_notification": "Trước tiên hãy thêm mã thanh toán này vào danh bạ",

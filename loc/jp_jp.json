@@ -209,7 +209,6 @@
     "reset_amount_confirm": "額をリセットしますか？",
     "success_done": "完了",
     "txSaved": "トランザクションファイル ({filePath}) を保存しました。",
-    "file_saved_at_path": "ファイル({filePath})を保存しました。",
     "cant_send_to_silentpayment_adress": "このウォレットからはSilentPaymentアドレスに送金できません",
     "cant_send_to_bip47": "このウォレットからはBIP47支払いコードに送金できません",
     "cant_find_bip47_notification": "先にこの支払いコードを連絡先に追加してください",

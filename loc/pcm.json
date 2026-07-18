@@ -209,7 +209,6 @@
     "reset_amount_confirm": "You go like reset the bar?",
     "success_done": "Don finish",
     "txSaved": "We don save the transaction file ({filePath}).",
-    "file_saved_at_path": "We don save the file ({filePath}).",
     "cant_send_to_silentpayment_adress": "This wallet no fit send to SilentPayment addresses",
     "cant_send_to_bip47": "This wallet no fit send to BIP47 payment codes",
     "cant_find_bip47_notification": "Add this Payment Code go contacts first",

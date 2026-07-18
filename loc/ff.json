@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Aɗa yiɗi firlitde keewal ngal?",
     "success_done": "Gasii",
     "txSaved": "Fiise njuɓɓudi ({filePath}) danndaama.",
-    "file_saved_at_path": "Fiise ({filePath}) danndaama.",
     "cant_send_to_silentpayment_adress": "Ndee boktoore waawaa neldude faade e adreesaaji SilentPayment",
     "cant_send_to_bip47": "Ndee boktoore waawaa neldude faade e koodaaji njoɓdi BIP47",
     "cant_find_bip47_notification": "Ɓeydu oo Kood njoɓdi e jokkorɗe tawo",

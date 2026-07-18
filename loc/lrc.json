@@ -209,7 +209,6 @@
     "reset_amount_confirm": "مۊخوای مقدار ن و ٱول آلشت بکؽ؟",
     "success_done": "تموم",
     "txSaved": "فایل تراکونش ({filePath}) زخیره بی.",
-    "file_saved_at_path": "فایل ({filePath}) زخیره بی.",
     "cant_send_to_silentpayment_adress": "اؽ کیف پیلٛ نمؽتاره و آدرسیا Silent Payments کلٛ بکونه",
     "cant_send_to_bip47": "اؽ کیف پیلٛ نمؽتاره و کودیا پرداخت BIP47 کلٛ بکونه",
     "cant_find_bip47_notification": "ٱول اؽ کود پرداخت ن و هومدنگیا ازاف بکوݩ",

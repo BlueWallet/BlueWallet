@@ -209,7 +209,6 @@
     "reset_amount_confirm": "আপনি কি পরিমাণটি রিসেট করতে চান?",
     "success_done": "সম্পন্ন",
     "txSaved": "লেনদেনের ফাইল ({filePath}) সংরক্ষণ করা হয়েছে।",
-    "file_saved_at_path": "ফাইলটি ({filePath}) সংরক্ষণ করা হয়েছে।",
     "cant_send_to_silentpayment_adress": "এই ওয়ালেটটি SilentPayment ঠিকানায় পাঠাতে পারে না",
     "cant_send_to_bip47": "এই ওয়ালেটটি BIP47 পেমেন্ট কোডে পাঠাতে পারে না",
     "cant_find_bip47_notification": "প্রথমে এই পেমেন্ট কোডটি পরিচিতিতে যোগ করুন",

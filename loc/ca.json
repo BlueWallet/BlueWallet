@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Voleu restablir la quantitat?",
     "success_done": "Fet",
     "txSaved": "El fitxer de la transacció ({filePath}) s'ha desat.",
-    "file_saved_at_path": "El fitxer ({filePath}) s'ha desat.",
     "cant_send_to_silentpayment_adress": "Aquest moneder no pot enviar a adreces SilentPayment",
     "cant_send_to_bip47": "Aquest moneder no pot enviar a codis de pagament BIP47",
     "cant_find_bip47_notification": "Afegiu primer aquest codi de pagament als contactes",

@@ -209,7 +209,6 @@
     "reset_amount_confirm": "ಮೊತ್ತವನ್ನು ಮರುಹೊಂದಿಸಲು ಬಯಸುತ್ತೀರಾ?",
     "success_done": "ಮುಗಿಯಿತು",
     "txSaved": "ವಹಿವಾಟು ಫೈಲ್ ({filePath}) ಉಳಿಸಲಾಗಿದೆ.",
-    "file_saved_at_path": "ಫೈಲ್ ({filePath}) ಉಳಿಸಲಾಗಿದೆ.",
     "cant_send_to_silentpayment_adress": "ಈ ವ್ಯಾಲೆಟ್ SilentPayment ವಿಳಾಸಗಳಿಗೆ ಕಳುಹಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ",
     "cant_send_to_bip47": "ಈ ವ್ಯಾಲೆಟ್ BIP47 payment codes ಗಳಿಗೆ ಕಳುಹಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ",
     "cant_find_bip47_notification": "ಮೊದಲು ಈ Payment Code ಅನ್ನು ಸಂಪರ್ಕಗಳಿಗೆ ಸೇರಿಸಿ",

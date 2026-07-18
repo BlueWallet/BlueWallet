@@ -1,8 +1,10 @@
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import { Action } from '../components/types';
 import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
@@ -58,6 +60,8 @@ import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
+import { isIOS26OrHigher } from '../components/platform';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -92,6 +96,63 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
     </View>
   );
 };
+
+type ManageWalletsCloseButtonProps = {
+  onPress: () => void;
+  closeImage: any;
+};
+
+const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onPress, closeImage }) => (
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={loc._.close}
+    style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+    onPress={onPress}
+    testID="NavigationCloseButton"
+  >
+    <Image source={closeImage} />
+  </Pressable>
+);
+
+const makeManageWalletsHeaderLeft = (onPress: () => void, closeImage: any): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
+  return () => React.createElement(ManageWalletsCloseButton, { onPress, closeImage });
+};
+
+type OfflineModePillProps = {
+  onPress: () => void;
+  backgroundColor: string;
+};
+
+const OfflineModePill: React.FC<OfflineModePillProps> = ({ onPress, backgroundColor }) => (
+  <Pressable onPress={onPress} style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor }]}>
+    <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
+    <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
+  </Pressable>
+);
+
+type NotConnectedPillProps = {
+  onPress: () => void;
+  backgroundColor: string;
+  textColor: string;
+};
+
+const NotConnectedPill: React.FC<NotConnectedPillProps> = ({ onPress, backgroundColor, textColor }) => (
+  <Pressable onPress={onPress} style={[styles.updatingLabelContainer, { backgroundColor }]}>
+    <Text style={[styles.updatingLabelText, { color: textColor }]}>{loc.settings.electrum_connected_not}</Text>
+  </Pressable>
+);
+
+type UpdatingPillProps = {
+  backgroundColor: string;
+  textColor: string;
+};
+
+const UpdatingPill: React.FC<UpdatingPillProps> = ({ backgroundColor, textColor }) => (
+  <UpdatingLabel
+    containerStyle={[styles.updatingLabelContainer, { backgroundColor }]}
+    textStyle={[styles.updatingLabelText, { color: textColor }]}
+  />
+);
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
@@ -188,17 +249,7 @@ const DetailViewStackScreensStack = () => {
   const renderManageWalletsHeaderLeft = useCallback(
     (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
       ...options,
-      headerLeft: () => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={loc._.close}
-          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-          onPress={screenNavigation.goBack}
-          testID="NavigationCloseButton"
-        >
-          <Image source={theme.closeImage} />
-        </Pressable>
-      ),
+      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
     }),
     [theme.closeImage],
   );
@@ -214,37 +265,24 @@ const DetailViewStackScreensStack = () => {
     const renderHeaderLeft = () => {
       if (showOffline) {
         const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
-        return (
-          <Pressable
-            onPress={navigateToElectrumSettings}
-            style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor: offlineBg }]}
-          >
-            <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
-            <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
-          </Pressable>
-        );
+        return React.createElement(OfflineModePill, { onPress: navigateToElectrumSettings, backgroundColor: offlineBg });
       }
       if (showNotConnected) {
-        return (
-          <Pressable
-            onPress={() => {
-              BlueElectrum.presentElectrumDisconnectedHelpAlert().catch(() => {
-                /* alert helper failed; ignore */
-              });
-            }}
-            style={[styles.updatingLabelContainer, { backgroundColor: theme.colors.redBG }]}
-          >
-            <Text style={[styles.updatingLabelText, { color: theme.colors.redText }]}>{loc.settings.electrum_connected_not}</Text>
-          </Pressable>
-        );
+        return React.createElement(NotConnectedPill, {
+          onPress: () => {
+            BlueElectrum.presentElectrumDisconnectedHelpAlert().catch(() => {
+              /* alert helper failed; ignore */
+            });
+          },
+          backgroundColor: theme.colors.redBG,
+          textColor: theme.colors.redText,
+        });
       }
       if (showUpdating) {
-        return (
-          <UpdatingLabel
-            containerStyle={[styles.updatingLabelContainer, { backgroundColor: theme.colors.lightButton }]}
-            textStyle={[styles.updatingLabelText, { color: theme.colors.foregroundColor }]}
-          />
-        );
+        return React.createElement(UpdatingPill, {
+          backgroundColor: theme.colors.lightButton,
+          textColor: theme.colors.foregroundColor,
+        });
       }
       return null;
     };
@@ -276,7 +314,6 @@ const DetailViewStackScreensStack = () => {
               tintColor: theme.colors.headerProminentButtonBackgroundColor,
               identifier: 'AddWalletButton',
               accessibilityLabel: 'AddWalletButton',
-              sharesBackground: false,
               onPress: navigateToAddWallet,
             },
           ];
@@ -287,7 +324,6 @@ const DetailViewStackScreensStack = () => {
               icon: { type: 'sfSymbol', name: 'ellipsis' },
               identifier: 'SettingsButton',
               accessibilityLabel: 'SettingsButton',
-              sharesBackground: false,
               onPress: navigateToSettings,
             });
           }
@@ -560,19 +596,7 @@ const DetailViewStackScreensStack = () => {
             renderManageWalletsHeaderLeft,
           )(theme)}
         />
-        <DetailViewStack.Screen
-          name="ReceiveDetails"
-          component={ReceiveDetails}
-          options={navigationStyle(
-            {
-              title: loc.receive.header,
-              closeButtonPosition: CloseButtonPosition.Left,
-              headerShown: true,
-              presentation: 'modal',
-            },
-            withRouteParamHeaderOptions({ headerLeft: true, headerRight: true, headerBackVisible: true }),
-          )(theme)}
-        />
+        <DetailViewStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={createReceiveDetailsOptions(theme)} />
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
           component={ReceiveCustomAmountSheet}
@@ -626,4 +650,59 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
+  receiveHeaderEmptyLeftSlot: {
+    width: 40,
+  },
 });
+
+const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
+  navigationStyle(
+    {
+      title: loc.receive.header,
+      closeButtonPosition: CloseButtonPosition.Left,
+      headerShown: true,
+      presentation: 'modal',
+    },
+    (options, { navigation, route }) => {
+      const allowBIP47 = route.params?.allowBIP47 ?? false;
+      const isBIP47Enabled = route.params?.isBIP47Enabled ?? false;
+      const showBip47Menu = allowBIP47;
+      const onPressMenuItem = () => {
+        navigation.setParams({ toggleBIP47RequestedAt: Date.now() });
+      };
+
+      const actions: Action[] = [{ ...CommonToolTipActions.PaymentsCode, menuState: isBIP47Enabled }];
+      const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem });
+      const emptyLeft = () => React.createElement(View, { style: styles.receiveHeaderEmptyLeftSlot });
+
+      if (showBip47Menu) {
+        return {
+          ...options,
+          headerLeft: options.headerLeft,
+          headerRight: headerMenuOptions.headerRight,
+          unstable_headerLeftItems: options.unstable_headerLeftItems,
+          unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
+        };
+      }
+
+      const renderCloseRight = () => (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc._.close}
+          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+          onPress={navigation.goBack}
+          testID="NavigationCloseButton"
+        >
+          <Image source={theme.closeImage} />
+        </Pressable>
+      );
+
+      return {
+        ...options,
+        headerLeft: emptyLeft,
+        headerRight: renderCloseRight,
+        unstable_headerLeftItems: () => [],
+        unstable_headerRightItems: options.unstable_headerRightItems,
+      };
+    },
+  )(theme);
