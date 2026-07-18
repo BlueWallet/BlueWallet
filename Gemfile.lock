@@ -188,7 +188,6 @@ GEM
       abbrev
       git
       xml-simple
-    fastlane-plugin-bugsnag_sourcemaps_upload (0.2.0)
     fastlane-sirp (1.1.0)
     ffi (1.17.3)
     fourflusher (2.3.1)
@@ -347,7 +346,6 @@ DEPENDENCIES
   fastlane (~> 2.237.0)
   fastlane-plugin-browserstack
   fastlane-plugin-bugsnag
-  fastlane-plugin-bugsnag_sourcemaps_upload
   jwt
   logger
   mutex_m
@@ -412,7 +410,6 @@ CHECKSUMS
   fastlane (2.237.0) sha256=bb1e867bc070fb328741b5e6e7606d5ba596941a9ecca0478f60ef22d1009db9
   fastlane-plugin-browserstack (0.3.4) sha256=a4f3e4a552e2390a4733570857512571535912100ffada177d5374413f2c1333
   fastlane-plugin-bugsnag (3.0.0) sha256=8ddac4b79cb4b5d00432cccd5789a9e1a1119c29f7773a27d01b1d8a2363915d
-  fastlane-plugin-bugsnag_sourcemaps_upload (0.2.0) sha256=a05afaefa81a7bf56c36386dddeb0931db31ead6886e3eae24f9683bda1a064d
   fastlane-sirp (1.1.0) sha256=10bc94f9682efd8e1badfb31452a76dd8981f1f3a33717c765fde6d75b54d847
   ffi (1.17.3) sha256=0e9f39f7bb3934f77ad6feab49662be77e87eedcdeb2a3f5c0234c2938563d4c
   fourflusher (2.3.1) sha256=1b3de61c7c791b6a4e64f31e3719eb25203d151746bb519a0292bff1065ccaa9

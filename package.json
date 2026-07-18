@@ -90,13 +90,13 @@
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
     "unit": "jest -b tests/unit/*",
-    "bugsnag:upload-rn-android": "bugsnag-cli upload react-native-android"
+    "bugsnag:upload-rn-android": "bugsnag-cli upload react-native-android",
+    "bugsnag:upload-rn-ios": "bugsnag-cli upload react-native-ios"
   },
   "dependencies": {
     "@arkade-os/boltz-swap": "0.3.48",
     "@arkade-os/sdk": "0.4.43",
     "@bugsnag/react-native": "8.9.0",
-    "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.8.0",
     "@ngraveio/bc-ur": "1.1.13",
     "@noble/ciphers": "1.3.0",

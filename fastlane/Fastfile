@@ -25,6 +25,7 @@ def app_store_state_readable(state)
 end
 
 require 'securerandom'
+require 'shellwords'
 
 default_platform(:android)
 PROJECT_ROOT = File.expand_path("..", __dir__)
@@ -980,31 +981,35 @@ platform :ios do
 end
 
 desc "Upload iOS source maps to Bugsnag"
+# Official BugSnag CLI path for RN iOS (replaces @bugsnag/source-maps Xcode script
+# and fastlane-plugin-bugsnag_sourcemaps_upload):
+# https://docs.bugsnag.com/platforms/react-native/react-native/showing-full-stacktraces/
 lane :upload_bugsnag_sourcemaps do
-  bugsnag_api_key = ENV['BUGSNAG_API_KEY']
-  bugsnag_release_stage = ENV['BUGSNAG_RELEASE_STAGE'] || "production"
-  version = ENV['PROJECT_VERSION']
-  build_number = ENV['NEW_BUILD_NUMBER']
+  Dir.chdir(project_root) do
+    source_map = File.join("ios", "build", "sourcemaps", "main.jsbundle.map")
+    UI.user_error!("iOS source map not found at #{source_map}. Ensure SOURCEMAP_FILE is set in ios/.xcode.env and the app was built.") unless File.exist?(source_map)
 
-  UI.user_error!("BUGSNAG_API_KEY environment variable is missing") if bugsnag_api_key.nil?
-  UI.user_error!("PROJECT_VERSION environment variable is missing") if version.nil?
-  UI.user_error!("NEW_BUILD_NUMBER environment variable is missing") if build_number.nil?
+    cmd = [
+      "npm", "run", "bugsnag:upload-rn-ios", "--",
+      "--scheme=BlueWallet",
+      "--xcode-project=ios/BlueWallet.xcodeproj",
+      "--source-map=#{source_map}",
+    ]
 
-  ios_sourcemap = "./ios/build/Build/Products/Release-iphonesimulator/main.jsbundle.map"
+    archive_path = lane_context[SharedValues::XCODEBUILD_ARCHIVE] rescue nil
+    if archive_path.nil? || archive_path.to_s.empty?
+      archive_path = Dir.glob(File.join(Dir.home, "Library/Developer/Xcode/Archives/**/*.xcarchive")).max_by { |path| File.mtime(path) }
+    end
+    cmd << "--xcarchive-path=#{archive_path}" if archive_path && File.exist?(archive_path)
 
-  if File.exist?(ios_sourcemap)
-    UI.message("Uploading iOS source map to Bugsnag...")
-    bugsnag_sourcemaps_upload(
-      api_key: bugsnag_api_key,
-      source_map: ios_sourcemap,
-      minified_file: "./ios/main.jsbundle",
-      code_bundle_id: "#{version}-#{build_number}",
-      release_stage: bugsnag_release_stage,
-      app_version: version
-    )
-    UI.success("iOS source map uploaded successfully.")
-  else
-    UI.error("iOS source map not found at #{ios_sourcemap}")
+    # Optional overrides; CLI also reads Info.plist / project defaults
+    cmd << "--api-key=#{ENV['BUGSNAG_API_KEY']}" if ENV['BUGSNAG_API_KEY'] && !ENV['BUGSNAG_API_KEY'].empty?
+    cmd << "--version-name=#{ENV['PROJECT_VERSION']}" if ENV['PROJECT_VERSION'] && !ENV['PROJECT_VERSION'].empty?
+    cmd << "--bundle-version=#{ENV['NEW_BUILD_NUMBER']}" if ENV['NEW_BUILD_NUMBER'] && !ENV['NEW_BUILD_NUMBER'].empty?
+
+    UI.message("Uploading React Native iOS source maps to BugSnag...")
+    sh(cmd.shelljoin)
+    UI.success("React Native iOS source maps uploaded to BugSnag")
   end
 end
 
