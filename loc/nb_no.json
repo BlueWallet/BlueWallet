@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Vil du tilbakestille beløpet?",
     "success_done": "Ferdig",
     "txSaved": "Transaksjonsfilen ({filePath}) er lagret.",
-    "file_saved_at_path": "Filen ({filePath}) er lagret.",
     "cant_send_to_silentpayment_adress": "Denne lommeboken kan ikke sende til SilentPayment-adresser",
     "cant_send_to_bip47": "Denne lommeboken kan ikke sende til BIP47-betalingskoder",
     "cant_find_bip47_notification": "Legg først til denne betalingskoden i kontakter",

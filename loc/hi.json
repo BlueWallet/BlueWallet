@@ -209,7 +209,6 @@
     "reset_amount_confirm": "क्या आप राशि रीसेट करना चाहेंगे?",
     "success_done": "हो गया",
     "txSaved": "ट्रांज़ैक्शन फ़ाइल ({filePath}) सहेज ली गई है।",
-    "file_saved_at_path": "फ़ाइल ({filePath}) सहेज ली गई है।",
     "cant_send_to_silentpayment_adress": "यह वॉलेट SilentPayment पतों पर नहीं भेज सकता",
     "cant_send_to_bip47": "यह वॉलेट BIP47 भुगतान कोड पर नहीं भेज सकता",
     "cant_find_bip47_notification": "पहले इस भुगतान कोड को संपर्कों में जोड़ें",

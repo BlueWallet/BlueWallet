@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Ungathanda ukucwangcisa kwakhona isixa?",
     "success_done": "Kwenzekile",
     "txSaved": "Ifayile ye-transaction ({filePath}) igciniwe.",
-    "file_saved_at_path": "Ifayile ({filePath}) igciniwe.",
     "cant_send_to_silentpayment_adress": "Le ngxowa ayikwazi ukuthumela kwiidilesi ze-SilentPayment",
     "cant_send_to_bip47": "Le ngxowa ayikwazi ukuthumela kwii-BIP47 payment codes",
     "cant_find_bip47_notification": "Yongeza le Khowudi yeNtlawulo kuqala kwiqhakamshelo",

@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Бажаєте очистити суму?",
     "success_done": "Готово",
     "txSaved": "Файл транзакції ({filePath}) збережено.",
-    "file_saved_at_path": "Файл ({filePath}) збережено.",
     "cant_send_to_silentpayment_adress": "Цей гаманець не може надсилати на адреси SilentPayment",
     "cant_send_to_bip47": "Цей гаманець не може надсилати на платіжні коди BIP47",
     "cant_find_bip47_notification": "Спочатку додайте цей платіжний код до контактів",

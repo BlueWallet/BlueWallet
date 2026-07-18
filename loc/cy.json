@@ -209,7 +209,6 @@
     "reset_amount_confirm": "A hoffet ailosod y swm?",
     "success_done": "Wedi Cwblhau",
     "txSaved": "Mae'r ffeil trafodyn ({filePath}) wedi'i safio.",
-    "file_saved_at_path": "Mae'r ffeil ({filePath}) wedi'i safio.",
     "cant_send_to_silentpayment_adress": "Ni all y waled hon anfon at gyfeiriadau Silent Payments",
     "cant_send_to_bip47": "Ni all y waled hon anfon at godau taliad BIP47",
     "cant_find_bip47_notification": "Adia'r Cod Taliad hwn at gysylltiadau yn gyntaf",

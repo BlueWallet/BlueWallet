@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Chcete resetovať čiastku?",
     "success_done": "Hotovo",
     "txSaved": "Súbor transakcie ({filePath}) bol uložený.",
-    "file_saved_at_path": "Súbor ({filePath}) bol uložený.",
     "cant_send_to_silentpayment_adress": "Z tejto peňaženky nemožno odosielať na adresy Silent Payments",
     "cant_send_to_bip47": "Z tejto peňaženky nemožno odosielať na platobné kódy BIP47",
     "cant_find_bip47_notification": "Najprv pridajte tento platobný kód do kontaktov",

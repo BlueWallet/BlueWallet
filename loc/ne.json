@@ -209,7 +209,6 @@
     "reset_amount_confirm": "के तपाइँ रकम रिसेट गर्न चाहनुहुन्छ?",
     "success_done": "सकियो",
     "txSaved": "लेनदेन फाइल ({filePath}) सेव गरिएको छ।",
-    "file_saved_at_path": "फाइल ({filePath}) सेव गरिएको छ।",
     "cant_send_to_silentpayment_adress": "यो वालेटले Silent Payments ठेगानाहरूमा पठाउन सक्दैन",
     "cant_send_to_bip47": "यो वालेटले BIP47 भुक्तानी कोडहरूमा पठाउन सक्दैन",
     "cant_find_bip47_notification": "पहिले यो भुक्तानी कोडलाई सम्पर्कहरूमा थप्नुहोस्",

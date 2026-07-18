@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Ali želite ponastaviti znesek?",
     "success_done": "Končano",
     "txSaved": "Datoteka s transakcijo ({filePath}) je bila shranjena.",
-    "file_saved_at_path": "Datoteka ({filePath}) je bila shranjena.",
     "cant_send_to_silentpayment_adress": "Ta denarnica ne more pošiljati na naslove Silent Payments",
     "cant_send_to_bip47": "Ta denarnica ne more pošiljati na plačilne kode BIP47",
     "cant_find_bip47_notification": "To plačilno kodo najprej dodajte med stike",

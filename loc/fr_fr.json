@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Voulez-vous réinitialiser le montant ?",
     "success_done": "Terminé",
     "txSaved": "Le fichier de transaction ({filePath}) a été sauvegardé.",
-    "file_saved_at_path": "Le fichier ({filePath}) a été sauvegardé.",
     "cant_send_to_silentpayment_adress": "Ce portefeuille ne peut pas envoyer à des adresses SilentPayment",
     "cant_send_to_bip47": "Ce portefeuille ne peut pas envoyer à des codes de paiement BIP47",
     "cant_find_bip47_notification": "Ajoutez d'abord ce code de paiement au contact",

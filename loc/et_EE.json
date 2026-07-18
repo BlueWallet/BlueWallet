@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Kas soovid summa lähtestada?",
     "success_done": "Valmis",
     "txSaved": "Tehingu fail ({filePath}) on salvestatud.",
-    "file_saved_at_path": "Fail ({filePath}) on salvestatud.",
     "cant_send_to_silentpayment_adress": "See rahakott ei saa saata SilentPayment aadressidele",
     "cant_send_to_bip47": "See rahakott ei saa saata BIP47 maksekoodidele",
     "cant_find_bip47_notification": "Lisa see maksekood esmalt kontaktidesse",

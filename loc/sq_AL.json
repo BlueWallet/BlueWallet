@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Dëshironi të rivendosni sasinë?",
     "success_done": "U krye",
     "txSaved": "File-i i transaksionit ({filePath}) u ruajt.",
-    "file_saved_at_path": "File-i ({filePath}) u ruajt.",
     "cant_send_to_silentpayment_adress": "Ky portofol nuk mund të dërgojë në adresa Silent Payments",
     "cant_send_to_bip47": "Ky portofol nuk mund të dërgojë në kode pagese BIP47",
     "cant_find_bip47_notification": "Shtoni fillimisht këtë kod pagese te kontaktet",

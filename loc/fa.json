@@ -209,7 +209,6 @@
     "reset_amount_confirm": "آیا می‌خواهید مقدار را بازنشانی کنید؟",
     "success_done": "انجام شد",
     "txSaved": "فایل تراکنش ({filePath}) ذخیره شد.",
-    "file_saved_at_path": "فایل ({filePath}) ذخیره شد.",
     "cant_send_to_silentpayment_adress": "این کیف پول نمی‌تواند به آدرس‌های Silent Payments ارسال کند",
     "cant_send_to_bip47": "این کیف پول نمی‌تواند به کدهای پرداخت BIP47 ارسال کند",
     "cant_find_bip47_notification": "ابتدا این کد پرداخت را به مخاطبان اضافه کنید",
