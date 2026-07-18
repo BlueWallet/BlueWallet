@@ -71,7 +71,6 @@
 		B44034112BCC40A400162242 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = B440340E2BCC40A400162242 /* fiatUnits.json */; };
 		B450109C2C0FCD8A00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B450109D2C0FCD9F00619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
-		B450109F2C0FCDA500619044 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = B450109B2C0FCD8A00619044 /* Utilities.swift */; };
 		B461B852299599F800E431AA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B461B851299599F800E431AA /* AppDelegate.swift */; };
 		B4742E972CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
 		B4742E9A2CCDBE8300380EEE /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B4742E962CCDBE8300380EEE /* Localizable.xcstrings */; };
@@ -674,10 +673,6 @@
 					6DD4109B266CADF10087DE03 = {
 						CreatedOnToolsVersion = 12.5;
 					};
-					B40D4E2F225841EC00428FCC = {
-						CreatedOnToolsVersion = 10.2;
-						LastSwiftMigration = 1240;
-					};
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "BlueWallet" */;
@@ -715,8 +710,6 @@
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			packageReferences = (
-				6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */,
-				B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */,
 			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
@@ -1524,25 +1517,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		6DFC806E24EA0B6C007B8700 /* XCRemoteSwiftPackageReference "EFQRCode" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/EFPrefix/EFQRCode.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.2.2;
-			};
-		};
-		B41B76832B66B2FF002C48D5 /* XCRemoteSwiftPackageReference "bugsnag-cocoa" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bugsnag/bugsnag-cocoa";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 6.28.1;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }
