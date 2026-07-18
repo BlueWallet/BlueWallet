@@ -17,7 +17,6 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/runtime": "^7.26.0",
-    "@bugsnag/cli": "3.10.3",
     "@jest/reporters": "^27.5.1",
     "@react-native/eslint-config": "^0.86.0",
     "@react-native/jest-preset": "0.86.0",
@@ -96,6 +95,7 @@
   "dependencies": {
     "@arkade-os/boltz-swap": "0.3.48",
     "@arkade-os/sdk": "0.4.43",
+    "@bugsnag/cli": "3.10.3",
     "@bugsnag/react-native": "8.9.0",
     "@keystonehq/bc-ur-registry": "0.8.0",
     "@ngraveio/bc-ur": "1.1.13",
