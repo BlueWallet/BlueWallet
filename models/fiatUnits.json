@@ -2,7 +2,7 @@
     "USD": {
         "endPointKey": "USD",
         "locale": "en-US",
-        "source": "Kraken",
+        "source": "CoinGecko",
         "symbol": "$",
         "country": "United States (US Dollar)"
     },
@@ -16,7 +16,7 @@
     "AMD": {
         "endPointKey": "AMD",
         "locale": "hy-AM",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "֏",
         "country": "Armenia (Armenian Dram)"
     },
@@ -44,7 +44,7 @@
     "AWG": {
         "endPointKey": "AWG",
         "locale": "nl-AW",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "ƒ",
         "country": "Aruba (Aruban Florin)"
     },
@@ -86,7 +86,7 @@
     "CNY": {
         "endPointKey": "CNY",
         "locale": "zh-CN",
-        "source": "Coinbase",
+        "source": "CoinGecko",
         "symbol": "¥",
         "country": "China (Chinese Yuan)"
     },
@@ -121,14 +121,14 @@
     "EUR": {
         "endPointKey": "EUR",
         "locale": "en-IE",
-        "source": "Kraken",
+        "source": "CoinGecko",
         "symbol": "€",
         "country": "European Union (Euro)"
     },
     "GBP": {
         "endPointKey": "GBP",
         "locale": "en-GB",
-        "source": "Kraken",
+        "source": "CoinGecko",
         "symbol": "£",
         "country": "United Kingdom (British Pound)"
     },
@@ -142,7 +142,7 @@
     "HRK": {
         "endPointKey": "HRK",
         "locale": "hr-HR",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "HRK",
         "country": "Croatia (Croatian Kuna)"
     },
@@ -191,7 +191,7 @@
     "ISK": {
         "endPointKey": "ISK",
         "locale": "is-IS",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "kr",
         "country": "Iceland (Icelandic Króna)"
     },
@@ -254,7 +254,7 @@
     "MZN": {
         "endPointKey": "MZN",
         "locale": "seh-MZ",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "MTn",
         "country": "Mozambique (Mozambican Metical)"
     },
@@ -282,7 +282,7 @@
     "OMR": {
         "endPointKey": "OMR",
         "locale": "ar-OM",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "ر.ع.",
         "country": "Oman (Omani Rial)"
     },
@@ -303,14 +303,14 @@
     "PYG": {
         "endPointKey": "PYG",
         "locale": "es-PY",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "₲",
         "country": "Paraguay (Paraguayan Guarani)"
     },
     "QAR": {
         "endPointKey": "QAR",
         "locale": "ar-QA",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "ر.ق.",
         "country": "Qatar (Qatari Riyal)"
     },
@@ -324,7 +324,7 @@
     "RSD": {
         "endPointKey": "RSD",
         "locale": "sr-RS",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "DIN",
         "country": "Serbia (Serbian Dinar)"
     },
@@ -380,7 +380,7 @@
     "TZS": {
         "endPointKey": "TZS",
         "locale": "en-TZ",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "TSh",
         "country": "Tanzania (Tanzanian Shilling)"
     },
@@ -394,14 +394,14 @@
     "UGX": {
         "endPointKey": "UGX",
         "locale": "en-UG",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "USh",
         "country": "Uganda (Ugandan Shilling)"
     },
     "UYU": {
         "endPointKey": "UYU",
         "locale": "es-UY",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "$",
         "country": "Uruguay (Uruguayan Peso)"
     },
@@ -422,7 +422,7 @@
     "XAF": {
         "endPointKey": "XAF",
         "locale": "fr-CF",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "Fr",
         "country": "Central African Republic (Central African Franc)"
     },
@@ -436,7 +436,7 @@
     "GHS": {
         "endPointKey": "GHS",
         "locale": "en-GH",
-        "source": "Coinbase",
+        "source": "YadioConvert",
         "symbol": "₵",
         "country": "Ghana (Ghanaian Cedi)"
     }
