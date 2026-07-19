@@ -66,8 +66,8 @@ jobs:
           yes | sdkmanager --licenses
           sdkmanager "platforms;android-36" "platform-tools" "build-tools;36.0.0" "ndk;27.1.12297006"
 
-      - name: Install node_modules (include dev deps for patch-package)
-        run: npm ci --yes
+      - name: Install Node Modules
+        run: npm ci --omit=dev --yes
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
