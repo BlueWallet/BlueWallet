@@ -1,7 +1,10 @@
+import { Platform } from 'react-native';
 import { Action } from './types';
 import type { NativeStackHeaderItemMenuAction, NativeStackHeaderItemMenuSubmenu } from '@react-navigation/native-stack';
 
-type NativeHeaderMenuItem = NativeStackHeaderItemMenuAction | NativeStackHeaderItemMenuSubmenu;
+type NativeHeaderMenuAction = NativeStackHeaderItemMenuAction & { identifier?: string };
+type NativeHeaderMenuSubmenu = NativeStackHeaderItemMenuSubmenu & { identifier?: string; items: NativeHeaderMenuItem[] };
+type NativeHeaderMenuItem = NativeHeaderMenuAction | NativeHeaderMenuSubmenu;
 
 const toNativeState = (menuState: Action['menuState']): 'on' | 'off' | 'mixed' | undefined => {
   if (menuState === undefined) {
@@ -40,6 +43,7 @@ const mapActionToNativeItem = (action: Action, onPressMenuItem: (id: string) => 
     return {
       type: 'submenu',
       label: action.text,
+      ...(Platform.OS === 'ios' ? { identifier: id } : {}),
       inline: action.displayInline,
       items: subItems,
     };
@@ -48,6 +52,7 @@ const mapActionToNativeItem = (action: Action, onPressMenuItem: (id: string) => 
   return {
     type: 'action',
     label: action.text,
+    ...(Platform.OS === 'ios' ? { identifier: id } : {}),
     description: action.subtitle,
     icon: toNativeIcon(action.icon?.iconValue ?? action.image) as NativeStackHeaderItemMenuAction['icon'],
     onPress: () => onPressMenuItem(id),

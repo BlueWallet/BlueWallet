@@ -90,12 +90,7 @@
       "scale" : "2x",
       "size" : "512x512"
     },
-    {
-      "filename" : "1024 2.png",
-      "idiom" : "universal",
-      "platform" : "watchos",
-      "size" : "1024x1024"
-    }
+
   ],
   "info" : {
     "author" : "xcode",

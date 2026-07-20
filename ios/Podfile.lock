@@ -2418,8 +2418,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNWatch (1.1.0):
-    - React
   - RNWorklets (0.10.2):
     - hermes-engine
     - RCTRequired
@@ -2609,7 +2607,6 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - RNWorklets (from `../node_modules/react-native-worklets`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2847,8 +2844,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  RNWatch:
-    :path: "../node_modules/react-native-watch-connectivity"
   RNWorklets:
     :path: "../node_modules/react-native-worklets"
   Yoga:
@@ -2970,7 +2965,6 @@ SPEC CHECKSUMS:
   RNScreens: 032083414633a4d94cbcf08f8ab5019d72d1ba36
   RNShare: 61a266b44bfc54e17dedbc81202f5e67cda93674
   RNSVG: a37350c7bc37452fd2b209efa0806f1de0f847ae
-  RNWatch: fd30ca40a5b5ef58dcbc195638e68219bc455236
   RNWorklets: 82a5f27dcf3bb69267ec6ce662a756a4d3f61522
   TSBackgroundFetch: 18918b6449a1e3f01eb0f5b44d6d79ce6160a5a5
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b

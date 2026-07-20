@@ -338,6 +338,17 @@ export async function tapIfTextPresent(text) {
   // no need to check for visibility, just silently ignore exception if such testID is not present
 }
 
+export async function tapHeaderMenuAction(actionId, text) {
+  if (device.getPlatform() === 'ios') {
+    try {
+      await element(by.id(actionId)).tap();
+      return;
+    } catch (_) {}
+  }
+
+  await element(by.text(text)).tap();
+}
+
 /**
  * Dismisses a native UIAlertController by tapping a button with the given text.
  * On iOS 26 liquid glass, `waitFor().toBeVisible()` never resolves for alert
