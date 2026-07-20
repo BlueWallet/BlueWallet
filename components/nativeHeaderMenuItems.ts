@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Action } from './types';
 import type { NativeStackHeaderItemMenuAction, NativeStackHeaderItemMenuSubmenu } from '@react-navigation/native-stack';
 
@@ -42,7 +43,7 @@ const mapActionToNativeItem = (action: Action, onPressMenuItem: (id: string) => 
     return {
       type: 'submenu',
       label: action.text,
-      identifier: id,
+      ...(Platform.OS === 'ios' ? { identifier: id } : {}),
       inline: action.displayInline,
       items: subItems,
     };
@@ -51,7 +52,7 @@ const mapActionToNativeItem = (action: Action, onPressMenuItem: (id: string) => 
   return {
     type: 'action',
     label: action.text,
-    identifier: id,
+    ...(Platform.OS === 'ios' ? { identifier: id } : {}),
     description: action.subtitle,
     icon: toNativeIcon(action.icon?.iconValue ?? action.image) as NativeStackHeaderItemMenuAction['icon'],
     onPress: () => onPressMenuItem(id),
