@@ -79,7 +79,9 @@ jest.mock('@callstack/liquid-glass', () => {
   const React = require('react');
   const { View } = require('react-native');
 
+  // eslint-disable-next-line react/prop-types
   const LiquidGlassView = React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children));
+  // eslint-disable-next-line react/prop-types
   const LiquidGlassContainerView = React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children));
 
   return {
