@@ -1,1 +1,1 @@
-bitcoin,carteira,carteira bitcoin,blockchain,btc,criptomoeda,bitcoin,samourai,electrum,ethereum
+bitcoin,carteira,carteira bitcoin,blockchain,btc,criptomoeda,lightning,segwit,multisig,electrum

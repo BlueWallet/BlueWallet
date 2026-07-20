@@ -1,15 +1,19 @@
 import React, { lazy, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Platform } from 'react-native';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import { isIOS26OrHigher } from '../blue_modules/environment';
 import { useTheme } from '../components/themes';
+import { Action } from '../components/types';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
-import { SendDetailsStackParamList } from './SendDetailsStackParamList';
+import { CoinControlSortDirection, CoinControlSortType, SendDetailsStackParamList } from './SendDetailsStackParamList';
 import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
 import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
@@ -44,16 +48,70 @@ const SendDetailsStack = () => {
     [],
   );
 
+  const coinControlOptions = navigationStyle(
+    {
+      title: loc.cc.header,
+      closeButtonIfFirstInStack: CloseButtonPosition.Left,
+    },
+    (options, { navigation, route }) => {
+      const sortDirection = route.params?.sortDirection ?? CoinControlSortDirection.ASC;
+      const sortType = route.params?.sortType ?? CoinControlSortType.HEIGHT;
+      const hasUtxos = route.params?.hasUtxos ?? false;
+
+      const onPressMenuItem = (menuItem: string) => {
+        if (menuItem === CommonToolTipActions.SortASC.id) {
+          navigation.setParams({ sortDirection: CoinControlSortDirection.DESC });
+        } else if (menuItem === CommonToolTipActions.SortDESC.id) {
+          navigation.setParams({ sortDirection: CoinControlSortDirection.ASC });
+        } else if (menuItem === CommonToolTipActions.SortHeight.id) {
+          navigation.setParams({ sortType: CoinControlSortType.HEIGHT });
+        } else if (menuItem === CommonToolTipActions.SortValue.id) {
+          navigation.setParams({ sortType: CoinControlSortType.VALUE });
+        } else if (menuItem === CommonToolTipActions.SortLabel.id) {
+          navigation.setParams({ sortType: CoinControlSortType.LABEL });
+        } else if (menuItem === CommonToolTipActions.SortStatus.id) {
+          navigation.setParams({ sortType: CoinControlSortType.FROZEN });
+        }
+      };
+
+      const actions: Action[] | Action[][] = [
+        [
+          { ...CommonToolTipActions.SortHeight, menuState: sortType === CoinControlSortType.HEIGHT },
+          { ...CommonToolTipActions.SortValue, menuState: sortType === CoinControlSortType.VALUE },
+          { ...CommonToolTipActions.SortLabel, menuState: sortType === CoinControlSortType.LABEL },
+          { ...CommonToolTipActions.SortStatus, menuState: sortType === CoinControlSortType.FROZEN },
+        ],
+        [sortDirection === CoinControlSortDirection.ASC ? CommonToolTipActions.SortASC : CommonToolTipActions.SortDESC],
+      ];
+
+      const headerMenuOptions = createEllipsisHeaderMenuOptions({
+        actions,
+        onPressMenuItem,
+        preserveGroups: true,
+        title: loc.cc.sort_by,
+      });
+
+      return {
+        ...options,
+        headerRight: hasUtxos ? headerMenuOptions.headerRight : undefined,
+        ...(isIOS26OrHigher ? { unstable_headerRightItems: hasUtxos ? headerMenuOptions.unstable_headerRightItems : undefined } : {}),
+      };
+    },
+  )(theme);
+
   return (
     <Stack.Navigator initialRouteName="SendDetails" screenOptions={{ headerShadowVisible: false, fullScreenGestureEnabled: false }}>
       <Stack.Screen
         name="SendDetails"
         component={SendDetailsComponent}
-        options={navigationStyle({
-          title: loc.send.header,
-          statusBarStyle: 'light',
-          closeButtonPosition: CloseButtonPosition.Left,
-        })(theme)}
+        options={navigationStyle(
+          {
+            title: loc.send.header,
+            statusBarStyle: 'light',
+            closeButtonPosition: CloseButtonPosition.Left,
+          },
+          withRouteParamHeaderOptions({ headerRight: true }),
+        )(theme)}
         initialParams={{ isEditable: true, feeUnit: BitcoinUnit.BTC, amountUnit: BitcoinUnit.BTC }} // Correctly typed now
       />
       <Stack.Screen
@@ -72,7 +130,10 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="Confirm"
         component={ConfirmComponent}
-        options={navigationStyle({ title: loc.send.confirm_header, headerRight: () => DetailsButton })(theme)}
+        options={navigationStyle(
+          { title: loc.send.confirm_header, headerRight: () => DetailsButton },
+          withRouteParamHeaderOptions({ headerRight: true }),
+        )(theme)}
       />
       <Stack.Screen
         name="PsbtWithHardwareWallet"
@@ -82,7 +143,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CreateTransaction"
         component={CreateTransactionComponent}
-        options={navigationStyle({ title: loc.send.create_details })(theme)}
+        options={navigationStyle({ title: loc.send.create_details }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
       />
       <Stack.Screen
         name="PsbtMultisig"
@@ -115,14 +176,7 @@ const SendDetailsStack = () => {
           closeButtonPosition: CloseButtonPosition.Right,
         })(theme)}
       />
-      <Stack.Screen
-        name="CoinControl"
-        component={CoinControlComponent}
-        options={navigationStyle({
-          title: loc.cc.header,
-          closeButtonIfFirstInStack: CloseButtonPosition.Left,
-        })(theme)}
-      />
+      <Stack.Screen name="CoinControl" component={CoinControlComponent} options={coinControlOptions} />
       <Stack.Screen
         name="PaymentCodeList"
         component={PaymentCodesListComponent}

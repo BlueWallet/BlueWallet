@@ -1,47 +1,56 @@
-ארנק ביטקוין המאפשר לך לאחסן, לשלוח ביטקוין, לקבל ביטקוין ולקנות ביטקוין תוך שמירה על אבטחה ופשטות.
+BlueWallet הוא ארנק ביטקוין פשוט להפליא, עוצמתי ומאובטח. אחסנו, שלחו וקבלו ביטקוין תוך שמירה על שליטה מלאה — המפתחות שלכם, המטבעות שלכם.
 
-בארנק BlueWallet, המפתחות שלך נשלטים על ידך. ארנק ביטקוין שנוצר על ידי הקהילה למען הקהילה.
-
-You can instantly transact with anyone in the world and transform the financial system right from your pocket.
-
-Create for free unlimited number of bitcoin wallets or import your existing wallet. It's simple and fast.
+חינמי וקוד פתוח, נבנה על ידי משתמשי ביטקוין למען הקהילה. בצעו עסקאות עם כל אדם בעולם וקחו שליטה על הכסף שלכם, ישירות מהכיס. צרו ארנקים ללא הגבלה בחינם או ייבאו ארנק קיים — מהיר ופשוט.
 
 _____
 
-Here's what you get:
+אבטחה מתוכננת מהיסוד
 
+קוד פתוח
+מורשה ברישיון MIT — בדקו, בנו והריצו בעצמכם. נבנה עם React Native.
 
-1 - Security by design
+המפתחות שלכם, המטבעות שלכם
+המפתחות הפרטיים (מילות השחזור שלכם) לעולם אינם עוזבים את המכשיר. אתם תמיד בשליטה.
 
-Open Source
-MIT licensed, you can build it and run it on your own! Made with ReactNative
+כספת רבת-חתימות
+האבטחה הטובה ביותר הזמינה בביטקוין — נדרשים מספר מפתחות כדי להוציא, בדיוק כמו כספת אמיתית.
 
-Plausible deniability
-Password which decrypts fake bitcoin wallets if you are forced to disclose your access
+הצפנה מלאה
+מעבר להצפנת המכשיר, הכול מוצפן שוב עם הסיסמה האישית שלכם.
 
-Full encryption
-On top of the iOS multi-layer encryption, we encrypt everything with added passwords
+יכולת הכחשה סבירה
+הגדירו סיסמת הסחה שפותחת ארנקים מזויפים אם אי פעם תיאלצו לפתוח את הארנק.
 
-Full node
-Connect to your Bitcoin full node through Electrum
+_____
 
-Cold Storage
-Connect to your hardware wallet and keep your coins in Cold storage
+עוצמה ושליטה
 
-2 - Focused on your experience
+ארנקים מודרניים
+ארנקי HD עם תמיכה מלאה בכתובות Legacy, SegWit ו-Taproot.
 
-Be in control
-Private keys never leave your device.
-You control your private keys
+ארנקי חומרה
+צמדו את Coldcard, Keystone וחותמי PSBT אחרים, ושמרו את המטבעות שלכם באחסון קר.
 
-Flexible fees
-Starting from 1 Satoshi. Defined by you, the user
+ארנקים לצפייה בלבד
+עקבו אחר האחסון הקר שלכם מבלי לחשוף לעולם את המפתחות הפרטיים.
 
-Replace-By-Fee
-(RBF) Speed-up your transactions by increasing the fee (BIP125)
+הריצו צומת משלכם
+התחברו לצומת ביטקוין מלא משלכם דרך Electrum, ונתבו את החיבור שלכם דרך Tor.
 
-Watch-only wallets
-Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+שליטת מטבעות
+צפו, תייגו והקפיאו את המטבעות שלכם (UTXO) כדי לבנות עסקאות בדיוק כפי שאתם רוצים.
 
-Lightning Network
-Lightning wallet with zero-configuration. Unfairly cheap and fast transactions with the best Bitcoin user experience.
+עמלות גמישות
+קבעו את העמלה שלכם, עד 1 sat/vByte. האיצו עסקאות תקועות עם RBF או CPFP, או בטלו אותן.
+
+_____
+
+רשת Lightning
+
+תשלומים זולים באופן לא הוגן ומהירים במיוחד ללא הגדרות. שלמו וקבלו תשלום עם כתובות Lightning ו-LNURL.
+
+_____
+
+זמין ב-iOS, ב-Android וב-macOS. מטבעות ושפות רבים. מצב כהה. ללא חשבונות וללא מעקב — רק ביטקוין.
+
+BlueWallet — הביטקוין שלכם, בבעלותכם.

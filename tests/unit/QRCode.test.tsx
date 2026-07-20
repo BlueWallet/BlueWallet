@@ -83,16 +83,15 @@ describe('QRCode', () => {
     mockEncodeQR.mockReturnValue(matrix);
     const size = 100;
     const N = matrix.length;
-    const expectedCell = size / (N + 2); // 1-cell quiet zone on each side
+    const expectedCell = size / N;
     const { getByTestId } = render(<QRCode value={uniqueValue()} size={size} isLogoRendered={false} isMenuAvailable={false} />);
     const path = getByTestId('qr-cells-path');
     expect(path.props.fill).toBe('url(#qrgrad)');
     const cells = parseDataPath(path.props.d);
     expect(cells).toHaveLength(5);
     cells.forEach(cell => expect(cell.w).toBeCloseTo(expectedCell));
-    // First dark cell is matrix (0,0), which renders at SVG (cell, cell) due to quiet zone.
-    expect(cells[0].x).toBeCloseTo(expectedCell);
-    expect(cells[0].y).toBeCloseTo(expectedCell);
+    expect(cells[0].x).toBeCloseTo(0);
+    expect(cells[0].y).toBeCloseTo(0);
   });
 
   it('renders a grid-aligned logo backdrop and skips cells under the logo', () => {
@@ -100,7 +99,7 @@ describe('QRCode', () => {
     mockEncodeQR.mockReturnValue(makeMatrix(N, true));
     const size = 350;
     const logoSize = 90;
-    const cell = size / (N + 2);
+    const cell = size / N;
 
     const { getByTestId } = render(
       <QRCode value={uniqueValue()} size={size} logoSize={logoSize} isLogoRendered={true} isMenuAvailable={false} />,
@@ -136,7 +135,7 @@ describe('QRCode', () => {
     expect(queryByTestId('qr-logo-backdrop')).toBeNull();
   });
 
-  it('renders 3 finder patterns (frame + hole + dot) when matrix is >= 7x7', () => {
+  it('renders 3 finder patterns (frame + hole + dot) when matrix is >= 9x9', () => {
     mockEncodeQR.mockReturnValue(makeMatrix(21, true));
     const { getAllByTestId } = render(<QRCode value={uniqueValue()} size={210} isLogoRendered={false} isMenuAvailable={false} />);
     expect(getAllByTestId('qr-finder-frame')).toHaveLength(3);
@@ -147,20 +146,19 @@ describe('QRCode', () => {
   it('does not emit data cells inside finder-pattern regions', () => {
     const N = 21;
     const size = 230;
-    const cell = size / (N + 2);
+    const cell = size / N;
     mockEncodeQR.mockReturnValue(makeMatrix(N, true));
     const { getByTestId } = render(<QRCode value={uniqueValue()} size={size} isLogoRendered={false} isMenuAvailable={false} />);
     const cells = parseDataPath(getByTestId('qr-cells-path').props.d);
     const finderOrigins: Array<[number, number]> = [
-      [0, 0],
-      [0, N - 7],
-      [N - 7, 0],
+      [1, 1],
+      [1, N - 8],
+      [N - 8, 1],
     ];
     const epsilon = 1e-6;
     const anyInsideFinder = cells.some(c => {
-      // Data cells are shifted by 1 cell (quiet zone); convert SVG coords back to matrix coords.
-      const col = Math.round(c.x / cell + epsilon) - 1;
-      const row = Math.round(c.y / cell + epsilon) - 1;
+      const col = Math.round(c.x / cell + epsilon);
+      const row = Math.round(c.y / cell + epsilon);
       return finderOrigins.some(([fr, fc]) => row >= fr && row < fr + 7 && col >= fc && col < fc + 7);
     });
     expect(anyInsideFinder).toBe(false);

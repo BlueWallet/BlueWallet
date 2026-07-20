@@ -1,8 +1,10 @@
-* Open Source
+Funciones
+
+* Código abierto
 * Cifrado completo
 * Negación plausible
-* Tarifas flexibles
-* Reemplazo por tarifa (RBF)
+* Comisiones flexibles
+* Replace-By-Fee (RBF)
 * SegWit
-* Carteras de solo-vista (Sentinel)
-* Red Lightning
+* Billeteras de solo lectura
+* Lightning

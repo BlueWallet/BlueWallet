@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -17,7 +17,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import ListItem from '../../components/ListItem';
+import { SettingsSection, SettingsListItem } from '../../components/SettingsSection';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
@@ -69,7 +69,7 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-  const { setOptions, navigate, navigateToWalletsList } = useExtendedNavigation();
+  const { navigate, navigateToWalletsList } = useExtendedNavigation();
   const { colors } = useTheme();
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
@@ -293,12 +293,6 @@ const WalletDetails: React.FC = () => {
   );
 
   useEffect(() => {
-    setOptions({
-      headerRight: undefined,
-    });
-  }, [setOptions]);
-
-  useEffect(() => {
     setIsContactsVisible(wallet.allowBIP47 && wallet.allowBIP47() && isBIP47Enabled);
   }, [isBIP47Enabled, wallet]);
 
@@ -349,29 +343,8 @@ const WalletDetails: React.FC = () => {
     editButtonText: {
       color: colors.buttonTextColor,
     },
-    optionsSectionHeader: {
-      borderColor: colors.cardBorderColor,
-    },
     detailsCard: {
       borderColor: colors.cardBorderColor,
-    },
-    sectionTitle: {
-      backgroundColor: colors.cardSectionHeaderBackground,
-    },
-    sectionTitleText: {
-      color: colors.foregroundColor,
-    },
-    optionsContent: {
-      backgroundColor: colors.cardSectionBackground,
-      borderBottomLeftRadius: 12,
-      borderBottomRightRadius: 12,
-      overflow: 'hidden',
-    },
-    advancedContent: {
-      backgroundColor: colors.cardSectionBackground,
-      borderBottomLeftRadius: 12,
-      borderBottomRightRadius: 12,
-      overflow: 'hidden',
     },
     advancedListItemTitle: {
       color: colors.feeText,
@@ -385,10 +358,6 @@ const WalletDetails: React.FC = () => {
     },
     statsBoxNumber: {
       color: colors.foregroundColor,
-    },
-    listItemContainerBorder: {
-      backgroundColor: 'transparent',
-      borderBottomColor: colors.cardBorderColor,
     },
   });
 
@@ -546,16 +515,15 @@ const WalletDetails: React.FC = () => {
                 >
                   {walletName}
                 </Text>
-                <TouchableOpacity
-                  style={[styles.editButton, stylesHook.editButton]}
+                <Pressable
+                  style={({ pressed }) => [styles.editButton, stylesHook.editButton, pressed && styles.pressablePressed]}
                   onPress={handleEditWalletName}
                   disabled={isLoading}
                   accessibilityRole="button"
                   testID="WalletNameEditButton"
-                  activeOpacity={0.7}
                 >
                   <BlueText style={[styles.editButtonText, stylesHook.editButtonText]}>{loc.wallets.details_edit}</BlueText>
-                </TouchableOpacity>
+                </Pressable>
               </View>
               {wallet.type === LightningCustodianWallet.type && (
                 <>
@@ -575,20 +543,18 @@ const WalletDetails: React.FC = () => {
             {/* Address (watch-address wallets only) */}
             {([LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(wallet.type) ||
               (wallet.type === WatchOnlyWallet.type && !wallet.isHd())) && (
-              <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-                <View style={stylesHook.optionsContent}>
-                  <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.wallets.details_address}</Text>
-                  <Text style={[styles.textValue, stylesHook.textValue, styles.addressSectionContent]} selectable>
-                    {(() => {
-                      try {
-                        return wallet.getAddress ? wallet.getAddress() : '';
-                      } catch (error: unknown) {
-                        return (error as Error).message;
-                      }
-                    })()}
-                  </Text>
-                </View>
-              </View>
+              <SettingsSection>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.wallets.details_address}</Text>
+                <Text style={[styles.textValue, stylesHook.textValue, styles.addressSectionContent]} selectable>
+                  {(() => {
+                    try {
+                      return wallet.getAddress ? wallet.getAddress() : '';
+                    } catch (error: unknown) {
+                      return (error as Error).message;
+                    }
+                  })()}
+                </Text>
+              </SettingsSection>
             )}
 
             {/* Stats */}
@@ -613,10 +579,9 @@ const WalletDetails: React.FC = () => {
                   <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{wallet.getTransactions().length}</BlueText>
                 </View>
                 {hasCoinControl && utxoCount !== null && utxoCount > 0 ? (
-                  <TouchableOpacity
-                    style={[styles.statsBox, stylesHook.statsBox]}
+                  <Pressable
+                    style={({ pressed }) => [styles.statsBox, stylesHook.statsBox, pressed && styles.pressablePressed]}
                     onPress={() => navigate('SendDetailsRoot', { screen: 'CoinControl', params: { walletID } })}
-                    activeOpacity={0.8}
                     testID="CoinsStatsBox"
                   >
                     <View style={styles.statsBoxTitleRow}>
@@ -624,7 +589,7 @@ const WalletDetails: React.FC = () => {
                       <View style={styles.statsBoxTitleRowSpacer} />
                     </View>
                     <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{utxoCount}</BlueText>
-                  </TouchableOpacity>
+                  </Pressable>
                 ) : (
                   <View style={[styles.statsBox, stylesHook.statsBox]} testID="CoinsStatsBox">
                     <View style={styles.statsBoxTitleRow}>
@@ -641,200 +606,160 @@ const WalletDetails: React.FC = () => {
 
             {/* Ark Address (Ark wallets only) */}
             {wallet.type === LightningArkWallet.type && (
-              <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-                <View style={stylesHook.optionsContent}>
-                  <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
-                    {`Arkade ${loc.wallets.details_address}`}
-                  </Text>
-                  <CopyTextToClipboard
-                    text={arkAddress}
-                    style={[styles.textValue, stylesHook.textValue, styles.addressSectionContent]}
-                    selectable
-                  />
-                </View>
-              </View>
+              <SettingsSection>
+                <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
+                  {`Arkade ${loc.wallets.details_address}`}
+                </Text>
+                <CopyTextToClipboard
+                  text={arkAddress}
+                  style={[styles.textValue, stylesHook.textValue, styles.addressSectionContent]}
+                  selectable
+                />
+              </SettingsSection>
             )}
 
             {/* Show addresses & Contacts */}
             {(wallet instanceof AbstractHDElectrumWallet ||
               (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd()) ||
               isContactsVisible) && (
-              <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-                <View style={stylesHook.optionsContent}>
-                  {(wallet instanceof AbstractHDElectrumWallet ||
-                    (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd())) && (
-                    <ListItem
-                      containerStyle={stylesHook.listItemContainerBorder}
-                      onPress={navigateToAddresses}
-                      title={loc.wallets.details_show_addresses}
-                      chevron
-                      bottomDivider={!!isContactsVisible}
-                    />
-                  )}
-                  {isContactsVisible ? (
-                    <ListItem
-                      containerStyle={stylesHook.listItemContainerBorder}
-                      onPress={navigateToContacts}
-                      title={loc.bip47.contacts}
-                      chevron
-                      bottomDivider={false}
-                    />
-                  ) : null}
-                </View>
-              </View>
+              <SettingsSection>
+                {(wallet instanceof AbstractHDElectrumWallet || (wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd())) && (
+                  <SettingsListItem
+                    onPress={navigateToAddresses}
+                    title={loc.wallets.details_show_addresses}
+                    chevron
+                    bottomDivider={!!isContactsVisible}
+                  />
+                )}
+                {isContactsVisible ? (
+                  <SettingsListItem onPress={navigateToContacts} title={loc.bip47.contacts} chevron bottomDivider={false} />
+                ) : null}
+              </SettingsSection>
             )}
 
             {/* Options container — header full width (single row so section background spans the card) */}
-            <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-              <View
-                style={[
-                  styles.sectionTitle,
-                  stylesHook.sectionTitle,
-                  styles.sectionTitleRowContainer,
-                  styles.optionsSectionHeader,
-                  stylesHook.optionsSectionHeader,
-                ]}
-              >
-                <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.wallets.details_options}</BlueText>
-              </View>
-              <View style={stylesHook.optionsContent}>
-                {wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd() && (
-                  <>
-                    <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.wallets.details_advanced}</Text>
-                    <ListItem
-                      containerStyle={styles.listItemContainerBorderLight}
-                      title={loc.wallets.details_use_with_hardware_wallet}
-                      switch={{
-                        value: walletUseWithHardwareWallet,
-                        onValueChange: async (value: boolean) => {
-                          setWalletUseWithHardwareWallet(value);
-                          if (wallet.setUseWithHardwareWalletEnabled) {
-                            wallet.setUseWithHardwareWalletEnabled(value);
-                            triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-                          }
-                          try {
-                            await saveToDisk();
-                          } catch (error: unknown) {
-                            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                            console.error((error as Error).message);
-                          }
-                        },
-                      }}
-                      bottomDivider
-                    />
-                  </>
-                )}
-                <Text onPress={exportInternals} style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
-                  {loc.transactions.list_title}
-                </Text>
-                <ListItem
-                  containerStyle={stylesHook.listItemContainerBorder}
-                  title={loc.wallets.details_display}
-                  switch={{
-                    value: hideTransactionsInWalletsList,
-                    onValueChange: async (value: boolean) => {
-                      if (wallet.setHideTransactionsInWalletsList) {
-                        wallet.setHideTransactionsInWalletsList(!value);
-                        triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-                        setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
-                      }
-                      try {
-                        await saveToDisk();
-                      } catch (error: any) {
-                        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                        console.error(error.message);
-                      }
-                    },
-                  }}
-                  bottomDivider
-                />
-                {wallet.allowBIP47 && wallet.allowBIP47() && (
-                  <>
-                    <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.bip47.payment_code}</Text>
-                    <ListItem
-                      containerStyle={stylesHook.listItemContainerBorder}
-                      title={loc.bip47.purpose}
-                      switch={{
-                        value: isBIP47Enabled,
-                        onValueChange: async (value: boolean) => {
-                          setIsBIP47Enabled(value);
-                          if (wallet.switchBIP47) {
-                            wallet.switchBIP47(value);
-                            triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
-                          }
-                          try {
-                            await saveToDisk();
-                          } catch (error: unknown) {
-                            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-                            console.error((error as Error).message);
-                          }
-                        },
-                      }}
-                      switchTestID="BIP47Switch"
-                      bottomDivider
-                    />
-                  </>
-                )}
-                {wallet.allowXpub && wallet.allowXpub() && (
-                  <ListItem
-                    containerStyle={stylesHook.listItemContainerBorder}
-                    onPress={navigateToXPub}
-                    title={loc.wallets.details_show_xpub}
-                    testID="XpubButton"
+            <SettingsSection title={loc.wallets.details_options}>
+              {wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd() && (
+                <>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.wallets.details_advanced}</Text>
+                  <SettingsListItem
+                    title={loc.wallets.details_use_with_hardware_wallet}
+                    switch={{
+                      value: walletUseWithHardwareWallet,
+                      onValueChange: async (value: boolean) => {
+                        setWalletUseWithHardwareWallet(value);
+                        if (wallet.setUseWithHardwareWalletEnabled) {
+                          wallet.setUseWithHardwareWalletEnabled(value);
+                          triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+                        }
+                        try {
+                          await saveToDisk();
+                        } catch (error: unknown) {
+                          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                          console.error((error as Error).message);
+                        }
+                      },
+                    }}
                     bottomDivider
                   />
-                )}
-                {wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() && (
-                  <ListItem
-                    containerStyle={stylesHook.listItemContainerBorder}
-                    onPress={navigateToSignVerify}
-                    title={loc.addresses.sign_title}
-                    testID="SignVerify"
-                    bottomDivider={!!(wallet.type === MultisigHDWallet.type)}
+                </>
+              )}
+              <Text onPress={exportInternals} style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>
+                {loc.transactions.list_title}
+              </Text>
+              <SettingsListItem
+                title={loc.wallets.details_display}
+                switch={{
+                  value: hideTransactionsInWalletsList,
+                  onValueChange: async (value: boolean) => {
+                    if (wallet.setHideTransactionsInWalletsList) {
+                      wallet.setHideTransactionsInWalletsList(!value);
+                      triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+                      setHideTransactionsInWalletsList(!wallet.getHideTransactionsInWalletsList());
+                    }
+                    try {
+                      await saveToDisk();
+                    } catch (error: any) {
+                      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                      console.error(error.message);
+                    }
+                  },
+                }}
+                bottomDivider
+              />
+              {wallet.allowBIP47 && wallet.allowBIP47() && (
+                <>
+                  <Text style={[styles.textLabel2, stylesHook.textLabel2, styles.optionsSubheader]}>{loc.bip47.payment_code}</Text>
+                  <SettingsListItem
+                    title={loc.bip47.purpose}
+                    switch={{
+                      value: isBIP47Enabled,
+                      onValueChange: async (value: boolean) => {
+                        setIsBIP47Enabled(value);
+                        if (wallet.switchBIP47) {
+                          wallet.switchBIP47(value);
+                          triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+                        }
+                        try {
+                          await saveToDisk();
+                        } catch (error: unknown) {
+                          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+                          console.error((error as Error).message);
+                        }
+                      },
+                    }}
+                    switchTestID="BIP47Switch"
+                    bottomDivider
                   />
-                )}
-                {wallet.type === MultisigHDWallet.type && (
-                  <>
-                    <ListItem
-                      containerStyle={stylesHook.listItemContainerBorder}
-                      onPress={navigateToMultisigCoordinationSetup}
-                      title={loc.multisig.export_coordination_setup.replace(/^\w/, (c: string) => c.toUpperCase())}
-                      chevron
-                      testID="MultisigCoordinationSetup"
-                      bottomDivider
-                    />
-                    <ListItem
-                      containerStyle={stylesHook.listItemContainerBorder}
-                      onPress={navigateToViewEditCosigners}
-                      title={loc.multisig.view_edit_cosigners}
-                      chevron
-                      testID="ViewEditCosigners"
-                      bottomDivider={false}
-                    />
-                  </>
-                )}
-              </View>
-            </View>
+                </>
+              )}
+              {wallet.allowXpub && wallet.allowXpub() && (
+                <SettingsListItem onPress={navigateToXPub} title={loc.wallets.details_show_xpub} testID="XpubButton" bottomDivider />
+              )}
+              {wallet.allowSignVerifyMessage && wallet.allowSignVerifyMessage() && (
+                <SettingsListItem
+                  onPress={navigateToSignVerify}
+                  title={loc.addresses.sign_title}
+                  testID="SignVerify"
+                  bottomDivider={!!(wallet.type === MultisigHDWallet.type)}
+                />
+              )}
+              {wallet.type === MultisigHDWallet.type && (
+                <>
+                  <SettingsListItem
+                    onPress={navigateToMultisigCoordinationSetup}
+                    title={loc.multisig.export_coordination_setup.replace(/^\w/, (c: string) => c.toUpperCase())}
+                    chevron
+                    testID="MultisigCoordinationSetup"
+                    bottomDivider
+                  />
+                  <SettingsListItem
+                    onPress={navigateToViewEditCosigners}
+                    title={loc.multisig.view_edit_cosigners}
+                    chevron
+                    testID="ViewEditCosigners"
+                    bottomDivider={false}
+                  />
+                </>
+              )}
+            </SettingsSection>
 
             {/* Advanced */}
-            <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-              <TouchableOpacity
-                onPress={() => setIsAdvancedExpanded(prev => !prev)}
-                style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRowContainer]}
-                activeOpacity={0.85}
-              >
-                <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText]}>{loc.wallets.details_advanced}</BlueText>
+            <SettingsSection
+              title={loc.wallets.details_advanced}
+              onHeaderPress={() => setIsAdvancedExpanded(prev => !prev)}
+              headerRight={
                 <Icon
                   name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
                   type="font-awesome"
                   size={16}
                   color={colors.alternativeTextColor}
                 />
-              </TouchableOpacity>
+              }
+            >
               {isAdvancedExpanded && (
-                <View style={[styles.advancedContent, stylesHook.advancedContent]}>
-                  <ListItem
-                    containerStyle={stylesHook.listItemContainerBorder}
+                <>
+                  <SettingsListItem
                     title={loc.wallets.details_type}
                     titleStyle={stylesHook.advancedListItemTitle}
                     rightTitle={wallet.typeReadable}
@@ -850,8 +775,7 @@ const WalletDetails: React.FC = () => {
                   />
                   {wallet.type === MultisigHDWallet.type && (
                     <>
-                      <ListItem
-                        containerStyle={stylesHook.listItemContainerBorder}
+                      <SettingsListItem
                         title={loc.wallets.details_multisig_type}
                         titleStyle={stylesHook.advancedListItemTitle}
                         rightTitle={`${wallet.getM()} / ${wallet.getN()} (${
@@ -860,8 +784,7 @@ const WalletDetails: React.FC = () => {
                         rightTitleStyle={stylesHook.advancedListItemRightTitle}
                         bottomDivider={!!(derivationPath || (wallet.allowMasterFingerprint && wallet.allowMasterFingerprint()))}
                       />
-                      <ListItem
-                        containerStyle={stylesHook.listItemContainerBorder}
+                      <SettingsListItem
                         title={loc.multisig.how_many_signatures_can_bluewallet_make}
                         titleStyle={stylesHook.advancedListItemTitle}
                         rightTitle={String(wallet.howManySignaturesCanWeMake())}
@@ -871,8 +794,7 @@ const WalletDetails: React.FC = () => {
                     </>
                   )}
                   {wallet.allowMasterFingerprint && wallet.allowMasterFingerprint() && (
-                    <ListItem
-                      containerStyle={stylesHook.listItemContainerBorder}
+                    <SettingsListItem
                       onPress={isMasterFingerPrintVisible ? undefined : onViewMasterFingerPrintPress}
                       title={loc.wallets.details_master_fingerprint}
                       titleStyle={stylesHook.advancedListItemTitle}
@@ -885,8 +807,7 @@ const WalletDetails: React.FC = () => {
                     />
                   )}
                   {derivationPath && (
-                    <ListItem
-                      containerStyle={stylesHook.listItemContainerBorder}
+                    <SettingsListItem
                       title={loc.wallets.details_derivation_path}
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={derivationPath}
@@ -896,9 +817,9 @@ const WalletDetails: React.FC = () => {
                       testID="DerivationPath"
                     />
                   )}
-                </View>
+                </>
               )}
-            </View>
+            </SettingsSection>
 
             <BlueCard style={styles.address}>
               <View>
@@ -990,20 +911,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
   },
-  sectionTitle: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  sectionTitleRowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionTitleText: {
-    fontSize: 17,
-    fontWeight: '600',
+  pressablePressed: {
+    opacity: 0.75,
   },
   optionsSubheader: {
     paddingTop: 8,
@@ -1027,30 +936,9 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
   },
-  optionsSectionHeader: {
-    width: '100%',
-    alignSelf: 'stretch',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 0,
-    minHeight: 44,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    overflow: 'hidden',
-  },
   statsBoxNumber: {
     fontSize: 32,
     fontWeight: '700',
-  },
-  advancedContent: {
-    marginTop: 0,
-    paddingTop: 0,
-    paddingBottom: 0,
-  },
-  listItemContainerBorderLight: {
-    backgroundColor: 'transparent',
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
   },
 });
 

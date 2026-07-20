@@ -1,8 +1,40 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:best-practices",
     ":disableMajorUpdates",
     ":preserveSemverRanges"
   ],
-  "ignoreDeps": ["react-native"]
+  "ignoreDeps": [
+    "react-native",
+    "react",
+    "react-test-renderer",
+    "react-native-share",
+    "qr",
+    "gradle",
+    "androidx.core:core-ktx",
+    "com.google.android.material:material",
+    "androidx.compose.ui:ui",
+    "androidx.compose.material3:material3"
+  ],
+  "schedule": ["before 6am on monday"],
+  "prConcurrentLimit": 1,
+  "prHourlyLimit": 0,
+  "minimumReleaseAge": "3 days",
+  "semanticCommits": "disabled",
+  "commitMessagePrefix": "OPS:",
+  "packageRules": [
+    {
+      "matchPackageNames": ["*"],
+      "groupName": "all dependencies",
+      "groupSlug": "all"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "vulnerabilityAlerts": {
+    "schedule": ["at any time"]
+  }
 }

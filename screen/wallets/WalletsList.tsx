@@ -2,16 +2,21 @@ import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo 
 import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
-import { isDesktop } from '../../blue_modules/environment';
+import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { ExtendedTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
-import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/FloatButtons';
+import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
-import WalletsCarousel, { getWalletCarouselItemWidth, CarouselListRefType } from '../../components/WalletsCarousel';
+import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
+import WalletsCarousel, {
+  getWalletCarouselItemWidth,
+  CarouselListRefType,
+  getWalletCarouselHeight,
+} from '../../components/WalletsCarousel';
 import { useSizeClass, SizeClass } from '../../blue_modules/sizeClass';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -24,9 +29,11 @@ import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
 import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scanQrHelper } from '../../helpers/scan-qr';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
+const SECTION_HEADER_BASE_HEIGHT = 56;
 
 /** Electrum `ping` while the list is visible; detects mid-session drops without polling when user is elsewhere. */
 const ELECTRUM_HEALTH_POLL_WHILE_WALLETS_LIST_FOCUSED_MS = 30_000;
@@ -107,7 +114,12 @@ const WalletsList: React.FC = () => {
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
-  const { width } = useWindowDimensions();
+  const { width, fontScale } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const carouselHeight = getWalletCarouselHeight(fontScale);
+  const transactionItemHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
+  const sectionHeaderHeight = Math.round(SECTION_HEADER_BASE_HEIGHT * fontScale);
+  const floatingButtonHeight = getFloatingButtonReservedHeight(fontScale, insets.bottom);
   const { colors, scanImage } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const isFocused = useIsFocused();
@@ -123,9 +135,11 @@ const WalletsList: React.FC = () => {
     listHeaderBack: {
       backgroundColor: colors.background,
       paddingTop: sizeClass === SizeClass.Large ? 8 : 0,
+      minHeight: sectionHeaderHeight,
     },
     listHeaderText: {
       color: colors.foregroundColor,
+      marginVertical: Math.round(16 * fontScale),
     },
   });
 
@@ -471,7 +485,9 @@ const WalletsList: React.FC = () => {
 
   const sectionListKeyExtractor = useCallback((item: any, index: any) => {
     if (typeof item === 'string') return item;
-    return item?.hash || item?.txid || `${item}${index}`;
+    const txKey = item?.hash || item?.txid;
+    if (txKey && item?.walletID) return `${txKey}_${item.walletID}`;
+    return txKey || `${item}${index}`;
   }, []);
 
   const refreshProps = isDesktop || isElectrumDisabled ? {} : { refreshing: isLoading, onRefresh };
@@ -490,14 +506,9 @@ const WalletsList: React.FC = () => {
   }, [sizeClass, dataSource]);
 
   // Constants for layout calculations
-  const TRANSACTION_ITEM_HEIGHT = 80;
-  const CAROUSEL_HEIGHT = 195;
-  const SECTION_HEADER_HEIGHT = 56; // Base height
-  const LARGE_TITLE_EXTRA_HEIGHT = 20; // Additional height for large titles
-
   const getSectionHeaderHeight = useCallback(() => {
-    return SECTION_HEADER_HEIGHT + (sizeClass === SizeClass.Large ? LARGE_TITLE_EXTRA_HEIGHT : 0);
-  }, [sizeClass]);
+    return sectionHeaderHeight + (sizeClass === SizeClass.Large ? Math.round(20 * fontScale) : 0);
+  }, [sizeClass, sectionHeaderHeight, fontScale]);
 
   const getItemLayout = useCallback(
     (data: any, index: number) => {
@@ -506,8 +517,8 @@ const WalletsList: React.FC = () => {
       if (sizeClass === SizeClass.Large) {
         // On large screens: only transaction items, no carousel
         return {
-          length: TRANSACTION_ITEM_HEIGHT,
-          offset: TRANSACTION_ITEM_HEIGHT * index,
+          length: transactionItemHeight,
+          offset: transactionItemHeight * index,
           index,
         };
       } else {
@@ -515,7 +526,7 @@ const WalletsList: React.FC = () => {
         // First section: Carousel
         if (index === 0) {
           return {
-            length: CAROUSEL_HEIGHT,
+            length: carouselHeight,
             offset: 0,
             index,
           };
@@ -528,13 +539,13 @@ const WalletsList: React.FC = () => {
         // 3. Transaction items
         const transactionIndex = index - 1; // Adjust index to account for carousel
         return {
-          length: TRANSACTION_ITEM_HEIGHT,
-          offset: CAROUSEL_HEIGHT + headerHeight + TRANSACTION_ITEM_HEIGHT * transactionIndex,
+          length: transactionItemHeight,
+          offset: carouselHeight + headerHeight + transactionItemHeight * transactionIndex,
           index,
         };
       }
     },
-    [sizeClass, getSectionHeaderHeight],
+    [sizeClass, getSectionHeaderHeight, carouselHeight, transactionItemHeight],
   );
 
   return (
@@ -547,11 +558,13 @@ const WalletsList: React.FC = () => {
         initialNumToRender={10}
         renderSectionFooter={renderSectionFooter}
         sections={sections}
-        floatingButtonHeight={70}
+        floatingButtonHeight={floatingButtonHeight}
         maxToRenderPerBatch={10}
         updateCellsBatchingPeriod={50}
         getItemLayout={getItemLayout}
         ignoreTopInset={true} // Ignore top inset as the screen header already handles it
+        // On iOS 26+, let the section headers scroll naturally with the content rather than sticking
+        stickySectionHeadersEnabled={!isIOS26OrHigher}
         {...refreshProps}
       />
       {renderScanButton()}

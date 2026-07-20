@@ -28,16 +28,16 @@ jobs:
           cache: 'npm'
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@c4e5b1316158f92e3d49443a9d58b31d25ac0f8f # v1.306.0
+        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
-          ruby-version: "3.4.9"
+          ruby-version: "3.4.10"
           bundler-cache: true
 
       - name: Install Node dependencies
         run: npm ci || npm ci
 
       - name: Cache CocoaPods
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: |
             ios/Pods
@@ -51,7 +51,7 @@ jobs:
         run: brew install ccache
 
       - name: Cache ccache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.ccache
           key: ${{ runner.os }}-ccache-${{ github.sha }}
@@ -182,6 +182,7 @@ jobs:
       - name: Install applesimutils
         run: |
           brew tap wix/brew
+          brew trust wix/brew
           brew install applesimutils
 
       - name: Download simulator app
@@ -193,9 +194,6 @@ jobs:
         run: |
           mkdir -p ios/build/Build/Products/Release-iphonesimulator
           tar -xzf BlueWallet.app.tar.gz -C ios/build/Build/Products/Release-iphonesimulator
-
-      - name: Disable simulator animations
-        run: defaults write com.apple.iphonesimulator SlowMotionAnimation -bool NO
 
       # Pre-boot simulator so first detox launchApp lands warm.
       - name: Pre-boot iOS simulator
@@ -209,6 +207,13 @@ jobs:
           xcrun simctl boot "$UDID" 2>/dev/null || true
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl launch "$UDID" com.apple.springboard >/dev/null 2>&1 || true
+
+      # Cut animations so detox sync stays steady on slow CI VMs; Reduce Motion makes reanimated skip to final value.
+      - name: Disable simulator animations
+        run: |
+          defaults write com.apple.iphonesimulator SlowMotionAnimation -bool NO
+          xcrun simctl spawn booted defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
+          xcrun simctl spawn booted notifyutil -p com.apple.Accessibility.ReduceMotionStatusDidChange
 
       - name: Run detox tests
         timeout-minutes: 360

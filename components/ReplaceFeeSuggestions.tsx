@@ -67,26 +67,25 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
   }, []);
 
   const handleFeeSelection = (feeType: NetworkTransactionFeeType) => {
-    if (feeType !== NetworkTransactionFeeType.CUSTOM) {
-      Keyboard.dismiss();
+    if (feeType === NetworkTransactionFeeType.CUSTOM) {
+      setSelectedFeeType(feeType);
+      return;
     }
+
+    Keyboard.dismiss();
     if (networkFees) {
-      let selectedFee: number;
       switch (feeType) {
         case NetworkTransactionFeeType.FAST:
-          selectedFee = networkFees.fastestFee;
+          onFeeSelected(networkFees.fastestFee);
           break;
         case NetworkTransactionFeeType.MEDIUM:
-          selectedFee = networkFees.mediumFee;
+          onFeeSelected(networkFees.mediumFee);
           break;
         case NetworkTransactionFeeType.SLOW:
-          selectedFee = networkFees.slowFee;
-          break;
-        case NetworkTransactionFeeType.CUSTOM:
-          selectedFee = Number(customFeeValue);
+          onFeeSelected(networkFees.slowFee);
           break;
       }
-      onFeeSelected(selectedFee);
+
       setSelectedFeeType(feeType);
     }
   };
@@ -94,7 +93,8 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
   const handleCustomFeeChange = (customFee: string) => {
     const sanitizedFee = customFee.replace(/[^0-9]/g, '');
     setCustomFeeValue(sanitizedFee);
-    handleFeeSelection(NetworkTransactionFeeType.CUSTOM);
+    onFeeSelected(Number(sanitizedFee));
+    setSelectedFeeType(NetworkTransactionFeeType.CUSTOM);
   };
 
   return (
@@ -156,7 +156,10 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
             ref={customTextInput}
             maxLength={9}
             style={[styles.customFeeInput, stylesHook.customFeeInput]}
-            onFocus={() => handleCustomFeeChange(customFeeValue)}
+            onFocus={() => {
+              setSelectedFeeType(NetworkTransactionFeeType.CUSTOM);
+              onFeeSelected(Number(customFeeValue));
+            }}
             placeholder={loc.send.fee_satvbyte}
             placeholderTextColor="#81868e"
             inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}

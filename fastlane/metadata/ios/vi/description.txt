@@ -1,0 +1,56 @@
+BlueWallet là một ví Bitcoin cực kỳ đơn giản, mạnh mẽ và an toàn. Lưu trữ, gửi và nhận Bitcoin trong khi vẫn nắm toàn quyền kiểm soát — khóa của bạn, coin của bạn.
+
+Miễn phí và mã nguồn mở, được tạo bởi người dùng Bitcoin cho cộng đồng. Giao dịch với bất kỳ ai trên thế giới và làm chủ tiền của bạn, ngay từ trong túi của bạn. Tạo không giới hạn số ví miễn phí hoặc nhập một ví hiện có — nhanh chóng và đơn giản.
+
+_____
+
+BẢO MẬT THEO THIẾT KẾ
+
+Mã nguồn mở
+Được cấp phép MIT — kiểm tra, tự xây dựng và chạy nó. Được tạo bằng React Native.
+
+Khóa của bạn, coin của bạn
+Khóa riêng tư (seed của bạn) không bao giờ rời khỏi thiết bị. Bạn luôn nắm quyền kiểm soát.
+
+Két multisig
+Mức bảo mật tốt nhất trên Bitcoin — cần nhiều khóa để chi tiêu, giống như một chiếc két thật.
+
+Mã hóa toàn diện
+Bên cạnh lớp mã hóa của thiết bị, mọi thứ được mã hóa lại bằng mật khẩu của riêng bạn.
+
+Khả năng phủ nhận hợp lý
+Đặt một mật khẩu mồi nhử để mở các ví giả nếu bạn bị buộc phải mở khóa.
+
+_____
+
+SỨC MẠNH VÀ KIỂM SOÁT
+
+Ví hiện đại
+Ví HD với hỗ trợ đầy đủ cho các địa chỉ Legacy, SegWit và Taproot.
+
+Ví phần cứng
+Kết nối Coldcard, Keystone và các thiết bị ký PSBT khác, và giữ coin của bạn trong kho lưu trữ lạnh.
+
+Ví chỉ xem
+Theo dõi kho lưu trữ lạnh của bạn mà không bao giờ để lộ các khóa riêng tư.
+
+Chạy node của riêng bạn
+Kết nối đến full node Bitcoin của riêng bạn qua Electrum, và định tuyến kết nối của bạn qua Tor.
+
+Kiểm soát coin
+Xem, gắn nhãn và đóng băng coin (UTXO) của bạn để tạo giao dịch đúng theo cách bạn muốn.
+
+Phí linh hoạt
+Tự đặt phí của bạn, xuống tới 1 sat/vByte. Tăng tốc các giao dịch bị kẹt bằng RBF hoặc CPFP, hoặc hủy chúng.
+
+_____
+
+MẠNG LIGHTNING
+
+Thanh toán rẻ đến bất công và nhanh như chớp mà không cần cấu hình. Thanh toán và nhận tiền bằng địa chỉ Lightning và LNURL.
+
+_____
+
+Có sẵn trên iOS, Android và macOS. Nhiều loại tiền tệ và ngôn ngữ. Chế độ tối. Không tài khoản và không theo dõi — chỉ có Bitcoin.
+
+BlueWallet — sở hữu Bitcoin của bạn.

@@ -4,6 +4,7 @@ import { element, waitFor } from 'detox';
 
 import {
   confirmPasswordDialog,
+  dismissAlertByText,
   expectToBeVisible,
   extractTextFromElementById,
   goBack,
@@ -115,6 +116,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // language
     // change language to Chinese (ZH), test it and switch back to English
     await element(by.id('Language')).tap();
+    await element(by.id('LanguageFlatList')).scroll(250, 'down');
     await element(by.text('Chinese (ZH)')).tap();
     await goBack();
     await expect(element(by.text('语言'))).toBeVisible();
@@ -193,31 +195,36 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitFor(element(by.id('NotificationsSwitch')))
         .toBeVisible()
         .withTimeout(10000);
-      await element(by.id('NotificationsSwitch')).tap();
 
-      // If notifications are not enabled on the device, an alert will appear
+      // Toggle notifications on/off. On iOS 26 simulators notifications are always
+      // denied, triggering a native UIAlertController whose buttons liquid glass
+      // can make un-tappable by Detox. If the alert cannot be dismissed, relaunch
+      // the app to recover instead of failing the entire settings test.
+      let notifDialogStuck = false;
       try {
-        await waitFor(element(by.text('OK')))
-          .toBeVisible()
-          .withTimeout(3000);
-        await element(by.text('OK')).tap();
-      } catch (_) {
-        // Alert not shown, which is fine - notifications might be enabled
-      }
-      await element(by.id('NotificationsSwitch')).tap();
-
-      // If notifications are not enabled on the device, an alert will appear
-      try {
-        await waitFor(element(by.text('OK')))
-          .toBeVisible()
-          .withTimeout(3000);
-        await element(by.text('OK')).tap();
-      } catch (_) {
-        // Alert not shown, which is fine - notifications might be enabled
+        await element(by.id('NotificationsSwitch')).tap();
+        const dismissed1 = await dismissAlertByText('OK', 10000);
+        if (dismissed1) {
+          await sleep(500);
+          await element(by.id('NotificationsSwitch')).tap();
+          await dismissAlertByText('OK', 10000);
+        } else {
+          notifDialogStuck = true;
+        }
+      } catch (e) {
+        console.warn('Notifications toggle skipped due to alert interaction issue:', e.message);
+        notifDialogStuck = true;
       }
 
-      await goBack();
-      await goBack();
+      if (notifDialogStuck) {
+        // Dialog blocks all interaction; relaunch the app to clear it
+        await device.launchApp({ newInstance: true });
+        await waitForId('WalletsList');
+        await element(by.id('SettingsButton')).tap();
+      } else {
+        await goBack();
+        await goBack();
+      }
     } else {
       await goBack();
     }

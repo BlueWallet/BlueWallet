@@ -4,22 +4,19 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
-import { Animated, ActivityIndicator, Keyboard, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Animated, ActivityIndicator, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
 import SafeArea from '../../components/SafeArea';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
-import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
-import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import { CoinControlSortDirection, CoinControlSortType, SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -150,26 +147,15 @@ const OutputList: React.FC<TOutputListProps> = ({
   );
 };
 
-enum ESortDirections {
-  asc = 'asc',
-  desc = 'desc',
-}
-
-enum ESortTypes {
-  height = 'height',
-  label = 'label',
-  value = 'value',
-  frozen = 'frozen',
-}
-
 const CoinControl: React.FC = () => {
   const { colors } = useTheme();
   const navigation = useExtendedNavigation<NavigationProps>();
   const { width } = useWindowDimensions();
-  const { walletID } = useRoute<RouteProps>().params;
+  const route = useRoute<RouteProps>();
+  const { walletID } = route.params;
   const { wallets, saveToDisk, sleep } = useStorage();
-  const [sortDirection, setSortDirection] = useState<ESortDirections>(ESortDirections.asc);
-  const [sortType, setSortType] = useState<ESortTypes>(ESortTypes.height);
+  const sortDirection = route.params?.sortDirection ?? CoinControlSortDirection.ASC;
+  const sortType = route.params?.sortType ?? CoinControlSortType.HEIGHT;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID) as TWallet, [walletID, wallets]);
   const [frozen, setFrozen] = useState<string[]>(
     wallet
@@ -180,16 +166,16 @@ const CoinControl: React.FC = () => {
   const utxos: Utxo[] = useMemo(() => {
     const res = wallet.getUtxo(true).sort((a, b) => {
       switch (sortType) {
-        case ESortTypes.height:
+        case CoinControlSortType.HEIGHT:
           return a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout;
-        case ESortTypes.value:
+        case CoinControlSortType.VALUE:
           return a.value - b.value || a.txid.localeCompare(b.txid) || a.vout - b.vout;
-        case ESortTypes.label: {
+        case CoinControlSortType.LABEL: {
           const aMemo = wallet.getUTXOMetadata(a.txid, a.vout).memo || '';
           const bMemo = wallet.getUTXOMetadata(b.txid, b.vout).memo || '';
           return aMemo.localeCompare(bMemo) || a.txid.localeCompare(b.txid) || a.vout - b.vout;
         }
-        case ESortTypes.frozen: {
+        case CoinControlSortType.FROZEN: {
           const aF = frozen.includes(`${a.txid}:${a.vout}`);
           const bF = frozen.includes(`${b.txid}:${b.vout}`);
           return aF !== bF ? (aF ? -1 : 1) : a.txid.localeCompare(b.txid) || a.vout - b.vout;
@@ -199,7 +185,7 @@ const CoinControl: React.FC = () => {
       }
     });
     // invert if descending
-    return sortDirection === ESortDirections.desc ? res.reverse() : res;
+    return sortDirection === CoinControlSortDirection.DESC ? res.reverse() : res;
   }, [sortDirection, sortType, wallet, frozen]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
@@ -243,6 +229,18 @@ const CoinControl: React.FC = () => {
       setSelected([]);
     }, [wallet]),
   );
+
+  useEffect(() => {
+    const hasUtxos = utxos.length > 0;
+    const nextParams: Partial<SendDetailsStackParamList['CoinControl']> = {};
+    if (route.params?.hasUtxos !== hasUtxos) {
+      nextParams.hasUtxos = hasUtxos;
+    }
+
+    if (Object.keys(nextParams).length > 0) {
+      navigation.setParams(nextParams);
+    }
+  }, [navigation, route.params?.hasUtxos, utxos.length]);
 
   const tipText = useMemo(() => {
     if (utxos.length === 0) return '';
@@ -309,47 +307,6 @@ const CoinControl: React.FC = () => {
       />
     );
   };
-
-  const toolTipActions = useMemo((): Action[] | Action[][] => {
-    return [
-      [sortDirection === ESortDirections.asc ? CommonToolTipActions.SortASC : CommonToolTipActions.SortDESC],
-      [
-        { ...CommonToolTipActions.SortHeight, menuState: sortType === ESortTypes.height },
-        { ...CommonToolTipActions.SortValue, menuState: sortType === ESortTypes.value },
-        { ...CommonToolTipActions.SortLabel, menuState: sortType === ESortTypes.label },
-        { ...CommonToolTipActions.SortStatus, menuState: sortType === ESortTypes.frozen },
-      ],
-    ];
-  }, [sortDirection, sortType]);
-
-  const toolTipOnPressMenuItem = useCallback((menuItem: string) => {
-    Keyboard.dismiss();
-    if (menuItem === CommonToolTipActions.SortASC.id) {
-      setSortDirection(ESortDirections.desc);
-    } else if (menuItem === CommonToolTipActions.SortDESC.id) {
-      setSortDirection(ESortDirections.asc);
-    } else if (menuItem === CommonToolTipActions.SortHeight.id) {
-      setSortType(ESortTypes.height);
-    } else if (menuItem === CommonToolTipActions.SortValue.id) {
-      setSortType(ESortTypes.value);
-    } else if (menuItem === CommonToolTipActions.SortLabel.id) {
-      setSortType(ESortTypes.label);
-    } else if (menuItem === CommonToolTipActions.SortStatus.id) {
-      setSortType(ESortTypes.frozen);
-    }
-  }, []);
-
-  const HeaderRight = useMemo(
-    () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} title={loc.cc.sort_by} />,
-    [toolTipOnPressMenuItem, toolTipActions],
-  );
-
-  // Adding the ToolTipMenu to the header
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (utxos.length > 0 ? HeaderRight : null),
-    });
-  }, [HeaderRight, navigation, utxos.length]);
 
   if (loading) {
     return (
