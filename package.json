@@ -93,7 +93,7 @@
   "dependencies": {
     "@arkade-os/boltz-swap": "0.3.51",
     "@arkade-os/sdk": "0.4.46",
-    "@bugsnag/react-native": "8.10.0",
+    "@bugsnag/react-native": "8.9.0",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.8.0",
     "@ngraveio/bc-ur": "1.1.13",

@@ -19,7 +19,8 @@
     "@react-navigation/native-stack",
     "react-native-screens",
     "react-native-notifications",
-    "react-native-tcp-socket"
+    "react-native-tcp-socket",
+    "@bugsnag/react-native"
   ],
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 1,
