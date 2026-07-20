@@ -75,6 +75,21 @@ jest.mock('react-native-notifications', () => {
   return {};
 });
 
+jest.mock('@callstack/liquid-glass', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+
+  const LiquidGlassView = React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children));
+  const LiquidGlassContainerView = React.forwardRef((props, ref) => React.createElement(View, { ...props, ref }, props.children));
+
+  return {
+    __esModule: true,
+    LiquidGlassView,
+    LiquidGlassContainerView,
+    isLiquidGlassSupported: false,
+  };
+});
+
 jest.mock('react-native-background-fetch', () => {
   // The real module instantiates `new NativeEventEmitter(...)` at module
   // load, which throws under jest because the underlying native module is
