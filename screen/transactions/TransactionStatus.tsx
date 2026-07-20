@@ -1,10 +1,21 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ActivityIndicator, BackHandler, Linking, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  Linking,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
@@ -19,9 +30,10 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
-import TransactionIncomingIcon from '../../components/icons/TransactionIncomingIcon';
-import TransactionOutgoingIcon from '../../components/icons/TransactionOutgoingIcon';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
+import BlocksAccordion from '../../components/BlocksAccordion';
+import TransactionStateHeader from '../../components/TransactionStateHeader';
+import { SettingsSection } from '../../components/SettingsSection';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
@@ -33,6 +45,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
+import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 
 dayjs.extend(relativeTime);
 
@@ -191,9 +204,6 @@ const TransactionStatus: React.FC = () => {
       stateValue: {
         lineHeight: Math.round(18 * fontScale),
       },
-      advancedHeader: {
-        minHeight: Math.round(44 * fontScale),
-      },
       explorerButton: {
         paddingVertical: Math.round(6 * fontScale),
         paddingHorizontal: Math.round(12 * fontScale),
@@ -206,15 +216,27 @@ const TransactionStatus: React.FC = () => {
         minHeight: Math.round(24 * fontScale),
         paddingVertical: Math.round(12 * fontScale),
       },
-      sectionTitle: {
-        paddingVertical: Math.round(16 * fontScale),
-      },
     };
   }, [fontScale]);
 
   // Explicit width for To/ID text so Android StaticLayout can apply ellipsis (flex alone often fails on Android)
   const detailValueMaxWidth = useMemo(() => Math.max(0, Math.floor((windowWidth - 48) / 2)), [windowWidth]);
   const detailValueWidthStyle = useMemo(() => ({ width: detailValueMaxWidth }), [detailValueMaxWidth]);
+
+  // Blocks accordion state
+  const [isBlocksExpanded, setIsBlocksExpanded] = useState(false);
+  const stateCardScale = useSharedValue(1);
+  const stateCardAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: stateCardScale.value }],
+  }));
+  const toggleBlocksExpanded = useCallback(() => {
+    setIsBlocksExpanded(prev => !prev);
+    stateCardScale.value = withSequence(withTiming(0.98, { duration: 100 }), withTiming(1, { duration: 150 }));
+  }, [stateCardScale]);
+
+  useEffect(() => {
+    setIsBlocksExpanded(false);
+  }, [hash]);
 
   // Advanced section state
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState(false);
@@ -253,9 +275,6 @@ const TransactionStatus: React.FC = () => {
     stateCardSent: { backgroundColor: colors.outgoingBackgroundColor },
     stateCardReceived: { backgroundColor: colors.incomingBackgroundColor },
     card: { backgroundColor: colors.elevated || colors.background },
-    sectionTitle: { backgroundColor: colors.cardSectionHeaderBackground },
-    sectionTitleText: { color: colors.foregroundColor },
-    detailsCard: { borderColor: colors.cardBorderColor },
     detailRow: {
       backgroundColor: colors.cardSectionBackground,
       borderBottomColor: colors.cardBorderColor,
@@ -268,7 +287,6 @@ const TransactionStatus: React.FC = () => {
     speedUpButtonText: { color: colors.transactionPendingColor },
     cancelButton: { backgroundColor: colors.transactionStateCancelButtonBackground },
     cancelButtonText: { color: colors.transactionPendingColor },
-    advancedHeader: { borderColor: colors.cardBorderColor },
     advancedContent: { borderTopColor: colors.cardBorderColor },
     rowValue: { color: colors.alternativeTextColor },
   });
@@ -658,11 +676,12 @@ const TransactionStatus: React.FC = () => {
     if (!wallet || !tx?.hash) {
       return setIsCPFPPossible(ButtonStatus.Unknown);
     }
-    if (!wallet?.allowRBF()) {
+    if (!wallet?.allowRBF() || isWatchOnlySegwitBech32(wallet)) {
       return setIsCPFPPossible(ButtonStatus.NotPossible);
     }
 
     const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+
     if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
       return setIsCPFPPossible(ButtonStatus.Possible);
     } else {
@@ -678,7 +697,12 @@ const TransactionStatus: React.FC = () => {
       return setIsRBFBumpFeePossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    let rbfTx: HDSegwitBech32Transaction;
+    if (isWatchOnlySegwitBech32(wallet)) {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet._hdWalletInstance);
+    } else {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    }
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -699,7 +723,12 @@ const TransactionStatus: React.FC = () => {
       return setIsRBFCancelPossible(ButtonStatus.NotPossible);
     }
 
-    const rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    let rbfTx: HDSegwitBech32Transaction;
+    if (isWatchOnlySegwitBech32(wallet)) {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet._hdWalletInstance);
+    } else {
+      rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
+    }
     if (
       (await rbfTx.isOurTransaction()) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
@@ -712,18 +741,32 @@ const TransactionStatus: React.FC = () => {
     }
   };
 
-  const navigateToRBFBumpFee = (transaction: Transaction, w: TWallet) => {
-    navigate('RBFBumpFee', {
-      txid: transaction.hash,
-      wallet: w,
-    });
-  };
-
-  const navigateToRBFCancel = (transaction: Transaction, w: TWallet) => {
-    navigate('RBFCancel', {
-      txid: transaction.hash,
-      wallet: w,
-    });
+  const navigateToRBF = (route: 'RBFBumpFee' | 'RBFCancel', transaction: Transaction, w: TWallet) => {
+    if (isWatchOnlySegwitBech32(w) && !w.useWithHardwareWalletEnabled()) {
+      return Alert.alert(
+        loc.wallets.details_title,
+        loc.transactions.enable_offline_signing,
+        [
+          {
+            text: loc._.ok,
+            onPress: async () => {
+              w.setUseWithHardwareWalletEnabled(true);
+              await saveToDisk();
+              navigate(route, {
+                txid: transaction.hash,
+                wallet: w,
+              });
+            },
+            style: 'default',
+          },
+          {
+            text: loc._.cancel,
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false },
+      );
+    }
   };
 
   const navigateToCPFP = (transaction: Transaction, w: TWallet) => {
@@ -893,6 +936,14 @@ const TransactionStatus: React.FC = () => {
   const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
 
+  const showBlocksAccordion = isOnChainTx && !isPending && parsedConfirmations > 0;
+
+  const onBlocksHeaderPress = useCallback(() => {
+    if (!showBlocksAccordion) return;
+    triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+    toggleBlocksExpanded();
+  }, [showBlocksAccordion, toggleBlocksExpanded]);
+
   // Get transaction direction and date
   const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
@@ -1045,7 +1096,7 @@ const TransactionStatus: React.FC = () => {
       </View>
 
       {/* State Section */}
-      <View
+      <Animated.View
         style={[
           styles.stateCard,
           isPending
@@ -1053,6 +1104,7 @@ const TransactionStatus: React.FC = () => {
             : txValue !== null && txValue < 0
               ? stylesHook.stateCardSent
               : stylesHook.stateCardReceived,
+          stateCardAnimatedStyle,
         ]}
       >
         <View style={styles.stateSection}>
@@ -1073,7 +1125,7 @@ const TransactionStatus: React.FC = () => {
                 <View style={styles.stateButtons}>
                   {isRBFBumpFeePossible === ButtonStatus.Possible && (
                     <TouchableOpacity
-                      onPress={() => navigateToRBFBumpFee(tx, wallet)}
+                      onPress={() => navigateToRBF('RBFBumpFee', tx, wallet)}
                       style={[styles.speedUpButton, stylesHook.speedUpButton]}
                       accessibilityRole="button"
                     >
@@ -1082,7 +1134,7 @@ const TransactionStatus: React.FC = () => {
                   )}
                   {isRBFCancelPossible === ButtonStatus.Possible && (
                     <TouchableOpacity
-                      onPress={() => navigateToRBFCancel(tx, wallet)}
+                      onPress={() => navigateToRBF('RBFCancel', tx, wallet)}
                       style={[styles.cancelButton, stylesHook.cancelButton]}
                       accessibilityRole="button"
                     >
@@ -1093,40 +1145,41 @@ const TransactionStatus: React.FC = () => {
               )}
             </>
           ) : txValue !== null && txValue < 0 ? (
-            <View style={styles.stateIndicator}>
-              <TransactionOutgoingIcon />
-              <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelSent, scaledStyles.stateLabel]}>
-                  {loc.transactions.details_sent}
-                </BlueText>
-                {isOnChainTx && (
-                  <BlueText style={[styles.stateValue, stylesHook.stateValueSent, styles.stateValueInline, scaledStyles.stateValue]}>
-                    {loc.formatString(loc.transactions.confirmations_lowercase, {
-                      confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                    })}
-                  </BlueText>
-                )}
-              </View>
-            </View>
+            <TransactionStateHeader
+              direction="sent"
+              confirmations={parsedConfirmations}
+              isOnChainTx={isOnChainTx}
+              isExpanded={isBlocksExpanded}
+              onPress={showBlocksAccordion ? onBlocksHeaderPress : undefined}
+              labelStyle={[stylesHook.stateLabelSent, scaledStyles.stateLabel]}
+              valueStyle={[stylesHook.stateValueSent, scaledStyles.stateValue]}
+              accentColor={colors.transactionSentColor}
+            />
           ) : (
-            <View style={styles.stateIndicator}>
-              <TransactionIncomingIcon />
-              <View style={styles.stateLabelContainer}>
-                <BlueText style={[styles.stateLabel, stylesHook.stateLabelReceived, scaledStyles.stateLabel]}>
-                  {loc.transactions.details_received}
-                </BlueText>
-                {isOnChainTx && (
-                  <BlueText style={[styles.stateValue, stylesHook.stateValueReceived, styles.stateValueInline, scaledStyles.stateValue]}>
-                    {loc.formatString(loc.transactions.confirmations_lowercase, {
-                      confirmations: parsedConfirmations > 6 ? '6+' : parsedConfirmations,
-                    })}
-                  </BlueText>
-                )}
-              </View>
-            </View>
+            <TransactionStateHeader
+              direction="received"
+              confirmations={parsedConfirmations}
+              isOnChainTx={isOnChainTx}
+              isExpanded={isBlocksExpanded}
+              onPress={showBlocksAccordion ? onBlocksHeaderPress : undefined}
+              labelStyle={[stylesHook.stateLabelReceived, scaledStyles.stateLabel]}
+              valueStyle={[stylesHook.stateValueReceived, scaledStyles.stateValue]}
+              accentColor={colors.transactionReceivedColor}
+            />
           )}
         </View>
-      </View>
+        {showBlocksAccordion && tx?.hash && (
+          <BlocksAccordion
+            txHash={tx.hash}
+            isSent={txValue !== null && txValue < 0}
+            isExpanded={isBlocksExpanded}
+            vsize={tx.vsize}
+            feeSats={calculatedFee}
+            feeRate={feeRate}
+            onPress={onBlocksHeaderPress}
+          />
+        )}
+      </Animated.View>
 
       {/* Counterparty badge (read-only, matches contact list style) */}
       {counterpartyDisplayName && (
@@ -1149,13 +1202,11 @@ const TransactionStatus: React.FC = () => {
       )}
 
       {/* Details Section */}
-      <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-        {/* Details Title */}
-        <View style={[styles.sectionTitle, styles.sectionTitleWithButton, stylesHook.sectionTitle, scaledStyles.sectionTitle]}>
-          <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText, styles.sectionTitleTextFlexible]}>
-            {loc.transactions.details_section}
-          </BlueText>
-          {tx?.hash && (
+      <SettingsSection
+        title={loc.transactions.details_section}
+        containerStyle={styles.sectionMargins}
+        headerRight={
+          tx?.hash ? (
             <TouchableOpacity
               onPress={handleOpenBlockExplorer}
               style={[styles.explorerButton, stylesHook.explorerButton, scaledStyles.explorerButton]}
@@ -1170,8 +1221,9 @@ const TransactionStatus: React.FC = () => {
                 {loc.transactions.details_explorer}
               </BlueText>
             </TouchableOpacity>
-          )}
-        </View>
+          ) : undefined
+        }
+      >
         {/* Network Fee */}
         <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
           <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_network_fee}</BlueText>
@@ -1277,28 +1329,25 @@ const TransactionStatus: React.FC = () => {
             )}
           </View>
         </View>
-      </View>
+      </SettingsSection>
 
       {/* Advanced Section */}
-      <View style={[styles.detailsCard, stylesHook.detailsCard]}>
-        <TouchableOpacity
-          onPress={() => setIsAdvancedExpanded(!isAdvancedExpanded)}
-          style={[styles.advancedHeader, stylesHook.advancedHeader, scaledStyles.advancedHeader]}
-          activeOpacity={0.85}
-        >
-          <View style={[styles.sectionTitle, stylesHook.sectionTitle, styles.sectionTitleRow, scaledStyles.sectionTitle]}>
-            <BlueText style={[styles.sectionTitleText, stylesHook.sectionTitleText, styles.sectionTitleTextFlexible]} numberOfLines={2}>
-              {loc.transactions.details_advanced}
-            </BlueText>
-            <Icon
-              name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
-              type="font-awesome"
-              size={16}
-              color={colors.alternativeTextColor}
-            />
-          </View>
-        </TouchableOpacity>
-
+      <SettingsSection
+        title={loc.transactions.details_advanced}
+        containerStyle={styles.sectionMargins}
+        onHeaderPress={() => {
+          triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+          setIsAdvancedExpanded(!isAdvancedExpanded);
+        }}
+        headerRight={
+          <Icon
+            name={isAdvancedExpanded ? 'chevron-up' : 'chevron-down'}
+            type="font-awesome"
+            size={16}
+            color={colors.alternativeTextColor}
+          />
+        }
+      >
         {isAdvancedExpanded && (
           <View style={[styles.advancedContent, stylesHook.advancedContent]}>
             {/* Fee Rate */}
@@ -1383,10 +1432,10 @@ const TransactionStatus: React.FC = () => {
             )}
           </View>
         )}
-      </View>
+      </SettingsSection>
 
       {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {wallet && parsedConfirmations > 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
+      {wallet && parsedConfirmations === 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
     </SafeAreaScrollView>
   );
 };
@@ -1493,6 +1542,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 6,
+    flex: 1,
   },
   stateLabelContainer: {
     flexDirection: 'column',
@@ -1562,39 +1612,9 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     flexShrink: 1,
   },
-  detailsCard: {
+  sectionMargins: {
     marginHorizontal: 24,
     marginBottom: 42,
-    padding: 0,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  sectionTitle: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-  },
-  sectionTitleRow: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionTitleWithButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-  },
-  sectionTitleText: {
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  sectionTitleTextFlexible: {
-    flex: 1,
-    flexShrink: 1,
-    minWidth: 0,
   },
   explorerButton: {
     paddingVertical: 6,
@@ -1712,16 +1732,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     lineHeight: 20,
-  },
-  advancedHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 0,
-    minHeight: 44,
-    borderWidth: 1,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
   },
   advancedContent: {
     marginTop: 0,

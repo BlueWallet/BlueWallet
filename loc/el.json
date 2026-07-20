@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Θέλετε να επαναφέρετε το ποσό;",
     "success_done": "Ολοκληρώθηκε",
     "txSaved": "Το αρχείο συναλλαγής ({filePath}) έχει αποθηκευτεί.",
-    "file_saved_at_path": "Το αρχείο ({filePath}) έχει αποθηκευτεί.",
     "cant_send_to_silentpayment_adress": "Αυτό το πορτοφόλι δεν μπορεί να στείλει σε διευθύνσεις SilentPayment",
     "cant_send_to_bip47": "Αυτό το πορτοφόλι δεν μπορεί να στείλει σε κωδικούς πληρωμής BIP47",
     "cant_find_bip47_notification": "Προσθέστε πρώτα αυτόν τον κωδικό πληρωμής στις επαφές",

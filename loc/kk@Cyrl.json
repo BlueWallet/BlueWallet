@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Соманы қалпына келтіруді қалайсыз ба?",
     "success_done": "Дайын",
     "txSaved": "Транзакция файлы ({filePath}) сақталды.",
-    "file_saved_at_path": "Файл ({filePath}) сақталды.",
     "cant_send_to_silentpayment_adress": "Бұл әмиян Silent Payments мекенжайларына жібере алмайды",
     "cant_send_to_bip47": "Бұл әмиян BIP47 төлем кодтарына жібере алмайды",
     "cant_find_bip47_notification": "Алдымен осы Төлем кодын контактілерге қосыңыз",

@@ -54,10 +54,13 @@ const useFloatButtonAnimation = (initialHeight: number) => {
 
 const getScaledButtonHeight = (fontScale: number): number => Math.round(LAYOUT.BUTTON_HEIGHT * fontScale);
 
-/** Scroll padding so list content clears float buttons (excludes safe-area inset). Default 70 at fontScale 1. */
+/** Gap between list content and the top of the float buttons. */
 const FLOAT_BUTTON_LIST_CLEARANCE = 18;
 
-export const getFloatingButtonReservedHeight = (fontScale = 1): number => getScaledButtonHeight(fontScale) + FLOAT_BUTTON_LIST_CLEARANCE;
+const getFloatButtonBottomOffset = (bottomInset: number): number => (bottomInset ? bottomInset + 10 : 30);
+
+export const getFloatingButtonReservedHeight = (fontScale = 1, bottomInset = 0): number =>
+  getScaledButtonHeight(fontScale) + FLOAT_BUTTON_LIST_CLEARANCE + getFloatButtonBottomOffset(bottomInset) - bottomInset;
 
 const useFloatButtonLayout = (width: number, sizeClass: SizeClass, fontScale: number) => {
   const lastVerticalDecision = useRef(false);
@@ -473,7 +476,7 @@ export const FContainer = forwardRef<View, FContainerProps>((props, ref) => {
 
   const bottomInsets = useMemo(
     () => ({
-      bottom: insets.bottom ? insets.bottom + 10 : 30,
+      bottom: getFloatButtonBottomOffset(insets.bottom),
     }),
     [insets.bottom],
   );

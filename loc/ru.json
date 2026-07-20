@@ -209,7 +209,6 @@
     "reset_amount_confirm": "Хотите сбросить сумму?",
     "success_done": "Готово",
     "txSaved": "Файл транзакции ({filePath}) сохранён.",
-    "file_saved_at_path": "Файл ({filePath}) сохранён.",
     "cant_send_to_silentpayment_adress": "Этот кошелёк не может отправлять на адреса SilentPayment",
     "cant_send_to_bip47": "Этот кошелёк не может отправлять на коды оплаты BIP47",
     "cant_find_bip47_notification": "Сначала добавьте этот Код Оплаты в контакты",
