@@ -382,7 +382,7 @@ export const FButton = ({
         ...baseStyles,
         height: buttonHeight,
         minHeight: buttonHeight,
-        backgroundColor: shouldUseLiquidGlass ? 'transparent' : colors.buttonBackgroundColor,
+        ...(shouldUseLiquidGlass ? {} : { backgroundColor: colors.buttonBackgroundColor }),
       },
       text: {
         color: colors.buttonAlternativeTextColor,
@@ -410,7 +410,6 @@ export const FButton = ({
   }
 
   const textStyle = [customButtonStyles.textBase, props.disabled ? customButtonStyles.textDisabled : customButtonStyles.text];
-  const liquidGlassStyle = useMemo(() => [buttonStyles.liquidGlassFill, { borderRadius }], [borderRadius]);
 
   const handlePressIn = useCallback(() => {
     if (props.disabled) return;
@@ -433,7 +432,9 @@ export const FButton = ({
         style={[buttonStyles.root, customButtonStyles.root, style, { borderRadius }]}
         {...props}
       >
-        {shouldUseLiquidGlass ? <LiquidGlassView pointerEvents="none" style={liquidGlassStyle} effect={liquidGlassEffect} /> : null}
+        {shouldUseLiquidGlass ? (
+          <LiquidGlassView pointerEvents="none" style={[buttonStyles.liquidGlassFill, { borderRadius }]} effect={liquidGlassEffect} />
+        ) : null}
         <ButtonContent icon={icon} text={text} textStyle={textStyle} buttonHeight={buttonHeight} />
       </TouchableOpacity>
     </Animated.View>
