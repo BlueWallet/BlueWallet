@@ -119,6 +119,7 @@ describe('Watch only wallet', () => {
     assert.throws(() => w.setMasterFingerprintHex('123456789'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
     assert.throws(() => w.setMasterFingerprintHex('gggggggg'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
     assert.throws(() => w.setMasterFingerprintHex('398e3e5g'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+  });
 
   it('can do RBF - bumpfees tx', async () => {
     const w = new WatchOnlyWallet();

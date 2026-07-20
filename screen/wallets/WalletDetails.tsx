@@ -359,6 +359,10 @@ const WalletDetails: React.FC = () => {
     statsBoxNumber: {
       color: colors.foregroundColor,
     },
+    input: {
+      borderColor: colors.formBorder,
+      color: colors.foregroundColor,
+    },
   });
 
   const navigateToWalletExport = () => {
