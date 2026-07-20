@@ -2,12 +2,14 @@ import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback,
 import { Animated, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, StyleProp, TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
-import { LiquidGlassView, isLiquidGlassSupported, type LiquidGlassEffect } from '@callstack/liquid-glass';
+import { LiquidGlassView, isLiquidGlassSupported } from '@callstack/liquid-glass';
 import { useTheme } from './themes';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
 import debounce from '../blue_modules/debounce';
 import { withAlpha } from './color';
+
+type LiquidGlassEffect = 'clear' | 'regular' | 'none';
 
 const scheduleInNextFrame = (callback: () => void): number => {
   return requestAnimationFrame(() => {
@@ -239,7 +241,7 @@ const buttonStyles = StyleSheet.create({
     textAlignVertical: 'center',
   },
   liquidGlassFill: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
 });
 
