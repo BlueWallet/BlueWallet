@@ -13,6 +13,7 @@ import {
   scrollUpOnHomeScreen,
   setCustomFeeRate,
   sleep,
+  tapHeaderMenuAction,
   tapAndTapAgainIfElementIsNotVisible,
   tapAndTapAgainIfTextIsNotVisible,
   tapIfTextPresent,
@@ -353,7 +354,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('SendButton')).tap();
 
     await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Sign a transaction')).tap();
+    await tapHeaderMenuAction('sign_psbt', 'Sign a transaction');
 
     // 1 input, 2 outputs. wallet can fully sign this tx
     const psbt =
@@ -513,7 +514,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
 
     await tapAndTapAgainIfElementIsNotVisible('SendButton', 'HeaderMenuButton');
     await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Insert Contact')).tap();
+    await tapHeaderMenuAction('insert_contact', 'Insert Contact');
     await tapAndTapAgainIfElementIsNotVisible('ContactListItem0', 'BitcoinAmountInput');
     await element(by.id('BitcoinAmountInput')).replaceText('0.0001');
     await waitForKeyboardToClose();
@@ -521,7 +522,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('HeaderMenuButton')).tap();
     await element(by.text('Add Recipient')).tap();
     await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Insert Contact')).tap();
+    await tapHeaderMenuAction('insert_contact', 'Insert Contact');
     await element(by.id('ContactListItem1')).tap();
     await element(by.id('BitcoinAmountInput')).atIndex(1).replaceText('0.0002');
     await waitForKeyboardToClose();
@@ -686,7 +687,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
     await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Coin Control')).tap();
+    await tapHeaderMenuAction('coin_control', 'Coin Control');
     await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
       .not.toExist()
       .withTimeout(300 * 1000);
