@@ -2,6 +2,7 @@ import React, { forwardRef, ReactNode, useEffect, useRef, useState, useCallback,
 import { Animated, PixelRatio, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View, StyleProp, TextStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import { LiquidGlassView, isLiquidGlassSupported, type LiquidGlassEffect } from '@callstack/liquid-glass';
 import { useTheme } from './themes';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import { isDesktop } from '../blue_modules/environment';
@@ -237,6 +238,9 @@ const buttonStyles = StyleSheet.create({
     textAlign: 'center',
     textAlignVertical: 'center',
   },
+  liquidGlassFill: {
+    ...StyleSheet.absoluteFillObject,
+  },
 });
 
 const buttonContentStaticStyles = StyleSheet.create({
@@ -284,6 +288,8 @@ interface FButtonProps {
   buttonHeight?: number;
   disabled?: boolean;
   testID?: string;
+  useLiquidGlass?: boolean;
+  liquidGlassEffect?: LiquidGlassEffect;
   onPress: () => void;
   onLongPress?: () => void;
 }
@@ -348,10 +354,13 @@ export const FButton = ({
   fontSize = LAYOUT.MAX_BUTTON_FONT_SIZE,
   buttonHeight = LAYOUT.BUTTON_HEIGHT,
   testID,
+  useLiquidGlass = false,
+  liquidGlassEffect = 'regular',
   ...props
 }: FButtonProps) => {
   const { colors } = useTheme();
   const scale = useRef(new Animated.Value(1)).current;
+  const shouldUseLiquidGlass = useLiquidGlass && isLiquidGlassSupported;
 
   const animateScaleTo = useCallback(
     (toValue: number) => {
@@ -371,7 +380,7 @@ export const FButton = ({
         ...baseStyles,
         height: buttonHeight,
         minHeight: buttonHeight,
-        backgroundColor: colors.buttonBackgroundColor,
+        backgroundColor: shouldUseLiquidGlass ? 'transparent' : colors.buttonBackgroundColor,
       },
       text: {
         color: colors.buttonAlternativeTextColor,
@@ -384,7 +393,7 @@ export const FButton = ({
       marginBottom: buttonContentStaticStyles.marginBottom,
       textBase: buttonContentStaticStyles.textBase,
     };
-  }, [colors, fontSize, buttonHeight]);
+  }, [buttonHeight, colors, fontSize, shouldUseLiquidGlass]);
 
   const style: Record<string, any> = {};
   const additionalStyles = !last ? (isVertical ? customButtonStyles.marginBottom : customButtonStyles.marginRight) : {};
@@ -399,6 +408,7 @@ export const FButton = ({
   }
 
   const textStyle = [customButtonStyles.textBase, props.disabled ? customButtonStyles.textDisabled : customButtonStyles.text];
+  const liquidGlassStyle = useMemo(() => [buttonStyles.liquidGlassFill, { borderRadius }], [borderRadius]);
 
   const handlePressIn = useCallback(() => {
     if (props.disabled) return;
@@ -421,6 +431,7 @@ export const FButton = ({
         style={[buttonStyles.root, customButtonStyles.root, style, { borderRadius }]}
         {...props}
       >
+        {shouldUseLiquidGlass ? <LiquidGlassView pointerEvents="none" style={liquidGlassStyle} effect={liquidGlassEffect} /> : null}
         <ButtonContent icon={icon} text={text} textStyle={textStyle} buttonHeight={buttonHeight} />
       </TouchableOpacity>
     </Animated.View>

@@ -474,6 +474,8 @@ const WalletsList: React.FC = () => {
               icon={<Image resizeMode="stretch" source={scanImage} />}
               text={loc.send.details_scan}
               testID="HomeScreenScanButton"
+              useLiquidGlass={isIOS26OrHigher}
+              liquidGlassEffect="clear"
             />
           </FContainer>
         </>
