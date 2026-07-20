@@ -136,7 +136,7 @@ tasks.configureEach { task ->
 }
 
 dependencies {
-    androidTestImplementation('com.wix:detox:20.51.3')
+    androidTestImplementation('com.wix:detox:20.51.4')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation 'androidx.core:core-ktx:1.18.0'
