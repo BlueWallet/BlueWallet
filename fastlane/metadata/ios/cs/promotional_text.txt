@@ -1,0 +1,10 @@
+Funkce
+
+* Otevřený kód
+* Plně šifrovaná
+* Věrohodná popiratelnost
+* Flexibilní poplatky
+* Replace-By-Fee (RBF)
+* SegWit
+* Peněženky pouze ke sledování
+* Síť Lightning
