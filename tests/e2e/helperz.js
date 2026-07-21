@@ -418,13 +418,30 @@ export async function countElements(testId) {
   return count;
 }
 
+/**
+ * Feeds text into the QR scanner backdoor (used for UR fragments in e2e).
+ * On iOS, animated QR / transition layer animations can leave Detox permanently
+ * "busy" (`Layer animations pending`), so sync is disabled around the backdoor
+ * interaction — same pattern as wallet creation and alert dismissal helpers.
+ */
 export async function scanText(text) {
-  await waitForId('ScanQrBackdoorButton');
-  for (let c = 0; c <= 5; c++) {
-    await element(by.id('ScanQrBackdoorButton')).tap();
+  const isIOS = device.getPlatform() === 'ios';
+  if (isIOS) {
+    await device.disableSynchronization();
   }
-  await element(by.id('scanQrBackdoorInput')).replaceText(text);
-  await element(by.id('scanQrBackdoorOkButton')).tap();
+  try {
+    await waitForId('ScanQrBackdoorButton');
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+    }
+    await element(by.id('scanQrBackdoorInput')).replaceText(text);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await sleep(300);
+  } finally {
+    if (isIOS) {
+      await device.enableSynchronization();
+    }
+  }
 }
 
 export async function setCustomFeeRate(feeRate) {
