@@ -1849,7 +1849,7 @@ lane :release_notes do |options|
     begin
       filter = {
         appStoreState: "DEVELOPER_REJECTED",
-        platformString: platform.to_s
+        platform: platform.to_s
       }
       
       app.get_app_store_versions(filter: filter).each do |version|
@@ -1884,7 +1884,7 @@ lane :release_notes do |options|
         UI.message("Checking for version in Waiting for Review status...")
         begin
           waiting_filter = {
-            platformString: platform.to_s,
+            platform: platform.to_s,
             appStoreState: "WAITING_FOR_REVIEW"
           }
           
@@ -1903,7 +1903,7 @@ lane :release_notes do |options|
       if prepare_version.nil?
         UI.message("Looking for any in-flight version...")
         begin
-          all_versions = app.get_app_store_versions(filter: { platformString: platform.to_s })
+          all_versions = app.get_app_store_versions(filter: { platform: platform.to_s })
           UI.message("Found #{all_versions.count} versions for platform #{platform}:")
           
           all_versions.each do |version|
@@ -1933,18 +1933,26 @@ lane :release_notes do |options|
         
         if create_new_version
           begin
-            UI.message("Fetching latest version for platform: #{platform}")
-            latest_version = app.get_latest_version(platform: platform)
-            if latest_version
-              UI.message("Latest version: #{latest_version.version_string}")
-              new_version_number = (latest_version.version_string.to_f + 0.1).round(1).to_s
-            else
-              UI.message("No latest version found. Using 1.0 as base")
-              new_version_number = "1.0"
+            require 'json'
+            package_json_path = File.expand_path("../package.json", __dir__)
+            package_json = JSON.parse(File.read(package_json_path))
+            new_version_number = package_json["version"]
+
+            if new_version_number.nil? || new_version_number.strip.empty?
+              UI.user_error!("package.json does not contain a valid version")
             end
-            
+
+            UI.message("Using package.json version: #{new_version_number}")
             UI.message("Creating new version: #{new_version_number} for platform: #{platform_selection || platform_option}")
-            prepare_version = app.create_version!(platform: platform, version_string: new_version_number)
+            app.ensure_version!(new_version_number, platform: platform)
+
+            prepare_version = app.get_edit_app_store_version(platform: platform)
+            if prepare_version.nil? || prepare_version.version_string != new_version_number
+              versions_for_platform = app.get_app_store_versions(filter: { platform: platform.to_s })
+              prepare_version = versions_for_platform.find { |v| v.version_string == new_version_number }
+            end
+
+            UI.user_error!("Failed to fetch created version #{new_version_number}") if prepare_version.nil?
             UI.message("Created new version: #{new_version_number}")
           rescue => e
             UI.error("Failed to create new version: #{e.message}")
