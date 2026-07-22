@@ -71,6 +71,7 @@
     "android:restart": "adb shell am force-stop io.bluewallet.bluewallet; adb shell monkey -p io.bluewallet.bluewallet -c android.intent.category.LAUNCHER 1",
     "ios": "react-native run-ios",
     "postinstall": "npm run releasenotes2json; npm run branch2json; npm run patches",
+    "prepare-new-release": "(bundle check >/dev/null 2>&1 && bundle exec fastlane ios prepare_new_release) || FASTLANE_SKIP_UPDATE_CHECK=1 fastlane ios prepare_new_release",
     "patches": "npx patch-package",
     "test": "npm run lint && npm run unit && npm run integration",
     "integration": "jest tests/integration/*",
