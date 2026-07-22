@@ -344,7 +344,9 @@ export class AbstractWallet {
         this._derivationPath = parsedSecret.AccountKeyPath.startsWith('m/')
           ? parsedSecret.AccountKeyPath
           : `m/${parsedSecret.AccountKeyPath}`;
-        if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
+        if (parsedSecret.CoboVaultFirmwareVersion || parsedSecret.UseWithHardwareWallet === true) {
+          this.use_with_hardware_wallet = true;
+        }
         return this;
       }
     } catch (_) {}

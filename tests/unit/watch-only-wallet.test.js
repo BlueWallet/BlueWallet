@@ -1,4 +1,10 @@
 import assert from 'assert';
+import {
+  CryptoHDKey,
+  CryptoKeypath,
+  CryptoMultiAccounts,
+  PathComponent,
+} from '@keystonehq/bc-ur-registry/dist';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { BlueURDecoder, clearUseURv1, decodeUR, encodeUR, extractSingleWorkload, setUseURv1 } from '../../blue_modules/ur';
@@ -680,6 +686,23 @@ describe('Watch only wallet', () => {
 });
 
 describe('BC-UR', () => {
+  const createHardwareWalletHdKey = () =>
+    new CryptoHDKey({
+      isMaster: false,
+      key: Buffer.from(`02${'01'.repeat(32)}`, 'hex'),
+      chainCode: Buffer.alloc(32, 1),
+      origin: new CryptoKeypath(
+        [
+          new PathComponent({ index: 84, hardened: true }),
+          new PathComponent({ index: 0, hardened: true }),
+          new PathComponent({ index: 0, hardened: true }),
+        ],
+        Buffer.from('73C5DA0A', 'hex'),
+        3,
+      ),
+      parentFingerprint: Buffer.from('12345678', 'hex'),
+    });
+
   it('v1: can decodeUR() and then combine unfinalized signed PSBT', () => {
     const unsignedPayload = decodeUR([
       'UR:BYTES/TYQ4XURNVF607QGQWYPQQQQQQ9U63JU4AD5C93Y057WNRNTV24AE8QK4DDHVT04GHTKNQZCXYHNW5QGQQQQQPLHLLLLS9LRRQQQQQQQQQQTQQ9P9YMAAVV5GVUNKD49W4GDNJ4C9GJP7383QFCQQQQQQQQQPVQQ5CXKNG9PNTGMDRV0GNWNJZS23KGG3V0KXQQQQQQQQQYQ375XRQQQQQQQQQQTQQ98UXJHTKAHE83Q8W5VGHH2G93698VZLP6PZQCPXW47RAFD36W04SNHNTZK8CLCWHXDJJRRZ2EP998STFNRYWFQPC0CC3N8X87Z5QQQGQQQQQZQQQQQQSQQQQQQQQQQQQQQQYGPQY5M4J23F3Z9TK6HZTRDD6M89QX955DEH3HXGXAC6NJQMT3CHYTJHRZXVUCLC2SQQPQQQQQQGQQQQQZQQZQQQQQQQQQQQQQ3QYQK6E2MCA75ZCRMMWZYWXNQKGKNNJC7JUXPNWR5QPYQC3EYRM4NDQ5VGENNRLP2QQQYQQQQQPQQQQQQGQQQQQQQQZQQQQQQQ6GYX3G',
@@ -819,6 +842,36 @@ describe('BC-UR', () => {
     assert.ok(json[2].ExtPubKey.startsWith('xpub'));
     assert.ok(json[2].AccountKeyPath.startsWith('m/44'));
     assert.ok(json[2].MasterFingerprint === '73C5DA0A');
+  });
+
+  it('v2: imports crypto-multi-accounts with hardware wallet signing enabled', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(wallet.type, WatchOnlyWallet.type);
+    assert.strictEqual(wallet.useWithHardwareWalletEnabled(), true);
+    assert.strictEqual(wallet.allowSend(), true);
+  });
+
+  it('v2: marks crypto-hdkey as a hardware wallet import', () => {
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(createHardwareWalletHdKey().toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+
+    assert.strictEqual(account.UseWithHardwareWallet, true);
   });
 
   it('v1: decodeUR() works', async () => {

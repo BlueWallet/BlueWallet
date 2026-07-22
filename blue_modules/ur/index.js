@@ -465,6 +465,7 @@ class BlueURDecoder extends URDecoder {
       const hdKey = CryptoHDKey.fromCBOR(decoded.cbor);
       const result = _hdKeyToResult(hdKey, null);
       if (!result) throw new Error('crypto-hdkey: missing origin or components');
+      result.UseWithHardwareWallet = true;
       return JSON.stringify([result]);
     }
 
@@ -476,7 +477,10 @@ class BlueURDecoder extends URDecoder {
       for (const hdKey of multiAccounts.getKeys()) {
         // skip keys without a valid Bitcoin derivation path (e.g. ETH/SOL keys)
         const result = _hdKeyToResult(hdKey, masterFingerprint);
-        if (result) results.push(result);
+        if (result) {
+          result.UseWithHardwareWallet = true;
+          results.push(result);
+        }
       }
 
       if (results.length === 0) throw new Error('crypto-multi-accounts: no valid Bitcoin keys found');
