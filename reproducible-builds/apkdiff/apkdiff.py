@@ -34,6 +34,8 @@ class XmlDifference:
     first_value: Optional[str] = None
     second_value: Optional[str] = None
     child_tag: Optional[str] = None
+    first_element_attrs: Optional[dict] = None
+    second_element_attrs: Optional[dict] = None
 
 
 IGNORE_FILES = [
@@ -52,6 +54,11 @@ IGNORE_FILES = [
 ]
 
 ALLOWED_ARSC_DIFF_PATHS = [".res1"]
+ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
+ANDROID_NAME_ATTR = f"{ANDROID_NS}name"
+ANDROID_VALUE_ATTR = f"{ANDROID_NS}value"
+BUGSNAG_BUILD_UUID_KEY = "com.bugsnag.android.BUILD_UUID"
+
 
 def open_apk(path: str) -> ZipFile:
     if not os.path.exists(path):
@@ -170,18 +177,26 @@ def compare_android_xml(bytes1: bytes, bytes2: bytes) -> bool:
     bad_differences = []
 
     for diff in all_differences:
-        is_split_attr = diff.diff_type == "attribute" and diff.path in ["manifest", "manifest/application"] and diff.attribute_name is not None and "split" in diff.attribute_name.lower()
-        is_meta_attr = diff.diff_type == "attribute" and diff.path == "manifest/application/meta-data"
-        is_meta_child_count = diff.diff_type == "child_count" and diff.child_tag == "meta-data"
+        is_split_attr = (
+            diff.diff_type == "attribute"
+            and diff.path in ["manifest", "manifest/application"]
+            and diff.attribute_name is not None
+            and "split" in diff.attribute_name.lower()
+        )
         is_bugsnag_build_uuid = (
             diff.diff_type == "attribute"
             and diff.path == "manifest/application/meta-data"
-            and diff.attribute_name == "android:value"
-            and "BUILD_UUID" in (diff.first_value or diff.second_value or "")
+            and diff.attribute_name == ANDROID_VALUE_ATTR
+            and (diff.first_element_attrs or {}).get(ANDROID_NAME_ATTR) == BUGSNAG_BUILD_UUID_KEY
+            and (diff.second_element_attrs or {}).get(ANDROID_NAME_ATTR) == BUGSNAG_BUILD_UUID_KEY
         )
 
-        if not is_split_attr and not is_meta_attr and not is_meta_child_count and not is_bugsnag_build_uuid:
-            bad_differences.append(diff)
+        if is_split_attr:
+            continue
+        if is_bugsnag_build_uuid:
+            print(f"Ignoring Bugsnag BUILD_UUID change ({diff.first_value} -> {diff.second_value})")
+            continue
+        bad_differences.append(diff)
 
     if bad_differences:
         print(bad_differences)
@@ -358,7 +373,15 @@ def compare_xml_elements(elem1: Element, elem2: Element, path: str = "") -> list
         val2 = attrs2.get(key)
 
         if val1 != val2:
-            differences.append(XmlDifference(diff_type="attribute", path=current_path, attribute_name=key, first_value=val1, second_value=val2))
+            differences.append(XmlDifference(
+                diff_type="attribute", 
+                path=current_path, 
+                attribute_name=key, 
+                first_value=val1, 
+                second_value=val2,
+                first_element_attrs=dict(attrs1),
+                second_element_attrs=dict(attrs2),
+            ))
 
     # Compare text content
     text1 = (elem1.text or "").strip()
