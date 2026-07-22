@@ -421,27 +421,23 @@ export async function countElements(testId) {
 /**
  * Feeds text into the QR scanner backdoor (used for UR fragments in e2e).
  * On iOS, animated QR / transition layer animations can leave Detox permanently
- * "busy" (`Layer animations pending`), so sync is disabled around the backdoor
- * interaction — same pattern as wallet creation and alert dismissal helpers.
+ * "busy" (`Layer animations pending`), so synchronization is disabled for the
+ * backdoor interaction. Do not call `enableSynchronization()` here: that waits
+ * for idle and hangs on the same animations (seen as a stuck
+ * `setSyncSettings: {"enabled":true}`). Sync stays off until a later helper
+ * re-enables it after leaving the animated screen.
  */
 export async function scanText(text) {
-  const isIOS = device.getPlatform() === 'ios';
-  if (isIOS) {
+  if (device.getPlatform() === 'ios') {
     await device.disableSynchronization();
   }
-  try {
-    await waitForId('ScanQrBackdoorButton');
-    for (let c = 0; c <= 5; c++) {
-      await element(by.id('ScanQrBackdoorButton')).tap();
-    }
-    await element(by.id('scanQrBackdoorInput')).replaceText(text);
-    await element(by.id('scanQrBackdoorOkButton')).tap();
-    await sleep(300);
-  } finally {
-    if (isIOS) {
-      await device.enableSynchronization();
-    }
+  await waitForId('ScanQrBackdoorButton');
+  for (let c = 0; c <= 5; c++) {
+    await element(by.id('ScanQrBackdoorButton')).tap();
   }
+  await element(by.id('scanQrBackdoorInput')).replaceText(text);
+  await element(by.id('scanQrBackdoorOkButton')).tap();
+  await sleep(300);
 }
 
 export async function setCustomFeeRate(feeRate) {
