@@ -8,7 +8,7 @@ npm config set fetch-retries 5
 npm config set fetch-retry-mintimeout 20000
 npm config set fetch-retry-maxtimeout 120000
 
-npm ci
+npm ci --omit=dev
 
 cd android
 ./gradlew --no-daemon --no-build-cache assembleRelease
