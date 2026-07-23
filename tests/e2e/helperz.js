@@ -1,5 +1,7 @@
 import { sha256 } from '@noble/hashes/sha256';
 import { element } from 'detox';
+import { execFileSync } from 'child_process';
+import path from 'path';
 
 /**
  * Captures a stack trace at the call site, excluding the given function from the trace.
@@ -419,10 +421,17 @@ export async function countElements(testId) {
 }
 
 export async function scanText(text) {
-  await waitForId('ScanQrBackdoorButton');
-  for (let c = 0; c <= 5; c++) {
-    await element(by.id('ScanQrBackdoorButton')).tap();
+  if (device.getPlatform() === 'android') {
+    const output = process.env.DETOX_QR_CAMERA_IMAGE || '/tmp/bluewallet-detox-qr.png';
+    execFileSync(process.execPath, [path.resolve('tests/e2e/generate-qr-image.js'), text, output]);
+    // Give the emulator imagefile camera a frame to reload before the scanner
+    // receives the next frame. The Android camera itself is used; no backdoor
+    // input is involved.
+    await new Promise(resolve => setTimeout(resolve, 250));
+    return;
   }
+  await waitForId('ScanQrBackdoorButton');
+  for (let c = 0; c <= 5; c++) await element(by.id('ScanQrBackdoorButton')).tap();
   await element(by.id('scanQrBackdoorInput')).replaceText(text);
   await element(by.id('scanQrBackdoorOkButton')).tap();
 }
