@@ -114,5 +114,5 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await helperDeleteWallet('Imported Watch-only', '10000');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  }, 480_000);
+  });
 });

@@ -1,7 +1,7 @@
 module.exports = {
   maxWorkers: 1,
-  // 5 minutes default so hung Detox sync fails faster; long multisig flows override per-test.
-  testTimeout: 300_000,
+  // Default 10 minutes; long multisig / UR flows also set per-test overrides.
+  testTimeout: 600_000,
   verbose: true,
   reporters: ['detox/runners/jest/reporter'],
   globalSetup: 'detox/runners/jest/globalSetup',

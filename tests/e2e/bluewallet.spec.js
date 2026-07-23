@@ -80,7 +80,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
     await goBack();
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  }, 480_000);
+  });
 
   it('all settings screens work', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t2');
@@ -485,7 +485,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.text('fake_wallet'))).toBeVisible();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  }, 480_000);
+  });
 
   it('can encrypt storage, and decrypt storage works', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t5');
@@ -647,7 +647,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .scroll(100, 'down');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  }, 480_000);
+  });
 
   it('can import multisig setup from UR, and create tx, and sign on hw devices', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t6');
@@ -768,7 +768,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     assert.strictEqual(transaction.outs[0].value, 50000n);
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  }, 480_000);
+  });
 
   it('can discover wallet account and import it', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t7');
@@ -839,7 +839,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .whileElement(by.id('WalletDetailsScroll'))
       .scroll(100, 'down');
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  }, 480_000);
+  });
 
   it('can create wallet, and use main screen SCAN button to scan address', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t8');
@@ -1135,7 +1135,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     assert.strictEqual(vaultReceiveAddressAfterCosignerRestore, vaultReceiveAddress);
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  }, 480_000);
+  });
 
   it('can create wrapped segwit 2of2 vault via advanced settings', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t11');
@@ -1202,5 +1202,5 @@ describe('BlueWallet UI Tests - no wallets', () => {
       .scroll(100, 'down');
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
-  }, 480_000);
+  });
 });

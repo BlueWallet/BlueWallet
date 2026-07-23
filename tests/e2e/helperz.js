@@ -171,31 +171,19 @@ export async function sleep(ms) {
 }
 
 /**
- * Re-enables Detox sync without hanging forever when the UI still has pending
- * layer animations (`enableSynchronization` waits for idle and can block on
- * `setSyncSettings: {"enabled":true}`). On timeout, sync stays disabled.
+ * Re-enables Detox synchronization after a disableSynchronization() section.
+ *
+ * Call only after leaving animated QR / UR UI: on iOS, enableSynchronization
+ * waits for idle and can hang on pending layer animations if invoked too early.
+ * Do not race this against a timeout — abandoning a pending enableSynchronization
+ * leaves Detox with an in-flight interaction and breaks the next action
+ * ("multiple interactions taking place simultaneously").
  */
-export async function safelyEnableSynchronization(timeoutMs = 5000) {
-  if (device.getPlatform() !== 'ios') {
-    return;
-  }
-  let timer;
-  const enablePromise = device.enableSynchronization().catch(e => {
-    console.warn('[detox] enableSynchronization failed:', e?.message ?? e);
-  });
+export async function safelyEnableSynchronization() {
   try {
-    await Promise.race([
-      enablePromise,
-      new Promise((_resolve, reject) => {
-        timer = setTimeout(() => reject(new Error('safelyEnableSynchronization timed out')), timeoutMs);
-      }),
-    ]);
+    await device.enableSynchronization();
   } catch (e) {
-    if (String(e?.message ?? e).includes('timed out')) {
-      console.warn('[detox] enableSynchronization timed out; leaving sync disabled');
-    }
-  } finally {
-    if (timer) clearTimeout(timer);
+    console.warn('[detox] enableSynchronization failed:', e?.message ?? e);
   }
 }
 
