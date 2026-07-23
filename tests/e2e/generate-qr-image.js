@@ -16,7 +16,7 @@ if (!text || !output) {
   process.exit(1);
 }
 
-const bitmap = encodeQR(text, 'raw', { border: 4, scale: 4 });
+const bitmap = encodeQR(text, 'raw', { border: 2, scale: 1 });
 const width = bitmap[0].length;
 const rows = Buffer.concat(
   bitmap.map(row =>
