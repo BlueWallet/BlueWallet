@@ -599,10 +599,10 @@ export async function tapHeaderMenuItem(menuItemText, { restoreSync = true } = {
     await sleep(isIOS ? 1500 : 500);
     try {
       await element(by.text(menuItemText)).atIndex(0).tap();
-    } catch (_) {
+    } catch {
       try {
         await element(by.label(menuItemText)).atIndex(0).tap();
-      } catch (_) {
+      } catch {
         // Last resort: tap a corner point to bypass 100% visibility threshold.
         await element(by.text(menuItemText)).atIndex(0).tap({ x: 8, y: 8 });
       }
