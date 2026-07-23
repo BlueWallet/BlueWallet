@@ -372,13 +372,15 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
 function _hardwareWalletDisplayName(device) {
   if (typeof device !== 'string') return undefined;
 
-  // OneKey appends its serial number, BTC-only marker and passphrase identifier
-  // to this field. Keep those identifiers out of the user-facing wallet label.
-  const displayName = device
-    .split(':', 1)[0]
-    .replace(/-[0-9a-f]{8}$/i, '')
-    .trim();
-  return displayName || undefined;
+  // OneKey separates the model and serial number with a colon, then may append
+  // a BTC-only marker and passphrase identifier. Show the full serial number,
+  // but keep the non-serial metadata out of the user-facing wallet label.
+  const [deviceName, serialNumber] = device.split(':', 2);
+  const displayName = deviceName.replace(/-[0-9a-f]{8}$/i, '').trim();
+  if (!displayName) return undefined;
+
+  const displaySerialNumber = serialNumber?.replace(/-[0-9a-f]{8}$/i, '').trim();
+  return displaySerialNumber ? `${displayName} · ${displaySerialNumber}` : displayName;
 }
 
 class BlueURDecoder extends URDecoder {

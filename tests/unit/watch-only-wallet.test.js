@@ -921,11 +921,30 @@ describe('BC-UR', () => {
     });
 
     assert.deepStrictEqual(labels, [
-      'OneKey Pro · Legacy',
-      'OneKey Pro · Nested SegWit',
-      'OneKey Pro · Native SegWit',
-      'OneKey Pro · Taproot',
+      'OneKey Pro · 123456789 · Legacy',
+      'OneKey Pro · 123456789 · Nested SegWit',
+      'OneKey Pro · 123456789 · Native SegWit',
+      'OneKey Pro · 123456789 · Taproot',
     ]);
+  });
+
+  it('v2: excludes the passphrase identifier from a OneKey serial number', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro:123456789-deadbeef',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Native SegWit');
   });
 
   it('v2: prefers a QR account name when the hardware wallet supplies one', () => {
@@ -944,7 +963,7 @@ describe('BC-UR', () => {
     wallet.setSecret(JSON.stringify(account));
     wallet.init();
 
-    assert.strictEqual(wallet.getLabel(), 'OneKey Pro · Savings');
+    assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Savings');
   });
 
   it('v2: distinguishes multiple accounts using the same Bitcoin script type', () => {
