@@ -186,7 +186,7 @@ export async function safelyEnableSynchronization(timeoutMs = 5000) {
   try {
     await Promise.race([
       enablePromise,
-      new Promise((_, reject) => {
+      new Promise((_resolve, reject) => {
         timer = setTimeout(() => reject(new Error('safelyEnableSynchronization timed out')), timeoutMs);
       }),
     ]);
