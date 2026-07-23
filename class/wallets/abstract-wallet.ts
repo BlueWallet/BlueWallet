@@ -84,6 +84,10 @@ export class AbstractWallet {
     return uint8ArrayToHex(sha256(string2hash));
   }
 
+  getTypeReadable(): string {
+    return this.typeReadable;
+  }
+
   getTransactions(): Transaction[] {
     throw new Error('not implemented');
   }

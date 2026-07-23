@@ -200,7 +200,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
   const [isUnitSwitching, setIsUnitSwitching] = useState(false);
   const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
-    return wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible;
+    return wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).shouldShowWatchOnlyWarning();
   });
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
@@ -272,7 +272,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [wallet, walletID]);
 
   useEffect(() => {
-    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible);
+    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).shouldShowWatchOnlyWarning());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
@@ -788,15 +788,17 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           </View>
         </View>
         <View style={stylesHook.backgroundContainer}>
-          {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
-            <WatchOnlyWarning
-              handleDismiss={() => {
-                setIsWatchOnlyWarningVisible(false);
-                wallet.isWatchOnlyWarningVisible = false;
-                saveToDisk();
-              }}
-            />
-          )}
+          {wallet.type === WatchOnlyWallet.type &&
+            (wallet as WatchOnlyWallet).shouldShowWatchOnlyWarning() &&
+            isWatchOnlyWarningVisible && (
+              <WatchOnlyWarning
+                handleDismiss={() => {
+                  setIsWatchOnlyWarningVisible(false);
+                  wallet.isWatchOnlyWarningVisible = false;
+                  saveToDisk();
+                }}
+              />
+            )}
         </View>
       </View>
     ),

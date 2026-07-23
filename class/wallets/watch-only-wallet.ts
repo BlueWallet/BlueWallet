@@ -14,6 +14,7 @@ const bip32 = BIP32Factory(ecc);
 export class WatchOnlyWallet extends LegacyWallet {
   static readonly type = 'watchOnly';
   static readonly typeReadable = 'Watch-only';
+  static readonly hardwareWalletTypeReadable = 'Hardware Wallet';
   // @ts-ignore: override
   public readonly type = WatchOnlyWallet.type;
   // @ts-ignore: override
@@ -44,6 +45,18 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   allowSend() {
     return this.useWithHardwareWalletEnabled() && this.isHd() && this._hdWalletInstance!.allowSend();
+  }
+
+  isHardwareWallet() {
+    return this.useWithHardwareWalletEnabled() && this.isHd();
+  }
+
+  getTypeReadable() {
+    return this.isHardwareWallet() ? WatchOnlyWallet.hardwareWalletTypeReadable : super.getTypeReadable();
+  }
+
+  shouldShowWatchOnlyWarning() {
+    return this.isWatchOnlyWarningVisible && !this.isHardwareWallet();
   }
 
   allowRBF() {

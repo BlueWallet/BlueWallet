@@ -1,13 +1,12 @@
 import assert from 'assert';
-import {
-  CryptoHDKey,
-  CryptoKeypath,
-  CryptoMultiAccounts,
-  PathComponent,
-} from '@keystonehq/bc-ur-registry/dist';
+import { CryptoHDKey, CryptoKeypath, CryptoMultiAccounts, PathComponent } from '@keystonehq/bc-ur-registry/dist';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { BlueURDecoder, clearUseURv1, decodeUR, encodeUR, extractSingleWorkload, setUseURv1 } from '../../blue_modules/ur';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
@@ -682,18 +681,21 @@ describe('Watch only wallet', () => {
     w.init();
 
     assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(w.isHardwareWallet(), false);
+    assert.strictEqual(w.getTypeReadable(), WatchOnlyWallet.typeReadable);
+    assert.strictEqual(w.shouldShowWatchOnlyWarning(), true);
   });
 });
 
 describe('BC-UR', () => {
-  const createHardwareWalletHdKey = () =>
+  const createHardwareWalletHdKey = (purpose = 84) =>
     new CryptoHDKey({
       isMaster: false,
-      key: Buffer.from(`02${'01'.repeat(32)}`, 'hex'),
+      key: Buffer.from('0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 'hex'),
       chainCode: Buffer.alloc(32, 1),
       origin: new CryptoKeypath(
         [
-          new PathComponent({ index: 84, hardened: true }),
+          new PathComponent({ index: purpose, hardened: true }),
           new PathComponent({ index: 0, hardened: true }),
           new PathComponent({ index: 0, hardened: true }),
         ],
@@ -863,6 +865,65 @@ describe('BC-UR', () => {
     assert.strictEqual(wallet.type, WatchOnlyWallet.type);
     assert.strictEqual(wallet.useWithHardwareWalletEnabled(), true);
     assert.strictEqual(wallet.allowSend(), true);
+    assert.strictEqual(wallet.getTypeReadable(), WatchOnlyWallet.hardwareWalletTypeReadable);
+    assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), false);
+  });
+
+  it('v2: imports all OneKey Bitcoin account types as hardware wallets', () => {
+    const accountTypes = [
+      { purpose: 44, walletType: HDLegacyP2PKHWallet.type, addressPrefix: '1' },
+      { purpose: 49, walletType: HDSegwitP2SHWallet.type, addressPrefix: '3' },
+      { purpose: 84, walletType: HDSegwitBech32Wallet.type, addressPrefix: 'bc1q' },
+      { purpose: 86, walletType: HDTaprootWallet.type, addressPrefix: 'bc1p' },
+    ];
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      accountTypes.map(({ purpose }) => createHardwareWalletHdKey(purpose)),
+      'OneKey Pro',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const accounts = JSON.parse(decoder.toString());
+
+    assert.strictEqual(accounts.length, accountTypes.length);
+    accounts.forEach((account, index) => {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(JSON.stringify(account));
+      wallet.init();
+
+      assert.strictEqual(wallet._hdWalletInstance.type, accountTypes[index].walletType);
+      assert.ok(wallet._getExternalAddressByIndex(0).startsWith(accountTypes[index].addressPrefix));
+      assert.strictEqual(wallet.useWithHardwareWalletEnabled(), true);
+      assert.strictEqual(wallet.allowSend(), true);
+    });
+  });
+
+  it('v2: preserves hardware wallet behavior after serialization', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+    wallet.prepareForSerialization();
+
+    const restoredWallet = WatchOnlyWallet.fromJson(JSON.stringify(wallet));
+    restoredWallet.init();
+
+    assert.strictEqual(restoredWallet.useWithHardwareWalletEnabled(), true);
+    assert.strictEqual(restoredWallet.allowSend(), true);
+    assert.strictEqual(restoredWallet.getTypeReadable(), WatchOnlyWallet.hardwareWalletTypeReadable);
+    assert.strictEqual(restoredWallet.shouldShowWatchOnlyWarning(), false);
   });
 
   it('v2: marks crypto-hdkey as a hardware wallet import', () => {
