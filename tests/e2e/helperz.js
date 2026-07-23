@@ -441,10 +441,10 @@ export async function scanText(text) {
  * progress indicator is used as the acknowledgement that the current frame
  * was consumed before advancing to the next one.
  */
-export async function scanQrFrames(frames, progressId = 'UrProgressBar') {
-  for (const frame of frames) {
-    await scanText(frame);
-    await waitFor(element(by.id(progressId))).toBeVisible();
+export async function scanQrFrames(frames) {
+  for (let i = 0; i < frames.length; i++) {
+    await scanText(frames[i]);
+    await waitFor(element(by.text(`${i + 1} / ${frames.length}`))).toBeVisible().withTimeout(5000);
   }
 }
 

@@ -3,20 +3,20 @@
 // Creates a PNG that can be used by the Android Emulator's imagefile camera
 // source. Kept dependency-free apart from the QR encoder already used by the
 // project so this also works on CI before the emulator is started.
-const fs = require("fs");
-const path = require("path");
-const zlib = require("zlib");
-const encodeQR = require("qr").default;
+const fs = require('fs');
+const path = require('path');
+const zlib = require('zlib');
+const encodeQR = require('qr').default;
 
 const text = process.argv[2];
 const output = process.argv[3];
 
 if (!text || !output) {
-  console.error("Usage: generate-qr-image.js <text> <output.png>");
+  console.error('Usage: generate-qr-image.js <text> <output.png>');
   process.exit(1);
 }
 
-const bitmap = encodeQR(text, "raw", { border: 4, scale: 4 });
+const bitmap = encodeQR(text, 'raw', { border: 4, scale: 4 });
 const width = bitmap[0].length;
 const rows = Buffer.concat(
   bitmap.map((row) =>
@@ -50,10 +50,10 @@ header.writeUInt32BE(bitmap.length, 4);
 header[8] = 8; // bit depth
 header[9] = 0; // grayscale
 const png = Buffer.concat([
-  Buffer.from("\x89PNG\r\n\x1a\n", "binary"),
-  chunk("IHDR", header),
-  chunk("IDAT", zlib.deflateSync(rows)),
-  chunk("IEND", Buffer.alloc(0)),
+  Buffer.from('\x89PNG\r\n\x1a\n', 'binary'),
+  chunk('IHDR', header),
+  chunk('IDAT', zlib.deflateSync(rows)),
+  chunk('IEND', Buffer.alloc(0)),
 ]);
 
 fs.mkdirSync(path.dirname(output), { recursive: true });
