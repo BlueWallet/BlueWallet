@@ -345,8 +345,7 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
   const result = {};
   result.ExtPubKey = b58.encode(keyData);
   result.MasterFingerprint =
-    masterFingerprintOverride ||
-    (origin.getSourceFingerprint() ? uint8ArrayToHex(origin.getSourceFingerprint()).toUpperCase() : '');
+    masterFingerprintOverride || (origin.getSourceFingerprint() ? uint8ArrayToHex(origin.getSourceFingerprint()).toUpperCase() : '');
   result.AccountKeyPath = derivationPath;
 
   // Re-encode with the correct version bytes for the specific script type so that
@@ -368,6 +367,18 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
   // Taproot via the derivation path rather than the version prefix.
 
   return result;
+}
+
+function _hardwareWalletDisplayName(device) {
+  if (typeof device !== 'string') return undefined;
+
+  // OneKey appends its serial number, BTC-only marker and passphrase identifier
+  // to this field. Keep those identifiers out of the user-facing wallet label.
+  const displayName = device
+    .split(':', 1)[0]
+    .replace(/-[0-9a-f]{8}$/i, '')
+    .trim();
+  return displayName || undefined;
 }
 
 class BlueURDecoder extends URDecoder {
@@ -472,6 +483,7 @@ class BlueURDecoder extends URDecoder {
     if (decoded.type === 'crypto-multi-accounts') {
       const multiAccounts = CryptoMultiAccounts.fromCBOR(decoded.cbor);
       const masterFingerprint = uint8ArrayToHex(multiAccounts.getMasterFingerprint()).toUpperCase();
+      const hardwareWalletDevice = _hardwareWalletDisplayName(multiAccounts.getDevice());
 
       const results = [];
       for (const hdKey of multiAccounts.getKeys()) {
@@ -479,6 +491,10 @@ class BlueURDecoder extends URDecoder {
         const result = _hdKeyToResult(hdKey, masterFingerprint);
         if (result) {
           result.UseWithHardwareWallet = true;
+          if (hardwareWalletDevice) result.HardwareWalletDevice = hardwareWalletDevice;
+          if (typeof hdKey.getName() === 'string' && hdKey.getName().trim()) {
+            result.HardwareWalletAccountName = hdKey.getName().trim();
+          }
           results.push(result);
         }
       }

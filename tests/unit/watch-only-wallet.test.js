@@ -688,7 +688,7 @@ describe('Watch only wallet', () => {
 });
 
 describe('BC-UR', () => {
-  const createHardwareWalletHdKey = (purpose = 84) =>
+  const createHardwareWalletHdKey = (purpose = 84, account = 0, metadata = {}) =>
     new CryptoHDKey({
       isMaster: false,
       key: Buffer.from('0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 'hex'),
@@ -697,12 +697,13 @@ describe('BC-UR', () => {
         [
           new PathComponent({ index: purpose, hardened: true }),
           new PathComponent({ index: 0, hardened: true }),
-          new PathComponent({ index: 0, hardened: true }),
+          new PathComponent({ index: account, hardened: true }),
         ],
         Buffer.from('73C5DA0A', 'hex'),
         3,
       ),
       parentFingerprint: Buffer.from('12345678', 'hex'),
+      ...metadata,
     });
 
   it('v1: can decodeUR() and then combine unfinalized signed PSBT', () => {
@@ -850,7 +851,7 @@ describe('BC-UR', () => {
     const multiAccounts = new CryptoMultiAccounts(
       Buffer.from('73C5DA0A', 'hex'),
       [createHardwareWalletHdKey()],
-      'OneKey Pro',
+      'OneKey Pro:123456789:btc-deadbeef',
       'device-id',
       '1.0.0',
     );
@@ -899,6 +900,72 @@ describe('BC-UR', () => {
       assert.strictEqual(wallet.useWithHardwareWalletEnabled(), true);
       assert.strictEqual(wallet.allowSend(), true);
     });
+  });
+
+  it('v2: names OneKey accounts by device and Bitcoin script type', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [44, 49, 84, 86].map(purpose => createHardwareWalletHdKey(purpose)),
+      'OneKey Pro:123456789:btc-deadbeef',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const labels = JSON.parse(decoder.toString()).map(account => {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(JSON.stringify(account));
+      wallet.init();
+      return wallet.getLabel();
+    });
+
+    assert.deepStrictEqual(labels, [
+      'OneKey Pro · Legacy',
+      'OneKey Pro · Nested SegWit',
+      'OneKey Pro · Native SegWit',
+      'OneKey Pro · Taproot',
+    ]);
+  });
+
+  it('v2: prefers a QR account name when the hardware wallet supplies one', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey(84, 0, { name: 'Savings' })],
+      'OneKey Pro:123456789',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(wallet.getLabel(), 'OneKey Pro · Savings');
+  });
+
+  it('v2: distinguishes multiple accounts using the same Bitcoin script type', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey(84, 0), createHardwareWalletHdKey(84, 1)],
+      'OneKey Pro',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const labels = JSON.parse(decoder.toString()).map(account => {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(JSON.stringify(account));
+      wallet.init();
+      return wallet.getLabel();
+    });
+
+    assert.deepStrictEqual(labels, ['OneKey Pro · Native SegWit', 'OneKey Pro · Native SegWit #2']);
   });
 
   it('v2: preserves hardware wallet behavior after serialization', () => {
