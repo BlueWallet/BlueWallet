@@ -57,4 +57,6 @@ const png = Buffer.concat([
 ]);
 
 fs.mkdirSync(path.dirname(output), { recursive: true });
-fs.writeFileSync(output, png);
+const tmp = output + '.tmp';
+fs.writeFileSync(tmp, png);
+fs.renameSync(tmp, output);
