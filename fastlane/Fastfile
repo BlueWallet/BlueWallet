@@ -206,7 +206,7 @@ before_all do |lane, options|
     next
   end
 
-  skip_auth_lanes = ['register_devices_from_txt', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane', 'prepare_new_release_demo']
+  skip_auth_lanes = ['register_devices_from_txt', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
   lane_name = lane.to_s
   should_skip_auth = skip_auth_lanes.any? { |skip_lane| lane_name == skip_lane || lane_name.end_with?(" #{skip_lane}") }
   
@@ -491,6 +491,64 @@ platform :ios do
     )
   end
 
+  def safe_gem_version(version_string)
+    Gem::Version.new(version_string)
+  rescue ArgumentError
+    nil
+  end
+
+  def sort_versions_by_semver(versions)
+    versions.sort_by do |candidate|
+      parsed = safe_gem_version(candidate.version_string)
+      parsed ? [0, parsed] : [1, candidate.version_string.to_s]
+    end
+  end
+
+  def submit_prepared_release_for_review(app:, version:, platform:, platform_name:, max_attempts: 5, wait_seconds: 20)
+    submission = app.create_review_submission(platform: platform)
+
+    if submission.respond_to?(:add_app_store_version_to_review_items)
+      submission.add_app_store_version_to_review_items(app_store_version_id: version.id)
+    elsif submission.respond_to?(:add_app_store_version_to_review_item)
+      submission.add_app_store_version_to_review_item(app_store_version_id: version.id)
+    else
+      UI.user_error!("Could not add #{platform_name} version #{version.version_string} to review items.")
+    end
+
+    current_version = version
+    attempts = 0
+
+    while app_store_version_state(current_version) != "READY_FOR_REVIEW" && attempts < max_attempts
+      attempts += 1
+      UI.message(
+        "Waiting for #{platform_name} #{current_version.version_string} to become Ready for Review " \
+        "(#{attempts}/#{max_attempts}, current state: #{app_store_state_readable(app_store_version_state(current_version))})"
+      )
+      sleep(wait_seconds)
+      refreshed_versions = app.get_app_store_versions(
+        filter: { platform: platform },
+        includes: Spaceship::ConnectAPI::AppStoreVersion::ESSENTIAL_INCLUDES
+      )
+      refreshed = refreshed_versions.find { |candidate| candidate.id == version.id }
+      current_version = refreshed if refreshed
+    end
+
+    state = app_store_version_state(current_version)
+    UI.user_error!(
+      "#{platform_name} version #{current_version.version_string} is #{app_store_state_readable(state)} and cannot be submitted."
+    ) unless state == "READY_FOR_REVIEW"
+
+    if submission.respond_to?(:submit_for_review)
+      submission.submit_for_review
+    elsif current_version.respond_to?(:create_app_store_version_submission)
+      current_version.create_app_store_version_submission
+    else
+      UI.user_error!("Could not submit #{platform_name} version #{current_version.version_string} for review.")
+    end
+
+    submission
+  end
+
   def write_release_report(report)
     report_dir = File.join(PROJECT_ROOT, "fastlane", "logs")
     FileUtils.mkdir_p(report_dir)
@@ -551,9 +609,9 @@ platform :ios do
         includes: Spaceship::ConnectAPI::AppStoreVersion::ESSENTIAL_INCLUDES
       )
     end
-    version = all_versions.select { |candidate| editable_states.include?(app_store_version_state(candidate)) }
-      .sort_by { |candidate| Gem::Version.new(candidate.version_string) }
-      .last
+    version = sort_versions_by_semver(
+      all_versions.select { |candidate| editable_states.include?(app_store_version_state(candidate)) }
+    ).last
 
     in_progress_states = %w[WAITING_FOR_REVIEW IN_REVIEW PENDING_APPLE_RELEASE PENDING_DEVELOPER_RELEASE]
     in_progress_version = all_versions.find { |candidate| in_progress_states.include?(app_store_version_state(candidate)) }
@@ -701,6 +759,7 @@ platform :ios do
           else
             release_notes_options = { platform: platform_option, force_yes: true }
             release_notes_options[:release_notes] = options[:release_notes] if options[:release_notes]
+            release_notes_options[:target_version_id] = version.id
             with_network_loading("Updating release notes") do
               Dir.chdir(File.dirname(__FILE__)) do
                 release_notes(release_notes_options)
@@ -711,7 +770,13 @@ platform :ios do
         break
       end
     else
-      selected_build = attached_build || builds.first
+      if attached_build
+        selected_build = attached_build
+      else
+        selected_build_choice = release_wizard_select("Select the build to submit:", build_choices)
+        UI.user_error!("Release preparation canceled while selecting a build.") if selected_build_choice == :back
+        selected_build = builds[build_choices.index(selected_build_choice)]
+      end
       UI.message("Jumping to review summary with #{build_detail(selected_build, platform_name)}")
       unless dry_run
         UI.user_error!("Preparation canceled before applying changes.") unless UI.confirm("Apply the selected build before reviewing the final submission plan?")
@@ -754,7 +819,8 @@ platform :ios do
         min_os_version: selected_build.min_os_version,
         expiration_date: selected_build.expiration_date
       },
-      release_notes: selected_notes,
+      release_notes_locales: selected_notes.keys.sort,
+      release_notes_en_us_length: selected_notes['en-US'].to_s.length,
       review_information_present: !review_detail.nil?,
       submission_state: app_store_version_state(version)
     }
@@ -775,7 +841,7 @@ platform :ios do
         "Dry run only — finish preparation without submitting?" :
         "Submit #{platform_name} version #{version.version_string} (build #{selected_build.version}) for App Store review?"
     )
-      UI.user_error!("Release prepared but not submitted for review.")
+      UI.user_error!("Submission canceled. Release preparation changes were already applied in App Store Connect.")
     end
 
     if dry_run
@@ -783,92 +849,17 @@ platform :ios do
       report
     else
       submission = with_network_loading("Submitting #{platform_name} release for review") do
-        app.create_review_submission(platform: platform)
+        submit_prepared_release_for_review(
+          app: app,
+          version: version,
+          platform: platform,
+          platform_name: platform_name,
+          max_attempts: build_wait_attempts,
+          wait_seconds: build_wait_seconds
+        )
       end
       UI.success("Submitted #{platform_name} #{version.version_string} (build #{selected_build.version}) for App Store review.")
       submission
-    end
-  end
-
-  desc "Demo the iOS release wizard with sample data without contacting App Store Connect"
-  lane :prepare_new_release_demo do
-    demo_build = Struct.new(
-      :version, :uploaded_date, :processing_state, :min_os_version, :expiration_date,
-      :id, keyword_init: true
-    )
-
-    builds = [
-      demo_build.new(
-        id: "demo-build-2048",
-        version: "2048",
-        uploaded_date: "2026-07-21T14:32:00Z",
-        processing_state: "VALID",
-        min_os_version: "15.0",
-        expiration_date: "2026-08-20T14:32:00Z"
-      ),
-      demo_build.new(
-        id: "demo-build-2047",
-        version: "2047",
-        uploaded_date: "2026-07-20T09:15:00Z",
-        processing_state: "VALID",
-        min_os_version: "15.0",
-        expiration_date: "2026-08-19T09:15:00Z"
-      ),
-      demo_build.new(
-        id: "demo-build-2046",
-        version: "2046",
-        uploaded_date: "2026-07-18T18:05:00Z",
-        processing_state: "VALID",
-        min_os_version: "14.0",
-        expiration_date: "2026-08-17T18:05:00Z"
-      )
-    ]
-
-    attached_build = builds[1]
-    build_choices = builds.map { |build| build_detail(build) }
-    build_choices << "Skip (keep attached build #{attached_build.version})"
-    workflow_mode = release_wizard_select(
-      "DEMO — choose a workflow:",
-      ["Step by step", "Jump to build selection", "Jump to release notes", "Jump to review summary"]
-    )
-    workflow_mode = "Step by step" if workflow_mode == :back
-
-    loop do
-      selected = if ["Jump to release notes", "Jump to review summary"].include?(workflow_mode)
-        build_choices.last
-      else
-        release_wizard_select("DEMO — Select a build for sample release 8.0.3:", build_choices)
-      end
-      if selected == :back
-        UI.message("DEMO — returning to the release section.")
-        workflow_mode = "Step by step"
-        next
-      end
-
-      selected_build = selected == build_choices.last ? attached_build : builds[build_choices.index(selected)]
-      notes = "* FIX: Improve wallet stability\n* REF: Refresh settings layout"
-      unless workflow_mode == "Jump to review summary"
-        notes_choice = release_wizard_select(
-          "DEMO — sample en-US release notes already exist:",
-          ["Run release_notes lane (simulated)", "Skip (keep existing release notes)"]
-        )
-        if notes_choice == :back
-          UI.message("DEMO — returning to build selection.")
-          workflow_mode = "Jump to build selection"
-          next
-        end
-
-        notes = notes_choice == "Run release_notes lane (simulated)" ?
-          "* FIX: Improve transaction details\n* ADD: Support the latest iOS release" : notes
-      end
-
-      UI.message("DEMO — changes ready in App Store Connect:")
-      UI.message("  Version: 8.0.3 (sample new release)")
-      UI.message("  Build: #{build_detail(selected_build)}")
-      UI.message("  Release notes (en-US):\n#{notes}")
-      UI.confirm("DEMO ONLY — simulate submitting this release for review?")
-      UI.success("Demo complete. No App Store Connect changes were made.")
-      break
     end
   end
 
@@ -1841,8 +1832,34 @@ lane :release_notes do |options|
       end
   end
 
+  prepare_version = nil
+  target_version_id = options[:target_version_id].to_s.strip
+  target_version_string = options[:target_version].to_s.strip
+
+  if !target_version_id.empty? || !target_version_string.empty?
+    UI.message("Using explicitly targeted App Store version from lane options.")
+    versions_for_platform = app.get_app_store_versions(
+      filter: { platform: platform.to_s },
+      includes: Spaceship::ConnectAPI::AppStoreVersion::ESSENTIAL_INCLUDES
+    )
+
+    prepare_version = versions_for_platform.find do |version|
+      (target_version_id.empty? || version.id == target_version_id) &&
+        (target_version_string.empty? || version.version_string == target_version_string)
+    end
+
+    UI.user_error!(
+      "Could not find targeted version (id: #{target_version_id}, version: #{target_version_string}) for platform #{platform}."
+    ) unless prepare_version
+
+    UI.success(
+      "Using targeted version #{prepare_version.version_string} (#{app_store_state_readable(prepare_version.app_store_state)})."
+    )
+  end
+
   retries = 5
-  begin
+  if prepare_version.nil?
+    begin
     rejected_version = nil
     UI.message("Checking for Developer Rejected version for platform: #{platform}")
     
@@ -1918,7 +1935,7 @@ lane :release_notes do |options|
             prepare_version = editable_version
             UI.success("Using editable version: #{prepare_version.version_string} (#{app_store_state_readable(prepare_version.app_store_state)})")
           elsif all_versions.count > 0
-            latest_version = all_versions.sort_by { |v| Gem::Version.new(v.version_string) }.last
+            latest_version = sort_versions_by_semver(all_versions).last
             UI.message("Latest version: #{latest_version.version_string} (#{app_store_state_readable(latest_version.app_store_state)})")
           end
         rescue => e
@@ -1965,16 +1982,17 @@ lane :release_notes do |options|
         UI.message("Using version #{prepare_version.version_string} in state: #{app_store_state_readable(prepare_version.app_store_state)}")
       end
     end
-  rescue => e
-    retries -= 1
-    if retries > 0
-      delay = 20
-      UI.message("Cannot find app version info... Retrying after #{delay} seconds (remaining: #{retries})")
-      UI.error("Error details: #{e.message}")
-      sleep(delay)
-      retry
-    else
-      UI.user_error!("Failed to fetch or create the app version: #{e.message}")
+    rescue => e
+      retries -= 1
+      if retries > 0
+        delay = 20
+        UI.message("Cannot find app version info... Retrying after #{delay} seconds (remaining: #{retries})")
+        UI.error("Error details: #{e.message}")
+        sleep(delay)
+        retry
+      else
+        UI.user_error!("Failed to fetch or create the app version: #{e.message}")
+      end
     end
   end
 
