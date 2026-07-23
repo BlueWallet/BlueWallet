@@ -553,12 +553,46 @@ export async function scrollUpOnHomeScreen() {
     return;
   }
   try {
-    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView'))).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView')))
+      .atIndex(0)
+      .swipe('down', 'slow', 0.5);
   } catch (_) {
-    // if no wallets there will be just one scroll
-    await element(by.type('RCTEnhancedScrollView')).swipe('down', 'slow', 0.5);
+    // if no wallets there will be just one scroll (or nested matcher missed); atIndex
+    // avoids "Multiple elements found" when several scroll views are present.
+    await element(by.type('RCTEnhancedScrollView')).atIndex(0).swipe('down', 'slow', 0.5);
   }
   await sleep(1000); // bounce animation
+}
+
+/**
+ * Opens the send-screen header menu and taps a menu item.
+ * On iOS, action-sheet labels often fail Detox's visibility check (liquid glass
+ * / partial opacity), same class of issue as native alerts — disable sync for
+ * the interaction.
+ *
+ * Pass `restoreSync: false` when the item opens the camera / animated QR UI;
+ * re-enabling there can hang on pending layer animations. Callers should then
+ * use `safelyEnableSynchronization()` after leaving that screen.
+ */
+export async function tapHeaderMenuItem(menuItemText, { restoreSync = true } = {}) {
+  const isIOS = device.getPlatform() === 'ios';
+  if (isIOS) {
+    await device.disableSynchronization();
+  }
+  try {
+    await element(by.id('HeaderMenuButton')).tap();
+    await sleep(500);
+    try {
+      await element(by.text(menuItemText)).atIndex(0).tap();
+    } catch (_) {
+      await element(by.label(menuItemText)).atIndex(0).tap();
+    }
+    await sleep(300);
+  } finally {
+    if (isIOS && restoreSync) {
+      await safelyEnableSynchronization();
+    }
+  }
 }
 
 // We really only need this function when running tests locally.

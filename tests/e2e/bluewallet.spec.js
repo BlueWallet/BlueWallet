@@ -673,16 +673,21 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitFor(element(by.id('UrProgressBar'))).toBeNotVisible();
 
-    for (const ur of urs) {
-      await scanText(ur);
-      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
-    }
+    try {
+      for (const ur of urs) {
+        await scanText(ur);
+        await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
+      }
 
-    await waitForText('OK', 3 * 61000); // waiting for wallet import
-    await element(by.text('OK')).tap();
+      await waitForText('OK', 3 * 61000); // waiting for wallet import
+      await element(by.text('OK')).tap();
+    } finally {
+      // Restore sync on the home screen before scrolling; if scroll fails we must
+      // not leave the suite with synchronization permanently disabled.
+      await safelyEnableSynchronization();
+    }
     await scrollUpOnHomeScreen();
     // ok, wallet imported — left the UR / QR import UI
-    await safelyEnableSynchronization();
 
     // lets go inside wallet
     const expectedWalletLabel = 'Multisig Vault';
@@ -724,13 +729,14 @@ describe('BlueWallet UI Tests - no wallets', () => {
       'UR:CRYPTO-PSBT/416-4/LPCFADNBAACFAXPLCYZTVYVOPKHDWPONBWDWPACLGTAEIDWLWZBAZODNCSMSEHZELBIYDLMWCSHDIADKNYWNZSSGPKVEFLMKLRKNCELEDAMYEMBYKIJKFNDEDMIAHPLBRDPMLTROWMFNWSLTROCMIOYKWPFZDSLGLGDKWSOYPFAHMODAMYENSAIOSEGAZEEHTSLBKGOEDMWZUTRFNYJEKIPEEMIYJSOTUEZERORFPSGRPABSSKLOGOONAECAGRSFBDLRWFEMLNSALRCWZOWNLPHNPTNSLPJTKBMTEYNSISTAFTEHSEGDOTENSNMHKNFGCLFXOXMYPLCELTKOMTNEGRTOJYGURHKGPMTAFHHKWPKIOTJPGWVSKNSKSSFTOYPTKKSGSRFGIORHMDDAFHNYKTHPCPOTKEGELANNLEWEGMJEKPIYGYSFECJNCWFNRYVLTBTBWPHTKBISTLRLDEMWADCWMNKTTARKDRJSZCJPLRCNFSHGNEGAMTYLVLGOWS',
     ];
 
+    // Keep sync disabled across animated QR cosign screens — re-enabling here
+    // waits on pending layer animations and can hang the suite.
     for (const ur of ursSignedByPassport) {
       await scanText(ur);
       await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
     }
 
     await waitFor(element(by.id('ItemSigned'))).toBeVisible(); // one green checkmark visible
-    await safelyEnableSynchronization();
 
     await element(by.id('ProvideSignature')).tap();
     await waitFor(element(by.id('CosignedScanOrImportFile')))
@@ -750,9 +756,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     }
 
     await waitFor(element(by.id('ExportSignedPsbt'))).toBeVisible();
-    await safelyEnableSynchronization();
 
     await element(by.id('PsbtMultisigConfirmButton')).tap();
+    await safelyEnableSynchronization();
 
     // created. verifying:
     await waitForId('TransactionValue');

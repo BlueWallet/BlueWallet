@@ -7,6 +7,7 @@ import {
   scanText,
   scrollUpOnHomeScreen,
   sleep,
+  tapHeaderMenuItem,
   waitForId,
   waitForKeyboardToClose,
 } from './helperz';
@@ -75,8 +76,7 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('SendButton')).tap();
     await element(by.text('OK')).tap();
 
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Import Transaction (QR)')).tap(); // opens camera
+    await tapHeaderMenuItem('Import Transaction (QR)', { restoreSync: false }); // opens camera
 
     // produced by real Keystone device using MNEMONICS_KEYSTONE
     const unsignedPsbt =
