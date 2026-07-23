@@ -1075,7 +1075,7 @@ platform :ios do
       clean_install: true)
   end
 
-  desc "Build Mac Catalyst app, handle code signing, create DMG with multilingual README, and set GitHub outputs"
+  desc "Build Mac Catalyst app, create DMG with multilingual README, and set GitHub outputs"
   lane :build_catalyst_app_lane do
     Dir.chdir(project_root) do
       UI.message("Building Mac Catalyst application from: #{Dir.pwd}")
@@ -1174,39 +1174,18 @@ platform :ios do
       UI.success("Mac Catalyst app found at: #{catalyst_app_path}")
 
       if should_sign && ENV['CATALYST_SIGNING_IDENTITY'] && !ENV['CATALYST_SIGNING_IDENTITY'].empty?
-        UI.message("Re-signing app with: #{signing_identity}")
-        sh("codesign",
-           "--deep",
-           "--force",
-           "--options", "runtime",
-           "--sign", signing_identity,
-           catalyst_app_path)
-        sh("codesign",
-           "--verify",
-           "--deep",
-           "--strict",
-           catalyst_app_path)
-        UI.success("App signed and verified")
+        UI.message("Signing is handled by build_app using the configured provisioning profiles.")
       else
-        # Ad-hoc sign so macOS doesn't treat the app as "damaged"
-        UI.message("Ad-hoc signing app to avoid Gatekeeper quarantine issues...")
-        sh("codesign",
-           "--deep",
-           "--force",
-           "--sign", "-",
-           catalyst_app_path)
-        UI.success("App ad-hoc signed")
+        UI.message("Built without code signing as requested by lane configuration.")
       end
 
       dmg_path = File.join(output_dir, "BlueWallet-Mac-Catalyst.dmg")
-      UI.message("Creating DMG at: #{dmg_path}")
+      UI.message("Creating DMG package at: #{dmg_path}")
 
       dmg_staging = File.join(output_dir, "dmg-staging")
       FileUtils.rm_rf(dmg_staging)
       FileUtils.mkdir_p(dmg_staging)
       FileUtils.cp_r(catalyst_app_path, dmg_staging)
-
-      sh("ln", "-s", "/Applications", "#{dmg_staging}/Applications")
 
       # Add README with first-launch instructions
       readme_path = File.join(dmg_staging, "README - Read Before Opening.txt")
@@ -1311,18 +1290,27 @@ platform :ios do
       UI.message("Added multilingual README with first-launch instructions to DMG")
 
       FileUtils.rm_f(dmg_path)
-      sh("hdiutil", "create", "-volname", "BlueWallet", "-srcfolder", dmg_staging, "-ov", "-format", "UDZO", dmg_path)
+      dmg(
+        path: dmg_staging,
+        output_path: dmg_path,
+        volume_name: "BlueWallet",
+        filesystem: "HFS+",
+        format: "UDZO",
+        create_applications_symlink: true
+      )
       UI.user_error!("DMG was not created at #{dmg_path}") unless File.exist?(dmg_path)
-      UI.success("DMG created at: #{dmg_path}")
+      UI.success("DMG package created at: #{dmg_path}")
 
       FileUtils.rm_rf(dmg_staging)
 
       ENV['CATALYST_APP_PATH'] = catalyst_app_path
       ENV['CATALYST_DMG_PATH'] = dmg_path
+      ENV['CATALYST_PACKAGE_PATH'] = dmg_path
       if ENV['GITHUB_OUTPUT']
         File.open(ENV['GITHUB_OUTPUT'], 'a') do |f|
           f.puts "catalyst_app_path=#{catalyst_app_path}"
           f.puts "catalyst_dmg_path=#{dmg_path}"
+          f.puts "catalyst_package_path=#{dmg_path}"
         end
       end
 
@@ -1376,12 +1364,14 @@ platform :ios do
         </plist>
       PLIST
 
-      pkg_path = File.join(output_dir, "BlueWallet.pkg")
-      sh("xcodebuild",
-         "-exportArchive",
-         "-archivePath", archive_path,
-         "-exportOptionsPlist", export_plist_path,
-         "-exportPath", output_dir)
+      xcodebuild(
+        xcargs: [
+          "-exportArchive",
+          "-archivePath", archive_path,
+          "-exportOptionsPlist", export_plist_path,
+          "-exportPath", output_dir,
+        ].join(" ")
+      )
 
       # Find the exported pkg
       exported_pkg = Dir.glob(File.join(output_dir, "*.pkg")).first
@@ -1502,18 +1492,9 @@ end
       # Ensure we're using the correct Xcode installation
       UI.message("\033[1;36mXcode Configuration:\033[0m")
       begin
-        sh("sudo xcode-select -s /Applications/Xcode.app") rescue nil
-        xcode_path = sh('xcode-select -p', log: false).strip
-        xcode_version = sh('xcodebuild -version', log: false).strip
-        UI.message("  Active Xcode Path: #{xcode_path}")
-        UI.message("  Xcode Version: #{xcode_version}")
-        
-        # Check if Xcode path is valid
-        if File.exist?(File.join(xcode_path, "usr/bin/xcodebuild"))
-          UI.success("  \033[1;32mXcode installation is valid\033[0m")
-        else
-          UI.error("  \033[1;31mXcode installation appears invalid\033[0m")
-        end
+        xcode_select("/Applications/Xcode.app")
+        verify_xcode(xcode_path: "/Applications/Xcode.app")
+        UI.success("  \033[1;32mXcode installation is valid\033[0m")
       rescue => e
         UI.error("  \033[1;31mError checking Xcode: #{e.message}\033[0m")
       end
@@ -1562,46 +1543,8 @@ end
       UI.message("  Output directory: #{File.join(project_root, 'ios', 'build')}")
       UI.message("  Build type: Release (generic/platform=iOS)")
       
-      # Comprehensive destination analysis
       UI.message("\033[1;33mBuild Destinations Analysis:\033[0m")
-      begin
-        destinations_output = sh("xcodebuild -workspace '#{workspace_path}' -scheme BlueWallet -showdestinations", log: false)
-        UI.message("  Available destinations:")
-        destinations_output.lines.each_with_index do |line, index|
-          UI.message("    #{index + 1}. #{line.strip}") if line.strip.length > 0
-        end
-        
-        # Analyze destination types
-        ios_destinations = destinations_output.scan(/platform:iOS[^}]*/).length
-        catalyst_destinations = destinations_output.scan(/Mac Catalyst/).length
-        
-        UI.message("  \033[1;36mDestination Summary:\033[0m")
-        UI.message("    iOS destinations: #{ios_destinations}")
-        UI.message("    Mac Catalyst destinations: #{catalyst_destinations}")
-        
-        if ios_destinations > 0
-          UI.success("  \033[1;32miOS destinations available for release build\033[0m")
-        else
-          UI.important("  \033[1;33mNo iOS destinations found - may need to create simulators\033[0m")
-        end
-      rescue => e
-        UI.error("  \033[1;31mFailed to get destinations: #{e.message}\033[0m")
-        destinations_output = "Failed to get destinations: #{e.message}"
-      end
-      
-      # Simulator runtime check for development/debugging
-      UI.message("\033[1;33mSimulator Runtime Check (for debugging):\033[0m")
-      begin
-        runtimes = sh("xcrun simctl list runtimes", log: false)
-        ios_runtimes = runtimes.scan(/iOS ([0-9.]+)/).flatten
-        UI.message("  Available iOS runtimes: #{ios_runtimes.join(', ')}")
-        
-        devices = sh("xcrun simctl list devices iOS", log: false)
-        iphone_count = devices.scan(/iPhone/).length
-        UI.message("  Available iPhone simulators: #{iphone_count}")
-      rescue => e
-        UI.error("  \033[1;31mError checking simulators: #{e.message}\033[0m")
-      end
+      UI.message("  Destination checks are delegated to build_ios_app and Xcode during archive.")
       
       # Define the IPA output path before building
       ipa_directory = File.join(project_root, "ios", "build")
@@ -1694,21 +1637,16 @@ end
           archives.last(3).each { |archive| UI.message("    #{archive}") }
         end
         
-        # If iOS build fails, check if we can build using available destinations
-        if destinations_output.include?("Any iOS Device")
-          UI.message("Retrying build without explicit destination...")
-          build_ios_app(
-            scheme: "BlueWallet",
-            workspace: workspace_path,
-            export_method: "app-store",
-            export_options: export_options_path,
-            output_directory: ipa_directory,
-            output_name: ipa_name,
-            buildlog_path: File.join(project_root, "ios", "build_logs")
-          )
-        else
-          UI.user_error!("build_ios_app failed: #{build_error.message}")
-        end
+        UI.message("Retrying build once without additional diagnostics...")
+        build_ios_app(
+          scheme: "BlueWallet",
+          workspace: workspace_path,
+          export_method: "app-store",
+          export_options: export_options_path,
+          output_directory: ipa_directory,
+          output_name: ipa_name,
+          buildlog_path: File.join(project_root, "ios", "build_logs")
+        )
       end
 
       # Check for IPA path from both our defined path and fastlane's context
@@ -1734,9 +1672,9 @@ end
       
       # Set both environment variable and GitHub Actions output
       ENV['IPA_OUTPUT_PATH'] = ipa_path
-      # Set both standard output format and the newer GITHUB_OUTPUT format
-      sh("echo 'ipa_output_path=#{ipa_path}' >> $GITHUB_OUTPUT") if ENV['GITHUB_OUTPUT']
-      sh("echo ::set-output name=ipa_output_path::#{ipa_path}")
+      if ENV['GITHUB_OUTPUT']
+        File.open(ENV['GITHUB_OUTPUT'], 'a') { |f| f.puts("ipa_output_path=#{ipa_path}") }
+      end
       
       # Also write path to a file that can be read by subsequent steps
       ipa_path_file = "#{ipa_directory}/ipa_path.txt"
@@ -1760,66 +1698,8 @@ end
   # Updated for macOS-15 compatibility (defaults to iOS 17.5 for broader compatibility)
   private_lane :determine_ios_version do
     UI.message("\033[1;33mDetermining iOS Version for Release Build:\033[0m")
-    
-    begin
-      runtimes_output = sh("xcrun simctl list runtimes 2>&1", log: false)
-      UI.message("  \033[1;32mSuccessfully retrieved simulator runtimes\033[0m")
-      
-      # Debug: Show all runtimes
-      UI.message("  \033[1;36mAll available runtimes:\033[0m")
-      runtimes_output.lines.first(10).each_with_index do |line, index|
-        UI.message("    #{index + 1}. #{line.strip}")
-      end
-      
-    rescue => e
-      UI.error("  \033[1;31mFailed to get simulator runtimes: #{e.message}\033[0m")
-      runtimes_output = ""
-    end
-    
-    if runtimes_output.include?("iOS")
-      UI.message("  \033[1;36miOS runtimes detected\033[0m")
-      
-      begin
-        ios_versions = runtimes_output.scan(/iOS ([0-9.]+)/)
-                                     .flatten
-                                     .map { |v| Gem::Version.new(v) }
-                                     .sort
-                                     .reverse
-        
-        UI.message("  \033[1;36mParsed iOS versions:\033[0m")
-        ios_versions.each_with_index do |version, index|
-          UI.message("    #{index + 1}. iOS #{version}")
-        end
-        
-        if ios_versions.any?
-          latest_version = ios_versions.first.to_s
-          UI.success("  \033[1;32mSelected iOS version for release: #{latest_version}\033[0m")
-          
-          # Additional validation
-          if Gem::Version.new(latest_version) >= Gem::Version.new("17.0")
-            UI.success("    \033[1;32mVersion is compatible for release builds (17.0+)\033[0m")
-          else
-            UI.important("    \033[1;33mVersion is older than 17.0, may have compatibility issues\033[0m")
-          end
-          
-          latest_version
-        else
-          UI.important("  \033[1;33mNo iOS versions could be parsed from runtime output\033[0m")
-          UI.message("  \033[1;36mUsing fallback version for release: 17.5\033[0m")
-          "17.5"
-        end
-      rescue => e
-        UI.error("  \033[1;31mError parsing iOS versions: #{e.message}\033[0m")
-        UI.message("  \033[1;36mUsing fallback version for release: 17.5\033[0m")
-        "17.5"
-      end
-    else
-      UI.important("  \033[1;33mNo iOS runtimes found in simulator list\033[0m")
-      UI.message("  \033[1;36mRuntime output preview:\033[0m")
-      runtimes_output.lines.first(5).each { |line| UI.message("    #{line.strip}") }
-      UI.message("  \033[1;36mUsing fallback version for release: 17.5\033[0m")
-      "17.5"
-    end
+    UI.message("  \033[1;36mUsing stable default iOS version for release: 17.5\033[0m")
+    "17.5"
   end
 end
 
