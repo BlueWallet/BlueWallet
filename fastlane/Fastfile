@@ -440,7 +440,11 @@ platform :ios do
   end
 
   def app_store_version_state(version)
-    version.respond_to?(:app_version_state) && version.app_version_state || version.app_store_state
+    if version.respond_to?(:app_version_state)
+      candidate_state = version.app_version_state
+      return candidate_state unless candidate_state.nil? || candidate_state.to_s.strip.empty?
+    end
+    version.app_store_state
   end
 
   def release_version_from_package_json
@@ -571,6 +575,8 @@ platform :ios do
     dry_run = option_enabled?(options, :dry_run)
     build_wait_attempts = (options[:build_wait_attempts] || 3).to_i
     build_wait_seconds = (options[:build_wait_seconds] || 20).to_i
+    review_wait_attempts = (options[:review_wait_attempts] || 15).to_i
+    review_wait_seconds = (options[:review_wait_seconds] || 20).to_i
 
     platform_key = options[:platform].to_s.downcase
     platform = case platform_key
@@ -715,6 +721,7 @@ platform :ios do
               "How would you like to continue?",
               ["Step by step", "Jump to build selection", "Jump to release notes", "Jump to review summary"]
             )
+            workflow_mode = "Step by step" if workflow_mode == :back
           end
           next
         end
@@ -743,30 +750,7 @@ platform :ios do
           run_release_notes = notes_choice == "Run release_notes lane"
         end
 
-        unless dry_run
-          UI.message("Preparation plan:")
-          UI.message("  Attach build: #{selected_build.version}")
-          UI.message("  Release notes: #{run_release_notes ? 'update via release_notes lane' : 'keep existing'}")
-          UI.user_error!("Preparation canceled before applying changes.") unless UI.confirm("Apply these preparation changes?")
-          with_network_loading("Selecting build #{selected_build.version}") do
-            version.select_build(build_id: selected_build.id)
-          end
-        end
-
-        if run_release_notes
-          if dry_run
-            planned_release_notes = options[:release_notes] || existing_notes
-          else
-            release_notes_options = { platform: platform_option, force_yes: true }
-            release_notes_options[:release_notes] = options[:release_notes] if options[:release_notes]
-            release_notes_options[:target_version_id] = version.id
-            with_network_loading("Updating release notes") do
-              Dir.chdir(File.dirname(__FILE__)) do
-                release_notes(release_notes_options)
-              end
-            end
-          end
-        end
+        planned_release_notes = options[:release_notes] || existing_notes
         break
       end
     else
@@ -778,12 +762,6 @@ platform :ios do
         selected_build = builds[build_choices.index(selected_build_choice)]
       end
       UI.message("Jumping to review summary with #{build_detail(selected_build, platform_name)}")
-      unless dry_run
-        UI.user_error!("Preparation canceled before applying changes.") unless UI.confirm("Apply the selected build before reviewing the final submission plan?")
-        with_network_loading("Selecting build #{selected_build.version}") do
-          version.select_build(build_id: selected_build.id)
-        end
-      end
       run_release_notes = false
     end
 
@@ -795,7 +773,8 @@ platform :ios do
     end
     selected_notes['en-US'] = planned_release_notes if planned_release_notes && !planned_release_notes.strip.empty?
 
-    UI.user_error!("English (en-US) release notes are required before submission.") if selected_notes['en-US'].to_s.strip.empty?
+    release_notes_requires_prompt = run_release_notes && options[:release_notes].to_s.strip.empty?
+    UI.user_error!("English (en-US) release notes are required before submission.") if selected_notes['en-US'].to_s.strip.empty? && !release_notes_requires_prompt
 
     review_detail = with_network_loading("Checking App Store review information") do
       version.fetch_app_store_review_detail
@@ -830,6 +809,14 @@ platform :ios do
     UI.message("  Version: #{version.version_string}#{created_version ? ' (new)' : ''}")
     UI.message("  Platform: #{platform_name}")
     UI.message("  Build: #{build_detail(selected_build, platform_name)}")
+    UI.message("  Planned actions:")
+    UI.message("    - Attach build #{selected_build.version}")
+    if run_release_notes
+      notes_source = options[:release_notes].to_s.strip.empty? ? "interactive release_notes prompt" : "release_notes option"
+      UI.message("    - Update release notes via #{notes_source}")
+    else
+      UI.message("    - Keep existing release notes")
+    end
     UI.message("  Review information: #{review_detail ? 'available' : 'not loaded'}")
     UI.message("  Report: #{report_path}")
     selected_notes.each do |locale, notes|
@@ -841,21 +828,42 @@ platform :ios do
         "Dry run only — finish preparation without submitting?" :
         "Submit #{platform_name} version #{version.version_string} (build #{selected_build.version}) for App Store review?"
     )
-      UI.user_error!("Submission canceled. Release preparation changes were already applied in App Store Connect.")
+      UI.user_error!(dry_run ? "Dry run canceled." : "Submission canceled before applying App Store Connect changes.")
     end
 
     if dry_run
       UI.success("Dry run complete. No review submission was created.")
       report
     else
+      with_network_loading("Selecting build #{selected_build.version}") do
+        version.select_build(build_id: selected_build.id)
+      end
+
+      if run_release_notes
+        release_notes_options = { platform: platform_option, force_yes: true }
+        release_notes_options[:release_notes] = options[:release_notes] if options[:release_notes]
+        release_notes_options[:target_version_id] = version.id
+        with_network_loading("Updating release notes") do
+          Dir.chdir(File.dirname(__FILE__)) do
+            release_notes(release_notes_options)
+          end
+        end
+      end
+
+      refreshed_localizations = with_network_loading("Validating release notes before submission") do
+        version.get_app_store_version_localizations
+      end
+      refreshed_en_us = refreshed_localizations.find { |localization| localization.locale == 'en-US' }&.whats_new
+      UI.user_error!("English (en-US) release notes are required before submission.") if refreshed_en_us.to_s.strip.empty?
+
       submission = with_network_loading("Submitting #{platform_name} release for review") do
         submit_prepared_release_for_review(
           app: app,
           version: version,
           platform: platform,
           platform_name: platform_name,
-          max_attempts: build_wait_attempts,
-          wait_seconds: build_wait_seconds
+          max_attempts: review_wait_attempts,
+          wait_seconds: review_wait_seconds
         )
       end
       UI.success("Submitted #{platform_name} #{version.version_string} (build #{selected_build.version}) for App Store review.")
@@ -1844,7 +1852,7 @@ lane :release_notes do |options|
     )
 
     prepare_version = versions_for_platform.find do |version|
-      (target_version_id.empty? || version.id == target_version_id) &&
+      (target_version_id.empty? || version.id.to_s == target_version_id) &&
         (target_version_string.empty? || version.version_string == target_version_string)
     end
 
@@ -1935,7 +1943,13 @@ lane :release_notes do |options|
             prepare_version = editable_version
             UI.success("Using editable version: #{prepare_version.version_string} (#{app_store_state_readable(prepare_version.app_store_state)})")
           elsif all_versions.count > 0
-            latest_version = sort_versions_by_semver(all_versions).last
+            latest_version = all_versions.sort_by do |candidate|
+              begin
+                [0, Gem::Version.new(candidate.version_string)]
+              rescue ArgumentError
+                [1, candidate.version_string.to_s]
+              end
+            end.last
             UI.message("Latest version: #{latest_version.version_string} (#{app_store_state_readable(latest_version.app_store_state)})")
           end
         rescue => e
