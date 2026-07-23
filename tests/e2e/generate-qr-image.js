@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
-const encodeQR = require('qr').default;
+const { encodeQR } = require('qr');
 
 const text = process.argv[2];
 const output = process.argv[3];
@@ -19,8 +19,8 @@ if (!text || !output) {
 const bitmap = encodeQR(text, 'raw', { border: 4, scale: 4 });
 const width = bitmap[0].length;
 const rows = Buffer.concat(
-  bitmap.map((row) =>
-    Buffer.from([0, ...row.map((pixel) => (pixel ? 0 : 255))]),
+  bitmap.map(row =>
+    Buffer.from([0, ...row.map(pixel => (pixel ? 0 : 255))]),
   ),
 );
 
