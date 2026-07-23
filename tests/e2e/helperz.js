@@ -456,6 +456,19 @@ export async function scanText(text) {
   await sleep(300);
 }
 
+/**
+ * After feeding UR fragments via scanText, wait until ScanQRCode has been
+ * dismissed. With sync disabled, ItemSigned on the underlying PsbtMultisig
+ * screen can become visible before popTo finishes — tapping ProvideSignature
+ * then fails with "No elements found".
+ */
+export async function waitForQrScannerClosed(timeoutMs = 60_000) {
+  await waitFor(element(by.id('ScanQrBackdoorButton')))
+    .not.toExist()
+    .withTimeout(timeoutMs);
+  await sleep(500);
+}
+
 export async function setCustomFeeRate(feeRate) {
   await waitForId('chooseFee');
   await element(by.id('chooseFee')).tap();
@@ -581,11 +594,18 @@ export async function tapHeaderMenuItem(menuItemText, { restoreSync = true } = {
   }
   try {
     await element(by.id('HeaderMenuButton')).tap();
-    await sleep(500);
+    // iOS 26 action sheets use magic-morph transforms that fail Detox's
+    // visibility check until the presentation animation settles.
+    await sleep(isIOS ? 1500 : 500);
     try {
       await element(by.text(menuItemText)).atIndex(0).tap();
     } catch (_) {
-      await element(by.label(menuItemText)).atIndex(0).tap();
+      try {
+        await element(by.label(menuItemText)).atIndex(0).tap();
+      } catch (_) {
+        // Last resort: tap a corner point to bypass 100% visibility threshold.
+        await element(by.text(menuItemText)).atIndex(0).tap({ x: 8, y: 8 });
+      }
     }
     await sleep(300);
   } finally {
