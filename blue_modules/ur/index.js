@@ -369,18 +369,25 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
   return result;
 }
 
-function _hardwareWalletDisplayName(device) {
-  if (typeof device !== 'string') return undefined;
+function _hardwareWalletMetadata(device) {
+  if (typeof device !== 'string') return {};
 
   // OneKey separates the model and serial number with a colon, then may append
-  // a BTC-only marker and passphrase identifier. Show the full serial number,
-  // but keep the non-serial metadata out of the user-facing wallet label.
-  const [deviceName, serialNumber] = device.split(':', 2);
-  const displayName = deviceName.replace(/-[0-9a-f]{8}$/i, '').trim();
-  if (!displayName) return undefined;
+  // a BTC-only marker and passphrase identifier. Keep the passphrase state so
+  // hidden wallets from the same device remain distinguishable without storing
+  // the passphrase itself.
+  const passphraseStateMatch = device.match(/-([0-9a-f]{8})$/i);
+  const passphraseState = passphraseStateMatch?.[1];
+  const deviceWithoutPassphraseState = passphraseStateMatch ? device.slice(0, -passphraseStateMatch[0].length) : device;
+  const [deviceName, serialNumber] = deviceWithoutPassphraseState.split(':', 2);
+  const displayName = deviceName.trim();
+  if (!displayName) return { passphraseState };
 
-  const displaySerialNumber = serialNumber?.replace(/-[0-9a-f]{8}$/i, '').trim();
-  return displaySerialNumber ? `${displayName} · ${displaySerialNumber}` : displayName;
+  const displaySerialNumber = serialNumber?.trim();
+  return {
+    displayName: displaySerialNumber ? `${displayName} · ${displaySerialNumber}` : displayName,
+    passphraseState,
+  };
 }
 
 class BlueURDecoder extends URDecoder {
@@ -485,7 +492,9 @@ class BlueURDecoder extends URDecoder {
     if (decoded.type === 'crypto-multi-accounts') {
       const multiAccounts = CryptoMultiAccounts.fromCBOR(decoded.cbor);
       const masterFingerprint = uint8ArrayToHex(multiAccounts.getMasterFingerprint()).toUpperCase();
-      const hardwareWalletDevice = _hardwareWalletDisplayName(multiAccounts.getDevice());
+      const { displayName: hardwareWalletDevice, passphraseState: hardwareWalletPassphraseState } = _hardwareWalletMetadata(
+        multiAccounts.getDevice(),
+      );
 
       const results = [];
       for (const hdKey of multiAccounts.getKeys()) {
@@ -494,6 +503,7 @@ class BlueURDecoder extends URDecoder {
         if (result) {
           result.UseWithHardwareWallet = true;
           if (hardwareWalletDevice) result.HardwareWalletDevice = hardwareWalletDevice;
+          if (hardwareWalletPassphraseState) result.HardwareWalletPassphraseState = hardwareWalletPassphraseState;
           if (typeof hdKey.getName() === 'string' && hdKey.getName().trim()) {
             result.HardwareWalletAccountName = hdKey.getName().trim();
           }

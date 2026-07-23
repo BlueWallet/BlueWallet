@@ -26,10 +26,12 @@ export class WatchOnlyWallet extends LegacyWallet {
   masterFingerprint: number = 0;
   hardwareWalletDevice?: string;
   hardwareWalletAccountName?: string;
+  hardwareWalletPassphraseState?: string;
 
   setSecret(newSecret: string): this {
     this.hardwareWalletDevice = undefined;
     this.hardwareWalletAccountName = undefined;
+    this.hardwareWalletPassphraseState = undefined;
 
     try {
       const parsedSecret = JSON.parse(newSecret);
@@ -38,6 +40,12 @@ export class WatchOnlyWallet extends LegacyWallet {
       }
       if (typeof parsedSecret.HardwareWalletAccountName === 'string' && parsedSecret.HardwareWalletAccountName.trim()) {
         this.hardwareWalletAccountName = parsedSecret.HardwareWalletAccountName.trim();
+      }
+      if (
+        typeof parsedSecret.HardwareWalletPassphraseState === 'string' &&
+        /^[0-9a-f]{8}$/i.test(parsedSecret.HardwareWalletPassphraseState)
+      ) {
+        this.hardwareWalletPassphraseState = parsedSecret.HardwareWalletPassphraseState.toLowerCase();
       }
     } catch (_) {}
 
@@ -81,7 +89,11 @@ export class WatchOnlyWallet extends LegacyWallet {
   getLabel(): string {
     if (this.label.trim().length > 0 || !this.hardwareWalletDevice || !this.isHardwareWallet()) return super.getLabel();
 
-    if (this.hardwareWalletAccountName) return `${this.hardwareWalletDevice} · ${this.hardwareWalletAccountName}`;
+    const walletIdentity = this.hardwareWalletPassphraseState
+      ? `${this.hardwareWalletDevice} · Hidden ${this.hardwareWalletPassphraseState}`
+      : this.hardwareWalletDevice;
+
+    if (this.hardwareWalletAccountName) return `${walletIdentity} · ${this.hardwareWalletAccountName}`;
 
     let accountType: string;
     switch (this._hdWalletInstance?.type) {
@@ -105,7 +117,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     const accountIndex = accountMatch ? Number(accountMatch[1]) : 0;
     const accountSuffix = accountIndex > 0 ? ` #${accountIndex + 1}` : '';
 
-    return `${this.hardwareWalletDevice} · ${accountType}${accountSuffix}`;
+    return `${walletIdentity} · ${accountType}${accountSuffix}`;
   }
 
   allowRBF() {

@@ -921,14 +921,14 @@ describe('BC-UR', () => {
     });
 
     assert.deepStrictEqual(labels, [
-      'OneKey Pro · 123456789 · Legacy',
-      'OneKey Pro · 123456789 · Nested SegWit',
-      'OneKey Pro · 123456789 · Native SegWit',
-      'OneKey Pro · 123456789 · Taproot',
+      'OneKey Pro · 123456789 · Hidden deadbeef · Legacy',
+      'OneKey Pro · 123456789 · Hidden deadbeef · Nested SegWit',
+      'OneKey Pro · 123456789 · Hidden deadbeef · Native SegWit',
+      'OneKey Pro · 123456789 · Hidden deadbeef · Taproot',
     ]);
   });
 
-  it('v2: excludes the passphrase identifier from a OneKey serial number', () => {
+  it('v2: distinguishes a OneKey hidden wallet by its passphrase state', () => {
     const multiAccounts = new CryptoMultiAccounts(
       Buffer.from('73C5DA0A', 'hex'),
       [createHardwareWalletHdKey()],
@@ -944,6 +944,27 @@ describe('BC-UR', () => {
     wallet.setSecret(JSON.stringify(account));
     wallet.init();
 
+    assert.strictEqual(wallet.hardwareWalletPassphraseState, 'deadbeef');
+    assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Hidden deadbeef · Native SegWit');
+  });
+
+  it('v2: does not treat the BTC-only firmware marker as a passphrase state', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro:123456789:btc',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(wallet.hardwareWalletPassphraseState, undefined);
     assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Native SegWit');
   });
 
@@ -991,7 +1012,7 @@ describe('BC-UR', () => {
     const multiAccounts = new CryptoMultiAccounts(
       Buffer.from('73C5DA0A', 'hex'),
       [createHardwareWalletHdKey()],
-      'OneKey Pro',
+      'OneKey Pro:123456789-deadbeef',
       'device-id',
       '1.0.0',
     );
@@ -1010,6 +1031,8 @@ describe('BC-UR', () => {
     assert.strictEqual(restoredWallet.allowSend(), true);
     assert.strictEqual(restoredWallet.getTypeReadable(), WatchOnlyWallet.hardwareWalletTypeReadable);
     assert.strictEqual(restoredWallet.shouldShowWatchOnlyWarning(), false);
+    assert.strictEqual(restoredWallet.hardwareWalletPassphraseState, 'deadbeef');
+    assert.strictEqual(restoredWallet.getLabel(), 'OneKey Pro · 123456789 · Hidden deadbeef · Native SegWit');
   });
 
   it('v2: marks crypto-hdkey as a hardware wallet import', () => {
