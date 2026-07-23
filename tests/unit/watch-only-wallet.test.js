@@ -874,6 +874,31 @@ describe('BC-UR', () => {
     assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
   });
 
+  it('resets hardware wallet state when replacing the secret with a regular xpub', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro:123456789',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+    assert.strictEqual(wallet.isHardwareWallet(), true);
+
+    wallet.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
+    wallet.init();
+
+    assert.strictEqual(wallet.isHardwareWallet(), false);
+    assert.strictEqual(wallet.getTypeReadable(), WatchOnlyWallet.typeReadable);
+    assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
+  });
+
   it('v2: imports all OneKey Bitcoin account types as hardware wallets', () => {
     const accountTypes = [
       { purpose: 44, walletType: HDLegacyP2PKHWallet.type, addressPrefix: '1' },

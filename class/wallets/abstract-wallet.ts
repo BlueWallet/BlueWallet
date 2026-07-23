@@ -340,7 +340,7 @@ export class AbstractWallet {
 
         if (parsedSecret.keystore.type === 'hardware') this.use_with_hardware_wallet = true;
       }
-      // It is a Cobo Vault Hardware Wallet
+      // It is a BC-UR/Cobo-style extended public key import
       if (parsedSecret && parsedSecret.ExtPubKey && parsedSecret.MasterFingerprint && parsedSecret.AccountKeyPath) {
         this.secret = parsedSecret.ExtPubKey;
         const mfp = uint8ArrayToHex(hexToUint8Array(parsedSecret.MasterFingerprint).reverse());

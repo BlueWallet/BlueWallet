@@ -29,6 +29,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   hardwareWalletPassphraseState?: string;
 
   setSecret(newSecret: string): this {
+    this.use_with_hardware_wallet = false;
     this.hardwareWalletDevice = undefined;
     this.hardwareWalletAccountName = undefined;
     this.hardwareWalletPassphraseState = undefined;
