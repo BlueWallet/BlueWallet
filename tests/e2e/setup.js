@@ -1,6 +1,8 @@
 /* eslint-env jest */
 /* global device */
 
+import { safelyEnableSynchronization } from './helperz';
+
 // Detox's iOS network synchronization waits on all in-flight NSURLSession
 // requests before considering the app idle. The Arkade SDK's indexer opens
 // a long-lived SSE-style stream (`expo/fetch` →
@@ -31,4 +33,11 @@ beforeAll(async () => {
   } catch (e) {
     console.log('[detox-setup] initial setURLBlacklist failed:', e?.message ?? e);
   }
+});
+
+// scanText() disables sync on iOS and does not re-enable (animated QR can hang
+// enableSynchronization). Restore sync after each test once we have left that UI.
+afterEach(async () => {
+  if (typeof device === 'undefined') return;
+  await safelyEnableSynchronization();
 });

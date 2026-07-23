@@ -170,6 +170,35 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Re-enables Detox sync without hanging forever when the UI still has pending
+ * layer animations (`enableSynchronization` waits for idle and can block on
+ * `setSyncSettings: {"enabled":true}`). On timeout, sync stays disabled.
+ */
+export async function safelyEnableSynchronization(timeoutMs = 5000) {
+  if (device.getPlatform() !== 'ios') {
+    return;
+  }
+  let timer;
+  const enablePromise = device.enableSynchronization().catch(e => {
+    console.warn('[detox] enableSynchronization failed:', e?.message ?? e);
+  });
+  try {
+    await Promise.race([
+      enablePromise,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error('safelyEnableSynchronization timed out')), timeoutMs);
+      }),
+    ]);
+  } catch (e) {
+    if (String(e?.message ?? e).includes('timed out')) {
+      console.warn('[detox] enableSynchronization timed out; leaving sync disabled');
+    }
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 export function hashIt(s) {
   return Buffer.from(sha256(s)).toString('hex');
 }
@@ -263,7 +292,7 @@ export async function helperCreateWallet(walletName) {
     await scrollUpOnHomeScreen();
   } finally {
     if (isIOS) {
-      await device.enableSynchronization();
+      await safelyEnableSynchronization();
     }
   }
   await expect(element(by.id('WalletsList'))).toBeVisible();
@@ -372,7 +401,7 @@ export async function dismissAlertByText(text, timeoutMs = 10000) {
     }
   } finally {
     if (isIOS) {
-      await device.enableSynchronization();
+      await safelyEnableSynchronization();
     }
   }
   return dismissed;
@@ -423,9 +452,8 @@ export async function countElements(testId) {
  * On iOS, animated QR / transition layer animations can leave Detox permanently
  * "busy" (`Layer animations pending`), so synchronization is disabled for the
  * backdoor interaction. Do not call `enableSynchronization()` here: that waits
- * for idle and hangs on the same animations (seen as a stuck
- * `setSyncSettings: {"enabled":true}`). Sync stays off until a later helper
- * re-enables it after leaving the animated screen.
+ * for idle and hangs on the same animations. Callers should use
+ * `safelyEnableSynchronization()` after leaving the animated QR / UR screen.
  */
 export async function scanText(text) {
   if (device.getPlatform() === 'ios') {

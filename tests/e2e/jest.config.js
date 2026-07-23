@@ -1,6 +1,7 @@
 module.exports = {
   maxWorkers: 1,
-  testTimeout: 600_000, // 10 minutes. iOS multisig and plausible deniability tests take a long time to run
+  // 5 minutes default so hung Detox sync fails faster; long multisig flows override per-test.
+  testTimeout: 300_000,
   verbose: true,
   reporters: ['detox/runners/jest/reporter'],
   globalSetup: 'detox/runners/jest/globalSetup',
