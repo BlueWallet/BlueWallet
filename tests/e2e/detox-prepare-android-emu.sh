@@ -56,4 +56,6 @@ if [ -f "$AVD_CONFIG" ]; then
 fi
 
 echo "Done. Launch with:"
-echo "  \$ANDROID_HOME/emulator/emulator -avd $AVD_NAME -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047 -gpu host"
+QR_IMAGE=${DETOX_QR_CAMERA_IMAGE:-/tmp/bluewallet-detox-qr.png}
+node "$SCRIPT_DIR/generate-qr-image.js" 'bluewallet-detox-camera' "$QR_IMAGE"
+echo "  \$ANDROID_HOME/emulator/emulator -avd $AVD_NAME -no-snapshot -noaudio -no-boot-anim -camera-back imagefile:$QR_IMAGE -camera-front none -partition-size 2047 -gpu host"

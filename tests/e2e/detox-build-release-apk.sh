@@ -4,6 +4,11 @@
 
 set -euo pipefail
 
+# Seed the Android Emulator imagefile camera. scanText() replaces this file
+# with the QR code for each string before opening/using the real back camera.
+DETOX_QR_CAMERA_IMAGE=${DETOX_QR_CAMERA_IMAGE:-/tmp/bluewallet-detox-qr.png}
+node tests/e2e/generate-qr-image.js 'bluewallet-detox-camera' "$DETOX_QR_CAMERA_IMAGE"
+
 # ensure patched node_modules before building
 npm run patches
 

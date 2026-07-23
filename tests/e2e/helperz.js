@@ -1,5 +1,7 @@
 import { sha256 } from '@noble/hashes/sha256';
 import { element } from 'detox';
+import { execFileSync } from 'child_process';
+import path from 'path';
 
 /**
  * Captures a stack trace at the call site, excluding the given function from the trace.
@@ -419,12 +421,35 @@ export async function countElements(testId) {
 }
 
 export async function scanText(text) {
-  await waitForId('ScanQrBackdoorButton');
-  for (let c = 0; c <= 5; c++) {
-    await element(by.id('ScanQrBackdoorButton')).tap();
+  if (device.getPlatform() === 'android') {
+    // Wait for the scanner screen to be fully mounted before injecting the image
+    // so the camera feed is already active when the file is written.
+    await waitForId('ScanQrBackdoorButton');
+    const output = process.env.DETOX_QR_CAMERA_IMAGE || '/tmp/bluewallet-detox-qr.png';
+    execFileSync(process.execPath, [path.resolve('tests/e2e/generate-qr-image.js'), text, output]);
+    // Give the emulator imagefile camera time to reload before the scanner
+    // receives the next frame. The Android camera itself is used; no backdoor
+    // input is involved.
+    const frameDelay = Number(process.env.DETOX_QR_FRAME_DELAY_MS);
+    await new Promise(resolve => setTimeout(resolve, Number.isFinite(frameDelay) ? frameDelay : 750));
+    return;
   }
+  await waitForId('ScanQrBackdoorButton');
+  for (let c = 0; c <= 5; c++) await element(by.id('ScanQrBackdoorButton')).tap();
   await element(by.id('scanQrBackdoorInput')).replaceText(text);
   await element(by.id('scanQrBackdoorOkButton')).tap();
+}
+
+/**
+ * Displays an animated QR/UR payload one QR frame at a time. The scanner's
+ * progress indicator is used as the acknowledgement that the current frame
+ * was consumed before advancing to the next one.
+ */
+export async function scanQrFrames(frames) {
+  for (let i = 0; i < frames.length; i++) {
+    await scanText(frames[i]);
+    await waitFor(element(by.text(`${i + 1} / ${frames.length}`))).toBeVisible().withTimeout(5000);
+  }
 }
 
 export async function setCustomFeeRate(feeRate) {

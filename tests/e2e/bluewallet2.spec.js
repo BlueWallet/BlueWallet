@@ -117,7 +117,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
     await scanText('bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj');
-
+    await waitFor(element(by.id('AddressInput'))).toHaveText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7').withTimeout(10000);
     await element(by.id('CreateTransactionButton')).tap();
     // created. verifying:
     await waitForId('TransactionValue');
