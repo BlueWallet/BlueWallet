@@ -424,16 +424,28 @@ export async function scanText(text) {
   if (device.getPlatform() === 'android') {
     const output = process.env.DETOX_QR_CAMERA_IMAGE || '/tmp/bluewallet-detox-qr.png';
     execFileSync(process.execPath, [path.resolve('tests/e2e/generate-qr-image.js'), text, output]);
-    // Give the emulator imagefile camera a frame to reload before the scanner
+    // Give the emulator imagefile camera time to reload before the scanner
     // receives the next frame. The Android camera itself is used; no backdoor
     // input is involved.
-    await new Promise(resolve => setTimeout(resolve, 250));
+    await new Promise(resolve => setTimeout(resolve, Number(process.env.DETOX_QR_FRAME_DELAY_MS || 750)));
     return;
   }
   await waitForId('ScanQrBackdoorButton');
   for (let c = 0; c <= 5; c++) await element(by.id('ScanQrBackdoorButton')).tap();
   await element(by.id('scanQrBackdoorInput')).replaceText(text);
   await element(by.id('scanQrBackdoorOkButton')).tap();
+}
+
+/**
+ * Displays an animated QR/UR payload one QR frame at a time. The scanner's
+ * progress indicator is used as the acknowledgement that the current frame
+ * was consumed before advancing to the next one.
+ */
+export async function scanQrFrames(frames, progressId = 'UrProgressBar') {
+  for (const frame of frames) {
+    await scanText(frame);
+    await waitFor(element(by.id(progressId))).toBeVisible();
+  }
 }
 
 export async function setCustomFeeRate(feeRate) {
