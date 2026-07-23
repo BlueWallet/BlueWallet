@@ -422,12 +422,16 @@ export async function countElements(testId) {
 
 export async function scanText(text) {
   if (device.getPlatform() === 'android') {
+    // Wait for the scanner screen to be fully mounted before injecting the image
+    // so the camera feed is already active when the file is written.
+    await waitForId('ScanQrBackdoorButton');
     const output = process.env.DETOX_QR_CAMERA_IMAGE || '/tmp/bluewallet-detox-qr.png';
     execFileSync(process.execPath, [path.resolve('tests/e2e/generate-qr-image.js'), text, output]);
     // Give the emulator imagefile camera time to reload before the scanner
     // receives the next frame. The Android camera itself is used; no backdoor
     // input is involved.
-    await new Promise(resolve => setTimeout(resolve, Number(process.env.DETOX_QR_FRAME_DELAY_MS || 750)));
+    const frameDelay = Number(process.env.DETOX_QR_FRAME_DELAY_MS);
+    await new Promise(resolve => setTimeout(resolve, Number.isFinite(frameDelay) ? frameDelay : 750));
     return;
   }
   await waitForId('ScanQrBackdoorButton');
