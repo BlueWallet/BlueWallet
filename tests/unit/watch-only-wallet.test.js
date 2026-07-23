@@ -868,6 +868,10 @@ describe('BC-UR', () => {
     assert.strictEqual(wallet.allowSend(), true);
     assert.strictEqual(wallet.getTypeReadable(), WatchOnlyWallet.hardwareWalletTypeReadable);
     assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), false);
+
+    wallet.setUseWithHardwareWalletEnabled(false);
+    assert.strictEqual(wallet.isWatchOnlyWarningVisible, true);
+    assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
   });
 
   it('v2: imports all OneKey Bitcoin account types as hardware wallets', () => {
