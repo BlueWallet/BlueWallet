@@ -86,9 +86,9 @@ const SendDetails = () => {
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
   const amountUnit = route.params?.amountUnit ?? BitcoinUnit.BTC;
   const frozenBalance = route.params?.frozenBalance ?? 0;
-  const transactionMemo = route.params?.transactionMemo;
+  const transactionMemo = route.params?.transactionMemo ?? route.params?.label;
   const utxos = route.params?.utxos;
-  const payjoinUrl = route.params?.payjoinUrl;
+  const payjoinUrl = route.params?.payjoinUrl ?? route.params?.pj;
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
   const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
@@ -196,14 +196,21 @@ const SendDetails = () => {
       // screen was called with `address` parameter, so we just prefill it
       setAddresses(prevAddresses => {
         const updatedAddresses = [...prevAddresses];
+        const parsedAmount = Number(routeParams.amount);
         updatedAddresses[0] = {
           ...updatedAddresses[0],
           address: routeParams.address!,
-          amount: 0,
-          amountSats: 0,
+          amount: parsedAmount > 0 ? parsedAmount : 0,
+          amountSats: parsedAmount > 0 ? btcToSatoshi(parsedAmount) : 0,
         };
         return updatedAddresses;
       });
+      if (transactionMemo) {
+        setParams({ transactionMemo });
+      }
+      if (payjoinUrl) {
+        setParams({ payjoinUrl });
+      }
     } else if (routeParams.addRecipientParams) {
       // used to add a recipient, mainly from contacts aka paymentcodes screen
       const index = addresses.length === 0 ? 0 : scrollIndex.current;
@@ -226,7 +233,7 @@ const SendDetails = () => {
     }
     // this effect only to run once when screen is mounted or params change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeParams.uri, routeParams.address, routeParams.addRecipientParams]);
+  }, [routeParams.uri, routeParams.address, routeParams.amount, routeParams.label, routeParams.pj, routeParams.addRecipientParams, transactionMemo, payjoinUrl]);
 
   useEffect(() => {
     // check if we have a suitable wallet
