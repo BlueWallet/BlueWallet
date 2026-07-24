@@ -98,3 +98,4 @@ android/app/.classpath
 android/app/.project
 fastlane/README.md
 fastlane/report.xml
+fastlane/logs/
