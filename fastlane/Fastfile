@@ -472,7 +472,7 @@ platform :ios do
   def build_detail(build, platform_name = "iOS")
     message = build.respond_to?(:processing_state) ? build.processing_state : "unknown"
     build_number = build.respond_to?(:version) ? build.version : "unknown"
-    "#{message} | build #{build_number}"
+    "#{platform_name} | #{message} | build #{build_number}"
   end
 
   def human_readable_build_date(value)
@@ -726,8 +726,7 @@ platform :ios do
     end
 
     created_version = false
-    if version
-    else
+    unless version
       new_version = release_version_from_package_json
       UI.user_error!("Dry run cannot create a new App Store Connect release; prepare the release first.") if dry_run
       current_versions = all_versions.map do |candidate|
