@@ -565,16 +565,6 @@ platform :ios do
     submission
   end
 
-  def delete_app_store_release_version(version:, platform_name:)
-    if version.respond_to?(:delete!)
-      version.delete!
-    elsif version.respond_to?(:delete)
-      version.delete
-    else
-      UI.user_error!("Could not delete #{platform_name} version #{version.version_string}: delete action is not supported by this Fastlane API object.")
-    end
-  end
-
   def write_release_report(report)
     report_dir = File.join(PROJECT_ROOT, "fastlane", "logs")
     FileUtils.mkdir_p(report_dir)
@@ -681,45 +671,6 @@ platform :ios do
       end
       UI.user_error!("Could not load newly created release #{new_version}") unless version
       created_version = true
-    end
-
-    deletable_states = %w[PREPARE_FOR_SUBMISSION READY_FOR_REVIEW INVALID_BINARY]
-    release_state = app_store_version_state(version)
-    can_delete_release = deletable_states.include?(release_state)
-    if can_delete_release
-      delete_release_choice = release_wizard_select(
-        "Release #{version.version_string} is #{app_store_state_readable(release_state)}.",
-        ["Continue preparing release", "Delete this release and stop"]
-      )
-      delete_release_choice = "Continue preparing release" if delete_release_choice == :back
-
-      if delete_release_choice == "Delete this release and stop"
-        if dry_run
-          UI.important("Dry run: would delete #{platform_name} release #{version.version_string}.")
-          return {
-            dry_run: true,
-            platform: platform_name,
-            version: version.version_string,
-            deleted_release: false,
-            planned_delete_release: true
-          }
-        end
-
-        UI.user_error!("Release deletion canceled.") unless UI.confirm(
-          "Delete #{platform_name} release #{version.version_string}? This cannot be undone."
-        )
-        with_network_loading("Deleting #{platform_name} release #{version.version_string}") do
-          delete_app_store_release_version(version: version, platform_name: platform_name)
-        end
-        UI.success("Deleted #{platform_name} release #{version.version_string}.")
-        return {
-          dry_run: false,
-          platform: platform_name,
-          version: version.version_string,
-          deleted_release: true,
-          planned_delete_release: false
-        }
-      end
     end
 
     builds = with_network_loading("Loading available #{platform_name} builds") do
