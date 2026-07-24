@@ -303,6 +303,7 @@
     "open_link_in_explorer": "Open link in explorer",
     "password": "Password",
     "password_explain": "Enter the password you will use to unlock your storage.",
+    "passwords_do_not_match": "Passwords do not match.",
     "plausible_deniability": "Plausible Deniability",
     "privacy": "Privacy",
     "privacy_read_clipboard": "Read Clipboard",

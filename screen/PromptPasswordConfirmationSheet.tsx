@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Animated, Easing, Keyboard, StyleSheet, Text, TextInput, View, TextStyle, ViewStyle } from 'react-native';
@@ -10,6 +10,7 @@ import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 import { MODAL_TYPES } from './PromptPasswordConfirmationSheet.types';
+import { ACTIONS, initialState, reducer } from './PromptPasswordConfirmationSheet.reducer';
 import { useStorage } from '../hooks/context/useStorage';
 import presentAlert from '../components/Alert';
 
@@ -20,15 +21,28 @@ type DynamicStyles = {
   feeModalLabel: TextStyle;
 };
 
+const SHAKE_KEYFRAMES = [10, -10, 5, -5, 0];
+
+const runShake = (value: Animated.Value) => {
+  Animated.sequence(
+    SHAKE_KEYFRAMES.map(toValue =>
+      Animated.timing(value, {
+        toValue,
+        duration: 100,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ),
+  ).start();
+};
+
 const PromptPasswordConfirmationSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'PromptPasswordConfirmationSheet'>>();
   const { modalType = MODAL_TYPES.ENTER_PASSWORD, returnTo } = route.params ?? {};
 
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showExplanation, setShowExplanation] = useState(modalType === MODAL_TYPES.CREATE_PASSWORD);
+  const [state, dispatch] = useReducer(reducer, modalType, initialState);
+  const { password, confirmPassword, isLoading, showExplanation } = state;
 
   const shakeAnimation = useRef(new Animated.Value(0)).current;
   const explanationOpacity = useRef(new Animated.Value(1)).current;
@@ -36,167 +50,136 @@ const PromptPasswordConfirmationSheet = () => {
   const { colors } = useTheme();
   const { encryptStorage, decryptStorage, saveToDisk, cachedPassword, isPasswordInUse, createFakeStorage, resetWallets } = useStorage();
 
+  const isCreatePassword = modalType === MODAL_TYPES.CREATE_PASSWORD;
+  const isCreateFake = modalType === MODAL_TYPES.CREATE_FAKE_STORAGE;
+  const isCreateFlow = isCreatePassword || isCreateFake;
+  const showPasswordForm = !isCreatePassword || !showExplanation;
+
   const stylesHook = useMemo<DynamicStyles>(
     () => ({
-      modalContent: {
-        backgroundColor: colors.elevated,
-      },
+      modalContent: { backgroundColor: colors.elevated },
       input: {
         backgroundColor: colors.inputBackgroundColor,
         borderColor: colors.formBorder,
         color: colors.foregroundColor,
         width: '100%',
       },
-      feeModalCustomText: {
-        color: colors.buttonAlternativeTextColor,
-      },
-      feeModalLabel: {
-        color: colors.successColor,
-      },
+      feeModalCustomText: { color: colors.buttonAlternativeTextColor },
+      feeModalLabel: { color: colors.successColor },
     }),
     [colors],
   );
 
-  const resetState = useCallback(() => {
-    setPassword('');
-    setConfirmPassword('');
-    setIsLoading(false);
+  useEffect(() => {
+    dispatch({ type: ACTIONS.RESET, payload: modalType });
     shakeAnimation.setValue(0);
     explanationOpacity.setValue(1);
-    setShowExplanation(modalType === MODAL_TYPES.CREATE_PASSWORD);
   }, [modalType, shakeAnimation, explanationOpacity]);
 
-  useEffect(() => {
-    resetState();
-  }, [modalType, resetState]);
-
-  const performShake = (shakeAnimRef: Animated.Value) => {
-    Animated.sequence([
-      Animated.timing(shakeAnimRef, {
-        toValue: 10,
-        duration: 100,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(shakeAnimRef, {
-        toValue: -10,
-        duration: 100,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(shakeAnimRef, {
-        toValue: 5,
-        duration: 100,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(shakeAnimRef, {
-        toValue: -5,
-        duration: 100,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-      Animated.timing(shakeAnimRef, {
-        toValue: 0,
-        duration: 100,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
-
-  const handleShakeAnimation = () => {
+  const failWithShake = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-    performShake(shakeAnimation);
-  };
+    runShake(shakeAnimation);
+  }, [shakeAnimation]);
 
-  const handleSubmit = async () => {
-    Keyboard.dismiss();
-    setIsLoading(true);
-
-    const isCreateFlow = modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE;
-    if (isCreateFlow) {
-      if (!password || password !== confirmPassword) {
-        setIsLoading(false);
-        return handleShakeAnimation();
-      }
-    } else if (!password) {
-      setIsLoading(false);
-      return handleShakeAnimation();
-    }
-
-    const runAction = async () => {
-      if (returnTo === 'EncryptStorage') {
-        if (modalType === MODAL_TYPES.CREATE_PASSWORD) {
-          await encryptStorage(password);
-          await saveToDisk();
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          navigation.goBack();
-          return true;
-        }
-        if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
-          await decryptStorage(password);
-          await saveToDisk();
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-          const action = StackActions.popToTop();
-          navigation.dispatch(action);
-          return true;
-        }
-      }
-
-      if (returnTo === 'PlausibleDeniability' && modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) {
-        const isProvidedPasswordInUse = password === cachedPassword || (await isPasswordInUse(password));
-        if (isProvidedPasswordInUse) {
-          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-          presentAlert({ message: loc.plausibledeniability.password_should_not_match });
-          return false;
-        }
-
-        await createFakeStorage(password);
-        resetWallets();
+  const runAction = useCallback(async (): Promise<boolean> => {
+    if (returnTo === 'EncryptStorage') {
+      if (isCreatePassword) {
+        await encryptStorage(password);
+        await saveToDisk();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-        const popToTop = StackActions.popToTop();
-        navigation.dispatch(popToTop);
+        navigation.goBack();
         return true;
       }
+      if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
+        await decryptStorage(password);
+        await saveToDisk();
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        navigation.dispatch(StackActions.popToTop());
+        return true;
+      }
+    }
 
-      return false;
-    };
+    if (returnTo === 'PlausibleDeniability' && isCreateFake) {
+      const inUse = password === cachedPassword || (await isPasswordInUse(password));
+      if (inUse) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: loc.plausibledeniability.password_should_not_match });
+        return false;
+      }
+      await createFakeStorage(password);
+      resetWallets();
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      navigation.dispatch(StackActions.popToTop());
+      return true;
+    }
 
+    return false;
+  }, [
+    returnTo,
+    modalType,
+    isCreatePassword,
+    isCreateFake,
+    password,
+    encryptStorage,
+    decryptStorage,
+    saveToDisk,
+    navigation,
+    cachedPassword,
+    isPasswordInUse,
+    createFakeStorage,
+    resetWallets,
+  ]);
+
+  const handleSubmit = useCallback(async () => {
+    Keyboard.dismiss();
+
+    if (isCreateFlow && password && confirmPassword && password !== confirmPassword) {
+      failWithShake();
+      presentAlert({ message: loc.settings.passwords_do_not_match });
+      return;
+    }
+
+    const invalid = isCreateFlow ? !password || password !== confirmPassword : !password;
+    if (invalid) {
+      failWithShake();
+      return;
+    }
+
+    dispatch({ type: ACTIONS.SET_LOADING, payload: true });
     try {
       const success = await runAction();
-      if (!success) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      }
+      if (!success) triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     } catch (error) {
       presentAlert({ message: (error as Error).message });
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
     } finally {
-      setIsLoading(false);
+      dispatch({ type: ACTIONS.SET_LOADING, payload: false });
     }
-  };
+  }, [isCreateFlow, password, confirmPassword, failWithShake, runAction]);
 
-  const handleTransitionToCreatePassword = () => {
+  const handleTransitionToCreatePassword = useCallback(() => {
     Animated.timing(explanationOpacity, {
       toValue: 0,
       duration: 240,
       useNativeDriver: true,
     }).start(() => {
-      setShowExplanation(false);
+      dispatch({ type: ACTIONS.HIDE_EXPLANATION });
       explanationOpacity.setValue(1);
     });
-  };
+  }, [explanationOpacity]);
 
-  const animatedViewStyle: Animated.WithAnimatedObject<any> = {
-    width: '100%',
-  };
+  const headerText = isCreatePassword
+    ? loc.settings.password_explain
+    : isCreateFake
+      ? `${loc.settings.password_explain} ${loc.plausibledeniability.create_password_explanation}`
+      : loc._.enter_password;
 
   return (
     <SafeAreaView style={[styles.modalContent, stylesHook.modalContent]} edges={['bottom', 'left', 'right']}>
       <View style={styles.flex}>
         <View style={styles.padding} />
-        <Animated.View style={[animatedViewStyle, styles.minHeight]}>
-          {modalType === MODAL_TYPES.CREATE_PASSWORD && showExplanation && (
+        <Animated.View style={[styles.fullWidth, styles.minHeight]}>
+          {isCreatePassword && showExplanation && (
             <Animated.View style={{ opacity: explanationOpacity }}>
               <Text style={[styles.textLabel, stylesHook.feeModalLabel]}>{loc.settings.encrypt_storage_explanation_headline}</Text>
               <Animated.View>
@@ -210,15 +193,10 @@ const PromptPasswordConfirmationSheet = () => {
               <View style={styles.feeModalFooter} />
             </Animated.View>
           )}
-          {(modalType === MODAL_TYPES.ENTER_PASSWORD ||
-            ((modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && !showExplanation)) && (
+          {showPasswordForm && (
             <>
               <Text adjustsFontSizeToFit style={[styles.textLabel, stylesHook.feeModalLabel]}>
-                {modalType === MODAL_TYPES.CREATE_PASSWORD
-                  ? loc.settings.password_explain
-                  : modalType === MODAL_TYPES.CREATE_FAKE_STORAGE
-                    ? `${loc.settings.password_explain} ${loc.plausibledeniability.create_password_explanation}`
-                    : loc._.enter_password}
+                {headerText}
               </Text>
               <View style={styles.inputContainer}>
                 <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
@@ -230,14 +208,14 @@ const PromptPasswordConfirmationSheet = () => {
                     autoCapitalize="none"
                     autoComplete="off"
                     autoCorrect={false}
-                    onChangeText={setPassword}
+                    onChangeText={text => dispatch({ type: ACTIONS.SET_PASSWORD, payload: text })}
                     style={[styles.input, stylesHook.input]}
                     clearTextOnFocus
                     clearButtonMode="while-editing"
                     autoFocus
                   />
                 </Animated.View>
-                {(modalType === MODAL_TYPES.CREATE_PASSWORD || modalType === MODAL_TYPES.CREATE_FAKE_STORAGE) && (
+                {isCreateFlow && (
                   <Animated.View style={{ transform: [{ translateX: shakeAnimation }] }}>
                     <TextInput
                       testID="ConfirmPasswordInput"
@@ -249,7 +227,7 @@ const PromptPasswordConfirmationSheet = () => {
                       autoComplete="off"
                       autoCapitalize="none"
                       clearButtonMode="while-editing"
-                      onChangeText={setConfirmPassword}
+                      onChangeText={text => dispatch({ type: ACTIONS.SET_CONFIRM_PASSWORD, payload: text })}
                       style={[styles.input, stylesHook.input]}
                     />
                   </Animated.View>
@@ -260,7 +238,7 @@ const PromptPasswordConfirmationSheet = () => {
         </Animated.View>
 
         <View style={styles.footerContainer}>
-          {showExplanation && modalType === MODAL_TYPES.CREATE_PASSWORD ? (
+          {showExplanation && isCreatePassword ? (
             <Animated.View style={[{ opacity: explanationOpacity }, styles.feeModalFooterSpacing]}>
               <SecondButton
                 title={loc.settings.i_understand}
@@ -276,7 +254,7 @@ const PromptPasswordConfirmationSheet = () => {
                 onPress={handleSubmit}
                 testID="OKButton"
                 loading={isLoading}
-                disabled={isLoading || !password || (modalType === MODAL_TYPES.CREATE_PASSWORD && !confirmPassword)}
+                disabled={isLoading || !password || (isCreatePassword && !confirmPassword)}
               />
             </View>
           )}
@@ -296,6 +274,9 @@ const styles = StyleSheet.create({
   },
   flex: {
     flex: 1,
+  },
+  fullWidth: {
+    width: '100%',
   },
   padding: {
     paddingTop: 6,
