@@ -1,15 +1,18 @@
 import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import { sha256 } from '@noble/hashes/sha256';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Base43 from '../../blue_modules/base43';
+import { isDesktop } from '../../blue_modules/environment';
 import * as fs from '../../blue_modules/fs';
+import { triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import { BlueURDecoder, decodeUR, extractSingleWorkload } from '../../blue_modules/ur';
 import BlueText from '../../components/BlueText';
 import { openPrivacyDesktopSettings } from '../../class/camera';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
+import Icon from '../../components/Icon';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
@@ -54,10 +57,24 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     textAlignVertical: 'top',
   },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerButton: {
+    padding: 8,
+  },
+  headerButtonSpacing: {
+    marginLeft: 8,
+  },
+  backdoorButtonDev: {
+    opacity: 0.5,
+  },
 });
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const isLoadingRef = useRef(false);
   const navigation = useExtendedNavigation();
   const route = useRoute<RouteProps>();
   const navigationState = navigation.getState();
@@ -76,6 +93,7 @@ const ScanQRCode = () => {
   const useBBQRRef = useRef(false);
   const [animatedQRCodeData, setAnimatedQRCodeData] = useState<Record<string, string>>({});
   const [cameraStatusGranted, setCameraStatusGranted] = useState<boolean | undefined>(undefined);
+  const [torchMode, setTorchMode] = useState(false);
   const stylesHook = StyleSheet.create({
     openSettingsContainer: {
       backgroundColor: colors.brandingColor,
@@ -231,22 +249,81 @@ const ScanQRCode = () => {
   };
 
   const showFilePicker = async () => {
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
     setIsLoading(true);
-    const { data } = await fs.showFilePickerAndReadFile();
-    if (data) onBarCodeRead({ data });
-    setIsLoading(false);
+    try {
+      const { data } = await fs.showFilePickerAndReadFile();
+      if (data) onBarCodeRead({ data });
+    } finally {
+      setIsLoading(false);
+      isLoadingRef.current = false;
+    }
   };
 
   const onShowImagePickerButtonPress = () => {
-    if (!isLoading) {
-      setIsLoading(true);
-      fs.showImagePickerAndReadImage()
-        .then(data => {
-          if (data) onBarCodeRead({ data });
-        })
-        .finally(() => setIsLoading(false));
-    }
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
+    setIsLoading(true);
+    fs.showImagePickerAndReadImage()
+      .then(data => {
+        if (data) onBarCodeRead({ data });
+      })
+      .finally(() => {
+        setIsLoading(false);
+        isLoadingRef.current = false;
+      });
   };
+
+  useLayoutEffect(() => {
+    if (isDesktop) return;
+    navigation.setOptions({
+      headerTitle: '',
+      headerTintColor: '#ffffff',
+      headerBackButtonDisplayMode: 'minimal',
+      // eslint-disable-next-line react/no-unstable-nested-components
+      headerLeft: () => (
+        <TouchableOpacity
+          style={styles.headerButton}
+          onPress={() => {
+            setTorchMode(t => !t);
+            triggerSelectionHapticFeedback();
+          }}
+        >
+          <Icon
+            name={torchMode ? 'flashlight' : 'flashlight-off'}
+            type="material-community"
+            size={22}
+            color={torchMode ? '#FFD60A' : '#ffffff'}
+          />
+        </TouchableOpacity>
+      ),
+      // eslint-disable-next-line react/no-unstable-nested-components
+      headerRight: () => (
+        <View style={styles.headerButtons}>
+          {showFileImportButton && (
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={loc._.pick_file}
+              style={styles.headerButton}
+              onPress={showFilePicker}
+            >
+              <Icon name="file-import" type="font-awesome-6" size={22} color="#ffffff" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.pick_image}
+            style={[styles.headerButton, styles.headerButtonSpacing]}
+            onPress={onShowImagePickerButtonPress}
+          >
+            <Icon name="image" type="font-awesome" size={22} color="#ffffff" />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [torchMode, showFileImportButton, navigation]);
 
   const dismiss = () => {
     navigation.goBack();
@@ -296,6 +373,7 @@ const ScanQRCode = () => {
           onFilePickerButtonPress={showFilePicker}
           onImagePickerButtonPress={onShowImagePickerButtonPress}
           onCancelButtonPress={dismiss}
+          torchMode={torchMode}
         />
       ) : null}
       {urTotal > 0 && (
@@ -329,7 +407,7 @@ const ScanQRCode = () => {
         accessibilityRole="button"
         accessibilityLabel={loc._.qr_custom_input_button}
         testID="ScanQrBackdoorButton"
-        style={styles.backdoorButton}
+        style={[styles.backdoorButton, __DEV__ && styles.backdoorButtonDev]}
         onPress={handleInvisibleBackdoorPress}
       />
     </View>
