@@ -150,9 +150,13 @@ const ListItem: React.FC<ListItemProps> = React.memo(
             ) : null}
             {rightSubtitle != null && rightSubtitle !== '' ? (
               <View style={styles.rightMemoWrapper}>
-                <Text style={[stylesHook.subtitle, rightSubtitleStyle, stylesHook.rightMemoText]} numberOfLines={1} ellipsizeMode="tail">
-                  {rightSubtitle}
-                </Text>
+                {typeof rightSubtitle === 'string' ? (
+                  <Text style={[stylesHook.subtitle, rightSubtitleStyle, stylesHook.rightMemoText]} numberOfLines={1} ellipsizeMode="tail">
+                    {rightSubtitle}
+                  </Text>
+                ) : (
+                  rightSubtitle
+                )}
               </View>
             ) : null}
           </View>

@@ -103,6 +103,24 @@ describe('Watch only wallet', () => {
     assert.strictEqual(nextChangeAddress, 'bc1q74tz7eflqc62v8utqlazcs3tqtwmvvzud5dmrz');
   });
 
+  it('can edit master finger print', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6rERe82dmmpndd2jSsRH5o3GaDfESv1Zk2cESDuB85HFNSujcDBDZTxvdNCdXzfi83okz7VKx46FA9RxkfYHcZLKU3FRY2b4sf2DzNoMdLU');
+
+    assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
+    w.setMasterFingerprintHex('398e3e5b');
+    assert.strictEqual(w.getMasterFingerprintHex(), '398e3e5b');
+
+    w.setMasterFingerprintHex('0x398e3e5b');
+    assert.strictEqual(w.getMasterFingerprintHex(), '398e3e5b');
+
+    assert.throws(() => w.setMasterFingerprintHex(''), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex('1234'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex('123456789'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex('gggggggg'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+    assert.throws(() => w.setMasterFingerprintHex('398e3e5g'), /Master fingerprint must be a valid hex of exactly 8 hex characters/);
+  });
+
   it('can do RBF - bumpfees tx', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6qLpbJKVYnGb61HgUUuG5jRsrQrJ2uFCuQTX2nyuwPMv8vs8bQbq1T3oLMcbBRp3J8yjHnSnMR7Ykg4ffF82qGjC2TkuKnoAHKPWDJNvYKS');

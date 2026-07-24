@@ -526,6 +526,8 @@
     "xpub_title": "Wallet XPUB",
     "manage_wallets_search_placeholder": "Search wallets, addresses, transactions and memos",
     "more_info": "More Info",
+    "invalid_masterfingerprint_title": "Invalid Format",
+    "invalid_masterfingerprint_description": "Please enter a valid hex value",
     "details_delete_wallet_error_message": "There was an issue confirming if this wallet was removed from notifications—this could be due to a network issue or poor connection. If you continue, you might still receive notifications for transactions related to this wallet, even after it is deleted.",
     "details_delete_anyway": "Delete anyway"
   },

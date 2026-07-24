@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -26,7 +26,7 @@ import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useFocusEffect, useRoute, RouteProp, usePreventRemove, useLocale } from '@react-navigation/native';
+import { useFocusEffect, useRoute, RouteProp, useLocale } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ToolTipMenu from '../../components/TooltipMenu';
@@ -359,6 +359,10 @@ const WalletDetails: React.FC = () => {
     statsBoxNumber: {
       color: colors.foregroundColor,
     },
+    input: {
+      borderColor: colors.formBorder,
+      color: colors.foregroundColor,
+    },
   });
 
   const navigateToWalletExport = () => {
@@ -490,7 +494,32 @@ const WalletDetails: React.FC = () => {
     }
   }, [wallet, saveToDisk]);
 
-  usePreventRemove(false, () => {});
+  const walletMasterFingerprintInputOnBlur = useCallback(async () => {
+    if (wallet.type === WatchOnlyWallet.type) {
+      const mfp = masterFingerprint?.trim().toLocaleLowerCase();
+
+      // masterfingerprint before editing started
+      const currentMasterFingerprint = wallet.getMasterFingerprintHex();
+
+      if (!mfp) {
+        presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
+        setMasterFingerprint(currentMasterFingerprint);
+        return;
+      }
+
+      if (mfp !== currentMasterFingerprint) {
+        try {
+          wallet.setMasterFingerprintHex(mfp);
+          await saveToDisk();
+          setMasterFingerprint(wallet.getMasterFingerprintHex());
+        } catch (error) {
+          presentAlert({ title: loc.wallets.invalid_masterfingerprint_title, message: loc.wallets.invalid_masterfingerprint_description });
+          setMasterFingerprint(currentMasterFingerprint);
+          wallet.setMasterFingerprintHex(currentMasterFingerprint);
+        }
+      }
+    }
+  }, [wallet, masterFingerprint, setMasterFingerprint, saveToDisk]);
 
   const onViewMasterFingerPrintPress = () => {
     setIsMasterFingerPrintVisible(true);
@@ -798,8 +827,34 @@ const WalletDetails: React.FC = () => {
                       onPress={isMasterFingerPrintVisible ? undefined : onViewMasterFingerPrintPress}
                       title={loc.wallets.details_master_fingerprint}
                       titleStyle={stylesHook.advancedListItemTitle}
-                      rightTitle={
-                        isMasterFingerPrintVisible ? (masterFingerprint ?? loc.wallets.import_derivation_loading) : loc.multisig.view
+                      rightSubtitle={
+                        <View>
+                          {isMasterFingerPrintVisible ? (
+                            <View>
+                              {wallet.type === WatchOnlyWallet.type && wallet.isHd() ? (
+                                <TextInput
+                                  value={masterFingerprint}
+                                  onChangeText={(text: string) => {
+                                    setMasterFingerprint(text);
+                                  }}
+                                  onBlur={walletMasterFingerprintInputOnBlur}
+                                  numberOfLines={1}
+                                  style={[styles.input, stylesHook.input, { writingDirection: direction }]}
+                                  editable={!isLoading}
+                                  underlineColorAndroid="transparent"
+                                  testID="masterfingerPrintInput"
+                                  autoFocus
+                                />
+                              ) : (
+                                <BlueText selectable>{masterFingerprint ?? loc.wallets.import_derivation_loading}</BlueText>
+                              )}
+                            </View>
+                          ) : (
+                            <Pressable onPress={onViewMasterFingerPrintPress} testID="viewMasterfingerprint">
+                              <BlueText>{loc.multisig.view}</BlueText>
+                            </Pressable>
+                          )}
+                        </View>
                       }
                       rightTitleStyle={stylesHook.advancedListItemRightTitle}
                       rightTitleSelectable={isMasterFingerPrintVisible}
@@ -903,6 +958,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     lineHeight: 20,
+  },
+  input: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    alignItems: 'center',
+    borderRadius: 4,
+    padding: 6,
+    marginTop: 12,
+    minWidth: 88,
+    maxWidth: 88,
+    textAlign: 'center',
   },
   detailsCard: {
     marginHorizontal: 16,
