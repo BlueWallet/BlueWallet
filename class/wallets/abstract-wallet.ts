@@ -84,6 +84,10 @@ export class AbstractWallet {
     return uint8ArrayToHex(sha256(string2hash));
   }
 
+  getTypeReadable(): string {
+    return this.typeReadable;
+  }
+
   getTransactions(): Transaction[] {
     throw new Error('not implemented');
   }
@@ -336,7 +340,7 @@ export class AbstractWallet {
 
         if (parsedSecret.keystore.type === 'hardware') this.use_with_hardware_wallet = true;
       }
-      // It is a Cobo Vault Hardware Wallet
+      // It is a BC-UR/Cobo-style extended public key import
       if (parsedSecret && parsedSecret.ExtPubKey && parsedSecret.MasterFingerprint && parsedSecret.AccountKeyPath) {
         this.secret = parsedSecret.ExtPubKey;
         const mfp = uint8ArrayToHex(hexToUint8Array(parsedSecret.MasterFingerprint).reverse());
@@ -344,7 +348,9 @@ export class AbstractWallet {
         this._derivationPath = parsedSecret.AccountKeyPath.startsWith('m/')
           ? parsedSecret.AccountKeyPath
           : `m/${parsedSecret.AccountKeyPath}`;
-        if (parsedSecret.CoboVaultFirmwareVersion) this.use_with_hardware_wallet = true;
+        if (parsedSecret.CoboVaultFirmwareVersion || parsedSecret.UseWithHardwareWallet === true) {
+          this.use_with_hardware_wallet = true;
+        }
         return this;
       }
     } catch (_) {}

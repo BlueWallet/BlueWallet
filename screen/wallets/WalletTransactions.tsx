@@ -71,6 +71,8 @@ type RouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
 
 type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 'WalletTransactions'>;
 
+const isWatchOnlyWallet = (wallet: TWallet): wallet is WatchOnlyWallet => wallet.type === WatchOnlyWallet.type;
+
 /** Scroll offset after which the compact wallet name + balance header is shown. */
 const SCROLLED_HEADER_SHOW_OFFSET = 180;
 const SCROLLED_HEADER_FADE_IN_MS = 180;
@@ -183,6 +185,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const { params, name } = useRoute<RouteProps>();
   const { walletID } = params;
   const wallet = useWalletSubscribe(walletID);
+  const watchOnlyWallet = isWatchOnlyWallet(wallet) ? wallet : undefined;
   const [limit, setLimit] = useState(15);
   const [pageSize] = useState(20);
   const navigation = useExtendedNavigation();
@@ -199,9 +202,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [balance, setBalance] = useState(wallet.getBalance());
   const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
   const [isUnitSwitching, setIsUnitSwitching] = useState(false);
-  const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
-    return wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible;
-  });
+  const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState(() => watchOnlyWallet?.isWatchOnlyWarningVisible ?? false);
   const MAX_FAILURES = 3;
   const flatListRef = useRef<FlatList<Transaction>>(null);
   const headerRef = useRef<View>(null);
@@ -272,9 +273,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [wallet, walletID]);
 
   useEffect(() => {
-    setIsWatchOnlyWarningVisible(wallet.type === WatchOnlyWallet.type && (wallet as WatchOnlyWallet).isWatchOnlyWarningVisible);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [walletID]);
+    setIsWatchOnlyWarningVisible(watchOnlyWallet?.isWatchOnlyWarningVisible ?? false);
+  }, [walletID, watchOnlyWallet]);
 
   const sortedTransactions = useMemo(() => {
     const txs = wallet.getTransactions();
@@ -788,11 +788,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           </View>
         </View>
         <View style={stylesHook.backgroundContainer}>
-          {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
+          {watchOnlyWallet?.shouldShowWatchOnlyWarning() && isWatchOnlyWarningVisible && (
             <WatchOnlyWarning
               handleDismiss={() => {
                 setIsWatchOnlyWarningVisible(false);
-                wallet.isWatchOnlyWarningVisible = false;
+                watchOnlyWallet.isWatchOnlyWarningVisible = false;
                 saveToDisk();
               }}
             />
@@ -813,6 +813,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       onManageFundsPressed,
       navigate,
       walletID,
+      watchOnlyWallet,
       isWatchOnlyWarningVisible,
     ],
   );

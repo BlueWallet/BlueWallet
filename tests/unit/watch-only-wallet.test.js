@@ -1,7 +1,12 @@
 import assert from 'assert';
+import { CryptoHDKey, CryptoKeypath, CryptoMultiAccounts, PathComponent } from '@keystonehq/bc-ur-registry/dist';
 import { Psbt } from 'bitcoinjs-lib';
 
 import { BlueURDecoder, clearUseURv1, decodeUR, encodeUR, extractSingleWorkload, setUseURv1 } from '../../blue_modules/ur';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
@@ -676,10 +681,31 @@ describe('Watch only wallet', () => {
     w.init();
 
     assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(w.isHardwareWallet(), false);
+    assert.strictEqual(w.getTypeReadable(), WatchOnlyWallet.typeReadable);
+    assert.strictEqual(w.shouldShowWatchOnlyWarning(), true);
   });
 });
 
 describe('BC-UR', () => {
+  const createHardwareWalletHdKey = (purpose = 84, account = 0, metadata = {}) =>
+    new CryptoHDKey({
+      isMaster: false,
+      key: Buffer.from('0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', 'hex'),
+      chainCode: Buffer.alloc(32, 1),
+      origin: new CryptoKeypath(
+        [
+          new PathComponent({ index: purpose, hardened: true }),
+          new PathComponent({ index: 0, hardened: true }),
+          new PathComponent({ index: account, hardened: true }),
+        ],
+        Buffer.from('73C5DA0A', 'hex'),
+        3,
+      ),
+      parentFingerprint: Buffer.from('12345678', 'hex'),
+      ...metadata,
+    });
+
   it('v1: can decodeUR() and then combine unfinalized signed PSBT', () => {
     const unsignedPayload = decodeUR([
       'UR:BYTES/TYQ4XURNVF607QGQWYPQQQQQQ9U63JU4AD5C93Y057WNRNTV24AE8QK4DDHVT04GHTKNQZCXYHNW5QGQQQQQPLHLLLLS9LRRQQQQQQQQQQTQQ9P9YMAAVV5GVUNKD49W4GDNJ4C9GJP7383QFCQQQQQQQQQPVQQ5CXKNG9PNTGMDRV0GNWNJZS23KGG3V0KXQQQQQQQQQYQ375XRQQQQQQQQQQTQQ98UXJHTKAHE83Q8W5VGHH2G93698VZLP6PZQCPXW47RAFD36W04SNHNTZK8CLCWHXDJJRRZ2EP998STFNRYWFQPC0CC3N8X87Z5QQQGQQQQQZQQQQQQSQQQQQQQQQQQQQQQYGPQY5M4J23F3Z9TK6HZTRDD6M89QX955DEH3HXGXAC6NJQMT3CHYTJHRZXVUCLC2SQQPQQQQQQGQQQQQZQQZQQQQQQQQQQQQQ3QYQK6E2MCA75ZCRMMWZYWXNQKGKNNJC7JUXPNWR5QPYQC3EYRM4NDQ5VGENNRLP2QQQYQQQQQPQQQQQQGQQQQQQQQZQQQQQQQ6GYX3G',
@@ -819,6 +845,232 @@ describe('BC-UR', () => {
     assert.ok(json[2].ExtPubKey.startsWith('xpub'));
     assert.ok(json[2].AccountKeyPath.startsWith('m/44'));
     assert.ok(json[2].MasterFingerprint === '73C5DA0A');
+  });
+
+  it('v2: imports crypto-multi-accounts with hardware wallet signing enabled', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro:123456789:btc-deadbeef',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(wallet.type, WatchOnlyWallet.type);
+    assert.strictEqual(wallet.useWithHardwareWalletEnabled(), true);
+    assert.strictEqual(wallet.allowSend(), true);
+    assert.strictEqual(wallet.getTypeReadable(), WatchOnlyWallet.hardwareWalletTypeReadable);
+    assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), false);
+
+    wallet.setUseWithHardwareWalletEnabled(false);
+    assert.strictEqual(wallet.isWatchOnlyWarningVisible, true);
+    assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
+  });
+
+  it('resets hardware wallet state when replacing the secret with a regular xpub', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro:123456789',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+    assert.strictEqual(wallet.isHardwareWallet(), true);
+
+    wallet.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
+    wallet.init();
+
+    assert.strictEqual(wallet.isHardwareWallet(), false);
+    assert.strictEqual(wallet.getTypeReadable(), WatchOnlyWallet.typeReadable);
+    assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
+  });
+
+  it('v2: imports all OneKey Bitcoin account types as hardware wallets', () => {
+    const accountTypes = [
+      { purpose: 44, walletType: HDLegacyP2PKHWallet.type, addressPrefix: '1' },
+      { purpose: 49, walletType: HDSegwitP2SHWallet.type, addressPrefix: '3' },
+      { purpose: 84, walletType: HDSegwitBech32Wallet.type, addressPrefix: 'bc1q' },
+      { purpose: 86, walletType: HDTaprootWallet.type, addressPrefix: 'bc1p' },
+    ];
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      accountTypes.map(({ purpose }) => createHardwareWalletHdKey(purpose)),
+      'OneKey Pro',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const accounts = JSON.parse(decoder.toString());
+
+    assert.strictEqual(accounts.length, accountTypes.length);
+    accounts.forEach((account, index) => {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(JSON.stringify(account));
+      wallet.init();
+
+      assert.strictEqual(wallet._hdWalletInstance.type, accountTypes[index].walletType);
+      assert.ok(wallet._getExternalAddressByIndex(0).startsWith(accountTypes[index].addressPrefix));
+      assert.strictEqual(wallet.useWithHardwareWalletEnabled(), true);
+      assert.strictEqual(wallet.allowSend(), true);
+    });
+  });
+
+  it('v2: names OneKey accounts by device and Bitcoin script type', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [44, 49, 84, 86].map(purpose => createHardwareWalletHdKey(purpose)),
+      'OneKey Pro:123456789:btc-deadbeef',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const labels = JSON.parse(decoder.toString()).map(account => {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(JSON.stringify(account));
+      wallet.init();
+      return wallet.getLabel();
+    });
+
+    assert.deepStrictEqual(labels, [
+      'OneKey Pro · 123456789 · Hidden deadbeef · Legacy',
+      'OneKey Pro · 123456789 · Hidden deadbeef · Nested SegWit',
+      'OneKey Pro · 123456789 · Hidden deadbeef · Native SegWit',
+      'OneKey Pro · 123456789 · Hidden deadbeef · Taproot',
+    ]);
+  });
+
+  it('v2: distinguishes a OneKey hidden wallet by its passphrase state', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro:123456789-deadbeef',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(wallet.hardwareWalletPassphraseState, 'deadbeef');
+    assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Hidden deadbeef · Native SegWit');
+  });
+
+  it('v2: does not treat the BTC-only firmware marker as a passphrase state', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro:123456789:btc',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(wallet.hardwareWalletPassphraseState, undefined);
+    assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Native SegWit');
+  });
+
+  it('v2: prefers a QR account name when the hardware wallet supplies one', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey(84, 0, { name: 'Savings' })],
+      'OneKey Pro:123456789',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Savings');
+  });
+
+  it('v2: distinguishes multiple accounts using the same Bitcoin script type', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey(84, 0), createHardwareWalletHdKey(84, 1)],
+      'OneKey Pro',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const labels = JSON.parse(decoder.toString()).map(account => {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(JSON.stringify(account));
+      wallet.init();
+      return wallet.getLabel();
+    });
+
+    assert.deepStrictEqual(labels, ['OneKey Pro · Native SegWit', 'OneKey Pro · Native SegWit #2']);
+  });
+
+  it('v2: preserves hardware wallet behavior after serialization', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      'OneKey Pro:123456789-deadbeef',
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+    wallet.prepareForSerialization();
+
+    const restoredWallet = WatchOnlyWallet.fromJson(JSON.stringify(wallet));
+    restoredWallet.init();
+
+    assert.strictEqual(restoredWallet.useWithHardwareWalletEnabled(), true);
+    assert.strictEqual(restoredWallet.allowSend(), true);
+    assert.strictEqual(restoredWallet.getTypeReadable(), WatchOnlyWallet.hardwareWalletTypeReadable);
+    assert.strictEqual(restoredWallet.shouldShowWatchOnlyWarning(), false);
+    assert.strictEqual(restoredWallet.hardwareWalletPassphraseState, 'deadbeef');
+    assert.strictEqual(restoredWallet.getLabel(), 'OneKey Pro · 123456789 · Hidden deadbeef · Native SegWit');
+  });
+
+  it('v2: marks crypto-hdkey as a hardware wallet import', () => {
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(createHardwareWalletHdKey().toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+
+    assert.strictEqual(account.UseWithHardwareWallet, true);
   });
 
   it('v1: decodeUR() works', async () => {

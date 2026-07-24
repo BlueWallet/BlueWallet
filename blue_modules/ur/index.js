@@ -345,8 +345,7 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
   const result = {};
   result.ExtPubKey = b58.encode(keyData);
   result.MasterFingerprint =
-    masterFingerprintOverride ||
-    (origin.getSourceFingerprint() ? uint8ArrayToHex(origin.getSourceFingerprint()).toUpperCase() : '');
+    masterFingerprintOverride || (origin.getSourceFingerprint() ? uint8ArrayToHex(origin.getSourceFingerprint()).toUpperCase() : '');
   result.AccountKeyPath = derivationPath;
 
   // Re-encode with the correct version bytes for the specific script type so that
@@ -368,6 +367,27 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
   // Taproot via the derivation path rather than the version prefix.
 
   return result;
+}
+
+function _hardwareWalletMetadata(device) {
+  if (typeof device !== 'string') return {};
+
+  // OneKey separates the model and serial number with a colon, then may append
+  // a BTC-only marker and passphrase identifier. Keep the passphrase state so
+  // hidden wallets from the same device remain distinguishable without storing
+  // the passphrase itself.
+  const passphraseStateMatch = device.match(/-([0-9a-f]{8})$/i);
+  const passphraseState = passphraseStateMatch?.[1];
+  const deviceWithoutPassphraseState = passphraseStateMatch ? device.slice(0, -passphraseStateMatch[0].length) : device;
+  const [deviceName, serialNumber] = deviceWithoutPassphraseState.split(':', 2);
+  const displayName = deviceName.trim();
+  if (!displayName) return { passphraseState };
+
+  const displaySerialNumber = serialNumber?.trim();
+  return {
+    displayName: displaySerialNumber ? `${displayName} · ${displaySerialNumber}` : displayName,
+    passphraseState,
+  };
 }
 
 class BlueURDecoder extends URDecoder {
@@ -465,18 +485,30 @@ class BlueURDecoder extends URDecoder {
       const hdKey = CryptoHDKey.fromCBOR(decoded.cbor);
       const result = _hdKeyToResult(hdKey, null);
       if (!result) throw new Error('crypto-hdkey: missing origin or components');
+      result.UseWithHardwareWallet = true;
       return JSON.stringify([result]);
     }
 
     if (decoded.type === 'crypto-multi-accounts') {
       const multiAccounts = CryptoMultiAccounts.fromCBOR(decoded.cbor);
       const masterFingerprint = uint8ArrayToHex(multiAccounts.getMasterFingerprint()).toUpperCase();
+      const { displayName: hardwareWalletDevice, passphraseState: hardwareWalletPassphraseState } = _hardwareWalletMetadata(
+        multiAccounts.getDevice(),
+      );
 
       const results = [];
       for (const hdKey of multiAccounts.getKeys()) {
         // skip keys without a valid Bitcoin derivation path (e.g. ETH/SOL keys)
         const result = _hdKeyToResult(hdKey, masterFingerprint);
-        if (result) results.push(result);
+        if (result) {
+          result.UseWithHardwareWallet = true;
+          if (hardwareWalletDevice) result.HardwareWalletDevice = hardwareWalletDevice;
+          if (hardwareWalletPassphraseState) result.HardwareWalletPassphraseState = hardwareWalletPassphraseState;
+          if (typeof hdKey.getName() === 'string' && hdKey.getName().trim()) {
+            result.HardwareWalletAccountName = hdKey.getName().trim();
+          }
+          results.push(result);
+        }
       }
 
       if (results.length === 0) throw new Error('crypto-multi-accounts: no valid Bitcoin keys found');

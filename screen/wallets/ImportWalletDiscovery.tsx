@@ -158,7 +158,7 @@ const ImportWalletDiscovery: React.FC = () => {
   const renderItem = ({ item, index }: { item: WalletEntry; index: number }) => (
     <WalletToImport
       key={item.id}
-      title={item.wallet.typeReadable}
+      title={item.wallet.getTypeReadable()}
       subtitle={item.subtitle}
       active={selected === index}
       onPress={() => {

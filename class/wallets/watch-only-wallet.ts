@@ -14,6 +14,7 @@ const bip32 = BIP32Factory(ecc);
 export class WatchOnlyWallet extends LegacyWallet {
   static readonly type = 'watchOnly';
   static readonly typeReadable = 'Watch-only';
+  static readonly hardwareWalletTypeReadable = 'Hardware Wallet';
   // @ts-ignore: override
   public readonly type = WatchOnlyWallet.type;
   // @ts-ignore: override
@@ -23,6 +24,34 @@ export class WatchOnlyWallet extends LegacyWallet {
   public _hdWalletInstance?: THDWalletForWatchOnly;
   use_with_hardware_wallet = false;
   masterFingerprint: number = 0;
+  hardwareWalletDevice?: string;
+  hardwareWalletAccountName?: string;
+  hardwareWalletPassphraseState?: string;
+
+  setSecret(newSecret: string): this {
+    this.use_with_hardware_wallet = false;
+    this.hardwareWalletDevice = undefined;
+    this.hardwareWalletAccountName = undefined;
+    this.hardwareWalletPassphraseState = undefined;
+
+    try {
+      const parsedSecret = JSON.parse(newSecret);
+      if (typeof parsedSecret.HardwareWalletDevice === 'string' && parsedSecret.HardwareWalletDevice.trim()) {
+        this.hardwareWalletDevice = parsedSecret.HardwareWalletDevice.trim();
+      }
+      if (typeof parsedSecret.HardwareWalletAccountName === 'string' && parsedSecret.HardwareWalletAccountName.trim()) {
+        this.hardwareWalletAccountName = parsedSecret.HardwareWalletAccountName.trim();
+      }
+      if (
+        typeof parsedSecret.HardwareWalletPassphraseState === 'string' &&
+        /^[0-9a-f]{8}$/i.test(parsedSecret.HardwareWalletPassphraseState)
+      ) {
+        this.hardwareWalletPassphraseState = parsedSecret.HardwareWalletPassphraseState.toLowerCase();
+      }
+    } catch (_) {}
+
+    return super.setSecret(newSecret);
+  }
 
   /**
    * @inheritDoc
@@ -44,6 +73,52 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   allowSend() {
     return this.useWithHardwareWalletEnabled() && this.isHd() && this._hdWalletInstance!.allowSend();
+  }
+
+  isHardwareWallet() {
+    return this.useWithHardwareWalletEnabled() && this.isHd();
+  }
+
+  getTypeReadable() {
+    return this.isHardwareWallet() ? WatchOnlyWallet.hardwareWalletTypeReadable : super.getTypeReadable();
+  }
+
+  shouldShowWatchOnlyWarning() {
+    return this.isWatchOnlyWarningVisible && !this.isHardwareWallet();
+  }
+
+  getLabel(): string {
+    if (this.label.trim().length > 0 || !this.hardwareWalletDevice || !this.isHardwareWallet()) return super.getLabel();
+
+    const walletIdentity = this.hardwareWalletPassphraseState
+      ? `${this.hardwareWalletDevice} · Hidden ${this.hardwareWalletPassphraseState}`
+      : this.hardwareWalletDevice;
+
+    if (this.hardwareWalletAccountName) return `${walletIdentity} · ${this.hardwareWalletAccountName}`;
+
+    let accountType: string;
+    switch (this._hdWalletInstance?.type) {
+      case HDLegacyP2PKHWallet.type:
+        accountType = 'Legacy';
+        break;
+      case HDSegwitP2SHWallet.type:
+        accountType = 'Nested SegWit';
+        break;
+      case HDSegwitBech32Wallet.type:
+        accountType = 'Native SegWit';
+        break;
+      case HDTaprootWallet.type:
+        accountType = 'Taproot';
+        break;
+      default:
+        return super.getLabel();
+    }
+
+    const accountMatch = this._derivationPath?.match(/^m\/\d+'\/0'\/(\d+)'/);
+    const accountIndex = accountMatch ? Number(accountMatch[1]) : 0;
+    const accountSuffix = accountIndex > 0 ? ` #${accountIndex + 1}` : '';
+
+    return `${walletIdentity} · ${accountType}${accountSuffix}`;
   }
 
   allowRBF() {
