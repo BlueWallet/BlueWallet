@@ -525,3 +525,70 @@ it('Appstorage - hashIt() works', async () => {
   const storage = new BlueApp();
   assert.strictEqual(storage.hashIt('hello'), '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824');
 });
+
+it('Appstorage - lazy v1 → v2 upgrade rewrites legacy bucket on successful decrypt (opt-in)', async () => {
+  // Legacy CryptoJS@3.1.9-1 ciphertext under password 'password' — same fixture
+  // used in tests/unit/encryption.test.ts.
+  const legacyV1 =
+    'U2FsdGVkX19fJ4PcLum+tmBpEVNgGGsGKOhRS21cEcYAox+Df8VqmnnG9t2PvpM05eWImCRArorVUUegtcfSq314WMFzxKmiPIl9eqV1aOY+VFGuIBx0VIVsCWix2Q7sRZZwnOVpG5bdveZI0+Azyw==';
+  const expectedPlaintext = 'really long data string bla bla really long data string bla bla really long data string bla bla';
+
+  await AsyncStorage.setItem('data', JSON.stringify([legacyV1]));
+  await AsyncStorage.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+
+  const Storage = new BlueApp();
+  const decrypted = await Storage.decryptData(JSON.stringify([legacyV1]), 'password', { upgrade: true });
+  assert.strictEqual(decrypted, expectedPlaintext);
+
+  // On-disk bucket should have been rewritten as v2 by the lazy upgrade.
+  const rewritten = JSON.parse(await AsyncStorage.getItem('data'));
+  assert.strictEqual(rewritten.length, 1);
+  assert.ok(rewritten[0].startsWith('v2:'), `expected v2: prefix after upgrade, got: ${rewritten[0].slice(0, 16)}…`);
+
+  // Sanity: the new v2 ciphertext still decrypts to the same plaintext.
+  const Storage2 = new BlueApp();
+  const reread = await Storage2.decryptData(await AsyncStorage.getItem('data'), 'password');
+  assert.strictEqual(reread, expectedPlaintext);
+});
+
+it('Appstorage - decryptData does NOT rewrite bucket without the upgrade opt-in (default read-only behaviour)', async () => {
+  const legacyV1 =
+    'U2FsdGVkX19fJ4PcLum+tmBpEVNgGGsGKOhRS21cEcYAox+Df8VqmnnG9t2PvpM05eWImCRArorVUUegtcfSq314WMFzxKmiPIl9eqV1aOY+VFGuIBx0VIVsCWix2Q7sRZZwnOVpG5bdveZI0+Azyw==';
+  const onDisk = JSON.stringify([legacyV1]);
+  await AsyncStorage.setItem('data', onDisk);
+  await AsyncStorage.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+
+  // No opts → no side-effect. Critical for isPasswordInUse (PD probe path).
+  const Storage = new BlueApp();
+  const decrypted = await Storage.decryptData(onDisk, 'password');
+  assert.ok(decrypted);
+
+  // On-disk state must be byte-exact unchanged.
+  assert.strictEqual(await AsyncStorage.getItem('data'), onDisk);
+});
+
+it('Appstorage - lazy v1 → v2 upgrade leaves untouched buckets at v1 (loop skips non-matching bucket)', async () => {
+  // Decoy bucket FIRST (different password — decryptV1 returns false on it),
+  // real bucket SECOND. Exercises the loop continuation path where the
+  // upgrade has to skip a non-matching bucket and only upgrade the one
+  // whose password we know. Models the plausible-deniability scenario where
+  // decoy buckets the user does not unlock stay legacy.
+  // Decoy bucket: base64 that decodes to non-"Salted__" bytes — fails the magic
+  // check inside decryptV1, returns false, loop continues to the next bucket.
+  // Stands in for a bucket whose password the user did not supply this session.
+  const legacyV1Decoy = 'bm90LWEtdjEtY2lwaGVydGV4dC1qdXN0LXNvbWUtcmFuZG9tLWJ5dGVz';
+  const legacyV1Real =
+    'U2FsdGVkX19fJ4PcLum+tmBpEVNgGGsGKOhRS21cEcYAox+Df8VqmnnG9t2PvpM05eWImCRArorVUUegtcfSq314WMFzxKmiPIl9eqV1aOY+VFGuIBx0VIVsCWix2Q7sRZZwnOVpG5bdveZI0+Azyw==';
+
+  await AsyncStorage.setItem('data', JSON.stringify([legacyV1Decoy, legacyV1Real]));
+  await AsyncStorage.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+
+  const Storage = new BlueApp();
+  const decrypted = await Storage.decryptData(JSON.stringify([legacyV1Decoy, legacyV1Real]), 'password', { upgrade: true });
+  assert.ok(decrypted);
+
+  const rewritten = JSON.parse(await AsyncStorage.getItem('data'));
+  assert.strictEqual(rewritten.length, 2);
+  assert.strictEqual(rewritten[0], legacyV1Decoy, 'decoy bucket must remain byte-exact unchanged');
+  assert.ok(rewritten[1].startsWith('v2:'), 'real bucket should be upgraded to v2');
+});

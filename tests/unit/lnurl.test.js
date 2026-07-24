@@ -212,12 +212,16 @@ describe('LNURL', function () {
   it('decipherAES returns empty string on malformed input (preserves crypto-js contract)', () => {
     const preimage = 'bf62911aa53c017c27ba34391f694bc8bf8aaf59b4ebfd9020e66ac0412e189b';
     const validIv = 'eTGduB45hWTOxHj1dR+LJw==';
-    // Non-block-aligned ciphertext — would throw under raw @noble/ciphers
+    // Valid base64 that decodes to 13 bytes — not block-aligned for AES
     assert.strictEqual(Lnurl.decipherAES('not-base64-aligned', preimage, validIv), '');
     // Bad PKCS7 padding (random 16-byte block won't unpad cleanly)
     assert.strictEqual(Lnurl.decipherAES('AAAAAAAAAAAAAAAAAAAAAA==', preimage, validIv), '');
     // Empty ciphertext
     assert.strictEqual(Lnurl.decipherAES('', preimage, validIv), '');
+    // Valid AES + valid PKCS7 padding but plaintext is invalid UTF-8 (0xff 0xfe 0xfd 0xfc + PKCS7).
+    // Without a fatal UTF-8 decode the call would return mojibake; we want '' here so the
+    // success screen renders a blank line instead of garbage characters.
+    assert.strictEqual(Lnurl.decipherAES('AdX3qMNfEqZLW65Z8xk/fQ==', preimage, validIv), '');
   });
 });
 

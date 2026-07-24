@@ -1,5 +1,6 @@
-import { cbc } from '@noble/ciphers/aes';
+import { gcm, cbc } from '@noble/ciphers/aes';
 import { md5 } from '@noble/hashes/legacy';
+import { scryptAsync } from '@noble/hashes/scrypt';
 import { randomBytes } from '@noble/hashes/utils';
 
 import { areUint8ArraysEqual, base64ToUint8Array, concatUint8Arrays, stringToUint8Array, uint8ArrayToBase64 } from './uint8array-extras';
@@ -36,39 +37,65 @@ export function evpBytesToKeyMd5(password: Uint8Array, salt: Uint8Array, byteLen
   return out;
 }
 
-// "Salted__" — OpenSSL envelope magic. Hardcoded as bytes so the wire
-// format cannot drift through any encoder.
-const SALT_MAGIC = new Uint8Array([0x53, 0x61, 0x6c, 0x74, 0x65, 0x64, 0x5f, 0x5f]);
-const SALT_LEN = 8;
-const KEY_LEN = 32;
-const IV_LEN = 16;
-const BLOCK_LEN = 16;
+// =============================================================================
+// v2: scrypt + AES-256-GCM. Always emitted by `encrypt`.
+// -----------------------------------------------------------------------------
+// Wire format: "v2:" + base64( salt(16) || nonce(12) || gcm_ciphertext_and_tag )
+// KDF: scrypt N=2^15, r=8, p=1, dkLen=32. Memory-hard, GPU/ASIC-resistant.
+// Cipher: AES-256-GCM. AEAD — auth-tag mismatch on wrong password → throw → false.
+// =============================================================================
+const V2_PREFIX = 'v2:';
+const V2_SALT_LEN = 16;
+const V2_NONCE_LEN = 12;
+const V2_KEY_LEN = 32;
+const V2_TAG_LEN = 16;
+const V2_SCRYPT_OPTS = { N: 2 ** 15, r: 8, p: 1, dkLen: V2_KEY_LEN, asyncTick: 10 } as const;
 
-/**
- * AES-256-CBC encrypt with the OpenSSL "Salted__" envelope, EVP_BytesToKey-MD5
- * key derivation and PKCS7 padding. Output is base64-encoded.
- *
- * Wire format is bit-identical to CryptoJS@4.x's default
- * `AES.encrypt(data, password).toString()` — we kept the swap-the-library
- * change a drop-in replacement so existing encrypted wallets on user
- * devices remain readable, with no migration step.
- */
-export function encrypt(data: string, password: string): string {
-  if (data.length < 10) throw new Error('data length cant be < 10');
-  const salt = randomBytes(SALT_LEN);
-  const kdf = evpBytesToKeyMd5(stringToUint8Array(password), salt, KEY_LEN + IV_LEN);
-  const key = kdf.subarray(0, KEY_LEN);
-  const iv = kdf.subarray(KEY_LEN);
-  const ciphertext = cbc(key, iv).encrypt(stringToUint8Array(data));
-  return uint8ArrayToBase64(concatUint8Arrays([SALT_MAGIC, salt, ciphertext]));
+async function deriveV2Key(password: string, salt: Uint8Array): Promise<Uint8Array> {
+  return scryptAsync(stringToUint8Array(password), salt, V2_SCRYPT_OPTS);
 }
 
-/**
- * Inverse of `encrypt`. Accepts the legacy CryptoJS wire format and returns
- * the original UTF-8 plaintext. Any error (bad base64, missing magic, wrong
- * password, bad padding) collapses to `false`.
- */
-export function decrypt(data: string, password: string): string | false {
+async function encryptV2(data: string, password: string): Promise<string> {
+  const salt = randomBytes(V2_SALT_LEN);
+  const nonce = randomBytes(V2_NONCE_LEN);
+  const key = await deriveV2Key(password, salt);
+  const ct = gcm(key, nonce).encrypt(stringToUint8Array(data));
+  return V2_PREFIX + uint8ArrayToBase64(concatUint8Arrays([salt, nonce, ct]));
+}
+
+async function decryptV2(data: string, password: string): Promise<string | false> {
+  try {
+    const envelope = base64ToUint8Array(data.slice(V2_PREFIX.length).replace(/\s+/g, ''));
+    if (envelope.length < V2_SALT_LEN + V2_NONCE_LEN + V2_TAG_LEN) return false;
+    const salt = envelope.subarray(0, V2_SALT_LEN);
+    const nonce = envelope.subarray(V2_SALT_LEN, V2_SALT_LEN + V2_NONCE_LEN);
+    const ct = envelope.subarray(V2_SALT_LEN + V2_NONCE_LEN);
+    const key = await deriveV2Key(password, salt);
+    const plain = gcm(key, nonce).decrypt(ct); // throws on auth-tag mismatch (wrong password / tampered)
+    // Deliberately no `length < 10` belt-and-suspenders here: GCM's auth tag
+    // is the wrong-password gate. Any failed decrypt has already thrown
+    // above; if we reach this line, `plain` is the genuine plaintext.
+    return new TextDecoder('utf-8', { fatal: true }).decode(plain);
+  } catch (_) {
+    return false;
+  }
+}
+
+// =============================================================================
+// v1: EVP_BytesToKey-MD5 + AES-256-CBC. Read-only — kept for legacy ciphertexts.
+// -----------------------------------------------------------------------------
+// Wire format: base64( "Salted__"(8) || salt(8) || aes_cbc_pkcs7_ciphertext )
+// New encryptions never emit this format. Existing on-device wallets stay
+// readable forever; `decryptData` lazily rewrites them as v2 on the first
+// successful unlock via `loadFromDisk` (the only opt-in caller).
+// =============================================================================
+const V1_SALT_MAGIC = new Uint8Array([0x53, 0x61, 0x6c, 0x74, 0x65, 0x64, 0x5f, 0x5f]); // "Salted__"
+const V1_SALT_LEN = 8;
+const V1_KEY_LEN = 32;
+const V1_IV_LEN = 16;
+const V1_BLOCK_LEN = 16;
+
+function decryptV1(data: string, password: string): string | false {
   try {
     // crypto-js's base64 decoder ignored whitespace. Some old encrypted-backup
     // export/import flows (manual file paste, clipboard transit, email-based
@@ -76,23 +103,49 @@ export function decrypt(data: string, password: string): string | false {
     // before strict base64 decode so legacy backups still open. `\s` does not
     // include `=`, so base64 padding survives.
     const envelope = base64ToUint8Array(data.replace(/\s+/g, ''));
-    if (envelope.length < SALT_MAGIC.length + SALT_LEN + BLOCK_LEN) return false;
-    if (!areUint8ArraysEqual(envelope.subarray(0, SALT_MAGIC.length), SALT_MAGIC)) return false;
-    const salt = envelope.subarray(SALT_MAGIC.length, SALT_MAGIC.length + SALT_LEN);
-    const ciphertext = envelope.subarray(SALT_MAGIC.length + SALT_LEN);
-    const kdf = evpBytesToKeyMd5(stringToUint8Array(password), salt, KEY_LEN + IV_LEN);
-    const key = kdf.subarray(0, KEY_LEN);
-    const iv = kdf.subarray(KEY_LEN);
+    if (envelope.length < V1_SALT_MAGIC.length + V1_SALT_LEN + V1_BLOCK_LEN) return false;
+    if (!areUint8ArraysEqual(envelope.subarray(0, V1_SALT_MAGIC.length), V1_SALT_MAGIC)) return false;
+    const salt = envelope.subarray(V1_SALT_MAGIC.length, V1_SALT_MAGIC.length + V1_SALT_LEN);
+    const ciphertext = envelope.subarray(V1_SALT_MAGIC.length + V1_SALT_LEN);
+    const kdf = evpBytesToKeyMd5(stringToUint8Array(password), salt, V1_KEY_LEN + V1_IV_LEN);
+    const key = kdf.subarray(0, V1_KEY_LEN);
+    const iv = kdf.subarray(V1_KEY_LEN);
     const plain = cbc(key, iv).decrypt(ciphertext);
-    // Strict UTF-8 decode — wrong-password decrypts that happen to survive
-    // PKCS7 unpadding overwhelmingly fail here (crypto-js's `enc.Utf8` was
-    // strict too; we preserve that gate by using `fatal: true`).
+    // Strict UTF-8 — wrong-password decrypts that happen to survive PKCS7 unpad
+    // overwhelmingly fail here. crypto-js's `enc.Utf8` was strict; we match that
+    // gate via `fatal: true`.
     const str = new TextDecoder('utf-8', { fatal: true }).decode(plain);
-    // Belt-and-suspenders: legitimate plaintext is always ≥ 10 chars
-    // (enforced by encrypt()), so anything shorter is rejected.
+    // Belt-and-suspenders: legitimate plaintext is always ≥ 10 chars (enforced
+    // by encrypt()), so anything shorter is treated as wrong-password garbage.
     if (str.length < 10) return false;
     return str;
-  } catch (e) {
+  } catch (_) {
     return false;
   }
+}
+
+// =============================================================================
+// Public API. Always async (scrypt KDF is non-trivial work; `scryptAsync` keeps
+// the JS thread responsive by yielding every ~`asyncTick` ms).
+// =============================================================================
+
+/**
+ * Encrypt `data` under `password` and return a `v2:`-prefixed base64 envelope
+ * (scrypt + AES-256-GCM). New writes always use this format; the legacy
+ * `Salted__` reader still handles ciphertexts produced by earlier app versions.
+ */
+export async function encrypt(data: string, password: string): Promise<string> {
+  if (data.length < 10) throw new Error('data length cant be < 10');
+  return encryptV2(data, password);
+}
+
+/**
+ * Decrypt either a `v2:` ciphertext (scrypt + GCM) or a legacy `Salted__`
+ * envelope (EVP_BytesToKey-MD5 + CBC). Any error (wrong password, tampered
+ * bytes, malformed input) collapses to `false`.
+ */
+export async function decrypt(data: string, password: string): Promise<string | false> {
+  if (typeof data !== 'string' || data.length === 0) return false;
+  if (data.startsWith(V2_PREFIX)) return decryptV2(data, password);
+  return decryptV1(data, password);
 }
