@@ -19,6 +19,7 @@ import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
 import { SilentPayment, UTXOType as SPUTXOType, UTXO as SPUTXO } from 'silent-payments';
 import { isValidBech32Address } from '../../util/isValidBech32Address.ts';
+import { OCTOJOIN_DUST_THRESHOLD } from '../octojoin';
 
 const ECPair = ECPairFactory(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -1098,8 +1099,46 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param sequence {Number} Used in RBF
    * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
    * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
+   * @param forceInputs {boolean} If true, spend all provided utxos as inputs instead of letting coinselect pick a subset
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
+  _coinselectForced(
+    utxos: CreateTransactionUtxo[],
+    targets: CreateTransactionTarget[],
+    feeRate: number,
+  ): { inputs: CoinSelectReturnInput[]; outputs: CoinSelectOutput[]; fee: number } {
+    if (utxos.length === 0) throw new Error('Octojoin: no inputs provided');
+    if (targets.some(t => typeof t.value !== 'number')) throw new Error('Octojoin: every output must have an explicit amount');
+
+    let inputVbytes = 68;
+    if (this.segwitType === 'p2sh(p2wpkh)') inputVbytes = 91;
+    else if (this.segwitType === 'p2tr') inputVbytes = 58;
+    else if (!this.segwitType) inputVbytes = 148;
+    const OUTPUT_VBYTES = 34;
+    const TX_OVERHEAD = 11;
+
+    const inputs = utxos as CoinSelectReturnInput[];
+    const totalInput = inputs.reduce((sum, u) => sum + u.value, 0);
+    const totalOutput = targets.reduce((sum, t) => sum + (t.value ?? 0), 0);
+
+    const estimatedVbytes = TX_OVERHEAD + inputs.length * inputVbytes + (targets.length + 1) * OUTPUT_VBYTES;
+    let fee = Math.ceil(estimatedVbytes * feeRate);
+    const change = totalInput - totalOutput - fee;
+
+    if (change < 0) {
+      throw new Error('Not enough balance. Try sending a smaller amount or decrease the fee.');
+    }
+
+    const outputs: CoinSelectOutput[] = targets.map(t => ({ address: t.address, value: t.value as number }));
+    if (change > OCTOJOIN_DUST_THRESHOLD) {
+      outputs.push({ value: change });
+    } else {
+      fee = totalInput - totalOutput;
+    }
+
+    return { inputs, outputs, fee };
+  }
+
   createTransaction(
     utxos: CreateTransactionUtxo[],
     targets: CreateTransactionTarget[],
@@ -1108,10 +1147,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     sequence: number = AbstractHDElectrumWallet.defaultRBFSequence,
     skipSigning = false,
     masterFingerprint: number = 0,
+    forceInputs = false,
   ): CreateTransactionResult {
     if (targets.length === 0) throw new Error('No destination provided');
 
-    let { inputs, outputs, fee } = this.coinselect(utxos, targets, feeRate);
+    let { inputs, outputs, fee } = forceInputs ? this._coinselectForced(utxos, targets, feeRate) : this.coinselect(utxos, targets, feeRate);
 
     const hasSilentPaymentOutput: boolean = !!outputs.find(o => o.address?.startsWith('sp1'));
     if (hasSilentPaymentOutput) {

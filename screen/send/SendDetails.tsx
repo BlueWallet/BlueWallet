@@ -36,6 +36,14 @@ import { ContactList } from '../../class/contact-list';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
+import {
+  decomposeAmount,
+  isOctojoinMemo,
+  OCTOJOIN_DUST_THRESHOLD,
+  OCTOJOIN_MIN_INPUTS,
+  OCTOJOIN_MIN_OUTPUTS,
+  planOctojoin,
+} from '../../class/octojoin';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
@@ -110,6 +118,9 @@ const SendDetails = () => {
   const [feePrecalc, setFeePrecalc] = useState<IFee>({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
   const [changeAddress, setChangeAddress] = useState<string | null>(null);
   const [dumb, setDumb] = useState(false);
+  const [isOctojoin, setIsOctojoin] = useState(false);
+  const [octojoinNumInputs, setOctojoinNumInputs] = useState(String(OCTOJOIN_MIN_INPUTS));
+  const [octojoinNumOutputs, setOctojoinNumOutputs] = useState(String(OCTOJOIN_MIN_OUTPUTS));
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
   const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
@@ -504,11 +515,78 @@ const SendDetails = () => {
     [setParams, wallet],
   );
 
+  const parseOctojoinDestinations = (): { addressList: string[]; isSilentPayment: boolean; amountSats: number } => {
+    const first = addresses[0];
+    const amountSats = parseInt(String(first?.amountSats), 10) || 0;
+    const addressList = String(first?.address ?? '')
+      .split(',')
+      .map(a => a.trim())
+      .filter(a => a.length > 0);
+    const isSilentPayment = addressList.length === 1 && addressList[0].toLowerCase().startsWith('sp1');
+    return { addressList, isSilentPayment, amountSats };
+  };
+
+  const validateOctojoin = (): string | null => {
+    if (!wallet) return loc.send.details_wallet_before_tx;
+    const numInputs = parseInt(octojoinNumInputs, 10);
+    if (!numInputs || numInputs < OCTOJOIN_MIN_INPUTS) {
+      return loc.send.octojoin_inputs;
+    }
+    const numOutputs = parseInt(octojoinNumOutputs, 10);
+    if (!numOutputs || numOutputs < OCTOJOIN_MIN_OUTPUTS) {
+      return loc.send.octojoin_outputs;
+    }
+    const { addressList, isSilentPayment, amountSats } = parseOctojoinDestinations();
+    if (!amountSats || amountSats <= OCTOJOIN_DUST_THRESHOLD) {
+      return loc.send.details_amount_field_is_not_valid;
+    }
+    const denominations = decomposeAmount(amountSats);
+    if (denominations.length === 0 || denominations.reduce((sum, v) => sum + v, 0) !== amountSats) {
+      return loc.send.details_amount_field_is_not_valid;
+    }
+    if (!feeRate || parseFloat(feeRate) < 0) {
+      return loc.send.details_fee_field_is_not_valid;
+    }
+    if (isSilentPayment) {
+      if (!wallet.allowSilentPaymentSend()) return loc.send.cant_send_to_silentpayment_adress;
+    } else {
+      if (addressList.length < OCTOJOIN_MIN_OUTPUTS) return loc.send.octojoin_not_enough_addresses;
+      if (addressList.length !== numOutputs) return loc.send.octojoin_outputs_mismatch;
+      for (const addr of addressList) {
+        if (!wallet.isAddressValid(addr)) return loc.send.details_address_field_is_not_valid;
+      }
+    }
+    if (balance - amountSats < 0) {
+      return frozenBalance > 0 ? loc.send.details_total_exceeds_balance_frozen : loc.send.details_total_exceeds_balance;
+    }
+    return null;
+  };
+
   const createTransaction = async () => {
     assert(wallet, 'Internal error: wallet is not set');
     Keyboard.dismiss();
     setIsLoading(true);
     const requestedSatPerByte = feeRate;
+
+    if (isOctojoin) {
+      const octojoinError = validateOctojoin();
+      if (octojoinError) {
+        setIsLoading(false);
+        presentAlert({ title: loc.send.octojoin_title, message: octojoinError });
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        return;
+      }
+      try {
+        await createPsbtTransaction();
+      } catch (Err: any) {
+        setIsLoading(false);
+        presentAlert({ title: loc.errors.error, message: Err.message });
+        console.log(Err);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      }
+      return;
+    }
+
     for (const [index, transaction] of addresses.entries()) {
       let error;
       if (!transaction.amount || Number(transaction.amount) < 0 || parseFloat(String(transaction.amount)) === 0) {
@@ -606,18 +684,54 @@ const SendDetails = () => {
     console.log({ requestedSatPerByte, lutxo: lutxo.length });
 
     const targets: CreateTransactionTarget[] = [];
-    for (const transaction of addresses) {
-      if (transaction.amount === BitcoinUnit.MAX) {
-        // output with MAX
-        targets.push({ address: transaction.address });
-        continue;
-      }
-      const value = parseInt(String(transaction.amountSats), 10);
-      if (value > 0) {
-        targets.push({ address: transaction.address, value });
-      } else if (transaction.amount) {
-        if (btcToSatoshi(transaction.amount) > 0) {
-          targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+    let txInputs: CreateTransactionUtxo[] = lutxo;
+    let forceInputs = false;
+
+    if (isOctojoin) {
+      const numInputs = parseInt(octojoinNumInputs, 10) || OCTOJOIN_MIN_INPUTS;
+      const numOutputs = parseInt(octojoinNumOutputs, 10) || OCTOJOIN_MIN_OUTPUTS;
+      const { addressList, isSilentPayment, amountSats } = parseOctojoinDestinations();
+
+      const annotated = lutxo.map(u => ({
+        ...u,
+        isOctojoin: isOctojoinMemo(wallet.getUTXOMetadata(u.txid, u.vout).memo),
+      }));
+
+      const octojoinWallet = wallet as HDSegwitBech32Wallet;
+      const segwitType = octojoinWallet.segwitType as string | undefined;
+      let inputVbytes = 68;
+      if (segwitType === 'p2sh(p2wpkh)') inputVbytes = 91;
+      else if (segwitType === 'p2tr') inputVbytes = 58;
+      else if (!segwitType) inputVbytes = 148;
+
+      const plan = planOctojoin({
+        utxos: annotated,
+        paymentSats: amountSats,
+        addresses: addressList,
+        isSilentPayment,
+        numInputs,
+        numOutputs,
+        feeRate: requestedSatPerByte,
+        inputVbytes,
+      });
+
+      for (const t of plan.paymentTargets) targets.push(t);
+      txInputs = plan.inputs as unknown as CreateTransactionUtxo[];
+      forceInputs = true;
+    } else {
+      for (const transaction of addresses) {
+        if (transaction.amount === BitcoinUnit.MAX) {
+          // output with MAX
+          targets.push({ address: transaction.address });
+          continue;
+        }
+        const value = parseInt(String(transaction.amountSats), 10);
+        if (value > 0) {
+          targets.push({ address: transaction.address, value });
+        } else if (transaction.amount) {
+          if (btcToSatoshi(transaction.amount) > 0) {
+            targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+          }
         }
       }
     }
@@ -627,13 +741,14 @@ const SendDetails = () => {
 
     // without forcing `HDSegwitBech32Wallet` i had a weird ts error, complaining about last argument (fp)
     const { tx, outputs, psbt, fee } = (wallet as HDSegwitBech32Wallet)?.createTransaction(
-      lutxo,
+      txInputs,
       targets,
       requestedSatPerByte,
       change,
       isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
       false,
       0,
+      forceInputs,
     );
 
     if (tx && routeParams.launchedBy && psbt) {
@@ -1110,6 +1225,8 @@ const SendDetails = () => {
         navigateToQRCodeScanner();
       } else if (id === CommonToolTipActions.CoinControl.id) {
         handleCoinControl();
+      } else if (id === CommonToolTipActions.Octojoin.id) {
+        setIsOctojoin(prev => !prev);
       } else if (id === CommonToolTipActions.InsertContact.id) {
         handleInsertContact();
       } else if (id === CommonToolTipActions.RemoveAllRecipients.id) {
@@ -1199,11 +1316,16 @@ const SendDetails = () => {
         hidden: !(isEditable && wallet.allowBIP47() && wallet.isBIP47Enabled()),
       },
       CommonToolTipActions.CoinControl,
+      {
+        ...CommonToolTipActions.Octojoin,
+        menuState: isOctojoin,
+        hidden: !(isEditable && wallet instanceof AbstractHDElectrumWallet && wallet.type !== MultisigHDWallet.type),
+      },
     ];
     walletActions.push(specificWalletActions);
 
     return walletActions;
-  }, [addresses, isEditable, wallet, isTransactionReplaceable]);
+  }, [addresses, isEditable, wallet, isTransactionReplaceable, isOctojoin]);
 
   const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
 
@@ -1551,6 +1673,36 @@ const SendDetails = () => {
               inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             />
           </View>
+          {isOctojoin && (
+            <View style={[styles.memo, stylesHook.memo, styles.octojoinContainer]}>
+              <View style={styles.octojoinRow}>
+                <View style={styles.octojoinField}>
+                  <Text style={[styles.octojoinLabel, stylesHook.feeLabel]}>{loc.send.octojoin_inputs}</Text>
+                  <TextInput
+                    testID="OctojoinInputs"
+                    keyboardType="numeric"
+                    value={octojoinNumInputs}
+                    onChangeText={t => setOctojoinNumInputs(t.replace(/[^0-9]/g, ''))}
+                    style={[styles.memoText, styles.octojoinInput]}
+                    editable={!isLoading}
+                    inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+                  />
+                </View>
+                <View style={styles.octojoinField}>
+                  <Text style={[styles.octojoinLabel, stylesHook.feeLabel]}>{loc.send.octojoin_outputs}</Text>
+                  <TextInput
+                    testID="OctojoinOutputs"
+                    keyboardType="numeric"
+                    value={octojoinNumOutputs}
+                    onChangeText={t => setOctojoinNumOutputs(t.replace(/[^0-9]/g, ''))}
+                    style={[styles.memoText, styles.octojoinInput]}
+                    editable={!isLoading}
+                    inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
+                  />
+                </View>
+              </View>
+            </View>
+          )}
           <Pressable
             testID="chooseFee"
             accessibilityRole="button"
@@ -1670,6 +1822,32 @@ const styles = StyleSheet.create({
     color: '#81868e',
     fontSize: 15,
     lineHeight: 19,
+  },
+  octojoinContainer: {
+    flexDirection: 'column',
+    height: undefined,
+    minHeight: undefined,
+    alignItems: 'stretch',
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+  },
+  octojoinRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  octojoinField: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+  octojoinLabel: {
+    marginBottom: 4,
+  },
+  octojoinInput: {
+    borderWidth: 1,
+    borderColor: '#9aa0aa',
+    borderRadius: 4,
+    minHeight: 36,
+    paddingHorizontal: 8,
   },
   fee: {
     flexDirection: 'row',

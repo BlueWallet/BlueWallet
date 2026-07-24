@@ -36,6 +36,7 @@ const keys = {
   ImportTransactionMultsig: 'import_transaction_multisig',
   ImportTransactionQR: 'import_transaction_qr',
   CoinControl: 'coin_control',
+  Octojoin: 'octojoin',
   CoSignTransaction: 'co_sign_transaction',
   CopyToClipboard: 'copyToClipboard',
   Share: 'share',
@@ -76,6 +77,7 @@ const icons = {
   ImportTransactionMultsig: { iconValue: 'square.and.arrow.down.on.square' },
   ImportTransactionQR: { iconValue: 'qrcode.viewfinder' },
   CoinControl: { iconValue: 'switch.2' },
+  Octojoin: { iconValue: 'shuffle' },
   CoSignTransaction: { iconValue: 'signature' },
   PaymentsCode: { iconValue: 'qrcode.viewfinder' },
   RemoveAllRecipients: { iconValue: 'person.2.slash' },
@@ -295,6 +297,12 @@ export const CommonToolTipActions: Record<string, ToolTipAction> = {
     id: keys.CoinControl,
     text: loc.cc.header,
     icon: icons.CoinControl,
+    hidden: false,
+  },
+  Octojoin: {
+    id: keys.Octojoin,
+    text: loc.send.octojoin_enable,
+    icon: icons.Octojoin,
     hidden: false,
   },
   CopyToClipboard: {
