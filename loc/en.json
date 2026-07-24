@@ -469,6 +469,7 @@
     "import_passphrase": "Passphrase",
     "import_passphrase_title": "Passphrase",
     "import_passphrase_message": "Enter passphrase if you have used any",
+    "import_multisig_cosigner_error": "This is a single cosigner of a multisig wallet, not a single-signature wallet, so it can't be imported here. To watch your multisig vault, add a multisig wallet and import all of its cosigners.",
     "import_error": "Failed to import. Please make sure that the provided data is valid.",
     "import_explanation": "Please enter your seed words, public key, WIF, or anything you’ve got. BlueWallet will do its best to guess the correct format and import your wallet.",
     "import_imported": "Imported",

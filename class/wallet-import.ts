@@ -495,6 +495,12 @@ const startImport = (
     yield { progress: 'watch only' };
     const wo1 = new WatchOnlyWallet();
     wo1.setSecret(text);
+    if (wo1.isMultisigCosignerImport()) {
+      // The secret is a multisig cosigner export (e.g. an Unchained signing-device JSON whose key
+      // sits on a BIP48 multisig path). It is one cosigner of a multisig vault, not a standalone
+      // wallet, so it cannot be imported here. Surface guidance pointing to the multisig import.
+      throw new Error(loc.wallets.import_multisig_cosigner_error);
+    }
     if (wo1.valid()) {
       wo1.init();
       if (text.startsWith('xpub')) {
