@@ -1,0 +1,57 @@
+# Node modules
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Android build artifacts
+android/.gradle/
+android/build/
+android/app/build/
+android/.kotlin/
+android/app/.cxx/
+reproducible-builds/build
+
+# Git
+.git/
+
+# IDE files
+.idea/
+*.iml
+*.classpath
+*.project
+android/.settings/
+android/app/.settings/
+ios/BlueWallet.xcodeproj/xcuserdata/
+.vscode/
+.vs/
+
+# Temporary / system files
+.DS_Store
+*.hprof
+.metro-health-check*
+artifacts/
+
+# Fastlane outputs
+fastlane/screenshots/
+fastlane/test_output/
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/README.md
+
+# BlueWallet specific
+release-notes.json
+release-notes.txt
+current-branch.json
+
+# iOS / Xcode
+ios/build/
+build/
+DerivedData/
+*.xcuserstate
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+.cxx/
+*.ipa
+*.hmap
