@@ -470,24 +470,72 @@ platform :ios do
   end
 
   def build_detail(build, platform_name = "iOS")
-    uploaded = build.uploaded_date || "unknown"
-    expiration = build.expiration_date || "none"
-    [
-      "build #{build.version}",
-      "uploaded #{uploaded}",
-      "state #{build.processing_state}",
-      "minimum #{platform_name} #{build.min_os_version || 'unknown'}",
-      "expires #{expiration}"
-    ].join(" | ")
+    message = build.respond_to?(:processing_state) ? build.processing_state : "unknown"
+    build_number = build.respond_to?(:version) ? build.version : "unknown"
+    "#{message} | build #{build_number}"
   end
 
-  def with_network_loading(label)
-    UI.message("⏳ #{label}...")
+  def human_readable_build_date(value)
+    return "unknown" unless value
+
+    time_value = nil
+
+    if value.respond_to?(:to_time)
+      begin
+        time_value = value.to_time
+      rescue StandardError
+        time_value = nil
+      end
+    end
+
+    if time_value.nil?
+      begin
+        time_value = Time.parse(value.to_s)
+      rescue ArgumentError
+        time_value = nil
+      end
+    end
+
+    return value.to_s unless time_value
+
+    # Use the machine's locale conventions and local timezone for readability.
+    time_value.getlocal.strftime("%x %X")
+  end
+
+  def build_changelog(build)
+    changelog = nil
+
+    if build.respond_to?(:beta_build_localizations)
+      en_us_localization = build.beta_build_localizations&.find { |localization| localization.locale == 'en-US' }
+      changelog = en_us_localization&.whats_new
+    end
+
+    changelog = "none" if changelog.to_s.strip.empty?
+    changelog.to_s.strip
+  end
+
+  def compact_list_text(text)
+    return "none" if text.to_s.strip.empty?
+
+    text.to_s
+      .gsub(/\s+/, " ")
+      .strip
+  end
+
+  def build_list_detail(build)
+    build_number = build.respond_to?(:version) ? build.version : "unknown"
+    changelog = compact_list_text(build_changelog(build))
+    uploaded_date = build.respond_to?(:uploaded_date) ? human_readable_build_date(build.uploaded_date) : "unknown"
+    "build #{build_number}\n  what to test: #{changelog}\n  uploaded: #{uploaded_date}\n"
+  end
+
+  def with_network_loading(label, announce = true)
+    UI.message("⏳ #{label}...") if announce
     result = yield
-    UI.success("✓ #{label}")
+    UI.success("✓ #{label}") if announce
     result
   rescue => e
-    UI.error("✗ #{label}: #{e.message}")
+    UI.error("✗ #{label}: #{e.message}") if announce
     raise
   end
 
@@ -501,7 +549,7 @@ platform :ios do
       version: version_string,
       platform: platform,
       processing_states: Spaceship::ConnectAPI::Build::ProcessingState::VALID,
-      includes: Spaceship::ConnectAPI::Build::ESSENTIAL_INCLUDES,
+      includes: Spaceship::ConnectAPI::Build::ESSENTIAL_INCLUDES + ",betaBuildLocalizations",
       sort: "-uploadedDate",
       limit: nil
     )
@@ -573,6 +621,41 @@ platform :ios do
     report_path
   end
 
+  def save_selected_build_progress(version:, selected_build:, platform_name:, dry_run:, created_version:)
+    report = {
+      generated_at: Time.now.utc.iso8601,
+      platform: platform_name,
+      version: version.version_string,
+      created_version: created_version,
+      dry_run: dry_run,
+      status: "build_saved",
+      saved_at_stage: "selected_build",
+      build: {
+        number: selected_build.version,
+        processing_state: selected_build.processing_state,
+        uploaded_date: selected_build.uploaded_date,
+        min_os_version: selected_build.min_os_version,
+        expiration_date: selected_build.expiration_date
+      },
+      release_notes_locales: [],
+      release_notes_en_us_length: 0,
+      review_information_present: false,
+      submission_state: app_store_version_state(version)
+    }
+
+    if dry_run
+      UI.message("Dry run: skipping App Store Connect build selection.")
+    else
+      with_network_loading("Saving selected build to App Store Connect") do
+        version.select_build(build_id: selected_build.id)
+      end
+    end
+
+    report_path = write_release_report(report)
+    UI.message("Release progress saved to #{report_path}")
+    report
+  end
+
   # Use Fastlane's built-in selector so its output remains compatible with
   # Fastlane's logging and with terminals that do not support raw ANSI input.
   def release_wizard_select(prompt, choices)
@@ -607,7 +690,9 @@ platform :ios do
     platform_name = platform == Spaceship::ConnectAPI::Platform::IOS ? "iOS" : "macOS"
     platform_option = platform == Spaceship::ConnectAPI::Platform::IOS ? "ios" : "mac_catalyst"
 
-    app = with_network_loading("Loading the App Store Connect app") do
+    UI.message("Preparing release data for #{platform_name}.")
+
+    app = with_network_loading("Loading the App Store Connect app", false) do
       Spaceship::ConnectAPI::App.find(app_identifiers.first)
     end
     UI.user_error!("Could not find the app with identifier: #{app_identifiers.first}") unless app
@@ -621,7 +706,7 @@ platform :ios do
       INVALID_BINARY
     ]
 
-    all_versions = with_network_loading("Loading #{platform_name} App Store Connect versions") do
+    all_versions = with_network_loading("Loading #{platform_name} App Store Connect versions", false) do
       app.get_app_store_versions(
         filter: { platform: platform },
         includes: Spaceship::ConnectAPI::AppStoreVersion::ESSENTIAL_INCLUDES
@@ -642,7 +727,6 @@ platform :ios do
 
     created_version = false
     if version
-      UI.success("Found release #{version.version_string} (#{app_store_state_readable(app_store_version_state(version))})")
     else
       new_version = release_version_from_package_json
       UI.user_error!("Dry run cannot create a new App Store Connect release; prepare the release first.") if dry_run
@@ -658,12 +742,10 @@ platform :ios do
           "#{platform_name} App Store Connect version #{current_version}."
         )
       end
-      UI.message("No release waiting for submission was found.")
-      UI.message("Creating #{platform_name} release #{new_version} from package.json")
-      with_network_loading("Creating #{platform_name} release #{new_version}") do
+      with_network_loading("Creating #{platform_name} release #{new_version} from package.json", false) do
         app.ensure_version!(new_version, platform: platform)
       end
-      version = with_network_loading("Loading the newly created #{platform_name} release") do
+      version = with_network_loading("Loading the newly created #{platform_name} release", false) do
         app.get_app_store_versions(
           filter: { platform: platform },
           includes: Spaceship::ConnectAPI::AppStoreVersion::ESSENTIAL_INCLUDES
@@ -673,7 +755,7 @@ platform :ios do
       created_version = true
     end
 
-    builds = with_network_loading("Loading available #{platform_name} builds") do
+    builds = with_network_loading("Loading available #{platform_name} builds", false) do
       load_valid_builds(app, version.version_string, platform)
     end
 
@@ -682,19 +764,30 @@ platform :ios do
       attempt += 1
       UI.important("No processed builds found. Checking again in #{build_wait_seconds} seconds (#{attempt}/#{build_wait_attempts})...")
       sleep(build_wait_seconds)
-      builds = with_network_loading("Refreshing available #{platform_name} builds") do
+      builds = with_network_loading("Refreshing available #{platform_name} builds", false) do
         load_valid_builds(app, version.version_string, platform)
       end
     end
 
     UI.user_error!("No valid #{platform_name} builds are available for #{version.version_string}") if builds.empty?
 
-    UI.message("Available #{platform_name} builds for #{version.version_string}:")
-    builds.each_with_index { |build, index| UI.message("  #{index + 1}. #{build_detail(build, platform_name)}") }
-    build_choices = builds.map { |build| build_detail(build, platform_name) }
+    build_choices = builds.map { |build| build_list_detail(build) }
     attached_build = version.respond_to?(:build) ? version.build : nil
     if attached_build
       build_choices << "Skip (keep attached build #{attached_build.version})"
+    end
+
+    build_list_displayed = false
+    display_build_list = lambda do
+      next if build_list_displayed
+
+      UI.message("Available #{platform_name} builds for #{version.version_string}:")
+      UI.message("")
+      builds.each_with_index do |build, index|
+        UI.message("  #{index + 1}. #{build_list_detail(build)}")
+        UI.message("")
+      end
+      build_list_displayed = true
     end
 
     if created_version
@@ -713,66 +806,158 @@ platform :ios do
       workflow_mode = "Step by step" if workflow_mode == :back
     end
 
+    save_progress_report = nil
+    step_by_step_scope = nil
+    if workflow_mode == "Step by step"
+      step_by_step_scope = release_wizard_select(
+        "In step-by-step mode, what would you like to do?",
+        ["Build and release notes", "Build only", "Release notes only", "Save progress and exit"]
+      )
+      if step_by_step_scope == :back
+        UI.message("Returning to the workflow selection.")
+        workflow_mode = release_wizard_select(
+          "How would you like to prepare this release?",
+          [
+            "Step by step",
+            "Jump to build selection",
+            "Jump to release notes",
+            "Jump to review summary"
+          ]
+        )
+        workflow_mode = "Step by step" if workflow_mode == :back
+        step_by_step_scope = nil
+      elsif step_by_step_scope == "Save progress and exit"
+        save_progress_report = {
+          generated_at: Time.now.utc.iso8601,
+          platform: platform_name,
+          version: version.version_string,
+          created_version: created_version,
+          dry_run: dry_run,
+          status: "in_progress",
+          saved_at_stage: "step_by_step_scope_selection",
+          build: nil,
+          release_notes_locales: [],
+          release_notes_en_us_length: 0,
+          review_information_present: false,
+          submission_state: app_store_version_state(version)
+        }
+        progress_path = write_release_report(save_progress_report)
+        UI.message("Release progress saved to #{progress_path}")
+      end
+    end
+
+    if save_progress_report
+      UI.success("Save complete. Re-run prepare_new_release to continue from the saved build selection.")
+      next save_progress_report
+    end
+
     selected_build = nil
-    run_release_notes = true
+    run_release_notes = step_by_step_scope != "Build only"
     planned_release_notes = nil
+
     unless workflow_mode == "Jump to review summary"
       loop do
+        needs_build_prompt = !(workflow_mode == "Jump to release notes" || (step_by_step_scope == "Release notes only" && attached_build))
+        display_build_list.call if needs_build_prompt
+
         selected_build_choice = if workflow_mode == "Jump to release notes"
           attached_build ? build_choices.last : build_choices.first
+        elsif step_by_step_scope == "Release notes only" && attached_build
+          build_choices.last
         else
           release_wizard_select("Select the build to submit:", build_choices)
         end
-        if selected_build_choice == :back
-          UI.message("Returning to the workflow selection.")
-          if created_version
-            UI.message("New releases must remain in the step-by-step flow.")
-            workflow_mode = "Step by step"
-          else
-            workflow_mode = release_wizard_select(
-              "How would you like to continue?",
-              ["Step by step", "Jump to build selection", "Jump to release notes", "Jump to review summary"]
-            )
-            workflow_mode = "Step by step" if workflow_mode == :back
-          end
-          next
-        end
 
-        selected_build = if attached_build && selected_build_choice == build_choices.last
-          attached_build
-        else
-          builds[build_choices.index(selected_build_choice)]
-        end
-
-        UI.message("Selecting #{build_detail(selected_build, platform_name)}")
-        existing_notes = with_network_loading("Loading existing release notes") do
-          version.get_app_store_version_localizations
-            .find { |localization| localization.locale == 'en-US' }&.whats_new
-        end
-        if options[:release_notes].nil? && existing_notes && !existing_notes.strip.empty?
-          notes_choice = release_wizard_select(
-            "Release notes already exist for en-US:",
-            ["Run release_notes lane", "Skip (keep existing release notes)"]
-          )
-          if notes_choice == :back
-            UI.message("Returning to build selection.")
-            workflow_mode = "Jump to build selection"
+          if selected_build_choice == :back
+            UI.message("Returning to the workflow selection.")
+            if created_version
+              UI.message("New releases must remain in the step-by-step flow.")
+              workflow_mode = "Step by step"
+            else
+              workflow_mode = release_wizard_select(
+                "How would you like to continue?",
+                ["Step by step", "Jump to build selection", "Jump to release notes", "Jump to review summary"]
+              )
+              workflow_mode = "Step by step" if workflow_mode == :back
+            end
             next
           end
-          run_release_notes = notes_choice == "Run release_notes lane"
-        end
 
-        planned_release_notes = options[:release_notes] || existing_notes
-        break
-      end
+          selected_build = if attached_build && selected_build_choice == build_choices.last
+            attached_build
+          else
+            builds[build_choices.index(selected_build_choice)]
+          end
+
+          UI.message("Selecting #{build_detail(selected_build, platform_name)}")
+          if step_by_step_scope == "Build only" || step_by_step_scope == "Build and release notes"
+            save_choice = release_wizard_select(
+              step_by_step_scope == "Build only" ?
+                "Save this selected build to App Store Connect and exit?" :
+                "Would you like to continue to release notes or save this selected build and exit?",
+              step_by_step_scope == "Build only" ?
+                ["Save selected build and exit", "Pick a different build"] :
+                ["Continue to release notes", "Save selected build and exit", "Pick a different build"]
+            )
+            if save_choice == :back
+              UI.message("Returning to the build selection.")
+              next
+            elsif save_choice == "Save selected build and exit"
+              save_progress_report = save_selected_build_progress(
+                version: version,
+                selected_build: selected_build,
+                platform_name: platform_name,
+                dry_run: dry_run,
+                created_version: created_version
+              )
+              break
+            elsif save_choice == "Pick a different build"
+              UI.message("Returning to the build selection.")
+              next
+            end
+          end
+          if run_release_notes
+            existing_notes = with_network_loading("Loading existing release notes") do
+              version.get_app_store_version_localizations
+                .find { |localization| localization.locale == 'en-US' }&.whats_new
+            end
+            if options[:release_notes].nil?
+              notes_choices = ["Provide a release note manually", "Run release_notes lane"]
+              notes_choices << "Skip (keep existing release notes)" if existing_notes && !existing_notes.strip.empty?
+              notes_prompt = existing_notes && !existing_notes.strip.empty? ? "Release notes already exist for en-US:" : "How would you like to provide release notes?"
+              notes_choice = release_wizard_select(notes_prompt, notes_choices)
+              if notes_choice == :back
+                UI.message("Returning to build selection.")
+                workflow_mode = "Jump to build selection"
+                next
+              end
+
+              case notes_choice
+              when "Provide a release note manually"
+                manual_release_notes = UI.input("Enter the en-US release notes:")
+                UI.user_error!("Release notes cannot be empty.") if manual_release_notes.to_s.strip.empty?
+                planned_release_notes = manual_release_notes.strip
+              when "Run release_notes lane"
+                planned_release_notes = existing_notes
+              when "Skip (keep existing release notes)"
+                run_release_notes = false
+              end
+            end
+          end
+
+          planned_release_notes ||= options[:release_notes] || existing_notes
+          break
+        end
     else
       if attached_build
         selected_build = attached_build
       else
+        display_build_list.call
         selected_build_choice = release_wizard_select("Select the build to submit:", build_choices)
         UI.user_error!("Release preparation canceled while selecting a build.") if selected_build_choice == :back
         selected_build = builds[build_choices.index(selected_build_choice)]
       end
+
       UI.message("Jumping to review summary with #{build_detail(selected_build, platform_name)}")
       run_release_notes = false
     end
@@ -818,6 +1003,7 @@ platform :ios do
     report_path = write_release_report(report)
 
     UI.message("Changes ready in App Store Connect:")
+    UI.message("")
     UI.message("  Version: #{version.version_string}#{created_version ? ' (new)' : ''}")
     UI.message("  Platform: #{platform_name}")
     UI.message("  Build: #{build_detail(selected_build, platform_name)}")
@@ -835,31 +1021,51 @@ platform :ios do
       UI.message("  Release notes (#{locale}):\n#{notes}")
     end
 
-    unless UI.confirm(
-      dry_run ?
-        "Dry run only — finish preparation without submitting?" :
-        "Submit #{platform_name} version #{version.version_string} (build #{selected_build.version}) for App Store review?"
-    )
-      UI.user_error!(dry_run ? "Dry run canceled." : "Submission canceled before applying App Store Connect changes.")
-    end
-
     if dry_run
+      unless UI.confirm("Dry run only — finish preparation without submitting?")
+        UI.success("Dry run exited without applying App Store Connect changes.")
+        next report
+      end
+
       UI.success("Dry run complete. No review submission was created.")
       report
     else
+      UI.message("")
+      next_action = release_wizard_select(
+        "What would you like to do next?",
+        [
+          "Submit for App Store review",
+          "Save build/release notes to App Store Connect and exit",
+          "Exit without saving changes"
+        ]
+      )
+      if next_action == :back || next_action == "Exit without saving changes"
+        UI.success("Exited without applying App Store Connect changes.")
+        next report
+      end
+
       with_network_loading("Selecting build #{selected_build.version}") do
         version.select_build(build_id: selected_build.id)
       end
 
       if run_release_notes
         release_notes_options = { platform: platform_option, force_yes: true }
-        release_notes_options[:release_notes] = options[:release_notes] if options[:release_notes]
+        notes_text = planned_release_notes.to_s.strip.empty? ? options[:release_notes] : planned_release_notes
+        release_notes_options[:release_notes] = notes_text unless notes_text.to_s.strip.empty?
         release_notes_options[:target_version_id] = version.id
         with_network_loading("Updating release notes") do
           Dir.chdir(File.dirname(__FILE__)) do
             release_notes(release_notes_options)
           end
         end
+      end
+
+      if next_action == "Save build/release notes to App Store Connect and exit"
+        UI.success("Saved selected build and release note changes to App Store Connect.")
+        next report.merge(
+          status: "saved_without_submission",
+          submission_state: app_store_version_state(version)
+        )
       end
 
       refreshed_localizations = with_network_loading("Validating release notes before submission") do
@@ -1675,7 +1881,6 @@ lane :deploy do |options|
   UI.message("Starting deployment process...")
 
   update_wwdr_certificate
-  setup_app_store_connect_api_key
   setup_provisioning_profiles
   clear_derived_data_lane
   increment_build_number_lane
@@ -1947,6 +2152,8 @@ lane :release_notes do |options|
     if ios_notes_exist
       options_list << "Use iOS metadata release notes"
     end
+
+    options_list << "Exit without making changes"
     
     selection = UI.select("Select a source for release notes:", options_list)
     
@@ -2041,6 +2248,10 @@ lane :release_notes do |options|
       unless UI.confirm("Use this content from release-notes.txt?")
         UI.user_error!("User canceled file content usage. Aborting.")
       end
+
+    when "Exit without making changes"
+      UI.success("Exited release_notes without applying changes.")
+      next({ status: "canceled", reason: "user_exited_source_selection" })
     end
   end
   
@@ -2087,6 +2298,7 @@ lane :release_notes do |options|
   UI.message("Review the following release notes updates:")
   localized_release_notes.each do |locale, notes|
     UI.message("Locale: #{locale} - Notes: #{notes}")
+    UI.message("")
   end
 
   force_yes = options && options.is_a?(Hash) && options[:force_yes] == true
