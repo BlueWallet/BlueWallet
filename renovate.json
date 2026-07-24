@@ -15,7 +15,12 @@
     "androidx.core:core-ktx",
     "com.google.android.material:material",
     "androidx.compose.ui:ui",
-    "androidx.compose.material3:material3"
+    "androidx.compose.material3:material3",
+    "@react-navigation/native-stack",
+    "react-native-screens",
+    "react-native-notifications",
+    "react-native-tcp-socket",
+    "@bugsnag/react-native"
   ],
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 1,
