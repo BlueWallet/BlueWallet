@@ -200,26 +200,38 @@ def cached_app_store_connect_login
   end
 end
 
-before_all do |lane, options|
-  if ENV['SKIP_APP_STORE_CONNECT_AUTH'] == '1'
-    UI.message('Skipping App Store Connect authentication (SKIP_APP_STORE_CONNECT_AUTH=1)')
-    next
+def lane_name_matches?(lane_name, candidates)
+  Array(candidates).any? do |candidate|
+    lane_name == candidate || lane_name.end_with?(" #{candidate}")
   end
+end
 
-  skip_auth_lanes = ['register_devices_from_txt', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
+def lane_requires_app_store_connect_auth?(lane_name)
+  lane_name_matches?(lane_name, %w[
+    prepare_new_release
+    release_notes
+    upload_to_testflight_lane
+    upload_catalyst_to_testflight
+  ])
+end
+
+before_all do |lane, options|
   lane_name = lane.to_s
-  should_skip_auth = skip_auth_lanes.any? { |skip_lane| lane_name == skip_lane || lane_name.end_with?(" #{skip_lane}") }
-  
-  # Check if we need App Store Connect for this lane
-  unless should_skip_auth
+  requires_app_store_connect_auth = lane_requires_app_store_connect_auth?(lane_name)
+
+  if requires_app_store_connect_auth
+    if ENV['SKIP_APP_STORE_CONNECT_AUTH'] == '1'
+      UI.user_error!("#{lane_name} requires App Store Connect login, but SKIP_APP_STORE_CONNECT_AUTH=1 is set.")
+    end
+
     begin
-      # Try to authenticate once at the beginning
       require 'spaceship'
       cached_app_store_connect_login
     rescue => ex
-      UI.error("Authentication failed: #{ex.message}")
-      # Continue anyway as some lanes might not need authentication
+      UI.user_error!("App Store Connect login failed for #{lane_name}: #{ex.message}")
     end
+  elsif ENV['SKIP_APP_STORE_CONNECT_AUTH'] == '1'
+    UI.message('Skipping App Store Connect authentication (SKIP_APP_STORE_CONNECT_AUTH=1)')
   end
 end
 
