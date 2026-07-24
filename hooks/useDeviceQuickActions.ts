@@ -9,6 +9,7 @@ import { formatBalance } from '../loc';
 import * as NavigationService from '../NavigationService';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import { isUrlHandledByLinking } from '../navigation/linking';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
@@ -94,7 +95,7 @@ const useDeviceQuickActions = () => {
         }
       } else {
         const url = await Linking.getInitialURL();
-        if (url && DeeplinkSchemaMatch.hasSchema(url)) {
+        if (url && DeeplinkSchemaMatch.hasSchema(url) && !isUrlHandledByLinking(url)) {
           handleOpenURL({ url });
         }
       }
@@ -104,6 +105,8 @@ const useDeviceQuickActions = () => {
   };
 
   const handleOpenURL = (event: { url: string }): void => {
+    if (isUrlHandledByLinking(event.url)) return;
+
     DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => NavigationService.navigate(...value), {
       wallets,
       addWallet,
