@@ -170,6 +170,23 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Re-enables Detox synchronization after a disableSynchronization() section.
+ *
+ * Call only after leaving animated QR / UR UI: on iOS, enableSynchronization
+ * waits for idle and can hang on pending layer animations if invoked too early.
+ * Do not race this against a timeout — abandoning a pending enableSynchronization
+ * leaves Detox with an in-flight interaction and breaks the next action
+ * ("multiple interactions taking place simultaneously").
+ */
+export async function safelyEnableSynchronization() {
+  try {
+    await device.enableSynchronization();
+  } catch (e) {
+    console.warn('[detox] enableSynchronization failed:', e?.message ?? e);
+  }
+}
+
 export function hashIt(s) {
   return Buffer.from(sha256(s)).toString('hex');
 }
@@ -263,7 +280,7 @@ export async function helperCreateWallet(walletName) {
     await scrollUpOnHomeScreen();
   } finally {
     if (isIOS) {
-      await device.enableSynchronization();
+      await safelyEnableSynchronization();
     }
   }
   await expect(element(by.id('WalletsList'))).toBeVisible();
@@ -372,7 +389,7 @@ export async function dismissAlertByText(text, timeoutMs = 10000) {
     }
   } finally {
     if (isIOS) {
-      await device.enableSynchronization();
+      await safelyEnableSynchronization();
     }
   }
   return dismissed;
@@ -418,13 +435,59 @@ export async function countElements(testId) {
   return count;
 }
 
+/**
+ * Feeds text into the QR scanner backdoor (used for UR fragments in e2e).
+ * On iOS, animated QR / transition layer animations can leave Detox permanently
+ * "busy" (`Layer animations pending`), so synchronization is disabled for the
+ * backdoor interaction. Do not call `enableSynchronization()` here: that waits
+ * for idle and hangs on the same animations. Callers should use
+ * `safelyEnableSynchronization()` after leaving the animated QR / UR screen.
+ */
 export async function scanText(text) {
+  if (device.getPlatform() === 'ios') {
+    await device.disableSynchronization();
+  }
   await waitForId('ScanQrBackdoorButton');
   for (let c = 0; c <= 5; c++) {
     await element(by.id('ScanQrBackdoorButton')).tap();
   }
   await element(by.id('scanQrBackdoorInput')).replaceText(text);
   await element(by.id('scanQrBackdoorOkButton')).tap();
+  await sleep(300);
+}
+
+/**
+ * After feeding UR fragments via scanText, wait until the ScanQRCode UI is gone.
+ * Use not.toBeVisible (not not.toExist): React Navigation keeps the screen
+ * mounted under the stack, so the backdoor testID can still exist after popTo.
+ */
+export async function waitForQrScannerClosed(timeoutMs = 60_000) {
+  await waitFor(element(by.id('ScanQrBackdoorButton')))
+    .not.toBeVisible()
+    .withTimeout(timeoutMs);
+  await sleep(500);
+}
+
+/**
+ * Feed multi-part UR fragments via the QR backdoor.
+ * Each part should show UrProgressBar; the final part may navigate away so
+ * quickly that progress is already gone — accept that and then wait until the
+ * scanner UI is no longer visible before the caller taps ProvideSignature.
+ */
+export async function scanUrFragments(urs, { progressTimeoutMs = 60_000 } = {}) {
+  for (let i = 0; i < urs.length; i++) {
+    await scanText(urs[i]);
+    const isLast = i === urs.length - 1;
+    try {
+      await waitFor(element(by.id('UrProgressBar')))
+        .toBeVisible()
+        .withTimeout(isLast ? 10_000 : progressTimeoutMs);
+    } catch (e) {
+      if (!isLast) throw e;
+      // Last part may have already completed and dismissed the scanner.
+    }
+  }
+  await waitForQrScannerClosed();
 }
 
 export async function setCustomFeeRate(feeRate) {
@@ -524,12 +587,53 @@ export async function scrollUpOnHomeScreen() {
     return;
   }
   try {
-    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView'))).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView')))
+      .atIndex(0)
+      .swipe('down', 'slow', 0.5);
   } catch (_) {
-    // if no wallets there will be just one scroll
-    await element(by.type('RCTEnhancedScrollView')).swipe('down', 'slow', 0.5);
+    // if no wallets there will be just one scroll (or nested matcher missed); atIndex
+    // avoids "Multiple elements found" when several scroll views are present.
+    await element(by.type('RCTEnhancedScrollView')).atIndex(0).swipe('down', 'slow', 0.5);
   }
   await sleep(1000); // bounce animation
+}
+
+/**
+ * Opens the send-screen header menu and taps a menu item.
+ * On iOS, action-sheet labels often fail Detox's visibility check (liquid glass
+ * / partial opacity), same class of issue as native alerts — disable sync for
+ * the interaction.
+ *
+ * Pass `restoreSync: false` when the item opens the camera / animated QR UI;
+ * re-enabling there can hang on pending layer animations. Callers should then
+ * use `safelyEnableSynchronization()` after leaving that screen.
+ */
+export async function tapHeaderMenuItem(menuItemText, { restoreSync = true } = {}) {
+  const isIOS = device.getPlatform() === 'ios';
+  if (isIOS) {
+    await device.disableSynchronization();
+  }
+  try {
+    await element(by.id('HeaderMenuButton')).tap();
+    // iOS 26 action sheets use magic-morph transforms that fail Detox's
+    // visibility check until the presentation animation settles.
+    await sleep(isIOS ? 1500 : 500);
+    try {
+      await element(by.text(menuItemText)).atIndex(0).tap();
+    } catch {
+      try {
+        await element(by.label(menuItemText)).atIndex(0).tap();
+      } catch {
+        // Last resort: tap a corner point to bypass 100% visibility threshold.
+        await element(by.text(menuItemText)).atIndex(0).tap({ x: 8, y: 8 });
+      }
+    }
+    await sleep(300);
+  } finally {
+    if (isIOS && restoreSync) {
+      await safelyEnableSynchronization();
+    }
+  }
 }
 
 // We really only need this function when running tests locally.
