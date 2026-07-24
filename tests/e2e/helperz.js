@@ -457,32 +457,34 @@ export async function scanText(text) {
 }
 
 /**
- * After feeding UR fragments via scanText, wait until ScanQRCode has been
- * dismissed. With sync disabled, ItemSigned on the underlying PsbtMultisig
- * screen can become visible before popTo finishes — tapping ProvideSignature
- * then fails with "No elements found".
+ * After feeding UR fragments via scanText, wait until the ScanQRCode UI is gone.
+ * Use not.toBeVisible (not not.toExist): React Navigation keeps the screen
+ * mounted under the stack, so the backdoor testID can still exist after popTo.
  */
 export async function waitForQrScannerClosed(timeoutMs = 60_000) {
   await waitFor(element(by.id('ScanQrBackdoorButton')))
-    .not.toExist()
+    .not.toBeVisible()
     .withTimeout(timeoutMs);
   await sleep(500);
 }
 
 /**
  * Feed multi-part UR fragments via the QR backdoor.
- * Intermediate parts should show UrProgressBar; the final part often completes
- * and dismisses the scanner without a visible progress frame — do not require
- * the bar after the last fragment.
+ * Each part should show UrProgressBar; the final part may navigate away so
+ * quickly that progress is already gone — accept that and then wait until the
+ * scanner UI is no longer visible before the caller taps ProvideSignature.
  */
 export async function scanUrFragments(urs, { progressTimeoutMs = 60_000 } = {}) {
   for (let i = 0; i < urs.length; i++) {
     await scanText(urs[i]);
     const isLast = i === urs.length - 1;
-    if (!isLast) {
+    try {
       await waitFor(element(by.id('UrProgressBar')))
         .toBeVisible()
-        .withTimeout(progressTimeoutMs);
+        .withTimeout(isLast ? 10_000 : progressTimeoutMs);
+    } catch (e) {
+      if (!isLast) throw e;
+      // Last part may have already completed and dismissed the scanner.
     }
   }
   await waitForQrScannerClosed();

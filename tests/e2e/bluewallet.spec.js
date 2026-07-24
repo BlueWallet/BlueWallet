@@ -759,7 +759,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
       await element(by.id('PsbtMultisigConfirmButton')).tap();
     } finally {
-      await safelyEnableSynchronization();
+      // Only re-enable if we left the scanner. enableSynchronization while the
+      // animated QR/camera UI is still up can hang until the Jest timeout.
+      try {
+        await waitFor(element(by.id('ScanQrBackdoorButton')))
+          .not.toBeVisible()
+          .withTimeout(2000);
+        await safelyEnableSynchronization();
+      } catch {
+        console.warn('[detox] leaving sync disabled after UR cosign (scanner still open or enable failed)');
+      }
     }
 
     // created. verifying:
