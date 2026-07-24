@@ -1,5 +1,5 @@
 #!/bin/bash
-# Creates the Pixel_API_29_AOSP AVD matching the CI e2e.yml configuration.
+# Creates the Pixel_API_29_AOSP AVD matching the CI e2e-android.yml configuration.
 # On macOS arm64 the arch is arm64-v8a; on Linux x86_64 is used.
 
 set -euo pipefail
@@ -30,10 +30,10 @@ fi
 
 # Read API level from CI workflow to stay in sync
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-E2E_YML="$SCRIPT_DIR/../../.github/workflows/e2e.yml"
+E2E_YML="$SCRIPT_DIR/../../.github/workflows/e2e-android.yml"
 API_LEVEL=$(grep 'api-level:' "$E2E_YML" | head -1 | awk '{print $2}')
 if [ -z "$API_LEVEL" ]; then
-  echo "Error: could not parse api-level from e2e.yml" >&2
+  echo "Error: could not parse api-level from e2e-android.yml" >&2
   exit 1
 fi
 
