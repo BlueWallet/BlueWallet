@@ -469,6 +469,25 @@ export async function waitForQrScannerClosed(timeoutMs = 60_000) {
   await sleep(500);
 }
 
+/**
+ * Feed multi-part UR fragments via the QR backdoor.
+ * Intermediate parts should show UrProgressBar; the final part often completes
+ * and dismisses the scanner without a visible progress frame — do not require
+ * the bar after the last fragment.
+ */
+export async function scanUrFragments(urs, { progressTimeoutMs = 60_000 } = {}) {
+  for (let i = 0; i < urs.length; i++) {
+    await scanText(urs[i]);
+    const isLast = i === urs.length - 1;
+    if (!isLast) {
+      await waitFor(element(by.id('UrProgressBar')))
+        .toBeVisible()
+        .withTimeout(progressTimeoutMs);
+    }
+  }
+  await waitForQrScannerClosed();
+}
+
 export async function setCustomFeeRate(feeRate) {
   await waitForId('chooseFee');
   await element(by.id('chooseFee')).tap();
