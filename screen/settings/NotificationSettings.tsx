@@ -23,19 +23,12 @@ import loc from '../../loc';
 import { openSettings } from 'react-native-permissions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  SettingsCard,
-  SettingsFlatList,
+  SettingsSection,
   SettingsListItem,
-  SettingsListItemProps,
-  SettingsSubtitle,
-  isAndroid,
-} from '../../components/platform';
-
-interface SettingItem extends SettingsListItemProps {
-  id: string;
-  section?: number;
-  customContent?: React.ReactNode;
-}
+  SettingsScrollView,
+  SettingsFootnote,
+  settingsCardContent,
+} from '../../components/SettingsSection';
 
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -194,19 +187,45 @@ const NotificationSettings: React.FC = () => {
     }
   }, []);
 
-  const renderDeveloperSettings = useCallback(() => {
-    if (tapCount < 10) return null;
+  return (
+    <SettingsScrollView>
+      <SettingsSection>
+        <SettingsListItem
+          title={loc.settings.notifications}
+          subtitle={loc.notifications.notifications_subtitle}
+          switch={{
+            value: isNotificationsEnabledState || false,
+            onValueChange: onNotificationsSwitch,
+            disabled: isLoading,
+          }}
+          isLoading={isNotificationsEnabledState === undefined}
+          switchTestID="NotificationsSwitch"
+          bottomDivider={!!isNotificationsEnabledState}
+        />
+        {isNotificationsEnabledState && (
+          <SettingsListItem
+            title={loc.notifications.redact_notifications}
+            subtitle={loc.notifications.redact_notifications_subtitle}
+            switch={{
+              value: isRedactedState,
+              onValueChange: onRedactSwitch,
+              disabled: isLoading,
+            }}
+            bottomDivider={false}
+          />
+        )}
+        <Pressable onPress={handleTap} style={settingsCardContent}>
+          <SettingsFootnote>{loc.settings.push_notifications_explanation}</SettingsFootnote>
+        </Pressable>
+      </SettingsSection>
 
-    return (
-      <View>
-        <View style={[styles.divider, { backgroundColor: colors.lightBorder ?? colors.borderTopColor }]} />
-
-        <SettingsCard style={styles.card}>
-          <View style={styles.cardContent}>
-            <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={() => setTapCount(tapCount + 1)}>
+      {tapCount >= 10 && (
+        <SettingsSection>
+          <View style={settingsCardContent}>
+            <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={handleTap}>
               ♪ Ground Control to Major Tom ♪
             </Text>
-            <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={() => setTapCount(tapCount + 1)}>
+            <Text style={[styles.centered, { color: colors.foregroundColor }]} onPress={handleTap}>
               ♪ Commencing countdown, engines on ♪
             </Text>
 
@@ -217,158 +236,21 @@ const NotificationSettings: React.FC = () => {
             <BlueSpacing20 />
             <Button onPress={enqueueTestPush} title="Enqueue test push notification" disabled={isLoading} />
           </View>
-        </SettingsCard>
-      </View>
-    );
-  }, [tapCount, colors, isLoading, tokenInfo, enqueueTestPush]);
+        </SettingsSection>
+      )}
 
-  const renderPushNotificationsExplanation = useCallback(() => {
-    return (
-      <SettingsCard compact style={styles.notificationsExplanationCard}>
-        <View style={styles.cardContent}>
-          <Pressable onPress={handleTap}>
-            <SettingsSubtitle>{loc.settings.push_notifications_explanation}</SettingsSubtitle>
-          </Pressable>
-        </View>
-      </SettingsCard>
-    );
-  }, []);
-
-  const settingsItems = useCallback((): SettingItem[] => {
-    const items: SettingItem[] = [
-      {
-        id: 'notificationsToggle',
-        title: loc.settings.notifications,
-        subtitle: loc.notifications.notifications_subtitle,
-        switch: {
-          value: isNotificationsEnabledState || false,
-          onValueChange: onNotificationsSwitch,
-          disabled: isLoading,
-        },
-        isLoading: isNotificationsEnabledState === undefined,
-        testID: 'NotificationsSwitch',
-        Component: View,
-        section: 1,
-      },
-      ...(isNotificationsEnabledState
-        ? [
-            {
-              id: 'redactNotifications',
-              title: loc.notifications.redact_notifications,
-              subtitle: loc.notifications.redact_notifications_subtitle,
-              switch: {
-                value: isRedactedState,
-                onValueChange: onRedactSwitch,
-                disabled: isLoading,
-              },
-              Component: View,
-              section: 1,
-            },
-          ]
-        : []),
-      {
-        id: 'notificationsExplanation',
-        title: '',
-        customContent: renderPushNotificationsExplanation(),
-        section: 1,
-      },
-      {
-        id: 'section1Spacing',
-        title: '',
-        customContent: <View style={styles.sectionSpacing} />,
-        section: 1.5,
-      },
-      {
-        id: 'developerSettings',
-        title: '',
-        customContent: renderDeveloperSettings(),
-        section: 2,
-      },
-      {
-        id: 'section2Spacing',
-        title: '',
-        customContent: <View style={styles.sectionSpacing} />,
-        section: 2.5,
-      },
-      {
-        id: 'privacySystemSettings',
-        title: loc.settings.privacy_system_settings,
-        onPress: onSystemSettings,
-        section: 3,
-      },
-    ];
-
-    return items.filter(item => item.title !== '' || item.customContent);
-  }, [
-    isNotificationsEnabledState,
-    onNotificationsSwitch,
-    isRedactedState,
-    onRedactSwitch,
-    isLoading,
-    renderDeveloperSettings,
-    renderPushNotificationsExplanation,
-    onSystemSettings,
-  ]);
-
-  const renderItem = useCallback(
-    (props: { item: SettingItem }) => {
-      const { id, section, customContent, ...listItemProps } = props.item;
-      const items = settingsItems();
-      const contentPadding = !isAndroid ? { paddingHorizontal: horizontalPadding } : undefined;
-
-      if (customContent) {
-        return <View style={contentPadding}>{customContent}</View>;
-      }
-
-      const sectionItems = items.filter(i => i.section === section && !i.customContent);
-      const indexInSection = sectionItems.findIndex(i => i.id === id);
-      const isFirstInSection = indexInSection === 0;
-      const isLastInSection = indexInSection === sectionItems.length - 1;
-      const position = isFirstInSection && isLastInSection ? 'single' : isFirstInSection ? 'first' : isLastInSection ? 'last' : 'middle';
-
-      return <SettingsListItem {...listItemProps} position={position} />;
-    },
-    [settingsItems],
-  );
-
-  const keyExtractor = useCallback((item: SettingItem) => item.id, []);
-
-  return (
-    <SettingsFlatList
-      data={settingsItems()}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustContentInsets
-      removeClippedSubviews
-    />
+      <SettingsSection>
+        <SettingsListItem title={loc.settings.privacy_system_settings} onPress={onSystemSettings} chevron bottomDivider={false} />
+      </SettingsSection>
+    </SettingsScrollView>
   );
 };
 
 export default NotificationSettings;
 
-const horizontalPadding = isAndroid ? 20 : 16;
-
 const styles = StyleSheet.create({
-  card: {
-    marginVertical: isAndroid ? 8 : 0,
-  },
-  notificationsExplanationCard: {
-    marginVertical: isAndroid ? 12 : 10,
-  },
-  cardContent: {
-    paddingHorizontal: horizontalPadding,
-    paddingVertical: isAndroid ? 12 : 10,
-  },
   centered: {
     textAlign: 'center',
     marginVertical: 4,
-  },
-  divider: {
-    marginVertical: isAndroid ? 16 : 12,
-    height: 0.5,
-  },
-  sectionSpacing: {
-    height: isAndroid ? 24 : 12,
   },
 });

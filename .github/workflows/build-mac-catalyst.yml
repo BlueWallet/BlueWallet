@@ -175,7 +175,7 @@ jobs:
             if [[ -n "$TF_LINE" ]]; then
               printf '%s\n' "${TF_LINE}"
             fi
-            printf '<sub>Built from `%s`"
+            printf '<sub>Built from `%s`</sub>\n' "${{ github.sha }}"
           } >"${COMMENT_FILE}"
 
           gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \

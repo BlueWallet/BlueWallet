@@ -19,20 +19,25 @@ export class HDSegwitBech32Transaction {
   private _wallet: HDSegwitBech32Wallet | undefined;
   private _txDecoded: bitcoin.Transaction | undefined;
   private _remoteTx: any;
+  private _mfp?: number;
 
   /**
    * @param txhex {string|null} Object is initialized with txhex
    * @param txid {string|null} If txhex not present - txid whould be present
    * @param wallet {HDSegwitBech32Wallet|null} If set - a wallet object to which transacton belongs
+   * @param mfp {number|undefined} set mfp if it is an HD Segwit Bech32 watch-only wallet
    */
-  constructor(txhex: string | null, txid: string | null, wallet: HDSegwitBech32Wallet | null) {
+  constructor(txhex: string | null, txid: string | null, wallet: HDSegwitBech32Wallet | null, mfp?: number) {
     if (!txhex && !txid) throw new Error('Bad arguments');
     this._txhex = txhex;
     this._txid = txid;
 
+    if (mfp !== undefined) {
+      this._mfp = mfp;
+    }
+
     if (wallet) {
       if (wallet.type === HDSegwitBech32Wallet.type) {
-        /** @type {HDSegwitBech32Wallet} */
         this._wallet = wallet;
       } else {
         throw new Error('Only HD Bech32 wallets supported');
@@ -306,6 +311,19 @@ export class HDSegwitBech32Transaction {
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     const myAddress = await this._wallet.getChangeAddressAsync();
 
+    // if there is no secret then its a watch only wallet, skip signing and also pass the masterfingerprint
+    if (!this._wallet.secret) {
+      return this._wallet.createTransaction(
+        utxos,
+        [{ address: myAddress }],
+        newFeerate,
+        myAddress,
+        (await this.getMaxUsedSequence()) + 1,
+        true,
+        this._mfp ?? 0,
+      );
+    }
+
     return this._wallet.createTransaction(
       utxos,
       [{ address: myAddress }],
@@ -340,6 +358,19 @@ export class HDSegwitBech32Transaction {
       // so we add output paying ourselves:
       targets.push({ address: this._wallet._getInternalAddressByIndex(this._wallet.next_free_change_address_index) });
       // not checking emptiness on purpose: it could unpredictably generate too far address because of unconfirmed tx.
+    }
+
+    // if there is no secret then its a watch only wallet, skip signing and also pass the masterfingerprint
+    if (!this._wallet.secret) {
+      return this._wallet.createTransaction(
+        utxos,
+        targets,
+        newFeerate,
+        myAddress,
+        (await this.getMaxUsedSequence()) + 1,
+        true,
+        this._mfp ?? 0,
+      );
     }
 
     return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1);

@@ -2,7 +2,7 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
-import { SettingsScrollView, SettingsSection, SettingsListItem } from '../../components/platform';
+import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 
 const NetworkSettings: React.FC = () => {
   const navigation = useExtendedNavigation();
@@ -25,14 +25,13 @@ const NetworkSettings: React.FC = () => {
 
   return (
     <SettingsScrollView>
-      <SettingsSection horizontalInset={false}>
+      <SettingsSection>
         <SettingsListItem
           title={loc.settings.block_explorer}
           iconName="blockExplorer"
           onPress={navigateToBlockExplorerSettings}
           testID="BlockExplorerSettings"
           chevron
-          position="first"
         />
 
         <SettingsListItem
@@ -41,7 +40,6 @@ const NetworkSettings: React.FC = () => {
           onPress={navigateToElectrumSettings}
           testID="ElectrumSettings"
           chevron
-          position="middle"
         />
 
         <SettingsListItem
@@ -50,7 +48,7 @@ const NetworkSettings: React.FC = () => {
           onPress={navigateToLightningSettings}
           testID="LightningSettings"
           chevron
-          position={isNotificationsCapable ? 'middle' : 'last'}
+          bottomDivider={isNotificationsCapable}
         />
 
         {isNotificationsCapable && (
@@ -60,7 +58,7 @@ const NetworkSettings: React.FC = () => {
             onPress={navigateToNotificationSettings}
             testID="NotificationSettings"
             chevron
-            position="last"
+            bottomDivider={false}
           />
         )}
       </SettingsSection>
