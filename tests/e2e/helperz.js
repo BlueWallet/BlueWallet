@@ -170,6 +170,13 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/** Re-enables Detox synchronization after scanText navigation leaves the scanner. */
+export async function restoreSynchronizationAfterScan() {
+  if (device.getPlatform() === 'ios') {
+    await device.enableSynchronization();
+  }
+}
+
 export function hashIt(s) {
   return Buffer.from(sha256(s)).toString('hex');
 }
@@ -418,13 +425,73 @@ export async function countElements(testId) {
   return count;
 }
 
-export async function scanText(text) {
+async function submitTextToQrScannerBackdoor(text) {
   await waitForId('ScanQrBackdoorButton');
   for (let c = 0; c <= 5; c++) {
     await element(by.id('ScanQrBackdoorButton')).tap();
   }
   await element(by.id('scanQrBackdoorInput')).replaceText(text);
   await element(by.id('scanQrBackdoorOkButton')).tap();
+  await sleep(300);
+}
+
+/**
+ * Feeds text into the QR scanner backdoor.
+ * On iOS, returns with synchronization disabled so callers can leave animated
+ * QR / UR UI before calling restoreSynchronizationAfterScan().
+ */
+export async function scanText(text) {
+  if (device.getPlatform() === 'ios') {
+    await device.disableSynchronization();
+  }
+  await submitTextToQrScannerBackdoor(text);
+}
+
+/**
+ * After submitting text through the QR scanner backdoor, wait until the ScanQRCode UI is gone.
+ * Use not.toBeVisible (not not.toExist): React Navigation keeps the screen
+ * mounted under the stack, so the backdoor testID can still exist after popTo.
+ */
+export async function waitForQrScannerClosed(timeoutMs = 60_000) {
+  await waitFor(element(by.id('ScanQrBackdoorButton')))
+    .not.toBeVisible()
+    .withTimeout(timeoutMs);
+}
+
+export async function restoreSynchronizationIfScannerClosed(timeoutMs = 2_000) {
+  if (device.getPlatform() !== 'ios') {
+    return true;
+  }
+
+  try {
+    await waitForQrScannerClosed(timeoutMs);
+  } catch {
+    return false;
+  }
+
+  await device.enableSynchronization();
+  return true;
+}
+
+/**
+ * Feed multi-part UR fragments via the QR backdoor.
+ * Non-final parts should show UrProgressBar; the final part dismisses the
+ * scanner, so wait for that navigation before returning.
+ */
+export async function scanUrFragments(urs, { progressTimeoutMs = 60_000 } = {}) {
+  if (device.getPlatform() === 'ios') {
+    await device.disableSynchronization();
+  }
+
+  for (let i = 0; i < urs.length; i++) {
+    await submitTextToQrScannerBackdoor(urs[i]);
+    if (i < urs.length - 1) {
+      await waitFor(element(by.id('UrProgressBar')))
+        .toBeVisible()
+        .withTimeout(progressTimeoutMs);
+    }
+  }
+  await waitForQrScannerClosed();
 }
 
 export async function setCustomFeeRate(feeRate) {
@@ -524,12 +591,84 @@ export async function scrollUpOnHomeScreen() {
     return;
   }
   try {
-    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView'))).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView')))
+      .atIndex(0)
+      .swipe('down', 'slow', 0.5);
   } catch (_) {
-    // if no wallets there will be just one scroll
-    await element(by.type('RCTEnhancedScrollView')).swipe('down', 'slow', 0.5);
+    // if no wallets there will be just one scroll (or nested matcher missed); atIndex
+    // avoids "Multiple elements found" when several scroll views are present.
+    await element(by.type('RCTEnhancedScrollView')).atIndex(0).swipe('down', 'slow', 0.5);
   }
   await sleep(1000); // bounce animation
+}
+
+/**
+ * Opens the send-screen header menu and taps a menu item.
+ * On iOS, action-sheet labels often fail Detox's visibility check (liquid glass
+ * / partial opacity), same class of issue as native alerts — disable sync for
+ * the interaction.
+ *
+ * Pass `restoreSynchronization: false` when the item opens the camera / animated QR UI;
+ * re-enabling there can hang on pending layer animations. Callers should then
+ * use `restoreSynchronizationAfterScan()` after leaving that screen.
+ */
+export async function tapHeaderMenuItem(menuItemText, { restoreSynchronization = true } = {}) {
+  const isIOS = device.getPlatform() === 'ios';
+  if (!isIOS) {
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text(menuItemText)).tap();
+    return;
+  }
+
+  let succeeded = false;
+  await device.disableSynchronization();
+  try {
+    await waitFor(element(by.id('HeaderMenuButton')))
+      .toExist()
+      .withTimeout(15_000);
+
+    let lastError;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await element(by.id('HeaderMenuButton')).tap();
+        // iOS 26 action sheets use magic-morph transforms that fail Detox's
+        // visibility check until the presentation animation settles.
+        await sleep(1500);
+        // Prefer toExist: liquid-glass menu rows often fail toBeVisible.
+        try {
+          await waitFor(element(by.text(menuItemText)).atIndex(0))
+            .toExist()
+            .withTimeout(5_000);
+        } catch {
+          await waitFor(element(by.label(menuItemText)).atIndex(0))
+            .toExist()
+            .withTimeout(5_000);
+        }
+        try {
+          await element(by.text(menuItemText)).atIndex(0).tap();
+        } catch {
+          try {
+            await element(by.label(menuItemText)).atIndex(0).tap();
+          } catch {
+            // Last resort: tap a corner point to bypass 100% visibility threshold.
+            await element(by.text(menuItemText)).atIndex(0).tap({ x: 8, y: 8 });
+          }
+        }
+        succeeded = true;
+        return;
+      } catch (e) {
+        lastError = e;
+        await sleep(500);
+      }
+    }
+    throw lastError;
+  } finally {
+    // Always restore sync on failure so retries aren't poisoned when the caller
+    // passed restoreSynchronization: false (camera / animated-QR path).
+    if (restoreSynchronization || !succeeded) {
+      await device.enableSynchronization();
+    }
+  }
 }
 
 // We really only need this function when running tests locally.

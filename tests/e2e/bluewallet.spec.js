@@ -11,7 +11,10 @@ import {
   hashIt,
   helperCreateWallet,
   helperDeleteWallet,
+  restoreSynchronizationAfterScan,
+  restoreSynchronizationIfScannerClosed,
   scanText,
+  scanUrFragments,
   scrollUpOnHomeScreen,
   setCustomFeeRate,
   sleep,
@@ -608,6 +611,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await scanText('pipe goose bottom run seed curious thought kangaroo example family coral success');
     // scan auto-imports the seed via onBarScanned and navigates back to Step2
+    await restoreSynchronizationAfterScan();
 
     // key2 - xpub:
     await waitForId('VaultCosignerImport2');
@@ -617,6 +621,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'ur:crypto-account/oeadcypdlouebgaolytaadmetaaddloxaxhdclaxfdyksnwkuypkfevlfzfroyiyecoeosbakbpdcldawzhtcarkwsndcphphsbsdsayaahdcxfgjyckryosmwtdptlbflonbkimlsmovolslbytonayisprvoieftgeflzcrtvesbamtaaddyotadlocsdyykaeykaeykaoykaocypdlouebgaxaaaycyttatrnolimvetsst',
     );
+    await restoreSynchronizationAfterScan();
 
     // scan auto-imports the xpub via onBarScanned and navigates back to Step2
     await waitForId('CreateButton');
@@ -670,15 +675,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitFor(element(by.id('UrProgressBar'))).toBeNotVisible();
 
-    for (const ur of urs) {
-      await scanText(ur);
-      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
-    }
+    try {
+      await scanUrFragments(urs);
 
-    await waitForText('OK', 3 * 61000); // waiting for wallet import
-    await element(by.text('OK')).tap();
+      await waitForText('OK', 3 * 61000); // waiting for wallet import
+      await element(by.text('OK')).tap();
+    } finally {
+      if (!(await restoreSynchronizationIfScannerClosed())) {
+        console.warn('[detox] leaving sync disabled after multisig import: scanner still open');
+      }
+    }
     await scrollUpOnHomeScreen();
-    // ok, wallet imported
+    // ok, wallet imported — left the UR / QR import UI
 
     // lets go inside wallet
     const expectedWalletLabel = 'Multisig Vault';
@@ -720,33 +728,58 @@ describe('BlueWallet UI Tests - no wallets', () => {
       'UR:CRYPTO-PSBT/416-4/LPCFADNBAACFAXPLCYZTVYVOPKHDWPONBWDWPACLGTAEIDWLWZBAZODNCSMSEHZELBIYDLMWCSHDIADKNYWNZSSGPKVEFLMKLRKNCELEDAMYEMBYKIJKFNDEDMIAHPLBRDPMLTROWMFNWSLTROCMIOYKWPFZDSLGLGDKWSOYPFAHMODAMYENSAIOSEGAZEEHTSLBKGOEDMWZUTRFNYJEKIPEEMIYJSOTUEZERORFPSGRPABSSKLOGOONAECAGRSFBDLRWFEMLNSALRCWZOWNLPHNPTNSLPJTKBMTEYNSISTAFTEHSEGDOTENSNMHKNFGCLFXOXMYPLCELTKOMTNEGRTOJYGURHKGPMTAFHHKWPKIOTJPGWVSKNSKSSFTOYPTKKSGSRFGIORHMDDAFHNYKTHPCPOTKEGELANNLEWEGMJEKPIYGYSFECJNCWFNRYVLTBTBWPHTKBISTLRLDEMWADCWMNKTTARKDRJSZCJPLRCNFSHGNEGAMTYLVLGOWS',
     ];
 
-    for (const ur of ursSignedByPassport) {
-      await scanText(ur);
-      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
+    // Keep sync disabled across animated QR cosign screens — re-enabling here
+    // waits on pending layer animations and can hang the suite.
+    try {
+      // ItemSigned can update on the underlying screen before ScanQRCode pops;
+      // scanUrFragments waits for the scanner to dismiss before returning.
+      await scanUrFragments(ursSignedByPassport);
+      await waitFor(element(by.id('ItemSigned')))
+        .toBeVisible()
+        .withTimeout(30_000);
+      await waitForId('ProvideSignature');
+      await element(by.id('ProvideSignature')).tap();
+      // Wait for the cosign QR screen to mount before scrolling — with sync off
+      // after UR scans, whileElement(...).scroll can race the navigation.
+      await waitFor(element(by.id('PsbtMultisigQRCodeScrollView')))
+        .toBeVisible()
+        .withTimeout(30_000);
+      await waitFor(element(by.id('CosignedScanOrImportFile')))
+        .toBeVisible()
+        .whileElement(by.id('PsbtMultisigQRCodeScrollView'))
+        .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+      await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
+
+      const urSignedByPassportAndKeystone = [
+        'UR:CRYPTO-PSBT/105-2/LPCSINAOCFAXOLCYSBLUFDHSHKADTEHKAXOTJOJKIDJYZMADAEKIAOAEAEAEADSGMHIEQDIAFLKPVABAJEHLLNVLRKKPCPDAHYNSOTTSOYBTIMMUCYAASSMDAMDAMKAEAEAEAEAEZMZMZMZMAOGDSRAEAEAEAEAEAECMAEBBKBOTLPWFGMRNINIMPFYNWLGEBAVTVLSWTYPAGEGUWFVLAEAEAEAEAEAECPAECXHEJTWTTTWEPDFMMDSNYKDPRYZMRLBARSPAAYLETDCLGDJKIHBNTYFXCHNNWTRHFEAEAEAEAEAEADAEWDAOAEAEAEAEADADSTENIYASISYLVDVLGWCXRPBWVYVSDALOTLCESKTTFEJTWDTBPTECMOMNLNDABSDTADAEAEAEAEADAEAELAAOGDPTADAEAEAEAEAECPAECXCLSWSSWSCPVTGTESFWSBCTCSETNSPYNLBKJLZTUEMWSOMSNNTYGSLSFPNEPKVOIOONMOAOAEAEAEAEAECMAEBBMNAMRTRKDYGUHDURWSVOLGDRRLESMEDLOLGWLYNTAOFLDYFYAOCXDYYTJOMYYAUELEDYKIYLADUROYFNURDRGLFTCYKEKEFEIAOYGSTNCPIDGYZOEEDAAOCXHGCAENYKHNJLGOHEJOGMRLBNTDWYGWJOPFPYFMKKTISROXGMIMGYURAYCXLEUOZSADCLAOJPBGWSASPTIATTPMLECMPRIHSTMDJYLOYKTKRTHHTLSTFZKPOYWKBKROASBGBAVDAEAEAEAEADADDNGDPTADAEAEAEAEAECPAECXCLSWSSWSCPVTGTESFWSBCTCSETNSPYNLBKJLZTUEMWSOMSNNTYGSLSFPNEPKVOIOCPAOAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAFLDYFYAOCXISRERKHDRDGAPMATEHJLFL',
+        'UR:CRYPTO-PSBT/158-2/LPCSNNAOCFAXOLCYSBLUFDHSHKADTEZECFFTHDETNBADMOCLINLNOSOXZEYKGDPYTPKTRETNURTIZOPDAOCXIAAOWETTJKMDUOSBONAASWNLMERLZSGLCYCTGAKBDAFHGHWKMTRSNLAAYKFWWPRSADADAHFLGMCLAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCLAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAGMPLCPAMAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAECPAMAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAACETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAEAEAEADADFLGMCLAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCLAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKGMPLCPAOAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAECPAOAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAEAENNHKLKUO',
+      ];
+
+      await scanUrFragments(urSignedByPassportAndKeystone);
+      await waitFor(element(by.id('ExportSignedPsbt')))
+        .toBeVisible()
+        .withTimeout(30_000);
+
+      await element(by.id('PsbtMultisigConfirmButton')).tap();
+    } finally {
+      if (device.getPlatform() === 'ios') {
+        let psbtQrHidden;
+        try {
+          await waitFor(element(by.id('PsbtMultisigQRCodeScrollView')))
+            .not.toBeVisible()
+            .withTimeout(2_000);
+          psbtQrHidden = true;
+        } catch {
+          psbtQrHidden = false;
+        }
+
+        if (!psbtQrHidden) {
+          console.warn('[detox] leaving sync disabled after UR cosign: animated PSBT QR still open');
+        } else if (!(await restoreSynchronizationIfScannerClosed())) {
+          console.warn('[detox] leaving sync disabled after UR cosign because the scanner is still open');
+        }
+      }
     }
-
-    await waitFor(element(by.id('ItemSigned'))).toBeVisible(); // one green checkmark visible
-
-    await element(by.id('ProvideSignature')).tap();
-    await waitFor(element(by.id('CosignedScanOrImportFile')))
-      .toBeVisible()
-      .whileElement(by.id('PsbtMultisigQRCodeScrollView'))
-      .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-    await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
-
-    const urSignedByPassportAndKeystone = [
-      'UR:CRYPTO-PSBT/105-2/LPCSINAOCFAXOLCYSBLUFDHSHKADTEHKAXOTJOJKIDJYZMADAEKIAOAEAEAEADSGMHIEQDIAFLKPVABAJEHLLNVLRKKPCPDAHYNSOTTSOYBTIMMUCYAASSMDAMDAMKAEAEAEAEAEZMZMZMZMAOGDSRAEAEAEAEAEAECMAEBBKBOTLPWFGMRNINIMPFYNWLGEBAVTVLSWTYPAGEGUWFVLAEAEAEAEAEAECPAECXHEJTWTTTWEPDFMMDSNYKDPRYZMRLBARSPAAYLETDCLGDJKIHBNTYFXCHNNWTRHFEAEAEAEAEAEADAEWDAOAEAEAEAEADADSTENIYASISYLVDVLGWCXRPBWVYVSDALOTLCESKTTFEJTWDTBPTECMOMNLNDABSDTADAEAEAEAEADAEAELAAOGDPTADAEAEAEAEAECPAECXCLSWSSWSCPVTGTESFWSBCTCSETNSPYNLBKJLZTUEMWSOMSNNTYGSLSFPNEPKVOIOONMOAOAEAEAEAEAECMAEBBMNAMRTRKDYGUHDURWSVOLGDRRLESMEDLOLGWLYNTAOFLDYFYAOCXDYYTJOMYYAUELEDYKIYLADUROYFNURDRGLFTCYKEKEFEIAOYGSTNCPIDGYZOEEDAAOCXHGCAENYKHNJLGOHEJOGMRLBNTDWYGWJOPFPYFMKKTISROXGMIMGYURAYCXLEUOZSADCLAOJPBGWSASPTIATTPMLECMPRIHSTMDJYLOYKTKRTHHTLSTFZKPOYWKBKROASBGBAVDAEAEAEAEADADDNGDPTADAEAEAEAEAECPAECXCLSWSSWSCPVTGTESFWSBCTCSETNSPYNLBKJLZTUEMWSOMSNNTYGSLSFPNEPKVOIOCPAOAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAFLDYFYAOCXISRERKHDRDGAPMATEHJLFL',
-      'UR:CRYPTO-PSBT/158-2/LPCSNNAOCFAXOLCYSBLUFDHSHKADTEZECFFTHDETNBADMOCLINLNOSOXZEYKGDPYTPKTRETNURTIZOPDAOCXIAAOWETTJKMDUOSBONAASWNLMERLZSGLCYCTGAKBDAFHGHWKMTRSNLAAYKFWWPRSADADAHFLGMCLAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCLAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAGMPLCPAMAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAECPAMAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAACETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAEAEAEADADFLGMCLAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCLAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKGMPLCPAOAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAECPAOAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAEAENNHKLKUO',
-    ];
-
-    for (const ur of urSignedByPassportAndKeystone) {
-      await scanText(ur);
-      await waitFor(element(by.id('UrProgressBar'))).toBeVisible();
-    }
-
-    await waitFor(element(by.id('ExportSignedPsbt'))).toBeVisible();
-
-    await element(by.id('PsbtMultisigConfirmButton')).tap();
 
     // created. verifying:
     await waitForId('TransactionValue');
@@ -847,6 +880,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperCreateWallet();
     await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
     await scanText('bitcoin:bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
+    await restoreSynchronizationAfterScan();
     await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText('bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
 
@@ -864,6 +898,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ImportWallet')).tap();
     await element(by.id('ScanImport')).tap();
     await scanText('lndhub://a3b4c9109408a043d1ea:ec5a888596b2c45729d1@https://kek.lol');
+    await restoreSynchronizationAfterScan();
     await waitForText('OK', 30_000); // waiting for wallet import
     await element(by.text('OK')).tap();
 
@@ -873,6 +908,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'lightning:lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
     );
+    await restoreSynchronizationAfterScan();
     await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText(
       'lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
@@ -890,6 +926,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
     );
+    await restoreSynchronizationAfterScan();
 
     await waitForId('SelectWalletsList');
     await element(by.text('Imported Lightning')).tap();
@@ -911,6 +948,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
     );
+    await restoreSynchronizationAfterScan();
 
     await waitForId('SelectWalletsList');
     await element(by.text('cr34t3d')).tap();
@@ -923,6 +961,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
     await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
     await scanText('https://azte.co/redeem?code=1111222233334444');
+    await restoreSynchronizationAfterScan();
     await waitForId('AztecoCode');
     await expect(element(by.id('AztecoCode'))).toBeVisible();
 
@@ -982,6 +1021,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
     await scanText('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    await restoreSynchronizationAfterScan();
 
     // create vault
     await waitForId('CreateButton');
@@ -1156,6 +1196,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
     await scanText('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    await restoreSynchronizationAfterScan();
 
     // key 2 - import seed
     await waitForId('VaultCosignerImport2');
@@ -1163,6 +1204,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
     await scanText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
+    await restoreSynchronizationAfterScan();
 
     // create vault
     await waitForId('CreateButton');
