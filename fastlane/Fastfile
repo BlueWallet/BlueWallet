@@ -27,6 +27,7 @@ end
 require 'securerandom'
 require 'json'
 require 'time'
+require_relative 'lib/prepare_new_release_wizard'
 
 default_platform(:android)
 PROJECT_ROOT = File.expand_path("..", __dir__)
@@ -846,17 +847,22 @@ platform :ios do
     end
 
     if save_progress_report
-      UI.success("Save complete. Re-run prepare_new_release to continue from the saved build selection.")
+      UI.success("Save complete. Re-run prepare_new_release when you are ready to continue.")
       next save_progress_report
     end
 
     selected_build = nil
-    run_release_notes = step_by_step_scope != "Build only"
+    run_release_notes = PrepareNewReleaseWizard.release_notes_enabled_for_scope?(step_by_step_scope)
     planned_release_notes = nil
 
     unless workflow_mode == "Jump to review summary"
       loop do
-        needs_build_prompt = !(workflow_mode == "Jump to release notes" || (step_by_step_scope == "Release notes only" && attached_build))
+        existing_notes = nil
+        needs_build_prompt = PrepareNewReleaseWizard.needs_build_prompt?(
+          workflow_mode: workflow_mode,
+          step_by_step_scope: step_by_step_scope,
+          attached_build: attached_build
+        )
         display_build_list.call if needs_build_prompt
 
         selected_build_choice = if workflow_mode == "Jump to release notes"
@@ -889,7 +895,7 @@ platform :ios do
           end
 
           UI.message("Selecting #{build_detail(selected_build, platform_name)}")
-          if step_by_step_scope == "Build only" || step_by_step_scope == "Build and release notes"
+          if PrepareNewReleaseWizard.save_prompt_needed_for_scope?(step_by_step_scope)
             save_choice = release_wizard_select(
               step_by_step_scope == "Build only" ?
                 "Save this selected build to App Store Connect and exit?" :
@@ -937,7 +943,7 @@ platform :ios do
                 UI.user_error!("Release notes cannot be empty.") if manual_release_notes.to_s.strip.empty?
                 planned_release_notes = manual_release_notes.strip
               when "Run release_notes lane"
-                planned_release_notes = existing_notes
+                planned_release_notes = nil
               when "Skip (keep existing release notes)"
                 run_release_notes = false
               end
@@ -959,6 +965,11 @@ platform :ios do
 
       UI.message("Jumping to review summary with #{build_detail(selected_build, platform_name)}")
       run_release_notes = false
+    end
+
+    if save_progress_report
+      UI.success("Saved selected build to App Store Connect and exited.")
+      next save_progress_report
     end
 
     localizations = with_network_loading("Loading release summary") do
@@ -1009,7 +1020,7 @@ platform :ios do
     UI.message("  Planned actions:")
     UI.message("    - Attach build #{selected_build.version}")
     if run_release_notes
-      notes_source = options[:release_notes].to_s.strip.empty? ? "interactive release_notes prompt" : "release_notes option"
+      notes_source = PrepareNewReleaseWizard.release_notes_source_label(options[:release_notes])
       UI.message("    - Update release notes via #{notes_source}")
     else
       UI.message("    - Keep existing release notes")
@@ -1038,7 +1049,7 @@ platform :ios do
           "Exit without saving changes"
         ]
       )
-      if next_action == :back || next_action == "Exit without saving changes"
+      if PrepareNewReleaseWizard.should_exit_without_saving?(next_action)
         UI.success("Exited without applying App Store Connect changes.")
         next report
       end
@@ -1457,14 +1468,19 @@ platform :ios do
       README
       UI.message("Added multilingual README with first-launch instructions to DMG")
 
+      applications_symlink = File.join(dmg_staging, "Applications")
+      FileUtils.rm_f(applications_symlink)
+      FileUtils.ln_s('/Applications', applications_symlink)
+
       FileUtils.rm_f(dmg_path)
-      dmg(
-        path: dmg_staging,
-        output_path: dmg_path,
-        volume_name: "BlueWallet",
-        filesystem: "HFS+",
-        format: "UDZO",
-        create_applications_symlink: true
+      sh(
+        "hdiutil",
+        "create",
+        "-volname", "BlueWallet",
+        "-srcfolder", dmg_staging,
+        "-ov",
+        "-format", "UDZO",
+        dmg_path
       )
       UI.user_error!("DMG was not created at #{dmg_path}") unless File.exist?(dmg_path)
       UI.success("DMG package created at: #{dmg_path}")
@@ -1532,13 +1548,12 @@ platform :ios do
         </plist>
       PLIST
 
-      xcodebuild(
-        xcargs: [
-          "-exportArchive",
-          "-archivePath", archive_path,
-          "-exportOptionsPlist", export_plist_path,
-          "-exportPath", output_dir,
-        ].join(" ")
+      sh(
+        "xcodebuild",
+        "-exportArchive",
+        "-archivePath", archive_path,
+        "-exportOptionsPlist", export_plist_path,
+        "-exportPath", output_dir
       )
 
       # Find the exported pkg
