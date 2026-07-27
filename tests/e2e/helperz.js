@@ -418,39 +418,34 @@ export async function countElements(testId) {
   return count;
 }
 
-async function submitTextToQrScannerBackdoor(text) {
-  await waitForId('ScanQrBackdoorButton');
-  for (let c = 0; c <= 5; c++) {
-    await element(by.id('ScanQrBackdoorButton')).tap();
-  }
-  await element(by.id('scanQrBackdoorInput')).replaceText(text);
-  await element(by.id('scanQrBackdoorOkButton')).tap();
-  await sleep(300);
-}
-
 /**
  * Feeds text into the QR scanner backdoor.
- * On iOS, disables synchronization for the backdoor interaction, then re-enables
- * it before returning. Multipart UR flows that must keep sync disabled across
- * fragments should use scanUrFragments instead.
+ * On iOS, disables synchronization for the interaction. Pass
+ * `restoreSynchronization: false` for multipart UR scans that must keep sync
+ * disabled until the animated scanner/QR UI is gone.
  */
-export async function scanText(text) {
+export async function scanText(text, { restoreSynchronization = true } = {}) {
   if (device.getPlatform() === 'ios') {
     await device.disableSynchronization();
   }
   try {
-    await submitTextToQrScannerBackdoor(text);
+    await waitForId('ScanQrBackdoorButton');
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+    }
+    await element(by.id('scanQrBackdoorInput')).replaceText(text);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await sleep(300);
   } finally {
-    if (device.getPlatform() === 'ios') {
+    if (device.getPlatform() === 'ios' && restoreSynchronization) {
       await device.enableSynchronization();
     }
   }
 }
 
 /**
- * After submitting text through the QR scanner backdoor, wait until the ScanQRCode UI is gone.
- * Use not.toBeVisible (not not.toExist): React Navigation keeps the screen
- * mounted under the stack, so the backdoor testID can still exist after popTo.
+ * Wait until ScanQRCode is gone. Use not.toBeVisible (not not.toExist): React
+ * Navigation keeps the screen mounted under the stack after popTo.
  */
 export async function waitForQrScannerClosed(timeoutMs = 60_000) {
   await waitFor(element(by.id('ScanQrBackdoorButton')))
@@ -458,12 +453,16 @@ export async function waitForQrScannerClosed(timeoutMs = 60_000) {
     .withTimeout(timeoutMs);
 }
 
-export async function restoreSynchronizationIfScannerClosed(timeoutMs = 2_000) {
+/** iOS: enable sync only after animated PSBT QR and scanner are hidden. */
+export async function restoreSynchronizationIfAnimatedQrClosed(timeoutMs = 2_000) {
   if (device.getPlatform() !== 'ios') {
     return true;
   }
 
   try {
+    await waitFor(element(by.id('PsbtMultisigQRCodeScrollView')))
+      .not.toBeVisible()
+      .withTimeout(timeoutMs);
     await waitForQrScannerClosed(timeoutMs);
   } catch {
     return false;
@@ -471,27 +470,6 @@ export async function restoreSynchronizationIfScannerClosed(timeoutMs = 2_000) {
 
   await device.enableSynchronization();
   return true;
-}
-
-/**
- * Feed multi-part UR fragments via the QR backdoor.
- * Non-final parts should show UrProgressBar; the final part dismisses the
- * scanner, so wait for that navigation before returning.
- */
-export async function scanUrFragments(urs, { progressTimeoutMs = 60_000 } = {}) {
-  if (device.getPlatform() === 'ios') {
-    await device.disableSynchronization();
-  }
-
-  for (let i = 0; i < urs.length; i++) {
-    await submitTextToQrScannerBackdoor(urs[i]);
-    if (i < urs.length - 1) {
-      await waitFor(element(by.id('UrProgressBar')))
-        .toBeVisible()
-        .withTimeout(progressTimeoutMs);
-    }
-  }
-  await waitForQrScannerClosed();
 }
 
 export async function setCustomFeeRate(feeRate) {
@@ -610,7 +588,7 @@ export async function scrollUpOnHomeScreen() {
  *
  * Pass `restoreSynchronization: false` when the item opens the camera / animated QR UI;
  * re-enabling there can hang on pending layer animations. A following `scanText()`
- * restores synchronization after the backdoor scan.
+ * (default) restores synchronization after the backdoor scan.
  */
 export async function tapHeaderMenuItem(menuItemText, { restoreSynchronization = true } = {}) {
   const isIOS = device.getPlatform() === 'ios';

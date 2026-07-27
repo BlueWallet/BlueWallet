@@ -11,10 +11,10 @@ import {
   hashIt,
   helperCreateWallet,
   helperDeleteWallet,
-  restoreSynchronizationIfScannerClosed,
+  restoreSynchronizationIfAnimatedQrClosed,
   scanText,
-  scanUrFragments,
   scrollUpOnHomeScreen,
+  waitForQrScannerClosed,
   setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
@@ -673,13 +673,21 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.id('UrProgressBar'))).toBeNotVisible();
 
     try {
-      await scanUrFragments(urs);
+      for (let i = 0; i < urs.length; i++) {
+        await scanText(urs[i], { restoreSynchronization: false });
+        if (i < urs.length - 1) {
+          await waitFor(element(by.id('UrProgressBar')))
+            .toBeVisible()
+            .withTimeout(60_000);
+        }
+      }
+      await waitForQrScannerClosed();
 
       await waitForText('OK', 3 * 61000); // waiting for wallet import
       await element(by.text('OK')).tap();
     } finally {
-      if (!(await restoreSynchronizationIfScannerClosed())) {
-        console.warn('[detox] leaving sync disabled after multisig import: scanner still open');
+      if (!(await restoreSynchronizationIfAnimatedQrClosed())) {
+        console.warn('[detox] leaving sync disabled after multisig import: animated QR/scanner still open');
       }
     }
     await scrollUpOnHomeScreen();
@@ -728,9 +736,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // Keep sync disabled across animated QR cosign screens — re-enabling here
     // waits on pending layer animations and can hang the suite.
     try {
-      // ItemSigned can update on the underlying screen before ScanQRCode pops;
-      // scanUrFragments waits for the scanner to dismiss before returning.
-      await scanUrFragments(ursSignedByPassport);
+      for (let i = 0; i < ursSignedByPassport.length; i++) {
+        await scanText(ursSignedByPassport[i], { restoreSynchronization: false });
+        if (i < ursSignedByPassport.length - 1) {
+          await waitFor(element(by.id('UrProgressBar')))
+            .toBeVisible()
+            .withTimeout(60_000);
+        }
+      }
+      // ItemSigned can update before ScanQRCode pops; wait for dismiss first.
+      await waitForQrScannerClosed();
       await waitFor(element(by.id('ItemSigned')))
         .toBeVisible()
         .withTimeout(30_000);
@@ -752,29 +767,23 @@ describe('BlueWallet UI Tests - no wallets', () => {
         'UR:CRYPTO-PSBT/158-2/LPCSNNAOCFAXOLCYSBLUFDHSHKADTEZECFFTHDETNBADMOCLINLNOSOXZEYKGDPYTPKTRETNURTIZOPDAOCXIAAOWETTJKMDUOSBONAASWNLMERLZSGLCYCTGAKBDAFHGHWKMTRSNLAAYKFWWPRSADADAHFLGMCLAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCLAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAGMPLCPAMAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAECPAMAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAACETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAEAEAEADADFLGMCLAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCLAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKGMPLCPAOAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAECPAOAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAEAENNHKLKUO',
       ];
 
-      await scanUrFragments(urSignedByPassportAndKeystone);
+      for (let i = 0; i < urSignedByPassportAndKeystone.length; i++) {
+        await scanText(urSignedByPassportAndKeystone[i], { restoreSynchronization: false });
+        if (i < urSignedByPassportAndKeystone.length - 1) {
+          await waitFor(element(by.id('UrProgressBar')))
+            .toBeVisible()
+            .withTimeout(60_000);
+        }
+      }
+      await waitForQrScannerClosed();
       await waitFor(element(by.id('ExportSignedPsbt')))
         .toBeVisible()
         .withTimeout(30_000);
 
       await element(by.id('PsbtMultisigConfirmButton')).tap();
     } finally {
-      if (device.getPlatform() === 'ios') {
-        let psbtQrHidden;
-        try {
-          await waitFor(element(by.id('PsbtMultisigQRCodeScrollView')))
-            .not.toBeVisible()
-            .withTimeout(2_000);
-          psbtQrHidden = true;
-        } catch {
-          psbtQrHidden = false;
-        }
-
-        if (!psbtQrHidden) {
-          console.warn('[detox] leaving sync disabled after UR cosign: animated PSBT QR still open');
-        } else if (!(await restoreSynchronizationIfScannerClosed())) {
-          console.warn('[detox] leaving sync disabled after UR cosign because the scanner is still open');
-        }
+      if (!(await restoreSynchronizationIfAnimatedQrClosed())) {
+        console.warn('[detox] leaving sync disabled after UR cosign: animated QR/scanner still open');
       }
     }
 
