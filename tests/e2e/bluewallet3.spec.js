@@ -4,7 +4,6 @@ import {
   hashIt,
   helperDeleteWallet,
   helperImportWallet,
-  restoreSynchronizationAfterScan,
   scanText,
   scrollUpOnHomeScreen,
   sleep,
@@ -88,7 +87,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       'UR:CRYPTO-PSBT/HDWTJOJKIDJYZMADAEGOAOAEAEAEADLFIAYKFPTOTIHSMNDLJTLFTYPAHTFHZESOAODIBNADFDCPFZZEKSSTTOJYKPRLJOAEAEAEAEAEZMZMZMZMADNBDSAEAEAEAEAEAECFKOPTBBCFBGNTGUVAEHNDPECFUYNBHKRNPMCMJNYTBKROYKLOPSAEAEAEAEAEADADCTBEDIAEAEAEAEAEAECMAEBBFTZSECYTJZTEKGOEKECAVOGHMTVWGYIAMHCSKOSWADAYJEAOFLDYFYAOCXGEUTDNBDTNMKTOQDLASKMTTSCLCSHPOLGDBEHDBBZMNERLRFSFIDLTMHTLMTLYWKAOCXFRBWHGOSGYRLYKTSSSSSIEWDZOVOSTFNISKTBYCLLRLRHSHFCMSGTTVDRHURNSOLADCLAXENRDWMCPOTZMHKGMFPNTHLMNDMCETOHLOXTANDAMEOTSURLFHHPLTSDPCSJTWSGAAEAEDLFPLTSW';
 
     await scanText(unsignedPsbt);
-    await restoreSynchronizationAfterScan();
 
     // now lets test scanning back QR with UR PSBT. this should lead straight to broadcast dialog
 
@@ -105,7 +103,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await element(by.id('PsbtTxScanButton')).tap(); // opening camera
 
     await scanText(signedPsbt);
-    await restoreSynchronizationAfterScan();
     await expect(element(by.id('ScanQrBackdoorButton'))).toBeNotVisible();
     await waitForId('PsbtWithHardwareWalletBroadcastTransactionButton');
 

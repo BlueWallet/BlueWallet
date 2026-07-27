@@ -170,13 +170,6 @@ export async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-/** Re-enables Detox synchronization after scanText navigation leaves the scanner. */
-export async function restoreSynchronizationAfterScan() {
-  if (device.getPlatform() === 'ios') {
-    await device.enableSynchronization();
-  }
-}
-
 export function hashIt(s) {
   return Buffer.from(sha256(s)).toString('hex');
 }
@@ -437,14 +430,21 @@ async function submitTextToQrScannerBackdoor(text) {
 
 /**
  * Feeds text into the QR scanner backdoor.
- * On iOS, returns with synchronization disabled so callers can leave animated
- * QR / UR UI before calling restoreSynchronizationAfterScan().
+ * On iOS, disables synchronization for the backdoor interaction, then re-enables
+ * it before returning. Multipart UR flows that must keep sync disabled across
+ * fragments should use scanUrFragments instead.
  */
 export async function scanText(text) {
   if (device.getPlatform() === 'ios') {
     await device.disableSynchronization();
   }
-  await submitTextToQrScannerBackdoor(text);
+  try {
+    await submitTextToQrScannerBackdoor(text);
+  } finally {
+    if (device.getPlatform() === 'ios') {
+      await device.enableSynchronization();
+    }
+  }
 }
 
 /**
@@ -609,8 +609,8 @@ export async function scrollUpOnHomeScreen() {
  * the interaction.
  *
  * Pass `restoreSynchronization: false` when the item opens the camera / animated QR UI;
- * re-enabling there can hang on pending layer animations. Callers should then
- * use `restoreSynchronizationAfterScan()` after leaving that screen.
+ * re-enabling there can hang on pending layer animations. A following `scanText()`
+ * restores synchronization after the backdoor scan.
  */
 export async function tapHeaderMenuItem(menuItemText, { restoreSynchronization = true } = {}) {
   const isIOS = device.getPlatform() === 'ios';

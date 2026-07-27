@@ -11,7 +11,6 @@ import {
   hashIt,
   helperCreateWallet,
   helperDeleteWallet,
-  restoreSynchronizationAfterScan,
   restoreSynchronizationIfScannerClosed,
   scanText,
   scanUrFragments,
@@ -611,7 +610,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await scanText('pipe goose bottom run seed curious thought kangaroo example family coral success');
     // scan auto-imports the seed via onBarScanned and navigates back to Step2
-    await restoreSynchronizationAfterScan();
 
     // key2 - xpub:
     await waitForId('VaultCosignerImport2');
@@ -621,7 +619,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'ur:crypto-account/oeadcypdlouebgaolytaadmetaaddloxaxhdclaxfdyksnwkuypkfevlfzfroyiyecoeosbakbpdcldawzhtcarkwsndcphphsbsdsayaahdcxfgjyckryosmwtdptlbflonbkimlsmovolslbytonayisprvoieftgeflzcrtvesbamtaaddyotadlocsdyykaeykaeykaoykaocypdlouebgaxaaaycyttatrnolimvetsst',
     );
-    await restoreSynchronizationAfterScan();
 
     // scan auto-imports the xpub via onBarScanned and navigates back to Step2
     await waitForId('CreateButton');
@@ -880,7 +877,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await helperCreateWallet();
     await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
     await scanText('bitcoin:bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
-    await restoreSynchronizationAfterScan();
     await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText('bc1qzrtn3xwlunlrm0n0uu23lr00gmdx4lnlavdy75');
 
@@ -898,7 +894,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ImportWallet')).tap();
     await element(by.id('ScanImport')).tap();
     await scanText('lndhub://a3b4c9109408a043d1ea:ec5a888596b2c45729d1@https://kek.lol');
-    await restoreSynchronizationAfterScan();
     await waitForText('OK', 30_000); // waiting for wallet import
     await element(by.text('OK')).tap();
 
@@ -908,7 +903,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'lightning:lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
     );
-    await restoreSynchronizationAfterScan();
     await waitForId('AddressInput');
     await expect(element(by.id('AddressInput'))).toHaveText(
       'lnbc1p090vrqpp5yxpd5wjtln4r874a9grkpr772cs0uyn7ayva3ypleyut7z0a4rgsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzpgxqyz5vqcy30v2txquuh06h6946pal4dlm4hyujqv8ec3cunetf46gfydpxswedv4sr2rlg8dwpcg3fq9gah3j42373w366e6yau37t30amp5zqqftd004',
@@ -926,7 +920,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
     );
-    await restoreSynchronizationAfterScan();
 
     await waitForId('SelectWalletsList');
     await element(by.text('Imported Lightning')).tap();
@@ -948,7 +941,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await scanText(
       'bitcoin:1DamianM2k8WfNEeJmyqSe2YW1upB7UATx?amount=0.000001&lightning=lnbc1u1pwry044pp53xlmkghmzjzm3cljl6729cwwqz5hhnhevwfajpkln850n7clft4sdqlgfy4qv33ypmj7sj0f32rzvfqw3jhxaqcqzysxq97zvuq5zy8ge6q70prnvgwtade0g2k5h2r76ws7j2926xdjj2pjaq6q3r4awsxtm6k5prqcul73p3atveljkn6wxdkrcy69t6k5edhtc6q7lgpe4m5k4',
     );
-    await restoreSynchronizationAfterScan();
 
     await waitForId('SelectWalletsList');
     await element(by.text('cr34t3d')).tap();
@@ -961,7 +953,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
     await tapAndTapAgainIfElementIsNotVisible('HomeScreenScanButton', 'ScanQrBackdoorButton');
     await scanText('https://azte.co/redeem?code=1111222233334444');
-    await restoreSynchronizationAfterScan();
     await waitForId('AztecoCode');
     await expect(element(by.id('AztecoCode'))).toBeVisible();
 
@@ -1021,7 +1012,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
     await scanText('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
-    await restoreSynchronizationAfterScan();
 
     // create vault
     await waitForId('CreateButton');
@@ -1196,7 +1186,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
     await scanText('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
-    await restoreSynchronizationAfterScan();
 
     // key 2 - import seed
     await waitForId('VaultCosignerImport2');
@@ -1204,7 +1193,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('ScanOrOpenFile');
     await element(by.id('ScanOrOpenFile')).tap();
     await scanText('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong');
-    await restoreSynchronizationAfterScan();
 
     // create vault
     await waitForId('CreateButton');

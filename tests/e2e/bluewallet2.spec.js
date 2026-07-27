@@ -9,7 +9,6 @@ import {
   goBack,
   hashIt,
   helperImportWallet,
-  restoreSynchronizationAfterScan,
   scanText,
   scrollUpOnHomeScreen,
   setCustomFeeRate,
@@ -119,7 +118,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
     await scanText('bitcoin:bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7?amount=0.00015&pj=https://btc.donate.kukks.org/BTC/pj');
-    await restoreSynchronizationAfterScan();
 
     await element(by.id('CreateTransactionButton')).tap();
     // created. verifying:
@@ -141,7 +139,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.id('BlueAddressInputScanQrButton')).tap();
 
     await scanText('bc1qnapskphjnwzw2w3dk4anpxntunc77v6qrua0f7');
-    await restoreSynchronizationAfterScan();
 
     await element(by.id('CreateTransactionButton')).tap();
     // created. verifying:
@@ -362,7 +359,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     const psbt =
       'cHNidP8BAFICAAAAAXYa7FEQBAQ2X0B48aHHKKgzkVuHfQ2yCOi3v9RR0IqlAQAAAAAAAACAAegDAAAAAAAAFgAUSnH40G+jiJfreeRb36cs641KFm8AAAAAAAEBH5YVAAAAAAAAFgAUTKHjDm4OJQSbvy9uzyLYi5i5XIoiBgMQcGrP5TIMrdvb73yB4WnZvkPzKr1EzJXJYBHWmlPJZRgAAAAAVAAAgAAAAIAAAACAAQAAAD4AAAAAAA==';
     await scanText(psbt);
-    await restoreSynchronizationAfterScan();
 
     // this is fully-signed tx, "this is tx hex" help text should appear
     await waitForId('DynamicCode');
