@@ -868,7 +868,10 @@ describe('BC-UR', () => {
     assert.strictEqual(wallet.allowSend(), true);
     assert.strictEqual(wallet.getTypeReadable(), WatchOnlyWallet.hardwareWalletTypeReadable);
     assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), false);
+    assert.strictEqual(wallet.hardwareWalletDeviceId, 'device-id');
+    assert.strictEqual(wallet.hardwareWalletFirmwareVersion, '1.0.0');
 
+    wallet.isWatchOnlyWarningVisible = false;
     wallet.setUseWithHardwareWalletEnabled(false);
     assert.strictEqual(wallet.isWatchOnlyWarningVisible, true);
     assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
@@ -997,6 +1000,24 @@ describe('BC-UR', () => {
     assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Native SegWit');
   });
 
+  it('v2: preserves an unknown OneKey device format instead of truncating it', () => {
+    const device = 'OneKey Pro:123456789:btc:future-format';
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      device,
+      'device-id',
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+
+    assert.strictEqual(account.HardwareWalletDevice, device);
+    assert.strictEqual(account.HardwareWalletPassphraseState, undefined);
+  });
+
   it('v2: prefers a QR account name when the hardware wallet supplies one', () => {
     const multiAccounts = new CryptoMultiAccounts(
       Buffer.from('73C5DA0A', 'hex'),
@@ -1064,13 +1085,63 @@ describe('BC-UR', () => {
     assert.strictEqual(restoredWallet.getLabel(), 'OneKey Pro · 123456789 · Hidden deadbeef · Native SegWit');
   });
 
-  it('v2: marks crypto-hdkey as a hardware wallet import', () => {
+  it('v2: imports a generic crypto-hdkey as watch-only', () => {
     const decoder = new BlueURDecoder();
     decoder.receivePart(createHardwareWalletHdKey().toUREncoder(1000).nextPart());
 
     const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
 
-    assert.strictEqual(account.UseWithHardwareWallet, true);
+    assert.strictEqual(account.UseWithHardwareWallet, undefined);
+    assert.strictEqual(wallet.useWithHardwareWalletEnabled(), false);
+    assert.strictEqual(wallet.isHardwareWallet(), false);
+    assert.strictEqual(wallet.getTypeReadable(), WatchOnlyWallet.typeReadable);
+    assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
+  });
+
+  it('v2: rejects master and private crypto-hdkey payloads', () => {
+    const masterKey = new CryptoHDKey({
+      isMaster: true,
+      key: Buffer.alloc(32, 2),
+      chainCode: Buffer.alloc(32, 1),
+    });
+    const privateKey = createHardwareWalletHdKey(84, 0, {
+      isPrivateKey: true,
+      key: Buffer.alloc(32, 2),
+    });
+
+    for (const [hdKey, expectedError] of [
+      [masterKey, /Master HD keys are not supported/],
+      [privateKey, /Private HD keys are not supported/],
+    ]) {
+      const decoder = new BlueURDecoder();
+      decoder.receivePart(hdKey.toUREncoder(1000).nextPart());
+      assert.throws(() => decoder.toString(), expectedError);
+    }
+  });
+
+  it('v2: does not infer hardware-wallet capability from crypto-multi-accounts without device metadata', () => {
+    const multiAccounts = new CryptoMultiAccounts(
+      Buffer.from('73C5DA0A', 'hex'),
+      [createHardwareWalletHdKey()],
+      undefined,
+      undefined,
+      '1.0.0',
+    );
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+    const [account] = JSON.parse(decoder.toString());
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(JSON.stringify(account));
+    wallet.init();
+
+    assert.strictEqual(account.UseWithHardwareWallet, undefined);
+    assert.strictEqual(account.HardwareWalletFirmwareVersion, '1.0.0');
+    assert.strictEqual(wallet.isHardwareWallet(), false);
+    assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
   });
 
   it('v1: decodeUR() works', async () => {

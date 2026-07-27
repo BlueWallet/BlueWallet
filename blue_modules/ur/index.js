@@ -289,10 +289,13 @@ function decodeUR(arg) {
  * Returns null (key is skipped) when:
  *  - the key has no origin (can't determine derivation path)
  *  - the key has no path components (e.g. a bare master key)
- *  - the key is missing chainCode or public key bytes
+ *  - the key is missing a valid chainCode or compressed public key
  *  - the coin type is not Bitcoin (0) – hardware wallets like OneKey send keys for
  *    multiple chains (ETH coin=60, SOL coin=501 …) in a single crypto-multi-accounts
  *    payload; BlueWallet is Bitcoin-only so non-Bitcoin keys must be filtered out.
+ *
+ * Master keys and private keys are rejected instead of being imported into a
+ * public-key-only wallet.
  *
  * @param {CryptoHDKey} hdKey
  * @param {string|null} masterFingerprintOverride
@@ -301,6 +304,9 @@ function decodeUR(arg) {
  *   carry the master fingerprint themselves.
  */
 function _hdKeyToResult(hdKey, masterFingerprintOverride) {
+  if (hdKey.isMaster()) throw new Error('Master HD keys are not supported');
+  if (hdKey.isPrivateKey()) throw new Error('Private HD keys are not supported');
+
   const origin = hdKey.getOrigin();
   if (!origin) return null;
 
@@ -315,7 +321,7 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
 
   const chainCode = hdKey.getChainCode();
   const key = hdKey.getKey();
-  if (!chainCode || !key) return null;
+  if (!chainCode || chainCode.length !== 32 || !key || key.length !== 33 || (key[0] !== 0x02 && key[0] !== 0x03)) return null;
 
   const derivationPath = 'm/' + origin.getPath();
 
@@ -372,18 +378,21 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
 function _hardwareWalletMetadata(device) {
   if (typeof device !== 'string') return {};
 
-  // OneKey separates the model and serial number with a colon, then may append
-  // a BTC-only marker and passphrase identifier. Keep the passphrase state so
-  // hidden wallets from the same device remain distinguishable without storing
-  // the passphrase itself.
-  const passphraseStateMatch = device.match(/-([0-9a-f]{8})$/i);
-  const passphraseState = passphraseStateMatch?.[1];
-  const deviceWithoutPassphraseState = passphraseStateMatch ? device.slice(0, -passphraseStateMatch[0].length) : device;
-  const [deviceName, serialNumber] = deviceWithoutPassphraseState.split(':', 2);
-  const displayName = deviceName.trim();
-  if (!displayName) return { passphraseState };
+  const rawDevice = device.trim();
+  if (!rawDevice) return {};
 
-  const displaySerialNumber = serialNumber?.trim();
+  // OneKey's current device field is:
+  //   <model>[:<serial>][:btc][-<8-char passphrase state>]
+  // Parse only that complete, known grammar. Unknown/future formats are kept
+  // intact instead of being silently truncated at the second colon.
+  if (!/^OneKey(?:\s|$)/i.test(rawDevice)) return { displayName: rawDevice };
+
+  const match = rawDevice.match(/^(OneKey[^:]*?)(?::([^:]+?))?(?::btc)?(?:-([0-9a-f]{8}))?$/i);
+  if (!match) return { displayName: rawDevice };
+
+  const displayName = match[1].trim();
+  const displaySerialNumber = match[2]?.trim();
+  const passphraseState = match[3]?.toLowerCase();
   return {
     displayName: displaySerialNumber ? `${displayName} · ${displaySerialNumber}` : displayName,
     passphraseState,
@@ -484,8 +493,7 @@ class BlueURDecoder extends URDecoder {
     if (decoded.type === 'crypto-hdkey') {
       const hdKey = CryptoHDKey.fromCBOR(decoded.cbor);
       const result = _hdKeyToResult(hdKey, null);
-      if (!result) throw new Error('crypto-hdkey: missing origin or components');
-      result.UseWithHardwareWallet = true;
+      if (!result) throw new Error('crypto-hdkey: no valid Bitcoin account public key found');
       return JSON.stringify([result]);
     }
 
@@ -495,14 +503,22 @@ class BlueURDecoder extends URDecoder {
       const { displayName: hardwareWalletDevice, passphraseState: hardwareWalletPassphraseState } = _hardwareWalletMetadata(
         multiAccounts.getDevice(),
       );
+      const deviceId = multiAccounts.getDeviceId();
+      const firmwareVersion = multiAccounts.getVersion();
+      const hardwareWalletDeviceId = typeof deviceId === 'string' && deviceId.trim() ? deviceId.trim() : undefined;
+      const hardwareWalletFirmwareVersion =
+        typeof firmwareVersion === 'string' && firmwareVersion.trim() ? firmwareVersion.trim() : undefined;
+      const hasHardwareWalletMetadata = !!(hardwareWalletDevice || hardwareWalletDeviceId);
 
       const results = [];
       for (const hdKey of multiAccounts.getKeys()) {
         // skip keys without a valid Bitcoin derivation path (e.g. ETH/SOL keys)
         const result = _hdKeyToResult(hdKey, masterFingerprint);
         if (result) {
-          result.UseWithHardwareWallet = true;
+          if (hasHardwareWalletMetadata) result.UseWithHardwareWallet = true;
           if (hardwareWalletDevice) result.HardwareWalletDevice = hardwareWalletDevice;
+          if (hardwareWalletDeviceId) result.HardwareWalletDeviceId = hardwareWalletDeviceId;
+          if (hardwareWalletFirmwareVersion) result.HardwareWalletFirmwareVersion = hardwareWalletFirmwareVersion;
           if (hardwareWalletPassphraseState) result.HardwareWalletPassphraseState = hardwareWalletPassphraseState;
           if (typeof hdKey.getName() === 'string' && hdKey.getName().trim()) {
             result.HardwareWalletAccountName = hdKey.getName().trim();

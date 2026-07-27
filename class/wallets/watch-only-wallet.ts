@@ -25,12 +25,17 @@ export class WatchOnlyWallet extends LegacyWallet {
   use_with_hardware_wallet = false;
   masterFingerprint: number = 0;
   hardwareWalletDevice?: string;
+  hardwareWalletDeviceId?: string;
+  hardwareWalletFirmwareVersion?: string;
   hardwareWalletAccountName?: string;
   hardwareWalletPassphraseState?: string;
 
   setSecret(newSecret: string): this {
+    if (this.use_with_hardware_wallet) this.isWatchOnlyWarningVisible = true;
     this.use_with_hardware_wallet = false;
     this.hardwareWalletDevice = undefined;
+    this.hardwareWalletDeviceId = undefined;
+    this.hardwareWalletFirmwareVersion = undefined;
     this.hardwareWalletAccountName = undefined;
     this.hardwareWalletPassphraseState = undefined;
 
@@ -38,6 +43,12 @@ export class WatchOnlyWallet extends LegacyWallet {
       const parsedSecret = JSON.parse(newSecret);
       if (typeof parsedSecret.HardwareWalletDevice === 'string' && parsedSecret.HardwareWalletDevice.trim()) {
         this.hardwareWalletDevice = parsedSecret.HardwareWalletDevice.trim();
+      }
+      if (typeof parsedSecret.HardwareWalletDeviceId === 'string' && parsedSecret.HardwareWalletDeviceId.trim()) {
+        this.hardwareWalletDeviceId = parsedSecret.HardwareWalletDeviceId.trim();
+      }
+      if (typeof parsedSecret.HardwareWalletFirmwareVersion === 'string' && parsedSecret.HardwareWalletFirmwareVersion.trim()) {
+        this.hardwareWalletFirmwareVersion = parsedSecret.HardwareWalletFirmwareVersion.trim();
       }
       if (typeof parsedSecret.HardwareWalletAccountName === 'string' && parsedSecret.HardwareWalletAccountName.trim()) {
         this.hardwareWalletAccountName = parsedSecret.HardwareWalletAccountName.trim();
@@ -354,6 +365,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   setUseWithHardwareWalletEnabled(enabled: boolean) {
+    if (this.use_with_hardware_wallet && !enabled) this.isWatchOnlyWarningVisible = true;
     this.use_with_hardware_wallet = !!enabled;
   }
 

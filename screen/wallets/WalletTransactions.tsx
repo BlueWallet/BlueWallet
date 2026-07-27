@@ -272,9 +272,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     setDisplayUnit(wallet.preferredBalanceUnit);
   }, [wallet, walletID]);
 
-  useEffect(() => {
-    setIsWatchOnlyWarningVisible(watchOnlyWallet?.isWatchOnlyWarningVisible ?? false);
-  }, [walletID, watchOnlyWallet]);
+  useFocusEffect(
+    useCallback(() => {
+      setIsWatchOnlyWarningVisible(watchOnlyWallet?.isWatchOnlyWarningVisible ?? false);
+    }, [watchOnlyWallet]),
+  );
 
   const sortedTransactions = useMemo(() => {
     const txs = wallet.getTransactions();
