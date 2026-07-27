@@ -443,14 +443,23 @@ export async function scanText(text, { restoreSynchronization = true } = {}) {
   }
 }
 
-/**
- * Wait until ScanQRCode is gone. Use not.toBeVisible (not not.toExist): React
- * Navigation keeps the screen mounted under the stack after popTo.
- */
+/** Wait until ScanQRCode is gone (`not.toBeVisible`: screen stays mounted after popTo). */
 export async function waitForQrScannerClosed(timeoutMs = 60_000) {
   await waitFor(element(by.id('ScanQrBackdoorButton')))
     .not.toBeVisible()
     .withTimeout(timeoutMs);
+}
+
+/** Multipart UR via backdoor; keeps iOS sync off until the scanner dismisses. */
+export async function scanUrParts(urs) {
+  for (const ur of urs.slice(0, -1)) {
+    await scanText(ur, { restoreSynchronization: false });
+    await waitFor(element(by.id('UrProgressBar')))
+      .toBeVisible()
+      .withTimeout(60_000);
+  }
+  await scanText(urs[urs.length - 1], { restoreSynchronization: false });
+  await waitForQrScannerClosed();
 }
 
 /** iOS: enable sync only after animated PSBT QR and scanner are hidden. */

@@ -13,8 +13,8 @@ import {
   helperDeleteWallet,
   restoreSynchronizationIfAnimatedQrClosed,
   scanText,
+  scanUrParts,
   scrollUpOnHomeScreen,
-  waitForQrScannerClosed,
   setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
@@ -673,15 +673,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitFor(element(by.id('UrProgressBar'))).toBeNotVisible();
 
     try {
-      for (let i = 0; i < urs.length; i++) {
-        await scanText(urs[i], { restoreSynchronization: false });
-        if (i < urs.length - 1) {
-          await waitFor(element(by.id('UrProgressBar')))
-            .toBeVisible()
-            .withTimeout(60_000);
-        }
-      }
-      await waitForQrScannerClosed();
+      await scanUrParts(urs);
 
       await waitForText('OK', 3 * 61000); // waiting for wallet import
       await element(by.text('OK')).tap();
@@ -736,16 +728,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // Keep sync disabled across animated QR cosign screens — re-enabling here
     // waits on pending layer animations and can hang the suite.
     try {
-      for (let i = 0; i < ursSignedByPassport.length; i++) {
-        await scanText(ursSignedByPassport[i], { restoreSynchronization: false });
-        if (i < ursSignedByPassport.length - 1) {
-          await waitFor(element(by.id('UrProgressBar')))
-            .toBeVisible()
-            .withTimeout(60_000);
-        }
-      }
-      // ItemSigned can update before ScanQRCode pops; wait for dismiss first.
-      await waitForQrScannerClosed();
+      await scanUrParts(ursSignedByPassport);
       await waitFor(element(by.id('ItemSigned')))
         .toBeVisible()
         .withTimeout(30_000);
@@ -767,15 +750,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
         'UR:CRYPTO-PSBT/158-2/LPCSNNAOCFAXOLCYSBLUFDHSHKADTEZECFFTHDETNBADMOCLINLNOSOXZEYKGDPYTPKTRETNURTIZOPDAOCXIAAOWETTJKMDUOSBONAASWNLMERLZSGLCYCTGAKBDAFHGHWKMTRSNLAAYKFWWPRSADADAHFLGMCLAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCLAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAAGMPLCPAMAXBAPLDADMGDFLRHLOHGUYHESWEOSKMDMTJLDRTKSSRDFGDWSNTNCHZEVSJTJKDNCNCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAECPAMAXFTRPWPCPGYBKEHRTTTFDCTNTRHKGFGCXSAHSRHWDMDTONBRLROWMSFCPBTHNTIAACETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAAEAEAEAEAXAEAEAEAEAEADADFLGMCLAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCLAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKGMPLCPAOAXCSMYGWCMSGFWBTIENEOTRHHDFTVTLYTASNUYWZAMFSNLZSYLHGDKDWAYKBFYZTECCETEKBPMLODYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAECPAOAXFXPSGMTABNWEIAJTHSCLAOSERKVLJKADWEBKTBBTRKJPTPYKMKLTMSRYRKDYPLLKCECMLGTBAXDYAEAELAAEAEAELAAEAEAELAAOAEAELAADAEAEAEAEAEAEAEAENNHKLKUO',
       ];
 
-      for (let i = 0; i < urSignedByPassportAndKeystone.length; i++) {
-        await scanText(urSignedByPassportAndKeystone[i], { restoreSynchronization: false });
-        if (i < urSignedByPassportAndKeystone.length - 1) {
-          await waitFor(element(by.id('UrProgressBar')))
-            .toBeVisible()
-            .withTimeout(60_000);
-        }
-      }
-      await waitForQrScannerClosed();
+      await scanUrParts(urSignedByPassportAndKeystone);
       await waitFor(element(by.id('ExportSignedPsbt')))
         .toBeVisible()
         .withTimeout(30_000);
