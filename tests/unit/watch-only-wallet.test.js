@@ -1000,6 +1000,41 @@ describe('BC-UR', () => {
     assert.strictEqual(wallet.getLabel(), 'OneKey Pro · 123456789 · Native SegWit');
   });
 
+  it('v2: parses the BTC-only marker when the OneKey serial number is unavailable', () => {
+    const cases = [
+      {
+        device: 'OneKey Pro:btc',
+        expectedPassphraseState: undefined,
+        expectedLabel: 'OneKey Pro · Native SegWit',
+      },
+      {
+        device: 'OneKey Pro:btc-deadbeef',
+        expectedPassphraseState: 'deadbeef',
+        expectedLabel: 'OneKey Pro · Hidden deadbeef · Native SegWit',
+      },
+    ];
+
+    for (const { device, expectedPassphraseState, expectedLabel } of cases) {
+      const multiAccounts = new CryptoMultiAccounts(
+        Buffer.from('73C5DA0A', 'hex'),
+        [createHardwareWalletHdKey()],
+        device,
+        'device-id',
+        '1.0.0',
+      );
+      const decoder = new BlueURDecoder();
+      decoder.receivePart(multiAccounts.toUREncoder(1000).nextPart());
+
+      const [account] = JSON.parse(decoder.toString());
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(JSON.stringify(account));
+      wallet.init();
+
+      assert.strictEqual(wallet.hardwareWalletPassphraseState, expectedPassphraseState);
+      assert.strictEqual(wallet.getLabel(), expectedLabel);
+    }
+  });
+
   it('v2: preserves an unknown OneKey device format instead of truncating it', () => {
     const device = 'OneKey Pro:123456789:btc:future-format';
     const multiAccounts = new CryptoMultiAccounts(
@@ -1120,6 +1155,16 @@ describe('BC-UR', () => {
       decoder.receivePart(hdKey.toUREncoder(1000).nextPart());
       assert.throws(() => decoder.toString(), expectedError);
     }
+  });
+
+  it('v2: rejects a crypto-hdkey whose compressed public key is not on secp256k1', () => {
+    const invalidPublicKey = createHardwareWalletHdKey(84, 0, {
+      key: Buffer.concat([Buffer.from([0x02]), Buffer.alloc(32)]),
+    });
+    const decoder = new BlueURDecoder();
+    decoder.receivePart(invalidPublicKey.toUREncoder(1000).nextPart());
+
+    assert.throws(() => decoder.toString(), /crypto-hdkey: no valid Bitcoin account public key found/);
   });
 
   it('v2: does not infer hardware-wallet capability from crypto-multi-accounts without device metadata', () => {

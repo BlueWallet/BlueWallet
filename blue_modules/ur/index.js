@@ -21,6 +21,7 @@ import b58 from 'bs58check';
 import { MultisigCosigner } from '../../class/multisig-cosigner';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { joinQRs } from '../bbqr/join';
+import ecc from '../noble_ecc';
 import {
   concatUint8Arrays,
   hexToUint8Array,
@@ -321,7 +322,15 @@ function _hdKeyToResult(hdKey, masterFingerprintOverride) {
 
   const chainCode = hdKey.getChainCode();
   const key = hdKey.getKey();
-  if (!chainCode || chainCode.length !== 32 || !key || key.length !== 33 || (key[0] !== 0x02 && key[0] !== 0x03)) return null;
+  if (
+    !(chainCode instanceof Uint8Array) ||
+    chainCode.length !== 32 ||
+    !(key instanceof Uint8Array) ||
+    key.length !== 33 ||
+    !ecc.isPoint(key)
+  ) {
+    return null;
+  }
 
   const derivationPath = 'm/' + origin.getPath();
 
@@ -387,15 +396,24 @@ function _hardwareWalletMetadata(device) {
   // intact instead of being silently truncated at the second colon.
   if (!/^OneKey(?:\s|$)/i.test(rawDevice)) return { displayName: rawDevice };
 
-  const match = rawDevice.match(/^(OneKey[^:]*?)(?::([^:]+?))?(?::btc)?(?:-([0-9a-f]{8}))?$/i);
-  if (!match) return { displayName: rawDevice };
+  const passphraseStateMatch = rawDevice.match(/-([0-9a-f]{8})$/i);
+  const deviceWithoutPassphraseState = passphraseStateMatch
+    ? rawDevice.slice(0, -passphraseStateMatch[0].length)
+    : rawDevice;
+  const components = deviceWithoutPassphraseState.split(':');
 
-  const displayName = match[1].trim();
-  const displaySerialNumber = match[2]?.trim();
-  const passphraseState = match[3]?.toLowerCase();
+  if (components[components.length - 1]?.toLowerCase() === 'btc') {
+    components.pop();
+  }
+
+  if (components.length < 1 || components.length > 2) return { displayName: rawDevice };
+
+  const [displayName, displaySerialNumber] = components.map(component => component.trim());
+  if (!displayName || (components.length === 2 && !displaySerialNumber)) return { displayName: rawDevice };
+
   return {
     displayName: displaySerialNumber ? `${displayName} · ${displaySerialNumber}` : displayName,
-    passphraseState,
+    passphraseState: passphraseStateMatch?.[1].toLowerCase(),
   };
 }
 
