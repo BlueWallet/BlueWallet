@@ -15,6 +15,7 @@ import {
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapAndTapAgainIfTextIsNotVisible,
+  tapHeaderMenuItem,
   tapIfTextPresent,
   typeTextIntoAlertInput,
   waitForId,
@@ -352,8 +353,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
 
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Sign a transaction')).tap();
+    await tapHeaderMenuItem('Sign a transaction', { restoreSynchronization: false });
 
     // 1 input, 2 outputs. wallet can fully sign this tx
     const psbt =
@@ -512,16 +512,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForId('SendButton');
 
     await tapAndTapAgainIfElementIsNotVisible('SendButton', 'HeaderMenuButton');
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Insert Contact')).tap();
+    await tapHeaderMenuItem('Insert Contact');
     await tapAndTapAgainIfElementIsNotVisible('ContactListItem0', 'BitcoinAmountInput');
     await element(by.id('BitcoinAmountInput')).replaceText('0.0001');
     await waitForKeyboardToClose();
 
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Insert Contact')).tap();
+    await tapHeaderMenuItem('Add Recipient');
+    await tapHeaderMenuItem('Insert Contact');
     await element(by.id('ContactListItem1')).tap();
     await element(by.id('BitcoinAmountInput')).atIndex(1).replaceText('0.0002');
     await waitForKeyboardToClose();
@@ -685,8 +682,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Coin Control')).tap();
+    await tapHeaderMenuItem('Coin Control');
     await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
       .not.toExist()
       .withTimeout(300 * 1000);
