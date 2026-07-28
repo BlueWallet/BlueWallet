@@ -49,7 +49,8 @@ function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: 
 }
 
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
+  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, walletHasTransactionMemos, fetchAndSaveWalletTransactions, sleep } =
+    useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -191,9 +192,12 @@ const WalletDetails: React.FC = () => {
 
   const handleDeleteButtonTapped = useCallback(() => {
     triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+    const confirmationMessage = walletHasTransactionMemos(walletID)
+      ? loc.wallets.details_delete_wallet_memos
+      : loc.wallets.details_are_you_sure;
     presentAlert({
       title: loc.wallets.details_delete_wallet,
-      message: loc.wallets.details_are_you_sure,
+      message: confirmationMessage,
       buttons: [
         {
           text: loc.wallets.details_yes_delete,
@@ -224,7 +228,14 @@ const WalletDetails: React.FC = () => {
       ],
       options: { cancelable: false },
     });
-  }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
+  }, [
+    isBiometricUseCapableAndEnabled,
+    navigateToOverviewAndDeleteWallet,
+    presentWalletHasBalanceAlert,
+    wallet,
+    walletHasTransactionMemos,
+    walletID,
+  ]);
 
   const exportHistoryContent = useCallback(() => {
     const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];

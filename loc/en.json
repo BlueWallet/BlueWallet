@@ -441,6 +441,7 @@
     "details_del_wb_q": "This wallet has a balance. Before proceeding, please be aware that you will not be able to recover the funds without this wallet’s seed phrase. In order to avoid accidental removal, please enter your wallet’s balance of {balance} satoshis.",
     "details_delete": "Delete",
     "details_delete_wallet": "Delete Wallet",
+    "details_delete_wallet_memos": "This wallet has saved transaction memos. Deleting the wallet will also delete those memos. Do you want to proceed?",
     "details_derivation_path": "derivation path",
     "details_display": "Display in Home Screen",
     "details_edit": "edit",

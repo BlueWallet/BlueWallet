@@ -763,6 +763,18 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(uint8ArrayToHex(tx2.ins[0].hash), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
     assert.strictEqual(tx2.ins[0].index, 0);
 
+    // The wallet has a persisted transaction memo, so deleting it must warn that the memo will also be deleted.
+    await goBack();
+    await goBack();
+    await goBack();
+    await waitForId('WalletDetails');
+    await element(by.id('WalletDetails')).tap();
+    await element(by.id('WalletDetailsScroll')).swipe('up', 'fast', 1);
+    await element(by.id('DeleteWallet')).tap();
+    await waitForText('This wallet has saved transaction memos. Deleting the wallet will also delete those memos. Do you want to proceed?');
+    await element(by.text('Cancel')).tap();
+    await expect(element(by.id('DeleteWallet'))).toBeVisible();
+
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 

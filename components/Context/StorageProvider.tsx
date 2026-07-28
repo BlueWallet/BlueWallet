@@ -18,6 +18,17 @@ import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
 
 const BlueApp = BlueAppClass.getInstance();
 
+const getWalletTransactionMetadataKeys = (wallet: TWallet): string[] => {
+  const keys = new Set<string>();
+
+  for (const transaction of wallet.getTransactions()) {
+    if (transaction.hash) keys.add(transaction.hash);
+    if (transaction.txid) keys.add(transaction.txid);
+  }
+
+  return [...keys];
+};
+
 // hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 
@@ -55,6 +66,7 @@ interface StorageContextType {
   getItem: typeof BlueApp.getItem;
   setItem: typeof BlueApp.setItem;
   handleWalletDeletion: (walletID: string, forceDelete?: boolean) => Promise<boolean>;
+  walletHasTransactionMemos: (walletID: string) => boolean;
   confirmWalletDeletion: (wallet: any, onConfirmed: () => void) => void;
 }
 
@@ -174,6 +186,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   }, []);
 
   const deleteWallet = useCallback((wallet: TWallet) => {
+    for (const key of getWalletTransactionMetadataKeys(wallet)) {
+      delete txMetadata.current[key];
+    }
     BlueApp.deleteWallet(wallet);
     setWallets([...BlueApp.getWallets()]);
     if (wallet.type === LightningArkWallet.type) {
@@ -186,6 +201,16 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       }
     }
   }, []);
+
+  const walletHasTransactionMemos = useCallback(
+    (walletID: string): boolean => {
+      const wallet = wallets.find(w => w.getID() === walletID);
+      if (!wallet) return false;
+
+      return getWalletTransactionMetadataKeys(wallet).some(key => Boolean(txMetadata.current[key]?.memo?.trim()));
+    },
+    [wallets],
+  );
 
   const handleWalletDeletion = useCallback(
     async (walletID: string, forceDelete = false): Promise<boolean> => {
@@ -561,6 +586,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       walletTransactionUpdateStatus,
       setWalletTransactionUpdateStatus,
       handleWalletDeletion,
+      walletHasTransactionMemos,
       confirmWalletDeletion,
     }),
     [
@@ -579,6 +605,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       handleWalletDeletion,
+      walletHasTransactionMemos,
     ],
   );
 
