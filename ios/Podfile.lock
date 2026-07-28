@@ -2948,7 +2948,7 @@ SPEC CHECKSUMS:
   React-utils: 2851415c698da4b18331f9a445825d260fffa32c
   React-webperformancenativemodule: 9f29ed34f6f6c01dac688b95fd2dfcbccf3aed7a
   ReactAppDependencyProvider: a54c0c9b976766e1b6d5e2bb4d1ad0d15913e9e1
-  ReactCodegen: 8682262fefb44dabb7c1251233a1af62e17d296e
+  ReactCodegen: 58ca158c817abc2afc2ee078bc8f6b7695c47b01
   ReactCommon: 3ec2a55999d296af90c24beb66c8a77dc660d3ef
   ReactNativeCameraKit: 6d499e0906dc8831d1014096ecf7c8fbe036890a
   ReactNativeDependencies: 0a5c93845772e4b1c5ad065c59a859518b13a6b7
@@ -2977,4 +2977,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: a6ebefd60fd3fd993430ecd1d3feb222ff502eb0
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0

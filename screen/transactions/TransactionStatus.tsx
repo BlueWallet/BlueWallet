@@ -873,7 +873,7 @@ const TransactionStatus: React.FC = () => {
 
       fromArray.push(
         <View key={address} style={styles.addressRow}>
-          <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} />
+          <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} selectable />
           {index !== array.length - 1 && <BlueText style={addressStyle}>,</BlueText>}
         </View>,
       );
@@ -1229,6 +1229,7 @@ const TransactionStatus: React.FC = () => {
           <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_network_fee}</BlueText>
           <View style={styles.detailValueContainer}>
             <CopyTextToClipboard
+            selectable
               text={
                 calculatedFee !== null && calculatedFee !== undefined
                   ? `${formatBalanceWithoutSuffix(calculatedFee, BitcoinUnit.SATS, true)} sats / ${satoshiToLocalCurrency(calculatedFee)}`
@@ -1254,6 +1255,7 @@ const TransactionStatus: React.FC = () => {
                 <View style={styles.detailValueContainer}>
                   <View style={styles.detailValueCopyContainer}>
                     <CopyTextToClipboard
+                    selectable
                       containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, detailValueWidthStyle])}
                       text={copyText}
                       displayText={displayText}
@@ -1284,6 +1286,7 @@ const TransactionStatus: React.FC = () => {
                   text={tx.hash}
                   displayText={shortenTxHash(tx.hash)}
                   accessibilityLabel={tx.hash}
+                  selectable
                   buttonTestID="TransactionIdCopyButton"
                   textTestID="TransactionIdDisplayText"
                   style={StyleSheet.flatten([
@@ -1307,7 +1310,7 @@ const TransactionStatus: React.FC = () => {
           <View style={styles.detailValueContainer}>
             {memo ? (
               <TouchableOpacity onPress={handleNotePress} activeOpacity={0.7} style={styles.memoContainer}>
-                <BlueText style={[styles.memoText, stylesHook.memoText]} numberOfLines={0}>
+                <BlueText selectable style={[styles.memoText, stylesHook.memoText]} numberOfLines={0}>
                   {memo}
                 </BlueText>
               </TouchableOpacity>
