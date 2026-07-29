@@ -56,21 +56,6 @@ function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: 
   }
 }
 
-function getHistoryTransactionId(transaction: Transaction & LightningTransaction, chain: Chain): string {
-  if (chain !== Chain.OFFCHAIN) return transaction.hash || '';
-
-  const paymentHash: unknown = transaction.payment_hash;
-  if (!paymentHash) return '';
-  if (typeof paymentHash === 'string') return paymentHash;
-  if (paymentHash instanceof Uint8Array) return uint8ArrayToHex(paymentHash);
-  if (typeof paymentHash === 'object' && 'data' in paymentHash) {
-    const data = (paymentHash as { data: unknown }).data;
-    if (Array.isArray(data)) return uint8ArrayToHex(new Uint8Array(data));
-    if (typeof data === 'string') return data;
-  }
-  return String(paymentHash);
-}
-
 const WalletDetails: React.FC = () => {
   const { saveToDisk, wallets, txMetadata, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
@@ -260,14 +245,18 @@ const WalletDetails: React.FC = () => {
 
     transactions.forEach((transaction: Transaction & LightningTransaction) => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
-      const hash = getHistoryTransactionId(transaction, wallet.chain);
+      let hash: string = transaction.hash || '';
       const metadataKey = transaction.hash ?? transaction.txid;
       let memo = (metadataKey && txMetadata[metadataKey]?.memo?.trim()) || '';
       let status = '';
 
       if (wallet.chain === Chain.OFFCHAIN) {
+        hash = transaction.payment_hash ? transaction.payment_hash.toString() : '';
         memo = memo || transaction.memo || '';
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
+        if (typeof hash !== 'string' && (hash as any)?.type === 'Buffer' && (hash as any)?.data) {
+          hash = uint8ArrayToHex(new Uint8Array((hash as any).data));
+        }
       }
 
       const date = transaction.timestamp ? new Date(transaction.timestamp * 1000).toString() : '';
@@ -296,7 +285,7 @@ const WalletDetails: React.FC = () => {
 
     let importedNotes;
     try {
-      importedNotes = parseWalletHistoryNotes(data, wallet.chain === Chain.OFFCHAIN);
+      importedNotes = parseWalletHistoryNotes(data, false);
     } catch {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: loc.wallets.import_error });
@@ -304,10 +293,8 @@ const WalletDetails: React.FC = () => {
     }
 
     const transactionMetadataKeys = new Map<string, string>();
-    for (const transaction of wallet.getTransactions() as (Transaction & LightningTransaction)[]) {
-      const exportedId = getHistoryTransactionId(transaction, wallet.chain);
-      const metadataKey = transaction.hash ?? transaction.txid ?? exportedId;
-      if (exportedId && metadataKey) transactionMetadataKeys.set(exportedId.toLowerCase(), metadataKey);
+    for (const transaction of wallet.getTransactions()) {
+      if (transaction.hash) transactionMetadataKeys.set(transaction.hash.toLowerCase(), transaction.hash);
     }
 
     const { updates, overwriteCount } = planWalletHistoryNoteImport(importedNotes, transactionMetadataKeys, txMetadata);
