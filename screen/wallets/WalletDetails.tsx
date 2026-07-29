@@ -1,15 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { showFilePickerAndReadFile, writeFileAndExport } from '../../blue_modules/fs';
-import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
-import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import {
   applyWalletHistoryNoteUpdates,
   canImportWalletHistoryNotes,
   encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
-} from '../../blue_modules/wallet-history-csv';
+  showFilePickerAndReadFile,
+  writeFileAndExport,
+} from '../../blue_modules/fs';
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
@@ -45,7 +46,6 @@ import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
-type HistoryTransaction = Transaction & LightningTransaction & { txid?: string };
 
 function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: number | null } {
   if (typeof w.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null };
@@ -56,7 +56,7 @@ function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: 
   }
 }
 
-function getHistoryTransactionId(transaction: HistoryTransaction, chain: Chain): string {
+function getHistoryTransactionId(transaction: Transaction & LightningTransaction, chain: Chain): string {
   if (chain !== Chain.OFFCHAIN) return transaction.hash || '';
 
   const paymentHash: unknown = transaction.payment_hash;
@@ -258,7 +258,7 @@ const WalletDetails: React.FC = () => {
     const rows = [encodeCsvRow(headers)];
     const transactions = wallet.getTransactions();
 
-    transactions.forEach((transaction: HistoryTransaction) => {
+    transactions.forEach((transaction: Transaction & LightningTransaction) => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
       const hash = getHistoryTransactionId(transaction, wallet.chain);
       const metadataKey = transaction.hash ?? transaction.txid;
@@ -304,7 +304,7 @@ const WalletDetails: React.FC = () => {
     }
 
     const transactionMetadataKeys = new Map<string, string>();
-    for (const transaction of wallet.getTransactions() as HistoryTransaction[]) {
+    for (const transaction of wallet.getTransactions() as (Transaction & LightningTransaction)[]) {
       const exportedId = getHistoryTransactionId(transaction, wallet.chain);
       const metadataKey = transaction.hash ?? transaction.txid ?? exportedId;
       if (exportedId && metadataKey) transactionMetadataKeys.set(exportedId.toLowerCase(), metadataKey);

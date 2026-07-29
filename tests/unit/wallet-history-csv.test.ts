@@ -4,7 +4,7 @@ import {
   encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
-} from '../../blue_modules/wallet-history-csv';
+} from '../../blue_modules/fs';
 import { Chain } from '../../models/bitcoinUnits';
 
 describe('wallet history CSV', () => {
