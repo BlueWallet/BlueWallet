@@ -1,3 +1,5 @@
+import { Chain } from '../models/bitcoinUnits';
+
 export type WalletHistoryNote = {
   transactionId: string;
   memo: string;
@@ -9,6 +11,8 @@ export type WalletHistoryNoteImportPlan = {
   updates: Map<string, string>;
   overwriteCount: number;
 };
+
+export const canImportWalletHistoryNotes = (chain: Chain): boolean => chain === Chain.ONCHAIN;
 
 export const encodeCsvRow = (values: Array<string | number>): string =>
   values

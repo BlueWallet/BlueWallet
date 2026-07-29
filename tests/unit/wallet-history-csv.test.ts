@@ -1,11 +1,18 @@
 import {
   applyWalletHistoryNoteUpdates,
+  canImportWalletHistoryNotes,
   encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
 } from '../../blue_modules/wallet-history-csv';
+import { Chain } from '../../models/bitcoinUnits';
 
 describe('wallet history CSV', () => {
+  it('only allows note imports for on-chain wallets', () => {
+    expect(canImportWalletHistoryNotes(Chain.ONCHAIN)).toBe(true);
+    expect(canImportWalletHistoryNotes(Chain.OFFCHAIN)).toBe(false);
+  });
+
   it('round-trips notes containing commas, quotes, and line breaks', () => {
     const memo = 'Coffee, "breakfast"\nwith Alice';
     const csv = [encodeCsvRow(['Date', 'Transaction ID', 'Amount', 'Memo']), encodeCsvRow(['today', 'abc123', 1, memo])].join('\n');

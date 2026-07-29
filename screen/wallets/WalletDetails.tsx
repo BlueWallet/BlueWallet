@@ -5,6 +5,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import {
   applyWalletHistoryNoteUpdates,
+  canImportWalletHistoryNotes,
   encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
@@ -288,6 +289,8 @@ const WalletDetails: React.FC = () => {
   }, [wallet]);
 
   const importNotes = useCallback(async () => {
+    if (!canImportWalletHistoryNotes(wallet.chain)) return;
+
     const { data } = await showFilePickerAndReadFile();
     if (data === false) return;
 
@@ -383,10 +386,10 @@ const WalletDetails: React.FC = () => {
         id: loc.wallets.details_import_notes,
         text: loc.wallets.details_import_notes,
         icon: CommonToolTipActions.ImportFile.icon,
-        hidden: walletTransactionsLength === 0,
+        hidden: walletTransactionsLength === 0 || !canImportWalletHistoryNotes(wallet.chain),
       },
     ],
-    [walletTransactionsLength],
+    [wallet.chain, walletTransactionsLength],
   );
 
   useEffect(() => {
