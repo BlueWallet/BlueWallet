@@ -19,6 +19,6 @@ module.exports = {
     // so it is unaffected.
     '^@noble/hashes/(.+\\.js)$': '<rootDir>/node_modules/@bitcoinerlab/descriptors-scure/node_modules/@noble/hashes/$1',
   },
-  setupFiles: ['./tests/setup.js'],
+  setupFiles: ['./node_modules/@react-native-documents/picker/jest/build/jest/setup.js', './tests/setup.js'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules'],
 };
