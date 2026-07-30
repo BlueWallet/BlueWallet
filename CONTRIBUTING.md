@@ -42,6 +42,8 @@ Dont touch lines that are not relevant to the change - they show up in the diff 
 
 # PRs
 
+Before creating a PR, make sure unit/integration/lint tests pass. You might not have all env variables but thats ok - some tests will be skipped.
+
 PRs must have short description of why (it was implemented) and how (it works under the hood).
 
 When submitting PR with a UI (or visual) change it must include screenshot (from the emulator or the device) how the proposed change looks, even better - a video.
