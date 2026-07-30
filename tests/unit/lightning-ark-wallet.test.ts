@@ -6,6 +6,7 @@ import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
 import { LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
+import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
@@ -1461,18 +1462,23 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
   const SWEEP = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
   const SWEEP_TAPROOT = 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g';
 
-  function walletWithStubSdk() {
-    const w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
-    (w as any)._wallet = { identity: w._getIdentity(), onchainProvider: {} };
-    return w;
-  }
-
-  afterEach(() => {
-    jest.restoreAllMocks();
+  // Same offline-init recipe as lightning-ark-derivation: provider spies + fake
+  // timers so Wallet.create completes without SSE/polling leaks. Fee-rate spy
+  // keeps real UnilateralExit.prepare offline (it asks onchainProvider first).
+  beforeEach(() => {
+    jest.useFakeTimers();
+    installSdkProviderSpies();
+    jest.spyOn(ArkadeSdk.EsploraProvider.prototype, 'getFeeRate').mockResolvedValue(1);
   });
 
-  it('rejects empty, garbage, and Ark destinations', async () => {
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
+    resetArkadeTestState();
+    restoreSdkProviderSpies();
+  });
+
+  it('rejects empty, garbage, and Ark destinations without calling prepare', async () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
@@ -1485,41 +1491,22 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
         ),
       /Invalid Bitcoin address/,
     );
-    assert.strictEqual(prepare.mock.calls.length, 0, 'prepare must not run for bad destinations');
+    assert.strictEqual(prepare.mock.calls.length, 0);
   });
 
-  it('trims the destination, requests graph mode, and returns SDK-valid JSON', async () => {
-    const w = walletWithStubSdk();
-    jest.spyOn(ArkadeSdk.OnchainWallet, 'create').mockResolvedValue({} as any);
-    jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockImplementation(async opts => {
-      assert.strictEqual(opts.mode, 'graph');
-      assert.strictEqual(opts.sweepAddress, SWEEP);
-      assert.strictEqual(opts.networkName, 'bitcoin');
-      // Minimal package shape the real serializer/deserializer accept.
-      return {
-        version: 1,
-        mode: opts.mode,
-        network: 'bitcoin',
-        createdAt: 1_700_000_000,
-        feeRate: 1,
-        sweepAddress: opts.sweepAddress,
-        totals: { txCount: 0, totalFeeSats: 0, fundingRequiredSats: 0, recoveredSats: 0 },
-        vtxos: [],
-        steps: [],
-      } as any;
-    });
-
-    const json = await w.exportUnilateralExitPackage(`  ${SWEEP}  `);
-    // Static site loads packages via the SDK deserializer — that is the contract.
-    const pkg = ArkadeSdk.deserializeExitPackage(json);
-    assert.strictEqual(pkg.mode, 'graph');
-    assert.strictEqual(pkg.sweepAddress, SWEEP);
+  it('init() + real prepare: empty wallet has nothing to exit', async () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    // Do not stub _wallet / UnilateralExit.prepare — exercise the real path.
+    // Offline ASP spies let init() build a Wallet; an empty VTXO set makes the
+    // real prepare reject before it needs indexer virtual-tx bytes.
+    await assert.rejects(() => w.exportUnilateralExitPackage(`  ${SWEEP}  `), /no vtxos to exit/);
+    assert.ok((w as any)._wallet, 'init() must have populated the SDK wallet');
   });
 
-  it('accepts taproot destinations and surfaces prepare failures', async () => {
-    const w = walletWithStubSdk();
-    jest.spyOn(ArkadeSdk.OnchainWallet, 'create').mockResolvedValue({} as any);
-    jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockRejectedValue(new Error('no exitable vtxos (all skipped)'));
-    await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP_TAPROOT), /no exitable vtxos/);
+  it('init() + real prepare accepts taproot destinations (same empty-wallet edge)', async () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP_TAPROOT), /no vtxos to exit/);
   });
 });

@@ -167,11 +167,16 @@ const WalletDetails: React.FC = () => {
     } catch {
       return;
     }
+    if (!(sweepAddress || '').trim()) {
+      presentAlert({ message: loc.wallets.details_unilateral_exit_invalid_address });
+      return;
+    }
 
     setIsExportingUnilateralExit(true);
     try {
       const contents = await (wallet as unknown as LightningArkWallet).exportUnilateralExitPackage(sweepAddress);
-      await writeFileAndExport('arkade-unilateral-exit.json', contents, true);
+      const shared = await writeFileAndExport('arkade-unilateral-exit.json', contents, true);
+      if (!shared) return;
       presentAlert({
         title: loc.wallets.details_unilateral_exit_done_title,
         message: loc.wallets.details_unilateral_exit_done_message,
