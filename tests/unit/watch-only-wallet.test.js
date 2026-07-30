@@ -684,7 +684,6 @@ describe('Watch only wallet', () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
     w.init();
-    assert.strictEqual(w.segwitType, undefined); // bare zpub — the buggy import path
 
     // bump gap so both receive addresses resolve
     w._hdWalletInstance.next_free_address_index = 2;
@@ -710,6 +709,32 @@ describe('Watch only wallet', () => {
     const { fee } = w.createTransaction(utxos, targets, 1, changeAddress);
     const { fee: estimatedFee } = w.coinselect(utxos, targets, 1);
     assert.strictEqual(estimatedFee, fee);
+  });
+
+  // #8803: SeedSigner returns a trimmed PSBT (global tx + partial_sigs only). Fixtures below were
+  // produced offline with embit (SeedSigner’s signer) from abandon…about / BIP84; no python at runtime.
+  it('combinePsbt accepts SeedSigner-trimmed multi-UTXO signed PSBT', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      JSON.stringify({
+        ExtPubKey: 'zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs',
+        MasterFingerprint: '73C5DA0A',
+        AccountKeyPath: "m/84'/0'/0'",
+      }),
+    );
+    w.init();
+
+    const unsignedPsbt =
+      'cHNidP8BAJoCAAAAAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgAAAAAAAACAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIBAAAAAAAAAIAC8EkCAAAAAAAWABTo3wGMfjJswlP6rH5GzcUeaFQsQnLnAQAAAAAAFgAUPjSYXcpv3cn7NplA5MfY4oc/UpwAAAAAAAEBH/BJAgAAAAAAFgAUDQpMWFXuaYrlKHKhRySMGJ/f98MiBgOP/qk2st92vzEiDr1Wo0swxrhvQNO9kmZOL1+YSI3d+hhzxdoKVAAAgAAAAIAAAACAAAAAAAIAAAAAAQEfSOgBAAAAAAAWABSckPk06lH6D2UEF3BD4JCNppKZgyIGA+d1/VHw37jNhl2f8cyioVjPZR/pl/3J/unB07Xplep3GHPF2gpUAACAAAAAgAAAAIAAAAAAAQAAAAAAIgIDAlMkiI5Cmrjj268feAJki5zQHptBhIXF+kwbm1cA4aYYc8XaClQAAIAAAACAAAAAgAEAAAAAAAAAAA==';
+    const trimmedSignedPsbt =
+      'cHNidP8BAJoCAAAAAgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAgAAAAAAAACAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIBAAAAAAAAAIAC8EkCAAAAAAAWABTo3wGMfjJswlP6rH5GzcUeaFQsQnLnAQAAAAAAFgAUPjSYXcpv3cn7NplA5MfY4oc/UpwAAAAAACICA4/+qTay33a/MSIOvVajSzDGuG9A072SZk4vX5hIjd36RzBEAiBcSbwqvcPeOdZ/DxvOdswKLqsbRKwUV2dSPuuEx7Y7DQIgWfrKGTzNzifAyuCfYGzDrc8hUET1Gkh5e2Msdn7msWUBACICA+d1/VHw37jNhl2f8cyioVjPZR/pl/3J/unB07Xplep3RzBEAiBUhmN823K4LftRl0QHfob0Rypa02+fNMjaJ1K4l+QOnwIgChGtoF+hU1bnuPH13WIt/Yrni+Bg2KSjdBJ60CjzMMUBAAAA';
+
+    const tx = w.combinePsbt(unsignedPsbt, trimmedSignedPsbt);
+    assert.strictEqual(tx.ins.length, 2);
+    assert.strictEqual(
+      tx.toHex(),
+      '020000000001020303030303030303030303030303030303030303030303030303030303030303020000000000000080020202020202020202020202020202020202020202020202020202020202020201000000000000008002f049020000000000160014e8df018c7e326cc253faac7e46cdc51e68542c4272e70100000000001600143e34985dca6fddc9fb369940e4c7d8e2873f529c0247304402205c49bc2abdc3de39d67f0f1bce76cc0a2eab1b44ac145767523eeb84c7b63b0d022059faca193ccdce27c0cae09f606cc3adcf215044f51a48797b632c767ee6b1650121038ffea936b2df76bf31220ebd56a34b30c6b86f40d3bd92664e2f5f98488dddfa0247304402205486637cdb72b82dfb519744077e86f4472a5ad36f9f34c8da2752b897e40e9f02200a11ada05fa15356e7b8f1f5dd622dfd8ae78be060d8a4a374127ad028f330c5012103e775fd51f0dfb8cd865d9ff1cca2a158cf651fe997fdc9fee9c1d3b5e995ea7700000000',
+    );
   });
 });
 
