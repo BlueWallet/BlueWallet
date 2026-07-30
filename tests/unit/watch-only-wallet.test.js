@@ -677,6 +677,40 @@ describe('Watch only wallet', () => {
 
     assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
   });
+
+  // #8803: SendDetails fee used WatchOnlyWallet.coinselect (legacy sizing when segwitType unset)
+  // while createTransaction used the HD instance — multi-input fees diverged.
+  it('coinselect fee matches createTransaction fee for multi-UTXO zpub', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
+    w.init();
+    assert.strictEqual(w.segwitType, undefined); // bare zpub — the buggy import path
+
+    // bump gap so both receive addresses resolve
+    w._hdWalletInstance.next_free_address_index = 2;
+    w._hdWalletInstance.next_free_change_address_index = 1;
+
+    const utxos = [
+      {
+        value: 100000,
+        address: w._getExternalAddressByIndex(0),
+        vout: 0,
+        txid: '11'.repeat(32),
+      },
+      {
+        value: 100000,
+        address: w._getExternalAddressByIndex(1),
+        vout: 1,
+        txid: '22'.repeat(32),
+      },
+    ];
+    const targets = [{ address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', value: 150000 }];
+    const changeAddress = w._getInternalAddressByIndex(0);
+
+    const { fee } = w.createTransaction(utxos, targets, 1, changeAddress);
+    const { fee: estimatedFee } = w.coinselect(utxos, targets, 1);
+    assert.strictEqual(estimatedFee, fee);
+  });
 });
 
 describe('BC-UR', () => {
