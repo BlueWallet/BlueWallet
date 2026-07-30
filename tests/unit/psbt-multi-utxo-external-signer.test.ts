@@ -64,7 +64,6 @@ function makeFakeUtxos(hot: HDSegwitBech32Wallet, count: number): CreateTransact
   const utxos: CreateTransactionUtxo[] = [];
   for (let i = 0; i < count; i++) {
     utxos.push({
-      height: 800000,
       value: 100_000 + i * 25_000,
       address: hot._getExternalAddressByIndex(i),
       vout: i,
@@ -225,12 +224,11 @@ describe('Issue #8803: multi-UTXO PSBT external signer import', () => {
     const watch = makeWatchOnly(hot);
     const utxos = makeFakeUtxos(hot, 3);
 
-    const { psbt: unsignedPsbt, inputs, fee } = watch.createTransaction(
-      utxos,
-      [{ address: DESTINATION, value: 150_000 }],
-      1,
-      hot._getInternalAddressByIndex(0),
-    );
+    const {
+      psbt: unsignedPsbt,
+      inputs,
+      fee,
+    } = watch.createTransaction(utxos, [{ address: DESTINATION, value: 150_000 }], 1, hot._getInternalAddressByIndex(0));
     assert.ok(inputs.length >= 2, `expected multi-input, got ${inputs.length}`);
 
     const signedByScure = signWithScure(unsignedPsbt, MNEMONIC);
@@ -369,7 +367,6 @@ describe('Issue #8803: multi-UTXO PSBT external signer import', () => {
     try {
       trimmedB64 = signAndTrimWithEmbitSeedSignerStyle(unsignedPsbt.toBase64(), MNEMONIC);
     } catch (e: any) {
-      // eslint-disable-next-line no-console
       console.warn('skipping embit SeedSigner test — python/embit unavailable:', e?.message || e);
       return;
     }
