@@ -8,7 +8,11 @@ import BlueText from '../../components/BlueText';
 import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
-import { ARKADE_UNILATERAL_EXIT_URL, LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import {
+  ARKADE_UNILATERAL_EXIT_URL,
+  LightningArkExitError,
+  LightningArkWallet,
+} from '../../class/wallets/lightning-ark-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
@@ -74,6 +78,9 @@ const WalletDetails: React.FC = () => {
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
+  // Unilateral exit needs an already-inited SDK wallet; gate the button until
+  // getArkAddress() (which calls init()) finishes successfully.
+  const [isArkWalletReady, setIsArkWalletReady] = useState<boolean>(false);
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
@@ -126,18 +133,26 @@ const WalletDetails: React.FC = () => {
 
   // Fetch ark address when wallet is a LightningArkWallet
   useEffect(() => {
+    let cancelled = false;
     const fetchArkAddress = async () => {
-      if (wallet.type === LightningArkWallet.type && wallet.getArkAddress) {
-        try {
-          const address = await wallet.getArkAddress();
-          setArkAddress(address);
-        } catch (error: any) {
-          setArkAddress(error.message);
-        }
+      if (wallet.type !== LightningArkWallet.type || !wallet.getArkAddress) return;
+      setIsArkWalletReady(false);
+      try {
+        const address = await wallet.getArkAddress();
+        if (cancelled) return;
+        setArkAddress(address);
+        setIsArkWalletReady(true);
+      } catch (error: any) {
+        if (cancelled) return;
+        setArkAddress(error?.message ?? String(error));
+        setIsArkWalletReady(false);
       }
     };
 
     fetchArkAddress();
+    return () => {
+      cancelled = true;
+    };
   }, [wallet]);
 
   const [isRestoringSwaps, setIsRestoringSwaps] = useState<boolean>(false);
@@ -174,12 +189,19 @@ const WalletDetails: React.FC = () => {
 
     setIsExportingUnilateralExit(true);
     try {
-      const contents = await (wallet as unknown as LightningArkWallet).exportUnilateralExitPackage(sweepAddress);
-      const shared = await writeFileAndExport('arkade-unilateral-exit.json', contents, true);
+      const result = await (wallet as unknown as LightningArkWallet).exportUnilateralExitPackage(sweepAddress);
+      const shared = await writeFileAndExport('arkade-unilateral-exit.json', result.packageJson, true);
       if (!shared) return;
+      const partial =
+        result.skippedVtxoCount > 0
+          ? `${loc.formatString(loc.wallets.details_unilateral_exit_partial_message, {
+              skipped: result.skippedVtxoCount,
+              total: result.includedVtxoCount + result.skippedVtxoCount,
+            })}\n\n`
+          : '';
       presentAlert({
         title: loc.wallets.details_unilateral_exit_done_title,
-        message: loc.wallets.details_unilateral_exit_done_message,
+        message: partial + loc.wallets.details_unilateral_exit_done_message,
         buttons: [
           { text: loc._.ok, style: 'cancel' },
           {
@@ -190,14 +212,16 @@ const WalletDetails: React.FC = () => {
         ],
       });
     } catch (e: any) {
-      const message = e?.message ?? String(e);
-      const localized =
-        message === 'Invalid Bitcoin address'
-          ? loc.wallets.details_unilateral_exit_invalid_address
-          : message === 'Arkade wallet not initialized'
-            ? loc.wallets.details_unilateral_exit_not_ready
-            : message;
-      presentAlert({ message: localized });
+      let message = loc.wallets.details_unilateral_exit_failed;
+      if (e instanceof LightningArkExitError) {
+        message =
+          e.code === 'invalid_address'
+            ? loc.wallets.details_unilateral_exit_invalid_address
+            : loc.wallets.details_unilateral_exit_not_ready;
+      } else if (/no vtxos to exit/i.test(e?.message ?? '')) {
+        message = loc.wallets.details_unilateral_exit_empty;
+      }
+      presentAlert({ message });
     } finally {
       setIsExportingUnilateralExit(false);
     }
@@ -901,7 +925,7 @@ const WalletDetails: React.FC = () => {
                       onPress={onUnilateralExitPressed}
                       testID="UnilateralExit"
                       title={loc.wallets.details_unilateral_exit}
-                      disabled={isRestoringSwaps || isExportingUnilateralExit}
+                      disabled={isRestoringSwaps || isExportingUnilateralExit || !isArkWalletReady}
                       loading={isExportingUnilateralExit}
                     />
                   </>

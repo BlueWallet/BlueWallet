@@ -4,7 +4,11 @@ import * as ArkadeSdk from '@arkade-os/sdk';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
-import { LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
+import {
+  LightningArkExitError,
+  LightningArkWallet,
+  __testing__ as walletTesting,
+} from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 
@@ -1461,6 +1465,42 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
   // Known-valid mainnet addresses from other wallet unit tests.
   const SWEEP = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
   const SWEEP_TAPROOT = 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g';
+  const OUTPOINT = `${'ab'.repeat(32)}:0`;
+  const PARENT_TXID = 'cd'.repeat(32);
+
+  /** Minimal graph-mode package that passes SDK `deserializeExitPackage`. */
+  function graphExitPackage(overrides: Partial<ArkadeSdk.ExitPackage> = {}): ArkadeSdk.ExitPackage {
+    return {
+      version: 1,
+      mode: 'graph',
+      network: 'bitcoin',
+      createdAt: 1_700_000_000,
+      feeRate: 1,
+      sweepAddress: SWEEP,
+      totals: {
+        txCount: 3,
+        totalFeeSats: 150,
+        fundingRequiredSats: 50,
+        recoveredSats: 850,
+      },
+      vtxos: [
+        { outpoint: OUTPOINT, value: 1000, sweepFee: 150, path: 'default:unilateral', delay: { type: 'blocks', value: 144 } },
+        { outpoint: `${'ef'.repeat(32)}:0`, value: 200, skipped: 'uneconomic: value 200 <= sweep fee + dust' },
+      ],
+      steps: [
+        { kind: 'bump', parentTxid: PARENT_TXID, parentHex: '02000000000100', forVtxos: [OUTPOINT] },
+        {
+          kind: 'sweep',
+          vtxo: OUTPOINT,
+          txid: '11'.repeat(32),
+          hex: '02000000000100',
+          dependsOnTxid: PARENT_TXID,
+          delay: { type: 'blocks', value: 144 },
+        },
+      ],
+      ...overrides,
+    };
+  }
 
   // Same offline-init recipe as lightning-ark-derivation: provider spies + fake
   // timers so Wallet.create completes without SSE/polling leaks. Fee-rate spy
@@ -1482,14 +1522,17 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
-    await assert.rejects(() => w.exportUnilateralExitPackage(''), /Invalid Bitcoin address/);
-    await assert.rejects(() => w.exportUnilateralExitPackage('not-an-address'), /Invalid Bitcoin address/);
+    await assert.rejects(() => w.exportUnilateralExitPackage(''), e => e instanceof LightningArkExitError && e.code === 'invalid_address');
+    await assert.rejects(
+      () => w.exportUnilateralExitPackage('not-an-address'),
+      e => e instanceof LightningArkExitError && e.code === 'invalid_address',
+    );
     await assert.rejects(
       () =>
         w.exportUnilateralExitPackage(
           'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t5z8sz5n95k570z5r004szc9h2q3qprkzdd5zveujdpx24srcrqg8hf6j4v',
         ),
-      /Invalid Bitcoin address/,
+      e => e instanceof LightningArkExitError && e.code === 'invalid_address',
     );
     assert.strictEqual(prepare.mock.calls.length, 0);
   });
@@ -1499,7 +1542,10 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     w.setSecret('arkade://' + TEST_MNEMONIC);
     const init = jest.spyOn(w, 'init');
     const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
-    await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP), /Arkade wallet not initialized/);
+    await assert.rejects(
+      () => w.exportUnilateralExitPackage(SWEEP),
+      e => e instanceof LightningArkExitError && e.code === 'not_ready',
+    );
     assert.strictEqual(init.mock.calls.length, 0);
     assert.strictEqual(prepare.mock.calls.length, 0);
   });
@@ -1509,7 +1555,10 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     w.setSecret('arkade://' + TEST_MNEMONIC);
     (w as any)._network = 'testnet';
     // Mainnet bc1… must not pass when the wallet speaks testnet.
-    await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP), /Invalid Bitcoin address/);
+    await assert.rejects(
+      () => w.exportUnilateralExitPackage(SWEEP),
+      e => e instanceof LightningArkExitError && e.code === 'invalid_address',
+    );
   });
 
   it('real prepare: empty wallet has nothing to exit', async () => {
@@ -1525,5 +1574,36 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     w.setSecret('arkade://' + TEST_MNEMONIC);
     await w.init();
     await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP_TAPROOT), /no vtxos to exit/);
+  });
+
+  it('happy path: wires graph prepare args and returns SDK-valid JSON + skip counts', async () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    await w.init();
+
+    // Funded VTXO graphs need live indexer virtual-tx bytes — out of scope for
+    // this unit suite. Stub prepare with a deserialize-valid package so we
+    // assert our wrapper's wiring and serialization contract (not mock echo).
+    const pkg = graphExitPackage({ sweepAddress: SWEEP });
+    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockResolvedValue(pkg);
+
+    const result = await w.exportUnilateralExitPackage(`  ${SWEEP}  `);
+
+    assert.strictEqual(prepare.mock.calls.length, 1);
+    const args = prepare.mock.calls[0][0];
+    assert.strictEqual(args.mode, 'graph');
+    assert.strictEqual(args.sweepAddress, SWEEP);
+    assert.strictEqual(args.networkName, 'bitcoin');
+    assert.strictEqual(args.wallet, (w as any)._wallet);
+
+    const decoded = ArkadeSdk.deserializeExitPackage(result.packageJson);
+    assert.strictEqual(decoded.version, 1);
+    assert.strictEqual(decoded.mode, 'graph');
+    assert.strictEqual(decoded.sweepAddress, SWEEP);
+    assert.strictEqual(decoded.network, 'bitcoin');
+    assert.ok(Array.isArray(decoded.steps) && decoded.steps.length >= 1);
+    assert.ok(Array.isArray(decoded.vtxos) && decoded.vtxos.length === 2);
+    assert.strictEqual(result.includedVtxoCount, 1);
+    assert.strictEqual(result.skippedVtxoCount, 1);
   });
 });

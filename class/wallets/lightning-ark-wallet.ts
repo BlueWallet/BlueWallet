@@ -46,6 +46,23 @@ const { bech32m } = require('bech32');
 /** Static keyless executor for graph-mode unilateral exit packages. */
 export const ARKADE_UNILATERAL_EXIT_URL = 'https://bluewallet.github.io/arkade-unilateral-exit/';
 
+/** Typed export failures so the UI can localize without matching English `Error.message`. */
+export class LightningArkExitError extends Error {
+  constructor(
+    readonly code: 'invalid_address' | 'not_ready',
+    message: string,
+  ) {
+    super(message);
+    this.name = 'LightningArkExitError';
+  }
+}
+
+export type UnilateralExitExport = {
+  packageJson: string;
+  includedVtxoCount: number;
+  skippedVtxoCount: number;
+};
+
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 
@@ -919,18 +936,18 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   /** Graph-mode exit package JSON for {@link ARKADE_UNILATERAL_EXIT_URL}. */
-  async exportUnilateralExitPackage(sweepAddress: string): Promise<string> {
+  async exportUnilateralExitPackage(sweepAddress: string): Promise<UnilateralExitExport> {
     const address = (sweepAddress || '').trim();
     try {
       bitcoin.address.toOutputScript(address, BITCOINJS_NETWORKS[this._network]);
     } catch {
-      throw new Error('Invalid Bitcoin address');
+      throw new LightningArkExitError('invalid_address', 'Invalid Bitcoin address');
     }
 
     // Do not call init() here: it preflights the delegate and talks to the ASP.
     // Exit export must work from an already-open wallet if those services are down.
     if (!this._wallet) {
-      throw new Error('Arkade wallet not initialized');
+      throw new LightningArkExitError('not_ready', 'Arkade wallet not initialized');
     }
 
     const onchainWallet = await OnchainWallet.create(this._wallet.identity, this._network, this._wallet.onchainProvider);
@@ -941,7 +958,12 @@ export class LightningArkWallet extends LightningCustodianWallet {
       mode: 'graph',
       networkName: this._network,
     });
-    return serializeExitPackage(pkg);
+    const skippedVtxoCount = pkg.vtxos.filter(v => v.skipped).length;
+    return {
+      packageJson: serializeExitPackage(pkg),
+      includedVtxoCount: pkg.vtxos.length - skippedVtxoCount,
+      skippedVtxoCount,
+    };
   }
 
   /**
