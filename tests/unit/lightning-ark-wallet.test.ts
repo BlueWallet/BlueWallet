@@ -4,11 +4,7 @@ import * as ArkadeSdk from '@arkade-os/sdk';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
-import {
-  ARKADE_UNILATERAL_EXIT_URL,
-  LightningArkWallet,
-  __testing__ as walletTesting,
-} from '../../class/wallets/lightning-ark-wallet.ts';
+import { ARKADE_UNILATERAL_EXIT_URL, LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
