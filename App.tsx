@@ -1,4 +1,4 @@
-import { NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
+import { LinkingOptions, NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
 import React from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -9,6 +9,27 @@ import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
+import { DetailViewStackParamList } from './navigation/DetailViewStackParamList';
+
+const linkingConfig: LinkingOptions<DetailViewStackParamList>['config'] = {
+  screens: {
+    SendDetailsRoot: {
+      screens: {
+        SendDetails: {
+          path: ':address',
+          parse: {
+            amount: Number,
+          },
+        },
+      },
+    },
+  },
+};
+
+const linking: LinkingOptions<DetailViewStackParamList> = {
+  prefixes: ['bitcoin:', 'bitcoin://', 'bluewallet:bitcoin:', 'BITCOIN:', 'BITCOIN://', 'bluewallet:BITCOIN:'],
+  config: linkingConfig,
+};
 
 const App = () => {
   const colorScheme = useColorScheme();
@@ -17,7 +38,7 @@ const App = () => {
 
   return (
     <SizeClassProvider>
-      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
+      <NavigationContainer ref={navigationRef} theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme} linking={linking}>
         <SafeAreaProvider>
           <StorageProvider>
             <SettingsProvider>

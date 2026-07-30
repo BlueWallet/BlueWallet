@@ -24,8 +24,10 @@ export type CoinControlSortType = (typeof CoinControlSortType)[keyof typeof Coin
 
 export type SendDetailsParams = {
   transactionMemo?: string;
+  label?: string;
   isTransactionReplaceable?: boolean;
   payjoinUrl?: string;
+  pj?: string;
   feeUnit?: BitcoinUnit;
   frozenBalance?: number;
   amountUnit?: BitcoinUnit;

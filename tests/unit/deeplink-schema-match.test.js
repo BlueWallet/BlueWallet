@@ -20,6 +20,19 @@ const asyncNavigationRouteFor = async function (event) {
 };
 
 describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
+  it('isBitcoinUriSchema', () => {
+    assert.strictEqual(DeeplinkSchemaMatch.isBitcoinUriSchema(`bitcoin:${suffix}bc1qykcp2x3djgdtdwelxn9z4j2y956npte0a4sref`), true);
+    assert.strictEqual(
+      DeeplinkSchemaMatch.isBitcoinUriSchema(`bluewallet:BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE`),
+      true,
+    );
+    assert.strictEqual(DeeplinkSchemaMatch.isBitcoinUriSchema(`  BITCOIN:${suffix}1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH  `), true);
+
+    assert.strictEqual(DeeplinkSchemaMatch.isBitcoinUriSchema('lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2'), false);
+    assert.strictEqual(DeeplinkSchemaMatch.isBitcoinUriSchema('bluewallet:lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2'), false);
+    assert.strictEqual(DeeplinkSchemaMatch.isBitcoinUriSchema(''), false);
+  });
+
   it('hasSchema', () => {
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`));
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`));
