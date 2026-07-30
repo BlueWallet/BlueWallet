@@ -63,6 +63,16 @@ const DELEGATOR_URLS = {
   testnet: null,
 } as const;
 
+/** bitcoinjs-lib network for on-chain address checks; Ark `NetworkName` → chain params. */
+const BITCOINJS_NETWORKS: Record<keyof typeof DELEGATOR_URLS, bitcoin.Network> = {
+  bitcoin: bitcoin.networks.bitcoin,
+  // signet / mutinynet share testnet address prefixes (tb1…).
+  testnet: bitcoin.networks.testnet,
+  signet: bitcoin.networks.testnet,
+  mutinynet: bitcoin.networks.testnet,
+  regtest: bitcoin.networks.regtest,
+};
+
 const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapsCache: Record<string, ArkadeSwaps> = {};
 const initInFlight: Map<string, Promise<{ wallet: Wallet; arkadeSwaps: ArkadeSwaps }>> = new Map();
@@ -912,13 +922,16 @@ export class LightningArkWallet extends LightningCustodianWallet {
   async exportUnilateralExitPackage(sweepAddress: string): Promise<string> {
     const address = (sweepAddress || '').trim();
     try {
-      bitcoin.address.toOutputScript(address, bitcoin.networks.bitcoin);
+      bitcoin.address.toOutputScript(address, BITCOINJS_NETWORKS[this._network]);
     } catch {
       throw new Error('Invalid Bitcoin address');
     }
 
-    if (!this._wallet) await this.init();
-    assert(this._wallet, 'Arkade wallet not initialized');
+    // Do not call init() here: it preflights the delegate and talks to the ASP.
+    // Exit export must work from an already-open wallet if those services are down.
+    if (!this._wallet) {
+      throw new Error('Arkade wallet not initialized');
+    }
 
     const onchainWallet = await OnchainWallet.create(this._wallet.identity, this._network, this._wallet.onchainProvider);
     const pkg = await UnilateralExit.prepare({

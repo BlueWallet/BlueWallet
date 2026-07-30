@@ -191,9 +191,13 @@ const WalletDetails: React.FC = () => {
       });
     } catch (e: any) {
       const message = e?.message ?? String(e);
-      presentAlert({
-        message: message === 'Invalid Bitcoin address' ? loc.wallets.details_unilateral_exit_invalid_address : message,
-      });
+      const localized =
+        message === 'Invalid Bitcoin address'
+          ? loc.wallets.details_unilateral_exit_invalid_address
+          : message === 'Arkade wallet not initialized'
+            ? loc.wallets.details_unilateral_exit_not_ready
+            : message;
+      presentAlert({ message: localized });
     } finally {
       setIsExportingUnilateralExit(false);
     }

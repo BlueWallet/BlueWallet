@@ -1494,19 +1494,36 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     assert.strictEqual(prepare.mock.calls.length, 0);
   });
 
-  it('init() + real prepare: empty wallet has nothing to exit', async () => {
+  it('does not call init() — requires an already-open SDK wallet', async () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
-    // Do not stub _wallet / UnilateralExit.prepare — exercise the real path.
-    // Offline ASP spies let init() build a Wallet; an empty VTXO set makes the
-    // real prepare reject before it needs indexer virtual-tx bytes.
-    await assert.rejects(() => w.exportUnilateralExitPackage(`  ${SWEEP}  `), /no vtxos to exit/);
-    assert.ok((w as any)._wallet, 'init() must have populated the SDK wallet');
+    const init = jest.spyOn(w, 'init');
+    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
+    await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP), /Arkade wallet not initialized/);
+    assert.strictEqual(init.mock.calls.length, 0);
+    assert.strictEqual(prepare.mock.calls.length, 0);
   });
 
-  it('init() + real prepare accepts taproot destinations (same empty-wallet edge)', async () => {
+  it('validates the sweep address against this._network', async () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
+    (w as any)._network = 'testnet';
+    // Mainnet bc1… must not pass when the wallet speaks testnet.
+    await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP), /Invalid Bitcoin address/);
+  });
+
+  it('real prepare: empty wallet has nothing to exit', async () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    // Export must not init itself; open the wallet first (as the app does).
+    await w.init();
+    await assert.rejects(() => w.exportUnilateralExitPackage(`  ${SWEEP}  `), /no vtxos to exit/);
+  });
+
+  it('real prepare accepts taproot destinations (same empty-wallet edge)', async () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    await w.init();
     await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP_TAPROOT), /no vtxos to exit/);
   });
 });
