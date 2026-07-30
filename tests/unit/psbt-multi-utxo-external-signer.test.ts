@@ -8,10 +8,9 @@
  *   - REJECTION NOT REPRODUCED: WatchOnlyWallet.combinePsbt accepts SeedSigner-trimmed
  *     multi-input PSBTs signed by @scure/btc-signer, bitcoinjs, and embit (SeedSigner’s lib),
  *     including UR:CRYPTO-PSBT roundtrip and bare-zpub (zero fingerprint) wallets.
- *   - FEE MISMATCH REPRODUCED: SendDetails uses WatchOnlyWallet.coinselect while
- *     createTransaction uses _hdWalletInstance.coinselect. For Coldcard JSON / bare zpub,
- *     WatchOnlyWallet.segwitType is undefined → legacy input size estimate → UI fee too high
- *     (grows with more inputs). PSBT construction itself remains correct.
+ *   - FEE MISMATCH was caused by SendDetails calling WatchOnlyWallet.coinselect while
+ *     createTransaction used _hdWalletInstance.coinselect. Fixed by delegating coinselect
+ *     to the HD instance and syncing segwitType in WatchOnlyWallet.init().
  *
  * SeedSigner firmware signs via embit `psbt.sign_with(root)` then `PSBTParser.trim()` which
  * keeps only the global tx + partial_sigs (strips witnessUtxo / bip32Derivation).
@@ -309,7 +308,7 @@ describe('Issue #8803: multi-UTXO PSBT external signer import', () => {
     assert.strictEqual(tx.ins.length, 1);
   });
 
-  it('BUG (fee half of #8803): watch-only UI coinselect overestimates fee when segwitType unset', () => {
+  it('watch-only UI coinselect fee matches PSBT fee for multi-UTXO (fix for #8803 fee half)', () => {
     const hot = makeHotWallet();
     const watch = makeWatchOnly(hot);
     const utxos = makeFakeUtxos(hot, 3);
@@ -319,23 +318,13 @@ describe('Issue #8803: multi-UTXO PSBT external signer import', () => {
     const { fee: psbtFee, psbt, inputs } = watch.createTransaction(utxos, targets, feeRate, hot._getInternalAddressByIndex(0));
     assert.ok(inputs.length >= 2);
     assert.strictEqual(psbtFeeFromValues(psbt), psbtFee);
-
-    // SendDetails fee label calls wallet.coinselect on the WatchOnlyWallet instance.
-    // Coldcard JSON / bare zpub leave WatchOnlyWallet.segwitType undefined, so LegacyWallet.coinselect
-    // skips the p2wpkh script-length override and estimates legacy-sized inputs.
-    assert.strictEqual((watch as any).segwitType, undefined);
     assert.strictEqual(watch._hdWalletInstance?.segwitType, 'p2wpkh');
+    // init() should mirror HD script type onto the watch-only wallet (bare zpub / Coldcard JSON)
+    assert.strictEqual(watch.segwitType, 'p2wpkh');
 
+    // SendDetails fee label calls wallet.coinselect on the WatchOnlyWallet instance
     const ui = watch.coinselect(utxos, targets, feeRate);
-    const hd = watch._hdWalletInstance!.coinselect(utxos, targets, feeRate);
-
-    assert.strictEqual(hd.fee, psbtFee, 'HD coinselect (used by createTransaction) must match PSBT fee');
-    assert.notStrictEqual(
-      ui.fee,
-      psbtFee,
-      `expected UI/PSBT fee mismatch for multi-input watch-only; ui=${ui.fee} psbt=${psbtFee}`,
-    );
-    assert.ok(ui.fee! > psbtFee, 'UI fee should be higher (legacy-sized inputs)');
+    assert.strictEqual(ui.fee, psbtFee, `UI coinselect fee must match PSBT fee; ui=${ui.fee} psbt=${psbtFee}`);
   });
 
   it('fails to finalize SeedSigner-trimmed PSBT alone (needs combine with unsigned)', () => {

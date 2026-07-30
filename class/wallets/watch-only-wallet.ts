@@ -124,6 +124,13 @@ export class WatchOnlyWallet extends LegacyWallet {
     }
     this._hdWalletInstance = hdWalletInstance;
 
+    // Keep WatchOnlyWallet.segwitType in sync with the concrete HD type. Descriptor imports
+    // already set this; bare zpub/ypub/xpub and Coldcard JSON did not, which made
+    // LegacyWallet.coinselect estimate legacy-sized inputs (wrong fee in SendDetails).
+    if (!this.segwitType && 'segwitType' in hdWalletInstance && hdWalletInstance.segwitType) {
+      this.segwitType = hdWalletInstance.segwitType;
+    }
+
     return this;
   }
 
@@ -207,6 +214,16 @@ export class WatchOnlyWallet extends LegacyWallet {
   getUtxo(...args: Parameters<THDWalletForWatchOnly['getUtxo']>) {
     if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo(...args);
     return super.getUtxo(...args);
+  }
+
+  /**
+   * Fee precalc in SendDetails calls wallet.coinselect directly. HD watch-only must use the
+   * same coinselect as createTransaction (_hdWalletInstance), otherwise script-length
+   * overrides (p2wpkh/p2tr/…) are skipped when this.segwitType is unset — see #8803.
+   */
+  coinselect(...args: Parameters<LegacyWallet['coinselect']>) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.coinselect(...args);
+    return super.coinselect(...args);
   }
 
   combinePsbt(...args: Parameters<THDWalletForWatchOnly['combinePsbt']>) {
