@@ -766,6 +766,11 @@ const TransactionStatus: React.FC = () => {
         ],
         { cancelable: false },
       );
+    } else {
+      navigate(route, {
+        txid: transaction.hash,
+        wallet: w,
+      });
     }
   };
 
