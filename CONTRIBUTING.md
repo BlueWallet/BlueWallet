@@ -30,11 +30,11 @@ New components must go in `components/`. Bonus points if you refactor some of ol
 
 Add tests if it makes sense. Bonus points for e2e tests.
 
-Added / modified texts should be only in `en.json` - there should be no inline texts in UI code. Dont touch other localization json files - those are modified outside by Transifex.
+Added / modified texts should be only in `loc/en.json` - there should be no inline texts in UI code. Dont touch other localization json files - those are modified outside by Transifex.
 
 Make sure the code is not overengineered and not bloated.
 
-Aim for the abolute minimal change that does the job and still readable.
+Aim for the absolute minimal change that does the job while still being readable.
 
 If you added / altered tests, make sure they are not bullshit: dont just test mocks, or that data youve put into mocks is there; tests should check happy paths as well as edge cases and NOT be bloated / overengineered.
 
@@ -42,4 +42,6 @@ Dont touch lines that are not relevant to the change - they show up in the diff 
 
 # PRs
 
-When submitting PR with a UI (or visual) change it must include screenshot (from the emulator or the device) how the proposed change looks, even better - a video. Add a short description of why (it was implemented) and how (it works under the hood).
+PRs must have short description of why (it was implemented) and how (it works under the hood).
+
+When submitting PR with a UI (or visual) change it must include screenshot (from the emulator or the device) how the proposed change looks, even better - a video.
