@@ -14,11 +14,22 @@ import {
   isSubmarineSwapRefundable,
 } from '@arkade-os/boltz-swap';
 import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
-import { RestDelegatorProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType } from '@arkade-os/sdk';
+import {
+  RestDelegatorProvider,
+  SingleKey,
+  Wallet,
+  ExtendedCoin,
+  ArkTransaction,
+  TxType,
+  OnchainWallet,
+  UnilateralExit,
+  serializeExitPackage,
+} from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 
 import BIP32Factory from 'bip32';
+import * as bitcoin from 'bitcoinjs-lib';
 
 import { LightningCustodianWallet } from './lightning-custodian-wallet.ts';
 import { randomBytes } from '../rng.ts';
@@ -31,6 +42,9 @@ import { Measure } from '../measure.ts';
 import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-adapters/realm/realmInstance';
 import { registerArkPaymentPush } from '../../blue_modules/notifications';
 const { bech32m } = require('bech32');
+
+/** Static keyless executor for graph-mode unilateral exit packages. */
+export const ARKADE_UNILATERAL_EXIT_URL = 'https://bluewallet.github.io/arkade-unilateral-exit/';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -891,6 +905,37 @@ export class LightningArkWallet extends LightningCustodianWallet {
         this._lastTxFetch = +new Date();
       }
     }
+  }
+
+  /**
+   * Build a graph-mode unilateral exit package for the static keyless executor
+   * at {@link ARKADE_UNILATERAL_EXIT_URL}. Pre-signs the VTXO unroll/sweep
+   * transactions without broadcasting a fee splitter — the website funds CPFP
+   * bumps from a throwaway fee key at execution time.
+   *
+   * @param sweepAddress Onchain Bitcoin address that receives exited funds
+   * @returns JSON string accepted by `deserializeExitPackage` / the static site
+   */
+  async exportUnilateralExitPackage(sweepAddress: string): Promise<string> {
+    const address = (sweepAddress || '').trim();
+    try {
+      bitcoin.address.toOutputScript(address, bitcoin.networks.bitcoin);
+    } catch {
+      throw new Error('Invalid Bitcoin address');
+    }
+
+    if (!this._wallet) await this.init();
+    assert(this._wallet, 'Arkade wallet not initialized');
+
+    const onchainWallet = await OnchainWallet.create(this._wallet.identity, this._network, this._wallet.onchainProvider);
+    const pkg = await UnilateralExit.prepare({
+      wallet: this._wallet,
+      onchainWallet,
+      sweepAddress: address,
+      mode: 'graph',
+      networkName: this._network,
+    });
+    return serializeExitPackage(pkg);
   }
 
   /**

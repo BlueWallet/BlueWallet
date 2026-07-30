@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { writeFileAndExport } from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
@@ -8,7 +8,7 @@ import BlueText from '../../components/BlueText';
 import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { ARKADE_UNILATERAL_EXIT_URL, LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
@@ -154,6 +154,53 @@ const WalletDetails: React.FC = () => {
       setIsRestoringSwaps(false);
     }
   }, [wallet, fetchAndSaveWalletTransactions]);
+
+  const [isExportingUnilateralExit, setIsExportingUnilateralExit] = useState<boolean>(false);
+  const onUnilateralExitPressed = useCallback(async () => {
+    if (wallet.type !== LightningArkWallet.type) return;
+    const arkWallet = wallet as unknown as LightningArkWallet;
+
+    let sweepAddress: string;
+    try {
+      sweepAddress = await prompt(loc.wallets.details_unilateral_exit_address_title, loc.wallets.details_unilateral_exit_address_message, {
+        type: 'plain-text',
+      });
+    } catch {
+      return; // cancelled
+    }
+
+    const addressProbe = new LegacyWallet();
+    if (!addressProbe.isAddressValid((sweepAddress || '').trim())) {
+      presentAlert({ message: loc.wallets.details_unilateral_exit_invalid_address });
+      return;
+    }
+
+    setIsExportingUnilateralExit(true);
+    try {
+      const contents = await arkWallet.exportUnilateralExitPackage(sweepAddress);
+      const label = (wallet.getLabel() || 'arkade').replace(/[^\w.-]+/g, '_');
+      await writeFileAndExport(`arkade-unilateral-exit-${label}.json`, contents, true);
+      presentAlert({
+        title: loc.wallets.details_unilateral_exit_done_title,
+        message: loc.wallets.details_unilateral_exit_done_message,
+        buttons: [
+          { text: loc._.ok, style: 'cancel' },
+          {
+            text: loc.wallets.details_unilateral_exit_open,
+            onPress: () => {
+              Linking.openURL(ARKADE_UNILATERAL_EXIT_URL).catch(() => {
+                presentAlert({ message: loc.transactions.open_url_error });
+              });
+            },
+          },
+        ],
+      });
+    } catch (e: any) {
+      presentAlert({ message: e?.message ?? String(e) });
+    } finally {
+      setIsExportingUnilateralExit(false);
+    }
+  }, [wallet]);
 
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
@@ -845,8 +892,16 @@ const WalletDetails: React.FC = () => {
                       onPress={onRestoreSwapsPressed}
                       testID="RestoreSwapActivity"
                       title={loc.wallets.restore_swap_activity}
-                      disabled={isRestoringSwaps}
+                      disabled={isRestoringSwaps || isExportingUnilateralExit}
                       loading={isRestoringSwaps}
+                    />
+                    <BlueSpacing20 />
+                    <SecondButton
+                      onPress={onUnilateralExitPressed}
+                      testID="UnilateralExit"
+                      title={loc.wallets.details_unilateral_exit}
+                      disabled={isRestoringSwaps || isExportingUnilateralExit}
+                      loading={isExportingUnilateralExit}
                     />
                   </>
                 )}
