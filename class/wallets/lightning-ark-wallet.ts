@@ -46,6 +46,7 @@ const { bech32m } = require('bech32');
 /** Static keyless executor for graph-mode unilateral exit packages. */
 export const ARKADE_UNILATERAL_EXIT_URL = 'https://bluewallet.github.io/arkade-unilateral-exit/';
 
+bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 
 // Delegate-service URL per Ark network. Mirrors the canonical wallet's map
@@ -907,15 +908,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
     }
   }
 
-  /**
-   * Build a graph-mode unilateral exit package for the static keyless executor
-   * at {@link ARKADE_UNILATERAL_EXIT_URL}. Pre-signs the VTXO unroll/sweep
-   * transactions without broadcasting a fee splitter — the website funds CPFP
-   * bumps from a throwaway fee key at execution time.
-   *
-   * @param sweepAddress Onchain Bitcoin address that receives exited funds
-   * @returns JSON string accepted by `deserializeExitPackage` / the static site
-   */
+  /** Graph-mode exit package JSON for {@link ARKADE_UNILATERAL_EXIT_URL}. */
   async exportUnilateralExitPackage(sweepAddress: string): Promise<string> {
     const address = (sweepAddress || '').trim();
     try {

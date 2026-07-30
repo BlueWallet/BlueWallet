@@ -158,7 +158,6 @@ const WalletDetails: React.FC = () => {
   const [isExportingUnilateralExit, setIsExportingUnilateralExit] = useState<boolean>(false);
   const onUnilateralExitPressed = useCallback(async () => {
     if (wallet.type !== LightningArkWallet.type) return;
-    const arkWallet = wallet as unknown as LightningArkWallet;
 
     let sweepAddress: string;
     try {
@@ -166,20 +165,13 @@ const WalletDetails: React.FC = () => {
         type: 'plain-text',
       });
     } catch {
-      return; // cancelled
-    }
-
-    const addressProbe = new LegacyWallet();
-    if (!addressProbe.isAddressValid((sweepAddress || '').trim())) {
-      presentAlert({ message: loc.wallets.details_unilateral_exit_invalid_address });
       return;
     }
 
     setIsExportingUnilateralExit(true);
     try {
-      const contents = await arkWallet.exportUnilateralExitPackage(sweepAddress);
-      const label = (wallet.getLabel() || 'arkade').replace(/[^\w.-]+/g, '_');
-      await writeFileAndExport(`arkade-unilateral-exit-${label}.json`, contents, true);
+      const contents = await (wallet as unknown as LightningArkWallet).exportUnilateralExitPackage(sweepAddress);
+      await writeFileAndExport('arkade-unilateral-exit.json', contents, true);
       presentAlert({
         title: loc.wallets.details_unilateral_exit_done_title,
         message: loc.wallets.details_unilateral_exit_done_message,
@@ -187,16 +179,16 @@ const WalletDetails: React.FC = () => {
           { text: loc._.ok, style: 'cancel' },
           {
             text: loc.wallets.details_unilateral_exit_open,
-            onPress: () => {
-              Linking.openURL(ARKADE_UNILATERAL_EXIT_URL).catch(() => {
-                presentAlert({ message: loc.transactions.open_url_error });
-              });
-            },
+            onPress: () =>
+              Linking.openURL(ARKADE_UNILATERAL_EXIT_URL).catch(() => presentAlert({ message: loc.transactions.open_url_error })),
           },
         ],
       });
     } catch (e: any) {
-      presentAlert({ message: e?.message ?? String(e) });
+      const message = e?.message ?? String(e);
+      presentAlert({
+        message: message === 'Invalid Bitcoin address' ? loc.wallets.details_unilateral_exit_invalid_address : message,
+      });
     } finally {
       setIsExportingUnilateralExit(false);
     }

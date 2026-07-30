@@ -4,7 +4,7 @@ import * as ArkadeSdk from '@arkade-os/sdk';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
-import { ARKADE_UNILATERAL_EXIT_URL, LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
+import { LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
@@ -1457,62 +1457,69 @@ describe('LightningArkWallet — per-swap claim/refund + restore', () => {
 });
 
 describe('LightningArkWallet — exportUnilateralExitPackage', () => {
+  // Known-valid mainnet addresses from other wallet unit tests.
   const SWEEP = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
+  const SWEEP_TAPROOT = 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g';
 
-  it('exposes the static unilateral-exit website URL', () => {
-    assert.strictEqual(ARKADE_UNILATERAL_EXIT_URL, 'https://bluewallet.github.io/arkade-unilateral-exit/');
-  });
-
-  it('rejects invalid onchain destinations before touching the SDK', async () => {
+  function walletWithStubSdk() {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
-    await assert.rejects(() => w.exportUnilateralExitPackage('not-an-address'), /Invalid Bitcoin address/);
+    (w as any)._wallet = { identity: w._getIdentity(), onchainProvider: {} };
+    return w;
+  }
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('rejects empty, garbage, and Ark destinations', async () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
     await assert.rejects(() => w.exportUnilateralExitPackage(''), /Invalid Bitcoin address/);
+    await assert.rejects(() => w.exportUnilateralExitPackage('not-an-address'), /Invalid Bitcoin address/);
+    await assert.rejects(
+      () =>
+        w.exportUnilateralExitPackage(
+          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t5z8sz5n95k570z5r004szc9h2q3qprkzdd5zveujdpx24srcrqg8hf6j4v',
+        ),
+      /Invalid Bitcoin address/,
+    );
+    assert.strictEqual(prepare.mock.calls.length, 0, 'prepare must not run for bad destinations');
   });
 
-  it('prepares a graph-mode package and returns serialized JSON', async () => {
-    const w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
-    const identity = w._getIdentity();
-    const onchainProvider = { tag: 'provider' };
-    (w as any)._wallet = { identity, onchainProvider };
-
-    const fakePkg = {
-      version: 1 as const,
-      mode: 'graph' as const,
-      network: 'bitcoin' as const,
-      createdAt: 1_700_000_000,
-      feeRate: 2,
-      sweepAddress: SWEEP,
-      totals: { txCount: 2, totalFeeSats: 500, fundingRequiredSats: 400, recoveredSats: 10_000 },
-      vtxos: [{ outpoint: 'abcd:0', value: 10_500 }],
-      steps: [{ kind: 'bump' as const, parentTxid: 'abcd', parentHex: '00', forVtxos: ['abcd:0'] }],
-    };
-
-    const onchainCreate = jest.spyOn(ArkadeSdk.OnchainWallet, 'create').mockResolvedValue({ address: 'bc1ptestfee' } as any);
-    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockResolvedValue(fakePkg as any);
-
-    try {
-      const json = await w.exportUnilateralExitPackage(SWEEP);
-      const parsed = JSON.parse(json);
-      assert.strictEqual(parsed.mode, 'graph');
-      assert.strictEqual(parsed.sweepAddress, SWEEP);
-      assert.strictEqual(parsed.version, 1);
-
-      assert.strictEqual(onchainCreate.mock.calls.length, 1);
-      assert.strictEqual(onchainCreate.mock.calls[0][0], identity);
-      assert.strictEqual(onchainCreate.mock.calls[0][1], 'bitcoin');
-      assert.strictEqual(onchainCreate.mock.calls[0][2], onchainProvider);
-
-      assert.strictEqual(prepare.mock.calls.length, 1);
-      const opts = prepare.mock.calls[0][0];
+  it('trims the destination, requests graph mode, and returns SDK-valid JSON', async () => {
+    const w = walletWithStubSdk();
+    jest.spyOn(ArkadeSdk.OnchainWallet, 'create').mockResolvedValue({} as any);
+    jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockImplementation(async opts => {
       assert.strictEqual(opts.mode, 'graph');
       assert.strictEqual(opts.sweepAddress, SWEEP);
       assert.strictEqual(opts.networkName, 'bitcoin');
-      assert.strictEqual(opts.wallet, (w as any)._wallet);
-    } finally {
-      onchainCreate.mockRestore();
-      prepare.mockRestore();
-    }
+      // Minimal package shape the real serializer/deserializer accept.
+      return {
+        version: 1,
+        mode: opts.mode,
+        network: 'bitcoin',
+        createdAt: 1_700_000_000,
+        feeRate: 1,
+        sweepAddress: opts.sweepAddress,
+        totals: { txCount: 0, totalFeeSats: 0, fundingRequiredSats: 0, recoveredSats: 0 },
+        vtxos: [],
+        steps: [],
+      } as any;
+    });
+
+    const json = await w.exportUnilateralExitPackage(`  ${SWEEP}  `);
+    // Static site loads packages via the SDK deserializer — that is the contract.
+    const pkg = ArkadeSdk.deserializeExitPackage(json);
+    assert.strictEqual(pkg.mode, 'graph');
+    assert.strictEqual(pkg.sweepAddress, SWEEP);
+  });
+
+  it('accepts taproot destinations and surfaces prepare failures', async () => {
+    const w = walletWithStubSdk();
+    jest.spyOn(ArkadeSdk.OnchainWallet, 'create').mockResolvedValue({} as any);
+    jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockRejectedValue(new Error('no exitable vtxos (all skipped)'));
+    await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP_TAPROOT), /no exitable vtxos/);
   });
 });
