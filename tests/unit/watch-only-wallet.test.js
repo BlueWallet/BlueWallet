@@ -738,7 +738,6 @@ describe('Watch only wallet', () => {
   });
 });
 
-
 describe('BC-UR', () => {
   it('v1: can decodeUR() and then combine unfinalized signed PSBT', () => {
     const unsignedPayload = decodeUR([
