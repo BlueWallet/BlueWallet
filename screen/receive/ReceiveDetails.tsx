@@ -31,7 +31,12 @@ import { SuccessView } from '../send/success';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { RECEIVE_DETAILS_MOCKED_VALUE, ReceiveDetailsMockScenario, registerReceiveDetailsDevMenu } from '../../components/DevMenu';
+import {
+  RECEIVE_DETAILS_MOCK_ADDRESS,
+  RECEIVE_DETAILS_MOCKED_VALUE,
+  ReceiveDetailsMockScenario,
+  registerReceiveDetailsDevMenu,
+} from '../../components/DevMenu';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -152,6 +157,7 @@ const UPDATE_ETA = 'UPDATE_ETA';
 const UPDATE_QR_CODE_SIZE = 'UPDATE_QR_CODE_SIZE';
 const APPLY_CUSTOM_PARAMS = 'APPLY_CUSTOM_PARAMS';
 const MOCK_SCENARIO = 'MOCK_SCENARIO';
+const MOCK_PAYMENT_CODE = 'PM8TJMockPaymentCode';
 
 type ReceiveDetailsState = {
   address: string;
@@ -172,6 +178,7 @@ type ReceiveDetailsState = {
   displayAmount: string | null;
   qrCodeSize: number;
   mockPaymentCode?: string | null;
+  isMocked: boolean;
 };
 
 type ReceiveDetailsAction =
@@ -210,6 +217,7 @@ const initialState: ReceiveDetailsState = {
   displayAmount: null,
   qrCodeSize: 90,
   mockPaymentCode: undefined,
+  isMocked: false,
 };
 
 const formatDisplayAmount = (amount: string, unit: BitcoinUnit): string | null => {
@@ -334,12 +342,13 @@ const receiveDetailsReducer = (state: ReceiveDetailsState, action: ReceiveDetail
     case MOCK_SCENARIO: {
       if (action.value !== RECEIVE_DETAILS_MOCKED_VALUE) return state;
 
-      const mockedAddress = action.value;
+      const mockedAddress = RECEIVE_DETAILS_MOCK_ADDRESS;
       const addressState: ReceiveDetailsState = {
         ...initialState,
         address: mockedAddress,
         bip21encoded: DeeplinkSchemaMatch.bip21encode(mockedAddress),
         showAddress: true,
+        isMocked: true,
       };
       const applyCustomState = (customAmount: string, customUnit: BitcoinUnit, bip21encoded: string) =>
         receiveDetailsReducer(addressState, {
@@ -370,20 +379,20 @@ const receiveDetailsReducer = (state: ReceiveDetailsState, action: ReceiveDetail
 
       switch (action.scenario) {
         case 'loading':
-          return { ...initialState, address: mockedAddress };
+          return { ...initialState, address: mockedAddress, isMocked: true };
         case 'address':
           return addressState;
         case 'custom-btc':
-          return applyCustomState('0.001', BitcoinUnit.BTC, 'bitcoin:mocked?amount=0.001&label=Mocked%20payment');
+          return applyCustomState('0.001', BitcoinUnit.BTC, `bitcoin:${mockedAddress}?amount=0.001&label=Mocked%20payment`);
         case 'custom-sats':
-          return applyCustomState('100000', BitcoinUnit.SATS, 'bitcoin:mocked?amount=0.001&label=Mocked%20payment');
+          return applyCustomState('100000', BitcoinUnit.SATS, `bitcoin:${mockedAddress}?amount=0.001&label=Mocked%20payment`);
         case 'custom-fiat':
           return {
             ...addressState,
             customLabel: 'Mocked payment',
             customAmount: '100',
             customUnit: BitcoinUnit.LOCAL_CURRENCY,
-            bip21encoded: 'bitcoin:mocked?label=Mocked%20payment',
+            bip21encoded: `bitcoin:${mockedAddress}?label=Mocked%20payment`,
             isCustom: true,
             displayAmount: '0.001 BTC',
           };
@@ -405,7 +414,7 @@ const receiveDetailsReducer = (state: ReceiveDetailsState, action: ReceiveDetail
           return {
             ...addressState,
             currentTab: segmentControlValues[1],
-            mockPaymentCode: action.value,
+            mockPaymentCode: MOCK_PAYMENT_CODE,
           };
         case 'payment-code-not-found':
           return {
@@ -454,6 +463,7 @@ const ReceiveDetails = () => {
     displayAmount: reducerDisplayAmount,
     qrCodeSize,
     mockPaymentCode,
+    isMocked,
   } = state;
   const address = routeAddress ?? reducerAddress;
   const customLabel = routeCustomLabel ?? reducerCustomLabel;
@@ -463,7 +473,6 @@ const ReceiveDetails = () => {
   const isCustom = routeIsCustom ?? reducerIsCustom;
   const displayAmount =
     routeCustomAmount !== undefined || routeCustomUnit !== undefined ? formatDisplayAmount(customAmount, customUnit) : reducerDisplayAmount;
-  const isMocked = address === RECEIVE_DETAILS_MOCKED_VALUE;
   const { goBack, setParams, navigate } = useExtendedNavigation<NavigationProps>();
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
@@ -623,7 +632,7 @@ const ReceiveDetails = () => {
   useEffect(() => {
     if (!__DEV__) return;
     return registerReceiveDetailsDevMenu((scenario, value) => {
-      setParams({ address: value });
+      setParams({ address: RECEIVE_DETAILS_MOCK_ADDRESS });
       dispatch({ type: MOCK_SCENARIO, scenario, value });
     });
   }, [setParams]);

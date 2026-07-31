@@ -7,6 +7,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
 
 export const RECEIVE_DETAILS_MOCKED_VALUE = 'mocked' as const;
+export const RECEIVE_DETAILS_MOCK_ADDRESS = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
 
 export type ReceiveDetailsMockScenario =
   | 'loading'

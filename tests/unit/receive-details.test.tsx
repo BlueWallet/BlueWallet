@@ -6,6 +6,7 @@ import Share from 'react-native-share';
 import ReceiveDetails from '../../screen/receive/ReceiveDetails';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import { RECEIVE_DETAILS_MOCK_ADDRESS } from '../../components/DevMenu';
 
 const mockSetParams = jest.fn();
 const mockNavigate = jest.fn();
@@ -23,6 +24,7 @@ let mockRouteParams: Record<string, unknown> = {};
 let mockWallets: any[] = [];
 
 jest.mock('../../components/DevMenu', () => ({
+  RECEIVE_DETAILS_MOCK_ADDRESS: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
   RECEIVE_DETAILS_MOCKED_VALUE: 'mocked',
   registerReceiveDetailsDevMenu: (handler: (scenario: string, value: 'mocked') => void) => {
     mockReceiveDetailsHandler = handler;
@@ -345,8 +347,8 @@ describe('ReceiveDetails', () => {
     expect(screen.getByTestId('ReceiveCardSkeleton')).toBeTruthy();
 
     activate('address');
-    expect(screen.getByText('bitcoin:mocked|90')).toBeTruthy();
-    expect(screen.getByTestId('CopyText').props.children).toBe('mocked');
+    expect(screen.getByText(`bitcoin:${RECEIVE_DETAILS_MOCK_ADDRESS}|90`)).toBeTruthy();
+    expect(screen.getByTestId('CopyText').props.children).toBe(RECEIVE_DETAILS_MOCK_ADDRESS);
 
     activate('custom-btc');
     expect(screen.getByText('0.001 BTC')).toBeTruthy();
@@ -356,20 +358,20 @@ describe('ReceiveDetails', () => {
     expect(screen.getByText('0.001 BTC')).toBeTruthy();
 
     activate('custom-fiat');
-    expect(screen.getByTestId('BitcoinAmountText')).toBeTruthy();
+    expect(screen.getByText('0.001 BTC')).toBeTruthy();
 
     mockRouteParams = {
       ...mockRouteParams,
       customLabel: 'Route priority',
       customAmount: '2',
       customUnit: BitcoinUnit.BTC,
-      bip21encoded: 'bitcoin:mocked?amount=2',
+      bip21encoded: `bitcoin:${RECEIVE_DETAILS_MOCK_ADDRESS}?amount=2`,
       isCustom: true,
     };
     screen.rerender(<ReceiveDetails />);
     expect(screen.getByText('2 BTC')).toBeTruthy();
     expect(screen.getByText('Route priority')).toBeTruthy();
-    expect(screen.getByText('bitcoin:mocked?amount=2|90')).toBeTruthy();
+    expect(screen.getByText(`bitcoin:${RECEIVE_DETAILS_MOCK_ADDRESS}?amount=2|90`)).toBeTruthy();
 
     activate('pending-fast');
     expect(screen.getByText('10 minutes')).toBeTruthy();
@@ -384,7 +386,7 @@ describe('ReceiveDetails', () => {
     expect(screen.getByText('Success')).toBeTruthy();
 
     activate('payment-code');
-    expect(screen.getByText('mocked|90')).toBeTruthy();
+    expect(screen.getByText('PM8TJMockPaymentCode|90')).toBeTruthy();
     expect(screen.getByText('Payment code explanation')).toBeTruthy();
 
     activate('payment-code-not-found');
