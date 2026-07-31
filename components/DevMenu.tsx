@@ -18,7 +18,6 @@ export type ReceiveDetailsMockScenario =
   | 'pending-medium'
   | 'pending-slow'
   | 'confirmed'
-  | 'evicted'
   | 'payment-code'
   | 'payment-code-not-found';
 
@@ -52,7 +51,6 @@ const receiveDetailsMockOptions: Array<{ text: string; scenario: ReceiveDetailsM
   { text: 'Pending: medium', scenario: 'pending-medium' },
   { text: 'Pending: slow', scenario: 'pending-slow' },
   { text: 'Confirmed', scenario: 'confirmed' },
-  { text: 'Evicted', scenario: 'evicted' },
   { text: 'Payment code', scenario: 'payment-code' },
   { text: 'Payment code: not found', scenario: 'payment-code-not-found' },
 ];
@@ -97,13 +95,6 @@ const showReceiveDetailsMockOptions = () => {
       { text: 'Slow', onPress: () => activateReceiveDetailsMock('pending-slow') },
     ]);
   };
-  const showCompletedOptions = () => {
-    Alert.alert('Completed states', 'Select a state.', [
-      { text: 'Confirmed', onPress: () => activateReceiveDetailsMock('confirmed') },
-      { text: 'Evicted', onPress: () => activateReceiveDetailsMock('evicted') },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
-  };
   const showPaymentCodeOptions = () => {
     Alert.alert('Payment code states', 'Select a state.', [
       { text: 'Payment code', onPress: () => activateReceiveDetailsMock('payment-code') },
@@ -114,7 +105,7 @@ const showReceiveDetailsMockOptions = () => {
   const showPaymentOptions = () => {
     Alert.alert('Payment states', 'Select a state.', [
       { text: 'Pending…', onPress: showPendingOptions },
-      { text: 'Completed…', onPress: showCompletedOptions },
+      { text: 'Confirmed', onPress: () => activateReceiveDetailsMock('confirmed') },
       { text: 'Payment codes…', onPress: showPaymentCodeOptions },
     ]);
   };

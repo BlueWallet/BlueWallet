@@ -70,9 +70,10 @@ interface SuccessViewParam {
   fee?: number;
   invoiceDescription?: string;
   shouldAnimate?: boolean;
+  centered?: boolean;
 }
 
-export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true }: SuccessViewParam) => {
+export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shouldAnimate = true, centered = false }: SuccessViewParam) => {
   const { colors } = useTheme();
 
   let unit: string = '';
@@ -93,7 +94,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
   });
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, centered && styles.centeredRoot]}>
       {amount || (fee ?? 0) > 0 ? (
         <BlueCard style={styles.amount}>
           <View style={styles.view}>
@@ -115,7 +116,7 @@ export const SuccessView = ({ amount, amountUnit, fee, invoiceDescription, shoul
         </BlueCard>
       ) : null}
 
-      <View style={styles.ready}>
+      <View style={[styles.ready, centered && styles.centeredReady]}>
         <LottieView
           style={styles.lottie}
           source={require('../../img/bluenice.json')}
@@ -185,6 +186,21 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     marginBottom: 53,
+  },
+  centeredRoot: {
+    flex: 0,
+    width: 200,
+    height: 200,
+    paddingTop: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centeredReady: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginBottom: 0,
+    justifyContent: 'center',
   },
   lottie: {
     width: 200,

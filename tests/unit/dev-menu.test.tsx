@@ -31,9 +31,7 @@ describe('DevMenu Receive Details scenarios', () => {
       const rootButtons = alert.mock.calls.at(-1)?.[2];
       act(() => rootButtons?.find(button => button.text === 'Payment states…')?.onPress?.());
       const paymentButtons = alert.mock.calls.at(-1)?.[2];
-      act(() => paymentButtons?.find(button => button.text === 'Completed…')?.onPress?.());
-      const completedButtons = alert.mock.calls.at(-1)?.[2];
-      act(() => completedButtons?.find(button => button.text === 'Confirmed')?.onPress?.());
+      act(() => paymentButtons?.find(button => button.text === 'Confirmed')?.onPress?.());
     } else {
       const buttons = alert.mock.calls.at(-1)?.[2];
       act(() => buttons?.find(button => button.text === 'Confirmed')?.onPress?.());

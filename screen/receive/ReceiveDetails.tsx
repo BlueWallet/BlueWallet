@@ -401,14 +401,6 @@ const receiveDetailsReducer = (state: ReceiveDetailsState, action: ReceiveDetail
             unconfirmed: 0,
           });
         }
-        case 'evicted': {
-          const pendingState = applyPendingState(1_000);
-          return receiveDetailsReducer(pendingState, {
-            type: UPDATE_BALANCE,
-            confirmed: 100_000,
-            unconfirmed: 0,
-          });
-        }
         case 'payment-code':
           return {
             ...addressState,
@@ -428,7 +420,15 @@ const receiveDetailsReducer = (state: ReceiveDetailsState, action: ReceiveDetail
 
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
-  const { walletID, address: routeAddress } = route.params;
+  const {
+    walletID,
+    address: routeAddress,
+    customLabel: routeCustomLabel,
+    customAmount: routeCustomAmount,
+    customUnit: routeCustomUnit,
+    bip21encoded: routeBip21encoded,
+    isCustom: routeIsCustom,
+  } = route.params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
@@ -437,12 +437,12 @@ const ReceiveDetails = () => {
     address ? { ...initialState, address } : initialState,
   );
   const {
-    address,
-    customLabel,
-    customAmount,
-    customUnit,
-    bip21encoded,
-    isCustom,
+    address: reducerAddress,
+    customLabel: reducerCustomLabel,
+    customAmount: reducerCustomAmount,
+    customUnit: reducerCustomUnit,
+    bip21encoded: reducerBip21encoded,
+    isCustom: reducerIsCustom,
     showPendingBalance,
     showConfirmedBalance,
     showAddress,
@@ -451,10 +451,18 @@ const ReceiveDetails = () => {
     eta,
     initialUnconfirmed,
     displayBalance,
-    displayAmount,
+    displayAmount: reducerDisplayAmount,
     qrCodeSize,
     mockPaymentCode,
   } = state;
+  const address = routeAddress ?? reducerAddress;
+  const customLabel = routeCustomLabel ?? reducerCustomLabel;
+  const customAmount = routeCustomAmount ?? reducerCustomAmount;
+  const customUnit = routeCustomUnit ?? reducerCustomUnit;
+  const bip21encoded = routeBip21encoded ?? reducerBip21encoded;
+  const isCustom = routeIsCustom ?? reducerIsCustom;
+  const displayAmount =
+    routeCustomAmount !== undefined || routeCustomUnit !== undefined ? formatDisplayAmount(customAmount, customUnit) : reducerDisplayAmount;
   const isMocked = address === RECEIVE_DETAILS_MOCKED_VALUE;
   const { goBack, setParams, navigate } = useExtendedNavigation<NavigationProps>();
 
@@ -615,9 +623,10 @@ const ReceiveDetails = () => {
   useEffect(() => {
     if (!__DEV__) return;
     return registerReceiveDetailsDevMenu((scenario, value) => {
+      setParams({ address: value });
       dispatch({ type: MOCK_SCENARIO, scenario, value });
     });
-  }, []);
+  }, [setParams]);
 
   useEffect(() => {
     setParams({
@@ -698,7 +707,7 @@ const ReceiveDetails = () => {
             {customLabel}
           </BlueText>
         )}
-        <SuccessView />
+        <SuccessView centered />
         <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
           {displayBalance}
         </BlueText>
@@ -1002,6 +1011,7 @@ const styles = StyleSheet.create({
   },
   scrollBody: {
     flex: 1,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },

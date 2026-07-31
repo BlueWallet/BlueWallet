@@ -200,6 +200,9 @@ jest.mock('../../loc', () => ({
 describe('ReceiveDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSetParams.mockImplementation((params: Record<string, unknown>) => {
+      mockRouteParams = { ...mockRouteParams, ...params };
+    });
     mockGetBalanceByAddress.mockResolvedValue({ confirmed: 0, unconfirmed: 0 });
     mockGetMempoolTransactionsByAddress.mockResolvedValue([]);
     mockMultiGetTransactionByTxid.mockResolvedValue({});
@@ -355,6 +358,19 @@ describe('ReceiveDetails', () => {
     activate('custom-fiat');
     expect(screen.getByTestId('BitcoinAmountText')).toBeTruthy();
 
+    mockRouteParams = {
+      ...mockRouteParams,
+      customLabel: 'Route priority',
+      customAmount: '2',
+      customUnit: BitcoinUnit.BTC,
+      bip21encoded: 'bitcoin:mocked?amount=2',
+      isCustom: true,
+    };
+    screen.rerender(<ReceiveDetails />);
+    expect(screen.getByText('2 BTC')).toBeTruthy();
+    expect(screen.getByText('Route priority')).toBeTruthy();
+    expect(screen.getByText('bitcoin:mocked?amount=2|90')).toBeTruthy();
+
     activate('pending-fast');
     expect(screen.getByText('10 minutes')).toBeTruthy();
 
@@ -366,10 +382,6 @@ describe('ReceiveDetails', () => {
 
     activate('confirmed');
     expect(screen.getByText('Success')).toBeTruthy();
-
-    activate('evicted');
-    expect(screen.getByTestId('ReceiveCard')).toBeTruthy();
-    expect(screen.queryByText('Success')).toBeNull();
 
     activate('payment-code');
     expect(screen.getByText('mocked|90')).toBeTruthy();
