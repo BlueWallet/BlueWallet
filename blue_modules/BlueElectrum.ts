@@ -16,7 +16,6 @@ import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { triggerWarningHapticFeedback } from './hapticFeedback';
 import { AlertButton } from 'react-native';
 import { uint8ArrayToHex, stringToUint8Array, hexToUint8Array } from './uint8array-extras/index';
-import { getErrorMessage } from './getErrorMessage';
 
 const ElectrumClient = require('electrum-client');
 const net = require('net');
@@ -1415,9 +1414,9 @@ export const broadcastV2 = async function (hex: string): Promise<string> {
   if (!mainClient) throw new Error('Electrum client is not connected');
   try {
     return await mainClient.blockchainTransaction_broadcast(hex);
-  } catch (error) {
-    // Electrum client rejects JSON-RPC errors as plain `{ code, message }` objects, not Error instances
-    throw new Error(getErrorMessage(error));
+  } catch (error: any) {
+    // electrum-client rejects JSON-RPC errors as `{ code, message }`, not Error
+    throw new Error(error?.message || String(error));
   }
 };
 

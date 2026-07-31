@@ -23,7 +23,6 @@ import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
-import { getErrorMessage } from '../../blue_modules/getErrorMessage';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
@@ -99,7 +98,8 @@ const PsbtWithHardwareWallet = () => {
         }
       } catch (Err) {
         console.log('error in _combinePSBT():', Err);
-        presentAlert({ message: getErrorMessage(Err) });
+        const message = Err instanceof Error ? Err.message : typeof Err === 'string' ? Err : 'Unknown error';
+        presentAlert({ message });
       }
     },
     [_combinePSBT, launchedBy, navigation, psbt],
@@ -127,7 +127,8 @@ const PsbtWithHardwareWallet = () => {
         }
       } catch (Err) {
         console.log('error in wallet.combinePsbt():', Err);
-        presentAlert({ message: getErrorMessage(Err) });
+        const message = Err instanceof Error ? Err.message : typeof Err === 'string' ? Err : 'Unknown error';
+        presentAlert({ message });
       }
     } else if (routeParamsTXHex) {
       setTxHex(routeParamsTXHex);
@@ -177,7 +178,8 @@ const PsbtWithHardwareWallet = () => {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       setIsLoading(false);
       console.log('error broadcasting:', error);
-      presentAlert({ message: getErrorMessage(error) });
+      const message = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+      presentAlert({ message });
     }
   };
 
