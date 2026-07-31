@@ -31,6 +31,7 @@ import { SuccessView } from '../send/success';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
+import { RECEIVE_DETAILS_MOCKED_VALUE, ReceiveDetailsMockScenario, registerReceiveDetailsDevMenu } from '../../components/DevMenu';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -144,17 +145,16 @@ const QrStaggerReveal: React.FC<QrStaggerRevealProps> = ({ size, maskColor, runK
 type NavigationProps = NativeStackNavigationProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 
-const SET_ADDRESS_BIP21_ENCODED = 'SET_ADDRESS_BIP21_ENCODED';
-const SET_CURRENT_TAB = 'SET_CURRENT_TAB';
-const INITIALIZE_PENDING_BALANCE = 'INITIALIZE_PENDING_BALANCE';
-const SET_ETA = 'SET_ETA';
-const SHOW_PENDING_BALANCE = 'SHOW_PENDING_BALANCE';
-const SHOW_CONFIRMED_BALANCE = 'SHOW_CONFIRMED_BALANCE';
-const SHOW_ADDRESS = 'SHOW_ADDRESS';
-const SET_QR_CODE_SIZE = 'SET_QR_CODE_SIZE';
+const SET_ADDRESS = 'SET_ADDRESS';
+const SELECT_TAB = 'SELECT_TAB';
+const UPDATE_BALANCE = 'UPDATE_BALANCE';
+const UPDATE_ETA = 'UPDATE_ETA';
+const UPDATE_QR_CODE_SIZE = 'UPDATE_QR_CODE_SIZE';
 const APPLY_CUSTOM_PARAMS = 'APPLY_CUSTOM_PARAMS';
+const MOCK_SCENARIO = 'MOCK_SCENARIO';
 
 type ReceiveDetailsState = {
+  address: string;
   customLabel: string;
   customAmount: string;
   customUnit: BitcoinUnit;
@@ -169,32 +169,30 @@ type ReceiveDetailsState = {
   initialConfirmed: number;
   initialUnconfirmed: number;
   displayBalance: string;
+  displayAmount: string | null;
   qrCodeSize: number;
+  mockPaymentCode?: string | null;
 };
 
 type ReceiveDetailsAction =
-  | { type: typeof SET_ADDRESS_BIP21_ENCODED; bip21encoded: string }
-  | { type: typeof SET_CURRENT_TAB; currentTab: string }
+  | { type: typeof SET_ADDRESS; address: string }
+  | { type: typeof SELECT_TAB; index: number }
   | {
-      type: typeof INITIALIZE_PENDING_BALANCE;
-      initialConfirmed: number;
-      initialUnconfirmed: number;
+      type: typeof UPDATE_BALANCE;
+      confirmed: number;
+      unconfirmed: number;
     }
-  | { type: typeof SET_ETA; eta: string }
-  | { type: typeof SHOW_PENDING_BALANCE; displayBalance: string }
-  | { type: typeof SHOW_CONFIRMED_BALANCE; displayBalance: string }
-  | { type: typeof SHOW_ADDRESS }
-  | { type: typeof SET_QR_CODE_SIZE; qrCodeSize: number }
+  | { type: typeof UPDATE_ETA; fee: number; vsize: number; fastFee: number; mediumFee: number }
+  | { type: typeof UPDATE_QR_CODE_SIZE; width: number; height: number }
   | {
       type: typeof APPLY_CUSTOM_PARAMS;
-      customLabel: string;
-      customAmount: string;
-      customUnit: BitcoinUnit;
-      bip21encoded?: string;
-      isCustom: boolean;
-    };
+      params: Pick<RouteProps['params'], 'customLabel' | 'customAmount' | 'customUnit' | 'bip21encoded' | 'isCustom'>;
+      fallbackUnit: BitcoinUnit;
+    }
+  | { type: typeof MOCK_SCENARIO; scenario: ReceiveDetailsMockScenario; value: typeof RECEIVE_DETAILS_MOCKED_VALUE };
 
 const initialState: ReceiveDetailsState = {
+  address: '',
   customLabel: '',
   customAmount: '',
   customUnit: BitcoinUnit.BTC,
@@ -209,81 +207,237 @@ const initialState: ReceiveDetailsState = {
   initialConfirmed: 0,
   initialUnconfirmed: 0,
   displayBalance: '',
+  displayAmount: null,
   qrCodeSize: 90,
+  mockPaymentCode: undefined,
+};
+
+const formatDisplayAmount = (amount: string, unit: BitcoinUnit): string | null => {
+  const number = Number(amount);
+  if (number <= 0) return null;
+
+  switch (unit) {
+    case BitcoinUnit.BTC:
+      return `${amount} BTC`;
+    case BitcoinUnit.SATS:
+      return `${satoshiToBTC(number)} BTC`;
+    case BitcoinUnit.LOCAL_CURRENCY:
+      return `${fiatToBTC(number)} BTC`;
+    default:
+      return `${amount} ${unit}`;
+  }
 };
 
 const receiveDetailsReducer = (state: ReceiveDetailsState, action: ReceiveDetailsAction): ReceiveDetailsState => {
   switch (action.type) {
-    case SET_ADDRESS_BIP21_ENCODED:
-      if (state.bip21encoded === action.bip21encoded && state.showAddress) return state;
-      return { ...state, bip21encoded: action.bip21encoded, showAddress: true };
-    case SET_CURRENT_TAB:
-      if (state.currentTab === action.currentTab) return state;
-      return { ...state, currentTab: action.currentTab };
-    case INITIALIZE_PENDING_BALANCE:
-      return {
-        ...state,
-        initialConfirmed: action.initialConfirmed,
-        initialUnconfirmed: action.initialUnconfirmed,
-        intervalMs: 25000,
-      };
-    case SET_ETA:
-      if (state.eta === action.eta) return state;
-      return { ...state, eta: action.eta };
-    case SHOW_PENDING_BALANCE:
-      if (state.displayBalance === action.displayBalance && state.showPendingBalance && !state.showAddress) return state;
-      return {
-        ...state,
-        displayBalance: action.displayBalance,
-        showPendingBalance: true,
-        showAddress: false,
-      };
-    case SHOW_CONFIRMED_BALANCE:
-      if (state.displayBalance === action.displayBalance && state.showConfirmedBalance && !state.showPendingBalance && !state.showAddress) {
+    case SET_ADDRESS: {
+      const bip21encoded = DeeplinkSchemaMatch.bip21encode(action.address);
+      if (state.address === action.address && state.bip21encoded === bip21encoded && state.showAddress) return state;
+      return { ...state, address: action.address, bip21encoded, showAddress: true };
+    }
+    case SELECT_TAB: {
+      const currentTab = segmentControlValues[action.index];
+      if (!currentTab || state.currentTab === currentTab) return state;
+      return { ...state, currentTab };
+    }
+    case UPDATE_BALANCE: {
+      if (action.unconfirmed > 0) {
+        const isInitialPendingBalance = state.initialConfirmed === 0 && state.initialUnconfirmed === 0;
+        const displayBalance = loc.formatString(loc.transactions.pending_with_amount, {
+          amt1: formatBalance(action.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+          amt2: formatBalance(action.unconfirmed, BitcoinUnit.BTC, true).toString(),
+        });
+        if (!isInitialPendingBalance && state.displayBalance === displayBalance && state.showPendingBalance && !state.showAddress) {
+          return state;
+        }
+        return {
+          ...state,
+          initialConfirmed: isInitialPendingBalance ? action.confirmed : state.initialConfirmed,
+          initialUnconfirmed: isInitialPendingBalance ? action.unconfirmed : state.initialUnconfirmed,
+          intervalMs: isInitialPendingBalance ? 25000 : state.intervalMs,
+          displayBalance,
+          showPendingBalance: true,
+          showAddress: false,
+        };
+      }
+
+      if (action.unconfirmed !== 0 || state.initialUnconfirmed === 0) return state;
+
+      const receivedBalance = action.confirmed - state.initialConfirmed;
+      if (receivedBalance <= 0) {
+        if (!state.showConfirmedBalance && !state.showPendingBalance && state.showAddress) return state;
+        return {
+          ...state,
+          showConfirmedBalance: false,
+          showPendingBalance: false,
+          showAddress: true,
+        };
+      }
+
+      const displayBalance = loc.formatString(loc.transactions.received_with_amount, {
+        amt1: formatBalance(receivedBalance, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+        amt2: formatBalance(receivedBalance, BitcoinUnit.BTC, true).toString(),
+      });
+      if (state.displayBalance === displayBalance && state.showConfirmedBalance && !state.showPendingBalance && !state.showAddress) {
         return state;
       }
       return {
         ...state,
-        displayBalance: action.displayBalance,
+        displayBalance,
         showConfirmedBalance: true,
         showPendingBalance: false,
         showAddress: false,
       };
-    case SHOW_ADDRESS:
-      if (!state.showConfirmedBalance && !state.showPendingBalance && state.showAddress) return state;
+    }
+    case UPDATE_ETA: {
+      const satPerVbyte = Math.round(action.fee / action.vsize);
+      const eta =
+        satPerVbyte >= action.fastFee
+          ? loc.formatString(loc.transactions.eta_10m)
+          : satPerVbyte >= action.mediumFee
+            ? loc.formatString(loc.transactions.eta_3h)
+            : loc.formatString(loc.transactions.eta_1d);
+      if (state.eta === eta) return state;
+      return { ...state, eta };
+    }
+    case UPDATE_QR_CODE_SIZE: {
+      if (action.width <= 0 || action.height <= 0) return state;
+      const isPortrait = action.height > action.width;
+      const heightCap = Math.min(
+        isPortrait ? action.height * QR_PORTRAIT_HEIGHT_FRACTION : action.height * QR_LANDSCAPE_HEIGHT_FRACTION,
+        MAX_QR_SIZE,
+      );
+      const widthBudget = action.width - QR_SCROLL_RESERVED_WIDTH;
+      const innerWidthCap = Math.max(MIN_QR_SIZE, Math.floor(widthBudget * QR_WIDTH_USE_FRACTION));
+      const qrCodeSize = Math.round(Math.max(MIN_QR_SIZE, Math.min(innerWidthCap, heightCap, MAX_QR_SIZE)));
+      if (state.qrCodeSize === qrCodeSize) return state;
+      return { ...state, qrCodeSize };
+    }
+    case APPLY_CUSTOM_PARAMS: {
+      const isCustom = Boolean(action.params.isCustom);
+      const customLabel = isCustom ? (action.params.customLabel ?? '') : '';
+      const customAmount = isCustom ? (action.params.customAmount ?? '') : '';
+      const customUnit = isCustom ? (action.params.customUnit ?? BitcoinUnit.BTC) : action.fallbackUnit;
       return {
         ...state,
-        showConfirmedBalance: false,
-        showPendingBalance: false,
-        showAddress: true,
-      };
-    case SET_QR_CODE_SIZE:
-      if (state.qrCodeSize === action.qrCodeSize) return state;
-      return { ...state, qrCodeSize: action.qrCodeSize };
-    case APPLY_CUSTOM_PARAMS:
-      return {
-        ...state,
-        customLabel: action.customLabel,
-        customAmount: action.customAmount,
-        customUnit: action.customUnit,
-        bip21encoded: action.bip21encoded ?? state.bip21encoded,
-        isCustom: action.isCustom,
+        customLabel,
+        customAmount,
+        customUnit,
+        bip21encoded: action.params.bip21encoded || state.bip21encoded,
+        isCustom,
         showAddress: true,
         showPendingBalance: false,
         showConfirmedBalance: false,
+        displayAmount: formatDisplayAmount(customAmount, customUnit),
       };
+    }
+    case MOCK_SCENARIO: {
+      if (action.value !== RECEIVE_DETAILS_MOCKED_VALUE) return state;
+
+      const mockedAddress = action.value;
+      const addressState: ReceiveDetailsState = {
+        ...initialState,
+        address: mockedAddress,
+        bip21encoded: DeeplinkSchemaMatch.bip21encode(mockedAddress),
+        showAddress: true,
+      };
+      const applyCustomState = (customAmount: string, customUnit: BitcoinUnit, bip21encoded: string) =>
+        receiveDetailsReducer(addressState, {
+          type: APPLY_CUSTOM_PARAMS,
+          params: {
+            customLabel: 'Mocked payment',
+            customAmount,
+            customUnit,
+            bip21encoded,
+            isCustom: true,
+          },
+          fallbackUnit: BitcoinUnit.BTC,
+        });
+      const applyPendingState = (fee: number) => {
+        const etaState = receiveDetailsReducer(addressState, {
+          type: UPDATE_ETA,
+          fee,
+          vsize: 100,
+          fastFee: 10,
+          mediumFee: 5,
+        });
+        return receiveDetailsReducer(etaState, {
+          type: UPDATE_BALANCE,
+          confirmed: 100_000,
+          unconfirmed: 50_000,
+        });
+      };
+
+      switch (action.scenario) {
+        case 'loading':
+          return { ...initialState, address: mockedAddress };
+        case 'address':
+          return addressState;
+        case 'custom-btc':
+          return applyCustomState('0.001', BitcoinUnit.BTC, 'bitcoin:mocked?amount=0.001&label=Mocked%20payment');
+        case 'custom-sats':
+          return applyCustomState('100000', BitcoinUnit.SATS, 'bitcoin:mocked?amount=0.001&label=Mocked%20payment');
+        case 'custom-fiat':
+          return {
+            ...addressState,
+            customLabel: 'Mocked payment',
+            customAmount: '100',
+            customUnit: BitcoinUnit.LOCAL_CURRENCY,
+            bip21encoded: 'bitcoin:mocked?label=Mocked%20payment',
+            isCustom: true,
+            displayAmount: '0.001 BTC',
+          };
+        case 'pending-fast':
+          return applyPendingState(1_000);
+        case 'pending-medium':
+          return applyPendingState(700);
+        case 'pending-slow':
+          return applyPendingState(100);
+        case 'confirmed': {
+          const pendingState = applyPendingState(1_000);
+          return receiveDetailsReducer(pendingState, {
+            type: UPDATE_BALANCE,
+            confirmed: 150_000,
+            unconfirmed: 0,
+          });
+        }
+        case 'evicted': {
+          const pendingState = applyPendingState(1_000);
+          return receiveDetailsReducer(pendingState, {
+            type: UPDATE_BALANCE,
+            confirmed: 100_000,
+            unconfirmed: 0,
+          });
+        }
+        case 'payment-code':
+          return {
+            ...addressState,
+            currentTab: segmentControlValues[1],
+            mockPaymentCode: action.value,
+          };
+        case 'payment-code-not-found':
+          return {
+            ...addressState,
+            currentTab: segmentControlValues[1],
+            mockPaymentCode: null,
+          };
+      }
+    }
   }
 };
 
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
-  const { walletID, address } = route.params;
+  const { walletID, address: routeAddress } = route.params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
   const isDarkTheme = useColorScheme() === 'dark';
-  const [state, dispatch] = useReducer(receiveDetailsReducer, initialState);
+  const [state, dispatch] = useReducer(receiveDetailsReducer, routeAddress, address =>
+    address ? { ...initialState, address } : initialState,
+  );
   const {
+    address,
     customLabel,
     customAmount,
     customUnit,
@@ -295,17 +449,24 @@ const ReceiveDetails = () => {
     currentTab,
     intervalMs,
     eta,
-    initialConfirmed,
     initialUnconfirmed,
     displayBalance,
+    displayAmount,
     qrCodeSize,
+    mockPaymentCode,
   } = state;
+  const isMocked = address === RECEIVE_DETAILS_MOCKED_VALUE;
   const { goBack, setParams, navigate } = useExtendedNavigation<NavigationProps>();
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
+  const isMockBIP47Enabled = mockPaymentCode !== undefined;
 
-  const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
+  const paymentCodeString = useMemo(
+    () =>
+      isMockBIP47Enabled ? (mockPaymentCode ?? '') : (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '',
+    [isMockBIP47Enabled, mockPaymentCode, wallet],
+  );
 
   /** Dark: theme input surface (#262626) reads softer than pure elevated / system gray 6. Light: iOS-style grouped background. */
   const cardBackgroundColor = isDarkTheme ? colors.inputBackgroundColor : '#F2F2F7';
@@ -336,7 +497,6 @@ const ReceiveDetails = () => {
   });
 
   const copyRef = useRef<CopyTextToClipboardHandle>(null);
-  const scrollLayoutRef = useRef({ width: 0, height: 0 });
   const pressScale = useSharedValue(1);
   const pressAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pressScale.value }],
@@ -354,12 +514,8 @@ const ReceiveDetails = () => {
 
   const setAddressBIP21Encoded = useCallback(
     (addr: string) => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
       setParams({ address: addr });
-      dispatch({
-        type: SET_ADDRESS_BIP21_ENCODED,
-        bip21encoded: newBip21encoded,
-      });
+      dispatch({ type: SET_ADDRESS, address: addr });
     },
     [setParams],
   );
@@ -438,14 +594,30 @@ const ReceiveDetails = () => {
   useEffect(() => {
     if (showConfirmedBalance) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      if (walletID) {
+        fetchAndSaveWalletTransactions(walletID);
+      }
     }
-  }, [showConfirmedBalance]);
+  }, [fetchAndSaveWalletTransactions, showConfirmedBalance, walletID]);
 
   useEffect(() => {
-    if (address && !isCustom) {
-      setAddressBIP21Encoded(address);
+    if (initialUnconfirmed !== 0) {
+      triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
     }
-  }, [address, isCustom, setAddressBIP21Encoded]);
+  }, [initialUnconfirmed]);
+
+  useEffect(() => {
+    if (routeAddress && !isCustom && !isMocked) {
+      setAddressBIP21Encoded(routeAddress);
+    }
+  }, [isCustom, isMocked, routeAddress, setAddressBIP21Encoded]);
+
+  useEffect(() => {
+    if (!__DEV__) return;
+    return registerReceiveDetailsDevMenu((scenario, value) => {
+      dispatch({ type: MOCK_SCENARIO, scenario, value });
+    });
+  }, []);
 
   useEffect(() => {
     setParams({
@@ -470,6 +642,7 @@ const ReceiveDetails = () => {
   // re-fetching address balance periodically
   useEffect(() => {
     console.debug('receive/details - useEffect');
+    if (isMocked) return;
 
     const intervalId = setInterval(async () => {
       try {
@@ -482,77 +655,30 @@ const ReceiveDetails = () => {
         console.debug('...got', balance);
 
         if (balance.unconfirmed > 0) {
-          if (initialConfirmed === 0 && initialUnconfirmed === 0) {
-            dispatch({
-              type: INITIALIZE_PENDING_BALANCE,
-              initialConfirmed: balance.confirmed,
-              initialUnconfirmed: balance.unconfirmed,
-            });
-            triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-          }
-
           const txs = await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
           const tx = txs.pop();
           if (tx) {
             const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], true, 10);
             if (rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
-              const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
               const fees = await BlueElectrum.estimateFees();
-              if (satPerVbyte >= fees.fast) {
-                dispatch({
-                  type: SET_ETA,
-                  eta: loc.formatString(loc.transactions.eta_10m),
-                });
-              } else if (satPerVbyte >= fees.medium) {
-                dispatch({
-                  type: SET_ETA,
-                  eta: loc.formatString(loc.transactions.eta_3h),
-                });
-              } else {
-                dispatch({
-                  type: SET_ETA,
-                  eta: loc.formatString(loc.transactions.eta_1d),
-                });
-              }
+              dispatch({
+                type: UPDATE_ETA,
+                fee: tx.fee,
+                vsize: rez[tx.tx_hash].vsize,
+                fastFee: fees.fast,
+                mediumFee: fees.medium,
+              });
             }
-          }
-
-          dispatch({
-            type: SHOW_PENDING_BALANCE,
-            displayBalance: loc.formatString(loc.transactions.pending_with_amount, {
-              amt1: formatBalance(balance.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
-              amt2: formatBalance(balance.unconfirmed, BitcoinUnit.BTC, true).toString(),
-            }),
-          });
-        } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
-          // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
-          // staring at the screen)
-          const balanceToShow = balance.confirmed - initialConfirmed;
-
-          if (balanceToShow > 0) {
-            // address has actually more coins than initially, so we definitely gained something
-            dispatch({
-              type: SHOW_CONFIRMED_BALANCE,
-              displayBalance: loc.formatString(loc.transactions.received_with_amount, {
-                amt1: formatBalance(balanceToShow, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
-                amt2: formatBalance(balanceToShow, BitcoinUnit.BTC, true).toString(),
-              }),
-            });
-            if (walletID) {
-              fetchAndSaveWalletTransactions(walletID);
-            }
-          } else {
-            // rare case, but probable. transaction evicted from mempool (maybe cancelled by the sender)
-            dispatch({ type: SHOW_ADDRESS });
           }
         }
+        dispatch({ type: UPDATE_BALANCE, confirmed: balance.confirmed, unconfirmed: balance.unconfirmed });
       } catch (error) {
         console.debug('Error checking balance:', error);
       }
     }, intervalMs);
 
     return () => clearInterval(intervalId);
-  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID]);
+  }, [bip21encoded, address, intervalMs, isMocked]);
 
   useEffect(() => {
     const handleBackButton = () => {
@@ -600,26 +726,10 @@ const ReceiveDetails = () => {
     );
   };
 
-  const recomputeQrCodeSize = useCallback(() => {
-    const { width: sw, height: sh } = scrollLayoutRef.current;
-    if (sw <= 0 || sh <= 0) return;
-
-    const isPortrait = sh > sw;
-    const heightCap = Math.min(isPortrait ? sh * QR_PORTRAIT_HEIGHT_FRACTION : sh * QR_LANDSCAPE_HEIGHT_FRACTION, MAX_QR_SIZE);
-    const widthBudget = sw - QR_SCROLL_RESERVED_WIDTH;
-    const innerWidthCap = Math.max(MIN_QR_SIZE, Math.floor(widthBudget * QR_WIDTH_USE_FRACTION));
-    const size = Math.max(MIN_QR_SIZE, Math.min(innerWidthCap, heightCap, MAX_QR_SIZE));
-    dispatch({ type: SET_QR_CODE_SIZE, qrCodeSize: Math.round(size) });
+  const onScrollViewLayout = useCallback((e: { nativeEvent: { layout: { height: number; width: number } } }) => {
+    const { height, width } = e.nativeEvent.layout;
+    dispatch({ type: UPDATE_QR_CODE_SIZE, width, height });
   }, []);
-
-  const onScrollViewLayout = useCallback(
-    (e: { nativeEvent: { layout: { height: number; width: number } } }) => {
-      const { height, width } = e.nativeEvent.layout;
-      scrollLayoutRef.current = { width, height };
-      recomputeQrCodeSize();
-    },
-    [recomputeQrCodeSize],
-  );
 
   const toBalancedMultilineText = useCallback((value: string) => {
     const normalized = value.replace(/\n/g, '');
@@ -628,10 +738,10 @@ const ReceiveDetails = () => {
     return `${normalized.slice(0, midpoint)}\n${normalized.slice(midpoint)}`;
   }, []);
 
-  const showReceiveSkeleton = !showAddress && !showPendingBalance && !showConfirmedBalance && Boolean(wallet ?? route.params.address);
+  const showReceiveSkeleton = !showAddress && !showPendingBalance && !showConfirmedBalance && Boolean(wallet ?? address);
 
   const renderReceiveSkeleton = () => {
-    const showTabs = Boolean(wallet && isBIP47Enabled);
+    const showTabs = Boolean((wallet && isBIP47Enabled) || isMockBIP47Enabled);
     return (
       <View style={styles.cardPressable} testID="ReceiveCardSkeleton">
         <View style={[styles.receiveCard, stylesHook.receiveCard, stylesHook.receiveCardColumn]}>
@@ -640,12 +750,7 @@ const ReceiveDetails = () => {
               <SegmentedControl
                 values={segmentControlValues}
                 selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-                onChange={index =>
-                  dispatch({
-                    type: SET_CURRENT_TAB,
-                    currentTab: segmentControlValues[index],
-                  })
-                }
+                onChange={index => dispatch({ type: SELECT_TAB, index })}
               />
             </View>
           )}
@@ -667,12 +772,12 @@ const ReceiveDetails = () => {
       if (!address) return null;
       qrValue = bip21encoded;
       copyText = isCustom ? bip21encoded : address;
-    } else if (wallet && isBIP47Enabled) {
+    } else if ((wallet && isBIP47Enabled) || isMockBIP47Enabled) {
       qrValue = paymentCodeString || undefined;
       copyText = paymentCodeString || undefined;
     }
 
-    const showTabs = Boolean(wallet && isBIP47Enabled);
+    const showTabs = Boolean((wallet && isBIP47Enabled) || isMockBIP47Enabled);
     const showTip = !isAddressTab && Boolean(qrValue);
     const showCustomAmount = isAddressTab && isCustom;
     const displayCopyText = copyText && isAddressTab ? toBalancedMultilineText(copyText) : undefined;
@@ -699,12 +804,7 @@ const ReceiveDetails = () => {
               <SegmentedControl
                 values={segmentControlValues}
                 selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-                onChange={index =>
-                  dispatch({
-                    type: SET_CURRENT_TAB,
-                    currentTab: segmentControlValues[index],
-                  })
-                }
+                onChange={index => dispatch({ type: SELECT_TAB, index })}
               />
             </View>
           )}
@@ -713,9 +813,9 @@ const ReceiveDetails = () => {
 
           {showCustomAmount && (
             <View style={styles.customAmountWrapper}>
-              {getDisplayAmount() && (
+              {displayAmount && (
                 <BlueText testID="BitcoinAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
-                  {getDisplayAmount()}
+                  {displayAmount}
                 </BlueText>
               )}
               {customLabel?.length > 0 && (
@@ -767,14 +867,14 @@ const ReceiveDetails = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (isCustom || hasIncomingCustomParams) return () => {};
+      if (isCustom || isMocked || hasIncomingCustomParams) return () => {};
       let cancelled = false;
       (async () => {
         try {
           if (wallet) {
             await obtainWalletAddress();
-          } else if (!wallet && address) {
-            setAddressBIP21Encoded(address);
+          } else if (!wallet && routeAddress) {
+            setAddressBIP21Encoded(routeAddress);
           }
         } catch (error) {
           if (!cancelled) {
@@ -785,7 +885,7 @@ const ReceiveDetails = () => {
       return () => {
         cancelled = true;
       };
-    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
+    }, [wallet, routeAddress, obtainWalletAddress, setAddressBIP21Encoded, isCustom, isMocked, hasIncomingCustomParams]),
   );
 
   const showCustomAmountModal = useCallback(() => {
@@ -817,49 +917,20 @@ const ReceiveDetails = () => {
 
     if (noIncomingParams) return;
 
-    if (incomingIsCustom) {
-      dispatch({
-        type: APPLY_CUSTOM_PARAMS,
-        customLabel: incomingLabel ?? '',
-        customAmount: incomingAmount ?? '',
-        customUnit: incomingUnit ?? BitcoinUnit.BTC,
-        bip21encoded: incomingBip21 || undefined,
-        isCustom: true,
-      });
-    } else {
-      const fallbackUnit = wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC;
-      dispatch({
-        type: APPLY_CUSTOM_PARAMS,
-        customLabel: '',
-        customAmount: '',
-        customUnit: fallbackUnit,
-        bip21encoded: incomingBip21 || undefined,
-        isCustom: false,
-      });
-    }
+    dispatch({
+      type: APPLY_CUSTOM_PARAMS,
+      params: {
+        customLabel: incomingLabel,
+        customAmount: incomingAmount,
+        customUnit: incomingUnit,
+        bip21encoded: incomingBip21,
+        isCustom: incomingIsCustom,
+      },
+      fallbackUnit: wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC,
+    });
 
     setParams({ customLabel: undefined, customAmount: undefined, customUnit: undefined, bip21encoded: undefined, isCustom: undefined });
   }, [route.params, setParams, wallet]);
-
-  /**
-   * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
-   */
-  const getDisplayAmount = (): string | null => {
-    const number = Number(customAmount);
-    if (number > 0) {
-      switch (customUnit) {
-        case BitcoinUnit.BTC:
-          return customAmount + ' BTC';
-        case BitcoinUnit.SATS:
-          return satoshiToBTC(number) + ' BTC';
-        case BitcoinUnit.LOCAL_CURRENCY:
-          return fiatToBTC(number) + ' BTC';
-      }
-      return customAmount + ' ' + customUnit;
-    } else {
-      return null;
-    }
-  };
 
   const handleShareButtonPressed = () => {
     const message = currentTab === segmentControlValues[0] ? bip21encoded : paymentCodeString;
@@ -887,7 +958,7 @@ const ReceiveDetails = () => {
       >
         {showAddress && renderReceiveCard()}
         {showReceiveSkeleton && renderReceiveSkeleton()}
-        {showAddress && address !== undefined && (
+        {showAddress && Boolean(address) && (
           <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
         )}
         {showConfirmedBalance && renderConfirmedBalance()}
@@ -912,7 +983,7 @@ const ReceiveDetails = () => {
             <Button
               onPress={handleShareButtonPressed}
               title={loc.receive.details_share}
-              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
+              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && (isBIP47Enabled || isMockBIP47Enabled))}
             />
           </BlueCard>
         </View>

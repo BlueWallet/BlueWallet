@@ -6,6 +6,126 @@ import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
 
+export const RECEIVE_DETAILS_MOCKED_VALUE = 'mocked' as const;
+
+export type ReceiveDetailsMockScenario =
+  | 'loading'
+  | 'address'
+  | 'custom-btc'
+  | 'custom-sats'
+  | 'custom-fiat'
+  | 'pending-fast'
+  | 'pending-medium'
+  | 'pending-slow'
+  | 'confirmed'
+  | 'evicted'
+  | 'payment-code'
+  | 'payment-code-not-found';
+
+type ReceiveDetailsMockHandler = (scenario: ReceiveDetailsMockScenario, value: typeof RECEIVE_DETAILS_MOCKED_VALUE) => void;
+
+const receiveDetailsMockHandlers: ReceiveDetailsMockHandler[] = [];
+const getActiveReceiveDetailsMockHandler = () => receiveDetailsMockHandlers.at(-1);
+
+// React Native exposes no removeMenuItem API. Keep one stable launcher in the
+// native menu and make its scenario options available only while this handler
+// is registered by the mounted ReceiveDetails screen.
+export const registerReceiveDetailsDevMenu = (handler: ReceiveDetailsMockHandler): (() => void) => {
+  receiveDetailsMockHandlers.push(handler);
+  return () => {
+    const index = receiveDetailsMockHandlers.lastIndexOf(handler);
+    if (index >= 0) receiveDetailsMockHandlers.splice(index, 1);
+  };
+};
+
+const activateReceiveDetailsMock = (scenario: ReceiveDetailsMockScenario) => {
+  getActiveReceiveDetailsMockHandler()?.(scenario, RECEIVE_DETAILS_MOCKED_VALUE);
+};
+
+const receiveDetailsMockOptions: Array<{ text: string; scenario: ReceiveDetailsMockScenario }> = [
+  { text: 'Loading', scenario: 'loading' },
+  { text: 'Address', scenario: 'address' },
+  { text: 'Custom BTC', scenario: 'custom-btc' },
+  { text: 'Custom sats', scenario: 'custom-sats' },
+  { text: 'Custom fiat', scenario: 'custom-fiat' },
+  { text: 'Pending: fast', scenario: 'pending-fast' },
+  { text: 'Pending: medium', scenario: 'pending-medium' },
+  { text: 'Pending: slow', scenario: 'pending-slow' },
+  { text: 'Confirmed', scenario: 'confirmed' },
+  { text: 'Evicted', scenario: 'evicted' },
+  { text: 'Payment code', scenario: 'payment-code' },
+  { text: 'Payment code: not found', scenario: 'payment-code-not-found' },
+];
+
+const showReceiveDetailsMockOptions = () => {
+  if (!getActiveReceiveDetailsMockHandler()) return;
+
+  if (Platform.OS !== 'android') {
+    Alert.alert(
+      'Receive Details mock scenario',
+      'Select a reducer state to preview.',
+      [
+        ...receiveDetailsMockOptions.map(({ text, scenario }) => ({
+          text,
+          onPress: () => activateReceiveDetailsMock(scenario),
+        })),
+        { text: 'Cancel', style: 'cancel' as const },
+      ],
+      { cancelable: true },
+    );
+    return;
+  }
+
+  const showCustomOptions = () => {
+    Alert.alert('Custom amount', 'Select a unit.', [
+      { text: 'BTC', onPress: () => activateReceiveDetailsMock('custom-btc') },
+      { text: 'Sats', onPress: () => activateReceiveDetailsMock('custom-sats') },
+      { text: 'Fiat', onPress: () => activateReceiveDetailsMock('custom-fiat') },
+    ]);
+  };
+  const showBasicOptions = () => {
+    Alert.alert('Basic states', 'Select a state.', [
+      { text: 'Loading', onPress: () => activateReceiveDetailsMock('loading') },
+      { text: 'Address', onPress: () => activateReceiveDetailsMock('address') },
+      { text: 'Custom amount…', onPress: showCustomOptions },
+    ]);
+  };
+  const showPendingOptions = () => {
+    Alert.alert('Pending ETA', 'Select a fee tier.', [
+      { text: 'Fast', onPress: () => activateReceiveDetailsMock('pending-fast') },
+      { text: 'Medium', onPress: () => activateReceiveDetailsMock('pending-medium') },
+      { text: 'Slow', onPress: () => activateReceiveDetailsMock('pending-slow') },
+    ]);
+  };
+  const showCompletedOptions = () => {
+    Alert.alert('Completed states', 'Select a state.', [
+      { text: 'Confirmed', onPress: () => activateReceiveDetailsMock('confirmed') },
+      { text: 'Evicted', onPress: () => activateReceiveDetailsMock('evicted') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+  const showPaymentCodeOptions = () => {
+    Alert.alert('Payment code states', 'Select a state.', [
+      { text: 'Payment code', onPress: () => activateReceiveDetailsMock('payment-code') },
+      { text: 'Not found', onPress: () => activateReceiveDetailsMock('payment-code-not-found') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+  const showPaymentOptions = () => {
+    Alert.alert('Payment states', 'Select a state.', [
+      { text: 'Pending…', onPress: showPendingOptions },
+      { text: 'Completed…', onPress: showCompletedOptions },
+      { text: 'Payment codes…', onPress: showPaymentCodeOptions },
+    ]);
+  };
+
+  Alert.alert('Receive Details mock scenario', 'Select a category.', [
+    { text: 'Basic states…', onPress: showBasicOptions },
+    { text: 'Payment states…', onPress: showPaymentOptions },
+    { text: 'Cancel', style: 'cancel' },
+  ]);
+};
+
 const getRandomLabelFromSecret = (secret: string): string => {
   const words = secret.split(' ');
   const firstWord = words[0];
@@ -78,6 +198,8 @@ const DevMenu: React.FC = () => {
       DevSettings.addMenuItem('Reset Dev Menu', () => {
         DevSettings.reload();
       });
+
+      DevSettings.addMenuItem('Receive Details Mock Scenarios', showReceiveDetailsMockOptions);
 
       DevSettings.addMenuItem('Add New Wallet', async () => {
         const wallet = new HDSegwitBech32Wallet();

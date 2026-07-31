@@ -1,10 +1,11 @@
 import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { Pressable, Text, View } from 'react-native';
 import Share from 'react-native-share';
 
 import ReceiveDetails from '../../screen/receive/ReceiveDetails';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 
 const mockSetParams = jest.fn();
 const mockNavigate = jest.fn();
@@ -13,8 +14,23 @@ const mockCopy = jest.fn();
 const mockSaveToDisk = jest.fn();
 const mockSleep = jest.fn(() => Promise.resolve());
 const mockFetchAndSaveWalletTransactions = jest.fn();
+const mockGetBalanceByAddress = BlueElectrum.getBalanceByAddress as jest.Mock;
+const mockGetMempoolTransactionsByAddress = BlueElectrum.getMempoolTransactionsByAddress as jest.Mock;
+const mockMultiGetTransactionByTxid = BlueElectrum.multiGetTransactionByTxid as jest.Mock;
+const mockEstimateFees = BlueElectrum.estimateFees as jest.Mock;
+let mockReceiveDetailsHandler: ((scenario: string, value: 'mocked') => void) | undefined;
 let mockRouteParams: Record<string, unknown> = {};
 let mockWallets: any[] = [];
+
+jest.mock('../../components/DevMenu', () => ({
+  RECEIVE_DETAILS_MOCKED_VALUE: 'mocked',
+  registerReceiveDetailsDevMenu: (handler: (scenario: string, value: 'mocked') => void) => {
+    mockReceiveDetailsHandler = handler;
+    return () => {
+      if (mockReceiveDetailsHandler === handler) mockReceiveDetailsHandler = undefined;
+    };
+  },
+}));
 
 jest.mock('@react-navigation/native', () => {
   const ReactModule = require('react');
@@ -184,8 +200,17 @@ jest.mock('../../loc', () => ({
 describe('ReceiveDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetBalanceByAddress.mockResolvedValue({ confirmed: 0, unconfirmed: 0 });
+    mockGetMempoolTransactionsByAddress.mockResolvedValue([]);
+    mockMultiGetTransactionByTxid.mockResolvedValue({});
+    mockEstimateFees.mockResolvedValue({ fast: 10, medium: 5 });
+    mockReceiveDetailsHandler = undefined;
     mockWallets = [];
     mockRouteParams = {};
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('encodes an address, resizes its QR code, copies the card, and shares it', async () => {
@@ -267,5 +292,96 @@ describe('ReceiveDetails', () => {
 
     fireEvent.press(screen.getByText('Share'));
     await waitFor(() => expect(Share.open).toHaveBeenCalledWith({ message: paymentCode }));
+  });
+
+  it('reduces raw balance and fee updates into pending and confirmed views', async () => {
+    jest.useFakeTimers();
+    mockRouteParams = { walletID: 'wallet-1', address: 'bc1qbalanceaddress' };
+    mockWallets = [
+      {
+        getID: () => 'wallet-1',
+        isBIP47Enabled: () => false,
+        allowBIP47: () => false,
+      },
+    ];
+    mockGetBalanceByAddress
+      .mockResolvedValueOnce({ confirmed: 100, unconfirmed: 50 })
+      .mockResolvedValueOnce({ confirmed: 150, unconfirmed: 0 });
+    mockGetMempoolTransactionsByAddress.mockResolvedValueOnce([{ tx_hash: 'tx-1', fee: 1000 }]);
+    mockMultiGetTransactionByTxid.mockResolvedValueOnce({ 'tx-1': { vsize: 100 } });
+
+    const screen = render(<ReceiveDetails />);
+    expect(await screen.findByTestId('ReceiveCard')).toBeTruthy();
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(5000);
+    });
+    expect(screen.getByText('Pending icon')).toBeTruthy();
+    expect(screen.getByText('50 / 50')).toBeTruthy();
+    expect(screen.getByText('10 minutes')).toBeTruthy();
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(25000);
+    });
+    expect(screen.getByText('Success')).toBeTruthy();
+    expect(screen.getByText('50 / 50')).toBeTruthy();
+    expect(mockFetchAndSaveWalletTransactions).toHaveBeenCalledWith('wallet-1');
+  });
+
+  it('previews every contextual Dev Menu scenario using the mocked address value', async () => {
+    mockRouteParams = { address: 'bc1qrealaddress' };
+    const screen = render(<ReceiveDetails />);
+    expect(await screen.findByTestId('ReceiveCard')).toBeTruthy();
+    expect(mockReceiveDetailsHandler).toBeDefined();
+
+    const activate = (scenario: string) => {
+      act(() => mockReceiveDetailsHandler?.(scenario, 'mocked'));
+    };
+
+    activate('loading');
+    expect(screen.getByTestId('ReceiveCardSkeleton')).toBeTruthy();
+
+    activate('address');
+    expect(screen.getByText('bitcoin:mocked|90')).toBeTruthy();
+    expect(screen.getByTestId('CopyText').props.children).toBe('mocked');
+
+    activate('custom-btc');
+    expect(screen.getByText('0.001 BTC')).toBeTruthy();
+    expect(screen.getByText('Mocked payment')).toBeTruthy();
+
+    activate('custom-sats');
+    expect(screen.getByText('0.001 BTC')).toBeTruthy();
+
+    activate('custom-fiat');
+    expect(screen.getByTestId('BitcoinAmountText')).toBeTruthy();
+
+    activate('pending-fast');
+    expect(screen.getByText('10 minutes')).toBeTruthy();
+
+    activate('pending-medium');
+    expect(screen.getByText('3 hours')).toBeTruthy();
+
+    activate('pending-slow');
+    expect(screen.getByText('1 day')).toBeTruthy();
+
+    activate('confirmed');
+    expect(screen.getByText('Success')).toBeTruthy();
+
+    activate('evicted');
+    expect(screen.getByTestId('ReceiveCard')).toBeTruthy();
+    expect(screen.queryByText('Success')).toBeNull();
+
+    activate('payment-code');
+    expect(screen.getByText('mocked|90')).toBeTruthy();
+    expect(screen.getByText('Payment code explanation')).toBeTruthy();
+
+    activate('payment-code-not-found');
+    expect(screen.getByText('Not found')).toBeTruthy();
+
+    act(() => mockReceiveDetailsHandler?.('confirmed', 'not-mocked' as 'mocked'));
+    expect(screen.queryByText('Success')).toBeNull();
+
+    screen.unmount();
+    expect(mockReceiveDetailsHandler).toBeUndefined();
   });
 });
