@@ -1,4 +1,4 @@
-import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import { useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -36,7 +36,6 @@ import { TransactionListItem } from '../../components/TransactionListItem';
 import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
@@ -185,7 +184,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const wallet = useWalletSubscribe(walletID);
   const [limit, setLimit] = useState(15);
   const [pageSize] = useState(20);
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const { setOptions, navigate } = navigation;
   const { colors, dark } = useTheme();
   const { isElectrumDisabled } = useSettings();

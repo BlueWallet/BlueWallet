@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
-import { RouteProp, useRoute, useLocale } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
 import { ActivityIndicator, BackHandler, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Icon from '../../components/Icon';
 import Share from 'react-native-share';
@@ -14,7 +14,6 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import BigNumber from 'bignumber.js';
 import { LightningTransaction } from '../../class/wallets/types';
 import dayjs from 'dayjs';
@@ -36,7 +35,7 @@ const LNDViewInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
   const { colors } = useTheme();
   const { direction } = useLocale();
-  const { goBack, navigate, setParams } = useExtendedNavigation();
+  const { goBack, navigate, setParams } = useNavigation();
 
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet | undefined;
   const arkWallet =

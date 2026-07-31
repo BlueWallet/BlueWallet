@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
@@ -39,7 +39,6 @@ import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -172,7 +171,7 @@ const TransactionStatus: React.FC = () => {
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
-  const { navigate, goBack, setOptions } = useExtendedNavigation<NavigationProps>();
+  const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();

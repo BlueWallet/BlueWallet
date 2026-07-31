@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { memo, useCallback, useMemo, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -17,7 +18,6 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useSettings } from '../hooks/context/useSettings';
 import { useTheme } from './themes';
 import { Action } from './types';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
@@ -126,7 +126,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   disableNavigation = false,
 }: TransactionListItemProps) => {
   const { colors } = useTheme();
-  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const { navigate } = useNavigation<NavigationProps>();
   const { txMetadata, counterpartyMetadata, wallets } = useStorage();
   const { language, selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();

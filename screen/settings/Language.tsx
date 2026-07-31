@@ -1,7 +1,7 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useLayoutEffect, useState, useCallback } from 'react';
 import { Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
 import presentAlert from '../../components/Alert';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -11,7 +11,7 @@ import { useTheme } from '../../components/themes';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
-  const { setOptions } = useExtendedNavigation();
+  const { setOptions } = useNavigation();
   const { colors } = useTheme();
   const [search, setSearch] = useState('');
   const stylesHook = StyleSheet.create({

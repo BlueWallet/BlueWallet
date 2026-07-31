@@ -1,11 +1,11 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { Platform } from 'react-native';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 
 const NetworkSettings: React.FC = () => {
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const isNotificationsCapable = Platform.OS !== 'web';
   const navigateToElectrumSettings = () => {
     navigation.navigate('ElectrumSettings');
