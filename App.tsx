@@ -1,5 +1,13 @@
-import { NavigationContainer, NavigationContainerRef, ParamListBase, Route } from '@react-navigation/native';
-import React, { useCallback, useRef } from 'react';
+import {
+  CommonActions,
+  NavigationAction,
+  NavigationContainer,
+  NavigationContainerRef,
+  NavigationState,
+  ParamListBase,
+  PartialState,
+} from '@react-navigation/native';
+import React, { useCallback } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SizeClassProvider } from './components/Context/SizeClassProvider';
@@ -13,45 +21,56 @@ import { useStorage } from './hooks/context/useStorage';
 import { unlockWithBiometrics, useBiometrics } from './hooks/useBiometrics';
 import { presentWalletExportReminder } from './helpers/presentWalletExportReminder';
 import { requestCameraAuthorization } from './helpers/scan-qr';
+import { getGuardedRoute, GuardedNavigationAction } from './navigation/navigationGuard';
 
 const requiresBiometrics = ['WalletExport', 'WalletXpub', 'ViewEditMultisigCosigners', 'ExportMultisigCoordinationSetupRoot'];
 const requiresWalletExportIsSaved = ['ReceiveDetails', 'WalletAddresses'];
 
-type NavigationRoute = Route<string, object | undefined>;
+type NavigationValidationResult = {
+  allowed: boolean;
+  redirect?: { name: string; params?: object };
+};
+
+const getWalletID = (params: object | undefined) => {
+  const routeParams = params as { walletID?: string; params?: { walletID?: string } } | undefined;
+  return routeParams?.walletID ?? routeParams?.params?.walletID;
+};
+
+const findNavigatorKeyForRoute = (
+  state: NavigationState | PartialState<NavigationState> | undefined,
+  routeName: string,
+): string | undefined => {
+  if (!state) return undefined;
+  if (state.routeNames?.includes(routeName)) return state.key;
+
+  const focusedRoute = state.routes[state.index ?? 0];
+  const routes = focusedRoute ? [focusedRoute, ...state.routes.filter(route => route.key !== focusedRoute.key)] : state.routes;
+
+  for (const route of routes) {
+    const navigatorKey = findNavigatorKeyForRoute(route.state, routeName);
+    if (navigatorKey) return navigatorKey;
+  }
+
+  return undefined;
+};
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
   const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
-  const currentRouteRef = useRef<NavigationRoute | undefined>(undefined);
-  const validationIdRef = useRef(0);
-  const skipNextStateChangeRef = useRef(false);
 
-  const getWalletID = (params: object | undefined) => {
-    const routeParams = params as { walletID?: string; params?: { walletID?: string } } | undefined;
-    return routeParams?.walletID ?? routeParams?.params?.walletID;
-  };
-
-  const returnToPreviousRoute = useCallback((routeKey: string, validationId: number) => {
-    if (validationId !== validationIdRef.current || navigationRef.getCurrentRoute()?.key !== routeKey) return;
-
-    skipNextStateChangeRef.current = true;
-    navigationRef.goBack();
-  }, []);
-
-  const validateRoute = useCallback(
-    async (previousRoute: NavigationRoute | undefined, route: NavigationRoute, validationId: number) => {
+  const validateNavigation = useCallback(
+    async (screenName: string, params: object | undefined): Promise<NavigationValidationResult> => {
       // Navigation initiated by the scanner already has its own validation flow.
-      if (previousRoute?.name === 'ScanQRCode') return;
+      if (navigationRef.getCurrentRoute()?.name === 'ScanQRCode') return { allowed: true };
 
-      if (requiresBiometrics.includes(route.name) && (await isBiometricUseEnabled())) {
+      if (requiresBiometrics.includes(screenName) && (await isBiometricUseEnabled())) {
         if (!(await unlockWithBiometrics())) {
-          returnToPreviousRoute(route.key, validationId);
-          return;
+          return { allowed: false };
         }
       }
 
-      if (requiresWalletExportIsSaved.includes(route.name)) {
-        const walletID = getWalletID(route.params);
+      if (requiresWalletExportIsSaved.includes(screenName)) {
+        const walletID = getWalletID(params);
         const wallet = wallets.find(item => item.getID() === walletID);
 
         if (wallet && !wallet.getUserHasSavedExport()) {
@@ -60,42 +79,50 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
             wallet.setUserHasSavedExport(true);
             await saveToDisk();
           } catch {
-            if (validationId !== validationIdRef.current || navigationRef.getCurrentRoute()?.key !== route.key) return;
-
-            // WalletExport was reached through the reminder, so don't run a second validation for it.
-            skipNextStateChangeRef.current = true;
-            navigationRef.navigate('WalletExport', { walletID });
+            return { allowed: false, redirect: { name: 'WalletExport', params: { walletID } } };
           }
-          return;
         }
       }
 
-      if (route.name === 'ScanQRCode' && validationId === validationIdRef.current && navigationRef.getCurrentRoute()?.key === route.key) {
+      if (screenName === 'ScanQRCode') {
         await requestCameraAuthorization();
       }
+
+      return { allowed: true };
     },
-    [isBiometricUseEnabled, returnToPreviousRoute, saveToDisk, wallets],
+    [isBiometricUseEnabled, saveToDisk, wallets],
   );
 
-  const handleReady = useCallback(() => {
-    currentRouteRef.current = navigationRef.getCurrentRoute();
-  }, []);
+  const handleUnhandledAction = useCallback(
+    (action: Readonly<NavigationAction>) => {
+      const guardedRoute = getGuardedRoute(action);
+      if (!guardedRoute) {
+        console.error('Unhandled navigation action', action);
+        return;
+      }
 
-  const handleStateChange = useCallback(() => {
-    const route = navigationRef.getCurrentRoute();
-    if (!route || route.key === currentRouteRef.current?.key) return;
+      const navigatorKey = findNavigatorKeyForRoute(navigationRef.getRootState(), guardedRoute.name);
 
-    const previousRoute = currentRouteRef.current;
-    currentRouteRef.current = route;
-    const validationId = ++validationIdRef.current;
+      validateNavigation(guardedRoute.name, guardedRoute.params)
+        .then(result => {
+          if (!result.allowed && !result.redirect) return;
 
-    if (skipNextStateChangeRef.current) {
-      skipNextStateChangeRef.current = false;
-      return;
-    }
+          const nextAction = result.redirect ? CommonActions.navigate(result.redirect.name, result.redirect.params) : action;
+          const targetRouteName = result.redirect?.name ?? guardedRoute.name;
+          const targetNavigatorKey = result.redirect
+            ? findNavigatorKeyForRoute(navigationRef.getRootState(), targetRouteName)
+            : navigatorKey;
 
-    validateRoute(previousRoute, route, validationId).catch(error => console.error('Navigation validation failed', error));
-  }, [validateRoute]);
+          navigationRef.dispatch({
+            ...nextAction,
+            ...(targetNavigatorKey ? { target: targetNavigatorKey } : {}),
+            navigationGuardValidated: true,
+          } as GuardedNavigationAction);
+        })
+        .catch(error => console.error('Navigation validation failed', error));
+    },
+    [validateNavigation],
+  );
 
   useLogger(navigationRef as unknown as React.RefObject<NavigationContainerRef<ParamListBase>>);
 
@@ -103,8 +130,7 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
     <NavigationContainer
       ref={navigationRef}
       theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
-      onReady={handleReady}
-      onStateChange={handleStateChange}
+      onUnhandledAction={handleUnhandledAction}
     >
       <MasterView />
     </NavigationContainer>
