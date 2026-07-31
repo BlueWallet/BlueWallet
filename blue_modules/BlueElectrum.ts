@@ -1412,7 +1412,12 @@ export const broadcast = async function (hex: string) {
 
 export const broadcastV2 = async function (hex: string): Promise<string> {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  return mainClient.blockchainTransaction_broadcast(hex);
+  try {
+    return await mainClient.blockchainTransaction_broadcast(hex);
+  } catch (error: any) {
+    // electrum-client rejects JSON-RPC errors as `{ code, message }`, not Error
+    throw new Error(error?.message || String(error));
+  }
 };
 
 export const estimateCurrentBlockheight = function (): number {
