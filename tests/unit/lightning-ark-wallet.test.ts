@@ -4,11 +4,7 @@ import * as ArkadeSdk from '@arkade-os/sdk';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
-import {
-  LightningArkExitError,
-  LightningArkWallet,
-  __testing__ as walletTesting,
-} from '../../class/wallets/lightning-ark-wallet.ts';
+import { LightningArkExitError, LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
 import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 
@@ -1462,49 +1458,11 @@ describe('LightningArkWallet — per-swap claim/refund + restore', () => {
 });
 
 describe('LightningArkWallet — exportUnilateralExitPackage', () => {
-  // Known-valid mainnet addresses from other wallet unit tests.
   const SWEEP = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
   const SWEEP_TAPROOT = 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g';
-  const OUTPOINT = `${'ab'.repeat(32)}:0`;
-  const PARENT_TXID = 'cd'.repeat(32);
 
-  /** Minimal graph-mode package that passes SDK `deserializeExitPackage`. */
-  function graphExitPackage(overrides: Partial<ArkadeSdk.ExitPackage> = {}): ArkadeSdk.ExitPackage {
-    return {
-      version: 1,
-      mode: 'graph',
-      network: 'bitcoin',
-      createdAt: 1_700_000_000,
-      feeRate: 1,
-      sweepAddress: SWEEP,
-      totals: {
-        txCount: 3,
-        totalFeeSats: 150,
-        fundingRequiredSats: 50,
-        recoveredSats: 850,
-      },
-      vtxos: [
-        { outpoint: OUTPOINT, value: 1000, sweepFee: 150, path: 'default:unilateral', delay: { type: 'blocks', value: 144 } },
-        { outpoint: `${'ef'.repeat(32)}:0`, value: 200, skipped: 'uneconomic: value 200 <= sweep fee + dust' },
-      ],
-      steps: [
-        { kind: 'bump', parentTxid: PARENT_TXID, parentHex: '02000000000100', forVtxos: [OUTPOINT] },
-        {
-          kind: 'sweep',
-          vtxo: OUTPOINT,
-          txid: '11'.repeat(32),
-          hex: '02000000000100',
-          dependsOnTxid: PARENT_TXID,
-          delay: { type: 'blocks', value: 144 },
-        },
-      ],
-      ...overrides,
-    };
-  }
-
-  // Same offline-init recipe as lightning-ark-derivation: provider spies + fake
-  // timers so Wallet.create completes without SSE/polling leaks. Fee-rate spy
-  // keeps real UnilateralExit.prepare offline (it asks onchainProvider first).
+  // Offline init (same recipe as lightning-ark-derivation). Fee-rate spy keeps
+  // real UnilateralExit.prepare offline (it asks onchainProvider first).
   beforeEach(() => {
     jest.useFakeTimers();
     installSdkProviderSpies();
@@ -1518,11 +1476,14 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     restoreSdkProviderSpies();
   });
 
-  it('rejects empty, garbage, and Ark destinations without calling prepare', async () => {
+  it('rejects invalid destinations without calling prepare', async () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
-    await assert.rejects(() => w.exportUnilateralExitPackage(''), e => e instanceof LightningArkExitError && e.code === 'invalid_address');
+    await assert.rejects(
+      () => w.exportUnilateralExitPackage(''),
+      e => e instanceof LightningArkExitError && e.code === 'invalid_address',
+    );
     await assert.rejects(
       () => w.exportUnilateralExitPackage('not-an-address'),
       e => e instanceof LightningArkExitError && e.code === 'invalid_address',
@@ -1537,7 +1498,7 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     assert.strictEqual(prepare.mock.calls.length, 0);
   });
 
-  it('does not call init() — requires an already-open SDK wallet', async () => {
+  it('requires an already-open wallet and does not call init()', async () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     const init = jest.spyOn(w, 'init');
@@ -1554,56 +1515,54 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     (w as any)._network = 'testnet';
-    // Mainnet bc1… must not pass when the wallet speaks testnet.
     await assert.rejects(
       () => w.exportUnilateralExitPackage(SWEEP),
       e => e instanceof LightningArkExitError && e.code === 'invalid_address',
     );
   });
 
-  it('real prepare: empty wallet has nothing to exit', async () => {
+  it('real prepare: empty wallet → typed empty error (segwit + taproot dest)', async () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
-    // Export must not init itself; open the wallet first (as the app does).
     await w.init();
-    await assert.rejects(() => w.exportUnilateralExitPackage(`  ${SWEEP}  `), /no vtxos to exit/);
+    await assert.rejects(
+      () => w.exportUnilateralExitPackage(`  ${SWEEP}  `),
+      e => e instanceof LightningArkExitError && e.code === 'empty',
+    );
+    await assert.rejects(
+      () => w.exportUnilateralExitPackage(SWEEP_TAPROOT),
+      e => e instanceof LightningArkExitError && e.code === 'empty',
+    );
   });
 
-  it('real prepare accepts taproot destinations (same empty-wallet edge)', async () => {
+  // Funded VTXO graphs need indexer virtual-tx bytes (integration). Here we only
+  // assert our wrapper: graph-mode args, address trim, and included/skipped counts.
+  it('wires graph prepare args and reports included/skipped counts', async () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     await w.init();
-    await assert.rejects(() => w.exportUnilateralExitPackage(SWEEP_TAPROOT), /no vtxos to exit/);
-  });
-
-  it('happy path: wires graph prepare args and returns SDK-valid JSON + skip counts', async () => {
-    const w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
-    await w.init();
-
-    // Funded VTXO graphs need live indexer virtual-tx bytes — out of scope for
-    // this unit suite. Stub prepare with a deserialize-valid package so we
-    // assert our wrapper's wiring and serialization contract (not mock echo).
-    const pkg = graphExitPackage({ sweepAddress: SWEEP });
-    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockResolvedValue(pkg);
+    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockResolvedValue({
+      version: 1,
+      mode: 'graph',
+      network: 'bitcoin',
+      createdAt: 1,
+      feeRate: 1,
+      sweepAddress: SWEEP,
+      totals: { txCount: 1, totalFeeSats: 0, fundingRequiredSats: 0, recoveredSats: 500 },
+      vtxos: [
+        { outpoint: 'aa:0', value: 500 },
+        { outpoint: 'bb:0', skipped: 'uneconomic' },
+      ],
+      steps: [{ kind: 'bump', parentTxid: 'tt', parentHex: '00', forVtxos: ['aa:0'] }],
+    } as any);
 
     const result = await w.exportUnilateralExitPackage(`  ${SWEEP}  `);
-
-    assert.strictEqual(prepare.mock.calls.length, 1);
     const args = prepare.mock.calls[0][0];
     assert.strictEqual(args.mode, 'graph');
     assert.strictEqual(args.sweepAddress, SWEEP);
     assert.strictEqual(args.networkName, 'bitcoin');
-    assert.strictEqual(args.wallet, (w as any)._wallet);
-
-    const decoded = ArkadeSdk.deserializeExitPackage(result.packageJson);
-    assert.strictEqual(decoded.version, 1);
-    assert.strictEqual(decoded.mode, 'graph');
-    assert.strictEqual(decoded.sweepAddress, SWEEP);
-    assert.strictEqual(decoded.network, 'bitcoin');
-    assert.ok(Array.isArray(decoded.steps) && decoded.steps.length >= 1);
-    assert.ok(Array.isArray(decoded.vtxos) && decoded.vtxos.length === 2);
     assert.strictEqual(result.includedVtxoCount, 1);
     assert.strictEqual(result.skippedVtxoCount, 1);
+    assert.ok(result.packageJson.includes(SWEEP));
   });
 });

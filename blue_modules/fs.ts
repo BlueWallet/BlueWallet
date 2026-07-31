@@ -115,8 +115,9 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false): P
       saveToFiles: isDesktop || !showShareDialog,
       failOnCancel: false,
     });
-    // failOnCancel:false resolves on dismiss; don't treat that as success.
-    if (result?.dismissedAction) return false;
+    // iOS sets dismissedAction on cancel. Android often sets it even after a
+    // successful share, so trusting it there hides the post-share UI.
+    if (Platform.OS === 'ios' && result?.dismissedAction) return false;
     return true;
   } catch (error: any) {
     console.log(error);

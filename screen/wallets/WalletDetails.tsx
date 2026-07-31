@@ -8,11 +8,7 @@ import BlueText from '../../components/BlueText';
 import { HDAezeedWallet } from '../../class/wallets/hd-aezeed-wallet';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
-import {
-  ARKADE_UNILATERAL_EXIT_URL,
-  LightningArkExitError,
-  LightningArkWallet,
-} from '../../class/wallets/lightning-ark-wallet';
+import { ARKADE_UNILATERAL_EXIT_URL, LightningArkExitError, LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
@@ -212,15 +208,14 @@ const WalletDetails: React.FC = () => {
         ],
       });
     } catch (e: any) {
-      let message = loc.wallets.details_unilateral_exit_failed;
-      if (e instanceof LightningArkExitError) {
-        message =
-          e.code === 'invalid_address'
-            ? loc.wallets.details_unilateral_exit_invalid_address
-            : loc.wallets.details_unilateral_exit_not_ready;
-      } else if (/no vtxos to exit/i.test(e?.message ?? '')) {
-        message = loc.wallets.details_unilateral_exit_empty;
-      }
+      const message =
+        e instanceof LightningArkExitError
+          ? {
+              invalid_address: loc.wallets.details_unilateral_exit_invalid_address,
+              not_ready: loc.wallets.details_unilateral_exit_not_ready,
+              empty: loc.wallets.details_unilateral_exit_empty,
+            }[e.code]
+          : loc.wallets.details_unilateral_exit_failed;
       presentAlert({ message });
     } finally {
       setIsExportingUnilateralExit(false);
