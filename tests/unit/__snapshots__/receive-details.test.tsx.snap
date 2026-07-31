@@ -1,0 +1,421 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReceiveDetails matches loading, pending, and confirmed snapshots: confirmed 1`] = `
+<View
+  layout={BaseAnimationMock {}}
+  style={
+    [
+      {
+        "flex": 1,
+      },
+      {
+        "backgroundColor": "#ffffff",
+      },
+    ]
+  }
+>
+  <View
+    automaticallyAdjustKeyboardInsets={true}
+    automaticallyAdjustsScrollIndicatorInsets={true}
+    centerContent={true}
+      [
+        {
+          "flexGrow": 1,
+          "justifyContent": "space-between",
+        },
+        {
+          "backgroundColor": "#ffffff",
+        },
+      ]
+    }
+    contentInsetAdjustmentBehavior="automatic"
+    keyboardShouldPersistTaps="always"
+    onLayout={[Function]}
+    style={
+      {
+        "backgroundColor": "#ffffff",
+      }
+    }
+    testID="ReceiveDetailsScrollView"
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "flex": 1,
+          "justifyContent": "center",
+          "width": "100%",
+        }
+      }
+    >
+      <Text>
+        Success
+      </Text>
+      <Text
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontWeight": "600",
+              "paddingBottom": 12,
+              "textAlign": "center",
+            },
+            {
+              "color": "#111111",
+            },
+          ]
+        }
+      >
+        50000 / 50000
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "marginBottom": 16,
+          "paddingHorizontal": 32,
+          "width": "100%",
+        }
+      }
+    >
+      <View>
+        <View
+          accessibilityRole="button"
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": false,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onBlur={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+        >
+          <Text>
+            Share
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</View>
+`;
+
+exports[`ReceiveDetails matches loading, pending, and confirmed snapshots: loading 1`] = `
+<View
+  layout={BaseAnimationMock {}}
+  style={
+    [
+      {
+        "flex": 1,
+      },
+      {
+        "backgroundColor": "#ffffff",
+      },
+    ]
+  }
+>
+  <View
+    automaticallyAdjustKeyboardInsets={true}
+    automaticallyAdjustsScrollIndicatorInsets={true}
+    centerContent={true}
+    contentContainerStyle={
+      [
+        {
+          "flexGrow": 1,
+          "justifyContent": "space-between",
+        },
+        {
+          "backgroundColor": "#ffffff",
+        },
+      ]
+    }
+    contentInsetAdjustmentBehavior="automatic"
+    keyboardShouldPersistTaps="always"
+    onLayout={[Function]}
+    style={
+      {
+        "backgroundColor": "#ffffff",
+      }
+    }
+    testID="ReceiveDetailsScrollView"
+  >
+    <View
+      style={
+        {
+          "alignSelf": "center",
+          "marginBottom": 8,
+          "marginHorizontal": 24,
+          "marginTop": 56,
+        }
+      }
+      testID="ReceiveCardSkeleton"
+    >
+      <View
+        style={
+          [
+            {
+              "alignItems": "center",
+              "borderRadius": 26,
+              "paddingBottom": 16,
+              "paddingHorizontal": 6,
+              "paddingTop": 6,
+            },
+            {
+              "backgroundColor": "#F2F2F7",
+            },
+            {
+              "width": 114,
+            },
+          ]
+        }
+      >
+        <View
+          style={
+            {
+              "alignItems": "center",
+              "alignSelf": "center",
+              "backgroundColor": "#FFFFFF",
+              "borderRadius": 20,
+              "elevation": 4,
+              "justifyContent": "center",
+              "padding": 6,
+              "shadowColor": "#000000",
+              "shadowOffset": {
+                "height": 4,
+                "width": 0,
+              },
+              "shadowOpacity": 0.12,
+              "shadowRadius": 12,
+            }
+          }
+        >
+          <View
+            style={
+              [
+                {
+                  "borderRadius": 4,
+                },
+                {
+                  "backgroundColor": "rgba(0,0,0,0.04)",
+                },
+                {
+                  "height": 90,
+                  "width": 90,
+                },
+              ]
+            }
+          />
+        </View>
+      </View>
+    </View>
+    <View
+      style={
+        {
+          "marginBottom": 16,
+          "paddingHorizontal": 32,
+          "width": "100%",
+        }
+      }
+    >
+      <View>
+        <View
+          accessibilityRole="button"
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": true,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onBlur={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+        >
+          <Text>
+            Share
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</View>
+`;
+
+exports[`ReceiveDetails matches loading, pending, and confirmed snapshots: pending 1`] = `
+<View
+  layout={BaseAnimationMock {}}
+  style={
+    [
+      {
+        "flex": 1,
+      },
+      {
+        "backgroundColor": "#ffffff",
+      },
+    ]
+  }
+>
+  <View
+    automaticallyAdjustKeyboardInsets={true}
+    automaticallyAdjustsScrollIndicatorInsets={true}
+    centerContent={true}
+    contentContainerStyle={
+      [
+        {
+          "flexGrow": 1,
+          "justifyContent": "space-between",
+        },
+        {
+          "backgroundColor": "#ffffff",
+        },
+      ]
+    }
+    contentInsetAdjustmentBehavior="automatic"
+    keyboardShouldPersistTaps="always"
+    onLayout={[Function]}
+    style={
+      {
+        "backgroundColor": "#ffffff",
+      }
+    }
+    testID="ReceiveDetailsScrollView"
+  >
+    <View
+      style={
+        {
+          "alignItems": "center",
+          "flex": 1,
+          "justifyContent": "center",
+          "width": "100%",
+        }
+      }
+    >
+      <Text>
+        Pending icon
+      </Text>
+      <Text
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontWeight": "600",
+              "paddingBottom": 12,
+              "textAlign": "center",
+            },
+            {
+              "color": "#111111",
+            },
+          ]
+        }
+      >
+        50000 / 50000
+      </Text>
+      <Text
+        numberOfLines={1}
+        style={
+          [
+            {
+              "fontWeight": "600",
+              "paddingBottom": 12,
+              "textAlign": "center",
+            },
+            {
+              "color": "#111111",
+            },
+          ]
+        }
+      >
+        10 minutes
+      </Text>
+    </View>
+    <View
+      style={
+        {
+          "marginBottom": 16,
+          "paddingHorizontal": 32,
+          "width": "100%",
+        }
+      }
+    >
+      <View>
+        <View
+          accessibilityRole="button"
+          accessibilityState={
+            {
+              "busy": undefined,
+              "checked": undefined,
+              "disabled": false,
+              "expanded": undefined,
+              "selected": undefined,
+            }
+          }
+          accessibilityValue={
+            {
+              "max": undefined,
+              "min": undefined,
+              "now": undefined,
+              "text": undefined,
+            }
+          }
+          accessible={true}
+          collapsable={false}
+          focusable={true}
+          onBlur={[Function]}
+          onClick={[Function]}
+          onFocus={[Function]}
+          onResponderGrant={[Function]}
+          onResponderMove={[Function]}
+          onResponderRelease={[Function]}
+          onResponderTerminate={[Function]}
+          onResponderTerminationRequest={[Function]}
+          onStartShouldSetResponder={[Function]}
+        >
+          <Text>
+            Share
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+</View>
+`;

@@ -396,4 +396,22 @@ describe('ReceiveDetails', () => {
     screen.unmount();
     expect(mockReceiveDetailsHandler).toBeUndefined();
   });
+
+  it('matches loading, pending, and confirmed snapshots', async () => {
+    mockRouteParams = { address: 'bc1qsnapshotaddress' };
+    const screen = render(<ReceiveDetails />);
+    expect(await screen.findByTestId('ReceiveCard')).toBeTruthy();
+
+    act(() => mockReceiveDetailsHandler?.('loading', 'mocked'));
+    expect(screen.getByTestId('ReceiveCardSkeleton')).toBeTruthy();
+    expect(screen.toJSON()).toMatchSnapshot('loading');
+
+    act(() => mockReceiveDetailsHandler?.('pending-fast', 'mocked'));
+    expect(screen.getByText('10 minutes')).toBeTruthy();
+    expect(screen.toJSON()).toMatchSnapshot('pending');
+
+    act(() => mockReceiveDetailsHandler?.('confirmed', 'mocked'));
+    expect(screen.getByText('Success')).toBeTruthy();
+    expect(screen.toJSON()).toMatchSnapshot('confirmed');
+  });
 });
