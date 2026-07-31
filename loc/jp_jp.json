@@ -195,8 +195,6 @@
     "psbt_sign": "トランザクションに署名する",
     "invalid_psbt": "無効なPSBTが入力されました。",
     "open_settings": "設定を開く",
-    "permission_storage_denied_message": "BlueWalletはファイルを保存できませんでした。デバイスの設定を開いてストレージのパーミッションを有効にしてください。",
-    "permission_storage_title": "ストレージアクセス許可",
     "psbt_clipboard": "クリップボードにコピー",
     "psbt_this_is_psbt": "これは部分的に署名されたビットコイントランザクション（PSBT）です。ハードウェアウォレットで署名を完了させてください。",
     "psbt_tx_export": "ファイルにエクスポート",
@@ -208,7 +206,6 @@
     "reset_amount": "額をリセット",
     "reset_amount_confirm": "額をリセットしますか？",
     "success_done": "完了",
-    "txSaved": "トランザクションファイル ({filePath}) を保存しました。",
     "cant_send_to_silentpayment_adress": "このウォレットからはSilentPaymentアドレスに送金できません",
     "cant_send_to_bip47": "このウォレットからはBIP47支払いコードに送金できません",
     "cant_find_bip47_notification": "先にこの支払いコードを連絡先に追加してください",
@@ -328,6 +325,8 @@
   "notifications": {
     "would_you_like_to_receive_notifications": "支払いを受けた際に通知を受け取りますか？",
     "notifications_subtitle": "受信した支払いやトランザクションの確認",
+    "redact_notifications": "支払いの詳細を隠す",
+    "redact_notifications_subtitle": "ロック画面で通知に金額やトランザクション情報を表示しません。",
     "no_and_dont_ask": "いいえ。もう聞かないでください。",
     "permission_denied_message": "通知が許可されていません。通知を受け取りたい場合は、デバイスの設定で許可してください。"
   },
@@ -338,6 +337,10 @@
     "transaction_loading_error": "トランザクションの読み込み時のエラー。後でもう一度試してください。",
     "transaction_not_available": "トランザクションがありません",
     "confirmations_lowercase": "{confirmations} コンファメーション",
+    "blocks_load_error": "ブロックの詳細を読み込めませんでした。タップして再試行。",
+    "blocks_confirmed_latest": "最新のブロック({blockHeight})で承認されました。",
+    "blocks_confirmed_summary": "ブロック {blockHeight} に含まれています。",
+    "blocks_confirmed_fee_summary": "サイズ {vsize} 、手数料レート {feeRate} なので、手数料 {fee} を支払います。",
     "expand_note": "ノートを展開",
     "cpfp_create": "作成",
     "cpfp_exp": "あなたの未承認トランザクションを消費する別のトランザクションを作成します。元のトランザクションの手数料よりも合計金額が高くなるため、より早くマイニングされます。これはCPFP - Child Pays For Parentと呼ばれています。",
@@ -704,7 +707,7 @@
     "notification_tx_unconfirmed": "通知トランザクションが承認されていません、お待ちください",
     "failed_create_notif_tx": "チェーン上のトランザクションの作成に失敗しました",
     "onchain_tx_needed": "チェーン上のトランザクションが必要です",
-    "notif_tx_sent": "通知トランザクションを送りました。承認をお待ちください",
+    "notif_tx_sent" : "通知トランザクションを送りました。承認をお待ちください",
     "notif_tx": "通知トランザクション",
     "not_found": "支払コードが見つかりません"
   }
