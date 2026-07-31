@@ -18,6 +18,7 @@ exports[`ReceiveDetails matches loading, pending, and confirmed snapshots: confi
     automaticallyAdjustKeyboardInsets={true}
     automaticallyAdjustsScrollIndicatorInsets={true}
     centerContent={true}
+    contentContainerStyle={
       [
         {
           "flexGrow": 1,
