@@ -338,6 +338,17 @@ export async function tapIfTextPresent(text) {
   // no need to check for visibility, just silently ignore exception if such testID is not present
 }
 
+export async function tapHeaderMenuAction(actionId, text) {
+  if (device.getPlatform() === 'ios') {
+    try {
+      await element(by.id(actionId)).tap();
+      return;
+    } catch (_) {}
+  }
+
+  await element(by.text(text)).tap();
+}
+
 /**
  * Dismisses a native UIAlertController by tapping a button with the given text.
  * On iOS 26 liquid glass, `waitFor().toBeVisible()` never resolves for alert
@@ -599,7 +610,7 @@ export async function scrollUpOnHomeScreen() {
  * re-enabling there can hang on pending layer animations. A following `scanText()`
  * (default) restores synchronization after the backdoor scan.
  */
-export async function tapHeaderMenuItem(menuItemText, { restoreSynchronization = true } = {}) {
+export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchronization = true } = {}) {
   const isIOS = device.getPlatform() === 'ios';
   if (!isIOS) {
     await element(by.id('HeaderMenuButton')).tap();
@@ -621,24 +632,23 @@ export async function tapHeaderMenuItem(menuItemText, { restoreSynchronization =
         // iOS 26 action sheets use magic-morph transforms that fail Detox's
         // visibility check until the presentation animation settles.
         await sleep(1500);
-        // Prefer toExist: liquid-glass menu rows often fail toBeVisible.
+        // Prefer the native identifier. Liquid-glass menu rows often fail
+        // Detox's text visibility checks even though the action is tappable.
         try {
-          await waitFor(element(by.text(menuItemText)).atIndex(0))
-            .toExist()
-            .withTimeout(5_000);
-        } catch {
-          await waitFor(element(by.label(menuItemText)).atIndex(0))
-            .toExist()
-            .withTimeout(5_000);
-        }
-        try {
-          await element(by.text(menuItemText)).atIndex(0).tap();
+          if (!actionId) {
+            throw new Error('No native action identifier');
+          }
+          await element(by.id(actionId)).tap();
         } catch {
           try {
-            await element(by.label(menuItemText)).atIndex(0).tap();
+            await element(by.text(menuItemText)).atIndex(0).tap();
           } catch {
-            // Last resort: tap a corner point to bypass 100% visibility threshold.
-            await element(by.text(menuItemText)).atIndex(0).tap({ x: 8, y: 8 });
+            try {
+              await element(by.label(menuItemText)).atIndex(0).tap();
+            } catch {
+              // Last resort: tap a corner point to bypass 100% visibility threshold.
+              await element(by.text(menuItemText)).atIndex(0).tap({ x: 8, y: 8 });
+            }
           }
         }
         succeeded = true;
