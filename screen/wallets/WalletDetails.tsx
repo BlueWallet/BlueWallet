@@ -185,19 +185,12 @@ const WalletDetails: React.FC = () => {
 
     setIsExportingUnilateralExit(true);
     try {
-      const result = await (wallet as unknown as LightningArkWallet).exportUnilateralExitPackage(sweepAddress);
-      const shared = await writeFileAndExport('arkade-unilateral-exit.json', result.packageJson, true);
+      const contents = await (wallet as unknown as LightningArkWallet).exportUnilateralExitPackage(sweepAddress);
+      const shared = await writeFileAndExport('arkade-unilateral-exit.json', contents, true);
       if (!shared) return;
-      const partial =
-        result.skippedVtxoCount > 0
-          ? `${loc.formatString(loc.wallets.details_unilateral_exit_partial_message, {
-              skipped: result.skippedVtxoCount,
-              total: result.includedVtxoCount + result.skippedVtxoCount,
-            })}\n\n`
-          : '';
       presentAlert({
         title: loc.wallets.details_unilateral_exit_done_title,
-        message: partial + loc.wallets.details_unilateral_exit_done_message,
+        message: loc.wallets.details_unilateral_exit_done_message,
         buttons: [
           { text: loc._.ok, style: 'cancel' },
           {
@@ -213,7 +206,6 @@ const WalletDetails: React.FC = () => {
           ? {
               invalid_address: loc.wallets.details_unilateral_exit_invalid_address,
               not_ready: loc.wallets.details_unilateral_exit_not_ready,
-              empty: loc.wallets.details_unilateral_exit_empty,
             }[e.code]
           : loc.wallets.details_unilateral_exit_failed;
       presentAlert({ message });

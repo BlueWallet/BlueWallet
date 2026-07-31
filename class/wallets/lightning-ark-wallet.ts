@@ -48,17 +48,11 @@ export const ARKADE_UNILATERAL_EXIT_URL = 'https://bluewallet.github.io/arkade-u
 
 /** Typed export failures so the UI localizes by code, not English `Error.message`. */
 export class LightningArkExitError extends Error {
-  constructor(readonly code: 'invalid_address' | 'not_ready' | 'empty') {
+  constructor(readonly code: 'invalid_address' | 'not_ready') {
     super(code);
     this.name = 'LightningArkExitError';
   }
 }
-
-export type UnilateralExitExport = {
-  packageJson: string;
-  includedVtxoCount: number;
-  skippedVtxoCount: number;
-};
 
 bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
@@ -933,7 +927,7 @@ export class LightningArkWallet extends LightningCustodianWallet {
   }
 
   /** Graph-mode exit package JSON for {@link ARKADE_UNILATERAL_EXIT_URL}. */
-  async exportUnilateralExitPackage(sweepAddress: string): Promise<UnilateralExitExport> {
+  async exportUnilateralExitPackage(sweepAddress: string): Promise<string> {
     const address = (sweepAddress || '').trim();
     try {
       bitcoin.address.toOutputScript(address, BITCOINJS_NETWORKS[this._network]);
@@ -946,31 +940,14 @@ export class LightningArkWallet extends LightningCustodianWallet {
     if (!this._wallet) throw new LightningArkExitError('not_ready');
 
     const onchainWallet = await OnchainWallet.create(this._wallet.identity, this._network, this._wallet.onchainProvider);
-    let pkg;
-    try {
-      pkg = await UnilateralExit.prepare({
-        wallet: this._wallet,
-        onchainWallet,
-        sweepAddress: address,
-        mode: 'graph',
-        networkName: this._network,
-      });
-    } catch (e: any) {
-      // SDK has no error codes for these; translate at the wallet boundary once.
-      const msg = e?.message ?? '';
-      if (/no vtxos to exit|no exitable vtxos/i.test(msg)) throw new LightningArkExitError('empty');
-      throw e;
-    }
-
-    const skippedVtxoCount = pkg.vtxos.filter(v => v.skipped).length;
-    const includedVtxoCount = pkg.vtxos.length - skippedVtxoCount;
-    if (includedVtxoCount === 0) throw new LightningArkExitError('empty');
-
-    return {
-      packageJson: serializeExitPackage(pkg),
-      includedVtxoCount,
-      skippedVtxoCount,
-    };
+    const pkg = await UnilateralExit.prepare({
+      wallet: this._wallet,
+      onchainWallet,
+      sweepAddress: address,
+      mode: 'graph',
+      networkName: this._network,
+    });
+    return serializeExitPackage(pkg);
   }
 
   /**

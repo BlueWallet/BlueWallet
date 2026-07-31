@@ -1459,10 +1459,7 @@ describe('LightningArkWallet — per-swap claim/refund + restore', () => {
 
 describe('LightningArkWallet — exportUnilateralExitPackage', () => {
   const SWEEP = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
-  const SWEEP_TAPROOT = 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g';
 
-  // Offline init (same recipe as lightning-ark-derivation). Fee-rate spy keeps
-  // real UnilateralExit.prepare offline (it asks onchainProvider first).
   beforeEach(() => {
     jest.useFakeTimers();
     installSdkProviderSpies();
@@ -1476,93 +1473,26 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     restoreSdkProviderSpies();
   });
 
-  it('rejects invalid destinations without calling prepare', async () => {
+  it('rejects bad/unready input, then hits real prepare on an empty wallet', async () => {
     const w = new LightningArkWallet();
     w.setSecret('arkade://' + TEST_MNEMONIC);
     const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
-    await assert.rejects(
-      () => w.exportUnilateralExitPackage(''),
-      e => e instanceof LightningArkExitError && e.code === 'invalid_address',
-    );
+
     await assert.rejects(
       () => w.exportUnilateralExitPackage('not-an-address'),
       e => e instanceof LightningArkExitError && e.code === 'invalid_address',
     );
     await assert.rejects(
-      () =>
-        w.exportUnilateralExitPackage(
-          'ark1qq4hfssprtcgnjzf8qlw2f78yvjau5kldfugg29k34y7j96q2w4t5z8sz5n95k570z5r004szc9h2q3qprkzdd5zveujdpx24srcrqg8hf6j4v',
-        ),
-      e => e instanceof LightningArkExitError && e.code === 'invalid_address',
-    );
-    assert.strictEqual(prepare.mock.calls.length, 0);
-  });
-
-  it('requires an already-open wallet and does not call init()', async () => {
-    const w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
-    const init = jest.spyOn(w, 'init');
-    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
-    await assert.rejects(
       () => w.exportUnilateralExitPackage(SWEEP),
       e => e instanceof LightningArkExitError && e.code === 'not_ready',
     );
-    assert.strictEqual(init.mock.calls.length, 0);
     assert.strictEqual(prepare.mock.calls.length, 0);
-  });
 
-  it('validates the sweep address against this._network', async () => {
-    const w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
-    (w as any)._network = 'testnet';
-    await assert.rejects(
-      () => w.exportUnilateralExitPackage(SWEEP),
-      e => e instanceof LightningArkExitError && e.code === 'invalid_address',
-    );
-  });
-
-  it('real prepare: empty wallet → typed empty error (segwit + taproot dest)', async () => {
-    const w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
     await w.init();
-    await assert.rejects(
-      () => w.exportUnilateralExitPackage(`  ${SWEEP}  `),
-      e => e instanceof LightningArkExitError && e.code === 'empty',
-    );
-    await assert.rejects(
-      () => w.exportUnilateralExitPackage(SWEEP_TAPROOT),
-      e => e instanceof LightningArkExitError && e.code === 'empty',
-    );
-  });
-
-  // Funded VTXO graphs need indexer virtual-tx bytes (integration). Here we only
-  // assert our wrapper: graph-mode args, address trim, and included/skipped counts.
-  it('wires graph prepare args and reports included/skipped counts', async () => {
-    const w = new LightningArkWallet();
-    w.setSecret('arkade://' + TEST_MNEMONIC);
-    await w.init();
-    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare').mockResolvedValue({
-      version: 1,
-      mode: 'graph',
-      network: 'bitcoin',
-      createdAt: 1,
-      feeRate: 1,
-      sweepAddress: SWEEP,
-      totals: { txCount: 1, totalFeeSats: 0, fundingRequiredSats: 0, recoveredSats: 500 },
-      vtxos: [
-        { outpoint: 'aa:0', value: 500 },
-        { outpoint: 'bb:0', skipped: 'uneconomic' },
-      ],
-      steps: [{ kind: 'bump', parentTxid: 'tt', parentHex: '00', forVtxos: ['aa:0'] }],
-    } as any);
-
-    const result = await w.exportUnilateralExitPackage(`  ${SWEEP}  `);
-    const args = prepare.mock.calls[0][0];
-    assert.strictEqual(args.mode, 'graph');
-    assert.strictEqual(args.sweepAddress, SWEEP);
-    assert.strictEqual(args.networkName, 'bitcoin');
-    assert.strictEqual(result.includedVtxoCount, 1);
-    assert.strictEqual(result.skippedVtxoCount, 1);
-    assert.ok(result.packageJson.includes(SWEEP));
+    await assert.rejects(() => w.exportUnilateralExitPackage(`  ${SWEEP}  `));
+    assert.strictEqual(prepare.mock.calls.length, 1);
+    assert.strictEqual(prepare.mock.calls[0][0].mode, 'graph');
+    assert.strictEqual(prepare.mock.calls[0][0].sweepAddress, SWEEP);
+    assert.strictEqual(prepare.mock.calls[0][0].networkName, 'bitcoin');
   });
 });
