@@ -26,12 +26,11 @@ enum WidgetCommunicationKeys {
 const WIDGET_ENABLED = '1';
 const WIDGET_DISABLED = '0';
 const WIDGET_CLEARED_VALUE = '0';
-const DISABLED_PENDING_TRANSACTIONS_CONFIGURATION = JSON.stringify(createPendingTransactionsWatchConfiguration([], false));
+const DISABLED_PENDING_TRANSACTIONS_CONFIGURATION = JSON.stringify(
+  createPendingTransactionsWatchConfiguration([], false),
+);
 const EMPTY_PENDING_TRANSACTIONS_SNAPSHOT = JSON.stringify(
-  createPendingTransactionsSharedSnapshot({
-    pendingTransactionCount: 0,
-    totalPendingSats: 0,
-  }),
+  createPendingTransactionsSharedSnapshot({ pendingTransactionCount: 0, totalPendingSats: 0 }),
 );
 
 const secondsToMilliseconds = (seconds: number): number => seconds * 1000;
@@ -189,8 +188,13 @@ export const syncWidgetBalanceWithWallets = async (
   cachedPendingTransactionsWatchConfiguration: { current: string },
 ): Promise<void> => {
   try {
-    const { allWalletsBalance, latestTransactionTime, pendingTransactionCount, totalPendingSats, pendingTransactionsWatchConfiguration } =
-      await calculateBalanceAndTransactionTime(wallets, walletsInitialized);
+    const {
+      allWalletsBalance,
+      latestTransactionTime,
+      pendingTransactionCount,
+      totalPendingSats,
+      pendingTransactionsWatchConfiguration,
+    } = await calculateBalanceAndTransactionTime(wallets, walletsInitialized);
     const encodedWatchConfiguration = JSON.stringify(pendingTransactionsWatchConfiguration);
 
     if (
@@ -201,15 +205,15 @@ export const syncWidgetBalanceWithWallets = async (
       cachedPendingTransactionsWatchConfiguration.current !== encodedWatchConfiguration
     ) {
       const encodedSnapshot = JSON.stringify(
-        createPendingTransactionsSharedSnapshot({
-          pendingTransactionCount,
-          totalPendingSats,
-        }),
+        createPendingTransactionsSharedSnapshot({ pendingTransactionCount, totalPendingSats }),
       );
       await Promise.all([
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance)),
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, String(latestTransactionTime)),
-        DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration, encodedWatchConfiguration),
+        DefaultPreference.set(
+          WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration,
+          encodedWatchConfiguration,
+        ),
         DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivitySnapshot, encodedSnapshot),
       ]);
       NativeWidgetHelper.refreshPendingTransactionsLiveActivity();

@@ -89,10 +89,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t2'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({
-      delete: true,
-      permissions: { notifications: 'YES' },
-    }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
 
     // go to settings, press SelfTest and wait for OK
@@ -285,10 +282,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await helperCreateWallet();
 
-    await device.launchApp({
-      newInstance: true,
-      permissions: { notifications: 'YES' },
-    });
+    await device.launchApp({ newInstance: true, permissions: { notifications: 'YES' } });
     await waitForId('WalletsList');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
     await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
@@ -596,10 +590,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({
-      delete: true,
-      permissions: { camera: 'YES', notifications: 'YES' },
-    }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()
@@ -668,10 +659,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t6'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({
-      delete: true,
-      permissions: { camera: 'YES', notifications: 'YES' },
-    }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()
@@ -872,10 +860,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t8'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({
-      delete: true,
-      permissions: { notifications: 'YES', camera: 'YES' },
-    }); // reinstalling the app just for any case to clean up app's storage
+    await device.launchApp({ delete: true, permissions: { notifications: 'YES', camera: 'YES' } }); // reinstalling the app just for any case to clean up app's storage
     await waitForId('WalletsList');
 
     await helperCreateWallet();
@@ -983,10 +968,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t10'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({
-      delete: true,
-      permissions: { camera: 'YES', notifications: 'YES' },
-    });
+    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } });
     await waitForId('WalletsList');
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()
@@ -1167,10 +1149,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t11'), ' as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({
-      delete: true,
-      permissions: { camera: 'YES', notifications: 'YES' },
-    });
+    await device.launchApp({ delete: true, permissions: { camera: 'YES', notifications: 'YES' } });
     await waitForId('WalletsList');
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()

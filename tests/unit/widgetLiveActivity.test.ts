@@ -1,6 +1,7 @@
 import DefaultPreference from 'react-native-default-preference';
 import { Chain } from '../../models/bitcoinUnits';
 import type { Transaction, TWallet } from '../../class/wallets/types';
+import { DYNAMIC_ISLAND_PREVIEWS } from '../../components/DevMenu';
 
 import {
   isPendingTransactionsLiveActivityEnabled,
@@ -21,13 +22,7 @@ jest.mock('../../blue_modules/NativeWidgetHelper', () => ({
 }));
 
 const transaction = (txid: string, value: number, confirmations = 0): Transaction =>
-  ({
-    txid,
-    hash: txid,
-    value,
-    confirmations,
-    timestamp: 1_700_000_000,
-  }) as Transaction;
+  ({ txid, hash: txid, value, confirmations, timestamp: 1_700_000_000 }) as Transaction;
 
 const wallet = (transactions: Transaction[]): TWallet =>
   ({
@@ -74,7 +69,9 @@ describe('pending transactions Live Activity bridge', () => {
     const configurationCall = mockDefaultPreference.set.mock.calls.find(
       ([key]) => key === 'PendingTransactionsLiveActivityWatchConfiguration',
     );
-    const snapshotCall = mockDefaultPreference.set.mock.calls.find(([key]) => key === 'PendingTransactionsLiveActivitySnapshot');
+    const snapshotCall = mockDefaultPreference.set.mock.calls.find(
+      ([key]) => key === 'PendingTransactionsLiveActivitySnapshot',
+    );
     expect(configurationCall).toBeDefined();
     expect(snapshotCall).toBeDefined();
     expect(JSON.parse(String(configurationCall![1]))).toMatchObject({
@@ -180,5 +177,12 @@ describe('pending transactions Live Activity bridge', () => {
     expect(JSON.parse(String(configurationCall![1]))).toMatchObject({
       isEnabled: true,
     });
+  });
+
+  it('provides safe developer previews for singular, plural, edge, and large states', () => {
+    expect(DYNAMIC_ISLAND_PREVIEWS.map(preview => preview.pendingTransactionCount)).toEqual([1, 1, 1, 2, 12, 999]);
+    expect(DYNAMIC_ISLAND_PREVIEWS.some(preview => preview.totalPendingSats === 0)).toBe(true);
+    expect(DYNAMIC_ISLAND_PREVIEWS.some(preview => preview.totalPendingSats === 1)).toBe(true);
+    expect(DYNAMIC_ISLAND_PREVIEWS.every(preview => Number.isSafeInteger(preview.totalPendingSats))).toBe(true);
   });
 });
