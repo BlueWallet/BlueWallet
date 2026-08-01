@@ -76,8 +76,6 @@ const _mimeTypeFromFileName = (fileName: string): string => {
   }
 };
 
-const _transactionFilePickerTypes = ['application/octet-stream', 'text/plain'];
-
 const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]) => {
   const [pickedFile] = await pick({
     type,
@@ -171,7 +169,9 @@ export const writeFileAndExport = async function (fileName: string, contents: st
  */
 export const openSignedTransaction = async function (): Promise<string | false> {
   try {
-    const { localUri } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
+    // PSBT providers do not consistently report the same type. Pick any file
+    // and validate its contents below instead of relying on its MIME type/UTI.
+    const { localUri } = await _pickSingleFileAndKeepLocalCopy();
     return await _readPsbtFileIntoBase64(localUri);
   } catch (err) {
     if (!isCancel(err)) {
@@ -282,7 +282,7 @@ export const readFileOutsideSandbox = (filePath: string) => {
 
 export const openSignedTransactionRaw: () => Promise<string> = async () => {
   try {
-    const { localUri } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
+    const { localUri } = await _pickSingleFileAndKeepLocalCopy();
     const file = await RNFS.readFile(localUri);
     if (file) {
       return file;
@@ -299,7 +299,7 @@ export const openSignedTransactionRaw: () => Promise<string> = async () => {
 };
 
 export const pickTransaction = async () => {
-  const { localUri, fileName } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
+  const { localUri, fileName } = await _pickSingleFileAndKeepLocalCopy();
   return {
     uri: localUri,
     name: fileName,
