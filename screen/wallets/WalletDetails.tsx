@@ -186,8 +186,9 @@ const WalletDetails: React.FC = () => {
     setIsExportingUnilateralExit(true);
     try {
       const contents = await (wallet as unknown as LightningArkWallet).exportUnilateralExitPackage(sweepAddress);
-      const shared = await writeFileAndExport('arkade-unilateral-exit.json', contents, true);
-      if (!shared) return;
+      // Save dialog (not share sheet): Android cannot reliably report share cancel.
+      const saved = await writeFileAndExport('arkade-unilateral-exit.json', contents, false);
+      if (!saved) return;
       presentAlert({
         title: loc.wallets.details_unilateral_exit_done_title,
         message: loc.wallets.details_unilateral_exit_done_message,

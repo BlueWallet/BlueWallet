@@ -462,7 +462,7 @@
     "details_unilateral_exit_not_ready": "This wallet is still loading. Wait a moment and try again.",
     "details_unilateral_exit_failed": "Could not create the unilateral exit package. Try again later.",
     "details_unilateral_exit_done_title": "Exit package ready",
-    "details_unilateral_exit_done_message": "On a desktop computer, open the unilateral exit page, upload the file you just shared, and follow the on-screen steps. This process was designed to be completed in a desktop browser.",
+    "details_unilateral_exit_done_message": "On a desktop computer, open the unilateral exit page, upload the file you saved, and follow the on-screen steps. This process was designed to be completed in a desktop browser.",
     "details_unilateral_exit_open": "Open website",
     "wallets": "Wallets",
     "swipe_balance_hide": "Hide",

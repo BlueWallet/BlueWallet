@@ -1489,7 +1489,7 @@ describe('LightningArkWallet — exportUnilateralExitPackage', () => {
     assert.strictEqual(prepare.mock.calls.length, 0);
 
     await w.init();
-    await assert.rejects(() => w.exportUnilateralExitPackage(`  ${SWEEP}  `));
+    await assert.rejects(() => w.exportUnilateralExitPackage(`  ${SWEEP}  `), /no vtxos to exit/);
     assert.strictEqual(prepare.mock.calls.length, 1);
     assert.strictEqual(prepare.mock.calls[0][0].mode, 'graph');
     assert.strictEqual(prepare.mock.calls[0][0].sweepAddress, SWEEP);
