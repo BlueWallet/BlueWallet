@@ -4,6 +4,27 @@ import Testing
 #if canImport(ActivityKit) && os(iOS) && !targetEnvironment(macCatalyst)
 @Suite("Pending Transactions Live Activity")
 struct PendingTransactionsLiveActivityTests {
+    @Test("Electrum connection completion can only be claimed once")
+    func electrumConnectionCompletionIsOneShot() async {
+        let gate = SwiftTCPClientCompletionGate()
+        let claims = await withTaskGroup(of: Bool.self, returning: [Bool].self) { group in
+            for _ in 0..<20 {
+                group.addTask {
+                    gate.claim()
+                }
+            }
+
+            var results: [Bool] = []
+            for await result in group {
+                results.append(result)
+            }
+            return results
+        }
+
+        #expect(claims.filter { $0 }.count == 1)
+        #expect(claims.filter { !$0 }.count == 19)
+    }
+
     @Test("State values are normalized for ActivityKit")
     func stateBuilderNormalizesValues() throws {
         let date = Date(timeIntervalSince1970: 1_700_000_000)
