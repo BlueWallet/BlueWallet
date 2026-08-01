@@ -12,8 +12,8 @@ struct PendingTransactionsLiveActivity: Widget {
                 .activityBackgroundTint(.blueWalletBackground)
                 .activitySystemActionForegroundColor(.white)
                 .widgetURL(URL(string: "bluewallet://"))
-        } dynamicIsland: { context in
-            DynamicIsland {
+        } dynamicIsland: { context -> DynamicIsland in
+            return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 8) {
                         BlueWalletAppIcon(size: 27)
