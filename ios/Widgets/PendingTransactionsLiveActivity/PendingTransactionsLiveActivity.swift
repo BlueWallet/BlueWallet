@@ -57,7 +57,15 @@ struct PendingTransactionsLiveActivity: Widget {
                     .padding(.top, 9)
                 }
             } compactLeading: {
-                BlueWalletAppIcon(size: 20)
+                HStack(spacing: 4) {
+                    BlueWalletAppIcon(size: 18)
+
+                    Text("BTC")
+                        .font(.caption2.bold())
+                        .foregroundStyle(Color.blueWalletAccent)
+                }
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("BlueWallet Bitcoin")
             } compactTrailing: {
                 HStack(spacing: 3) {
                     Image(systemName: "clock.fill")
