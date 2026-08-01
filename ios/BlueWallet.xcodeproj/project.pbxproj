@@ -99,7 +99,6 @@
 		B4AA75242DAA339E00CF5CBE /* MenuElementsEmitter.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AA75232DAA339E00CF5CBE /* MenuElementsEmitter.m */; };
 		B4AB225E2B02AD12001F4328 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AB225C2B02AD12001F4328 /* XMLParserDelegate.swift */; };
 		B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
-		B4B1A4642BFA73110072E3BB /* WidgetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */; };
 		B4B3EC222D69FF6C00327F3D /* SegmentedControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EC202D69FF6C00327F3D /* SegmentedControlView.swift */; };
 		B4B3EC252D69FF8700327F3D /* EventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EC232D69FF8700327F3D /* EventEmitter.swift */; };
 		B4B3EF102D6AFF6C003270A0 /* SegmentedControlManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EF002D6AFF6C003270A0 /* SegmentedControlManager.swift */; };
@@ -1048,7 +1047,6 @@
 				B450109D2C0FCD9F00619044 /* Utilities.swift in Sources */,
 				B49A28BE2CD189B0006B08E4 /* FiatUnitEnum.swift in Sources */,
 				6DD410AC266CAE470087DE03 /* PriceWidget.swift in Sources */,
-				B4B1A4642BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B44033D52BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
 				6DD410B2266CAF5C0087DE03 /* WalletInformationView.swift in Sources */,
 				B44034022BCC37F800162242 /* Bundle+decode.swift in Sources */,

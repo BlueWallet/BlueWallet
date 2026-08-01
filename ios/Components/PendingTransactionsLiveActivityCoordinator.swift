@@ -208,8 +208,16 @@ enum PendingTransactionsLiveActivityCoordinator {
                     await activity.end(using: state, dismissalPolicy: .immediate)
                 }
             }
+            NSLog("[PendingLiveActivity] Ended \(activities.count) Live Activity instance(s)")
         case .start:
-            guard allowStart, ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+            guard allowStart else {
+                NSLog("[PendingLiveActivity] Start skipped because this refresh may only update an existing activity")
+                return
+            }
+            guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+                NSLog("[PendingLiveActivity] Start blocked because Live Activities are disabled in system settings")
+                return
+            }
 
             do {
                 if #available(iOS 16.2, *) {
@@ -228,6 +236,7 @@ enum PendingTransactionsLiveActivityCoordinator {
                         pushType: nil
                     )
                 }
+                NSLog("[PendingLiveActivity] Started Live Activity")
             } catch {
                 NSLog("[PendingLiveActivity] Failed to start: \(error.localizedDescription)")
             }
@@ -244,6 +253,7 @@ enum PendingTransactionsLiveActivityCoordinator {
                     await activity.update(using: state)
                 }
             }
+            NSLog("[PendingLiveActivity] Updated \(activities.count) Live Activity instance(s)")
         }
     }
 }
