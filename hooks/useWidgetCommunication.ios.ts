@@ -5,7 +5,7 @@ import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import debounce from '../blue_modules/debounce';
-import NativeWidgetHelper from '../blue_modules/NativeWidgetHelper';
+import { requestPendingTransactionsLiveActivityRefresh } from '../blue_modules/NativeWidgetHelper';
 import {
   calculatePendingOnchainTransactions,
   createPendingTransactionsSharedSnapshot,
@@ -98,7 +98,7 @@ export const setPendingTransactionsLiveActivityEnabled = async (enabled: boolean
         ),
         DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivitySnapshot, EMPTY_PENDING_TRANSACTIONS_SNAPSHOT),
       ]);
-      NativeWidgetHelper.refreshPendingTransactionsLiveActivity();
+      requestPendingTransactionsLiveActivityRefresh();
     }
   } catch (error) {
     console.error('Failed to set PendingTransactionsLiveActivityEnabled:', error);
@@ -217,7 +217,7 @@ export const syncWidgetBalanceWithWallets = async (
         WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration,
         encodedWatchConfiguration,
       );
-      NativeWidgetHelper.refreshPendingTransactionsLiveActivity();
+      requestPendingTransactionsLiveActivityRefresh();
 
       cachedBalance.current = allWalletsBalance;
       cachedLatestTransactionTime.current = latestTransactionTime;
@@ -295,7 +295,7 @@ const useWidgetCommunication = (): void => {
             ),
             DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivitySnapshot, EMPTY_PENDING_TRANSACTIONS_SNAPSHOT),
           ]);
-          NativeWidgetHelper.refreshPendingTransactionsLiveActivity();
+          requestPendingTransactionsLiveActivityRefresh();
           cachedPendingTransactionCount.current = 0;
           cachedTotalPendingSats.current = 0;
           cachedPendingTransactionsWatchConfiguration.current = DISABLED_PENDING_TRANSACTIONS_CONFIGURATION;

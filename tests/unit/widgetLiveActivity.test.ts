@@ -19,6 +19,7 @@ jest.mock('../../blue_modules/NativeWidgetHelper', () => ({
     reloadAllWidgets: jest.fn(),
     refreshPendingTransactionsLiveActivity: () => mockRefreshPendingTransactionsLiveActivity(),
   },
+  requestPendingTransactionsLiveActivityRefresh: () => mockRefreshPendingTransactionsLiveActivity(),
 }));
 
 const transaction = (txid: string, value: number, confirmations = 0): Transaction =>

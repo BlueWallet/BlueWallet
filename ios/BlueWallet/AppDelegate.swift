@@ -80,16 +80,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         return result
     }
 
-    override func applicationDidEnterBackground(_ application: UIApplication) {
-        super.applicationDidEnterBackground(application)
-
-        #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
-        if #available(iOS 16.1, *) {
-            PendingTransactionsLiveActivityCoordinator.scheduleBackgroundRefresh()
-        }
-        #endif
-    }
-
     override func sourceURL(for bridge: RCTBridge) -> URL? {
         return bundleURL()
     }

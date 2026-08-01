@@ -1,5 +1,5 @@
-import NativeWidgetHelper from './NativeWidgetHelper';
+import { requestPendingTransactionsLiveActivityPreview } from './NativeWidgetHelper';
 
 export const previewPendingTransactionsLiveActivity = (pendingTransactionCount: number, totalPendingSats: number): void => {
-  NativeWidgetHelper.previewPendingTransactionsLiveActivity(pendingTransactionCount, totalPendingSats);
+  requestPendingTransactionsLiveActivityPreview(pendingTransactionCount, totalPendingSats);
 };

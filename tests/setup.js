@@ -122,6 +122,8 @@ jest.mock('../blue_modules/NativeWidgetHelper', () => ({
     reloadAllWidgets: jest.fn(),
     refreshPendingTransactionsLiveActivity: jest.fn(),
   },
+  requestPendingTransactionsLiveActivityRefresh: jest.fn(),
+  requestPendingTransactionsLiveActivityPreview: jest.fn(),
 }));
 
 jest.mock('react-native-default-preference', () => {
