@@ -123,6 +123,45 @@ struct PendingTransactionsLiveActivityTests {
         #expect(!PendingTransactionsLiveActivityStore.isLiveActivityEnabled(preferenceValue: "0"))
     }
 
+    @Test("Only a current watch configuration may publish an Electrum result")
+    func refreshPolicyRejectsStaleElectrumResults() {
+        let original = PendingTransactionsWatchConfiguration(
+            version: 1,
+            isEnabled: true,
+            scriptHashes: [String(repeating: "a", count: 64)]
+        )
+        let changed = PendingTransactionsWatchConfiguration(
+            version: 1,
+            isEnabled: true,
+            scriptHashes: [String(repeating: "b", count: 64)]
+        )
+
+        #expect(PendingTransactionsLiveActivityRefreshPolicy.canApplyFetchedSnapshot(
+            requestedConfiguration: original,
+            currentConfiguration: original
+        ))
+        #expect(!PendingTransactionsLiveActivityRefreshPolicy.canApplyFetchedSnapshot(
+            requestedConfiguration: original,
+            currentConfiguration: changed
+        ))
+        #expect(!PendingTransactionsLiveActivityRefreshPolicy.canApplyFetchedSnapshot(
+            requestedConfiguration: original,
+            currentConfiguration: .disabled
+        ))
+    }
+
+    @Test("A stale zero fallback cannot end an active Live Activity")
+    func refreshPolicyOnlyAppliesPositiveFallbacks() {
+        #expect(PendingTransactionsLiveActivityRefreshPolicy.shouldApplyFallback(
+            PendingTransactionsSharedSnapshot(
+                pendingTransactionCount: 1,
+                totalPendingSats: 50_000,
+                updatedAt: .now
+            )
+        ))
+        #expect(!PendingTransactionsLiveActivityRefreshPolicy.shouldApplyFallback(.empty()))
+    }
+
     @Test("Bitcoin parser reads inputs, values, and output scripts")
     func bitcoinParserReadsLegacyTransaction() throws {
         let transaction = try BitcoinTransactionParser.parse(

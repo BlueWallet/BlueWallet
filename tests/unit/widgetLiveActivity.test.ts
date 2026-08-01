@@ -155,6 +155,13 @@ describe('pending transactions Live Activity bridge', () => {
     expect(mockDefaultPreference.set).not.toHaveBeenCalledWith('WidgetCommunicationAllWalletsSatoshiBalance', expect.anything());
   });
 
+  it('waits for a fresh RN handoff before refreshing after re-enabling', async () => {
+    await setPendingTransactionsLiveActivityEnabled(true);
+
+    expect(mockDefaultPreference.set).toHaveBeenCalledWith('PendingTransactionsLiveActivityEnabled', '1');
+    expect(mockRefreshPendingTransactionsLiveActivity).not.toHaveBeenCalled();
+  });
+
   it('continues pending-transaction updates when home-screen balances are hidden', async () => {
     mockDefaultPreference.get.mockImplementation(async key => (key === 'WidgetCommunicationDisplayBalanceAllowed' ? '0' : '1'));
     const cached = cache();

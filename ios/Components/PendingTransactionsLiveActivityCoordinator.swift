@@ -3,10 +3,38 @@ import ActivityKit
 import BackgroundTasks
 import Foundation
 
+private actor PendingTransactionsLiveActivityRefreshGate {
+    private var latestGeneration: UInt64 = 0
+
+    func begin() -> UInt64 {
+        latestGeneration &+= 1
+        return latestGeneration
+    }
+
+    func isCurrent(_ generation: UInt64) -> Bool {
+        generation == latestGeneration
+    }
+}
+
+@available(iOS 16.1, *)
+enum PendingTransactionsLiveActivityRefreshPolicy {
+    static func canApplyFetchedSnapshot(
+        requestedConfiguration: PendingTransactionsWatchConfiguration,
+        currentConfiguration: PendingTransactionsWatchConfiguration
+    ) -> Bool {
+        requestedConfiguration.isEnabled && requestedConfiguration == currentConfiguration
+    }
+
+    static func shouldApplyFallback(_ snapshot: PendingTransactionsSharedSnapshot) -> Bool {
+        snapshot.pendingTransactionCount > 0
+    }
+}
+
 @available(iOS 16.1, *)
 enum PendingTransactionsLiveActivityCoordinator {
     static let backgroundTaskIdentifier = "io.bluewallet.bluewallet.pendingLiveActivityRefresh"
     private static let refreshInterval: TimeInterval = 15 * 60
+    private static let refreshGate = PendingTransactionsLiveActivityRefreshGate()
 
     static func registerBackgroundRefresh() {
         BGTaskScheduler.shared.register(
@@ -43,18 +71,45 @@ enum PendingTransactionsLiveActivityCoordinator {
         }
     }
 
+    /// Reconciles an already-visible activity directly from App Group state and
+    /// Electrum. This is intentionally called by AppDelegate before React Native
+    /// has initialized; it never creates a new activity by itself.
+    static func reconcileExistingActivity() {
+        guard !Activity<PendingTransactionsAttributes>.activities.isEmpty else {
+            scheduleBackgroundRefresh()
+            return
+        }
+
+        Task {
+            _ = await refresh(allowStart: false)
+        }
+    }
+
     @discardableResult
     static func refresh(allowStart: Bool, queryElectrum: Bool = true) async -> Bool {
+        let refreshGeneration = await refreshGate.begin()
         let configuration = PendingTransactionsLiveActivityStore.loadWatchConfiguration()
-        let fallbackSnapshot = configuration.isEnabled
-            ? PendingTransactionsLiveActivityStore.loadSnapshot()
-            : .empty()
-
-        await apply(snapshot: fallbackSnapshot, allowStart: allowStart)
 
         guard configuration.isEnabled, !configuration.scriptHashes.isEmpty else {
+            guard await refreshGate.isCurrent(refreshGeneration) else { return true }
+            await apply(snapshot: .empty(), allowStart: false)
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskIdentifier)
             return true
+        }
+
+        let hasActiveActivity = !Activity<PendingTransactionsAttributes>.activities.isEmpty
+        guard allowStart || hasActiveActivity else {
+            BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskIdentifier)
+            return true
+        }
+
+        // A positive RN snapshot gives immediate UI while Electrum is queried.
+        // A zero snapshot is not allowed to end an existing activity because it
+        // may simply be stale; only the native Electrum result may do that.
+        let fallbackSnapshot = PendingTransactionsLiveActivityStore.loadSnapshot()
+        if PendingTransactionsLiveActivityRefreshPolicy.shouldApplyFallback(fallbackSnapshot) {
+            guard await refreshGate.isCurrent(refreshGeneration) else { return true }
+            await apply(snapshot: fallbackSnapshot, allowStart: allowStart)
         }
 
         scheduleBackgroundRefresh()
@@ -62,6 +117,26 @@ enum PendingTransactionsLiveActivityCoordinator {
 
         do {
             let snapshot = try await PendingTransactionsElectrumService().fetchSnapshot(configuration: configuration)
+
+            // RN may have disabled the privacy setting or replaced the public
+            // watch list while the network request was in flight. Never publish
+            // data fetched for obsolete user intent, and let a newer refresh own
+            // the final ActivityKit state when one exists.
+            guard !Task.isCancelled else { return false }
+            guard await refreshGate.isCurrent(refreshGeneration) else { return true }
+            let currentConfiguration = PendingTransactionsLiveActivityStore.loadWatchConfiguration()
+            guard PendingTransactionsLiveActivityRefreshPolicy.canApplyFetchedSnapshot(
+                requestedConfiguration: configuration,
+                currentConfiguration: currentConfiguration
+            ) else {
+                let currentSnapshot = currentConfiguration.isEnabled && !currentConfiguration.scriptHashes.isEmpty
+                    ? PendingTransactionsLiveActivityStore.loadSnapshot()
+                    : .empty()
+                await apply(snapshot: currentSnapshot, allowStart: allowStart)
+                scheduleBackgroundRefresh()
+                return true
+            }
+
             PendingTransactionsLiveActivityStore.saveSnapshot(snapshot)
             await apply(snapshot: snapshot, allowStart: allowStart)
             scheduleBackgroundRefresh()
@@ -76,6 +151,9 @@ enum PendingTransactionsLiveActivityCoordinator {
 
     #if DEBUG
     static func preview(pendingTransactionCount: Double, totalPendingSats: Double) async {
+        // A developer preview owns the visible state and invalidates any native
+        // Electrum refresh that was already in flight.
+        _ = await refreshGate.begin()
         guard let state = PendingTransactionsLiveActivityStateBuilder.make(
             pendingTransactionCount: pendingTransactionCount,
             totalPendingSats: totalPendingSats

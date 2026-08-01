@@ -73,7 +73,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
         if #available(iOS 16.1, *) {
-            PendingTransactionsLiveActivityCoordinator.scheduleBackgroundRefresh()
+            PendingTransactionsLiveActivityCoordinator.reconcileExistingActivity()
         }
         #endif
 

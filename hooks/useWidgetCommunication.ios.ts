@@ -98,9 +98,8 @@ export const setPendingTransactionsLiveActivityEnabled = async (enabled: boolean
         ),
         DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivitySnapshot, EMPTY_PENDING_TRANSACTIONS_SNAPSHOT),
       ]);
+      NativeWidgetHelper.refreshPendingTransactionsLiveActivity();
     }
-
-    NativeWidgetHelper.refreshPendingTransactionsLiveActivity();
   } catch (error) {
     console.error('Failed to set PendingTransactionsLiveActivityEnabled:', error);
   }
@@ -210,12 +209,14 @@ export const syncWidgetBalanceWithWallets = async (
       await Promise.all([
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance)),
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, String(latestTransactionTime)),
-        DefaultPreference.set(
-          WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration,
-          encodedWatchConfiguration,
-        ),
         DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivitySnapshot, encodedSnapshot),
       ]);
+      // The watch configuration is the final handoff record. Native iOS only
+      // refreshes after both the fallback state and public script hashes exist.
+      await DefaultPreference.set(
+        WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration,
+        encodedWatchConfiguration,
+      );
       NativeWidgetHelper.refreshPendingTransactionsLiveActivity();
 
       cachedBalance.current = allWalletsBalance;
