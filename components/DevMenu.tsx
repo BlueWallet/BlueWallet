@@ -135,6 +135,10 @@ const DevMenu: React.FC = () => {
 
   useEffect(() => {
     if (__DEV__) {
+      if (Platform.OS === 'ios') {
+        DevSettings.addMenuItem('Preview Dynamic Island', showDynamicIslandPreviews);
+      }
+
       // Clear existing Dev Menu items to prevent duplication
       DevSettings.addMenuItem('Reset Dev Menu', () => {
         DevSettings.reload();
@@ -220,10 +224,6 @@ const DevMenu: React.FC = () => {
           Alert.alert(msg);
         });
       });
-
-      if (Platform.OS === 'ios') {
-        DevSettings.addMenuItem('Preview Dynamic Island', showDynamicIslandPreviews);
-      }
     }
   }, [wallets, addWallet]);
 

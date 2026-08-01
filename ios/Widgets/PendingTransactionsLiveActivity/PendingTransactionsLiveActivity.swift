@@ -9,56 +9,63 @@ struct PendingTransactionsLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: PendingTransactionsAttributes.self) { context in
             PendingTransactionsLockScreenView(state: context.state)
-                .activityBackgroundTint(Color(red: 0.04, green: 0.10, blue: 0.18))
+                .activityBackgroundTint(.blueWalletBackground)
                 .activitySystemActionForegroundColor(.white)
                 .widgetURL(URL(string: "bluewallet://"))
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    PendingBitcoinMark()
+                    HStack(spacing: 7) {
+                        BlueWalletMark(size: 25)
+                        Text("BlueWallet")
+                            .font(.caption.weight(.semibold))
+                    }
                 }
 
                 DynamicIslandExpandedRegion(.trailing) {
-                    VStack(alignment: .trailing, spacing: 1) {
-                        Text("\(context.state.pendingTransactionCount)")
-                            .font(.headline.monospacedDigit())
-                        Text(transactionLabel(for: context.state.pendingTransactionCount))
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock.fill")
                             .font(.caption2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.blueWalletAccent)
+                        Text("\(context.state.pendingTransactionCount)")
+                            .font(.headline.bold().monospacedDigit())
                     }
-                }
-
-                DynamicIslandExpandedRegion(.center) {
-                    Text("On-chain pending")
-                        .font(.caption.weight(.semibold))
                 }
 
                 DynamicIslandExpandedRegion(.bottom) {
-                    HStack {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Text("UNCONFIRMED ON-CHAIN")
+                            .font(.caption2.weight(.semibold))
+                            .tracking(0.7)
+                            .foregroundStyle(.secondary)
+
                         Text(formatBitcoin(context.state.totalPendingSats))
-                            .font(.title3.bold().monospacedDigit())
-                        Spacer()
-                        Label("Unconfirmed", systemImage: "clock")
+                            .font(.title2.bold().monospacedDigit())
+                            .contentTransition(.numericText())
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+
+                        Text(pendingDescription(for: context.state.pendingTransactionCount))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.horizontal, 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 5)
                 }
             } compactLeading: {
-                Image(systemName: "bitcoinsign")
-                    .foregroundStyle(.orange)
+                BlueWalletMark(size: 19)
             } compactTrailing: {
                 Text("\(context.state.pendingTransactionCount)")
                     .font(.caption.bold().monospacedDigit())
+                    .foregroundStyle(Color.blueWalletAccent)
+                    .contentTransition(.numericText())
             } minimal: {
-                ZStack {
-                    Circle().fill(.orange)
-                    Text("\(context.state.pendingTransactionCount)")
-                        .font(.caption2.bold().monospacedDigit())
-                        .foregroundStyle(.black)
-                }
+                Text("\(context.state.pendingTransactionCount)")
+                    .font(.caption2.bold().monospacedDigit())
+                    .foregroundStyle(Color.blueWalletAccent)
+                    .contentTransition(.numericText())
             }
-            .keylineTint(.orange)
+            .keylineTint(.blueWalletAccent)
             .widgetURL(URL(string: "bluewallet://"))
         }
     }
@@ -69,30 +76,53 @@ private struct PendingTransactionsLockScreenView: View {
     let state: PendingTransactionsAttributes.ContentState
 
     var body: some View {
-        HStack(spacing: 14) {
-            PendingBitcoinMark()
+        VStack(spacing: 12) {
+            HStack(spacing: 9) {
+                BlueWalletMark(size: 30)
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Pending on-chain")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.secondary)
-                Text(formatBitcoin(state.totalPendingSats))
-                    .font(.title2.bold().monospacedDigit())
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.75)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("BlueWallet")
+                        .font(.subheadline.weight(.semibold))
+                    Text("Awaiting confirmation")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Image(systemName: "clock.fill")
+                    .font(.caption)
+                    .foregroundStyle(Color.blueWalletAccent)
             }
 
-            Spacer(minLength: 8)
+            Divider()
+                .overlay(Color.blueWalletAccent.opacity(0.25))
 
-            VStack(alignment: .trailing, spacing: 3) {
-                Text("\(state.pendingTransactionCount)")
-                    .font(.title2.bold().monospacedDigit())
-                Text(transactionLabel(for: state.pendingTransactionCount))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Unconfirmed amount")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(formatBitcoin(state.totalPendingSats))
+                        .font(.title2.bold().monospacedDigit())
+                        .contentTransition(.numericText())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+
+                Spacer(minLength: 8)
+
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text("\(state.pendingTransactionCount)")
+                        .font(.title2.bold().monospacedDigit())
+                        .contentTransition(.numericText())
+                    Text(transactionLabel(for: state.pendingTransactionCount))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
-        .padding()
+        .padding(16)
         .foregroundStyle(.white)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
@@ -102,18 +132,25 @@ private struct PendingTransactionsLockScreenView: View {
 }
 
 @available(iOSApplicationExtension 16.1, *)
-private struct PendingBitcoinMark: View {
+private struct BlueWalletMark: View {
+    let size: CGFloat
+
     var body: some View {
-        ZStack {
-            Circle()
-                .fill(.orange)
-                .frame(width: 40, height: 40)
-            Image(systemName: "bitcoinsign")
-                .font(.title3.bold())
-                .foregroundStyle(.black)
-        }
-        .accessibilityHidden(true)
+        Image("marketing-1024x1024")
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .accessibilityHidden(true)
     }
+}
+
+private extension Color {
+    static let blueWalletAccent = Color(red: 0.40, green: 0.78, blue: 0.94)
+    static let blueWalletBackground = Color(red: 0.035, green: 0.075, blue: 0.14)
+}
+
+private func pendingDescription(for count: Int) -> String {
+    "\(count) \(transactionLabel(for: count)) awaiting confirmation"
 }
 
 private func transactionLabel(for count: Int) -> String {
@@ -129,4 +166,40 @@ private func formatBitcoin(_ sats: Int64) -> String {
     formatter.usesGroupingSeparator = true
     return "\(formatter.string(from: NSDecimalNumber(decimal: bitcoin)) ?? "0") BTC"
 }
+
+#if DEBUG
+@available(iOSApplicationExtension 17.0, *)
+private let previewAttributes = PendingTransactionsAttributes()
+
+@available(iOSApplicationExtension 17.0, *)
+private let previewState = PendingTransactionsAttributes.ContentState(
+    pendingTransactionCount: 2,
+    totalPendingSats: 175_000,
+    lastUpdated: .now
+)
+
+#Preview("Dynamic Island — Compact", as: .dynamicIsland(.compact), using: previewAttributes) {
+    PendingTransactionsLiveActivity()
+} contentStates: {
+    previewState
+}
+
+#Preview("Dynamic Island — Expanded", as: .dynamicIsland(.expanded), using: previewAttributes) {
+    PendingTransactionsLiveActivity()
+} contentStates: {
+    previewState
+}
+
+#Preview("Dynamic Island — Minimal", as: .dynamicIsland(.minimal), using: previewAttributes) {
+    PendingTransactionsLiveActivity()
+} contentStates: {
+    previewState
+}
+
+#Preview("Lock Screen", as: .content, using: previewAttributes) {
+    PendingTransactionsLiveActivity()
+} contentStates: {
+    previewState
+}
+#endif
 #endif
