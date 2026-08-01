@@ -107,11 +107,11 @@ jobs:
           
           echo -e "\033[1;36mSDK Information:\033[0m"
           echo "  Available SDKs:"
-          xcodebuild -showsdks | grep -E "(iOS|watchOS|macOS)" | head -10
+          xcodebuild -showsdks | grep -E "(iOS|macOS)" | head -10
           
           echo -e "\033[1;34m========================================================\033[0m"
 
-      - name: Install Simulator Runtimes (iOS & watchOS)
+      - name: Install Simulator Runtime (iOS)
         run: |
           echo -e "\033[1;34m============ SIMULATOR RUNTIME SETUP DEBUG ============\033[0m"
           echo -e "\033[1;33mNote: Installing runtimes for debugging purposes - release builds use physical device targets\033[0m"
@@ -125,11 +125,6 @@ jobs:
             echo "    $line"
           done
           
-          echo "  watchOS Runtimes:"
-          xcrun simctl list runtimes | grep "watchOS" | while read -r line; do
-            echo "    $line"
-          done
-          
           echo -e "\033[1;33mChecking iOS Runtime Requirements (17+):\033[0m"
           if ! xcrun simctl list runtimes | grep -Eq "iOS (1[7-9]|[2-9][0-9])"; then
             echo -e "\033[1;31m  No iOS 17+ runtime found - installing...\033[0m"
@@ -139,19 +134,6 @@ jobs:
           else
             echo -e "\033[1;32m  iOS 17+ runtime already present\033[0m"
             xcrun simctl list runtimes | grep -E "iOS (1[7-9]|[2-9][0-9])" | while read -r line; do
-              echo "    Found: $line"
-            done
-          fi
-
-          echo -e "\033[1;33mChecking watchOS Runtime Requirements (11+):\033[0m"
-          if ! xcrun simctl list runtimes | grep -Eq "watchOS (1[1-9]|[2-9][0-9])"; then
-            echo -e "\033[1;31m  No watchOS 11+ runtime found - installing...\033[0m"
-            echo "  Downloading watchOS platform..."
-            xcodebuild -downloadPlatform watchOS
-            echo -e "\033[1;32m  watchOS platform download completed\033[0m"
-          else
-            echo -e "\033[1;32m  watchOS 11+ runtime already present\033[0m"
-            xcrun simctl list runtimes | grep -E "watchOS (1[1-9]|[2-9][0-9])" | while read -r line; do
               echo "    Found: $line"
             done
           fi
@@ -422,7 +404,7 @@ jobs:
           
           echo -e "\033[1;36mFinal Simulator State:\033[0m"
           echo "  Available runtimes:"
-          xcrun simctl list runtimes | grep -E "(iOS|watchOS)" | tail -5
+          xcrun simctl list runtimes | grep -E "(iOS)" | tail -5
           
           echo "  Available devices:"
           xcrun simctl list devices iOS | head -10
