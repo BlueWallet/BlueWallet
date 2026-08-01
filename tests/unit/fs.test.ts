@@ -1,9 +1,7 @@
 import { keepLocalCopy, pick } from '@react-native-documents/picker';
 import { Platform } from 'react-native';
-import RNFS from 'react-native-fs';
-import { openSignedTransaction, pickTransaction } from '../../blue_modules/fs';
+import { pickTransaction } from '../../blue_modules/fs';
 
-const maxTransactionFileSizeBytes = 10 * 1024 * 1024;
 const psbtPickerTypes =
   Platform.OS === 'ios' ? ['io.bluewallet.psbt'] : ['application/octet-stream', 'text/plain', 'application/vnd.bitcoin.psbt'];
 const transactionPickerTypes =
@@ -12,7 +10,6 @@ const transactionPickerTypes =
 describe('transaction file import', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (RNFS.stat as jest.Mock).mockResolvedValue({ size: 1024 });
   });
 
   it.each([
@@ -26,93 +23,33 @@ describe('transaction file import', () => {
       fileName: 'signed.txn',
       providerType: Platform.OS === 'ios' ? 'io.bluewallet.psbt.txn' : 'application/vnd.bitcoin.txn',
     },
-  ])('accepts a $format file when its document provider reports a custom MIME type', async ({ fileName, providerType }) => {
-    const providerUri = `content://documents/${fileName}`;
-    const localUri = `file:///mock/Caches/${fileName}`;
-
+  ])('opens a $format file without making a local copy', async ({ fileName, providerType }) => {
+    const uri = `content://documents/${fileName}`;
     (pick as jest.Mock).mockImplementationOnce(async ({ type }: { type: string[] }) => [
       {
-        uri: providerUri,
+        uri,
         name: fileName,
-        size: 1024,
-        hasRequestedType: type.includes('*/*') || type.includes(providerType),
-      },
-    ]);
-    (keepLocalCopy as jest.Mock).mockResolvedValueOnce([
-      {
-        status: 'success',
-        localUri,
+        hasRequestedType: type.includes(providerType),
       },
     ]);
 
-    await expect(pickTransaction()).resolves.toEqual({
-      uri: localUri,
-      name: fileName,
-    });
+    await expect(pickTransaction()).resolves.toEqual({ uri, name: fileName });
 
-    expect(pick).toHaveBeenLastCalledWith({ type: transactionPickerTypes });
-    expect(keepLocalCopy).toHaveBeenLastCalledWith({
-      files: [
-        {
-          uri: providerUri,
-          fileName,
-        },
-      ],
-      destination: 'cachesDirectory',
-    });
+    expect(pick).toHaveBeenCalledWith({ mode: 'open', type: transactionPickerTypes });
+    expect(keepLocalCopy).not.toHaveBeenCalled();
   });
 
-  it('rejects unsupported extensions before copying the selected file', async () => {
+  it('rejects a file when an Android provider ignores the requested types', async () => {
     (pick as jest.Mock).mockResolvedValueOnce([
       {
         uri: 'content://documents/video.mp4',
         name: 'video.mp4',
-        size: 1024,
-        hasRequestedType: true,
+        hasRequestedType: false,
       },
     ]);
 
     await expect(pickTransaction()).rejects.toThrow();
 
     expect(keepLocalCopy).not.toHaveBeenCalled();
-  });
-
-  it('rejects an oversized transaction before copying it', async () => {
-    (pick as jest.Mock).mockResolvedValueOnce([
-      {
-        uri: 'content://documents/oversized.psbt',
-        name: 'oversized.psbt',
-        size: maxTransactionFileSizeBytes + 1,
-        hasRequestedType: true,
-      },
-    ]);
-
-    await expect(pickTransaction()).rejects.toThrow();
-
-    expect(keepLocalCopy).not.toHaveBeenCalled();
-  });
-
-  it('checks the cached PSBT size before reading it into memory', async () => {
-    (pick as jest.Mock).mockResolvedValueOnce([
-      {
-        uri: 'content://documents/oversized.psbt',
-        name: 'oversized.psbt',
-        size: null,
-        hasRequestedType: true,
-      },
-    ]);
-    (keepLocalCopy as jest.Mock).mockResolvedValueOnce([
-      {
-        status: 'success',
-        localUri: 'file:///mock/Caches/oversized.psbt',
-      },
-    ]);
-    (RNFS.stat as jest.Mock).mockResolvedValueOnce({
-      size: maxTransactionFileSizeBytes + 1,
-    });
-
-    await expect(openSignedTransaction()).resolves.toBe(false);
-
-    expect(RNFS.readFile).not.toHaveBeenCalled();
   });
 });
