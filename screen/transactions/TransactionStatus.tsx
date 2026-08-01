@@ -878,7 +878,7 @@ const TransactionStatus: React.FC = () => {
 
       fromArray.push(
         <View key={address} style={styles.addressRow}>
-          <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} />
+          <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} interactive={false} selectable />
           {index !== array.length - 1 && <BlueText style={addressStyle}>,</BlueText>}
         </View>,
       );
@@ -1241,6 +1241,8 @@ const TransactionStatus: React.FC = () => {
               }
               style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
               textAlign="right"
+              interactive={false}
+              selectable
             />
           </View>
         </View>
@@ -1271,6 +1273,8 @@ const TransactionStatus: React.FC = () => {
                       numberOfLines={1}
                       ellipsizeMode="middle"
                       textAlign="right"
+                      interactive={false}
+                      selectable
                     />
                   </View>
                 </View>
@@ -1300,6 +1304,8 @@ const TransactionStatus: React.FC = () => {
                   numberOfLines={1}
                   ellipsizeMode="middle"
                   textAlign="right"
+                  interactive={false}
+                  selectable
                 />
               </View>
             </View>
@@ -1363,6 +1369,8 @@ const TransactionStatus: React.FC = () => {
                   text={feeRate != null ? `${Number(feeRate.toFixed(1))} sats/vb` : '-'}
                   style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
                   textAlign="right"
+                  interactive={false}
+                  selectable
                 />
               </View>
             </View>
@@ -1375,6 +1383,8 @@ const TransactionStatus: React.FC = () => {
                   text={tx.size ? `${tx.size} B` : '-'}
                   style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
                   textAlign="right"
+                  interactive={false}
+                  selectable
                 />
               </View>
             </View>
@@ -1387,6 +1397,8 @@ const TransactionStatus: React.FC = () => {
                   text={tx.vsize ? `${tx.vsize} vB` : '-'}
                   style={StyleSheet.flatten([styles.detailValue, stylesHook.detailValue])}
                   textAlign="right"
+                  interactive={false}
+                  selectable
                 />
               </View>
             </View>
