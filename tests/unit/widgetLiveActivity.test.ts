@@ -2,6 +2,8 @@ import DefaultPreference from 'react-native-default-preference';
 import { Chain } from '../../models/bitcoinUnits';
 import type { Transaction, TWallet } from '../../class/wallets/types';
 import { DYNAMIC_ISLAND_PREVIEWS } from '../../components/DevMenu';
+import { showcasePendingTransactionsLiveActivity } from '../../blue_modules/dynamicIslandPreview.ios';
+import { notifyPendingTransactionsLiveActivityCurrencyChanged } from '../../blue_modules/dynamicIslandCurrencySync.ios';
 
 import {
   isPendingTransactionsLiveActivityEnabled,
@@ -11,6 +13,7 @@ import {
 } from '../../hooks/useWidgetCommunication.ios';
 
 const mockRefreshPendingTransactionsLiveActivity = jest.fn();
+const mockShowcasePendingTransactionsLiveActivity = jest.fn();
 const mockDefaultPreference = DefaultPreference as jest.Mocked<typeof DefaultPreference>;
 
 jest.mock('../../blue_modules/NativeWidgetHelper', () => ({
@@ -20,6 +23,7 @@ jest.mock('../../blue_modules/NativeWidgetHelper', () => ({
     refreshPendingTransactionsLiveActivity: () => mockRefreshPendingTransactionsLiveActivity(),
   },
   requestPendingTransactionsLiveActivityRefresh: () => mockRefreshPendingTransactionsLiveActivity(),
+  requestPendingTransactionsLiveActivityShowcase: () => mockShowcasePendingTransactionsLiveActivity(),
 }));
 
 const transaction = (txid: string, value: number, confirmations = 0): Transaction =>
@@ -45,6 +49,7 @@ const cache = () => ({
 describe('pending transactions Live Activity bridge', () => {
   beforeEach(() => {
     mockRefreshPendingTransactionsLiveActivity.mockClear();
+    mockShowcasePendingTransactionsLiveActivity.mockClear();
     mockDefaultPreference.set.mockClear();
     mockDefaultPreference.get.mockResolvedValue('1');
     mockDefaultPreference.set.mockResolvedValue();
@@ -192,5 +197,17 @@ describe('pending transactions Live Activity bridge', () => {
     expect(DYNAMIC_ISLAND_PREVIEWS.some(preview => preview.totalPendingSats === 0)).toBe(true);
     expect(DYNAMIC_ISLAND_PREVIEWS.some(preview => preview.totalPendingSats === 1)).toBe(true);
     expect(DYNAMIC_ISLAND_PREVIEWS.every(preview => Number.isSafeInteger(preview.totalPendingSats))).toBe(true);
+  });
+
+  it('starts the native five-second Dynamic Island showcase from React Native', () => {
+    showcasePendingTransactionsLiveActivity();
+
+    expect(mockShowcasePendingTransactionsLiveActivity).toHaveBeenCalledTimes(1);
+  });
+
+  it('refreshes native Live Activity presentation when the preferred currency changes', () => {
+    notifyPendingTransactionsLiveActivityCurrencyChanged();
+
+    expect(mockRefreshPendingTransactionsLiveActivity).toHaveBeenCalledTimes(1);
   });
 });

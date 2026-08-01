@@ -31,6 +31,9 @@ enum PendingTransactionsLiveActivityStore {
     static let enabledKey = "PendingTransactionsLiveActivityEnabled"
     static let snapshotKey = "PendingTransactionsLiveActivitySnapshot"
     static let watchConfigurationKey = "PendingTransactionsLiveActivityWatchConfiguration"
+    static let preferredCurrencyKey = UserDefaultsGroupKey.PreferredCurrency.rawValue
+    static let preferredCurrencyLocaleKey = UserDefaultsGroupKey.PreferredCurrencyLocale.rawValue
+    static let exchangeRatesKey = UserDefaultsGroupKey.ExchangeRates.rawValue
 
     private static var defaults: UserDefaults? {
         UserDefaults(suiteName: suiteName)
@@ -81,6 +84,48 @@ enum PendingTransactionsLiveActivityStore {
     static func loadSnapshot() -> PendingTransactionsSharedSnapshot {
         guard let json = defaults?.string(forKey: snapshotKey) else { return .empty() }
         return decodeSnapshot(json) ?? .empty()
+    }
+
+    @available(iOS 16.1, *)
+    static func loadFiatQuote() -> PendingTransactionsAttributes.FiatQuote? {
+        makeFiatQuote(
+            preferredCurrency: defaults?.string(forKey: preferredCurrencyKey),
+            preferredLocale: defaults?.string(forKey: preferredCurrencyLocaleKey),
+            exchangeRatesJSON: defaults?.string(forKey: exchangeRatesKey)
+        )
+    }
+
+    @available(iOS 16.1, *)
+    static func makeFiatQuote(
+        preferredCurrency: String?,
+        preferredLocale: String?,
+        exchangeRatesJSON: String?
+    ) -> PendingTransactionsAttributes.FiatQuote? {
+        let currencyCode = preferredCurrency?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .uppercased() ?? "USD"
+        guard !currencyCode.isEmpty,
+              currencyCode.count <= 12,
+              currencyCode.unicodeScalars.allSatisfy(CharacterSet.alphanumerics.contains),
+              let exchangeRatesJSON,
+              let data = exchangeRatesJSON.data(using: .utf8),
+              let jsonObject = try? JSONSerialization.jsonObject(with: data),
+              let rates = jsonObject as? [String: Any],
+              let rawRate = rates["BTC_\(currencyCode)"],
+              !(rawRate is Bool),
+              let rate = (rawRate as? NSNumber)?.doubleValue,
+              rate.isFinite,
+              rate > 0 else { return nil }
+
+        let localeIdentifier = preferredLocale?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "-", with: "_") ?? "en_US"
+
+        return PendingTransactionsAttributes.FiatQuote(
+            currencyCode: currencyCode,
+            localeIdentifier: localeIdentifier.isEmpty ? "en_US" : localeIdentifier,
+            rate: rate
+        )
     }
 
     static func decodeWatchConfiguration(_ json: String) -> PendingTransactionsWatchConfiguration? {

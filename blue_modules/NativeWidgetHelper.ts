@@ -35,5 +35,20 @@ export const requestPendingTransactionsLiveActivityPreview = (pendingTransaction
   }
 };
 
+export const requestPendingTransactionsLiveActivityShowcase = (): boolean => {
+  if (typeof NativeWidgetHelper.showcasePendingTransactionsLiveActivity !== 'function') {
+    console.warn('[PendingLiveActivity] Native showcase is unavailable; rebuild the iOS app to install the debug bridge.');
+    return false;
+  }
+
+  try {
+    NativeWidgetHelper.showcasePendingTransactionsLiveActivity();
+    return true;
+  } catch (error) {
+    console.warn('[PendingLiveActivity] Native showcase failed.', error);
+    return false;
+  }
+};
+
 export { type Spec };
 export default NativeWidgetHelper;

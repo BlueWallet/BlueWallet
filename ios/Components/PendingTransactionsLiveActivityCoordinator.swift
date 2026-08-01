@@ -166,6 +166,35 @@ enum PendingTransactionsLiveActivityCoordinator {
         )
         await apply(snapshot: snapshot, allowStart: true)
     }
+
+    static func showcase() async {
+        let showcaseGeneration = await refreshGate.begin()
+
+        for (index, step) in PendingTransactionsLiveActivityShowcase.steps.enumerated() {
+            guard !Task.isCancelled else { return }
+            guard await refreshGate.isCurrent(showcaseGeneration) else { return }
+
+            let snapshot = PendingTransactionsSharedSnapshot(
+                pendingTransactionCount: step.pendingTransactionCount,
+                totalPendingSats: step.totalPendingSats,
+                updatedAt: .now
+            )
+            await apply(snapshot: snapshot, allowStart: true)
+            NSLog(
+                "[PendingLiveActivity] Showcase step \(index + 1)/\(PendingTransactionsLiveActivityShowcase.steps.count): " +
+                "count=\(step.pendingTransactionCount), sats=\(step.totalPendingSats)"
+            )
+
+            guard index < PendingTransactionsLiveActivityShowcase.steps.count - 1 else { return }
+            do {
+                try await Task.sleep(
+                    nanoseconds: UInt64(PendingTransactionsLiveActivityShowcase.interval * 1_000_000_000)
+                )
+            } catch {
+                return
+            }
+        }
+    }
     #endif
 
     private static func handle(_ task: BGAppRefreshTask) {
@@ -188,7 +217,8 @@ enum PendingTransactionsLiveActivityCoordinator {
         let state = PendingTransactionsAttributes.ContentState(
             pendingTransactionCount: max(0, snapshot.pendingTransactionCount),
             totalPendingSats: max(0, snapshot.totalPendingSats),
-            lastUpdated: snapshot.updatedAt
+            lastUpdated: snapshot.updatedAt,
+            fiatQuote: PendingTransactionsLiveActivityStore.loadFiatQuote()
         )
         let activities = Activity<PendingTransactionsAttributes>.activities
         let action = PendingTransactionsLiveActivityStateBuilder.action(

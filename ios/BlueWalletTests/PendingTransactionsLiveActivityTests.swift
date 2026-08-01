@@ -7,10 +7,16 @@ struct PendingTransactionsLiveActivityTests {
     @Test("State values are normalized for ActivityKit")
     func stateBuilderNormalizesValues() throws {
         let date = Date(timeIntervalSince1970: 1_700_000_000)
+        let quote = PendingTransactionsAttributes.FiatQuote(
+            currencyCode: "USD",
+            localeIdentifier: "en_US",
+            rate: 67_500
+        )
         let state = try #require(
             PendingTransactionsLiveActivityStateBuilder.make(
                 pendingTransactionCount: 2.9,
                 totalPendingSats: 123_456.6,
+                fiatQuote: quote,
                 now: date
             )
         )
@@ -18,6 +24,7 @@ struct PendingTransactionsLiveActivityTests {
         #expect(state.pendingTransactionCount == 2)
         #expect(state.totalPendingSats == 123_457)
         #expect(state.lastUpdated == date)
+        #expect(state.fiatQuote == quote)
     }
 
     @Test("Negative bridge values are clamped to zero")
@@ -81,6 +88,18 @@ struct PendingTransactionsLiveActivityTests {
         )
     }
 
+    @Test("Developer showcase covers every content edge at five-second intervals")
+    func showcaseCoversContentEdges() {
+        let steps = PendingTransactionsLiveActivityShowcase.steps
+
+        #expect(PendingTransactionsLiveActivityShowcase.interval == 5)
+        #expect(steps.map(\.pendingTransactionCount) == [1, 1, 1, 2, 12, 999])
+        #expect(steps.contains { $0.totalPendingSats == 0 })
+        #expect(steps.contains { $0.totalPendingSats == 1 })
+        #expect(steps.contains { $0.totalPendingSats == 2_100_000_000_000_000 })
+        #expect(steps.allSatisfy { $0.pendingTransactionCount > 0 && $0.totalPendingSats >= 0 })
+    }
+
     @Test("Activity content state round-trips through Codable")
     func contentStateRoundTripsThroughJSON() throws {
         let original = try #require(
@@ -114,6 +133,37 @@ struct PendingTransactionsLiveActivityTests {
         #expect(snapshot.pendingTransactionCount == 2)
         #expect(snapshot.totalPendingSats == 175_000)
         #expect(abs(snapshot.updatedAt.timeIntervalSince1970 - 1_785_501_296.789) < 0.001)
+    }
+
+    @Test("Preferred fiat quote is validated and formatted from App Group currency data")
+    func preferredFiatQuoteIsValidatedAndFormatted() throws {
+        let quote = try #require(
+            PendingTransactionsLiveActivityStore.makeFiatQuote(
+                preferredCurrency: "usd",
+                preferredLocale: "en-US",
+                exchangeRatesJSON: #"{"BTC_USD":67500,"LAST_UPDATED":1785501296789}"#
+            )
+        )
+
+        #expect(quote.currencyCode == "USD")
+        #expect(quote.localeIdentifier == "en_US")
+        #expect(quote.rate == 67_500)
+
+        let formatted = try #require(PendingTransactionsFiatFormatter.format(sats: 175_000, quote: quote))
+        #expect(formatted.hasPrefix("≈ "))
+        #expect(formatted.contains("118"))
+        #expect(formatted.hasSuffix(" USD"))
+
+        #expect(PendingTransactionsLiveActivityStore.makeFiatQuote(
+            preferredCurrency: "USD",
+            preferredLocale: "en_US",
+            exchangeRatesJSON: #"{"BTC_USD":true}"#
+        ) == nil)
+        #expect(PendingTransactionsLiveActivityStore.makeFiatQuote(
+            preferredCurrency: "USD",
+            preferredLocale: "en_US",
+            exchangeRatesJSON: #"{"BTC_USD":-1}"#
+        ) == nil)
     }
 
     @Test("Dynamic Island privacy preference defaults to enabled")

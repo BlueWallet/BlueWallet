@@ -5,6 +5,7 @@ export interface Spec extends TurboModule {
   reloadAllWidgets(): void;
   refreshPendingTransactionsLiveActivity(): void;
   previewPendingTransactionsLiveActivity(pendingTransactionCount: number, totalPendingSats: number): void;
+  showcasePendingTransactionsLiveActivity(): void;
 }
 
 const moduleProxy = TurboModuleRegistry.getEnforcing<Spec>('WidgetHelper');

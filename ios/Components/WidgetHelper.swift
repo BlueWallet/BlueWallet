@@ -1,5 +1,6 @@
 import Foundation
 import React
+import UIKit
 import WidgetKit
 
 // Lightweight helper used by the app target to refresh widget timelines from native code.
@@ -48,6 +49,24 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
                 pendingTransactionCount: pendingTransactionCount,
                 totalPendingSats: totalPendingSats
             )
+        }
+        #endif
+    }
+
+    @objc
+    func showcasePendingTransactionsLiveActivity() {
+        #if DEBUG && canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        guard #available(iOS 16.1, *) else { return }
+        NSLog("[PendingLiveActivity] Five-second showcase requested")
+        Task { @MainActor in
+            let backgroundTask = UIApplication.shared.beginBackgroundTask(
+                withName: "PendingTransactionsLiveActivityShowcase",
+                expirationHandler: nil
+            )
+            await PendingTransactionsLiveActivityCoordinator.showcase()
+            if backgroundTask != .invalid {
+                UIApplication.shared.endBackgroundTask(backgroundTask)
+            }
         }
         #endif
     }

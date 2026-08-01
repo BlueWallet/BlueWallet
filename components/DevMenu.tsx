@@ -5,7 +5,7 @@ import { HDSegwitBech32Wallet } from '../class/wallets/hd-segwit-bech32-wallet';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
-import { previewPendingTransactionsLiveActivity } from '../blue_modules/dynamicIslandPreview';
+import { previewPendingTransactionsLiveActivity, showcasePendingTransactionsLiveActivity } from '../blue_modules/dynamicIslandPreview';
 
 type DynamicIslandPreview = {
   title: string;
@@ -63,6 +63,21 @@ const showDynamicIslandPreviews = () => {
     'Dynamic Island Preview',
     'Choose a content state. Lock the simulator to inspect the Lock Screen view, or press and hold the Dynamic Island for its expanded view.',
     options,
+    { cancelable: true },
+  );
+};
+
+const showDynamicIslandShowcase = () => {
+  Alert.alert(
+    'Dynamic Island Showcase',
+    'Cycles through singular, plural, tiny, typical, large, and stress-test values every 5 seconds. Swipe home to see the compact view, then press and hold it to inspect the expanded view.',
+    [
+      {
+        text: 'Start Showcase',
+        onPress: showcasePendingTransactionsLiveActivity,
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ],
     { cancelable: true },
   );
 };
@@ -136,6 +151,7 @@ const DevMenu: React.FC = () => {
   useEffect(() => {
     if (__DEV__) {
       if (Platform.OS === 'ios') {
+        DevSettings.addMenuItem('Showcase Dynamic Island (5s)', showDynamicIslandShowcase);
         DevSettings.addMenuItem('Preview Dynamic Island', showDynamicIslandPreviews);
       }
 

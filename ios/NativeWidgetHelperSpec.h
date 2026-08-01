@@ -5,4 +5,5 @@
 - (void)refreshPendingTransactionsLiveActivity;
 - (void)previewPendingTransactionsLiveActivity:(double)pendingTransactionCount
                                totalPendingSats:(double)totalPendingSats;
+- (void)showcasePendingTransactionsLiveActivity;
 @end

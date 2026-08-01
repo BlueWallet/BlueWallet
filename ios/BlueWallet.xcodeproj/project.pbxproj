@@ -124,7 +124,7 @@
 		B4C300262FA1BD0000000026 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7047D254E24D5005FE5E2 /* UserDefaultsGroup.swift */; };
 		B4C300272FA1BD0000000027 /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033D22BCC368800162242 /* UserDefaultsGroupKey.swift */; };
 		B4C300282FA1BD0000000028 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
-		B4C400012FA1BE0000000001 /* marketing-1024x1024.png in Resources */ = {isa = PBXBuildFile; fileRef = B4C400002FA1BE0000000000 /* marketing-1024x1024.png */; };
+		B4C400012FA1BE0000000001 /* BlueWallet-1024.png in Resources */ = {isa = PBXBuildFile; fileRef = B4C400002FA1BE0000000000 /* BlueWallet-1024.png */; };
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
 		B4F0A4A42FA1BC0000AAAA03 /* EventEmitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */; };
 		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
@@ -274,7 +274,7 @@
 		B4C300022FA1BD0000000002 /* BitcoinTransactionParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinTransactionParser.swift; sourceTree = "<group>"; };
 		B4C300032FA1BD0000000003 /* PendingTransactionsElectrumService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionsElectrumService.swift; sourceTree = "<group>"; };
 		B4C300042FA1BD0000000004 /* PendingTransactionsLiveActivityCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransactionsLiveActivityCoordinator.swift; sourceTree = "<group>"; };
-		B4C400002FA1BE0000000000 /* marketing-1024x1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "marketing-1024x1024.png"; path = "Stickers/Stickers.xcassets/Sticker Pack.stickerpack/BlueWallet.sticker/marketing-1024x1024.png"; sourceTree = SOURCE_ROOT; };
+		B4C400002FA1BE0000000000 /* BlueWallet-1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "BlueWallet-1024.png"; path = "BlueWallet/Images.xcassets/AppIcon.appiconset/BlueWallet-1024.png"; sourceTree = SOURCE_ROOT; };
 		B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCSlider.a; sourceTree = "<group>"; };
 		B4EFF73A2C3F6C5E0095D655 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
 		B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WidgetHelper.mm; sourceTree = "<group>"; };
@@ -628,7 +628,7 @@
 		B4C100062FA1BC0000000006 /* PendingTransactionsLiveActivity */ = {
 			isa = PBXGroup;
 			children = (
-				B4C400002FA1BE0000000000 /* marketing-1024x1024.png */,
+				B4C400002FA1BE0000000000 /* BlueWallet-1024.png */,
 				B4C100052FA1BC0000000005 /* PendingTransactionsLiveActivity.swift */,
 			);
 			path = PendingTransactionsLiveActivity;
@@ -827,7 +827,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4C400012FA1BE0000000001 /* marketing-1024x1024.png in Resources */,
+				B4C400012FA1BE0000000001 /* BlueWallet-1024.png in Resources */,
 				B41C2E582BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */,
 				B44034112BCC40A400162242 /* fiatUnits.json in Resources */,
 				B4742E9B2CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
