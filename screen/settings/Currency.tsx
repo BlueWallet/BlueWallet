@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Keyboard, NativeSyntheticEvent, StyleSheet, View } from 'react-native';
+import { Keyboard, NativeSyntheticEvent, StyleSheet, Text, View } from 'react-native';
 
 import {
   CurrencyRate,
@@ -11,14 +11,9 @@ import {
   setPreferredCurrency,
 } from '../../blue_modules/currency';
 import presentAlert from '../../components/Alert';
-import {
-  SettingsCard,
-  SettingsFlatList,
-  SettingsListItem,
-  SettingsSection,
-  SettingsSubtitle,
-  SettingsText,
-} from '../../components/platform';
+import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import { SettingsListItem, settingsListCard, settingsSectionHeaderText } from '../../components/SettingsSection';
+import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
@@ -38,7 +33,15 @@ const Currency: React.FC = () => {
   });
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { setOptions } = useExtendedNavigation();
+  const { colors } = useTheme();
   const [search, setSearch] = useState('');
+
+  const stylesHook = StyleSheet.create({
+    card: { backgroundColor: colors.cardSectionBackground },
+    infoHeader: { backgroundColor: colors.cardSectionHeaderBackground },
+    infoTitle: { color: colors.foregroundColor },
+    infoSubtitle: { color: colors.alternativeTextColor },
+  });
 
   const filteredCurrencies = useMemo(() => {
     const searchLower = search.toLowerCase();
@@ -91,8 +94,6 @@ const Currency: React.FC = () => {
       const isSelected = selectedCurrency.endPointKey === item.endPointKey;
       const isDisabled = isSavingNewPreferredCurrency === item || isSelected;
       const isLoading = isSavingNewPreferredCurrency === item;
-      const isFirst = index === 0;
-      const isLast = index === filteredCurrencies.length - 1;
 
       return (
         <SettingsListItem
@@ -122,8 +123,7 @@ const Currency: React.FC = () => {
               setIsSavingNewPreferredCurrency(undefined);
             }
           }}
-          position={isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle'}
-          accessibilityLabel={`${item.endPointKey} ${item.symbol} ${item.country}`}
+          bottomDivider={index < filteredCurrencies.length - 1}
         />
       );
     },
@@ -132,38 +132,31 @@ const Currency: React.FC = () => {
 
   const keyExtractor = useCallback((item: FiatUnitType) => `${item.endPointKey}-${item.locale}`, []);
 
-  const ListHeaderComponent = useCallback(() => {
-    if (isSearchFocused || !selectedCurrencyVisible) return null;
-
-    return (
-      <SettingsSection compact>
-        <View style={styles.infoWrapper}>
-          <SettingsCard style={styles.infoCard}>
-            <SettingsText style={styles.infoTitle}>
-              {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
-            </SettingsText>
-            <SettingsSubtitle style={styles.infoSubtitle}>
-              {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
-            </SettingsSubtitle>
-            <SettingsSubtitle style={styles.infoSubtitle}>
-              {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
-            </SettingsSubtitle>
-          </SettingsCard>
-        </View>
-      </SettingsSection>
+  const listHeader =
+    isSearchFocused || !selectedCurrencyVisible ? null : (
+      <View style={[styles.infoHeader, stylesHook.infoHeader]}>
+        <Text style={[settingsSectionHeaderText, styles.infoTitle, stylesHook.infoTitle]}>
+          {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
+        </Text>
+        <Text style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
+          {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
+        </Text>
+        <Text style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
+          {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
+        </Text>
+      </View>
     );
-  }, [isSearchFocused, selectedCurrencyVisible, selectedCurrency?.source, currencyRate]);
 
   return (
-    <SettingsFlatList
+    <SafeAreaFlatList
       data={filteredCurrencies}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      ListHeaderComponent={ListHeaderComponent}
+      ListHeaderComponent={listHeader}
+      contentContainerStyle={[settingsListCard, stylesHook.card]}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets
-      removeClippedSubviews={true}
     />
   );
 };
@@ -171,18 +164,15 @@ const Currency: React.FC = () => {
 export default Currency;
 
 const styles = StyleSheet.create({
-  infoWrapper: {
-    marginBottom: 16,
-    paddingVertical: 12,
-  },
-  infoCard: {
+  infoHeader: {
+    paddingVertical: 16,
     paddingHorizontal: 16,
-    paddingVertical: 12,
   },
   infoTitle: {
     marginBottom: 8,
   },
   infoSubtitle: {
+    fontSize: 14,
     marginTop: 6,
   },
 });

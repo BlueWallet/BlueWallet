@@ -59,14 +59,6 @@ jest.mock('react-native-capture-protection', () => ({
   },
 }));
 
-jest.mock('react-native-watch-connectivity', () => {
-  return {
-    getIsWatchAppInstalled: jest.fn(() => Promise.resolve(false)),
-    subscribeToMessages: jest.fn(),
-    updateApplicationContext: jest.fn(),
-  };
-});
-
 jest.mock('react-native-secure-key-store', () => {
   return {};
 });
@@ -260,7 +252,12 @@ jest.mock('react-native-fs', () => {
   };
 });
 
-jest.mock('@react-native-documents/picker', () => ({}));
+jest.mock('@react-native-documents/picker', () => ({
+  saveDocuments: jest.fn(async ({ sourceUris }) => {
+    const sourceUri = Array.isArray(sourceUris) && sourceUris.length > 0 ? sourceUris[0] : 'file:///mock/unknown';
+    return [{ uri: sourceUri, name: 'mock', error: null }];
+  }),
+}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
 

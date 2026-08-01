@@ -123,7 +123,6 @@ export default class CPFP extends Component {
     if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
-
     const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
       const info = await tx.getInfo();

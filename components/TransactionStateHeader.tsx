@@ -63,8 +63,7 @@ const TransactionStateHeader: React.FC<TransactionStateHeaderProps> = ({
 }) => {
   const DirectionIcon = direction === 'sent' ? TransactionOutgoingIcon : TransactionIncomingIcon;
   const label = direction === 'sent' ? loc.transactions.details_sent : loc.transactions.details_received;
-  const displayConfirmations =
-    !Number.isFinite(confirmations) || confirmations <= 0 ? null : confirmations > 6 ? '6+' : confirmations;
+  const displayConfirmations = !Number.isFinite(confirmations) || confirmations <= 0 ? null : confirmations > 6 ? '6+' : confirmations;
 
   const content = (
     <>

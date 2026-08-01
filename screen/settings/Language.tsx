@@ -1,16 +1,22 @@
 import React, { useLayoutEffect, useState, useCallback } from 'react';
-import { Keyboard, NativeSyntheticEvent } from 'react-native';
+import { Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
 import presentAlert from '../../components/Alert';
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
 import { useSettings } from '../../hooks/context/useSettings';
-import { SettingsFlatList, SettingsListItem } from '../../components/platform';
+import SafeAreaFlatList from '../../components/SafeAreaFlatList';
+import { SettingsListItem, settingsListCard } from '../../components/SettingsSection';
+import { useTheme } from '../../components/themes';
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
   const { setOptions } = useExtendedNavigation();
+  const { colors } = useTheme();
   const [search, setSearch] = useState('');
+  const stylesHook = StyleSheet.create({
+    card: { backgroundColor: colors.cardSectionBackground },
+  });
   // Set header options - navigation stack already handles transparent header,
   // we just need to configure the search bar and ensure title is updated when language changes
   useLayoutEffect(() => {
@@ -41,8 +47,6 @@ const Language = () => {
     (props: { item: TLanguage; index: number }) => {
       const { item, index } = props;
       const isSelected = language === item.value;
-      const isFirst = index === 0;
-      const isLast = index === filteredLanguages.length - 1;
 
       return (
         <SettingsListItem
@@ -50,8 +54,7 @@ const Language = () => {
           checkmark={isSelected}
           disabled={isSelected}
           onPress={() => onLanguageSelect(item)}
-          position={isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle'}
-          accessibilityLabel={item.label}
+          bottomDivider={index < filteredLanguages.length - 1}
         />
       );
     },
@@ -61,12 +64,12 @@ const Language = () => {
   const keyExtractor = useCallback((item: TLanguage) => item.value, []);
 
   return (
-    <SettingsFlatList
+    <SafeAreaFlatList
       testID="LanguageFlatList"
       data={filteredLanguages}
       renderItem={renderItem}
       keyExtractor={keyExtractor}
-      removeClippedSubviews
+      contentContainerStyle={[settingsListCard, stylesHook.card]}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
       automaticallyAdjustKeyboardInsets

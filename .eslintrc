@@ -44,7 +44,18 @@
         "ts-check": false
       }
     ],
-    "@typescript-eslint/no-unused-vars": ["error", { "args": "none" }],
+    // v8 recommended defaults caughtErrors to "all"; keep prior behavior
+    "@typescript-eslint/no-unused-vars": ["error", { "args": "none", "caughtErrors": "none" }],
+    // v8 recommended enables a stricter TS variant; match prior standard allowances
+    "no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-expressions": [
+      "error",
+      {
+        "allowShortCircuit": true,
+        "allowTernary": true,
+        "allowTaggedTemplates": true
+      }
+    ],
 
     // disable rules that are superseded by @typescript-eslint rules
     "no-unused-vars": "off",
@@ -52,9 +63,12 @@
 
     // disable rules that we want to enforce only for typescript files
     "@typescript-eslint/explicit-module-boundary-types": "off",
-    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/no-use-before-define": "off",
+
+    // v8 recommended successors / additions — preserve prior lint allowlist
+    "@typescript-eslint/no-require-imports": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
   },
   "overrides": [
     {
@@ -64,7 +78,6 @@
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-explicit-any": "off",
         "@typescript-eslint/no-this-alias": "off",
-        "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-inferrable-types": "off",
         "@typescript-eslint/no-use-before-define": ["error", { "variables": false }]
       }

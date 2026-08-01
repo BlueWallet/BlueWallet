@@ -7,44 +7,6 @@ When upstream ships an equivalent fix, drop the patch here and bump the dependen
 
 ---
 
-## `react-native-tcp-socket+6.4.1.patch`
-
-**What:** in `TcpSockets.m onConnect:`, read the socket addresses once and
-emit `connect` only when both are valid; otherwise emit an `error` event
-for that client.
-
-**Why:** `onConnect:` builds an `NSDictionary` literal from
-`[socket localHost]` / `[socket connectedHost]`. The socket can disconnect
-between this callback being queued and run, in which case those getters
-return `nil`; a dictionary literal with a `nil` value throws
-`NSInvalidArgumentException`, which is uncaught and aborts the whole app
-(SIGABRT). It is intermittent and was seen against Electrum TLS
-connections, but is not TLS-specific.
-
-```
-NSInvalidArgumentException — attempt to insert nil object from objects[0]
-  -[TcpSockets onConnect:]  ->  -[TcpSocketClient socketDidSecure:]
-→ Signal 6 (abort)
-```
-
-The `error`-event path (rather than just skipping the event) is
-deliberate: skipping silently leaves the JS side waiting forever for a
-`connect` callback that never arrives. Emitting `error` lets the JS
-connection fail fast so the caller can retry.
-
-**Upstream:**
-- Bug: https://github.com/Rapsssito/react-native-tcp-socket/issues/197 (open)
-- https://github.com/Rapsssito/react-native-tcp-socket/pull/225 (open) —
-  proposes the same nil guard but skips the event, which the maintainer
-  noted would hang JS; this patch emits `error` instead.
-- https://github.com/Rapsssito/react-native-tcp-socket/pull/172 (closed) —
-  earlier attempt with the same error-event structure.
-
-**Remove this patch once an upstream fix is merged and
-`react-native-tcp-socket` is bumped past 6.4.1.**
-
----
-
 ## `react-native-notifications+5.2.2.patch`
 
 **What:** rewrites `FcmToken.sendTokenToJS()` (Android) to obtain the

@@ -1,7 +1,7 @@
 import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { TextInput } from 'react-native';
 import loc from '../../loc';
-import { SettingsScrollView, SettingsSection, SettingsListItem, SettingsSectionHeader } from '../../components/platform';
+import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 import {
   getBlockExplorersList,
   BlockExplorer,
@@ -119,12 +119,9 @@ const SettingsBlockExplorer: React.FC = () => {
 
   return (
     <SettingsScrollView>
-      <SettingsSectionHeader title={loc._.suggested} />
-      <SettingsSection horizontalInset={false}>
+      <SettingsSection title={loc._.suggested}>
         {predefinedExplorers.map((explorer, index) => {
           const isSelected = !isCustomEnabled && normalizeUrl(selectedBlockExplorer.url || '') === normalizeUrl(explorer.url || '');
-          const isFirst = index === 0;
-          const isLast = index === predefinedExplorers.length - 1;
 
           return (
             <SettingsListItem
@@ -133,14 +130,13 @@ const SettingsBlockExplorer: React.FC = () => {
               onPress={() => handleExplorerPress(explorer)}
               checkmark={isSelected}
               disabled={isCustomEnabled}
-              position={isFirst && isLast ? 'single' : isFirst ? 'first' : isLast ? 'last' : 'middle'}
+              bottomDivider={index < predefinedExplorers.length - 1}
             />
           );
         })}
       </SettingsSection>
 
-      <SettingsSectionHeader title={loc.wallets.details_advanced} />
-      <SettingsSection compact horizontalInset={false}>
+      <SettingsSection title={loc.wallets.details_advanced}>
         <SettingsBlockExplorerCustomUrlItem
           isCustomEnabled={isCustomEnabled}
           onSwitchToggle={handleCustomSwitchToggle}
