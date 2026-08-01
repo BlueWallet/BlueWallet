@@ -107,13 +107,18 @@ const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]
   };
 };
 
-const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
+/** @returns true if the user completed the share/save, false if they cancelled. */
+const _shareOpen = async (filePath: string, showShareDialog: boolean = false): Promise<boolean> => {
   try {
-    await Share.open({
+    const result = await Share.open({
       url: 'file://' + filePath,
       saveToFiles: isDesktop || !showShareDialog,
       failOnCancel: false,
     });
+    // iOS sets dismissedAction on cancel. Android often sets it even after a
+    // successful share, so trusting it there hides the post-share UI.
+    if (Platform.OS === 'ios' && result?.dismissedAction) return false;
+    return true;
   } catch (error: any) {
     console.log(error);
     // If user cancels sharing, we dont want to show an error. for some reason we get 'CANCELLED' string as error
@@ -121,6 +126,7 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
     if (errorMessage !== 'CANCELLED') {
       presentAlert({ message: errorMessage });
     }
+    return false;
   } finally {
     await _safeUnlink(filePath);
   }
@@ -128,10 +134,12 @@ const _shareOpen = async (filePath: string, showShareDialog: boolean = false) =>
 
 /**
  * Writes a file to fs, and triggers an OS sharing dialog, so user can decide where to put this file (share to cloud
- * or perhaps messaging app). Provided filename should be just a file name, NOT a path
+ * or perhaps messaging app). Provided filename should be just a file name, NOT a path.
+ *
+ * @returns true if the file was shared/saved, false if the user cancelled or an error was shown.
  */
 
-export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true) {
+export const writeFileAndExport = async function (fileName: string, contents: string, showShareDialog: boolean = true): Promise<boolean> {
   const sanitizedFileName = _sanitizeFileName(fileName);
   try {
     if (!showShareDialog) {
@@ -151,18 +159,19 @@ export const writeFileAndExport = async function (fileName: string, contents: st
       } finally {
         await _safeUnlink(sourceFilePath);
       }
-      return;
+      return true;
     }
 
     const filePath = _createTempExportPath(sanitizedFileName);
     await RNFS.writeFile(filePath, contents);
-    await _shareOpen(filePath, true);
+    return await _shareOpen(filePath, true);
   } catch (error: any) {
     if (isCancel(error)) {
-      return;
+      return false;
     }
     console.error(error);
     presentAlert({ message: error.message });
+    return false;
   }
 };
 

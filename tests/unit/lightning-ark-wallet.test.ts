@@ -1,10 +1,12 @@
 import assert from 'assert';
 
+import * as ArkadeSdk from '@arkade-os/sdk';
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION } from '@arkade-os/sdk/repositories/realm';
 import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
 
-import { LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
+import { LightningArkExitError, LightningArkWallet, __testing__ as walletTesting } from '../../class/wallets/lightning-ark-wallet.ts';
 import { resetArkadeTestState } from '../helpers/arkadeMocks';
+import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 
 const TEST_MNEMONIC = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
@@ -1452,5 +1454,45 @@ describe('LightningArkWallet — per-swap claim/refund + restore', () => {
     fakeArkadeSwaps.restoreSwaps.mockResolvedValueOnce({ chainSwaps: [], reverseSwaps: [], submarineSwaps: [] });
     await w.restoreSwaps();
     assert.strictEqual(fakeArkadeSwaps.restoreSwaps.mock.calls.length, 2);
+  });
+});
+
+describe('LightningArkWallet — exportUnilateralExitPackage', () => {
+  const SWEEP = 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    installSdkProviderSpies();
+    jest.spyOn(ArkadeSdk.EsploraProvider.prototype, 'getFeeRate').mockResolvedValue(1);
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
+    jest.useRealTimers();
+    resetArkadeTestState();
+    restoreSdkProviderSpies();
+  });
+
+  it('rejects bad/unready input, then hits real prepare on an empty wallet', async () => {
+    const w = new LightningArkWallet();
+    w.setSecret('arkade://' + TEST_MNEMONIC);
+    const prepare = jest.spyOn(ArkadeSdk.UnilateralExit, 'prepare');
+
+    await assert.rejects(
+      () => w.exportUnilateralExitPackage('not-an-address'),
+      e => e instanceof LightningArkExitError && e.code === 'invalid_address',
+    );
+    await assert.rejects(
+      () => w.exportUnilateralExitPackage(SWEEP),
+      e => e instanceof LightningArkExitError && e.code === 'not_ready',
+    );
+    assert.strictEqual(prepare.mock.calls.length, 0);
+
+    await w.init();
+    await assert.rejects(() => w.exportUnilateralExitPackage(`  ${SWEEP}  `), /no vtxos to exit/);
+    assert.strictEqual(prepare.mock.calls.length, 1);
+    assert.strictEqual(prepare.mock.calls[0][0].mode, 'graph');
+    assert.strictEqual(prepare.mock.calls[0][0].sweepAddress, SWEEP);
+    assert.strictEqual(prepare.mock.calls[0][0].networkName, 'bitcoin');
   });
 });

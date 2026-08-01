@@ -14,11 +14,22 @@ import {
   isSubmarineSwapRefundable,
 } from '@arkade-os/boltz-swap';
 import { RealmSwapRepository } from '@arkade-os/boltz-swap/repositories/realm';
-import { RestDelegatorProvider, SingleKey, Wallet, ExtendedCoin, ArkTransaction, TxType } from '@arkade-os/sdk';
+import {
+  RestDelegatorProvider,
+  SingleKey,
+  Wallet,
+  ExtendedCoin,
+  ArkTransaction,
+  TxType,
+  OnchainWallet,
+  UnilateralExit,
+  serializeExitPackage,
+} from '@arkade-os/sdk';
 import { ExpoArkProvider, ExpoIndexerProvider } from '@arkade-os/sdk/adapters/expo';
 import { RealmContractRepository, RealmWalletRepository } from '@arkade-os/sdk/repositories/realm';
 
 import BIP32Factory from 'bip32';
+import * as bitcoin from 'bitcoinjs-lib';
 
 import { LightningCustodianWallet } from './lightning-custodian-wallet.ts';
 import { randomBytes } from '../rng.ts';
@@ -32,6 +43,18 @@ import { deleteArkadeRealm, getArkadeRealm } from '../../blue_modules/arkade-ada
 import { registerArkPaymentPush } from '../../blue_modules/notifications';
 const { bech32m } = require('bech32');
 
+/** Static keyless executor for graph-mode unilateral exit packages. */
+export const ARKADE_UNILATERAL_EXIT_URL = 'https://bluewallet.github.io/arkade-unilateral-exit/';
+
+/** Typed export failures so the UI localizes by code, not English `Error.message`. */
+export class LightningArkExitError extends Error {
+  constructor(readonly code: 'invalid_address' | 'not_ready') {
+    super(code);
+    this.name = 'LightningArkExitError';
+  }
+}
+
+bitcoin.initEccLib(ecc);
 const bip32 = BIP32Factory(ecc);
 
 // Delegate-service URL per Ark network. Mirrors the canonical wallet's map
@@ -47,6 +70,16 @@ const DELEGATOR_URLS = {
   signet: null,
   testnet: null,
 } as const;
+
+/** bitcoinjs-lib network for on-chain address checks; Ark `NetworkName` → chain params. */
+const BITCOINJS_NETWORKS: Record<keyof typeof DELEGATOR_URLS, bitcoin.Network> = {
+  bitcoin: bitcoin.networks.bitcoin,
+  // signet / mutinynet share testnet address prefixes (tb1…).
+  testnet: bitcoin.networks.testnet,
+  signet: bitcoin.networks.testnet,
+  mutinynet: bitcoin.networks.testnet,
+  regtest: bitcoin.networks.regtest,
+};
 
 const staticWalletCache: Record<string, Wallet> = {};
 const staticSwapsCache: Record<string, ArkadeSwaps> = {};
@@ -891,6 +924,30 @@ export class LightningArkWallet extends LightningCustodianWallet {
         this._lastTxFetch = +new Date();
       }
     }
+  }
+
+  /** Graph-mode exit package JSON for {@link ARKADE_UNILATERAL_EXIT_URL}. */
+  async exportUnilateralExitPackage(sweepAddress: string): Promise<string> {
+    const address = (sweepAddress || '').trim();
+    try {
+      bitcoin.address.toOutputScript(address, BITCOINJS_NETWORKS[this._network]);
+    } catch {
+      throw new LightningArkExitError('invalid_address');
+    }
+
+    // Do not call init() here: it preflights the delegate and talks to the ASP.
+    // Exit export must work from an already-open wallet if those services are down.
+    if (!this._wallet) throw new LightningArkExitError('not_ready');
+
+    const onchainWallet = await OnchainWallet.create(this._wallet.identity, this._network, this._wallet.onchainProvider);
+    const pkg = await UnilateralExit.prepare({
+      wallet: this._wallet,
+      onchainWallet,
+      sweepAddress: address,
+      mode: 'graph',
+      networkName: this._network,
+    });
+    return serializeExitPackage(pkg);
   }
 
   /**

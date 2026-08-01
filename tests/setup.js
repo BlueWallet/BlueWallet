@@ -253,6 +253,7 @@ jest.mock('react-native-fs', () => {
 });
 
 jest.mock('@react-native-documents/picker', () => ({
+  errorCodes: { OPERATION_CANCELED: 'OPERATION_CANCELED' },
   saveDocuments: jest.fn(async ({ sourceUris }) => {
     const sourceUri = Array.isArray(sourceUris) && sourceUris.length > 0 ? sourceUris[0] : 'file:///mock/unknown';
     return [{ uri: sourceUri, name: 'mock', error: null }];
