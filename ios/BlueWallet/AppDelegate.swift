@@ -80,7 +80,9 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         return result
     }
 
-    func applicationDidEnterBackground(_ application: UIApplication) {
+    override func applicationDidEnterBackground(_ application: UIApplication) {
+        super.applicationDidEnterBackground(application)
+
         #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
         if #available(iOS 16.1, *) {
             PendingTransactionsLiveActivityCoordinator.scheduleBackgroundRefresh()

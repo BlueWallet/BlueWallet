@@ -116,6 +116,7 @@
 		B4C300122FA1BD0000000012 /* BitcoinTransactionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C300022FA1BD0000000002 /* BitcoinTransactionParser.swift */; };
 		B4C300132FA1BD0000000013 /* PendingTransactionsElectrumService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C300032FA1BD0000000003 /* PendingTransactionsElectrumService.swift */; };
 		B4C300142FA1BD0000000014 /* PendingTransactionsLiveActivityCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C300042FA1BD0000000004 /* PendingTransactionsLiveActivityCoordinator.swift */; };
+		B4C300152FA1BD0000000015 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
 		B4C300212FA1BD0000000021 /* PendingTransactionsLiveActivityStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C300012FA1BD0000000001 /* PendingTransactionsLiveActivityStore.swift */; };
 		B4C300222FA1BD0000000022 /* BitcoinTransactionParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C300022FA1BD0000000002 /* BitcoinTransactionParser.swift */; };
 		B4C300232FA1BD0000000023 /* PendingTransactionsElectrumService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C300032FA1BD0000000003 /* PendingTransactionsElectrumService.swift */; };
@@ -126,7 +127,7 @@
 		B4C300282FA1BD0000000028 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44033DC2BCC36C300162242 /* LatestTransaction.swift */; };
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
 		B4F0A4A42FA1BC0000AAAA03 /* EventEmitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */; };
-		C978A716948AB7DEC5B6F677 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -300,7 +301,7 @@
 				B4C100082FA1BC0000000008 /* ActivityKit.framework in Frameworks */,
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C978A716948AB7DEC5B6F677 /* (null) in Frameworks */,
+				C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */,
 				17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -615,20 +616,20 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
-		B4C100062FA1BC0000000006 /* PendingTransactionsLiveActivity */ = {
-			isa = PBXGroup;
-			children = (
-				B4C100052FA1BC0000000005 /* PendingTransactionsLiveActivity.swift */,
-			);
-			path = PendingTransactionsLiveActivity;
-			sourceTree = "<group>";
-		};
 		B47B21EA2B2128B8001F6690 /* BlueWalletUITests */ = {
 			isa = PBXGroup;
 			children = (
 				B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */,
 			);
 			path = BlueWalletUITests;
+			sourceTree = "<group>";
+		};
+		B4C100062FA1BC0000000006 /* PendingTransactionsLiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				B4C100052FA1BC0000000005 /* PendingTransactionsLiveActivity.swift */,
+			);
+			path = PendingTransactionsLiveActivity;
 			sourceTree = "<group>";
 		};
 		FAA856B639C61E61D2CF90A8 /* Pods */ = {
@@ -785,8 +786,6 @@
 				"en-US",
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
-			packageReferences = (
-			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -930,13 +929,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -972,13 +967,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -996,6 +987,7 @@
 				B4C300122FA1BD0000000012 /* BitcoinTransactionParser.swift in Sources */,
 				B4C300132FA1BD0000000013 /* PendingTransactionsElectrumService.swift in Sources */,
 				B4C300142FA1BD0000000014 /* PendingTransactionsLiveActivityCoordinator.swift in Sources */,
+				B4C300152FA1BD0000000015 /* SwiftTCPClient.swift in Sources */,
 				B4C100012FA1BC0000000001 /* PendingTransactionsAttributes.swift in Sources */,
 				B44033CA2BCC350A00162242 /* Currency.swift in Sources */,
 				B44033EE2BCC374500162242 /* Numeric+abbreviated.swift in Sources */,
@@ -1591,6 +1583,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1600,7 +1593,13 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
 				MARKETING_VERSION = 1.0;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1621,6 +1620,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
@@ -1629,7 +1629,13 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
 				MARKETING_VERSION = 1.0;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
