@@ -29,7 +29,7 @@ struct PendingTransactionsLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading, spacing: 9) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Unconfirmed amount")
+                            Text(PendingTransactionsLocalization.unconfirmedAmount)
                                 .font(.caption2.weight(.medium))
                                 .foregroundStyle(.secondary)
 
@@ -45,7 +45,7 @@ struct PendingTransactionsLiveActivity: Widget {
                                 .font(.caption2)
                                 .foregroundStyle(Color.blueWalletAccent)
 
-                            Text("Awaiting network confirmation")
+                            Text(PendingTransactionsLocalization.awaitingNetworkConfirmation)
                                 .font(.caption.weight(.medium))
                                 .foregroundStyle(.secondary)
 
@@ -65,7 +65,7 @@ struct PendingTransactionsLiveActivity: Widget {
                         .foregroundStyle(Color.blueWalletAccent)
                 }
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("BlueWallet Bitcoin")
+                .accessibilityLabel(PendingTransactionsLocalization.compactAccessibilityLabel)
             } compactTrailing: {
                 HStack(spacing: 3) {
                     Image(systemName: "clock.fill")
@@ -105,7 +105,7 @@ private struct PendingTransactionsLockScreenView: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("BlueWallet")
                         .font(.subheadline.weight(.bold))
-                    Text("Pending on-chain")
+                    Text(PendingTransactionsLocalization.pendingOnChain)
                         .font(.caption.weight(.medium))
                         .foregroundStyle(.secondary)
                 }
@@ -116,10 +116,11 @@ private struct PendingTransactionsLockScreenView: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("UNCONFIRMED AMOUNT")
+                Text(PendingTransactionsLocalization.unconfirmedAmount)
                     .font(.caption2.weight(.semibold))
                     .tracking(0.6)
                     .foregroundStyle(.secondary)
+                    .textCase(.uppercase)
 
                 BitcoinAmount(sats: state.totalPendingSats, fiatQuote: state.fiatQuote, size: 30)
             }
@@ -140,7 +141,10 @@ private struct PendingTransactionsLockScreenView: View {
         .foregroundStyle(.white)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
-            "\(formatBitcoin(state.totalPendingSats)) unconfirmed in \(state.pendingTransactionCount) \(transactionLabel(for: state.pendingTransactionCount))"
+            PendingTransactionsLocalization.lockScreenAccessibilityLabel(
+                bitcoinAmount: formatBitcoin(state.totalPendingSats),
+                count: state.pendingTransactionCount
+            )
         )
     }
 }
@@ -180,7 +184,7 @@ private struct PendingCountBadge: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
         .background(Color.blueWalletAccent.opacity(0.14), in: Capsule())
-        .accessibilityLabel("\(count) pending \(transactionLabel(for: count))")
+        .accessibilityLabel(PendingTransactionsLocalization.pendingCountAccessibilityLabel(count: count))
     }
 }
 
@@ -221,11 +225,7 @@ private extension Color {
 }
 
 private func pendingDescription(for count: Int) -> String {
-    "\(count) \(transactionLabel(for: count)) awaiting confirmation"
-}
-
-private func transactionLabel(for count: Int) -> String {
-    count == 1 ? "transaction" : "transactions"
+    PendingTransactionsLocalization.pendingDescription(count: count)
 }
 
 private func formatBitcoin(_ sats: Int64) -> String {

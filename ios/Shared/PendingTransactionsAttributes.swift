@@ -86,6 +86,91 @@ enum PendingTransactionsFiatFormatter {
     }
 }
 
+@available(iOS 16.1, *)
+enum PendingTransactionsLocalization {
+    static var unconfirmedAmount: String {
+        localized(
+            "live_activity.label.unconfirmed_amount",
+            defaultValue: "Unconfirmed amount"
+        )
+    }
+
+    static var pendingOnChain: String {
+        localized(
+            "live_activity.label.pending_onchain",
+            defaultValue: "Pending on-chain"
+        )
+    }
+
+    static var awaitingNetworkConfirmation: String {
+        localized(
+            "live_activity.status.awaiting_confirmation",
+            defaultValue: "Awaiting network confirmation"
+        )
+    }
+
+    static var compactAccessibilityLabel: String {
+        localized(
+            "live_activity.accessibility.compact",
+            defaultValue: "BlueWallet Bitcoin"
+        )
+    }
+
+    static func pendingDescription(count: Int) -> String {
+        localizedCount(
+            count,
+            singularKey: "live_activity.pending_description.one",
+            singularValue: "%lld transaction awaiting confirmation",
+            pluralKey: "live_activity.pending_description.other",
+            pluralValue: "%lld transactions awaiting confirmation"
+        )
+    }
+
+    static func pendingCountAccessibilityLabel(count: Int) -> String {
+        localizedCount(
+            count,
+            singularKey: "live_activity.accessibility.pending_count.one",
+            singularValue: "%lld pending transaction",
+            pluralKey: "live_activity.accessibility.pending_count.other",
+            pluralValue: "%lld pending transactions"
+        )
+    }
+
+    static func lockScreenAccessibilityLabel(bitcoinAmount: String, count: Int) -> String {
+        let key = count == 1
+            ? "live_activity.accessibility.summary.one"
+            : "live_activity.accessibility.summary.other"
+        let defaultValue = count == 1
+            ? "Unconfirmed amount: %1$@ in %2$lld pending transaction"
+            : "Unconfirmed amount: %1$@ in %2$lld pending transactions"
+        let format = localized(key, defaultValue: defaultValue)
+        return String(format: format, locale: .current, bitcoinAmount, Int64(count))
+    }
+
+    private static func localizedCount(
+        _ count: Int,
+        singularKey: String,
+        singularValue: String,
+        pluralKey: String,
+        pluralValue: String
+    ) -> String {
+        let format = count == 1
+            ? localized(singularKey, defaultValue: singularValue)
+            : localized(pluralKey, defaultValue: pluralValue)
+        return String(format: format, locale: .current, Int64(count))
+    }
+
+    private static func localized(_ key: String, defaultValue: String) -> String {
+        NSLocalizedString(
+            key,
+            tableName: nil,
+            bundle: .main,
+            value: defaultValue,
+            comment: "Pending transactions Live Activity"
+        )
+    }
+}
+
 #if DEBUG
 @available(iOS 16.1, *)
 struct PendingTransactionsLiveActivityShowcaseStep: Equatable {

@@ -4,6 +4,18 @@ import Testing
 #if canImport(ActivityKit) && os(iOS) && !targetEnvironment(macCatalyst)
 @Suite("Pending Transactions Live Activity")
 struct PendingTransactionsLiveActivityTests {
+    @Test("Live Activity localization formats singular and plural English fallbacks")
+    func liveActivityLocalizationFallbacks() {
+        #expect(PendingTransactionsLocalization.pendingDescription(count: 1) == "1 transaction awaiting confirmation")
+        #expect(PendingTransactionsLocalization.pendingDescription(count: 2) == "2 transactions awaiting confirmation")
+        #expect(PendingTransactionsLocalization.pendingCountAccessibilityLabel(count: 1) == "1 pending transaction")
+        #expect(PendingTransactionsLocalization.pendingCountAccessibilityLabel(count: 2) == "2 pending transactions")
+        #expect(
+            PendingTransactionsLocalization.lockScreenAccessibilityLabel(bitcoinAmount: "0.00175 BTC", count: 2)
+                == "Unconfirmed amount: 0.00175 BTC in 2 pending transactions"
+        )
+    }
+
     @Test("Electrum connection completion can only be claimed once")
     func electrumConnectionCompletionIsOneShot() async {
         let gate = SwiftTCPClientCompletionGate()

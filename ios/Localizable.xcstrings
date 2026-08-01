@@ -164,6 +164,246 @@
     "Lebanon (Lebanese Pound)" : {
 
     },
+    "live_activity.accessibility.compact" : {
+      "comment" : "Accessibility label for the compact Dynamic Island leading region.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BlueWallet Bitcoin"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitcoin de BlueWallet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bitcoin BlueWallet"
+          }
+        }
+      }
+    },
+    "live_activity.accessibility.pending_count.one" : {
+      "comment" : "Accessibility label for one pending transaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pending transaction"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transacción pendiente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transaction en attente"
+          }
+        }
+      }
+    },
+    "live_activity.accessibility.pending_count.other" : {
+      "comment" : "Accessibility label for multiple pending transactions.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pending transactions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transacciones pendientes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transactions en attente"
+          }
+        }
+      }
+    },
+    "live_activity.accessibility.summary.one" : {
+      "comment" : "Accessibility summary containing the unconfirmed Bitcoin amount and one pending transaction.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unconfirmed amount: %1$@ in %2$lld pending transaction"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe sin confirmar: %1$@ en %2$lld transacción pendiente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Montant non confirmé : %1$@ dans %2$lld transaction en attente"
+          }
+        }
+      }
+    },
+    "live_activity.accessibility.summary.other" : {
+      "comment" : "Accessibility summary containing the unconfirmed Bitcoin amount and multiple pending transactions.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unconfirmed amount: %1$@ in %2$lld pending transactions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe sin confirmar: %1$@ en %2$lld transacciones pendientes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Montant non confirmé : %1$@ dans %2$lld transactions en attente"
+          }
+        }
+      }
+    },
+    "live_activity.label.pending_onchain" : {
+      "comment" : "Subtitle identifying pending on-chain Bitcoin activity.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending on-chain"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pendiente on-chain"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En attente on-chain"
+          }
+        }
+      }
+    },
+    "live_activity.label.unconfirmed_amount" : {
+      "comment" : "Label shown above the total value of unconfirmed Bitcoin transactions.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unconfirmed amount"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importe sin confirmar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Montant non confirmé"
+          }
+        }
+      }
+    },
+    "live_activity.pending_description.one" : {
+      "comment" : "Status description for one transaction awaiting confirmation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transaction awaiting confirmation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transacción a la espera de confirmación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transaction en attente de confirmation"
+          }
+        }
+      }
+    },
+    "live_activity.pending_description.other" : {
+      "comment" : "Status description for multiple transactions awaiting confirmation.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transactions awaiting confirmation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transacciones a la espera de confirmación"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld transactions en attente de confirmation"
+          }
+        }
+      }
+    },
+    "live_activity.status.awaiting_confirmation" : {
+      "comment" : "Status explaining that pending transactions await confirmation by the Bitcoin network.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Awaiting network confirmation"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A la espera de confirmación de la red"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En attente de confirmation du réseau"
+          }
+        }
+      }
+    },
     "Malaysia (Malaysian Ringgit)" : {
 
     },
