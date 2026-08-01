@@ -10,9 +10,7 @@ const SAMPLE_SIZE = 64 * 1024;
 const UNIQUENESS_COUNT = 256;
 
 function popcount(byte: number): number {
-  let n = 0;
-  for (let i = 0; i < 8; i++) n += (byte >> i) & 1;
-  return n;
+  return byte.toString(2).split('1').length - 1;
 }
 
 /** Pure checks on a byte sample. Exported for unit tests. */

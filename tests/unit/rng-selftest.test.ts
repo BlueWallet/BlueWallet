@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { assertRngSample } from '../../class/rng-selftest';
+import { assertRngSample, runRngSelfTest } from '../../class/rng-selftest';
 
 describe('assertRngSample', () => {
   it('rejects empty sample', () => {
@@ -20,13 +20,23 @@ describe('assertRngSample', () => {
   });
 
   it('accepts balanced sample', () => {
-    // 0x55 = 01010101 — exactly 50% ones
-    assertRngSample(new Uint8Array(1024).fill(0x55));
+    // Alternating 0x55/0xAA — not constant, exactly 50% ones
+    const balanced = new Uint8Array(1024);
+    for (let i = 0; i < balanced.length; i++) {
+      balanced[i] = i % 2 === 0 ? 0x55 : 0xaa;
+    }
+    assertRngSample(balanced);
   });
 
   it('skips monobit for tiny non-constant samples', () => {
     // Too small for monobit; only constant-check applies
     const tiny = new Uint8Array([0x00, 0xff]);
     assertRngSample(tiny);
+  });
+});
+
+describe('runRngSelfTest', () => {
+  it('passes against platform crypto.getRandomValues', async () => {
+    await runRngSelfTest();
   });
 });
