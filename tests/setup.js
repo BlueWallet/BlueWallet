@@ -116,6 +116,14 @@ jest.mock('react-native-quick-actions', () => {
   };
 });
 
+jest.mock('../blue_modules/NativeWidgetHelper', () => ({
+  __esModule: true,
+  default: {
+    reloadAllWidgets: jest.fn(),
+    refreshPendingTransactionsLiveActivity: jest.fn(),
+  },
+}));
+
 jest.mock('react-native-default-preference', () => {
   let mockPreferences = {};
   let currentSuiteName = 'default';

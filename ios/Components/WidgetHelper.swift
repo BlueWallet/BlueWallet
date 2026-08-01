@@ -25,6 +25,16 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
             WidgetCenter.shared.reloadAllTimelines()
         }
     }
+
+    @objc
+    func refreshPendingTransactionsLiveActivity() {
+        #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        guard #available(iOS 16.1, *) else { return }
+        Task {
+            await PendingTransactionsLiveActivityCoordinator.refresh(allowStart: true)
+        }
+        #endif
+    }
 }
 #else
 // Fallback for targets (e.g., widget extension) that do not pull in React codegen modules.
@@ -36,5 +46,7 @@ class WidgetHelperModule: NSObject {
             WidgetCenter.shared.reloadAllTimelines()
         }
     }
+
+    func refreshPendingTransactionsLiveActivity() {}
 }
 #endif

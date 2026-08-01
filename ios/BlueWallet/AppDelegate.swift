@@ -4,6 +4,9 @@ import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import UserNotifications
 import Bugsnag
+#if canImport(BackgroundTasks)
+import BackgroundTasks
+#endif
 
 
 @main
@@ -12,6 +15,12 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     private var userDefaultsGroup: UserDefaults?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        if #available(iOS 16.1, *) {
+            PendingTransactionsLiveActivityCoordinator.registerBackgroundRefresh()
+        }
+        #endif
+
         clearFilesIfNeeded()
         
         // Fix app group UserDefaults initialization
@@ -62,7 +71,21 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         
         let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
 
+        #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        if #available(iOS 16.1, *) {
+            PendingTransactionsLiveActivityCoordinator.scheduleBackgroundRefresh()
+        }
+        #endif
+
         return result
+    }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        if #available(iOS 16.1, *) {
+            PendingTransactionsLiveActivityCoordinator.scheduleBackgroundRefresh()
+        }
+        #endif
     }
 
     override func sourceURL(for bridge: RCTBridge) -> URL? {

@@ -3,6 +3,7 @@ import { TurboModuleRegistry } from 'react-native';
 
 export interface Spec extends TurboModule {
   reloadAllWidgets(): void;
+  refreshPendingTransactionsLiveActivity(): void;
 }
 
 const moduleProxy = TurboModuleRegistry.getEnforcing<Spec>('WidgetHelper');
