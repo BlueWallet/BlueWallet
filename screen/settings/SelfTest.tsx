@@ -29,6 +29,7 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { SettingsSection, SettingsScrollView, settingsCardContent } from '../../components/SettingsSection';
+import { runRngSelfTest } from '../../class/rng-selftest';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -100,6 +101,8 @@ export default class SelfTest extends Component {
       await new Promise(resolve => setTimeout(resolve, 1_000)); // propagate ui
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        await runRngSelfTest();
+
         const uniqs: Record<string, 1> = {};
         const w = new SegwitP2SHWallet();
         for (let c = 0; c < 1000; c++) {
