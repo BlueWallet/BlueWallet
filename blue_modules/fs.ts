@@ -76,7 +76,23 @@ const _mimeTypeFromFileName = (fileName: string): string => {
   }
 };
 
-const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]) => {
+const MAX_TRANSACTION_FILE_SIZE_BYTES = 10 * 1024 * 1024;
+const PSBT_FILE_EXTENSIONS = ['.psbt'];
+const TRANSACTION_FILE_EXTENSIONS = [...PSBT_FILE_EXTENSIONS, '.txn'];
+const PSBT_FILE_PICKER_TYPES =
+  Platform.OS === 'ios' ? ['io.bluewallet.psbt'] : ['application/octet-stream', 'text/plain', 'application/vnd.bitcoin.psbt'];
+const TRANSACTION_FILE_PICKER_TYPES =
+  Platform.OS === 'ios'
+    ? [...PSBT_FILE_PICKER_TYPES, 'io.bluewallet.psbt.txn']
+    : [...PSBT_FILE_PICKER_TYPES, 'application/vnd.bitcoin.txn'];
+
+interface PickFileOptions {
+  allowedExtensions?: string[];
+  maxFileSizeBytes?: number;
+  type?: string[];
+}
+
+const _pickSingleFileAndKeepLocalCopy = async ({ allowedExtensions, maxFileSizeBytes, type = [types.allFiles] }: PickFileOptions = {}) => {
   const [pickedFile] = await pick({
     type,
   });
@@ -85,11 +101,21 @@ const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]
     throw new Error(loc.send.details_unrecognized_file_format);
   }
 
+  const fileName = pickedFile.name ?? 'unnamed';
+  const lowerCaseFileName = fileName.toLowerCase();
+  if (allowedExtensions && !allowedExtensions.some(extension => lowerCaseFileName.endsWith(extension))) {
+    throw new Error(loc.send.details_unrecognized_file_format);
+  }
+
+  if (maxFileSizeBytes && pickedFile.size !== null && pickedFile.size > maxFileSizeBytes) {
+    throw new Error(loc.send.details_unrecognized_file_format);
+  }
+
   const [localCopy] = await keepLocalCopy({
     files: [
       {
         uri: pickedFile.uri,
-        fileName: pickedFile.name ?? 'unnamed',
+        fileName,
       },
     ],
     destination: 'cachesDirectory',
@@ -99,9 +125,18 @@ const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]
     throw new Error(localCopy.copyError || 'Could not create local file copy');
   }
 
+  const localUri = decodeURI(localCopy.localUri);
+  if (maxFileSizeBytes) {
+    const fileInfo = await RNFS.stat(localUri.replace(/^file:\/\//, ''));
+    if (Number(fileInfo.size) > maxFileSizeBytes) {
+      await _safeUnlink(localUri);
+      throw new Error(loc.send.details_unrecognized_file_format);
+    }
+  }
+
   return {
-    localUri: decodeURI(localCopy.localUri),
-    fileName: pickedFile.name ?? 'unnamed',
+    localUri,
+    fileName,
   };
 };
 
@@ -169,9 +204,13 @@ export const writeFileAndExport = async function (fileName: string, contents: st
  */
 export const openSignedTransaction = async function (): Promise<string | false> {
   try {
-    // PSBT providers do not consistently report the same type. Pick any file
-    // and validate its contents below instead of relying on its MIME type/UTI.
-    const { localUri } = await _pickSingleFileAndKeepLocalCopy();
+    // PSBT providers do not consistently report the same type. Use the known
+    // platform types, then validate the extension and size before reading it.
+    const { localUri } = await _pickSingleFileAndKeepLocalCopy({
+      allowedExtensions: PSBT_FILE_EXTENSIONS,
+      maxFileSizeBytes: MAX_TRANSACTION_FILE_SIZE_BYTES,
+      type: PSBT_FILE_PICKER_TYPES,
+    });
     return await _readPsbtFileIntoBase64(localUri);
   } catch (err) {
     if (!isCancel(err)) {
@@ -282,7 +321,11 @@ export const readFileOutsideSandbox = (filePath: string) => {
 
 export const openSignedTransactionRaw: () => Promise<string> = async () => {
   try {
-    const { localUri } = await _pickSingleFileAndKeepLocalCopy();
+    const { localUri } = await _pickSingleFileAndKeepLocalCopy({
+      allowedExtensions: PSBT_FILE_EXTENSIONS,
+      maxFileSizeBytes: MAX_TRANSACTION_FILE_SIZE_BYTES,
+      type: PSBT_FILE_PICKER_TYPES,
+    });
     const file = await RNFS.readFile(localUri);
     if (file) {
       return file;
@@ -299,7 +342,11 @@ export const openSignedTransactionRaw: () => Promise<string> = async () => {
 };
 
 export const pickTransaction = async () => {
-  const { localUri, fileName } = await _pickSingleFileAndKeepLocalCopy();
+  const { localUri, fileName } = await _pickSingleFileAndKeepLocalCopy({
+    allowedExtensions: TRANSACTION_FILE_EXTENSIONS,
+    maxFileSizeBytes: MAX_TRANSACTION_FILE_SIZE_BYTES,
+    type: TRANSACTION_FILE_PICKER_TYPES,
+  });
   return {
     uri: localUri,
     name: fileName,
