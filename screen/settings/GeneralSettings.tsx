@@ -1,16 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Platform } from "react-native";
-import { openSettings } from "react-native-permissions";
-import A from "../../blue_modules/analytics";
-import loc from "../../loc";
-import { useStorage } from "../../hooks/context/useStorage";
-import { useSettings } from "../../hooks/context/useSettings";
-import { isDesktop } from "../../blue_modules/environment";
-import {
-  SettingsSection,
-  SettingsListItem,
-  SettingsScrollView,
-} from "../../components/SettingsSection";
+import React, { useCallback, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
+import { openSettings } from 'react-native-permissions';
+import A from '../../blue_modules/analytics';
+import loc from '../../loc';
+import { useStorage } from '../../hooks/context/useStorage';
+import { useSettings } from '../../hooks/context/useSettings';
+import { isDesktop } from '../../blue_modules/environment';
+import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 
 enum SettingsPrivacySection {
   None,
@@ -44,9 +40,7 @@ const GeneralSettings: React.FC = () => {
     isHandOffUseEnabled,
     setIsHandOffUseEnabledAsyncStorage,
   } = useSettings();
-  const [isLoading, setIsLoading] = useState<number>(
-    SettingsPrivacySection.All,
-  );
+  const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
 
   useEffect(() => {
@@ -67,7 +61,7 @@ const GeneralSettings: React.FC = () => {
         setDoNotTrackStorage(value);
         A.setOptOut(value);
       } catch (e) {
-        console.debug("onDoNotTrackValueChange catch", e);
+        console.debug('onDoNotTrackValueChange catch', e);
       }
       setIsLoading(SettingsPrivacySection.None);
     },
@@ -80,7 +74,7 @@ const GeneralSettings: React.FC = () => {
       try {
         setIsQuickActionsEnabledStorage(value);
       } catch (e) {
-        console.debug("onQuickActionsValueChange catch", e);
+        console.debug('onQuickActionsValueChange catch', e);
       }
       setIsLoading(SettingsPrivacySection.None);
     },
@@ -93,7 +87,7 @@ const GeneralSettings: React.FC = () => {
       try {
         setIsWidgetBalanceDisplayAllowedStorage(value);
       } catch (e) {
-        console.debug("onWidgetsTotalBalanceValueChange catch", e);
+        console.debug('onWidgetsTotalBalanceValueChange catch', e);
       }
       setIsLoading(SettingsPrivacySection.None);
     },
@@ -106,7 +100,7 @@ const GeneralSettings: React.FC = () => {
       try {
         setIsTotalBalanceEnabledStorage(value);
       } catch (e) {
-        console.debug("onTotalBalanceEnabledValueChange catch", e);
+        console.debug('onTotalBalanceEnabledValueChange catch', e);
       }
       setIsLoading(SettingsPrivacySection.None);
     },
@@ -119,7 +113,7 @@ const GeneralSettings: React.FC = () => {
       try {
         await setIsDynamicIslandEnabledStorage(value);
       } catch (e) {
-        console.debug("onDynamicIslandValueChange catch", e);
+        console.debug('onDynamicIslandValueChange catch', e);
       }
       setIsLoading(SettingsPrivacySection.None);
     },
@@ -146,9 +140,7 @@ const GeneralSettings: React.FC = () => {
     [setIsHandOffUseEnabledAsyncStorage],
   );
 
-  const encryptedDisabledNote = storageIsEncrypted
-    ? `\n${loc.settings.encrypted_feature_disabled}`
-    : "";
+  const encryptedDisabledNote = storageIsEncrypted ? `\n${loc.settings.encrypted_feature_disabled}` : '';
 
   return (
     <SettingsScrollView testID="GeneralSettingsScreen">
@@ -169,8 +161,7 @@ const GeneralSettings: React.FC = () => {
           switch={{
             value: storageIsEncrypted ? false : isQuickActionsEnabled,
             onValueChange: onQuickActionsValueChange,
-            disabled:
-              isLoading === SettingsPrivacySection.All || storageIsEncrypted,
+            disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
           }}
           switchTestID="QuickActionsSwitch"
         />
@@ -180,8 +171,7 @@ const GeneralSettings: React.FC = () => {
           switch={{
             value: isTotalBalanceEnabled,
             onValueChange: onTotalBalanceEnabledValueChange,
-            disabled:
-              isLoading === SettingsPrivacySection.All || wallets.length < 2,
+            disabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
           }}
           switchTestID="TotalBalanceSwitch"
         />
@@ -208,20 +198,16 @@ const GeneralSettings: React.FC = () => {
         />
       </SettingsSection>
 
-      {Platform.OS === "ios" && (
+      {Platform.OS === 'ios' && (
         <>
           <SettingsSection title={loc.settings.widgets}>
             <SettingsListItem
               title={loc.settings.total_balance}
               subtitle={`${loc.settings.total_balance_explanation}${encryptedDisabledNote}`}
               switch={{
-                value: storageIsEncrypted
-                  ? false
-                  : isWidgetBalanceDisplayAllowed,
+                value: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
                 onValueChange: onWidgetsTotalBalanceValueChange,
-                disabled:
-                  isLoading === SettingsPrivacySection.All ||
-                  storageIsEncrypted,
+                disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
               }}
             />
             <SettingsListItem
