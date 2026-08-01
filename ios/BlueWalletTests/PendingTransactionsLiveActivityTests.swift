@@ -245,6 +245,44 @@ struct PendingTransactionsLiveActivityTests {
         #expect(!PendingTransactionsLiveActivityRefreshPolicy.shouldApplyFallback(.empty()))
     }
 
+    @Test("A foreground zero refresh preserves an existing Live Activity")
+    func foregroundZeroRefreshCannotEndActivity() {
+        let empty = PendingTransactionsSharedSnapshot.empty()
+
+        #expect(!PendingTransactionsLiveActivityRefreshPolicy.canEndExistingActivity(
+            for: empty,
+            endExistingActivityOnZero: false
+        ))
+        #expect(PendingTransactionsLiveActivityRefreshPolicy.canEndExistingActivity(
+            for: empty,
+            endExistingActivityOnZero: true
+        ))
+        #expect(PendingTransactionsLiveActivityRefreshPolicy.canEndExistingActivity(
+            for: PendingTransactionsSharedSnapshot(
+                pendingTransactionCount: 1,
+                totalPendingSats: 50_000,
+                updatedAt: .now
+            ),
+            endExistingActivityOnZero: false
+        ))
+
+        #expect(!PendingTransactionsLiveActivityRefreshPolicy.shouldEndWhenConfigurationIsUnavailable(
+            configuration: .disabled,
+            liveActivityPreferenceEnabled: true,
+            endExistingActivityOnZero: false
+        ))
+        #expect(PendingTransactionsLiveActivityRefreshPolicy.shouldEndWhenConfigurationIsUnavailable(
+            configuration: .disabled,
+            liveActivityPreferenceEnabled: false,
+            endExistingActivityOnZero: false
+        ))
+        #expect(PendingTransactionsLiveActivityRefreshPolicy.shouldEndWhenConfigurationIsUnavailable(
+            configuration: PendingTransactionsWatchConfiguration(version: 1, isEnabled: true, scriptHashes: []),
+            liveActivityPreferenceEnabled: true,
+            endExistingActivityOnZero: false
+        ))
+    }
+
     @Test("Bitcoin parser reads inputs, values, and output scripts")
     func bitcoinParserReadsLegacyTransaction() throws {
         let transaction = try BitcoinTransactionParser.parse(

@@ -92,7 +92,7 @@ describe('pending transactions Live Activity bridge', () => {
     });
   });
 
-  it('avoids redundant native updates and ends the activity when all transactions confirm', async () => {
+  it('avoids redundant native updates and publishes zero when all transactions confirm', async () => {
     const transactions = [transaction('receive', 50_000)];
     const cached = cache();
     const wallets = [wallet(transactions)];

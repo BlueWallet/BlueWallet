@@ -29,7 +29,13 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
         #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
         guard #available(iOS 16.1, *) else { return }
         Task {
-            await PendingTransactionsLiveActivityCoordinator.refresh(allowStart: true)
+            // Calls through this bridge happen while React Native is running in
+            // the foreground. They may update or start an activity, but a
+            // transient zero must not clear one that is already visible.
+            await PendingTransactionsLiveActivityCoordinator.refresh(
+                allowStart: true,
+                endExistingActivityOnZero: false
+            )
         }
         #endif
     }

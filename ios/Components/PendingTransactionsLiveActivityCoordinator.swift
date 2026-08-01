@@ -28,6 +28,23 @@ enum PendingTransactionsLiveActivityRefreshPolicy {
     static func shouldApplyFallback(_ snapshot: PendingTransactionsSharedSnapshot) -> Bool {
         snapshot.pendingTransactionCount > 0
     }
+
+    static func canEndExistingActivity(
+        for snapshot: PendingTransactionsSharedSnapshot,
+        endExistingActivityOnZero: Bool
+    ) -> Bool {
+        snapshot.pendingTransactionCount > 0 || endExistingActivityOnZero
+    }
+
+    static func shouldEndWhenConfigurationIsUnavailable(
+        configuration: PendingTransactionsWatchConfiguration,
+        liveActivityPreferenceEnabled: Bool,
+        endExistingActivityOnZero: Bool
+    ) -> Bool {
+        !liveActivityPreferenceEnabled ||
+            (configuration.isEnabled && configuration.scriptHashes.isEmpty) ||
+            endExistingActivityOnZero
+    }
 }
 
 @available(iOS 16.1, *)
@@ -81,18 +98,39 @@ enum PendingTransactionsLiveActivityCoordinator {
         }
 
         Task {
-            _ = await refresh(allowStart: false)
+            _ = await refresh(
+                allowStart: false,
+                endExistingActivityOnZero: false
+            )
         }
     }
 
     @discardableResult
-    static func refresh(allowStart: Bool, queryElectrum: Bool = true) async -> Bool {
+    static func refresh(
+        allowStart: Bool,
+        queryElectrum: Bool = true,
+        endExistingActivityOnZero: Bool = true
+    ) async -> Bool {
         let refreshGeneration = await refreshGate.begin()
         let configuration = PendingTransactionsLiveActivityStore.loadWatchConfiguration()
 
         guard configuration.isEnabled, !configuration.scriptHashes.isEmpty else {
             guard await refreshGate.isCurrent(refreshGeneration) else { return true }
-            await apply(snapshot: .empty(), allowStart: false)
+            // The privacy toggle is explicit user intent and always ends the
+            // activity. An empty watch list during foreground initialization is
+            // treated as transient and preserved until the native background
+            // reconciler can authoritatively resolve it.
+            let shouldEndExistingActivity = PendingTransactionsLiveActivityRefreshPolicy
+                .shouldEndWhenConfigurationIsUnavailable(
+                    configuration: configuration,
+                    liveActivityPreferenceEnabled: PendingTransactionsLiveActivityStore.isLiveActivityEnabled(),
+                    endExistingActivityOnZero: endExistingActivityOnZero
+                )
+            await apply(
+                snapshot: .empty(),
+                allowStart: false,
+                endExistingActivityOnZero: shouldEndExistingActivity
+            )
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskIdentifier)
             return true
         }
@@ -109,7 +147,11 @@ enum PendingTransactionsLiveActivityCoordinator {
         let fallbackSnapshot = PendingTransactionsLiveActivityStore.loadSnapshot()
         if PendingTransactionsLiveActivityRefreshPolicy.shouldApplyFallback(fallbackSnapshot) {
             guard await refreshGate.isCurrent(refreshGeneration) else { return true }
-            await apply(snapshot: fallbackSnapshot, allowStart: allowStart)
+            await apply(
+                snapshot: fallbackSnapshot,
+                allowStart: allowStart,
+                endExistingActivityOnZero: endExistingActivityOnZero
+            )
         }
 
         scheduleBackgroundRefresh()
@@ -132,13 +174,26 @@ enum PendingTransactionsLiveActivityCoordinator {
                 let currentSnapshot = currentConfiguration.isEnabled && !currentConfiguration.scriptHashes.isEmpty
                     ? PendingTransactionsLiveActivityStore.loadSnapshot()
                     : .empty()
-                await apply(snapshot: currentSnapshot, allowStart: allowStart)
+                await apply(
+                    snapshot: currentSnapshot,
+                    allowStart: allowStart,
+                    endExistingActivityOnZero: PendingTransactionsLiveActivityRefreshPolicy
+                        .shouldEndWhenConfigurationIsUnavailable(
+                            configuration: currentConfiguration,
+                            liveActivityPreferenceEnabled: PendingTransactionsLiveActivityStore.isLiveActivityEnabled(),
+                            endExistingActivityOnZero: endExistingActivityOnZero
+                        )
+                )
                 scheduleBackgroundRefresh()
                 return true
             }
 
             PendingTransactionsLiveActivityStore.saveSnapshot(snapshot)
-            await apply(snapshot: snapshot, allowStart: allowStart)
+            await apply(
+                snapshot: snapshot,
+                allowStart: allowStart,
+                endExistingActivityOnZero: endExistingActivityOnZero
+            )
             scheduleBackgroundRefresh()
             return true
         } catch is CancellationError {
@@ -164,7 +219,11 @@ enum PendingTransactionsLiveActivityCoordinator {
             totalPendingSats: state.totalPendingSats,
             updatedAt: state.lastUpdated
         )
-        await apply(snapshot: snapshot, allowStart: true)
+        await apply(
+            snapshot: snapshot,
+            allowStart: true,
+            endExistingActivityOnZero: true
+        )
     }
 
     static func showcase() async {
@@ -179,7 +238,11 @@ enum PendingTransactionsLiveActivityCoordinator {
                 totalPendingSats: step.totalPendingSats,
                 updatedAt: .now
             )
-            await apply(snapshot: snapshot, allowStart: true)
+            await apply(
+                snapshot: snapshot,
+                allowStart: true,
+                endExistingActivityOnZero: true
+            )
             NSLog(
                 "[PendingLiveActivity] Showcase step \(index + 1)/\(PendingTransactionsLiveActivityShowcase.steps.count): " +
                 "count=\(step.pendingTransactionCount), sats=\(step.totalPendingSats)"
@@ -213,7 +276,11 @@ enum PendingTransactionsLiveActivityCoordinator {
     }
 
     @MainActor
-    private static func apply(snapshot: PendingTransactionsSharedSnapshot, allowStart: Bool) async {
+    private static func apply(
+        snapshot: PendingTransactionsSharedSnapshot,
+        allowStart: Bool,
+        endExistingActivityOnZero: Bool
+    ) async {
         let state = PendingTransactionsAttributes.ContentState(
             pendingTransactionCount: max(0, snapshot.pendingTransactionCount),
             totalPendingSats: max(0, snapshot.totalPendingSats),
@@ -228,6 +295,15 @@ enum PendingTransactionsLiveActivityCoordinator {
 
         switch action {
         case .end:
+            guard PendingTransactionsLiveActivityRefreshPolicy.canEndExistingActivity(
+                for: snapshot,
+                endExistingActivityOnZero: endExistingActivityOnZero
+            ) else {
+                NSLog("[PendingLiveActivity] Preserved existing Live Activity during foreground zero refresh")
+                scheduleBackgroundRefresh()
+                return
+            }
+
             for activity in activities {
                 if #available(iOS 16.2, *) {
                     await activity.end(
