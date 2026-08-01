@@ -1,37 +1,39 @@
 import { keepLocalCopy, pick } from '@react-native-documents/picker';
 import { pickTransaction } from '../../blue_modules/fs';
 
-const providerPsbtMimeType = 'application/vnd.bitcoin.psbt';
+describe('transaction file import', () => {
+  it.each([
+    { format: 'PSBT', fileName: 'signed.psbt', providerType: 'application/vnd.bitcoin.psbt' },
+    { format: 'TXN', fileName: 'signed.txn', providerType: 'application/vnd.bitcoin.txn' },
+  ])('accepts a $format file when its document provider reports a custom MIME type', async ({ fileName, providerType }) => {
+    const providerUri = `content://documents/${fileName}`;
+    const localUri = `file:///mock/Caches/${fileName}`;
 
-describe('PSBT file import', () => {
-  beforeEach(() => {
-    (pick as jest.Mock).mockImplementation(async ({ type }: { type: string[] }) => [
+    (pick as jest.Mock).mockImplementationOnce(async ({ type }: { type: string[] }) => [
       {
-        uri: 'content://documents/signed.psbt',
-        name: 'signed.psbt',
-        hasRequestedType: type.includes('*/*') || type.includes(providerPsbtMimeType),
+        uri: providerUri,
+        name: fileName,
+        hasRequestedType: type.includes('*/*') || type.includes(providerType),
       },
     ]);
-    (keepLocalCopy as jest.Mock).mockResolvedValue([
+    (keepLocalCopy as jest.Mock).mockResolvedValueOnce([
       {
         status: 'success',
-        localUri: 'file:///mock/Caches/signed.psbt',
+        localUri,
       },
     ]);
-  });
 
-  it('accepts a PSBT when its document provider reports a custom MIME type', async () => {
     await expect(pickTransaction()).resolves.toEqual({
-      uri: 'file:///mock/Caches/signed.psbt',
-      name: 'signed.psbt',
+      uri: localUri,
+      name: fileName,
     });
 
-    expect(pick).toHaveBeenCalledWith({ type: ['*/*'] });
-    expect(keepLocalCopy).toHaveBeenCalledWith({
+    expect(pick).toHaveBeenLastCalledWith({ type: ['*/*'] });
+    expect(keepLocalCopy).toHaveBeenLastCalledWith({
       files: [
         {
-          uri: 'content://documents/signed.psbt',
-          fileName: 'signed.psbt',
+          uri: providerUri,
+          fileName,
         },
       ],
       destination: 'cachesDirectory',
