@@ -116,6 +116,13 @@ struct PendingTransactionsLiveActivityTests {
         #expect(abs(snapshot.updatedAt.timeIntervalSince1970 - 1_785_501_296.789) < 0.001)
     }
 
+    @Test("Dynamic Island privacy preference defaults to enabled")
+    func liveActivityPreferenceDefaultsToEnabled() {
+        #expect(PendingTransactionsLiveActivityStore.isLiveActivityEnabled(preferenceValue: nil))
+        #expect(PendingTransactionsLiveActivityStore.isLiveActivityEnabled(preferenceValue: "1"))
+        #expect(!PendingTransactionsLiveActivityStore.isLiveActivityEnabled(preferenceValue: "0"))
+    }
+
     @Test("Bitcoin parser reads inputs, values, and output scripts")
     func bitcoinParserReadsLegacyTransaction() throws {
         let transaction = try BitcoinTransactionParser.parse(

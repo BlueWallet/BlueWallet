@@ -1,22 +1,40 @@
-import DefaultPreference from 'react-native-default-preference';
-import { Chain } from '../../models/bitcoinUnits';
-import type { Transaction, TWallet } from '../../class/wallets/types';
+import DefaultPreference from "react-native-default-preference";
+import { Chain } from "../../models/bitcoinUnits";
+import type { Transaction, TWallet } from "../../class/wallets/types";
 
-import { setBalanceDisplayAllowed, syncWidgetBalanceWithWallets } from '../../hooks/useWidgetCommunication.ios';
+import {
+  isPendingTransactionsLiveActivityEnabled,
+  setBalanceDisplayAllowed,
+  setPendingTransactionsLiveActivityEnabled,
+  syncWidgetBalanceWithWallets,
+} from "../../hooks/useWidgetCommunication.ios";
 
 const mockRefreshPendingTransactionsLiveActivity = jest.fn();
-const mockDefaultPreference = DefaultPreference as jest.Mocked<typeof DefaultPreference>;
+const mockDefaultPreference = DefaultPreference as jest.Mocked<
+  typeof DefaultPreference
+>;
 
-jest.mock('../../blue_modules/NativeWidgetHelper', () => ({
+jest.mock("../../blue_modules/NativeWidgetHelper", () => ({
   __esModule: true,
   default: {
     reloadAllWidgets: jest.fn(),
-    refreshPendingTransactionsLiveActivity: () => mockRefreshPendingTransactionsLiveActivity(),
+    refreshPendingTransactionsLiveActivity: () =>
+      mockRefreshPendingTransactionsLiveActivity(),
   },
 }));
 
-const transaction = (txid: string, value: number, confirmations = 0): Transaction =>
-  ({ txid, hash: txid, value, confirmations, timestamp: 1_700_000_000 }) as Transaction;
+const transaction = (
+  txid: string,
+  value: number,
+  confirmations = 0,
+): Transaction =>
+  ({
+    txid,
+    hash: txid,
+    value,
+    confirmations,
+    timestamp: 1_700_000_000,
+  }) as Transaction;
 
 const wallet = (transactions: Transaction[]): TWallet =>
   ({
@@ -24,7 +42,7 @@ const wallet = (transactions: Transaction[]): TWallet =>
     hideBalance: false,
     getBalance: async () => 200_000,
     getTransactions: () => transactions,
-    getAllExternalAddresses: () => ['1BoatSLRHtKNngkdXEeobR76b53LETtpyT'],
+    getAllExternalAddresses: () => ["1BoatSLRHtKNngkdXEeobR76b53LETtpyT"],
   }) as unknown as TWallet;
 
 const cache = () => ({
@@ -32,22 +50,22 @@ const cache = () => ({
   latestTransactionTime: { current: -1 as number | string },
   pendingCount: { current: -1 },
   pendingSats: { current: -1 },
-  watchConfiguration: { current: '' },
+  watchConfiguration: { current: "" },
 });
 
-describe('pending transactions Live Activity bridge', () => {
+describe("pending transactions Live Activity bridge", () => {
   beforeEach(() => {
     mockRefreshPendingTransactionsLiveActivity.mockClear();
     mockDefaultPreference.set.mockClear();
-    mockDefaultPreference.get.mockResolvedValue('1');
+    mockDefaultPreference.get.mockResolvedValue("1");
     mockDefaultPreference.set.mockResolvedValue();
   });
 
-  it('writes a native Electrum watch list and fallback snapshot before requesting a refresh', async () => {
+  it("writes a native Electrum watch list and fallback snapshot before requesting a refresh", async () => {
     const cached = cache();
 
     await syncWidgetBalanceWithWallets(
-      [wallet([transaction('receive', 50_000), transaction('send', -125_000)])],
+      [wallet([transaction("receive", 50_000), transaction("send", -125_000)])],
       true,
       cached.balance,
       cached.latestTransactionTime,
@@ -61,10 +79,10 @@ describe('pending transactions Live Activity bridge', () => {
     expect(cached.pendingSats.current).toBe(175_000);
 
     const configurationCall = mockDefaultPreference.set.mock.calls.find(
-      ([key]) => key === 'PendingTransactionsLiveActivityWatchConfiguration',
+      ([key]) => key === "PendingTransactionsLiveActivityWatchConfiguration",
     );
     const snapshotCall = mockDefaultPreference.set.mock.calls.find(
-      ([key]) => key === 'PendingTransactionsLiveActivitySnapshot',
+      ([key]) => key === "PendingTransactionsLiveActivitySnapshot",
     );
     expect(configurationCall).toBeDefined();
     expect(snapshotCall).toBeDefined();
@@ -80,8 +98,8 @@ describe('pending transactions Live Activity bridge', () => {
     });
   });
 
-  it('avoids redundant native updates and ends the activity when all transactions confirm', async () => {
-    const transactions = [transaction('receive', 50_000)];
+  it("avoids redundant native updates and ends the activity when all transactions confirm", async () => {
+    const transactions = [transaction("receive", 50_000)];
     const cached = cache();
     const wallets = [wallet(transactions)];
 
@@ -117,19 +135,83 @@ describe('pending transactions Live Activity bridge', () => {
       cached.watchConfiguration,
     );
 
-    expect(mockRefreshPendingTransactionsLiveActivity).toHaveBeenLastCalledWith();
+    expect(
+      mockRefreshPendingTransactionsLiveActivity,
+    ).toHaveBeenLastCalledWith();
     expect(mockRefreshPendingTransactionsLiveActivity).toHaveBeenCalledTimes(2);
   });
 
-  it('ends the activity when widget balance display is disabled', async () => {
+  it("keeps the Live Activity independent when widget balances are disabled", async () => {
     await setBalanceDisplayAllowed(false);
 
-    expect(mockRefreshPendingTransactionsLiveActivity).toHaveBeenCalledWith();
-    expect(mockDefaultPreference.set).toHaveBeenCalledWith('WidgetCommunicationAllWalletsSatoshiBalance', '0');
-    expect(mockDefaultPreference.set).toHaveBeenCalledWith('WidgetCommunicationAllWalletsLatestTransactionTime', '0');
+    expect(mockRefreshPendingTransactionsLiveActivity).not.toHaveBeenCalled();
     expect(mockDefaultPreference.set).toHaveBeenCalledWith(
-      'PendingTransactionsLiveActivityWatchConfiguration',
+      "WidgetCommunicationAllWalletsSatoshiBalance",
+      "0",
+    );
+    expect(mockDefaultPreference.set).toHaveBeenCalledWith(
+      "WidgetCommunicationAllWalletsLatestTransactionTime",
+      "0",
+    );
+    expect(mockDefaultPreference.set).not.toHaveBeenCalledWith(
+      "PendingTransactionsLiveActivityWatchConfiguration",
+      expect.anything(),
+    );
+  });
+
+  it("enables the Dynamic Island preference by default", async () => {
+    mockDefaultPreference.get.mockResolvedValueOnce(null);
+
+    await expect(isPendingTransactionsLiveActivityEnabled()).resolves.toBe(
+      true,
+    );
+    expect(mockDefaultPreference.set).toHaveBeenCalledWith(
+      "PendingTransactionsLiveActivityEnabled",
+      "1",
+    );
+  });
+
+  it("ends and clears the Live Activity when its privacy setting is disabled", async () => {
+    await setPendingTransactionsLiveActivityEnabled(false);
+
+    expect(mockDefaultPreference.set).toHaveBeenCalledWith(
+      "PendingTransactionsLiveActivityEnabled",
+      "0",
+    );
+    expect(mockDefaultPreference.set).toHaveBeenCalledWith(
+      "PendingTransactionsLiveActivityWatchConfiguration",
       JSON.stringify({ version: 1, isEnabled: false, scriptHashes: [] }),
     );
+    expect(mockRefreshPendingTransactionsLiveActivity).toHaveBeenCalledWith();
+    expect(mockDefaultPreference.set).not.toHaveBeenCalledWith(
+      "WidgetCommunicationAllWalletsSatoshiBalance",
+      expect.anything(),
+    );
+  });
+
+  it("continues pending-transaction updates when home-screen balances are hidden", async () => {
+    mockDefaultPreference.get.mockImplementation(async (key) =>
+      key === "WidgetCommunicationDisplayBalanceAllowed" ? "0" : "1",
+    );
+    const cached = cache();
+
+    await syncWidgetBalanceWithWallets(
+      [wallet([transaction("receive", 50_000)])],
+      true,
+      cached.balance,
+      cached.latestTransactionTime,
+      cached.pendingCount,
+      cached.pendingSats,
+      cached.watchConfiguration,
+    );
+
+    expect(cached.balance.current).toBe(0);
+    expect(cached.pendingCount.current).toBe(1);
+    const configurationCall = mockDefaultPreference.set.mock.calls.find(
+      ([key]) => key === "PendingTransactionsLiveActivityWatchConfiguration",
+    );
+    expect(JSON.parse(String(configurationCall![1]))).toMatchObject({
+      isEnabled: true,
+    });
   });
 });

@@ -74,6 +74,22 @@ enum PendingTransactionsLiveActivityCoordinator {
         }
     }
 
+    #if DEBUG
+    static func preview(pendingTransactionCount: Double, totalPendingSats: Double) async {
+        guard let state = PendingTransactionsLiveActivityStateBuilder.make(
+            pendingTransactionCount: pendingTransactionCount,
+            totalPendingSats: totalPendingSats
+        ) else { return }
+
+        let snapshot = PendingTransactionsSharedSnapshot(
+            pendingTransactionCount: state.pendingTransactionCount,
+            totalPendingSats: state.totalPendingSats,
+            updatedAt: state.lastUpdated
+        )
+        await apply(snapshot: snapshot, allowStart: true)
+    }
+    #endif
+
     private static func handle(_ task: BGAppRefreshTask) {
         scheduleBackgroundRefresh()
         let refreshTask = Task {

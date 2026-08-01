@@ -35,6 +35,22 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
         }
         #endif
     }
+
+    @objc
+    func previewPendingTransactionsLiveActivity(
+        _ pendingTransactionCount: Double,
+        totalPendingSats: Double
+    ) {
+        #if DEBUG && canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        guard #available(iOS 16.1, *) else { return }
+        Task {
+            await PendingTransactionsLiveActivityCoordinator.preview(
+                pendingTransactionCount: pendingTransactionCount,
+                totalPendingSats: totalPendingSats
+            )
+        }
+        #endif
+    }
 }
 #else
 // Fallback for targets (e.g., widget extension) that do not pull in React codegen modules.
@@ -48,5 +64,10 @@ class WidgetHelperModule: NSObject {
     }
 
     func refreshPendingTransactionsLiveActivity() {}
+
+    func previewPendingTransactionsLiveActivity(
+        _ pendingTransactionCount: Double,
+        totalPendingSats: Double
+    ) {}
 }
 #endif

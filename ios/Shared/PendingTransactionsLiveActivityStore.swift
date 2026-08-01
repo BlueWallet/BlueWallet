@@ -28,6 +28,7 @@ struct PendingTransactionsSharedSnapshot: Codable, Equatable {
 
 enum PendingTransactionsLiveActivityStore {
     static let suiteName = "group.io.bluewallet.bluewallet"
+    static let enabledKey = "PendingTransactionsLiveActivityEnabled"
     static let snapshotKey = "PendingTransactionsLiveActivitySnapshot"
     static let watchConfigurationKey = "PendingTransactionsLiveActivityWatchConfiguration"
 
@@ -61,11 +62,20 @@ enum PendingTransactionsLiveActivityStore {
     }()
 
     static func loadWatchConfiguration() -> PendingTransactionsWatchConfiguration {
+        guard isLiveActivityEnabled() else { return .disabled }
         guard let json = defaults?.string(forKey: watchConfigurationKey) else { return .disabled }
         guard let configuration = decodeWatchConfiguration(json),
               configuration.version == 1,
               configuration.scriptHashes.allSatisfy(isValidScriptHash) else { return .disabled }
         return configuration
+    }
+
+    static func isLiveActivityEnabled() -> Bool {
+        isLiveActivityEnabled(preferenceValue: defaults?.string(forKey: enabledKey))
+    }
+
+    static func isLiveActivityEnabled(preferenceValue: String?) -> Bool {
+        preferenceValue != "0"
     }
 
     static func loadSnapshot() -> PendingTransactionsSharedSnapshot {
