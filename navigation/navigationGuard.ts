@@ -1,37 +1,122 @@
-import { NavigationAction, NavigationState, Router } from '@react-navigation/native';
+import { NavigationAction, NavigationState, PartialState, Router } from '@react-navigation/native';
 
-const guardedRoutes = [
-  'WalletExport',
-  'WalletXpub',
-  'ViewEditMultisigCosigners',
-  'ExportMultisigCoordinationSetupRoot',
-  'ReceiveDetails',
-  'WalletAddresses',
-  'ScanQRCode',
-];
+export const navigationGuardPolicies = {
+  WalletExport: { biometrics: true },
+  WalletXpub: { biometrics: true },
+  ViewEditMultisigCosigners: { biometrics: true },
+  ExportMultisigCoordinationSetupRoot: { biometrics: true },
+  ReceiveDetails: { walletExportSaved: true },
+  WalletAddresses: { walletExportSaved: true },
+  ScanQRCode: { camera: true },
+} as const;
+
+type GuardedRouteName = keyof typeof navigationGuardPolicies;
+type NavigationParams = Record<string, unknown>;
+
+export type GuardedRoute = {
+  name: GuardedRouteName;
+  params?: NavigationParams;
+};
 
 export type GuardedNavigationAction = NavigationAction & {
   navigationGuardValidated?: boolean;
 };
 
-export const getGuardedRoute = (action: Readonly<NavigationAction>) => {
-  if (
-    action.type !== 'NAVIGATE' ||
-    !action.payload ||
-    !('name' in action.payload) ||
-    typeof action.payload.name !== 'string' ||
-    !guardedRoutes.includes(action.payload.name)
-  ) {
+type GuardWallet = {
+  getID: () => string;
+  getUserHasSavedExport: () => boolean;
+  setUserHasSavedExport: (value: boolean) => void;
+};
+
+export type NavigationGuardDependencies = {
+  currentRouteName?: string;
+  isBiometricUseEnabled: () => Promise<boolean>;
+  unlockWithBiometrics: () => Promise<boolean>;
+  wallets: readonly GuardWallet[];
+  saveToDisk: () => Promise<void>;
+  presentWalletExportReminder: () => Promise<unknown>;
+  requestCameraAuthorization: () => Promise<unknown>;
+};
+
+export type NavigationValidationResult = {
+  allowed: boolean;
+  redirect?: { name: 'WalletExport'; params: { walletID: string } };
+};
+
+const asParams = (value: unknown): NavigationParams | undefined =>
+  value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as NavigationParams) : undefined;
+
+export const resolveGuardedRoute = (name: string, params?: NavigationParams): GuardedRoute | undefined => {
+  const nestedScreen = params?.screen;
+  if (typeof nestedScreen === 'string') {
+    const nestedRoute = resolveGuardedRoute(nestedScreen, asParams(params?.params));
+    if (nestedRoute) return nestedRoute;
+  }
+
+  if (name in navigationGuardPolicies) {
+    return { name: name as GuardedRouteName, params };
+  }
+
+  return undefined;
+};
+
+export const getGuardedRoute = (action: Readonly<NavigationAction>): GuardedRoute | undefined => {
+  if (action.type !== 'NAVIGATE' || !action.payload || !('name' in action.payload) || typeof action.payload.name !== 'string') {
     return undefined;
   }
 
-  return {
-    name: action.payload.name,
-    params:
-      'params' in action.payload && action.payload.params !== null && typeof action.payload.params === 'object'
-        ? action.payload.params
-        : undefined,
-  };
+  const params = 'params' in action.payload ? asParams(action.payload.params) : undefined;
+  return resolveGuardedRoute(action.payload.name, params);
+};
+
+export const validateGuardedRoute = async (
+  route: GuardedRoute,
+  dependencies: NavigationGuardDependencies,
+): Promise<NavigationValidationResult> => {
+  if (dependencies.currentRouteName === 'ScanQRCode') return { allowed: true };
+
+  const policy = navigationGuardPolicies[route.name];
+
+  if ('biometrics' in policy && (await dependencies.isBiometricUseEnabled())) {
+    if (!(await dependencies.unlockWithBiometrics())) return { allowed: false };
+  }
+
+  if ('walletExportSaved' in policy) {
+    const walletID = typeof route.params?.walletID === 'string' ? route.params.walletID : undefined;
+    const wallet = walletID ? dependencies.wallets.find(item => item.getID() === walletID) : undefined;
+
+    if (walletID && wallet && !wallet.getUserHasSavedExport()) {
+      try {
+        await dependencies.presentWalletExportReminder();
+        wallet.setUserHasSavedExport(true);
+        await dependencies.saveToDisk();
+      } catch {
+        return { allowed: false, redirect: { name: 'WalletExport', params: { walletID } } };
+      }
+    }
+  }
+
+  if ('camera' in policy) await dependencies.requestCameraAuthorization();
+
+  return { allowed: true };
+};
+
+export const findNavigatorKeyForRoute = (
+  state: NavigationState | PartialState<NavigationState> | undefined,
+  routeName: string,
+): string | undefined => {
+  if (!state) return undefined;
+  if (state.routeNames?.includes(routeName)) return state.key;
+
+  const focusedRoute = state.routes[state.index ?? 0];
+  const routes = focusedRoute ? [focusedRoute, ...state.routes.filter(route => route.key !== focusedRoute.key)] : state.routes;
+
+  for (const route of routes) {
+    const navigatorKey = findNavigatorKeyForRoute(route.state, routeName);
+    if (navigatorKey) return navigatorKey;
+  }
+
+  return undefined;
 };
 
 export const navigationGuardRouter = <State extends NavigationState, Action extends NavigationAction>(
