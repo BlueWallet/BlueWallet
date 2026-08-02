@@ -433,6 +433,7 @@ jobs:
         with:
           name: build_logs
           path: ./ios/build_logs/
+          if-no-files-found: ignore
           retention-days: 7
 
       - name: Verify IPA File Before Upload
