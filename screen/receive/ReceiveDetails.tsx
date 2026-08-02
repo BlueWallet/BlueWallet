@@ -31,12 +31,6 @@ import { SuccessView } from '../send/success';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import {
-  RECEIVE_DETAILS_MOCK_ADDRESS,
-  RECEIVE_DETAILS_MOCKED_VALUE,
-  ReceiveDetailsMockScenario,
-  registerReceiveDetailsDevMenu,
-} from '../../components/DevMenu';
 
 const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
 
@@ -156,8 +150,6 @@ const UPDATE_BALANCE = 'UPDATE_BALANCE';
 const UPDATE_ETA = 'UPDATE_ETA';
 const UPDATE_QR_CODE_SIZE = 'UPDATE_QR_CODE_SIZE';
 const APPLY_CUSTOM_PARAMS = 'APPLY_CUSTOM_PARAMS';
-const MOCK_SCENARIO = 'MOCK_SCENARIO';
-const MOCK_PAYMENT_CODE = 'PM8TJMockPaymentCode';
 
 type ReceiveDetailsState = {
   address: string;
@@ -177,8 +169,6 @@ type ReceiveDetailsState = {
   displayBalance: string;
   displayAmount: string | null;
   qrCodeSize: number;
-  mockPaymentCode?: string | null;
-  isMocked: boolean;
 };
 
 type ReceiveDetailsAction =
@@ -195,8 +185,7 @@ type ReceiveDetailsAction =
       type: typeof APPLY_CUSTOM_PARAMS;
       params: Pick<RouteProps['params'], 'customLabel' | 'customAmount' | 'customUnit' | 'bip21encoded' | 'isCustom'>;
       fallbackUnit: BitcoinUnit;
-    }
-  | { type: typeof MOCK_SCENARIO; scenario: ReceiveDetailsMockScenario; value: typeof RECEIVE_DETAILS_MOCKED_VALUE };
+    };
 
 const initialState: ReceiveDetailsState = {
   address: '',
@@ -216,8 +205,6 @@ const initialState: ReceiveDetailsState = {
   displayBalance: '',
   displayAmount: null,
   qrCodeSize: 90,
-  mockPaymentCode: undefined,
-  isMocked: false,
 };
 
 const formatDisplayAmount = (amount: string, unit: BitcoinUnit): string | null => {
@@ -339,91 +326,6 @@ const receiveDetailsReducer = (state: ReceiveDetailsState, action: ReceiveDetail
         displayAmount: formatDisplayAmount(customAmount, customUnit),
       };
     }
-    case MOCK_SCENARIO: {
-      if (action.value !== RECEIVE_DETAILS_MOCKED_VALUE) return state;
-
-      const mockedAddress = RECEIVE_DETAILS_MOCK_ADDRESS;
-      const addressState: ReceiveDetailsState = {
-        ...initialState,
-        address: mockedAddress,
-        bip21encoded: DeeplinkSchemaMatch.bip21encode(mockedAddress),
-        showAddress: true,
-        isMocked: true,
-      };
-      const applyCustomState = (customAmount: string, customUnit: BitcoinUnit, bip21encoded: string) =>
-        receiveDetailsReducer(addressState, {
-          type: APPLY_CUSTOM_PARAMS,
-          params: {
-            customLabel: 'Mocked payment',
-            customAmount,
-            customUnit,
-            bip21encoded,
-            isCustom: true,
-          },
-          fallbackUnit: BitcoinUnit.BTC,
-        });
-      const applyPendingState = (fee: number) => {
-        const etaState = receiveDetailsReducer(addressState, {
-          type: UPDATE_ETA,
-          fee,
-          vsize: 100,
-          fastFee: 10,
-          mediumFee: 5,
-        });
-        return receiveDetailsReducer(etaState, {
-          type: UPDATE_BALANCE,
-          confirmed: 100_000,
-          unconfirmed: 50_000,
-        });
-      };
-
-      switch (action.scenario) {
-        case 'loading':
-          return { ...initialState, address: mockedAddress, isMocked: true };
-        case 'address':
-          return addressState;
-        case 'custom-btc':
-          return applyCustomState('0.001', BitcoinUnit.BTC, `bitcoin:${mockedAddress}?amount=0.001&label=Mocked%20payment`);
-        case 'custom-sats':
-          return applyCustomState('100000', BitcoinUnit.SATS, `bitcoin:${mockedAddress}?amount=0.001&label=Mocked%20payment`);
-        case 'custom-fiat':
-          return {
-            ...addressState,
-            customLabel: 'Mocked payment',
-            customAmount: '100',
-            customUnit: BitcoinUnit.LOCAL_CURRENCY,
-            bip21encoded: `bitcoin:${mockedAddress}?label=Mocked%20payment`,
-            isCustom: true,
-            displayAmount: '0.001 BTC',
-          };
-        case 'pending-fast':
-          return applyPendingState(1_000);
-        case 'pending-medium':
-          return applyPendingState(700);
-        case 'pending-slow':
-          return applyPendingState(100);
-        case 'confirmed': {
-          const pendingState = applyPendingState(1_000);
-          return receiveDetailsReducer(pendingState, {
-            type: UPDATE_BALANCE,
-            confirmed: 150_000,
-            unconfirmed: 0,
-          });
-        }
-        case 'payment-code':
-          return {
-            ...addressState,
-            currentTab: segmentControlValues[1],
-            mockPaymentCode: MOCK_PAYMENT_CODE,
-          };
-        case 'payment-code-not-found':
-          return {
-            ...addressState,
-            currentTab: segmentControlValues[1],
-            mockPaymentCode: null,
-          };
-      }
-    }
   }
 };
 
@@ -462,8 +364,6 @@ const ReceiveDetails = () => {
     displayBalance,
     displayAmount: reducerDisplayAmount,
     qrCodeSize,
-    mockPaymentCode,
-    isMocked,
   } = state;
   const address = routeAddress ?? reducerAddress;
   const customLabel = routeCustomLabel ?? reducerCustomLabel;
@@ -477,13 +377,7 @@ const ReceiveDetails = () => {
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
-  const isMockBIP47Enabled = mockPaymentCode !== undefined;
-
-  const paymentCodeString = useMemo(
-    () =>
-      isMockBIP47Enabled ? (mockPaymentCode ?? '') : (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '',
-    [isMockBIP47Enabled, mockPaymentCode, wallet],
-  );
+  const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
 
   /** Dark: theme input surface (#262626) reads softer than pure elevated / system gray 6. Light: iOS-style grouped background. */
   const cardBackgroundColor = isDarkTheme ? colors.inputBackgroundColor : '#F2F2F7';
@@ -624,18 +518,10 @@ const ReceiveDetails = () => {
   }, [initialUnconfirmed]);
 
   useEffect(() => {
-    if (routeAddress && !isCustom && !isMocked) {
+    if (routeAddress && !isCustom) {
       setAddressBIP21Encoded(routeAddress);
     }
-  }, [isCustom, isMocked, routeAddress, setAddressBIP21Encoded]);
-
-  useEffect(() => {
-    if (!__DEV__) return;
-    return registerReceiveDetailsDevMenu((scenario, value) => {
-      setParams({ address: RECEIVE_DETAILS_MOCK_ADDRESS });
-      dispatch({ type: MOCK_SCENARIO, scenario, value });
-    });
-  }, [setParams]);
+  }, [isCustom, routeAddress, setAddressBIP21Encoded]);
 
   useEffect(() => {
     setParams({
@@ -660,8 +546,6 @@ const ReceiveDetails = () => {
   // re-fetching address balance periodically
   useEffect(() => {
     console.debug('receive/details - useEffect');
-    if (isMocked) return;
-
     const intervalId = setInterval(async () => {
       try {
         const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
@@ -696,7 +580,7 @@ const ReceiveDetails = () => {
     }, intervalMs);
 
     return () => clearInterval(intervalId);
-  }, [bip21encoded, address, intervalMs, isMocked]);
+  }, [bip21encoded, address, intervalMs]);
 
   useEffect(() => {
     const handleBackButton = () => {
@@ -759,7 +643,7 @@ const ReceiveDetails = () => {
   const showReceiveSkeleton = !showAddress && !showPendingBalance && !showConfirmedBalance && Boolean(wallet ?? address);
 
   const renderReceiveSkeleton = () => {
-    const showTabs = Boolean((wallet && isBIP47Enabled) || isMockBIP47Enabled);
+    const showTabs = Boolean(wallet && isBIP47Enabled);
     return (
       <View style={styles.cardPressable} testID="ReceiveCardSkeleton">
         <View style={[styles.receiveCard, stylesHook.receiveCard, stylesHook.receiveCardColumn]}>
@@ -790,12 +674,12 @@ const ReceiveDetails = () => {
       if (!address) return null;
       qrValue = bip21encoded;
       copyText = isCustom ? bip21encoded : address;
-    } else if ((wallet && isBIP47Enabled) || isMockBIP47Enabled) {
+    } else if (wallet && isBIP47Enabled) {
       qrValue = paymentCodeString || undefined;
       copyText = paymentCodeString || undefined;
     }
 
-    const showTabs = Boolean((wallet && isBIP47Enabled) || isMockBIP47Enabled);
+    const showTabs = Boolean(wallet && isBIP47Enabled);
     const showTip = !isAddressTab && Boolean(qrValue);
     const showCustomAmount = isAddressTab && isCustom;
     const displayCopyText = copyText && isAddressTab ? toBalancedMultilineText(copyText) : undefined;
@@ -885,7 +769,7 @@ const ReceiveDetails = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (isCustom || isMocked || hasIncomingCustomParams) return () => {};
+      if (isCustom || hasIncomingCustomParams) return () => {};
       let cancelled = false;
       (async () => {
         try {
@@ -903,7 +787,7 @@ const ReceiveDetails = () => {
       return () => {
         cancelled = true;
       };
-    }, [wallet, routeAddress, obtainWalletAddress, setAddressBIP21Encoded, isCustom, isMocked, hasIncomingCustomParams]),
+    }, [wallet, routeAddress, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
   );
 
   const showCustomAmountModal = useCallback(() => {
@@ -1001,7 +885,7 @@ const ReceiveDetails = () => {
             <Button
               onPress={handleShareButtonPressed}
               title={loc.receive.details_share}
-              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && (isBIP47Enabled || isMockBIP47Enabled))}
+              disabled={!bip21encoded && !(currentTab === segmentControlValues[1] && isBIP47Enabled)}
             />
           </BlueCard>
         </View>

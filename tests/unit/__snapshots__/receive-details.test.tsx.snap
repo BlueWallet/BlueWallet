@@ -67,7 +67,7 @@ exports[`ReceiveDetails matches loading, pending, and confirmed snapshots: confi
           ]
         }
       >
-        50000 / 50000
+        50 / 50
       </Text>
     </View>
     <View
@@ -164,71 +164,16 @@ exports[`ReceiveDetails matches loading, pending, and confirmed snapshots: loadi
     <View
       style={
         {
-          "alignSelf": "center",
-          "marginBottom": 8,
-          "marginHorizontal": 24,
-          "marginTop": 56,
+          "alignItems": "center",
+          "flex": 1,
+          "justifyContent": "center",
+          "paddingVertical": 40,
         }
       }
-      testID="ReceiveCardSkeleton"
     >
-      <View
-        style={
-          [
-            {
-              "alignItems": "center",
-              "borderRadius": 26,
-              "paddingBottom": 16,
-              "paddingHorizontal": 6,
-              "paddingTop": 6,
-            },
-            {
-              "backgroundColor": "#F2F2F7",
-            },
-            {
-              "width": 114,
-            },
-          ]
-        }
-      >
-        <View
-          style={
-            {
-              "alignItems": "center",
-              "alignSelf": "center",
-              "backgroundColor": "#FFFFFF",
-              "borderRadius": 20,
-              "elevation": 4,
-              "justifyContent": "center",
-              "padding": 6,
-              "shadowColor": "#000000",
-              "shadowOffset": {
-                "height": 4,
-                "width": 0,
-              },
-              "shadowOpacity": 0.12,
-              "shadowRadius": 12,
-            }
-          }
-        >
-          <View
-            style={
-              [
-                {
-                  "borderRadius": 4,
-                },
-                {
-                  "backgroundColor": "rgba(0,0,0,0.04)",
-                },
-                {
-                  "height": 90,
-                  "width": 90,
-                },
-              ]
-            }
-          />
-        </View>
-      </View>
+      <Text>
+        Loading
+      </Text>
     </View>
     <View
       style={
@@ -349,7 +294,7 @@ exports[`ReceiveDetails matches loading, pending, and confirmed snapshots: pendi
           ]
         }
       >
-        50000 / 50000
+        50 / 50
       </Text>
       <Text
         numberOfLines={1}
