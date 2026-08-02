@@ -209,6 +209,12 @@ export class WatchOnlyWallet extends LegacyWallet {
     return super.getUtxo(...args);
   }
 
+  // Same path as createTransaction — needed so SendDetails fee matches the PSBT (#8803)
+  coinselect(...args: Parameters<LegacyWallet['coinselect']>) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.coinselect(...args);
+    return super.coinselect(...args);
+  }
+
   combinePsbt(...args: Parameters<THDWalletForWatchOnly['combinePsbt']>) {
     if (this._hdWalletInstance) return this._hdWalletInstance.combinePsbt(...args);
     throw new Error('Not initialized');
