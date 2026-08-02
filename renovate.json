@@ -19,13 +19,12 @@
     "@react-navigation/native-stack",
     "react-native-screens",
     "react-native-notifications",
-    "react-native-tcp-socket",
     "@bugsnag/react-native"
   ],
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 1,
   "prHourlyLimit": 0,
-  "minimumReleaseAge": "3 days",
+  "minimumReleaseAge": "7 days",
   "semanticCommits": "disabled",
   "commitMessagePrefix": "OPS:",
   "packageRules": [
