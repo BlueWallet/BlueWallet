@@ -10,8 +10,9 @@ import {
   calculatePendingOnchainTransactions,
   createPendingTransactionsSharedSnapshot,
   createPendingTransactionsWatchConfiguration,
+  type PendingTransactionDirection,
+  type PendingTransactionsWatchConfiguration,
 } from '../blue_modules/pendingTransactions';
-import type { PendingTransactionsWatchConfiguration } from '../blue_modules/pendingTransactions';
 
 enum WidgetCommunicationKeys {
   AllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance',
@@ -26,11 +27,13 @@ enum WidgetCommunicationKeys {
 const WIDGET_ENABLED = '1';
 const WIDGET_DISABLED = '0';
 const WIDGET_CLEARED_VALUE = '0';
-const DISABLED_PENDING_TRANSACTIONS_CONFIGURATION = JSON.stringify(
-  createPendingTransactionsWatchConfiguration([], false),
-);
+const DISABLED_PENDING_TRANSACTIONS_CONFIGURATION = JSON.stringify(createPendingTransactionsWatchConfiguration([], false));
 const EMPTY_PENDING_TRANSACTIONS_SNAPSHOT = JSON.stringify(
-  createPendingTransactionsSharedSnapshot({ pendingTransactionCount: 0, totalPendingSats: 0 }),
+  createPendingTransactionsSharedSnapshot({
+    pendingTransactionCount: 0,
+    totalPendingSats: 0,
+    direction: 'unknown',
+  }),
 );
 
 const secondsToMilliseconds = (seconds: number): number => seconds * 1000;
@@ -113,6 +116,7 @@ export const calculateBalanceAndTransactionTime = async (
   latestTransactionTime: number | string;
   pendingTransactionCount: number;
   totalPendingSats: number;
+  pendingTransactionDirection: PendingTransactionDirection;
   pendingTransactionsWatchConfiguration: PendingTransactionsWatchConfiguration;
 }> => {
   if (!walletsInitialized) {
@@ -121,6 +125,7 @@ export const calculateBalanceAndTransactionTime = async (
       latestTransactionTime: 0,
       pendingTransactionCount: 0,
       totalPendingSats: 0,
+      pendingTransactionDirection: 'unknown',
       pendingTransactionsWatchConfiguration: createPendingTransactionsWatchConfiguration([], false),
     };
   }
@@ -163,9 +168,17 @@ export const calculateBalanceAndTransactionTime = async (
     );
   }
 
-  const { pendingTransactionCount, totalPendingSats } = liveActivityEnabled
+  const {
+    pendingTransactionCount,
+    totalPendingSats,
+    direction: pendingTransactionDirection,
+  } = liveActivityEnabled
     ? calculatePendingOnchainTransactions(wallets)
-    : { pendingTransactionCount: 0, totalPendingSats: 0 };
+    : {
+        pendingTransactionCount: 0,
+        totalPendingSats: 0,
+        direction: 'unknown' as const,
+      };
   const pendingTransactionsWatchConfiguration = createPendingTransactionsWatchConfiguration(wallets, liveActivityEnabled);
 
   return {
@@ -173,6 +186,7 @@ export const calculateBalanceAndTransactionTime = async (
     latestTransactionTime,
     pendingTransactionCount,
     totalPendingSats,
+    pendingTransactionDirection,
     pendingTransactionsWatchConfiguration,
   };
 };
@@ -184,6 +198,7 @@ export const syncWidgetBalanceWithWallets = async (
   cachedLatestTransactionTime: { current: number | string },
   cachedPendingTransactionCount: { current: number },
   cachedTotalPendingSats: { current: number },
+  cachedPendingTransactionDirection: { current: PendingTransactionDirection },
   cachedPendingTransactionsWatchConfiguration: { current: string },
 ): Promise<void> => {
   try {
@@ -192,6 +207,7 @@ export const syncWidgetBalanceWithWallets = async (
       latestTransactionTime,
       pendingTransactionCount,
       totalPendingSats,
+      pendingTransactionDirection,
       pendingTransactionsWatchConfiguration,
     } = await calculateBalanceAndTransactionTime(wallets, walletsInitialized);
     const encodedWatchConfiguration = JSON.stringify(pendingTransactionsWatchConfiguration);
@@ -201,10 +217,15 @@ export const syncWidgetBalanceWithWallets = async (
       cachedLatestTransactionTime.current !== latestTransactionTime ||
       cachedPendingTransactionCount.current !== pendingTransactionCount ||
       cachedTotalPendingSats.current !== totalPendingSats ||
+      cachedPendingTransactionDirection.current !== pendingTransactionDirection ||
       cachedPendingTransactionsWatchConfiguration.current !== encodedWatchConfiguration
     ) {
       const encodedSnapshot = JSON.stringify(
-        createPendingTransactionsSharedSnapshot({ pendingTransactionCount, totalPendingSats }),
+        createPendingTransactionsSharedSnapshot({
+          pendingTransactionCount,
+          totalPendingSats,
+          direction: pendingTransactionDirection,
+        }),
       );
       await Promise.all([
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance)),
@@ -213,16 +234,14 @@ export const syncWidgetBalanceWithWallets = async (
       ]);
       // The watch configuration is the final handoff record. Native iOS only
       // refreshes after both the fallback state and public script hashes exist.
-      await DefaultPreference.set(
-        WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration,
-        encodedWatchConfiguration,
-      );
+      await DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration, encodedWatchConfiguration);
       requestPendingTransactionsLiveActivityRefresh();
 
       cachedBalance.current = allWalletsBalance;
       cachedLatestTransactionTime.current = latestTransactionTime;
       cachedPendingTransactionCount.current = pendingTransactionCount;
       cachedTotalPendingSats.current = totalPendingSats;
+      cachedPendingTransactionDirection.current = pendingTransactionDirection;
       cachedPendingTransactionsWatchConfiguration.current = encodedWatchConfiguration;
     }
   } catch (error) {
@@ -238,6 +257,7 @@ const debouncedSyncWidgetBalanceWithWallets = debounce(
     cachedLatestTransactionTime: { current: number | string },
     cachedPendingTransactionCount: { current: number },
     cachedTotalPendingSats: { current: number },
+    cachedPendingTransactionDirection: { current: PendingTransactionDirection },
     cachedPendingTransactionsWatchConfiguration: { current: string },
   ) => {
     await syncWidgetBalanceWithWallets(
@@ -247,6 +267,7 @@ const debouncedSyncWidgetBalanceWithWallets = debounce(
       cachedLatestTransactionTime,
       cachedPendingTransactionCount,
       cachedTotalPendingSats,
+      cachedPendingTransactionDirection,
       cachedPendingTransactionsWatchConfiguration,
     );
   },
@@ -260,6 +281,7 @@ const useWidgetCommunication = (): void => {
   const cachedLatestTransactionTime = useRef<number | string>(0);
   const cachedPendingTransactionCount = useRef<number>(-1);
   const cachedTotalPendingSats = useRef<number>(-1);
+  const cachedPendingTransactionDirection = useRef<PendingTransactionDirection>('unknown');
   const cachedPendingTransactionsWatchConfiguration = useRef<string>('');
 
   // Keep the two privacy controls independent: one clears home-screen widget
@@ -298,6 +320,7 @@ const useWidgetCommunication = (): void => {
           requestPendingTransactionsLiveActivityRefresh();
           cachedPendingTransactionCount.current = 0;
           cachedTotalPendingSats.current = 0;
+          cachedPendingTransactionDirection.current = 'unknown';
           cachedPendingTransactionsWatchConfiguration.current = DISABLED_PENDING_TRANSACTIONS_CONFIGURATION;
           console.debug('Dynamic Island data cleared due to setting being disabled');
         } catch (error) {
@@ -319,6 +342,7 @@ const useWidgetCommunication = (): void => {
         cachedLatestTransactionTime,
         cachedPendingTransactionCount,
         cachedTotalPendingSats,
+        cachedPendingTransactionDirection,
         cachedPendingTransactionsWatchConfiguration,
       );
     }

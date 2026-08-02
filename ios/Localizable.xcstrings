@@ -284,6 +284,102 @@
         }
       }
     },
+    "live_activity.direction.mixed" : {
+      "comment" : "Direction label when pending Bitcoin transactions include both incoming and outgoing funds.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Receiving and sending"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibiendo y enviando"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réception et envoi"
+          }
+        }
+      }
+    },
+    "live_activity.direction.receiving" : {
+      "comment" : "Direction label for incoming pending Bitcoin transactions.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Receiving"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibiendo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réception"
+          }
+        }
+      }
+    },
+    "live_activity.direction.sending" : {
+      "comment" : "Direction label for outgoing pending Bitcoin transactions.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviando"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoi"
+          }
+        }
+      }
+    },
+    "live_activity.direction.unknown" : {
+      "comment" : "Fallback direction label when the pending transaction direction is not known.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en_US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pending"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pendiente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En attente"
+          }
+        }
+      }
+    },
     "live_activity.label.pending_onchain" : {
       "comment" : "Subtitle identifying pending on-chain Bitcoin activity.",
       "extractionState" : "manual",

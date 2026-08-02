@@ -4,7 +4,7 @@ import { TurboModuleRegistry } from 'react-native';
 export interface Spec extends TurboModule {
   reloadAllWidgets(): void;
   refreshPendingTransactionsLiveActivity(): void;
-  previewPendingTransactionsLiveActivity(pendingTransactionCount: number, totalPendingSats: number): void;
+  previewPendingTransactionsLiveActivity(pendingTransactionCount: number, totalPendingSats: number, direction: string): void;
   showcasePendingTransactionsLiveActivity(): void;
 }
 

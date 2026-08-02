@@ -6,56 +6,64 @@ import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
 import { previewPendingTransactionsLiveActivity, showcasePendingTransactionsLiveActivity } from '../blue_modules/dynamicIslandPreview';
+import type { PendingTransactionDirection } from '../blue_modules/pendingTransactions';
 
 type DynamicIslandPreview = {
   title: string;
   pendingTransactionCount: number;
   totalPendingSats: number;
+  direction: PendingTransactionDirection;
 };
 
 export const DYNAMIC_ISLAND_PREVIEWS: DynamicIslandPreview[] = [
   {
-    title: '1 transaction · zero amount',
+    title: 'Unknown direction · zero amount',
     pendingTransactionCount: 1,
     totalPendingSats: 0,
+    direction: 'unknown',
   },
   {
-    title: '1 transaction · 1 sat',
+    title: 'Receiving · 1 sat',
     pendingTransactionCount: 1,
     totalPendingSats: 1,
+    direction: 'receiving',
   },
   {
-    title: '1 transaction · 0.001 BTC',
+    title: 'Sending · 0.001 BTC',
     pendingTransactionCount: 1,
     totalPendingSats: 100_000,
+    direction: 'sending',
   },
   {
-    title: '2 transactions · 0.00175 BTC',
+    title: 'Mixed · 0.00175 BTC',
     pendingTransactionCount: 2,
     totalPendingSats: 175_000,
+    direction: 'mixed',
   },
   {
     title: '12 transactions · 1.23456789 BTC',
     pendingTransactionCount: 12,
     totalPendingSats: 123_456_789,
+    direction: 'receiving',
   },
   {
     title: '999 transactions · 21M BTC',
     pendingTransactionCount: 999,
     totalPendingSats: 2_100_000_000_000_000,
+    direction: 'sending',
   },
 ];
 
 const showDynamicIslandPreviews = () => {
   const options: AlertButton[] = DYNAMIC_ISLAND_PREVIEWS.map(preview => ({
     text: preview.title,
-    onPress: () => previewPendingTransactionsLiveActivity(preview.pendingTransactionCount, preview.totalPendingSats),
+    onPress: () => previewPendingTransactionsLiveActivity(preview.pendingTransactionCount, preview.totalPendingSats, preview.direction),
   }));
 
   options.push({
     text: 'End Live Activity',
     style: 'destructive',
-    onPress: () => previewPendingTransactionsLiveActivity(0, 0),
+    onPress: () => previewPendingTransactionsLiveActivity(0, 0, 'unknown'),
   });
   options.push({ text: 'Cancel', style: 'cancel' });
 
@@ -70,7 +78,7 @@ const showDynamicIslandPreviews = () => {
 const showDynamicIslandShowcase = () => {
   Alert.alert(
     'Dynamic Island Showcase',
-    'Cycles through singular, plural, tiny, typical, large, and stress-test values every 5 seconds. Swipe home to see the compact view, then press and hold it to inspect the expanded view.',
+    'Cycles through receiving, sending, mixed, unknown, tiny, large, and stress-test states every 5 seconds. Swipe home to see the compact view, then press and hold it to inspect the expanded view.',
     [
       {
         text: 'Start Showcase',

@@ -5,6 +5,7 @@
 RCT_EXTERN_METHOD(reloadAllWidgets)
 RCT_EXTERN_METHOD(refreshPendingTransactionsLiveActivity)
 RCT_EXTERN_METHOD(previewPendingTransactionsLiveActivity:(double)pendingTransactionCount
-                  totalPendingSats:(double)totalPendingSats)
+                  totalPendingSats:(double)totalPendingSats
+                  direction:(NSString *)direction)
 RCT_EXTERN_METHOD(showcasePendingTransactionsLiveActivity)
 @end

@@ -15,12 +15,26 @@ struct PendingTransactionsWatchConfiguration: Codable, Equatable {
 struct PendingTransactionsSharedSnapshot: Codable, Equatable {
     let pendingTransactionCount: Int
     let totalPendingSats: Int64
+    let direction: PendingTransactionDirection?
     let updatedAt: Date
+
+    init(
+        pendingTransactionCount: Int,
+        totalPendingSats: Int64,
+        direction: PendingTransactionDirection? = .unknown,
+        updatedAt: Date
+    ) {
+        self.pendingTransactionCount = pendingTransactionCount
+        self.totalPendingSats = totalPendingSats
+        self.direction = direction
+        self.updatedAt = updatedAt
+    }
 
     static func empty(at date: Date = Date()) -> PendingTransactionsSharedSnapshot {
         PendingTransactionsSharedSnapshot(
             pendingTransactionCount: 0,
             totalPendingSats: 0,
+            direction: .unknown,
             updatedAt: date
         )
     }

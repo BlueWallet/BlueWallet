@@ -5,9 +5,12 @@ import { Chain } from '../models/bitcoinUnits';
 import type { Transaction, TWallet } from '../class/wallets/types';
 import { uint8ArrayToHex } from './uint8array-extras';
 
+export type PendingTransactionDirection = 'receiving' | 'sending' | 'mixed' | 'unknown';
+
 export type PendingOnchainSummary = {
   pendingTransactionCount: number;
   totalPendingSats: number;
+  direction: PendingTransactionDirection;
 };
 
 export type PendingTransactionsWatchConfiguration = {
@@ -19,6 +22,7 @@ export type PendingTransactionsWatchConfiguration = {
 export type PendingTransactionsSharedSnapshot = {
   pendingTransactionCount: number;
   totalPendingSats: number;
+  direction: PendingTransactionDirection;
   updatedAt: string;
 };
 
@@ -63,11 +67,16 @@ export const calculatePendingOnchainTransactions = (wallets: TWallet[]): Pending
     }
   }
 
-  const totalPendingSats = Array.from(pendingValueByTxid.values()).reduce((total, value) => total + Math.abs(value), 0);
+  const pendingValues = Array.from(pendingValueByTxid.values());
+  const totalPendingSats = pendingValues.reduce((total, value) => total + Math.abs(value), 0);
+  const hasIncoming = pendingValues.some(value => value > 0);
+  const hasOutgoing = pendingValues.some(value => value < 0);
+  const direction: PendingTransactionDirection = hasIncoming ? (hasOutgoing ? 'mixed' : 'receiving') : hasOutgoing ? 'sending' : 'unknown';
 
   return {
     pendingTransactionCount: pendingValueByTxid.size,
     totalPendingSats: Math.round(totalPendingSats),
+    direction,
   };
 };
 
@@ -75,11 +84,7 @@ const addAddress = (addresses: Set<string>, address: unknown): void => {
   if (typeof address === 'string' && address.length > 0) addresses.add(address);
 };
 
-const addDerivedAddresses = (
-  addresses: Set<string>,
-  derive: ((index: number) => string) | undefined,
-  count: number,
-): void => {
+const addDerivedAddresses = (addresses: Set<string>, derive: ((index: number) => string) | undefined, count: number): void => {
   if (!derive || !Number.isSafeInteger(count) || count <= 0) return;
 
   for (let index = 0; index < count; index++) {
@@ -153,7 +158,11 @@ export const createPendingTransactionsWatchConfiguration = (
     }
   }
 
-  return { version: 1, isEnabled: true, scriptHashes: [...scriptHashes].sort() };
+  return {
+    version: 1,
+    isEnabled: true,
+    scriptHashes: [...scriptHashes].sort(),
+  };
 };
 
 export const createPendingTransactionsSharedSnapshot = (

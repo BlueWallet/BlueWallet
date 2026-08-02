@@ -1,4 +1,5 @@
 import NativeWidgetHelper, { type Spec } from '../codegen/NativeWidgetHelper';
+import type { PendingTransactionDirection } from './pendingTransactions';
 
 /**
  * App Group data is the source of truth for the Live Activity. This call only
@@ -20,14 +21,18 @@ export const requestPendingTransactionsLiveActivityRefresh = (): boolean => {
   }
 };
 
-export const requestPendingTransactionsLiveActivityPreview = (pendingTransactionCount: number, totalPendingSats: number): boolean => {
+export const requestPendingTransactionsLiveActivityPreview = (
+  pendingTransactionCount: number,
+  totalPendingSats: number,
+  direction: PendingTransactionDirection,
+): boolean => {
   if (typeof NativeWidgetHelper.previewPendingTransactionsLiveActivity !== 'function') {
     console.warn('[PendingLiveActivity] Native preview is unavailable; rebuild the iOS app to install the debug bridge.');
     return false;
   }
 
   try {
-    NativeWidgetHelper.previewPendingTransactionsLiveActivity(pendingTransactionCount, totalPendingSats);
+    NativeWidgetHelper.previewPendingTransactionsLiveActivity(pendingTransactionCount, totalPendingSats, direction);
     return true;
   } catch (error) {
     console.warn('[PendingLiveActivity] Native preview failed.', error);

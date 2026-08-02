@@ -4,6 +4,7 @@ import type { Transaction, TWallet } from '../../class/wallets/types';
 import { DYNAMIC_ISLAND_PREVIEWS } from '../../components/DevMenu';
 import { showcasePendingTransactionsLiveActivity } from '../../blue_modules/dynamicIslandPreview.ios';
 import { notifyPendingTransactionsLiveActivityCurrencyChanged } from '../../blue_modules/dynamicIslandCurrencySync.ios';
+import type { PendingTransactionDirection } from '../../blue_modules/pendingTransactions';
 
 import {
   isPendingTransactionsLiveActivityEnabled,
@@ -27,7 +28,13 @@ jest.mock('../../blue_modules/NativeWidgetHelper', () => ({
 }));
 
 const transaction = (txid: string, value: number, confirmations = 0): Transaction =>
-  ({ txid, hash: txid, value, confirmations, timestamp: 1_700_000_000 }) as Transaction;
+  ({
+    txid,
+    hash: txid,
+    value,
+    confirmations,
+    timestamp: 1_700_000_000,
+  }) as Transaction;
 
 const wallet = (transactions: Transaction[]): TWallet =>
   ({
@@ -43,6 +50,7 @@ const cache = () => ({
   latestTransactionTime: { current: -1 as number | string },
   pendingCount: { current: -1 },
   pendingSats: { current: -1 },
+  pendingDirection: { current: 'unknown' as PendingTransactionDirection },
   watchConfiguration: { current: '' },
 });
 
@@ -65,19 +73,19 @@ describe('pending transactions Live Activity bridge', () => {
       cached.latestTransactionTime,
       cached.pendingCount,
       cached.pendingSats,
+      cached.pendingDirection,
       cached.watchConfiguration,
     );
 
     expect(mockRefreshPendingTransactionsLiveActivity).toHaveBeenCalledWith();
     expect(cached.pendingCount.current).toBe(2);
     expect(cached.pendingSats.current).toBe(175_000);
+    expect(cached.pendingDirection.current).toBe('mixed');
 
     const configurationCall = mockDefaultPreference.set.mock.calls.find(
       ([key]) => key === 'PendingTransactionsLiveActivityWatchConfiguration',
     );
-    const snapshotCall = mockDefaultPreference.set.mock.calls.find(
-      ([key]) => key === 'PendingTransactionsLiveActivitySnapshot',
-    );
+    const snapshotCall = mockDefaultPreference.set.mock.calls.find(([key]) => key === 'PendingTransactionsLiveActivitySnapshot');
     expect(configurationCall).toBeDefined();
     expect(snapshotCall).toBeDefined();
     expect(JSON.parse(String(configurationCall![1]))).toMatchObject({
@@ -88,6 +96,7 @@ describe('pending transactions Live Activity bridge', () => {
     expect(JSON.parse(String(snapshotCall![1]))).toMatchObject({
       pendingTransactionCount: 2,
       totalPendingSats: 175_000,
+      direction: 'mixed',
       updatedAt: expect.any(String),
     });
   });
@@ -104,6 +113,7 @@ describe('pending transactions Live Activity bridge', () => {
       cached.latestTransactionTime,
       cached.pendingCount,
       cached.pendingSats,
+      cached.pendingDirection,
       cached.watchConfiguration,
     );
     await syncWidgetBalanceWithWallets(
@@ -113,6 +123,7 @@ describe('pending transactions Live Activity bridge', () => {
       cached.latestTransactionTime,
       cached.pendingCount,
       cached.pendingSats,
+      cached.pendingDirection,
       cached.watchConfiguration,
     );
 
@@ -126,6 +137,7 @@ describe('pending transactions Live Activity bridge', () => {
       cached.latestTransactionTime,
       cached.pendingCount,
       cached.pendingSats,
+      cached.pendingDirection,
       cached.watchConfiguration,
     );
 
@@ -179,6 +191,7 @@ describe('pending transactions Live Activity bridge', () => {
       cached.latestTransactionTime,
       cached.pendingCount,
       cached.pendingSats,
+      cached.pendingDirection,
       cached.watchConfiguration,
     );
 
@@ -197,6 +210,9 @@ describe('pending transactions Live Activity bridge', () => {
     expect(DYNAMIC_ISLAND_PREVIEWS.some(preview => preview.totalPendingSats === 0)).toBe(true);
     expect(DYNAMIC_ISLAND_PREVIEWS.some(preview => preview.totalPendingSats === 1)).toBe(true);
     expect(DYNAMIC_ISLAND_PREVIEWS.every(preview => Number.isSafeInteger(preview.totalPendingSats))).toBe(true);
+    expect(new Set(DYNAMIC_ISLAND_PREVIEWS.map(preview => preview.direction))).toEqual(
+      new Set(['receiving', 'sending', 'mixed', 'unknown']),
+    );
   });
 
   it('starts the native five-second Dynamic Island showcase from React Native', () => {

@@ -205,18 +205,24 @@ enum PendingTransactionsLiveActivityCoordinator {
     }
 
     #if DEBUG
-    static func preview(pendingTransactionCount: Double, totalPendingSats: Double) async {
+    static func preview(
+        pendingTransactionCount: Double,
+        totalPendingSats: Double,
+        direction: PendingTransactionDirection
+    ) async {
         // A developer preview owns the visible state and invalidates any native
         // Electrum refresh that was already in flight.
         _ = await refreshGate.begin()
         guard let state = PendingTransactionsLiveActivityStateBuilder.make(
             pendingTransactionCount: pendingTransactionCount,
-            totalPendingSats: totalPendingSats
+            totalPendingSats: totalPendingSats,
+            direction: direction
         ) else { return }
 
         let snapshot = PendingTransactionsSharedSnapshot(
             pendingTransactionCount: state.pendingTransactionCount,
             totalPendingSats: state.totalPendingSats,
+            direction: state.direction ?? .unknown,
             updatedAt: state.lastUpdated
         )
         await apply(
@@ -236,6 +242,7 @@ enum PendingTransactionsLiveActivityCoordinator {
             let snapshot = PendingTransactionsSharedSnapshot(
                 pendingTransactionCount: step.pendingTransactionCount,
                 totalPendingSats: step.totalPendingSats,
+                direction: step.direction,
                 updatedAt: .now
             )
             await apply(
@@ -284,6 +291,7 @@ enum PendingTransactionsLiveActivityCoordinator {
         let state = PendingTransactionsAttributes.ContentState(
             pendingTransactionCount: max(0, snapshot.pendingTransactionCount),
             totalPendingSats: max(0, snapshot.totalPendingSats),
+            direction: snapshot.direction ?? .unknown,
             lastUpdated: snapshot.updatedAt,
             fiatQuote: PendingTransactionsLiveActivityStore.loadFiatQuote()
         )

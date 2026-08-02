@@ -43,17 +43,21 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
     @objc
     func previewPendingTransactionsLiveActivity(
         _ pendingTransactionCount: Double,
-        totalPendingSats: Double
+        totalPendingSats: Double,
+        direction: String
     ) {
         #if DEBUG && canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
         guard #available(iOS 16.1, *) else { return }
+        let pendingDirection = PendingTransactionDirection(rawValue: direction) ?? .unknown
         NSLog(
-            "[PendingLiveActivity] Preview requested: count=\(pendingTransactionCount), sats=\(totalPendingSats)"
+            "[PendingLiveActivity] Preview requested: count=\(pendingTransactionCount), " +
+            "sats=\(totalPendingSats), direction=\(pendingDirection.rawValue)"
         )
         Task {
             await PendingTransactionsLiveActivityCoordinator.preview(
                 pendingTransactionCount: pendingTransactionCount,
-                totalPendingSats: totalPendingSats
+                totalPendingSats: totalPendingSats,
+                direction: pendingDirection
             )
         }
         #endif

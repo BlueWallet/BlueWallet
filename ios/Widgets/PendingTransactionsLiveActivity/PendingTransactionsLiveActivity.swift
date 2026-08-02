@@ -15,8 +15,8 @@ struct PendingTransactionsLiveActivity: Widget {
         } dynamicIsland: { context -> DynamicIsland in
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    HStack(spacing: 8) {
-                        BlueWalletAppIcon(size: 27)
+                    HStack(spacing: 7) {
+                        BlueWalletAppIcon(size: 25)
                         Text("BlueWallet")
                             .font(.caption.weight(.bold))
                     }
@@ -27,65 +27,85 @@ struct PendingTransactionsLiveActivity: Widget {
                 }
 
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(alignment: .leading, spacing: 9) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(PendingTransactionsLocalization.unconfirmedAmount)
-                                .font(.caption2.weight(.medium))
-                                .foregroundStyle(.secondary)
+                    let direction = context.state.direction ?? .unknown
+                    VStack(alignment: .leading, spacing: 11) {
+                        HStack(spacing: 11) {
+                            DirectionGlyph(direction: direction, size: 34)
 
-                            BitcoinAmount(
-                                sats: context.state.totalPendingSats,
-                                fiatQuote: context.state.fiatQuote,
-                                size: 27
-                            )
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(PendingTransactionsLocalization.directionLabel(direction))
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(direction.indicatorColor)
+                                    .lineLimit(1)
+
+                                BitcoinAmount(
+                                    sats: context.state.totalPendingSats,
+                                    fiatQuote: context.state.fiatQuote,
+                                    size: 27
+                                )
+                            }
+
+                            Spacer(minLength: 0)
                         }
 
+                        Divider()
+                            .overlay(.white.opacity(0.12))
+
                         HStack(spacing: 6) {
-                            Image(systemName: "clock.fill")
-                                .font(.caption2)
+                            Image(systemName: "clock.arrow.circlepath")
+                                .font(.system(size: 11, weight: .semibold))
                                 .foregroundStyle(Color.blueWalletAccent)
 
                             Text(PendingTransactionsLocalization.awaitingNetworkConfirmation)
-                                .font(.caption.weight(.medium))
+                                .font(.caption2.weight(.medium))
                                 .foregroundStyle(.secondary)
 
                             Spacer(minLength: 4)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 3)
-                    .padding(.top, 9)
+                    .padding(.horizontal, 4)
+                    .padding(.top, 8)
                 }
             } compactLeading: {
+                let direction = context.state.direction ?? .unknown
                 HStack(spacing: 4) {
-                    BlueWalletAppIcon(size: 18)
+                    BlueWalletAppIcon(size: 16)
 
                     Text("BTC")
                         .font(.caption2.bold())
                         .foregroundStyle(Color.blueWalletAccent)
                 }
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel(PendingTransactionsLocalization.compactAccessibilityLabel)
+                .accessibilityLabel(
+                    PendingTransactionsLocalization.compactAccessibilityLabel(direction: direction)
+                )
             } compactTrailing: {
-                HStack(spacing: 3) {
-                    Image(systemName: "clock.fill")
+                let direction = context.state.direction ?? .unknown
+                HStack(spacing: 4) {
+                    Image(systemName: direction.systemImageName)
                         .font(.system(size: 9, weight: .bold))
 
                     Text("\(context.state.pendingTransactionCount)")
                         .font(.caption.bold().monospacedDigit())
                         .contentTransition(.numericText())
                 }
-                .foregroundStyle(Color.blueWalletAccent)
+                .foregroundStyle(direction.indicatorColor)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(
+                    PendingTransactionsLocalization.pendingCountAccessibilityLabel(
+                        count: context.state.pendingTransactionCount
+                    )
+                )
             } minimal: {
-                ZStack {
-                    Circle()
-                        .fill(Color.blueWalletAccent.opacity(0.18))
-
-                    Text("\(context.state.pendingTransactionCount)")
-                        .font(.caption2.bold().monospacedDigit())
-                        .foregroundStyle(Color.blueWalletAccent)
-                        .contentTransition(.numericText())
-                }
+                let direction = context.state.direction ?? .unknown
+                DirectionGlyph(direction: direction, size: 24)
+                    .accessibilityLabel(
+                        "\(PendingTransactionsLocalization.directionLabel(direction)), " +
+                        PendingTransactionsLocalization.pendingCountAccessibilityLabel(
+                            count: context.state.pendingTransactionCount
+                        )
+                    )
             }
             .keylineTint(.blueWalletAccent)
             .widgetURL(URL(string: "bluewallet://"))
@@ -98,9 +118,10 @@ private struct PendingTransactionsLockScreenView: View {
     let state: PendingTransactionsAttributes.ContentState
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 10) {
-                BlueWalletAppIcon(size: 34)
+        let direction = state.direction ?? .unknown
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 9) {
+                BlueWalletAppIcon(size: 32)
 
                 VStack(alignment: .leading, spacing: 1) {
                     Text("BlueWallet")
@@ -112,26 +133,24 @@ private struct PendingTransactionsLockScreenView: View {
 
                 Spacer()
 
-                PendingCountBadge(count: state.pendingTransactionCount)
+                TransactionDirectionBadge(direction: direction)
             }
 
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(PendingTransactionsLocalization.unconfirmedAmount)
                     .font(.caption2.weight(.semibold))
-                    .tracking(0.6)
+                    .tracking(0.7)
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
 
-                BitcoinAmount(sats: state.totalPendingSats, fiatQuote: state.fiatQuote, size: 30)
+                BitcoinAmount(sats: state.totalPendingSats, fiatQuote: state.fiatQuote, size: 32)
             }
 
-            HStack(spacing: 6) {
-                Image(systemName: "clock.fill")
-                    .font(.caption2)
-                    .foregroundStyle(Color.blueWalletAccent)
+            HStack(spacing: 8) {
+                PendingCountBadge(count: state.pendingTransactionCount)
 
-                Text(pendingDescription(for: state.pendingTransactionCount))
-                    .font(.caption.weight(.medium))
+                Text(PendingTransactionsLocalization.awaitingNetworkConfirmation)
+                    .font(.caption2.weight(.medium))
                     .foregroundStyle(.secondary)
 
                 Spacer(minLength: 4)
@@ -139,11 +158,19 @@ private struct PendingTransactionsLockScreenView: View {
         }
         .padding(16)
         .foregroundStyle(.white)
+        .background {
+            LinearGradient(
+                colors: [Color.blueWalletAccent.opacity(0.12), .clear],
+                startPoint: .topTrailing,
+                endPoint: .bottomLeading
+            )
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
             PendingTransactionsLocalization.lockScreenAccessibilityLabel(
                 bitcoinAmount: formatBitcoin(state.totalPendingSats),
-                count: state.pendingTransactionCount
+                count: state.pendingTransactionCount,
+                direction: direction
             )
         )
     }
@@ -154,7 +181,7 @@ private struct BlueWalletAppIcon: View {
     let size: CGFloat
 
     var body: some View {
-        Image("BlueWallet-1024")
+        Image("BlueWalletAppIcon")
             .resizable()
             .scaledToFill()
             .frame(width: size, height: size)
@@ -168,13 +195,58 @@ private struct BlueWalletAppIcon: View {
 }
 
 @available(iOSApplicationExtension 16.1, *)
+private struct TransactionDirectionBadge: View {
+    let direction: PendingTransactionDirection
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: direction.systemImageName)
+                .font(.system(size: 9, weight: .bold))
+
+            Text(PendingTransactionsLocalization.directionLabel(direction))
+                .font(.caption2.weight(.semibold))
+                .lineLimit(1)
+        }
+        .foregroundStyle(direction.indicatorColor)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(direction.indicatorColor.opacity(0.14), in: Capsule())
+        .overlay {
+            Capsule()
+                .strokeBorder(direction.indicatorColor.opacity(0.24), lineWidth: 0.5)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(PendingTransactionsLocalization.directionLabel(direction))
+    }
+}
+
+@available(iOSApplicationExtension 16.1, *)
+private struct DirectionGlyph: View {
+    let direction: PendingTransactionDirection
+    let size: CGFloat
+
+    var body: some View {
+        Image(systemName: direction.systemImageName)
+            .font(.system(size: size * 0.4, weight: .bold))
+            .foregroundStyle(direction.indicatorColor)
+            .frame(width: size, height: size)
+            .background(direction.indicatorColor.opacity(0.16), in: Circle())
+            .overlay {
+                Circle()
+                    .strokeBorder(direction.indicatorColor.opacity(0.26), lineWidth: 0.5)
+            }
+            .accessibilityHidden(true)
+    }
+}
+
+@available(iOSApplicationExtension 16.1, *)
 private struct PendingCountBadge: View {
     let count: Int
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: "clock.fill")
-                .font(.system(size: 10, weight: .semibold))
+            Image(systemName: "clock")
+                .font(.system(size: 10, weight: .bold))
 
             Text("\(count)")
                 .font(.caption.bold().monospacedDigit())
@@ -184,6 +256,10 @@ private struct PendingCountBadge: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
         .background(Color.blueWalletAccent.opacity(0.14), in: Capsule())
+        .overlay {
+            Capsule()
+                .strokeBorder(Color.blueWalletAccent.opacity(0.22), lineWidth: 0.5)
+        }
         .accessibilityLabel(PendingTransactionsLocalization.pendingCountAccessibilityLabel(count: count))
     }
 }
@@ -198,13 +274,13 @@ private struct BitcoinAmount: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(alignment: .firstTextBaseline, spacing: 5) {
                 Text(formatBitcoinValue(sats))
-                    .font(.system(size: size, weight: .bold, design: .rounded).monospacedDigit())
+                    .font(.system(size: size, weight: .semibold, design: .rounded).monospacedDigit())
                     .contentTransition(.numericText())
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
 
                 Text("BTC")
-                    .font(.caption.weight(.bold))
+                    .font(.caption2.weight(.bold))
                     .foregroundStyle(Color.blueWalletAccent)
             }
 
@@ -224,8 +300,33 @@ private extension Color {
     static let blueWalletBackground = Color(red: 0.035, green: 0.075, blue: 0.15)
 }
 
-private func pendingDescription(for count: Int) -> String {
-    PendingTransactionsLocalization.pendingDescription(count: count)
+@available(iOSApplicationExtension 16.1, *)
+private extension PendingTransactionDirection {
+    var systemImageName: String {
+        switch self {
+        case .receiving:
+            return "arrow.down.left"
+        case .sending:
+            return "arrow.up.right"
+        case .mixed:
+            return "arrow.left.arrow.right"
+        case .unknown:
+            return "clock.fill"
+        }
+    }
+
+    var indicatorColor: Color {
+        switch self {
+        case .receiving:
+            return Color(red: 0.25, green: 0.78, blue: 0.48)
+        case .sending:
+            return Color(red: 1.0, green: 0.61, blue: 0.24)
+        case .mixed:
+            return Color(red: 0.69, green: 0.52, blue: 1.0)
+        case .unknown:
+            return .blueWalletAccent
+        }
+    }
 }
 
 private func formatBitcoin(_ sats: Int64) -> String {
@@ -250,6 +351,7 @@ private let previewAttributes = PendingTransactionsAttributes()
 private let previewState = PendingTransactionsAttributes.ContentState(
     pendingTransactionCount: 2,
     totalPendingSats: 175_000,
+    direction: .mixed,
     lastUpdated: .now,
     fiatQuote: PendingTransactionsAttributes.FiatQuote(
         currencyCode: "USD",

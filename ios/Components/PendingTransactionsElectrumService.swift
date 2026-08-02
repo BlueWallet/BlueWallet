@@ -186,6 +186,8 @@ enum PendingTransactionsSnapshotCalculator {
         }
 
         var totalPendingSats: Int64 = 0
+        var hasIncoming = false
+        var hasOutgoing = false
         for transactionID in mempoolTransactionIDs {
             guard let transaction = parsedTransactions[transactionID] else { continue }
             var walletValue: Int64 = 0
@@ -219,12 +221,18 @@ enum PendingTransactionsSnapshotCalculator {
             }
 
             guard walletValue != Int64.min else { throw PendingTransactionsElectrumError.invalidResponse }
+            hasIncoming = hasIncoming || walletValue > 0
+            hasOutgoing = hasOutgoing || walletValue < 0
             totalPendingSats = try adding(abs(walletValue), to: totalPendingSats)
         }
 
         return PendingTransactionsSharedSnapshot(
             pendingTransactionCount: mempoolTransactionIDs.count,
             totalPendingSats: totalPendingSats,
+            direction: PendingTransactionDirection.classify(
+                hasIncoming: hasIncoming,
+                hasOutgoing: hasOutgoing
+            ),
             updatedAt: now
         )
     }

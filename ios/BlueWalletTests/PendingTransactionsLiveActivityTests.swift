@@ -11,8 +11,11 @@ struct PendingTransactionsLiveActivityTests {
         #expect(PendingTransactionsLocalization.pendingCountAccessibilityLabel(count: 1) == "1 pending transaction")
         #expect(PendingTransactionsLocalization.pendingCountAccessibilityLabel(count: 2) == "2 pending transactions")
         #expect(
-            PendingTransactionsLocalization.lockScreenAccessibilityLabel(bitcoinAmount: "0.00175 BTC", count: 2)
-                == "Unconfirmed amount: 0.00175 BTC in 2 pending transactions"
+            PendingTransactionsLocalization.lockScreenAccessibilityLabel(
+                bitcoinAmount: "0.00175 BTC",
+                count: 2,
+                direction: .receiving
+            ) == "Receiving. Unconfirmed amount: 0.00175 BTC in 2 pending transactions"
         )
     }
 
@@ -49,6 +52,7 @@ struct PendingTransactionsLiveActivityTests {
             PendingTransactionsLiveActivityStateBuilder.make(
                 pendingTransactionCount: 2.9,
                 totalPendingSats: 123_456.6,
+                direction: .mixed,
                 fiatQuote: quote,
                 now: date
             )
@@ -56,6 +60,7 @@ struct PendingTransactionsLiveActivityTests {
 
         #expect(state.pendingTransactionCount == 2)
         #expect(state.totalPendingSats == 123_457)
+        #expect(state.direction == .mixed)
         #expect(state.lastUpdated == date)
         #expect(state.fiatQuote == quote)
     }
@@ -130,6 +135,7 @@ struct PendingTransactionsLiveActivityTests {
         #expect(steps.contains { $0.totalPendingSats == 0 })
         #expect(steps.contains { $0.totalPendingSats == 1 })
         #expect(steps.contains { $0.totalPendingSats == 2_100_000_000_000_000 })
+        #expect(Set(steps.map(\.direction)) == Set(PendingTransactionDirection.allPreviewCases))
         #expect(steps.allSatisfy { $0.pendingTransactionCount > 0 && $0.totalPendingSats >= 0 })
     }
 
@@ -165,6 +171,7 @@ struct PendingTransactionsLiveActivityTests {
         #expect(configuration == PendingTransactionsWatchConfiguration(version: 1, isEnabled: true, scriptHashes: ["abc"]))
         #expect(snapshot.pendingTransactionCount == 2)
         #expect(snapshot.totalPendingSats == 175_000)
+        #expect(snapshot.direction == nil)
         #expect(abs(snapshot.updatedAt.timeIntervalSince1970 - 1_785_501_296.789) < 0.001)
     }
 
@@ -297,6 +304,14 @@ struct PendingTransactionsLiveActivityTests {
         #expect(BitcoinTransactionParser.electrumScriptHash(for: Data([0x51])) == "6032c38c0bc0e91e726f1e55e1832e434509001a7aed5cfd881b6ef07215e84a")
     }
 
+    @Test("Pending transaction direction classifies native wallet impact")
+    func nativeDirectionClassification() {
+        #expect(PendingTransactionDirection.classify(hasIncoming: true, hasOutgoing: false) == .receiving)
+        #expect(PendingTransactionDirection.classify(hasIncoming: false, hasOutgoing: true) == .sending)
+        #expect(PendingTransactionDirection.classify(hasIncoming: true, hasOutgoing: true) == .mixed)
+        #expect(PendingTransactionDirection.classify(hasIncoming: false, hasOutgoing: false) == .unknown)
+    }
+
     @Test("Bitcoin parser rejects truncated raw transactions")
     func bitcoinParserRejectsTruncatedTransaction() {
         #expect(throws: BitcoinTransactionParserError.self) {
@@ -326,8 +341,18 @@ struct PendingTransactionsLiveActivityTests {
         #expect(snapshot == PendingTransactionsSharedSnapshot(
             pendingTransactionCount: 1,
             totalPendingSats: 10_000,
+            direction: .receiving,
             updatedAt: now
         ))
     }
+}
+
+private extension PendingTransactionDirection {
+    static let allPreviewCases: [PendingTransactionDirection] = [
+        .receiving,
+        .sending,
+        .mixed,
+        .unknown,
+    ]
 }
 #endif

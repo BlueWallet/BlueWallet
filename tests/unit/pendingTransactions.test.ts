@@ -1,19 +1,11 @@
-import {
-  calculatePendingOnchainTransactions,
-  createPendingTransactionsWatchConfiguration,
-} from '../../blue_modules/pendingTransactions';
+import { calculatePendingOnchainTransactions, createPendingTransactionsWatchConfiguration } from '../../blue_modules/pendingTransactions';
 import { Chain } from '../../models/bitcoinUnits';
 import type { Transaction, TWallet } from '../../class/wallets/types';
 
 const transaction = (txid: string, value: number, confirmations?: number): Transaction =>
   ({ txid, hash: txid, value, confirmations }) as Transaction;
 
-const wallet = (
-  transactions: Transaction[],
-  chain: Chain = Chain.ONCHAIN,
-  hideBalance = false,
-  addresses: string[] = [],
-): TWallet =>
+const wallet = (transactions: Transaction[], chain: Chain = Chain.ONCHAIN, hideBalance = false, addresses: string[] = []): TWallet =>
   ({
     chain,
     hideBalance,
@@ -37,6 +29,7 @@ describe('calculatePendingOnchainTransactions', () => {
     expect(calculatePendingOnchainTransactions(wallets)).toEqual({
       pendingTransactionCount: 2,
       totalPendingSats: 175_000,
+      direction: 'mixed',
     });
   });
 
@@ -49,7 +42,14 @@ describe('calculatePendingOnchainTransactions', () => {
     expect(calculatePendingOnchainTransactions(wallets)).toEqual({
       pendingTransactionCount: 2,
       totalPendingSats: 30_000,
+      direction: 'mixed',
     });
+  });
+
+  it('classifies receiving, sending, and unknown pending activity', () => {
+    expect(calculatePendingOnchainTransactions([wallet([transaction('receive', 25_000, 0)])]).direction).toBe('receiving');
+    expect(calculatePendingOnchainTransactions([wallet([transaction('send', -25_000, 0)])]).direction).toBe('sending');
+    expect(calculatePendingOnchainTransactions([wallet([transaction('neutral', 0, 0)])]).direction).toBe('unknown');
   });
 });
 
@@ -70,7 +70,9 @@ describe('createPendingTransactionsWatchConfiguration', () => {
   });
 
   it('exports no wallet identifiers when disabled', () => {
-    expect(createPendingTransactionsWatchConfiguration([wallet([], Chain.ONCHAIN, false, ['1BoatSLRHtKNngkdXEeobR76b53LETtpyT'])], false)).toEqual({
+    expect(
+      createPendingTransactionsWatchConfiguration([wallet([], Chain.ONCHAIN, false, ['1BoatSLRHtKNngkdXEeobR76b53LETtpyT'])], false),
+    ).toEqual({
       version: 1,
       isEnabled: false,
       scriptHashes: [],
