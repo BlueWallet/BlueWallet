@@ -338,6 +338,17 @@ export async function tapIfTextPresent(text) {
   // no need to check for visibility, just silently ignore exception if such testID is not present
 }
 
+export async function tapHeaderMenuAction(actionId, text) {
+  if (device.getPlatform() === 'ios') {
+    try {
+      await element(by.id(actionId)).tap();
+      return;
+    } catch (_) {}
+  }
+
+  await element(by.text(text)).tap();
+}
+
 /**
  * Dismisses a native UIAlertController by tapping a button with the given text.
  * On iOS 26 liquid glass, `waitFor().toBeVisible()` never resolves for alert
@@ -418,13 +429,67 @@ export async function countElements(testId) {
   return count;
 }
 
-export async function scanText(text) {
-  await waitForId('ScanQrBackdoorButton');
-  for (let c = 0; c <= 5; c++) {
-    await element(by.id('ScanQrBackdoorButton')).tap();
+/**
+ * Feeds text into the QR scanner backdoor.
+ * On iOS, disables synchronization for the interaction. Pass
+ * `restoreSynchronization: false` for multipart UR scans that must keep sync
+ * disabled until the animated scanner/QR UI is gone.
+ */
+export async function scanText(text, { restoreSynchronization = true } = {}) {
+  if (device.getPlatform() === 'ios') {
+    await device.disableSynchronization();
   }
-  await element(by.id('scanQrBackdoorInput')).replaceText(text);
-  await element(by.id('scanQrBackdoorOkButton')).tap();
+  try {
+    await waitForId('ScanQrBackdoorButton');
+    for (let c = 0; c <= 5; c++) {
+      await element(by.id('ScanQrBackdoorButton')).tap();
+    }
+    await element(by.id('scanQrBackdoorInput')).replaceText(text);
+    await element(by.id('scanQrBackdoorOkButton')).tap();
+    await sleep(300);
+  } finally {
+    if (device.getPlatform() === 'ios' && restoreSynchronization) {
+      await device.enableSynchronization();
+    }
+  }
+}
+
+/** Wait until ScanQRCode is gone (`not.toBeVisible`: screen stays mounted after popTo). */
+export async function waitForQrScannerClosed(timeoutMs = 60_000) {
+  await waitFor(element(by.id('ScanQrBackdoorButton')))
+    .not.toBeVisible()
+    .withTimeout(timeoutMs);
+}
+
+/** Multipart UR via backdoor; keeps iOS sync off until the scanner dismisses. */
+export async function scanUrParts(urs) {
+  for (const ur of urs.slice(0, -1)) {
+    await scanText(ur, { restoreSynchronization: false });
+    await waitFor(element(by.id('UrProgressBar')))
+      .toBeVisible()
+      .withTimeout(60_000);
+  }
+  await scanText(urs[urs.length - 1], { restoreSynchronization: false });
+  await waitForQrScannerClosed();
+}
+
+/** iOS: enable sync only after animated PSBT QR and scanner are hidden. */
+export async function restoreSynchronizationIfAnimatedQrClosed(timeoutMs = 2_000) {
+  if (device.getPlatform() !== 'ios') {
+    return true;
+  }
+
+  try {
+    await waitFor(element(by.id('PsbtMultisigQRCodeScrollView')))
+      .not.toBeVisible()
+      .withTimeout(timeoutMs);
+    await waitForQrScannerClosed(timeoutMs);
+  } catch {
+    return false;
+  }
+
+  await device.enableSynchronization();
+  return true;
 }
 
 export async function setCustomFeeRate(feeRate) {
@@ -524,12 +589,83 @@ export async function scrollUpOnHomeScreen() {
     return;
   }
   try {
-    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView'))).swipe('down', 'slow', 0.5);
+    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView')))
+      .atIndex(0)
+      .swipe('down', 'slow', 0.5);
   } catch (_) {
-    // if no wallets there will be just one scroll
-    await element(by.type('RCTEnhancedScrollView')).swipe('down', 'slow', 0.5);
+    // if no wallets there will be just one scroll (or nested matcher missed); atIndex
+    // avoids "Multiple elements found" when several scroll views are present.
+    await element(by.type('RCTEnhancedScrollView')).atIndex(0).swipe('down', 'slow', 0.5);
   }
   await sleep(1000); // bounce animation
+}
+
+/**
+ * Opens the send-screen header menu and taps a menu item.
+ * On iOS, action-sheet labels often fail Detox's visibility check (liquid glass
+ * / partial opacity), same class of issue as native alerts — disable sync for
+ * the interaction.
+ *
+ * Pass `restoreSynchronization: false` when the item opens the camera / animated QR UI;
+ * re-enabling there can hang on pending layer animations. A following `scanText()`
+ * (default) restores synchronization after the backdoor scan.
+ */
+export async function tapHeaderMenuItem(menuItemText, { actionId, restoreSynchronization = true } = {}) {
+  const isIOS = device.getPlatform() === 'ios';
+  if (!isIOS) {
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text(menuItemText)).tap();
+    return;
+  }
+
+  let succeeded = false;
+  await device.disableSynchronization();
+  try {
+    await waitFor(element(by.id('HeaderMenuButton')))
+      .toExist()
+      .withTimeout(15_000);
+
+    let lastError;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        await element(by.id('HeaderMenuButton')).tap();
+        // iOS 26 action sheets use magic-morph transforms that fail Detox's
+        // visibility check until the presentation animation settles.
+        await sleep(1500);
+        // Prefer the native identifier. Liquid-glass menu rows often fail
+        // Detox's text visibility checks even though the action is tappable.
+        try {
+          if (!actionId) {
+            throw new Error('No native action identifier');
+          }
+          await element(by.id(actionId)).tap();
+        } catch {
+          try {
+            await element(by.text(menuItemText)).atIndex(0).tap();
+          } catch {
+            try {
+              await element(by.label(menuItemText)).atIndex(0).tap();
+            } catch {
+              // Last resort: tap a corner point to bypass 100% visibility threshold.
+              await element(by.text(menuItemText)).atIndex(0).tap({ x: 8, y: 8 });
+            }
+          }
+        }
+        succeeded = true;
+        return;
+      } catch (e) {
+        lastError = e;
+        await sleep(500);
+      }
+    }
+    throw lastError;
+  } finally {
+    // Always restore sync on failure so retries aren't poisoned when the caller
+    // passed restoreSynchronization: false (camera / animated-QR path).
+    if (restoreSynchronization || !succeeded) {
+      await device.enableSynchronization();
+    }
+  }
 }
 
 // We really only need this function when running tests locally.

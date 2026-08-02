@@ -15,6 +15,7 @@ import {
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
   tapAndTapAgainIfTextIsNotVisible,
+  tapHeaderMenuItem,
   tapIfTextPresent,
   typeTextIntoAlertInput,
   waitForId,
@@ -44,7 +45,10 @@ beforeAll(async () => {
   }
   // reinstalling the app just for any case to clean up app's storage
   await device.clearKeychain();
-  await device.launchApp({ delete: true, permissions: { notifications: 'YES', camera: 'YES' } });
+  await device.launchApp({
+    delete: true,
+    permissions: { notifications: 'YES', camera: 'YES' },
+  });
 
   console.log('before all - importing bip84...');
   await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526');
@@ -352,8 +356,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
 
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Sign a transaction')).tap();
+    await tapHeaderMenuItem('Sign a transaction', {
+      actionId: 'sign_psbt',
+      restoreSynchronization: false,
+    });
 
     // 1 input, 2 outputs. wallet can fully sign this tx
     const psbt =
@@ -512,16 +518,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForId('SendButton');
 
     await tapAndTapAgainIfElementIsNotVisible('SendButton', 'HeaderMenuButton');
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Insert Contact')).tap();
+    await tapHeaderMenuItem('Insert Contact', { actionId: 'insert_contact' });
     await tapAndTapAgainIfElementIsNotVisible('ContactListItem0', 'BitcoinAmountInput');
     await element(by.id('BitcoinAmountInput')).replaceText('0.0001');
     await waitForKeyboardToClose();
 
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Add Recipient')).tap();
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Insert Contact')).tap();
+    await tapHeaderMenuItem('Add Recipient', { actionId: 'AddRecipient' });
+    await tapHeaderMenuItem('Insert Contact', { actionId: 'insert_contact' });
     await element(by.id('ContactListItem1')).tap();
     await element(by.id('BitcoinAmountInput')).atIndex(1).replaceText('0.0002');
     await waitForKeyboardToClose();
@@ -685,8 +688,7 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await waitForId('SendButton');
     await element(by.id('SendButton')).tap();
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Coin Control')).tap();
+    await tapHeaderMenuItem('Coin Control', { actionId: 'coin_control' });
     await waitFor(element(by.id('Loading'))) // wait for outputs to be loaded
       .not.toExist()
       .withTimeout(300 * 1000);
