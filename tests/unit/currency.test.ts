@@ -1,10 +1,15 @@
 import assert from 'assert';
+import DefaultPreference from 'react-native-default-preference';
 
 import {
   _setExchangeRate,
   _setPreferredFiatCurrency,
   BTCToLocalCurrency,
+  EXCHANGE_RATES_STORAGE_KEY,
+  GROUP_IO_BLUEWALLET,
   getCurrencyFractionDigits,
+  LAST_UPDATED,
+  mostRecentFetchedRate,
   satoshiToBTC,
   satoshiToLocalCurrency,
 } from '../../blue_modules/currency';
@@ -18,7 +23,19 @@ describe('currency', () => {
   ])('reads native minor-unit precision for $endPointKey', (currency, expectedFractionDigits) => {
     _setPreferredFiatCurrency(currency);
     expect(getCurrencyFractionDigits()).toBe(expectedFractionDigits);
+    expect(getCurrencyFractionDigits(currency)).toBe(expectedFractionDigits);
     _setPreferredFiatCurrency(FiatUnit.USD);
+  });
+
+  it('returns the exact stored numeric rate for locale-aware previews', async () => {
+    const timestamp = 1720000000000;
+    _setPreferredFiatCurrency(FiatUnit.USD);
+    await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+    await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, JSON.stringify({ BTC_USD: 50000.25, [LAST_UPDATED]: timestamp }));
+
+    const result = await mostRecentFetchedRate();
+
+    expect(result).toMatchObject({ RawRate: 50000.25, LastUpdated: new Date(timestamp) });
   });
 
   it('formats everything correctly', async () => {

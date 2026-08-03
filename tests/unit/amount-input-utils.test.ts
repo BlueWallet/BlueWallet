@@ -195,15 +195,18 @@ describe('AmountInput native number-format handling', () => {
   });
 
   it('derives every secondary-display unit branch with cached precision when available', () => {
-    const formatLocalCurrency = jest.fn((satoshis: number) => `$${satoshis}`);
+    const numberFormat = createAmountInputNumberFormat({ decimalSeparator: ',', groupingSeparator: '.' });
+    const formatLocalCurrency = jest.fn((satoshis: number) => String(satoshis));
     const baseFunctions = {
       btcUnitLabel: 'BTC',
+      currencySymbol: '$',
       fiatToBTC: jest.fn(() => '0.00100000'),
       formatLocalCurrency,
+      numberFormat,
     };
 
-    expect(getSecondaryAmountDisplay('0.001', BitcoinUnit.BTC, baseFunctions)).toBe('$100000');
-    expect(getSecondaryAmountDisplay('100000', BitcoinUnit.SATS, baseFunctions)).toBe('$100000');
+    expect(getSecondaryAmountDisplay('0.001', BitcoinUnit.BTC, baseFunctions)).toBe('$100.000');
+    expect(getSecondaryAmountDisplay('100000', BitcoinUnit.SATS, baseFunctions)).toBe('$100.000');
     expect(getSecondaryAmountDisplay('50', BitcoinUnit.LOCAL_CURRENCY, baseFunctions)).toBe('0.001 BTC');
     expect(
       getSecondaryAmountDisplay('50', BitcoinUnit.LOCAL_CURRENCY, {
@@ -225,13 +228,56 @@ describe('AmountInput native number-format handling', () => {
   ])('hides the %s secondary display for zero amount %j without converting it', (unit, amount) => {
     const functions = {
       btcUnitLabel: 'BTC',
+      currencySymbol: '$',
       fiatToBTC: jest.fn(() => '1'),
       formatLocalCurrency: jest.fn(() => '$1'),
+      numberFormat: BITCOIN_AMOUNT_NUMBER_FORMAT,
     };
 
     expect(getSecondaryAmountDisplay(amount, unit, functions)).toBe('');
     expect(functions.fiatToBTC).not.toHaveBeenCalled();
     expect(functions.formatLocalCurrency).not.toHaveBeenCalled();
+  });
+
+  it('formats fiat secondary values with the same native settings as fiat input', () => {
+    const formatter = new Intl.NumberFormat('ar-EG', { useGrouping: true, maximumFractionDigits: 0 });
+    const numberFormat = createAmountInputNumberFormat({ decimalSeparator: '٫', groupingSeparator: '٬' }, { format: formatter.format });
+
+    expect(
+      getSecondaryAmountDisplay('123456', BitcoinUnit.SATS, {
+        btcUnitLabel: 'BTC',
+        currencySymbol: 'د.إ.',
+        fiatToBTC: jest.fn(),
+        formatLocalCurrency: jest.fn(() => '1234.56'),
+        numberFormat,
+      }),
+    ).toBe('د.إ.١٬٢٣٤٫٥٦');
+  });
+
+  it('keeps BTC secondary values on the fixed Bitcoin format', () => {
+    const numberFormat = createAmountInputNumberFormat({ decimalSeparator: ',', groupingSeparator: '.' });
+
+    expect(
+      getSecondaryAmountDisplay('5000', BitcoinUnit.LOCAL_CURRENCY, {
+        btcUnitLabel: 'BTC',
+        currencySymbol: '$',
+        fiatToBTC: jest.fn(() => '1234.50000000'),
+        formatLocalCurrency: jest.fn(),
+        numberFormat,
+      }),
+    ).toBe('1,234.5 BTC');
+  });
+
+  it('preserves an unavailable fiat conversion without applying numeric formatting', () => {
+    expect(
+      getSecondaryAmountDisplay('1', BitcoinUnit.BTC, {
+        btcUnitLabel: 'BTC',
+        currencySymbol: '$',
+        fiatToBTC: jest.fn(),
+        formatLocalCurrency: jest.fn(() => '...'),
+        numberFormat: createAmountInputNumberFormat({ decimalSeparator: ',', groupingSeparator: '.' }),
+      }),
+    ).toBe('...');
   });
 
   it('derives optional exact MAX estimates without component branching', () => {
@@ -254,7 +300,7 @@ describe('AmountInput native number-format handling', () => {
     expect(normalizeAmountInput('1a2', BitcoinUnit.BTC, format)).toBe('');
   });
 
-  it.each(['-$1.00', '− 1,00 EUR', '(1.00)', '1.00-', '1e-8'])('rejects a pasted negative or exponential amount: %s', input => {
+  it.each(['-$1.00', '− 1,00 EUR', '(1.00)', '1.00-', '1e-8', '1e8'])('rejects a pasted negative or exponential amount: %s', input => {
     const format = createAmountInputNumberFormat({
       decimalSeparator: '.',
       groupingSeparator: ',',

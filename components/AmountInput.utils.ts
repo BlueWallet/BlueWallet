@@ -46,8 +46,10 @@ export type AmountInputDisplayModel = {
 type SecondaryDisplayFunctions = {
   btcUnitLabel: string;
   cachedSatoshis?: string;
+  currencySymbol: string;
   fiatToBTC: (fiatAmount: number) => string;
   formatLocalCurrency: (satoshis: number) => string | number;
+  numberFormat: AmountInputNumberFormat;
 };
 
 const BIDI_FORMAT_CHARACTERS = new Set([
@@ -123,8 +125,8 @@ const readGroupingSizes = (
       primaryGroupingSize: 0,
       secondaryGroupingSize: 0,
     };
-  const primaryGroupingSize = groups.at(-1) ?? 0;
-  const secondaryGroupingSize = groups.at(-2) ?? primaryGroupingSize;
+  const primaryGroupingSize = groups[groups.length - 1];
+  const secondaryGroupingSize = groups[groups.length - 2];
   return {
     groupingSignature: `${primaryGroupingSize}:${secondaryGroupingSize}`,
     primaryGroupingSize,
@@ -309,12 +311,12 @@ export const normalizeAmountInput = (text: string, unit: BitcoinUnit, numberForm
 export const limitAmountInputLength = (amount: string, unit: BitcoinUnit, localCurrencyFractionDigits = 2): string => {
   if (unit === BitcoinUnit.SATS) return amount.slice(0, SATS_MAX_DIGITS);
   if (unit !== BitcoinUnit.BTC) {
-    const [integer = '', fraction] = amount.split('.');
+    const [integer, fraction] = amount.split('.');
     if (fraction === undefined || localCurrencyFractionDigits === 0) return integer.slice(0, LOCAL_CURRENCY_MAX_CHARACTERS);
     return `${integer}.${fraction.slice(0, localCurrencyFractionDigits)}`.slice(0, LOCAL_CURRENCY_MAX_CHARACTERS);
   }
 
-  const [integer = '', fraction] = amount.split('.');
+  const [integer, fraction] = amount.split('.');
   const limitedInteger = integer.slice(0, BTC_MAX_INTEGER_DIGITS);
   if (fraction === undefined) return limitedInteger;
 
@@ -350,7 +352,7 @@ const formatFractionForDisplay = (fraction: string, numberFormat: AmountInputNum
  */
 export const formatAmountInputForDisplay = (amount: string, unit: BitcoinUnit, fiatNumberFormat: AmountInputNumberFormat): string => {
   const numberFormat = getNumberFormatForUnit(unit, fiatNumberFormat);
-  const [integer = '', fraction] = amount.split('.');
+  const [integer, fraction] = amount.split('.');
   const formattedInteger = formatIntegerForDisplay(integer, numberFormat);
   if (fraction === undefined) return formattedInteger;
   return `${formattedInteger}${numberFormat.decimalSeparator}${formatFractionForDisplay(fraction, numberFormat)}`;
@@ -398,18 +400,22 @@ export const shouldResetAmountSelection = (
 export const getSecondaryAmountDisplay = (
   amount: string,
   unit: BitcoinUnit,
-  { btcUnitLabel, cachedSatoshis, fiatToBTC, formatLocalCurrency }: SecondaryDisplayFunctions,
+  { btcUnitLabel, cachedSatoshis, currencySymbol, fiatToBTC, formatLocalCurrency, numberFormat }: SecondaryDisplayFunctions,
 ): string => {
   if (amount === BitcoinUnit.MAX || new BigNumber(amount || 0).isZero()) return '';
 
   switch (unit) {
     case BitcoinUnit.BTC:
-      return String(formatLocalCurrency(Number(btcToSatoshis(amount))));
-    case BitcoinUnit.SATS:
-      return String(formatLocalCurrency(Number(amount)));
+    case BitcoinUnit.SATS: {
+      const satoshis = unit === BitcoinUnit.BTC ? btcToSatoshis(amount) : amount;
+      const convertedAmount = formatLocalCurrency(Number(satoshis));
+      const canonicalAmount = new BigNumber(convertedAmount);
+      if (!canonicalAmount.isFinite()) return String(convertedAmount);
+      return `${currencySymbol}${formatAmountInputForDisplay(canonicalAmount.toFixed(), BitcoinUnit.LOCAL_CURRENCY, numberFormat)}`;
+    }
     case BitcoinUnit.LOCAL_CURRENCY: {
       const bitcoinAmount = cachedSatoshis ? satoshisToBtc(cachedSatoshis) : new BigNumber(fiatToBTC(Number(amount))).toFixed();
-      return `${bitcoinAmount} ${btcUnitLabel}`;
+      return `${formatAmountInputForDisplay(bitcoinAmount, BitcoinUnit.BTC, numberFormat)} ${btcUnitLabel}`;
     }
     case BitcoinUnit.MAX:
     default:

@@ -204,8 +204,8 @@ describe('AmountInput native format integration', () => {
 
   it('does not localize BTC when native settings refresh', () => {
     const screen = render(<AmountInput amount="1.5" unit={BitcoinUnit.BTC} onChangeText={jest.fn()} onAmountUnitChange={jest.fn()} />);
-    expect(getNumberFormatSettings).not.toHaveBeenCalled();
     expect(screen.getByTestId('BitcoinAmountInput').props.value).toBe('1.5');
+    expect(screen.getByText('$150,000,000')).toBeTruthy();
 
     getNumberFormatSettings.mockReturnValue({
       decimalSeparator: ',',
@@ -213,8 +213,8 @@ describe('AmountInput native format integration', () => {
     });
     fireEvent.press(screen.getByTestId('AmountInputPressable'));
 
-    expect(getNumberFormatSettings).not.toHaveBeenCalled();
     expect(screen.getByTestId('BitcoinAmountInput').props.value).toBe('1.5');
+    expect(screen.getByText('$150.000.000')).toBeTruthy();
   });
 
   it('does not localize sats grouping when native settings refresh', () => {
@@ -228,6 +228,7 @@ describe('AmountInput native format integration', () => {
     fireEvent.press(screen.getByTestId('AmountInputPressable'));
 
     expect(screen.getByTestId('BitcoinAmountInput').props.value).toBe('1,234');
+    expect(screen.getByText('$1 234')).toBeTruthy();
   });
 
   it('accepts only fixed Bitcoin separators on the next BTC edit or paste', () => {
@@ -240,7 +241,6 @@ describe('AmountInput native format integration', () => {
     });
     fireEvent.changeText(screen.getByTestId('BitcoinAmountInput'), '1٬234٫56');
 
-    expect(getNumberFormatSettings).not.toHaveBeenCalled();
     expect(onChangeText).not.toHaveBeenCalled();
 
     fireEvent.changeText(screen.getByTestId('BitcoinAmountInput'), 'Copied: 1,234.56 BTC');
@@ -684,7 +684,7 @@ describe('AmountInput native format integration', () => {
             "value": "1,234.50",
           },
           "max": null,
-          "secondary": null,
+          "secondary": "$123.450.000.000",
         },
         "fiat": {
           "input": {
@@ -725,7 +725,7 @@ describe('AmountInput native format integration', () => {
             "value": "1,234",
           },
           "max": null,
-          "secondary": null,
+          "secondary": "$1.234",
         },
       }
     `);

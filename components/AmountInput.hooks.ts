@@ -13,14 +13,7 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import { amountInputReducer, AmountInputSettings, createInitialAmountInputState } from './AmountInput.reducer';
 import { AmountInputNumberFormat, BITCOIN_AMOUNT_NUMBER_FORMAT, createAmountInputNumberFormat } from './AmountInput.utils';
 
-const readInputSettings = (unit: BitcoinUnit): AmountInputSettings => {
-  if (unit !== BitcoinUnit.LOCAL_CURRENCY) {
-    return {
-      numberFormat: BITCOIN_AMOUNT_NUMBER_FORMAT,
-      currencyFractionDigits: 0,
-    };
-  }
-
+const readInputSettings = (): AmountInputSettings => {
   return {
     numberFormat: createAmountInputNumberFormat(RNLocalize.getNumberFormatSettings()),
     currencyFractionDigits: getCurrencyFractionDigits(),
@@ -37,6 +30,7 @@ export const useAmountInputController = (
   isRateBeingUpdated: boolean;
   outdatedRefreshRate: CurrencyRate | undefined;
   numberFormat: AmountInputNumberFormat;
+  fiatNumberFormat: AmountInputNumberFormat;
   currencyFractionDigits: number;
   refreshInputSettings: () => AmountInputSettings;
   updateRate: () => void;
@@ -45,14 +39,14 @@ export const useAmountInputController = (
   const [{ isRateBeingUpdated, outdatedRefreshRate, numberFormat, currencyFractionDigits }, dispatch] = useReducer(
     amountInputReducer,
     undefined,
-    () => createInitialAmountInputState(readInputSettings(unit)),
+    () => createInitialAmountInputState(readInputSettings()),
   );
 
   const refreshInputSettings = useCallback(() => {
-    const latestSettings = readInputSettings(unit);
+    const latestSettings = readInputSettings();
     dispatch({ type: 'inputSettingsRead', settings: latestSettings });
     return latestSettings;
-  }, [unit]);
+  }, []);
 
   useEffect(() => {
     if (previousUnit.current === unit) return;
@@ -117,5 +111,13 @@ export const useAmountInputController = (
     dispatch({ type: 'rateRefreshStarted' });
   }, []);
 
-  return { isRateBeingUpdated, outdatedRefreshRate, numberFormat, currencyFractionDigits, refreshInputSettings, updateRate };
+  return {
+    isRateBeingUpdated,
+    outdatedRefreshRate,
+    numberFormat: unit === BitcoinUnit.LOCAL_CURRENCY ? numberFormat : BITCOIN_AMOUNT_NUMBER_FORMAT,
+    fiatNumberFormat: numberFormat,
+    currencyFractionDigits: unit === BitcoinUnit.LOCAL_CURRENCY ? currencyFractionDigits : 0,
+    refreshInputSettings,
+    updateRate,
+  };
 };

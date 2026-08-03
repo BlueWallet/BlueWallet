@@ -18,7 +18,7 @@ import Animated, { Easing, FadeIn, FadeOut, LinearTransition, ReduceMotion } fro
 import { fiatToBTC, getCurrencySymbol } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import confirm from '../helpers/confirm';
-import loc, { formatBalancePlain, formatBalanceWithoutSuffix } from '../loc';
+import loc, { formatBalancePlain } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { getCachedSatoshis, setCachedSatoshis } from './AmountInput.cache';
 import { useAmountInputController } from './AmountInput.hooks';
@@ -119,7 +119,8 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     style: styleOverride,
     ...otherProps
   } = props;
-  const { isRateBeingUpdated, outdatedRefreshRate, numberFormat, refreshInputSettings, updateRate } = useAmountInputController(unit);
+  const { fiatNumberFormat, isRateBeingUpdated, outdatedRefreshRate, numberFormat, refreshInputSettings, updateRate } =
+    useAmountInputController(unit);
 
   const {
     amountCharacters,
@@ -131,6 +132,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     isCryptoUnit,
     measureAmountText,
   } = useMemo(() => getAmountInputDisplayModel(amount, unit, numberFormat, loc.units.MAX), [amount, numberFormat, unit]);
+  const currencySymbol = getCurrencySymbol();
 
   const [{ selection: inputSelection }, dispatchSelection] = useReducer(
     amountInputSelectionReducer,
@@ -143,17 +145,19 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   }, [endSelection]);
 
   const amountAccessibilityLabel =
-    accessibilityLabel ?? `${loc._.enter_amount}, ${unit === BitcoinUnit.LOCAL_CURRENCY ? getCurrencySymbol() : loc.units[unit]}`;
+    accessibilityLabel ?? `${loc._.enter_amount}, ${unit === BitcoinUnit.LOCAL_CURRENCY ? currencySymbol : loc.units[unit]}`;
 
   const secondaryDisplayCurrency = useMemo(
     () =>
       getSecondaryAmountDisplay(amount, unit, {
         btcUnitLabel: loc.units[BitcoinUnit.BTC],
         cachedSatoshis: unit === BitcoinUnit.LOCAL_CURRENCY ? getCachedSatoshis(amount) : undefined,
+        currencySymbol,
         fiatToBTC,
-        formatLocalCurrency: satoshis => formatBalanceWithoutSuffix(satoshis, BitcoinUnit.LOCAL_CURRENCY, false),
+        formatLocalCurrency: satoshis => formatBalancePlain(satoshis, BitcoinUnit.LOCAL_CURRENCY, false),
+        numberFormat: fiatNumberFormat,
       }),
-    [amount, unit],
+    [amount, currencySymbol, fiatNumberFormat, unit],
   );
 
   const changeAmountUnit = useCallback(() => {
@@ -287,7 +291,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                 maxFontSizeMultiplier={maxFontSizeMultiplier}
                 style={[styles.localCurrency, stylesHook.localCurrency]}
               >
-                {getCurrencySymbol()}
+                {currencySymbol}
               </Text>
             )}
             {amount !== BitcoinUnit.MAX ? (

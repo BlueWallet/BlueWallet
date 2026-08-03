@@ -63,7 +63,7 @@ describe('useAmountInputController', () => {
     });
   });
 
-  it('does not read RNLocalize or Intl-backed fiat metadata for BTC and sats', () => {
+  it('keeps BTC and sats fixed while retaining native fiat metadata for their secondary display', () => {
     const { result, rerender } = renderHook(({ unit }) => useAmountInputController(unit), {
       initialProps: { unit: BitcoinUnit.BTC as BitcoinUnit },
     });
@@ -74,14 +74,20 @@ describe('useAmountInputController', () => {
       localizedDigits: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
     });
     expect(result.current.currencyFractionDigits).toBe(0);
-    expect(getNumberFormatSettings).not.toHaveBeenCalled();
-    expect(mockGetCurrencyFractionDigits).not.toHaveBeenCalled();
+    expect(result.current.fiatNumberFormat).toMatchObject({ decimalSeparator: '.', groupingSeparator: ',' });
+    expect(getNumberFormatSettings).toHaveBeenCalledTimes(1);
+    expect(mockGetCurrencyFractionDigits).toHaveBeenCalledTimes(1);
 
     act(() => result.current.refreshInputSettings());
     rerender({ unit: BitcoinUnit.SATS });
 
-    expect(getNumberFormatSettings).not.toHaveBeenCalled();
-    expect(mockGetCurrencyFractionDigits).not.toHaveBeenCalled();
+    expect(result.current.numberFormat).toMatchObject({
+      decimalSeparator: '.',
+      groupingSeparator: ',',
+      localizedDigits: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+    });
+    expect(getNumberFormatSettings).toHaveBeenCalledTimes(3);
+    expect(mockGetCurrencyFractionDigits).toHaveBeenCalledTimes(3);
   });
 
   it('reads current native settings when a crypto input changes to fiat', () => {
@@ -99,8 +105,8 @@ describe('useAmountInputController', () => {
       decimalSeparator: ',',
       groupingSeparator: '.',
     });
-    expect(getNumberFormatSettings).toHaveBeenCalledTimes(1);
-    expect(mockGetCurrencyFractionDigits).toHaveBeenCalledTimes(1);
+    expect(getNumberFormatSettings).toHaveBeenCalledTimes(2);
+    expect(mockGetCurrencyFractionDigits).toHaveBeenCalledTimes(2);
   });
 
   it('keeps the current format object when native settings have not changed', () => {
