@@ -29,6 +29,7 @@ import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
 import { useExtendedNavigation } from './useExtendedNavigation';
+import { isUrlHandledByLinking } from '../navigation/linking';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -277,6 +278,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   const handleOpenURL = useCallback(
     async (event: { url: string }): Promise<void> => {
       if (!shouldActivateListeners) return;
+      if (isUrlHandledByLinking(event.url)) return;
 
       try {
         if (!event.url) return;

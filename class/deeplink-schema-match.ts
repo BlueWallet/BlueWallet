@@ -72,16 +72,6 @@ class DeeplinkSchemaMatch {
                 },
               },
             ]);
-          } else if (action === 'openReceive') {
-            completionHandler([
-              'DetailViewStackScreensStack',
-              {
-                screen: 'ReceiveDetails',
-                params: {
-                  walletID: wallet.getID(),
-                },
-              },
-            ]);
           }
         } else if (wallet.chain === Chain.OFFCHAIN) {
           if (action === 'openSend') {

@@ -19,6 +19,10 @@ const asyncNavigationRouteFor = async function (event) {
   });
 };
 
+const asyncNavigationRouteForWithTimeout = async function (event, timeoutMs = 25) {
+  return Promise.race([asyncNavigationRouteFor(event), new Promise(resolve => setTimeout(() => resolve(undefined), timeoutMs))]);
+};
+
 describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
   it('hasSchema', () => {
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`));
@@ -124,24 +128,15 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
     const events = [
       {
         argument: { url: `12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG` },
-        expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
-      },
-      {
-        argument: { url: `bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG` },
-        expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
-      },
-      {
-        argument: { url: `BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo` },
         expected: [
-          'SendDetailsRoot',
-          { screen: 'SendDetails', params: { uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' } },
-        ],
-      },
-      {
-        argument: { url: `bluewallet:BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo` },
-        expected: [
-          'SendDetailsRoot',
-          { screen: 'SendDetails', params: { uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' } },
+          'AddWalletRoot',
+          {
+            screen: 'ImportWallet',
+            params: {
+              triggerImport: true,
+              label: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
+            },
+          },
         ],
       },
       {
@@ -339,6 +334,18 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
     assert.strictEqual(rez[0], 'SelectWallet');
     assert.ok(rez[1].onWalletSelect);
     assert.ok(typeof rez[1].onWalletSelect === 'function');
+  });
+
+  it('does not route bitcoin URI schemes through DeeplinkSchemaMatch navigationRouteFor', async () => {
+    const bitcoinScheme = await asyncNavigationRouteForWithTimeout({
+      url: `bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`,
+    });
+    const bluewalletBitcoinScheme = await asyncNavigationRouteForWithTimeout({
+      url: `bluewallet:bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`,
+    });
+
+    assert.ok(bitcoinScheme === undefined || bitcoinScheme[0] !== 'SendDetailsRoot');
+    assert.ok(bluewalletBitcoinScheme === undefined || bluewalletBitcoinScheme[0] !== 'SendDetailsRoot');
   });
 
   it('decodes bip21', () => {

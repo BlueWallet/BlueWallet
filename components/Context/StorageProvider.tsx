@@ -74,8 +74,12 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,
   );
-  const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
+  const [walletsInitialized, setWalletsInitializedState] = useState<boolean>(false);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
+
+  const setWalletsInitialized = useCallback((initialized: boolean) => {
+    setWalletsInitializedState(initialized);
+  }, []);
 
   const selectedWalletID = useCallback((): string | undefined => {
     if (!navigationRef.current || !navigationRef.current.isReady()) return undefined;
