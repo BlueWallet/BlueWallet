@@ -121,7 +121,8 @@ export const findNavigatorKeyForRoute = (
 
 export const navigationGuardRouter = <State extends NavigationState, Action extends NavigationAction>(
   original: Router<State, Action>,
-): Partial<Router<State, Action>> => ({
+): Router<State, Action> => ({
+  ...original,
   getStateForAction(state, action, options) {
     const nextState = original.getStateForAction(state, action, options);
 

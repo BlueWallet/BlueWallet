@@ -45,7 +45,7 @@ const LnurlAuth = () => {
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
   const [errMsg, setErrMsg] = useState('');
   const navigation = useNavigation();
-  const { setParams } = useNavigation();
+  const { setParams } = navigation;
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     root: {

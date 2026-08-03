@@ -60,7 +60,7 @@ const ScanQRCode = () => {
   const navigation = useNavigation();
   const route = useRoute<RouteProps>();
   const navigationState = navigation.getState();
-  const previousRoute = navigationState?.routes[navigationState.routes.length - 2];
+  const previousRoute = navigationState?.routes?.at(-2);
   const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
 
   const { launchedBy = defaultLaunchedBy, showFileImportButton, onBarScanned } = route.params || {};
