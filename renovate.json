@@ -19,7 +19,9 @@
     "@react-navigation/native-stack",
     "react-native-screens",
     "react-native-notifications",
-    "@bugsnag/react-native"
+    "@bugsnag/react-native",
+    "react-native-reanimated",
+    "react-native-worklets"
   ],
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 1,
