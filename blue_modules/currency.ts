@@ -3,6 +3,7 @@ import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
+import { BITCOIN_DISPLAY_FORMAT } from './bitcoinFormat';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const PREFERRED_CURRENCY_LOCALE_STORAGE_KEY = 'preferredCurrencyLocale';
@@ -37,7 +38,7 @@ function getCurrencyFormatter(): Intl.NumberFormat {
     currencyFormatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
       style: 'currency',
       currency: preferredFiatCurrency.endPointKey,
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 0,
       maximumFractionDigits: 8,
     });
     console.debug('Created new currency formatter for: ', preferredFiatCurrency);
@@ -362,8 +363,16 @@ function getCurrencySymbol(): string {
   return preferredFiatCurrency.symbol;
 }
 
+function getCurrencyFractionDigits(): number {
+  const fractionDigits = new Intl.NumberFormat(preferredFiatCurrency.locale, {
+    style: 'currency',
+    currency: preferredFiatCurrency.endPointKey,
+  }).resolvedOptions().maximumFractionDigits;
+  return fractionDigits ?? 2;
+}
+
 function formatBTC(btc: BigNumber.Value): string {
-  return new BigNumber(btc).toFormat(8);
+  return new BigNumber(btc).toFormat(8, BITCOIN_DISPLAY_FORMAT);
 }
 
 function _setPreferredFiatCurrency(currency: FiatUnitType): void {
@@ -387,6 +396,7 @@ export {
   EXCHANGE_RATES_STORAGE_KEY,
   fiatToBTC,
   getCurrencySymbol,
+  getCurrencyFractionDigits,
   getPreferredCurrency,
   initCurrencyDaemon,
   isRateOutdated,

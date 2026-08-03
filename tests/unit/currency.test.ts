@@ -4,15 +4,27 @@ import {
   _setExchangeRate,
   _setPreferredFiatCurrency,
   BTCToLocalCurrency,
+  getCurrencyFractionDigits,
   satoshiToBTC,
   satoshiToLocalCurrency,
 } from '../../blue_modules/currency';
 import { FiatUnit } from '../../models/fiatUnit';
 
 describe('currency', () => {
+  it.each([
+    [FiatUnit.USD, 2],
+    [FiatUnit.JPY, 0],
+    [FiatUnit.KWD, 3],
+  ])('reads native minor-unit precision for $endPointKey', (currency, expectedFractionDigits) => {
+    _setPreferredFiatCurrency(currency);
+    expect(getCurrencyFractionDigits()).toBe(expectedFractionDigits);
+    _setPreferredFiatCurrency(FiatUnit.USD);
+  });
+
   it('formats everything correctly', async () => {
     _setExchangeRate('BTC_USD', 10000);
 
+    assert.strictEqual(satoshiToLocalCurrency(0), '$0');
     assert.strictEqual(satoshiToLocalCurrency(1), '$0.0001');
     assert.strictEqual(satoshiToLocalCurrency(-1), '-$0.0001');
     assert.strictEqual(satoshiToLocalCurrency(123), '$0.01');
@@ -21,9 +33,9 @@ describe('currency', () => {
     assert.strictEqual(satoshiToLocalCurrency(45), '$0.0045');
     assert.strictEqual(satoshiToLocalCurrency(123456789), '$12,345.68');
 
-    assert.strictEqual(BTCToLocalCurrency(1), '$10,000.00');
-    assert.strictEqual(BTCToLocalCurrency(-1), '-$10,000.00');
-    assert.strictEqual(BTCToLocalCurrency(1.00000001), '$10,000.00');
+    assert.strictEqual(BTCToLocalCurrency(1), '$10,000');
+    assert.strictEqual(BTCToLocalCurrency(-1), '-$10,000');
+    assert.strictEqual(BTCToLocalCurrency(1.00000001), '$10,000');
     assert.strictEqual(BTCToLocalCurrency(1.0000123), '$10,000.12');
     assert.strictEqual(BTCToLocalCurrency(1.0000146), '$10,000.15');
 

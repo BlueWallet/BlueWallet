@@ -1,7 +1,6 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import BigNumber from 'bignumber.js';
 import dayjs from 'dayjs';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import {
   Image,
   Platform,
@@ -14,35 +13,29 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Animated, { Easing, FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, FadeOut, LinearTransition, ReduceMotion } from 'react-native-reanimated';
 
-import {
-  CurrencyRate,
-  fiatToBTC,
-  getCurrencySymbol,
-  isRateOutdated,
-  mostRecentFetchedRate,
-  satoshiToBTC,
-  updateExchangeRate,
-} from '../blue_modules/currency';
+import { fiatToBTC, getCurrencySymbol } from '../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import confirm from '../helpers/confirm';
-import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
+import loc, { formatBalancePlain, formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import { getCachedSatoshis, setCachedSatoshis } from './AmountInput.cache';
+import { useAmountInputController } from './AmountInput.hooks';
+import { amountInputSelectionReducer, amountInputValueReducer, createInitialAmountInputSelectionState } from './AmountInput.reducer';
+import {
+  getAmountInputDisplayModel,
+  getMaxEstimateText,
+  getSecondaryAmountDisplay,
+  satoshisToBtc,
+  shouldResetAmountSelection,
+} from './AmountInput.utils';
 import Badge from './Badge';
 import BlueText from './BlueText';
 import Icon from './Icon';
 import { useTheme } from './themes';
 
-export const conversionCache: { [key: string]: string } = {};
-
-export const getCachedSatoshis = (amount: string): string | undefined => {
-  return conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY];
-};
-
-export const setCachedSatoshis = (amount: string, sats: string): void => {
-  conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] = sats;
-};
+export { clearCachedSatoshis, conversionCache, getCachedSatoshis, setCachedSatoshis } from './AmountInput.cache';
 
 const INPUT_HORIZONTAL_PADDING = 6;
 const INPUT_VERTICAL_PADDING = 2;
@@ -56,10 +49,14 @@ const SIZER_LAYOUT_DURATION_MS = 200;
 
 const androidFontPaddingStyle = Platform.OS === 'android' ? { includeFontPadding: false } : null;
 
-const sizerLayoutTransition = LinearTransition.duration(SIZER_LAYOUT_DURATION_MS).easing(Easing.out(Easing.quad));
-const charLayoutTransition = LinearTransition.duration(CHAR_LAYOUT_DURATION_MS).easing(Easing.out(Easing.quad));
-const charEntering = FadeIn.duration(CHAR_FADE_IN_DURATION_MS);
-const charExiting = FadeOut.duration(CHAR_FADE_OUT_DURATION_MS);
+const sizerLayoutTransition = LinearTransition.duration(SIZER_LAYOUT_DURATION_MS)
+  .easing(Easing.out(Easing.quad))
+  .reduceMotion(ReduceMotion.System);
+const charLayoutTransition = LinearTransition.duration(CHAR_LAYOUT_DURATION_MS)
+  .easing(Easing.out(Easing.quad))
+  .reduceMotion(ReduceMotion.System);
+const charEntering = FadeIn.duration(CHAR_FADE_IN_DURATION_MS).reduceMotion(ReduceMotion.System);
+const charExiting = FadeOut.duration(CHAR_FADE_OUT_DURATION_MS).reduceMotion(ReduceMotion.System);
 
 type AmountInputProps = Omit<TextInputProps, 'onChangeText' | 'value'> & {
   /**
@@ -112,213 +109,130 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
     isLoading = false,
     maxSendableAmount,
     isMaxAmountEstimate,
+    onFocus,
+    onSelectionChange,
+    accessibilityLabel,
+    accessibilityState,
+    allowFontScaling = true,
+    maxFontSizeMultiplier,
+    selectTextOnFocus = false,
     style: styleOverride,
     ...otherProps
   } = props;
-  const [isRateBeingUpdatedLocal, setIsRateBeingUpdatedLocal] = useState(false);
-  const [outdatedRefreshRate, setOutdatedRefreshRate] = useState<CurrencyRate | undefined>();
+  const { isRateBeingUpdated, outdatedRefreshRate, numberFormat, refreshInputSettings, updateRate } = useAmountInputController(unit);
 
-  const maxLength = useMemo(() => {
-    switch (unit) {
-      case BitcoinUnit.BTC:
-        return 11;
-      case BitcoinUnit.SATS:
-        return 15;
-      default:
-        return 15;
-    }
-  }, [unit]);
+  const {
+    amountCharacters,
+    displayAmount,
+    displayJustifyContent,
+    endSelection,
+    inputFontSize,
+    inputTextAlign,
+    isCryptoUnit,
+    measureAmountText,
+  } = useMemo(() => getAmountInputDisplayModel(amount, unit, numberFormat, loc.units.MAX), [amount, numberFormat, unit]);
 
-  const displayAmount = useMemo(() => {
-    if (amount === BitcoinUnit.MAX) {
-      return loc.units.MAX;
-    }
-
-    return parseFloat(amount) >= 0 ? String(amount) : undefined;
-  }, [amount]);
-
-  const inputFontSize = useMemo(() => (amount.length > 10 ? 20 : 36), [amount.length]);
-
-  const measureAmountText = displayAmount && displayAmount.length > 0 ? displayAmount : '0';
-
-  const inputTextAlign = useMemo((): 'left' | 'right' | 'center' => {
-    if (amount === BitcoinUnit.MAX) return 'center';
-    return unit === BitcoinUnit.LOCAL_CURRENCY ? 'left' : 'right';
-  }, [amount, unit]);
-
-  const secondaryDisplayCurrency = useMemo(() => {
-    if (amount === BitcoinUnit.MAX) {
-      return '';
-    }
-    switch (unit) {
-      case BitcoinUnit.BTC: {
-        const sat = new BigNumber(amount).multipliedBy(100000000).toNumber();
-        return formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
-      }
-      case BitcoinUnit.SATS:
-        return formatBalanceWithoutSuffix(Number(amount), BitcoinUnit.LOCAL_CURRENCY, false);
-      case BitcoinUnit.LOCAL_CURRENCY: {
-        let res: string = '';
-        if (conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
-          // cache hit! we reuse old value that supposedly doesn't have rounding errors
-          const sats = conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY];
-          res = satoshiToBTC(Number(sats));
-        } else {
-          res = fiatToBTC(Number(amount));
-        }
-        res = removeTrailingZeros(res);
-        return `${res} ${loc.units[BitcoinUnit.BTC]}`;
-      }
-    }
-  }, [amount, unit]);
+  const [{ selection: inputSelection }, dispatchSelection] = useReducer(
+    amountInputSelectionReducer,
+    endSelection,
+    createInitialAmountInputSelectionState,
+  );
 
   useEffect(() => {
-    (async () => {
-      if (await isRateOutdated()) {
-        const recent = await mostRecentFetchedRate();
-        setOutdatedRefreshRate(recent);
-      }
-    })();
-  }, []);
+    dispatchSelection({ type: 'displayChanged', endSelection });
+  }, [endSelection]);
 
-  const updateRate = useCallback(async () => {
-    try {
-      await updateExchangeRate();
-    } finally {
-      setIsRateBeingUpdatedLocal(false);
-      if (await isRateOutdated()) {
-        const recent = await mostRecentFetchedRate();
-        setOutdatedRefreshRate(recent);
-      } else {
-        setOutdatedRefreshRate(undefined);
-      }
-    }
-  }, []);
+  const amountAccessibilityLabel =
+    accessibilityLabel ?? `${loc._.enter_amount}, ${unit === BitcoinUnit.LOCAL_CURRENCY ? getCurrencySymbol() : loc.units[unit]}`;
+
+  const secondaryDisplayCurrency = useMemo(
+    () =>
+      getSecondaryAmountDisplay(amount, unit, {
+        btcUnitLabel: loc.units[BitcoinUnit.BTC],
+        cachedSatoshis: unit === BitcoinUnit.LOCAL_CURRENCY ? getCachedSatoshis(amount) : undefined,
+        fiatToBTC,
+        formatLocalCurrency: satoshis => formatBalanceWithoutSuffix(satoshis, BitcoinUnit.LOCAL_CURRENCY, false),
+      }),
+    [amount, unit],
+  );
 
   const changeAmountUnit = useCallback(() => {
-    let previousUnit = unit;
-    let newUnit;
-    // cycle through units BTC -> SAT -> LOCAL_CURRENCY -> BTC
-    if (previousUnit === BitcoinUnit.BTC) {
-      newUnit = BitcoinUnit.SATS;
-    } else if (previousUnit === BitcoinUnit.SATS) {
-      newUnit = BitcoinUnit.LOCAL_CURRENCY;
-    } else if (previousUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      newUnit = BitcoinUnit.BTC;
-    } else {
-      newUnit = BitcoinUnit.BTC;
-      previousUnit = BitcoinUnit.SATS;
-    }
+    const result = amountInputValueReducer(
+      { amount, displayAmount: displayAmount ?? '', unit },
+      {
+        type: 'unitCycleRequested',
+        cachedSatoshis: unit === BitcoinUnit.LOCAL_CURRENCY ? getCachedSatoshis(amount) : undefined,
+        conversionFunctions: { fiatToBTC, formatBalancePlain },
+      },
+    );
 
-    /**
-     * here we must recalculate old amont value (which was denominated in `previousUnit`) to new denomination `newUnit`
-     * and fill this value in input box, so user can switch between, for example, 0.001 BTC <=> 100000 sats
-     */
-    let sats: string = '0';
-    switch (previousUnit) {
-      case BitcoinUnit.BTC:
-        sats = new BigNumber(amount).multipliedBy(100000000).toString();
-        break;
-      case BitcoinUnit.SATS:
-        sats = amount;
-        break;
-      case BitcoinUnit.LOCAL_CURRENCY:
-        sats = new BigNumber(fiatToBTC(+amount)).multipliedBy(100000000).toString();
-        break;
-    }
-    if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && conversionCache[amount + previousUnit]) {
-      // cache hit! we reuse old value that supposedly doesnt have rounding errors
-      sats = conversionCache[amount + previousUnit];
-    }
-
-    const newInputValue = formatBalancePlain(+sats, newUnit, false);
-
-    if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
-      // we cache conversion, so when we will need reverse conversion there wont be a rounding error
-      conversionCache[newInputValue + newUnit] = amount;
-    }
-    onChangeText(newInputValue);
-    onAmountUnitChange(newUnit);
-  }, [amount, onChangeText, onAmountUnitChange, unit]);
+    if (result.cacheWrite) setCachedSatoshis(result.cacheWrite.localAmount, result.cacheWrite.satoshis);
+    if (result.shouldNotifyAmount) onChangeText(result.amount);
+    if (result.shouldNotifyUnit) onAmountUnitChange(result.unit);
+  }, [amount, displayAmount, onChangeText, onAmountUnitChange, unit]);
 
   const handleTextInputOnPress = useCallback(() => {
+    refreshInputSettings();
     textInputRef?.current?.focus();
-  }, []);
+  }, [refreshInputSettings]);
+
+  const handleInputFocus = useCallback<NonNullable<TextInputProps['onFocus']>>(
+    event => {
+      refreshInputSettings();
+      onFocus?.(event);
+    },
+    [onFocus, refreshInputSettings],
+  );
 
   const handleChangeText = useCallback(
     (text: string) => {
-      text = text.trim();
-      if (unit !== BitcoinUnit.LOCAL_CURRENCY) {
-        text = text.replace(',', '.');
-        const split = text.split('.');
-        if (split.length >= 2) {
-          text = `${parseInt(split[0], 10)}.${split[1]}`;
-        } else {
-          text = `${parseInt(split[0], 10)}`;
-        }
-
-        text = unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
-      } else {
-        text = text.replace(/,/gi, '.');
-        if (text.split('.').length > 2) {
-          // too many dots. stupid code to remove all but first dot:
-          let rez = '';
-          let first = true;
-          for (const part of text.split('.')) {
-            rez += part;
-            if (first) {
-              rez += '.';
-              first = false;
-            }
-          }
-          text = rez;
-        }
-        if (text.startsWith('0') && !(text.includes('.') || text.includes(','))) {
-          text = text.replace(/^(0+)/g, '');
-        }
-        text = text.replace(/[^\d.,-]/g, ''); // remove all but numbers, dots & commas
-        text = text.replace(/(\..*)\./g, '$1');
-      }
-      if (text.startsWith('.')) {
-        text = '0.';
-      }
-      onChangeText(text);
+      const result = amountInputValueReducer(
+        { amount, displayAmount: displayAmount ?? '', unit },
+        {
+          type: 'nativeTextChanged',
+          text,
+          settings: refreshInputSettings(),
+        },
+      );
+      if (result.shouldNotifyAmount) onChangeText(result.amount);
     },
-    [onChangeText, unit],
+    [amount, displayAmount, onChangeText, refreshInputSettings, unit],
   );
 
   const resetAmount = useCallback(async () => {
     if (await confirm(loc.send.reset_amount, loc.send.reset_amount_confirm)) {
-      onChangeText('0');
+      const result = amountInputValueReducer({ amount, displayAmount: displayAmount ?? '', unit }, { type: 'resetConfirmed' });
+      if (result.shouldNotifyAmount) onChangeText(result.amount);
     }
-  }, [onChangeText]);
+  }, [amount, displayAmount, onChangeText, unit]);
 
   const copyMaxEstimate = useCallback(() => {
     if (maxSendableAmount == null) return;
-    const btcValue = removeTrailingZeros(new BigNumber(maxSendableAmount).dividedBy(100000000).toFixed(8));
+    const btcValue = satoshisToBtc(maxSendableAmount);
     Clipboard.setString(btcValue);
     triggerHapticFeedback(HapticFeedbackTypes.Selection);
   }, [maxSendableAmount]);
 
+  const maxEstimateText = useMemo(
+    () => getMaxEstimateText(maxSendableAmount, isMaxAmountEstimate, loc.units[BitcoinUnit.BTC]),
+    [isMaxAmountEstimate, maxSendableAmount],
+  );
+
   const handleSelectionChange = useCallback(
     (event: TextInputSelectionChangeEvent) => {
       const { selection } = event.nativeEvent;
-      if (selection.start !== selection.end || selection.start !== amount.length) {
-        textInputRef.current?.setNativeProps({ selection: { start: amount.length, end: amount.length } });
+      onSelectionChange?.(event);
+      dispatchSelection({ type: 'nativeSelectionChanged', selection, endSelection });
+
+      if (shouldResetAmountSelection(selection, endSelection)) {
+        // The animated amount display only supports append/delete-at-end edits.
+        // Correct the native cursor immediately; the controlled `selection`
+        // reducer state below keeps it locked there across renders and value changes.
+        textInputRef.current?.setNativeProps({ selection: endSelection });
       }
     },
-    [amount],
+    [endSelection, onSelectionChange],
   );
-
-  const isCryptoUnit = unit !== BitcoinUnit.LOCAL_CURRENCY;
-
-  const amountCharacters = useMemo(() => measureAmountText.split(''), [measureAmountText]);
-
-  const displayJustifyContent = useMemo((): 'flex-start' | 'flex-end' | 'center' => {
-    if (inputTextAlign === 'right') return 'flex-end';
-    if (inputTextAlign === 'left') return 'flex-start';
-    return 'center';
-  }, [inputTextAlign]);
 
   const inputTextColor = disabled ? colors.buttonDisabledTextColor : colors.alternativeTextColor2;
   const hiddenInputTextColor = Platform.OS === 'android' ? `${inputTextColor}00` : 'transparent';
@@ -360,33 +274,53 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
   };
 
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={loc._.enter_amount} disabled={disabled} onPress={handleTextInputOnPress}>
+    <Pressable accessible={false} disabled={disabled} onPress={handleTextInputOnPress} testID="AmountInputPressable">
       <View style={styles.root}>
         {!disabled && <View style={styles.sideRail} />}
         <View style={styles.flex}>
           <View style={[styles.container, stylesHook.container]}>
             {unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-              <Text style={[styles.localCurrency, stylesHook.localCurrency]}>{getCurrencySymbol()}</Text>
+              <Text
+                accessible={false}
+                importantForAccessibility="no"
+                allowFontScaling={allowFontScaling}
+                maxFontSizeMultiplier={maxFontSizeMultiplier}
+                style={[styles.localCurrency, stylesHook.localCurrency]}
+              >
+                {getCurrencySymbol()}
+              </Text>
             )}
             {amount !== BitcoinUnit.MAX ? (
-              <Animated.View layout={sizerLayoutTransition} style={styles.inputSizer}>
+              <Animated.View layout={sizerLayoutTransition} style={styles.inputSizer} testID="AmountInputSizer">
                 <Text
                   style={[styles.input, styles.inputMeasure, stylesHook.input, androidFontPaddingStyle]}
                   numberOfLines={1}
-                  allowFontScaling={false}
+                  allowFontScaling={allowFontScaling}
+                  maxFontSizeMultiplier={maxFontSizeMultiplier}
                   accessible={false}
                   importantForAccessibility="no-hide-descendants"
+                  testID="AmountInputMeasureText"
                 >
                   {measureAmountText}
                 </Text>
-                <Animated.View layout={charLayoutTransition} style={[styles.inputDisplay, stylesHook.inputDisplay]} pointerEvents="none">
+                <Animated.View
+                  accessible={false}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                  layout={charLayoutTransition}
+                  style={[styles.inputDisplay, stylesHook.inputDisplay]}
+                  pointerEvents="none"
+                  testID="AmountInputVisualCharacters"
+                >
                   {amountCharacters.map((char, index) => (
                     <Animated.Text
                       key={index}
+                      testID={`AmountInputCharacter-${index}`}
                       entering={charEntering}
                       exiting={charExiting}
                       layout={charLayoutTransition}
-                      allowFontScaling={false}
+                      allowFontScaling={allowFontScaling}
+                      maxFontSizeMultiplier={maxFontSizeMultiplier}
                       style={[styles.inputGlyph, stylesHook.inputGlyph, androidFontPaddingStyle]}
                     >
                       {char}
@@ -395,16 +329,26 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                 </Animated.View>
                 <TextInput
                   {...otherProps}
-                  allowFontScaling={false}
+                  accessibilityLabel={amountAccessibilityLabel}
+                  accessibilityState={{
+                    ...accessibilityState,
+                    busy: isLoading || accessibilityState?.busy,
+                    disabled: isLoading || disabled,
+                  }}
+                  allowFontScaling={allowFontScaling}
+                  maxFontSizeMultiplier={maxFontSizeMultiplier}
                   underlineColorAndroid="transparent"
                   onSelectionChange={handleSelectionChange}
                   testID="BitcoinAmountInput"
-                  keyboardType="numeric"
+                  inputMode={unit === BitcoinUnit.SATS ? 'numeric' : 'decimal'}
+                  keyboardType={unit === BitcoinUnit.SATS ? 'number-pad' : 'decimal-pad'}
+                  onFocus={handleInputFocus}
                   onChangeText={handleChangeText}
                   placeholder="0"
-                  maxLength={maxLength}
                   ref={textInputRef}
                   editable={!isLoading && !disabled}
+                  selection={inputSelection}
+                  selectTextOnFocus={selectTextOnFocus}
                   value={displayAmount}
                   placeholderTextColor={inputTextColor}
                   cursorColor={inputTextColor}
@@ -420,35 +364,72 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
                 />
               </Animated.View>
             ) : (
-              <Pressable onPress={resetAmount} style={styles.maxPressable}>
-                <Text numberOfLines={1} style={[styles.input, styles.maxLabel, stylesHook.input]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={loc.send.reset_amount}
+                accessibilityState={{ disabled: isLoading || disabled }}
+                accessibilityValue={{ text: maxEstimateText ?? loc.units.MAX }}
+                disabled={isLoading || disabled}
+                onPress={resetAmount}
+                onLongPress={maxEstimateText ? copyMaxEstimate : undefined}
+                style={styles.maxPressable}
+                testID="AmountInputMaxButton"
+              >
+                <Text
+                  accessible={false}
+                  importantForAccessibility="no"
+                  allowFontScaling={allowFontScaling}
+                  maxFontSizeMultiplier={maxFontSizeMultiplier}
+                  numberOfLines={1}
+                  style={[styles.input, styles.maxLabel, stylesHook.input]}
+                >
                   {BitcoinUnit.MAX}
                 </Text>
-                {maxSendableAmount != null && (
-                  <Text style={[styles.maxEstimate, stylesHook.localCurrency]} onLongPress={copyMaxEstimate}>
-                    {(isMaxAmountEstimate ? '≈ ' : '') +
-                      removeTrailingZeros(new BigNumber(maxSendableAmount).dividedBy(100000000).toFixed(8)) +
-                      ' ' +
-                      loc.units[BitcoinUnit.BTC]}
+                {maxEstimateText && (
+                  <Text
+                    accessible={false}
+                    importantForAccessibility="no"
+                    allowFontScaling={allowFontScaling}
+                    maxFontSizeMultiplier={maxFontSizeMultiplier}
+                    style={[styles.maxEstimate, stylesHook.localCurrency]}
+                  >
+                    {maxEstimateText}
                   </Text>
                 )}
               </Pressable>
             )}
             {unit !== BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX && (
-              <Text style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}>{loc.units[unit]}</Text>
+              <Text
+                accessible={false}
+                importantForAccessibility="no"
+                allowFontScaling={allowFontScaling}
+                maxFontSizeMultiplier={maxFontSizeMultiplier}
+                style={[styles.cryptoCurrency, stylesHook.cryptoCurrency]}
+              >
+                {loc.units[unit]}
+              </Text>
             )}
           </View>
-          <View style={styles.secondaryRoot}>
-            <Text style={styles.secondaryText} selectable>
-              {secondaryDisplayCurrency}
-            </Text>
-          </View>
+          {secondaryDisplayCurrency.length > 0 && (
+            <View style={styles.secondaryRoot} testID="AmountInputSecondaryDisplay">
+              <Text
+                allowFontScaling={allowFontScaling}
+                maxFontSizeMultiplier={maxFontSizeMultiplier}
+                style={styles.secondaryText}
+                selectable
+              >
+                {secondaryDisplayCurrency}
+              </Text>
+            </View>
+          )}
         </View>
         {!disabled &&
           (amount !== BitcoinUnit.MAX ? (
             <TouchableOpacity
               accessibilityRole="button"
               accessibilityLabel={loc._.change_input_currency}
+              accessibilityState={{ disabled: false }}
+              hitSlop={{ left: 10, right: 10 }}
               testID="changeAmountUnitButton"
               style={[styles.sideRail, styles.changeAmountUnit]}
               onPress={changeAmountUnit}
@@ -463,14 +444,25 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
         <View style={styles.outdatedRateContainer}>
           <Badge badgeStyle={styles.warningBadge} />
           <View style={styles.spacing8} />
-          <BlueText>{loc.formatString(loc.send.outdated_rate, { date: dayjs(outdatedRefreshRate.LastUpdated).format('l LT') })}</BlueText>
+          <BlueText
+            accessibilityRole="alert"
+            accessibilityLiveRegion="polite"
+            allowFontScaling={allowFontScaling}
+            maxFontSizeMultiplier={maxFontSizeMultiplier}
+          >
+            {loc.formatString(loc.send.outdated_rate, {
+              date: dayjs(outdatedRefreshRate.LastUpdated).format('l LT'),
+            })}
+          </BlueText>
           <View style={styles.spacing8} />
           <TouchableOpacity
             accessibilityRole="button"
             accessibilityLabel={loc._.refresh}
+            accessibilityState={{ disabled: isRateBeingUpdated }}
             onPress={updateRate}
-            disabled={isRateBeingUpdatedLocal}
-            style={isRateBeingUpdatedLocal ? styles.disabledButton : undefined}
+            disabled={isRateBeingUpdated}
+            hitSlop={14}
+            style={isRateBeingUpdated ? styles.disabledButton : undefined}
           >
             <Icon name="arrows-rotate" type="font-awesome-6" size={16} color={colors.buttonAlternativeTextColor} />
           </TouchableOpacity>
