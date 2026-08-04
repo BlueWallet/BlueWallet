@@ -1,32 +1,31 @@
-import React, { useLayoutEffect, useState, useCallback } from 'react';
-import { Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { FlatList, Keyboard, StyleSheet } from 'react-native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { SettingsListItem, settingsListCard } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 
+type LanguageRouteProp = RouteProp<DetailViewStackParamList, 'Language'>;
+
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
-  const { setOptions } = useExtendedNavigation();
+  const route = useRoute<LanguageRouteProp>();
+  const search = route.params?.search ?? '';
+  const listRef = useRef<FlatList<TLanguage>>(null);
   const { colors } = useTheme();
-  const [search, setSearch] = useState('');
   const stylesHook = StyleSheet.create({
     card: { backgroundColor: colors.cardSectionBackground },
   });
   // Set header options - navigation stack already handles transparent header,
   // we just need to configure the search bar and ensure title is updated when language changes
-  useLayoutEffect(() => {
-    setOptions({
-      title: loc.settings.language,
-      headerSearchBarOptions: {
-        onChangeText: (event: NativeSyntheticEvent<{ text: string }>) => setSearch(event.nativeEvent.text),
-      },
-    });
-  }, [setOptions, language]);
+  useEffect(() => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [search]);
 
   const filteredLanguages = AvailableLanguages.filter(l => l.label.toLowerCase().includes(search.toLowerCase()));
 
@@ -65,6 +64,7 @@ const Language = () => {
 
   return (
     <SafeAreaFlatList
+      ref={listRef}
       testID="LanguageFlatList"
       data={filteredLanguages}
       renderItem={renderItem}
