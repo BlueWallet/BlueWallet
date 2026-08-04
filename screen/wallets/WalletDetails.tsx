@@ -22,11 +22,10 @@ import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useFocusEffect, useRoute, RouteProp, usePreventRemove, useLocale } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute, RouteProp, usePreventRemove, useLocale } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ToolTipMenu from '../../components/TooltipMenu';
@@ -36,6 +35,7 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
+import { navigateToWalletsList } from '../../NavigationService';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 
@@ -69,7 +69,7 @@ const WalletDetails: React.FC = () => {
   const [hideTransactionsInWalletsList, setHideTransactionsInWalletsList] = useState<boolean>(
     wallet.getHideTransactionsInWalletsList ? !wallet.getHideTransactionsInWalletsList() : true,
   );
-  const { navigate, navigateToWalletsList } = useExtendedNavigation();
+  const { navigate } = useNavigation();
   const { colors } = useTheme();
 
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();

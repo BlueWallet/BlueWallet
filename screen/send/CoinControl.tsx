@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
@@ -12,7 +12,6 @@ import SafeArea from '../../components/SafeArea';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
@@ -149,7 +148,7 @@ const OutputList: React.FC<TOutputListProps> = ({
 
 const CoinControl: React.FC = () => {
   const { colors } = useTheme();
-  const navigation = useExtendedNavigation<NavigationProps>();
+  const navigation = useNavigation<NavigationProps>();
   const { width } = useWindowDimensions();
   const route = useRoute<RouteProps>();
   const { walletID } = route.params;

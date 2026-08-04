@@ -22,13 +22,10 @@ jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
   return {
     ...actual,
+    useNavigation: () => navigationMock,
     useRoute: () => ({ params: routeParams }),
   };
 });
-
-jest.mock('../../hooks/useExtendedNavigation', () => ({
-  useExtendedNavigation: () => navigationMock,
-}));
 
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({

@@ -55,14 +55,6 @@ jest.mock('@react-navigation/native', () => {
   };
 });
 
-jest.mock('../../hooks/useExtendedNavigation', () => ({
-  useExtendedNavigation: () => ({
-    navigate: jest.fn(),
-    setOptions: jest.fn(),
-    goBack: jest.fn(),
-  }),
-}));
-
 jest.mock('../../hooks/context/useSettings', () => ({
   useSettings: () => ({
     selectedBlockExplorer: { url: 'https://block.explorer' },

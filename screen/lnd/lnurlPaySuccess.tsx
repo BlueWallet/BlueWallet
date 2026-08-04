@@ -10,9 +10,8 @@ import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import { SuccessView } from '../send/success';
 import { popToTop } from '../../NavigationService';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading.tsx';
@@ -22,7 +21,7 @@ type LnurlPaySuccessNavigationProp = NativeStackNavigationProp<DetailViewStackPa
 
 const LnurlPaySuccess: React.FC = () => {
   const route = useRoute<LnurlPaySuccessRouteProp>();
-  const { navigate } = useExtendedNavigation<LnurlPaySuccessNavigationProp>();
+  const { navigate } = useNavigation<LnurlPaySuccessNavigationProp>();
   const { paymentHash, fromWalletID, justPaid } = route.params;
   console.log({ paymentHash, fromWalletID, justPaid });
 
