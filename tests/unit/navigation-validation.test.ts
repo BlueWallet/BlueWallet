@@ -1,4 +1,6 @@
 import { CommonActions, StackRouter } from '@react-navigation/native';
+import { readFileSync, readdirSync } from 'fs';
+import path from 'path';
 import {
   findNavigatorKeyForRoute,
   getGuardedRoute,
@@ -18,6 +20,27 @@ const createDependencies = (): NavigationGuardDependencies => ({
 });
 
 describe('navigation validation', () => {
+  it('installs the guard on every navigator that registers the scanner', () => {
+    const navigationDirectory = path.join(__dirname, '../../navigation');
+    const scannerStacks = readdirSync(navigationDirectory)
+      .filter(file => file.endsWith('.tsx'))
+      .filter(file => readFileSync(path.join(navigationDirectory, file), 'utf8').includes('name="ScanQRCode"'));
+
+    expect(scannerStacks).toEqual(
+      expect.arrayContaining([
+        'AddWalletStack.tsx',
+        'LNDCreateInvoiceStack.tsx',
+        'ScanLNDInvoiceStack.tsx',
+        'SendDetailsStack.tsx',
+        'index.tsx',
+      ]),
+    );
+
+    for (const file of scannerStacks) {
+      expect(readFileSync(path.join(navigationDirectory, file), 'utf8')).toContain('UNSTABLE_router={navigationGuardRouter}');
+    }
+  });
+
   it('finds a guarded route nested inside parent navigator params', () => {
     const action = CommonActions.navigate('DrawerRoot', {
       screen: 'DetailViewStackScreensStack',
