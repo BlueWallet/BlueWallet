@@ -1,4 +1,6 @@
 import { NavigationProp, ParamListBase } from '@react-navigation/native';
+import { TWallet } from '../class/wallets/types';
+
 /**
  * Helper function to select wallet.
  * Navigates to selector screen, and then navigates back while resolving promise with selected wallet.
@@ -11,7 +13,6 @@ import { NavigationProp, ParamListBase } from '@react-navigation/native';
  *
  * @returns {Promise<TWallet>}
  */
-import { TWallet } from '../class/wallets/types';
 
 export default function (
   navigation: Pick<NavigationProp<ParamListBase>, 'goBack' | 'navigate'>,
