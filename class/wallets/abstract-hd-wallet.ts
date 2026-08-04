@@ -26,7 +26,6 @@ export class AbstractHDWallet extends LegacyWallet {
   internal_addresses_cache: Record<number, string>;
   external_addresses_cache: Record<number, string>;
   _xpub: string;
-  usedAddresses: string[];
   _address_to_wif_cache: Record<string, string>;
   gap_limit: number;
   passphrase?: string;
@@ -41,7 +40,6 @@ export class AbstractHDWallet extends LegacyWallet {
     this.internal_addresses_cache = {}; // index => address
     this.external_addresses_cache = {}; // index => address
     this._xpub = ''; // cache
-    this.usedAddresses = [];
     this._address_to_wif_cache = {};
     this.gap_limit = 20;
     this._derivationPath = Constructor.derivationPath;

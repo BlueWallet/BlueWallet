@@ -41,10 +41,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     return this.baseURI;
   }
 
-  allowSend() {
-    return true;
-  }
-
   getAddress(): string | false {
     if (this.refill_addressess.length > 0) {
       return this.refill_addressess[0];
@@ -55,10 +51,6 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   getSecret() {
     return this.secret + '@' + this.baseURI;
-  }
-
-  timeToRefreshBalance() {
-    return (+new Date() - this._lastBalanceFetch) / 1000 > 300; // 5 min
   }
 
   timeToRefreshTransaction() {
@@ -567,10 +559,6 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
-    return true;
-  }
-
-  allowReceive() {
     return true;
   }
 

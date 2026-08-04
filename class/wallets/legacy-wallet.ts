@@ -462,7 +462,6 @@ export class LegacyWallet extends AbstractWallet {
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;
-    const values: Record<number, number> = {};
     let keyPair: Signer | null = null;
 
     if (!skipSigning) {
@@ -471,7 +470,6 @@ export class LegacyWallet extends AbstractWallet {
     }
 
     inputs.forEach(input => {
-      values[c] = input.value;
       c++;
 
       if (!input.txhex) throw new Error('UTXO is missing txhex of the input, which is required by PSBT for non-segwit input');

@@ -398,18 +398,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return xpub;
   }
 
-  convertXprvToMultisignatureXprv(xpub: string): string {
-    let data = b58.decode(xpub);
-    data = data.slice(4);
-    if (this.isNativeSegwit()) {
-      return b58.encode(concatUint8Arrays([hexToUint8Array('02aa7a99'), data]));
-    } else if (this.isWrappedSegwit()) {
-      return b58.encode(concatUint8Arrays([hexToUint8Array('0295b005'), data]));
-    }
-
-    return xpub;
-  }
-
   static isXpubString(xpub: string): boolean {
     return ['xpub', 'ypub', 'zpub', 'Ypub', 'Zpub'].includes(xpub.substring(0, 4));
   }
@@ -1266,13 +1254,6 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     this._cosignersPassphrases = this._cosignersPassphrases.filter((el, index) => {
       return index !== foundIndex;
     });
-
-    /* const newCosigners = [];
-    for (let c = 0; c < this._cosignersFingerprints.length; c++) {
-      if (c !== index)  newCosigners.push(this._cosignersFingerprints[c]);
-    } */
-
-    // this._cosignersFingerprints = newCosigners;
   }
 
   getFormat() {

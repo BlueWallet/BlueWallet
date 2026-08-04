@@ -1075,7 +1075,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     let psbt = new bitcoin.Psbt();
     let c = 0;
     const keypairs: Record<number, ECPairInterface> = {};
-    const values: Record<number, number> = {};
 
     // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
     // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
@@ -1096,7 +1095,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         keyPair = ECPair.fromWIF(this._getWifForAddress(String(input.address)));
         keypairs[c] = keyPair;
       }
-      values[c] = input.value;
       c++;
       if (!skipSigning) {
         // skiping signing related stuff
