@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import Icon from '../../components/Icon';
@@ -15,7 +15,6 @@ import confirm from '../../helpers/confirm';
 import prompt from '../../helpers/prompt';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtonType,
@@ -47,7 +46,7 @@ const WalletsAddMultisigStep2 = () => {
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { colors } = useTheme();
 
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const route = useRoute<RouteProp<{ WalletsAddMultisigStep2: MultisigStep2Params }, 'WalletsAddMultisigStep2'>>();
   const params = route.params;
   const { m, n, format, walletLabel } = params;

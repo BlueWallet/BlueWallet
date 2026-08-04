@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
@@ -5,7 +6,6 @@ import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { Action } from '../components/types';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import loc from '../loc';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
@@ -26,6 +26,7 @@ import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
 import { DetailViewStack } from './index';
 import { withLazySuspense } from './LazyLoadingIndicator';
+import { navigationGuardRouter } from './navigationGuard';
 import Icon from '../components/Icon';
 import SettingsButton from '../components/icons/SettingsButton';
 import { useSettings } from '../hooks/context/useSettings';
@@ -155,7 +156,7 @@ const UpdatingPill: React.FC<UpdatingPillProps> = ({ backgroundColor, textColor 
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
@@ -366,6 +367,7 @@ const DetailViewStackScreensStack = () => {
   return (
     <ConnectionPollContext.Provider value={connectionPollContextValue}>
       <DetailViewStack.Navigator
+        UNSTABLE_router={navigationGuardRouter}
         initialRouteName="WalletsList"
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >

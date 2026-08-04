@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { StyleSheet, Text, View } from 'react-native';
@@ -15,7 +16,6 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useStorage } from '../../hooks/context/useStorage';
 import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import HighlightedText from '../HighlightedText';
 import { useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 
@@ -67,7 +67,7 @@ const AddressItem = ({
     },
   });
 
-  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const { navigate } = useNavigation<NavigationProps>();
 
   const navigateToReceive = useCallback(() => {
     if (onPress) {

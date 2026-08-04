@@ -17,6 +17,7 @@ import { Chain } from '../models/bitcoinUnits';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
+import { navigationGuardRouter } from './navigationGuard';
 
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
@@ -288,7 +289,7 @@ export const createImportWalletOptions = (theme: ReturnType<typeof useTheme>) =>
 const AddWalletStack = () => {
   const theme = useTheme();
   return (
-    <Stack.Navigator initialRouteName="AddWallet">
+    <Stack.Navigator initialRouteName="AddWallet" UNSTABLE_router={navigationGuardRouter}>
       <Stack.Screen name="AddWallet" component={AddComponent} options={createAddWalletOptions(theme)} />
       <Stack.Screen
         name="ImportCustomDerivationPath"

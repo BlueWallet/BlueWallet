@@ -19,10 +19,9 @@ import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { getLNDHub } from '../../helpers/lndHub';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { hexToUint8Array } from '../../blue_modules/uint8array-extras';
@@ -127,7 +126,7 @@ const WalletsAdd: React.FC = () => {
             ? ButtonSelected.ARK
             : state.selectedWalletType;
   const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
-  const { navigate, goBack, setParams } = useExtendedNavigation<NavigationProps>();
+  const { navigate, goBack, setParams } = useNavigation<NavigationProps>();
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
