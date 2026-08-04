@@ -1,6 +1,5 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
-
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractWallet } from './abstract-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
@@ -45,6 +44,10 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   allowSend() {
     return this.useWithHardwareWalletEnabled() && this.isHd() && this._hdWalletInstance!.allowSend();
+  }
+
+  allowRBF() {
+    return this._hdWalletInstance?.type === HDSegwitBech32Wallet.type;
   }
 
   allowSignVerifyMessage() {
@@ -204,6 +207,12 @@ export class WatchOnlyWallet extends LegacyWallet {
   getUtxo(...args: Parameters<THDWalletForWatchOnly['getUtxo']>) {
     if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo(...args);
     return super.getUtxo(...args);
+  }
+
+  // Same path as createTransaction — needed so SendDetails fee matches the PSBT (#8803)
+  coinselect(...args: Parameters<LegacyWallet['coinselect']>) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.coinselect(...args);
+    return super.coinselect(...args);
   }
 
   combinePsbt(...args: Parameters<THDWalletForWatchOnly['combinePsbt']>) {

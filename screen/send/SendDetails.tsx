@@ -42,8 +42,8 @@ import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
 import InputAccessoryAllFunds, { InputAccessoryAllFundsAccessoryViewID } from '../../components/InputAccessoryAllFunds';
+import { createEllipsisHeaderMenuOptions } from '../../components/headerMenuOptions';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
@@ -58,6 +58,7 @@ import { CommonToolTipActions, ToolTipAction } from '../../typings/CommonToolTip
 import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
+import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -75,7 +76,6 @@ export interface IFee {
 }
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
-
 const SendDetails = () => {
   const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
   const navigation = useExtendedNavigation<NavigationProps>();
@@ -280,7 +280,10 @@ const SendDetails = () => {
 
     setParams({
       ...(walletActuallyChanged ? { utxos: null } : {}),
-      isTransactionReplaceable: wallet.type === HDSegwitBech32Wallet.type && !routeParams.isTransactionReplaceable ? true : undefined,
+      isTransactionReplaceable:
+        (wallet.type === HDSegwitBech32Wallet.type || isWatchOnlySegwitBech32(wallet)) && !routeParams.isTransactionReplaceable
+          ? true
+          : undefined,
     });
     prevWalletIdForCoinResetRef.current = currentId;
 
@@ -1161,7 +1164,7 @@ const SendDetails = () => {
       {
         ...CommonToolTipActions.AllowRBF,
         menuState: isTransactionReplaceable,
-        hidden: !(wallet.type === HDSegwitBech32Wallet.type && isTransactionReplaceable !== undefined),
+        hidden: !((wallet.type === HDSegwitBech32Wallet.type || isWatchOnlySegwitBech32(wallet)) && isTransactionReplaceable !== undefined),
       },
     ];
     walletActions.push(rbfAction);
@@ -1202,16 +1205,25 @@ const SendDetails = () => {
     return walletActions;
   }, [addresses, isEditable, wallet, isTransactionReplaceable]);
 
-  const HeaderRight = useCallback(
-    () => <HeaderMenuButton disabled={isLoading} onPressMenuItem={headerRightOnPress} actions={headerRightActions()} />,
-    [headerRightOnPress, isLoading, headerRightActions],
+  const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
+
+  const headerMenuOptions = useMemo(
+    () =>
+      createEllipsisHeaderMenuOptions({
+        actions: headerRightActionGroups,
+        onPressMenuItem: headerRightOnPress,
+        disabled: isLoading,
+        preserveGroups: true,
+      }),
+    [headerRightActionGroups, headerRightOnPress, isLoading],
   );
 
   const setHeaderRightOptions = useCallback(() => {
     navigation.setOptions({
-      headerRight: HeaderRight,
+      headerRight: headerMenuOptions.headerRight,
+      unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
     });
-  }, [HeaderRight, navigation]);
+  }, [headerMenuOptions, navigation]);
 
   useEffect(() => {
     console.log('send/details - useEffect');

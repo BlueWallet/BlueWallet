@@ -1,7 +1,8 @@
 import React from 'react';
+
 import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
-import { SettingsScrollView, SettingsSection, SettingsListItem } from '../../components/platform';
+import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 
 const SettingsTools: React.FC = () => {
   const navigation = useExtendedNavigation();
@@ -19,14 +20,13 @@ const SettingsTools: React.FC = () => {
 
   return (
     <SettingsScrollView>
-      <SettingsSection horizontalInset={false}>
+      <SettingsSection>
         <SettingsListItem
           title={loc.is_it_my_address.title}
           iconName="search"
           onPress={navigateToIsItMyAddress}
           testID="IsItMyAddress"
           chevron
-          position="first"
         />
         <SettingsListItem
           title={loc.settings.network_broadcast}
@@ -34,7 +34,6 @@ const SettingsTools: React.FC = () => {
           onPress={navigateToBroadcast}
           testID="Broadcast"
           chevron
-          position="middle"
         />
         <SettingsListItem
           title={loc.autofill_word.title}
@@ -42,7 +41,7 @@ const SettingsTools: React.FC = () => {
           onPress={navigateToGenerateWord}
           testID="GenerateWord"
           chevron
-          position="last"
+          bottomDivider={false}
         />
       </SettingsSection>
     </SettingsScrollView>
