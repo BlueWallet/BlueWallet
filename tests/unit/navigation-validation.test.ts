@@ -145,6 +145,33 @@ describe('navigation validation', () => {
     expect(dependencies.unlockWithBiometrics).not.toHaveBeenCalled();
   });
 
+  it('prefers the focused nested navigator over the root when both register the route', () => {
+    const state = {
+      stale: false as const,
+      type: 'stack',
+      key: 'root-stack',
+      index: 1,
+      routeNames: ['DrawerRoot', 'SendDetailsRoot', 'ScanQRCode'],
+      routes: [
+        { key: 'drawer-route', name: 'DrawerRoot' },
+        {
+          key: 'send-details-root-route',
+          name: 'SendDetailsRoot',
+          state: {
+            stale: false as const,
+            type: 'stack',
+            key: 'send-details-stack',
+            index: 0,
+            routeNames: ['SendDetails', 'ScanQRCode'],
+            routes: [{ key: 'send-details-route', name: 'SendDetails' }],
+          },
+        },
+      ],
+    };
+
+    expect(findNavigatorKeyForRoute(state, 'ScanQRCode')).toBe('send-details-stack');
+  });
+
   it('finds the navigator that owns a directly targeted nested route', () => {
     const state = {
       stale: false as const,

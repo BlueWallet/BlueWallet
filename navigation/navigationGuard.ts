@@ -106,12 +106,19 @@ export const findNavigatorKeyForRoute = (
   routeName: string,
 ): string | undefined => {
   if (!state) return undefined;
+
+  // The focused navigator chain wins over this navigator's own registration: a
+  // route registered both at the root (e.g. the modal ScanQRCode) and inside the
+  // focused stack must resolve to the in-stack one, so popTo/launchedBy flows
+  // return to the launching screen. Unfocused siblings are only a last resort.
+  const focusedRoute = state.routes[state.index ?? 0];
+  const focusedKey = findNavigatorKeyForRoute(focusedRoute?.state, routeName);
+  if (focusedKey) return focusedKey;
+
   if (state.routeNames?.includes(routeName)) return state.key;
 
-  const focusedRoute = state.routes[state.index ?? 0];
-  const routes = focusedRoute ? [focusedRoute, ...state.routes.filter(route => route.key !== focusedRoute.key)] : state.routes;
-
-  for (const route of routes) {
+  for (const route of state.routes) {
+    if (route.key === focusedRoute?.key) continue;
     const navigatorKey = findNavigatorKeyForRoute(route.state, routeName);
     if (navigatorKey) return navigatorKey;
   }
