@@ -15,12 +15,18 @@
     "androidx.core:core-ktx",
     "com.google.android.material:material",
     "androidx.compose.ui:ui",
-    "androidx.compose.material3:material3"
+    "androidx.compose.material3:material3",
+    "@react-navigation/native-stack",
+    "react-native-screens",
+    "react-native-notifications",
+    "@bugsnag/react-native",
+    "react-native-reanimated",
+    "react-native-worklets"
   ],
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 1,
   "prHourlyLimit": 0,
-  "minimumReleaseAge": "3 days",
+  "minimumReleaseAge": "7 days",
   "semanticCommits": "disabled",
   "commitMessagePrefix": "OPS:",
   "packageRules": [
