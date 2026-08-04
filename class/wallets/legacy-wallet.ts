@@ -43,10 +43,7 @@ export class LegacyWallet extends AbstractWallet {
    * @return {boolean}
    */
   timeToRefreshBalance(): boolean {
-    if (+new Date() - this._lastBalanceFetch >= 5 * 60 * 1000) {
-      return true;
-    }
-    return false;
+    return +new Date() - this._lastBalanceFetch >= 5 * 60 * 1000;
   }
 
   /**

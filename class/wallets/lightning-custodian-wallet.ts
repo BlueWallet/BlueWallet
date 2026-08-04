@@ -216,14 +216,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @return {Promise.<void>}
    */
   async authorize() {
-    let login, password;
-    if (this.secret.indexOf('blitzhub://') !== -1) {
-      login = this.secret.replace('blitzhub://', '').split(':')[0];
-      password = this.secret.replace('blitzhub://', '').split(':')[1];
-    } else {
-      login = this.secret.replace('lndhub://', '').split(':')[0];
-      password = this.secret.replace('lndhub://', '').split(':')[1];
-    }
+    const [login, password] = this.secret.replace(/^(blitzhub|lndhub):\/\//, '').split(':');
     const response = await fetch(this.baseURI + '/auth?type=auth', {
       method: 'POST',
       body: JSON.stringify({ login, password }),
