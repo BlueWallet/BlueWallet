@@ -13,6 +13,7 @@ import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
+import Icon from '../../components/Icon';
 import { useTheme } from '../../components/themes';
 import WalletButton from '../../components/WalletButton';
 import loc from '../../loc';
@@ -113,7 +114,13 @@ const WalletsAdd: React.FC = () => {
   //
   const { addWallet, saveToDisk } = useStorage();
   const route = useRoute<RouteProps>();
-  const { entropy: entropyHex, words, selectedIndex: routeSelectedIndex, selectedWalletType: routeSelectedWalletType } = route.params || {};
+  const {
+    entropy: entropyHex,
+    providedEntropyBytes,
+    words,
+    selectedIndex: routeSelectedIndex,
+    selectedWalletType: routeSelectedWalletType,
+  } = route.params || {};
   const selectedIndex = typeof routeSelectedIndex === 'number' ? routeSelectedIndex : state.selectedIndex;
   const selectedWalletType: ButtonSelected =
     routeSelectedWalletType === Chain.OFFCHAIN
@@ -126,10 +133,14 @@ const WalletsAdd: React.FC = () => {
             ? ButtonSelected.ARK
             : state.selectedWalletType;
   const entropy = entropyHex ? hexToUint8Array(entropyHex) : undefined;
+  const entropyBytesProvided = providedEntropyBytes ?? 0;
   const { navigate, goBack, setParams } = useNavigation<NavigationProps>();
   const stylesHook = {
     advancedText: {
       color: colors.feeText,
+    },
+    entropyMixedText: {
+      color: colors.alternativeTextColor,
     },
     label: {
       borderColor: colors.formBorder,
@@ -178,7 +189,7 @@ const WalletsAdd: React.FC = () => {
               text: loc._.ok,
               style: 'destructive',
               onPress: () => {
-                setParams({ entropy: undefined, words: undefined });
+                setParams({ entropy: undefined, providedEntropyBytes: undefined, words: undefined });
                 setSelectedWalletType(newWalletType);
               },
             },
@@ -425,6 +436,14 @@ const WalletsAdd: React.FC = () => {
           ) : null}
           {(selectedWalletType === ButtonSelected.OFFCHAIN || hasStoredLndHub) && LightningButtonMemo}
         </View>
+        {entropy && entropyBytesProvided > 0 && selectedWalletType === ButtonSelected.ONCHAIN ? (
+          <View style={styles.entropyMixed} testID="EntropyMixedIndicator">
+            <Icon name="dice" type="font-awesome-6" size={16} color={colors.alternativeTextColor} />
+            <BlueText style={[styles.entropyMixedText, stylesHook.entropyMixedText]}>
+              {loc.formatString(loc.wallets.add_entropy_mixed, { bytes: entropyBytesProvided })}
+            </BlueText>
+          </View>
+        ) : null}
         <View style={styles.advanced}>
           {selectedWalletType === ButtonSelected.OFFCHAIN && (
             <>
@@ -515,6 +534,17 @@ const styles = StyleSheet.create({
   },
   advanced: {
     marginHorizontal: 20,
+  },
+  entropyMixed: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginTop: 12,
+    gap: 8,
+  },
+  entropyMixedText: {
+    flexShrink: 1,
+    fontSize: 14,
   },
   lndUri: {
     flexDirection: 'row',

@@ -24,6 +24,7 @@ type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight
 export type AddWalletStackParamList = {
   AddWallet: {
     entropy?: string;
+    providedEntropyBytes?: number;
     words?: number;
     selectedIndex?: number;
     selectedWalletType?: Chain | 'VAULT' | 'ARK';
@@ -170,10 +171,11 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
     const words = route.params?.words;
     const entropyHex = route.params?.entropy;
     const hasEntropy = !!entropyHex;
+    const providedEntropyBytes = route.params?.providedEntropyBytes || (entropyHex ? Math.floor(entropyHex.length / 2) : 0);
 
     const entropyButtonText = hasEntropy
       ? loc.formatString(loc.wallets.add_entropy_bytes, {
-          bytes: Math.floor(entropyHex.length / 2),
+          bytes: providedEntropyBytes,
         })
       : loc.wallets.add_entropy_provide;
 
@@ -185,7 +187,7 @@ const createAddWalletOptions = (theme: ReturnType<typeof useTheme>) =>
       } else if (id === '24_words') {
         navigation.navigate('ProvideEntropy', { words: 24, entropy: entropyHex });
       } else if (id === CommonToolTipActions.ResetToDefault.id) {
-        navigation.setParams({ entropy: undefined, words: undefined, selectedWalletType: Chain.ONCHAIN });
+        navigation.setParams({ entropy: undefined, providedEntropyBytes: undefined, words: undefined, selectedWalletType: Chain.ONCHAIN });
       } else {
         const nextIndex = addWalletTypes.findIndex(item => item.id === id);
         if (nextIndex >= 0) {
