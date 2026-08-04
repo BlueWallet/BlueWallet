@@ -6,14 +6,13 @@ import BIP32Factory, { BIP32Interface } from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoin from 'bitcoinjs-lib';
 import { Psbt, Transaction as BTransaction } from 'bitcoinjs-lib';
-import b58 from 'bs58check';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { ECPairFactory, ECPairInterface } from 'ecpair';
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { ElectrumHistory } from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
-import { hexToUint8Array, concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { CreateTransactionResult, CreateTransactionTarget, CreateTransactionUtxo, Transaction, Utxo } from './types';
@@ -265,10 +264,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const xpub = child.toBase58();
 
     // bitcoinjs does not support zpub yet, so we just convert it from xpub
-    let data = b58.decode(xpub);
-    data = data.slice(4);
-    const concatenated = concatUint8Arrays([hexToUint8Array('04b24746'), data]);
-    this._xpub = b58.encode(concatenated);
+    this._xpub = this._xpubToZpub(xpub);
 
     return this._xpub;
   }
@@ -562,95 +558,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     });
   }
 
-  async _binarySearchIterationForInternalAddress(index: number) {
-    const gerenateChunkAddresses = (chunkNum: number) => {
-      const ret = [];
-      for (let c = this.gap_limit * chunkNum; c < this.gap_limit * (chunkNum + 1); c++) {
-        ret.push(this._getInternalAddressByIndex(c));
-      }
-      return ret;
-    };
-
-    let lastChunkWithUsedAddressesNum = null;
-    let lastHistoriesWithUsedAddresses = null;
-    for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
-      const histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
-      if (AbstractHDElectrumWallet._getTransactionsFromHistories(histories).length > 0) {
-        // in this particular chunk we have used addresses
-        lastChunkWithUsedAddressesNum = c;
-        lastHistoriesWithUsedAddresses = histories;
-      } else {
-        // empty chunk. no sense searching more chunks
-        break;
-      }
-    }
-
-    let lastUsedIndex = 0;
-
-    if (lastHistoriesWithUsedAddresses) {
-      // now searching for last used address in batch lastChunkWithUsedAddressesNum
-      for (
-        let c = Number(lastChunkWithUsedAddressesNum) * this.gap_limit;
-        c < Number(lastChunkWithUsedAddressesNum) * this.gap_limit + this.gap_limit;
-        c++
-      ) {
-        const address = this._getInternalAddressByIndex(c);
-        if (lastHistoriesWithUsedAddresses[address] && lastHistoriesWithUsedAddresses[address].length > 0) {
-          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unused
-        }
-      }
-    }
-
-    return lastUsedIndex;
-  }
-
-  async _binarySearchIterationForExternalAddress(index: number) {
-    const gerenateChunkAddresses = (chunkNum: number) => {
-      const ret = [];
-      for (let c = this.gap_limit * chunkNum; c < this.gap_limit * (chunkNum + 1); c++) {
-        ret.push(this._getExternalAddressByIndex(c));
-      }
-      return ret;
-    };
-
-    let lastChunkWithUsedAddressesNum = null;
-    let lastHistoriesWithUsedAddresses = null;
-    for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
-      const histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
-      if (AbstractHDElectrumWallet._getTransactionsFromHistories(histories).length > 0) {
-        // in this particular chunk we have used addresses
-        lastChunkWithUsedAddressesNum = c;
-        lastHistoriesWithUsedAddresses = histories;
-      } else {
-        // empty chunk. no sense searching more chunks
-        break;
-      }
-    }
-
-    let lastUsedIndex = 0;
-
-    if (lastHistoriesWithUsedAddresses) {
-      // now searching for last used address in batch lastChunkWithUsedAddressesNum
-      for (
-        let c = Number(lastChunkWithUsedAddressesNum) * this.gap_limit;
-        c < Number(lastChunkWithUsedAddressesNum) * this.gap_limit + this.gap_limit;
-        c++
-      ) {
-        const address = this._getExternalAddressByIndex(c);
-        if (lastHistoriesWithUsedAddresses[address] && lastHistoriesWithUsedAddresses[address].length > 0) {
-          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unused
-        }
-      }
-    }
-
-    return lastUsedIndex;
-  }
-
-  async _binarySearchIterationForBIP47Address(paymentCode: string, index: number) {
+  async _binarySearchLastUsedIndex(index: number, getAddressByIndex: (c: number) => string): Promise<number> {
     const generateChunkAddresses = (chunkNum: number) => {
       const ret = [];
       for (let c = this.gap_limit * chunkNum; c < this.gap_limit * (chunkNum + 1); c++) {
-        ret.push(this._getBIP47AddressReceive(paymentCode, c));
+        ret.push(getAddressByIndex(c));
       }
       return ret;
     };
@@ -678,7 +590,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         c < Number(lastChunkWithUsedAddressesNum) * this.gap_limit + this.gap_limit;
         c++
       ) {
-        const address = this._getBIP47AddressReceive(paymentCode, c);
+        const address = getAddressByIndex(c);
         if (lastHistoriesWithUsedAddresses[address] && lastHistoriesWithUsedAddresses[address].length > 0) {
           lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unused
         }
@@ -686,6 +598,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }
 
     return lastUsedIndex;
+  }
+
+  async _binarySearchIterationForInternalAddress(index: number) {
+    return this._binarySearchLastUsedIndex(index, c => this._getInternalAddressByIndex(c));
+  }
+
+  async _binarySearchIterationForExternalAddress(index: number) {
+    return this._binarySearchLastUsedIndex(index, c => this._getExternalAddressByIndex(c));
+  }
+
+  async _binarySearchIterationForBIP47Address(paymentCode: string, index: number) {
+    return this._binarySearchLastUsedIndex(index, c => this._getBIP47AddressReceive(paymentCode, c));
   }
 
   async fetchBalance() {
@@ -1147,6 +1071,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     const keypairs: Record<number, ECPairInterface> = {};
     const values: Record<number, number> = {};
 
+    // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
+    // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
+    let masterFingerprintBuffer: Uint8Array;
+    if (masterFingerprint) {
+      let masterFingerprintHex = Number(masterFingerprint).toString(16);
+      if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
+      const hexBuffer = hexToUint8Array(masterFingerprintHex);
+      masterFingerprintBuffer = hexBuffer.reverse();
+    } else {
+      masterFingerprintBuffer = new Uint8Array([0x00, 0x00, 0x00, 0x00]);
+    }
+
     inputs.forEach(input => {
       let keyPair;
       if (!skipSigning) {
@@ -1160,18 +1096,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         // skiping signing related stuff
         if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
       }
-
-      let masterFingerprintBuffer;
-      if (masterFingerprint) {
-        let masterFingerprintHex = Number(masterFingerprint).toString(16);
-        if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
-        const hexBuffer = hexToUint8Array(masterFingerprintHex);
-        masterFingerprintBuffer = hexBuffer.reverse();
-      } else {
-        masterFingerprintBuffer = new Uint8Array([0x00, 0x00, 0x00, 0x00]);
-      }
-      // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
-      // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
 
       psbt = this._addPsbtInput(psbt, input, sequence, masterFingerprintBuffer);
     });
@@ -1187,19 +1111,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
       const path = this._getDerivationPathByAddress(String(output.address));
       const pubkey = this._getPubkeyByAddress(String(output.address));
-      let masterFingerprintBuffer;
-
-      if (masterFingerprint) {
-        let masterFingerprintHex = Number(masterFingerprint).toString(16);
-        if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
-        const hexBuffer = hexToUint8Array(masterFingerprintHex);
-        masterFingerprintBuffer = hexBuffer.reverse();
-      } else {
-        masterFingerprintBuffer = new Uint8Array([0x00, 0x00, 0x00, 0x00]);
-      }
-
-      // this is not correct fingerprint, as we dont know realfingerprint - we got zpub with 84/0, but fingerpting
-      // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
 
       if (output.address?.startsWith('PM')) {
         // ok its BIP47 payment code, so we need to unwrap a joint address for the receiver and use it instead:

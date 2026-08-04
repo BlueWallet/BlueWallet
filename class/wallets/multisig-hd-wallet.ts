@@ -735,22 +735,23 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     throw new Error('Not applicable in multisig');
   }
 
-  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer?: Uint8Array) {
-    const bip32Derivation = []; // array per each pubkey thats gona be used
+  /**
+   * Builds bip32Derivation entries (and the corresponding pubkeys) for every cosigner for a given address
+   * of this wallet. Used both for inputs and for change outputs.
+   */
+  _getBip32DerivationsByAddress(address: string) {
+    const bip32Derivation: TBip32Derivation = []; // array per each pubkey thats gona be used
     const pubkeys = [];
     for (const [cosignerIndex] of this._cosigners.entries()) {
-      if (!input.address) {
-        throw new Error('Could not find address in input');
-      }
       const path = this._getDerivationPathByAddressWithCustomPath(
-        input.address,
+        address,
         this._cosignersCustomPaths[cosignerIndex] || this._derivationPath,
       );
       // ^^ path resembles _custom path_, if provided by user during setup, otherwise default path for wallet type gona be used
       const masterFingerprint = hexToUint8Array(this._cosignersFingerprints[cosignerIndex]);
 
       if (!path) {
-        throw new Error('Could not find derivation path for address ' + input.address);
+        throw new Error('Could not find derivation path for address ' + address);
       }
 
       const xpub = this._getXpubFromCosignerIndex(cosignerIndex);
@@ -768,6 +769,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
         pubkey,
       });
     }
+
+    return { bip32Derivation, pubkeys };
+  }
+
+  _addPsbtInput(psbt: Psbt, input: CoinSelectReturnInput, sequence: number, masterFingerprintBuffer?: Uint8Array) {
+    if (!input.address) {
+      throw new Error('Could not find address in input');
+    }
+    const { bip32Derivation, pubkeys } = this._getBip32DerivationsByAddress(input.address);
 
     if (!input.txhex) {
       throw new Error('Electrum server didnt provide txhex to properly create PSBT transaction');
@@ -848,35 +858,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   _getOutputDataForChange(address: string): TOutputData {
-    const bip32Derivation: TBip32Derivation = []; // array per each pubkey thats gona be used
-    const pubkeys = [];
-    for (const [cosignerIndex] of this._cosigners.entries()) {
-      const path = this._getDerivationPathByAddressWithCustomPath(
-        address,
-        this._cosignersCustomPaths[cosignerIndex] || this._derivationPath,
-      );
-      // ^^ path resembles _custom path_, if provided by user during setup, otherwise default path for wallet type gona be used
-      const masterFingerprint = hexToUint8Array(this._cosignersFingerprints[cosignerIndex]);
-
-      if (!path) {
-        throw new Error('Could not find derivation path for address ' + address);
-      }
-
-      const xpub = this._getXpubFromCosignerIndex(cosignerIndex);
-      const hdNode0 = bip32.fromBase58(xpub);
-      const splt = path.split('/');
-      const internal = +splt[splt.length - 2];
-      const index = +splt[splt.length - 1];
-      const _node0 = hdNode0.derive(internal);
-      const pubkey = _node0.derive(index).publicKey;
-      pubkeys.push(pubkey);
-
-      bip32Derivation.push({
-        masterFingerprint,
-        path,
-        pubkey,
-      });
-    }
+    const { bip32Derivation, pubkeys } = this._getBip32DerivationsByAddress(address);
 
     if (this.isLegacy()) {
       const p2sh = bitcoin.payments.p2ms({ m: this._m, pubkeys: MultisigHDWallet.sortBuffers(pubkeys) });
