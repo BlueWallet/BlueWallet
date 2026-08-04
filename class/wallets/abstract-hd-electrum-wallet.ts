@@ -134,7 +134,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     for (const pc of this._receive_payment_codes) {
       ret += this._getBalancesByPaymentCodeIndex(pc).c;
     }
-    return ret + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
+    const unconfirmed = this.getUnconfirmedBalance();
+    return ret + (unconfirmed < 0 ? unconfirmed : 0);
   }
 
   /**
@@ -615,13 +616,19 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   async fetchBalance() {
     try {
       if (this.next_free_change_address_index === 0 && this.next_free_address_index === 0) {
-        // doing binary search for last used address:
-        this.next_free_change_address_index = await this._binarySearchIterationForInternalAddress(1000);
-        this.next_free_address_index = await this._binarySearchIterationForExternalAddress(1000);
+        // doing binary search for last used address; chains are independent so we scan them in parallel:
+        const [nextFreeChange, nextFreeExternal] = await Promise.all([
+          this._binarySearchIterationForInternalAddress(1000),
+          this._binarySearchIterationForExternalAddress(1000),
+        ]);
+        this.next_free_change_address_index = nextFreeChange;
+        this.next_free_address_index = nextFreeExternal;
         if (this._receive_payment_codes) {
-          for (const pc of this._receive_payment_codes) {
-            this._next_free_payment_code_address_index_receive[pc] = await this._binarySearchIterationForBIP47Address(pc, 1000);
-          }
+          await Promise.all(
+            this._receive_payment_codes.map(async pc => {
+              this._next_free_payment_code_address_index_receive[pc] = await this._binarySearchIterationForBIP47Address(pc, 1000);
+            }),
+          );
         }
       } // end rescanning fresh wallet
 
@@ -884,7 +891,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
     }
 
-    for (const tx of this.getTransactions()) {
+    const txs = this.getTransactions();
+    for (const tx of txs) {
       for (const output of tx.outputs) {
         let address: string | false = false;
         if (output.scriptPubKey && output.scriptPubKey.addresses && output.scriptPubKey.addresses[0]) {
@@ -908,18 +916,16 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     if (returnSpentUtxoAsWell) return utxos;
 
     // got all utxos we ever had. lets filter out the ones that are spent:
-    const txs = this.getTransactions();
+    const spentOutpoints = new Set<string>();
+    for (const tx of txs) {
+      for (const input of tx.inputs) {
+        spentOutpoints.add(input.txid + ':' + input.vout);
+      }
+    }
+
     const ret = [];
     for (const utxo of utxos) {
-      let spent = false;
-      for (const tx of txs) {
-        for (const input of tx.inputs) {
-          if (input.txid === utxo.txid && input.vout === utxo.vout) spent = true;
-          // utxo we got previously was actually spent right here ^^
-        }
-      }
-
-      if (!spent) {
+      if (!spentOutpoints.has(utxo.txid + ':' + utxo.vout)) {
         // filling WIFs only for legit unspent UTXO, as it is a slow operation
         utxo.wif = this._getWifForAddress(utxo.address);
         ret.push(utxo);

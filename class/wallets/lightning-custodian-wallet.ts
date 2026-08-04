@@ -159,15 +159,8 @@ export class LightningCustodianWallet extends LegacyWallet {
       // but the ones received later should overwrite older ones
 
       for (const oldInvoice of this.user_invoices_raw) {
-        // iterate all OLD invoices
-        let found = false;
-        for (const newInvoice of json) {
-          // iterate all NEW invoices
-          if (newInvoice.payment_request === oldInvoice.payment_request) found = true;
-        }
-
-        if (!found) {
-          // if old invoice is not found in NEW array, we simply add it:
+        // if old invoice is not found in NEW array, we simply add it:
+        if (!json.some((newInvoice: { payment_request: string }) => newInvoice.payment_request === oldInvoice.payment_request)) {
           json.push(oldInvoice);
         }
       }
