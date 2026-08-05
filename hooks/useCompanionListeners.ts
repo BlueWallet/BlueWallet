@@ -1,4 +1,4 @@
-import { CommonActions } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import { useCallback, useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Linking } from 'react-native';
 import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
@@ -28,7 +28,6 @@ import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
-import { useExtendedNavigation } from './useExtendedNavigation';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -50,7 +49,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   } = useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>(undefined);
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
 
   // We need to call hooks unconditionally before any conditional logic
   // We'll use this check inside the effects to conditionally run logic

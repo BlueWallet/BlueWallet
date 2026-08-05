@@ -2,10 +2,9 @@ import React, { useCallback, useEffect, useReducer } from 'react';
 import { Alert, Platform, StyleSheet, Text } from 'react-native';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import { MODAL_TYPES } from '../PromptPasswordConfirmationSheet.types';
-import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 
 enum ActionType {
@@ -58,7 +57,7 @@ const EncryptStorage = () => {
   const { isStorageEncrypted } = useStorage();
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const initializeState = useCallback(async () => {
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     const isDeviceBiometricCapableSync = await isDeviceBiometricCapable();
