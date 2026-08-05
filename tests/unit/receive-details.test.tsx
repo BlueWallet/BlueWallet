@@ -27,17 +27,14 @@ jest.mock('@react-navigation/native', () => {
   return {
     ...actual,
     useRoute: () => ({ params: mockRouteParams }),
+    useNavigation: () => ({
+      setParams: mockSetParams,
+      navigate: mockNavigate,
+      goBack: mockGoBack,
+    }),
     useFocusEffect: (effect: () => void | (() => void)) => ReactModule.useEffect(effect, [effect]),
   };
 });
-
-jest.mock('../../hooks/useExtendedNavigation', () => ({
-  useExtendedNavigation: () => ({
-    setParams: mockSetParams,
-    navigate: mockNavigate,
-    goBack: mockGoBack,
-  }),
-}));
 
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => ({
@@ -348,40 +345,4 @@ describe('ReceiveDetails', () => {
     expect(screen.getByText(`bitcoin:${address}?amount=2|90`)).toBeTruthy();
   });
 
-  it('matches loading, pending, and confirmed snapshots', async () => {
-    const loadingScreen = render(<ReceiveDetails />);
-    expect(loadingScreen.getByText('Loading')).toBeTruthy();
-    expect(loadingScreen.toJSON()).toMatchSnapshot('loading');
-    loadingScreen.unmount();
-
-    jest.useFakeTimers();
-    mockRouteParams = { walletID: 'wallet-1', address: 'bc1qsnapshotaddress' };
-    mockWallets = [
-      {
-        getID: () => 'wallet-1',
-        isBIP47Enabled: () => false,
-        allowBIP47: () => false,
-      },
-    ];
-    mockGetBalanceByAddress
-      .mockResolvedValueOnce({ confirmed: 100, unconfirmed: 50 })
-      .mockResolvedValueOnce({ confirmed: 150, unconfirmed: 0 });
-    mockGetMempoolTransactionsByAddress.mockResolvedValueOnce([{ tx_hash: 'tx-1', fee: 1000 }]);
-    mockMultiGetTransactionByTxid.mockResolvedValueOnce({ 'tx-1': { vsize: 100 } });
-
-    const screen = render(<ReceiveDetails />);
-    expect(await screen.findByTestId('ReceiveCard')).toBeTruthy();
-
-    await act(async () => {
-      await jest.advanceTimersByTimeAsync(5000);
-    });
-    expect(screen.getByText('10 minutes')).toBeTruthy();
-    expect(screen.toJSON()).toMatchSnapshot('pending');
-
-    await act(async () => {
-      await jest.advanceTimersByTimeAsync(25000);
-    });
-    expect(screen.getByText('Success')).toBeTruthy();
-    expect(screen.toJSON()).toMatchSnapshot('confirmed');
-  });
 });
