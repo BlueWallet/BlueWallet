@@ -215,7 +215,7 @@ describe('formatDisplayAmount', () => {
     expect(formatDisplayAmount('5', customStateUnit)).toBe('5 CUSTOM_UNIT');
   });
 
-  it('formats invalid numeric input as a BTC string (current behavior)', () => {
-    expect(formatDisplayAmount('not-a-number', BitcoinUnit.BTC)).toBe('not-a-number BTC');
+  it('returns null for invalid numeric input', () => {
+    expect(formatDisplayAmount('not-a-number', BitcoinUnit.BTC)).toBeNull();
   });
 });

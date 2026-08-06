@@ -15,21 +15,16 @@ export const QR_PORTRAIT_HEIGHT_FRACTION = 0.44;
 export const QR_LANDSCAPE_HEIGHT_FRACTION = 0.52;
 export const QR_WIDTH_USE_FRACTION = 0.92;
 
-export const SET_ADDRESS = 'SET_ADDRESS';
-export const SELECT_TAB = 'SELECT_TAB';
-export const UPDATE_BALANCE = 'UPDATE_BALANCE';
-export const UPDATE_ETA = 'UPDATE_ETA';
-export const UPDATE_QR_CODE_SIZE = 'UPDATE_QR_CODE_SIZE';
-export const APPLY_CUSTOM_PARAMS = 'APPLY_CUSTOM_PARAMS';
-
 export const receiveDetailsActionTypes = {
-  SET_ADDRESS,
-  SELECT_TAB,
-  UPDATE_BALANCE,
-  UPDATE_ETA,
-  UPDATE_QR_CODE_SIZE,
-  APPLY_CUSTOM_PARAMS,
+  SET_ADDRESS: 'SET_ADDRESS',
+  SELECT_TAB: 'SELECT_TAB',
+  UPDATE_BALANCE: 'UPDATE_BALANCE',
+  UPDATE_ETA: 'UPDATE_ETA',
+  UPDATE_QR_CODE_SIZE: 'UPDATE_QR_CODE_SIZE',
+  APPLY_CUSTOM_PARAMS: 'APPLY_CUSTOM_PARAMS',
 } as const;
+
+const { SET_ADDRESS, SELECT_TAB, UPDATE_BALANCE, UPDATE_ETA, UPDATE_QR_CODE_SIZE, APPLY_CUSTOM_PARAMS } = receiveDetailsActionTypes;
 
 export type ReceiveDetailsState = {
   address: string;
@@ -97,7 +92,7 @@ export const initialState: ReceiveDetailsState = {
 
 export const formatDisplayAmount = (amount: string, unit: BitcoinUnit): string | null => {
   const number = Number(amount);
-  if (number <= 0) return null;
+  if (!Number.isFinite(number) || number <= 0) return null;
 
   switch (unit) {
     case BitcoinUnit.BTC:

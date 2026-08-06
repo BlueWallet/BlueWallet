@@ -30,19 +30,13 @@ import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import {
-  APPLY_CUSTOM_PARAMS,
   CARD_HORIZONTAL_MARGIN,
   CARD_INTERNAL_PADDING,
   initialState,
-  formatDisplayAmount,
   QR_CARD_PADDING,
   receiveDetailsReducer,
-  SELECT_TAB,
+  receiveDetailsActionTypes,
   segmentControlValues,
-  SET_ADDRESS,
-  UPDATE_BALANCE,
-  UPDATE_ETA,
-  UPDATE_QR_CODE_SIZE,
 } from './receiveDetailsReducer';
 
 /** Staggered “reveal” for the QR: white tiles fade out in random order */
@@ -145,29 +139,28 @@ type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
-  const {
-    walletID,
-    address: routeAddress,
-    customLabel: routeCustomLabel,
-    customAmount: routeCustomAmount,
-    customUnit: routeCustomUnit,
-    bip21encoded: routeBip21encoded,
-    isCustom: routeIsCustom,
-  } = route.params;
+  const { walletID, address: routeAddress } = route.params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
   const isDarkTheme = useColorScheme() === 'dark';
   const [state, dispatch] = useReducer(receiveDetailsReducer, routeAddress, address =>
-    address ? { ...initialState, address } : initialState,
+    address
+      ? {
+          ...initialState,
+          address,
+          bip21encoded: DeeplinkSchemaMatch.bip21encode(address),
+          showAddress: true,
+        }
+      : initialState,
   );
   const {
-    address: reducerAddress,
-    customLabel: reducerCustomLabel,
-    customAmount: reducerCustomAmount,
-    customUnit: reducerCustomUnit,
-    bip21encoded: reducerBip21encoded,
-    isCustom: reducerIsCustom,
+    address,
+    customLabel,
+    customAmount,
+    customUnit,
+    bip21encoded,
+    isCustom,
     showPendingBalance,
     showConfirmedBalance,
     showAddress,
@@ -176,17 +169,9 @@ const ReceiveDetails = () => {
     eta,
     initialUnconfirmed,
     displayBalance,
-    displayAmount: reducerDisplayAmount,
+    displayAmount,
     qrCodeSize,
   } = state;
-  const address = routeAddress ?? reducerAddress;
-  const customLabel = routeCustomLabel ?? reducerCustomLabel;
-  const customAmount = routeCustomAmount ?? reducerCustomAmount;
-  const customUnit = routeCustomUnit ?? reducerCustomUnit;
-  const bip21encoded = routeBip21encoded ?? reducerBip21encoded;
-  const isCustom = routeIsCustom ?? reducerIsCustom;
-  const displayAmount =
-    routeCustomAmount !== undefined || routeCustomUnit !== undefined ? formatDisplayAmount(customAmount, customUnit) : reducerDisplayAmount;
   const { goBack, setParams, navigate } = useNavigation<NavigationProps>();
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
@@ -240,7 +225,7 @@ const ReceiveDetails = () => {
   const setAddressBIP21Encoded = useCallback(
     (addr: string) => {
       setParams({ address: addr });
-      dispatch({ type: SET_ADDRESS, address: addr });
+      dispatch({ type: receiveDetailsActionTypes.SET_ADDRESS, address: addr });
     },
     [setParams],
   );
@@ -316,12 +301,19 @@ const ReceiveDetails = () => {
     obtainWalletAddress();
   }, [wallet, saveToDisk, obtainWalletAddress]);
 
+  const didHandleConfirmedBalanceRef = useRef(false);
+
   useEffect(() => {
-    if (showConfirmedBalance) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-      if (walletID) {
-        fetchAndSaveWalletTransactions(walletID);
-      }
+    if (!showConfirmedBalance) {
+      didHandleConfirmedBalanceRef.current = false;
+      return;
+    }
+
+    if (didHandleConfirmedBalanceRef.current) return;
+    didHandleConfirmedBalanceRef.current = true;
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    if (walletID) {
+      fetchAndSaveWalletTransactions(walletID);
     }
   }, [fetchAndSaveWalletTransactions, showConfirmedBalance, walletID]);
 
@@ -332,10 +324,10 @@ const ReceiveDetails = () => {
   }, [initialUnconfirmed]);
 
   useEffect(() => {
-    if (routeAddress && !isCustom) {
-      setAddressBIP21Encoded(routeAddress);
+    if (routeAddress && routeAddress !== address) {
+      dispatch({ type: receiveDetailsActionTypes.SET_ADDRESS, address: routeAddress });
     }
-  }, [isCustom, routeAddress, setAddressBIP21Encoded]);
+  }, [address, routeAddress]);
 
   useEffect(() => {
     setParams({
@@ -378,7 +370,7 @@ const ReceiveDetails = () => {
             if (rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
               const fees = await BlueElectrum.estimateFees();
               dispatch({
-                type: UPDATE_ETA,
+                type: receiveDetailsActionTypes.UPDATE_ETA,
                 fee: tx.fee,
                 vsize: rez[tx.tx_hash].vsize,
                 fastFee: fees.fast,
@@ -387,7 +379,7 @@ const ReceiveDetails = () => {
             }
           }
         }
-        dispatch({ type: UPDATE_BALANCE, confirmed: balance.confirmed, unconfirmed: balance.unconfirmed });
+        dispatch({ type: receiveDetailsActionTypes.UPDATE_BALANCE, confirmed: balance.confirmed, unconfirmed: balance.unconfirmed });
       } catch (error) {
         console.debug('Error checking balance:', error);
       }
@@ -444,7 +436,7 @@ const ReceiveDetails = () => {
 
   const onScrollViewLayout = useCallback((e: { nativeEvent: { layout: { height: number; width: number } } }) => {
     const { height, width } = e.nativeEvent.layout;
-    dispatch({ type: UPDATE_QR_CODE_SIZE, width, height });
+    dispatch({ type: receiveDetailsActionTypes.UPDATE_QR_CODE_SIZE, width, height });
   }, []);
 
   const toBalancedMultilineText = useCallback((value: string) => {
@@ -466,7 +458,7 @@ const ReceiveDetails = () => {
               <SegmentedControl
                 values={segmentControlValues}
                 selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-                onChange={index => dispatch({ type: SELECT_TAB, index })}
+                onChange={index => dispatch({ type: receiveDetailsActionTypes.SELECT_TAB, index })}
               />
             </View>
           )}
@@ -520,7 +512,7 @@ const ReceiveDetails = () => {
               <SegmentedControl
                 values={segmentControlValues}
                 selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-                onChange={index => dispatch({ type: SELECT_TAB, index })}
+                onChange={index => dispatch({ type: receiveDetailsActionTypes.SELECT_TAB, index })}
               />
             </View>
           )}
@@ -589,8 +581,6 @@ const ReceiveDetails = () => {
         try {
           if (wallet) {
             await obtainWalletAddress();
-          } else if (!wallet && routeAddress) {
-            setAddressBIP21Encoded(routeAddress);
           }
         } catch (error) {
           if (!cancelled) {
@@ -601,7 +591,7 @@ const ReceiveDetails = () => {
       return () => {
         cancelled = true;
       };
-    }, [wallet, routeAddress, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
+    }, [wallet, obtainWalletAddress, isCustom, hasIncomingCustomParams]),
   );
 
   const showCustomAmountModal = useCallback(() => {
@@ -634,7 +624,7 @@ const ReceiveDetails = () => {
     if (noIncomingParams) return;
 
     dispatch({
-      type: APPLY_CUSTOM_PARAMS,
+      type: receiveDetailsActionTypes.APPLY_CUSTOM_PARAMS,
       params: {
         customLabel: incomingLabel,
         customAmount: incomingAmount,
