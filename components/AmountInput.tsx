@@ -171,9 +171,16 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
 
   useEffect(() => {
     (async () => {
-      if (await isRateOutdated()) {
-        const recent = await mostRecentFetchedRate();
-        setOutdatedRefreshRate(recent);
+      try {
+        if (await isRateOutdated()) {
+          const recent = await mostRecentFetchedRate();
+          setOutdatedRefreshRate(recent);
+        } else {
+          setOutdatedRefreshRate(undefined);
+        }
+      } catch (error) {
+        console.warn('Failed to resolve exchange-rate freshness state', error);
+        setOutdatedRefreshRate(undefined);
       }
     })();
   }, []);
@@ -183,10 +190,15 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
       await updateExchangeRate();
     } finally {
       setIsRateBeingUpdatedLocal(false);
-      if (await isRateOutdated()) {
-        const recent = await mostRecentFetchedRate();
-        setOutdatedRefreshRate(recent);
-      } else {
+      try {
+        if (await isRateOutdated()) {
+          const recent = await mostRecentFetchedRate();
+          setOutdatedRefreshRate(recent);
+        } else {
+          setOutdatedRefreshRate(undefined);
+        }
+      } catch (error) {
+        console.warn('Failed to refresh exchange-rate freshness state', error);
         setOutdatedRefreshRate(undefined);
       }
     }
@@ -456,7 +468,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
             <View style={styles.sideRail} />
           ))}
       </View>
-      {outdatedRefreshRate && (
+      {outdatedRefreshRate?.LastUpdated != null && (
         <OutdatedRateNotice lastUpdated={outdatedRefreshRate.LastUpdated} onRefresh={updateRate} isRefreshing={isRateBeingUpdatedLocal} />
       )}
     </Pressable>

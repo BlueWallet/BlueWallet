@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import Badge from './Badge';
 import BlueText from './BlueText';
@@ -16,14 +16,25 @@ type OutdatedRateNoticeProps = {
 
 const OutdatedRateNotice: React.FC<OutdatedRateNoticeProps> = ({ lastUpdated, onRefresh, isRefreshing = false }) => {
   const { colors } = useTheme();
+  const pulseAnim = React.useRef(new Animated.Value(1)).current;
 
-  if (!lastUpdated) {
-    return null;
-  }
+  React.useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 0.35, duration: 700, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
+      ]),
+    );
+
+    animation.start();
+    return () => animation.stop();
+  }, [pulseAnim]);
 
   return (
     <View style={styles.outdatedRateContainer}>
-      <Badge badgeStyle={styles.warningBadge} />
+      <Animated.View style={[styles.warningBadgeWrapper, { opacity: pulseAnim }]}>
+        <Badge badgeStyle={styles.warningBadge} />
+      </Animated.View>
       <View style={styles.spacing8} />
       <BlueText>{loc.formatString(loc.send.outdated_rate, { date: dayjs(lastUpdated).format('l LT') })}</BlueText>
       <View style={styles.spacing8} />
@@ -44,11 +55,19 @@ const styles = StyleSheet.create({
   spacing8: {
     width: 8,
   },
+  warningBadgeWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   warningBadge: {
     width: 10,
     height: 10,
+    minHeight: 10,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
     borderRadius: 999,
     backgroundColor: '#fc990e',
+    overflow: 'hidden',
   },
   disabledButton: {
     opacity: 0.5,
