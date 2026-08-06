@@ -86,12 +86,32 @@ const TRANSACTION_FILE_PICKER_TYPES =
 const _pickSingleFile = async (type: string[]) => {
   const [pickedFile] = await pick({ mode: 'open', type });
 
-  if (!pickedFile.hasRequestedType) {
+  if (pickedFile.hasRequestedType === false) {
     throw new Error(loc.send.details_unrecognized_file_format);
   }
 
+  let uri = pickedFile.uri;
+
+  if (Platform.OS === 'android' && uri.startsWith('content://')) {
+    const [localCopy] = await keepLocalCopy({
+      files: [
+        {
+          uri,
+          fileName: pickedFile.name ?? 'unnamed',
+        },
+      ],
+      destination: 'cachesDirectory',
+    });
+
+    if (localCopy.status !== 'success') {
+      throw new Error(localCopy.copyError || 'Could not create local file copy');
+    }
+
+    uri = localCopy.localUri;
+  }
+
   return {
-    uri: decodeURI(pickedFile.uri),
+    uri: uri.startsWith('content://') ? uri : decodeURI(uri),
     name: pickedFile.name ?? 'unnamed',
   };
 };
