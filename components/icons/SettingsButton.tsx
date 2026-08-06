@@ -1,15 +1,15 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Icon from '../Icon';
 import { useTheme } from '../themes';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import ToolTipMenu from '../TooltipMenu';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 
 const SettingsButton = () => {
   const { colors } = useTheme();
-  const { navigate } = useExtendedNavigation();
+  const { navigate } = useNavigation();
   const onPress = () => {
     navigate('Settings');
   };

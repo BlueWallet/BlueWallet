@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import { useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 
@@ -19,7 +19,6 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { LNDStackParamsList } from '../../navigation/LNDStackParamsList';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
@@ -42,7 +41,7 @@ const ScanLNDInvoice = () => {
     (wallets.find(item => item.getID() === walletID) as LightningCustodianWallet) ||
       (wallets.find(item => item.chain === Chain.OFFCHAIN) as LightningCustodianWallet),
   );
-  const { navigate, setParams, goBack, pop } = useExtendedNavigation<NavigationProps>();
+  const { navigate, setParams, goBack, pop } = useNavigation<NavigationProps>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
