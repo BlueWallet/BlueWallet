@@ -1,6 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import BigNumber from 'bignumber.js';
-import dayjs from 'dayjs';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Image,
@@ -29,9 +28,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapt
 import confirm from '../helpers/confirm';
 import loc, { formatBalancePlain, formatBalanceWithoutSuffix, removeTrailingZeros } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import Badge from './Badge';
-import BlueText from './BlueText';
-import Icon from './Icon';
+import OutdatedRateNotice from './OutdatedRateNotice';
 import { useTheme } from './themes';
 
 export const conversionCache: { [key: string]: string } = {};
@@ -460,21 +457,7 @@ export const AmountInput: React.FC<AmountInputProps> = props => {
           ))}
       </View>
       {outdatedRefreshRate && (
-        <View style={styles.outdatedRateContainer}>
-          <Badge badgeStyle={styles.warningBadge} />
-          <View style={styles.spacing8} />
-          <BlueText>{loc.formatString(loc.send.outdated_rate, { date: dayjs(outdatedRefreshRate.LastUpdated).format('l LT') })}</BlueText>
-          <View style={styles.spacing8} />
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.refresh}
-            onPress={updateRate}
-            disabled={isRateBeingUpdatedLocal}
-            style={isRateBeingUpdatedLocal ? styles.disabledButton : undefined}
-          >
-            <Icon name="arrows-rotate" type="font-awesome-6" size={16} color={colors.buttonAlternativeTextColor} />
-          </TouchableOpacity>
-        </View>
+        <OutdatedRateNotice lastUpdated={outdatedRefreshRate.LastUpdated} onRefresh={updateRate} isRefreshing={isRateBeingUpdatedLocal} />
       )}
     </Pressable>
   );
@@ -494,24 +477,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-  },
-  spacing8: {
-    width: 8,
-  },
-  warningBadge: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#fc990e',
-  },
-  disabledButton: {
-    opacity: 0.5,
-  },
-  outdatedRateContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 16,
   },
   container: {
     flexDirection: 'row',
