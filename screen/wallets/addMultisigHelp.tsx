@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -44,6 +44,16 @@ const WalletsAddMultisigHelp: React.FC = () => {
       <View style={styles.tips}>
         <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_title1}</Text>
         <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_1}</Text>
+      </View>
+      <View style={styles.tips}>
+        <Text style={[styles.tipsTitle, stylesHook.tipsTitle]}>{loc.multisig.ms_help_coldcard_warning_title}</Text>
+        <Text style={[styles.tipsText, stylesHook.tipsText]}>{loc.multisig.ms_help_coldcard_warning}</Text>
+        <Text
+          style={[styles.tipsText, stylesHook.tipsText, { textDecorationLine: 'underline' }]}
+          onPress={() => Linking.openURL('https://blog.coinkite.com/coldcard-mk3-seed-generation-warning/')}
+        >
+          {loc.multisig.ms_help_coldcard_warning_link}
+        </Text>
       </View>
       <View style={styles.tips}>
         <Image style={styles.imageTip} source={require('../../img/mshelp/tip2.png')} />
