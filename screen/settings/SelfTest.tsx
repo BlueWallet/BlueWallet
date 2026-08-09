@@ -346,8 +346,7 @@ export default class SelfTest extends Component {
         // skipping RN-specific test'
       }
 
-      // Buffer and Uint8Array tests
-      assertStrictEqual(Buffer.from('00ff0f', 'hex').reverse().toString('hex'), '0fff00');
+      // Uint8Array test
       assertStrictEqual(uint8ArrayToHex(hexToUint8Array('00ff0f').reverse()), '0fff00');
 
       //
