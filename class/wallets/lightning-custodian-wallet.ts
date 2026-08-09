@@ -41,10 +41,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     return this.baseURI;
   }
 
-  allowSend() {
-    return true;
-  }
-
   getAddress(): string | false {
     if (this.refill_addressess.length > 0) {
       return this.refill_addressess[0];
@@ -55,10 +51,6 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   getSecret() {
     return this.secret + '@' + this.baseURI;
-  }
-
-  timeToRefreshBalance() {
-    return (+new Date() - this._lastBalanceFetch) / 1000 > 300; // 5 min
   }
 
   timeToRefreshTransaction() {
@@ -159,15 +151,8 @@ export class LightningCustodianWallet extends LegacyWallet {
       // but the ones received later should overwrite older ones
 
       for (const oldInvoice of this.user_invoices_raw) {
-        // iterate all OLD invoices
-        let found = false;
-        for (const newInvoice of json) {
-          // iterate all NEW invoices
-          if (newInvoice.payment_request === oldInvoice.payment_request) found = true;
-        }
-
-        if (!found) {
-          // if old invoice is not found in NEW array, we simply add it:
+        // if old invoice is not found in NEW array, we simply add it:
+        if (!json.some((newInvoice: { payment_request: string }) => newInvoice.payment_request === oldInvoice.payment_request)) {
           json.push(oldInvoice);
         }
       }
@@ -231,14 +216,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @return {Promise.<void>}
    */
   async authorize() {
-    let login, password;
-    if (this.secret.indexOf('blitzhub://') !== -1) {
-      login = this.secret.replace('blitzhub://', '').split(':')[0];
-      password = this.secret.replace('blitzhub://', '').split(':')[1];
-    } else {
-      login = this.secret.replace('lndhub://', '').split(':')[0];
-      password = this.secret.replace('lndhub://', '').split(':')[1];
-    }
+    const [login, password] = this.secret.replace(/^(blitzhub|lndhub):\/\//, '').split(':');
     const response = await fetch(this.baseURI + '/auth?type=auth', {
       method: 'POST',
       body: JSON.stringify({ login, password }),
@@ -574,10 +552,6 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
-    return true;
-  }
-
-  allowReceive() {
     return true;
   }
 

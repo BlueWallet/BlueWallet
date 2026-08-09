@@ -43,10 +43,7 @@ export class LegacyWallet extends AbstractWallet {
    * @return {boolean}
    */
   timeToRefreshBalance(): boolean {
-    if (+new Date() - this._lastBalanceFetch >= 5 * 60 * 1000) {
-      return true;
-    }
-    return false;
+    return +new Date() - this._lastBalanceFetch >= 5 * 60 * 1000;
   }
 
   /**
@@ -56,8 +53,11 @@ export class LegacyWallet extends AbstractWallet {
    * @return {boolean}
    */
   timeToRefreshTransaction(): boolean {
+    if (this._lastTxFetch >= +new Date() - 5 * 60 * 1000) {
+      return false;
+    }
     for (const tx of this.getTransactions()) {
-      if ((tx.confirmations ?? 0) < 7 && this._lastTxFetch < +new Date() - 5 * 60 * 1000) {
+      if ((tx.confirmations ?? 0) < 7) {
         return true;
       }
     }
@@ -459,7 +459,6 @@ export class LegacyWallet extends AbstractWallet {
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;
-    const values: Record<number, number> = {};
     let keyPair: Signer | null = null;
 
     if (!skipSigning) {
@@ -468,7 +467,6 @@ export class LegacyWallet extends AbstractWallet {
     }
 
     inputs.forEach(input => {
-      values[c] = input.value;
       c++;
 
       if (!input.txhex) throw new Error('UTXO is missing txhex of the input, which is required by PSBT for non-segwit input');
@@ -512,11 +510,12 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   getLatestTransactionTime(): string | 0 {
-    if (this.getTransactions().length === 0) {
+    const transactions = this.getTransactions();
+    if (transactions.length === 0) {
       return 0;
     }
     let max = 0;
-    for (const tx of this.getTransactions()) {
+    for (const tx of transactions) {
       max = Math.max(tx.timestamp ? tx.timestamp * 1000 : 0, max);
     }
     return new Date(max).toString();
