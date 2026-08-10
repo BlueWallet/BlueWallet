@@ -1392,7 +1392,7 @@ export const estimateFee = async function (numberOfBlocks: number): Promise<numb
   numberOfBlocks = numberOfBlocks || 1;
   const coinUnitsPerKilobyte = await mainClient.blockchainEstimatefee(numberOfBlocks);
   if (coinUnitsPerKilobyte === -1) return 1;
-  return Math.round(new BigNumber(coinUnitsPerKilobyte).dividedBy(1024).multipliedBy(100000000).toNumber());
+  return Math.ceil(new BigNumber(coinUnitsPerKilobyte).dividedBy(1024).multipliedBy(100000000).toNumber());
 };
 
 export const serverFeatures = async function () {
@@ -1412,7 +1412,12 @@ export const broadcast = async function (hex: string) {
 
 export const broadcastV2 = async function (hex: string): Promise<string> {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  return mainClient.blockchainTransaction_broadcast(hex);
+  try {
+    return await mainClient.blockchainTransaction_broadcast(hex);
+  } catch (error: any) {
+    // electrum-client rejects JSON-RPC errors as `{ code, message }`, not Error
+    throw new Error(error?.message || String(error));
+  }
 };
 
 export const estimateCurrentBlockheight = function (): number {

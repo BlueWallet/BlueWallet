@@ -1,11 +1,11 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 
 const SettingsTools: React.FC = () => {
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const navigateToIsItMyAddress = () => {
     navigation.navigate('IsItMyAddress');
   };

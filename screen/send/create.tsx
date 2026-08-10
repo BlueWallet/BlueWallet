@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect } from 'react';
@@ -14,7 +14,6 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { CreateTransactionTarget } from '../../class/wallets/types';
@@ -33,7 +32,7 @@ const SendCreate = () => {
   const size = transaction.virtualSize();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
 
   const styleHooks = StyleSheet.create({
     transactionDetailsTitle: {
