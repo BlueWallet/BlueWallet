@@ -984,9 +984,10 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.text('12 words')).tap();
 
     // BIP39: each seed word encodes 11 bits, so two leading "abandon" words require the first 22 bits
-    // of entropy to be zero. We provide 24 leading zero bits (then 8 more mixed bits, 32 bits = 4 bytes
-    // total) using the zero-value input of every tab: coin heads = 1 zero bit, d6 "1" = 2 zero bits,
-    // d20 "1" = 4 zero bits.
+    // of entropy to be zero. We provide 28 zero bits using the zero-value input of every tab: coin
+    // heads = 1 zero bit, d6 "1" = 2 zero bits, d20 "1" = 4 zero bits. 28 is NOT a multiple of 8, so
+    // convertToBuffer trims the surplus 4 bits down to 3 whole bytes — this exercises the excess-bit
+    // trimming path. All bits are zero, so the seed still starts "abandon abandon".
 
     // d6 tab is active by default; switch to the coin tab
     await waitForId('Tab0');
@@ -1017,29 +1018,24 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('Dice20Roll1')).tap();
     assert.ok((await extractTextFromElementById('EntropyCounter')).includes('24 of 128 bits'));
 
-    // two more d20 rolls: a non-zero "12" (4 bits) and a "1" (4 zero bits) land after the zero
-    // prefix, so the "abandon abandon" start stays intact. The total must be a multiple of 8:
-    // convertToBuffer keeps only whole bytes and drops the remainder from the FIRST-pushed bits,
-    // which would otherwise shift the non-zero bits into the second seed word.
-    await element(by.id('Dice20Roll12')).tap();
-    assert.ok((await extractTextFromElementById('EntropyCounter')).includes('28 of 128 bits'));
+    // one more d20 "1" = 4 more zero bits -> 28 bits total, NOT a multiple of 8
     await element(by.id('Dice20Roll1')).tap();
-    assert.ok((await extractTextFromElementById('EntropyCounter')).includes('32 of 128 bits'));
+    assert.ok((await extractTextFromElementById('EntropyCounter')).includes('28 of 128 bits'));
 
-    // save: 4 bytes provided, remaining 12 bytes come from the system RNG
+    // save: 28 provided bits trim to 3 whole bytes (24 bits); remaining 13 bytes come from the system RNG
     await element(by.id('SaveEntropy')).tap();
     await waitFor(
       element(
-        by.text('32 bits or 4 bytes of generated entropy. Remaining 12 bytes will be obtained from the System random number generator.'),
+        by.text('24 bits or 3 bytes of generated entropy. Remaining 13 bytes will be obtained from the System random number generator.'),
       ),
     )
       .toExist()
       .withTimeout(10000);
     await dismissAlertByText('OK');
 
-    // back on Add Wallet: indicator shows only user-provided bytes, not the padded total
+    // back on Add Wallet: indicator shows only the trimmed whole-byte count, not the padded total
     await waitForId('EntropyMixedIndicator');
-    await waitForText('4 bytes of provided entropy will be mixed into your new wallet.');
+    await waitForText('3 bytes of provided entropy will be mixed into your new wallet.');
 
     // create the wallet; iOS 26 liquid glass sync workaround, same as helperCreateWallet
     const isIOS = device.getPlatform() === 'ios';
