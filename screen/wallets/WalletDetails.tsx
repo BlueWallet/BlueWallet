@@ -25,7 +25,7 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useNavigation, useFocusEffect, useRoute, RouteProp, usePreventRemove, useLocale } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useRoute, RouteProp, useLocale } from '@react-navigation/native';
 import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ToolTipMenu from '../../components/TooltipMenu';
