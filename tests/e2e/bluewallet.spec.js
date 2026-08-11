@@ -957,6 +957,129 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
+  it('can provide dice entropy, undo rolls, mix it with system RNG and see provided bytes on Add Wallet screen', async () => {
+    const lockFile = '/tmp/travislock.' + hashIt('t_entropy');
+    if (process.env.CI) {
+      if (require('fs').existsSync(lockFile))
+        return console.warn('skipping', JSON.stringify('t_entropy'), 'as it previously passed on Travis');
+    }
+    await device.clearKeychain();
+    await device.launchApp({ delete: true });
+    await waitForId('WalletsList');
+
+    // open Add Wallet screen
+    await waitFor(element(by.id('CreateAWallet')))
+      .toBeVisible()
+      .whileElement(by.id('WalletsList'))
+      .scroll(500, 'right');
+    await element(by.id('CreateAWallet')).tap();
+    await waitForId('WalletNameInput');
+    await element(by.id('WalletNameInput')).replaceText('entropy1');
+    await waitForId('ActivateBitcoinButton');
+    await element(by.id('ActivateBitcoinButton')).tap();
+
+    // header menu -> Provide entropy via dice rolls -> 12 words
+    await element(by.id('HeaderMenuButton')).tap();
+    await element(by.text('Provide entropy via dice rolls')).tap();
+    await element(by.text('12 words')).tap();
+
+    // BIP39: each seed word encodes 11 bits, so two leading "abandon" words require the first 22 bits
+    // of entropy to be zero. We provide 28 zero bits using the zero-value input of every tab: coin
+    // heads = 1 zero bit, d6 "1" = 2 zero bits, d20 "1" = 4 zero bits. 28 is NOT a multiple of 8, so
+    // convertToBuffer trims the surplus 4 bits down to 3 whole bytes — this exercises the excess-bit
+    // trimming path. All bits are zero, so the seed still starts "abandon abandon".
+
+    // d6 tab is active by default; switch to the coin tab
+    await waitForId('Tab0');
+    await element(by.id('Tab0')).tap();
+    await waitForId('CoinFlip0');
+    for (let i = 0; i < 4; i++) {
+      await element(by.id('CoinFlip0')).tap();
+    }
+    assert.ok((await extractTextFromElementById('EntropyCounter')).includes(' 4 of 128 bits'));
+
+    // undo removes the last flip
+    await element(by.id('UndoEntropy')).tap();
+    assert.ok((await extractTextFromElementById('EntropyCounter')).includes(' 3 of 128 bits'));
+    await element(by.id('CoinFlip0')).tap(); // back to 4 zero bits
+
+    // d6 tab: 6 rolls of "1" = 12 more zero bits
+    await element(by.id('Tab1')).tap();
+    await waitForId('Dice6Roll1');
+    for (let i = 0; i < 6; i++) {
+      await element(by.id('Dice6Roll1')).tap();
+    }
+    assert.ok((await extractTextFromElementById('EntropyCounter')).includes('16 of 128 bits'));
+
+    // d20 tab: 2 rolls of "1" = 8 more zero bits -> 24 zero bits total
+    await element(by.id('Tab2')).tap();
+    await waitForId('Dice20Roll1');
+    await element(by.id('Dice20Roll1')).tap();
+    await element(by.id('Dice20Roll1')).tap();
+    assert.ok((await extractTextFromElementById('EntropyCounter')).includes('24 of 128 bits'));
+
+    // one more d20 "1" = 4 more zero bits -> 28 bits total, NOT a multiple of 8
+    await element(by.id('Dice20Roll1')).tap();
+    assert.ok((await extractTextFromElementById('EntropyCounter')).includes('28 of 128 bits'));
+
+    // save: 28 provided bits trim to 3 whole bytes (24 bits); remaining 13 bytes come from the system RNG
+    await element(by.id('SaveEntropy')).tap();
+    await waitFor(
+      element(
+        by.text('24 bits or 3 bytes of generated entropy. Remaining 13 bytes will be obtained from the System random number generator.'),
+      ),
+    )
+      .toExist()
+      .withTimeout(10000);
+    await dismissAlertByText('OK');
+
+    // back on Add Wallet: indicator shows only the trimmed whole-byte count, not the padded total
+    await waitForId('EntropyMixedIndicator');
+    await waitForText('3 bytes of provided entropy will be mixed into your new wallet.');
+
+    // create the wallet; iOS 26 liquid glass sync workaround, same as helperCreateWallet
+    const isIOS = device.getPlatform() === 'ios';
+    if (isIOS) {
+      await device.disableSynchronization();
+    }
+    try {
+      await element(by.id('Create')).tap();
+      try {
+        await waitFor(element(by.id('PleaseBackupScrollView')))
+          .toBeVisible()
+          .withTimeout(15000);
+      } catch (_) {
+        await element(by.id('Create')).tap();
+        await waitFor(element(by.id('PleaseBackupScrollView')))
+          .toBeVisible()
+          .withTimeout(15000);
+      }
+
+      // 24 leading zero bits cover the first 22 bits of the seed entropy -> seed starts with "abandon abandon"
+      const seed = await extractTextFromElementById('Secret');
+      const words = seed.split(' ');
+      assert.strictEqual(words.length, 12);
+      assert.strictEqual(words[0], 'abandon');
+      assert.strictEqual(words[1], 'abandon');
+
+      await waitFor(element(by.id('PleasebackupOk')))
+        .toBeVisible()
+        .whileElement(by.id('PleaseBackupScrollView'))
+        .scroll(500, 'down');
+      await element(by.id('PleasebackupOk')).tap();
+      await waitForId('WalletsList');
+      await scrollUpOnHomeScreen();
+    } finally {
+      if (isIOS) {
+        await device.enableSynchronization();
+      }
+    }
+    await expect(element(by.id('WalletsList'))).toBeVisible();
+
+    await helperDeleteWallet('entropy1');
+    process.env.CI && require('fs').writeFileSync(lockFile, '1');
+  });
+
   it('can create 2of3 multisig vault with generated keys, manage cosigners and export coordination setup; forgetting seed/restoring seed does not change receive address', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t10');
     if (process.env.CI) {
