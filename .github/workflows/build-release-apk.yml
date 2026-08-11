@@ -36,59 +36,46 @@ jobs:
           sudo rm -rf /home/runner/work/_temp || true
           df -h
 
-      - name: Specify node version
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@aa33708b10e362ff993539393ff100fa93ed6a27 # v3.5.0
+
+      - name: Build reproducible build image
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
-          node-version: 24
-          cache: 'npm'
+          context: .
+          file: reproducible-builds/Dockerfile
+          platforms: linux/amd64
+          tags: android-build-env:latest
+          push: false
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Use specific Java version for sdkmanager to work
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Use gradle caches
-        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle', 'android/**/*.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
-
-      - name: Install Android SDK components
+      - name: Prepare output directory
         run: |
-          yes | sdkmanager --licenses
-          sdkmanager "platforms;android-36" "platform-tools" "build-tools;36.0.0" "ndk;28.2.13676358"
+          OUT="${{ github.workspace }}/reproducible-builds/build"
+          rm -rf "$OUT"
+          mkdir -p "$OUT"
+          chmod 775 "$OUT"
+          echo "OUT_DIR=$OUT" >> $GITHUB_ENV
 
-      - name: Install Node Modules
-        run: npm ci --omit=dev --yes
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
-        with:
-          ruby-version: 3.4.10
-          bundler-cache: true
-
-      - name: Generate Build Number based on timestamp
-        id: build_number
-        run: |
-          NEW_BUILD_NUMBER="$(date +%s)"
-          echo "NEW_BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $GITHUB_ENV
-          echo "build_number=$NEW_BUILD_NUMBER" >> $GITHUB_OUTPUT
-
-      - name: Build and sign APK
-        id: build_and_sign_apk
-        run: bundle exec fastlane android build_release_apk
+      - name: Run reproducible build inside container
+        id: run_build
         env:
-          BUILD_NUMBER: ${{ steps.build_number.outputs.build_number }}
           KEYSTORE_FILE_HEX: ${{ secrets.KEYSTORE_FILE_HEX }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          set +e
+          docker run --platform linux/amd64 \
+            -e KEYSTORE_FILE_HEX \
+            -e KEYSTORE_PASSWORD \
+            -v "$OUT_DIR":/build \
+            android-build-env:latest \
+            bash /app/inside-docker.sh 2>&1 | tee "$OUT_DIR/docker-build.log"
+          status=${PIPESTATUS[0]}
+          set -e
+          exit "$status"
 
       - name: Upload build logs on failure
         if: failure()
@@ -96,30 +83,35 @@ jobs:
         with:
           name: android-build-logs
           path: |
-            fastlane/logs/**/*.log
-            android/**/*.log
-            android/**/build/**/*.log
-            android/**/outputs/logs/**/*.log
-            android/**/reports/**/*.log
+            reproducible-builds/build/docker-build.log
           if-no-files-found: warn
 
-      - name: Determine APK Filename and Path
+      - name: Determine APK filename and rename output
         id: determine_apk_path
         run: |
-          BUILD_NUMBER=${{ steps.build_number.outputs.build_number }}
           VERSION_NAME=$(grep versionName android/app/build.gradle | awk '{print $2}' | tr -d '"')
           BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}
           BRANCH_NAME=$(echo "$BRANCH_NAME" | sed 's/[^a-zA-Z0-9_-]/_/g')
+          SHORT_SHA=$(git rev-parse --short HEAD)
 
           if [ -n "$BRANCH_NAME" ] && [ "$BRANCH_NAME" != "master" ]; then
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}-${BRANCH_NAME}.apk"
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${SHORT_SHA}-${BRANCH_NAME}.apk"
           else
-            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${BUILD_NUMBER}.apk"
+            EXPECTED_FILENAME="BlueWallet-${VERSION_NAME}-${SHORT_SHA}.apk"
           fi
-      
-          APK_PATH="android/app/build/outputs/apk/release/${EXPECTED_FILENAME}"
+
+          SRC="$OUT_DIR/Bluewallet-latest.apk"
+          DEST="$OUT_DIR/${EXPECTED_FILENAME}"
+
+          if [ ! -f "$SRC" ]; then
+            echo "Expected build output not found at $SRC" >&2
+            exit 1
+          fi
+
+          mv "$SRC" "$DEST"
+
           echo "EXPECTED_FILENAME=${EXPECTED_FILENAME}" >> $GITHUB_ENV
-          echo "APK_PATH=${APK_PATH}" >> $GITHUB_ENV
+          echo "APK_PATH=${DEST}" >> $GITHUB_ENV
 
       - name: Upload APK as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -138,7 +130,7 @@ jobs:
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@003a5c4d8d6321bd302e38f6f0ec593f77f06600 # v1.319.0
+        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
         with:
           ruby-version: 3.4.10
           bundler-cache: true
