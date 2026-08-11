@@ -362,6 +362,10 @@ const ReceiveDetails = () => {
         const balance = await BlueElectrum.getBalanceByAddress(addressToUse);
         console.debug('...got', balance);
 
+        // dispatch the balance before the fallible mempool/fee queries below, so the pending
+        // snapshot is recorded even when those queries throw (confirmation detection relies on it)
+        dispatch({ type: receiveDetailsActionTypes.UPDATE_BALANCE, confirmed: balance.confirmed, unconfirmed: balance.unconfirmed });
+
         if (balance.unconfirmed > 0) {
           const txs = await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
           const tx = txs.pop();
@@ -379,7 +383,6 @@ const ReceiveDetails = () => {
             }
           }
         }
-        dispatch({ type: receiveDetailsActionTypes.UPDATE_BALANCE, confirmed: balance.confirmed, unconfirmed: balance.unconfirmed });
       } catch (error) {
         console.debug('Error checking balance:', error);
       }

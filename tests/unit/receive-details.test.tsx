@@ -345,6 +345,29 @@ describe('ReceiveDetails', () => {
     expect(screen.getByText(`bitcoin:${address}?amount=2|90`)).toBeTruthy();
   });
 
+  it('still records the pending balance when the mempool/fee queries fail', async () => {
+    jest.useFakeTimers();
+    mockRouteParams = { address: 'bc1qflakyserveraddress' };
+    mockGetBalanceByAddress
+      .mockResolvedValueOnce({ confirmed: 100, unconfirmed: 50 })
+      .mockResolvedValueOnce({ confirmed: 150, unconfirmed: 0 });
+    mockGetMempoolTransactionsByAddress.mockRejectedValue(new Error('electrum server error'));
+
+    const screen = render(<ReceiveDetails />);
+    expect(await screen.findByTestId('ReceiveCard')).toBeTruthy();
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(5000);
+    });
+    expect(screen.getByText('Pending icon')).toBeTruthy();
+    expect(screen.getByText('50 / 50')).toBeTruthy();
+
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(25000);
+    });
+    expect(screen.getByText('Success')).toBeTruthy();
+  });
+
   it('keeps the custom bip21 when the route address changes while custom params are active', async () => {
     const address = 'bc1qcustomaddress';
     const bip21encoded = `bitcoin:${address}?amount=2`;

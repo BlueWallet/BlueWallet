@@ -125,7 +125,13 @@ export const receiveDetailsReducer = (state: ReceiveDetailsState, action: Receiv
           amt1: formatBalance(action.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
           amt2: formatBalance(action.unconfirmed, BitcoinUnit.BTC, true).toString(),
         });
-        if (!isInitialPendingBalance && state.displayBalance === displayBalance && state.showPendingBalance && !state.showAddress) {
+        if (
+          !isInitialPendingBalance &&
+          state.displayBalance === displayBalance &&
+          state.showPendingBalance &&
+          !state.showConfirmedBalance &&
+          !state.showAddress
+        ) {
           return state;
         }
         return {
@@ -135,6 +141,7 @@ export const receiveDetailsReducer = (state: ReceiveDetailsState, action: Receiv
           intervalMs: isInitialPendingBalance ? 25000 : state.intervalMs,
           displayBalance,
           showPendingBalance: true,
+          showConfirmedBalance: false,
           showAddress: false,
         };
       }

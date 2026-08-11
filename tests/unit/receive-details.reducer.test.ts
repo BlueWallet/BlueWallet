@@ -129,6 +129,31 @@ describe('receiveDetailsReducer', () => {
     expect(confirmed.displayBalance).toBe('50/50');
   });
 
+  it('clears showConfirmedBalance when a second payment goes pending after a confirmation', () => {
+    const pending = receiveDetailsReducer(initialState, {
+      type: receiveDetailsActionTypes.UPDATE_BALANCE,
+      confirmed: 100,
+      unconfirmed: 50,
+    });
+
+    const confirmed = receiveDetailsReducer(pending, {
+      type: receiveDetailsActionTypes.UPDATE_BALANCE,
+      confirmed: 150,
+      unconfirmed: 0,
+    });
+    expect(confirmed.showConfirmedBalance).toBe(true);
+
+    const secondPending = receiveDetailsReducer(confirmed, {
+      type: receiveDetailsActionTypes.UPDATE_BALANCE,
+      confirmed: 150,
+      unconfirmed: 30,
+    });
+
+    expect(secondPending.showPendingBalance).toBe(true);
+    expect(secondPending.showConfirmedBalance).toBe(false);
+    expect(secondPending.showAddress).toBe(false);
+  });
+
   it('returns to address state after pending clears without a positive received delta', () => {
     const pending = receiveDetailsReducer(initialState, {
       type: receiveDetailsActionTypes.UPDATE_BALANCE,
