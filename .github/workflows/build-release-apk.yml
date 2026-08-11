@@ -56,7 +56,7 @@ jobs:
           OUT="${{ github.workspace }}/reproducible-builds/build"
           rm -rf "$OUT"
           mkdir -p "$OUT"
-          chmod 775 "$OUT"
+          chmod 777 "$OUT"
           echo "OUT_DIR=$OUT" >> $GITHUB_ENV
 
       - name: Run reproducible build inside container
