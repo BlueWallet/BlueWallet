@@ -534,7 +534,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       this.setM(parseInt(mofn[0].trim(), 10));
       const n = parseInt(mofn[1].trim(), 10);
       for (let c = 1; c <= n; c++) {
-        const cosignerData = json['x' + c + '/'];
+        const cosignerData = json['x' + c + '/'] || json['x' + c];
         if (cosignerData) {
           const fingerprint =
             (cosignerData.ckcc_xfp
