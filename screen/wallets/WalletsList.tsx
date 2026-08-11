@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
-import { useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
@@ -23,7 +23,6 @@ import ActionSheet from '../ActionSheet';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ConnectionPollContext } from '../../navigation/ConnectionPollContext';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -121,7 +120,7 @@ const WalletsList: React.FC = () => {
   const sectionHeaderHeight = Math.round(SECTION_HEADER_BASE_HEIGHT * fontScale);
   const floatingButtonHeight = getFloatingButtonReservedHeight(fontScale, insets.bottom);
   const { colors, scanImage } = useTheme();
-  const navigation = useExtendedNavigation<NavigationProps>();
+  const navigation = useNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const route = useRoute<RouteProps>();
   const dataSource = getTransactions(undefined, 10);

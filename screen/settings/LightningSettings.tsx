@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { Alert, Linking, StyleSheet, View } from 'react-native';
 import DefaultPreference from 'react-native-default-preference';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -12,7 +12,6 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import { clearLNDHub, getLNDHub, setLNDHub } from '../../helpers/lndHub';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import AddressInput from '../../components/AddressInput';
 import {
   SettingsSection,
@@ -28,7 +27,7 @@ const LightningSettings: React.FC = () => {
   const params = useRoute<LightingSettingsRouteProps>().params;
   const [isLoading, setIsLoading] = useState(true);
   const [URI, setURI] = useState<string>();
-  const { setParams } = useExtendedNavigation();
+  const { setParams } = useNavigation();
 
   useEffect(() => {
     const fetchURI = async () => {

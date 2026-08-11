@@ -13,6 +13,7 @@ import WalletExport from '../screen/wallets/WalletExport';
 import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
+import { navigationGuardRouter } from './navigationGuard';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -65,7 +66,7 @@ const MainRoot = () => {
   const theme = useTheme();
 
   return (
-    <DetailViewStack.Navigator screenOptions={{ headerShown: false }}>
+    <DetailViewStack.Navigator UNSTABLE_router={navigationGuardRouter} screenOptions={{ headerShown: false }}>
       {!walletsInitialized ? (
         <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (

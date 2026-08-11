@@ -7,7 +7,7 @@ import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import presentAlert from '../../components/Alert';
 import { useTheme } from '../../components/themes';
 import Button from '../../components/Button';
@@ -20,7 +20,6 @@ import { TWallet, CreateTransactionTarget } from '../../class/wallets/types';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { ContactList } from '../../class/contact-list';
 import { useStorage } from '../../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
@@ -71,7 +70,7 @@ const Confirm: React.FC = () => {
   const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const navigation = useExtendedNavigation<ConfirmNavigationProp>();
+  const navigation = useNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
   const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
 

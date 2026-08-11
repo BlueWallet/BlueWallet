@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
@@ -15,7 +16,6 @@ import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { SettingsListItem, settingsListCard, settingsSectionHeaderText } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
 
@@ -32,7 +32,7 @@ const Currency: React.FC = () => {
     Rate: null,
   });
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const { setOptions } = useExtendedNavigation();
+  const { setOptions } = useNavigation();
   const { colors } = useTheme();
   const [search, setSearch] = useState('');
 

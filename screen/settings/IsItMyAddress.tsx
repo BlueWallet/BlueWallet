@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useRef, useState, useEffect } from 'react';
 import { Keyboard, TextInput, View, ScrollView, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Button from '../../components/Button';
@@ -11,12 +12,11 @@ import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import presentAlert from '../../components/Alert';
 import { scanQrHelper } from '../../helpers/scan-qr';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { SettingsSection, SettingsScrollView, settingsCardContent } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 import BlueButtonLink from '../../components/BlueButtonLink';
 const IsItMyAddress: React.FC = () => {
-  const { navigate } = useExtendedNavigation();
+  const { navigate } = useNavigation();
   const { wallets } = useStorage();
   const { colors } = useTheme();
   const scrollViewRef = useRef<ScrollView>(null);

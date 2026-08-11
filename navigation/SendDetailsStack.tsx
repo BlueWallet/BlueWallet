@@ -14,6 +14,7 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
 import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
+import { navigationGuardRouter } from './navigationGuard';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
 
@@ -100,7 +101,11 @@ const SendDetailsStack = () => {
   )(theme);
 
   return (
-    <Stack.Navigator initialRouteName="SendDetails" screenOptions={{ headerShadowVisible: false, fullScreenGestureEnabled: false }}>
+    <Stack.Navigator
+      initialRouteName="SendDetails"
+      screenOptions={{ headerShadowVisible: false, fullScreenGestureEnabled: false }}
+      UNSTABLE_router={navigationGuardRouter}
+    >
       <Stack.Screen
         name="SendDetails"
         component={SendDetailsComponent}

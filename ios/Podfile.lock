@@ -29,7 +29,7 @@ PODS:
     - hermes-engine/Pre-built (= 250829098.0.10)
   - hermes-engine/Pre-built (250829098.0.10)
   - lottie-ios (4.6.0)
-  - lottie-react-native (7.3.8):
+  - lottie-react-native (7.4.0):
     - hermes-engine
     - lottie-ios (= 4.6.0)
     - RCTRequired
@@ -1481,7 +1481,7 @@ PODS:
     - Yoga
   - react-native-context-menu-view (1.21.0):
     - React
-  - react-native-document-picker (12.0.1):
+  - react-native-document-picker (12.0.2):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1529,7 +1529,7 @@ PODS:
     - Yoga
   - react-native-notifications (5.2.2):
     - React-Core
-  - react-native-safe-area-context (5.8.0):
+  - react-native-safe-area-context (5.8.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1541,8 +1541,8 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.8.0)
-    - react-native-safe-area-context/fabric (= 5.8.0)
+    - react-native-safe-area-context/common (= 5.8.1)
+    - react-native-safe-area-context/fabric (= 5.8.1)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1553,7 +1553,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/common (5.8.0):
+  - react-native-safe-area-context/common (5.8.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1575,7 +1575,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/fabric (5.8.0):
+  - react-native-safe-area-context/fabric (5.8.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1600,7 +1600,7 @@ PODS:
     - Yoga
   - react-native-secure-key-store (2.0.10):
     - React-Core
-  - react-native-tcp-socket (6.4.1):
+  - react-native-tcp-socket (6.4.2):
     - CocoaAsyncSocket
     - React-Core
   - react-native-vector-icons-entypo (13.1.2)
@@ -2159,7 +2159,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNPermissions (5.6.0):
+  - RNPermissions (5.6.1):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2304,7 +2304,7 @@ PODS:
     - ReactNativeDependencies
     - RNWorklets
     - Yoga
-  - RNScreens (4.25.2):
+  - RNScreens (4.27.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2326,9 +2326,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNScreens/common (= 4.25.2)
+    - RNScreens/common (= 4.27.0)
     - Yoga
-  - RNScreens/common (4.25.2):
+  - RNScreens/common (4.27.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2856,7 +2856,7 @@ SPEC CHECKSUMS:
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
   hermes-engine: 86cdbf283775c54dc008895c3eacd24a1f2a40b4
   lottie-ios: 8f959969761e9c45d70353667d00af0e5b9cadb3
-  lottie-react-native: 116398d27ee6f92ad2adb51f581da7ed30cf2b86
+  lottie-react-native: bd04d867004512edd133236f99db28f851541467
   RCTDeprecation: a4c521821fab57cbb125b36effe84d897d0dfa12
   RCTRequired: 9f3a7e5645d4bc3f551593de7550bb66ab6e42bc
   RCTSwiftUI: 239ed2eb9e73de5a6f518810630f0c95e01c8702
@@ -2899,13 +2899,13 @@ SPEC CHECKSUMS:
   react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
   react-native-capture-protection: c8af7560c9ee775b66e835582211ad7da8e00701
   react-native-context-menu-view: 04c653716953ebecbfab582884f78ef5acac96fd
-  react-native-document-picker: 1bf3e97a53c205191d34bc3a9bbcb57fbe1c77d5
+  react-native-document-picker: 32318d6faf498b5b3a0647a9830f2477fa9ad1c8
   react-native-get-random-values: 21325b2244dfa6b58878f51f9aa42821e7ba3d06
   react-native-image-picker: 2146157d5d37a34c2063d1d2ed01081b56d0b87b
   react-native-notifications: 801e1a5220d474384968de5ccf8b863d05aa552a
-  react-native-safe-area-context: c1eb308f4b36372a4de4b3bdaa8ed695ec3dd461
+  react-native-safe-area-context: b3e671af6f52a4faaf7c1009a7a487bd9b551df0
   react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
-  react-native-tcp-socket: c9290d77fea17ee75bee93e599b604bae63166f0
+  react-native-tcp-socket: dcd04baa1f94a73d833b7251fb9bd197964e8345
   react-native-vector-icons-entypo: bd991a0d2dc9cf40b7fe8a83be44a072a6c60faa
   react-native-vector-icons-fontawesome: 9a819e97393c0e60e3ae9defbe28248002a8957c
   react-native-vector-icons-fontawesome6: 9014730aa0e219382da1f109d47d1a378215cbf8
@@ -2943,7 +2943,7 @@ SPEC CHECKSUMS:
   React-utils: 2851415c698da4b18331f9a445825d260fffa32c
   React-webperformancenativemodule: 9f29ed34f6f6c01dac688b95fd2dfcbccf3aed7a
   ReactAppDependencyProvider: a54c0c9b976766e1b6d5e2bb4d1ad0d15913e9e1
-  ReactCodegen: 8682262fefb44dabb7c1251233a1af62e17d296e
+  ReactCodegen: 58ca158c817abc2afc2ee078bc8f6b7695c47b01
   ReactCommon: 3ec2a55999d296af90c24beb66c8a77dc660d3ef
   ReactNativeCameraKit: 6d499e0906dc8831d1014096ecf7c8fbe036890a
   ReactNativeDependencies: 0a5c93845772e4b1c5ad065c59a859518b13a6b7
@@ -2958,11 +2958,11 @@ SPEC CHECKSUMS:
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNKeychain: 1b055a0ec36d058cb0a075e965d8c9d335e0c828
   RNLocalize: a0dd99f2d709904a07fb826e0b748234f629af34
-  RNPermissions: 6821d3b28aa117bce19232194b555de4b0116554
+  RNPermissions: 6259c10e736483db4d42b78fe3142f3962d41564
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNReactNativeHapticFeedback: ee768bc7aca1ccc1f24ae5d625f9667c593ea511
   RNReanimated: 516d842d105966ae05a6a1ad7ad2a0dc1e968d6b
-  RNScreens: 032083414633a4d94cbcf08f8ab5019d72d1ba36
+  RNScreens: 39f914a099f9cbe0ec2c33d0dfd01ba56a8ca104
   RNShare: 61a266b44bfc54e17dedbc81202f5e67cda93674
   RNSVG: a37350c7bc37452fd2b209efa0806f1de0f847ae
   RNWorklets: 82a5f27dcf3bb69267ec6ce662a756a4d3f61522
@@ -2971,4 +2971,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: a6ebefd60fd3fd993430ecd1d3feb222ff502eb0
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0
