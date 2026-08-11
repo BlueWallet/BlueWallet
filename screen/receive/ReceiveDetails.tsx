@@ -324,10 +324,10 @@ const ReceiveDetails = () => {
   }, [initialUnconfirmed]);
 
   useEffect(() => {
-    if (routeAddress && routeAddress !== address) {
+    if (routeAddress && routeAddress !== address && !isCustom) {
       dispatch({ type: receiveDetailsActionTypes.SET_ADDRESS, address: routeAddress });
     }
-  }, [address, routeAddress]);
+  }, [address, isCustom, routeAddress]);
 
   useEffect(() => {
     setParams({

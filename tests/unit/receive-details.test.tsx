@@ -316,7 +316,7 @@ describe('ReceiveDetails', () => {
     expect(mockFetchAndSaveWalletTransactions).toHaveBeenCalledWith('wallet-1');
   });
 
-  it('prioritizes route params over reducer values for the same properties', async () => {
+  it('re-applies updated custom params from the route on rerender', async () => {
     const address = 'bc1qroutepriorityaddress';
     mockRouteParams = {
       address,
@@ -345,4 +345,25 @@ describe('ReceiveDetails', () => {
     expect(screen.getByText(`bitcoin:${address}?amount=2|90`)).toBeTruthy();
   });
 
+  it('keeps the custom bip21 when the route address changes while custom params are active', async () => {
+    const address = 'bc1qcustomaddress';
+    const bip21encoded = `bitcoin:${address}?amount=2`;
+    mockRouteParams = {
+      address,
+      customLabel: 'Coffee',
+      customAmount: '2',
+      customUnit: BitcoinUnit.BTC,
+      bip21encoded,
+      isCustom: true,
+    };
+
+    const screen = render(<ReceiveDetails />);
+    expect(await screen.findByText(`${bip21encoded}|90`)).toBeTruthy();
+
+    mockRouteParams = { address: 'bc1qotheraddress' };
+    screen.rerender(<ReceiveDetails />);
+
+    expect(screen.getByText(`${bip21encoded}|90`)).toBeTruthy();
+    expect(screen.queryByText('bitcoin:bc1qotheraddress|90')).toBeNull();
+  });
 });

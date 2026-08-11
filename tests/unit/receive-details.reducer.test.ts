@@ -84,6 +84,32 @@ describe('receiveDetailsReducer', () => {
     expect(state.displayBalance).toBe('50/50');
   });
 
+  it('ignores a negative unconfirmed balance from an outgoing transaction', () => {
+    const state = receiveDetailsReducer(initialState, {
+      type: receiveDetailsActionTypes.UPDATE_BALANCE,
+      confirmed: 100,
+      unconfirmed: -50,
+    });
+
+    expect(state).toBe(initialState);
+  });
+
+  it('returns the same state for a repeated identical pending balance update', () => {
+    const pending = receiveDetailsReducer(initialState, {
+      type: receiveDetailsActionTypes.UPDATE_BALANCE,
+      confirmed: 100,
+      unconfirmed: 50,
+    });
+
+    const repeated = receiveDetailsReducer(pending, {
+      type: receiveDetailsActionTypes.UPDATE_BALANCE,
+      confirmed: 100,
+      unconfirmed: 50,
+    });
+
+    expect(repeated).toBe(pending);
+  });
+
   it('moves from pending to confirmed after unconfirmed clears and received amount is positive', () => {
     const pending = receiveDetailsReducer(initialState, {
       type: receiveDetailsActionTypes.UPDATE_BALANCE,
