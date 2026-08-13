@@ -1410,13 +1410,17 @@ describe('multisig-wallet (native segwit)', () => {
     }
   });
 
-  it('can import electrum json with cosigner keys without trailing slashes', () => {
+  it('can import electrum json file format with seed version 71', () => {
     const content = require('./fixtures/electrum-multisig-wallet-with-seed.json');
     const json = JSON.parse(JSON.stringify(content));
 
     for (let c = 1; c <= 3; c++) {
+      // test electrum json keys without trailing slashes
       json['x' + c] = json['x' + c + '/'];
       delete json['x' + c + '/'];
+
+      // test h notation in derivation paths
+      json['x' + c].derivation = json['x' + c].derivation.replaceAll(/'/g, 'h');
     }
 
     const w = new MultisigHDWallet();
