@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import React, { useCallback } from 'react';
 import { Alert, Image, Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -14,13 +15,12 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { SettingsSection, SettingsListItem } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatStringAddTwoWhiteSpaces } from '../../loc';
 
 const branch = require('../../current-branch.json');
 
 const About: React.FC = () => {
-  const { navigate } = useExtendedNavigation();
+  const { navigate } = useNavigation();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
 

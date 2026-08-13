@@ -649,10 +649,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
 
     const invoiceDetails = decodeInvoice(invoice);
 
-    console.log('Invoice amount:', invoiceDetails.amountSats, 'sats');
-    console.log('Description:', invoiceDetails.description);
-    console.log('Payment Hash:', invoiceDetails.paymentHash);
-
     assert(invoiceDetails.amountSats > this._limitMin, `Minimum you can send is ${this._limitMin} sat`);
     assert(invoiceDetails.amountSats < this._limitMax, `Maximum you can is ${this._limitMax} sat`);
 
@@ -663,11 +659,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       payment_hash: invoiceDetails.paymentHash,
       payment_request: invoice,
     };
-
-    console.log('Payment successful!');
-    console.log('Amount:', paymentResult.amount);
-    console.log('Preimage:', paymentResult.preimage);
-    console.log('Transaction ID:', paymentResult.txid);
   }
 
   /**
@@ -710,12 +701,6 @@ export class LightningArkWallet extends LightningCustodianWallet {
       amount: amt + serviceFee,
       description: memo,
     });
-
-    console.log('Expiry (seconds):', result.expiry);
-    console.log('Lightning Invoice:', result.invoice);
-    console.log('Payment Hash:', result.paymentHash);
-    console.log('Pending swap', result.pendingSwap);
-    console.log('Preimage', result.preimage);
 
     registerArkPaymentPush(result.paymentHash, memo, result.pendingSwap); // fire-and-forget, never throws
 

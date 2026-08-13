@@ -104,11 +104,9 @@ export class SegwitP2SHWallet extends LegacyWallet {
     sequence = sequence || 0xffffffff; // disable RBF by default
     const psbt = new bitcoin.Psbt();
     let c = 0;
-    const values: Record<number, number> = {};
     const keyPair = ECPair.fromWIF(this.secret);
 
     inputs.forEach(input => {
-      values[c] = input.value;
       c++;
 
       const pubkey = keyPair.publicKey;
@@ -156,10 +154,6 @@ export class SegwitP2SHWallet extends LegacyWallet {
       tx = psbt.finalizeAllInputs().extractTransaction();
     }
     return { tx, inputs, outputs, fee, psbt };
-  }
-
-  allowSendMax() {
-    return true;
   }
 
   isSegwit() {

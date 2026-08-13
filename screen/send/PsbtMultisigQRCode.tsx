@@ -1,4 +1,4 @@
-import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
@@ -9,7 +9,6 @@ import { SquareButton } from '../../components/SquareButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import TipBox from '../../components/TipBox';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isHexString } from '../../blue_modules/ur';
@@ -21,7 +20,7 @@ interface BarcodeScanResult {
 type RouteParams = RouteProp<SendDetailsStackParamList, 'PsbtMultisigQRCode'>;
 
 const PsbtMultisigQRCode: React.FC = () => {
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const { colors } = useTheme();
   const openScannerButton = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
   const { params } = useRoute<RouteParams>();

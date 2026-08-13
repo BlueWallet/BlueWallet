@@ -1,6 +1,6 @@
 import React, { useCallback, FC } from 'react';
 import { StyleSheet, Text, View, Pressable, Platform } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
@@ -8,7 +8,6 @@ import ListItem from '../../components/ListItem';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -157,7 +156,7 @@ const FormatSelector: FC<FormatSelectorProps> = ({ format, onFormatChange, color
 
 const MultisigAdvanced: React.FC = () => {
   const { colors } = useTheme();
-  const navigation = useExtendedNavigation<NavigationProps>();
+  const navigation = useNavigation<NavigationProps>();
   const route = useRoute<RouteProps>();
   const { m, n, format, onSave } = route.params;
 

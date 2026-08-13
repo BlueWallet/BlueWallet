@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, Platform, StyleSheet, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueButtonLink from '../../components/BlueButtonLink';
@@ -20,7 +20,6 @@ import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { THDWalletForWatchOnly, TWallet } from '../../class/wallets/types';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 
@@ -34,7 +33,7 @@ type WalletEntry = {
 };
 
 const ImportWalletDiscovery: React.FC = () => {
-  const navigation = useExtendedNavigation<NavigationProp>();
+  const navigation = useNavigation<NavigationProp>();
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
   const { importText, askPassphrase, searchAccounts } = route.params;

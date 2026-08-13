@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RouteProp, useLocale, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useLocale, useRoute } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
@@ -18,7 +18,6 @@ import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { TWallet } from '../../class/wallets/types';
@@ -44,7 +43,7 @@ const LnurlPay: React.FC = () => {
   const [_LN, setLN] = useState<Lnurl | undefined>();
   const [payButtonDisabled, setPayButtonDisabled] = useState<boolean>(true);
   const [payload, setPayload] = useState<any>();
-  const { setParams, navigate } = useExtendedNavigation();
+  const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
   const { colors } = useTheme();
   const { direction } = useLocale();

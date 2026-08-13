@@ -26,7 +26,6 @@ export class AbstractHDWallet extends LegacyWallet {
   internal_addresses_cache: Record<number, string>;
   external_addresses_cache: Record<number, string>;
   _xpub: string;
-  usedAddresses: string[];
   _address_to_wif_cache: Record<string, string>;
   gap_limit: number;
   passphrase?: string;
@@ -41,7 +40,6 @@ export class AbstractHDWallet extends LegacyWallet {
     this.internal_addresses_cache = {}; // index => address
     this.external_addresses_cache = {}; // index => address
     this._xpub = ''; // cache
-    this.usedAddresses = [];
     this._address_to_wif_cache = {};
     this.gap_limit = 20;
     this._derivationPath = Constructor.derivationPath;
@@ -148,33 +146,7 @@ export class AbstractHDWallet extends LegacyWallet {
    */
   async getAddressAsync(): Promise<string> {
     // looking for free external address
-    let freeAddress = '';
-    let c;
-    for (c = 0; c < this.gap_limit + 1; c++) {
-      if (this.next_free_address_index + c < 0) continue;
-      const address = this._getExternalAddressByIndex(this.next_free_address_index + c);
-      this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
-      let txs = [];
-      try {
-        txs = await BlueElectrum.getTransactionsByAddress(address);
-      } catch (Err: any) {
-        console.warn('BlueElectrum.getTransactionsByAddress()', Err.message);
-      }
-      if (txs.length === 0) {
-        // found free address
-        freeAddress = address;
-        this.next_free_address_index += c; // now points to _this one_
-        break;
-      }
-    }
-
-    if (!freeAddress) {
-      // could not find in cycle above, give up
-      freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
-      this.next_free_address_index += c; // now points to this one
-    }
-    this._address = freeAddress;
-    return freeAddress;
+    return this._getNextFreeAddress(false);
   }
 
   /**
@@ -186,12 +158,21 @@ export class AbstractHDWallet extends LegacyWallet {
    */
   async getChangeAddressAsync(): Promise<string> {
     // looking for free internal address
-    let freeAddress = '';
+    return this._getNextFreeAddress(true);
+  }
+
+  async _getNextFreeAddress(internal: boolean): Promise<string> {
+    const startIndex = internal ? this.next_free_change_address_index : this.next_free_address_index;
+    const cache = internal ? this.internal_addresses_cache : this.external_addresses_cache;
+    const getAddressByIndex = internal
+      ? (index: number) => this._getInternalAddressByIndex(index)
+      : (index: number) => this._getExternalAddressByIndex(index);
+
     let c;
     for (c = 0; c < this.gap_limit + 1; c++) {
-      if (this.next_free_change_address_index + c < 0) continue;
-      const address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
-      this.internal_addresses_cache[this.next_free_change_address_index + c] = address; // updating cache just for any case
+      if (startIndex + c < 0) continue;
+      const address = getAddressByIndex(startIndex + c);
+      cache[startIndex + c] = address; // updating cache just for any case
       let txs = [];
       try {
         txs = await BlueElectrum.getTransactionsByAddress(address);
@@ -200,16 +181,17 @@ export class AbstractHDWallet extends LegacyWallet {
       }
       if (txs.length === 0) {
         // found free address
-        freeAddress = address;
-        this.next_free_change_address_index += c; // now points to _this one_
         break;
       }
     }
 
-    if (!freeAddress) {
-      // could not find in cycle above, give up
-      freeAddress = this._getInternalAddressByIndex(this.next_free_change_address_index + c); // we didnt check this one, maybe its free
-      this.next_free_change_address_index += c; // now points to this one
+    // if the loop found no free address we give up and take the first unchecked one — maybe its free
+    const freeAddress = getAddressByIndex(startIndex + c);
+    // now points to _this one_
+    if (internal) {
+      this.next_free_change_address_index = startIndex + c;
+    } else {
+      this.next_free_address_index = startIndex + c;
     }
     this._address = freeAddress;
     return freeAddress;
