@@ -1,53 +1,56 @@
-Un portofel Bitcoin ce îți permite să stochezi, să trimiți, să primești, și să cumperi Bitcoin, centrat pe securitate și simplitate.
+BlueWallet este un portofel Bitcoin radical de simplu, puternic și securizat. Stochează, trimite și primește Bitcoin păstrând controlul total — cheile tale, monedele tale.
 
-În BlueWallet, un portofel bitcoin, deții cheile tale private. Un portofel Bitcoin făcut de utilizatori Bitcoin pentru comunitate.
-
-Poți tranzacționa instant cu oricine din lume și să transformi sistemul financiar chiar în buzunarul tău.
-
-Creează gratuit un număr nelimitat de portofele bitcoin sau importă portofelul tău existent. E simplu și rapid.
+Gratuit și open source, creat de utilizatori Bitcoin pentru comunitate. Fă tranzacții cu oricine din lume și preia controlul banilor tăi, direct din buzunar. Creează portofele nelimitate gratuit sau importă unul existent — e rapid și simplu.
 
 _____
 
-Uite ce primești:
+SECURITATE PRIN CONCEPȚIE
 
+Open source
+Licențiat MIT — auditează-l, compilează-l și rulează-l singur. Realizat cu React Native.
 
-1. Securitate prin proiectare
+Cheile tale, monedele tale
+Cheile private (seed-ul tău) nu părăsesc niciodată dispozitivul. Tu deții mereu controlul.
 
-Open Source
-Licențiat MIT, poți să-l construiești și să-l rulezi pe cont propriu! Făcut cu ReactNative
+Seif multisig
+Cea mai bună securitate disponibilă pe Bitcoin — sunt necesare mai multe chei pentru a cheltui, exact ca un seif adevărat.
+
+Criptare completă
+Pe lângă criptarea dispozitivului, totul este criptat din nou cu propria ta parolă.
 
 Negare plauzibilă
-Parole pentru decriptarea de portofele bitcoin false, în cazul în care ești forțat să divulgi accesul
+Setează o parolă-momeală care deschide portofele false dacă ești vreodată forțat să deblochezi.
 
-Encriptare totală
-Peste encriptarea multi-nivel a sistemului de operare, se encriptează totul cu parole adăugate
+_____
 
-Nod complet
-Conectează la propriul nod complet Bitcoin prin Electrum
+PUTERE ȘI CONTROL
 
-Cold storage
-Conectează-te la propriul portofel hardware și păstrează-ți monedele în siguranță în cold storage
+Portofele moderne
+Portofele HD cu suport complet pentru adrese Legacy, SegWit și Taproot.
 
-2 - Concentrat pe experiența ta
+Portofele hardware
+Asociază Coldcard, Keystone și alte dispozitive de semnare PSBT și ține-ți monedele în stocare la rece.
 
-Fii în control
-Cheile private nu părăsesc niciodată dispozitivul tău.
-Tu îți controlezi cheile private
+Portofele doar citire
+Supraveghează-ți stocarea la rece fără a-ți expune vreodată cheile private.
+
+Rulează-ți propriul nod
+Conectează-te la propriul nod Bitcoin complet prin Electrum și direcționează-ți conexiunea prin Tor.
+
+Controlul monedelor
+Vezi, etichetează și îngheață-ți monedele (UTXO-uri) pentru a construi tranzacții exact cum vrei.
 
 Comisioane flexibile
-Începînd de la 1 Satoshi. Definit de tine, utilizatorul
+Stabilește-ți propriul comision, până la 1 sat/vByte. Accelerează tranzacțiile blocate cu RBF sau CPFP, sau anulează-le.
 
-Replace-By-Fee
-(RBF) Accelerează-ți tranzacția crescînd comisionul (BIP125)
+_____
 
-Portofele watch-only
-Portofelele watch-only îți permit să ții ochii pe cold storage fără să atingi hardware-ul.
+REȚEAUA LIGHTNING
 
-Rețeaua Lightning
-Rețeaua Lightning to zero configurări. Tranzacții nedrept de ieftine și rapide cu cea mai bună experiență de utilizator Bitcoin.
+Plăți incredibil de ieftine și extrem de rapide, fără configurare. Plătește și încasează cu adrese Lightning și LNURL.
 
-Cumpără Bitcoin
-Intră în revoluția financiară deschisă cu abilitatea de a cumpăra Bitcoin direct din portofelul tău. 
+_____
 
-Comerciant local
-O platformă Bitcoin de trading P2P, ce îți permite să cumperi și să vinzi bitcoin direct altor utilizatori fără o terță parte.
+Disponibil pe iOS, Android și macOS. Mai multe valute și limbi. Mod întunecat. Fără conturi și fără urmărire — doar Bitcoin.
+
+BlueWallet — deține-ți Bitcoinul.

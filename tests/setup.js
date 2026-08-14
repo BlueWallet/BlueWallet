@@ -37,7 +37,9 @@ console.debug = console.log = (...args) => {
 
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-global.fetch = require('node-fetch');
+if (typeof globalThis.fetch !== 'function') {
+  throw new Error('Native fetch missing; Node >= 22.11 is required (see package.json engines)');
+}
 
 jest.mock('@react-native-clipboard/clipboard', () => mockClipboard);
 
@@ -56,14 +58,6 @@ jest.mock('react-native-capture-protection', () => ({
     isScreenRecording: jest.fn(() => Promise.resolve(false)),
   },
 }));
-
-jest.mock('react-native-watch-connectivity', () => {
-  return {
-    getIsWatchAppInstalled: jest.fn(() => Promise.resolve(false)),
-    subscribeToMessages: jest.fn(),
-    updateApplicationContext: jest.fn(),
-  };
-});
 
 jest.mock('react-native-secure-key-store', () => {
   return {};
@@ -258,7 +252,12 @@ jest.mock('react-native-fs', () => {
   };
 });
 
-jest.mock('@react-native-documents/picker', () => ({}));
+jest.mock('@react-native-documents/picker', () => ({
+  saveDocuments: jest.fn(async ({ sourceUris }) => {
+    const sourceUri = Array.isArray(sourceUris) && sourceUris.length > 0 ? sourceUris[0] : 'file:///mock/unknown';
+    return [{ uri: sourceUri, name: 'mock', error: null }];
+  }),
+}));
 
 jest.mock('react-native-haptic-feedback', () => ({}));
 

@@ -1,0 +1,10 @@
+{
+    "xfp": "B68AF6E4",
+    "account": 0,
+    "p2wsh_deriv": "m/48h/0h/0h/2h",
+    "p2wsh": "Zpub74w9dfoeurKrKXE3SPRpFquLPTkiCuSwGuhDzBgbE42w5ShB2FxMjmJyjZpSJ6WhLt8y1PeFHQELGgq2GmktviFDH8yFWYRWg4xQiw3v335",
+    "p2sh_deriv": "m/45h",
+    "p2sh": "xpub69EKPNo9Jkd6v2h7xNKw5RdbFBoaHEcstXcRNfcQ2jg71iFpobCwcxfJjaV2ycGy218f2jM1znqs1SDkqMiR7fbyBVJwzacg2QarGt1gtJg",
+    "p2sh_p2wsh_deriv": "m/48h/0h/0h/1h",
+    "p2sh_p2wsh": "Ypub6k6tL18jmAnNRGZpk4u3WPGDmWMkdZNmx3MySYdQywCwMMHqNoKHeqLAgU6pFokHKQFdi88vAW4g3TEsCAymoq5LnFXd54RkQ8m3AD9f81J"
+}

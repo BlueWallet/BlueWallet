@@ -1,0 +1,1 @@
+../../ios/es-MX/name.txt

@@ -1,1 +1,1 @@
-bitcoin,wallet,bitcoin wallet,blockchain,btc,cryptocurrency,acquista bitcoin,electrum,crypto-valuta
+bitcoin,portafoglio,portafoglio bitcoin,blockchain,btc,crypto,lightning,segwit,multisig,electrum

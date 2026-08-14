@@ -1,8 +1,8 @@
+import { useNavigation } from '@react-navigation/native';
 import { useEffect, useCallback } from 'react';
 import { NativeEventEmitter } from 'react-native';
 import EventEmitterModule from '../blue_modules/NativeEventEmitter';
 import { useStorage } from '../hooks/context/useStorage';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import { HandOffActivityType } from '../components/types';
 import { useSettings } from './context/useSettings';
 
@@ -19,7 +19,7 @@ const eventEmitter = EventEmitterModule ? new NativeEventEmitter(EventEmitterMod
 const useHandoffListener = () => {
   const { walletsInitialized } = useStorage();
   const { isHandOffUseEnabled } = useSettings();
-  const { navigate } = useExtendedNavigation();
+  const { navigate } = useNavigation();
 
   const handleUserActivity = useCallback(
     (data: UserActivityData) => {
@@ -31,8 +31,7 @@ const useHandoffListener = () => {
       const modifiedUserInfo = { ...(userInfo || {}), type: activityType };
       try {
         if (activityType === HandOffActivityType.ReceiveOnchain && modifiedUserInfo.address) {
-          navigate( 'ReceiveDetails', { address: modifiedUserInfo.address, type: activityType },
-          );
+          navigate('ReceiveDetails', { address: modifiedUserInfo.address, type: activityType });
         } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
           navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
         } else {

@@ -1,39 +1,56 @@
-Store, send and receive bitcoin with the wallet focus on security and simplicity.
+BlueWallet er en radikalt enkel, kraftfuld og sikker Bitcoin-wallet. Opbevar, send og modtag Bitcoin, mens du bevarer fuld kontrol — dine nøgler, dine coins.
 
-On BlueWallet you own your private keys. A Bitcoin wallet focused on us the users.
-
-You can instantly transact with anyone in the world and transform the financial system right from your pocket.
-
-Create for free unlimited number of bitcoin wallets or access your existing one on your iOS device. It's simple and fast.
+Gratis og open source, bygget af Bitcoin-brugere for fællesskabet. Handl med hvem som helst i verden og tag styringen over dine penge, direkte fra lommen. Opret ubegrænsede wallets gratis eller importér en eksisterende — det er hurtigt og enkelt.
 
 _____
 
-Here's what you get:
+INDBYGGET SIKKERHED
 
-1 - Security by design
+Open source
+MIT-licenseret — gennemgå den, byg den og kør den selv. Lavet med React Native.
 
-Open Source
-MIT licensed, you can build it and run it on your own! Made with ReactNative
+Dine nøgler, dine coins
+Private nøgler (din seed) forlader aldrig din enhed. Du har altid kontrollen.
 
-Plausible deniability
-Password which decrypts fake wallets if you are forced to disclose your access
+Multisig Vault
+Den bedste sikkerhed på Bitcoin — der kræves flere nøgler for at bruge midler, præcis som en ægte boks.
 
-Full encryption
-On top of iOS multi-layer encryption, we encrypt everything with added passwords
+Fuld kryptering
+Ud over enhedens kryptering bliver alt krypteret igen med din egen adgangskode.
 
-SegWit & HD wallets
-SegWit supported and HD wallets enable
+Sandsynlig benægtelse
+Indstil en lokkeadgangskode, der åbner falske wallets, hvis du nogensinde tvinges til at låse op.
 
-2 - Focused on your experience
+_____
 
-Be in control
-On the Bitcoin wallet the Private keys never leave your device.  You control your private keys
+KRAFT OG KONTROL
 
-Flexible fees
-Starting from 1 Satoshi.  Defined by you, the user
+Moderne wallets
+HD-wallets med fuld understøttelse af Legacy-, SegWit- og Taproot-adresser.
 
-Replace-By-Fee
-(RBF) Speed-up your transactions by increasing the fee (BIP125)
+Hardware wallets
+Par Coldcard, Keystone og andre PSBT-signere, og hold dine coins i kold opbevaring.
 
-Watch-only wallets
-Allows you to keep an eye on your cold storage without touching the hardware.
+Watch-only-wallets
+Hold øje med din kolde opbevaring uden nogensinde at afsløre dine private nøgler.
+
+Kør din egen node
+Forbind til din egen Bitcoin-fuldknude via Electrum, og send din forbindelse gennem Tor.
+
+Coin Control
+Se, mærk og frys dine coins (UTXO'er) for at bygge transaktioner præcis som du vil.
+
+Fleksible gebyrer
+Sæt dit eget gebyr, helt ned til 1 sat/vByte. Fremskynd fastlåste transaktioner med RBF eller CPFP, eller annullér dem.
+
+_____
+
+LIGHTNING NETWORK
+
+Urimeligt billige og lynhurtige betalinger uden nogen konfiguration. Betal og bliv betalt med Lightning-adresser og LNURL.
+
+_____
+
+Tilgængelig på iOS, Android og macOS. Flere valutaer og sprog. Mørk tilstand. Ingen konti og ingen sporing — bare Bitcoin.
+
+BlueWallet — ej din Bitcoin.

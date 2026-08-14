@@ -1,8 +1,10 @@
+Funkcje
+
 * Otwarty kod źródłowy
 * Pełne szyfrowanie
 * Wiarygodna zaprzeczalność
 * Elastyczne opłaty
-* Replace-By-Fee
+* Replace-By-Fee (RBF)
 * SegWit
-* Portfele tylko-do-wglądu(Sentinel)
+* Tylko do odczytu
 * Sieć Lightning

@@ -1,0 +1,1 @@
+bitcoin,portefeuille,portefeuille bitcoin,blockchain,crypto,lightning,segwit,multisig,electrum

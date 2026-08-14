@@ -1,10 +1,10 @@
 Funzionalità
 
-* OpenSource
+* Open Source
 * Crittografia completa
-* Negabilita' plausibile
+* Negazione plausibile
 * Commissioni flessibili
-* Replace-By-Fee
+* Replace-By-Fee (RBF)
 * SegWit
-* Watch-only wallets
+* Sola lettura
 * Lightning network

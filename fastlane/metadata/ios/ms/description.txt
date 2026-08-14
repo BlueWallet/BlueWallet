@@ -1,53 +1,56 @@
-Sebuah dompet Bitcoin yang membolehkan anda menyimpan, menghantar, menerima, dan membeli Bitcoin dengan tumpuan pada keselamatan dan kemudahan. 
+BlueWallet ialah dompet Bitcoin yang sangat ringkas, berkuasa dan selamat. Simpan, hantar dan terima Bitcoin sambil kekal mengawal sepenuhnya — kunci anda, syiling anda.
 
-Di BlueWallet, dompet Bitcoin yang anda sendiri pegang kunci persendiriannya. Sebuah dompet Bitcoin yang dibuat oleh pengguna Bitcoin untuk komuniti. 
-
-Anda dapat berurus niaga serta-merta dengan sesiapa pun di seluruh dunia dan mengubah sistem kewangan terus dari poket anda.
-
-Cipta dompet Bitcoin secara percuma tanpa had atau pindah masuk dompet anda. Ringkas dan pantas.
+Percuma dan sumber terbuka, dibina oleh pengguna Bitcoin untuk komuniti. Berurus niaga dengan sesiapa sahaja di dunia dan kawal wang anda, terus dari poket anda. Cipta dompet tanpa had secara percuma atau pindah masuk yang sedia ada — pantas dan ringkas.
 
 _____
 
-Ini apa yang anda dapat:
+KESELAMATAN SECARA REKA BENTUK
 
+Sumber terbuka
+Berlesen MIT — audit, bina dan jalankannya sendiri. Dibuat dengan React Native.
 
-1 - Direka bentuk untuk keselamatan
+Kunci anda, syiling anda
+Kunci persendirian (frasa mnemonik anda) tidak pernah meninggalkan peranti anda. Anda sentiasa mengawal.
 
-Sumber Terbuka
-Dilesenkan MIT, anda boleh bina dan jana sendiri! Dibuat dengan ReactNative.
-
-Penafian munasabah
-Kata laluan yang menyahsulit dompet Bitcoin palsu jika anda dipaksa untuk mendedahkan capaian anda
+Bilik Kebal Multisig
+Keselamatan terbaik yang ada pada Bitcoin — berbilang kunci diperlukan untuk berbelanja, sama seperti bilik kebal sebenar.
 
 Penyulitan penuh
-Selain daripada penyulitan bertingkat iOS, kami menyulitkan kesemuanya dengan kata laluan tambahan.
+Selain penyulitan peranti, segalanya disulitkan semula dengan kata laluan anda sendiri.
 
-Nod penuh
-Kaitkan dengan nod penuh Bitcoin anda melalui Electrum
+Penafian munasabah
+Tetapkan kata laluan umpan yang membuka dompet palsu jika anda dipaksa membuka kunci.
 
-Simpanan Dingin
-Kaitkan dengan dompet perkakas anda dan simpan duit anda di dalam Simpanan Sejuk
+_____
 
-2 - Menumpukan pada pengalaman anda
+KUASA DAN KAWALAN
 
-Beradalah dalam kawalan
-Kunci persendirian tidak akan meninggalkan peranti anda
-Anda kawal kunci persendirian anda
+Dompet moden
+Dompet HD dengan sokongan penuh untuk alamat Legacy, SegWit dan Taproot.
 
-Yuran boleh lentur
-Bermula dari 1 Satoshi. Ditentukan anda, penggunanya.
+Dompet perkakas
+Gandingkan Coldcard, Keystone dan penandatangan PSBT lain, dan simpan syiling anda dalam simpanan sejuk.
 
-Rancakkan-dengan-Bayaran-Fi
-(RBF) Rancakkan urus niaga anda dengan menaikkan bayaran yuran/fi (BIP125)
+Dompet lihat sahaja
+Pantau simpanan sejuk anda tanpa sekali pun mendedahkan kunci persendirian anda.
 
-Dompet lihat-saja
-Dompet lihat-saja membolehkan anda memerhati simpanan dingin anda tanpa menyentuh dompet perkakas anda.
+Jalankan nod anda sendiri
+Sambung ke nod penuh Bitcoin anda sendiri melalui Electrum, dan halakan sambungan anda melalui Tor.
 
-Rangkaian Lightning
-Dompet Lightning tanpa penyusunan. Murah tak ingat dan laju melampaui had, dengan pengalaman terbaik untuk pengguna Bitcoin.
+Kawalan duit
+Lihat, labelkan dan bekukan syiling anda (UTXO) untuk membina urus niaga tepat seperti yang anda mahu.
 
-Beli Bitcoin
-Sertai revolusi kewangan terbuka dengan kebolehan untuk membeli Bitcoin terus dari dompet anda.
+Yuran fleksibel
+Tetapkan yuran anda sendiri, serendah 1 sat/vByte. Percepatkan urus niaga tersekat dengan RBF atau CPFP, atau batalkannya.
 
-Pedagang Tempatan
-Sebuah pentas Perdagangan Bitcoin secara P2P, yang membolehkan anda membeli dan menjual Bitcoin terus dengan pengguna lain tanpa pihak ke-3.
+_____
+
+RANGKAIAN LIGHTNING
+
+Bayaran yang sangat murah dan amat pantas tanpa sebarang konfigurasi. Bayar dan dibayar dengan alamat Lightning dan LNURL.
+
+_____
+
+Tersedia pada iOS, Android dan macOS. Pelbagai mata wang dan bahasa. Mod gelap. Tiada akaun dan tiada penjejakan — hanya Bitcoin.
+
+BlueWallet — miliki Bitcoin anda.

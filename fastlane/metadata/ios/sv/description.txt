@@ -1,46 +1,56 @@
-En Bitcoin-plånbok som låter dig lagra, skicka Bitcoin, ta emot Bitcoin med fokus på säkerhet och enkelhet.
+BlueWallet är en radikalt enkel, kraftfull och säker Bitcoin-plånbok. Lagra, skicka och ta emot Bitcoin med full kontroll — dina nycklar, dina mynt.
 
-På BlueWallet, en bitcoin-plånbok, äger du dina privata nycklar. En Bitcoin-plånbok gjord av Bitcoin-användare för samhället.
-
-Du kan omedelbart handla med vem som helst i världen och förvandla det finansiella systemet direkt från fickan.
-
-Skapa gratis obegränsat antal bitcoin-plånböcker eller importera din befintliga plånbok. Det är enkelt och snabbt.
+Gratis och öppen källkod, byggd av Bitcoin-användare för gemenskapen. Handla med vem som helst i världen och ta kontroll över dina pengar, direkt från fickan. Skapa obegränsat med plånböcker gratis eller importera en befintlig — det är snabbt och enkelt.
 
 _____
 
-Här är vad du får:
-
-
-1 - Säkerhet genom design
+SÄKERHET GENOM DESIGN
 
 Öppen källkod
-MIT licensierad, du kan bygga den och köra den på egen hand! Tillverkad med ReactNative
+MIT-licensierad — granska den, bygg den och kör den själv. Gjord med React Native.
 
-Trolig förnekelse
-Lösenord som dekrypterar falska bitcoin-plånböcker om du tvingas avslöja din åtkomst
+Dina nycklar, dina mynt
+Privata nycklar (din seed) lämnar aldrig din enhet. Du har alltid kontrollen.
+
+Multisig Valv
+Den bästa säkerheten som finns på Bitcoin — flera nycklar krävs för att spendera, precis som ett riktigt valv.
 
 Full kryptering
-Utöver iOS flerskiktskrypteringen krypterar vi allt med tillagda lösenord
+Utöver enhetens kryptering krypteras allt igen med ditt eget lösenord.
 
-Full nod
-Anslut till din Bitcoin full-nod via Electrum
+Trovärdigt förnekande
+Ange ett lockbeteslösenord som öppnar falska plånböcker om du någonsin tvingas låsa upp.
 
-Cold Storage
-Anslut till din hårdvaruplånbok och förvara dina mynt i Cold storage
+_____
 
-2 - Fokuserad på din upplevelse
+KRAFT OCH KONTROLL
 
-Ha kontroll
-Privata nycklar lämnar aldrig din enhet. Du kontrollerar dina privata nycklar
+Moderna plånböcker
+HD-plånböcker med fullt stöd för Legacy-, SegWit- och Taproot-adresser.
+
+Hårdvaruplånböcker
+Para ihop Coldcard, Keystone och andra PSBT-signerare, och förvara dina mynt i kallförvaring.
+
+Plånböcker för endast granskning
+Håll ett öga på din kallförvaring utan att någonsin exponera dina privata nycklar.
+
+Kör din egen nod
+Anslut till din egen Bitcoin-fullnod via Electrum, och dirigera din anslutning genom Tor.
+
+Myntkontroll
+Se, märk och frys dina mynt (UTXO:er) för att bygga transaktioner precis som du vill.
 
 Flexibla avgifter
-Från 1 Satoshi. Definierat av dig, användaren
+Ange din egen avgift, ner till 1 sat/vByte. Påskynda fastnade transaktioner med RBF eller CPFP, eller avbryt dem.
 
-Replace-By-Fee
-(RBF) Snabba upp dina transaktioner genom att höja avgiften (BIP125)
+_____
 
-"Se bara" plånböcker 
-"Se bara" plånböcker gör att du kan hålla ett öga på din cold storage utan att röra hårdvaran.
+LIGHTNING-NÄTVERKET
 
-Lightning Nätverket
-Lightning-plånbok med noll-konfiguration. Superbilliga och snabba transaktioner med den bästa Bitcoin-användarupplevelsen.
+Orättvist billiga och blixtsnabba betalningar utan konfiguration. Betala och få betalt med Lightning-adresser och LNURL.
+
+_____
+
+Tillgänglig på iOS, Android och macOS. Flera valutor och språk. Mörkt läge. Inga konton och ingen spårning — bara Bitcoin.
+
+BlueWallet — äg din Bitcoin.

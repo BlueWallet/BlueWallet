@@ -1,7 +1,10 @@
+Funkciók
+
 * Nyílt forráskód
 * Teljes titkosítás
-* Feltételes elutasítás
-* Rugalmas tranzakciós díjjak
-* Tranzakciós Díj Pótlás (RBF)
-* Tárca - csak megtekintésre
-* Lightning
+* Elfogadható tagadhatóság
+* Rugalmas díjak
+* Replace-By-Fee (RBF)
+* SegWit
+* Csak megtekintésre
+* Lightning hálózat

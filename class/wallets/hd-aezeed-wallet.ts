@@ -1,10 +1,9 @@
 import { CipherSeed } from 'aezeed';
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
-import b58 from 'bs58check';
 
 import ecc from '../../blue_modules/noble_ecc';
-import { concatUint8Arrays, hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 
 const bip32 = BIP32Factory(ecc);
@@ -55,10 +54,7 @@ export class HDAezeedWallet extends AbstractHDElectrumWallet {
     const xpub = child.toBase58();
 
     // bitcoinjs does not support zpub yet, so we just convert it from xpub
-    let data = b58.decode(xpub);
-    data = data.slice(4);
-    const concatenated = concatUint8Arrays([hexToUint8Array('04b24746'), data]);
-    this._xpub = b58.encode(concatenated);
+    this._xpub = this._xpubToZpub(xpub);
 
     return this._xpub;
   }

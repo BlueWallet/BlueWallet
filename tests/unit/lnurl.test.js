@@ -208,6 +208,17 @@ describe('LNURL', function () {
 
     assert.strictEqual(Lnurl.decipherAES(ciphertext, preimage, iv), '1234');
   });
+
+  it('decipherAES returns empty string on malformed input (preserves crypto-js contract)', () => {
+    const preimage = 'bf62911aa53c017c27ba34391f694bc8bf8aaf59b4ebfd9020e66ac0412e189b';
+    const validIv = 'eTGduB45hWTOxHj1dR+LJw==';
+    // Non-block-aligned ciphertext — would throw under raw @noble/ciphers
+    assert.strictEqual(Lnurl.decipherAES('not-base64-aligned', preimage, validIv), '');
+    // Bad PKCS7 padding (random 16-byte block won't unpad cleanly)
+    assert.strictEqual(Lnurl.decipherAES('AAAAAAAAAAAAAAAAAAAAAA==', preimage, validIv), '');
+    // Empty ciphertext
+    assert.strictEqual(Lnurl.decipherAES('', preimage, validIv), '');
+  });
 });
 
 describe('lightning address', function () {

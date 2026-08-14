@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | strojna denarnica | noun, lowercase. |
 | Seed | seme / obnovitvena fraza | noun · technical / mainstream. |
 | Mnemonic | mnemonična fraza / obnovitvena fraza | noun · technical / mainstream. |
-| Passphrase | dodatna fraza / dodatna beseda | noun · ⚠️ distinct from `geslo` (password). App ships `Dodatna beseda/niz (passphrase)`. |
+| Passphrase | dodatna fraza | noun · ⚠️ distinct from `geslo` (password); Bitcoin Core sl uses `geslo` for passphrase which collides — deliberately diverge. No Electrum sl translation. App ships `Dodatna fraza`. |
 | Public key | javni ključ | noun, lowercase. |
 | Private key | zasebni ključ | noun, lowercase. |
 | WIF | WIF | acronym · gloss: oblika za uvoz denarnice. |

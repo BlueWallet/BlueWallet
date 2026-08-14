@@ -1,0 +1,84 @@
+diff --git a/node_modules/@react-navigation/native-stack/lib/module/views/useHeaderConfigProps.js b/node_modules/@react-navigation/native-stack/lib/module/views/useHeaderConfigProps.js
+index a42477a..3ff714c 100644
+--- a/node_modules/@react-navigation/native-stack/lib/module/views/useHeaderConfigProps.js
++++ b/node_modules/@react-navigation/native-stack/lib/module/views/useHeaderConfigProps.js
+@@ -159,7 +159,8 @@ export function useHeaderConfigProps({
+   route,
+   title,
+   unstable_headerLeftItems: headerLeftItems,
+-  unstable_headerRightItems: headerRightItems
++  unstable_headerRightItems: headerRightItems,
++  experimental_userInterfaceStyle: experimentalUserInterfaceStyleOption
+ }) {
+   const {
+     direction
+@@ -365,7 +366,7 @@ export function useHeaderConfigProps({
+     children,
+     headerLeftBarButtonItems: processBarButtonItems(leftItems, colors, fonts),
+     headerRightBarButtonItems: processBarButtonItems(rightItems, colors, fonts),
+-    experimental_userInterfaceStyle: dark ? 'dark' : 'light'
++    experimental_userInterfaceStyle: experimentalUserInterfaceStyleOption ?? (dark ? 'dark' : 'light')
+   };
+ }
+ //# sourceMappingURL=useHeaderConfigProps.js.map
+\ No newline at end of file
+diff --git a/node_modules/@react-navigation/native-stack/lib/typescript/src/types.d.ts b/node_modules/@react-navigation/native-stack/lib/typescript/src/types.d.ts
+index 2f1351a..5742b66 100644
+--- a/node_modules/@react-navigation/native-stack/lib/typescript/src/types.d.ts
++++ b/node_modules/@react-navigation/native-stack/lib/typescript/src/types.d.ts
+@@ -302,6 +302,14 @@ export type NativeStackNavigationOptions = {
+      * @platform ios
+      */
+     unstable_headerRightItems?: (props: NativeStackHeaderItemProps) => NativeStackHeaderItem[];
++    /**
++     * When set, overrides the navigation header `UIUserInterfaceStyle` (affects iOS 26+ bar materials and tint resolution).
++     * If omitted, React Navigation sets this from the navigation theme `dark` boolean (`true` → `"dark"`, else `"light"`).
++     *
++     * @platform ios
++     * @experimental
++     */
++    experimental_userInterfaceStyle?: import('react-native-screens').ScreenStackHeaderConfigProps['experimental_userInterfaceStyle'];
+     /**
+      * String or a function that returns a React Element to be used by the header.
+      * Defaults to screen `title` or route name.
+diff --git a/node_modules/@react-navigation/native-stack/src/types.tsx b/node_modules/@react-navigation/native-stack/src/types.tsx
+index 7488b1c..542333e 100644
+--- a/node_modules/@react-navigation/native-stack/src/types.tsx
++++ b/node_modules/@react-navigation/native-stack/src/types.tsx
+@@ -350,6 +350,15 @@ export type NativeStackNavigationOptions = {
+   unstable_headerRightItems?: (
+     props: NativeStackHeaderItemProps
+   ) => NativeStackHeaderItem[];
++  /**
++   * When set, overrides the navigation header `UIUserInterfaceStyle` (affects iOS 26+ bar materials and tint resolution).
++   * If omitted, React Navigation sets this from the navigation theme `dark` boolean (`true` → `"dark"`, else `"light"`).
++   *
++   * @platform ios
++   * @experimental
++   * @see {@link https://github.com/react-navigation/react-navigation/issues/13069}
++   */
++  experimental_userInterfaceStyle?: ScreenStackHeaderConfigProps['experimental_userInterfaceStyle'];
+   /**
+    * String or a function that returns a React Element to be used by the header.
+    * Defaults to screen `title` or route name.
+diff --git a/node_modules/@react-navigation/native-stack/src/views/useHeaderConfigProps.tsx b/node_modules/@react-navigation/native-stack/src/views/useHeaderConfigProps.tsx
+index 6f74856..d12cf7d 100644
+--- a/node_modules/@react-navigation/native-stack/src/views/useHeaderConfigProps.tsx
++++ b/node_modules/@react-navigation/native-stack/src/views/useHeaderConfigProps.tsx
+@@ -217,6 +217,7 @@ export function useHeaderConfigProps({
+   title,
+   unstable_headerLeftItems: headerLeftItems,
+   unstable_headerRightItems: headerRightItems,
++  experimental_userInterfaceStyle: experimentalUserInterfaceStyleOption,
+ }: Props): ScreenStackHeaderConfigProps {
+   const { direction } = useLocale();
+   const { colors, fonts, dark } = useTheme();
+@@ -527,6 +528,7 @@ export function useHeaderConfigProps({
+     children,
+     headerLeftBarButtonItems: processBarButtonItems(leftItems, colors, fonts),
+     headerRightBarButtonItems: processBarButtonItems(rightItems, colors, fonts),
+-    experimental_userInterfaceStyle: dark ? 'dark' : 'light',
++    experimental_userInterfaceStyle:
++      experimentalUserInterfaceStyleOption ?? (dark ? 'dark' : 'light'),
+   } as const;
+ }

@@ -28,7 +28,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Hardware wallet | ארנק חומרה | noun · Electrum he |
 | Seed | גרעין / מילות שחזור | noun · technical (lit. "kernel", shipped) / mainstream "recovery words". Avoid זרע (Electrum he) — sexual connotation in modern Hebrew UI. |
 | Mnemonic | פסוקית מנמונית / מילות שחזור | noun · technical / mainstream. |
-| Passphrase | מילת צופן / ביטוי סיסמה | noun · ⚠️ NOT סיסמה (= password) · Bitcoin Core he uses "החלפת מילת צופן" for Change Passphrase. Shipped `סיסמה` collides with password — TODO in he.json. |
+| Passphrase | מילת צופן | noun · ⚠️ NOT סיסמה (= password) · Bitcoin Core he uses "החלפת מילת צופן" for Change Passphrase · Electrum he uses ביטוי סודי. |
 | Public key | מפתח ציבורי | noun · Electrum he + Bitcoin Core he |
 | Private key | מפתח פרטי | noun · Electrum he + Bitcoin Core he |
 | WIF | WIF | acronym · gloss: פורמט ייבוא ארנק. |

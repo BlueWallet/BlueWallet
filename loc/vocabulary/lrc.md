@@ -28,7 +28,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | کیف پیلٛ سخت ٱفزاری | noun · borrowed from fa: کیف پول سخت‌افزاری. |
 | Seed | سید | — |
 | Mnemonic | عبارت بازیابی | noun · "recovery phrase" · borrowed from fa: عبارت بازیابی. |
-| Passphrase | پس فریز | — |
+| Passphrase | عبارت عبور | noun · ⚠️ NOT رزم (= password) · borrowed from fa: عبارت عبور. |
 | Public key | کلٛیل عمومی | noun · uses lrc کلٛیل (key, per `_.wallet_key`) · borrowed from fa: کلید عمومی. |
 | Private key | کلٛیل خصوصی | noun · borrowed from fa: کلید خصوصی. |
 | WIF | WIF | acronym · letters kept. |

@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useMemo } from 'react';
 import { StyleSheet, GestureResponderEvent, View } from 'react-native';
 import Icon from './Icon';
@@ -5,7 +6,6 @@ import { useTheme } from './themes';
 import ToolTipMenu from './TooltipMenu';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import loc from '../loc';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 
 type AddWalletButtonProps = {
   onPress: (event: GestureResponderEvent) => void;
@@ -13,7 +13,7 @@ type AddWalletButtonProps = {
 
 const AddWalletButton: React.FC<AddWalletButtonProps> = ({ onPress }) => {
   const { colors } = useTheme();
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
 
   const onPressMenuItem = useCallback(
     (action: string) => {

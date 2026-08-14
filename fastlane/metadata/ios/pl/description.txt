@@ -1,46 +1,56 @@
-Portfel, który umożliwia trzymanie, wysyłanie i przyjmowanie płatności w Bitcoinie. Kładzie nacisk na bezpieczeństo i prostotę.
+BlueWallet to radykalnie prosty, potężny i bezpieczny portfel Bitcoin. Przechowuj, wysyłaj i odbieraj Bitcoin, zachowując pełną kontrolę — Twoje klucze, Twoje monety.
 
-W BlueWallet, Ty jesteś właścicielem Twojego własnego portfela Bitcoin. To portfel stworzony przez użytkowników Bitcoina dla społeczności.
-
-Możesz przeprowadzać transakcje natychmiast z kimkolwiek na świecie i przekształcić system finansowy prosto z Twojej kieszeni.
-
-Utwórz za darmo nieograniczoną ilość portfeli Bitcoin lub zaimportuj swój istniejący portfel. To jest szybkie i proste.
+Darmowy i otwartoźródłowy, stworzony przez użytkowników Bitcoina dla społeczności. Dokonuj transakcji z każdym na świecie i przejmij kontrolę nad swoimi pieniędzmi, prosto z kieszeni. Twórz nieograniczoną liczbę portfeli za darmo lub zaimportuj istniejący — to szybkie i proste.
 
 _____
 
-Oto co otrzymujesz: 
+BEZPIECZEŃSTWO OD PODSTAW
 
+Otwarty kod źródłowy
+Na licencji MIT — audytuj go, zbuduj i uruchom samodzielnie. Stworzony przy użyciu React Native.
 
-1 - Zaprojektowany dla bezpieczeństwa
+Twoje klucze, Twoje monety
+Klucze prywatne (Twój seed) nigdy nie opuszczają Twojego urządzenia. Zawsze masz kontrolę.
 
-Otwarte Źródła
-Na licencji MIT, możesz budować, uruchamiać na własną rękę! Wykonane przy użyciu ReactNative
-
-Wiarygodna zaprzeczalność
-Hasło, które deszyfruje fałszywe portfele bitcoin, gdy jesteś zmuszony do ujawnienia dostępu
+Skarbiec wielopodpisowy
+Najlepsze zabezpieczenie dostępne w Bitcoinie — do wydania środków potrzeba wielu kluczy, zupełnie jak w prawdziwym skarbcu.
 
 Pełne szyfrowanie
-Korzystając z wielo-warstwowego szyfrowania systemu iOS, szyfrujemy wszystko z dodatkowymi hasłami
+Oprócz szyfrowania urządzenia wszystko jest dodatkowo szyfrowane Twoim własnym hasłem.
 
-Pełny węzeł
-Podłącz się do własnego węzła Bitcoin przy użyciu Electrum
+Wiarygodna zaprzeczalność
+Ustaw hasło-wabik, które otwiera fałszywe portfele, gdy ktoś zmusi Cię do odblokowania.
 
-Zimny portfel
-Podłącz swój portfel sprzętowy i trzymaj swoje monety w zimnym portfelu
+_____
 
-2 - Z uwagą na Twoje doświadczenie
+MOC I KONTROLA
 
-Ty decydujesz
-Klucze prywatne pozostają na Twoim urządzeniu. Ty sprawujesz nad nimi kontrolę.
+Nowoczesne portfele
+Portfele HD z pełną obsługą adresów Legacy, SegWit i Taproot.
+
+Portfele sprzętowe
+Sparuj Coldcard, Keystone i inne urządzenia podpisujące PSBT i trzymaj monety w zimnym przechowywaniu.
+
+Portfele tylko do odczytu
+Miej oko na swoje zimne przechowywanie, nigdy nie ujawniając kluczy prywatnych.
+
+Uruchom własny węzeł
+Połącz się z własnym pełnym węzłem Bitcoin przez Electrum i kieruj połączenie przez Tor.
+
+Kontrola monet
+Przeglądaj, etykietuj i zamrażaj swoje monety (UTXO), aby budować transakcje dokładnie tak, jak chcesz.
 
 Elastyczne opłaty
-Począwszy od 1 satoshi. Określone przez Ciebie, użytkownika
+Ustaw własną opłatę, nawet do 1 sat/vByte. Przyspieszaj utknięte transakcje za pomocą RBF lub CPFP albo je anuluj.
 
-Replace-By-Fee
-(RBF) Przyspiesz swoje transakcje zwiększając opłatę (BIP125)
+_____
 
-Portfele tylko-do-wglądu
-Portfele tylko-do-wglądu pozwalają pilnować Twojego zimnego portfela bez dotykania sprzętu.
+SIEĆ LIGHTNING
 
-Sieć Lightning
-Portfel Lightning nie wymaga konfiguracji. Niegodziwie tanie i szybkie transakcje z najlepszym doświadczeniem użytkownika.
+Niewiarygodnie tanie i błyskawiczne płatności bez żadnej konfiguracji. Płać i otrzymuj płatności dzięki adresom Lightning i LNURL.
+
+_____
+
+Dostępny na iOS, Androidzie i macOS. Wiele walut i języków. Tryb ciemny. Bez kont i bez śledzenia — po prostu Bitcoin.
+
+BlueWallet — bądź właścicielem swojego Bitcoina.

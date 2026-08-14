@@ -1,0 +1,56 @@
+BlueWallet, radikal şekilde basit, güçlü ve güvenli bir Bitcoin cüzdanıdır. Bitcoin'inizi saklayın, gönderin ve alın — tam kontrol sizde, anahtarlarınız, paranız sizin.
+
+Ücretsiz ve açık kaynak, Bitcoin kullanıcıları tarafından topluluk için geliştirildi. Dünyadaki herkesle işlem yapın ve paranızı doğrudan cebinizden yönetin. Ücretsiz olarak sınırsız cüzdan oluşturun veya mevcut bir cüzdanı içe aktarın — hızlı ve basit.
+
+_____
+
+TASARIMDAN GELEN GÜVENLİK
+
+Açık kaynak
+MIT lisanslı — kendiniz denetleyin, derleyin ve çalıştırın. React Native ile yapıldı.
+
+Anahtarlarınız, paranız
+Gizli anahtarlar (seed'iniz) cihazınızdan asla çıkmaz. Kontrol her zaman sizdedir.
+
+Çoklu İmza Kasası
+Bitcoin'de mevcut en iyi güvenlik — tıpkı gerçek bir kasa gibi, harcamak için birden fazla anahtar gerekir.
+
+Tam şifreleme
+Cihaz şifrelemesinin üzerine, her şey kendi şifrenizle yeniden şifrelenir.
+
+Makul ret
+Kilidini açmaya zorlanmanız durumunda sahte cüzdanları açan bir tuzak şifre belirleyin.
+
+_____
+
+GÜÇ VE KONTROL
+
+Modern cüzdanlar
+Legacy, SegWit ve Taproot adresleri için tam destekli HD cüzdanlar.
+
+Donanım cüzdanları
+Coldcard, Keystone ve diğer PSBT imzalayıcıları eşleştirin ve paralarınızı soğuk saklamada tutun.
+
+Yalnızca izleme cüzdanları
+Gizli anahtarlarınızı asla açığa çıkarmadan soğuk saklamanıza göz kulak olun.
+
+Kendi düğümünüzü çalıştırın
+Electrum üzerinden kendi Bitcoin tam düğümünüze bağlanın ve bağlantınızı Tor üzerinden yönlendirin.
+
+Para kontrolü
+İşlemleri tam istediğiniz gibi oluşturmak için paralarınızı (UTXO'lar) görün, etiketleyin ve dondurun.
+
+Esnek ücretler
+1 sat/vByte'a kadar kendi ücretinizi belirleyin. Takılan işlemleri RBF veya CPFP ile hızlandırın ya da iptal edin.
+
+_____
+
+LIGHTNING NETWORK
+
+Sıfır yapılandırmayla haksız derecede ucuz ve son derece hızlı ödemeler. Lightning adresleri ve LNURL ile ödeyin ve ödeme alın.
+
+_____
+
+iOS, Android ve macOS'ta kullanılabilir. Birden fazla para birimi ve dil. Karanlık mod. Hesap yok, takip yok — sadece Bitcoin.
+
+BlueWallet — Bitcoin'iniz size ait.

@@ -1,7 +1,10 @@
+Fonctionnalités
+
 * Open Source
 * Chiffrement complet
-* Possibilité de déni plausible
+* Déni plausible
 * Frais flexibles
-* Remplacement des frais (RBF)
-* Portefeuilles spectateurs
+* Replace-By-Fee (RBF)
+* SegWit
+* Portefeuilles lecture seule
 * Réseau Lightning

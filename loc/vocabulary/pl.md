@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | portfel sprzętowy | noun, lowercase · Bitcoin Core pl + Cake pl + Bisq pl |
 | Seed | seed / fraza odzyskiwania | noun · technical / mainstream; shipped UI uses `Seed`/`fraza seed`. |
 | Mnemonic | fraza mnemoniczna / fraza seed | noun · technical / mainstream · Cake pl. |
-| Passphrase | fraza dostępu | noun · ⚠️ NOT `Hasło` (= password) · distinct word required; matches Trezor passphrase convention. |
+| Passphrase | fraza dostępu | noun · ⚠️ NOT `Hasło` (= password) · distinct word required. No consistent upstream: Electrum pl mixes `tekst szyfrujący` and `hasła`; Bitcoin Core pl uses `hasło` (conflates with password); no Trezor pl exists. `fraza dostępu` kept as clearest distinct term. |
 | Public key | klucz publiczny | noun, lowercase. |
 | Private key | klucz prywatny | noun, lowercase. |
 | WIF | WIF | acronym · gloss: format importu portfela. |

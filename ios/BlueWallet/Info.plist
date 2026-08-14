@@ -245,8 +245,6 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>UIDesignRequiresCompatibility</key>
-	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
@@ -340,8 +338,6 @@
 			</dict>
 		</dict>
 	</array>
-	<key>WKCompanionAppBundleIdentifier</key>
-	<string>io.bluewallet.bluewallet</string>
 	<key>bugsnag</key>
 	<dict>
 		<key>apiKey</key>

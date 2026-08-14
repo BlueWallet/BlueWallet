@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, StackActions, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import assert from 'assert';
 import { sha256 } from '@noble/hashes/sha256';
@@ -20,7 +20,6 @@ import prompt from '../../helpers/prompt';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import SafeArea from '../../components/SafeArea';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -77,7 +76,7 @@ type PaymentCodeListRouteProp = RouteProp<DetailViewStackParamList, 'PaymentCode
 type PaymentCodesListNavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'PaymentCodeList'>;
 
 export default function PaymentCodesList() {
-  const navigation = useExtendedNavigation<PaymentCodesListNavigationProp>();
+  const navigation = useNavigation<PaymentCodesListNavigationProp>();
   const route = useRoute<PaymentCodeListRouteProp>();
   const { walletID } = route.params;
   const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();

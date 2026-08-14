@@ -1,0 +1,10 @@
+Tính năng
+
+* Mã nguồn mở
+* Mã hóa toàn diện
+* Khả năng phủ nhận hợp lý
+* Phí linh hoạt
+* Replace-By-Fee (RBF)
+* SegWit
+* Ví chỉ xem
+* Mạng Lightning

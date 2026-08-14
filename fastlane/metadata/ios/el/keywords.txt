@@ -1,0 +1,1 @@
+bitcoin,πορτοφόλι,πορτοφόλι bitcoin,blockchain,btc,κρυπτονόμισμα,lightning,segwit,multisig,electrum

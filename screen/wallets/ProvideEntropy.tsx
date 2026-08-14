@@ -1,6 +1,5 @@
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import Icon, { type FontAwesome6IconName } from '../../components/Icon';
 import BN from 'bignumber.js';
 import React, { useEffect, useReducer, useState } from 'react';
 import {
@@ -15,10 +14,13 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
+import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { concatUint8Arrays, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { randomBytes } from '../../class/rng';
 import { FButton, FContainer } from '../../components/FloatButtons';
+import Icon, { type FontAwesome6IconName } from '../../components/Icon';
 import SafeArea from '../../components/SafeArea';
 import { Tabs } from '../../components/Tabs';
 import { BlueCurrentTheme, useTheme } from '../../components/themes';
@@ -153,10 +155,10 @@ export const convertToBuffer = ({ entropy, bits }: { entropy: BN; bits: number }
 
 const Coin = ({ push }: { push: TPush }) => (
   <View style={styles.coinRoot}>
-    <TouchableOpacity accessibilityRole="button" onPress={() => push(getEntropy(0, 2))} style={styles.coinBody}>
+    <TouchableOpacity accessibilityRole="button" testID="CoinFlip0" onPress={() => push(getEntropy(0, 2))} style={styles.coinBody}>
       <Image style={styles.coinImage} source={require('../../img/coin1.png')} />
     </TouchableOpacity>
-    <TouchableOpacity accessibilityRole="button" onPress={() => push(getEntropy(1, 2))} style={styles.coinBody}>
+    <TouchableOpacity accessibilityRole="button" testID="CoinFlip1" onPress={() => push(getEntropy(1, 2))} style={styles.coinBody}>
       <Image style={styles.coinImage} source={require('../../img/coin2.png')} />
     </TouchableOpacity>
   </View>
@@ -198,7 +200,7 @@ const Dice = ({ push, sides }: { push: TPush; sides: number }) => {
   return (
     <ScrollView contentContainerStyle={[styles.diceContainer, stylesHook.diceContainer]}>
       {[...Array(sides)].map((_, i) => (
-        <TouchableOpacity accessibilityRole="button" key={i} onPress={() => push(getEntropy(i, sides))}>
+        <TouchableOpacity accessibilityRole="button" testID={`Dice${sides}Roll${i + 1}`} key={i} onPress={() => push(getEntropy(i, sides))}>
           <View style={[styles.diceRoot, { width: diceWidth }]}>
             {sides === 6 ? (
               <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-6" />
@@ -222,6 +224,7 @@ const buttonFontSize =
 const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: any }) => (
   <FContainer>
     <FButton
+      testID="UndoEntropy"
       onPress={pop}
       text={loc.entropy.undo}
       icon={
@@ -231,6 +234,7 @@ const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: a
       }
     />
     <FButton
+      testID="SaveEntropy"
       onPress={save}
       text={loc.entropy.save}
       icon={
@@ -280,9 +284,12 @@ const ProvideEntropy = () => {
   const handlePush: TPush = v => {
     if (v === null) {
       dispatch({ type: EActionType.noop });
-    } else {
-      dispatch({ type: EActionType.push, value: v.value, bits: v.bits });
+      return;
     }
+    if (entropy.bits < entropy.limit) {
+      triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
+    }
+    dispatch({ type: EActionType.push, value: v.value, bits: v.bits });
   };
 
   const handlePop: TPop = () => {
@@ -293,15 +300,18 @@ const ProvideEntropy = () => {
     let buf = convertToBuffer(entropy);
     const bufLength = words === 24 ? 32 : 16;
     const remaining = bufLength - buf.length;
+    const providedEntropyBytes = buf.length;
 
     let entropyTitle = '';
     if (buf.length < bufLength) {
       entropyTitle = loc.formatString(loc.wallets.add_entropy_remain, {
+        genBits: buf.length * 8,
         gen: buf.length,
         rem: remaining,
       });
     } else {
       entropyTitle = loc.formatString(loc.wallets.add_entropy_generated, {
+        genBits: buf.length * 8,
         gen: buf.length,
       });
     }
@@ -327,7 +337,7 @@ const ProvideEntropy = () => {
               does not support passing Uint8Array objects between screens
             */
 
-            const popTo = StackActions.popTo('AddWallet', { entropy: uint8ArrayToHex(buf), words }, { merge: true });
+            const popTo = StackActions.popTo('AddWallet', { entropy: uint8ArrayToHex(buf), words, providedEntropyBytes }, { merge: true });
 
             navigation.dispatch(popTo);
           },
@@ -343,10 +353,10 @@ const ProvideEntropy = () => {
   bits = ' '.repeat(bits.length < 3 ? 3 - bits.length : 0) + bits;
 
   return (
-    <SafeArea>
+    <SafeArea ignoreTopInset>
       <TouchableOpacity accessibilityRole="button" onPress={() => setShow(!show)}>
         <View style={[styles.entropy, stylesHook.entropy]}>
-          <Text style={[styles.entropyText, stylesHook.entropyText]}>
+          <Text style={[styles.entropyText, stylesHook.entropyText]} testID="EntropyCounter">
             {show ? hex : loc.formatString(loc.entropy.amountOfEntropy, { bits, limit: entropy.limit })}
           </Text>
         </View>
@@ -354,9 +364,23 @@ const ProvideEntropy = () => {
 
       <Tabs active={tab} onSwitch={setTab} tabs={[TollTab, D6Tab, D20Tab]} />
 
-      {tab === 0 && <Coin push={handlePush} />}
-      {tab === 1 && <Dice sides={6} push={handlePush} />}
-      {tab === 2 && <Dice sides={20} push={handlePush} />}
+      <View style={styles.tabContent}>
+        {tab === 0 && (
+          <Animated.View key="coin" style={styles.tabItem} entering={FadeIn.duration(250)} exiting={FadeOut.duration(150)}>
+            <Coin push={handlePush} />
+          </Animated.View>
+        )}
+        {tab === 1 && (
+          <Animated.View key="d6" style={styles.tabItem} entering={FadeIn.duration(250)} exiting={FadeOut.duration(150)}>
+            <Dice sides={6} push={handlePush} />
+          </Animated.View>
+        )}
+        {tab === 2 && (
+          <Animated.View key="d20" style={styles.tabItem} entering={FadeIn.duration(250)} exiting={FadeOut.duration(150)}>
+            <Dice sides={20} push={handlePush} />
+          </Animated.View>
+        )}
+      </View>
 
       <Buttons pop={handlePop} save={handleSave} colors={colors} />
     </SafeArea>
@@ -364,6 +388,16 @@ const ProvideEntropy = () => {
 };
 
 const styles = StyleSheet.create({
+  tabContent: {
+    flex: 1,
+  },
+  tabItem: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
   entropy: {
     padding: 5,
     marginLeft: 10,
@@ -415,9 +449,12 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     maxWidth: 100,
     maxHeight: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   dice: {
     margin: 3,
+    alignSelf: 'stretch',
     borderWidth: 1,
     borderRadius: 5,
     justifyContent: 'center',

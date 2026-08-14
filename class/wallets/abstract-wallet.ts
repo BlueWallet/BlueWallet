@@ -124,14 +124,13 @@ export class AbstractWallet {
    * @returns {number} Available to spend amount, int, in sats
    */
   getBalance(): number {
-    return this.balance + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
+    const unconfirmed = this.getUnconfirmedBalance();
+    return this.balance + (unconfirmed < 0 ? unconfirmed : 0);
   }
 
   getPreferredBalanceUnit(): BitcoinUnit {
-    for (const value of Object.values(BitcoinUnit)) {
-      if (value === this.preferredBalanceUnit) {
-        return this.preferredBalanceUnit;
-      }
+    if (Object.values(BitcoinUnit).includes(this.preferredBalanceUnit)) {
+      return this.preferredBalanceUnit;
     }
     return BitcoinUnit.BTC;
   }
@@ -418,11 +417,11 @@ export class AbstractWallet {
   }
 
   getAddressAsync(): Promise<string | false | undefined> {
-    return new Promise(resolve => resolve(this.getAddress()));
+    return Promise.resolve(this.getAddress());
   }
 
   async getChangeAddressAsync(): Promise<string | false | undefined> {
-    return new Promise(resolve => resolve(this.getAddress()));
+    return Promise.resolve(this.getAddress());
   }
 
   useWithHardwareWalletEnabled(): boolean {

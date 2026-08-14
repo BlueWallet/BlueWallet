@@ -1,8 +1,6 @@
 import React, { useEffect, useLayoutEffect, useReducer, useCallback, useMemo, useRef, useState, startTransition } from 'react';
 import {
   StyleSheet,
-  TouchableOpacity,
-  Image,
   Animated,
   Keyboard,
   Text,
@@ -15,9 +13,8 @@ import {
 } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocale } from '@react-navigation/native';
+import { useNavigation, useLocale } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TTXMetadata } from '../../class/blue-app';
@@ -125,10 +122,10 @@ const reducer = (state: State, action: Action): State => {
 };
 
 const ManageWallets: React.FC = () => {
-  const { colors, closeImage, dark } = useTheme();
+  const { colors, dark } = useTheme();
   const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
-  const { navigate, setOptions, goBack } = useExtendedNavigation();
+  const { navigate, setOptions, goBack } = useNavigation();
   const { direction } = useLocale();
   const [state, dispatch] = useReducer(reducer, initialState);
   const bounceAnim = useBounceAnimation(state.searchQuery);
@@ -408,21 +405,6 @@ const ManageWallets: React.FC = () => {
     }
   }, [listData.length, state.searchQuery, noResultsOpacity]);
 
-  const HeaderLeftButton = useMemo(
-    () => (
-      <TouchableOpacity
-        accessibilityRole="button"
-        accessibilityLabel={loc._.close}
-        style={styles.button}
-        onPress={goBack}
-        testID="NavigationCloseButton"
-      >
-        <Image source={closeImage} />
-      </TouchableOpacity>
-    ),
-    [goBack, closeImage],
-  );
-
   useLayoutEffect(() => {
     const searchBarOptions = {
       hideWhenScrolling: false,
@@ -433,11 +415,9 @@ const ManageWallets: React.FC = () => {
       placeholder: loc.wallets.manage_wallets_search_placeholder,
     };
     setOptions({
-      headerLeft: () => HeaderLeftButton,
-      headerRight: undefined,
       headerSearchBarOptions: searchBarOptions,
     });
-  }, [setOptions, HeaderLeftButton, debouncedSearch]);
+  }, [setOptions, debouncedSearch]);
 
   const renderHighlightedText = useCallback(
     (text: string, query: string) => {
@@ -722,9 +702,6 @@ const styles = StyleSheet.create({
   },
   clearSearchText: {
     fontWeight: '600',
-  },
-  button: {
-    padding: 16,
   },
   noResultsText: {
     textAlign: 'center',

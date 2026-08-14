@@ -1,16 +1,15 @@
 import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
-import { useIsFocused, useNavigationState } from '@react-navigation/native';
+import { useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native';
 import { TWallet } from '../../class/wallets/types';
 import { Header } from '../../components/Header';
 import { useTheme } from '../../components/themes';
-import WalletsCarousel from '../../components/WalletsCarousel';
+import WalletsCarousel, { CarouselListRefType } from '../../components/WalletsCarousel';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -90,11 +89,11 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
     walletRemoved: false,
   };
 
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const drawerNavigation = props.navigation;
 
   const [state, dispatch] = useReducer(walletReducer, initialState);
-  const walletsCarousel = useRef<any>(null);
+  const walletsCarousel = useRef<CarouselListRefType>(null);
   const { wallets, selectedWalletID } = useStorage();
   const { colors } = useTheme();
   const isFocused = useIsFocused();

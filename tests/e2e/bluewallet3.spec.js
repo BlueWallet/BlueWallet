@@ -1,4 +1,5 @@
 import {
+  dismissAlertByText,
   goBack,
   hashIt,
   helperDeleteWallet,
@@ -6,6 +7,7 @@ import {
   scanText,
   scrollUpOnHomeScreen,
   sleep,
+  tapHeaderMenuItem,
   waitForId,
   waitForKeyboardToClose,
 } from './helperz';
@@ -34,7 +36,10 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t31'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true, permissions: { notifications: 'YES', camera: 'YES' } });
+    await device.launchApp({
+      delete: true,
+      permissions: { notifications: 'YES', camera: 'YES' },
+    });
     await helperImportWallet(
       // MNEMONICS_KEYSTONE
       'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y',
@@ -72,10 +77,14 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await expect(element(by.label('bitcoin:BC1QGRHR5XC5774MAPH97D73YDRJLQQMG2V6JJLR29?amount=1&label=Test'))).toBeVisible();
     await goBack();
     await element(by.id('SendButton')).tap();
-    await element(by.text('OK')).tap();
+    // Offline-signing prompt; liquid-glass OK often fails plain toBeVisible taps.
+    await dismissAlertByText('OK', 15_000);
+    await waitForId('HeaderMenuButton');
 
-    await element(by.id('HeaderMenuButton')).tap();
-    await element(by.text('Import Transaction (QR)')).tap(); // opens camera
+    await tapHeaderMenuItem('Import Transaction (QR)', {
+      actionId: 'import_transaction_qr',
+      restoreSynchronization: false,
+    }); // opens camera
 
     // produced by real Keystone device using MNEMONICS_KEYSTONE
     const unsignedPsbt =

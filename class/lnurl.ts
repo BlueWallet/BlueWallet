@@ -2,7 +2,7 @@ import { bech32 } from 'bech32';
 import bolt11 from 'bolt11';
 import { sha256 } from '@noble/hashes/sha256';
 import { hmac } from '@noble/hashes/hmac';
-import CryptoJS from 'crypto-js';
+import { cbc } from '@noble/ciphers/aes';
 import ecc from '../blue_modules/noble_ecc';
 import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { fetch } from '../util/fetch';
@@ -321,13 +321,24 @@ export default class Lnurl {
   }
 
   static decipherAES(ciphertextBase64: string, preimageHex: string, ivBase64: string): string {
-    const iv = CryptoJS.enc.Base64.parse(ivBase64);
-    const key = CryptoJS.enc.Hex.parse(preimageHex);
-    return CryptoJS.AES.decrypt(uint8ArrayToHex(base64ToUint8Array(ciphertextBase64)), key, {
-      iv,
-      mode: CryptoJS.mode.CBC,
-      format: CryptoJS.format.Hex,
-    }).toString(CryptoJS.enc.Utf8);
+    // crypto-js's old implementation silently returned '' on malformed
+    // ciphertext (non-16-aligned bytes, bad PKCS7 padding) and threw on
+    // malformed UTF-8 plaintext. @noble/ciphers throws on the former. We
+    // catch every throw and return '' — the call site at
+    // screen/lnd/lnurlPaySuccess.tsx renders this directly without a
+    // try/catch, so a misbehaving LNURL server should not crash the screen.
+    // Note: unlike crypto-js's strict `enc.Utf8` decoder, `uint8ArrayToString`
+    // is lenient on bad UTF-8 (mojibake instead of throw); this is strictly
+    // safer than the old behaviour for this user-facing path.
+    try {
+      const key = hexToUint8Array(preimageHex);
+      const iv = base64ToUint8Array(ivBase64);
+      const ct = base64ToUint8Array(ciphertextBase64);
+      const pt = cbc(key, iv).decrypt(ct);
+      return uint8ArrayToString(pt);
+    } catch (_) {
+      return '';
+    }
   }
 
   getCommentAllowed(): number | false {

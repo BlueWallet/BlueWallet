@@ -1,46 +1,56 @@
-Un portafoglio Bitcoin che ti consente di conservare, inviare e ricevere bitcoin con particolare attenzione alla sicurezza e alla semplicità d'uso.
+BlueWallet è un portafoglio Bitcoin radicalmente semplice, potente e sicuro. Conserva, invia e ricevi Bitcoin mantenendo il pieno controllo — le tue chiavi, le tue monete.
 
-Con BlueWallet, sei tu a possedere le tue chiavi private. Un portafoglio Bitcoin realizzato da utenti Bitcoin per la comunità Bitcoin.
-
-Puoi effettuare transazioni in maniera istantanea con chiunque e trasformare il sistema finanziario dal palmo della tua mano.
-
-Crea nuovi portafogli Bitcoin o importa il tuo portafoglio esistente. È semplice e veloce.
+Gratuito e open source, realizzato da utenti Bitcoin per la comunità. Effettua transazioni con chiunque nel mondo e prendi il controllo del tuo denaro, direttamente dal palmo della mano. Crea portafogli illimitati gratuitamente o importane uno esistente — è veloce e semplice.
 
 _____
 
-Caratteristiche principali:
+SICUREZZA FIN DALLA PROGETTAZIONE
 
+Open source
+Licenza MIT — verificalo, compilalo ed eseguilo per conto tuo. Realizzato con React Native.
 
-1 - Focalizzato sulla sicurezza
+Le tue chiavi, le tue monete
+Le chiavi private (il tuo seed) non lasciano mai il tuo dispositivo. Hai sempre il controllo.
 
-Open Source
-Licenza MIT, puoi compilarlo ed eseguirlo per conto tuo! Realizzato con ReactNative
-
-Negabilità plausibile
-Una password che sblocca dei finti portafogli bitcoin se sei costretto a rivelare i tuoi accessi
+Cassaforte multisig
+La migliore sicurezza disponibile su Bitcoin — per spendere servono più chiavi, proprio come una vera cassaforte.
 
 Crittografia completa
-In aggiunta alla crittografia multi strato di iOS, criptiamo tutto con password aggiuntive
+Oltre alla crittografia del dispositivo, tutto viene cifrato di nuovo con la tua password personale.
 
-Full node
-Connettiti al tuo full node Bitcoin tramite Electrum
+Negazione plausibile
+Imposta una password esca che apre portafogli falsi se sei mai costretto a sbloccare.
 
-Cold Storage
-Connetti il tuo portafoglio hardware e tieni i tuoi bitcoin al sicuro
+_____
 
-2 - Focalizzato sulla tua esperienza
+POTENZA E CONTROLLO
 
-Sei tu ad averne il pieno controllo
-Le chiavi private restano sul tuo dispositivo.
+Portafogli moderni
+Portafogli HD con pieno supporto per indirizzi Legacy, SegWit e Taproot.
 
-Costi di transazione flessibili
-A partire da 1 Satoshi. Deciso da te, l'utente
+Portafogli hardware
+Abbina Coldcard, Keystone e altri firmatari PSBT, e tieni le tue monete in cold storage.
 
-Replace-By-Fee
-(RBF) Velocizza le tue transazioni aumentando le commissioni (BIP125)
+Portafogli in sola lettura
+Tieni d'occhio il tuo cold storage senza mai esporre le tue chiavi private.
 
-Portafogli watch-only
-Il portafoglio watch-only ti permette di visualizzare il saldo del tuo portafoglio hardware senza collegarlo e senza dover inserire la seed phrase.
+Gestisci il tuo nodo
+Connettiti al tuo full node Bitcoin tramite Electrum e instrada la connessione attraverso Tor.
 
-Lightning Network
-Portafoglio Lightning senza alcuna configurazione necessaria. Per transazioni incredibilmente economiche e veloci con la miglior esperienza utente.
+Controllo delle monete
+Visualizza, etichetta e congela le tue monete (UTXO) per costruire transazioni esattamente come vuoi.
+
+Commissioni flessibili
+Imposta la tua commissione, fino a 1 sat/vByte. Velocizza le transazioni bloccate con RBF o CPFP, oppure annullale.
+
+_____
+
+LIGHTNING NETWORK
+
+Pagamenti incredibilmente economici e velocissimi senza alcuna configurazione. Paga e ricevi pagamenti con indirizzi Lightning e LNURL.
+
+_____
+
+Disponibile su iOS, Android e macOS. Più valute e lingue. Modalità scura. Nessun account e nessun tracciamento — solo Bitcoin.
+
+BlueWallet — possiedi i tuoi Bitcoin.

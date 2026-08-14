@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | hårdvaruplånbok | noun · master compound preferred over "hardware wallet". |
 | Seed | seed / mnemonisk fras | noun · `seed` retained as Bitcoin technical loanword; `mnemonisk fras` for prose. |
 | Mnemonic | mnemonisk fras | noun · native form per master / Bitcoin Core sv. |
-| Passphrase | lösenordsfras | noun · ⚠️ NOT "lösenord" (= password) · master ships "Lösenordsfras". |
+| Passphrase | lösenfras | noun · ⚠️ NOT "lösenord" (= password) · Bitcoin Core sv + Electrum sv_SE; master shipped "Lösenordsfras". |
 | Public key | publik nyckel | noun, lowercase · Electrum sv_SE + Zeus sv |
 | Private key | privat nyckel | noun, lowercase · Bitcoin Core sv + Electrum sv_SE |
 | WIF | WIF | acronym. |

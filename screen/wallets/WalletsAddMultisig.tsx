@@ -1,5 +1,5 @@
 import React, { useReducer, useCallback } from 'react';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
@@ -9,7 +9,6 @@ import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { resetScanWasBBQR } from '../../helpers/scan-qr.ts';
@@ -49,7 +48,7 @@ const multisigReducer = (state: MultisigState, action: MultisigAction): Multisig
 
 const WalletsAddMultisig: React.FC = () => {
   const { colors } = useTheme();
-  const { navigate } = useExtendedNavigation<NavigationProps>();
+  const { navigate } = useNavigation<NavigationProps>();
   const { walletLabel } = useRoute<RouteProps>().params;
 
   const [state, dispatch] = useReducer(multisigReducer, {

@@ -1,0 +1,56 @@
+BlueWallet je radikálně jednoduchá a bezpečná bitcoinová peněženka. Ukládejte, odesílejte a přijímejte bitcoin a mějte nad ním plnou kontrolu – vaše klíče, vaše mince.
+
+Je zdarma a s otevřeným kódem, vytvořena uživateli bitcoinu pro bitcoinovou komunitu. Provádějte transakce s kýmkoliv na světě a převezměte kontrolu nad svými penězi – vše máte na dosah ruky. Vytvářejte bezplatně neomezený počet peněženek, nebo importujte existující – rychle a jednoduše.
+
+_____
+
+NAVRŽENA S BEZPEČNOSTÍ NA PAMĚTI
+
+Má otevřený kód
+Je licencována licencí MIT – můžete ji auditovat, sestavit a spustit vy sami. Vytvořena s React Native.
+
+Vaše klíče, vaše mince
+Soukromé klíče (váš seed) nikdy neopustí vaše zařízení. Vy nad nimi máte plnou kontrolu.
+
+Vícepodpisové Úložiště
+Jde o nejlepší možné zabezpečení bitcoinu – k jeho utracení je zapotřebí použít více klíčů, stejně jako u skutečného trezoru.
+
+Plně šifrovaná aplikace
+Kromě toho, že je šifrované vaše zařízení, jsou data aplikace zašifrována ještě jednou vaším vlastním heslem.
+
+Věrohodná popiratelnost
+Můžete nastavit návnadové heslo, které otevře falešné peněženky pro případ, že byste byli donuceni zařízení a aplikaci odemknout.
+
+_____
+
+KONTROLA
+
+Moderní peněženky
+HD (hierarchicky deterministické) peněženky s plnou podporou Legacy, SegWit a Taproot adres.
+
+Hardwarové peněženky
+Spárujte Coldcard, Keystone a jiné PSBT podepisovače a držte své mince v cold storage.
+
+Peněženky pouze ke sledování
+Sledujte své prostředky na cold storage, aniž byste odhalili své soukromé klíče.
+
+Provozujte svůj vlastní uzel
+Připojte se ke svému plnému bitcoinovému uzlu přes Electrum a směrujte připojení skrze Tor.
+
+Kontrola nad mincemi
+Prohlížejte, označujte a zmrazujte své mince (UTXO) tak, abyste sestavili transakce přesně tak, jak chcete.
+
+Flexibilní poplatky
+Nastavujte vlastní poplatky až na 1 sat/vByte. Urychlete zaseknuté transakce pomocí RBF nebo CPFP, nebo je zrušte.
+
+_____
+
+SÍŤ LIGHTNING
+
+Neférově levné a bleskově rychlé platby s nulovou konfigurací. Plaťte a přijímejte platby pomocí Lightning adres a LNURL.
+
+_____
+
+Dostupné na iOS, Androidu a macOS. Vícero měn a podporovaných jazyků. Tmavý motiv. Žádné účty a sledování – čistě bitcoin.
+
+BlueWallet – vlastněte svůj bitcoin.

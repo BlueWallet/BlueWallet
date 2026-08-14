@@ -1,0 +1,56 @@
+BlueWallet est un portefeuille Bitcoin radicalement simple, puissant et sécuritaire. Stockez, envoyez et recevez des Bitcoin tout en gardant le plein contrôle — vos clés, vos bitcoins.
+
+Gratuit et à code ouvert, conçu par des utilisateurs de Bitcoin pour la communauté. Effectuez des transactions avec n'importe qui dans le monde et prenez le contrôle de votre argent, directement depuis votre poche. Créez gratuitement un nombre illimité de portefeuilles ou importez-en un existant — c'est rapide et simple.
+
+_____
+
+LA SÉCURITÉ DÈS LA CONCEPTION
+
+Code ouvert
+Sous licence MIT — auditez-le, compilez-le et exécutez-le vous-même. Conçu avec React Native.
+
+Vos clés, vos bitcoins
+Les clés privées (votre phrase de récupération) ne quittent jamais votre appareil. Vous gardez toujours le contrôle.
+
+Coffre-fort multisignature
+La meilleure sécurité offerte sur Bitcoin — plusieurs clés sont requises pour dépenser, comme un véritable coffre-fort.
+
+Chiffrement complet
+En plus du chiffrement de l'appareil, tout est chiffré de nouveau avec votre propre mot de passe.
+
+Déni plausible
+Définissez un mot de passe leurre qui ouvre de faux portefeuilles si l'on vous force un jour à déverrouiller.
+
+_____
+
+PUISSANCE ET CONTRÔLE
+
+Portefeuilles modernes
+Portefeuilles HD avec prise en charge complète des adresses Legacy, SegWit et Taproot.
+
+Portefeuilles matériels
+Jumelez Coldcard, Keystone et d'autres signataires PSBT, et gardez vos bitcoins en stockage à froid.
+
+Portefeuilles spectateurs
+Gardez un œil sur votre stockage à froid sans jamais exposer vos clés privées.
+
+Exécutez votre propre nœud
+Connectez-vous à votre propre nœud Bitcoin complet via Electrum, et acheminez votre connexion à travers Tor.
+
+Contrôle des pièces
+Visualisez, étiquetez et gelez vos pièces (UTXO) pour bâtir vos transactions exactement comme vous le souhaitez.
+
+Frais flexibles
+Définissez vos propres frais, jusqu'à 1 sat/vByte. Accélérez les transactions bloquées avec RBF ou CPFP, ou annulez-les.
+
+_____
+
+RÉSEAU LIGHTNING
+
+Des paiements incroyablement peu coûteux et ultra rapides, sans aucune configuration. Payez et soyez payé avec des adresses Lightning et LNURL.
+
+_____
+
+Offert sur iOS, Android et macOS. Plusieurs devises et langues. Mode sombre. Aucun compte et aucun pistage — seulement du Bitcoin.
+
+BlueWallet — possédez votre Bitcoin.

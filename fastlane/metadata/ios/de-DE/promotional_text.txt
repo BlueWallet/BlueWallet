@@ -1,10 +1,10 @@
-Eigenschaften
+Funktionen
 
-* Quelloffene
-* Vollverschlüsselung
+* Quelloffen
+* Volle Verschlüsselung
 * Glaubhafte Täuschung
 * Flexible Gebühren
-* Gebührenübernahme
+* Replace-By-Fee (RBF)
 * SegWit
-* Wallets beobachten
-* Lightning Netzwerk
+* Watch-only-Wallets
+* Lightning-Netzwerk

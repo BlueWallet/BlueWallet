@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useNavigationState, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useNavigationState, useRoute, RouteProp } from '@react-navigation/native';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueText from '../../components/BlueText';
@@ -8,8 +8,7 @@ import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
-import WalletsCarousel from '../../components/WalletsCarousel';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
+import WalletsCarousel, { CarouselListRefType } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -31,11 +30,11 @@ const SelectWallet: React.FC = () => {
     selectedWalletID,
   } = route.params;
   const [isLoading, setIsLoading] = useState(true);
-  const navigation = useExtendedNavigation<NavigationProps>();
+  const navigation = useNavigation<NavigationProps>();
   const { wallets } = useStorage();
   const { colors } = useTheme();
   const isModal = useNavigationState(state => state.routes.length > 1);
-  const walletsCarousel = useRef<any>(null);
+  const walletsCarousel = useRef<CarouselListRefType>(null);
   const previousRouteName = useNavigationState(state => state.routes[state.routes.length - 2]?.name);
   const [filteredWallets, setFilteredWallets] = useState<TWallet[]>([]);
 

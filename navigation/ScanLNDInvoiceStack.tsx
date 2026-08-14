@@ -5,6 +5,7 @@ import navigationStyle, { CloseButtonPosition } from '../components/navigationSt
 import { useTheme } from '../components/themes';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
+import { navigationGuardRouter } from './navigationGuard';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,7 +26,7 @@ const ScanQRCodeComponent = withLazySuspense(ScanQRCode);
 const ScanLNDInvoiceRoot = () => {
   const theme = useTheme();
   return (
-    <Stack.Navigator screenOptions={{ headerShadowVisible: false }}>
+    <Stack.Navigator screenOptions={{ headerShadowVisible: false }} UNSTABLE_router={navigationGuardRouter}>
       <Stack.Screen
         name="ScanLNDInvoice"
         component={ScanLNDInvoiceComponent}

@@ -8,14 +8,11 @@ import loc from '../../loc';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import BlueTextCentered from '../../components/BlueTextCentered';
-import { platformSizing, platformLayout, getSettingsRowBackgroundColor, SettingsScrollView } from '../../components/platform';
-import { useTheme } from '../../components/themes';
+import { SettingsSection, SettingsScrollView, settingsCardContent } from '../../components/SettingsSection';
 
 const GenerateWord = () => {
   const [mnemonic, setMnemonic] = useState('');
   const [result, setResult] = useState('');
-  const { colors, dark } = useTheme();
-  const rowBackgroundColor = getSettingsRowBackgroundColor(colors, dark);
 
   const handleUpdateMnemonic = (nextValue: string) => {
     setMnemonic(nextValue);
@@ -47,40 +44,32 @@ const GenerateWord = () => {
 
   return (
     <SettingsScrollView keyboardShouldPersistTaps="handled">
-      <View
-        style={{
-          paddingTop: platformSizing.firstSectionContainerPaddingTop,
-          marginHorizontal: platformSizing.contentContainerMarginHorizontal || 0,
-          marginBottom: platformSizing.sectionContainerMarginBottom,
-          backgroundColor: rowBackgroundColor,
-          borderRadius: platformSizing.containerBorderRadius,
-          padding: platformSizing.basePadding,
-          ...platformLayout.cardShadow,
-        }}
-      >
-        <BlueFormMultiInput
-          editable
-          placeholder={loc.autofill_word.enter}
-          value={mnemonic}
-          onChangeText={handleUpdateMnemonic}
-          testID="MnemonicInput"
-        />
-
-        <BlueSpacing10 />
-        <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
-        <BlueSpacing20 />
-        <BlueTextCentered testID="Result">{result}</BlueTextCentered>
-        <BlueSpacing20 />
-        <View>
-          <Button
-            disabled={mnemonic.trim().length === 0}
-            title={loc.autofill_word.generate_word}
-            onPress={checkMnemonic}
-            testID="GenerateWord"
+      <SettingsSection>
+        <View style={settingsCardContent}>
+          <BlueFormMultiInput
+            editable
+            placeholder={loc.autofill_word.enter}
+            value={mnemonic}
+            onChangeText={handleUpdateMnemonic}
+            testID="MnemonicInput"
           />
+
+          <BlueSpacing10 />
+          <Button title={loc.send.input_clear} onPress={clearMnemonicInput} />
+          <BlueSpacing20 />
+          <BlueTextCentered testID="Result">{result}</BlueTextCentered>
+          <BlueSpacing20 />
+          <View>
+            <Button
+              disabled={mnemonic.trim().length === 0}
+              title={loc.autofill_word.generate_word}
+              onPress={checkMnemonic}
+              testID="GenerateWord"
+            />
+          </View>
+          <BlueSpacing20 />
         </View>
-        <BlueSpacing20 />
-      </View>
+      </SettingsSection>
     </SettingsScrollView>
   );
 };

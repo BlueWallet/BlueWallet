@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | 하드웨어 지갑 | noun. |
 | Seed | 시드 / 복구 문구 | noun · technical / mainstream. |
 | Mnemonic | 니모닉 / 시드 문구 / 복구 문구 | noun · technical / mainstream · ⚠️ mnemonic backup screen mixes English "mnemonic phrase" — localise. |
-| Passphrase | 패스프레이즈 / 시드 패스프레이즈 | noun · ⚠️ NOT "암호" (= password). Distinct from app password/passcode. |
+| Passphrase | 패스프레이즈 / 시드 패스프레이즈 | noun · ⚠️ NOT "암호" (= password). Distinct from app password/passcode. KR crypto convention (Ledger/hardware-wallet docs); Electrum ko_KR's 비밀구절 — do not adopt. |
 | Public key | 공개 키 | noun · "공개 키" is the standard CS form (vs literal "공용 키") · Bitcoin Core ko_KR. |
 | Private key | 개인 키 | noun · "개인 키" is the standard CS form (vs "비밀키") · Bitcoin Core ko_KR. |
 | WIF | WIF | acronym · gloss: 지갑 가져오기 형식. |

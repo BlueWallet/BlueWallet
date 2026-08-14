@@ -1,0 +1,1 @@
+../../ios/zh-Hans/description.txt

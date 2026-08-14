@@ -1,4 +1,4 @@
-import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import { sha256 } from '@noble/hashes/sha256';
 import React, { useEffect, useRef, useState } from 'react';
@@ -12,7 +12,6 @@ import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import { isCameraAuthorizationStatusGranted } from '../../helpers/scan-qr';
 import loc from '../../loc';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import CameraScreen from '../../components/CameraScreen';
 import SafeArea from '../../components/SafeArea';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
@@ -58,10 +57,10 @@ const styles = StyleSheet.create({
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const route = useRoute<RouteProps>();
   const navigationState = navigation.getState();
-  const previousRoute = navigationState.routes[navigationState.routes.length - 2];
+  const previousRoute = navigationState?.routes?.at(-2);
   const defaultLaunchedBy = previousRoute ? previousRoute.name : undefined;
 
   const { launchedBy = defaultLaunchedBy, showFileImportButton, onBarScanned } = route.params || {};
@@ -116,6 +115,7 @@ const ScanQRCode = () => {
       }
     } catch (error: any) {
       console.log('Invalid animated qr code fragment: ' + error.message + ' (continuing scanning)');
+      decoder = undefined;
     }
   };
 
@@ -171,6 +171,14 @@ const ScanQRCode = () => {
     }
 
     if (ret.data.toUpperCase().startsWith('UR:CRYPTO-OUTPUT')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-HDKEY')) {
+      return _onReadUniformResourceV2(ret.data);
+    }
+
+    if (ret.data.toUpperCase().startsWith('UR:CRYPTO-MULTI-ACCOUNTS')) {
       return _onReadUniformResourceV2(ret.data);
     }
 

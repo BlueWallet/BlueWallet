@@ -1160,6 +1160,7 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
     // Real BOLT11 with amount = 0.0001 BTC (10000 sat) so it passes the limits assertion.
     const invoice =
       'lnbc100u1p50528cpp5rhy4fgs0ff23asecxtxt9zvc3apn0p8h7fxsj0d5k7j3x92zwhlqdq5w3jhxapqd9h8vmmfvdjscqrp80xqyf8ucsp5vcsrzye432n9wh0zwuv5z8y5n9zvkwpctr685e80utzc2yueccms9qxpqysgqd87swq3hput9k6llp0wxg098hc7ge3e5nrtnvak6zreywzaf4k9s8d3u4hrmt3m22kf0jt7ruqj0caknk5ykzdenjdphz50t7xrstnqqn6aw0m';
+    const expectedPaymentHash = w.decodeInvoice(invoice).payment_hash;
     fakeArkadeSwaps.sendLightningPayment.mockResolvedValue({ amount: 10_000, preimage: 'pre', txid: 'tx' });
 
     await w.payInvoice(invoice);
@@ -1167,6 +1168,11 @@ describe('LightningArkWallet — addInvoice + payInvoice (mocked SDK runtime)', 
     assert.strictEqual(fakeArkadeSwaps.sendLightningPayment.mock.calls.length, 1);
     assert.strictEqual(fakeArkadeSwaps.sendLightningPayment.mock.calls[0][0].invoice, invoice);
     assert.strictEqual(fakeWallet.sendBitcoin.mock.calls.length, 0, 'Ark sendBitcoin must not run for BOLT11');
+    assert.deepStrictEqual(w.last_paid_invoice_result, {
+      payment_preimage: 'pre',
+      payment_hash: expectedPaymentHash,
+      payment_request: invoice,
+    });
   });
 
   it('payInvoice routes a valid Ark address through Wallet.sendBitcoin', async () => {

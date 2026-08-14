@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { CommonActions, RouteProp, useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
+import { useNavigation, CommonActions, RouteProp, useFocusEffect, useLocale, useRoute } from '@react-navigation/native';
 import { navigationRef, pop } from '../../NavigationService';
 import {
   ActivityIndicator,
@@ -29,7 +29,6 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import { BlueLoading } from '../../components/BlueLoading';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation.ts';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import assert from 'assert';
@@ -45,7 +44,7 @@ const LNDCreateInvoice = () => {
   const { uri, walletID } = useRoute<RouteProp<{ params: LNDCreateInvoiceRouteParams }, 'params'>>().params;
   const wallet = useRef(wallets.find(item => item.getID() === walletID) || wallets.find(item => item.chain === Chain.OFFCHAIN));
   const { colors } = useTheme();
-  const { navigate, goBack, setParams } = useExtendedNavigation();
+  const { navigate, goBack, setParams } = useNavigation();
   const [unit, setUnit] = useState(wallet.current?.getPreferredBalanceUnit() || BitcoinUnit.BTC);
   const [amount, setAmount] = useState<string>();
   const { direction } = useLocale();

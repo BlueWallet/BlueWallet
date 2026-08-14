@@ -1,11 +1,10 @@
 import React, { useCallback, useReducer } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import BlueCard from '../components/BlueCard';
 import BlueText from '../components/BlueText';
 import Button from '../components/Button';
 import loc from '../loc';
 import { MODAL_TYPES } from './PromptPasswordConfirmationSheet.types';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
 import SafeAreaScrollView from '../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../components/BlueSpacing';
 import { BlueLoading } from '../components/BlueLoading';
@@ -45,7 +44,7 @@ function reducer(state: State, action: Action): State {
 const PlausibleDeniability: React.FC = () => {
   useStorage();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
 
   const handleOnCreateFakeStorageButtonPressed = async () => {
     dispatch({ type: SET_LOADING, payload: true });

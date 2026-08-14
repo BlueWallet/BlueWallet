@@ -1,1 +1,1 @@
-bitcoin,wallet,segwit,crypto,blockchain,btc,cryptocurrency,wallet,bread,samourai,lightning,ethereum
+bitcoin,plånbok,bitcoin-plånbok,blockkedja,btc,kryptovaluta,lightning,segwit,multisig,electrum

@@ -28,7 +28,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | کیف پول سخت‌افزاری | noun. |
 | Seed | سید / عبارت بازیابی | noun · technical / mainstream. |
 | Mnemonic | عبارت یادیار / عبارت بازیابی | noun · technical / mainstream. |
-| Passphrase | عبارت عبور | noun · ⚠️ NOT `گذرواژه` (= password) and NOT `رمز عبور`. App ships `پس‌فریز (Passphrase)` — distinct from password. |
+| Passphrase | عبارت عبور | noun · ⚠️ NOT `گذرواژه` (= password) and NOT `رمز عبور`. Electrum fa uses `عبارت عبور` for Confirm/Disable Passphrase. |
 | Public key | کلید عمومی | noun. |
 | Private key | کلید خصوصی | noun. |
 | WIF | WIF | acronym · gloss: قالب وارد‌کردن کیف پول. |

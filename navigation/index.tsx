@@ -6,13 +6,14 @@ import { withLazySuspense } from './LazyLoadingIndicator';
 import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
-import navigationStyle, { CloseButtonPosition } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import WalletXpub from '../screen/wallets/xpub';
 import WalletExport from '../screen/wallets/WalletExport';
 import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
+import { navigationGuardRouter } from './navigationGuard';
 
 // Lazy load all components except UnlockWith
 const DrawerRoot = lazy(() => import('./DrawerRoot'));
@@ -65,7 +66,7 @@ const MainRoot = () => {
   const theme = useTheme();
 
   return (
-    <DetailViewStack.Navigator screenOptions={{ headerShown: false }}>
+    <DetailViewStack.Navigator UNSTABLE_router={navigationGuardRouter} screenOptions={{ headerShown: false }}>
       {!walletsInitialized ? (
         <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (
@@ -98,13 +99,16 @@ const MainRoot = () => {
           <DetailViewStack.Screen
             name="ViewEditMultisigCosigners"
             component={LazyViewEditMultisigCosigners}
-            options={navigationStyle({
-              title: loc.multisig.view_edit_cosigners,
-              presentation: 'modal',
-              headerShown: true,
-              gestureEnabled: false,
-              closeButtonPosition: CloseButtonPosition.Right,
-            })(theme)}
+            options={navigationStyle(
+              {
+                title: loc.multisig.view_edit_cosigners,
+                presentation: 'modal',
+                headerShown: true,
+                gestureEnabled: false,
+                closeButtonPosition: CloseButtonPosition.Right,
+              },
+              withRouteParamHeaderOptions({ headerRight: true }),
+            )(theme)}
           />
           <DetailViewStack.Screen
             name="ViewEditMultisigCosignerViewSheet"

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
-import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -15,7 +15,6 @@ import confirm from '../../helpers/confirm';
 import prompt from '../../helpers/prompt';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import MultipleStepsListItem, {
   MultipleStepsListItemButtonType,
@@ -47,7 +46,7 @@ const WalletsAddMultisigStep2 = () => {
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { colors } = useTheme();
 
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const route = useRoute<RouteProp<{ WalletsAddMultisigStep2: MultisigStep2Params }, 'WalletsAddMultisigStep2'>>();
   const params = route.params;
   const { m, n, format, walletLabel } = params;
@@ -91,6 +90,24 @@ const WalletsAddMultisigStep2 = () => {
     navigation.navigate('WalletsAddMultisigHelp');
   }, [navigation]);
 
+  const renderHeaderRight = useCallback(
+    () => (
+      <Pressable
+        accessibilityRole="button"
+        style={({ pressed }) => [
+          styles.helpButton,
+          { backgroundColor: colors.buttonDisabledBackgroundColor },
+          pressed && styles.helpButtonPressed,
+        ]}
+        onPress={handleOnHelpPress}
+      >
+        <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
+        <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
+      </Pressable>
+    ),
+    [colors.buttonDisabledBackgroundColor, colors.foregroundColor, handleOnHelpPress],
+  );
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -99,19 +116,9 @@ const WalletsAddMultisigStep2 = () => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      // eslint-disable-next-line react/no-unstable-nested-components
-      headerRight: () => (
-        <TouchableOpacity
-          accessibilityRole="button"
-          style={[styles.helpButton, { backgroundColor: colors.buttonDisabledBackgroundColor }]}
-          onPress={handleOnHelpPress}
-        >
-          <Icon size={20} name="help-outline" type="material" color={colors.foregroundColor} />
-          <Text style={[styles.helpButtonText, { color: colors.foregroundColor }]}>{loc.multisig.ms_help}</Text>
-        </TouchableOpacity>
-      ),
+      headerRight: renderHeaderRight,
     });
-  }, [colors.buttonDisabledBackgroundColor, colors.foregroundColor, handleOnHelpPress, navigation]);
+  }, [navigation, renderHeaderRight]);
 
   const onCreate = async () => {
     setIsLoading(true);
@@ -631,6 +638,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 8,
+  },
+  helpButtonPressed: {
+    opacity: 0.75,
   },
 });
 

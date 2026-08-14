@@ -1,4 +1,4 @@
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import Icon from '../../components/Icon';
 import React, { useEffect, useState } from 'react';
 import { I18nManager, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -13,7 +13,6 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -21,7 +20,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 type RouteProps = RouteProp<DetailViewStackParamList, 'AztecoRedeem'>;
 
 const AztecoRedeem = () => {
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const { wallets } = useStorage();
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();

@@ -1,10 +1,10 @@
 Funcționalități
 
-Open Source
-Encriptare totală
-Negare plauzibilă
-Comisioane flexibile
-Replace-by-Fee (RBF)
-SegWit
-Portofele Watch-only (Sentinel)
-Rețeaua Lightning
+* Open Source
+* Criptare completă
+* Negare plauzibilă
+* Comisioane flexibile
+* Replace-By-Fee (RBF)
+* SegWit
+* Portofele doar citire
+* Rețeaua Lightning

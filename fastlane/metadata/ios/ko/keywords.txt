@@ -1,0 +1,1 @@
+비트코인,지갑,비트코인 지갑,블록체인,btc,암호화폐,lightning,segwit,멀티시그,electrum
