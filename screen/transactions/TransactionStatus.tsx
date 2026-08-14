@@ -466,7 +466,7 @@ const TransactionStatus: React.FC = () => {
             setMempoolFee(txFromMempool.fee);
           }
 
-          const satPerVbyte = txFromMempool.fee && fetchedTx.vsize ? Math.round(txFromMempool.fee / fetchedTx.vsize) : 0;
+          const satPerVbyte = txFromMempool.fee && fetchedTx.vsize ? txFromMempool.fee / fetchedTx.vsize : 0;
           const fees = await BlueElectrum.estimateFees();
 
           // Only set ETA if we have valid fee data
