@@ -164,7 +164,7 @@ export default class CPFP extends Component {
           <ReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
           <BlueSpacing />
           <Button
-            disabled={this.state.newFeeRate <= this.state.feeRate}
+            disabled={this.state.newFeeRate <= this.state.feeRate || !Number.isFinite(this.state.newFeeRate)}
             onPress={() => this.createTransaction()}
             title={loc.transactions.cpfp_create}
           />
