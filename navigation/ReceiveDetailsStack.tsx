@@ -21,7 +21,7 @@ const ReceiveDetailsStack = () => {
         options={navigationStyle(
           {
             title: loc.receive.header,
-            closeButtonPosition: CloseButtonPosition.Left,
+            closeButtonPosition: CloseButtonPosition.Right,
             headerShown: true,
           },
           withRouteParamHeaderOptions({ headerLeft: true, headerRight: false, headerBackVisible: true }),
