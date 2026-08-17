@@ -24,7 +24,7 @@ const ReceiveDetailsStack = () => {
             closeButtonPosition: CloseButtonPosition.Left,
             headerShown: true,
           },
-          withRouteParamHeaderOptions({ headerLeft: true, headerRight: true, headerBackVisible: true }),
+          withRouteParamHeaderOptions({ headerLeft: true, headerRight: false, headerBackVisible: true }),
         )(theme)}
       />
       <Stack.Screen
