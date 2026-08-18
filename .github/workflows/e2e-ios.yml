@@ -19,16 +19,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 24
           cache: 'npm'
 
       - name: Setup Ruby
-        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           ruby-version: "3.4.10"
           bundler-cache: true
@@ -58,7 +58,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ccache-
 
-      - name: Delete extension and watch targets
+      - name: Delete extension targets
         run: |
           bundle exec ruby <<'RUBY'
           require 'xcodeproj'
@@ -66,7 +66,7 @@ jobs:
           project_path = 'ios/BlueWallet.xcodeproj'
           project = Xcodeproj::Project.open(project_path)
 
-          target_names = %w[BlueWalletWatch WidgetsExtension Stickers]
+          target_names = %w[WidgetsExtension Stickers]
           embed_phase_names = ['Embed Watch Content', 'Embed Foundation Extensions']
           removed_any = false
 
@@ -99,9 +99,8 @@ jobs:
           end
           RUBY
 
-      - name: Remove extension and watch schemes
+      - name: Remove extension schemes
         run: |
-          rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/BlueWalletWatch.xcscheme
           rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/WidgetsExtension.xcscheme
           rm -f ios/BlueWallet.xcodeproj/xcshareddata/xcschemes/Stickers.xcscheme
 
@@ -168,10 +167,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 24
           cache: 'npm'

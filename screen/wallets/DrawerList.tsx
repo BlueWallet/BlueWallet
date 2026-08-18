@@ -1,5 +1,5 @@
 import { DrawerContentScrollView, DrawerContentComponentProps } from '@react-navigation/drawer';
-import { useIsFocused, useNavigationState } from '@react-navigation/native';
+import { useNavigation, useIsFocused, useNavigationState } from '@react-navigation/native';
 import React, { memo, useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { StyleSheet, View, ViewStyle, Animated, ScrollView } from 'react-native';
 import { TWallet } from '../../class/wallets/types';
@@ -10,7 +10,6 @@ import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 
 enum WalletActionType {
   SetWallets = 'SET_WALLETS',
@@ -90,7 +89,7 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
     walletRemoved: false,
   };
 
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const drawerNavigation = props.navigation;
 
   const [state, dispatch] = useReducer(walletReducer, initialState);

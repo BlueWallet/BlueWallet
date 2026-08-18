@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { Keyboard, Platform, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import BlueFormLabel from '../../components/BlueFormLabel';
@@ -11,7 +11,6 @@ import {
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
@@ -25,7 +24,7 @@ type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
 
 const ImportWallet = () => {
-  const navigation = useExtendedNavigation<NavigationProps>();
+  const navigation = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
   const label = route?.params?.label ?? '';
