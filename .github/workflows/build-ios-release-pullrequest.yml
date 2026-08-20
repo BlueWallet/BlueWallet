@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout Project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0 # Ensures the full Git history is 
 
@@ -69,7 +69,7 @@ jobs:
           echo "Branch Name: ${{ env.CURRENT_BRANCH }}"
 
       - name: Specify Node.js Version
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 24
           cache: 'npm'
@@ -107,11 +107,11 @@ jobs:
           
           echo -e "\033[1;36mSDK Information:\033[0m"
           echo "  Available SDKs:"
-          xcodebuild -showsdks | grep -E "(iOS|watchOS|macOS)" | head -10
+          xcodebuild -showsdks | grep -E "(iOS|macOS)" | head -10
           
           echo -e "\033[1;34m========================================================\033[0m"
 
-      - name: Install Simulator Runtimes (iOS & watchOS)
+      - name: Install Simulator Runtime (iOS)
         run: |
           echo -e "\033[1;34m============ SIMULATOR RUNTIME SETUP DEBUG ============\033[0m"
           echo -e "\033[1;33mNote: Installing runtimes for debugging purposes - release builds use physical device targets\033[0m"
@@ -125,11 +125,6 @@ jobs:
             echo "    $line"
           done
           
-          echo "  watchOS Runtimes:"
-          xcrun simctl list runtimes | grep "watchOS" | while read -r line; do
-            echo "    $line"
-          done
-          
           echo -e "\033[1;33mChecking iOS Runtime Requirements (17+):\033[0m"
           if ! xcrun simctl list runtimes | grep -Eq "iOS (1[7-9]|[2-9][0-9])"; then
             echo -e "\033[1;31m  No iOS 17+ runtime found - installing...\033[0m"
@@ -139,19 +134,6 @@ jobs:
           else
             echo -e "\033[1;32m  iOS 17+ runtime already present\033[0m"
             xcrun simctl list runtimes | grep -E "iOS (1[7-9]|[2-9][0-9])" | while read -r line; do
-              echo "    Found: $line"
-            done
-          fi
-
-          echo -e "\033[1;33mChecking watchOS Runtime Requirements (11+):\033[0m"
-          if ! xcrun simctl list runtimes | grep -Eq "watchOS (1[1-9]|[2-9][0-9])"; then
-            echo -e "\033[1;31m  No watchOS 11+ runtime found - installing...\033[0m"
-            echo "  Downloading watchOS platform..."
-            xcodebuild -downloadPlatform watchOS
-            echo -e "\033[1;32m  watchOS platform download completed\033[0m"
-          else
-            echo -e "\033[1;32m  watchOS 11+ runtime already present\033[0m"
-            xcrun simctl list runtimes | grep -E "watchOS (1[1-9]|[2-9][0-9])" | while read -r line; do
               echo "    Found: $line"
             done
           fi
@@ -208,7 +190,7 @@ jobs:
           echo -e "\033[1;34m======================================================\033[0m"
 
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           ruby-version: 3.4.10
 
@@ -422,7 +404,7 @@ jobs:
           
           echo -e "\033[1;36mFinal Simulator State:\033[0m"
           echo "  Available runtimes:"
-          xcrun simctl list runtimes | grep -E "(iOS|watchOS)" | tail -5
+          xcrun simctl list runtimes | grep -E "(iOS)" | tail -5
           
           echo "  Available devices:"
           xcrun simctl list devices iOS | head -10
@@ -490,10 +472,10 @@ jobs:
       BRANCH_NAME: ${{ needs.build.outputs.branch_name }}
     steps:
       - name: Checkout Project
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@d45b1a4e94b71acab930e56e79c6aa188764e7f9 # v1.316.0
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
         with:
           ruby-version: 3.4.10
 

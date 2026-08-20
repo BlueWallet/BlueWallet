@@ -1,4 +1,4 @@
-import { RouteProp, useLocale, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useLocale, useRoute } from '@react-navigation/native';
 import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
@@ -15,7 +15,6 @@ import { Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 import assert from 'assert';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
@@ -45,8 +44,8 @@ const LnurlAuth = () => {
   );
   const [authState, setAuthState] = useState(AuthState.USER_PROMPT);
   const [errMsg, setErrMsg] = useState('');
-  const navigation = useExtendedNavigation();
-  const { setParams } = useExtendedNavigation();
+  const navigation = useNavigation();
+  const { setParams } = navigation;
   const { colors } = useTheme();
   const stylesHook = StyleSheet.create({
     root: {

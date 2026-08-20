@@ -1,4 +1,4 @@
-import { createNavigationContainerRef, NavigationAction, ParamListBase, StackActions } from '@react-navigation/native';
+import { CommonActions, createNavigationContainerRef, NavigationAction, ParamListBase, StackActions } from '@react-navigation/native';
 
 export const navigationRef = createNavigationContainerRef<ParamListBase>();
 
@@ -32,5 +32,30 @@ export function popToTop() {
 export function pop() {
   if (navigationRef.isReady()) {
     navigationRef.current?.dispatch(StackActions.pop());
+  }
+}
+
+export function navigateToWalletsList() {
+  if (navigationRef.isReady()) {
+    navigationRef.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [
+          {
+            name: 'DrawerRoot',
+            state: {
+              routes: [
+                {
+                  name: 'DetailViewStackScreensStack',
+                  state: {
+                    routes: [{ name: 'WalletsList' }],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    );
   }
 }

@@ -36,7 +36,10 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t31'), 'as it previously passed on Travis');
     }
     await device.clearKeychain();
-    await device.launchApp({ delete: true, permissions: { notifications: 'YES', camera: 'YES' } });
+    await device.launchApp({
+      delete: true,
+      permissions: { notifications: 'YES', camera: 'YES' },
+    });
     await helperImportWallet(
       // MNEMONICS_KEYSTONE
       'zpub6s2EvLxwvDpaHNVP5vfordTyi8cH1fR8usmEjz7RsSQjfTTGU2qA5VEcEyYYBxpZAyBarJoTraB4VRJKVz97Au9jRNYfLAeeHC5UnRZbz8Y',
@@ -78,7 +81,10 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await dismissAlertByText('OK', 15_000);
     await waitForId('HeaderMenuButton');
 
-    await tapHeaderMenuItem('Import Transaction (QR)', { restoreSynchronization: false }); // opens camera
+    await tapHeaderMenuItem('Import Transaction (QR)', {
+      actionId: 'import_transaction_qr',
+      restoreSynchronization: false,
+    }); // opens camera
 
     // produced by real Keystone device using MNEMONICS_KEYSTONE
     const unsignedPsbt =
