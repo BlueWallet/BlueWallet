@@ -1,4 +1,5 @@
-import pytest
+# TODO: document how tests are run in the README in the reproducible-builds folder
+
 from dataclasses import dataclass
 
 from util import deep_compare, show_diffs
