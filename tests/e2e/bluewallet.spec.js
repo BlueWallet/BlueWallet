@@ -300,12 +300,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // add per-address label then verify it renders on the receive screen
     await element(by.id('ReceiveMoreOptionsButton')).tap();
-    await element(by.id('AddressLabelOption')).tap();
+    await waitForId('AddressLabelOption');
+    await tapAndTapAgainIfElementIsNotVisible('AddressLabelOption', 'AddressLabelInput');
     await element(by.id('AddressLabelInput')).replaceText('my recv label');
     await element(by.id('AddressLabelInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('AddressLabelSaveButton')).tap();
-    await waitForId('ReceiveAddressLabel');
+    await tapAndTapAgainIfElementIsNotVisible('AddressLabelSaveButton', 'ReceiveAddressLabel');
     await expect(element(by.text('my recv label'))).toBeVisible();
 
     // ManageWallets: relaunch to clear receive modal, then open via long-press, swipe-to-hide, verify persists across restart

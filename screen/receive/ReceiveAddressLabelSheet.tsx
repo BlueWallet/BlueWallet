@@ -59,9 +59,7 @@ const ReceiveAddressLabelSheet = () => {
           value={label}
           maxLength={100}
           numberOfLines={1}
-          autoFocus
           returnKeyType="done"
-          onSubmitEditing={handleSave}
           style={[styles.inputText, stylesHook.inputText]}
           testID="AddressLabelInput"
         />
