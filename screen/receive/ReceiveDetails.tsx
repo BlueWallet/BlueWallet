@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BackHandler, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Animated, { Easing, Layout, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
 import BlueButtonLink from '../../components/BlueButtonLink';
@@ -23,27 +22,22 @@ import { TransactionPendingIconBig } from '../../components/TransactionPendingIc
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
-import loc, { formatBalance } from '../../loc';
+import loc from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
 import { SuccessView } from '../send/success';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-
-const segmentControlValues = [loc.wallets.details_address, loc.bip47.payment_code];
-
-// Tappable receive card layout constants. Kept in one place because the QR
-// size depends on subtracting all the surrounding paddings/margins.
-const CARD_HORIZONTAL_MARGIN = 24;
-const CARD_INTERNAL_PADDING = 6;
-const QR_CARD_PADDING = 6;
-const MAX_QR_SIZE = 500;
-const MIN_QR_SIZE = 120;
-const QR_SCROLL_RESERVED_WIDTH = (CARD_HORIZONTAL_MARGIN + CARD_INTERNAL_PADDING + QR_CARD_PADDING) * 2;
-const QR_PORTRAIT_HEIGHT_FRACTION = 0.44;
-const QR_LANDSCAPE_HEIGHT_FRACTION = 0.52;
-const QR_WIDTH_USE_FRACTION = 0.92;
+import {
+  CARD_HORIZONTAL_MARGIN,
+  CARD_INTERNAL_PADDING,
+  initialState,
+  QR_CARD_PADDING,
+  receiveDetailsReducer,
+  receiveDetailsActionTypes,
+  segmentControlValues,
+} from './receiveDetailsReducer';
 
 /** Staggered “reveal” for the QR: white tiles fade out in random order */
 const QR_STAGGER_GRID = 5;
@@ -145,31 +139,43 @@ type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
-  const { walletID, address } = route.params;
+  const { walletID, address: routeAddress } = route.params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
   const isDarkTheme = useColorScheme() === 'dark';
-  const [customLabel, setCustomLabel] = useState('');
-  const [customAmount, setCustomAmount] = useState('');
-  const [customUnit, setCustomUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
-  const [bip21encoded, setBip21encoded] = useState('');
-  const [isCustom, setIsCustom] = useState(false);
-  const [showPendingBalance, setShowPendingBalance] = useState(false);
-  const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
-  const [showAddress, setShowAddress] = useState(false);
-  const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
+  const [state, dispatch] = useReducer(receiveDetailsReducer, routeAddress, address =>
+    address
+      ? {
+          ...initialState,
+          address,
+          bip21encoded: DeeplinkSchemaMatch.bip21encode(address),
+          showAddress: true,
+        }
+      : initialState,
+  );
+  const {
+    address,
+    customLabel,
+    customAmount,
+    customUnit,
+    bip21encoded,
+    isCustom,
+    showPendingBalance,
+    showConfirmedBalance,
+    showAddress,
+    currentTab,
+    intervalMs,
+    eta,
+    initialUnconfirmed,
+    displayBalance,
+    displayAmount,
+    qrCodeSize,
+  } = state;
   const { goBack, setParams, navigate } = useNavigation<NavigationProps>();
-  const [intervalMs, setIntervalMs] = useState(5000);
-  const [eta, setEta] = useState('');
-  const [initialConfirmed, setInitialConfirmed] = useState(0);
-  const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
-  const [displayBalance, setDisplayBalance] = useState('');
-  const [qrCodeSize, setQRCodeSize] = useState(90);
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
-
   const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
 
   /** Dark: theme input surface (#262626) reads softer than pure elevated / system gray 6. Light: iOS-style grouped background. */
@@ -201,7 +207,6 @@ const ReceiveDetails = () => {
   });
 
   const copyRef = useRef<CopyTextToClipboardHandle>(null);
-  const scrollLayoutRef = useRef({ width: 0, height: 0 });
   const pressScale = useSharedValue(1);
   const pressAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: pressScale.value }],
@@ -219,10 +224,8 @@ const ReceiveDetails = () => {
 
   const setAddressBIP21Encoded = useCallback(
     (addr: string) => {
-      const newBip21encoded = DeeplinkSchemaMatch.bip21encode(addr);
       setParams({ address: addr });
-      setBip21encoded(newBip21encoded);
-      setShowAddress(true);
+      dispatch({ type: receiveDetailsActionTypes.SET_ADDRESS, address: addr });
     },
     [setParams],
   );
@@ -298,17 +301,33 @@ const ReceiveDetails = () => {
     obtainWalletAddress();
   }, [wallet, saveToDisk, obtainWalletAddress]);
 
-  useEffect(() => {
-    if (showConfirmedBalance) {
-      triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-    }
-  }, [showConfirmedBalance]);
+  const didHandleConfirmedBalanceRef = useRef(false);
 
   useEffect(() => {
-    if (address && !isCustom) {
-      setAddressBIP21Encoded(address);
+    if (!showConfirmedBalance) {
+      didHandleConfirmedBalanceRef.current = false;
+      return;
     }
-  }, [address, isCustom, setAddressBIP21Encoded]);
+
+    if (didHandleConfirmedBalanceRef.current) return;
+    didHandleConfirmedBalanceRef.current = true;
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+    if (walletID) {
+      fetchAndSaveWalletTransactions(walletID);
+    }
+  }, [fetchAndSaveWalletTransactions, showConfirmedBalance, walletID]);
+
+  useEffect(() => {
+    if (initialUnconfirmed !== 0) {
+      triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
+    }
+  }, [initialUnconfirmed]);
+
+  useEffect(() => {
+    if (routeAddress && routeAddress !== address && !isCustom) {
+      dispatch({ type: receiveDetailsActionTypes.SET_ADDRESS, address: routeAddress });
+    }
+  }, [address, isCustom, routeAddress]);
 
   useEffect(() => {
     setParams({
@@ -333,7 +352,6 @@ const ReceiveDetails = () => {
   // re-fetching address balance periodically
   useEffect(() => {
     console.debug('receive/details - useEffect');
-
     const intervalId = setInterval(async () => {
       try {
         const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
@@ -344,63 +362,25 @@ const ReceiveDetails = () => {
         const balance = await BlueElectrum.getBalanceByAddress(addressToUse);
         console.debug('...got', balance);
 
-        if (balance.unconfirmed > 0) {
-          if (initialConfirmed === 0 && initialUnconfirmed === 0) {
-            setInitialConfirmed(balance.confirmed);
-            setInitialUnconfirmed(balance.unconfirmed);
-            setIntervalMs(25000);
-            triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-          }
+        // dispatch the balance before the fallible mempool/fee queries below, so the pending
+        // snapshot is recorded even when those queries throw (confirmation detection relies on it)
+        dispatch({ type: receiveDetailsActionTypes.UPDATE_BALANCE, confirmed: balance.confirmed, unconfirmed: balance.unconfirmed });
 
+        if (balance.unconfirmed > 0) {
           const txs = await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
           const tx = txs.pop();
           if (tx) {
             const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], true, 10);
             if (rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
-              const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
               const fees = await BlueElectrum.estimateFees();
-              if (satPerVbyte >= fees.fast) {
-                setEta(loc.formatString(loc.transactions.eta_10m));
-              } else if (satPerVbyte >= fees.medium) {
-                setEta(loc.formatString(loc.transactions.eta_3h));
-              } else {
-                setEta(loc.formatString(loc.transactions.eta_1d));
-              }
+              dispatch({
+                type: receiveDetailsActionTypes.UPDATE_ETA,
+                fee: tx.fee,
+                vsize: rez[tx.tx_hash].vsize,
+                fastFee: fees.fast,
+                mediumFee: fees.medium,
+              });
             }
-          }
-
-          setDisplayBalance(
-            loc.formatString(loc.transactions.pending_with_amount, {
-              amt1: formatBalance(balance.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
-              amt2: formatBalance(balance.unconfirmed, BitcoinUnit.BTC, true).toString(),
-            }),
-          );
-          setShowPendingBalance(true);
-          setShowAddress(false);
-        } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
-          // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
-          // staring at the screen)
-          const balanceToShow = balance.confirmed - initialConfirmed;
-
-          if (balanceToShow > 0) {
-            // address has actually more coins than initially, so we definitely gained something
-            setShowConfirmedBalance(true);
-            setShowPendingBalance(false);
-            setShowAddress(false);
-            setDisplayBalance(
-              loc.formatString(loc.transactions.received_with_amount, {
-                amt1: formatBalance(balanceToShow, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
-                amt2: formatBalance(balanceToShow, BitcoinUnit.BTC, true).toString(),
-              }),
-            );
-            if (walletID) {
-              fetchAndSaveWalletTransactions(walletID);
-            }
-          } else {
-            // rare case, but probable. transaction evicted from mempool (maybe cancelled by the sender)
-            setShowConfirmedBalance(false);
-            setShowPendingBalance(false);
-            setShowAddress(true);
           }
         }
       } catch (error) {
@@ -409,7 +389,7 @@ const ReceiveDetails = () => {
     }, intervalMs);
 
     return () => clearInterval(intervalId);
-  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID]);
+  }, [bip21encoded, address, intervalMs]);
 
   useEffect(() => {
     const handleBackButton = () => {
@@ -429,7 +409,7 @@ const ReceiveDetails = () => {
             {customLabel}
           </BlueText>
         )}
-        <SuccessView />
+        <SuccessView centered />
         <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
           {displayBalance}
         </BlueText>
@@ -457,26 +437,10 @@ const ReceiveDetails = () => {
     );
   };
 
-  const recomputeQrCodeSize = useCallback(() => {
-    const { width: sw, height: sh } = scrollLayoutRef.current;
-    if (sw <= 0 || sh <= 0) return;
-
-    const isPortrait = sh > sw;
-    const heightCap = Math.min(isPortrait ? sh * QR_PORTRAIT_HEIGHT_FRACTION : sh * QR_LANDSCAPE_HEIGHT_FRACTION, MAX_QR_SIZE);
-    const widthBudget = sw - QR_SCROLL_RESERVED_WIDTH;
-    const innerWidthCap = Math.max(MIN_QR_SIZE, Math.floor(widthBudget * QR_WIDTH_USE_FRACTION));
-    const size = Math.max(MIN_QR_SIZE, Math.min(innerWidthCap, heightCap, MAX_QR_SIZE));
-    setQRCodeSize(Math.round(size));
+  const onScrollViewLayout = useCallback((e: { nativeEvent: { layout: { height: number; width: number } } }) => {
+    const { height, width } = e.nativeEvent.layout;
+    dispatch({ type: receiveDetailsActionTypes.UPDATE_QR_CODE_SIZE, width, height });
   }, []);
-
-  const onScrollViewLayout = useCallback(
-    (e: { nativeEvent: { layout: { height: number; width: number } } }) => {
-      const { height, width } = e.nativeEvent.layout;
-      scrollLayoutRef.current = { width, height };
-      recomputeQrCodeSize();
-    },
-    [recomputeQrCodeSize],
-  );
 
   const toBalancedMultilineText = useCallback((value: string) => {
     const normalized = value.replace(/\n/g, '');
@@ -485,7 +449,7 @@ const ReceiveDetails = () => {
     return `${normalized.slice(0, midpoint)}\n${normalized.slice(midpoint)}`;
   }, []);
 
-  const showReceiveSkeleton = !showAddress && !showPendingBalance && !showConfirmedBalance && Boolean(wallet ?? route.params.address);
+  const showReceiveSkeleton = !showAddress && !showPendingBalance && !showConfirmedBalance && Boolean(wallet ?? address);
 
   const renderReceiveSkeleton = () => {
     const showTabs = Boolean(wallet && isBIP47Enabled);
@@ -497,7 +461,7 @@ const ReceiveDetails = () => {
               <SegmentedControl
                 values={segmentControlValues}
                 selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-                onChange={index => setCurrentTab(segmentControlValues[index])}
+                onChange={index => dispatch({ type: receiveDetailsActionTypes.SELECT_TAB, index })}
               />
             </View>
           )}
@@ -551,7 +515,7 @@ const ReceiveDetails = () => {
               <SegmentedControl
                 values={segmentControlValues}
                 selectedIndex={segmentControlValues.findIndex(tab => tab === currentTab)}
-                onChange={index => setCurrentTab(segmentControlValues[index])}
+                onChange={index => dispatch({ type: receiveDetailsActionTypes.SELECT_TAB, index })}
               />
             </View>
           )}
@@ -560,9 +524,9 @@ const ReceiveDetails = () => {
 
           {showCustomAmount && (
             <View style={styles.customAmountWrapper}>
-              {getDisplayAmount() && (
+              {displayAmount && (
                 <BlueText testID="BitcoinAmountText" style={[styles.amount, stylesHook.amount]} numberOfLines={1}>
-                  {getDisplayAmount()}
+                  {displayAmount}
                 </BlueText>
               )}
               {customLabel?.length > 0 && (
@@ -620,8 +584,6 @@ const ReceiveDetails = () => {
         try {
           if (wallet) {
             await obtainWalletAddress();
-          } else if (!wallet && address) {
-            setAddressBIP21Encoded(address);
           }
         } catch (error) {
           if (!cancelled) {
@@ -632,7 +594,7 @@ const ReceiveDetails = () => {
       return () => {
         cancelled = true;
       };
-    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
+    }, [wallet, obtainWalletAddress, isCustom, hasIncomingCustomParams]),
   );
 
   const showCustomAmountModal = useCallback(() => {
@@ -664,53 +626,20 @@ const ReceiveDetails = () => {
 
     if (noIncomingParams) return;
 
-    if (incomingIsCustom) {
-      setIsCustom(true);
-      setCustomLabel(incomingLabel ?? '');
-      setCustomAmount(incomingAmount ?? '');
-      setCustomUnit(incomingUnit ?? BitcoinUnit.BTC);
-      if (incomingBip21) {
-        setBip21encoded(incomingBip21);
-      }
-      setShowAddress(true);
-      setShowPendingBalance(false);
-      setShowConfirmedBalance(false);
-    } else {
-      const fallbackUnit = wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC;
-      setIsCustom(false);
-      setCustomLabel('');
-      setCustomAmount('');
-      setCustomUnit(fallbackUnit);
-      if (incomingBip21) {
-        setBip21encoded(incomingBip21);
-      }
-      setShowAddress(true);
-      setShowPendingBalance(false);
-      setShowConfirmedBalance(false);
-    }
+    dispatch({
+      type: receiveDetailsActionTypes.APPLY_CUSTOM_PARAMS,
+      params: {
+        customLabel: incomingLabel,
+        customAmount: incomingAmount,
+        customUnit: incomingUnit,
+        bip21encoded: incomingBip21,
+        isCustom: incomingIsCustom,
+      },
+      fallbackUnit: wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC,
+    });
 
     setParams({ customLabel: undefined, customAmount: undefined, customUnit: undefined, bip21encoded: undefined, isCustom: undefined });
   }, [route.params, setParams, wallet]);
-
-  /**
-   * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
-   */
-  const getDisplayAmount = (): string | null => {
-    const number = Number(customAmount);
-    if (number > 0) {
-      switch (customUnit) {
-        case BitcoinUnit.BTC:
-          return customAmount + ' BTC';
-        case BitcoinUnit.SATS:
-          return satoshiToBTC(number) + ' BTC';
-        case BitcoinUnit.LOCAL_CURRENCY:
-          return fiatToBTC(number) + ' BTC';
-      }
-      return customAmount + ' ' + customUnit;
-    } else {
-      return null;
-    }
-  };
 
   const handleShareButtonPressed = () => {
     const message = currentTab === segmentControlValues[0] ? bip21encoded : paymentCodeString;
@@ -738,7 +667,7 @@ const ReceiveDetails = () => {
       >
         {showAddress && renderReceiveCard()}
         {showReceiveSkeleton && renderReceiveSkeleton()}
-        {showAddress && address !== undefined && (
+        {showAddress && Boolean(address) && (
           <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
         )}
         {showConfirmedBalance && renderConfirmedBalance()}
@@ -782,6 +711,7 @@ const styles = StyleSheet.create({
   },
   scrollBody: {
     flex: 1,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
