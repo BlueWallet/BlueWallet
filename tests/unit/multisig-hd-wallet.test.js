@@ -1410,6 +1410,39 @@ describe('multisig-wallet (native segwit)', () => {
     }
   });
 
+  it('can import electrum json with h paths and no trailing slashes', () => {
+    const content = require('./fixtures/electrum-multisig-wallet-with-seed.json');
+
+    const originalStorage = JSON.parse(JSON.stringify(content));
+    const newStorage = JSON.parse(JSON.stringify(content));
+
+    for (let c = 1; c <= 3; c++) {
+      // test keys without trailing slashes
+      newStorage['x' + c] = newStorage['x' + c + '/'];
+      delete newStorage['x' + c + '/'];
+
+      // replace hardened notation
+      newStorage['x' + c].derivation = newStorage['x' + c].derivation.replaceAll("'", 'h');
+    }
+
+    const originalWallet = new MultisigHDWallet();
+    originalWallet.setSecret(JSON.stringify(originalStorage));
+
+    const newWallet = new MultisigHDWallet();
+    newWallet.setSecret(JSON.stringify(newStorage));
+
+    assert.strictEqual(newWallet.getM(), originalWallet.getM());
+    assert.strictEqual(newWallet.getN(), originalWallet.getN());
+
+    assert.strictEqual(newWallet.isNativeSegwit(), originalWallet.isNativeSegwit());
+
+    assert.deepStrictEqual(newWallet.getCustomDerivationPathForCosigner(1), originalWallet.getCustomDerivationPathForCosigner(1));
+
+    assert.deepStrictEqual(newWallet._getExternalAddressByIndex(0), originalWallet._getExternalAddressByIndex(0));
+
+    assert.deepStrictEqual(newWallet._getInternalAddressByIndex(0), originalWallet._getInternalAddressByIndex(0));
+  });
+
   it('can import electrum json file format with seeds and passphrase', () => {
     const json = require('./fixtures/electrum-multisig-wallet-with-seed-and-passphrase.json');
     const w = new MultisigHDWallet();
