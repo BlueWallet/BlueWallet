@@ -412,7 +412,7 @@ export class HDSegwitBech32Transaction {
       fee = createdTx.fee;
       assert(tx, 'tx is createCPFPbumpFee() is undefined');
       const combinedFeeRate = (oldFee + fee) / (this._txDecoded!.virtualSize() + tx.virtualSize()); // avg
-      if (Math.round(combinedFeeRate) < newFeerate) {
+      if (combinedFeeRate < newFeerate) {
         add *= 2;
         if (!add) add = 2;
       } else {
