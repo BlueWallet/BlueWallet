@@ -101,7 +101,11 @@ export default class CPFP extends Component {
     this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
     majorTomToGroundControl([], [], [this.state.newTxid]);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { amount: undefined });
+    this.props.navigation.navigate('Success', {
+      amount: undefined,
+      walletID: this.state.wallet.getID(),
+      walletType: this.state.wallet.type,
+    });
   }
 
   async componentDidMount() {
@@ -134,7 +138,7 @@ export default class CPFP extends Component {
   }
 
   async createTransaction() {
-    const newFeeRate = parseInt(this.state.newFeeRate, 10);
+    const newFeeRate = Number(this.state.newFeeRate);
     if (newFeeRate > this.state.feeRate) {
       /** @type {HDSegwitBech32Transaction} */
       const tx = this.state.tx;
@@ -160,7 +164,7 @@ export default class CPFP extends Component {
           <ReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
           <BlueSpacing />
           <Button
-            disabled={this.state.newFeeRate <= this.state.feeRate}
+            disabled={this.state.newFeeRate <= this.state.feeRate || !Number.isFinite(this.state.newFeeRate)}
             onPress={() => this.createTransaction()}
             title={loc.transactions.cpfp_create}
           />
