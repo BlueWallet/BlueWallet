@@ -201,6 +201,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     }
   }
 
+  static isValidElectrumSeed(seed: string) {
+    return (
+      mn.validateMnemonic(seed.replace(ELECTRUM_SEED_PREFIX, ''), mn.PREFIXES.segwit) ||
+      mn.validateMnemonic(seed.replace(ELECTRUM_SEED_PREFIX, ''), mn.PREFIXES.standard)
+    );
+  }
+
   /**
    *
    * @param key {string} Either xpub or mnemonic phrase
@@ -496,7 +503,17 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
               this._cosignersPassphrases[index],
             ),
           );
-          const fingerprint = MultisigHDWallet.mnemonicToFingerprint(this._cosigners[index], this._cosignersPassphrases[index]);
+          let fingerprint: string;
+          let mnemonic = this._cosigners[index];
+          const passphrase = this._cosignersPassphrases[index];
+          if (mnemonic.startsWith(ELECTRUM_SEED_PREFIX)) {
+            mnemonic = mnemonic.replace(ELECTRUM_SEED_PREFIX, '');
+            const seed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic, passphrase);
+            fingerprint = MultisigHDWallet.seedToFingerprint(seed);
+          } else {
+            fingerprint = MultisigHDWallet.mnemonicToFingerprint(mnemonic, this._cosignersPassphrases[index]);
+          }
+
           ret += fingerprint + ': ' + xpub + '\n';
         } else {
           ret += 'seed: ' + this._cosigners[index];
@@ -559,8 +576,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     // coldcard & cobo txt format:
     let customPathForCurrentCosigner: string | undefined;
     for (const line of secret.split('\n')) {
-      const [key, value] = line.split(':');
-
+      const [key, ...valueParts] = line.split(':');
+      const value = valueParts.join(':');
       switch (key) {
         case 'Name':
           this.setLabel(value.trim());
@@ -591,12 +608,20 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
 
         default:
           if (key && value && MultisigHDWallet.isXpubString(value.trim())) {
-            this.addCosigner(value.trim(), key, customPathForCurrentCosigner);
+            const path = customPathForCurrentCosigner ?? this._derivationPath;
+            this.addCosigner(value.trim(), key, path);
           } else if (key.replace('#', '').trim() === 'derivation') {
             customPathForCurrentCosigner = value.trim();
           } else if (key === 'seed') {
-            const [seed, passphrase] = value.split(' - ');
-            this.addCosigner(seed.trim(), undefined, customPathForCurrentCosigner, passphrase);
+            const [rawSeed, passphrase] = value.split(' - ');
+            const seed = rawSeed.trim();
+            let fingerprint: string | undefined;
+            if (seed.startsWith(ELECTRUM_SEED_PREFIX)) {
+              const electrumSeed = MultisigHDWallet.convertElectrumMnemonicToSeed(seed, passphrase);
+              fingerprint = MultisigHDWallet.seedToFingerprint(electrumSeed);
+            }
+            const path = customPathForCurrentCosigner ?? this._derivationPath;
+            this.addCosigner(seed.trim(), fingerprint, path, passphrase);
           }
           break;
       }
@@ -1228,7 +1253,8 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   replaceCosignerSeedWithXpub(externalIndex: number) {
     const index = externalIndex - 1;
     const mnemonics = this._cosigners[index];
-    if (!bip39.validateMnemonic(mnemonics)) throw new Error('This cosigner doesnt contain valid xpub mnemonic phrase');
+    if (!bip39.validateMnemonic(mnemonics) && !MultisigHDWallet.isValidElectrumSeed(mnemonics))
+      throw new Error('This cosigner doesnt contain valid xpub mnemonic phrase');
     const passphrase = this._cosignersPassphrases[index];
     const path = this._cosignersCustomPaths[index] || this._derivationPath;
     const xpub = this.convertXpubToMultisignatureXpub(MultisigHDWallet.seedToXpub(mnemonics, path, passphrase));
