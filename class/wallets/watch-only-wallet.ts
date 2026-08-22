@@ -334,9 +334,23 @@ export class WatchOnlyWallet extends LegacyWallet {
     throw new Error("Not a HD watch-only wallet, can't use derivation path");
   }
 
-  setDerivationPath(...args: Parameters<THDWalletForWatchOnly['setDerivationPath']>) {
-    if (this._hdWalletInstance) return this._hdWalletInstance.setDerivationPath(...args);
-    throw new Error("Not a HD watch-only wallet, can't use derivation path");
+  setDerivationPath(path: string) {
+    if (!this.isHd()) throw new Error("Not a HD watch-only wallet, can't use derivation path");
+    if (!this._hdWalletInstance) this.init();
+    // the derivation path is metadata for signers (PSBT bip32Derivation); editing it must never
+    // change how addresses are derived, so pin the script type before init() can re-detect it from the path
+    if (!this.segwitType && this._hdWalletInstance) {
+      if (this._hdWalletInstance instanceof HDTaprootWallet) this.segwitType = 'p2tr';
+      else if (this._hdWalletInstance instanceof HDSegwitP2SHWallet) this.segwitType = 'p2sh(p2wpkh)';
+      else if (this._hdWalletInstance instanceof HDSegwitBech32Wallet) this.segwitType = 'p2wpkh';
+      else if (this._hdWalletInstance instanceof HDLegacyP2PKHWallet) this.segwitType = 'p2pkh';
+    }
+    this._derivationPath = path;
+    if (this._hdWalletInstance) this._hdWalletInstance.setDerivationPath(path);
+  }
+
+  setMasterFingerprintFromHex(hexValue: string) {
+    this.masterFingerprint = this.getMasterFingerprintFromHex(hexValue);
   }
 
   isSegwit(): boolean {

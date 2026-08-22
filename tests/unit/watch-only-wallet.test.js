@@ -911,4 +911,43 @@ describe('BC-UR', () => {
     assert.strictEqual(index, 2);
     assert.strictEqual(total, 3);
   });
+
+  it('can edit derivation path and master fingerprint without changing addresses', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    w.init();
+    const addressBefore = w._getExternalAddressByIndex(0);
+    assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
+
+    // a bare zpub carries no key origin info; the user corrects it,
+    // e.g. for an Electrum-seed wallet whose account root is m/0'
+    w.setDerivationPath("m/0'");
+    w.setMasterFingerprintFromHex('73c5da0a');
+
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+
+    // metadata edits must survive re-init (app restart) and never change address derivation
+    w.init();
+    assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+
+    // even a path that init() would normally map to another script type must not flip addresses
+    w.setDerivationPath("m/49'/0'/0'");
+    w.init();
+    assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+  });
+
+  it('setDerivationPath and setMasterFingerprintFromHex reject invalid input', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'); // plain address, not HD
+    assert.throws(() => w.setDerivationPath("m/0'"));
+
+    const hd = new WatchOnlyWallet();
+    hd.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    hd.init();
+    assert.throws(() => hd.setMasterFingerprintFromHex('nothex00'));
+    assert.strictEqual(hd.getMasterFingerprintHex(), '00000000');
+  });
 });
