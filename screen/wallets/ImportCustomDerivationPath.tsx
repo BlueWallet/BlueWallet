@@ -9,6 +9,7 @@ import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet'
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
+import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { validateBip32 } from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
@@ -61,14 +62,24 @@ const ImportCustomDerivationPath: React.FC = () => {
 
       // create wallets
       const newWallets: { [type: string]: TWallet } = {};
-      for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDTaprootWallet]) {
-        const wallet = new Wallet();
-        wallet.setSecret(importText);
-        if (password) {
-          wallet.setPassphrase(password);
+      const watchOnly = new WatchOnlyWallet();
+      watchOnly.setSecret(importText);
+      if (watchOnly.valid() && watchOnly.isHd()) {
+        // watch-only extended key: the script type is determined by the key itself, and the
+        // path is signer metadata (PSBT bip32Derivation), so offer one candidate at the chosen path
+        watchOnly.init();
+        watchOnly.setDerivationPath(newPath);
+        newWallets[WatchOnlyWallet.type] = watchOnly;
+      } else {
+        for (const Wallet of [HDLegacyP2PKHWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet, HDTaprootWallet]) {
+          const wallet = new Wallet();
+          wallet.setSecret(importText);
+          if (password) {
+            wallet.setPassphrase(password);
+          }
+          wallet.setDerivationPath(newPath);
+          newWallets[Wallet.type] = wallet;
         }
-        wallet.setDerivationPath(newPath);
-        newWallets[Wallet.type] = wallet;
       }
       setWallets(ws => ({ ...ws, [newPath]: newWallets }));
 
@@ -102,15 +113,24 @@ const ImportCustomDerivationPath: React.FC = () => {
     debouncedSavePath.current(path);
   }, [path, wallets]);
 
+  const isWatchOnlyImport = useMemo<boolean>(() => {
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(importText);
+    return wallet.valid() && wallet.isHd();
+  }, [importText]);
+
   const items: TItem[] = useMemo(() => {
     if (wallets[path] === WRONG_PATH) return [];
+    if (isWatchOnlyImport) {
+      return [[WatchOnlyWallet.type, WatchOnlyWallet.typeReadable, used[path]?.[WatchOnlyWallet.type]]];
+    }
     return [
       [HDLegacyP2PKHWallet.type, HDLegacyP2PKHWallet.typeReadable, used[path]?.[HDLegacyP2PKHWallet.type]],
       [HDSegwitP2SHWallet.type, HDSegwitP2SHWallet.typeReadable, used[path]?.[HDSegwitP2SHWallet.type]],
       [HDSegwitBech32Wallet.type, HDSegwitBech32Wallet.typeReadable, used[path]?.[HDSegwitBech32Wallet.type]],
       [HDTaprootWallet.type, HDTaprootWallet.typeReadable, used[path]?.[HDTaprootWallet.type]],
     ];
-  }, [path, used, wallets]);
+  }, [isWatchOnlyImport, path, used, wallets]);
 
   const stylesHook = StyleSheet.create({
     root: {

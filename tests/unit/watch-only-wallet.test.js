@@ -939,6 +939,19 @@ describe('BC-UR', () => {
     assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
   });
 
+  it('can set derivation path right after import, before and without explicit init()', () => {
+    // same call order as the custom derivation path import flow
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    w.setDerivationPath("m/0'"); // no explicit init() — the setter must handle it
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+
+    const reference = new WatchOnlyWallet();
+    reference.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    reference.init();
+    assert.strictEqual(w._getExternalAddressByIndex(0), reference._getExternalAddressByIndex(0));
+  });
+
   it('setDerivationPath and setMasterFingerprintFromHex reject invalid input', () => {
     const w = new WatchOnlyWallet();
     w.setSecret('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'); // plain address, not HD
