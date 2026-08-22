@@ -11,8 +11,7 @@ import {
 } from '../../navigation/navigationGuard';
 
 const createDependencies = (): NavigationGuardDependencies => ({
-  isBiometricUseEnabled: jest.fn(async () => false),
-  unlockWithBiometrics: jest.fn(async () => true),
+  authenticateSensitiveAction: jest.fn(async () => true),
   wallets: [],
   saveToDisk: jest.fn(async () => {}),
   presentWalletExportReminder: jest.fn(async () => {}),
@@ -65,11 +64,17 @@ describe('navigation validation', () => {
 
   it('does not allow biometric navigation when authentication fails', async () => {
     const dependencies = createDependencies();
-    dependencies.isBiometricUseEnabled = jest.fn(async () => true);
-    dependencies.unlockWithBiometrics = jest.fn(async () => false);
+    dependencies.authenticateSensitiveAction = jest.fn(async () => false);
 
     await expect(validateGuardedRoute({ name: 'WalletExport' }, dependencies)).resolves.toEqual({ allowed: false });
-    expect(dependencies.unlockWithBiometrics).toHaveBeenCalledTimes(1);
+    expect(dependencies.authenticateSensitiveAction).toHaveBeenCalledTimes(1);
+  });
+
+  it('delegates the sensitive-action policy decision to the authorization API', async () => {
+    const dependencies = createDependencies();
+
+    await expect(validateGuardedRoute({ name: 'WalletExport' }, dependencies)).resolves.toEqual({ allowed: true });
+    expect(dependencies.authenticateSensitiveAction).toHaveBeenCalledTimes(1);
   });
 
   it('saves the wallet export acknowledgement before allowing navigation', async () => {
@@ -135,14 +140,21 @@ describe('navigation validation', () => {
     await expect(validation).resolves.toEqual({ allowed: true });
   });
 
-  it('bypasses all validation when navigating from the scanner', async () => {
+  it('still protects sensitive routes when navigating from the scanner', async () => {
     const dependencies = createDependencies();
     dependencies.currentRouteName = 'ScanQRCode';
-    dependencies.isBiometricUseEnabled = jest.fn(async () => true);
+    dependencies.authenticateSensitiveAction = jest.fn(async () => false);
 
-    await expect(validateGuardedRoute({ name: 'WalletExport' }, dependencies)).resolves.toEqual({ allowed: true });
-    expect(dependencies.isBiometricUseEnabled).not.toHaveBeenCalled();
-    expect(dependencies.unlockWithBiometrics).not.toHaveBeenCalled();
+    await expect(validateGuardedRoute({ name: 'WalletExport' }, dependencies)).resolves.toEqual({ allowed: false });
+    expect(dependencies.authenticateSensitiveAction).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not repeat camera authorization when reopening the scanner from itself', async () => {
+    const dependencies = createDependencies();
+    dependencies.currentRouteName = 'ScanQRCode';
+
+    await expect(validateGuardedRoute({ name: 'ScanQRCode' }, dependencies)).resolves.toEqual({ allowed: true });
+    expect(dependencies.requestCameraAuthorization).not.toHaveBeenCalled();
   });
 
   it('prefers the focused nested navigator over the root when both register the route', () => {

@@ -30,8 +30,7 @@ type GuardWallet = {
 
 export type NavigationGuardDependencies = {
   currentRouteName?: string;
-  isBiometricUseEnabled: () => Promise<boolean>;
-  unlockWithBiometrics: () => Promise<boolean>;
+  authenticateSensitiveAction: () => Promise<boolean>;
   wallets: readonly GuardWallet[];
   saveToDisk: () => Promise<void>;
   presentWalletExportReminder: () => Promise<unknown>;
@@ -73,13 +72,13 @@ export const validateGuardedRoute = async (
   route: GuardedRoute,
   dependencies: NavigationGuardDependencies,
 ): Promise<NavigationValidationResult> => {
-  if (dependencies.currentRouteName === 'ScanQRCode') return { allowed: true };
+  // Reopening the scanner from itself needs no duplicate camera check, but
+  // scanner-originated navigation to secrets must still honor every guard.
+  if (dependencies.currentRouteName === 'ScanQRCode' && route.name === 'ScanQRCode') return { allowed: true };
 
   const policy = navigationGuardPolicies[route.name];
 
-  if ('biometrics' in policy && (await dependencies.isBiometricUseEnabled())) {
-    if (!(await dependencies.unlockWithBiometrics())) return { allowed: false };
-  }
+  if ('biometrics' in policy && !(await dependencies.authenticateSensitiveAction())) return { allowed: false };
 
   if ('walletExportSaved' in policy) {
     const walletID = typeof route.params?.walletID === 'string' ? route.params.walletID : undefined;

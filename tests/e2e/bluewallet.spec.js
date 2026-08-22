@@ -33,6 +33,52 @@ console.warn = console.log = (...args) => {
   process.stdout.write('\n\t\t' + output + '\n');
 };
 
+const tapAuthenticationMenu = async id => {
+  const menu = element(by.id(id));
+  if (device.getPlatform() === 'ios') {
+    // iOS 26's native context-menu wrapper can report its geometric center
+    // outside the clipped visible region. Tap inside the visible intersection.
+    await menu.tap({ x: 180, y: 60 });
+  } else {
+    await menu.tap();
+  }
+};
+
+const togglePasswordProtection = async () => {
+  await waitForId('EncyptedAndPasswordProtectedSwitch');
+  await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+};
+
+const enterConfirmationPassword = async password => {
+  const input = element(by.id('ConfirmPasswordInput'));
+  // ConfirmPasswordInput clears on focus. Focus before replacing its value so
+  // tapReturnKey cannot erase text that replaceText entered while unfocused.
+  await input.tap();
+  await input.replaceText(password);
+  await input.tapReturnKey();
+  await waitForKeyboardToClose();
+};
+
+const openSecurityScreen = async () => {
+  await waitForId('SecurityButton');
+  await element(by.id('SecurityButton')).tap();
+  // Wallet-data protection, Keychain policies, and device capabilities load
+  // independently. Do not interact with the screen until its menu is ready.
+  await waitForId('SecurityAuthenticationMenu');
+  await waitForId('SecurityAuthenticationRow');
+  await waitForText('Wallet Password');
+  await waitForText('Password Protection');
+};
+
+const expectPasswordProtectionControls = async () => {
+  await waitFor(element(by.id('SecurityAuthenticationMenu')))
+    .toExist()
+    .withTimeout(10_000);
+  await waitFor(element(by.id('PlausibleDeniabilityButton')))
+    .toExist()
+    .withTimeout(10_000);
+};
+
 /**
  * this testsuite is for test cases that require no wallets to be present
  */
@@ -127,7 +173,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await goBack();
 
     // security
-    await element(by.id('SecurityButton')).tap();
+    await openSecurityScreen();
     await goBack();
 
     // network
@@ -327,7 +373,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can encrypt storage, with plausible deniabilityl decrypt fake storage', async () => {
+  it('can password-protect wallet data and open decoy wallets', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t4');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t4'), 'as it previously passed on Travis');
@@ -342,37 +388,31 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // go to settings
     await expect(element(by.id('SettingsButton'))).toBeVisible();
     await element(by.id('SettingsButton')).tap();
-    await expect(element(by.id('SecurityButton'))).toBeVisible();
-
     // go to Security page where we will enable encryption
-    await element(by.id('SecurityButton')).tap();
+    await openSecurityScreen();
     // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible();
     await expect(element(by.id('PlausibleDeniabilityButton'))).toBeNotVisible();
+    await expect(element(by.id('SensitiveActionsAuthenticationMenu'))).toBeNotVisible();
 
-    // lets encrypt the storage.
-    // first, trying to mistype second password:
-    await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    // Enable password protection, first with mismatched passwords.
+    await togglePasswordProtection();
     await element(by.id('IUnderstandButton')).tap();
 
     await element(by.id('PasswordInput')).replaceText('08902');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).replaceText('666');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await enterConfirmationPassword('666');
     await confirmPasswordDialog();
 
-    // now, lets put correct passwords and encrypt the storage
+    // Now enter matching passwords and enable protection.
     await element(by.id('PasswordInput')).clearText();
     await element(by.id('PasswordInput')).replaceText('qqq');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await enterConfirmationPassword('qqq');
     await confirmPasswordDialog(); // might not always work the first time
     await sleep(1000); // propagate
+    await expectPasswordProtectionControls();
 
     // relaunch app
     await device.launchApp({ newInstance: true });
@@ -395,8 +435,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     // go to settings -> security screen -> plausible deniability screen
     await element(by.id('SettingsButton')).tap();
-    await expect(element(by.id('SecurityButton'))).toBeVisible();
-    await element(by.id('SecurityButton')).tap();
+    await openSecurityScreen();
+    await expectPasswordProtectionControls();
     // await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible();
     await expect(element(by.id('PlausibleDeniabilityButton'))).toBeVisible();
     await element(by.id('PlausibleDeniabilityButton')).tap();
@@ -410,10 +450,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('qqq');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('qqq');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await enterConfirmationPassword('qqq');
     await confirmPasswordDialog(); // first time might not always work
     await sleep(1000); // propagate
     await expect(element(by.text('Password is currently in use. Please try a different password.'))).toBeVisible();
@@ -424,10 +461,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorageWithTypo'); // retyping with typo
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await enterConfirmationPassword('passwordForFakeStorageWithTypo');
     await confirmPasswordDialog();
 
     // trying new password
@@ -435,16 +469,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('passwordForFakeStorage'); // retyping
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await enterConfirmationPassword('passwordForFakeStorage');
     await confirmPasswordDialog(); // first time might not always work
     await sleep(1000); // propagate
     await scrollUpOnHomeScreen();
 
-    // created fake storage.
-    // creating a wallet inside this fake storage
+    // Create a wallet in the decoy wallet set.
     await helperCreateWallet('fake_wallet');
 
     // relaunch the app, unlock with fake password, expect to see fake wallet
@@ -456,7 +486,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForKeyboardToClose();
     await waitForId('WalletsList');
 
-    // previously created wallet IN MAIN STORAGE should be visible
+    // The wallet in the main wallet set should be visible.
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
     // relaunch app
@@ -466,15 +496,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForKeyboardToClose();
     await waitForId('WalletsList');
 
-    // previously created wallet in FAKE storage should be visible
+    // The wallet in the decoy wallet set should be visible.
     await expect(element(by.id('fake_wallet'))).toBeVisible();
 
     // now derypting it, to cleanup
     await element(by.id('SettingsButton')).tap();
-    await element(by.id('SecurityButton')).tap();
+    await openSecurityScreen();
+    await expectPasswordProtectionControls();
 
     // correct password
-    await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    await togglePasswordProtection();
     await element(by.text('OK')).tap();
     await waitForId('PasswordInput');
     await element(by.id('PasswordInput')).replaceText('passwordForFakeStorage');
@@ -488,7 +519,104 @@ describe('BlueWallet UI Tests - no wallets', () => {
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
 
-  it('can encrypt storage, and decrypt storage works', async () => {
+  it('persists Face ID app unlock and triggers it automatically after relaunch', async () => {
+    if (device.getPlatform() !== 'ios') return console.warn('skipping Face ID auto-unlock test outside iOS');
+
+    await device.clearKeychain();
+    await device.launchApp({ delete: true });
+    await device.setBiometricEnrollment(true);
+    await waitForId('WalletsList');
+    await helperCreateWallet('face_id_wallet');
+
+    await element(by.id('SettingsButton')).tap();
+    await openSecurityScreen();
+    await tapAuthenticationMenu('SecurityAuthenticationMenu');
+    const faceIdAndPasscodeOption = element(by.text(/^Use Face ?ID \/ Passcode$/));
+    await waitFor(faceIdAndPasscodeOption).toBeVisible().withTimeout(10_000);
+    await device.disableSynchronization();
+    try {
+      await faceIdAndPasscodeOption.tap();
+      await sleep(500);
+      await device.matchFace();
+    } finally {
+      await device.enableSynchronization();
+    }
+
+    await waitFor(element(by.text(/^Face ?ID \/ Passcode$/)))
+      .toBeVisible()
+      .withTimeout(10_000);
+
+    await device.launchApp({ newInstance: true });
+    // UnlockWith schedules authentication after the native-stack transition.
+    await sleep(1000);
+    await device.matchFace();
+    await waitForId('WalletsList');
+    await expect(element(by.id('face_id_wallet'))).toBeVisible();
+  });
+
+  it('requires Face ID before opening a sensitive screen', async () => {
+    if (device.getPlatform() !== 'ios') return console.warn('skipping Face ID sensitive-action test outside iOS');
+
+    await device.clearKeychain();
+    await device.launchApp({ delete: true });
+    await device.setBiometricEnrollment(true);
+    await waitForId('WalletsList');
+    await helperCreateWallet('sensitive_face_id_wallet');
+
+    await element(by.id('SettingsButton')).tap();
+    await openSecurityScreen();
+    await togglePasswordProtection();
+    await element(by.id('IUnderstandButton')).tap();
+    await element(by.id('PasswordInput')).replaceText('detox-password');
+    await element(by.id('PasswordInput')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await enterConfirmationPassword('detox-password');
+    await confirmPasswordDialog();
+    await sleep(1000);
+    await expectPasswordProtectionControls();
+
+    await tapAuthenticationMenu('SecurityAuthenticationMenu');
+    const faceIdOption = element(by.text(/^Use Face ?ID$/));
+    await waitFor(faceIdOption).toBeVisible().withTimeout(10_000);
+    await device.disableSynchronization();
+    try {
+      await faceIdOption.tap();
+      await sleep(500);
+      await device.matchFace();
+    } finally {
+      await device.enableSynchronization();
+    }
+    await waitFor(element(by.text(/^Face ?ID$/)))
+      .toBeVisible()
+      .withTimeout(10_000);
+
+    // Start a fresh process so authentication used to enable the policy cannot
+    // satisfy the later sensitive-action challenge.
+    await device.launchApp({ newInstance: true });
+    await waitForId('PasswordInput');
+    await element(by.id('PasswordInput')).typeText('detox-password\n');
+    await waitForKeyboardToClose();
+    await waitForId('WalletsList');
+    await element(by.id('sensitive_face_id_wallet')).tap();
+    await waitForId('WalletDetails');
+    await element(by.id('WalletDetails')).tap();
+    await waitFor(element(by.id('WalletExport')))
+      .toBeVisible()
+      .whileElement(by.id('WalletDetailsScroll'))
+      .scroll(500, 'down');
+    await device.disableSynchronization();
+    try {
+      await element(by.id('WalletExport')).tap();
+      await sleep(500);
+      await expect(element(by.id('WalletExportScroll'))).toBeNotVisible();
+      await device.matchFace();
+    } finally {
+      await device.enableSynchronization();
+    }
+    await waitForId('WalletExportScroll');
+  });
+
+  it('can enable and remove wallet-data password protection', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t5');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t5'), 'as it previously passed on Travis');
@@ -498,21 +626,19 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
     await helperCreateWallet();
     await element(by.id('SettingsButton')).tap();
-    await element(by.id('SecurityButton')).tap();
+    await openSecurityScreen();
+    await expect(element(by.id('SensitiveActionsAuthenticationMenu'))).toBeNotVisible();
 
-    // lets encrypt the storage.
-    // lets put correct passwords and encrypt the storage
-    await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    // Enter matching passwords and enable protection.
+    await togglePasswordProtection();
     await element(by.id('IUnderstandButton')).tap();
     await element(by.id('PasswordInput')).replaceText('pass');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('pass');
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await enterConfirmationPassword('pass');
     await confirmPasswordDialog();
     await sleep(1000); // propagate
+    await expectPasswordProtectionControls();
     await element(by.id('PlausibleDeniabilityButton')).tap();
 
     // trying to enable plausible denability
@@ -520,10 +646,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();
     await waitForKeyboardToClose();
-    await element(by.id('ConfirmPasswordInput')).clearText();
-    await element(by.id('ConfirmPasswordInput')).replaceText('fake'); // retyping
-    await element(by.id('ConfirmPasswordInput')).tapReturnKey();
-    await waitForKeyboardToClose();
+    await enterConfirmationPassword('fake');
     await confirmPasswordDialog();
     if (device.getPlatform() === 'ios') {
       // FIXME: WAllets does not exists on android
@@ -536,8 +659,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // where CreateAWallet is not visible after scroll-right and the
     // 6s tapAndTapAgainIfElementIsNotVisible budget runs out.
     await scrollUpOnHomeScreen();
-    // created fake storage.
-    // creating a wallet inside this fake storage
+    // Create a wallet in the decoy wallet set.
     await helperCreateWallet('fake_wallet');
 
     // relaunch app
@@ -548,15 +670,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForKeyboardToClose();
     await waitForId('WalletsList');
 
-    // previously created wallet IN MAIN STORAGE should be visible
+    // The wallet in the main wallet set should be visible.
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
-    // now go to settings, and decrypt
+    // Return to settings and remove password protection.
     await element(by.id('SettingsButton')).tap();
-    await element(by.id('SecurityButton')).tap();
+    await openSecurityScreen();
+    await expectPasswordProtectionControls();
 
-    // putting FAKE storage password. should not succeed
-    await element(by.id('EncyptedAndPasswordProtectedSwitch')).tap();
+    // The decoy password must not remove protection from the main wallet data.
+    await togglePasswordProtection();
     await element(by.text('OK')).tap();
     await element(by.id('PasswordInput')).replaceText('fake');
     await element(by.id('PasswordInput')).tapReturnKey();

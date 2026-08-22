@@ -10,4 +10,6 @@ export type ModalType = (typeof MODAL_TYPES)[keyof typeof MODAL_TYPES];
 export type PromptPasswordConfirmationParams = {
   modalType: ModalType;
   returnTo: 'PlausibleDeniability' | 'EncryptStorage';
+  securityOptionAfterDecryption?: 'disabled' | 'biometricsOrPasscode' | 'devicePasscode';
+  appUnlockSecurityOption?: 'biometricsOrPasscode' | 'devicePasscode';
 };

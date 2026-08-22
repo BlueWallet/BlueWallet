@@ -13,7 +13,7 @@ import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
-import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
+import { authenticateSensitiveAction } from '../../hooks/useKeychainAuthentication';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -32,7 +32,6 @@ type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInv
 
 const ScanLNDInvoice = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { colors } = useTheme();
   const { direction } = useLocale();
   const route = useRoute<RouteProps>();
@@ -209,13 +208,7 @@ const ScanLNDInvoice = () => {
       return null;
     }
 
-    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-
-    if (isBiometricsEnabled) {
-      if (!(await unlockWithBiometrics())) {
-        return;
-      }
-    }
+    if (!(await authenticateSensitiveAction())) return;
 
     let amountSats: number = parseInt(amount, 10);
     switch (unit) {

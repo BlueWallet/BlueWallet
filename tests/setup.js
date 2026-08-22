@@ -59,10 +59,6 @@ jest.mock('react-native-capture-protection', () => ({
   },
 }));
 
-jest.mock('react-native-secure-key-store', () => {
-  return {};
-});
-
 jest.mock('react-native-notifications', () => {
   return {};
 });
@@ -545,6 +541,28 @@ jest.mock('react-native-keychain', () => {
       WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'AccessibleWhenUnlockedThisDeviceOnly',
       AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY: 'AccessibleAfterFirstUnlockThisDeviceOnly',
     },
+    ACCESS_CONTROL: {
+      BIOMETRY_CURRENT_SET: 'BIOMETRY_CURRENT_SET',
+      BIOMETRY_CURRENT_SET_OR_DEVICE_PASSCODE: 'BIOMETRY_CURRENT_SET_OR_DEVICE_PASSCODE',
+      DEVICE_PASSCODE: 'DEVICE_PASSCODE',
+      USER_PRESENCE: 'USER_PRESENCE',
+      APPLICATION_PASSWORD: 'APPLICATION_PASSWORD',
+    },
+    AUTHENTICATION_TYPE: {
+      DEVICE_PASSCODE_OR_BIOMETRICS: 'DEVICE_PASSCODE_OR_BIOMETRICS',
+      BIOMETRICS: 'BIOMETRICS',
+    },
+    BIOMETRY_TYPE: {
+      TOUCH_ID: 'TouchID',
+      FACE_ID: 'FaceID',
+      OPTIC_ID: 'OpticID',
+      FINGERPRINT: 'Fingerprint',
+      FACE: 'Face',
+      IRIS: 'Iris',
+    },
+    STORAGE_TYPE: {
+      AES_GCM: 'AES_GCM',
+    },
     SECURITY_LEVEL: {
       SECURE_SOFTWARE: 'SECURE_SOFTWARE',
       SECURE_HARDWARE: 'SECURE_HARDWARE',
@@ -567,6 +585,14 @@ jest.mock('react-native-keychain', () => {
     // SECURE_HARDWARE in the happy path. Tests override per-case via
     // mockResolvedValueOnce when they need a downgrade scenario.
     getSecurityLevel: jest.fn(async () => 'SECURE_HARDWARE'),
+    getSupportedBiometryType: jest.fn(async () => 'FaceID'),
+    requestAuthentication: jest.fn(async () => true),
+    isPasscodeAuthAvailable: jest.fn(async () => true),
+    hasGenericPassword: jest.fn(async options => {
+      const svc = (options && options.service) || '__default__';
+      return mockKeychainCreds.has(svc);
+    }),
+    getAllGenericPasswordServices: jest.fn(async () => Array.from(mockKeychainCreds.keys())),
     __mockKeychainHelpers: { reset: () => mockKeychainCreds.clear(), store: mockKeychainCreds },
   };
 });

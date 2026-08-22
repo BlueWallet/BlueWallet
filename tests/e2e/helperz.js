@@ -244,13 +244,18 @@ export async function helperCreateWallet(walletName) {
     try {
       await waitFor(element(by.id('PleaseBackupScrollView')))
         .toBeVisible()
-        .withTimeout(15000);
+        .withTimeout(90000);
     } catch (_) {
-      await element(by.id('Create')).tap();
-      await sleep(500);
+      // A debug build may still be loading the lazy PleaseBackup bundle after
+      // navigation has removed Create. Retry the tap only when the original
+      // screen is still present.
+      if (await expectToBeVisible('Create')) {
+        await element(by.id('Create')).tap();
+        await sleep(500);
+      }
       await waitFor(element(by.id('PleaseBackupScrollView')))
         .toBeVisible()
-        .withTimeout(15000);
+        .withTimeout(90000);
     }
 
     await waitFor(element(by.id('PleasebackupOk')))

@@ -1,14 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sha256 } from '@noble/hashes/sha256';
 import DefaultPreference from 'react-native-default-preference';
+import { Platform } from 'react-native';
 import RNFS from 'react-native-fs';
-import Keychain from 'react-native-keychain';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import Keychain, { ACCESSIBLE as KEYCHAIN_ACCESSIBLE, ACCESS_CONTROL, hasGenericPassword } from 'react-native-keychain';
 import Realm from 'realm';
 
 import * as encryption from '../blue_modules/encryption';
 import presentAlert from '../components/Alert';
-import { randomBytes } from './rng';
 import { HDAezeedWallet } from './wallets/hd-aezeed-wallet';
 import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
@@ -28,6 +27,10 @@ import { getLNDHub } from '../helpers/lndHub';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
+import { clearLegacySecureStorage, getLegacySecureValue, removeLegacySecureValue } from '../blue_modules/legacy-secure-storage';
+import { randomBytes } from './rng';
+import { decryptWalletData, encryptWalletData, isWalletDataEnvelope, WALLET_DATA_KEY_LENGTH } from '../blue_modules/wallet-data-envelope';
+import { getAndroidKeystoreOptions, getIosKeychainAccessibilityOptions, getKeychainAccessControl } from '../blue_modules/keychain-policy';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -54,6 +57,8 @@ export type TCounterpartyMetadata = {
   };
 };
 
+export type KeychainSecurityOption = 'biometricsOrPasscode' | 'devicePasscode';
+
 type TRealmTransaction = {
   internal: boolean;
   index: number;
@@ -66,22 +71,45 @@ type TBucketStorage = {
   counterparty_metadata: TCounterpartyMetadata;
 };
 
-const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
-
 export class BlueApp {
-  static FLAG_ENCRYPTED = 'data_encrypted';
   static LNDHUB = 'lndhub';
   static DO_NOT_TRACK = 'donottrack';
   static HANDOFF_STORAGE_KEY = 'HandOff';
+  static STORAGE_KEYCHAIN_SERVICE_PREFIX = 'BlueWalletStorage.';
+  static STORAGE_PASSWORD_KEYCHAIN_PREFIX = 'BlueWalletStoragePassword.';
+  static BIOMETRIC_AUTH_SERVICE = 'BlueWalletBiometricAuthentication';
+  static DEVICE_PASSCODE_AUTH_SERVICE = 'BlueWalletDevicePasscodeAuthenticationV1';
+  static SENSITIVE_ACTIONS_POLICY_SERVICE = 'BlueWalletSensitiveActionsPolicyV1';
+  static SENSITIVE_ACTIONS_BIOMETRIC_SERVICE = 'BlueWalletSensitiveActionsBiometricV1';
+  static SENSITIVE_ACTIONS_PASSCODE_SERVICE = 'BlueWalletSensitiveActionsPasscodeV1';
+
+  static BIOMETRIC_DATA_PROTECTION_SERVICE = 'BlueWalletBiometricDataProtectionV1';
+
+  static DEVICE_PASSCODE_DATA_PROTECTION_SERVICE = 'BlueWalletDevicePasscodeDataProtectionV1';
+  static DATA_ENCRYPTION_KEY_SERVICE = 'BlueWalletDataEncryptionKeyV2';
+  static DATA_KEY_BACKUP_SERVICE = 'BlueWalletDataEncryptionKeyBackupV2';
+  static DATA_KEY_TRANSACTION_SERVICE = 'BlueWalletDataEncryptionKeyTransactionV2';
+  static WALLET_DATA_SECONDARY_SERVICE = 'BlueWalletStorage.data.v2.secondary';
+  static WALLET_DATA_MANIFEST_SERVICE = 'BlueWalletStorage.data.v2.manifest';
+
+  static LEGACY_REALM_KEY_VALUE_SERVICE = 'realm_encryption_key';
+  static IOS_INSTALLATION_MARKER = 'BlueWallet.iOSInstallationMarker.v1';
+  static IOS_INSTALLATION_SENTINEL_SERVICE = 'BlueWalletInstallationSentinelV1';
+  static LEGACY_SECURE_STORAGE_SERVICE = 'RNSecureKeyStoreKeyChain';
+  static LEGACY_FLAG_ENCRYPTED = 'data_encrypted';
 
   private static _instance: BlueApp | null = null;
 
   static keys2migrate = [BlueApp.HANDOFF_STORAGE_KEY, BlueApp.DO_NOT_TRACK];
+  static secureStorageKeys = ['Biometrics', 'data'];
 
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
   public counterparty_metadata: TCounterpartyMetadata;
   public wallets: TWallet[];
+  private biometricUnlockedData?: string;
+  private dataEncryptionKey?: Uint8Array;
+  private iosInstallationCheck?: Promise<void>;
 
   constructor() {
     this.wallets = [];
@@ -98,76 +126,670 @@ export class BlueApp {
     return BlueApp._instance;
   }
 
-  async migrateKeys() {
-    // do not migrate keys if we are not in RN env
-    if (!isReactNative) {
+  static storageKeychainService(key: string): string {
+    return `${BlueApp.STORAGE_KEYCHAIN_SERVICE_PREFIX}${key}`;
+  }
+
+  private async getKeychainStorageItem(key: string): Promise<string | null> {
+    if (key === 'data' && this.biometricUnlockedData !== undefined) return this.biometricUnlockedData;
+
+    return await this.readKeychainStorageItem(key);
+  }
+
+  private async reconcileIosInstallationState(): Promise<void> {
+    const localMarker = await AsyncStorage.getItem(BlueApp.IOS_INSTALLATION_MARKER);
+    const hasSentinel = await hasGenericPassword({
+      service: BlueApp.IOS_INSTALLATION_SENTINEL_SERVICE,
+    });
+
+    if (!localMarker && hasSentinel) {
+      // UserDefaults/AsyncStorage is removed with the app, whereas Keychain is
+      // retained by iOS. This combination therefore confirms a reinstall.
+      const services = await Keychain.getAllGenericPasswordServices({
+        skipUIAuth: true,
+      });
+      const knownServices = [
+        ...BlueApp.secureStorageKeys.map(BlueApp.storageKeychainService),
+        BlueApp.BIOMETRIC_AUTH_SERVICE,
+        BlueApp.DEVICE_PASSCODE_AUTH_SERVICE,
+        BlueApp.SENSITIVE_ACTIONS_POLICY_SERVICE,
+        BlueApp.SENSITIVE_ACTIONS_BIOMETRIC_SERVICE,
+        BlueApp.SENSITIVE_ACTIONS_PASSCODE_SERVICE,
+        BlueApp.BIOMETRIC_DATA_PROTECTION_SERVICE,
+        BlueApp.DEVICE_PASSCODE_DATA_PROTECTION_SERVICE,
+        BlueApp.DATA_ENCRYPTION_KEY_SERVICE,
+        BlueApp.DATA_KEY_BACKUP_SERVICE,
+        BlueApp.DATA_KEY_TRANSACTION_SERVICE,
+        BlueApp.WALLET_DATA_SECONDARY_SERVICE,
+        BlueApp.WALLET_DATA_MANIFEST_SERVICE,
+        BlueApp.BIOMETRIC_PASSWORD_SERVICE,
+        BlueApp.IOS_INSTALLATION_SENTINEL_SERVICE,
+        BlueApp.LEGACY_REALM_KEY_VALUE_SERVICE,
+        BlueApp.LEGACY_SECURE_STORAGE_SERVICE,
+        'BlueWalletBiometricTogglePrompt',
+        'BlueWalletSecurityTogglePromptV1',
+      ];
+      // skipUIAuth avoids showing unlock prompts during reinstall cleanup.
+      // Explicit known services cover protected entries omitted from that list.
+      for (const service of new Set([...services, ...knownServices])) {
+        await Keychain.resetGenericPassword({ service });
+      }
+      await clearLegacySecureStorage();
+      this.biometricUnlockedData = undefined;
+      this.dataEncryptionKey = undefined;
+    }
+
+    if (!localMarker) {
+      // Write the local marker first. If creating the sentinel is interrupted,
+      // the next launch repairs it without mistaking an upgrade for reinstall.
+      await AsyncStorage.setItem(BlueApp.IOS_INSTALLATION_MARKER, '1');
+    }
+
+    if (
+      !(await hasGenericPassword({
+        service: BlueApp.IOS_INSTALLATION_SENTINEL_SERVICE,
+      }))
+    ) {
+      await Keychain.setGenericPassword('installation', 'installed', {
+        service: BlueApp.IOS_INSTALLATION_SENTINEL_SERVICE,
+        accessible: KEYCHAIN_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
+    }
+  }
+
+  private async ensureCurrentIosInstallation(): Promise<void> {
+    if (Platform.OS !== 'ios') return;
+    if (!this.iosInstallationCheck) {
+      this.iosInstallationCheck = this.reconcileIosInstallationState().catch(error => {
+        this.iosInstallationCheck = undefined;
+        throw error;
+      });
+    }
+    await this.iosInstallationCheck;
+  }
+
+  private async readKeychainStorageItem(key: string): Promise<string | null> {
+    if (key === 'data') {
+      const manifest = await this.getWalletDataManifest();
+      const primaryService = BlueApp.storageKeychainService('data');
+      const activeService = manifest?.active === 'secondary' ? BlueApp.WALLET_DATA_SECONDARY_SERVICE : primaryService;
+      const fallbackService = activeService === primaryService ? BlueApp.WALLET_DATA_SECONDARY_SERVICE : primaryService;
+      let lastError: unknown;
+      const hasEnvelopeKey = await hasGenericPassword({ service: BlueApp.DATA_ENCRYPTION_KEY_SERVICE });
+      for (const service of manifest || hasEnvelopeKey ? [activeService, fallbackService] : [activeService]) {
+        const credentials = await Keychain.getGenericPassword({
+          service,
+          authenticationPrompt: { title: service === activeService ? 'Unlock BlueWallet' : 'Recover BlueWallet data' },
+        });
+        if (!credentials) continue;
+        try {
+          const value = BlueApp.readKeychainEnvelope(credentials.password);
+          if (!isWalletDataEnvelope(value)) {
+            if (manifest) throw new Error('Invalid committed wallet-data envelope');
+            return value;
+          }
+          const dataKey = this.dataEncryptionKey ?? (await this.readDataEncryptionKey());
+          if (!dataKey) throw new Error('Wallet data-encryption key is unavailable');
+          this.dataEncryptionKey = dataKey;
+          return decryptWalletData(value, dataKey);
+        } catch (error) {
+          lastError = error;
+        }
+      }
+      if (lastError) throw lastError;
+      return null;
+    }
+
+    const credentials = await Keychain.getGenericPassword({
+      service: BlueApp.storageKeychainService(key),
+      authenticationPrompt: { title: 'Unlock BlueWallet' },
+    });
+    if (!credentials) return null;
+    return BlueApp.readKeychainEnvelope(credentials.password);
+  }
+
+  private static readKeychainEnvelope(password: string): string {
+    try {
+      const stored = JSON.parse(password);
+      if (stored?.version === 1 && typeof stored.value === 'string') return stored.value;
+    } catch (_) {}
+
+    // Allow reading entries created before the versioned envelope existed.
+    return password;
+  }
+
+  private async getWalletDataManifest(): Promise<{ active: 'primary' | 'secondary'; generation: number } | null> {
+    const credentials = await Keychain.getGenericPassword({ service: BlueApp.WALLET_DATA_MANIFEST_SERVICE });
+    if (!credentials) return null;
+    try {
+      const manifest = JSON.parse(credentials.password) as { active?: unknown; generation?: unknown };
+      if ((manifest.active !== 'primary' && manifest.active !== 'secondary') || !Number.isSafeInteger(manifest.generation)) {
+        throw new Error('Invalid wallet-data commit manifest');
+      }
+      return { active: manifest.active, generation: manifest.generation as number };
+    } catch (error) {
+      // Both encrypted generations remain independently authenticated. A bad
+      // manifest must not make them unreachable; reads try primary then the
+      // secondary slot and the next successful save writes a fresh manifest.
+      console.warn('[BlueApp] Ignoring invalid wallet-data manifest:', error);
+      return null;
+    }
+  }
+
+  async unlockKeychainDataWithBiometrics(forceAuthentication = false): Promise<boolean> {
+    if (!forceAuthentication && this.biometricUnlockedData !== undefined) return true;
+
+    await this.recoverInterruptedDataKeyChange();
+    if (await hasGenericPassword({ service: BlueApp.DATA_ENCRYPTION_KEY_SERVICE })) {
+      console.debug('[BlueApp] Reading the protected wallet data-encryption key for app unlock:', { forceAuthentication });
+      const dataKey = await this.readDataEncryptionKey(forceAuthentication);
+      if (!dataKey) return false;
+      this.dataEncryptionKey = dataKey;
+      const data = await this.readKeychainStorageItem('data');
+      if (data === null) return false;
+      this.biometricUnlockedData = data;
+      return true;
+    }
+
+    // One-time migration for installations where the wallet payload itself
+    // carried the Keychain ACL. Authenticate that legacy item once, then move
+    // protection to the dedicated data key without changing the plaintext.
+    console.debug('[BlueApp] Reading legacy protected wallet data for envelope migration:', { forceAuthentication });
+    const credentials = await Keychain.getGenericPassword({
+      service: BlueApp.storageKeychainService('data'),
+      authenticationPrompt: { title: 'Unlock BlueWallet' },
+      ...(forceAuthentication ? { requireFreshAuthentication: true } : {}),
+    });
+    if (!credentials) return false;
+
+    const data = BlueApp.readKeychainEnvelope(credentials.password);
+    const securityOption = await this.getKeychainDataProtection();
+    await this.setKeychainStorageItem('data', data, securityOption);
+    this.biometricUnlockedData = data;
+    return true;
+  }
+
+  lockKeychainData(): void {
+    this.biometricUnlockedData = undefined;
+    this.dataEncryptionKey?.fill(0);
+    this.dataEncryptionKey = undefined;
+  }
+
+  clearInMemoryWalletData(): void {
+    this.wallets = [];
+    this.tx_metadata = {};
+    this.counterparty_metadata = {};
+    this.cachedPassword = false;
+    this.lockKeychainData();
+    usedBucketNum = false;
+  }
+
+  private static accessControlForSecurityOption(option?: KeychainSecurityOption): ACCESS_CONTROL | undefined {
+    return option ? getKeychainAccessControl(option) : undefined;
+  }
+
+  private async readDataEncryptionKey(
+    forceAuthentication = false,
+    service = BlueApp.DATA_ENCRYPTION_KEY_SERVICE,
+  ): Promise<Uint8Array | null> {
+    const credentials = await Keychain.getGenericPassword({
+      service,
+      authenticationPrompt: { title: 'Unlock BlueWallet' },
+      ...(forceAuthentication ? { requireFreshAuthentication: true } : {}),
+    });
+    if (!credentials) return null;
+    const key = hexToUint8Array(credentials.password);
+    if (key.length !== WALLET_DATA_KEY_LENGTH) throw new Error('Invalid wallet data-encryption key');
+    return key;
+  }
+
+  private async storeDataEncryptionKey(
+    dataKey: Uint8Array,
+    securityOption?: KeychainSecurityOption,
+    service = BlueApp.DATA_ENCRYPTION_KEY_SERVICE,
+  ): Promise<void> {
+    if (dataKey.length !== WALLET_DATA_KEY_LENGTH) throw new Error('Invalid wallet data-encryption key');
+    const accessControl = BlueApp.accessControlForSecurityOption(securityOption);
+    const stored = await Keychain.setGenericPassword('wallet-data-key', uint8ArrayToHex(dataKey), {
+      service,
+      ...getIosKeychainAccessibilityOptions(),
+      ...(accessControl ? { accessControl } : {}),
+      // The envelope key always belongs in the Android Keystore, even when
+      // access control is Off. The selected policy only adds user authentication.
+      ...getAndroidKeystoreOptions(),
+    });
+    if (!stored || !(await hasGenericPassword({ service }))) throw new Error('Failed to store wallet data-encryption key');
+  }
+
+  private async getOrCreateDataEncryptionKey(securityOption?: KeychainSecurityOption): Promise<Uint8Array> {
+    if (this.dataEncryptionKey) return this.dataEncryptionKey;
+    const existing = await this.readDataEncryptionKey();
+    if (existing) {
+      this.dataEncryptionKey = existing;
+      return existing;
+    }
+    const created = await randomBytes(WALLET_DATA_KEY_LENGTH);
+    await this.storeDataEncryptionKey(created, securityOption);
+    await this.setDataProtectionMarkers(securityOption);
+    this.dataEncryptionKey = created;
+    return created;
+  }
+
+  private async setDataProtectionMarkers(securityOption?: KeychainSecurityOption): Promise<void> {
+    const selectedMarkerService =
+      securityOption === 'devicePasscode'
+        ? BlueApp.DEVICE_PASSCODE_DATA_PROTECTION_SERVICE
+        : securityOption === 'biometricsOrPasscode'
+          ? BlueApp.BIOMETRIC_DATA_PROTECTION_SERVICE
+          : undefined;
+    if (selectedMarkerService) {
+      const stored = await Keychain.setGenericPassword('data-key', 'system-protected', {
+        service: selectedMarkerService,
+        accessible: KEYCHAIN_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
+      if (!stored) throw new Error('Failed to persist wallet data-protection policy');
+    }
+    if (selectedMarkerService !== BlueApp.BIOMETRIC_DATA_PROTECTION_SERVICE) {
+      await Keychain.resetGenericPassword({ service: BlueApp.BIOMETRIC_DATA_PROTECTION_SERVICE });
+    }
+    if (selectedMarkerService !== BlueApp.DEVICE_PASSCODE_DATA_PROTECTION_SERVICE) {
+      await Keychain.resetGenericPassword({ service: BlueApp.DEVICE_PASSCODE_DATA_PROTECTION_SERVICE });
+    }
+  }
+
+  private async setKeychainStorageItem(key: string, value: string, securityOption?: KeychainSecurityOption): Promise<void> {
+    const manifest = key === 'data' ? await this.getWalletDataManifest() : null;
+    const nextSlot = manifest?.active === 'secondary' ? 'primary' : 'secondary';
+    const service =
+      key === 'data'
+        ? nextSlot === 'primary'
+          ? BlueApp.storageKeychainService('data')
+          : BlueApp.WALLET_DATA_SECONDARY_SERVICE
+        : BlueApp.storageKeychainService(key);
+    const dataKey = key === 'data' ? await this.getOrCreateDataEncryptionKey(securityOption) : undefined;
+    const storedValue = key === 'data' ? encryptWalletData(value, dataKey!, await randomBytes(12)) : JSON.stringify({ version: 1, value });
+    const stored = await Keychain.setGenericPassword(key, storedValue, {
+      service,
+      ...getIosKeychainAccessibilityOptions(),
+      ...getAndroidKeystoreOptions(),
+    });
+    if (!stored) throw new Error(`Failed to store Keychain value for ${key}`);
+
+    const storedCredentials = await Keychain.getGenericPassword({ service });
+    const verifiedValue =
+      key === 'data' && storedCredentials && dataKey
+        ? decryptWalletData(BlueApp.readKeychainEnvelope(storedCredentials.password), dataKey)
+        : await this.readKeychainStorageItem(key);
+    if (verifiedValue !== value) throw new Error(`Failed to verify migrated Keychain value for ${key}`);
+
+    if (key === 'data') {
+      const manifestStored = await Keychain.setGenericPassword(
+        'wallet-data-manifest',
+        JSON.stringify({ active: nextSlot, generation: (manifest?.generation ?? 0) + 1 }),
+        {
+          service: BlueApp.WALLET_DATA_MANIFEST_SERVICE,
+          ...getIosKeychainAccessibilityOptions(),
+          ...getAndroidKeystoreOptions(),
+        },
+      );
+      if (!manifestStored) throw new Error('Failed to commit wallet-data generation');
+      this.biometricUnlockedData = securityOption ? value : undefined;
+      if ((await this.getKeychainDataProtection()) !== securityOption) await this.setDataProtectionMarkers(securityOption);
+    }
+  }
+
+  private static validatesEncryptedStoragePassword(data: string, password: string): boolean {
+    try {
+      const buckets = JSON.parse(data);
+      if (!Array.isArray(buckets)) return false;
+      return buckets.some(bucket => {
+        if (typeof bucket !== 'string') return false;
+        const plaintext = encryption.decrypt(bucket, password);
+        if (!plaintext) return false;
+        try {
+          const parsed = JSON.parse(plaintext) as { wallets?: unknown };
+          return Array.isArray(parsed?.wallets);
+        } catch (_) {
+          return false;
+        }
+      });
+    } catch (_) {
+      return false;
+    }
+  }
+
+  private async migrateSecureStorageKey(key: string, storagePassword?: string): Promise<void> {
+    if ((await this.getKeychainStorageItem(key)) !== null) {
+      // A previous run may have committed the v2 item but failed to erase its
+      // weaker legacy duplicate. Keep the v2 value authoritative and retry
+      // cleanup on every migration until the native deletion is confirmed.
+      if ((await getLegacySecureValue(key)) !== null) await removeLegacySecureValue(key);
+      await AsyncStorage.removeItem(key);
       return;
+    }
+
+    // Prefer the old secure store over AsyncStorage. A build that could not see
+    // the legacy store may have written an empty replacement to AsyncStorage.
+    const legacyValue = await getLegacySecureValue(key);
+    if (typeof legacyValue === 'string') {
+      if (key === 'data' && BlueApp.isEncryptedStoragePayload(legacyValue)) {
+        if (!storagePassword || !BlueApp.validatesEncryptedStoragePassword(legacyValue, storagePassword)) return;
+        // Preserve the exact password that proved it can decrypt a wallet
+        // bucket. Keychain must require that same application password on
+        // future launches; never derive or substitute a migration password.
+        await this.ensureStoragePasswordInKeychain(storagePassword);
+      }
+      const securityOption =
+        key === 'data' && (await this.shouldProtectMigratedWalletData(legacyValue)) ? 'biometricsOrPasscode' : undefined;
+      await this.setKeychainStorageItem(key, legacyValue, securityOption);
+      await removeLegacySecureValue(key);
+      await AsyncStorage.removeItem(key);
+      return;
+    }
+
+    const asyncStorageValue = await AsyncStorage.getItem(key);
+    if (asyncStorageValue !== null) {
+      if (key === 'data' && BlueApp.isEncryptedStoragePayload(asyncStorageValue)) {
+        if (!storagePassword || !BlueApp.validatesEncryptedStoragePassword(asyncStorageValue, storagePassword)) return;
+        // Match the native legacy-store migration above for installations
+        // whose fallback copy was left in AsyncStorage.
+        await this.ensureStoragePasswordInKeychain(storagePassword);
+      }
+      const securityOption =
+        key === 'data' && (await this.shouldProtectMigratedWalletData(asyncStorageValue)) ? 'biometricsOrPasscode' : undefined;
+      await this.setKeychainStorageItem(key, asyncStorageValue, securityOption);
+      await AsyncStorage.removeItem(key);
+    }
+  }
+
+  private static isEncryptedStoragePayload(data: unknown): boolean {
+    if (typeof data !== 'string') return false;
+    try {
+      const buckets = JSON.parse(data);
+      return Array.isArray(buckets) && buckets.length > 0 && buckets.every(bucket => typeof bucket === 'string');
+    } catch (_) {
+      return false;
+    }
+  }
+
+  private async shouldProtectMigratedWalletData(data: string): Promise<boolean> {
+    const biometricsEnabled = (await this.getKeychainStorageItem('Biometrics')) === '1';
+    return biometricsEnabled && !BlueApp.isEncryptedStoragePayload(data);
+  }
+
+  private async migrateLegacyBiometricSetting(): Promise<void> {
+    const legacySetting = await this.getKeychainStorageItem('Biometrics');
+    if (legacySetting === null) return;
+
+    if (legacySetting === '1' && !(await hasGenericPassword({ service: BlueApp.BIOMETRIC_AUTH_SERVICE }))) {
+      await Keychain.setGenericPassword(BlueApp.BIOMETRIC_AUTH_SERVICE, 'authentication-required', {
+        service: BlueApp.BIOMETRIC_AUTH_SERVICE,
+        accessible: KEYCHAIN_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        accessControl: getKeychainAccessControl('biometricsOrPasscode'),
+        ...getAndroidKeystoreOptions(),
+      });
+    }
+
+    // The legacy value has now been represented by a real Keychain credential.
+    await this.removeItem('Biometrics');
+  }
+
+  async setKeychainDataProtection(securityOption?: KeychainSecurityOption): Promise<void> {
+    let data = await this.getKeychainStorageItem('data');
+    if (data === null) {
+      if (this.wallets.length > 0) {
+        throw new Error('Wallet data is missing while wallets remain loaded');
+      }
+      // A new/empty installation may enable app unlock before its first normal
+      // save. Persist a real empty bucket so a successful Face ID unlock has a
+      // valid data record to load and can advance the navigation gate.
+      data = JSON.stringify({
+        wallets: [],
+        tx_metadata: this.tx_metadata ?? {},
+        counterparty_metadata: this.counterparty_metadata ?? {},
+      } satisfies TBucketStorage);
+    }
+
+    // Password-encrypted storage remains password-only. In that mode the
+    // selected system authentication continues to guard sensitive in-app actions.
+    const targetOption = BlueApp.isEncryptedStoragePayload(data) ? undefined : securityOption;
+    const previousOption = await this.getKeychainDataProtection();
+    if (!(await hasGenericPassword({ service: BlueApp.DATA_ENCRYPTION_KEY_SERVICE }))) {
+      // One-time envelope migration. The payload is encrypted once; every
+      // subsequent policy change touches only the 32-byte data key.
+      await this.setKeychainStorageItem('data', data, previousOption);
+    }
+    if (previousOption === targetOption) return;
+
+    const dataKey = this.dataEncryptionKey ?? (await this.readDataEncryptionKey());
+    if (!dataKey) throw new Error('Wallet data-encryption key is unavailable');
+    this.dataEncryptionKey = dataKey;
+    await this.storeDataEncryptionKey(dataKey, previousOption, BlueApp.DATA_KEY_BACKUP_SERVICE);
+
+    const transactionStored = await Keychain.setGenericPassword(
+      'data-key-rewrap',
+      JSON.stringify({ previousOption: previousOption ?? 'disabled', targetOption: targetOption ?? 'disabled' }),
+      {
+        service: BlueApp.DATA_KEY_TRANSACTION_SERVICE,
+        accessible: KEYCHAIN_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      },
+    );
+    if (!transactionStored) throw new Error('Failed to record wallet data-key protection change');
+
+    try {
+      await this.storeDataEncryptionKey(dataKey, targetOption);
+      await this.setDataProtectionMarkers(targetOption);
+      this.biometricUnlockedData = targetOption ? data : undefined;
+      await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_TRANSACTION_SERVICE });
+      await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_BACKUP_SERVICE });
+    } catch (error) {
+      try {
+        await this.storeDataEncryptionKey(dataKey, previousOption);
+        await this.setDataProtectionMarkers(previousOption);
+        this.biometricUnlockedData = previousOption ? data : undefined;
+        await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_TRANSACTION_SERVICE });
+        await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_BACKUP_SERVICE });
+      } catch (rollbackError) {
+        console.error('[BlueApp] Wallet data-key rollback failed; retaining the recovery key:', rollbackError);
+      }
+      throw error;
+    }
+  }
+
+  async setKeychainDataBiometricProtection(enabled: boolean): Promise<void> {
+    await this.setKeychainDataProtection(enabled ? 'biometricsOrPasscode' : undefined);
+  }
+
+  private async getDataKeyTransaction(): Promise<{
+    previousOption?: KeychainSecurityOption;
+    targetOption?: KeychainSecurityOption;
+  } | null> {
+    const credentials = await Keychain.getGenericPassword({ service: BlueApp.DATA_KEY_TRANSACTION_SERVICE });
+    if (!credentials) return null;
+    const transaction = JSON.parse(credentials.password) as { previousOption?: string; targetOption?: string };
+    const parseOption = (option?: string): KeychainSecurityOption | undefined =>
+      option === 'biometricsOrPasscode' || option === 'devicePasscode' ? option : undefined;
+    return {
+      previousOption: parseOption(transaction.previousOption),
+      targetOption: parseOption(transaction.targetOption),
+    };
+  }
+
+  private async recoverInterruptedDataKeyChange(): Promise<void> {
+    const transaction = await this.getDataKeyTransaction();
+    if (!transaction) {
+      // A process can stop after writing the recovery copy but before writing
+      // the transaction record. The primary key is still authoritative in
+      // that state, so remove the orphaned duplicate on the next unlock.
+      await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_BACKUP_SERVICE });
+      return;
+    }
+    const dataKey = await this.readDataEncryptionKey(false, BlueApp.DATA_KEY_BACKUP_SERVICE);
+    if (!dataKey) throw new Error('Wallet data-key recovery entry is unavailable');
+
+    await this.storeDataEncryptionKey(dataKey, transaction.targetOption);
+    await this.setDataProtectionMarkers(transaction.targetOption);
+    this.dataEncryptionKey = dataKey;
+    await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_TRANSACTION_SERVICE });
+    await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_BACKUP_SERVICE });
+  }
+
+  async getKeychainDataProtection(): Promise<KeychainSecurityOption | undefined> {
+    const keyTransaction = await this.getDataKeyTransaction();
+    if (keyTransaction) return keyTransaction.targetOption ?? keyTransaction.previousOption;
+    if (
+      await hasGenericPassword({
+        service: BlueApp.DEVICE_PASSCODE_DATA_PROTECTION_SERVICE,
+      })
+    )
+      return 'devicePasscode';
+    if (
+      await hasGenericPassword({
+        service: BlueApp.BIOMETRIC_DATA_PROTECTION_SERVICE,
+      })
+    )
+      return 'biometricsOrPasscode';
+    return undefined;
+  }
+
+  async getConfiguredKeychainSecurityOption(): Promise<KeychainSecurityOption | undefined> {
+    const [passcodeDataProtection, biometricDataProtection, passcodeMarker, biometricMarker] = await Promise.all([
+      hasGenericPassword({ service: BlueApp.DEVICE_PASSCODE_DATA_PROTECTION_SERVICE }),
+      hasGenericPassword({ service: BlueApp.BIOMETRIC_DATA_PROTECTION_SERVICE }),
+      hasGenericPassword({ service: BlueApp.DEVICE_PASSCODE_AUTH_SERVICE }),
+      hasGenericPassword({ service: BlueApp.BIOMETRIC_AUTH_SERVICE }),
+    ]);
+    if (passcodeDataProtection && biometricDataProtection) throw new Error('Conflicting wallet-data security policies');
+    if (!passcodeDataProtection && !biometricDataProtection && passcodeMarker && biometricMarker) {
+      throw new Error('Conflicting authentication security policies');
+    }
+
+    const dataProtection = passcodeDataProtection ? 'devicePasscode' : biometricDataProtection ? 'biometricsOrPasscode' : undefined;
+    // The policy recorded for the wallet data-encryption key is authoritative. An
+    // interrupted policy switch can leave an obsolete auxiliary marker, but
+    // that marker must never lock out data protected by a valid Keychain item.
+    if (dataProtection) return dataProtection;
+    if (passcodeMarker) return 'devicePasscode';
+    if (biometricMarker) return 'biometricsOrPasscode';
+    return undefined;
+  }
+
+  async hasKeychainDataBiometricProtection(): Promise<boolean> {
+    return (await this.getKeychainDataProtection()) !== undefined;
+  }
+
+  async migrateKeys() {
+    await this.ensureCurrentIosInstallation();
+    await this.removeLegacyRealmKeyValueBackup();
+
+    for (const key of BlueApp.secureStorageKeys) {
+      try {
+        await this.migrateSecureStorageKey(key);
+      } catch (error) {
+        // Never delete either source when the Keychain write cannot be verified.
+        console.warn(`Failed to migrate secure-storage key ${key}:`, error);
+      }
+    }
+
+    try {
+      await this.migrateLegacyBiometricSetting();
+    } catch (error) {
+      // Preserve the old value if the protected credential could not be
+      // created. A later launch can retry without silently disabling access.
+      console.warn('Failed to migrate legacy biometric setting:', error);
     }
 
     for (const key of BlueApp.keys2migrate) {
       try {
-        const value = await RNSecureKeyStore.get(key);
-        if (value) {
+        if ((await AsyncStorage.getItem(key)) !== null) continue;
+        const value = await getLegacySecureValue(key);
+        if (typeof value === 'string') {
           await AsyncStorage.setItem(key, value);
-          await RNSecureKeyStore.remove(key);
+          await removeLegacySecureValue(key);
         }
-      } catch (_) {}
+      } catch (error) {
+        console.warn(`Failed to migrate preference key ${key}:`, error);
+      }
     }
   }
 
-  /**
-   * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
-   * used for cli/tests
-   */
-  setItem = (key: string, value: any): Promise<any> => {
-    if (isReactNative) {
-      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
-    } else {
-      return AsyncStorage.setItem(key, value);
+  /** Stores wallet state in a dedicated native Keychain service. */
+  setItem = async (key: string, value: any): Promise<void> => {
+    await this.ensureCurrentIosInstallation();
+    const securityOption = key === 'data' && !this.cachedPassword ? await this.getConfiguredKeychainSecurityOption() : undefined;
+    if (key === 'data' && (await hasGenericPassword({ service: BlueApp.DATA_ENCRYPTION_KEY_SERVICE }))) {
+      const currentOption = await this.getKeychainDataProtection();
+      if (currentOption !== securityOption) await this.setKeychainDataProtection(securityOption);
     }
+    await this.setKeychainStorageItem(key, String(value), securityOption);
+    await removeLegacySecureValue(key);
+    await AsyncStorage.removeItem(key);
   };
 
-  /**
-   * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
-   * used for cli/tests
-   */
-  getItem = (key: string): Promise<any> => {
-    if (isReactNative) {
-      return RNSecureKeyStore.get(key);
-    } else {
-      return AsyncStorage.getItem(key);
-    }
+  /** Reads wallet state, migrating a legacy value on first access. */
+  getItem = async (key: string, storagePassword?: string): Promise<any> => {
+    await this.ensureCurrentIosInstallation();
+    await this.migrateSecureStorageKey(key, storagePassword);
+    const keychainValue = await this.getKeychainStorageItem(key);
+    if (keychainValue !== null || key !== 'data') return keychainValue;
+
+    // Encrypted legacy data intentionally remains at its source until a
+    // password validates it. Return the ciphertext read-only so callers can
+    // detect password storage and request that password without migrating it.
+    const legacyValue = await getLegacySecureValue(key);
+    if (typeof legacyValue === 'string') return legacyValue;
+    return await AsyncStorage.getItem(key);
   };
 
-  getItemWithFallbackToRealm = async (key: string): Promise<any | null> => {
-    let value;
-    try {
-      return await this.getItem(key);
-    } catch (error: any) {
-      console.warn('error reading', key, error.message);
-      console.warn('fallback to realm');
-      const realmKeyValue = await this.openRealmKeyValue();
-      const obj = realmKeyValue.objectForPrimaryKey<{ key: string; value: string }>('KeyValue', key);
-      value = obj?.value;
-      realmKeyValue.close();
-      if (value) {
-        console.warn('successfully recovered', value.length, 'bytes from realm for key', key);
-        return value;
-      }
-      return null;
+  removeItem = async (key: string): Promise<void> => {
+    await Keychain.resetGenericPassword({
+      service: BlueApp.storageKeychainService(key),
+    });
+    if (key === 'data') {
+      this.biometricUnlockedData = undefined;
+      this.dataEncryptionKey = undefined;
+      await Keychain.resetGenericPassword({ service: BlueApp.DATA_ENCRYPTION_KEY_SERVICE });
+      await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_BACKUP_SERVICE });
+      await Keychain.resetGenericPassword({ service: BlueApp.DATA_KEY_TRANSACTION_SERVICE });
+      await Keychain.resetGenericPassword({ service: BlueApp.WALLET_DATA_SECONDARY_SERVICE });
+      await Keychain.resetGenericPassword({ service: BlueApp.WALLET_DATA_MANIFEST_SERVICE });
+      await Keychain.resetGenericPassword({
+        service: BlueApp.BIOMETRIC_DATA_PROTECTION_SERVICE,
+      });
+      await Keychain.resetGenericPassword({
+        service: BlueApp.DEVICE_PASSCODE_DATA_PROTECTION_SERVICE,
+      });
     }
+    await removeLegacySecureValue(key);
+    await AsyncStorage.removeItem(key);
   };
+
+  async removeBiometricPassword(): Promise<void> {
+    await Keychain.resetGenericPassword({
+      service: BlueApp.BIOMETRIC_PASSWORD_SERVICE,
+    });
+  }
+
+  static BIOMETRIC_PASSWORD_SERVICE = 'BlueWalletBiometricPassword';
 
   storageIsEncrypted = async (): Promise<boolean> => {
     let data;
     try {
-      data = await this.getItemWithFallbackToRealm(BlueApp.FLAG_ENCRYPTED);
+      data = await this.getItem('data');
     } catch (error: any) {
-      console.warn('error reading `' + BlueApp.FLAG_ENCRYPTED + '` key:', error.message);
-      return false;
+      console.warn('error reading `data` while checking storage encryption:', error.message);
+      throw error;
     }
 
-    return Boolean(data);
+    try {
+      return BlueApp.isEncryptedStoragePayload(data);
+    } finally {
+      // Older versions persisted a separate boolean. The payload now provides
+      // the source of truth, so remove either legacy implementation lazily.
+      try {
+        await this.removeItem(BlueApp.LEGACY_FLAG_ENCRYPTED);
+      } catch (_) {}
+    }
   };
 
   isPasswordInUse = async (password: string) => {
@@ -204,7 +826,9 @@ export class BlueApp {
   decryptStorage = async (password: string): Promise<boolean> => {
     if (password === this.cachedPassword) {
       this.cachedPassword = undefined;
+      await this.removeBiometricPassword();
       await this.saveToDisk();
+      await this.clearStoragePasswordsFromKeychain();
       this.wallets = [];
       this.tx_metadata = {};
       this.counterparty_metadata = {};
@@ -216,6 +840,9 @@ export class BlueApp {
 
   encryptStorage = async (password: string): Promise<void> => {
     // assuming the storage is not yet encrypted
+    // Abort before changing storage if an obsolete biometric password cannot
+    // be removed. This prevents encrypted data from retaining a biometric path.
+    await this.removeBiometricPassword();
     await this.saveToDisk();
     let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
@@ -224,9 +851,9 @@ export class BlueApp {
     data = [];
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
+    await this.ensureStoragePasswordInKeychain(password);
     this.cachedPassword = password;
     await this.setItem('data', data);
-    await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
   };
 
   /**
@@ -250,9 +877,50 @@ export class BlueApp {
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
+    await this.ensureStoragePasswordInKeychain(fakePassword);
     await this.setItem('data', bucketsString);
     return (await this.getItem('data')) === bucketsString;
   };
+
+  private storagePasswordKeychainOptions(password: string, service: string) {
+    return {
+      service,
+      accessible: KEYCHAIN_ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      accessControl: ACCESS_CONTROL.APPLICATION_PASSWORD,
+      applicationPassword: password,
+    };
+  }
+
+  private async ensureStoragePasswordInKeychain(password: string): Promise<void> {
+    if (Platform.OS !== 'ios') return;
+
+    const services = (await Keychain.getAllGenericPasswordServices({ skipUIAuth: true })).filter(service =>
+      service.startsWith(BlueApp.STORAGE_PASSWORD_KEYCHAIN_PREFIX),
+    );
+    for (const service of services) {
+      try {
+        const credentials = await Keychain.getGenericPassword(this.storagePasswordKeychainOptions(password, service));
+        if (credentials && credentials.password === password) return;
+      } catch (error: any) {
+        // Other plausible-deniability buckets reject this application password.
+        if (`${error?.code}` !== '-25293') throw error;
+      }
+    }
+
+    const service = `${BlueApp.STORAGE_PASSWORD_KEYCHAIN_PREFIX}${uint8ArrayToHex(await randomBytes(16))}`;
+    await Keychain.setGenericPassword(service, password, this.storagePasswordKeychainOptions(password, service));
+  }
+
+  async clearStoragePasswordsFromKeychain(): Promise<void> {
+    if (Platform.OS !== 'ios') return;
+
+    const services = await Keychain.getAllGenericPasswordServices({ skipUIAuth: true });
+    await Promise.all(
+      services
+        .filter(service => service.startsWith(BlueApp.STORAGE_PASSWORD_KEYCHAIN_PREFIX))
+        .map(service => Keychain.resetGenericPassword({ service })),
+    );
+  }
 
   hashIt = (s: string): string => {
     return uint8ArrayToHex(sha256(s));
@@ -292,62 +960,6 @@ export class BlueApp {
   }
 
   /**
-   * Returns instace of the Realm database, which is encrypted by random bytes stored in keychain.
-   * Database file is static.
-   *
-   * @returns {Promise<Realm>}
-   */
-  async openRealmKeyValue(): Promise<Realm> {
-    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
-    const service = 'realm_encryption_key';
-    let password;
-    const credentials = await Keychain.getGenericPassword({ service });
-    if (credentials) {
-      password = credentials.password;
-    } else {
-      const buf = await randomBytes(64);
-      password = uint8ArrayToHex(buf);
-      await Keychain.setGenericPassword(service, password, { service });
-    }
-
-    const buf = hexToUint8Array(password);
-    const encryptionKey = Int8Array.from(buf);
-    const path = `${cacheFolderPath}/keyvalue.realm`; // Use cache folder path
-
-    const schema = [
-      {
-        name: 'KeyValue',
-        primaryKey: 'key',
-        properties: {
-          key: { type: 'string', indexed: true },
-          value: 'string', // stringified json, or whatever
-        },
-      },
-    ];
-    // @ts-ignore schema doesn't match Realm's schema type
-    return Realm.open({
-      // @ts-ignore schema doesn't match Realm's schema type
-      schema,
-      path,
-      encryptionKey,
-      excludeFromIcloudBackup: true,
-    });
-  }
-
-  saveToRealmKeyValue(realmkeyValue: Realm, key: string, value: any) {
-    realmkeyValue.write(() => {
-      realmkeyValue.create(
-        'KeyValue',
-        {
-          key,
-          value,
-        },
-        Realm.UpdateMode.Modified,
-      );
-    });
-  }
-
-  /**
    * Loads from storage all wallets and
    * maps them to `this.wallets`
    *
@@ -355,18 +967,21 @@ export class BlueApp {
    * @returns {Promise.<boolean>}
    */
   async loadFromDisk(password?: string): Promise<boolean> {
+    await this.removeLegacyRealmKeyValueBackup();
+
     // Wrap inside a try so if anything goes wrong it wont block loadFromDisk from continuing
     try {
       await this.moveRealmFilesToCacheDirectory();
     } catch (error: any) {
       console.warn('moveRealmFilesToCacheDirectory error:', error.message);
     }
-    let dataRaw = await this.getItemWithFallbackToRealm('data');
+    let dataRaw = await this.getItem('data', password);
     if (password) {
       dataRaw = this.decryptData(dataRaw, password);
       if (dataRaw) {
         // password is good, cache it
         this.cachedPassword = password;
+        await this.ensureStoragePasswordInKeychain(password);
       }
     }
     if (dataRaw !== null) {
@@ -482,8 +1097,8 @@ export class BlueApp {
           presentAlert({ message: error.message });
         }
 
-        // done
         const ID = unserializedWallet.getID();
+        // done
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
           this.tx_metadata = data.tx_metadata;
@@ -609,7 +1224,10 @@ export class BlueApp {
   async saveToDisk(): Promise<void> {
     if (savingInProgress) {
       console.warn('saveToDisk is in progress');
-      if (++savingInProgress > 10) presentAlert({ message: 'Critical error. Last actions were not saved' }); // should never happen
+      if (++savingInProgress > 10)
+        presentAlert({
+          message: 'Critical error. Last actions were not saved',
+        }); // should never happen
       await new Promise(resolve => setTimeout(resolve, 1000 * savingInProgress)); // sleep
       return this.saveToDisk();
     }
@@ -658,7 +1276,7 @@ export class BlueApp {
 
       if (this.cachedPassword) {
         // should find the correct bucket, encrypt and then save
-        let buckets = await this.getItemWithFallbackToRealm('data');
+        let buckets = await this.getItem('data');
         buckets = JSON.parse(buckets);
         const newData: string[] = []; // serialized buckets
         let num = 0;
@@ -691,20 +1309,9 @@ export class BlueApp {
       }
 
       await this.setItem('data', JSON.stringify(data));
-      await this.setItem(BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
-
-      // now, backing up same data in realm:
-      const realmkeyValue = await this.openRealmKeyValue();
-      this.saveToRealmKeyValue(realmkeyValue, 'data', JSON.stringify(data));
-      this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
-      realmkeyValue.close();
     } catch (error: any) {
       console.error('save to disk exception:', error.message);
       presentAlert({ message: 'save to disk exception: ' + error.message });
-      if (error.message.includes('Realm file decryption failed')) {
-        console.warn('purging realm key-value database file');
-        this.purgeRealmKeyValueFile();
-      }
     } finally {
       savingInProgress = 0;
     }
@@ -910,11 +1517,30 @@ export class BlueApp {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
 
-  purgeRealmKeyValueFile() {
-    const path = 'keyvalue.realm';
-    return Realm.deleteFile({
-      path,
-    });
+  private async removeLegacyRealmKeyValueBackup(): Promise<void> {
+    for (const directory of [RNFS.CachesDirectoryPath, RNFS.DocumentDirectoryPath]) {
+      const path = `${directory}/keyvalue.realm`;
+      try {
+        if (await RNFS.exists(path)) Realm.deleteFile({ path });
+
+        if (await RNFS.exists(directory)) {
+          const leftovers = (await RNFS.readDir(directory)).filter(file => file.name.startsWith('keyvalue.realm'));
+          for (const file of leftovers) {
+            if (await RNFS.exists(file.path)) await RNFS.unlink(file.path);
+          }
+        }
+      } catch (error) {
+        console.warn(`Failed to remove legacy Realm wallet backup at ${path}:`, error);
+      }
+    }
+
+    try {
+      await Keychain.resetGenericPassword({
+        service: BlueApp.LEGACY_REALM_KEY_VALUE_SERVICE,
+      });
+    } catch (error) {
+      console.warn('Failed to remove legacy Realm wallet-backup key:', error);
+    }
   }
 
   async moveRealmFilesToCacheDirectory() {

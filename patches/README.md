@@ -71,3 +71,24 @@ from e2e tests.
 Added in BlueWallet PR https://github.com/BlueWallet/BlueWallet/pull/8508.
 When bumping `react-native-screens`, rename this patch to the new version
 and re-confirm the hunk still applies (`npx patch-package`).
+
+---
+
+## `react-native-keychain+10.0.0.patch`
+
+**What:** adds an `applicationPassword` option on iOS and supplies it to an
+`LAContext` when a Keychain item uses `ACCESS_CONTROL.APPLICATION_PASSWORD`.
+It also adds explicit native authentication and fresh-authentication options
+used by the biometric/passcode policy flow.
+
+**Why:** BlueWallet storage encryption uses the user's storage password as the
+application-provided Keychain credential. The upstream JavaScript enum exposes
+this access-control policy, but its native bridge does not provide a way to set
+the corresponding `LACredentialTypeApplicationPassword` credential.
+
+Legacy values written by `react-native-secure-key-store`, AsyncStorage, and the
+old Realm backup are migrated through BlueWallet's storage layer. The legacy
+source is removed only after the React Native Keychain copy is verified.
+
+Remove this patch once `react-native-keychain` supports supplying an application
+password to set/get operations upstream.

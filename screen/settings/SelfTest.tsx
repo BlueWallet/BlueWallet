@@ -28,7 +28,8 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { stopArkBackgroundTask } from '../../blue_modules/arkade-background';
-import { SettingsSection, SettingsScrollView, settingsCardContent } from '../../components/SettingsSection';
+import { SettingsFootnote, SettingsSection, SettingsScrollView, settingsCardContent } from '../../components/SettingsSection';
+import { collectKeychainDiagnostics, KeychainDiagnostic } from '../../blue_modules/keychain-diagnostics';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -37,6 +38,9 @@ type TState = {
   isLoading?: boolean;
   isOk?: boolean;
   errorMessage?: string;
+  keychainDiagnostics?: KeychainDiagnostic[];
+  keychainDiagnosticsLoading?: boolean;
+  keychainDiagnosticsError?: string;
 };
 
 function assertStrictEqual<T>(actual: T, expected: T, message?: string) {
@@ -52,6 +56,25 @@ const styles = StyleSheet.create({
   fullWidth: {
     width: '100%',
   },
+  diagnosticHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 16,
+    paddingVertical: 7,
+  },
+  diagnosticLabel: {
+    flex: 2,
+  },
+  diagnosticValue: {
+    flex: 3,
+    textAlign: 'right',
+  },
+  diagnosticFootnote: {
+    marginBottom: 10,
+  },
+  diagnosticButton: {
+    marginTop: 12,
+  },
 });
 
 export default class SelfTest extends Component {
@@ -62,8 +85,27 @@ export default class SelfTest extends Component {
     this.state = {
       started: false,
       isLoading: false,
+      keychainDiagnosticsLoading: false,
     };
   }
+
+  componentDidMount() {
+    this.refreshKeychainDiagnostics();
+  }
+
+  refreshKeychainDiagnostics = async () => {
+    this.setState({ keychainDiagnosticsLoading: true, keychainDiagnosticsError: undefined });
+    try {
+      const keychainDiagnostics = await collectKeychainDiagnostics();
+      this.setState({ keychainDiagnostics, keychainDiagnosticsLoading: false });
+    } catch (error) {
+      console.warn('Unable to collect Keychain diagnostics:', error);
+      this.setState({
+        keychainDiagnosticsLoading: false,
+        keychainDiagnosticsError: error instanceof Error ? error.message : String(error),
+      });
+    }
+  };
 
   onPressImportDocument = async () => {
     try {
@@ -362,18 +404,27 @@ export default class SelfTest extends Component {
       isOk,
       errorMessage,
     });
+    this.refreshKeychainDiagnostics();
   };
 
   render() {
-    return <SelfTestContent state={this.state} onPressImportDocument={this.onPressImportDocument} onPressRunSelfTest={this.runSelfTest} />;
+    return (
+      <SelfTestContent
+        state={this.state}
+        onPressImportDocument={this.onPressImportDocument}
+        onPressRunSelfTest={this.runSelfTest}
+        onRefreshKeychainDiagnostics={this.refreshKeychainDiagnostics}
+      />
+    );
   }
 }
 
-const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => void; onPressRunSelfTest: () => void }> = ({
-  state,
-  onPressImportDocument,
-  onPressRunSelfTest,
-}) => {
+const SelfTestContent: React.FC<{
+  state: TState;
+  onPressImportDocument: () => void;
+  onPressRunSelfTest: () => void;
+  onRefreshKeychainDiagnostics: () => void;
+}> = ({ state, onPressImportDocument, onPressRunSelfTest, onRefreshKeychainDiagnostics }) => {
   let selfTestResult: React.ReactNode = null;
 
   if (state.started) {
@@ -428,6 +479,40 @@ const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => vo
               <BlueSpacing20 />
             </>
           )}
+        </View>
+      </SettingsSection>
+      <SettingsSection title="Keychain diagnostics">
+        <View style={settingsCardContent} testID="KeychainDiagnostics">
+          <SettingsFootnote style={styles.diagnosticFootnote}>
+            Metadata only. This does not read wallet data or encryption keys and should not display an authentication prompt.
+          </SettingsFootnote>
+          {state.keychainDiagnosticsLoading && !state.keychainDiagnostics ? <BlueLoading /> : null}
+          {state.keychainDiagnosticsError ? (
+            <BlueText testID="KeychainDiagnosticsError">Unable to inspect Keychain: {state.keychainDiagnosticsError}</BlueText>
+          ) : null}
+          {state.keychainDiagnostics?.map(diagnostic => (
+            <View
+              key={diagnostic.label}
+              style={styles.diagnosticHeader}
+              testID={`KeychainDiagnostic-${diagnostic.label.replace(/ /g, '-')}`}
+            >
+              <BlueText bold style={styles.diagnosticLabel}>
+                {diagnostic.label}
+              </BlueText>
+              <BlueText style={styles.diagnosticValue}>
+                {diagnostic.status === 'ok' ? '✓ ' : diagnostic.status === 'warning' ? '⚠ ' : diagnostic.status === 'error' ? '✕ ' : ''}
+                {diagnostic.value}
+              </BlueText>
+            </View>
+          ))}
+          <View style={[styles.fullWidth, styles.diagnosticButton]}>
+            <Button
+              title={state.keychainDiagnosticsLoading ? 'Inspecting…' : 'Refresh Keychain diagnostics'}
+              onPress={onRefreshKeychainDiagnostics}
+              disabled={state.keychainDiagnosticsLoading}
+              testID="RefreshKeychainDiagnostics"
+            />
+          </View>
         </View>
       </SettingsSection>
     </SettingsScrollView>

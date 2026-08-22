@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { PayjoinClient } from 'payjoin-client';
 import BigNumber from 'bignumber.js';
@@ -15,7 +15,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import SafeArea from '../../components/SafeArea';
 import { satoshiToBTC, satoshiToLocalCurrency } from '../../blue_modules/currency';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import { authenticateSensitiveAction } from '../../hooks/useKeychainAuthentication';
 import { TWallet, CreateTransactionTarget } from '../../class/wallets/types';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -69,7 +69,6 @@ type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList
 const Confirm: React.FC = () => {
   const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation<ConfirmNavigationProp>();
   const route = useRoute<ConfirmRouteProp>(); // Get the route and its params
   const { recipients, targets, walletID, fee, memo, tx, satoshiPerByte, psbt, payjoinUrl } = route.params; // Destructure params
@@ -127,18 +126,8 @@ const Confirm: React.FC = () => {
     ],
   );
 
-  const biometricCapabilityRef = useRef(isBiometricUseCapableAndEnabled);
-
-  useEffect(() => {
-    biometricCapabilityRef.current = isBiometricUseCapableAndEnabled;
-  }, [isBiometricUseCapableAndEnabled]);
-
   const handleOpenCreateTransaction = useCallback(async () => {
-    if (await biometricCapabilityRef.current()) {
-      if (!(await unlockWithBiometrics())) {
-        return;
-      }
-    }
+    if (!(await authenticateSensitiveAction())) return;
     navigate('CreateTransaction', {
       fee,
       recipients,
@@ -187,19 +176,17 @@ const Confirm: React.FC = () => {
     dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: true });
     dispatch({ type: ActionType.SET_LOADING, payload: true });
     try {
-      // Perform biometric authentication first
-      if (await isBiometricUseCapableAndEnabled()) {
-        if (!(await unlockWithBiometrics())) {
-          // Stop execution if biometric unlock fails
-          dispatch({ type: ActionType.SET_LOADING, payload: false });
-          dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: false });
-          return;
-        }
+      // Authenticate the sensitive action before creating or broadcasting.
+      if (!(await authenticateSensitiveAction())) {
+        // Stop execution if system authentication fails.
+        dispatch({ type: ActionType.SET_LOADING, payload: false });
+        dispatch({ type: ActionType.SET_BUTTON_DISABLED, payload: false });
+        return;
       }
 
       const txidsToWatch = [];
       if (!state.isPayjoinEnabled) {
-        // Only broadcast the transaction after biometrics pass
+        // Only broadcast the transaction after authentication succeeds.
         const result = await broadcastTransaction(tx);
         if (!result) {
           dispatch({ type: ActionType.SET_LOADING, payload: false });
