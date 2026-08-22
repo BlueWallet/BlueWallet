@@ -53,6 +53,12 @@ const ImportWalletDiscovery: React.FC = () => {
     return hd.validateMnemonic();
   }, [importText]);
 
+  const isWatchOnlyHd = useMemo(() => {
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(importText);
+    return wallet.valid() && wallet.isHd();
+  }, [importText]);
+
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -240,7 +246,7 @@ const ImportWalletDiscovery: React.FC = () => {
         removeClippedSubviews={false}
       />
       <View style={[styles.center, stylesHook.center]}>
-        {bip39 && (
+        {(bip39 || isWatchOnlyHd) && (
           <BlueButtonLink
             title={loc.wallets.import_discovery_derivation}
             testID="CustomDerivationPathButton"
