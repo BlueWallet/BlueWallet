@@ -4,7 +4,7 @@ import type { TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import type { CreateTransactionUtxo, LightningTransaction, Transaction, TWallet, Utxo } from '../../class/wallets/types';
 
-export const APP_DATA_SCHEMA_VERSION = 6;
+export const APP_DATA_SCHEMA_VERSION = 7;
 export const APP_DATA_INITIALIZED_KEY = 'canonical-data-v1';
 export const APP_UTXO_INITIALIZED_KEY = 'canonical-utxo-v1';
 
@@ -218,6 +218,8 @@ const createUtxoRows = (wallets: TWallet[]) => {
       const walletId = wallet.getID();
       for (const utxo of wallet.getUtxo(true)) {
         const metadata = wallet.getUTXOMetadata(utxo.txid, utxo.vout);
+        const publicUtxo = { ...utxo };
+        delete publicUtxo.wif;
         rows.push({
           walletId,
           txid: utxo.txid,
@@ -227,7 +229,7 @@ const createUtxoRows = (wallets: TWallet[]) => {
           value: utxo.value,
           memo: metadata.memo ?? '',
           frozen: Boolean(metadata.frozen),
-          payloadJson: JSON.stringify(utxo),
+          payloadJson: JSON.stringify(publicUtxo),
         });
       }
     } catch {
@@ -418,6 +420,26 @@ export function setWalletFrozenOutpoints(realm: Realm, walletId: string, frozenO
   });
 }
 
+/** Removes signing secrets written by app-data schema versions before v7. */
+export function scrubWalletUtxoSecrets(realm: Realm): void {
+  const replacements: Array<{ row: WalletUtxoRow; payloadJson: string }> = [];
+  for (const row of realm.objects<WalletUtxoRow>('WalletUtxo')) {
+    try {
+      const payload = JSON.parse(row.payloadJson) as Utxo;
+      if (!Object.prototype.hasOwnProperty.call(payload, 'wif')) continue;
+      const publicUtxo = { ...payload };
+      delete publicUtxo.wif;
+      replacements.push({ row, payloadJson: JSON.stringify(publicUtxo) });
+    } catch {
+      // Invalid payloads are handled by readers and contain no usable structured WIF.
+    }
+  }
+  if (replacements.length === 0) return;
+  realm.write(() => {
+    for (const replacement of replacements) replacement.row.payloadJson = replacement.payloadJson;
+  });
+}
+
 export function replaceCanonicalData(
   realm: Realm,
   wallets: TWallet[],
@@ -480,6 +502,16 @@ export function utxoRowToUtxo(row: WalletUtxoRow): RealmUtxo {
   };
 }
 
-export function utxoToCreateTransactionInput({ memo: _memo, frozen: _frozen, ...utxo }: RealmUtxo): CreateTransactionUtxo {
-  return { ...utxo, wif: utxo.wif || undefined } as CreateTransactionUtxo;
+export function utxoToCreateTransactionInput(
+  input: RealmUtxo | (CreateTransactionUtxo & { address?: string; memo?: string; frozen?: boolean; wif?: string | false }),
+  wallet?: TWallet,
+): CreateTransactionUtxo {
+  const utxo = { ...input };
+  delete utxo.memo;
+  delete utxo.frozen;
+  delete utxo.wif;
+  const signingWallet = wallet && '_hdWalletInstance' in wallet && wallet._hdWalletInstance ? wallet._hdWalletInstance : wallet;
+  const getWif = signingWallet && '_getWifForAddress' in signingWallet ? signingWallet._getWifForAddress.bind(signingWallet) : undefined;
+  const wif = getWif && utxo.address ? getWif(utxo.address) : undefined;
+  return { ...utxo, ...(wif ? { wif } : {}) } as CreateTransactionUtxo;
 }

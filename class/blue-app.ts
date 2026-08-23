@@ -38,6 +38,7 @@ import {
   readMetadata,
   replaceCanonicalData,
   replaceCanonicalWalletData,
+  scrubWalletUtxoSecrets,
   type WalletUtxoRow,
 } from '../blue_modules/realm/appDataRepository';
 
@@ -81,6 +82,7 @@ type TBucketStorage = {
 };
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
+const APP_DATA_DEFAULT_PASSWORD = 'fyegjitkyf[eqjnc.lf';
 
 export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -238,6 +240,7 @@ export class BlueApp {
 
   encryptStorage = async (password: string): Promise<void> => {
     // assuming the storage is not yet encrypted
+    const previousRealmFileName = this.getAppDataRealmConfig().fileName;
     await this.saveToDisk();
     let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
@@ -254,6 +257,7 @@ export class BlueApp {
     // bucket's Realm immediately instead of waiting for a later save.
     const realm = await this.getRealmForTransactions();
     replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
+    if (previousRealmFileName !== this.appDataRealmIdentity) await this.scrubAndDeleteDefaultAppDataRealm();
   };
 
   /**
@@ -283,8 +287,8 @@ export class BlueApp {
     return uint8ArrayToHex(sha256(s));
   };
 
-  private getAppDataRealmConfig() {
-    const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
+  private getAppDataRealmConfig(passwordOverride: false | string | undefined = this.cachedPassword) {
+    const password = this.hashIt(passwordOverride || APP_DATA_DEFAULT_PASSWORD);
     const buf = hexToUint8Array(this.hashIt(password) + this.hashIt(password));
     const encryptionKey = Int8Array.from(buf);
     const fileName = this.hashIt(this.hashIt(password));
@@ -293,6 +297,38 @@ export class BlueApp {
 
   getAppDataRealmIdentity = (): string => this.getAppDataRealmConfig().fileName;
 
+  private getAppDataRealmPath(fileName: string): string {
+    return `${RNFS.DocumentDirectoryPath}/app-data/${fileName}-appdata.realm`;
+  }
+
+  /** Removes the known-key Realm left by pre-v7 encryption migrations, scrubbing it first when possible. */
+  private async scrubAndDeleteDefaultAppDataRealm(): Promise<void> {
+    const { encryptionKey, fileName } = this.getAppDataRealmConfig(false);
+    if (this.appDataRealmIdentity === fileName) return;
+    const path = this.getAppDataRealmPath(fileName);
+    if (!Realm.exists({ path })) return;
+
+    try {
+      const legacyRealm = await Realm.open({
+        schema: AppDataSchemas,
+        schemaVersion: APP_DATA_SCHEMA_VERSION,
+        path,
+        encryptionKey,
+        excludeFromIcloudBackup: true,
+      });
+      scrubWalletUtxoSecrets(legacyRealm);
+      legacyRealm.close();
+    } catch (error) {
+      console.warn('[AppDataRealm] Could not scrub the previous known-key Realm before deletion:', error);
+    }
+
+    try {
+      Realm.deleteFile({ path });
+    } catch (error) {
+      console.warn('[AppDataRealm] Failed to delete the previous known-key Realm:', error);
+    }
+  }
+
   /**
    * Opens the durable, encrypted source of truth for transactions and their metadata.
    * Its filename and key remain bucket-specific to preserve plausible deniability.
@@ -300,7 +336,7 @@ export class BlueApp {
   async getRealmForTransactions(): Promise<Realm> {
     const { encryptionKey, fileName } = this.getAppDataRealmConfig();
     if (this.appDataRealmIdentity === fileName && this.appDataRealm && !this.appDataRealm.isClosed) return this.appDataRealm;
-    if (this.appDataRealmIdentity === fileName && this.appDataRealmPromise) return this.appDataRealmPromise;
+    if (this.appDataRealmIdentity === fileName && this.appDataRealmPromise) return await this.appDataRealmPromise;
 
     if (this.appDataRealm && !this.appDataRealm.isClosed) this.appDataRealm.close();
     this.appDataRealm = undefined;
@@ -309,20 +345,22 @@ export class BlueApp {
     const opening = (async () => {
       const directory = `${RNFS.DocumentDirectoryPath}/app-data`;
       if (!(await RNFS.exists(directory))) await RNFS.mkdir(directory);
-      return Realm.open({
+      const realm = await Realm.open({
         schema: AppDataSchemas,
         schemaVersion: APP_DATA_SCHEMA_VERSION,
-        path: `${directory}/${fileName}-appdata.realm`,
+        path: this.getAppDataRealmPath(fileName),
         encryptionKey,
         excludeFromIcloudBackup: true,
       });
+      scrubWalletUtxoSecrets(realm);
+      return realm;
     })();
     this.appDataRealmPromise = opening;
     try {
       const realm = await opening;
       if (this.appDataRealmIdentity !== fileName) {
         realm.close();
-        return this.getRealmForTransactions();
+        return await this.getRealmForTransactions();
       }
       this.appDataRealm = realm;
       return realm;
@@ -573,6 +611,7 @@ export class BlueApp {
         this.counterparty_metadata = data.counterparty_metadata ?? {};
         if (realm) replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
       }
+      if (this.cachedPassword) await this.scrubAndDeleteDefaultAppDataRealm();
       return true;
     } else {
       return false; // failed loading data or loading/decryptin data

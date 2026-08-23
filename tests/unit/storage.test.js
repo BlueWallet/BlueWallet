@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import assert from 'assert';
+import Realm from 'realm';
 
 import { BlueApp } from '../../class/blue-app';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
@@ -42,6 +43,10 @@ it('Appstorage - loadFromDisk works', async () => {
   assert.strictEqual(Storage2.counterparty_metadata['payment code'].label, 'yegor letov');
   let isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(!isEncrypted);
+
+  const defaultRealmPath = (await Storage2.getRealmForTransactions()).path;
+  await Storage2.encryptStorage('new-storage-password');
+  assert.strictEqual(Realm.exists({ path: defaultRealmPath }), false, 'known-key app-data Realm must be deleted after encryption');
 
   // emulating encrypted storage (and testing flag)
 

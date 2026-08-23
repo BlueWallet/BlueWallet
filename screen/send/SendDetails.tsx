@@ -333,7 +333,7 @@ const SendDetails = () => {
     const fees = networkTransactionFees;
     const requestedSatPerByte = Number(feeRate);
     const m = new Measure('getUtxo');
-    const lutxo = utxos || spendableUtxos.map(utxoToCreateTransactionInput);
+    const lutxo = (utxos || spendableUtxos).map(utxo => utxoToCreateTransactionInput(utxo, wallet));
     m.end();
     let frozen = 0;
     if (!utxos) {
@@ -661,7 +661,7 @@ const SendDetails = () => {
     const change = await getChangeAddressAsync();
     assert(change, 'Could not get change address');
     const requestedSatPerByte = Number(feeRate);
-    const lutxo: CreateTransactionUtxo[] = utxos || spendableUtxos.map(utxoToCreateTransactionInput);
+    const lutxo: CreateTransactionUtxo[] = (utxos || spendableUtxos).map(utxo => utxoToCreateTransactionInput(utxo, wallet));
     console.log({ requestedSatPerByte, lutxo: lutxo.length });
 
     const targets: CreateTransactionTarget[] = [];

@@ -2,6 +2,8 @@
 
 Realm is the application source of truth for transaction records, transaction metadata, UTXOs, UTXO metadata, and counterparty metadata. Wallet secrets and wallet configuration remain in the encrypted storage bucket.
 
+UTXO Realm payloads contain public outpoint data only. WIFs and other signing secrets must never be serialized into app-data Realm; signing code derives required keys from the wallet only for the duration of transaction construction. Schema v7 scrubs legacy UTXO payloads on open, and storage encryption removes the previous known-key Realm file after seeding the password-specific bucket.
+
 The implementation targets Realm JS 20.x. `BlueApp` owns one open app-data Realm per encrypted bucket and reuses the same open promise for concurrent callers. Consumers must not close this shared Realm; query hooks own and remove only their listeners.
 
 ## Data flow

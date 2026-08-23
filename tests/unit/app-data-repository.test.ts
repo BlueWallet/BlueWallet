@@ -15,8 +15,10 @@ import {
   setCounterpartyMetadata,
   setTransactionMemo,
   setWalletUtxoMetadata,
+  scrubWalletUtxoSecrets,
   utxoRowToUtxo,
   type WalletActivityRow,
+  utxoToCreateTransactionInput,
 } from '../../blue_modules/realm/appDataRepository';
 import type { TWallet } from '../../class/wallets/types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -161,7 +163,7 @@ it('stores and queries UTXOs with their canonical metadata', async () => {
   const testWallet = wallet(
     [],
     [
-      { txid: 'small', vout: 0, height: 20, value: 10, address: 'bc1-small' },
+      { txid: 'small', vout: 0, height: 20, value: 10, address: 'bc1-small', wif: 'L1-private-key-must-not-persist' },
       { txid: 'large', vout: 1, height: 10, value: 50, address: 'bc1-large' },
     ],
     {
@@ -173,6 +175,10 @@ it('stores and queries UTXOs with their canonical metadata', async () => {
   replaceCanonicalData(realm, [testWallet], {}, {});
 
   assert.strictEqual(isUtxoDataInitialized(realm), true);
+  const rawSmallPayload = JSON.parse(
+    realm.objects<{ txid: string; payloadJson: string }>('WalletUtxo').filtered('txid == $0', 'small').slice(0, 1)[0].payloadJson,
+  );
+  assert.strictEqual(Object.prototype.hasOwnProperty.call(rawSmallPayload, 'wif'), false);
   const rows = Array.from(
     queryWalletUtxos(realm, 'wallet-1', {
       sortType: 'value',
@@ -199,6 +205,39 @@ it('stores and queries UTXOs with their canonical metadata', async () => {
   const updated = Array.from(queryWalletUtxos(realm, 'wallet-1', { txid: 'large', vout: 1 }), utxoRowToUtxo);
   assert.strictEqual(updated[0].memo, 'Updated output');
   assert.strictEqual(updated[0].frozen, true);
+});
+
+it('scrubs WIFs from UTXO rows created by older app-data schemas', async () => {
+  const realm = await Realm.open({ path: 'app-data-utxo-scrub-test.realm', schema: AppDataSchemas });
+  realm.write(() => {
+    realm.create('WalletUtxo', {
+      walletId: 'wallet-1',
+      txid: 'legacy-secret',
+      vout: 0,
+      outpoint: 'legacy-secret:0',
+      height: 1,
+      value: 100,
+      memo: '',
+      frozen: false,
+      payloadJson: JSON.stringify({
+        txid: 'legacy-secret',
+        vout: 0,
+        height: 1,
+        value: 100,
+        address: 'bc1-legacy',
+        wif: 'Kx-legacy-private-key',
+      }),
+    });
+  });
+
+  scrubWalletUtxoSecrets(realm);
+  const row = realm.objects<{ payloadJson: string }>('WalletUtxo').slice(0, 1)[0];
+  assert.strictEqual(Object.prototype.hasOwnProperty.call(JSON.parse(row.payloadJson), 'wif'), false);
+
+  const signingInput = utxoToCreateTransactionInput({ txid: 'legacy-secret', vout: 0, height: 1, value: 100, address: 'bc1-legacy' }, {
+    _getWifForAddress: () => 'Kx-derived-only-while-signing',
+  } as unknown as TWallet);
+  assert.strictEqual(signingInput.wif, 'Kx-derived-only-while-signing');
 });
 
 it('atomically replaces stale transaction and metadata rows', async () => {

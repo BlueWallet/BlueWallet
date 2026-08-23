@@ -323,8 +323,8 @@ export default function PaymentCodesList() {
     await foundWallet.fetchUtxo();
     await saveToDisk();
     const realm = await BlueApp.getInstance().getRealmForTransactions();
-    const spendableUtxos = Array.from(queryWalletUtxos(realm, walletID, { frozen: false }), utxoRowToUtxo).map(
-      utxoToCreateTransactionInput,
+    const spendableUtxos = Array.from(queryWalletUtxos(realm, walletID, { frozen: false }), utxoRowToUtxo).map(utxo =>
+      utxoToCreateTransactionInput(utxo, foundWallet),
     );
     setLoadingText('Fetching fees...');
     const fees = await BlueElectrum.estimateFees();
