@@ -397,6 +397,12 @@ jest.mock('realm', () => {
     };
   };
 
+  class RealmMock {
+    constructor(config = {}) {
+      return makeRealmInstance(config.path || '__default__');
+    }
+  }
+
   const makeRealmInstance = path => {
     let isClosed = false;
     // type → Map<primaryKey, object>
@@ -407,7 +413,7 @@ jest.mock('realm', () => {
       return typeStore.get(type);
     };
 
-    return {
+    const instance = {
       path,
       get isClosed() {
         return isClosed;
@@ -471,9 +477,11 @@ jest.mock('realm', () => {
       // Exposed so __mockRealmHelpers.reset() can wipe data in open instances.
       _clearData: () => typeStore.clear(),
     };
+    Object.setPrototypeOf(instance, RealmMock.prototype);
+    return instance;
   };
 
-  return {
+  return Object.assign(RealmMock, {
     UpdateMode: { Modified: 1 },
     open: jest.fn(async config => {
       const path = (config && config.path) || '__default__';
@@ -507,7 +515,7 @@ jest.mock('realm', () => {
       store: mockRealmStore,
       files: mockRealmFiles,
     },
-  };
+  });
 });
 
 jest.mock('react-native-camera-kit-no-google', () => ({

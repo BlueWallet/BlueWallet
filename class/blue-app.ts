@@ -101,6 +101,7 @@ export class BlueApp {
   private appDataRealm?: Realm;
   private appDataRealmIdentity?: string;
   private appDataRealmPromise?: Promise<Realm>;
+  private appDataRealmListeners = new Set<(realm: Realm | undefined) => void>();
 
   constructor() {
     this.wallets = [];
@@ -297,6 +298,21 @@ export class BlueApp {
 
   getAppDataRealmIdentity = (): string => this.getAppDataRealmConfig().fileName;
 
+  subscribeToAppDataRealm = (listener: (realm: Realm | undefined) => void): (() => void) => {
+    this.appDataRealmListeners.add(listener);
+    listener(this.appDataRealm && !this.appDataRealm.isClosed ? this.appDataRealm : undefined);
+    return () => this.appDataRealmListeners.delete(listener);
+  };
+
+  private publishAppDataRealm(realm: Realm | undefined): void {
+    for (const listener of this.appDataRealmListeners) listener(realm);
+  }
+
+  /** Closes a superseded Realm after React has committed the replacement provider value. */
+  releaseAppDataRealm = (realm: Realm): void => {
+    if (realm !== this.appDataRealm && !realm.isClosed) realm.close();
+  };
+
   private getAppDataRealmPath(fileName: string): string {
     return `${RNFS.DocumentDirectoryPath}/app-data/${fileName}-appdata.realm`;
   }
@@ -338,7 +354,7 @@ export class BlueApp {
     if (this.appDataRealmIdentity === fileName && this.appDataRealm && !this.appDataRealm.isClosed) return this.appDataRealm;
     if (this.appDataRealmIdentity === fileName && this.appDataRealmPromise) return await this.appDataRealmPromise;
 
-    if (this.appDataRealm && !this.appDataRealm.isClosed) this.appDataRealm.close();
+    const previousRealm = this.appDataRealm;
     this.appDataRealm = undefined;
     this.appDataRealmIdentity = fileName;
 
@@ -363,7 +379,15 @@ export class BlueApp {
         return await this.getRealmForTransactions();
       }
       this.appDataRealm = realm;
+      this.publishAppDataRealm(realm);
+      if (this.appDataRealmListeners.size === 0 && previousRealm) this.releaseAppDataRealm(previousRealm);
       return realm;
+    } catch (error) {
+      if (this.appDataRealmIdentity === fileName) {
+        this.publishAppDataRealm(undefined);
+        if (previousRealm) this.releaseAppDataRealm(previousRealm);
+      }
+      throw error;
     } finally {
       if (this.appDataRealmPromise === opening) this.appDataRealmPromise = undefined;
     }

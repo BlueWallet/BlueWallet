@@ -9,6 +9,7 @@ import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
+import { AppDataRealmProvider } from './blue_modules/realm/AppDataRealmProvider';
 import { useStorage } from './hooks/context/useStorage';
 import { unlockWithBiometrics, useBiometrics } from './hooks/useBiometrics';
 import { presentWalletExportReminder } from './helpers/presentWalletExportReminder';
@@ -92,11 +93,13 @@ const App = () => {
   return (
     <SizeClassProvider>
       <SafeAreaProvider>
-        <StorageProvider>
-          <SettingsProvider>
-            <Navigation colorScheme={colorScheme} />
-          </SettingsProvider>
-        </StorageProvider>
+        <AppDataRealmProvider>
+          <StorageProvider>
+            <SettingsProvider>
+              <Navigation colorScheme={colorScheme} />
+            </SettingsProvider>
+          </StorageProvider>
+        </AppDataRealmProvider>
       </SafeAreaProvider>
     </SizeClassProvider>
   );

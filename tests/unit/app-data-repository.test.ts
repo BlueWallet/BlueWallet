@@ -58,6 +58,22 @@ it('shares one Realm open operation between concurrent consumers', async () => {
   assert.strictEqual(RealmMock.open.mock.calls.length, 1);
 });
 
+it('publishes the shared Realm when the active encryption bucket changes', async () => {
+  const storage = new BlueApp();
+  const published: Array<Realm | undefined> = [];
+  const unsubscribe = storage.subscribeToAppDataRealm(realm => published.push(realm));
+
+  const defaultRealm = await storage.getRealmForTransactions();
+  storage.cachedPassword = 'encrypted-bucket';
+  const encryptedRealm = await storage.getRealmForTransactions();
+  unsubscribe();
+
+  assert.deepStrictEqual(published, [undefined, defaultRealm, encryptedRealm]);
+  storage.releaseAppDataRealm(defaultRealm);
+  assert.strictEqual(defaultRealm.isClosed, true);
+  assert.strictEqual(encryptedRealm.isClosed, false);
+});
+
 it('stores transactions and metadata as canonical Realm data', async () => {
   const realm = await Realm.open({
     path: 'app-data-test.realm',
