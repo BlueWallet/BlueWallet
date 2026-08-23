@@ -741,12 +741,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('ProvideSignature');
     await element(by.id('ProvideSignature')).tap();
-    await waitFor(element(by.id('CosignedScanOrImportFile')))
-      .toBeVisible()
-      .whileElement(by.id('PsbtMultisigQRCodeScrollView'))
-      .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
-
-    await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
 
     const ursSignedByPassport = [
       'UR:CRYPTO-PSBT/22-4/LPCMAACFAXPLCYZTVYVOPKHDWPHKAXPYJOIHIDHNJSATRTSWEYGUHDURWYDECAGLAAHTTBHTFZFPWDRTLROXLUEHCXAHJTIHTEHDHKTEVTOTIOWFSKGEOSCFFLDRGLFTCYKELSRDNSHYGLLEVYIDGYZOEEDAAOENHGASFDHFVWNSATVYCFETATZSFROXFPMHGUJNWDSPNYMHHGPAIMGYURAYCXLEZEZSCLKBJZLFSRAOOYMSYNCEHDOSPYGTTDSODRSKLALBCAVYBNOLOEGSOYVOVLMWFDPFHGBAVDAEAEAEADADWMDTGDPTADAEADADSTENFYASFDTBCLDINBAOHFHYTPPKWYMSSNDKHKKNUOIELPDRKTOYHPCFCSWNFXPKFZNEPKVOIOCNAOAXMNPSKPLTGYFLRHLOHGUYKISWBWVEGUGMLAAYDLLDLSAAVDTDSADLIDFXYLKKFYURMTOXLKMDRSTYTERSJNHSBDPSGOGWJKJESTWLZCTKGE',
@@ -758,6 +752,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // Keep sync disabled across animated QR cosign screens — re-enabling here
     // waits on pending layer animations and can hang the suite.
     try {
+      if (device.getPlatform() === 'ios') {
+        await device.disableSynchronization();
+      }
+      await waitFor(element(by.id('PsbtMultisigQRCodeScrollView')))
+        .toBeVisible()
+        .withTimeout(30_000);
+      await waitFor(element(by.id('CosignedScanOrImportFile')))
+        .toBeVisible()
+        .whileElement(by.id('PsbtMultisigQRCodeScrollView'))
+        .scroll(500, 'down');
+      await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
+
       await scanUrParts(ursSignedByPassport);
       await waitFor(element(by.id('ItemSigned')))
         .toBeVisible()
