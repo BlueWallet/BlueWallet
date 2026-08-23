@@ -96,16 +96,9 @@ export default class RBFCancel extends CPFP {
     }
   }
 
-  onSuccessBroadcast() {
-    // porting metadata, if any
-    this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid] || {};
-
-    // porting tx memo
-    if (this.context.txMetadata[this.state.newTxid].memo) {
-      this.context.txMetadata[this.state.newTxid].memo = 'Cancelled: ' + this.context.txMetadata[this.state.newTxid].memo;
-    } else {
-      this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
-    }
+  async onSuccessBroadcast() {
+    const previousMemo = this.context.txMetadata[this.state.txid]?.memo;
+    await this.context.setTransactionMemo(this.state.newTxid, previousMemo ? 'Cancelled: ' + previousMemo : 'Cancelled transaction');
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', {
       amount: undefined,

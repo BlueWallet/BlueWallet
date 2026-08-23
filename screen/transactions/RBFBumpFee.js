@@ -98,11 +98,9 @@ export default class RBFBumpFee extends CPFP {
     }
   }
 
-  onSuccessBroadcast() {
-    // porting memo from old tx:
-    if (this.context.txMetadata[this.state.txid]) {
-      this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid];
-    }
+  async onSuccessBroadcast() {
+    const previousMemo = this.context.txMetadata[this.state.txid]?.memo;
+    if (previousMemo) await this.context.setTransactionMemo(this.state.newTxid, previousMemo);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', {
       amount: undefined,

@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../class/wallets/hd-segwit-bech32-wallet';
-import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
 
@@ -70,7 +69,7 @@ const showAlertWithWalletOptions = (
 };
 
 const DevMenu: React.FC = () => {
-  const { wallets, addWallet } = useStorage();
+  const { wallets, addWallet, purgeWalletTransactions } = useStorage();
 
   useEffect(() => {
     if (__DEV__) {
@@ -143,24 +142,13 @@ const DevMenu: React.FC = () => {
           return;
         }
 
-        showAlertWithWalletOptions(wallets, 'Purge Wallet Transactions', 'Select the wallet to purge transactions', wallet => {
-          const msg = 'Transactions purged successfully!';
-
-          if (wallet.type === HDSegwitBech32Wallet.type) {
-            wallet._txs_by_external_index = {};
-            wallet._txs_by_internal_index = {};
-          }
-
-          if (wallet.type === WatchOnlyWallet.type && wallet._hdWalletInstance) {
-            wallet._hdWalletInstance._txs_by_external_index = {};
-            wallet._hdWalletInstance._txs_by_internal_index = {};
-          }
-
-          Alert.alert(msg);
+        showAlertWithWalletOptions(wallets, 'Purge Wallet Transactions', 'Select the wallet to purge transactions', async wallet => {
+          await purgeWalletTransactions(wallet.getID());
+          Alert.alert('Transactions purged successfully!');
         });
       });
     }
-  }, [wallets, addWallet]);
+  }, [wallets, addWallet, purgeWalletTransactions]);
 
   return null;
 };

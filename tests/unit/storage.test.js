@@ -5,6 +5,7 @@ import { BlueApp } from '../../class/blue-app';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { setCounterpartyMetadata, setTransactionMemo } from '../../blue_modules/realm/appDataRepository';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
@@ -19,17 +20,17 @@ it('Appstorage - loadFromDisk works', async () => {
   w.setLabel('testlabel');
   await w.generate();
   Storage.wallets.push(w);
-  Storage.tx_metadata = {
-    txid: {
-      memo: 'tx label',
-    },
-  };
-  Storage.counterparty_metadata = {
-    'payment code': {
-      label: 'yegor letov',
-    },
-  };
+  const realm = await Storage.getRealmForTransactions();
+  setTransactionMemo(realm, 'txid', 'tx label');
+  setCounterpartyMetadata(realm, 'payment code', { label: 'yegor letov' });
   await Storage.saveToDisk();
+
+  // Realm is authoritative once initialized. A stale legacy bucket mirror
+  // must not overwrite canonical metadata during the next load.
+  const staleBucket = JSON.parse(await AsyncStorage.getItem('data'));
+  staleBucket.tx_metadata = { txid: { memo: 'stale bucket label' } };
+  staleBucket.counterparty_metadata = { 'payment code': { label: 'stale bucket contact' } };
+  await AsyncStorage.setItem('data', JSON.stringify(staleBucket));
 
   // saved, now trying to load
 
@@ -217,9 +218,9 @@ it('AppStorage - getTransactions() work', async () => {
 
   Storage.wallets.push(w);
   Storage.wallets.push(w2);
+  await Storage.saveToDisk();
 
-  // setup complete. now we have a storage with 2 wallets, each wallet has
-  // exactly one transaction
+  // The canonical Realm now has two wallets with one transaction each.
 
   let txs = Storage.getTransactions();
   assert.strictEqual(txs.length, 2); // getter for _all_ txs works
@@ -251,6 +252,15 @@ it('AppStorage - getTransactions() work', async () => {
     assert.strictEqual(tx.walletPreferredBalanceUnit, w.getPreferredBalanceUnit());
     assert.strictEqual(tx.walletPreferredBalanceUnit, 'BTC');
   }
+
+  await Storage.saveToDisk();
+  const ReloadedStorage = new BlueApp();
+  await ReloadedStorage.loadFromDisk();
+  assert.strictEqual(
+    ReloadedStorage.getTransactions(undefined, Infinity, true).length,
+    2,
+    'transactions are hydrated from canonical Realm',
+  );
 });
 
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {

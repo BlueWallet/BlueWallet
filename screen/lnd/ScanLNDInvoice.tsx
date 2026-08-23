@@ -26,6 +26,7 @@ import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
@@ -47,6 +48,7 @@ const ScanLNDInvoice = () => {
   const [destination, setDestination] = useState<string>('');
   const [unit, setUnit] = useState<BitcoinUnit>(BitcoinUnit.SATS);
   const [decoded, setDecoded] = useState<DecodedInvoice | undefined>();
+  const existingInvoice = useWalletTransaction(wallet, decoded?.payment_hash);
   const [amount, setAmount] = useState<string | undefined>();
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState<boolean | undefined>();
   const [expiresIn, setExpiresIn] = useState<string | undefined>();
@@ -238,8 +240,7 @@ const ScanLNDInvoice = () => {
       return presentAlert({ message: loc.lnd.errorInvoiceExpired });
     }
 
-    const currentUserInvoices = wallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
-    if (currentUserInvoices.some(i => i.payment_hash === decoded.payment_hash)) {
+    if (existingInvoice) {
       setIsLoading(false);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       return presentAlert({ message: loc.lnd.sameWalletAsInvoiceError });

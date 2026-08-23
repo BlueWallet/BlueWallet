@@ -28,6 +28,18 @@ import { getLNDHub } from '../helpers/lndHub';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
+import {
+  APP_DATA_SCHEMA_VERSION,
+  AppDataSchemas,
+  isAppDataInitialized,
+  isUtxoDataInitialized,
+  activityRowToTransaction,
+  queryWalletActivityForWallets,
+  readMetadata,
+  replaceCanonicalData,
+  replaceCanonicalWalletData,
+  type WalletUtxoRow,
+} from '../blue_modules/realm/appDataRepository';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -62,8 +74,10 @@ type TRealmTransaction = {
 
 type TBucketStorage = {
   wallets: string[]; // array of serialized wallets, not actual wallet objects
-  tx_metadata: TTXMetadata;
-  counterparty_metadata: TCounterpartyMetadata;
+  /** Present only in storage written before metadata moved to Realm. */
+  tx_metadata?: TTXMetadata;
+  /** Present only in storage written before metadata moved to Realm. */
+  counterparty_metadata?: TCounterpartyMetadata;
 };
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
@@ -82,6 +96,9 @@ export class BlueApp {
   public tx_metadata: TTXMetadata;
   public counterparty_metadata: TCounterpartyMetadata;
   public wallets: TWallet[];
+  private appDataRealm?: Realm;
+  private appDataRealmIdentity?: string;
+  private appDataRealmPromise?: Promise<Realm>;
 
   constructor() {
     this.wallets = [];
@@ -121,7 +138,9 @@ export class BlueApp {
    */
   setItem = (key: string, value: any): Promise<any> => {
     if (isReactNative) {
-      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+      return RNSecureKeyStore.set(key, value, {
+        accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
     } else {
       return AsyncStorage.setItem(key, value);
     }
@@ -147,7 +166,10 @@ export class BlueApp {
       console.warn('error reading', key, error.message);
       console.warn('fallback to realm');
       const realmKeyValue = await this.openRealmKeyValue();
-      const obj = realmKeyValue.objectForPrimaryKey<{ key: string; value: string }>('KeyValue', key);
+      const obj = realmKeyValue.objectForPrimaryKey<{
+        key: string;
+        value: string;
+      }>('KeyValue', key);
       value = obj?.value;
       realmKeyValue.close();
       if (value) {
@@ -227,6 +249,11 @@ export class BlueApp {
     this.cachedPassword = password;
     await this.setItem('data', data);
     await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+
+    // The canonical Realm is bucket-specific. Seed the newly encrypted
+    // bucket's Realm immediately instead of waiting for a later save.
+    const realm = await this.getRealmForTransactions();
+    replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
   };
 
   /**
@@ -241,8 +268,6 @@ export class BlueApp {
 
     const data: TBucketStorage = {
       wallets: [],
-      tx_metadata: {},
-      counterparty_metadata: {},
     };
 
     let buckets = await this.getItem('data');
@@ -258,17 +283,58 @@ export class BlueApp {
     return uint8ArrayToHex(sha256(s));
   };
 
-  /**
-   * Returns instace of the Realm database, which is encrypted either by cached user's password OR default password.
-   * Database file is deterministically derived from encryption key.
-   */
-  async getRealmForTransactions() {
-    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
+  private getAppDataRealmConfig() {
     const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
     const buf = hexToUint8Array(this.hashIt(password) + this.hashIt(password));
     const encryptionKey = Int8Array.from(buf);
-    const fileName = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
-    const path = `${cacheFolderPath}/${fileName}`; // Use cache folder path
+    const fileName = this.hashIt(this.hashIt(password));
+    return { encryptionKey, fileName };
+  }
+
+  getAppDataRealmIdentity = (): string => this.getAppDataRealmConfig().fileName;
+
+  /**
+   * Opens the durable, encrypted source of truth for transactions and their metadata.
+   * Its filename and key remain bucket-specific to preserve plausible deniability.
+   */
+  async getRealmForTransactions(): Promise<Realm> {
+    const { encryptionKey, fileName } = this.getAppDataRealmConfig();
+    if (this.appDataRealmIdentity === fileName && this.appDataRealm && !this.appDataRealm.isClosed) return this.appDataRealm;
+    if (this.appDataRealmIdentity === fileName && this.appDataRealmPromise) return this.appDataRealmPromise;
+
+    if (this.appDataRealm && !this.appDataRealm.isClosed) this.appDataRealm.close();
+    this.appDataRealm = undefined;
+    this.appDataRealmIdentity = fileName;
+
+    const opening = (async () => {
+      const directory = `${RNFS.DocumentDirectoryPath}/app-data`;
+      if (!(await RNFS.exists(directory))) await RNFS.mkdir(directory);
+      return Realm.open({
+        schema: AppDataSchemas,
+        schemaVersion: APP_DATA_SCHEMA_VERSION,
+        path: `${directory}/${fileName}-appdata.realm`,
+        encryptionKey,
+        excludeFromIcloudBackup: true,
+      });
+    })();
+    this.appDataRealmPromise = opening;
+    try {
+      const realm = await opening;
+      if (this.appDataRealmIdentity !== fileName) {
+        realm.close();
+        return this.getRealmForTransactions();
+      }
+      this.appDataRealm = realm;
+      return realm;
+    } finally {
+      if (this.appDataRealmPromise === opening) this.appDataRealmPromise = undefined;
+    }
+  }
+
+  /** Opens the pre-v8 transaction cache for one-time migration only. */
+  private async getLegacyRealmForTransactions() {
+    const { encryptionKey, fileName } = this.getAppDataRealmConfig();
+    const path = `${RNFS.CachesDirectoryPath}/${fileName}-wallettransactions.realm`;
 
     const schema = [
       {
@@ -370,9 +436,15 @@ export class BlueApp {
       }
     }
     if (dataRaw !== null) {
-      let realm;
+      let realm: Realm | undefined;
+      let legacyRealm: Realm | undefined;
+      let canonicalDataExists = false;
+      let canonicalUtxoDataExists = false;
       try {
         realm = await this.getRealmForTransactions();
+        canonicalDataExists = isAppDataInitialized(realm);
+        canonicalUtxoDataExists = isUtxoDataInitialized(realm);
+        if (!canonicalDataExists) legacyRealm = await this.getLegacyRealmForTransactions();
       } catch (error: any) {
         presentAlert({ message: error.message });
       }
@@ -477,7 +549,8 @@ export class BlueApp {
         }
 
         try {
-          if (realm) this.inflateWalletFromRealm(realm, unserializedWallet);
+          if (canonicalDataExists && realm) this.inflateWalletFromRealm(realm, unserializedWallet, canonicalUtxoDataExists);
+          else if (legacyRealm) this.inflateWalletFromLegacyRealm(legacyRealm, unserializedWallet);
         } catch (error: any) {
           presentAlert({ message: error.message });
         }
@@ -486,11 +559,20 @@ export class BlueApp {
         const ID = unserializedWallet.getID();
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
-          this.tx_metadata = data.tx_metadata;
-          this.counterparty_metadata = data.counterparty_metadata;
         }
       }
-      if (realm) realm.close();
+      legacyRealm?.close();
+
+      if (realm && canonicalDataExists) {
+        const metadata = readMetadata(realm);
+        this.tx_metadata = metadata.txMetadata;
+        this.counterparty_metadata = metadata.counterpartyMetadata;
+        if (!canonicalUtxoDataExists) replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
+      } else {
+        this.tx_metadata = data.tx_metadata ?? {};
+        this.counterparty_metadata = data.counterparty_metadata ?? {};
+        if (realm) replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
+      }
       return true;
     } else {
       return false; // failed loading data or loading/decryptin data
@@ -519,9 +601,37 @@ export class BlueApp {
     this.wallets = tempWallets;
   };
 
-  inflateWalletFromRealm(realm: Realm, walletToInflate: TWallet) {
+  /** Purges canonical transaction rows and resets the wallet engine's fetch cache in one operation. */
+  purgeWalletTransactions = async (walletId: string): Promise<void> => {
+    const wallet = this.wallets.find(candidate => candidate.getID() === walletId);
+    if (!wallet) return;
+
+    const transactionWallet = (('_hdWalletInstance' in wallet && wallet._hdWalletInstance) || wallet) as any;
+    transactionWallet._txs_by_external_index = {};
+    transactionWallet._txs_by_internal_index = {};
+    transactionWallet._balances_by_external_index = {};
+    transactionWallet._balances_by_internal_index = {};
+    transactionWallet._lastTxFetch = 0;
+    transactionWallet._lastBalanceFetch = 0;
+
+    if (wallet.type === LightningCustodianWallet.type) {
+      const lightningWallet = wallet as LightningCustodianWallet;
+      lightningWallet.pending_transactions_raw = [];
+      lightningWallet.transactions_raw = [];
+      lightningWallet.user_invoices_raw = [];
+    }
+
+    const realm = await this.getRealmForTransactions();
+    realm.write(() => {
+      realm.delete(realm.objects('WalletActivity').filtered('walletId == $0', walletId));
+      realm.delete(realm.objects('WalletTransaction').filtered('walletId == $0', walletId));
+    });
+    await this.saveToDisk();
+  };
+
+  inflateWalletFromLegacyRealm(realm: Realm, walletToInflate: TWallet) {
     const transactions = realm.objects('WalletTransactions');
-    const transactionsForWallet = transactions.filtered(`walletid = "${walletToInflate.getID()}"`) as unknown as TRealmTransaction[];
+    const transactionsForWallet = transactions.filtered('walletid == $0', walletToInflate.getID()) as unknown as TRealmTransaction[];
     for (const tx of transactionsForWallet) {
       if (tx.internal === false) {
         if ('_hdWalletInstance' in walletToInflate && walletToInflate._hdWalletInstance) {
@@ -555,47 +665,64 @@ export class BlueApp {
     }
   }
 
-  offloadWalletToRealm(realm: Realm, wallet: TWallet): void {
-    const id = wallet.getID();
-    const walletToSave = ('_hdWalletInstance' in wallet && wallet._hdWalletInstance) || wallet;
+  inflateWalletFromRealm(realm: Realm, walletToInflate: TWallet, includeUtxos = true) {
+    const walletId = walletToInflate.getID();
+    const rows = realm
+      .objects<{
+        collection: string;
+        index?: number;
+        payloadJson: string;
+        ordinal: number;
+      }>('WalletTransaction')
+      .filtered('walletId == $0', walletId)
+      .sorted([
+        ['collection', false],
+        ['index', false],
+        ['ordinal', false],
+      ]);
+    const transactionWallet = ('_hdWalletInstance' in walletToInflate && walletToInflate._hdWalletInstance) || walletToInflate;
+    transactionWallet._txs_by_external_index = {};
+    transactionWallet._txs_by_internal_index = {};
 
-    if (walletToSave._txs_by_external_index) {
-      realm.write(() => {
-        // cleanup all existing transactions for the wallet first
-        const walletTransactionsToDelete = realm.objects('WalletTransactions').filtered(`walletid = '${id}'`);
-        realm.delete(walletTransactionsToDelete);
+    if (walletToInflate.type === LightningCustodianWallet.type) {
+      const lightningWallet = walletToInflate as LightningCustodianWallet;
+      lightningWallet.pending_transactions_raw = [];
+      lightningWallet.transactions_raw = [];
+      lightningWallet.user_invoices_raw = [];
+    }
 
-        // insert new ones:
-        for (const [indexStr, txs] of Object.entries(walletToSave._txs_by_external_index)) {
-          for (const tx of txs) {
-            realm.create(
-              'WalletTransactions',
-              {
-                walletid: id,
-                internal: false,
-                index: parseInt(indexStr, 10),
-                tx: JSON.stringify(tx),
-              },
-              Realm.UpdateMode.Modified,
-            );
-          }
-        }
+    for (const row of rows) {
+      const transaction = JSON.parse(row.payloadJson);
+      if (row.collection === 'external' || row.collection === 'internal') {
+        const target = row.collection === 'external' ? transactionWallet._txs_by_external_index : transactionWallet._txs_by_internal_index;
+        const index = row.index ?? 0;
+        target[index] = target[index] || [];
+        target[index].push(transaction);
+      } else if (walletToInflate.type === LightningCustodianWallet.type) {
+        const lightningWallet = walletToInflate as LightningCustodianWallet;
+        if (row.collection === 'lightningPending') lightningWallet.pending_transactions_raw.push(transaction);
+        if (row.collection === 'lightningTransactions') lightningWallet.transactions_raw.push(transaction);
+        if (row.collection === 'lightningInvoices') lightningWallet.user_invoices_raw.push(transaction);
+      }
+    }
 
-        for (const [indexStr, txs] of Object.entries(walletToSave._txs_by_internal_index)) {
-          for (const tx of txs) {
-            realm.create(
-              'WalletTransactions',
-              {
-                walletid: id,
-                internal: true,
-                index: parseInt(indexStr, 10),
-                tx: JSON.stringify(tx),
-              },
-              Realm.UpdateMode.Modified,
-            );
-          }
-        }
-      });
+    if (includeUtxos) {
+      transactionWallet._utxo = [];
+      transactionWallet._utxoMetadata = {};
+      const utxoRows = realm
+        .objects<WalletUtxoRow>('WalletUtxo')
+        .filtered('walletId == $0', walletId)
+        .sorted([
+          ['txid', false],
+          ['vout', false],
+        ]);
+      for (const row of utxoRows) {
+        transactionWallet._utxo.push(JSON.parse(row.payloadJson));
+        transactionWallet._utxoMetadata[`${row.txid}:${row.vout}`] = {
+          ...(row.memo ? { memo: row.memo } : {}),
+          ...(row.frozen ? { frozen: true } : {}),
+        };
+      }
     }
   }
 
@@ -609,7 +736,10 @@ export class BlueApp {
   async saveToDisk(): Promise<void> {
     if (savingInProgress) {
       console.warn('saveToDisk is in progress');
-      if (++savingInProgress > 10) presentAlert({ message: 'Critical error. Last actions were not saved' }); // should never happen
+      if (++savingInProgress > 10)
+        presentAlert({
+          message: 'Critical error. Last actions were not saved',
+        }); // should never happen
       await new Promise(resolve => setTimeout(resolve, 1000 * savingInProgress)); // sleep
       return this.saveToDisk();
     }
@@ -617,12 +747,7 @@ export class BlueApp {
 
     try {
       const walletsToSave: string[] = []; // serialized wallets
-      let realm;
-      try {
-        realm = await this.getRealmForTransactions();
-      } catch (error: any) {
-        presentAlert({ message: error.message });
-      }
+      const realm = await this.getRealmForTransactions();
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
         key.prepareForSerialization();
@@ -634,12 +759,21 @@ export class BlueApp {
           k._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
           k._hdWalletInstance._txs_by_external_index = {};
           k._hdWalletInstance._txs_by_internal_index = {};
+          k._hdWalletInstance._utxo = [];
+          k._hdWalletInstance._utxoMetadata = {};
         }
-        if (realm) this.offloadWalletToRealm(realm, key);
         // stripping down:
         if (key._txs_by_external_index) {
           keyCloned._txs_by_external_index = {};
           keyCloned._txs_by_internal_index = {};
+        }
+        keyCloned._utxo = [];
+        keyCloned._utxoMetadata = {};
+        if (key.type === LightningCustodianWallet.type) {
+          const lightningClone = keyCloned as LightningCustodianWallet;
+          lightningClone.pending_transactions_raw = [];
+          lightningClone.transactions_raw = [];
+          lightningClone.user_invoices_raw = [];
         }
 
         if ('_bip47_instance' in keyCloned) {
@@ -648,12 +782,16 @@ export class BlueApp {
 
         walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));
       }
-      if (realm) realm.close();
+
+      // Commit transaction records and metadata atomically before the wallet
+      // configuration points at this state. Realm is the authoritative store.
+      const metadata = readMetadata(realm);
+      this.tx_metadata = metadata.txMetadata;
+      this.counterparty_metadata = metadata.counterpartyMetadata;
+      replaceCanonicalWalletData(realm, this.wallets, this.tx_metadata);
 
       let data: TBucketStorage | string[] /* either a bucket, or an array of encrypted buckets */ = {
         wallets: walletsToSave,
-        tx_metadata: this.tx_metadata,
-        counterparty_metadata: this.counterparty_metadata,
       };
 
       if (this.cachedPassword) {
@@ -813,47 +951,28 @@ export class BlueApp {
     limit: number = Infinity,
     includeWalletsWithHideTransactionsEnabled: boolean = false,
   ): ExtendedTransaction[] => {
-    if (index || index === 0) {
-      let txs: Transaction[] = [];
-      let c = 0;
-      for (const wallet of this.wallets) {
-        if (c++ === index) {
-          txs = txs.concat(wallet.getTransactions());
-
-          const txsRet: ExtendedTransaction[] = [];
-          const walletID = wallet.getID();
-          const walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
-          txs.map(tx =>
-            txsRet.push({
-              ...tx,
-              walletID,
-              walletPreferredBalanceUnit,
-            }),
-          );
-          return txsRet;
-        }
-      }
-    }
-
-    const txs: ExtendedTransaction[] = [];
-    for (const wallet of this.wallets.filter(w => includeWalletsWithHideTransactionsEnabled || !w.getHideTransactionsInWalletsList())) {
-      const walletTransactions: Transaction[] = wallet.getTransactions();
-      const walletID = wallet.getID();
-      const walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
-      for (const t of walletTransactions) {
-        txs.push({
-          ...t,
-          walletID,
-          walletPreferredBalanceUnit,
-        });
-      }
-    }
-
-    return txs
-      .sort((a, b) => {
-        return b.timestamp - a.timestamp;
-      })
-      .slice(0, limit);
+    if (!this.appDataRealm || this.appDataRealm.isClosed) return [];
+    const selectedWallets = index || index === 0 ? this.wallets.slice(index, index + 1) : this.wallets;
+    const visibleWallets = selectedWallets.filter(
+      w => includeWalletsWithHideTransactionsEnabled || index !== undefined || !w.getHideTransactionsInWalletsList(),
+    );
+    const walletById = new Map(visibleWallets.map(wallet => [wallet.getID(), wallet]));
+    return queryWalletActivityForWallets(
+      this.appDataRealm,
+      visibleWallets.map(wallet => wallet.getID()),
+    )
+      .slice(0, limit)
+      .flatMap(row => {
+        const wallet = walletById.get(row.walletId);
+        if (!wallet) return [];
+        return [
+          {
+            ...activityRowToTransaction(row),
+            walletID: row.walletId,
+            walletPreferredBalanceUnit: wallet.getPreferredBalanceUnit(),
+          },
+        ];
+      });
   };
 
   /**

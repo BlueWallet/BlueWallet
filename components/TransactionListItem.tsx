@@ -284,8 +284,14 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     // not on-chain transfers — render them with the off-chain (Lightning) icon.
     if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
       return item.value! < 0
-        ? { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> }
-        : { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };
+        ? {
+            label: loc.transactions.offchain,
+            icon: <TransactionOffchainIcon />,
+          }
+        : {
+            label: loc.transactions.incoming_transaction,
+            icon: <TransactionOffchainIncomingIcon />,
+          };
     }
 
     if (item.type && item.type === 'bitcoind_tx') {

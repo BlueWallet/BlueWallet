@@ -32,9 +32,10 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { withAlpha } from './color';
 import { useTheme } from './themes';
-import { Transaction, TWallet } from '../class/wallets/types';
+import { TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
+import { useWalletActivitySummary } from '../hooks/useWalletActivity';
 
 export const WALLET_CAROUSEL_HEADER_WIDTH = 16;
 
@@ -313,6 +314,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     const { sizeClass } = useSizeClass();
     const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
+    const { latestTransaction, hasPendingTransaction } = useWalletActivitySummary(item);
     const scaledCardStyles = useMemo(
       () => ({
         grad: { minHeight: getWalletCardMinHeight(fontScale) },
@@ -437,17 +439,14 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     // `ispaid === false` alone is not "pending": it is also true for terminal
     // failed/refunded swaps, which stay in history. Gate on `!tx.failed` so a
     // dead swap doesn't pin the card to "pending" forever.
-    const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
-    const hasPendingTx = isLightningShaped
-      ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed)
-      : item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
+    const latestTransactionTime = latestTransaction?.timestamp ? new Date(latestTransaction.timestamp * 1000).toString() : 0;
 
-    if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
+    if (item.getBalance() !== 0 && latestTransactionTime === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
-    } else if (hasPendingTx) {
+    } else if (hasPendingTransaction) {
       latestTransactionText = loc.transactions.pending;
     } else {
-      latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
+      latestTransactionText = transactionTimeToReadable(latestTransactionTime);
     }
 
     return (

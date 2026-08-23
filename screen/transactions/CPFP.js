@@ -83,7 +83,7 @@ export default class CPFP extends Component {
         }
         const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
-          this.onSuccessBroadcast();
+          await this.onSuccessBroadcast();
         } else {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           this.setState({ isLoading: false });
@@ -97,8 +97,8 @@ export default class CPFP extends Component {
     });
   };
 
-  onSuccessBroadcast() {
-    this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
+  async onSuccessBroadcast() {
+    await this.context.setTransactionMemo(this.state.newTxid, 'Child pays for parent (CPFP)');
     majorTomToGroundControl([], [], [this.state.newTxid]);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', {

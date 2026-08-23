@@ -24,6 +24,8 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueLoading } from '../../components/BlueLoading';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { BlueApp } from '../../class/blue-app';
+import { queryWalletUtxos, utxoRowToUtxo, utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
 
 interface DataSection {
   title: string;
@@ -79,7 +81,7 @@ export default function PaymentCodesList() {
   const navigation = useNavigation<PaymentCodesListNavigationProp>();
   const route = useRoute<PaymentCodeListRouteProp>();
   const { walletID } = route.params;
-  const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
+  const { wallets, counterpartyMetadata, setCounterpartyMetadata: setCounterparty, setTransactionMemo, saveToDisk } = useStorage();
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
   const { colors } = useTheme();
@@ -133,12 +135,12 @@ export default function PaymentCodesList() {
         break;
       }
       case String(Actions.rename): {
-        const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, { type: 'plain-text' });
+        const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, {
+          type: 'plain-text',
+        });
         if (!newName) return;
 
-        counterpartyMetadata[pc] = { label: newName };
-        setReload(Math.random());
-        await saveToDisk();
+        await setCounterparty(pc, { label: newName });
         break;
       }
       case String(Actions.pay): {
@@ -168,9 +170,10 @@ export default function PaymentCodesList() {
         if (!(await confirm(loc.wallets.details_are_you_sure))) {
           return;
         }
-        counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label, hidden: true };
-        setReload(Math.random());
-        await saveToDisk();
+        await setCounterparty(pc, {
+          label: counterpartyMetadata[pc]?.label ?? pc,
+          hidden: true,
+        });
         break;
       }
       default:
@@ -261,9 +264,10 @@ export default function PaymentCodesList() {
 
     if (counterpartyMetadata[newPc]?.hidden) {
       // contact already present, just need to unhide it
-      counterpartyMetadata[newPc].hidden = false;
-      await saveToDisk();
-      setReload(Math.random());
+      await setCounterparty(newPc, {
+        ...counterpartyMetadata[newPc],
+        hidden: false,
+      });
       return;
     }
 
@@ -317,17 +321,22 @@ export default function PaymentCodesList() {
 
     setLoadingText('Fetching UTXO...');
     await foundWallet.fetchUtxo();
+    await saveToDisk();
+    const realm = await BlueApp.getInstance().getRealmForTransactions();
+    const spendableUtxos = Array.from(queryWalletUtxos(realm, walletID, { frozen: false }), utxoRowToUtxo).map(
+      utxoToCreateTransactionInput,
+    );
     setLoadingText('Fetching fees...');
     const fees = await BlueElectrum.estimateFees();
     setLoadingText('Fetching change address...');
     const changeAddress = await foundWallet.getChangeAddressAsync();
     setLoadingText('Crafting notification transaction...');
-    if (foundWallet.getUtxo().length === 0) {
+    if (spendableUtxos.length === 0) {
       // no balance..?
       presentAlert({ message: loc.send.details_total_exceeds_balance });
       return;
     }
-    const { tx, fee } = foundWallet.createBip47NotificationTransaction(foundWallet.getUtxo(), newPc, fees.fast, changeAddress);
+    const { tx, fee } = foundWallet.createBip47NotificationTransaction(spendableUtxos, newPc, fees.fast, changeAddress);
 
     if (!tx) {
       presentAlert({ message: loc.bip47.failed_create_notif_tx });
@@ -346,7 +355,7 @@ export default function PaymentCodesList() {
         await foundWallet.broadcastTx(tx.toHex());
         foundWallet.addBIP47Receiver(newPc);
         presentAlert({ message: loc.bip47.notif_tx_sent });
-        txMetadata[tx.getId()] = { memo: loc.bip47.notif_tx };
+        await setTransactionMemo(tx.getId(), loc.bip47.notif_tx);
         setReload(Math.random());
         await new Promise(resolve => setTimeout(resolve, 5000)); // tx propagate on backend so our fetch will actually get the new tx
       } catch (_) {}
@@ -396,9 +405,22 @@ const styles = StyleSheet.create({
     height: 35,
     borderRadius: 25,
   },
-  contactRowBody: { justifyContent: 'center', top: -3, marginLeft: 10, flexShrink: 1 },
+  contactRowBody: {
+    justifyContent: 'center',
+    top: -3,
+    marginLeft: 10,
+    flexShrink: 1,
+  },
   contactRowNameText: { fontSize: 16 },
   contactRowContainer: { flexDirection: 'row', padding: 15 },
-  stick: { borderStyle: 'solid', borderWidth: 0.5, borderColor: 'gray', opacity: 0.5, top: 0, left: -10, width: '110%' },
+  stick: {
+    borderStyle: 'solid',
+    borderWidth: 0.5,
+    borderColor: 'gray',
+    opacity: 0.5,
+    top: 0,
+    left: -10,
+    width: '110%',
+  },
   tooltipButton: { width: '100%', alignSelf: 'stretch' },
 });

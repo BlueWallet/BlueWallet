@@ -54,7 +54,7 @@ import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
 import useMenuElements from '../../hooks/useMenuElements';
 import { useSettings } from '../../hooks/context/useSettings';
-import useWalletSubscribe from '../../hooks/useWalletSubscribe';
+import { useWalletActivityPage } from '../../hooks/useWalletActivity';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
@@ -74,6 +74,8 @@ type WalletTransactionsProps = NativeStackScreenProps<DetailViewStackParamList, 
 const SCROLLED_HEADER_SHOW_OFFSET = 180;
 const SCROLLED_HEADER_FADE_IN_MS = 180;
 const SCROLLED_HEADER_FADE_OUT_MS = 150;
+const INITIAL_TRANSACTION_PAGE_SIZE = 15;
+const TRANSACTION_PAGE_SIZE = 20;
 
 const usesIos26AnimatedScrolledHeader = Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop;
 
@@ -181,9 +183,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const [isLoading, setIsLoading] = useState(false);
   const { params, name } = useRoute<RouteProps>();
   const { walletID } = params;
-  const wallet = useWalletSubscribe(walletID);
-  const [limit, setLimit] = useState(15);
-  const [pageSize] = useState(20);
+  const previousWallet = useRef<TWallet | undefined>(undefined);
+  const wallet = wallets.find(candidate => candidate.getID() === walletID) ?? previousWallet.current;
+  if (!wallet) throw new Error(`Wallet with ID ${walletID} not found`);
+  previousWallet.current = wallet;
+  const [pageLimit, setPageLimit] = useState(INITIAL_TRANSACTION_PAGE_SIZE);
+  const { transactions, hasMore } = useWalletActivityPage(wallet, '', pageLimit);
   const navigation = useNavigation();
   const { setOptions, navigate } = navigation;
   const { colors, dark } = useTheme();
@@ -275,19 +280,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletID]);
 
-  const sortedTransactions = useMemo(() => {
-    const txs = wallet.getTransactions();
-    txs.sort((a, b) => b.timestamp - a.timestamp);
-    return txs;
-  }, [wallet]);
-
-  const getTransactions = useCallback((lmt = Infinity): Transaction[] => sortedTransactions.slice(0, lmt), [sortedTransactions]);
-
   const loadMoreTransactions = useCallback(() => {
-    if (getTransactions(Infinity).length > limit) {
-      setLimit(prev => prev + pageSize);
-    }
-  }, [getTransactions, limit, pageSize]);
+    if (hasMore) setPageLimit(current => current + TRANSACTION_PAGE_SIZE);
+  }, [hasMore]);
+
+  useEffect(() => setPageLimit(INITIAL_TRANSACTION_PAGE_SIZE), [walletID]);
 
   const refreshTransactions = useCallback(
     async (isManualRefresh = false) => {
@@ -308,7 +305,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         setIsLoading(true);
       }
 
-      let smthChanged = false;
+      let didFetch = false;
       try {
         if (!(await BlueElectrum.ensureConnected())) {
           throw new Error(loc.errors.network);
@@ -316,10 +313,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         if (wallet.allowBIP47() && wallet.isBIP47Enabled() && 'fetchBIP47SenderPaymentCodes' in wallet) {
           await wallet.fetchBIP47SenderPaymentCodes();
         }
-        const oldBalance = wallet.getBalance();
         await wallet.fetchBalance();
-        if (oldBalance !== wallet.getBalance()) smthChanged = true;
-        const oldTxLen = wallet.getTransactions().length;
         await wallet.fetchTransactions();
         if ('fetchPendingTransactions' in wallet) {
           await wallet.fetchPendingTransactions();
@@ -327,7 +321,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         if ('fetchUserInvoices' in wallet) {
           await wallet.fetchUserInvoices();
         }
-        if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
+        didFetch = true;
 
         // Success - reset failure counter and update timestamps
         setFetchFailures(0);
@@ -347,14 +341,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           return newFailures;
         });
       } finally {
-        if (smthChanged) {
-          await saveToDisk();
-          setLimit(prev => prev + pageSize);
-        }
+        // Confirmation, memo, and settlement changes may not alter balance or
+        // row count. Persist every successful refresh so Realm stays canonical.
+        if (didFetch) await saveToDisk();
         setIsLoading(false);
       }
     },
-    [wallet, isElectrumDisabled, isLoading, saveToDisk, pageSize, lastFetchTimestamp, fetchFailures],
+    [wallet, isElectrumDisabled, isLoading, saveToDisk, lastFetchTimestamp, fetchFailures],
   );
 
   useEffect(() => {
@@ -366,7 +359,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const isLightning = useCallback((): boolean => wallet.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
-    return wallet.getTransactions().length > limit ? (
+    return hasMore ? (
       <ActivityIndicator style={[styles.activityIndicator, stylesHook.activityIndicatorStyle]} />
     ) : (
       <View style={stylesHook.listFooterStyle} />
@@ -834,7 +827,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onEndReachedThreshold={0.3}
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
-        data={getTransactions(limit)}
+        data={transactions as Transaction[]}
         extraData={[wallet, displayUnit, wallet.hideBalance]}
         keyExtractor={_keyExtractor}
         renderItem={renderItem}

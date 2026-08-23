@@ -288,6 +288,9 @@ jest.mock('realm', () => {
     ArkWalletState: 'key',
     BoltzSwap: 'id',
     ArkSwapNotificationSuppression: 'id',
+    TransactionMetadata: 'txid',
+    CounterpartyMetadata: 'counterparty',
+    AppDataState: 'key',
   };
 
   // Split a query string at a top-level separator (i.e. not inside parens/braces).
@@ -348,6 +351,12 @@ jest.mock('realm', () => {
     // field == $N
     const eqMatch = expr.match(/^(\w+)\s*==\s*\$(\d+)$/);
     if (eqMatch) return obj[eqMatch[1]] === args[+eqMatch[2]];
+    // field > $N
+    const gtMatch = expr.match(/^(\w+)\s*>\s*\$(\d+)$/);
+    if (gtMatch) return obj[gtMatch[1]] > args[+gtMatch[2]];
+    // field CONTAINS $N
+    const containsMatch = expr.match(/^(\w+)\s+CONTAINS\s+\$(\d+)$/i);
+    if (containsMatch) return String(obj[containsMatch[1]] ?? '').includes(String(args[+containsMatch[2]] ?? ''));
     return true; // unknown expression — pass through
   };
 
@@ -361,13 +370,21 @@ jest.mock('realm', () => {
           arr.filter(o => evalExpr(o, query, args)),
         ),
       sorted: (field, reverse) => {
+        const descriptors = Array.isArray(field) ? field : [[field, Boolean(reverse)]];
         const sorted = [...arr].sort((a, b) => {
-          if (a[field] < b[field]) return reverse ? 1 : -1;
-          if (a[field] > b[field]) return reverse ? -1 : 1;
+          for (const [key, descending] of descriptors) {
+            if (a[key] < b[key]) return descending ? 1 : -1;
+            if (a[key] > b[key]) return descending ? -1 : 1;
+          }
           return 0;
         });
         return makeCollection(type, sorted);
       },
+      flatMap: callback => arr.flatMap(callback),
+      slice: (...args) => arr.slice(...args),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      isValid: () => true,
       get length() {
         return arr.length;
       },
@@ -426,6 +443,10 @@ jest.mock('realm', () => {
             if (pk !== undefined) store.delete(pk);
           }
         }
+      },
+
+      deleteAll() {
+        typeStore.clear();
       },
 
       write(transactionFn) {

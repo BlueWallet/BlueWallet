@@ -12,13 +12,12 @@ import { FButton, FContainer, FloatButtonsBottomFade } from '../../components/Fl
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
-import { useStorage } from '../../hooks/context/useStorage';
+import { useStorage, useWallet } from '../../hooks/context/useStorage';
 import {
   DoneAndDismissKeyboardInputAccessory,
   DoneAndDismissKeyboardInputAccessoryViewID,
 } from '../../components/DoneAndDismissKeyboardInputAccessory';
 import { BlueSpacing10, BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
-import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
 
 type SignVerifyRouteParams = {
   walletID: string;
@@ -39,7 +38,7 @@ const SignVerify = () => {
   const [messageHasFocus, setMessageHasFocus] = useState(false);
   const [isShareVisible, setIsShareVisible] = useState(false);
 
-  const wallet = useWalletSubscribe(walletID);
+  const wallet = useWallet(walletID);
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
 
   useEffect(() => {

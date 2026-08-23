@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BlueApp as BlueAppClass, TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
+import { BlueApp as BlueAppClass, type TCounterpartyMetadata, type TTXMetadata } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
@@ -15,6 +15,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
 import { getScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
+import { useCounterpartyMetadata, useTransactionMetadata } from '../../hooks/useRealmMetadata';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -23,13 +24,16 @@ const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 
 interface StorageContextType {
   wallets: TWallet[];
-  setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
+  setTransactionMemo: (txid: string, memo: string) => Promise<void>;
+  setCounterpartyMetadata: (counterparty: string, value: TCounterpartyMetadata[string]) => Promise<void>;
+  setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
   deleteWallet: (wallet: TWallet) => void;
+  purgeWalletTransactions: typeof BlueApp.purgeWalletTransactions;
   currentSharedCosigner: string;
   setSharedCosigner: (cosigner: string) => void;
   addAndSaveWallet: (wallet: TWallet) => Promise<void>;
@@ -67,9 +71,8 @@ export enum WalletTransactionsStatus {
 export const StorageContext = createContext<StorageContextType>(undefined);
 
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
-  const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
-  const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
-
+  const { metadata: txMetadata, setMemo: setTransactionMemo } = useTransactionMetadata();
+  const { metadata: counterpartyMetadata, setCounterparty: setCounterpartyMetadata } = useCounterpartyMetadata();
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,
@@ -152,21 +155,15 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     return undefined;
   };
 
-  const saveToDisk = useCallback(
-    async (force: boolean = false) => {
-      if (!force && BlueApp.getWallets().length === 0) {
-        console.debug('Not saving empty wallets array');
-        return;
-      }
-      BlueApp.tx_metadata = txMetadata.current;
-      BlueApp.counterparty_metadata = counterpartyMetadata.current;
-      await BlueApp.saveToDisk();
-      const w: TWallet[] = [...BlueApp.getWallets()];
-      setWallets(w);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [txMetadata.current, counterpartyMetadata.current],
-  );
+  const saveToDisk = useCallback(async (force: boolean = false) => {
+    if (!force && BlueApp.getWallets().length === 0) {
+      console.debug('Not saving empty wallets array');
+      return;
+    }
+    await BlueApp.saveToDisk();
+    const w: TWallet[] = [...BlueApp.getWallets()];
+    setWallets(w);
+  }, []);
 
   const addWallet = useCallback((wallet: TWallet) => {
     BlueApp.wallets.push(wallet);
@@ -316,8 +313,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   // Initialize wallets
   useEffect(() => {
     if (walletsInitialized) {
-      txMetadata.current = BlueApp.tx_metadata;
-      counterpartyMetadata.current = BlueApp.counterparty_metadata;
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
       if (loaded.some(w => w.type === LightningArkWallet.type)) {
@@ -529,14 +524,17 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const value: StorageContextType = useMemo(
     () => ({
       wallets,
+      txMetadata,
+      counterpartyMetadata,
+      setTransactionMemo,
+      setCounterpartyMetadata,
       setWalletsWithNewOrder,
-      txMetadata: txMetadata.current,
-      counterpartyMetadata: counterpartyMetadata.current,
       saveToDisk,
       getTransactions: BlueApp.getTransactions,
       selectedWalletID,
       addWallet,
       deleteWallet,
+      purgeWalletTransactions: BlueApp.purgeWalletTransactions,
       currentSharedCosigner,
       setSharedCosigner: setCurrentSharedCosigner,
       addAndSaveWallet,
@@ -565,6 +563,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }),
     [
       wallets,
+      txMetadata,
+      counterpartyMetadata,
+      setTransactionMemo,
+      setCounterpartyMetadata,
       setWalletsWithNewOrder,
       saveToDisk,
       selectedWalletID,

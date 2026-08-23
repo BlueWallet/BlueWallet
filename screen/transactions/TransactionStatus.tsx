@@ -38,8 +38,8 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useStorage } from '../../hooks/context/useStorage';
-import useWalletSubscribe from '../../hooks/useWalletSubscribe';
+import { useStorage, useWallet } from '../../hooks/context/useStorage';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -133,7 +133,12 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
     case ActionType.SetIntervalMs:
       return { ...state, intervalMs: action.payload };
     case ActionType.SetAllButtonStatus:
-      return { ...state, isCPFPPossible: action.payload, isRBFBumpFeePossible: action.payload, isRBFCancelPossible: action.payload };
+      return {
+        ...state,
+        isCPFPPossible: action.payload,
+        isRBFBumpFeePossible: action.payload,
+        isRBFCancelPossible: action.payload,
+      };
     case ActionType.SetWallet:
       return { ...state, wallet: action.payload };
     case ActionType.SetLoadingError:
@@ -169,8 +174,9 @@ const TransactionStatus: React.FC = () => {
     isLoading: !initialTx,
   });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
-  const subscribedWallet = useWalletSubscribe(walletID);
+  const { wallets, txMetadata, counterpartyMetadata, setTransactionMemo, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
+  const subscribedWallet = useWallet(walletID);
+  const realmTransaction = useWalletTransaction(subscribedWallet, hash);
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
@@ -252,7 +258,9 @@ const TransactionStatus: React.FC = () => {
     valueUnit: { color: colors.foregroundColor },
     titleDate: { color: colors.alternativeTextColor },
     localCurrency: { color: colors.alternativeTextColor },
-    counterpartyContainer: { backgroundColor: colors.cardSectionHeaderBackground },
+    counterpartyContainer: {
+      backgroundColor: colors.cardSectionHeaderBackground,
+    },
     counterpartyAvatar: { backgroundColor: colors.lightButton },
     counterpartyAvatarText: { color: colors.foregroundColor },
     counterpartyName: { color: colors.foregroundColor },
@@ -270,7 +278,9 @@ const TransactionStatus: React.FC = () => {
     addButtonText: { color: colors.buttonTextColor },
     explorerButton: { backgroundColor: colors.lightButton },
     explorerButtonText: { color: colors.buttonTextColor },
-    stateCardPending: { backgroundColor: colors.transactionPendingBackgroundColor },
+    stateCardPending: {
+      backgroundColor: colors.transactionPendingBackgroundColor,
+    },
     stateCardSent: { backgroundColor: colors.outgoingBackgroundColor },
     stateCardReceived: { backgroundColor: colors.incomingBackgroundColor },
     card: { backgroundColor: colors.elevated || colors.background },
@@ -282,9 +292,13 @@ const TransactionStatus: React.FC = () => {
       backgroundColor: colors.cardSectionBackground,
       borderBottomColor: colors.cardBorderColor,
     },
-    speedUpButton: { backgroundColor: colors.transactionStateBumpButtonBackground },
+    speedUpButton: {
+      backgroundColor: colors.transactionStateBumpButtonBackground,
+    },
     speedUpButtonText: { color: colors.transactionPendingColor },
-    cancelButton: { backgroundColor: colors.transactionStateCancelButtonBackground },
+    cancelButton: {
+      backgroundColor: colors.transactionStateCancelButtonBackground,
+    },
     cancelButtonText: { color: colors.transactionPendingColor },
     advancedContent: { borderTopColor: colors.cardBorderColor },
     rowValue: { color: colors.alternativeTextColor },
@@ -343,43 +357,40 @@ const TransactionStatus: React.FC = () => {
     }
   }, [initialTx, tx]);
 
-  // Load transaction data from subscribed wallet and Electrum
+  // Realm owns the live wallet transaction snapshot. Electrum only augments it
+  // with raw input data needed for fee calculation.
   useEffect(() => {
-    if (subscribedWallet && hash) {
-      const transactions = subscribedWallet.getTransactions();
-      const newTx = transactions.find((t: Transaction) => t.hash === hash);
-      if (newTx) {
-        setTX(newTx);
-        // Extract from/to addresses
-        let newFrom: string[] = [];
-        let newTo: string[] = [];
-        for (const input of newTx.inputs || []) {
-          newFrom = newFrom.concat(input?.addresses ?? []);
-        }
-        for (const output of newTx.outputs || []) {
-          if (output?.scriptPubKey?.addresses) {
-            newTo = newTo.concat(output.scriptPubKey.addresses);
-          }
-        }
-        setFrom(newFrom);
-        setTo(newTo);
-
-        // Also fetch from Electrum to get complete transaction data including fee
-        // For received transactions, we need to populate vin.value by fetching previous transactions
-        BlueElectrum.multiGetTransactionByTxid([hash], true, 10)
-          .then(async txMap => {
-            const fetchedTx = txMap[hash];
-            if (fetchedTx && fetchedTx.vin) {
-              await populateVinValuesFromPrevTxs(fetchedTx);
-              setTxFromElectrum(fetchedTx);
-            }
-          })
-          .catch(err => {
-            console.error('Error fetching transaction from Electrum:', err);
-          });
+    if (realmTransaction && hash) {
+      setTX(realmTransaction);
+      // Extract from/to addresses
+      let newFrom: string[] = [];
+      let newTo: string[] = [];
+      for (const input of realmTransaction.inputs || []) {
+        newFrom = newFrom.concat(input?.addresses ?? []);
       }
+      for (const output of realmTransaction.outputs || []) {
+        if (output?.scriptPubKey?.addresses) {
+          newTo = newTo.concat(output.scriptPubKey.addresses);
+        }
+      }
+      setFrom(newFrom);
+      setTo(newTo);
+
+      // Also fetch from Electrum to get complete transaction data including fee
+      // For received transactions, we need to populate vin.value by fetching previous transactions
+      BlueElectrum.multiGetTransactionByTxid([hash], true, 10)
+        .then(async txMap => {
+          const fetchedTx = txMap[hash];
+          if (fetchedTx && fetchedTx.vin) {
+            await populateVinValuesFromPrevTxs(fetchedTx);
+            setTxFromElectrum(fetchedTx);
+          }
+        })
+        .catch(err => {
+          console.error('Error fetching transaction from Electrum:', err);
+        });
     }
-  }, [hash, subscribedWallet]);
+  }, [hash, realmTransaction]);
 
   useEffect(() => {
     dispatch({ type: ActionType.SetWallet, payload: subscribedWallet });
@@ -536,7 +547,10 @@ const TransactionStatus: React.FC = () => {
           setTxFromElectrum(fetchedTx);
 
           if (tx) {
-            setTX({ ...tx, confirmations: fetchedTx.confirmations } as Transaction);
+            setTX({
+              ...tx,
+              confirmations: fetchedTx.confirmations,
+            } as Transaction);
           } else {
             console.error('Cannot set confirmations: tx is undefined.');
           }
@@ -545,30 +559,8 @@ const TransactionStatus: React.FC = () => {
             fetchTxInterval.current = undefined;
           }
           if (wallet?.getID()) {
-            // Fetch and save wallet transactions, then refresh the transaction data
-            fetchAndSaveWalletTransactions(wallet.getID()).then(() => {
-              // After wallet transactions are updated, refresh the transaction data from the wallet
-              if (subscribedWallet && hash) {
-                const walletTxs = subscribedWallet.getTransactions();
-                const updatedTx = walletTxs.find((t: Transaction) => t.hash === hash);
-                if (updatedTx) {
-                  setTX(updatedTx);
-                  // Update from/to addresses if needed
-                  let newFrom: string[] = [];
-                  let newTo: string[] = [];
-                  for (const input of updatedTx.inputs || []) {
-                    newFrom = newFrom.concat(input?.addresses ?? []);
-                  }
-                  for (const output of updatedTx.outputs || []) {
-                    if (output?.scriptPubKey?.addresses) {
-                      newTo = newTo.concat(output.scriptPubKey.addresses);
-                    }
-                  }
-                  setFrom(newFrom);
-                  setTo(newTo);
-                }
-              }
-            });
+            // Saving publishes the refreshed snapshot through the Realm listener above.
+            fetchAndSaveWalletTransactions(wallet.getID()).catch(error => console.error('Could not refresh confirmed transaction:', error));
           } else {
             console.error('Cannot fetch and save wallet transactions: wallet ID is undefined.');
           }
@@ -584,7 +576,7 @@ const TransactionStatus: React.FC = () => {
         fetchTxInterval.current = undefined;
       }
     };
-  }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet, subscribedWallet]);
+  }, [hash, intervalMs, tx, fetchAndSaveWalletTransactions, wallet]);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -630,13 +622,11 @@ const TransactionStatus: React.FC = () => {
             setTX(fetchedTx);
             // Raw Electrum tx has no top-level .value; refetch wallet so it computes value and we can show balance
             if (subscribedWallet) {
-              fetchAndSaveWalletTransactions(subscribedWallet.getID()).then(() => {
-                const walletTxs = subscribedWallet.getTransactions();
-                const txWithValue = walletTxs.find((t: Transaction) => t.hash === hash);
-                if (txWithValue && txWithValue.value !== undefined) {
-                  setTX(txWithValue);
-                }
-              });
+              // The Realm listener replaces the raw Electrum row with the
+              // wallet-computed transaction (including value) after this save.
+              fetchAndSaveWalletTransactions(subscribedWallet.getID()).catch(error =>
+                console.error('Could not refresh transaction value:', error),
+              );
             }
           } else {
             console.error(`Transaction with hash ${hash} not found.`);
@@ -785,16 +775,18 @@ const TransactionStatus: React.FC = () => {
     const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
     const currentMemo = (metadataKey && txMetadata[metadataKey]?.memo) || '';
     try {
-      const newMemo = await prompt(loc.send.details_note_placeholder, '', { type: 'plain-text', defaultValue: currentMemo });
+      const newMemo = await prompt(loc.send.details_note_placeholder, '', {
+        type: 'plain-text',
+        defaultValue: currentMemo,
+      });
       if (newMemo !== undefined && metadataKey) {
-        txMetadata[metadataKey] = { memo: newMemo };
-        await saveToDisk();
+        await setTransactionMemo(metadataKey, newMemo);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
     } catch (error) {
       // User cancelled
     }
-  }, [tx, txMetadata, saveToDisk]);
+  }, [setTransactionMemo, tx, txMetadata]);
 
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
@@ -1429,7 +1421,9 @@ const TransactionStatus: React.FC = () => {
             {tx.inputs && tx.inputs.length > 0 && (
               <View style={[styles.detailRowFullWidth, stylesHook.detailRowFullWidth]}>
                 <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>
-                  {loc.formatString(loc.transactions.details_inputs_count, { count: tx.inputs.length })}
+                  {loc.formatString(loc.transactions.details_inputs_count, {
+                    count: tx.inputs.length,
+                  })}
                 </BlueText>
                 <View style={styles.detailValueFullWidth}>
                   {from.filter(onlyUnique).length > 0 && renderSection(from.filter(onlyUnique))}
@@ -1441,7 +1435,9 @@ const TransactionStatus: React.FC = () => {
             {tx.outputs && tx.outputs.length > 0 && (
               <View style={[styles.detailRowFullWidth, styles.detailRowLast, stylesHook.detailRowFullWidth]}>
                 <BlueText style={[styles.detailLabelFullWidth, stylesHook.detailLabel]}>
-                  {loc.formatString(loc.transactions.details_outputs_count, { count: tx.outputs.length })}
+                  {loc.formatString(loc.transactions.details_outputs_count, {
+                    count: tx.outputs.length,
+                  })}
                 </BlueText>
                 <View style={styles.detailValueFullWidth}>{to.filter(onlyUnique).length > 0 && renderSection(to.filter(onlyUnique))}</View>
               </View>

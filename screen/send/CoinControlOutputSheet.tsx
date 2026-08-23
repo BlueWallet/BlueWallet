@@ -16,6 +16,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import * as RNLocalize from 'react-native-localize';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import HeaderRightButton from '../../components/HeaderRightButton';
+import { useWalletUtxo, useWalletUtxoMutations } from '../../hooks/useWalletUtxos';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControlOutput'>;
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControlOutput'>;
@@ -24,22 +25,24 @@ const CoinControlOutputSheet: React.FC = () => {
   const navigation = useNavigation<NavigationProps>();
   const route = useRoute<RouteProps>();
   const { walletID, utxo } = route.params;
-  const { wallets, txMetadata, saveToDisk } = useStorage();
+  const { wallets, txMetadata } = useStorage();
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [walletID, wallets]);
+  const realmUtxo = useWalletUtxo(walletID, utxo.txid, utxo.vout);
+  const { setMetadata: setUtxoMetadata } = useWalletUtxoMutations(walletID);
   const { colors } = useTheme();
   const { isVisible } = useKeyboard();
 
   const [memo, setMemo] = useState<string>('');
+  const memoWasEdited = useRef(false);
   const [frozen, setFrozen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!wallet) return;
-    const meta = wallet.getUTXOMetadata(utxo.txid, utxo.vout);
-    setMemo(meta.memo || txMetadata[utxo.txid]?.memo || '');
-    setFrozen(Boolean(meta.frozen));
+    if (!wallet || !realmUtxo) return;
+    setMemo(realmUtxo.memo || txMetadata[utxo.txid]?.memo || '');
+    setFrozen(realmUtxo.frozen);
     setLoading(false);
-  }, [txMetadata, utxo.txid, utxo.vout, wallet]);
+  }, [realmUtxo, txMetadata, utxo.txid, wallet]);
 
   const switchValue = useMemo(
     () => ({
@@ -48,49 +51,53 @@ const CoinControlOutputSheet: React.FC = () => {
       onValueChange: async (value: boolean) => {
         if (!wallet) return;
         setFrozen(value);
-        wallet.setUTXOMetadata(utxo.txid, utxo.vout, { frozen: value });
-        await saveToDisk();
+        await setUtxoMetadata(utxo.txid, utxo.vout, { frozen: value });
       },
     }),
-    [frozen, saveToDisk, utxo.txid, utxo.vout, wallet],
+    [frozen, setUtxoMetadata, utxo.txid, utxo.vout, wallet],
   );
 
-  const onMemoChange = (value: string) => setMemo(value);
+  const onMemoChange = (value: string) => {
+    memoWasEdited.current = true;
+    setMemo(value);
+  };
 
   const debouncedSaveMemo = useRef(
     debounce(async m => {
       if (!wallet) return;
-      wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo: m });
-      await saveToDisk();
+      await setUtxoMetadata(utxo.txid, utxo.vout, { memo: m });
     }, 500),
   );
 
   useEffect(() => {
+    if (!memoWasEdited.current) return;
+    memoWasEdited.current = false;
     debouncedSaveMemo.current(memo);
   }, [memo]);
 
   const amount = formatBalance(utxo.value, wallet?.getPreferredBalanceUnit?.() ?? BitcoinUnit.BTC, true);
   const color = `#${utxo.txid.substring(0, 6)}`;
   const confirmationsFormatted = useMemo(
-    () => new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(utxo.confirmations ?? 0),
+    () =>
+      new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, {
+        maximumSignificantDigits: 3,
+      }).format(utxo.confirmations ?? 0),
     [utxo.confirmations],
   );
 
   const handleUseCoin = useCallback(async () => {
     if (!wallet) return;
     debouncedSaveMemo.current.cancel();
-    wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo });
-    await saveToDisk();
+    await setUtxoMetadata(utxo.txid, utxo.vout, { memo });
     goFromCoinControlToSendDetails(navigation, walletID, [utxo]);
-  }, [memo, navigation, saveToDisk, utxo, wallet, walletID]);
+  }, [memo, navigation, setUtxoMetadata, utxo, wallet, walletID]);
 
   const applyChangesAndClose = useCallback(async () => {
     if (!wallet) return;
     debouncedSaveMemo.current.cancel();
-    wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo });
-    await saveToDisk();
+    await setUtxoMetadata(utxo.txid, utxo.vout, { memo });
     navigation.goBack();
-  }, [memo, navigation, saveToDisk, utxo.txid, utxo.vout, wallet]);
+  }, [memo, navigation, setUtxoMetadata, utxo.txid, utxo.vout, wallet]);
 
   if (!wallet) {
     return (
@@ -115,7 +122,9 @@ const CoinControlOutputSheet: React.FC = () => {
               </Text>
               <View style={styles.tranContainer}>
                 <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>
-                  {loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}
+                  {loc.formatString(loc.transactions.list_conf, {
+                    number: confirmationsFormatted,
+                  })}
                 </Text>
               </View>
               {memo ? (

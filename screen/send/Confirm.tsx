@@ -311,7 +311,12 @@ const Confirm: React.FC = () => {
           {contact ? <Text style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>[{contact}]</Text> : null}
         </BlueCard>
         {recipients.length > 1 && (
-          <BlueText style={styles.valueOf}>{loc.formatString(loc._.of, { number: index + 1, total: recipients.length })}</BlueText>
+          <BlueText style={styles.valueOf}>
+            {loc.formatString(loc._.of, {
+              number: index + 1,
+              total: recipients.length,
+            })}
+          </BlueText>
         )}
       </>
     );
@@ -340,7 +345,12 @@ const Confirm: React.FC = () => {
                 <Switch
                   testID="PayjoinSwitch"
                   value={state.isPayjoinEnabled}
-                  onValueChange={value => dispatch({ type: ActionType.SET_PAYJOIN_ENABLED, payload: value })}
+                  onValueChange={value =>
+                    dispatch({
+                      type: ActionType.SET_PAYJOIN_ENABLED,
+                      payload: value,
+                    })
+                  }
                 />
               </View>
             </BlueCard>
