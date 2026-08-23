@@ -187,10 +187,12 @@ const navigationStyle = (
 // Shared by the receive form sheets, registered in both ReceiveDetailsStack and DetailViewScreensStack.
 const receiveSheetOptions = (headerTitle: string, androidDetent = 0.9) =>
   navigationStyle({
-    presentation: 'formSheet',
+    // formSheet is a separate Activity on Android; a second sheet in one Receive
+    // session leaves Detox with no RESUMED Activity. containedModal stays in-process.
+    presentation: Platform.OS === 'ios' ? 'formSheet' : 'containedModal',
     sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [androidDetent],
     headerTitle,
-    sheetGrabberVisible: true,
+    sheetGrabberVisible: Platform.OS === 'ios',
     closeButtonPosition: CloseButtonPosition.Right,
   });
 

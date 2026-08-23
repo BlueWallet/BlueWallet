@@ -298,9 +298,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
 
-    // Android: a second formSheet in the same Receive modal has no RESUMED Activity.
+    // Android: hardware back from Receive does not show WalletsList. Relaunch instead.
     if (device.getPlatform() === 'android') {
-      await goBack();
+      await device.launchApp({ newInstance: true });
       await waitForId('WalletsList');
       await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
       await element(by.id('ReceiveButton')).tap();
