@@ -1239,8 +1239,15 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     const index = externalIndex - 1;
     const fingerprint = this._cosignersFingerprints[index];
     if (!MultisigHDWallet.isXpubValid(this._cosigners[index])) throw new Error('This cosigner doesnt contain valid xpub');
-    if (!bip39.validateMnemonic(mnemonic)) throw new Error('Not a valid mnemonic phrase');
-    if (fingerprint !== MultisigHDWallet.mnemonicToFingerprint(mnemonic, passphrase)) {
+    if (!bip39.validateMnemonic(mnemonic) && !MultisigHDWallet.isValidElectrumSeed(mnemonic))
+      throw new Error('Not a valid mnemonic phrase');
+    let calculatedFingerprint: string | undefined;
+    if (MultisigHDWallet.isValidElectrumSeed(mnemonic)) {
+      mnemonic = ELECTRUM_SEED_PREFIX + mnemonic;
+      const electrumSeed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic, passphrase);
+      calculatedFingerprint = MultisigHDWallet.seedToFingerprint(electrumSeed);
+    }
+    if (fingerprint !== MultisigHDWallet.mnemonicToFingerprint(mnemonic, passphrase) && fingerprint !== calculatedFingerprint) {
       throw new Error('Fingerprint of new seed doesnt match');
     }
     this._cosigners[index] = mnemonic.trim();
