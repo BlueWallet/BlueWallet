@@ -757,6 +757,16 @@ describe('multisig-wallet (native segwit)', () => {
     w.addCosigner(process.env.MNEMONICS_COBO);
     assert.strictEqual(w.getFingerprint(1), 'DEADBABE');
     assert.strictEqual(w.getCosignerForFingerprint('DEADBABE'), process.env.MNEMONICS_COLDCARD);
+
+    // isValidElectrumSeed method can correctly detect electrum seed
+    assert.equal(
+      MultisigHDWallet.isValidElectrumSeed('during pride layer jelly admit army want melody check witness favorite prosper'),
+      true,
+    );
+    assert.equal(
+      MultisigHDWallet.isValidElectrumSeed('hybrid husband luggage assume lake trend armed decorate grocery rebel hood unique'),
+      false,
+    );
   });
 
   it('basic operations work for 2-of-3', async () => {
