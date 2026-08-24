@@ -1,6 +1,7 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 import ecc from '../../blue_modules/noble_ecc';
+import loc from '../../loc';
 import { AbstractWallet } from './abstract-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
@@ -14,7 +15,10 @@ const bip32 = BIP32Factory(ecc);
 export class WatchOnlyWallet extends LegacyWallet {
   static readonly type = 'watchOnly';
   static readonly typeReadable = 'Watch-only';
-  static readonly hardwareWalletTypeReadable = 'Hardware Wallet';
+  static get hardwareWalletTypeReadable() {
+    return loc.wallets.hardware_wallet_type;
+  }
+
   // @ts-ignore: override
   public readonly type = WatchOnlyWallet.type;
   // @ts-ignore: override
@@ -101,25 +105,26 @@ export class WatchOnlyWallet extends LegacyWallet {
   getLabel(): string {
     if (this.label.trim().length > 0 || !this.hardwareWalletDevice || !this.isHardwareWallet()) return super.getLabel();
 
-    const walletIdentity = this.hardwareWalletPassphraseState
-      ? `${this.hardwareWalletDevice} · Hidden ${this.hardwareWalletPassphraseState}`
-      : this.hardwareWalletDevice;
+    const hiddenWalletLabel = this.hardwareWalletPassphraseState
+      ? loc.formatString(loc.wallets.hardware_wallet_hidden, { state: this.hardwareWalletPassphraseState })
+      : undefined;
+    const walletIdentity = hiddenWalletLabel ? `${this.hardwareWalletDevice} · ${hiddenWalletLabel}` : this.hardwareWalletDevice;
 
     if (this.hardwareWalletAccountName) return `${walletIdentity} · ${this.hardwareWalletAccountName}`;
 
     let accountType: string;
     switch (this._hdWalletInstance?.type) {
       case HDLegacyP2PKHWallet.type:
-        accountType = 'Legacy';
+        accountType = loc.wallets.hardware_wallet_legacy;
         break;
       case HDSegwitP2SHWallet.type:
-        accountType = 'Nested SegWit';
+        accountType = loc.wallets.hardware_wallet_nested_segwit;
         break;
       case HDSegwitBech32Wallet.type:
-        accountType = 'Native SegWit';
+        accountType = loc.wallets.hardware_wallet_native_segwit;
         break;
       case HDTaprootWallet.type:
-        accountType = 'Taproot';
+        accountType = loc.wallets.hardware_wallet_taproot;
         break;
       default:
         return super.getLabel();

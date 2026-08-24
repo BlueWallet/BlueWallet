@@ -721,6 +721,15 @@ describe('Watch only wallet', () => {
 });
 
 describe('BC-UR', () => {
+  // Captured from OneKey Pro 2 firmware's production encoder with deterministic keys and sanitized device metadata.
+  const oneKeyFirmwareMultiAccountsFixture = [
+    'ur:crypto-multi-accounts/1-5/lpadahcfadlycyihwfdrtyhdgtonadcyhhnncplgaolstaaddlolaowkaxhdclaokkrniykbytuorkpsgonbidmdtoltbdataondztuydptodetahkwzlyhpcmyachmkaahdcxaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaeaekgoymybd',
+    'ur:crypto-multi-accounts/2-5/lpaoahcfadlycyihwfdrtyhdgtaeaeaeaeaeaeaeaeaeahtaadehoeadcsfnaoaeamtaaddyotadlncsdwykcsfnykaeykaocyhhnncplgaxaxaycybycpeofytaaddlolaowkaxhdclaokkrniykbytuorkpsgonbidmdtoltbdataondztfmfdfemw',
+    'ur:crypto-multi-accounts/3-5/lpaxahcfadlycyihwfdrtyhdgtuydptodetahkwzlyhpcmyachmkaahdcxadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadadahtaadehoeadaeaoaeamtaaddyotadlncsehykaeykaeykaocyhhnncplgiytnyton',
+    'ur:crypto-multi-accounts/4-5/lpaaahcfadlycyihwfdrtyhdgtaxaxaycybycpeofytaaddlolaowkaxhdclaokkrniykbytuorkpsgonbidmdtoltbdataondztuydptodetahkwzlyhpcmyachmkaahdcxaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaoaortckeeis',
+    'ur:crypto-multi-accounts/5-5/lpahahcfadlycyihwfdrtyhdgtaoaoaoaoaoaoaoaoahtaadehoeadaeaoaeamtaaddyotadlncsghykaeykaeykaocyhhnncplgaxaxaycybycpeofyaximgwjtihgrihkkcxgdjpjlaajeghfegughdpfyfehfgafxfeahiheedmdydmdyhdvsdpvl',
+  ];
+
   const createHardwareWalletHdKey = (purpose = 84, account = 0, metadata = {}) =>
     new CryptoHDKey({
       isMaster: false,
@@ -908,6 +917,77 @@ describe('BC-UR', () => {
     wallet.setUseWithHardwareWalletEnabled(false);
     assert.strictEqual(wallet.isWatchOnlyWarningVisible, true);
     assert.strictEqual(wallet.shouldShowWatchOnlyWarning(), true);
+  });
+
+  it('v2: imports a sanitized OneKey firmware crypto-multi-accounts fixture', () => {
+    const decoder = new BlueURDecoder();
+    oneKeyFirmwareMultiAccountsFixture.forEach(part => decoder.receivePart(part));
+
+    assert.strictEqual(decoder.isComplete(), true);
+    const accounts = JSON.parse(decoder.toString());
+
+    assert.strictEqual(accounts.length, 2);
+    assert.deepStrictEqual(
+      accounts.map(account => ({
+        extPubKeyPrefix: account.ExtPubKey.slice(0, 4),
+        masterFingerprint: account.MasterFingerprint,
+        accountKeyPath: account.AccountKeyPath,
+        useWithHardwareWallet: account.UseWithHardwareWallet,
+        device: account.HardwareWalletDevice,
+        deviceId: account.HardwareWalletDeviceId,
+        firmwareVersion: account.HardwareWalletFirmwareVersion,
+      })),
+      [
+        {
+          extPubKeyPrefix: 'ypub',
+          masterFingerprint: '5C9E228D',
+          accountKeyPath: "m/49'/0'/0'",
+          useWithHardwareWallet: true,
+          device: 'OneKey Pro',
+          deviceId: 'TEST-DEVICE',
+          firmwareVersion: '4.0.0',
+        },
+        {
+          extPubKeyPrefix: 'zpub',
+          masterFingerprint: '5C9E228D',
+          accountKeyPath: "m/84'/0'/0'",
+          useWithHardwareWallet: true,
+          device: 'OneKey Pro',
+          deviceId: 'TEST-DEVICE',
+          firmwareVersion: '4.0.0',
+        },
+      ],
+    );
+
+    const wallets = accounts.map(account => {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(JSON.stringify(account));
+      wallet.init();
+      return wallet;
+    });
+
+    assert.deepStrictEqual(
+      wallets.map(wallet => ({
+        isHardwareWallet: wallet.isHardwareWallet(),
+        allowSend: wallet.allowSend(),
+        shouldShowWatchOnlyWarning: wallet.shouldShowWatchOnlyWarning(),
+        label: wallet.getLabel(),
+      })),
+      [
+        {
+          isHardwareWallet: true,
+          allowSend: true,
+          shouldShowWatchOnlyWarning: false,
+          label: 'OneKey Pro · Nested SegWit',
+        },
+        {
+          isHardwareWallet: true,
+          allowSend: true,
+          shouldShowWatchOnlyWarning: false,
+          label: 'OneKey Pro · Native SegWit',
+        },
+      ],
+    );
   });
 
   it('resets hardware wallet state when replacing the secret with a regular xpub', () => {
