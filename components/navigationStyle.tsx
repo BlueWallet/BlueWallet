@@ -185,7 +185,7 @@ const navigationStyle = (
 };
 
 // Shared by the receive form sheets, registered in both ReceiveDetailsStack and DetailViewScreensStack.
-const receiveSheetOptions = (headerTitle: string, androidDetent = 0.9) =>
+const receiveSheetOptions = (headerTitle: string, androidDetent = 0.5) =>
   navigationStyle({
     // formSheet is a separate Activity on Android; a second sheet in one Receive
     // session leaves Detox with no RESUMED Activity. containedModal stays in-process.
