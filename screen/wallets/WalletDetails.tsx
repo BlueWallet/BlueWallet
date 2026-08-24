@@ -38,11 +38,14 @@ import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
 import useWalletActivity from '../../hooks/useWalletActivity';
 import useWalletUtxos from '../../hooks/useWalletUtxos';
+import { useTransactionMetadata } from '../../hooks/useRealmMetadata';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, txMetadata, handleWalletDeletion, purgeWalletTransactions, fetchAndSaveWalletTransactions, sleep } = useStorage();
+  const { saveToDisk, handleWalletDeletion, purgeWalletTransactions, fetchAndSaveWalletTransactions, fetchWalletUtxos, sleep } =
+    useStorage();
+  const { metadata: txMetadata } = useTransactionMetadata();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -85,16 +88,15 @@ const WalletDetails: React.FC = () => {
       const refresh = async () => {
         if (typeof w.fetchUtxo === 'function') {
           try {
-            await Promise.race([w.fetchUtxo(), sleep(12000)]);
+            await Promise.race([fetchWalletUtxos(w.getID()), sleep(12000)]);
           } catch {
             // Keep showing the last canonical Realm snapshot when refresh fails.
           }
-          await saveToDisk();
         }
       };
 
       refresh().catch(() => {});
-    }, [saveToDisk, sleep]),
+    }, [fetchWalletUtxos, sleep]),
   );
 
   const hasCoinControl = typeof wallet.getUtxo === 'function';
@@ -404,9 +406,8 @@ const WalletDetails: React.FC = () => {
       {
         _balances_by_external_index: wallet._balances_by_external_index,
         _balances_by_internal_index: wallet._balances_by_internal_index,
-        _txs_by_external_index: wallet._txs_by_external_index,
-        _txs_by_internal_index: wallet._txs_by_internal_index,
-        _utxo: wallet._utxo,
+        transactions: walletTransactions,
+        utxos: walletUtxos,
         next_free_address_index: wallet.next_free_address_index,
         next_free_change_address_index: wallet.next_free_change_address_index,
         internal_addresses_cache: wallet.internal_addresses_cache,

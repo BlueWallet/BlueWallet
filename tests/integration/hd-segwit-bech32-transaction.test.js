@@ -7,6 +7,7 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { BlueApp } from '../../class/blue-app';
 
 jest.setTimeout(150 * 1000);
 
@@ -35,6 +36,7 @@ async function _getHdWallet() {
   _cachedHdWallet.setSecret(process.env.HD_MNEMONIC_BIP84);
   await _cachedHdWallet.fetchBalance();
   await _cachedHdWallet.fetchTransactions();
+  await BlueApp.getInstance().persistWalletTransactions([_cachedHdWallet]);
   return _cachedHdWallet;
 }
 

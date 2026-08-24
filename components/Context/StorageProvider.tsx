@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BlueApp as BlueAppClass, type TCounterpartyMetadata, type TTXMetadata } from '../../class/blue-app';
+import { BlueApp as BlueAppClass } from '../../class/blue-app';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
@@ -15,7 +15,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { navigationRef } from '../../NavigationService';
 import { getScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
-import { useCounterpartyMetadata, useTransactionMetadata } from '../../hooks/useRealmMetadata';
 
 const BlueApp = BlueAppClass.getInstance();
 
@@ -24,10 +23,6 @@ const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 
 interface StorageContextType {
   wallets: TWallet[];
-  txMetadata: TTXMetadata;
-  counterpartyMetadata: TCounterpartyMetadata;
-  setTransactionMemo: (txid: string, memo: string) => Promise<void>;
-  setCounterpartyMetadata: (counterparty: string, value: TCounterpartyMetadata[string]) => Promise<void>;
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
@@ -44,9 +39,8 @@ interface StorageContextType {
   resetWallets: () => void;
   walletTransactionUpdateStatus: WalletTransactionsStatus | string;
   setWalletTransactionUpdateStatus: (status: WalletTransactionsStatus | string) => void;
-  getTransactions: typeof BlueApp.getTransactions;
   fetchWalletBalances: typeof BlueApp.fetchWalletBalances;
-  fetchWalletTransactions: typeof BlueApp.fetchWalletTransactions;
+  fetchWalletUtxos: typeof BlueApp.fetchWalletUtxos;
   getBalance: typeof BlueApp.getBalance;
   isStorageEncrypted: typeof BlueApp.storageIsEncrypted;
   startAndDecrypt: typeof startAndDecrypt;
@@ -71,8 +65,6 @@ export enum WalletTransactionsStatus {
 export const StorageContext = createContext<StorageContextType>(undefined);
 
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
-  const { metadata: txMetadata, setMemo: setTransactionMemo } = useTransactionMetadata();
-  const { metadata: counterpartyMetadata, setCounterparty: setCounterpartyMetadata } = useCounterpartyMetadata();
   const [wallets, setWallets] = useState<TWallet[]>([]);
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,
@@ -474,6 +466,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         await setWalletIdMustUseBBQR(w.getID());
       }
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+      // Discovery candidates stay temporary. Once accepted, commit any data
+      // already fetched during discovery to the canonical Realm first.
+      await BlueApp.persistWalletTransactions([w]);
       await saveToDisk();
 
       presentAlert({
@@ -524,13 +519,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const value: StorageContextType = useMemo(
     () => ({
       wallets,
-      txMetadata,
-      counterpartyMetadata,
-      setTransactionMemo,
-      setCounterpartyMetadata,
       setWalletsWithNewOrder,
       saveToDisk,
-      getTransactions: BlueApp.getTransactions,
       selectedWalletID,
       addWallet,
       deleteWallet,
@@ -541,7 +531,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setItem: BlueApp.setItem,
       getItem: BlueApp.getItem,
       fetchWalletBalances: BlueApp.fetchWalletBalances,
-      fetchWalletTransactions: BlueApp.fetchWalletTransactions,
+      fetchWalletUtxos: BlueApp.fetchWalletUtxos,
       fetchAndSaveWalletTransactions,
       isStorageEncrypted: BlueApp.storageIsEncrypted,
       encryptStorage: BlueApp.encryptStorage,
@@ -563,10 +553,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }),
     [
       wallets,
-      txMetadata,
-      counterpartyMetadata,
-      setTransactionMemo,
-      setCounterpartyMetadata,
       setWalletsWithNewOrder,
       saveToDisk,
       selectedWalletID,

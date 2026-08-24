@@ -27,7 +27,7 @@ const toTransaction = (row: WalletActivityRow, wallet: TWallet): WalletActivityT
 export default function useWalletActivity(
   wallets: TWallet[],
   search = '',
-  perWalletLimit = Infinity,
+  limit = Infinity,
 ): ReadonlyMap<string, WalletActivityTransaction[]> {
   const normalizedSearch = search.trim().toLowerCase();
   const walletIds = wallets.map(wallet => wallet.getID());
@@ -35,9 +35,9 @@ export default function useWalletActivity(
   const rows = useAppDataQuery<WalletActivityRow>(
     {
       type: 'WalletActivity',
-      query: collection => filterWalletActivityForWallets(collection, walletIds, normalizedSearch),
+      query: collection => filterWalletActivityForWallets(collection, walletIds, normalizedSearch, limit),
     },
-    [normalizedSearch, walletKey],
+    [limit, normalizedSearch, walletKey],
   );
   const walletById = new Map(wallets.map(wallet => [wallet.getID(), wallet]));
   const byWallet = new Map<string, WalletActivityTransaction[]>(walletIds.map(walletId => [walletId, []]));
@@ -45,7 +45,7 @@ export default function useWalletActivity(
   for (const row of rows) {
     const wallet = walletById.get(row.walletId);
     const transactions = byWallet.get(row.walletId);
-    if (!wallet || !transactions || transactions.length >= perWalletLimit) continue;
+    if (!wallet || !transactions) continue;
     const transaction = toTransaction(row, wallet);
     if (transaction) transactions.push(transaction);
   }
@@ -58,16 +58,23 @@ export function useWalletActivityPage(wallet: TWallet, search = '', limit = 20) 
   const rows = useAppDataQuery<WalletActivityRow>(
     {
       type: 'WalletActivity',
+      query: collection => filterWalletActivity(collection, walletId, { search: normalizedSearch, limit }),
+    },
+    [limit, normalizedSearch, walletId],
+  );
+  const allRows = useAppDataQuery<WalletActivityRow>(
+    {
+      type: 'WalletActivity',
       query: collection => filterWalletActivity(collection, walletId, { search: normalizedSearch }),
     },
     [normalizedSearch, walletId],
   );
   const transactions: WalletActivityTransaction[] = [];
-  for (let index = 0; index < Math.min(rows.length, limit); index++) {
-    const transaction = toTransaction(rows[index], wallet);
+  for (const row of rows) {
+    const transaction = toTransaction(row, wallet);
     if (transaction) transactions.push(transaction);
   }
-  return { transactions, hasMore: rows.length > limit };
+  return { transactions, hasMore: allRows.length > rows.length };
 }
 
 /** Looks up one transaction by its canonical ID entirely in Realm. */
@@ -87,11 +94,11 @@ export function useWalletTransaction(wallet: TWallet | undefined, transactionId:
 export function useWalletActivitySummary(wallet: TWallet) {
   const walletId = wallet.getID();
   const latestRows = useAppDataQuery<WalletActivityRow>(
-    { type: 'WalletActivity', query: collection => filterWalletActivity(collection, walletId) },
+    { type: 'WalletActivity', query: collection => filterWalletActivity(collection, walletId, { limit: 1 }) },
     [walletId],
   );
   const pendingRows = useAppDataQuery<WalletActivityRow>(
-    { type: 'WalletActivity', query: collection => filterWalletActivity(collection, walletId, { pending: true }) },
+    { type: 'WalletActivity', query: collection => filterWalletActivity(collection, walletId, { pending: true, limit: 1 }) },
     [walletId],
   );
   return {
@@ -109,16 +116,16 @@ export function useWalletActivityFeed(wallets: TWallet[], search = '', limit = 2
   const rows = useAppDataQuery<WalletActivityRow>(
     {
       type: 'WalletActivity',
-      query: collection => filterWalletActivityForWallets(collection, walletIds, normalizedSearch),
+      query: collection => filterWalletActivityForWallets(collection, walletIds, normalizedSearch, limit),
     },
-    [normalizedSearch, walletKey],
+    [limit, normalizedSearch, walletKey],
   );
   const walletById = new Map(visibleWallets.map(wallet => [wallet.getID(), wallet]));
   const transactions: WalletActivityTransaction[] = [];
-  for (let index = 0; index < Math.min(rows.length, limit); index++) {
-    const wallet = walletById.get(rows[index].walletId);
+  for (const row of rows) {
+    const wallet = walletById.get(row.walletId);
     if (!wallet) continue;
-    const transaction = toTransaction(rows[index], wallet);
+    const transaction = toTransaction(row, wallet);
     if (transaction) transactions.push(transaction);
   }
   return transactions;

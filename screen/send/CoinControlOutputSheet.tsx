@@ -17,6 +17,7 @@ import * as RNLocalize from 'react-native-localize';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import HeaderRightButton from '../../components/HeaderRightButton';
 import { useWalletUtxo, useWalletUtxoMutations } from '../../hooks/useWalletUtxos';
+import { useTransactionMemo } from '../../hooks/useRealmMetadata';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControlOutput'>;
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControlOutput'>;
@@ -25,7 +26,8 @@ const CoinControlOutputSheet: React.FC = () => {
   const navigation = useNavigation<NavigationProps>();
   const route = useRoute<RouteProps>();
   const { walletID, utxo } = route.params;
-  const { wallets, txMetadata } = useStorage();
+  const { wallets } = useStorage();
+  const transactionMemo = useTransactionMemo(utxo.txid);
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID), [walletID, wallets]);
   const realmUtxo = useWalletUtxo(walletID, utxo.txid, utxo.vout);
   const { setMetadata: setUtxoMetadata } = useWalletUtxoMutations(walletID);
@@ -39,10 +41,10 @@ const CoinControlOutputSheet: React.FC = () => {
 
   useEffect(() => {
     if (!wallet || !realmUtxo) return;
-    setMemo(realmUtxo.memo || txMetadata[utxo.txid]?.memo || '');
+    setMemo(realmUtxo.memo || transactionMemo);
     setFrozen(realmUtxo.frozen);
     setLoading(false);
-  }, [realmUtxo, txMetadata, utxo.txid, wallet]);
+  }, [realmUtxo, transactionMemo, wallet]);
 
   const switchValue = useMemo(
     () => ({

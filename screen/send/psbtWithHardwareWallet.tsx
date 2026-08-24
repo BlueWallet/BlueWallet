@@ -22,9 +22,11 @@ import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { useTransactionMetadata } from '../../hooks/useRealmMetadata';
 
 const PsbtWithHardwareWallet = () => {
-  const { fetchAndSaveWalletTransactions, wallets, setTransactionMemo } = useStorage();
+  const { fetchAndSaveWalletTransactions, wallets } = useStorage();
+  const { setMemo: setTransactionMemo } = useTransactionMetadata();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation();

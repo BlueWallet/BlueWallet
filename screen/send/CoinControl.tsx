@@ -5,7 +5,6 @@ import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
 import { Animated, ActivityIndicator, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import SafeArea from '../../components/SafeArea';
@@ -16,8 +15,9 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
 import { CoinControlSortDirection, CoinControlSortType, SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
-import useWalletUtxos, { useWalletUtxoMutations } from '../../hooks/useWalletUtxos';
+import useWalletUtxos, { useWalletUtxoMutations, useWalletUtxoSelection } from '../../hooks/useWalletUtxos';
 import type { RealmUtxo } from '../../blue_modules/realm/appDataRepository';
+import { useTransactionMemo } from '../../hooks/useRealmMetadata';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -110,8 +110,8 @@ const OutputList: React.FC<TOutputListProps> = ({
   onDeSelect,
 }: TOutputListProps) => {
   const { colors } = useTheme();
-  const { txMetadata } = useStorage();
-  const memo = oMemo || txMetadata[txid]?.memo || '';
+  const transactionMemo = useTransactionMemo(txid);
+  const memo = oMemo || transactionMemo;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
 
@@ -177,46 +177,26 @@ const CoinControl: React.FC = () => {
   const { width } = useWindowDimensions();
   const route = useRoute<RouteProps>();
   const { walletID } = route.params;
-  const { wallets, saveToDisk, sleep } = useStorage();
+  const { wallets, fetchWalletUtxos, sleep } = useStorage();
   const sortDirection = route.params?.sortDirection ?? CoinControlSortDirection.ASC;
   const sortType = route.params?.sortType ?? CoinControlSortType.HEIGHT;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID) as TWallet, [walletID, wallets]);
   const utxos = useWalletUtxos(walletID, { sortType, sortDirection });
-  const frozenWasEdited = useRef(false);
-  const [frozen, setFrozen] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
-  const frozenUtxos = useWalletUtxos(walletID, { frozen: true });
-  const selectedUtxos = useWalletUtxos(walletID, { outpoints: selected });
-  const { setFrozenOutpoints } = useWalletUtxoMutations(walletID);
-
-  // save frozen status. Because effect called on each event, debounce it.
-  const debouncedSaveFronen = useRef(
-    debounce(async frzn => {
-      await setFrozenOutpoints(frzn);
-    }, 500),
-  );
-  useEffect(() => {
-    if (!frozenWasEdited.current) return;
-    frozenWasEdited.current = false;
-    debouncedSaveFronen.current(frozen);
-  }, [frozen, setFrozenOutpoints]);
+  const { utxos: selectedUtxos, totalValue: selectedValue, allFrozen } = useWalletUtxoSelection(walletID, selected);
+  const { setOutpointsFrozen } = useWalletUtxoMutations(walletID);
 
   useEffect(() => {
     (async () => {
       try {
-        await Promise.race([wallet.fetchUtxo(), sleep(10000)]);
-        await saveToDisk();
+        await Promise.race([fetchWalletUtxos(wallet.getID()), sleep(10000)]);
       } catch (e) {
         console.log('coincontrol wallet.fetchUtxo() failed'); // either sleep expired or fetchUtxo threw an exception
       }
       setLoading(false);
     })();
-  }, [saveToDisk, wallet, setLoading, sleep]);
-
-  useEffect(() => {
-    setFrozen(frozenUtxos.map(({ txid, vout }) => `${txid}:${vout}`));
-  }, [frozenUtxos]);
+  }, [fetchWalletUtxos, wallet, setLoading, sleep]);
 
   useEffect(() => {
     setSelected([]);
@@ -237,10 +217,9 @@ const CoinControl: React.FC = () => {
   const tipText = useMemo(() => {
     if (utxos.length === 0) return '';
     if (selected.length === 0) return loc.cc.tip;
-    const summ = selectedUtxos.reduce((total, utxo) => total + utxo.value, 0);
-    const value = formatBalance(summ, wallet.getPreferredBalanceUnit(), true);
+    const value = formatBalance(selectedValue, wallet.getPreferredBalanceUnit(), true);
     return loc.formatString(loc.cc.selected_summ, { value });
-  }, [selected.length, selectedUtxos, utxos.length, wallet]);
+  }, [selected.length, selectedValue, utxos.length, wallet]);
 
   const tipCoins = () => {
     if (utxos.length === 0) return null;
@@ -253,14 +232,7 @@ const CoinControl: React.FC = () => {
     goFromCoinControlToSendDetails(navigation, walletID, u);
   };
 
-  const handleMassFreeze = () => {
-    frozenWasEdited.current = true;
-    if (allFrozen) {
-      setFrozen(f => f.filter(i => !selected.includes(i))); // unfreeze
-    } else {
-      setFrozen(f => [...new Set([...f, ...selected])]); // freeze
-    }
-  };
+  const handleMassFreeze = () => setOutpointsFrozen(selected, !allFrozen);
 
   const handleMassUse = () => {
     handleUseCoin(selectedUtxos);
@@ -268,22 +240,19 @@ const CoinControl: React.FC = () => {
 
   // check if any outputs are selected
   const selectionStarted = selected.length > 0;
-  // check if all selected items are frozen
-  const allFrozen = selectionStarted && selected.reduce((prev, curr) => (prev ? frozen.includes(curr) : false), true);
   const buttonFontSize = PixelRatio.roundToNearestPixel(width / 26) > 22 ? 22 : PixelRatio.roundToNearestPixel(width / 26);
 
   const renderItem = (item: RealmUtxo) => {
     const key = `${item.txid}:${item.vout}`;
     const { memo } = item;
     const isChange = wallet.addressIsChange(item.address);
-    const oFrozen = frozen.includes(key);
     return (
       <OutputList
         key={key}
         balanceUnit={wallet.getPreferredBalanceUnit()}
         item={item}
         oMemo={memo}
-        frozen={oFrozen}
+        frozen={item.frozen}
         change={isChange}
         onOpen={() => handleChoose(item)}
         selected={selected.includes(key)}

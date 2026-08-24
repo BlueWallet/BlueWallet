@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
+import { useAppDataObject, useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
 import {
   setCounterpartyMetadata as writeCounterpartyMetadata,
   setTransactionMemo as writeTransactionMemo,
@@ -25,6 +25,11 @@ export function useTransactionMetadata() {
   return { metadata, setMemo };
 }
 
+export function useTransactionMemo(txid: string | undefined): string {
+  const row = useAppDataObject<TransactionMetadataRow>('TransactionMetadata', txid ?? '');
+  return row?.memo ?? '';
+}
+
 export function useCounterpartyMetadata() {
   const realm = useAppDataRealm();
   const rows = useAppDataQuery<CounterpartyMetadataRow>({ type: 'CounterpartyMetadata' });
@@ -44,4 +49,9 @@ export function useCounterpartyMetadata() {
   );
 
   return { metadata, setCounterparty };
+}
+
+export function useCounterpartyMetadataEntry(counterparty: string | undefined): TCounterpartyMetadata[string] | undefined {
+  const row = useAppDataObject<CounterpartyMetadataRow>('CounterpartyMetadata', counterparty ?? '');
+  return row ? { label: row.label, ...(row.hidden ? { hidden: true } : {}) } : undefined;
 }

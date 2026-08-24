@@ -37,6 +37,11 @@ jest.mock('../../hooks/context/useStorage', () => ({
   useWallet: (walletID: string) => mockStorageState.wallets.find(wallet => wallet.getID() === walletID),
 }));
 
+jest.mock('../../hooks/useRealmMetadata', () => ({
+  useTransactionMetadata: () => ({ metadata: mockStorageState.txMetadata, setMemo: mockStorageState.setTransactionMemo }),
+  useCounterpartyMetadata: () => ({ metadata: mockStorageState.counterpartyMetadata }),
+}));
+
 let mockActivityTransactions: any[] = [];
 jest.mock('../../hooks/useWalletActivity', () => ({
   __esModule: true,

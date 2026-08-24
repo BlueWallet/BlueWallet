@@ -8,6 +8,8 @@ import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { CreateTransactionUtxo } from './wallets/types.ts';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { isUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
+import { activityRowToTransaction, queryWalletActivity } from '../blue_modules/realm/appDataRepository';
+import { BlueApp } from './blue-app';
 
 /**
  * Represents transaction of a BIP84 wallet.
@@ -121,14 +123,11 @@ export class HDSegwitBech32Transaction {
    */
   async isOurTransaction() {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    let found = false;
-    for (const tx of this._wallet.getTransactions()) {
-      if (tx.txid === (this._txid || this._txDecoded!.getId())) {
-        // its our transaction, and its spending transaction, which means we initiated it
-        if (tx.value && tx.value < 0) found = true;
-      }
-    }
-    return found;
+    const transactionId = this._txid || this._txDecoded!.getId();
+    const realm = await BlueApp.getInstance().getRealmForTransactions();
+    const row = queryWalletActivity(realm, this._wallet.getID(), { transactionId })[0];
+    const transaction = row ? activityRowToTransaction(row) : undefined;
+    return Boolean(transaction?.value && transaction.value < 0);
   }
 
   /**
@@ -140,13 +139,11 @@ export class HDSegwitBech32Transaction {
    */
   async isToUsTransaction() {
     if (!this._wallet) throw new Error('Wallet required for this method');
-    let found = false;
-    for (const tx of this._wallet.getTransactions()) {
-      if (tx.txid === (this._txid || this._txDecoded!.getId())) {
-        if (tx.value && tx.value > 0) found = true;
-      }
-    }
-    return found;
+    const transactionId = this._txid || this._txDecoded!.getId();
+    const realm = await BlueApp.getInstance().getRealmForTransactions();
+    const row = queryWalletActivity(realm, this._wallet.getID(), { transactionId })[0];
+    const transaction = row ? activityRowToTransaction(row) : undefined;
+    return Boolean(transaction?.value && transaction.value > 0);
   }
 
   /**

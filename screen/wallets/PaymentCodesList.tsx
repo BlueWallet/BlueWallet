@@ -26,6 +26,7 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import { BlueApp } from '../../class/blue-app';
 import { queryWalletUtxos, utxoRowToUtxo, utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
+import { useCounterpartyMetadata, useTransactionMetadata } from '../../hooks/useRealmMetadata';
 
 interface DataSection {
   title: string;
@@ -81,7 +82,9 @@ export default function PaymentCodesList() {
   const navigation = useNavigation<PaymentCodesListNavigationProp>();
   const route = useRoute<PaymentCodeListRouteProp>();
   const { walletID } = route.params;
-  const { wallets, counterpartyMetadata, setCounterpartyMetadata: setCounterparty, setTransactionMemo, saveToDisk } = useStorage();
+  const { wallets, saveToDisk, fetchWalletUtxos } = useStorage();
+  const { metadata: counterpartyMetadata, setCounterparty } = useCounterpartyMetadata();
+  const { setMemo: setTransactionMemo } = useTransactionMetadata();
   const [reload, setReload] = useState<number>(0);
   const [data, setData] = useState<DataSection[]>([]);
   const { colors } = useTheme();
@@ -320,8 +323,7 @@ export default function PaymentCodesList() {
     // need to send notif tx:
 
     setLoadingText('Fetching UTXO...');
-    await foundWallet.fetchUtxo();
-    await saveToDisk();
+    await fetchWalletUtxos(foundWallet.getID());
     const realm = await BlueApp.getInstance().getRealmForTransactions();
     const spendableUtxos = Array.from(queryWalletUtxos(realm, walletID, { frozen: false }), utxoRowToUtxo).map(utxo =>
       utxoToCreateTransactionInput(utxo, foundWallet),

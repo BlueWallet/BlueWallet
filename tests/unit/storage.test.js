@@ -223,6 +223,7 @@ it('AppStorage - getTransactions() work', async () => {
 
   Storage.wallets.push(w);
   Storage.wallets.push(w2);
+  await Storage.persistWalletTransactions([w, w2]);
   await Storage.saveToDisk();
 
   // The canonical Realm now has two wallets with one transaction each.
@@ -264,7 +265,12 @@ it('AppStorage - getTransactions() work', async () => {
   assert.strictEqual(
     ReloadedStorage.getTransactions(undefined, Infinity, true).length,
     2,
-    'transactions are hydrated from canonical Realm',
+    'transactions remain available from canonical Realm',
+  );
+  assert.strictEqual(
+    ReloadedStorage.wallets[0].getTransactions().length,
+    0,
+    'loadFromDisk must not copy Realm transactions into wallet memory',
   );
 });
 

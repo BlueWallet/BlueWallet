@@ -70,6 +70,7 @@ const startImport = (
   let promiseReject: (reason?: any) => void;
   let running = true; // if you put it to false, internal generator stops
   const wallets: TWallet[] = [];
+  const walletIds = new Set<string>();
   const promise = new Promise<TStatus>((resolve, reject) => {
     promiseResolve = resolve;
     promiseReject = reject;
@@ -95,7 +96,9 @@ const startImport = (
     promiseResolve({ cancelled, stopped, wallets });
   };
   const reportWallet = (wallet: TWallet) => {
-    if (wallets.some(w => w.getID() === wallet.getID())) return; // do not add duplicates
+    const walletId = wallet.getID();
+    if (walletIds.has(walletId)) return;
+    walletIds.add(walletId);
     wallets.push(wallet);
     onWallet(wallet);
   };

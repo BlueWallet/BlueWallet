@@ -60,6 +60,7 @@ import { Measure } from '../../class/measure';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 import useWalletUtxos from '../../hooks/useWalletUtxos';
 import { utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
+import { useTransactionMetadata } from '../../hooks/useRealmMetadata';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -78,7 +79,8 @@ export interface IFee {
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 const SendDetails = () => {
-  const { wallets, sleep, saveToDisk, setTransactionMemo: writeTransactionMemo } = useStorage();
+  const { wallets, sleep, saveToDisk, fetchWalletUtxos } = useStorage();
+  const { setMemo: writeTransactionMemo } = useTransactionMetadata();
   const navigation = useNavigation<NavigationProps>();
   const { direction } = useLocale();
   const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
@@ -318,10 +320,8 @@ const SendDetails = () => {
     });
     prevWalletIdForCoinResetRef.current = currentId;
 
-    wallet
-      .fetchUtxo()
+    fetchWalletUtxos(wallet.getID())
       .then(async () => {
-        await saveToDisk();
         setDumb(v => !v);
       })
       .catch(e => console.log('fetchUtxo error', e));

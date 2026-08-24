@@ -17,7 +17,6 @@ import { useNavigation, useLocale } from '@react-navigation/native';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import { TTXMetadata } from '../../class/blue-app';
 import { ExtendedTransaction, LightningTransaction, TWallet } from '../../class/wallets/types';
 import useBounceAnimation from '../../hooks/useBounceAnimation';
 import DraggableFlatList, { RenderItemParams, DragEndParams } from 'react-native-draggable-flatlist';
@@ -75,7 +74,7 @@ interface SetIsSearchFocusedAction {
 
 interface SetInitialDataAction {
   type: typeof SET_INITIAL_DATA;
-  payload: { wallets: TWallet[]; txMetadata: TTXMetadata };
+  payload: TWallet[];
 }
 
 type Action = SetSearchQueryAction | SetIsSearchFocusedAction | SetInitialDataAction | SaveChangesAction;
@@ -84,14 +83,12 @@ interface State {
   searchQuery: string;
   isSearchFocused: boolean;
   walletsCopy: TWallet[]; // Copy used for display and filtering
-  txMetadata: TTXMetadata;
 }
 
 const initialState: State = {
   searchQuery: '',
   isSearchFocused: false,
   walletsCopy: [],
-  txMetadata: {},
 };
 
 const deepCopyWallets = (wallets: TWallet[]): TWallet[] => {
@@ -105,11 +102,10 @@ const reducer = (state: State, action: Action): State => {
     case SET_IS_SEARCH_FOCUSED:
       return { ...state, isSearchFocused: action.payload };
     case SET_INITIAL_DATA: {
-      const walletsCopy = deepCopyWallets(action.payload.wallets);
+      const walletsCopy = deepCopyWallets(action.payload);
       return {
         ...state,
         walletsCopy,
-        txMetadata: action.payload.txMetadata,
       };
     }
     case SAVE_CHANGES: {
@@ -125,7 +121,7 @@ const reducer = (state: State, action: Action): State => {
 
 const ManageWallets: React.FC = () => {
   const { colors, dark } = useTheme();
-  const { wallets: persistedWallets, setWalletsWithNewOrder, txMetadata } = useStorage();
+  const { wallets: persistedWallets, setWalletsWithNewOrder } = useStorage();
   const initialWalletsRef = useRef<TWallet[]>(deepCopyWallets(persistedWallets));
   const { navigate, setOptions, goBack } = useNavigation();
   const { direction } = useLocale();
@@ -278,13 +274,11 @@ const ManageWallets: React.FC = () => {
         const { wallet, transactions, addresses } = matchData;
 
         if (transactions.length > 0 || addresses.length > 0) {
-          const limitedAddresses = addresses.slice(0, 10);
-
           result.push({
             type: ItemType.WalletGroupSection,
             wallet,
             transactions,
-            addresses: limitedAddresses,
+            addresses,
           });
         } else {
           result.push({
@@ -313,9 +307,9 @@ const ManageWallets: React.FC = () => {
   useEffect(() => {
     dispatch({
       type: SET_INITIAL_DATA,
-      payload: { wallets: initialWalletsRef.current, txMetadata },
+      payload: initialWalletsRef.current,
     });
-  }, [txMetadata]);
+  }, []);
 
   useEffect(() => {
     if (state.searchQuery && listData.length === 0) {

@@ -126,11 +126,11 @@ const ImportCustomDerivationPath: React.FC = () => {
     },
   });
 
-  const saveWallet = (type: string) => {
+  const saveWallet = async (type: string) => {
     if (importing.current) return;
-    importing.current = true;
     if (wallets[path] === WRONG_PATH) return;
-    addAndSaveWallet(wallets[path][type]);
+    importing.current = true;
+    await addAndSaveWallet(wallets[path][type]);
     navigation.getParent()?.goBack();
   };
 

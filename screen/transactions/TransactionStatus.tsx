@@ -40,6 +40,7 @@ import prompt from '../../helpers/prompt';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage, useWallet } from '../../hooks/context/useStorage';
 import { useWalletTransaction } from '../../hooks/useWalletActivity';
+import { useCounterpartyMetadata, useTransactionMetadata } from '../../hooks/useRealmMetadata';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -174,7 +175,9 @@ const TransactionStatus: React.FC = () => {
     isLoading: !initialTx,
   });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { wallets, txMetadata, counterpartyMetadata, setTransactionMemo, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
+  const { metadata: txMetadata, setMemo: setTransactionMemo } = useTransactionMetadata();
+  const { metadata: counterpartyMetadata } = useCounterpartyMetadata();
   const subscribedWallet = useWallet(walletID);
   const realmTransaction = useWalletTransaction(subscribedWallet, hash);
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();

@@ -314,7 +314,7 @@ jest.mock('realm', () => {
   };
 
   // Evaluate a Realm query expression against a plain object.
-  // Handles: `field == $N`, `field IN {$0,$1,...}`, AND, OR, and parens.
+  // Handles: `field == $N`, `[NOT] field IN {$0,$1,...}`, AND, OR, and parens.
   const evalExpr = (obj, expr, args) => {
     expr = expr.trim();
     // Strip matching outer parens — e.g. "(a == $0 OR a == $1)" → "a == $0 OR a == $1"
@@ -339,15 +339,16 @@ jest.mock('realm', () => {
     // OR: any sub-expression must match
     const orParts = splitTop(expr, ' OR ');
     if (orParts.length > 1) return orParts.some(p => evalExpr(obj, p, args));
-    // IN {$0, $1, ...} — used by BoltzSwap repository
-    const inMatch = expr.match(/^(\w+)\s+IN\s+\{([^}]*)\}$/i);
+    // [NOT] field IN {$0, $1, ...}
+    const inMatch = expr.match(/^(NOT\s+)?(\w+)\s+IN\s+\{([^}]*)\}$/i);
     if (inMatch) {
-      const field = inMatch[1];
-      const values = inMatch[2].split(',').map(p => {
+      const field = inMatch[2];
+      const values = inMatch[3].split(',').map(p => {
         const m = p.trim().match(/^\$(\d+)$/);
         return m ? args[+m[1]] : undefined;
       });
-      return values.includes(obj[field]);
+      const included = values.includes(obj[field]);
+      return inMatch[1] ? !included : included;
     }
     // field == $N
     const eqMatch = expr.match(/^(\w+)\s*==\s*\$(\d+)$/);
@@ -365,11 +366,12 @@ jest.mock('realm', () => {
   const makeCollection = (type, items) => {
     const arr = Array.isArray(items) ? items : [...items];
     return {
-      filtered: (query, ...args) =>
-        makeCollection(
-          type,
-          arr.filter(o => evalExpr(o, query, args)),
-        ),
+      filtered: (query, ...args) => {
+        const limitMatch = query.match(/\s+LIMIT\((\d+)\)\s*$/i);
+        const predicate = limitMatch ? query.slice(0, limitMatch.index).trim() : query;
+        const filtered = predicate === 'TRUEPREDICATE' ? arr : arr.filter(o => evalExpr(o, predicate, args));
+        return makeCollection(type, limitMatch ? filtered.slice(0, Number(limitMatch[1])) : filtered);
+      },
       sorted: (field, reverse) => {
         const descriptors = Array.isArray(field) ? field : [[field, Boolean(reverse)]];
         const sorted = [...arr].sort((a, b) => {
@@ -383,6 +385,7 @@ jest.mock('realm', () => {
       },
       flatMap: callback => arr.flatMap(callback),
       slice: (...args) => arr.slice(...args),
+      sum: property => arr.reduce((total, item) => total + Number(item[property] ?? 0), 0),
       addListener: jest.fn(),
       removeListener: jest.fn(),
       isValid: () => true,
@@ -447,7 +450,7 @@ jest.mock('realm', () => {
           const store = getStore(target._type);
           const pkField = PK_FIELD[target._type];
           for (const item of target._items) {
-            const pk = pkField !== undefined ? item[pkField] : undefined;
+            const pk = pkField !== undefined ? item[pkField] : item._realmMeta?.pk;
             if (pk !== undefined) store.delete(pk);
           }
         }
@@ -467,6 +470,26 @@ jest.mock('realm', () => {
 
       objects(type) {
         return makeCollection(type, getStore(type).values());
+      },
+
+      writeCopyTo(config) {
+        const copiedStore = new Map();
+        for (const [type, objects] of typeStore) {
+          copiedStore.set(
+            type,
+            new Map(
+              Array.from(objects, ([key, value]) => [
+                key,
+                Object.defineProperty({ ...value }, '_realmMeta', {
+                  value: value._realmMeta,
+                  enumerable: false,
+                }),
+              ]),
+            ),
+          );
+        }
+        mockRealmData.set(config.path, copiedStore);
+        mockRealmFiles.add(config.path);
       },
 
       close() {

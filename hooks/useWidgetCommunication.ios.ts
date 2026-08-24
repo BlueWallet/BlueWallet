@@ -77,8 +77,7 @@ export const calculateBalanceAndTransactionTime = async (
       if (wallet.hideBalance) return { balance: 0, latestTransactionTime: 0 };
 
       const balance = await wallet.getBalance();
-      const confirmedTransactions = queryWalletActivity(realm, wallet.getID(), { confirmed: true });
-      const latestConfirmedTransaction = confirmedTransactions.slice(0, 1)[0];
+      const latestConfirmedTransaction = queryWalletActivity(realm, wallet.getID(), { confirmed: true, limit: 1 })[0];
       const latestTransactionTime = latestConfirmedTransaction
         ? secondsToMilliseconds(latestConfirmedTransaction.timestamp)
         : WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;

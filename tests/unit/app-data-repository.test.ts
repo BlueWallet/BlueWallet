@@ -6,14 +6,17 @@ import {
   activityRowToTransaction,
   isAppDataInitialized,
   isUtxoDataInitialized,
+  pruneCanonicalWalletData,
   queryWalletActivity,
   queryWalletActivityForWallets,
   queryWalletUtxos,
   readMetadata,
   replaceCanonicalData,
-  replaceCanonicalWalletData,
+  replaceCanonicalWalletTransactions,
+  replaceCanonicalWalletUtxos,
   setCounterpartyMetadata,
   setTransactionMemo,
+  setWalletOutpointsFrozen,
   setWalletUtxoMetadata,
   scrubWalletUtxoSecrets,
   utxoRowToUtxo,
@@ -130,6 +133,10 @@ it('stores transactions and metadata as canonical Realm data', async () => {
   assert.strictEqual(search.length, 1);
   assert.strictEqual(search.slice(0, 1)[0].transactionId, 'new-tx');
   assert.strictEqual(queryWalletActivity(realm, 'wallet-1', { transactionId: 'old-tx' }).length, 1);
+  assert.deepStrictEqual(
+    Array.from(queryWalletActivity(realm, 'wallet-1', { limit: 1 }), row => row.transactionId),
+    ['new-tx'],
+  );
   assert.strictEqual(queryWalletActivity(realm, 'wallet-1', { pending: true }).slice(0, 1)[0].transactionId, 'new-tx');
   assert.strictEqual(queryWalletActivity(realm, 'wallet-1', { confirmed: true }).slice(0, 1)[0].transactionId, 'old-tx');
 
@@ -138,7 +145,8 @@ it('stores transactions and metadata as canonical Realm data', async () => {
   assert.strictEqual(queryWalletActivity(realm, 'wallet-1', { search: 'updated note' }).length, 1);
   assert.strictEqual(readMetadata(realm).counterpartyMetadata.contact.label, 'Bob');
 
-  replaceCanonicalWalletData(realm, [testWallet], readMetadata(realm).txMetadata);
+  replaceCanonicalWalletTransactions(realm, [testWallet], readMetadata(realm).txMetadata);
+  replaceCanonicalWalletUtxos(realm, [testWallet]);
   assert.strictEqual(readMetadata(realm).txMetadata['old-tx'].memo, 'Updated note');
 });
 
@@ -185,6 +193,29 @@ it('queries and limits a globally sorted Realm activity feed', async () => {
   assert.strictEqual(page.length, 1);
   assert.strictEqual(page[0].walletId, 'wallet-2');
   assert.strictEqual(page[0].transactionId, 'newer');
+});
+
+it('updates and prunes wallet rows without rebuilding unrelated Realm data', async () => {
+  const realm = await Realm.open({
+    path: 'app-data-scoped-writes-test.realm',
+    schema: AppDataSchemas,
+  });
+  const first = wallet([{ txid: 'first', timestamp: 10 }], [{ txid: 'first-utxo', vout: 0, value: 1 }], {}, 'wallet-1');
+  const second = wallet([{ txid: 'second', timestamp: 20 }], [{ txid: 'second-utxo', vout: 1, value: 2 }], {}, 'wallet-2');
+  replaceCanonicalData(realm, [first, second], {}, {});
+
+  const refreshedFirst = wallet([{ txid: 'refreshed', timestamp: 30 }], [], {}, 'wallet-1');
+  replaceCanonicalWalletTransactions(realm, [refreshedFirst], {});
+  replaceCanonicalWalletUtxos(realm, [refreshedFirst]);
+
+  assert.strictEqual(queryWalletActivity(realm, 'wallet-1', { transactionId: 'first' }).length, 0);
+  assert.strictEqual(queryWalletActivity(realm, 'wallet-1', { transactionId: 'refreshed' }).length, 1);
+  assert.strictEqual(queryWalletActivity(realm, 'wallet-2', { transactionId: 'second' }).length, 1);
+  assert.strictEqual(queryWalletUtxos(realm, 'wallet-2').length, 1);
+
+  pruneCanonicalWalletData(realm, new Set(['wallet-1']));
+  assert.strictEqual(queryWalletActivity(realm, 'wallet-2').length, 0);
+  assert.strictEqual(queryWalletUtxos(realm, 'wallet-2').length, 0);
 });
 
 it('stores and queries UTXOs with their canonical metadata', async () => {
@@ -237,6 +268,9 @@ it('stores and queries UTXOs with their canonical metadata', async () => {
   const updated = Array.from(queryWalletUtxos(realm, 'wallet-1', { txid: 'large', vout: 1 }), utxoRowToUtxo);
   assert.strictEqual(updated[0].memo, 'Updated output');
   assert.strictEqual(updated[0].frozen, true);
+  setWalletOutpointsFrozen(realm, 'wallet-1', ['small:0'], false);
+  assert.strictEqual(queryWalletUtxos(realm, 'wallet-1', { outpoints: ['small:0'] }).slice(0, 1)[0].frozen, false);
+  assert.strictEqual(queryWalletUtxos(realm, 'wallet-1', { outpoints: ['large:1'] }).slice(0, 1)[0].frozen, true);
 });
 
 it('scrubs WIFs from UTXO rows created by older app-data schemas', async () => {

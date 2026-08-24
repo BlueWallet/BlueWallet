@@ -1,10 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useNavigation, useNavigationState, useRoute, RouteProp } from '@react-navigation/native';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueText from '../../components/BlueText';
 import SafeArea from '../../components/SafeArea';
-import { useTheme } from '../../components/themes';
 import loc from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -29,22 +28,13 @@ const SelectWallet: React.FC = () => {
     onChainRequireSend = false,
     selectedWalletID,
   } = route.params;
-  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation<NavigationProps>();
   const { wallets } = useStorage();
-  const { colors } = useTheme();
   const isModal = useNavigationState(state => state.routes.length > 1);
   const walletsCarousel = useRef<CarouselListRefType>(null);
   const previousRouteName = useNavigationState(state => state.routes[state.routes.length - 2]?.name);
-  const [filteredWallets, setFilteredWallets] = useState<TWallet[]>([]);
 
-  const stylesHook = StyleSheet.create({
-    loading: {
-      backgroundColor: colors.background,
-    },
-  });
-
-  const filterWallets = useCallback(() => {
+  const filteredWallets = useMemo(() => {
     if (availableWallets && availableWallets.length > 0) {
       return availableWallets;
     }
@@ -60,22 +50,13 @@ const SelectWallet: React.FC = () => {
     return wallets.filter(item => item.allowSend());
   }, [availableWallets, chainType, onChainRequireSend, wallets]);
 
-  // Initialize filtered wallets and handle loading state
-  useEffect(() => {
-    console.log('SelectWallet - useEffect');
-    const filtered = filterWallets();
-    setFilteredWallets(filtered);
-    setIsLoading(false);
-  }, [filterWallets]);
-
   // Scroll to the selected wallet if provided
   useEffect(() => {
-    if (!isLoading && selectedWalletID && walletsCarousel.current) {
+    if (selectedWalletID && walletsCarousel.current) {
       const walletIndex = filteredWallets.findIndex(wallet => wallet.getID() === selectedWalletID);
 
       if (walletIndex !== -1) {
-        // Add a slight delay to ensure the carousel is fully rendered
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
           if (walletsCarousel.current) {
             walletsCarousel.current.scrollToIndex({
               index: walletIndex,
@@ -86,17 +67,18 @@ const SelectWallet: React.FC = () => {
             console.log(`Scrolled to wallet index ${walletIndex} with ID ${selectedWalletID}`);
           }
         }, 200);
+        return () => clearTimeout(timeout);
       } else {
         console.log(`Wallet with ID ${selectedWalletID} not found in filtered wallets`);
       }
     }
-  }, [isLoading, selectedWalletID, filteredWallets]);
+  }, [selectedWalletID, filteredWallets]);
 
   useEffect(() => {
     navigation.setOptions({
-      statusBarStyle: isLoading || filteredWallets.length === 0 ? 'light' : 'auto',
+      statusBarStyle: filteredWallets.length === 0 ? 'light' : 'auto',
     });
-  }, [isLoading, filteredWallets, navigation]);
+  }, [filteredWallets.length, navigation]);
 
   useEffect(() => {
     if (!isModal) {
@@ -114,14 +96,6 @@ const SelectWallet: React.FC = () => {
       navigation.popTo(previousRouteName, { walletID: item.getID(), merge: true });
     }
   };
-
-  if (isLoading) {
-    return (
-      <View style={[styles.loading, stylesHook.loading]}>
-        <ActivityIndicator />
-      </View>
-    );
-  }
 
   if (filteredWallets.length <= 0) {
     return (
@@ -152,13 +126,6 @@ const SelectWallet: React.FC = () => {
 export default SelectWallet;
 
 const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
-    paddingTop: 20,
-  },
-
   noWallets: {
     flex: 1,
     justifyContent: 'center',

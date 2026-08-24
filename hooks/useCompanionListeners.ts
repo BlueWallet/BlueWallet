@@ -15,6 +15,7 @@ import {
 } from '../blue_modules/notifications';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+import type { TWallet } from '../class/wallets/types';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
@@ -33,6 +34,7 @@ import {
   activityRowToTransaction,
   queryWalletActivity,
   queryWalletActivityByPaymentRequest,
+  queryWalletActivityByTransactionId,
 } from '../blue_modules/realm/appDataRepository';
 
 const ClipboardContentType = Object.freeze({
@@ -42,8 +44,19 @@ const ClipboardContentType = Object.freeze({
 
 const findCanonicalSwapRow = async (walletID: string, swapId: string) => {
   const realm = await BlueApp.getInstance().getRealmForTransactions();
-  const row = queryWalletActivity(realm, walletID, { transactionId: `swap-${swapId}` }).slice(0, 1)[0];
+  const row = queryWalletActivity(realm, walletID, { transactionId: `swap-${swapId}`, limit: 1 })[0];
   return row ? activityRowToTransaction(row) : undefined;
+};
+
+const findWalletByTransactionId = async (wallets: TWallet[], transactionId: string | undefined) => {
+  if (!transactionId) return undefined;
+  const realm = await BlueApp.getInstance().getRealmForTransactions();
+  const row = queryWalletActivityByTransactionId(
+    realm,
+    wallets.map(wallet => wallet.getID()),
+    transactionId,
+  )[0];
+  return row ? wallets.find(wallet => wallet.getID() === row.walletId) : undefined;
 };
 
 /**
@@ -120,6 +133,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           // leave the synthetic row stale.
           try {
             await arkWallet.fetchTransactions();
+            await BlueApp.getInstance().persistWalletTransactions([arkWallet]);
             await saveToDisk();
           } catch (e: any) {
             console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
@@ -146,7 +160,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             break;
           case 1:
           case 4:
-            wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+            wallet = await findWalletByTransactionId(wallets, payload.txid || payload.hash);
             break;
         }
 
@@ -195,6 +209,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             }
             try {
               await arkWallet.fetchTransactions();
+              await BlueApp.getInstance().persistWalletTransactions([arkWallet]);
               await saveToDisk();
             } catch (e: any) {
               console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
@@ -231,7 +246,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
               break;
             case 1:
             case 4:
-              wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+              wallet = await findWalletByTransactionId(wallets, payload.txid || payload.hash);
               break;
           }
 

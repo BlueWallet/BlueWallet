@@ -303,12 +303,19 @@ export type WalletActivityQuery = {
   transactionId?: string;
   pending?: boolean;
   confirmed?: boolean;
+  limit?: number;
 };
+
+/** Applies Realm's native LIMIT descriptor while preserving existing filters and sort descriptors. */
+function limitActivityResults(results: Realm.Results<WalletActivityRow>, limit?: number): Realm.Results<WalletActivityRow> {
+  if (limit === undefined || !Number.isFinite(limit)) return results;
+  return results.filtered(`TRUEPREDICATE LIMIT(${Math.max(0, Math.floor(limit))})`);
+}
 
 export function filterWalletActivity(
   collection: Realm.Results<WalletActivityRow>,
   walletId: string,
-  { search = '', transactionId: requestedTransactionId, pending, confirmed }: WalletActivityQuery = {},
+  { search = '', transactionId: requestedTransactionId, pending, confirmed, limit }: WalletActivityQuery = {},
 ): Realm.Results<WalletActivityRow> {
   let results = collection.filtered('walletId == $0', walletId);
   if (requestedTransactionId) results = results.filtered('transactionId == $0', requestedTransactionId);
@@ -316,10 +323,13 @@ export function filterWalletActivity(
   if (confirmed) results = results.filtered('confirmations > $0', 0);
   const normalizedSearch = search.trim().toLowerCase();
   if (normalizedSearch) results = results.filtered('searchText CONTAINS $0', normalizedSearch);
-  return results.sorted([
-    ['timestamp', true],
-    ['transactionId', false],
-  ]);
+  return limitActivityResults(
+    results.sorted([
+      ['timestamp', true],
+      ['transactionId', false],
+    ]),
+    limit,
+  );
 }
 
 export function queryWalletActivity(realm: Realm, walletId: string, options: WalletActivityQuery = {}): Realm.Results<WalletActivityRow> {
@@ -331,6 +341,7 @@ export function filterWalletActivityForWallets(
   collection: Realm.Results<WalletActivityRow>,
   walletIds: string[],
   search = '',
+  limit?: number,
 ): Realm.Results<WalletActivityRow> {
   let results = collection;
   if (walletIds.length === 0) {
@@ -341,14 +352,22 @@ export function filterWalletActivityForWallets(
   }
   const normalizedSearch = search.trim().toLowerCase();
   if (normalizedSearch) results = results.filtered('searchText CONTAINS $0', normalizedSearch);
-  return results.sorted([
-    ['timestamp', true],
-    ['transactionId', false],
-  ]);
+  return limitActivityResults(
+    results.sorted([
+      ['timestamp', true],
+      ['transactionId', false],
+    ]),
+    limit,
+  );
 }
 
-export function queryWalletActivityForWallets(realm: Realm, walletIds: string[], search = ''): Realm.Results<WalletActivityRow> {
-  return filterWalletActivityForWallets(realm.objects<WalletActivityRow>('WalletActivity'), walletIds, search);
+export function queryWalletActivityForWallets(
+  realm: Realm,
+  walletIds: string[],
+  search = '',
+  limit?: number,
+): Realm.Results<WalletActivityRow> {
+  return filterWalletActivityForWallets(realm.objects<WalletActivityRow>('WalletActivity'), walletIds, search, limit);
 }
 
 export function queryWalletActivityByPaymentRequest(
@@ -363,6 +382,20 @@ export function queryWalletActivityByPaymentRequest(
   return realm
     .objects<WalletActivityRow>('WalletActivity')
     .filtered(`paymentRequest == $0 AND walletId IN {${parameters}}`, paymentRequest, ...walletIds);
+}
+
+export function queryWalletActivityByTransactionId(
+  realm: Realm,
+  walletIds: string[],
+  requestedTransactionId: string,
+): Realm.Results<WalletActivityRow> {
+  if (walletIds.length === 0 || !requestedTransactionId) {
+    return realm.objects<WalletActivityRow>('WalletActivity').filtered('walletId == $0', '');
+  }
+  const parameters = walletIds.map((_, index) => `$${index + 1}`).join(', ');
+  return realm
+    .objects<WalletActivityRow>('WalletActivity')
+    .filtered(`transactionId == $0 AND walletId IN {${parameters}}`, requestedTransactionId, ...walletIds);
 }
 
 export function filterWalletUtxos(
@@ -433,10 +466,14 @@ export function setWalletUtxoMetadata(
   });
 }
 
-export function setWalletFrozenOutpoints(realm: Realm, walletId: string, frozenOutpoints: ReadonlySet<string>): void {
+export function setWalletOutpointsFrozen(realm: Realm, walletId: string, outpoints: string[], frozen: boolean): void {
+  if (outpoints.length === 0) return;
+  const parameters = outpoints.map((_, index) => `$${index + 1}`).join(', ');
   realm.write(() => {
-    const rows = realm.objects<WalletUtxoRow>('WalletUtxo').filtered('walletId == $0', walletId);
-    for (const row of rows) row.frozen = frozenOutpoints.has(row.outpoint);
+    const rows = realm
+      .objects<WalletUtxoRow>('WalletUtxo')
+      .filtered(`walletId == $0 AND outpoint IN {${parameters}}`, walletId, ...outpoints);
+    for (const row of rows) row.frozen = frozen;
   });
 }
 
@@ -491,22 +528,44 @@ export function replaceCanonicalData(
   });
 }
 
-/** Replaces fetched wallet-owned rows without touching Realm-owned metadata collections. */
-export function replaceCanonicalWalletData(realm: Realm, wallets: TWallet[], txMetadata: TTXMetadata): void {
+/** Replaces fetched transaction rows only for the supplied wallets. */
+export function replaceCanonicalWalletTransactions(realm: Realm, wallets: TWallet[], txMetadata: TTXMetadata): void {
+  const walletIds = wallets.map(wallet => wallet.getID());
   const activityRows = createActivityRows(wallets, txMetadata);
   const rawRows = createRawTransactionRows(wallets);
+
+  realm.write(() => {
+    for (const walletId of walletIds) {
+      realm.delete(realm.objects('WalletActivity').filtered('walletId == $0', walletId));
+      realm.delete(realm.objects('WalletTransaction').filtered('walletId == $0', walletId));
+    }
+    for (const row of activityRows) realm.create('WalletActivity', row);
+    for (const row of rawRows) realm.create('WalletTransaction', row);
+    realm.create('AppDataState', { key: APP_DATA_INITIALIZED_KEY }, Realm.UpdateMode.Modified);
+  });
+}
+
+/** Replaces fetched UTXO rows only for the supplied wallets. */
+export function replaceCanonicalWalletUtxos(realm: Realm, wallets: TWallet[]): void {
+  const walletIds = wallets.map(wallet => wallet.getID());
   const utxoRows = createUtxoRows(wallets);
 
   realm.write(() => {
-    realm.delete(realm.objects('WalletActivity'));
-    realm.delete(realm.objects('WalletTransaction'));
-    realm.delete(realm.objects('WalletUtxo'));
-
-    for (const row of activityRows) realm.create('WalletActivity', row);
-    for (const row of rawRows) realm.create('WalletTransaction', row);
+    for (const walletId of walletIds) realm.delete(realm.objects('WalletUtxo').filtered('walletId == $0', walletId));
     for (const row of utxoRows) realm.create('WalletUtxo', row);
-    realm.create('AppDataState', { key: APP_DATA_INITIALIZED_KEY }, Realm.UpdateMode.Modified);
     realm.create('AppDataState', { key: APP_UTXO_INITIALIZED_KEY }, Realm.UpdateMode.Modified);
+  });
+}
+
+/** Removes canonical rows whose wallet configuration no longer exists. */
+export function pruneCanonicalWalletData(realm: Realm, retainedWalletIds: ReadonlySet<string>): void {
+  const walletIds = [...retainedWalletIds];
+  const parameters = walletIds.map((_, index) => `$${index}`).join(', ');
+  realm.write(() => {
+    for (const type of ['WalletActivity', 'WalletTransaction', 'WalletUtxo']) {
+      const rows = realm.objects(type);
+      realm.delete(walletIds.length === 0 ? rows : rows.filtered(`NOT walletId IN {${parameters}}`, ...walletIds));
+    }
   });
 }
 

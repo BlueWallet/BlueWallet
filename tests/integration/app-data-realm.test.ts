@@ -11,6 +11,7 @@ import {
   queryWalletUtxos,
   readMetadata,
   replaceCanonicalData,
+  setWalletOutpointsFrozen,
   utxoRowToUtxo,
 } from '../../blue_modules/realm/appDataRepository';
 import type { TWallet } from '../../class/wallets/types';
@@ -55,9 +56,16 @@ describe('canonical app-data Realm', () => {
       Array.from(queryWalletActivity(realm, 'wallet-1'), row => row.transactionId),
       ['newer', 'older'],
     );
+    assert.deepStrictEqual(
+      Array.from(queryWalletActivity(realm, 'wallet-1', { limit: 1 }), row => row.transactionId),
+      ['newer'],
+      'Realm applies pagination before rows reach JavaScript',
+    );
     const utxo = utxoRowToUtxo(queryWalletUtxos(realm, 'wallet-1', { frozen: true })[0]);
     assert.strictEqual(utxo.memo, 'Cold storage');
     assert.strictEqual(Object.prototype.hasOwnProperty.call(utxo, 'wif'), false);
+    setWalletOutpointsFrozen(realm, 'wallet-1', ['utxo:0'], false);
+    assert.strictEqual(queryWalletUtxos(realm, 'wallet-1', { frozen: false }).sum('value'), 42);
     assert.strictEqual(readMetadata(realm).counterpartyMetadata.alice.label, 'Alice');
     realm.close();
 

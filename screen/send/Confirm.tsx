@@ -26,6 +26,7 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { useCounterpartyMetadata } from '../../hooks/useRealmMetadata';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -67,7 +68,8 @@ type ConfirmRouteProp = RouteProp<SendDetailsStackParamList, 'Confirm'>;
 type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'Confirm'>;
 
 const Confirm: React.FC = () => {
-  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
+  const { metadata: counterpartyMetadata } = useCounterpartyMetadata();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation<ConfirmNavigationProp>();

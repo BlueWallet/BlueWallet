@@ -8,10 +8,16 @@ The implementation targets Realm JS 20.x. `BlueApp` owns one open app-data Realm
 
 ## Data flow
 
-1. Wallet implementations fetch data into their operational in-memory structures.
-2. `BlueApp.saveToDisk()` builds canonical rows and commits activity, raw transaction rows, and UTXOs in one Realm write transaction. Existing Realm metadata collections are preserved.
-3. The wallet configuration is saved only after the Realm commit succeeds. Raw on-chain/LNDHub transactions, UTXOs, and their metadata are stripped from that configuration.
-4. On startup, wallet transaction structures, UTXOs, and metadata are hydrated from Realm. The old cache Realm and legacy bucket metadata are read only for a first-run migration; new bucket writes do not duplicate metadata.
+1. Wallet implementations fetch data into temporary operational structures.
+2. Transaction and UTXO fetch methods replace only that wallet's corresponding Realm rows. Ordinary `saveToDisk()` calls persist wallet configuration without rebuilding canonical data from memory.
+3. Raw on-chain/LNDHub transactions, UTXOs, and their metadata are stripped from the wallet configuration.
+4. On startup, wallet configuration is reconstructed from the encrypted bucket while transactions, UTXOs, and metadata remain in Realm. The old cache Realm and legacy bucket metadata are read only for a first-run migration.
+
+Activity hooks pass search, pending/confirmed filters, ordering, and page bounds to Realm. Home feeds and carousel summaries use Realm's native `LIMIT` descriptor; JavaScript only maps the bounded managed rows into the existing view-model shape. Metadata is read and mutated by Realm hooks at the consuming component instead of being copied through `StorageProvider`.
+
+Coin control queries sorting, frozen status, selected outpoints, and selected value directly from Realm. Mass freeze/unfreeze writes only the selected outpoints with a Realm `IN` predicate; React owns only the transient selection itself.
+
+Wallet discovery candidates remain temporary wallet-engine objects because rejected candidates must never enter canonical storage. When a candidate is accepted, any transactions fetched during discovery are committed to Realm before the wallet configuration is saved and the import screen closes.
 
 Ark's SDK Realm remains responsible for Ark protocol state such as VTXOs, contracts, and swaps. The app-data Realm is the canonical application-facing transaction index across every wallet type.
 
