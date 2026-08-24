@@ -102,6 +102,7 @@ export class BlueApp {
   private appDataRealmIdentity?: string;
   private appDataRealmPromise?: Promise<Realm>;
   private appDataRealmListeners = new Set<(realm: Realm | undefined) => void>();
+  private retiredAppDataRealms = new Set<Realm>();
 
   constructor() {
     this.wallets = [];
@@ -258,7 +259,7 @@ export class BlueApp {
     // bucket's Realm immediately instead of waiting for a later save.
     const realm = await this.getRealmForTransactions();
     replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
-    if (previousRealmFileName !== this.appDataRealmIdentity) await this.scrubAndDeleteDefaultAppDataRealm();
+    if (previousRealmFileName !== this.appDataRealmIdentity) await this.clearAndDeleteDefaultAppDataRealm();
   };
 
   /**
@@ -310,20 +311,27 @@ export class BlueApp {
 
   /** Closes a superseded Realm after React has committed the replacement provider value. */
   releaseAppDataRealm = (realm: Realm): void => {
-    if (realm !== this.appDataRealm && !realm.isClosed) realm.close();
+    if (realm === this.appDataRealm) return;
+    this.retiredAppDataRealms.delete(realm);
+    if (!realm.isClosed) realm.close();
   };
 
   private getAppDataRealmPath(fileName: string): string {
     return `${RNFS.DocumentDirectoryPath}/app-data/${fileName}-appdata.realm`;
   }
 
-  /** Removes the known-key Realm left by pre-v7 encryption migrations, scrubbing it first when possible. */
-  private async scrubAndDeleteDefaultAppDataRealm(): Promise<void> {
+  /** Clears and removes the known-key Realm. Throws unless no readable canonical data remains there. */
+  private async clearAndDeleteDefaultAppDataRealm(): Promise<void> {
     const { encryptionKey, fileName } = this.getAppDataRealmConfig(false);
     if (this.appDataRealmIdentity === fileName) return;
     const path = this.getAppDataRealmPath(fileName);
     if (!Realm.exists({ path })) return;
 
+    for (const realm of this.retiredAppDataRealms) {
+      if (realm.path === path) this.releaseAppDataRealm(realm);
+    }
+
+    let clearingError: unknown;
     try {
       const legacyRealm = await Realm.open({
         schema: AppDataSchemas,
@@ -333,15 +341,22 @@ export class BlueApp {
         excludeFromIcloudBackup: true,
       });
       scrubWalletUtxoSecrets(legacyRealm);
+      legacyRealm.write(() => legacyRealm.deleteAll());
       legacyRealm.close();
     } catch (error) {
-      console.warn('[AppDataRealm] Could not scrub the previous known-key Realm before deletion:', error);
+      clearingError = error;
     }
 
+    let deletionError: unknown;
     try {
       Realm.deleteFile({ path });
     } catch (error) {
-      console.warn('[AppDataRealm] Failed to delete the previous known-key Realm:', error);
+      deletionError = error;
+    }
+    if (Realm.exists({ path })) {
+      const failure = deletionError ?? clearingError;
+      const detail = failure instanceof Error ? `: ${failure.message}` : '';
+      throw new Error(`Failed to clear and delete the previous known-key app-data Realm${detail}`);
     }
   }
 
@@ -355,6 +370,7 @@ export class BlueApp {
     if (this.appDataRealmIdentity === fileName && this.appDataRealmPromise) return await this.appDataRealmPromise;
 
     const previousRealm = this.appDataRealm;
+    if (previousRealm) this.retiredAppDataRealms.add(previousRealm);
     this.appDataRealm = undefined;
     this.appDataRealmIdentity = fileName;
 
@@ -635,7 +651,7 @@ export class BlueApp {
         this.counterparty_metadata = data.counterparty_metadata ?? {};
         if (realm) replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
       }
-      if (this.cachedPassword) await this.scrubAndDeleteDefaultAppDataRealm();
+      if (this.cachedPassword) await this.clearAndDeleteDefaultAppDataRealm();
       return true;
     } else {
       return false; // failed loading data or loading/decryptin data

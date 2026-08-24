@@ -26,6 +26,7 @@ import { BlueApp } from '../../class/blue-app';
 
 const RealmMock = Realm as typeof Realm & {
   open: jest.Mock;
+  deleteFile: jest.Mock;
   __mockRealmHelpers: { reset: () => void };
 };
 
@@ -72,6 +73,21 @@ it('publishes the shared Realm when the active encryption bucket changes', async
   storage.releaseAppDataRealm(defaultRealm);
   assert.strictEqual(defaultRealm.isClosed, true);
   assert.strictEqual(encryptedRealm.isClosed, false);
+});
+
+it('does not report encryption success while a known-key Realm file remains', async () => {
+  const storage = new BlueApp();
+  await storage.setItem('data', JSON.stringify({ wallets: [] }));
+  const defaultRealm = await storage.getRealmForTransactions();
+  replaceCanonicalData(defaultRealm, [wallet([{ txid: 'private-history', timestamp: 1 }])], {}, {});
+  const defaultRealmPath = defaultRealm.path;
+  RealmMock.deleteFile.mockImplementationOnce(() => {
+    throw new Error('disk busy');
+  });
+
+  await assert.rejects(storage.encryptStorage('encrypted-bucket'), /Failed to clear and delete/);
+  assert.strictEqual(Realm.exists({ path: defaultRealmPath }), true);
+  assert.strictEqual(defaultRealm.objects('WalletActivity').length, 0, 'known-key Realm must be empty after deletion failure');
 });
 
 it('stores transactions and metadata as canonical Realm data', async () => {

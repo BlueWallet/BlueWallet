@@ -2,9 +2,9 @@
 
 Realm is the application source of truth for transaction records, transaction metadata, UTXOs, UTXO metadata, and counterparty metadata. Wallet secrets and wallet configuration remain in the encrypted storage bucket.
 
-UTXO Realm payloads contain public outpoint data only. WIFs and other signing secrets must never be serialized into app-data Realm; signing code derives required keys from the wallet only for the duration of transaction construction. Schema v7 scrubs legacy UTXO payloads on open, and storage encryption removes the previous known-key Realm file after seeding the password-specific bucket.
+UTXO Realm payloads contain public outpoint data only. WIFs and other signing secrets must never be serialized into app-data Realm; signing code derives required keys from the wallet only for the duration of transaction construction. Schema v7 scrubs legacy UTXO payloads on open. After seeding a password-specific bucket, storage encryption clears every object from the previous known-key Realm before deleting it, verifies deletion, and reports failure if the file remains.
 
-The implementation targets Realm JS 20.x. `BlueApp` owns one open app-data Realm per encrypted bucket and reuses the same open promise for concurrent callers. Consumers must not close this shared Realm; query hooks own and remove only their listeners.
+The implementation targets Realm JS 20.x. `BlueApp` owns one open app-data Realm per encrypted bucket and reuses the same open promise for concurrent callers. React receives that exact instance through `RealmProvider`; `useQuery` owns live-result subscriptions, and consumers must not open or close another app-data Realm.
 
 ## Data flow
 
@@ -28,7 +28,7 @@ const loadMore = () => {
 };
 ```
 
-The hook creates live Realm `Results` scoped by `walletId`, applies search and sorting in Realm, materializes the requested window directly from that collection, and reports `hasMore` from the Realm result count. Realm invokes a collection listener once after registration and again whenever the live result changes, so screens should not add a separate initial read.
+The hook creates live Realm `Results` scoped by `walletId`, applies search and sorting in Realm, materializes the requested window directly from that collection, and reports `hasMore` from the Realm result count. `@realm/react` rerenders the hook when those live results change, so screens should not add collection listeners or a separate initial read.
 
 For the combined home-screen feed, use `useWalletActivityFeed()`. It issues one globally sorted Realm query across visible wallet IDs and applies the result limit before materialization. Do not merge, sort, or slice per-wallet transaction arrays in the screen.
 

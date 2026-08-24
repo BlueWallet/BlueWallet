@@ -272,6 +272,7 @@ jest.mock('react-native-haptic-feedback', () => ({}));
 // "no contract matched vtxo.script" when the test wallet has live VTXOs.
 jest.mock('realm', () => {
   const mockRealmStore = new Map();
+  const mockRealmData = new Map();
   // Persisted-on-disk view: paths that have been opened at least once and not
   // yet deleted. Realm.exists / Realm.deleteFile read this rather than the
   // live (memory-cached, possibly-closed) instance map so deleteArkadeRealm
@@ -406,7 +407,8 @@ jest.mock('realm', () => {
   const makeRealmInstance = path => {
     let isClosed = false;
     // type → Map<primaryKey, object>
-    const typeStore = new Map();
+    const typeStore = mockRealmData.get(path) ?? new Map();
+    mockRealmData.set(path, typeStore);
 
     const getStore = type => {
       if (!typeStore.has(type)) typeStore.set(type, new Map());
@@ -500,6 +502,7 @@ jest.mock('realm', () => {
     deleteFile: jest.fn(config => {
       const path = (config && config.path) || '__default__';
       mockRealmStore.delete(path);
+      mockRealmData.delete(path);
       mockRealmFiles.delete(path);
     }),
     __mockRealmHelpers: {
@@ -510,6 +513,7 @@ jest.mock('realm', () => {
           if (typeof inst._clearData === 'function') inst._clearData();
         }
         mockRealmStore.clear();
+        mockRealmData.clear();
         mockRealmFiles.clear();
       },
       store: mockRealmStore,
