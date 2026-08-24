@@ -298,6 +298,17 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
 
+    // Android: a second receive sheet in the same session has no RESUMED Activity.
+    if (device.getPlatform() === 'android') {
+      await device.launchApp({ newInstance: true });
+      await waitForId('WalletsList');
+      await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
+      await element(by.id('ReceiveButton')).tap();
+      await tapIfTextPresent('Yes, I have.');
+      await waitForId('BitcoinAddressQRCode');
+      await waitForId('CopyTextToClipboard');
+    }
+
     // add per-address label then verify it renders on the receive screen
     await element(by.id('ReceiveMoreOptionsButton')).tap();
     await waitForId('AddressLabelOption');
