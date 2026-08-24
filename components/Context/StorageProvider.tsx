@@ -32,7 +32,7 @@ interface StorageContextType {
   currentSharedCosigner: string;
   setSharedCosigner: (cosigner: string) => void;
   addAndSaveWallet: (wallet: TWallet) => Promise<void>;
-  fetchAndSaveWalletTransactions: (walletID: string) => Promise<void>;
+  fetchAndSaveWalletTransactions: (walletID: string) => Promise<boolean>;
   walletsInitialized: boolean;
   setWalletsInitialized: (initialized: boolean) => void;
   refreshAllWalletTransactions: (lastSnappedTo?: number, showUpdateStatusIndicator?: boolean) => Promise<void>;
@@ -297,7 +297,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const setWalletsWithNewOrder = useCallback(
     (wlts: TWallet[]) => {
       BlueApp.wallets = wlts;
-      saveToDisk();
+      saveToDisk().catch(error => console.error('[setWalletsWithNewOrder] Failed to persist wallet order:', error));
     },
     [saveToDisk],
   );
@@ -413,14 +413,14 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       try {
         if (Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) {
           console.debug('[fetchAndSaveWalletTransactions] Re-fetch wallet happens too fast; NOP');
-          return;
+          return false;
         }
         _lastTimeTriedToRefetchWallet[walletID] = Date.now();
 
         const connected = await BlueElectrum.ensureConnected();
         if (!connected) {
           console.log('[fetchAndSaveWalletTransactions] could not establish Electrum connection, aborting');
-          return;
+          return false;
         }
         setWalletTransactionUpdateStatus(walletID);
 
@@ -439,7 +439,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       } finally {
         setWalletTransactionUpdateStatus(WalletTransactionsStatus.NONE);
       }
-      if (noErr) await saveToDisk();
+      if (noErr) {
+        await saveToDisk();
+        return true;
+      }
+      return false;
     },
     [saveToDisk, wallets],
   );

@@ -2,6 +2,7 @@ import { useAppDataQuery } from '../blue_modules/realm/AppDataRealmProvider';
 import {
   activityRowToTransaction,
   filterWalletActivity,
+  filterWalletActivityByOutputAddress,
   filterWalletActivityForWallets,
   type WalletActivityRow,
   type WalletTransactionRow,
@@ -86,6 +87,20 @@ export function useWalletTransaction(wallet: TWallet | undefined, transactionId:
       query: collection => filterWalletActivity(collection, walletId, { transactionId }),
     },
     [transactionId, walletId],
+  );
+  return wallet && rows.length > 0 ? toTransaction(rows[0], wallet) : undefined;
+}
+
+/** Reacts to the newest canonical transaction paying an exact output address. */
+export function useWalletTransactionByOutputAddress(wallet: TWallet | undefined, address: string | undefined) {
+  const walletId = wallet?.getID() ?? '';
+  const outputAddress = address ?? '';
+  const rows = useAppDataQuery<WalletActivityRow>(
+    {
+      type: 'WalletActivity',
+      query: collection => filterWalletActivityByOutputAddress(collection, walletId, outputAddress, 1),
+    },
+    [outputAddress, walletId],
   );
   return wallet && rows.length > 0 ? toTransaction(rows[0], wallet) : undefined;
 }

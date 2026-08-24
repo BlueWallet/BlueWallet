@@ -11,8 +11,6 @@ import type { TWallet } from './wallets/types';
 type TCompletionHandlerParams = [string, object];
 type TContext = {
   wallets: TWallet[];
-  saveToDisk: () => void;
-  addWallet: (wallet: TWallet) => void;
   setSharedCosigner: (cosigner: string) => void;
 };
 
@@ -42,7 +40,7 @@ class DeeplinkSchemaMatch {
   static navigationRouteFor(
     event: { url: string },
     completionHandler: (args: TCompletionHandlerParams) => void,
-    context: TContext = { wallets: [], saveToDisk: () => {}, addWallet: () => {}, setSharedCosigner: () => {} },
+    context: TContext = { wallets: [], setSharedCosigner: () => {} },
   ) {
     if (event.url === null) {
       return;
@@ -58,47 +56,47 @@ class DeeplinkSchemaMatch {
     }
 
     if (DeeplinkSchemaMatch.isWidgetAction(event.url)) {
-      if (context.wallets.length >= 0) {
-        const wallet = context.wallets[0];
-        const action = event.url.split('widget?action=')[1];
-        if (wallet.chain === Chain.ONCHAIN) {
-          if (action === 'openSend') {
-            completionHandler([
-              'SendDetailsRoot',
-              {
-                screen: 'SendDetails',
-                params: {
-                  walletID: wallet.getID(),
-                },
+      const wallet = context.wallets[0];
+      if (!wallet) return;
+      const action = event.url.split('widget?action=')[1];
+      if (wallet.chain === Chain.ONCHAIN) {
+        if (action === 'openSend') {
+          completionHandler([
+            'SendDetailsRoot',
+            {
+              screen: 'SendDetails',
+              params: {
+                walletID: wallet.getID(),
               },
-            ]);
-          } else if (action === 'openReceive') {
-            completionHandler([
-              'DetailViewStackScreensStack',
-              {
-                screen: 'ReceiveDetails',
-                params: {
-                  walletID: wallet.getID(),
-                },
+            },
+          ]);
+        } else if (action === 'openReceive') {
+          completionHandler([
+            'DetailViewStackScreensStack',
+            {
+              screen: 'ReceiveDetails',
+              params: {
+                walletID: wallet.getID(),
               },
-            ]);
-          }
-        } else if (wallet.chain === Chain.OFFCHAIN) {
-          if (action === 'openSend') {
-            completionHandler([
-              'ScanLNDInvoiceRoot',
-              {
-                screen: 'ScanLNDInvoice',
-                params: {
-                  walletID: wallet.getID(),
-                },
+            },
+          ]);
+        }
+      } else if (wallet.chain === Chain.OFFCHAIN) {
+        if (action === 'openSend') {
+          completionHandler([
+            'ScanLNDInvoiceRoot',
+            {
+              screen: 'ScanLNDInvoice',
+              params: {
+                walletID: wallet.getID(),
               },
-            ]);
-          } else if (action === 'openReceive') {
-            completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } }]);
-          }
+            },
+          ]);
+        } else if (action === 'openReceive') {
+          completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } }]);
         }
       }
+      return;
     } else if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
       readFileOutsideSandbox(decodeURI(event.url))
         .then(file => {

@@ -7,10 +7,12 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
-import CPFP from './CPFP';
+import { CpfpScreen } from './CPFP';
 import { StorageContext } from '../../components/Context/StorageProvider';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { useSetTransactionMemo, useTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const styles = StyleSheet.create({
   root: {
@@ -19,7 +21,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class RBFBumpFee extends CPFP {
+class RBFBumpFee extends CpfpScreen {
   static contextType = StorageContext;
 
   async componentDidMount() {
@@ -68,11 +70,7 @@ export default class RBFBumpFee extends CPFP {
         // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
         // user whether he wants to broadcast it
         if (isWatchOnlySegwitBech32(this.state.wallet)) {
-          let memo;
-          // porting memo from old tx:
-          if (this.context.txMetadata[this.state.txid]?.memo) {
-            memo = this.context.txMetadata[this.state.txid]?.memo;
-          }
+          const memo = this.props.transactionMemo || undefined;
 
           this.props.navigation
             .getParent()
@@ -99,8 +97,7 @@ export default class RBFBumpFee extends CPFP {
   }
 
   async onSuccessBroadcast() {
-    const previousMemo = this.context.txMetadata[this.state.txid]?.memo;
-    if (previousMemo) await this.context.setTransactionMemo(this.state.newTxid, previousMemo);
+    if (this.props.transactionMemo) await this.props.setTransactionMemo(this.state.newTxid, this.props.transactionMemo);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', {
       amount: undefined,
@@ -161,4 +158,34 @@ RBFBumpFee.propTypes = {
       }),
     }),
   }),
+  route: PropTypes.shape({
+    params: PropTypes.shape({
+      txid: PropTypes.string,
+      wallet: PropTypes.object,
+    }),
+  }),
+  transactionMemo: PropTypes.string,
+  isElectrumDisabled: PropTypes.bool,
+  setTransactionMemo: PropTypes.func,
 };
+
+const RBFBumpFeeWithRealm = props => {
+  const txid = props.route?.params?.txid;
+  const transactionMemo = useTransactionMemo(txid);
+  const setTransactionMemo = useSetTransactionMemo();
+  const { isElectrumDisabled } = useSettings();
+  return (
+    <RBFBumpFee
+      {...props}
+      transactionMemo={transactionMemo}
+      setTransactionMemo={setTransactionMemo}
+      isElectrumDisabled={isElectrumDisabled}
+    />
+  );
+};
+
+RBFBumpFeeWithRealm.propTypes = {
+  route: RBFBumpFee.propTypes.route,
+};
+
+export default RBFBumpFeeWithRealm;

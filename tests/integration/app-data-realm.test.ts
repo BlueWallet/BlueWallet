@@ -7,6 +7,7 @@ import Realm from 'realm';
 import {
   APP_DATA_SCHEMA_VERSION,
   AppDataSchemas,
+  findWalletTransactionByOutputAddress,
   queryWalletActivity,
   queryWalletUtxos,
   readMetadata,
@@ -37,7 +38,13 @@ describe('canonical app-data Realm', () => {
       getID: () => 'wallet-1',
       getTransactions: () => [
         { txid: 'older', hash: 'older', timestamp: 10, confirmations: 2 },
-        { txid: 'newer', hash: 'newer', timestamp: 20, confirmations: 0 },
+        {
+          txid: 'newer',
+          hash: 'newer',
+          timestamp: 20,
+          confirmations: 0,
+          outputs: [{ scriptPubKey: { addresses: ['bc1qnotification'] } }],
+        },
       ],
       getUtxo: () => [{ txid: 'utxo', vout: 0, height: 1, value: 42, address: 'bc1-public', wif: 'private-wif' }],
       getUTXOMetadata: () => ({ memo: 'Cold storage', frozen: true }),
@@ -61,6 +68,7 @@ describe('canonical app-data Realm', () => {
       ['newer'],
       'Realm applies pagination before rows reach JavaScript',
     );
+    assert.strictEqual(findWalletTransactionByOutputAddress(realm, 'wallet-1', 'bc1qnotification')?.txid, 'newer');
     const utxo = utxoRowToUtxo(queryWalletUtxos(realm, 'wallet-1', { frozen: true })[0]);
     assert.strictEqual(utxo.memo, 'Cold storage');
     assert.strictEqual(Object.prototype.hasOwnProperty.call(utxo, 'wif'), false);

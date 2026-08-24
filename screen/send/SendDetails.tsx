@@ -58,9 +58,10 @@ import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
-import useWalletUtxos from '../../hooks/useWalletUtxos';
-import { utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
-import { useTransactionMetadata } from '../../hooks/useRealmMetadata';
+import useWalletUtxos, { useWalletUtxoSelection, useWalletUtxoValue } from '../../hooks/useWalletUtxos';
+import { findWalletTransactionByOutputAddress, utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
+import { useSetTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useAppDataRealm } from '../../blue_modules/realm/AppDataRealmProvider';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -80,7 +81,8 @@ type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Sen
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 const SendDetails = () => {
   const { wallets, sleep, saveToDisk, fetchWalletUtxos } = useStorage();
-  const { setMemo: writeTransactionMemo } = useTransactionMetadata();
+  const writeTransactionMemo = useSetTransactionMemo();
+  const realm = useAppDataRealm();
   const navigation = useNavigation<NavigationProps>();
   const { direction } = useLocale();
   const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
@@ -88,7 +90,6 @@ const SendDetails = () => {
   const route = useRoute<RouteProps>();
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
   const amountUnit = route.params?.amountUnit ?? BitcoinUnit.BTC;
-  const frozenBalance = route.params?.frozenBalance ?? 0;
   const transactionMemo = route.params?.transactionMemo;
   const utxos = route.params?.utxos;
   const payjoinUrl = route.params?.payjoinUrl;
@@ -110,7 +111,12 @@ const SendDetails = () => {
   const spendableUtxos = useWalletUtxos(wallet?.getID() ?? '', {
     frozen: false,
   });
-  const frozenUtxos = useWalletUtxos(wallet?.getID() ?? '', { frozen: true });
+  const selectedOutpoints = useMemo(() => utxos?.map(utxo => `${utxo.txid}:${utxo.vout}`) ?? [], [utxos]);
+  const { utxos: selectedUtxos, totalValue: selectedUtxoValue } = useWalletUtxoSelection(wallet?.getID() ?? '', selectedOutpoints);
+  const spendableUtxoValue = useWalletUtxoValue(wallet?.getID() ?? '', { frozen: false });
+  const frozenUtxoValue = useWalletUtxoValue(wallet?.getID() ?? '', { frozen: true });
+  const transactionUtxos = utxos ? selectedUtxos : spendableUtxos;
+  const frozenBalance = utxos ? 0 : frozenUtxoValue;
   const { isVisible } = useKeyboard();
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([{ address: '', key: String(Math.random()), unit: amountUnit }]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
@@ -124,10 +130,9 @@ const SendDetails = () => {
     fastestFee: null,
   });
   const [changeAddress, setChangeAddress] = useState<string | null>(null);
-  const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
+  const balance = utxos ? selectedUtxoValue : spendableUtxoValue;
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
   // estimated sendable amount when MAX is selected (null if not applicable)
   const [maxSendableAmount, setMaxSendableAmount] = useState<number | null>(null);
@@ -320,11 +325,7 @@ const SendDetails = () => {
     });
     prevWalletIdForCoinResetRef.current = currentId;
 
-    fetchWalletUtxos(wallet.getID())
-      .then(async () => {
-        setDumb(v => !v);
-      })
-      .catch(e => console.log('fetchUtxo error', e));
+    fetchWalletUtxos(wallet.getID()).catch(e => console.log('fetchUtxo error', e));
   }, [wallet]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // recalc fees in effect so we don't block render
@@ -333,14 +334,8 @@ const SendDetails = () => {
     const fees = networkTransactionFees;
     const requestedSatPerByte = Number(feeRate);
     const m = new Measure('getUtxo');
-    const lutxo = (utxos || spendableUtxos).map(utxo => utxoToCreateTransactionInput(utxo, wallet));
+    const lutxo = transactionUtxos.map(utxo => utxoToCreateTransactionInput(utxo, wallet));
     m.end();
-    let frozen = 0;
-    if (!utxos) {
-      // if utxo is not limited search for frozen outputs and calc it's balance
-      frozen = frozenUtxos.reduce((total, output) => total + output.value, 0);
-    }
-
     const options = [
       { key: 'current', fee: requestedSatPerByte },
       { key: 'slowFee', fee: fees.slowFee },
@@ -415,22 +410,19 @@ const SendDetails = () => {
     // Calculate maxSendableAmount (only for single recipient with MAX)
     if (addresses.length === 1 && addresses[0].amount === BitcoinUnit.MAX && newFeePrecalc.current !== null) {
       // use lutxo to match what coinSelectSplit actually receives
-      const spendableBalance = lutxo.reduce((prev: number, curr: { value: number }) => prev + curr.value, 0);
-      const sendable = spendableBalance - newFeePrecalc.current;
+      const sendable = balance - newFeePrecalc.current;
       setMaxSendableAmount(sendable > 0 ? sendable : null);
     } else {
       setMaxSendableAmount(null);
     }
 
-    setParams({ frozenBalance: frozen });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, networkTransactionFees, utxos, addresses, feeRate, dumb, frozenUtxos, spendableUtxos]);
+  }, [wallet, networkTransactionFees, utxos, addresses, feeRate, transactionUtxos, frozenUtxoValue, balance]);
 
   // we need to re-calculate fees if user opens-closes coin control
   useFocusEffect(
     useCallback(() => {
       setIsLoading(false);
-      setDumb(v => !v);
       return () => {};
     }, []),
   );
@@ -612,12 +604,16 @@ const SendDetails = () => {
           if (!wallet.allowBIP47()) {
             console.log('validation error');
             error = loc.send.cant_send_to_bip47;
-          } else if (!(wallet as unknown as AbstractHDElectrumWallet).getBIP47NotificationTransaction(transaction.address)) {
-            console.log('validation error');
-            error = loc.send.cant_find_bip47_notification;
           } else {
-            // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
-            await (wallet as unknown as AbstractHDElectrumWallet).syncBip47ReceiversAddresses(transaction.address);
+            const bip47Wallet = wallet as unknown as AbstractHDElectrumWallet;
+            const notificationAddress = bip47Wallet.getBIP47NotificationAddressForPaymentCode(transaction.address);
+            if (!findWalletTransactionByOutputAddress(realm, wallet.getID(), notificationAddress)) {
+              console.log('validation error');
+              error = loc.send.cant_find_bip47_notification;
+            } else {
+              // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
+              await bip47Wallet.syncBip47ReceiversAddresses(transaction.address);
+            }
           }
         }
       }
@@ -661,7 +657,7 @@ const SendDetails = () => {
     const change = await getChangeAddressAsync();
     assert(change, 'Could not get change address');
     const requestedSatPerByte = Number(feeRate);
-    const lutxo: CreateTransactionUtxo[] = (utxos || spendableUtxos).map(utxo => utxoToCreateTransactionInput(utxo, wallet));
+    const lutxo: CreateTransactionUtxo[] = transactionUtxos.map(utxo => utxoToCreateTransactionInput(utxo, wallet));
     console.log({ requestedSatPerByte, lutxo: lutxo.length });
 
     const targets: CreateTransactionTarget[] = [];

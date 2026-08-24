@@ -7,6 +7,7 @@ import { Linking, StyleSheet, View } from 'react-native';
 // @ts-ignore theres no type declaration for this
 import BlueCrypto from 'react-native-blue-crypto';
 import wif from 'wif';
+import Realm from 'realm';
 
 import * as encryption from '../../blue_modules/encryption';
 import * as fs from '../../blue_modules/fs';
@@ -29,6 +30,7 @@ import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { SettingsSection, SettingsScrollView, settingsCardContent } from '../../components/SettingsSection';
+import { AppDataSchemas, queryWalletActivity, queryWalletUtxos } from '../../blue_modules/realm/appDataRepository';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -44,6 +46,46 @@ function assertStrictEqual<T>(actual: T, expected: T, message?: string) {
     throw new Error(message || 'Assertion failed that ' + JSON.stringify(expected) + ' equals ' + JSON.stringify(actual));
   }
 }
+
+const runRealmSelfTest = () => {
+  const realm = new Realm({
+    path: `self-test-${Date.now()}.realm`,
+    inMemory: true,
+    schema: AppDataSchemas,
+  });
+  try {
+    realm.write(() => {
+      realm.create('WalletActivity', {
+        walletId: 'self-test-wallet',
+        transactionId: 'self-test-transaction',
+        paymentRequest: '',
+        outputAddresses: '',
+        timestamp: 1,
+        confirmations: 1,
+        pending: false,
+        searchText: 'realm self test',
+        payloadJson: '{}',
+      });
+      realm.create('WalletUtxo', {
+        walletId: 'self-test-wallet',
+        txid: 'self-test-utxo',
+        vout: 0,
+        outpoint: 'self-test-utxo:0',
+        height: 1,
+        value: 42,
+        memo: '',
+        frozen: false,
+        payloadJson: '{}',
+      });
+    });
+    const activity = queryWalletActivity(realm, 'self-test-wallet', { search: 'realm', limit: 1 });
+    assertStrictEqual(activity.length, 1, 'Realm filter/LIMIT self-test failed');
+    assertStrictEqual(activity.slice(0, 1)[0].transactionId, 'self-test-transaction', 'Realm sorting self-test failed');
+    assertStrictEqual(queryWalletUtxos(realm, 'self-test-wallet', { frozen: false }).sum('value'), 42, 'Realm aggregate self-test failed');
+  } finally {
+    realm.close();
+  }
+};
 
 const styles = StyleSheet.create({
   center: {
@@ -96,6 +138,8 @@ export default class SelfTest extends Component {
       // A live background-fetch timer keeps Detox's FabricTimersIdlingResource
       // busy and disconnects the JS bridge before SelfTestOk can be observed.
       await stopArkBackgroundTask();
+
+      await runRealmSelfTest();
 
       await new Promise(resolve => setTimeout(resolve, 1_000)); // propagate ui
 

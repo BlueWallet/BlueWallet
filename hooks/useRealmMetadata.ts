@@ -9,18 +9,22 @@ import {
 } from '../blue_modules/realm/appDataRepository';
 import type { TCounterpartyMetadata, TTXMetadata } from '../class/blue-app';
 
-export function useTransactionMetadata() {
+/** Returns a stable Realm-backed memo writer without subscribing to every metadata row. */
+export function useSetTransactionMemo() {
   const realm = useAppDataRealm();
-  const rows = useAppDataQuery<TransactionMetadataRow>({ type: 'TransactionMetadata' });
-  const metadata: TTXMetadata = {};
-  for (const row of rows) metadata[row.txid] = row.memo === null ? {} : { memo: row.memo };
-
-  const setMemo = useCallback(
+  return useCallback(
     async (txid: string, memo: string) => {
       writeTransactionMemo(realm, txid, memo);
     },
     [realm],
   );
+}
+
+export function useTransactionMetadata() {
+  const rows = useAppDataQuery<TransactionMetadataRow>({ type: 'TransactionMetadata' });
+  const metadata: TTXMetadata = {};
+  for (const row of rows) metadata[row.txid] = row.memo === null ? {} : { memo: row.memo };
+  const setMemo = useSetTransactionMemo();
 
   return { metadata, setMemo };
 }

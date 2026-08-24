@@ -4,7 +4,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BackHandler, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Animated, { Easing, Layout, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Share from 'react-native-share';
-import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { majorTomToGroundControl, tryToObtainPermissions } from '../../blue_modules/notifications';
@@ -23,6 +22,7 @@ import { TransactionPendingIconBig } from '../../components/TransactionPendingIc
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
+import { useWalletTransactionByOutputAddress } from '../../hooks/useWalletActivity';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
@@ -161,14 +161,12 @@ const ReceiveDetails = () => {
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
   const { goBack, setParams, navigate } = useNavigation<NavigationProps>();
   const [intervalMs, setIntervalMs] = useState(5000);
-  const [eta, setEta] = useState('');
-  const [initialConfirmed, setInitialConfirmed] = useState(0);
-  const [initialUnconfirmed, setInitialUnconfirmed] = useState(0);
   const [displayBalance, setDisplayBalance] = useState('');
   const [qrCodeSize, setQRCodeSize] = useState(90);
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
+  const receivedTransaction = useWalletTransactionByOutputAddress(wallet, address);
 
   const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
 
@@ -258,7 +256,7 @@ const ReceiveDetails = () => {
           newAddress = wallet.getAddress();
         }
       } else {
-        saveToDisk(); // caching whatever getAddressAsync() generated internally
+        saveToDisk().catch(error => console.error('Failed to persist generated wallet address:', error));
       }
     } else {
       try {
@@ -271,7 +269,7 @@ const ReceiveDetails = () => {
         console.warn('either sleep expired or getAddressAsync threw an exception');
         newAddress = wallet.getAddress();
       } else {
-        saveToDisk(); // caching whatever getAddressAsync() generated internally
+        saveToDisk().catch(error => console.error('Failed to persist generated wallet address:', error));
       }
     }
 
@@ -294,7 +292,7 @@ const ReceiveDetails = () => {
     if (wallet && wallet.allowBIP47()) {
       wallet.switchBIP47(!wallet.isBIP47Enabled());
     }
-    saveToDisk();
+    saveToDisk().catch(error => console.error('Failed to persist BIP47 setting:', error));
     obtainWalletAddress();
   }, [wallet, saveToDisk, obtainWalletAddress]);
 
@@ -330,86 +328,47 @@ const ReceiveDetails = () => {
     setParams({ toggleBIP47RequestedAt: undefined });
   }, [toggleBIP47RequestedAt, onEnablePaymentsCodeSwitchValue, setParams]);
 
-  // re-fetching address balance periodically
+  // Network refreshes write the canonical transaction store. The live Realm
+  // query above drives this screen and every other mounted consumer.
   useEffect(() => {
-    console.debug('receive/details - useEffect');
-
-    const intervalId = setInterval(async () => {
-      try {
-        const decoded = DeeplinkSchemaMatch.bip21decode(bip21encoded);
-        const addressToUse = address || decoded.address;
-        if (!addressToUse) return;
-
-        console.debug('checking address', addressToUse, 'for balance...');
-        const balance = await BlueElectrum.getBalanceByAddress(addressToUse);
-        console.debug('...got', balance);
-
-        if (balance.unconfirmed > 0) {
-          if (initialConfirmed === 0 && initialUnconfirmed === 0) {
-            setInitialConfirmed(balance.confirmed);
-            setInitialUnconfirmed(balance.unconfirmed);
-            setIntervalMs(25000);
-            triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
-          }
-
-          const txs = await BlueElectrum.getMempoolTransactionsByAddress(addressToUse);
-          const tx = txs.pop();
-          if (tx) {
-            const rez = await BlueElectrum.multiGetTransactionByTxid([tx.tx_hash], true, 10);
-            if (rez[tx.tx_hash] && rez[tx.tx_hash].vsize) {
-              const satPerVbyte = Math.round(tx.fee / rez[tx.tx_hash].vsize);
-              const fees = await BlueElectrum.estimateFees();
-              if (satPerVbyte >= fees.fast) {
-                setEta(loc.formatString(loc.transactions.eta_10m));
-              } else if (satPerVbyte >= fees.medium) {
-                setEta(loc.formatString(loc.transactions.eta_3h));
-              } else {
-                setEta(loc.formatString(loc.transactions.eta_1d));
-              }
-            }
-          }
-
-          setDisplayBalance(
-            loc.formatString(loc.transactions.pending_with_amount, {
-              amt1: formatBalance(balance.unconfirmed, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
-              amt2: formatBalance(balance.unconfirmed, BitcoinUnit.BTC, true).toString(),
-            }),
-          );
-          setShowPendingBalance(true);
-          setShowAddress(false);
-        } else if (balance.unconfirmed === 0 && initialUnconfirmed !== 0) {
-          // now, handling a case when unconfirmed == 0, but in past it wasnt (i.e. it changed while user was
-          // staring at the screen)
-          const balanceToShow = balance.confirmed - initialConfirmed;
-
-          if (balanceToShow > 0) {
-            // address has actually more coins than initially, so we definitely gained something
-            setShowConfirmedBalance(true);
-            setShowPendingBalance(false);
-            setShowAddress(false);
-            setDisplayBalance(
-              loc.formatString(loc.transactions.received_with_amount, {
-                amt1: formatBalance(balanceToShow, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
-                amt2: formatBalance(balanceToShow, BitcoinUnit.BTC, true).toString(),
-              }),
-            );
-            if (walletID) {
-              fetchAndSaveWalletTransactions(walletID);
-            }
-          } else {
-            // rare case, but probable. transaction evicted from mempool (maybe cancelled by the sender)
-            setShowConfirmedBalance(false);
-            setShowPendingBalance(false);
-            setShowAddress(true);
-          }
-        }
-      } catch (error) {
-        console.debug('Error checking balance:', error);
-      }
-    }, intervalMs);
-
+    if (!walletID || !address || isCustom) return;
+    const refresh = () => {
+      fetchAndSaveWalletTransactions(walletID).catch(error => console.error('Failed to refresh receive transaction:', error));
+    };
+    refresh();
+    const intervalId = setInterval(refresh, intervalMs);
     return () => clearInterval(intervalId);
-  }, [bip21encoded, address, initialConfirmed, initialUnconfirmed, intervalMs, fetchAndSaveWalletTransactions, walletID]);
+  }, [address, fetchAndSaveWalletTransactions, intervalMs, isCustom, walletID]);
+
+  useEffect(() => {
+    if (!receivedTransaction || isCustom) return;
+    const amount = Math.abs(receivedTransaction.value ?? 0);
+    if (receivedTransaction.confirmations === 0) {
+      setIntervalMs(25000);
+      setDisplayBalance(
+        loc.formatString(loc.transactions.pending_with_amount, {
+          amt1: formatBalance(amount, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+          amt2: formatBalance(amount, BitcoinUnit.BTC, true).toString(),
+        }),
+      );
+      setShowPendingBalance(true);
+      setShowConfirmedBalance(false);
+      setShowAddress(false);
+      return;
+    }
+
+    if ((receivedTransaction.confirmations ?? 0) > 0) {
+      setDisplayBalance(
+        loc.formatString(loc.transactions.received_with_amount, {
+          amt1: formatBalance(amount, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
+          amt2: formatBalance(amount, BitcoinUnit.BTC, true).toString(),
+        }),
+      );
+      setShowConfirmedBalance(true);
+      setShowPendingBalance(false);
+      setShowAddress(false);
+    }
+  }, [isCustom, receivedTransaction]);
 
   useEffect(() => {
     const handleBackButton = () => {
@@ -449,9 +408,6 @@ const ReceiveDetails = () => {
         <BlueSpacing40 />
         <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
           {displayBalance}
-        </BlueText>
-        <BlueText style={[styles.label, stylesHook.label]} numberOfLines={1}>
-          {eta}
         </BlueText>
       </View>
     );

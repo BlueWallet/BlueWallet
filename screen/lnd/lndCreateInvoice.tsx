@@ -33,6 +33,9 @@ import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import assert from 'assert';
 import { scanQrHelper } from '../../helpers/scan-qr.ts';
+import { BlueApp } from '../../class/blue-app';
+
+const appStorage = BlueApp.getInstance();
 
 type LNDCreateInvoiceRouteParams = {
   walletID: string;
@@ -301,11 +304,15 @@ const LNDCreateInvoice = () => {
         }
       }
 
-      setTimeout(async () => {
-        assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
-        // wallet object doesnt have this fresh invoice in its internals, so we refetch it and only then save
-        await wallet.current?.fetchUserInvoices();
-        await saveToDisk();
+      setTimeout(() => {
+        const persistInvoice = async () => {
+          assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
+          // Fetch the new invoice into the wallet engine, then commit it to the
+          // canonical Realm. saveToDisk intentionally excludes invoice arrays.
+          await wallet.current.fetchUserInvoices();
+          await appStorage.persistWalletTransactions([wallet.current]);
+        };
+        persistInvoice().catch(error => console.error('Failed to persist the new invoice in Realm:', error));
       }, 1000);
 
       navigate('LNDViewInvoice', {

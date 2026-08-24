@@ -13,13 +13,26 @@ import {
 import { BlueApp as BlueAppClass } from '../class/blue-app';
 
 const BlueApp = BlueAppClass.getInstance();
-type WalletUtxoQuery = {
+export type WalletUtxoQuery = {
   sortType?: 'height' | 'label' | 'value' | 'frozen';
   sortDirection?: 'asc' | 'desc';
   frozen?: boolean;
   txid?: string;
   vout?: number;
   outpoints?: string[];
+};
+
+export const useWalletUtxoValue = (walletId: string, query: WalletUtxoQuery = {}): number => {
+  const { sortType = 'height', sortDirection = 'asc', frozen, txid, vout, outpoints } = query;
+  const outpointsKey = outpoints?.join('|') ?? '';
+  const rows = useAppDataQuery<WalletUtxoRow>(
+    {
+      type: 'WalletUtxo',
+      query: collection => filterWalletUtxos(collection, walletId, { sortType, sortDirection, frozen, txid, vout, outpoints }),
+    },
+    [frozen, outpointsKey, sortDirection, sortType, txid, vout, walletId],
+  );
+  return rows.sum('value');
 };
 
 export default function useWalletUtxos(walletId: string, query: WalletUtxoQuery = {}): RealmUtxo[] {

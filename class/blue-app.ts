@@ -44,7 +44,6 @@ import {
 } from '../blue_modules/realm/appDataRepository';
 
 let usedBucketNum: boolean | number = false;
-let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
 
 export type TTXMetadata = {
   [txid: string]: {
@@ -104,6 +103,7 @@ export class BlueApp {
   private appDataRealmPromise?: Promise<Realm>;
   private appDataRealmListeners = new Set<(realm: Realm | undefined) => void>();
   private retiredAppDataRealms = new Set<Realm>();
+  private walletStorageSaveQueue: Promise<void> = Promise.resolve();
 
   constructor() {
     this.wallets = [];
@@ -164,24 +164,22 @@ export class BlueApp {
   };
 
   getItemWithFallbackToRealm = async (key: string): Promise<any | null> => {
-    let value;
     try {
       return await this.getItem(key);
     } catch (error: any) {
       console.warn('error reading', key, error.message);
       console.warn('fallback to realm');
       const realmKeyValue = await this.openRealmKeyValue();
-      const obj = realmKeyValue.objectForPrimaryKey<{
-        key: string;
-        value: string;
-      }>('KeyValue', key);
-      value = obj?.value;
-      realmKeyValue.close();
-      if (value) {
-        console.warn('successfully recovered', value.length, 'bytes from realm for key', key);
-        return value;
+      try {
+        const value = realmKeyValue.objectForPrimaryKey<{ key: string; value: string }>('KeyValue', key)?.value;
+        if (value) {
+          console.warn('successfully recovered', value.length, 'bytes from realm for key', key);
+          return value;
+        }
+        return null;
+      } finally {
+        realmKeyValue.close();
       }
-      return null;
     }
   };
 
@@ -493,19 +491,6 @@ export class BlueApp {
     });
   }
 
-  saveToRealmKeyValue(realmkeyValue: Realm, key: string, value: any) {
-    realmkeyValue.write(() => {
-      realmkeyValue.create(
-        'KeyValue',
-        {
-          key,
-          value,
-        },
-        Realm.UpdateMode.Modified,
-      );
-    });
-  }
-
   /**
    * Loads from storage all wallets and
    * maps them to `this.wallets`
@@ -765,35 +750,32 @@ export class BlueApp {
    *
    * @returns {Promise} Result of storage save
    */
-  async saveToDisk(): Promise<void> {
-    if (savingInProgress) {
-      console.warn('saveToDisk is in progress');
-      if (++savingInProgress > 10)
-        presentAlert({
-          message: 'Critical error. Last actions were not saved',
-        }); // should never happen
-      await new Promise(resolve => setTimeout(resolve, 1000 * savingInProgress)); // sleep
-      return this.saveToDisk();
-    }
-    savingInProgress = 1;
+  saveToDisk(): Promise<void> {
+    const save = this.walletStorageSaveQueue.then(
+      () => this.performWalletStorageSave(),
+      () => this.performWalletStorageSave(),
+    );
+    // Keep later saves usable after a failed write while returning the actual
+    // failure to the caller that requested this save.
+    this.walletStorageSaveQueue = save.catch(() => undefined);
+    return save;
+  }
 
+  private async performWalletStorageSave(): Promise<void> {
     try {
       const walletsToSave: string[] = []; // serialized wallets
-      const realm = await this.getRealmForTransactions();
-      if (!isAppDataInitialized(realm)) {
-        const metadata = readMetadata(realm);
-        replaceCanonicalData(realm, this.wallets, metadata.txMetadata, metadata.counterpartyMetadata);
-      }
-      pruneCanonicalWalletData(realm, new Set(this.wallets.map(wallet => wallet.getID())));
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
-        key.prepareForSerialization();
-        // @ts-ignore wtf is wallet.current? Does it even exist?
-        delete key.current;
-        const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
-        if ('_hdWalletInstance' in key) {
+        const keyCloned = Object.assign(Object.create(Object.getPrototypeOf(key)), key) as TWallet;
+        if ('_hdWalletInstance' in key && key._hdWalletInstance) {
           const k = keyCloned as any & WatchOnlyWallet;
-          k._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
+          k._hdWalletInstance = Object.assign(Object.create(Object.getPrototypeOf(key._hdWalletInstance)), key._hdWalletInstance);
+        }
+        keyCloned.prepareForSerialization();
+        // @ts-ignore wtf is wallet.current? Does it even exist?
+        delete keyCloned.current;
+        if ('_hdWalletInstance' in keyCloned && keyCloned._hdWalletInstance) {
+          const k = keyCloned as any & WatchOnlyWallet;
           k._hdWalletInstance._txs_by_external_index = {};
           k._hdWalletInstance._txs_by_internal_index = {};
           k._hdWalletInstance._utxo = [];
@@ -863,18 +845,37 @@ export class BlueApp {
 
       // now, backing up same data in realm:
       const realmkeyValue = await this.openRealmKeyValue();
-      this.saveToRealmKeyValue(realmkeyValue, 'data', JSON.stringify(data));
-      this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
-      realmkeyValue.close();
-    } catch (error: any) {
-      console.error('save to disk exception:', error.message);
-      presentAlert({ message: 'save to disk exception: ' + error.message });
-      if (error.message.includes('Realm file decryption failed')) {
+      try {
+        realmkeyValue.write(() => {
+          realmkeyValue.create('KeyValue', { key: 'data', value: JSON.stringify(data) }, Realm.UpdateMode.Modified);
+          realmkeyValue.create(
+            'KeyValue',
+            { key: BlueApp.FLAG_ENCRYPTED, value: this.cachedPassword ? '1' : '' },
+            Realm.UpdateMode.Modified,
+          );
+        });
+      } finally {
+        realmkeyValue.close();
+      }
+
+      // Persist the wallet bucket before deleting orphaned canonical rows. If
+      // wallet storage fails, a wallet must not reappear on restart without the
+      // transaction history that belonged to it.
+      const realm = await this.getRealmForTransactions();
+      if (!isAppDataInitialized(realm)) {
+        const metadata = readMetadata(realm);
+        replaceCanonicalData(realm, this.wallets, metadata.txMetadata, metadata.counterpartyMetadata);
+      }
+      pruneCanonicalWalletData(realm, new Set(this.wallets.map(wallet => wallet.getID())));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('save to disk exception:', message);
+      presentAlert({ message: 'save to disk exception: ' + message });
+      if (message.includes('Realm file decryption failed')) {
         console.warn('purging realm key-value database file');
         this.purgeRealmKeyValueFile();
       }
-    } finally {
-      savingInProgress = 0;
+      throw error;
     }
   }
 

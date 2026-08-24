@@ -4,10 +4,12 @@ import Realm from 'realm';
 import {
   AppDataSchemas,
   activityRowToTransaction,
+  findWalletTransactionByOutputAddress,
   isAppDataInitialized,
   isUtxoDataInitialized,
   pruneCanonicalWalletData,
   queryWalletActivity,
+  queryWalletActivityByOutputAddress,
   queryWalletActivityForWallets,
   queryWalletUtxos,
   readMetadata,
@@ -148,6 +150,36 @@ it('stores transactions and metadata as canonical Realm data', async () => {
   replaceCanonicalWalletTransactions(realm, [testWallet], readMetadata(realm).txMetadata);
   replaceCanonicalWalletUtxos(realm, [testWallet]);
   assert.strictEqual(readMetadata(realm).txMetadata['old-tx'].memo, 'Updated note');
+});
+
+it('finds notification payments by output address through Realm', async () => {
+  const realm = await Realm.open({ path: 'app-data-output-address-test.realm', schema: AppDataSchemas });
+  const address = 'bc1qnotificationaddress';
+  replaceCanonicalData(
+    realm,
+    [
+      wallet([
+        {
+          txid: 'notification',
+          timestamp: 2,
+          outputs: [{ scriptPubKey: { addresses: [address] } }],
+        },
+        {
+          txid: 'payload-false-positive',
+          timestamp: 1,
+          description: address,
+          outputs: [],
+        },
+      ]),
+    ],
+    {},
+    {},
+  );
+
+  assert.strictEqual(realm.objects<WalletActivityRow>('WalletActivity').slice(0, 1)[0].outputAddresses, `\n${address}\n`);
+  assert.strictEqual(queryWalletActivityByOutputAddress(realm, 'wallet-1', address).length, 1);
+  assert.strictEqual(findWalletTransactionByOutputAddress(realm, 'wallet-1', address)?.txid, 'notification');
+  assert.strictEqual(findWalletTransactionByOutputAddress(realm, 'wallet-1', 'bc1qmissing'), undefined);
 });
 
 it('maps optional Realm strings to undefined application metadata', async () => {

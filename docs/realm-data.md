@@ -17,7 +17,11 @@ Activity hooks pass search, pending/confirmed filters, ordering, and page bounds
 
 Coin control queries sorting, frozen status, selected outpoints, and selected value directly from Realm. Mass freeze/unfreeze writes only the selected outpoints with a Realm `IN` predicate; React owns only the transient selection itself.
 
+The send flow also derives selected, spendable, and frozen UTXO values with live Realm queries and native `sum()` aggregates. It no longer mirrors UTXO refreshes through a dummy React state toggle.
+
 Wallet discovery candidates remain temporary wallet-engine objects because rejected candidates must never enter canonical storage. When a candidate is accepted, any transactions fetched during discovery are committed to Realm before the wallet configuration is saved and the import screen closes.
+
+The in-app self-test opens an isolated in-memory Realm and verifies native filtering, `LIMIT`, and UTXO aggregation without reading or modifying the user's canonical Realm.
 
 Ark's SDK Realm remains responsible for Ark protocol state such as VTXOs, contracts, and swaps. The app-data Realm is the canonical application-facing transaction index across every wallet type.
 
@@ -46,14 +50,14 @@ Wallet configuration and secrets can be selected with `useWallet(walletId)`. Do 
 
 ## Writing
 
-Write transaction memos and counterparty metadata with the storage context's `setTransactionMemo()` and `setCounterpartyMetadata()` functions. Write UTXO memo/frozen state with `useWalletUtxoMutations()`. These functions execute Realm write transactions; screens must not mutate metadata maps or wallet UTXO metadata directly.
+Write transaction memos with `useTransactionMetadata()`, `useTransactionMemo()`, or `useSetTransactionMemo()`. Write counterparty metadata with `useCounterpartyMetadata()` and UTXO memo/frozen state with `useWalletUtxoMutations()`. These hooks execute Realm write transactions; screens must not mutate metadata maps or wallet UTXO metadata directly.
 
-Fetched transaction snapshots are replaced through `BlueApp.saveToDisk()`, while metadata remains independently Realm-owned. This provides these guarantees:
+Fetched transaction snapshots are replaced through `BlueApp.fetchWalletTransactions()` or `persistWalletTransactions()`. `saveToDisk()` is only the serialized queue for wallet configuration/secrets, encrypted-bucket state, migration initialization, and pruning rows for deleted wallets. It never rebuilds initialized transaction data from wallet memory. This provides these guarantees:
 
 - transaction rows and their searchable projection cannot diverge;
 - memo changes update both metadata and transaction search atomically;
-- deleted wallets and stale transactions are removed in the same commit;
-- Realm write failures prevent a newer wallet configuration from being persisted without its data.
+- deleted-wallet rows are pruned only after the wallet configuration is durable;
+- concurrent wallet saves execute in order and report their own failures to callers.
 
 Use Realm query arguments (`walletId == $0`) rather than interpolating values into query strings. Add indexed columns only for fields frequently used in selective equality queries; keep the complete transaction in `payloadJson` so wallet-specific fields remain available without expanding the schema for every wallet implementation.
 

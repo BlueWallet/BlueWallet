@@ -20,6 +20,18 @@ const asyncNavigationRouteFor = async function (event) {
 };
 
 describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
+  it('ignores widget actions when no wallet configuration exists', () => {
+    let navigated = false;
+    DeeplinkSchemaMatch.navigationRouteFor(
+      { url: 'bluewallet://widget?action=openSend' },
+      () => {
+        navigated = true;
+      },
+      { wallets: [], setSharedCosigner: () => {} },
+    );
+    assert.strictEqual(navigated, false);
+  });
+
   it('hasSchema', () => {
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`));
     assert.ok(DeeplinkSchemaMatch.hasSchema(`bitcoin:${suffix}bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`));

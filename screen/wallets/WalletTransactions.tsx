@@ -176,7 +176,7 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
 };
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
-  const { wallets, saveToDisk } = useStorage();
+  const { wallets, saveToDisk, fetchAndSaveWalletTransactions } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { direction } = useLocale();
@@ -313,15 +313,11 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         if (wallet.allowBIP47() && wallet.isBIP47Enabled() && 'fetchBIP47SenderPaymentCodes' in wallet) {
           await wallet.fetchBIP47SenderPaymentCodes();
         }
-        await wallet.fetchBalance();
-        await wallet.fetchTransactions();
-        if ('fetchPendingTransactions' in wallet) {
-          await wallet.fetchPendingTransactions();
-        }
-        if ('fetchUserInvoices' in wallet) {
-          await wallet.fetchUserInvoices();
-        }
-        didFetch = true;
+        // This fetch persists into canonical Realm before it resolves. Every
+        // mounted live-query consumer on the navigation stack updates together.
+        didFetch = await fetchAndSaveWalletTransactions(walletID);
+
+        if (!didFetch) return;
 
         // Success - reset failure counter and update timestamps
         setFetchFailures(0);
@@ -341,13 +337,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           return newFailures;
         });
       } finally {
-        // Confirmation, memo, and settlement changes may not alter balance or
-        // row count. Persist every successful refresh so Realm stays canonical.
-        if (didFetch) await saveToDisk();
         setIsLoading(false);
       }
     },
-    [wallet, isElectrumDisabled, isLoading, saveToDisk, lastFetchTimestamp, fetchFailures],
+    [wallet, walletID, isElectrumDisabled, isLoading, fetchAndSaveWalletTransactions, lastFetchTimestamp, fetchFailures],
   );
 
   useEffect(() => {
@@ -785,7 +778,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
               handleDismiss={() => {
                 setIsWatchOnlyWarningVisible(false);
                 wallet.isWatchOnlyWarningVisible = false;
-                saveToDisk();
+                saveToDisk().catch(error => console.error('Failed to persist watch-only warning state:', error));
               }}
             />
           )}

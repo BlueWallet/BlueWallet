@@ -17,6 +17,8 @@ import { StorageContext } from '../../components/Context/StorageProvider';
 import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { BlueSpacing, BlueSpacing20 } from '../../components/BlueSpacing';
+import { useSetTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useSettings } from '../../hooks/context/useSettings';
 
 const styles = StyleSheet.create({
   root: {
@@ -57,7 +59,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class CPFP extends Component {
+export class CpfpScreen extends Component {
   static contextType = StorageContext;
   constructor(props) {
     super(props);
@@ -98,7 +100,7 @@ export default class CPFP extends Component {
   };
 
   async onSuccessBroadcast() {
-    await this.context.setTransactionMemo(this.state.newTxid, 'Child pays for parent (CPFP)');
+    await this.props.setTransactionMemo(this.state.newTxid, 'Child pays for parent (CPFP)');
     majorTomToGroundControl([], [], [this.state.newTxid]);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', {
@@ -190,7 +192,7 @@ export default class CPFP extends Component {
           >
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <Button disabled={this.context.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
+          <Button disabled={this.props.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );
@@ -238,7 +240,7 @@ export default class CPFP extends Component {
   }
 }
 
-CPFP.propTypes = {
+CpfpScreen.propTypes = {
   navigation: PropTypes.shape({
     popToTop: PropTypes.func,
     navigate: PropTypes.func,
@@ -249,4 +251,14 @@ CPFP.propTypes = {
       wallet: PropTypes.object,
     }),
   }),
+  isElectrumDisabled: PropTypes.bool,
+  setTransactionMemo: PropTypes.func,
 };
+
+const CPFPWithRealm = props => {
+  const setTransactionMemo = useSetTransactionMemo();
+  const { isElectrumDisabled } = useSettings();
+  return <CpfpScreen {...props} isElectrumDisabled={isElectrumDisabled} setTransactionMemo={setTransactionMemo} />;
+};
+
+export default CPFPWithRealm;

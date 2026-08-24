@@ -4,7 +4,7 @@ import type { TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import type { CreateTransactionUtxo, LightningTransaction, Transaction, TWallet, Utxo } from '../../class/wallets/types';
 
-export const APP_DATA_SCHEMA_VERSION = 7;
+export const APP_DATA_SCHEMA_VERSION = 8;
 export const APP_DATA_INITIALIZED_KEY = 'canonical-data-v1';
 export const APP_UTXO_INITIALIZED_KEY = 'canonical-utxo-v1';
 
@@ -15,6 +15,7 @@ export const AppDataSchemas: Realm.ObjectSchema[] = [
       walletId: { type: 'string', indexed: true },
       transactionId: { type: 'string', indexed: true },
       paymentRequest: { type: 'string', indexed: true },
+      outputAddresses: { type: 'string', default: '' },
       timestamp: 'int',
       confirmations: 'int?',
       pending: 'bool',
@@ -76,6 +77,7 @@ export interface WalletActivityRow extends Realm.Object<WalletActivityRow> {
   walletId: string;
   transactionId: string;
   paymentRequest: string;
+  outputAddresses: string;
   timestamp: number;
   confirmations: number | null;
   pending: boolean;
@@ -143,6 +145,9 @@ const activitySearchText = (transaction: ActivityTransaction, logicalId: string,
     .join('\n')
     .toLowerCase();
 
+const outputAddresses = (transaction: ActivityTransaction): string =>
+  `\n${(transaction.outputs ?? []).flatMap(output => output.scriptPubKey?.addresses ?? []).join('\n')}\n`;
+
 const createActivityRows = (wallets: TWallet[], metadata: TTXMetadata) => {
   const rows: Array<Record<string, unknown>> = [];
   for (const wallet of wallets) {
@@ -163,6 +168,7 @@ const createActivityRows = (wallets: TWallet[], metadata: TTXMetadata) => {
         walletId,
         transactionId: logicalId,
         paymentRequest: transaction.payment_request ?? '',
+        outputAddresses: outputAddresses(transaction),
         timestamp: Math.trunc(transaction.timestamp || transaction.time || 0),
         confirmations: typeof transaction.confirmations === 'number' ? Math.trunc(transaction.confirmations) : null,
         pending:
@@ -398,6 +404,27 @@ export function queryWalletActivityByTransactionId(
     .filtered(`transactionId == $0 AND walletId IN {${parameters}}`, requestedTransactionId, ...walletIds);
 }
 
+/** Finds payments to an exact output address using Realm's query engine. */
+export function filterWalletActivityByOutputAddress(
+  collection: Realm.Results<WalletActivityRow>,
+  walletId: string,
+  address: string,
+  limit?: number,
+): Realm.Results<WalletActivityRow> {
+  if (!walletId || !address) return collection.filtered('walletId == $0', '');
+  return limitActivityResults(
+    collection.filtered('walletId == $0 AND outputAddresses CONTAINS $1', walletId, `\n${address}\n`).sorted([
+      ['timestamp', true],
+      ['transactionId', false],
+    ]),
+    limit,
+  );
+}
+
+export function queryWalletActivityByOutputAddress(realm: Realm, walletId: string, address: string): Realm.Results<WalletActivityRow> {
+  return filterWalletActivityByOutputAddress(realm.objects<WalletActivityRow>('WalletActivity'), walletId, address);
+}
+
 export function filterWalletUtxos(
   collection: Realm.Results<WalletUtxoRow>,
   walletId: string,
@@ -571,6 +598,12 @@ export function pruneCanonicalWalletData(realm: Realm, retainedWalletIds: Readon
 
 export function activityRowToTransaction(row: WalletActivityRow): ActivityTransaction {
   return JSON.parse(row.payloadJson) as ActivityTransaction;
+}
+
+/** Finds an on-chain transaction paying an address without scanning wallet arrays. */
+export function findWalletTransactionByOutputAddress(realm: Realm, walletId: string, address: string): Transaction | undefined {
+  const rows = queryWalletActivityByOutputAddress(realm, walletId, address);
+  return rows.length > 0 ? (activityRowToTransaction(rows.slice(0, 1)[0]) as Transaction) : undefined;
 }
 
 export function utxoRowToUtxo(row: WalletUtxoRow): RealmUtxo {

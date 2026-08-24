@@ -6,7 +6,7 @@ import { BlueApp } from '../../class/blue-app';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
-import { setCounterpartyMetadata, setTransactionMemo } from '../../blue_modules/realm/appDataRepository';
+import { queryWalletActivity, setCounterpartyMetadata, setTransactionMemo } from '../../blue_modules/realm/appDataRepository';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
@@ -540,6 +540,67 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   const storage5loadResult = await Storage7.loadFromDisk();
   assert.ok(storage5loadResult);
   assert.strictEqual(Storage7.wallets[0].getLabel(), 'fakewallet');
+});
+
+it('serializes concurrent wallet saves without mutating live wallet caches', async () => {
+  const storage = new BlueApp();
+  const wallet = new HDSegwitBech32Wallet();
+  await wallet.generate();
+  const liveNode = { retained: true };
+  wallet._node0 = liveNode;
+  storage.wallets.push(wallet);
+
+  const setItem = storage.setItem;
+  let activeWrites = 0;
+  let maximumConcurrentWrites = 0;
+  storage.setItem = async (...args) => {
+    activeWrites += 1;
+    maximumConcurrentWrites = Math.max(maximumConcurrentWrites, activeWrites);
+    await new Promise(resolve => setTimeout(resolve, 5));
+    try {
+      return await setItem(...args);
+    } finally {
+      activeWrites -= 1;
+    }
+  };
+
+  await Promise.all([storage.saveToDisk(), storage.saveToDisk()]);
+
+  assert.strictEqual(maximumConcurrentWrites, 1);
+  assert.strictEqual(wallet._node0, liveNode);
+});
+
+it('reports a wallet save failure and allows the next queued save to retry', async () => {
+  const storage = new BlueApp();
+  const wallet = new SegwitP2SHWallet();
+  await wallet.generate();
+  storage.wallets.push(wallet);
+  const realm = await storage.getRealmForTransactions();
+  realm.write(() => {
+    realm.create('WalletActivity', {
+      walletId: wallet.getID(),
+      transactionId: 'retained-on-failure',
+      paymentRequest: '',
+      timestamp: 1,
+      confirmations: 1,
+      pending: false,
+      searchText: 'retained-on-failure',
+      payloadJson: JSON.stringify({ txid: 'retained-on-failure' }),
+    });
+  });
+  assert.strictEqual(queryWalletActivity(realm, wallet.getID()).length, 1);
+
+  const setItem = storage.setItem;
+  storage.wallets = [];
+  storage.setItem = async () => {
+    throw new Error('simulated storage write failure');
+  };
+  await assert.rejects(storage.saveToDisk(), /simulated storage write failure/);
+  assert.strictEqual(queryWalletActivity(realm, wallet.getID()).length, 1, 'failed wallet storage must not prune canonical history');
+
+  storage.setItem = setItem;
+  await storage.saveToDisk();
+  assert.strictEqual(queryWalletActivity(realm, wallet.getID()).length, 0);
 });
 
 it('Appstorage - hashIt() works', async () => {

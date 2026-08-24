@@ -63,15 +63,8 @@ const findWalletByTransactionId = async (wallets: TWallet[], transactionId: stri
  * Hook that initializes all companion listeners and functionality without rendering a component
  */
 const useCompanionListeners = (skipIfNotInitialized = true) => {
-  const {
-    wallets,
-    addWallet,
-    saveToDisk,
-    fetchAndSaveWalletTransactions,
-    refreshAllWalletTransactions,
-    setSharedCosigner,
-    walletsInitialized,
-  } = useStorage();
+  const { wallets, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner, walletsInitialized } =
+    useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>(undefined);
   const navigation = useNavigation();
@@ -328,15 +321,11 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, (value: [string, any]) => navigationRef.navigate(...value), {
             wallets,
-            addWallet,
-            saveToDisk,
             setSharedCosigner,
           });
         } else {
           DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
             wallets,
-            addWallet,
-            saveToDisk,
             setSharedCosigner,
           });
         }
@@ -346,7 +335,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
       }
     },
-    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
+    [wallets, setSharedCosigner, shouldActivateListeners],
   );
 
   const showClipboardAlert = useCallback(
