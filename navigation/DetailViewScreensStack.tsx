@@ -320,10 +320,10 @@ const DetailViewStackScreensStack = () => {
           if (sizeClass !== SizeClass.Large) {
             items.push({
               type: 'button',
-              label: loc.settings.default_title,
+              label: loc.settings.header,
               icon: { type: 'sfSymbol', name: 'ellipsis' },
               identifier: 'SettingsButton',
-              accessibilityLabel: loc.settings.default_title,
+              accessibilityLabel: loc.settings.header,
               onPress: navigateToSettings,
             });
           }
