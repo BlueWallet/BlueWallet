@@ -7,7 +7,7 @@ import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import WalletsCarousel, { walletHasPendingTransaction } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
-import loc from '../../loc';
+import loc, { formatBalance } from '../../loc';
 
 jest.mock('../../blue_modules/sizeClass', () => ({
   SizeClass: { Compact: 'Compact', Regular: 'Regular', Large: 'Large' },
@@ -44,6 +44,8 @@ type MutableWallet = TWallet & {
   balance: number;
   latestTransactionTime: number;
   transactions: any[];
+  label: string;
+  preferredBalanceUnit: string;
 };
 
 const makeWallet = (partial: Partial<MutableWallet> = {}): MutableWallet => {
@@ -53,6 +55,8 @@ const makeWallet = (partial: Partial<MutableWallet> = {}): MutableWallet => {
     balance: 0,
     latestTransactionTime: 1,
     transactions: [] as any[],
+    label: 'Test Wallet',
+    preferredBalanceUnit: 'BTC',
     ...partial,
     getID: () => 'wallet-1',
     getBalance() {
@@ -61,8 +65,12 @@ const makeWallet = (partial: Partial<MutableWallet> = {}): MutableWallet => {
     getLatestTransactionTime() {
       return this.latestTransactionTime;
     },
-    getLabel: () => 'Test Wallet',
-    getPreferredBalanceUnit: () => 'BTC',
+    getLabel() {
+      return this.label;
+    },
+    getPreferredBalanceUnit() {
+      return this.preferredBalanceUnit;
+    },
     getTransactions() {
       return this.transactions;
     },
@@ -102,8 +110,26 @@ describe('walletHasPendingTransaction', () => {
 });
 
 describe('wallet carousel refresh publish', () => {
+  it('stays stale after in-place mutation until wallets are re-published', () => {
+    // Production only updates when saveToDisk → setWallets([...]) re-renders consumers.
+    const wallet = makeWallet({ balance: 100_000_000, latestTransactionTime: Date.now() });
+    const onPress = jest.fn();
+    const data = [wallet];
+
+    const screen = render(<WalletsCarousel data={data} onPress={onPress} animateChanges={true} />);
+    assert.ok(screen.getByText('1 BTC'));
+
+    wallet.balance = 250_000_000;
+    // No re-render / no new array — UI must remain frozen.
+    assert.ok(screen.getByText('1 BTC'));
+    assert.strictEqual(screen.queryByText('2.5 BTC'), null);
+
+    screen.rerender(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={true} />);
+    assert.ok(screen.getByText('2.5 BTC'));
+    assert.strictEqual(screen.queryByText('1 BTC'), null);
+  });
+
   it('updates balance and pending footer when wallets are re-published (production animateChanges path)', () => {
-    // Mirrors StorageProvider.saveToDisk → setWallets([...same instances]) and WalletsList animateChanges={true}.
     const wallet = makeWallet({
       balance: 100_000_000,
       latestTransactionTime: Date.now(),
@@ -121,6 +147,53 @@ describe('wallet carousel refresh publish', () => {
 
     assert.ok(screen.getByText('2.5 BTC'));
     assert.ok(screen.getByText(loc.transactions.pending));
+    assert.strictEqual(screen.queryByText('1 BTC'), null);
+  });
+
+  it('updates label, preferred unit, and hideBalance after re-publish', () => {
+    const wallet = makeWallet({
+      balance: 100_000_000,
+      latestTransactionTime: Date.now(),
+      label: 'Old Label',
+      preferredBalanceUnit: 'BTC',
+      hideBalance: false,
+    });
+    const onPress = jest.fn();
+
+    const screen = render(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={true} />);
+    assert.ok(screen.getByText('Old Label'));
+    assert.ok(screen.getByText('1 BTC'));
+
+    wallet.label = 'New Label';
+    wallet.preferredBalanceUnit = 'sats';
+    screen.rerender(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={true} />);
+
+    assert.ok(screen.getByText('New Label'));
+    assert.ok(screen.getByText(formatBalance(100_000_000, 'sats', true)));
+    assert.strictEqual(screen.queryByText('Old Label'), null);
+    assert.strictEqual(screen.queryByText('1 BTC'), null);
+
+    wallet.hideBalance = true;
+    screen.rerender(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={true} />);
+    assert.strictEqual(screen.queryByText(formatBalance(100_000_000, 'sats', true)), null);
+  });
+
+  it('updates drawer-style non-FlatList carousel when wallets are re-published', () => {
+    // Mirrors DrawerList: isFlatList={false}, horizontal={false}, animateChanges.
+    const wallet = makeWallet({ balance: 100_000_000, latestTransactionTime: Date.now() });
+    const onPress = jest.fn();
+
+    const screen = render(
+      <WalletsCarousel data={[wallet]} onPress={onPress} isFlatList={false} horizontal={false} animateChanges={true} />,
+    );
+    assert.ok(screen.getByText('1 BTC'));
+
+    wallet.balance = 250_000_000;
+    screen.rerender(
+      <WalletsCarousel data={[wallet]} onPress={onPress} isFlatList={false} horizontal={false} animateChanges={true} />,
+    );
+
+    assert.ok(screen.getByText('2.5 BTC'));
     assert.strictEqual(screen.queryByText('1 BTC'), null);
   });
 
