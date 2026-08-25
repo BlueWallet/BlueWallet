@@ -1,9 +1,9 @@
 import React from 'react';
 import assert from 'assert';
-import { SectionList } from 'react-native';
 import { render } from '@testing-library/react-native';
 
-import WalletsCarousel from '../../components/WalletsCarousel';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import WalletsCarousel, { walletHasPendingTransaction } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
 import loc, { formatBalance } from '../../loc';
 
@@ -76,8 +76,22 @@ const makeWallet = (partial: Partial<MutableWallet> = {}): MutableWallet => {
   return w as MutableWallet;
 };
 
+describe('walletHasPendingTransaction', () => {
+  it('flags on-chain unconfirmed txs and Lightning in-flight (not failed) swaps', () => {
+    assert.strictEqual(walletHasPendingTransaction(makeWallet({ transactions: [{ confirmations: 1 }] })), false);
+    assert.strictEqual(walletHasPendingTransaction(makeWallet({ transactions: [{ confirmations: 0 }] })), true);
+    assert.strictEqual(
+      walletHasPendingTransaction(makeWallet({ type: LightningArkWallet.type, transactions: [{ ispaid: false, failed: false }] })),
+      true,
+    );
+    assert.strictEqual(
+      walletHasPendingTransaction(makeWallet({ type: LightningArkWallet.type, transactions: [{ ispaid: false, failed: true }] })),
+      false,
+    );
+  });
+});
+
 describe('wallet carousel refresh publish', () => {
-  // One mechanism, three render paths — not five copy-paste balance asserts.
   it.each([
     { name: 'FlatList animateChanges', props: { animateChanges: true } },
     { name: 'FlatList default (no animateChanges)', props: {} },
@@ -91,7 +105,6 @@ describe('wallet carousel refresh publish', () => {
     assert.ok(screen.getByText('1 BTC'));
     assert.strictEqual(screen.queryByText(loc.transactions.pending), null);
 
-    // In-place mutation without a new wallets array must not repaint (saveToDisk contract).
     wallet.balance = 250_000_000;
     assert.ok(screen.getByText('1 BTC'));
     assert.strictEqual(screen.queryByText('2.5 BTC'), null);
@@ -112,35 +125,34 @@ describe('wallet carousel refresh publish', () => {
     assert.strictEqual(screen.queryByText(formatBalance(250_000_000, 'sats', true)), null);
   });
 
-  it('updates carousel inside SectionList when extraData wallets array is republished', () => {
-    // WalletsList: carousel section data is a static string; extraData={wallets} forces the row to refresh.
+  it('extraData busts PureComponent row cache when section data is static', () => {
+    // SectionList rows are PureComponents; WalletsList keeps carousel section data as a static string.
+    let rowRenders = 0;
+
+    class CarouselRowHost extends React.PureComponent<{ extraData?: TWallet[]; wallets: TWallet[] }> {
+      render() {
+        rowRenders++;
+        return <WalletsCarousel data={this.props.wallets} onPress={() => {}} animateChanges />;
+      }
+    }
+
     const wallet = makeWallet();
-    const onPress = jest.fn();
-    const sections = [{ key: 'CAROUSEL', data: ['CAROUSEL'] }];
+    const wallets: TWallet[] = [wallet];
+    const screen = render(<CarouselRowHost wallets={wallets} />);
+    assert.ok(screen.getByText('1 BTC'));
+    assert.strictEqual(rowRenders, 1);
 
-    let wallets: TWallet[] = [wallet];
-    const renderScreen = () => (
-      <SectionList
-        sections={sections}
-        extraData={wallets}
-        keyExtractor={item => String(item)}
-        renderItem={() => <WalletsCarousel data={wallets} onPress={onPress} animateChanges />}
-      />
-    );
-
-    const screen = render(renderScreen());
+    (wallet as MutableWallet).balance = 250_000_000;
+    screen.rerender(<CarouselRowHost wallets={wallets} />);
+    assert.strictEqual(rowRenders, 1);
     assert.ok(screen.getByText('1 BTC'));
 
-    wallet.balance = 250_000_000;
-    wallets = [wallet];
-    screen.rerender(renderScreen());
-
+    screen.rerender(<CarouselRowHost wallets={wallets} extraData={[wallet]} />);
+    assert.strictEqual(rowRenders, 2);
     assert.ok(screen.getByText('2.5 BTC'));
-    assert.strictEqual(screen.queryByText('1 BTC'), null);
   });
 
   it('does not let caller extraData clobber FlatList update signals', () => {
-    // extraData is merged after `{...props}` so a caller value cannot drop `data`.
     const wallet = makeWallet();
     const onPress = jest.fn();
     const screen = render(<WalletsCarousel data={[wallet]} onPress={onPress} extraData="caller" animateChanges />);
