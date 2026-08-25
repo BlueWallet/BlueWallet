@@ -921,8 +921,6 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     },
   });
 
-  const dataRevisionKey = useMemo(() => data.map(wallet => (wallet ? getWalletCarouselItemDataRevision(wallet) : '')).join('||'), [data]);
-
   return isFlatList ? (
     <FlatList
       ref={flatListRef}
@@ -950,9 +948,8 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
       {...props}
-      // Must come after `{...props}` so caller `extraData` cannot drop the revision key that
-      // forces FlatList to re-render items when wallet objects are mutated in place.
-      extraData={[props.extraData, data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current, dataRevisionKey]}
+      // After `{...props}` so a caller `extraData` cannot drop `data` from the list's update signal.
+      extraData={[props.extraData, data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
     />
   ) : (
     <View style={cStyles.contentLargeScreen}>
