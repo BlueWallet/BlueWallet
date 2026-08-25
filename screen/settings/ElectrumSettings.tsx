@@ -551,6 +551,8 @@ const ElectrumSettings: React.FC = () => {
               <Text style={[styles.usePort, stylesHook.usePort]}>{loc.settings.use_ssl}</Text>
               <Switch
                 testID="SSLPortInput"
+                accessibilityLabel={loc.settings.use_ssl}
+                accessibilityRole="switch"
                 value={sslPort !== undefined}
                 onValueChange={onSSLPortChange}
                 disabled={host?.endsWith('.onion') || isLoading || host === '' || (port === undefined && sslPort === undefined)}

@@ -339,6 +339,8 @@ const Confirm: React.FC = () => {
                 <Text style={styles.payjoinText}>Payjoin</Text>
                 <Switch
                   testID="PayjoinSwitch"
+                  accessibilityLabel="Payjoin"
+                  accessibilityRole="switch"
                   value={state.isPayjoinEnabled}
                   onValueChange={value => dispatch({ type: ActionType.SET_PAYJOIN_ENABLED, payload: value })}
                 />
