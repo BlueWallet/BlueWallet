@@ -1,5 +1,5 @@
 diff --git a/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java b/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
-index c6f5b9a..90b24a1 100644
+index c6f5b9a..d1b85e6 100644
 --- a/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
 +++ b/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
 @@ -19,6 +19,7 @@ import android.view.MenuItem;
@@ -10,31 +10,19 @@ index c6f5b9a..90b24a1 100644
  
  import androidx.annotation.NonNull;
  import androidx.core.content.res.ResourcesCompat;
-@@ -50,6 +51,12 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
- 
-     private GestureDetector gestureDetector;
- 
-+    // PopupMenu is used for dropdown mode so checkable/`selected` items render a
-+    // checkmark. Android's floating ContextMenu historically does not surface
-+    // check state reliably across OEMs, which broke ImportWallet toggles
-+    // (passphrase / search accounts / clear clipboard) on Android.
-+    @Nullable private PopupMenu dropdownMenu;
-+
-     private static class CustomTypefaceSpan extends TypefaceSpan {
-         private final Typeface newType;
- 
-@@ -99,9 +106,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -99,9 +100,8 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
              @Override
              public boolean onSingleTapConfirmed(MotionEvent e) {
                  if (dropdownMenuMode && !disabled) {
 -                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 -                        showContextMenu(e.getX(), e.getY());
 -                    }
++                    // PopupMenu renders checkable/`selected` items; floating ContextMenu does not.
 +                    showDropdownMenu();
                  }
                  return super.onSingleTapConfirmed(e);
              }
-@@ -160,27 +165,23 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -160,19 +160,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
      public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
          contextMenu.clear();
          setMenuIconDisplay(contextMenu, true);
@@ -55,23 +43,7 @@ index c6f5b9a..90b24a1 100644
      }
  
      public void setActions(@Nullable ReadableArray actions) {
-         this.actions = actions;
-+        // Keep the dropdown PopupMenu in sync so the next open reflects
-+        // updated `selected` / disabled state without waiting for recreate.
-+        if (dropdownMenuMode) {
-+            dropdownMenu = null;
-+        }
-     }
- 
-     public void setDropdownMenuMode(@Nullable boolean enabled) {
-         this.dropdownMenuMode = enabled;
-+        if (!enabled) {
-+            dropdownMenu = null;
-+        }
-     }
- 
-     public void setDisabled(@Nullable boolean disabled) {
-@@ -191,6 +192,52 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -191,6 +179,52 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
          this.fontName = fontName;
      }
  
@@ -81,15 +53,15 @@ index c6f5b9a..90b24a1 100644
 +        }
 +
 +        cancelled = true;
-+        dropdownMenu = new PopupMenu(getContext(), this);
++        final PopupMenu popupMenu = new PopupMenu(getContext(), this);
 +        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-+            dropdownMenu.setForceShowIcon(true);
++            popupMenu.setForceShowIcon(true);
 +        }
-+        Menu menu = dropdownMenu.getMenu();
++        Menu menu = popupMenu.getMenu();
 +        populateMenu(menu);
 +        setMenuIconDisplay(menu, true);
 +
-+        dropdownMenu.setOnDismissListener(popupMenu -> {
++        popupMenu.setOnDismissListener(dismissed -> {
 +            if (cancelled) {
 +                ReactContext reactContext = (ReactContext) getContext();
 +                if (reactContext != null) {
@@ -99,7 +71,7 @@ index c6f5b9a..90b24a1 100644
 +            cancelled = true;
 +        });
 +
-+        dropdownMenu.show();
++        popupMenu.show();
 +    }
 +
 +    private void populateMenu(Menu menu) {
@@ -124,7 +96,7 @@ index c6f5b9a..90b24a1 100644
      private Typeface getCustomFont() {
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && fontName != null) {
              try {
-@@ -218,7 +265,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -218,7 +252,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
  
          Menu parentMenu = menu.addSubMenu(spannableTitle);
  
@@ -133,7 +105,7 @@ index c6f5b9a..90b24a1 100644
          menu.getItem(i).setIcon(icon);  // set icon to current item.
  
          for (int j = 0; j < childActions.size(); j++) {
-@@ -230,7 +277,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -230,7 +264,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
  
      private void createContextMenuAction(Menu menu, ReadableMap action, int i, int parentIndex) {
          String title = action.getString("title");
@@ -142,11 +114,10 @@ index c6f5b9a..90b24a1 100644
  
          // Create spannable string with custom font
          SpannableString spannableTitle = new SpannableString(title);
-@@ -256,6 +303,12 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -256,6 +290,11 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
              item.setTitle(redTitle);
          }
  
-+        // Honour `selected` so toggle actions (passphrase, etc.) show a checkmark.
 +        if (action.hasKey("selected")) {
 +            item.setCheckable(true);
 +            item.setChecked(action.getBoolean("selected"));
@@ -155,12 +126,10 @@ index c6f5b9a..90b24a1 100644
          // We need a different listener for nested menus and parent menus
          item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
              @Override
-@@ -265,14 +318,16 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+@@ -265,12 +304,12 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
                  WritableMap event = Arguments.createMap();
                  event.putInt("index", i);
                  event.putString("name", title);
-+                // Always include indexPath so JS can resolve Action.id without
-+                // falling back to localized title text.
 +                WritableArray indexPath = Arguments.createArray();
                  if (parentIndex >= 0) {
 -                    WritableArray indexPath = Arguments.createArray();
@@ -171,8 +140,5 @@ index c6f5b9a..90b24a1 100644
 +                indexPath.pushInt(i);
 +                event.putArray("indexPath", indexPath);
                  reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(getId(), "onPress", event);
--                return false;
-+                return true;
+                 return false;
              }
-         });
-     }
