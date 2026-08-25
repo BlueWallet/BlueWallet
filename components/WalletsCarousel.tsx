@@ -64,6 +64,34 @@ const WALLET_CARD_TEXT_OPACITY = 0.85;
 
 export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
 
+/**
+ * Snapshot of mutable wallet display fields.
+ *
+ * Wallet instances are mutated in place during refresh (`fetchBalance` / `fetchTransactions`),
+ * then re-published via a new array that still holds the same object references. `React.memo`
+ * on `WalletCarouselItem` only shallow-compares props, so without a primitive that changes
+ * when those fields change, cards keep showing stale balances after an update.
+ *
+ * Prefer passing this from `renderItem` (computed after mutation) rather than reading
+ * `item.getBalance()` inside a custom memo comparator — for in-place mutation, prev/next
+ * `item` are the same reference and would both report the new balance.
+ */
+export const getWalletCarouselItemDataRevision = (item: TWallet): string => {
+  const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
+  const hasPendingTx = isLightningShaped
+    ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed)
+    : item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
+
+  return [
+    item.getBalance(),
+    item.getLatestTransactionTime(),
+    item.getLabel?.() ?? '',
+    item.hideBalance ? 1 : 0,
+    hasPendingTx ? 1 : 0,
+    item.getPreferredBalanceUnit?.() ?? '',
+  ].join('|');
+};
+
 interface NewWalletPanelProps {
   onPress: () => void;
 }
@@ -160,6 +188,8 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
 interface WalletCarouselItemProps {
   item: TWallet;
   hideBalance: boolean;
+  /** Primitive snapshot so React.memo notices in-place wallet mutations. See `getWalletCarouselItemDataRevision`. */
+  dataRevision: string;
   onPress: (item: TWallet) => void;
   handleLongPress?: () => void;
   isSelectedWallet?: boolean;
@@ -283,6 +313,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
   ({
     item,
     hideBalance,
+    dataRevision,
     onPress,
     handleLongPress,
     isSelectedWallet,
@@ -505,7 +536,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
                           numberOfLines={1}
                           adjustsFontSizeToFit
                           minimumFontScale={0.55}
-                          key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                          key={dataRevision} // force recreation on in-place wallet updates (also fixes RTL langs like Farsi)
                           style={[
                             iStyles.balance,
                             isCompact && iStyles.balanceCompact,
@@ -783,6 +814,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
           isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
           item={item}
           hideBalance={item.hideBalance}
+          dataRevision={getWalletCarouselItemDataRevision(item)}
           handleLongPress={handleLongPress}
           onPress={onPress}
           horizontal={horizontal}
@@ -851,6 +883,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
             isSelectedWallet={!horizontal && selectedWallet ? selectedWallet === item.getID() : undefined}
             item={item}
             hideBalance={item.hideBalance}
+            dataRevision={getWalletCarouselItemDataRevision(item)}
             handleLongPress={handleLongPress}
             onPress={onPress}
             searchQuery={props.searchQuery}
@@ -908,11 +941,15 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     },
   });
 
+  const dataRevisionKey = useMemo(
+    () => data.map(wallet => (wallet ? getWalletCarouselItemDataRevision(wallet) : '')).join('||'),
+    [data],
+  );
+
   return isFlatList ? (
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
-      extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
       pagingEnabled={false}
@@ -936,6 +973,9 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
       {...props}
+      // Must come after `{...props}` so caller `extraData` cannot drop the revision key that
+      // forces FlatList to re-render items when wallet objects are mutated in place.
+      extraData={[props.extraData, data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current, dataRevisionKey]}
     />
   ) : (
     <View style={cStyles.contentLargeScreen}>
