@@ -1,10 +1,13 @@
 import React from 'react';
 import assert from 'assert';
+import { SectionList } from 'react-native';
 import { render } from '@testing-library/react-native';
 
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import WalletsCarousel, { walletHasPendingTransaction } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
+import loc from '../../loc';
 
 jest.mock('../../blue_modules/sizeClass', () => ({
   SizeClass: { Compact: 'Compact', Regular: 'Regular', Large: 'Large' },
@@ -73,7 +76,7 @@ describe('walletHasPendingTransaction', () => {
     assert.strictEqual(walletHasPendingTransaction(makeWallet({ transactions: [{ confirmations: 0 }] })), true);
   });
 
-  it('treats unpaid Lightning/Ark swaps as pending, but not failed ones', () => {
+  it('treats unpaid Lightning Ark swaps as pending, but not failed ones', () => {
     assert.strictEqual(
       walletHasPendingTransaction(makeWallet({ type: LightningArkWallet.type, transactions: [{ ispaid: false, failed: false }] })),
       true,
@@ -83,19 +86,66 @@ describe('walletHasPendingTransaction', () => {
       false,
     );
   });
+
+  it('treats unpaid Lightning Custodian invoices as pending, but not failed ones', () => {
+    assert.strictEqual(
+      walletHasPendingTransaction(
+        makeWallet({ type: LightningCustodianWallet.type, transactions: [{ ispaid: false, failed: false }] }),
+      ),
+      true,
+    );
+    assert.strictEqual(
+      walletHasPendingTransaction(makeWallet({ type: LightningCustodianWallet.type, transactions: [{ ispaid: false, failed: true }] })),
+      false,
+    );
+  });
 });
 
 describe('wallet carousel refresh publish', () => {
-  it('updates card balance when wallets are re-published as a new array of the same mutated instances', () => {
-    // Mirrors StorageProvider.saveToDisk: setWallets([...BlueApp.getWallets()]) after in-place fetch.
-    const wallet = makeWallet({ balance: 100_000_000 });
+  it('updates balance and pending footer when wallets are re-published (production animateChanges path)', () => {
+    // Mirrors StorageProvider.saveToDisk → setWallets([...same instances]) and WalletsList animateChanges={true}.
+    const wallet = makeWallet({
+      balance: 100_000_000,
+      latestTransactionTime: Date.now(),
+      transactions: [{ confirmations: 1 }],
+    });
     const onPress = jest.fn();
 
-    const screen = render(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={false} />);
+    const screen = render(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={true} />);
+    assert.ok(screen.getByText('1 BTC'));
+    assert.strictEqual(screen.queryByText(loc.transactions.pending), null);
+
+    wallet.balance = 250_000_000;
+    wallet.transactions = [{ confirmations: 0 }];
+    screen.rerender(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={true} />);
+
+    assert.ok(screen.getByText('2.5 BTC'));
+    assert.ok(screen.getByText(loc.transactions.pending));
+    assert.strictEqual(screen.queryByText('1 BTC'), null);
+  });
+
+  it('updates carousel inside SectionList when extraData wallets array is republished', () => {
+    // Mirrors WalletsList: carousel section data is a static string; extraData={wallets} forces the row to refresh.
+    const wallet = makeWallet({ balance: 100_000_000, latestTransactionTime: Date.now() });
+    const onPress = jest.fn();
+    const sections = [{ key: 'CAROUSEL', data: ['CAROUSEL'] }];
+
+    let wallets: TWallet[] = [wallet];
+    const renderScreen = () => (
+      <SectionList
+        sections={sections}
+        extraData={wallets}
+        keyExtractor={item => String(item)}
+        renderItem={() => <WalletsCarousel data={wallets} onPress={onPress} animateChanges={true} />}
+      />
+    );
+
+    const screen = render(renderScreen());
     assert.ok(screen.getByText('1 BTC'));
 
     wallet.balance = 250_000_000;
-    screen.rerender(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={false} />);
+    wallets = [wallet];
+    screen.rerender(renderScreen());
 
     assert.ok(screen.getByText('2.5 BTC'));
     assert.strictEqual(screen.queryByText('1 BTC'), null);
