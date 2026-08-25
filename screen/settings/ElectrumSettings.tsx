@@ -401,7 +401,13 @@ const ElectrumSettings: React.FC = () => {
   }, [config?.connected, config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
 
   const HeaderRight = useMemo(
-    () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
+    () => (
+      <HeaderMenuButton
+        actions={generateToolTipActions()}
+        onPressMenuItem={onPressMenuItem}
+        accessibilityLabel={loc.settings.electrum_preferred_server}
+      />
+    ),
     [onPressMenuItem, generateToolTipActions],
   );
 
