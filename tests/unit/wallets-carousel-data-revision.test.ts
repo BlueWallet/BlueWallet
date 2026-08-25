@@ -1,89 +1,103 @@
 import assert from 'assert';
 
-import { getWalletCarouselItemDataRevision } from '../../components/WalletsCarousel';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import {
+  getWalletCarouselItemDataRevision,
+  walletHasPendingTransaction,
+} from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
 
-const makeWallet = (overrides: Partial<{
+type MutableWallet = TWallet & {
   balance: number;
   latestTransactionTime: number;
   label: string;
-  hideBalance: boolean;
   preferredBalanceUnit: string;
-  type: string;
   transactions: any[];
-}> = {}): TWallet => {
-  const state = {
-    balance: overrides.balance ?? 0,
-    latestTransactionTime: overrides.latestTransactionTime ?? 0,
-    label: overrides.label ?? 'Wallet',
-    hideBalance: overrides.hideBalance ?? false,
-    preferredBalanceUnit: overrides.preferredBalanceUnit ?? 'BTC',
-    type: overrides.type ?? 'HDsegwitBech32',
-    transactions: overrides.transactions ?? [],
-  };
-
-  return {
-    type: state.type,
-    hideBalance: state.hideBalance,
-    getBalance: () => state.balance,
-    getLatestTransactionTime: () => state.latestTransactionTime,
-    getLabel: () => state.label,
-    getPreferredBalanceUnit: () => state.preferredBalanceUnit,
-    getTransactions: () => state.transactions,
-    // Mutators used by tests to simulate in-place refresh updates.
-    __setBalance: (balance: number) => {
-      state.balance = balance;
-    },
-    __setLatestTransactionTime: (time: number) => {
-      state.latestTransactionTime = time;
-    },
-    __setTransactions: (transactions: any[]) => {
-      state.transactions = transactions;
-    },
-  } as unknown as TWallet & {
-    __setBalance: (balance: number) => void;
-    __setLatestTransactionTime: (time: number) => void;
-    __setTransactions: (transactions: any[]) => void;
-  };
 };
 
-describe('getWalletCarouselItemDataRevision', () => {
-  it('changes when balance is mutated in place on the same wallet instance', () => {
-    const wallet = makeWallet({ balance: 1000 }) as TWallet & { __setBalance: (n: number) => void };
-    const before = getWalletCarouselItemDataRevision(wallet);
+const wallet = (partial: Partial<MutableWallet> = {}): MutableWallet => {
+  const w = {
+    type: 'HDsegwitBech32',
+    hideBalance: false,
+    balance: 0,
+    latestTransactionTime: 0,
+    label: 'Wallet',
+    preferredBalanceUnit: 'BTC',
+    transactions: [] as any[],
+    ...partial,
+    getBalance() {
+      return this.balance;
+    },
+    getLatestTransactionTime() {
+      return this.latestTransactionTime;
+    },
+    getLabel() {
+      return this.label;
+    },
+    getPreferredBalanceUnit() {
+      return this.preferredBalanceUnit;
+    },
+    getTransactions() {
+      return this.transactions;
+    },
+  };
+  return w as MutableWallet;
+};
 
-    wallet.__setBalance(2500);
-    const after = getWalletCarouselItemDataRevision(wallet);
-
-    assert.notStrictEqual(before, after);
+describe('wallet carousel data revision', () => {
+  it('changes when balance is mutated in place', () => {
+    const w = wallet({ balance: 1000 });
+    const before = getWalletCarouselItemDataRevision(w);
+    w.balance = 2500;
+    assert.notStrictEqual(before, getWalletCarouselItemDataRevision(w));
   });
 
   it('changes when latest transaction time is mutated in place', () => {
-    const wallet = makeWallet({ latestTransactionTime: 100 }) as TWallet & {
-      __setLatestTransactionTime: (n: number) => void;
-    };
-    const before = getWalletCarouselItemDataRevision(wallet);
-
-    wallet.__setLatestTransactionTime(200);
-    const after = getWalletCarouselItemDataRevision(wallet);
-
-    assert.notStrictEqual(before, after);
+    const w = wallet({ latestTransactionTime: 100 });
+    const before = getWalletCarouselItemDataRevision(w);
+    w.latestTransactionTime = 200;
+    assert.notStrictEqual(before, getWalletCarouselItemDataRevision(w));
   });
 
-  it('changes when pending on-chain transaction appears', () => {
-    const wallet = makeWallet({ transactions: [{ confirmations: 1 }] }) as TWallet & {
-      __setTransactions: (txs: any[]) => void;
-    };
-    const before = getWalletCarouselItemDataRevision(wallet);
+  it('changes when label, hideBalance, or preferred unit change', () => {
+    const w = wallet();
+    const base = getWalletCarouselItemDataRevision(w);
 
-    wallet.__setTransactions([{ confirmations: 0 }]);
-    const after = getWalletCarouselItemDataRevision(wallet);
+    w.label = 'Renamed';
+    assert.notStrictEqual(base, getWalletCarouselItemDataRevision(w));
 
-    assert.notStrictEqual(before, after);
+    const afterLabel = getWalletCarouselItemDataRevision(w);
+    w.hideBalance = true;
+    assert.notStrictEqual(afterLabel, getWalletCarouselItemDataRevision(w));
+
+    const afterHide = getWalletCarouselItemDataRevision(w);
+    w.preferredBalanceUnit = 'SATS';
+    assert.notStrictEqual(afterHide, getWalletCarouselItemDataRevision(w));
   });
 
-  it('stays stable when unrelated mutable fields are unchanged', () => {
-    const wallet = makeWallet({ balance: 42, latestTransactionTime: 7 });
-    assert.strictEqual(getWalletCarouselItemDataRevision(wallet), getWalletCarouselItemDataRevision(wallet));
+  it('detects pending on-chain txs via confirmations === 0', () => {
+    const w = wallet({ transactions: [{ confirmations: 1 }] });
+    assert.strictEqual(walletHasPendingTransaction(w), false);
+    w.transactions = [{ confirmations: 0 }];
+    assert.strictEqual(walletHasPendingTransaction(w), true);
+    assert.notStrictEqual(
+      getWalletCarouselItemDataRevision(wallet({ transactions: [{ confirmations: 1 }] })),
+      getWalletCarouselItemDataRevision(w),
+    );
+  });
+
+  it('treats unpaid Lightning/Ark swaps as pending, but not failed ones', () => {
+    const pending = wallet({
+      type: LightningArkWallet.type,
+      transactions: [{ ispaid: false, failed: false }],
+    });
+    assert.strictEqual(walletHasPendingTransaction(pending), true);
+
+    const failed = wallet({
+      type: LightningArkWallet.type,
+      transactions: [{ ispaid: false, failed: true }],
+    });
+    assert.strictEqual(walletHasPendingTransaction(failed), false);
+    assert.notStrictEqual(getWalletCarouselItemDataRevision(pending), getWalletCarouselItemDataRevision(failed));
   });
 });

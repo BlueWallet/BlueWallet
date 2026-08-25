@@ -64,33 +64,26 @@ const WALLET_CARD_TEXT_OPACITY = 0.85;
 
 export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
 
-/**
- * Snapshot of mutable wallet display fields.
- *
- * Wallet instances are mutated in place during refresh (`fetchBalance` / `fetchTransactions`),
- * then re-published via a new array that still holds the same object references. `React.memo`
- * on `WalletCarouselItem` only shallow-compares props, so without a primitive that changes
- * when those fields change, cards keep showing stale balances after an update.
- *
- * Prefer passing this from `renderItem` (computed after mutation) rather than reading
- * `item.getBalance()` inside a custom memo comparator — for in-place mutation, prev/next
- * `item` are the same reference and would both report the new balance.
- */
-export const getWalletCarouselItemDataRevision = (item: TWallet): string => {
+/** Shared pending-pill rule for on-chain vs Lightning/Ark cards. */
+export const walletHasPendingTransaction = (item: TWallet): boolean => {
   const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
-  const hasPendingTx = isLightningShaped
-    ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed)
-    : item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
+  // Lightning/Ark: `ispaid === false` alone is not pending (failed/refunded swaps stay in history).
+  if (isLightningShaped) {
+    return item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed);
+  }
+  return item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
+};
 
-  return [
+/** Primitive snapshot so React.memo notices in-place wallet mutations after refresh. */
+export const getWalletCarouselItemDataRevision = (item: TWallet): string =>
+  [
     item.getBalance(),
     item.getLatestTransactionTime(),
     item.getLabel?.() ?? '',
     item.hideBalance ? 1 : 0,
-    hasPendingTx ? 1 : 0,
+    walletHasPendingTransaction(item) ? 1 : 0,
     item.getPreferredBalanceUnit?.() ?? '',
   ].join('|');
-};
 
 interface NewWalletPanelProps {
   onPress: () => void;
@@ -460,22 +453,9 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     }
 
     let latestTransactionText;
-
-    // Lightning / Ark wallets do not have on-chain confirmations — settlement is
-    // signaled by `ispaid`. Bitcoin/on-chain wallets keep the existing
-    // `confirmations === 0` rule unchanged so their pending-pill semantics
-    // never depend on a Lightning shape.
-    // `ispaid === false` alone is not "pending": it is also true for terminal
-    // failed/refunded swaps, which stay in history. Gate on `!tx.failed` so a
-    // dead swap doesn't pin the card to "pending" forever.
-    const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
-    const hasPendingTx = isLightningShaped
-      ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed)
-      : item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
-
     if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
-    } else if (hasPendingTx) {
+    } else if (walletHasPendingTransaction(item)) {
       latestTransactionText = loc.transactions.pending;
     } else {
       latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
