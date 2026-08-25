@@ -313,7 +313,7 @@ const DetailViewStackScreensStack = () => {
               variant: 'prominent',
               tintColor: theme.colors.headerProminentButtonBackgroundColor,
               identifier: 'AddWalletButton',
-              accessibilityLabel: 'AddWalletButton',
+              accessibilityLabel: loc.wallets.add_title,
               onPress: navigateToAddWallet,
             },
           ];
@@ -323,7 +323,7 @@ const DetailViewStackScreensStack = () => {
               label: loc.settings.default_title,
               icon: { type: 'sfSymbol', name: 'ellipsis' },
               identifier: 'SettingsButton',
-              accessibilityLabel: 'SettingsButton',
+              accessibilityLabel: loc.settings.default_title,
               onPress: navigateToSettings,
             });
           }
