@@ -31,9 +31,11 @@ export const createWalletDetailsHeaderRight = ({
   return () => (
     <TouchableOpacity
       accessibilityRole="button"
+      accessibilityLabel={loc.wallets.details_title}
       testID="WalletDetails"
       disabled={isLoading}
       style={styles.walletDetails}
+      hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
       onPress={() => navigateToWalletDetails(walletID)}
     >
       <Icon name="more-horiz" type="material" size={22} color={iconColor} />
@@ -97,6 +99,8 @@ const styles = StyleSheet.create({
   walletDetails: {
     justifyContent: 'center',
     alignItems: 'flex-end',
+    minWidth: 44,
+    minHeight: 44,
   },
 });
 
