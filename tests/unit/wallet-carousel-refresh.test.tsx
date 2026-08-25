@@ -3,7 +3,7 @@ import assert from 'assert';
 import { render } from '@testing-library/react-native';
 
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
-import { walletHasPendingTransaction, WalletCarouselItem } from '../../components/WalletsCarousel';
+import WalletsCarousel, { walletHasPendingTransaction } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
 
 jest.mock('../../blue_modules/sizeClass', () => ({
@@ -17,6 +17,9 @@ jest.mock('../../components/themes', () => ({
       background: '#000',
       shadowColor: '#000',
       inverseForegroundColor: '#fff',
+      foregroundColor: '#fff',
+      alternativeTextColor: '#aaa',
+      brandingColor: '#000',
     },
   }),
 }));
@@ -28,7 +31,10 @@ jest.mock('react-native-linear-gradient', () => {
 
 jest.mock('../../class/wallet-gradient', () => ({
   __esModule: true,
-  default: { gradientsFor: () => ['#111', '#222'] },
+  default: {
+    gradientsFor: () => ['#111', '#222'],
+    createWallet: () => '#333',
+  },
 }));
 
 type MutableWallet = TWallet & {
@@ -79,20 +85,19 @@ describe('walletHasPendingTransaction', () => {
   });
 });
 
-describe('WalletCarouselItem refresh publish', () => {
-  it('shows updated balance after in-place mutation when parent re-renders (setWallets publish)', () => {
+describe('wallet carousel refresh publish', () => {
+  it('updates card balance when wallets are re-published as a new array of the same mutated instances', () => {
+    // Mirrors StorageProvider.saveToDisk: setWallets([...BlueApp.getWallets()]) after in-place fetch.
     const wallet = makeWallet({ balance: 100_000_000 });
     const onPress = jest.fn();
 
-    const screen = render(<WalletCarouselItem item={wallet} hideBalance={false} onPress={onPress} animationsEnabled={false} />);
-    assert.ok(screen.getByText('1 BTC'), 'initial balance should render');
+    const screen = render(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={false} />);
+    assert.ok(screen.getByText('1 BTC'));
 
-    // Simulate StorageProvider refresh: mutate wallet in place, then re-publish via parent re-render
-    // with the same object reference (the case React.memo previously hid).
     wallet.balance = 250_000_000;
-    screen.rerender(<WalletCarouselItem item={wallet} hideBalance={false} onPress={onPress} animationsEnabled={false} />);
+    screen.rerender(<WalletsCarousel data={[wallet]} onPress={onPress} animateChanges={false} />);
 
-    assert.ok(screen.queryByText('2.5 BTC'), 'card should show post-refresh balance after parent re-render');
-    assert.strictEqual(screen.queryByText('1 BTC'), null, 'stale pre-refresh balance must not remain');
+    assert.ok(screen.getByText('2.5 BTC'));
+    assert.strictEqual(screen.queryByText('1 BTC'), null);
   });
 });

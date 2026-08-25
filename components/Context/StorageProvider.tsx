@@ -400,9 +400,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
             ]);
 
             console.debug('[refreshAllWalletTransactions] Saving data to disk');
-            // Publish before/via save so UI updates even when the header status stays NONE
-            // (silent snap refresh) and wallet instances were mutated in place.
-            setWallets([...BlueApp.getWallets()]);
             await saveToDisk();
           })(),
           timeoutPromise,
