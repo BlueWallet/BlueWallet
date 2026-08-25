@@ -1352,6 +1352,7 @@ const SendDetails = () => {
         {!isLoading && isEditable && (
           <Pressable
             accessibilityRole="button"
+            accessibilityLabel={loc.wallets.select_wallet}
             style={({ pressed }) => [pressed && styles.pressed, styles.selectTouch]}
             onPress={() => {
               navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });

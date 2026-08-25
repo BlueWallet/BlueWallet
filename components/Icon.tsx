@@ -72,6 +72,7 @@ const Icon = <T extends IconType = 'font-awesome'>({
   const isFa6 = type === 'font-awesome-6';
   const fa6IconStyle = isFa6 ? (typeof iconStyle === 'string' ? iconStyle : 'solid') : undefined;
   const mergedStyle = isFa6 ? style : [style, iconStyle];
+  const iconAccessibilityLabel = onPress ? undefined : accessibilityLabel;
 
   const content = (
     <IconComponent
@@ -80,14 +81,17 @@ const Icon = <T extends IconType = 'font-awesome'>({
       color={color}
       style={mergedStyle}
       iconStyle={fa6IconStyle}
-      accessibilityLabel={accessibilityLabel}
+      accessible={Boolean(iconAccessibilityLabel)}
+      accessibilityElementsHidden={!iconAccessibilityLabel}
+      importantForAccessibility={iconAccessibilityLabel ? 'yes' : 'no-hide-descendants'}
+      accessibilityLabel={iconAccessibilityLabel}
       testID={testID}
     />
   );
 
   if (onPress) {
     return (
-      <Pressable accessibilityRole="imagebutton" onPress={onPress} style={containerStyle}>
+      <Pressable accessibilityRole="imagebutton" accessibilityLabel={accessibilityLabel} onPress={onPress} style={containerStyle}>
         {content}
       </Pressable>
     );

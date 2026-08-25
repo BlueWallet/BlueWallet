@@ -284,6 +284,7 @@ const LNDViewInvoice = () => {
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <Pressable
                   accessibilityRole="button"
+                  accessibilityLabel={loc.send.create_details}
                   style={({ pressed }) => [styles.detailsTouch, pressed && styles.detailsTouchPressed]}
                   onPress={() => navigateToPreImageScreen(String(invoice.payment_preimage))}
                 >

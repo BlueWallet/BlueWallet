@@ -149,7 +149,12 @@ const IsItMyAddress: React.FC = () => {
               testID="AddressInput"
             />
             {address.length > 0 && (
-              <TouchableOpacity onPress={clearAddressInput} style={styles.clearButton}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={loc.send.input_clear}
+                onPress={clearAddressInput}
+                style={styles.clearButton}
+              >
                 <Icon name="close" type="material" size={20} color={colors.alternativeTextColor} />
               </TouchableOpacity>
             )}

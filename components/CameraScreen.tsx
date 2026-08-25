@@ -100,7 +100,12 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
       {/* Render top buttons only if not desktop as they would not be relevant */}
       {!isDesktop && (
         <View style={styles.topButtons}>
-          <TouchableOpacity style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]} onPress={onSetTorch}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={torchMode ? loc._.turn_off_flashlight : loc._.turn_on_flashlight}
+            style={[styles.topButton, uiRotationStyle, torchMode ? styles.activeTorch : {}]}
+            onPress={onSetTorch}
+          >
             <Animated.View style={styles.topButtonImg}>
               <Icon
                 name={torchMode ? 'flashlight' : 'flashlight-off'}
@@ -186,7 +191,12 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
             )}
           </View>
         ) : (
-          <TouchableOpacity style={[styles.bottomButton, uiRotationStyle]} onPress={onSwitchCameraPressed}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.switch_camera}
+            style={[styles.bottomButton, uiRotationStyle]}
+            onPress={onSwitchCameraPressed}
+          >
             <Animated.View style={[styles.topButtonImg, uiRotationStyle]}>
               <Icon name="camera-switch" type="material-community" size={24} color="#ffffff" />
             </Animated.View>
