@@ -9,10 +9,12 @@ import {
   AppDataSchemas,
   findWalletTransactionByOutputAddress,
   queryWalletActivity,
+  queryWalletOrder,
   queryWalletUtxos,
   readMetadata,
   replaceCanonicalData,
   setWalletOutpointsFrozen,
+  setWalletOrder,
   utxoRowToUtxo,
 } from '../../blue_modules/realm/appDataRepository';
 import type { TWallet } from '../../class/wallets/types';
@@ -75,6 +77,8 @@ describe('canonical app-data Realm', () => {
     setWalletOutpointsFrozen(realm, 'wallet-1', ['utxo:0'], false);
     assert.strictEqual(queryWalletUtxos(realm, 'wallet-1', { frozen: false }).sum('value'), 42);
     assert.strictEqual(readMetadata(realm).counterpartyMetadata.alice.label, 'Alice');
+    setWalletOrder(realm, ['wallet-1']);
+    assert.strictEqual(queryWalletOrder(realm, ['wallet-1'])[0].walletId, 'wallet-1');
     realm.close();
 
     await assert.rejects(

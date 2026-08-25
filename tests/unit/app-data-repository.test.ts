@@ -11,6 +11,7 @@ import {
   queryWalletActivity,
   queryWalletActivityByOutputAddress,
   queryWalletActivityForWallets,
+  queryWalletOrder,
   queryWalletUtxos,
   readMetadata,
   replaceCanonicalData,
@@ -19,8 +20,10 @@ import {
   setCounterpartyMetadata,
   setTransactionMemo,
   setWalletOutpointsFrozen,
+  setWalletOrder,
   setWalletUtxoMetadata,
   scrubWalletUtxoSecrets,
+  syncWalletOrder,
   utxoRowToUtxo,
   type WalletActivityRow,
   utxoToCreateTransactionInput,
@@ -53,6 +56,25 @@ const wallet = (
   }) as unknown as TWallet;
 
 beforeEach(() => RealmMock.__mockRealmHelpers.reset());
+
+it('stores and updates wallet order in Realm', async () => {
+  const realm = await Realm.open({ path: 'wallet-order-test.realm', schema: AppDataSchemas });
+  const first = wallet([], [], {}, 'wallet-1');
+  const second = wallet([], [], {}, 'wallet-2');
+  replaceCanonicalData(realm, [first, second], {}, {});
+
+  setWalletOrder(realm, ['wallet-2', 'wallet-1']);
+  assert.deepStrictEqual(
+    Array.from(queryWalletOrder(realm, ['wallet-1', 'wallet-2']), row => row.walletId),
+    ['wallet-2', 'wallet-1'],
+  );
+
+  syncWalletOrder(realm, ['wallet-2', 'wallet-3']);
+  assert.deepStrictEqual(
+    Array.from(queryWalletOrder(realm, ['wallet-2', 'wallet-3']), row => row.walletId),
+    ['wallet-2', 'wallet-3'],
+  );
+});
 
 it('shares one Realm open operation between concurrent consumers', async () => {
   RealmMock.open.mockClear();
@@ -300,6 +322,10 @@ it('stores and queries UTXOs with their canonical metadata', async () => {
   const updated = Array.from(queryWalletUtxos(realm, 'wallet-1', { txid: 'large', vout: 1 }), utxoRowToUtxo);
   assert.strictEqual(updated[0].memo, 'Updated output');
   assert.strictEqual(updated[0].frozen, true);
+  replaceCanonicalWalletUtxos(realm, [testWallet]);
+  const refreshed = Array.from(queryWalletUtxos(realm, 'wallet-1', { txid: 'large', vout: 1 }), utxoRowToUtxo);
+  assert.strictEqual(refreshed[0].memo, 'Updated output', 'wallet refresh must preserve canonical Realm metadata');
+  assert.strictEqual(refreshed[0].frozen, true, 'wallet refresh must not restore stale wallet metadata');
   setWalletOutpointsFrozen(realm, 'wallet-1', ['small:0'], false);
   assert.strictEqual(queryWalletUtxos(realm, 'wallet-1', { outpoints: ['small:0'] }).slice(0, 1)[0].frozen, false);
   assert.strictEqual(queryWalletUtxos(realm, 'wallet-1', { outpoints: ['large:1'] }).slice(0, 1)[0].frozen, true);

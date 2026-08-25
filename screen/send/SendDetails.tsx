@@ -58,10 +58,10 @@ import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
-import useWalletUtxos, { useWalletUtxoSelection, useWalletUtxoValue } from '../../hooks/useWalletUtxos';
-import { findWalletTransactionByOutputAddress, utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
+import { useWalletUtxoQuery, useWalletUtxoSelection } from '../../hooks/useWalletUtxos';
+import { utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
 import { useSetTransactionMemo } from '../../hooks/useRealmMetadata';
-import { useAppDataRealm } from '../../blue_modules/realm/AppDataRealmProvider';
+import { useFindWalletTransactionByOutputAddress } from '../../hooks/useWalletActivity';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -82,7 +82,6 @@ type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 const SendDetails = () => {
   const { wallets, sleep, saveToDisk, fetchWalletUtxos } = useStorage();
   const writeTransactionMemo = useSetTransactionMemo();
-  const realm = useAppDataRealm();
   const navigation = useNavigation<NavigationProps>();
   const { direction } = useLocale();
   const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
@@ -108,13 +107,14 @@ const SendDetails = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
-  const spendableUtxos = useWalletUtxos(wallet?.getID() ?? '', {
+  const walletId = wallet?.getID() ?? '';
+  const { utxos: spendableUtxos, totalValue: spendableUtxoValue } = useWalletUtxoQuery(walletId, {
     frozen: false,
   });
   const selectedOutpoints = useMemo(() => utxos?.map(utxo => `${utxo.txid}:${utxo.vout}`) ?? [], [utxos]);
-  const { utxos: selectedUtxos, totalValue: selectedUtxoValue } = useWalletUtxoSelection(wallet?.getID() ?? '', selectedOutpoints);
-  const spendableUtxoValue = useWalletUtxoValue(wallet?.getID() ?? '', { frozen: false });
-  const frozenUtxoValue = useWalletUtxoValue(wallet?.getID() ?? '', { frozen: true });
+  const { utxos: selectedUtxos, totalValue: selectedUtxoValue } = useWalletUtxoSelection(walletId, selectedOutpoints);
+  const { totalValue: frozenUtxoValue } = useWalletUtxoQuery(walletId, { frozen: true });
+  const findTransactionByOutputAddress = useFindWalletTransactionByOutputAddress(walletId);
   const transactionUtxos = utxos ? selectedUtxos : spendableUtxos;
   const frozenBalance = utxos ? 0 : frozenUtxoValue;
   const { isVisible } = useKeyboard();
@@ -607,7 +607,7 @@ const SendDetails = () => {
           } else {
             const bip47Wallet = wallet as unknown as AbstractHDElectrumWallet;
             const notificationAddress = bip47Wallet.getBIP47NotificationAddressForPaymentCode(transaction.address);
-            if (!findWalletTransactionByOutputAddress(realm, wallet.getID(), notificationAddress)) {
+            if (!findTransactionByOutputAddress(notificationAddress)) {
               console.log('validation error');
               error = loc.send.cant_find_bip47_notification;
             } else {

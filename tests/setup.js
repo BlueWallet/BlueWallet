@@ -292,6 +292,7 @@ jest.mock('realm', () => {
     TransactionMetadata: 'txid',
     CounterpartyMetadata: 'counterparty',
     AppDataState: 'key',
+    WalletOrder: 'walletId',
   };
 
   // Split a query string at a top-level separator (i.e. not inside parens/braces).

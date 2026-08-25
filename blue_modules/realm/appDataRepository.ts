@@ -4,7 +4,7 @@ import type { TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import type { CreateTransactionUtxo, LightningTransaction, Transaction, TWallet, Utxo } from '../../class/wallets/types';
 
-export const APP_DATA_SCHEMA_VERSION = 8;
+export const APP_DATA_SCHEMA_VERSION = 9;
 export const APP_DATA_INITIALIZED_KEY = 'canonical-data-v1';
 export const APP_UTXO_INITIALIZED_KEY = 'canonical-utxo-v1';
 
@@ -71,6 +71,14 @@ export const AppDataSchemas: Realm.ObjectSchema[] = [
       key: 'string',
     },
   },
+  {
+    name: 'WalletOrder',
+    primaryKey: 'walletId',
+    properties: {
+      walletId: 'string',
+      position: { type: 'int', indexed: true },
+    },
+  },
 ];
 
 export interface WalletActivityRow extends Realm.Object<WalletActivityRow> {
@@ -114,6 +122,11 @@ export interface CounterpartyMetadataRow extends Realm.Object<CounterpartyMetada
   counterparty: string;
   label: string;
   hidden: boolean;
+}
+
+export interface WalletOrderRow extends Realm.Object<WalletOrderRow> {
+  walletId: string;
+  position: number;
 }
 
 export type RealmUtxo = Utxo & { memo?: string; frozen: boolean };
@@ -217,13 +230,17 @@ const createRawTransactionRows = (wallets: TWallet[]) => {
   return rows;
 };
 
-const createUtxoRows = (wallets: TWallet[]) => {
+type CanonicalUtxoMetadata = ReadonlyMap<string, { memo: string; frozen: boolean }>;
+
+const createUtxoRows = (wallets: TWallet[], canonicalMetadata?: CanonicalUtxoMetadata) => {
   const rows: Array<Record<string, unknown>> = [];
   for (const wallet of wallets) {
     try {
       const walletId = wallet.getID();
       for (const utxo of wallet.getUtxo(true)) {
-        const metadata = wallet.getUTXOMetadata(utxo.txid, utxo.vout);
+        // Wallet metadata is consulted only during the one-time migration. Once
+        // Realm exists, its row is authoritative across subsequent refreshes.
+        const metadata = canonicalMetadata?.get(`${walletId}:${utxo.txid}:${utxo.vout}`) ?? wallet.getUTXOMetadata(utxo.txid, utxo.vout);
         const publicUtxo = { ...utxo };
         delete publicUtxo.wif;
         rows.push({
@@ -550,8 +567,43 @@ export function replaceCanonicalData(
         hidden: Boolean(entry.hidden),
       });
     }
+    wallets.forEach((wallet, position) => realm.create('WalletOrder', { walletId: wallet.getID(), position }));
     realm.create('AppDataState', { key: APP_DATA_INITIALIZED_KEY });
     realm.create('AppDataState', { key: APP_UTXO_INITIALIZED_KEY });
+  });
+}
+
+export function filterWalletOrder(collection: Realm.Results<WalletOrderRow>, walletIds: string[]): Realm.Results<WalletOrderRow> {
+  if (walletIds.length === 0) return collection.filtered('walletId == $0', '');
+  const parameters = walletIds.map((_, index) => `$${index}`).join(', ');
+  return collection.filtered(`walletId IN {${parameters}}`, ...walletIds).sorted([
+    ['position', false],
+    ['walletId', false],
+  ]);
+}
+
+export const queryWalletOrder = (realm: Realm, walletIds: string[]): Realm.Results<WalletOrderRow> =>
+  filterWalletOrder(realm.objects<WalletOrderRow>('WalletOrder'), walletIds);
+
+export function syncWalletOrder(realm: Realm, walletIds: string[]): void {
+  const retainedIds = new Set(walletIds);
+  const existing = realm.objects<WalletOrderRow>('WalletOrder').sorted('position');
+  const existingIds = new Set(Array.from(existing, row => row.walletId));
+  const last = existing.slice(-1)[0];
+  let nextPosition = last ? last.position + 1 : 0;
+  realm.write(() => {
+    for (const row of existing) {
+      if (!retainedIds.has(row.walletId)) realm.delete(row);
+    }
+    for (const walletId of walletIds) {
+      if (!existingIds.has(walletId)) realm.create('WalletOrder', { walletId, position: nextPosition++ });
+    }
+  });
+}
+
+export function setWalletOrder(realm: Realm, walletIds: string[]): void {
+  realm.write(() => {
+    walletIds.forEach((walletId, position) => realm.create('WalletOrder', { walletId, position }, Realm.UpdateMode.Modified));
   });
 }
 
@@ -575,7 +627,13 @@ export function replaceCanonicalWalletTransactions(realm: Realm, wallets: TWalle
 /** Replaces fetched UTXO rows only for the supplied wallets. */
 export function replaceCanonicalWalletUtxos(realm: Realm, wallets: TWallet[]): void {
   const walletIds = wallets.map(wallet => wallet.getID());
-  const utxoRows = createUtxoRows(wallets);
+  const canonicalMetadata = new Map<string, { memo: string; frozen: boolean }>();
+  for (const walletId of walletIds) {
+    for (const row of realm.objects<WalletUtxoRow>('WalletUtxo').filtered('walletId == $0', walletId)) {
+      canonicalMetadata.set(`${row.walletId}:${row.txid}:${row.vout}`, { memo: row.memo, frozen: row.frozen });
+    }
+  }
+  const utxoRows = createUtxoRows(wallets, canonicalMetadata);
 
   realm.write(() => {
     for (const walletId of walletIds) realm.delete(realm.objects('WalletUtxo').filtered('walletId == $0', walletId));
@@ -589,7 +647,7 @@ export function pruneCanonicalWalletData(realm: Realm, retainedWalletIds: Readon
   const walletIds = [...retainedWalletIds];
   const parameters = walletIds.map((_, index) => `$${index}`).join(', ');
   realm.write(() => {
-    for (const type of ['WalletActivity', 'WalletTransaction', 'WalletUtxo']) {
+    for (const type of ['WalletActivity', 'WalletTransaction', 'WalletUtxo', 'WalletOrder']) {
       const rows = realm.objects(type);
       realm.delete(walletIds.length === 0 ? rows : rows.filtered(`NOT walletId IN {${parameters}}`, ...walletIds));
     }

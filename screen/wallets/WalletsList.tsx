@@ -144,11 +144,11 @@ const WalletsList: React.FC = () => {
   });
 
   const refreshWallets = useCallback(
-    async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
+    async (walletId: string | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
       if (isElectrumDisabled) return;
       dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
       try {
-        await refreshAllWalletTransactions(index, showUpdateStatusIndicator);
+        await refreshAllWalletTransactions(walletId, showUpdateStatusIndicator);
       } catch (error) {
         console.error(error);
       } finally {
@@ -275,7 +275,7 @@ const WalletsList: React.FC = () => {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
         triggerHapticFeedback(HapticFeedbackTypes.Selection);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-          refreshWallets(index, false, false);
+          refreshWallets(wallets[index].getID(), false, false);
         }
         currentWalletIndex.current = index;
       }

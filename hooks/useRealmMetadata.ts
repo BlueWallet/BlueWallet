@@ -24,9 +24,7 @@ export function useTransactionMetadata() {
   const rows = useAppDataQuery<TransactionMetadataRow>({ type: 'TransactionMetadata' });
   const metadata: TTXMetadata = {};
   for (const row of rows) metadata[row.txid] = row.memo === null ? {} : { memo: row.memo };
-  const setMemo = useSetTransactionMemo();
-
-  return { metadata, setMemo };
+  return metadata;
 }
 
 export function useTransactionMemo(txid: string | undefined): string {
@@ -35,7 +33,6 @@ export function useTransactionMemo(txid: string | undefined): string {
 }
 
 export function useCounterpartyMetadata() {
-  const realm = useAppDataRealm();
   const rows = useAppDataQuery<CounterpartyMetadataRow>({ type: 'CounterpartyMetadata' });
   const metadata: TCounterpartyMetadata = {};
   for (const row of rows) {
@@ -45,14 +42,17 @@ export function useCounterpartyMetadata() {
     };
   }
 
-  const setCounterparty = useCallback(
+  return metadata;
+}
+
+export function useSetCounterpartyMetadata() {
+  const realm = useAppDataRealm();
+  return useCallback(
     async (counterparty: string, value: TCounterpartyMetadata[string]) => {
       writeCounterpartyMetadata(realm, counterparty, value);
     },
     [realm],
   );
-
-  return { metadata, setCounterparty };
 }
 
 export function useCounterpartyMetadataEntry(counterparty: string | undefined): TCounterpartyMetadata[string] | undefined {

@@ -679,6 +679,14 @@ export class BlueApp {
     this.wallets = tempWallets;
   };
 
+  addWallet = (wallet: TWallet): void => {
+    this.wallets.push(wallet);
+  };
+
+  replaceWallet = (walletId: string, wallet: TWallet): void => {
+    this.wallets = this.wallets.map(existing => (existing.getID() === walletId ? wallet : existing));
+  };
+
   /** Purges canonical transaction rows and resets the wallet engine's fetch cache in one operation. */
   purgeWalletTransactions = async (walletId: string): Promise<void> => {
     const wallet = this.wallets.find(candidate => candidate.getID() === walletId);
@@ -883,64 +891,47 @@ export class BlueApp {
    * For each wallet, fetches balance from remote endpoint.
    * Use getter for a specific wallet to get actual balance.
    * Returns void.
-   * If index is present then fetch only from this specific wallet
+   * If walletId is present then fetch only that wallet. Wallet identity is used
+   * instead of array position because display order is canonical in Realm and
+   * may differ from the secure wallet registry's serialization order.
    */
-  fetchWalletBalances = async (index?: number): Promise<void> => {
-    console.log('fetchWalletBalances for wallet#', typeof index === 'undefined' ? '(all)' : index);
-    if (index || index === 0) {
-      let c = 0;
-      for (const wallet of this.wallets) {
-        if (c++ === index) {
-          await wallet.fetchBalance();
-        }
-      }
-    } else {
-      await Promise.all(
-        this.wallets.map(async wallet => {
-          console.log('fetching balance for', wallet.getLabel());
-          await wallet.fetchBalance();
-        }),
-      );
-    }
+  fetchWalletBalances = async (walletId?: string): Promise<void> => {
+    console.log('fetchWalletBalances for wallet', walletId ?? '(all)');
+    const wallets = walletId ? [this.getWalletById(walletId)] : this.wallets;
+    await Promise.all(
+      wallets.map(async wallet => {
+        if (!wallet) throw new Error(`Wallet not found: ${walletId}`);
+        console.log('fetching balance for', wallet.getLabel());
+        await wallet.fetchBalance();
+      }),
+    );
   };
 
   /**
    * Fetches from remote endpoint all transactions for each wallet.
    * Returns void.
    * To access transactions - get them from each respective wallet.
-   * If index is present then fetch only from this specific wallet.
+   * If walletId is present then fetch only that wallet.
    *
-   * @param index {Integer} Index of the wallet in this.wallets array,
-   *                        blank to fetch from all wallets
+   * @param walletId Wallet identifier, blank to fetch from all wallets
    * @return {Promise.<void>}
    */
-  fetchWalletTransactions = async (index?: number) => {
-    console.log('fetchWalletTransactions for wallet#', typeof index === 'undefined' ? '(all)' : index);
-    if (index || index === 0) {
-      let c = 0;
-      for (const wallet of this.wallets) {
-        if (c++ === index) {
-          await wallet.fetchTransactions();
-
-          if ('fetchPendingTransactions' in wallet) {
-            await wallet.fetchPendingTransactions();
-            await wallet.fetchUserInvoices();
-          }
-          await this.persistWalletTransactions([wallet]);
+  fetchWalletTransactions = async (walletId?: string): Promise<void> => {
+    console.log('fetchWalletTransactions for wallet', walletId ?? '(all)');
+    const wallets = walletId ? [this.getWalletById(walletId)] : this.wallets;
+    await Promise.all(
+      wallets.map(async wallet => {
+        if (!wallet) throw new Error(`Wallet not found: ${walletId}`);
+        await wallet.fetchTransactions();
+        if ('fetchPendingTransactions' in wallet) {
+          await wallet.fetchPendingTransactions();
+          await wallet.fetchUserInvoices();
         }
-      }
-    } else {
-      await Promise.all(
-        this.wallets.map(async wallet => {
-          await wallet.fetchTransactions();
-          if ('fetchPendingTransactions' in wallet) {
-            await wallet.fetchPendingTransactions();
-            await wallet.fetchUserInvoices();
-          }
-          await this.persistWalletTransactions([wallet]);
-        }),
-      );
-    }
+        // The network snapshot becomes canonical before this method resolves;
+        // live Realm queries then update every mounted screen on the nav stack.
+        await this.persistWalletTransactions([wallet]);
+      }),
+    );
   };
 
   persistWalletTransactions = async (wallets: TWallet[]): Promise<void> => {
@@ -955,21 +946,22 @@ export class BlueApp {
   };
 
   fetchWalletUtxos = async (walletId: string): Promise<void> => {
-    const wallet = this.wallets.find(candidate => candidate.getID() === walletId);
+    const wallet = this.getWalletById(walletId);
     if (!wallet) throw new Error(`Wallet not found: ${walletId}`);
     await wallet.fetchUtxo();
     await this.persistWalletUtxos([wallet]);
   };
 
-  fetchSenderPaymentCodes = async (index?: number) => {
-    console.log('fetchSenderPaymentCodes for wallet#', typeof index === 'undefined' ? '(all)' : index);
-    if (index || index === 0) {
-      const wallet = this.wallets[index];
+  fetchSenderPaymentCodes = async (walletId?: string) => {
+    console.log('fetchSenderPaymentCodes for wallet', walletId ?? '(all)');
+    if (walletId) {
+      const wallet = this.getWalletById(walletId);
+      if (!wallet) throw new Error(`Wallet not found: ${walletId}`);
       try {
         if (!(wallet.allowBIP47() && wallet.isBIP47Enabled() && 'fetchBIP47SenderPaymentCodes' in wallet)) return;
         await wallet.fetchBIP47SenderPaymentCodes();
       } catch (error) {
-        console.error('Failed to fetch sender payment codes for wallet', index, error);
+        console.error('Failed to fetch sender payment codes for wallet', walletId, error);
       }
     } else {
       await Promise.all(
@@ -987,6 +979,10 @@ export class BlueApp {
 
   getWallets = (): TWallet[] => {
     return this.wallets;
+  };
+
+  getWalletById = (walletId: string): TWallet | undefined => {
+    return this.wallets.find(wallet => wallet.getID() === walletId);
   };
 
   /**

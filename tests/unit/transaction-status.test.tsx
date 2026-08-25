@@ -38,8 +38,10 @@ jest.mock('../../hooks/context/useStorage', () => ({
 }));
 
 jest.mock('../../hooks/useRealmMetadata', () => ({
-  useTransactionMetadata: () => ({ metadata: mockStorageState.txMetadata, setMemo: mockStorageState.setTransactionMemo }),
-  useCounterpartyMetadata: () => ({ metadata: mockStorageState.counterpartyMetadata }),
+  useTransactionMetadata: () => mockStorageState.txMetadata,
+  useTransactionMemo: (txid: string) => mockStorageState.txMetadata[txid]?.memo ?? '',
+  useSetTransactionMemo: () => mockStorageState.setTransactionMemo,
+  useCounterpartyMetadata: () => mockStorageState.counterpartyMetadata,
 }));
 
 let mockActivityTransactions: any[] = [];

@@ -1,6 +1,7 @@
 # Realm transaction data
 
 Realm is the application source of truth for transaction records, transaction metadata, UTXOs, UTXO metadata, and counterparty metadata. Wallet secrets and wallet configuration remain in the encrypted storage bucket.
+Wallet display order is non-secret application metadata stored in Realm. Dragging a wallet updates `WalletOrder` positions in one write transaction; the storage context maps secure wallet objects onto that live order without rewriting or cloning the wallet array.
 
 UTXO Realm payloads contain public outpoint data only. WIFs and other signing secrets must never be serialized into app-data Realm; signing code derives required keys from the wallet only for the duration of transaction construction. Schema v7 scrubs legacy UTXO payloads on open. After seeding a password-specific bucket, storage encryption clears every object from the previous known-key Realm before deleting it, verifies deletion, and reports failure if the file remains.
 
@@ -16,6 +17,7 @@ The implementation targets Realm JS 20.x. `BlueApp` owns one open app-data Realm
 Activity hooks pass search, pending/confirmed filters, ordering, and page bounds to Realm. Home feeds and carousel summaries use Realm's native `LIMIT` descriptor; JavaScript only maps the bounded managed rows into the existing view-model shape. Metadata is read and mutated by Realm hooks at the consuming component instead of being copied through `StorageProvider`.
 
 Coin control queries sorting, frozen status, selected outpoints, and selected value directly from Realm. Mass freeze/unfreeze writes only the selected outpoints with a Realm `IN` predicate; React owns only the transient selection itself.
+UTXO refresh preserves memo and frozen values from existing Realm rows; it never restores stale metadata from the wallet object's legacy cache.
 
 The send flow also derives selected, spendable, and frozen UTXO values with live Realm queries and native `sum()` aggregates. It no longer mirrors UTXO refreshes through a dummy React state toggle.
 
@@ -45,6 +47,9 @@ For the combined home-screen feed, use `useWalletActivityFeed()`. It issues one 
 Use `useWalletTransaction(wallet, transactionId)` for an exact transaction lookup and `useWalletActivitySummary(wallet)` for latest/pending wallet-card state. Both apply their filters in Realm; do not load a wallet activity array and call `find()`, `filter()`, or `some()` in the component.
 
 Use `useWalletUtxos(walletId, { sortType, sortDirection, frozen, txid, vout, outpoints })` for coin lists and spend preparation. It performs Realm filtering and sorting for frozen status, exact outputs, selected outpoints, height, label, or value and updates automatically after a canonical save.
+Use `useWalletUtxoQuery()` when the component also needs Realm's `sum()` or result count. Use `useGetWalletUtxos()` only inside an async action that must read the current snapshot immediately after a refresh.
+
+Metadata readers and writers are intentionally separate: `useTransactionMemo()` and `useCounterpartyMetadata()` subscribe to data, while `useSetTransactionMemo()` and `useSetCounterpartyMetadata()` return stable Realm writers without subscribing to unrelated rows.
 
 Wallet configuration and secrets can be selected with `useWallet(walletId)`. Do not manufacture wallet identity changes with a `Proxy` to observe transactions; subscribe to the relevant Realm activity or UTXO hook instead.
 

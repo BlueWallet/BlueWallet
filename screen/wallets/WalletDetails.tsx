@@ -26,7 +26,7 @@ import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage, useWallet } from '../../hooks/context/useStorage';
 import { useNavigation, useFocusEffect, useRoute, RouteProp, usePreventRemove, useLocale } from '@react-navigation/native';
-import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
+import { TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { Action } from '../../components/types';
@@ -36,7 +36,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
-import useWalletActivity from '../../hooks/useWalletActivity';
+import { useWalletTransactions } from '../../hooks/useWalletActivity';
 import useWalletUtxos from '../../hooks/useWalletUtxos';
 import { useTransactionMetadata } from '../../hooks/useRealmMetadata';
 
@@ -45,7 +45,7 @@ type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const WalletDetails: React.FC = () => {
   const { saveToDisk, handleWalletDeletion, purgeWalletTransactions, fetchAndSaveWalletTransactions, fetchWalletUtxos, sleep } =
     useStorage();
-  const { metadata: txMetadata } = useTransactionMetadata();
+  const txMetadata = useTransactionMetadata();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -72,11 +72,7 @@ const WalletDetails: React.FC = () => {
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
-  const activityByWallet = useWalletActivity([wallet]);
-  const walletTransactions = useMemo(
-    () => (activityByWallet.get(walletID) ?? []) as Array<Transaction & LightningTransaction>,
-    [activityByWallet, walletID],
-  );
+  const walletTransactions = useWalletTransactions(wallet);
   const walletTransactionsLength = walletTransactions.length;
   const walletUtxos = useWalletUtxos(walletID);
 

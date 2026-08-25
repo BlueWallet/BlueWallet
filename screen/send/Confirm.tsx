@@ -69,7 +69,7 @@ type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList
 
 const Confirm: React.FC = () => {
   const { wallets, fetchAndSaveWalletTransactions } = useStorage();
-  const { metadata: counterpartyMetadata } = useCounterpartyMetadata();
+  const counterpartyMetadata = useCounterpartyMetadata();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation<ConfirmNavigationProp>();

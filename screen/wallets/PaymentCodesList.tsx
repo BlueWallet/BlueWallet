@@ -22,14 +22,10 @@ import { useStorage, useWallet } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueLoading } from '../../components/BlueLoading';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
-import {
-  findWalletTransactionByOutputAddress,
-  queryWalletUtxos,
-  utxoRowToUtxo,
-  utxoToCreateTransactionInput,
-} from '../../blue_modules/realm/appDataRepository';
-import { useCounterpartyMetadata, useSetTransactionMemo } from '../../hooks/useRealmMetadata';
-import { useAppDataRealm } from '../../blue_modules/realm/AppDataRealmProvider';
+import { utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
+import { useCounterpartyMetadata, useSetCounterpartyMetadata, useSetTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useGetWalletUtxos } from '../../hooks/useWalletUtxos';
+import { useFindWalletTransactionByOutputAddress } from '../../hooks/useWalletActivity';
 
 interface DataSection {
   title: string;
@@ -83,8 +79,10 @@ export default function PaymentCodesList() {
   const { walletID } = route.params;
   const { saveToDisk, fetchWalletUtxos, fetchAndSaveWalletTransactions } = useStorage();
   const foundWallet = useWallet(walletID) as unknown as HDSegwitBech32Wallet;
-  const realm = useAppDataRealm();
-  const { metadata: counterpartyMetadata, setCounterparty } = useCounterpartyMetadata();
+  const getWalletUtxos = useGetWalletUtxos(walletID);
+  const findTransactionByOutputAddress = useFindWalletTransactionByOutputAddress(walletID);
+  const counterpartyMetadata = useCounterpartyMetadata();
+  const setCounterparty = useSetCounterpartyMetadata();
   const setTransactionMemo = useSetTransactionMemo();
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -146,7 +144,7 @@ export default function PaymentCodesList() {
         }
         // check if notif tx is in place and has confirmations
         const notificationAddress = foundWallet.getBIP47NotificationAddressForPaymentCode(pc);
-        const notifTx = findWalletTransactionByOutputAddress(realm, walletID, notificationAddress);
+        const notifTx = findTransactionByOutputAddress(notificationAddress);
         if (!notifTx) {
           await _addContact(pc);
           return;
@@ -285,7 +283,7 @@ export default function PaymentCodesList() {
     setIsLoading(true);
 
     const notificationAddress = foundWallet.getBIP47NotificationAddressForPaymentCode(newPc);
-    const notificationTx = findWalletTransactionByOutputAddress(realm, walletID, notificationAddress);
+    const notificationTx = findTransactionByOutputAddress(notificationAddress);
     // Normalize once so both branches treat a mempool tx (undefined confirmations) as 0.
     // Without this, a fresh mempool notification tx falls through to creating a duplicate.
     const notificationTxConfirmations = notificationTx?.confirmations ?? 0;
@@ -309,9 +307,7 @@ export default function PaymentCodesList() {
 
     setLoadingText('Fetching UTXO...');
     await fetchWalletUtxos(foundWallet.getID());
-    const spendableUtxos = Array.from(queryWalletUtxos(realm, walletID, { frozen: false }), utxoRowToUtxo).map(utxo =>
-      utxoToCreateTransactionInput(utxo, foundWallet),
-    );
+    const spendableUtxos = getWalletUtxos({ frozen: false }).map(utxo => utxoToCreateTransactionInput(utxo, foundWallet));
     setLoadingText('Fetching fees...');
     const fees = await BlueElectrum.estimateFees();
     setLoadingText('Fetching change address...');

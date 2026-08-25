@@ -41,7 +41,7 @@ jest.mock('../../hooks/context/useStorage', () => ({
 }));
 
 jest.mock('../../hooks/useRealmMetadata', () => ({
-  useCounterpartyMetadata: () => ({ metadata: {} }),
+  useCounterpartyMetadata: () => ({}),
 }));
 
 jest.mock('../../hooks/context/useSettings', () => ({

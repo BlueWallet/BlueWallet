@@ -238,9 +238,9 @@ const WalletsAdd: React.FC = () => {
     setIsLoading(true);
 
     if (selectedWalletType === ButtonSelected.OFFCHAIN) {
-      createLightningWallet();
+      await createLightningWallet();
     } else if (selectedWalletType === ButtonSelected.ARK) {
-      createLightningArkWallet();
+      await createLightningArkWallet();
     } else if (selectedWalletType === ButtonSelected.ONCHAIN) {
       let w: HDSegwitBech32Wallet | HDLegacyP2PKHWallet | HDTaprootWallet;
 

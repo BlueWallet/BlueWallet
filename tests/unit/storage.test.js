@@ -603,6 +603,33 @@ it('reports a wallet save failure and allows the next queued save to retry', asy
   assert.strictEqual(queryWalletActivity(realm, wallet.getID()).length, 0);
 });
 
+it('refreshes and persists the wallet selected by ID, independent of array order', async () => {
+  const storage = new BlueApp();
+  const first = {
+    getID: () => 'first-wallet',
+    getLabel: () => 'First wallet',
+    fetchBalance: jest.fn(),
+    fetchTransactions: jest.fn(),
+  };
+  const second = {
+    getID: () => 'second-wallet',
+    getLabel: () => 'Second wallet',
+    fetchBalance: jest.fn(),
+    fetchTransactions: jest.fn(),
+  };
+  storage.wallets = [first, second];
+  storage.persistWalletTransactions = jest.fn();
+
+  await storage.fetchWalletBalances('second-wallet');
+  await storage.fetchWalletTransactions('second-wallet');
+
+  expect(first.fetchBalance).not.toHaveBeenCalled();
+  expect(first.fetchTransactions).not.toHaveBeenCalled();
+  expect(second.fetchBalance).toHaveBeenCalledTimes(1);
+  expect(second.fetchTransactions).toHaveBeenCalledTimes(1);
+  expect(storage.persistWalletTransactions).toHaveBeenCalledWith([second]);
+});
+
 it('Appstorage - hashIt() works', async () => {
   const storage = new BlueApp();
   assert.strictEqual(storage.hashIt('hello'), '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824');

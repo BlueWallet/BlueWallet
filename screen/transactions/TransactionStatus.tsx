@@ -40,7 +40,7 @@ import prompt from '../../helpers/prompt';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage, useWallet } from '../../hooks/context/useStorage';
 import { useWalletTransaction } from '../../hooks/useWalletActivity';
-import { useCounterpartyMetadata, useTransactionMetadata } from '../../hooks/useRealmMetadata';
+import { useCounterpartyMetadata, useSetTransactionMemo, useTransactionMemo } from '../../hooks/useRealmMetadata';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
@@ -176,8 +176,9 @@ const TransactionStatus: React.FC = () => {
   });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
-  const { metadata: txMetadata, setMemo: setTransactionMemo } = useTransactionMetadata();
-  const { metadata: counterpartyMetadata } = useCounterpartyMetadata();
+  const transactionMemo = useTransactionMemo(tx?.hash ?? tx?.txid);
+  const setTransactionMemo = useSetTransactionMemo();
+  const counterpartyMetadata = useCounterpartyMetadata();
   const subscribedWallet = useWallet(walletID);
   const realmTransaction = useWalletTransaction(subscribedWallet, hash);
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
@@ -776,7 +777,7 @@ const TransactionStatus: React.FC = () => {
   const handleNotePress = useCallback(async () => {
     // Ark rows have no on-chain hash; use their synthetic txid as fallback key.
     const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
-    const currentMemo = (metadataKey && txMetadata[metadataKey]?.memo) || '';
+    const currentMemo = metadataKey ? transactionMemo : '';
     try {
       const newMemo = await prompt(loc.send.details_note_placeholder, '', {
         type: 'plain-text',
@@ -789,7 +790,7 @@ const TransactionStatus: React.FC = () => {
     } catch (error) {
       // User cancelled
     }
-  }, [setTransactionMemo, tx, txMetadata]);
+  }, [setTransactionMemo, transactionMemo, tx]);
 
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
@@ -948,7 +949,7 @@ const TransactionStatus: React.FC = () => {
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   // Get memo
-  const memo = tx?.hash ? txMetadata[tx.hash]?.memo || '' : '';
+  const memo = transactionMemo;
 
   const shortenContactName = (name: string): string => {
     if (name.length < 20) return name;

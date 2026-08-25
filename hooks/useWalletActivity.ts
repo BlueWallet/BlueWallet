@@ -1,9 +1,13 @@
-import { useAppDataQuery } from '../blue_modules/realm/AppDataRealmProvider';
+import { useCallback } from 'react';
+
+import { useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
 import {
   activityRowToTransaction,
+  findWalletTransactionByOutputAddress,
   filterWalletActivity,
   filterWalletActivityByOutputAddress,
   filterWalletActivityForWallets,
+  type WalletActivityQuery,
   type WalletActivityRow,
   type WalletTransactionRow,
 } from '../blue_modules/realm/appDataRepository';
@@ -22,6 +26,31 @@ const toTransaction = (row: WalletActivityRow, wallet: TWallet): WalletActivityT
   } catch (error) {
     console.warn('[useWalletActivity] Ignoring invalid activity row:', error);
   }
+};
+
+const useWalletActivityRows = (walletId: string, options: WalletActivityQuery = {}) => {
+  const { search = '', transactionId, pending, confirmed, limit } = options;
+  const normalizedSearch = search.trim().toLowerCase();
+  return useAppDataQuery<WalletActivityRow>(
+    {
+      type: 'WalletActivity',
+      query: collection =>
+        filterWalletActivity(collection, walletId, { search: normalizedSearch, transactionId, pending, confirmed, limit }),
+    },
+    [confirmed, limit, normalizedSearch, pending, transactionId, walletId],
+  );
+};
+
+const mapTransactions = (rows: Iterable<WalletActivityRow>, wallets: TWallet[]): WalletActivityTransaction[] => {
+  const walletById = new Map(wallets.map(wallet => [wallet.getID(), wallet]));
+  const transactions: WalletActivityTransaction[] = [];
+  for (const row of rows) {
+    const wallet = walletById.get(row.walletId);
+    if (!wallet) continue;
+    const transaction = toTransaction(row, wallet);
+    if (transaction) transactions.push(transaction);
+  }
+  return transactions;
 };
 
 /** Runs one live Realm query and exposes a bounded view for each requested wallet. */
@@ -54,40 +83,22 @@ export default function useWalletActivity(
 }
 
 export function useWalletActivityPage(wallet: TWallet, search = '', limit = 20) {
-  const normalizedSearch = search.trim().toLowerCase();
   const walletId = wallet.getID();
-  const rows = useAppDataQuery<WalletActivityRow>(
-    {
-      type: 'WalletActivity',
-      query: collection => filterWalletActivity(collection, walletId, { search: normalizedSearch, limit }),
-    },
-    [limit, normalizedSearch, walletId],
-  );
-  const allRows = useAppDataQuery<WalletActivityRow>(
-    {
-      type: 'WalletActivity',
-      query: collection => filterWalletActivity(collection, walletId, { search: normalizedSearch }),
-    },
-    [normalizedSearch, walletId],
-  );
-  const transactions: WalletActivityTransaction[] = [];
-  for (const row of rows) {
-    const transaction = toTransaction(row, wallet);
-    if (transaction) transactions.push(transaction);
-  }
+  const rows = useWalletActivityRows(walletId, { search, limit });
+  const allRows = useWalletActivityRows(walletId, { search });
+  const transactions = mapTransactions(rows, [wallet]);
   return { transactions, hasMore: allRows.length > rows.length };
+}
+
+/** Returns one wallet's live, Realm-filtered activity without a per-wallet map. */
+export function useWalletTransactions(wallet: TWallet, search = '', limit = Infinity) {
+  return mapTransactions(useWalletActivityRows(wallet.getID(), { search, limit }), [wallet]);
 }
 
 /** Looks up one transaction by its canonical ID entirely in Realm. */
 export function useWalletTransaction(wallet: TWallet | undefined, transactionId: string | undefined) {
   const walletId = wallet?.getID() ?? '';
-  const rows = useAppDataQuery<WalletActivityRow>(
-    {
-      type: 'WalletActivity',
-      query: collection => filterWalletActivity(collection, walletId, { transactionId }),
-    },
-    [transactionId, walletId],
-  );
+  const rows = useWalletActivityRows(walletId, { transactionId });
   return wallet && rows.length > 0 ? toTransaction(rows[0], wallet) : undefined;
 }
 
@@ -105,17 +116,17 @@ export function useWalletTransactionByOutputAddress(wallet: TWallet | undefined,
   return wallet && rows.length > 0 ? toTransaction(rows[0], wallet) : undefined;
 }
 
+/** Returns an imperative exact-address lookup without exposing Realm to components. */
+export function useFindWalletTransactionByOutputAddress(walletId: string) {
+  const realm = useAppDataRealm();
+  return useCallback((address: string) => findWalletTransactionByOutputAddress(realm, walletId, address), [realm, walletId]);
+}
+
 /** Reads the latest row and pending existence through selective live Realm queries. */
 export function useWalletActivitySummary(wallet: TWallet) {
   const walletId = wallet.getID();
-  const latestRows = useAppDataQuery<WalletActivityRow>(
-    { type: 'WalletActivity', query: collection => filterWalletActivity(collection, walletId, { limit: 1 }) },
-    [walletId],
-  );
-  const pendingRows = useAppDataQuery<WalletActivityRow>(
-    { type: 'WalletActivity', query: collection => filterWalletActivity(collection, walletId, { pending: true, limit: 1 }) },
-    [walletId],
-  );
+  const latestRows = useWalletActivityRows(walletId, { limit: 1 });
+  const pendingRows = useWalletActivityRows(walletId, { pending: true, limit: 1 });
   return {
     latestTransaction: latestRows.length > 0 ? toTransaction(latestRows[0], wallet) : undefined,
     hasPendingTransaction: pendingRows.length > 0,
@@ -135,15 +146,7 @@ export function useWalletActivityFeed(wallets: TWallet[], search = '', limit = 2
     },
     [limit, normalizedSearch, walletKey],
   );
-  const walletById = new Map(visibleWallets.map(wallet => [wallet.getID(), wallet]));
-  const transactions: WalletActivityTransaction[] = [];
-  for (const row of rows) {
-    const wallet = walletById.get(row.walletId);
-    if (!wallet) continue;
-    const transaction = toTransaction(row, wallet);
-    if (transaction) transactions.push(transaction);
-  }
-  return transactions;
+  return mapTransactions(rows, visibleWallets);
 }
 
 /** Counts raw address-index transactions from one live Realm query. */
