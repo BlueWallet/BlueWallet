@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
 import {
@@ -53,6 +53,29 @@ const mapTransactions = (rows: Iterable<WalletActivityRow>, wallets: TWallet[]):
   return transactions;
 };
 
+const useTransactionFromRow = (row: WalletActivityRow | undefined, wallet: TWallet | undefined) => {
+  const walletId = wallet?.getID() ?? '';
+  const payloadJson = row?.payloadJson;
+  const preferredBalanceUnit = wallet?.getPreferredBalanceUnit?.() ?? BitcoinUnit.BTC;
+
+  // Realm's managed Results may retain their identity while their rows change.
+  // Key the parsed view model by the canonical payload instead of returning a
+  // fresh object on every React render; consumers can safely use it in effects.
+  return useMemo(() => {
+    if (!walletId || !payloadJson) return undefined;
+    try {
+      return {
+        ...(JSON.parse(payloadJson) as WalletActivityTransaction),
+        walletID: walletId,
+        walletPreferredBalanceUnit: preferredBalanceUnit,
+      } as WalletActivityTransaction;
+    } catch (error) {
+      console.warn('[useWalletActivity] Ignoring invalid activity row:', error);
+      return undefined;
+    }
+  }, [payloadJson, preferredBalanceUnit, walletId]);
+};
+
 /** Runs one live Realm query and exposes a bounded view for each requested wallet. */
 export default function useWalletActivity(
   wallets: TWallet[],
@@ -99,7 +122,7 @@ export function useWalletTransactions(wallet: TWallet, search = '', limit = Infi
 export function useWalletTransaction(wallet: TWallet | undefined, transactionId: string | undefined) {
   const walletId = wallet?.getID() ?? '';
   const rows = useWalletActivityRows(walletId, { transactionId });
-  return wallet && rows.length > 0 ? toTransaction(rows[0], wallet) : undefined;
+  return useTransactionFromRow(rows.length > 0 ? rows[0] : undefined, wallet);
 }
 
 /** Reacts to the newest canonical transaction paying an exact output address. */
@@ -113,7 +136,7 @@ export function useWalletTransactionByOutputAddress(wallet: TWallet | undefined,
     },
     [outputAddress, walletId],
   );
-  return wallet && rows.length > 0 ? toTransaction(rows[0], wallet) : undefined;
+  return useTransactionFromRow(rows.length > 0 ? rows[0] : undefined, wallet);
 }
 
 /** Returns an imperative exact-address lookup without exposing Realm to components. */
@@ -127,8 +150,9 @@ export function useWalletActivitySummary(wallet: TWallet) {
   const walletId = wallet.getID();
   const latestRows = useWalletActivityRows(walletId, { limit: 1 });
   const pendingRows = useWalletActivityRows(walletId, { pending: true, limit: 1 });
+  const latestTransaction = useTransactionFromRow(latestRows.length > 0 ? latestRows[0] : undefined, wallet);
   return {
-    latestTransaction: latestRows.length > 0 ? toTransaction(latestRows[0], wallet) : undefined,
+    latestTransaction,
     hasPendingTransaction: pendingRows.length > 0,
   };
 }
