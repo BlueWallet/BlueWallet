@@ -6,7 +6,7 @@ import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { TWallet } from '../../class/wallets/types';
-import { getWalletCarouselItemDataRevision, WalletCarouselItem } from '../../components/WalletsCarousel';
+import { WalletCarouselItem } from '../../components/WalletsCarousel';
 import Divider from '../../components/Divider';
 import Icon from '../../components/Icon';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
@@ -197,7 +197,6 @@ const IsItMyAddress: React.FC = () => {
                   <WalletCarouselItem
                     item={wallet}
                     hideBalance={wallet.hideBalance}
-                    dataRevision={getWalletCarouselItemDataRevision(wallet)}
                     onPress={item => {
                       navigate('WalletTransactions', {
                         walletID: item.getID(),
