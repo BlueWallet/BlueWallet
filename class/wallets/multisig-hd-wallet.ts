@@ -1243,7 +1243,9 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       throw new Error('Not a valid mnemonic phrase');
     let calculatedFingerprint: string | undefined;
     if (MultisigHDWallet.isValidElectrumSeed(mnemonic)) {
-      mnemonic = ELECTRUM_SEED_PREFIX + mnemonic;
+      if (!mnemonic.startsWith(ELECTRUM_SEED_PREFIX)) {
+        mnemonic = ELECTRUM_SEED_PREFIX + mnemonic;
+      }
       const electrumSeed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic, passphrase);
       calculatedFingerprint = MultisigHDWallet.seedToFingerprint(electrumSeed);
     }

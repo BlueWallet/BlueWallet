@@ -759,11 +759,25 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getCosignerForFingerprint('DEADBABE'), process.env.MNEMONICS_COLDCARD);
 
     // isValidElectrumSeed method can correctly detect electrum seed
-    assert.equal(
+    assert.strictEqual(
       MultisigHDWallet.isValidElectrumSeed('during pride layer jelly admit army want melody check witness favorite prosper'),
       true,
     );
-    assert.equal(
+
+    assert.strictEqual(
+      MultisigHDWallet.isValidElectrumSeed('electrumseed:during pride layer jelly admit army want melody check witness favorite prosper'),
+      true,
+    );
+
+    assert.strictEqual(
+      MultisigHDWallet.isValidElectrumSeed(
+        'electrumseed:electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+      ),
+      false,
+    );
+
+    // bip39 seed phrase is not a valid electrum seed
+    assert.strictEqual(
       MultisigHDWallet.isValidElectrumSeed('hybrid husband luggage assume lake trend armed decorate grocery rebel hood unique'),
       false,
     );
@@ -1832,6 +1846,36 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getFingerprint(1), fp1cobo);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path);
     assert.strictEqual(w.getCosignerPassphrase(1), undefined);
+
+    const electrumWallet = new MultisigHDWallet();
+    const electrumJson = require('./fixtures/electrum-multisig-wallet-with-seed.json');
+
+    electrumWallet.setSecret(JSON.stringify(electrumJson));
+    assert.strictEqual(electrumWallet.getN(), 3);
+    assert.strictEqual(electrumWallet.getM(), 2);
+    assert.strictEqual(
+      electrumWallet.getCosigner(1),
+      'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+    );
+    electrumWallet.replaceCosignerSeedWithXpub(1);
+    assert.strictEqual(
+      electrumWallet.getCosigner(1),
+      'Zpub6yUED4tEZDX9v4RbbrJVfEMSHJu7yFGfpbHt4jxf48m5oEFGWCXtu32o1wQkEbCCrHJfRbc8GeoBwpRowcvTMHruNcsbm97QD4uUzaXrtNK',
+    );
+    electrumWallet.replaceCosignerXpubWithSeed(1, 'during pride layer jelly admit army want melody check witness favorite prosper');
+    assert.strictEqual(
+      electrumWallet.getCosigner(1),
+      'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+    );
+    electrumWallet.replaceCosignerSeedWithXpub(1);
+    electrumWallet.replaceCosignerXpubWithSeed(
+      1,
+      'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+    );
+    assert.strictEqual(
+      electrumWallet.getCosigner(1),
+      'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+    );
   });
 
   it('can sign valid tx if we have more keys than quorum ("Too many signatures" error)', async () => {
