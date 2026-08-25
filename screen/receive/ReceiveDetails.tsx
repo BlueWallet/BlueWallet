@@ -311,34 +311,6 @@ const ReceiveDetails = () => {
     navigate('ReceiveAddressLabel', { address });
   }, [address, navigate]);
 
-  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
-    if (wallet && wallet.allowBIP47()) {
-      wallet.switchBIP47(!wallet.isBIP47Enabled());
-    }
-    saveToDisk();
-    obtainWalletAddress();
-  }, [wallet, saveToDisk, obtainWalletAddress]);
-
-  useEffect(() => {
-    setParams({
-      allowBIP47: Boolean(wallet?.allowBIP47()),
-      isBIP47Enabled: Boolean(isBIP47Enabled),
-    });
-  }, [isBIP47Enabled, setParams, wallet]);
-
-  const lastToggleRequestRef = useRef<number | undefined>(undefined);
-  const toggleBIP47RequestedAt = route.params?.toggleBIP47RequestedAt;
-
-  useEffect(() => {
-    if (!toggleBIP47RequestedAt || toggleBIP47RequestedAt === lastToggleRequestRef.current) {
-      return;
-    }
-
-    lastToggleRequestRef.current = toggleBIP47RequestedAt;
-    onEnablePaymentsCodeSwitchValue();
-    setParams({ toggleBIP47RequestedAt: undefined });
-  }, [toggleBIP47RequestedAt, onEnablePaymentsCodeSwitchValue, setParams]);
-
   // re-fetching address balance periodically
   useEffect(() => {
     console.debug('receive/details - useEffect');

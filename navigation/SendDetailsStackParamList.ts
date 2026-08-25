@@ -132,6 +132,8 @@ export type SendDetailsStackParamList = {
     amountUnit?: BitcoinUnit;
     txid?: string;
     invoiceDescription?: string;
+    walletID?: string;
+    walletType?: string;
   };
   SelectWallet: {
     chainType?: Chain;
