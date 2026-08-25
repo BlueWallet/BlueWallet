@@ -37,7 +37,7 @@ describe('getWalletTransactionsOptions', () => {
       route: {
         key: 'WalletTransactions',
         name: 'WalletTransactions',
-        params: { walletID: 'wallet-1', isLoading: false },
+        params: { walletID: 'wallet-1', walletType: 'HDsegwitBech32', isLoading: false },
       },
     });
 
