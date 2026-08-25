@@ -7,29 +7,6 @@ When upstream ships an equivalent fix, drop the patch here and bump the dependen
 
 ---
 
-## `react-native-context-menu-view+1.21.0.patch`
-
-**What:** Android dropdown menus use `PopupMenu` (instead of the floating
-`ContextMenu`) so `selected` / checkable items render a checkmark; honour
-the JS `selected` flag via `setCheckable`/`setChecked`; always emit
-`indexPath` for top-level items; return `true` from the menu-item click
-listener so the selection is consumed.
-
-**Why:** Import Wallet header toggles (Passphrase, Search accounts, Clear
-clipboard) never showed a checkmark on Android and could appear to do
-nothing, so passphrase import skipped the prompt and used the seed without
-a passphrase. Floating `ContextMenu` does not surface check state reliably
-across OEMs; `PopupMenu` does. Related: https://github.com/BlueWallet/BlueWallet/issues/8864
-
-**Upstream:** `selected` is documented as iOS-only in
-https://github.com/mpiannucci/react-native-context-menu-view (see README).
-No upstream Android checkmark fix yet.
-
-Remove once upstream supports Android `selected` for dropdown menus
-(BlueWallet forks `github:BlueWallet/react-native-context-menu-view#…`).
-
----
-
 ## `react-native-notifications+5.2.2.patch`
 
 **What:** rewrites `FcmToken.sendTokenToJS()` (Android) to obtain the
