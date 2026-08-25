@@ -173,6 +173,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   // taps from JS headerRight (Wallet Details "…") on iOS < 26 and Mac Catalyst.
   return (
     <View
+      testID="WalletTransactionsHero"
       pointerEvents="box-none"
       style={[
         styles.lineaderGradient,
@@ -183,7 +184,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         },
       ]}
     >
-      <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} pointerEvents="none" />
+      <LinearGradient
+        testID="WalletTransactionsHeroGradient"
+        colors={WalletGradient.gradientsFor(wallet.type)}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
       <View style={styles.contentContainer}>
         <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
           {wallet.getLabel()}

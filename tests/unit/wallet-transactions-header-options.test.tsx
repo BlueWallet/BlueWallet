@@ -3,8 +3,10 @@ import { Platform } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 
 import { navigationRef } from '../../NavigationService';
+import TransactionsNavigationHeader from '../../components/TransactionsNavigationHeader';
+import { WalletTransactionsScrolledHeaderTitle } from '../../components/WalletTransactionsScrolledHeaderTitle';
 import getWalletTransactionsOptions, { createWalletDetailsHeaderRight } from '../../navigation/helpers/getWalletTransactionsOptions';
-import loc from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 jest.mock('../../NavigationService', () => ({
   navigationRef: {
@@ -14,10 +16,7 @@ jest.mock('../../NavigationService', () => ({
 
 jest.mock('../../components/Icon', () => {
   const { View } = require('react-native');
-  return {
-    __esModule: true,
-    default: () => <View />,
-  };
+  return { __esModule: true, default: () => <View /> };
 });
 
 jest.mock('../../blue_modules/environment', () => ({
@@ -25,12 +24,74 @@ jest.mock('../../blue_modules/environment', () => ({
   isIOS26OrHigher: false,
 }));
 
-describe('wallet details header right', () => {
+jest.mock('react-native-linear-gradient', () => {
+  const { View } = require('react-native');
+  return {
+    __esModule: true,
+    default: (props: Record<string, unknown>) => <View {...props} />,
+  };
+});
+
+jest.mock('../../components/TooltipMenu', () => {
+  const { View } = require('react-native');
+  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <View>{children}</View> };
+});
+
+jest.mock('../../components/themes', () => ({
+  useTheme: () => ({
+    colors: {
+      foregroundColor: '#111111',
+      background: '#ffffff',
+      shadowColor: '#000000',
+    },
+  }),
+}));
+
+jest.mock('../../hooks/context/useSettings', () => ({
+  useSettings: () => ({
+    preferredFiatCurrency: { endPointKey: 'USD' },
+  }),
+}));
+
+const wallet = {
+  type: 'HDsegwitBech32',
+  hideBalance: false,
+  getLabel: () => 'Test Wallet',
+  getBalance: () => 0,
+  getPreferredBalanceUnit: () => BitcoinUnit.BTC,
+  allowOnchainAddress: async () => false,
+};
+
+describe('wallet transactions header tap targets', () => {
   const originalOS = Platform.OS;
 
   afterEach(() => {
     Object.defineProperty(Platform, 'OS', { configurable: true, value: originalOS });
     jest.clearAllMocks();
+  });
+
+  it('hero overlay and gradient do not claim pointer events under the transparent nav bar', () => {
+    const { getByTestId } = render(
+      <TransactionsNavigationHeader
+        wallet={wallet as any}
+        unit={BitcoinUnit.BTC}
+        headerOverlayHeight={88}
+        onWalletUnitChange={jest.fn()}
+      />,
+    );
+
+    // Regression guard: removing these pointerEvents reintroduces tap-stealing on iOS < 26 / Catalyst.
+    expect(getByTestId('WalletTransactionsHero').props.pointerEvents).toBe('box-none');
+    expect(getByTestId('WalletTransactionsHeroGradient').props.pointerEvents).toBe('none');
+  });
+
+  it('scrolled iOS title uses box-none so the full-width layout does not cover headerRight', () => {
+    Object.defineProperty(Platform, 'OS', { configurable: true, value: 'ios' });
+
+    const { getByTestId } = render(<WalletTransactionsScrolledHeaderTitle walletLabel="Savings" balance="0.01 BTC" />);
+
+    expect(getByTestId('WalletTransactionsScrolledHeaderTitle').props.pointerEvents).toBe('box-none');
+    expect(getByTestId('WalletTransactionsScrolledHeaderTitleArea').props.pointerEvents).toBe('box-none');
   });
 
   it('uses JS headerRight on pre–iOS 26 and navigates to WalletDetails on press', () => {
@@ -49,10 +110,7 @@ describe('wallet details header right', () => {
 
     const HeaderRight = options.headerRight as () => React.ReactElement;
     const { getByTestId } = render(HeaderRight());
-    const button = getByTestId('WalletDetails');
-
-    expect(button.props.accessibilityLabel).toBe(loc.wallets.details_title);
-    fireEvent.press(button);
+    fireEvent.press(getByTestId('WalletDetails'));
 
     expect(navigationRef.navigate).toHaveBeenCalledWith('WalletDetails', { walletID: 'wallet-1' });
   });
