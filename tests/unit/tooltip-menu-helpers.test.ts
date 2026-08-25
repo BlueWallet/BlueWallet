@@ -79,6 +79,16 @@ describe('TooltipMenu.helpers', () => {
       expect(buildMenu([withIcon], 'ios').items[0]).toMatchObject({ systemIcon: 'star', icon: undefined });
       expect(buildMenu([withIcon], 'android').items[0]).toMatchObject({ icon: 'star', systemIcon: undefined });
     });
+
+    it('forwards menuState as selected so Android can render checkmarks', () => {
+      const toggled: Action = { id: 'passphrase', text: 'Passphrase', menuState: true };
+      const untoggled: Action = { id: 'search', text: 'Search', menuState: false };
+
+      expect(buildMenu([toggled, untoggled], 'android').items).toEqual([
+        expect.objectContaining({ title: 'Passphrase', selected: true }),
+        expect.objectContaining({ title: 'Search', selected: false }),
+      ]);
+    });
   });
 
   describe('lookupId', () => {

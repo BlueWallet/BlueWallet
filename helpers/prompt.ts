@@ -51,11 +51,21 @@ export default (title: string, text: string, options: PromptHelperOptions = {}):
         ];
 
     const message = defaultValue !== undefined ? '' : text;
-    prompt(title, message, buttons, {
-      type,
-      cancelable,
-      keyboardType,
-      ...(defaultValue !== undefined && { defaultValue }),
-    });
+    const show = () =>
+      prompt(title, message, buttons, {
+        type,
+        cancelable,
+        keyboardType,
+        ...(defaultValue !== undefined && { defaultValue }),
+      });
+
+    // On Android, showing a DialogFragment during a navigation transition
+    // (e.g. ImportWallet → ImportWalletDiscovery passphrase prompt) can fail
+    // to present. Defer one tick so the activity is ready.
+    if (Platform.OS === 'android') {
+      setTimeout(show, 0);
+    } else {
+      show();
+    }
   });
 };
