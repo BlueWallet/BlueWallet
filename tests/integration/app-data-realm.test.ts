@@ -16,6 +16,7 @@ import {
   setWalletOutpointsFrozen,
   setWalletOrder,
   utxoRowToUtxo,
+  walletAddressHasActivity,
 } from '../../blue_modules/realm/appDataRepository';
 import type { TWallet } from '../../class/wallets/types';
 import { insertDeveloperIncomingTransaction, removeDeveloperTransactions } from '../../blue_modules/realm/developerFixtures';
@@ -72,6 +73,8 @@ describe('canonical app-data Realm', () => {
       'Realm applies pagination before rows reach JavaScript',
     );
     assert.strictEqual(findWalletTransactionByOutputAddress(realm, 'wallet-1', 'bc1qnotification')?.txid, 'newer');
+    assert.strictEqual(walletAddressHasActivity(realm, 'wallet-1', 'bc1qnotification'), true);
+    assert.strictEqual(walletAddressHasActivity(realm, 'wallet-1', 'bc1qunused'), false);
     const utxo = utxoRowToUtxo(queryWalletUtxos(realm, 'wallet-1', { frozen: true })[0]);
     assert.strictEqual(utxo.memo, 'Cold storage');
     assert.strictEqual(Object.prototype.hasOwnProperty.call(utxo, 'wif'), false);

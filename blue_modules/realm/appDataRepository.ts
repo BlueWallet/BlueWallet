@@ -664,6 +664,12 @@ export function findWalletTransactionByOutputAddress(realm: Realm, walletId: str
   return rows.length > 0 ? (activityRowToTransaction(rows.slice(0, 1)[0]) as Transaction) : undefined;
 }
 
+/** Checks address reuse entirely in Realm without materializing transaction payloads. */
+export function walletAddressHasActivity(realm: Realm, walletId: string, address: string): boolean {
+  if (!walletId || !address) return false;
+  return queryWalletActivityByOutputAddress(realm, walletId, address).length > 0;
+}
+
 export function utxoRowToUtxo(row: WalletUtxoRow): RealmUtxo {
   return {
     ...(JSON.parse(row.payloadJson) as Utxo),

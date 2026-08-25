@@ -11,6 +11,7 @@ import BlueButtonLink from '../../components/BlueButtonLink';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import type { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import CopyTextToClipboard, { CopyTextToClipboardHandle } from '../../components/CopyTextToClipboard';
@@ -22,7 +23,7 @@ import { TransactionPendingIconBig } from '../../components/TransactionPendingIc
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useWalletTransactionByOutputAddress } from '../../hooks/useWalletActivity';
+import { useIsWalletAddressUsed, useWalletTransactionByOutputAddress } from '../../hooks/useWalletActivity';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
@@ -146,6 +147,9 @@ type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 const ReceiveDetails = () => {
   const route = useRoute<RouteProps>();
   const { walletID, address } = route.params;
+  const explicitlyRequestedAddress = useRef(address).current;
+  const currentAddressRef = useRef(address);
+  currentAddressRef.current = address;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { colors } = useTheme();
@@ -163,10 +167,12 @@ const ReceiveDetails = () => {
   const [intervalMs, setIntervalMs] = useState(5000);
   const [displayBalance, setDisplayBalance] = useState('');
   const [qrCodeSize, setQRCodeSize] = useState(90);
+  const receiveObservationRef = useRef<{ address?: string; pendingTransactionId?: string }>({});
 
   const wallet = walletID ? wallets.find(w => w.getID() === walletID) : undefined;
   const isBIP47Enabled = wallet?.isBIP47Enabled();
   const receivedTransaction = useWalletTransactionByOutputAddress(wallet, address);
+  const isWalletAddressUsed = useIsWalletAddressUsed(walletID ?? '');
 
   const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
 
@@ -232,10 +238,10 @@ const ReceiveDetails = () => {
       console.warn('Wallet not found');
       return;
     }
-    if (address) {
+    if (explicitlyRequestedAddress) {
       try {
         await tryToObtainPermissions();
-        majorTomToGroundControl([address], [], []);
+        majorTomToGroundControl([explicitlyRequestedAddress], [], []);
       } catch (error) {
         console.error('Error obtaining notifications permissions:', error);
       }
@@ -245,17 +251,55 @@ const ReceiveDetails = () => {
     let newAddress;
     if (wallet.chain === Chain.ONCHAIN) {
       try {
-        if (!isElectrumDisabled) newAddress = await Promise.race([wallet.getAddressAsync(), sleep(1000)]);
+        // Refresh first so Realm contains the latest wallet activity. The
+        // refresh persists its transaction snapshot before resolving.
+        if (!isElectrumDisabled && walletID) await fetchAndSaveWalletTransactions(walletID, true);
+
+        const currentAddress = currentAddressRef.current;
+        if (currentAddress && !isWalletAddressUsed(currentAddress)) {
+          newAddress = currentAddress;
+        } else {
+          // Do not rely on `type` or `_hdWalletInstance in wallet` here. Older
+          // serialized wallets can have a stale type value, and an undefined
+          // TypeScript class field is absent at runtime. The watch-only HD
+          // wrapper is the wallet shape that combines init(), isHd(), and the
+          // derivation API.
+          const possibleWatchOnlyWallet = wallet as Partial<WatchOnlyWallet>;
+          const watchOnlyWallet =
+            typeof possibleWatchOnlyWallet.init === 'function' &&
+            typeof possibleWatchOnlyWallet.isHd === 'function' &&
+            typeof possibleWatchOnlyWallet.getNextFreeAddressIndex === 'function'
+              ? (wallet as WatchOnlyWallet)
+              : undefined;
+          if (watchOnlyWallet?.isHd() && !watchOnlyWallet._hdWalletInstance) {
+            watchOnlyWallet.init();
+          }
+          const derivationWallet = watchOnlyWallet ? watchOnlyWallet._hdWalletInstance : wallet;
+          let canDeriveAddresses = false;
+          if (derivationWallet && '_getExternalAddressByIndex' in derivationWallet && 'getNextFreeAddressIndex' in derivationWallet) {
+            canDeriveAddresses = true;
+            const startIndex = Math.max(0, derivationWallet.getNextFreeAddressIndex());
+            const candidatesToCheck = 21;
+            for (let offset = 0; offset < candidatesToCheck; offset++) {
+              const candidate = derivationWallet._getExternalAddressByIndex(startIndex + offset);
+              if (!isWalletAddressUsed(candidate)) {
+                newAddress = candidate;
+                break;
+              }
+            }
+          }
+
+          // Single-address wallets and an exhausted derivation window fall
+          // back to the wallet implementation's normal address discovery.
+          if (!newAddress) {
+            const candidate = await wallet.getAddressAsync();
+            if (candidate && (!canDeriveAddresses || !isWalletAddressUsed(candidate))) newAddress = candidate;
+          }
+        }
       } catch (error) {
         console.warn('Error fetching wallet address (ONCHAIN):', error);
       }
-      if (newAddress === undefined) {
-        if ('_getExternalAddressByIndex' in wallet) {
-          newAddress = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
-        } else {
-          newAddress = wallet.getAddress();
-        }
-      } else {
+      if (newAddress !== undefined) {
         saveToDisk().catch(error => console.error('Failed to persist generated wallet address:', error));
       }
     } else {
@@ -286,7 +330,17 @@ const ReceiveDetails = () => {
     } catch (error) {
       console.error('Error obtaining notifications permissions:', error);
     }
-  }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
+  }, [
+    explicitlyRequestedAddress,
+    fetchAndSaveWalletTransactions,
+    isElectrumDisabled,
+    isWalletAddressUsed,
+    saveToDisk,
+    setAddressBIP21Encoded,
+    sleep,
+    wallet,
+    walletID,
+  ]);
 
   const onEnablePaymentsCodeSwitchValue = useCallback(() => {
     if (wallet && wallet.allowBIP47()) {
@@ -342,18 +396,26 @@ const ReceiveDetails = () => {
 
   useEffect(() => {
     if (isCustom) return;
+
+    if (receiveObservationRef.current.address !== address) {
+      receiveObservationRef.current = { address };
+    }
+
     if (!receivedTransaction) {
-      // A previous address may have shown a payment result while this screen
-      // remained mounted. Clear that state when Realm has no match for the new
-      // address so imported/watch-only wallets show their QR normally.
       setDisplayBalance('');
       setShowPendingBalance(false);
       setShowConfirmedBalance(false);
       setShowAddress(Boolean(address));
       return;
     }
+
     const amount = Math.abs(receivedTransaction.value ?? 0);
+    const transactionId = receivedTransaction.txid || receivedTransaction.hash;
     if (receivedTransaction.confirmations === 0) {
+      if (receiveObservationRef.current.pendingTransactionId !== transactionId) {
+        triggerHapticFeedback(HapticFeedbackTypes.ImpactHeavy);
+      }
+      receiveObservationRef.current.pendingTransactionId = transactionId;
       setIntervalMs(25000);
       setDisplayBalance(
         loc.formatString(loc.transactions.pending_with_amount, {
@@ -367,7 +429,14 @@ const ReceiveDetails = () => {
       return;
     }
 
-    if ((receivedTransaction.confirmations ?? 0) > 0) {
+    // Match master's rendering semantics: an address with historical confirmed
+    // activity still displays its receive QR. Success is only shown when a
+    // transaction observed pending on this screen becomes confirmed.
+    if (
+      (receivedTransaction.confirmations ?? 0) > 0 &&
+      transactionId &&
+      receiveObservationRef.current.pendingTransactionId === transactionId
+    ) {
       setDisplayBalance(
         loc.formatString(loc.transactions.received_with_amount, {
           amt1: formatBalance(amount, BitcoinUnit.LOCAL_CURRENCY, true).toString(),
@@ -377,7 +446,13 @@ const ReceiveDetails = () => {
       setShowConfirmedBalance(true);
       setShowPendingBalance(false);
       setShowAddress(false);
+      return;
     }
+
+    setDisplayBalance('');
+    setShowConfirmedBalance(false);
+    setShowPendingBalance(false);
+    setShowAddress(Boolean(address));
   }, [address, isCustom, receivedTransaction]);
 
   useEffect(() => {
@@ -586,8 +661,8 @@ const ReceiveDetails = () => {
         try {
           if (wallet) {
             await obtainWalletAddress();
-          } else if (!wallet && address) {
-            setAddressBIP21Encoded(address);
+          } else if (!wallet && currentAddressRef.current) {
+            setAddressBIP21Encoded(currentAddressRef.current);
           }
         } catch (error) {
           if (!cancelled) {
@@ -598,7 +673,7 @@ const ReceiveDetails = () => {
       return () => {
         cancelled = true;
       };
-    }, [wallet, address, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
+    }, [wallet, obtainWalletAddress, setAddressBIP21Encoded, isCustom, hasIncomingCustomParams]),
   );
 
   const showCustomAmountModal = useCallback(() => {

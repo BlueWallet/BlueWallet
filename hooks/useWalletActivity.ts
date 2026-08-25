@@ -7,6 +7,7 @@ import {
   filterWalletActivity,
   filterWalletActivityByOutputAddress,
   filterWalletActivityForWallets,
+  walletAddressHasActivity,
   type WalletActivityQuery,
   type WalletActivityRow,
   type WalletTransactionRow,
@@ -143,6 +144,12 @@ export function useWalletTransactionByOutputAddress(wallet: TWallet | undefined,
 export function useFindWalletTransactionByOutputAddress(walletId: string) {
   const realm = useAppDataRealm();
   return useCallback((address: string) => findWalletTransactionByOutputAddress(realm, walletId, address), [realm, walletId]);
+}
+
+/** Imperatively checks whether an address already appears in canonical wallet activity. */
+export function useIsWalletAddressUsed(walletId: string) {
+  const realm = useAppDataRealm();
+  return useCallback((address: string) => walletAddressHasActivity(realm, walletId, address), [realm, walletId]);
 }
 
 /** Reads the latest row and pending existence through selective live Realm queries. */

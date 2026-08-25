@@ -25,6 +25,7 @@ import {
   scrubWalletUtxoSecrets,
   syncWalletOrder,
   utxoRowToUtxo,
+  walletAddressHasActivity,
   type WalletActivityRow,
   utxoToCreateTransactionInput,
 } from '../../blue_modules/realm/appDataRepository';
@@ -202,6 +203,8 @@ it('finds notification payments by output address through Realm', async () => {
   assert.strictEqual(queryWalletActivityByOutputAddress(realm, 'wallet-1', address).length, 1);
   assert.strictEqual(findWalletTransactionByOutputAddress(realm, 'wallet-1', address)?.txid, 'notification');
   assert.strictEqual(findWalletTransactionByOutputAddress(realm, 'wallet-1', 'bc1qmissing'), undefined);
+  assert.strictEqual(walletAddressHasActivity(realm, 'wallet-1', address), true);
+  assert.strictEqual(walletAddressHasActivity(realm, 'wallet-1', 'bc1qunused'), false);
 });
 
 it('maps optional Realm strings to undefined application metadata', async () => {

@@ -34,7 +34,7 @@ interface StorageContextType {
   currentSharedCosigner: string;
   setSharedCosigner: (cosigner: string) => void;
   addAndSaveWallet: (wallet: TWallet) => Promise<void>;
-  fetchAndSaveWalletTransactions: (walletID: string) => Promise<boolean>;
+  fetchAndSaveWalletTransactions: (walletID: string, force?: boolean) => Promise<boolean>;
   walletsInitialized: boolean;
   setWalletsInitialized: (initialized: boolean) => void;
   refreshAllWalletTransactions: (walletId?: string, showUpdateStatusIndicator?: boolean) => Promise<void>;
@@ -411,10 +411,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   );
 
   const fetchAndSaveWalletTransactions = useCallback(
-    async (walletID: string) => {
+    async (walletID: string, force = false) => {
       let noErr = true;
       try {
-        if (Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) {
+        if (!force && Date.now() - (_lastTimeTriedToRefetchWallet[walletID] || 0) < 5000) {
           console.debug('[fetchAndSaveWalletTransactions] Re-fetch wallet happens too fast; NOP');
           return false;
         }
