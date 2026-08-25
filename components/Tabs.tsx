@@ -32,7 +32,14 @@ export const Tabs: React.FC<TabsProps> = ({ active, onSwitch, tabs, isIpad = fal
   return (
     <View style={[tabsStyles.root, isIpad && tabsStyles.marginBottom]} onLayout={onLayout}>
       {tabs.map((Tab, i) => (
-        <TouchableOpacity key={i} accessibilityRole="button" testID={`Tab${i}`} onPress={() => onSwitch(i)} style={tabsStyles.tabRoot}>
+        <TouchableOpacity
+          key={i}
+          accessibilityRole="button"
+          accessibilityState={{ selected: active === i }}
+          testID={`Tab${i}`}
+          onPress={() => onSwitch(i)}
+          style={tabsStyles.tabRoot}
+        >
           <Tab active={active === i} />
         </TouchableOpacity>
       ))}

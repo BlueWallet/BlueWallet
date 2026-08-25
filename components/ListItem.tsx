@@ -202,6 +202,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         disabled={disabled}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
+        accessibilityState={checkmark === undefined ? undefined : { selected: checkmark }}
         android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}
         style={({ pressed }) => [
           stylesHook.containerStyle,

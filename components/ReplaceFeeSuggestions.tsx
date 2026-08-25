@@ -125,6 +125,7 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
         ].map(({ label, type, time, rate, active }) => (
           <TouchableOpacity
             accessibilityRole="button"
+            accessibilityState={{ selected: active }}
             key={label}
             onPress={() => handleFeeSelection(type)}
             style={[styles.button, active && stylesHook.activeButton]}
@@ -142,6 +143,7 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
         ))}
       <TouchableOpacity
         accessibilityRole="button"
+        accessibilityState={{ selected: selectedFeeType === NetworkTransactionFeeType.CUSTOM }}
         onPress={() => customTextInput.current?.focus()}
         style={[styles.button, selectedFeeType === NetworkTransactionFeeType.CUSTOM && stylesHook.activeButton]}
       >
