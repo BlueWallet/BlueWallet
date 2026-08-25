@@ -124,8 +124,15 @@ type OfflineModePillProps = {
 };
 
 const OfflineModePill: React.FC<OfflineModePillProps> = ({ onPress, backgroundColor }) => (
-  <Pressable onPress={onPress} style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor }]}>
-    <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={loc.settings.electrum_offline_mode}
+    onPress={onPress}
+    style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor }]}
+  >
+    <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
+    </View>
     <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
   </Pressable>
 );
@@ -137,7 +144,12 @@ type NotConnectedPillProps = {
 };
 
 const NotConnectedPill: React.FC<NotConnectedPillProps> = ({ onPress, backgroundColor, textColor }) => (
-  <Pressable onPress={onPress} style={[styles.updatingLabelContainer, { backgroundColor }]}>
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={loc.settings.electrum_connected_not}
+    onPress={onPress}
+    style={[styles.updatingLabelContainer, { backgroundColor }]}
+  >
     <Text style={[styles.updatingLabelText, { color: textColor }]}>{loc.settings.electrum_connected_not}</Text>
   </Pressable>
 );
