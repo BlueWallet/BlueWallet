@@ -181,7 +181,7 @@ const NewWalletPanel: React.FC<NewWalletPanelProps> = ({ onPress }) => {
 interface WalletCarouselItemProps {
   item: TWallet;
   hideBalance: boolean;
-  /** Primitive snapshot so React.memo notices in-place wallet mutations. See `getWalletCarouselItemDataRevision`. */
+  /** See `getWalletCarouselItemDataRevision` — busts React.memo on in-place wallet updates. */
   dataRevision: string;
   onPress: (item: TWallet) => void;
   handleLongPress?: () => void;
@@ -921,10 +921,7 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     },
   });
 
-  const dataRevisionKey = useMemo(
-    () => data.map(wallet => (wallet ? getWalletCarouselItemDataRevision(wallet) : '')).join('||'),
-    [data],
-  );
+  const dataRevisionKey = useMemo(() => data.map(wallet => (wallet ? getWalletCarouselItemDataRevision(wallet) : '')).join('||'), [data]);
 
   return isFlatList ? (
     <FlatList

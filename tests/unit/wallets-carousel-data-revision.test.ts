@@ -1,10 +1,7 @@
 import assert from 'assert';
 
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
-import {
-  getWalletCarouselItemDataRevision,
-  walletHasPendingTransaction,
-} from '../../components/WalletsCarousel';
+import { getWalletCarouselItemDataRevision, walletHasPendingTransaction } from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
 
 type MutableWallet = TWallet & {
@@ -71,7 +68,7 @@ describe('wallet carousel data revision', () => {
     assert.notStrictEqual(afterLabel, getWalletCarouselItemDataRevision(w));
 
     const afterHide = getWalletCarouselItemDataRevision(w);
-    w.preferredBalanceUnit = 'SATS';
+    w.preferredBalanceUnit = 'sats';
     assert.notStrictEqual(afterHide, getWalletCarouselItemDataRevision(w));
   });
 
