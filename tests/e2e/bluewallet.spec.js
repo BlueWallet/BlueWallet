@@ -224,8 +224,16 @@ describe('BlueWallet UI Tests - no wallets', () => {
         await waitForId('WalletsList');
         await element(by.id('SettingsButton')).tap();
       } else {
-        await goBack();
-        await goBack();
+        try {
+          await goBack();
+          await goBack();
+        } catch (e) {
+          // iOS 26 liquid glass: Close/Back can be un-tappable after the alert.
+          console.warn('Leaving notifications via goBack failed, relaunching:', e.message);
+          await device.launchApp({ newInstance: true });
+          await waitForId('WalletsList');
+          await element(by.id('SettingsButton')).tap();
+        }
       }
     } else {
       await goBack();
