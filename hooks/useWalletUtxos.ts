@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
 import {
@@ -45,7 +45,19 @@ const rowsToUtxos = (rows: Iterable<WalletUtxoRow>): RealmUtxo[] => {
 
 export const useWalletUtxoQuery = (walletId: string, query: WalletUtxoQuery = {}) => {
   const rows = useWalletUtxoRows(walletId, query);
-  return { utxos: rowsToUtxos(rows), totalValue: rows.sum('value'), count: rows.length };
+  const snapshotKey = Array.from(rows, row => `${row.outpoint}\u0000${row.memo}\u0000${row.frozen ? 1 : 0}\u0000${row.payloadJson}`).join(
+    '\u0001',
+  );
+  const cached = useRef<{ key: string; value: { utxos: RealmUtxo[]; totalValue: number; count: number } } | undefined>(undefined);
+
+  if (!cached.current || cached.current.key !== snapshotKey) {
+    cached.current = {
+      key: snapshotKey,
+      value: { utxos: rowsToUtxos(rows), totalValue: rows.sum('value'), count: rows.length },
+    };
+  }
+
+  return cached.current.value;
 };
 
 export default function useWalletUtxos(walletId: string, query: WalletUtxoQuery = {}): RealmUtxo[] {

@@ -48,8 +48,12 @@ let mockActivityTransactions: any[] = [];
 jest.mock('../../hooks/useWalletActivity', () => ({
   __esModule: true,
   default: () => new Map([['mock-wallet', mockActivityTransactions]]),
-  useWalletTransaction: (_wallet: unknown, transactionId: string) =>
-    mockActivityTransactions.find(transaction => transaction.hash === transactionId || transaction.txid === transactionId),
+  // Return a fresh projection like a naïvely mapped live Realm row. The screen
+  // must key its effects by transaction data, not JavaScript object identity.
+  useWalletTransaction: (_wallet: unknown, transactionId: string) => {
+    const transaction = mockActivityTransactions.find(candidate => candidate.hash === transactionId || candidate.txid === transactionId);
+    return transaction ? { ...transaction } : undefined;
+  },
 }));
 
 let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet' };

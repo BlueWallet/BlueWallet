@@ -18,6 +18,7 @@ import {
   utxoRowToUtxo,
 } from '../../blue_modules/realm/appDataRepository';
 import type { TWallet } from '../../class/wallets/types';
+import { insertDeveloperIncomingTransaction, removeDeveloperTransactions } from '../../blue_modules/realm/developerFixtures';
 
 jest.unmock('realm');
 
@@ -79,6 +80,12 @@ describe('canonical app-data Realm', () => {
     assert.strictEqual(readMetadata(realm).counterpartyMetadata.alice.label, 'Alice');
     setWalletOrder(realm, ['wallet-1']);
     assert.strictEqual(queryWalletOrder(realm, ['wallet-1'])[0].walletId, 'wallet-1');
+
+    const pendingFixture = insertDeveloperIncomingTransaction(realm, 'wallet-1', 'pending');
+    const confirmedFixture = insertDeveloperIncomingTransaction(realm, 'wallet-1', 'confirmed');
+    assert.strictEqual(queryWalletActivity(realm, 'wallet-1', { transactionId: pendingFixture })[0].pending, true);
+    assert.strictEqual(queryWalletActivity(realm, 'wallet-1', { transactionId: confirmedFixture })[0].confirmations, 6);
+    assert.strictEqual(removeDeveloperTransactions(realm), 2);
     realm.close();
 
     await assert.rejects(

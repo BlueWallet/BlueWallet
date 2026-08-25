@@ -24,6 +24,7 @@ const WALLET_LABEL_TOP_GAP = 32;
 
 interface TransactionsNavigationHeaderProps {
   wallet: TWallet;
+  walletBalance: number;
   unit: BitcoinUnit;
   headerOverlayHeight: number;
   onWalletUnitChange: (unit: BitcoinUnit) => void;
@@ -34,6 +35,7 @@ interface TransactionsNavigationHeaderProps {
 
 const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> = ({
   wallet,
+  walletBalance,
   headerOverlayHeight,
   onWalletUnitChange,
   onManageFundsPressed,
@@ -69,11 +71,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   }, [wallet, verifyIfWalletAllowsOnchainAddress]);
 
   const handleCopyPress = useCallback(() => {
-    const value = formatBalance(wallet.getBalance(), unit);
+    const value = formatBalance(walletBalance, unit);
     if (value) {
       Clipboard.setString(value);
     }
-  }, [unit, wallet]);
+  }, [unit, walletBalance]);
 
   const handleBalanceVisibility = useCallback(() => {
     onWalletBalanceVisibilityChange?.(!hideBalance);
@@ -136,12 +138,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
     );
   }, [handleManageFundsPressed]);
 
-  const currentBalance = wallet ? wallet.getBalance() : 0;
   const formattedBalance = useMemo(() => {
     return unit === BitcoinUnit.LOCAL_CURRENCY
-      ? formatBalance(currentBalance, unit, true)
-      : formatBalanceWithoutSuffix(currentBalance, unit, true);
-  }, [unit, currentBalance]);
+      ? formatBalance(walletBalance, unit, true)
+      : formatBalanceWithoutSuffix(walletBalance, unit, true);
+  }, [unit, walletBalance]);
 
   const balance = !wallet.hideBalance && formattedBalance;
 

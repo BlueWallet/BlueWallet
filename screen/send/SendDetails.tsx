@@ -343,7 +343,12 @@ const SendDetails = () => {
       { key: 'fastestFee', fee: fees.fastestFee },
     ] as const;
 
-    const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
+    const newFeePrecalc: IFee = {
+      current: null,
+      slowFee: null,
+      mediumFee: null,
+      fastestFee: null,
+    };
 
     let targets = [];
     for (const transaction of addresses) {
@@ -405,7 +410,14 @@ const SendDetails = () => {
       }
     }
 
-    setFeePrecalc(newFeePrecalc);
+    setFeePrecalc(current =>
+      current.current === newFeePrecalc.current &&
+      current.slowFee === newFeePrecalc.slowFee &&
+      current.mediumFee === newFeePrecalc.mediumFee &&
+      current.fastestFee === newFeePrecalc.fastestFee
+        ? current
+        : newFeePrecalc,
+    );
 
     // Calculate maxSendableAmount (only for single recipient with MAX)
     if (addresses.length === 1 && addresses[0].amount === BitcoinUnit.MAX && newFeePrecalc.current !== null) {
@@ -415,9 +427,7 @@ const SendDetails = () => {
     } else {
       setMaxSendableAmount(null);
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, networkTransactionFees, utxos, addresses, feeRate, transactionUtxos, frozenUtxoValue, balance]);
+  }, [wallet, networkTransactionFees, addresses, feeRate, transactionUtxos, balance]);
 
   // we need to re-calculate fees if user opens-closes coin control
   useFocusEffect(

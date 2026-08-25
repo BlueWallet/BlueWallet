@@ -200,7 +200,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const walletActionButtonsRef = useRef<View>(null);
   const [lastFetchTimestamp, setLastFetchTimestamp] = useState(() => wallet._lastTxFetch || 0);
   const [fetchFailures, setFetchFailures] = useState(0);
-  const [balance, setBalance] = useState(wallet.getBalance());
+  // The live Realm activity query above rerenders this screen when confirmation
+  // state changes. Read the already-refreshed wallet balance during that render
+  // and pass it as an explicit value to both navigation headers.
+  const balance = wallet.getBalance();
   const [displayUnit, setDisplayUnit] = useState(wallet.preferredBalanceUnit);
   const [isUnitSwitching, setIsUnitSwitching] = useState(false);
   const [isWatchOnlyWarningVisible, setIsWatchOnlyWarningVisible] = useState<boolean>(() => {
@@ -568,15 +571,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     }, [walletID, unregisterTransactionsHandler]),
   );
 
-  useFocusEffect(
-    useCallback(() => {
-      // sync once on focus so balance is fresh after returning to screen
-      setBalance(wallet.getBalance());
-      const interval = setInterval(() => setBalance(wallet.getBalance()), 1000);
-      return () => clearInterval(interval);
-    }, [wallet]),
-  );
-
   const walletBalance = useMemo(() => {
     if (wallet.hideBalance) return '';
     if (!Number.isFinite(balance)) return '';
@@ -714,6 +708,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         <TransactionsNavigationHeader
           headerOverlayHeight={headerOverlayHeight}
           wallet={wallet}
+          walletBalance={balance}
           onWalletUnitChange={async selectedUnit => {
             setIsUnitSwitching(true);
             setDisplayUnit(selectedUnit);
@@ -787,6 +782,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     ),
     [
       wallet,
+      balance,
       displayUnit,
       isUnitSwitching,
       headerOverlayHeight,
@@ -821,7 +817,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
         data={transactions as Transaction[]}
-        extraData={[wallet, displayUnit, wallet.hideBalance]}
+        extraData={[wallet, balance, displayUnit, wallet.hideBalance]}
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
         initialNumToRender={10}

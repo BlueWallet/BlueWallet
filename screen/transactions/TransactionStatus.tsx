@@ -181,6 +181,8 @@ const TransactionStatus: React.FC = () => {
   const counterpartyMetadata = useCounterpartyMetadata();
   const subscribedWallet = useWallet(walletID);
   const realmTransaction = useWalletTransaction(subscribedWallet, hash);
+  const isRealmDeveloperFixture = Boolean((realmTransaction as { isRealmDeveloperFixture?: boolean } | undefined)?.isRealmDeveloperFixture);
+  const realmTransactionSnapshot = realmTransaction ? JSON.stringify(realmTransaction) : '';
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
@@ -364,21 +366,26 @@ const TransactionStatus: React.FC = () => {
   // Realm owns the live wallet transaction snapshot. Electrum only augments it
   // with raw input data needed for fee calculation.
   useEffect(() => {
-    if (realmTransaction && hash) {
-      setTX(realmTransaction);
+    if (realmTransactionSnapshot && hash) {
+      const liveTransaction = JSON.parse(realmTransactionSnapshot) as Transaction;
+      setTX(liveTransaction);
       // Extract from/to addresses
       let newFrom: string[] = [];
       let newTo: string[] = [];
-      for (const input of realmTransaction.inputs || []) {
+      for (const input of liveTransaction.inputs || []) {
         newFrom = newFrom.concat(input?.addresses ?? []);
       }
-      for (const output of realmTransaction.outputs || []) {
+      for (const output of liveTransaction.outputs || []) {
         if (output?.scriptPubKey?.addresses) {
           newTo = newTo.concat(output.scriptPubKey.addresses);
         }
       }
       setFrom(newFrom);
       setTo(newTo);
+
+      // Dev Menu fixtures exist only to exercise Realm and UI propagation.
+      // They deliberately have no corresponding Electrum transaction.
+      if (isRealmDeveloperFixture) return;
 
       // Also fetch from Electrum to get complete transaction data including fee
       // For received transactions, we need to populate vin.value by fetching previous transactions
@@ -394,7 +401,7 @@ const TransactionStatus: React.FC = () => {
           console.error('Error fetching transaction from Electrum:', err);
         });
     }
-  }, [hash, realmTransaction]);
+  }, [hash, isRealmDeveloperFixture, realmTransactionSnapshot]);
 
   useEffect(() => {
     dispatch({ type: ActionType.SetWallet, payload: subscribedWallet });
@@ -424,6 +431,7 @@ const TransactionStatus: React.FC = () => {
     console.debug('transactionDetail - useEffect');
 
     if (!tx || tx?.confirmations) return;
+    if ((tx as { isRealmDeveloperFixture?: boolean }).isRealmDeveloperFixture) return;
     // Ark/Lightning rows carry a synthetic id (ark-/swap-/boarding-), not an on-chain
     // txid. Never poll Electrum for them — the old `if (!hash) return;` let the
     // synthetic id through and logged "… with hash ark-… not found" every interval.
@@ -612,6 +620,11 @@ const TransactionStatus: React.FC = () => {
 
   useEffect(() => {
     if (!tx?.hash || !wallet) return;
+    if ((tx as { isRealmDeveloperFixture?: boolean }).isRealmDeveloperFixture) {
+      setAllButtonStatus(ButtonStatus.NotPossible);
+      setIsLoading(false);
+      return;
+    }
     initialButtonsState().catch(error => console.error('Unhandled error in initialButtonsState:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx?.hash, wallet]);

@@ -341,7 +341,17 @@ const ReceiveDetails = () => {
   }, [address, fetchAndSaveWalletTransactions, intervalMs, isCustom, walletID]);
 
   useEffect(() => {
-    if (!receivedTransaction || isCustom) return;
+    if (isCustom) return;
+    if (!receivedTransaction) {
+      // A previous address may have shown a payment result while this screen
+      // remained mounted. Clear that state when Realm has no match for the new
+      // address so imported/watch-only wallets show their QR normally.
+      setDisplayBalance('');
+      setShowPendingBalance(false);
+      setShowConfirmedBalance(false);
+      setShowAddress(Boolean(address));
+      return;
+    }
     const amount = Math.abs(receivedTransaction.value ?? 0);
     if (receivedTransaction.confirmations === 0) {
       setIntervalMs(25000);
@@ -368,7 +378,7 @@ const ReceiveDetails = () => {
       setShowPendingBalance(false);
       setShowAddress(false);
     }
-  }, [isCustom, receivedTransaction]);
+  }, [address, isCustom, receivedTransaction]);
 
   useEffect(() => {
     const handleBackButton = () => {
