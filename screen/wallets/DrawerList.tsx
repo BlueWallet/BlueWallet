@@ -173,7 +173,9 @@ const DrawerList: React.FC<DrawerContentComponentProps> = memo((props: DrawerCon
         dispatch({ type: WalletActionType.SetWallets, wallets });
       }, 600);
     } else {
+      // Balance/tx refresh publishes a new wallets array with the same IDs — keep the drawer in sync.
       prevWalletIds.current = wallets.map(wallet => wallet.getID());
+      dispatch({ type: WalletActionType.SetWallets, wallets });
     }
   }, [wallets, fadeAnim]);
 
