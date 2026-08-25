@@ -60,10 +60,6 @@ import HandOffComponent from '../../components/HandOffComponent';
 import { HandOffActivityType } from '../../components/types';
 import WalletGradient from '../../class/wallet-gradient';
 import Animated, { SharedValue, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import {
-  getScrolledHeaderTitleLayout,
-  WalletTransactionsScrolledHeaderTitle,
-} from '../../components/WalletTransactionsScrolledHeaderTitle';
 
 const buttonFontSize =
   PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26) > 22
@@ -86,6 +82,17 @@ type WalletTransactionsScrolledHeaderOptions = NativeStackNavigationOptions & {
   headerTitleContainerStyle?: StyleProp<ViewStyle>;
 };
 
+/** Horizontal space reserved so the scrolled title does not run under back / header-right actions. */
+const getScrolledHeaderTitleLayout = (screenWidth: number) => {
+  const titleInsetLeft = Platform.OS === 'ios' ? (isIOS26OrHigher ? 40 : 56) : 72;
+  const titleInsetRight = Platform.OS === 'ios' ? (isIOS26OrHigher ? 96 : 84) : 84;
+  return {
+    maxWidth: Math.max(0, screenWidth - titleInsetLeft - titleInsetRight),
+    titleInsetLeft,
+    titleInsetRight,
+  };
+};
+
 const buildIos26HeaderTitleLayoutOptions = (
   screenWidth: number,
 ): Pick<WalletTransactionsScrolledHeaderOptions, 'headerTitleAlign' | 'headerTitleContainerStyle'> => ({
@@ -101,9 +108,12 @@ const buildIos26HeaderTitleLayoutOptions = (
   },
 });
 
-type WalletTransactionsScrolledHeaderTitleAnimatedProps = {
+type WalletTransactionsScrolledHeaderTitleProps = {
   walletLabel: string;
   balance: string;
+};
+
+type WalletTransactionsScrolledHeaderTitleAnimatedProps = WalletTransactionsScrolledHeaderTitleProps & {
   opacity: SharedValue<number>;
 };
 
@@ -122,6 +132,47 @@ const WalletTransactionsScrolledHeaderTitleAnimated: React.FC<WalletTransactions
       <WalletTransactionsScrolledHeaderTitle walletLabel={walletLabel} balance={balance} />
     </Animated.View>
   );
+};
+
+const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolledHeaderTitleProps> = ({ walletLabel, balance }) => {
+  const { width: screenWidth } = useWindowDimensions();
+  const { colors } = useTheme();
+  const { maxWidth, titleInsetLeft, titleInsetRight } = getScrolledHeaderTitleLayout(screenWidth);
+
+  const titleColor = Platform.OS === 'ios' ? colors.foregroundColor : '#FFFFFF';
+
+  const titleContent = (
+    <>
+      <Text style={[scrolledHeaderTitleStyles.walletLabel, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
+        {walletLabel}
+      </Text>
+      {balance.length > 0 ? (
+        <Text style={[scrolledHeaderTitleStyles.balance, { color: titleColor }]} numberOfLines={1} ellipsizeMode="tail">
+          {balance}
+        </Text>
+      ) : null}
+    </>
+  );
+
+  if (Platform.OS === 'ios') {
+    // Full-width root is for layout only; box-none keeps headerRight ("…") tappable.
+    return (
+      <View style={[scrolledHeaderTitleStyles.iosHeaderRoot, { width: screenWidth }]} pointerEvents="box-none">
+        <View
+          style={[
+            scrolledHeaderTitleStyles.container,
+            scrolledHeaderTitleStyles.iosTitleArea,
+            { left: titleInsetLeft, right: titleInsetRight },
+          ]}
+          pointerEvents="box-none"
+        >
+          {titleContent}
+        </View>
+      </View>
+    );
+  }
+
+  return <View style={[scrolledHeaderTitleStyles.container, { maxWidth }]}>{titleContent}</View>;
 };
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
@@ -892,6 +943,37 @@ export default WalletTransactions;
 const scrolledHeaderTitleStyles = StyleSheet.create({
   animatedTitleWrapper: {
     alignSelf: 'flex-start',
+  },
+  iosHeaderRoot: {
+    height: 44,
+    justifyContent: 'center',
+  },
+  iosTitleArea: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    minWidth: 0,
+  },
+  container: {
+    minWidth: 0,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  walletLabel: {
+    fontSize: 17,
+    fontWeight: '600',
+    letterSpacing: 0.15,
+    alignSelf: 'stretch',
+    flexShrink: 1,
+  },
+  balance: {
+    fontSize: 13,
+    fontWeight: '500',
+    lineHeight: 18,
+    marginTop: 1,
+    alignSelf: 'stretch',
+    flexShrink: 1,
   },
 });
 

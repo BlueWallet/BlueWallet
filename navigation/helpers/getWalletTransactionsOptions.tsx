@@ -31,7 +31,6 @@ export const createWalletDetailsHeaderRight = ({
   return () => (
     <TouchableOpacity
       accessibilityRole="button"
-      accessibilityLabel={loc.wallets.details_title}
       testID="WalletDetails"
       disabled={isLoading}
       style={styles.walletDetails}
