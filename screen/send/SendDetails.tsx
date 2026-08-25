@@ -606,7 +606,7 @@ const SendDetails = () => {
             error = loc.send.cant_send_to_bip47;
           } else {
             const bip47Wallet = wallet as unknown as AbstractHDElectrumWallet;
-            const notificationAddress = bip47Wallet.getBIP47NotificationAddressForPaymentCode(transaction.address);
+            const notificationAddress = new ContactList().getBip47NotificationAddress(transaction.address);
             if (!findTransactionByOutputAddress(notificationAddress)) {
               console.log('validation error');
               error = loc.send.cant_find_bip47_notification;

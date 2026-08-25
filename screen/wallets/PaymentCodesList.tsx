@@ -143,7 +143,7 @@ export default function PaymentCodesList() {
           return;
         }
         // check if notif tx is in place and has confirmations
-        const notificationAddress = foundWallet.getBIP47NotificationAddressForPaymentCode(pc);
+        const notificationAddress = cl.getBip47NotificationAddress(pc);
         const notifTx = findTransactionByOutputAddress(notificationAddress);
         if (!notifTx) {
           await _addContact(pc);
@@ -282,7 +282,7 @@ export default function PaymentCodesList() {
 
     setIsLoading(true);
 
-    const notificationAddress = foundWallet.getBIP47NotificationAddressForPaymentCode(newPc);
+    const notificationAddress = cl.getBip47NotificationAddress(newPc);
     const notificationTx = findTransactionByOutputAddress(notificationAddress);
     // Normalize once so both branches treat a mempool tx (undefined confirmations) as 0.
     // Without this, a fresh mempool notification tx falls through to creating a duplicate.

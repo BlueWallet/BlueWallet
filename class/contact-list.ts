@@ -16,6 +16,10 @@ export class ContactList {
     }
   }
 
+  getBip47NotificationAddress(pc: string): string {
+    return BIP47Factory(ecc).fromPaymentCode(pc).getNotificationAddress();
+  }
+
   isBip352PaymentCodeValid(pc: string) {
     return SilentPayment.isPaymentCodeValid(pc);
   }

@@ -1461,7 +1461,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * (i.e. if it exists - we notified in the past and dont need to notify again)
    */
   getBIP47NotificationTransaction(receiverPaymentCode: string): Transaction | undefined {
-    const remoteNotificationAddress = this.getBIP47NotificationAddressForPaymentCode(receiverPaymentCode);
+    const publicBip47 = BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode);
+    const remoteNotificationAddress = publicBip47.getNotificationAddress();
 
     for (const tx of this.getTransactions()) {
       for (const output of tx.outputs) {
@@ -1471,11 +1472,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         // but not gona verify it here, will just trust it
       }
     }
-  }
-
-  /** Derives a counterparty's public notification address without reading transaction state. */
-  getBIP47NotificationAddressForPaymentCode(receiverPaymentCode: string): string {
-    return BIP47Factory(ecc).fromPaymentCode(receiverPaymentCode).getNotificationAddress();
   }
 
   /**
