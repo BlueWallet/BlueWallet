@@ -8,10 +8,18 @@
 #
 # Upstream: https://github.com/facebook/react-native/issues/55540
 # Safe to re-run; no-ops when paths are missing (source builds) or already correct.
+#
+# Usage:
+#   fix-mac-catalyst-prebuilt-frameworks.sh [PODS_ROOT] [SCOPE]
+# SCOPE is one of: all (default), hermes, react, rndeps
+# When invoked from an Xcode script phase, pass the matching SCOPE so the phase
+# only writes under that pod (avoids user-script sandbox failures).
 
 set -euo pipefail
 
 PODS_ROOT="${1:-${PODS_ROOT:-}}"
+SCOPE="${2:-all}"
+
 if [[ -z "${PODS_ROOT}" ]]; then
   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   PODS_ROOT="$(cd "${SCRIPT_DIR}/../ios/Pods" && pwd)"
@@ -21,6 +29,14 @@ if [[ ! -d "${PODS_ROOT}" ]]; then
   echo "[fix-mac-catalyst-prebuilt] Pods root not found: ${PODS_ROOT} (skipping)"
   exit 0
 fi
+
+case "${SCOPE}" in
+  all|hermes|react|rndeps) ;;
+  *)
+    echo "[fix-mac-catalyst-prebuilt] Unknown SCOPE '${SCOPE}' (expected all|hermes|react|rndeps); skipping"
+    exit 0
+    ;;
+esac
 
 # Ensure a Mac Catalyst framework has the classic Versions/Current layout.
 # Args: <framework_dir> <binary_name> <versions_current_target>
@@ -110,31 +126,37 @@ find_maccatalyst_framework() {
   return 1
 }
 
-echo "[fix-mac-catalyst-prebuilt] Repairing Mac Catalyst prebuilt frameworks under ${PODS_ROOT}"
+echo "[fix-mac-catalyst-prebuilt] Repairing Mac Catalyst prebuilt frameworks under ${PODS_ROOT} (scope=${SCOPE})"
 
-# hermes-engine (Hermes V1 ships hermesvm.xcframework)
-HERMES_XCF="${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/universal/hermesvm.xcframework"
-if framework_path="$(find_maccatalyst_framework "${HERMES_XCF}" "hermesvm")"; then
-  # Hermes uses Versions/1 as the version directory.
-  fix_framework "${framework_path}" "hermesvm" "1"
+if [[ "${SCOPE}" == "all" || "${SCOPE}" == "hermes" ]]; then
+  # hermes-engine (Hermes V1 ships hermesvm.xcframework)
+  HERMES_XCF="${PODS_ROOT}/hermes-engine/destroot/Library/Frameworks/universal/hermesvm.xcframework"
+  if framework_path="$(find_maccatalyst_framework "${HERMES_XCF}" "hermesvm")"; then
+    # Hermes uses Versions/1 as the version directory.
+    fix_framework "${framework_path}" "hermesvm" "1"
+  fi
 fi
 
-# React-Core-prebuilt
-REACT_XCF="${PODS_ROOT}/React-Core-prebuilt/React.xcframework"
-if framework_path="$(find_maccatalyst_framework "${REACT_XCF}" "React")"; then
-  fix_framework "${framework_path}" "React" "A"
+if [[ "${SCOPE}" == "all" || "${SCOPE}" == "react" ]]; then
+  # React-Core-prebuilt
+  REACT_XCF="${PODS_ROOT}/React-Core-prebuilt/React.xcframework"
+  if framework_path="$(find_maccatalyst_framework "${REACT_XCF}" "React")"; then
+    fix_framework "${framework_path}" "React" "A"
+  fi
 fi
 
-# ReactNativeDependencies (path from ReactNativeDependencies.podspec)
-RNDEPS_XCF="${PODS_ROOT}/ReactNativeDependencies/framework/packages/react-native/ReactNativeDependencies.xcframework"
-if [[ ! -d "${RNDEPS_XCF}" ]]; then
-  # Fallback if CocoaPods flattens the layout differently.
-  # Avoid pipefail+SIGPIPE from `find | head` aborting the script under `set -e`.
-  RNDEPS_XCF="$(find "${PODS_ROOT}/ReactNativeDependencies" -type d -name 'ReactNativeDependencies.xcframework' 2>/dev/null | head -1)" || true
-  RNDEPS_XCF="${RNDEPS_XCF:-}"
-fi
-if [[ -n "${RNDEPS_XCF}" ]] && framework_path="$(find_maccatalyst_framework "${RNDEPS_XCF}" "ReactNativeDependencies")"; then
-  fix_framework "${framework_path}" "ReactNativeDependencies" "A"
+if [[ "${SCOPE}" == "all" || "${SCOPE}" == "rndeps" ]]; then
+  # ReactNativeDependencies (path from ReactNativeDependencies.podspec)
+  RNDEPS_XCF="${PODS_ROOT}/ReactNativeDependencies/framework/packages/react-native/ReactNativeDependencies.xcframework"
+  if [[ ! -d "${RNDEPS_XCF}" ]]; then
+    # Fallback if CocoaPods flattens the layout differently.
+    # Avoid pipefail+SIGPIPE from `find | head` aborting the script under `set -e`.
+    RNDEPS_XCF="$(find "${PODS_ROOT}/ReactNativeDependencies" -type d -name 'ReactNativeDependencies.xcframework' 2>/dev/null | head -1)" || true
+    RNDEPS_XCF="${RNDEPS_XCF:-}"
+  fi
+  if [[ -n "${RNDEPS_XCF}" ]] && framework_path="$(find_maccatalyst_framework "${RNDEPS_XCF}" "ReactNativeDependencies")"; then
+    fix_framework "${framework_path}" "ReactNativeDependencies" "A"
+  fi
 fi
 
 echo "[fix-mac-catalyst-prebuilt] Done"
