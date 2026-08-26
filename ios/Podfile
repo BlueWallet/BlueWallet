@@ -34,10 +34,6 @@ end
 
 
 target 'BlueWallet' do
-  # CocoaPods trunk TSBackgroundFetch 4.1.1 omits the Mac Catalyst slice;
-  # prefer the XCFramework shipped inside react-native-background-fetch.
-  # Use :path (not :podspec) — :podspec rejects s.source = { :path => '.' }.
-  pod 'TSBackgroundFetch', :path => './podspecs/TSBackgroundFetch'
   configure_target()
 end
 
@@ -48,6 +44,50 @@ end
 MAC_CATALYST_PREBUILT_FIX_SCRIPT = File.expand_path('../scripts/fix-mac-catalyst-prebuilt-frameworks.sh', __dir__)
 MAC_CATALYST_PREBUILT_FIX_PHASE_NAME = '[BlueWallet] Fix Mac Catalyst prebuilt frameworks'
 MAC_CATALYST_PREBUILT_FIX_MARKER = 'fix-mac-catalyst-prebuilt-frameworks.sh'
+
+# CocoaPods trunk TSBackgroundFetch 4.1.1 omits the Mac Catalyst slice. After
+# install, replace it with the npm-bundled XCFramework (which includes
+# ios-arm64_x86_64-maccatalyst) without changing how the pod is declared.
+def replace_tsbackgroundfetch_xcframework_with_npm_copy!(installer)
+  require 'fileutils'
+  src = File.expand_path('../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.xcframework', __dir__)
+  dst = File.join(installer.sandbox.root.to_s, 'TSBackgroundFetch', 'TSBackgroundFetch.xcframework')
+  unless File.directory?(src)
+    Pod::UI.warn "TSBackgroundFetch npm XCFramework missing: #{src}"
+    return
+  end
+  unless File.directory?(File.dirname(dst))
+    Pod::UI.warn "TSBackgroundFetch pod directory missing: #{File.dirname(dst)}"
+    return
+  end
+  FileUtils.rm_rf(dst)
+  FileUtils.cp_r(src, dst)
+  # npm Info.plist lists maccatalyst BinaryPath as Versions/A/... but the slice
+  # is a flat framework layout — correct so Xcode can locate the binary.
+  info = File.join(dst, 'Info.plist')
+  if File.exist?(info)
+    system(
+      'python3', '-c',
+      <<~PY,
+        import plistlib
+        from pathlib import Path
+        info = Path(#{info.inspect})
+        data = plistlib.loads(info.read_bytes())
+        changed = False
+        for lib in data.get("AvailableLibraries", []):
+            if lib.get("LibraryIdentifier") == "ios-arm64_x86_64-maccatalyst":
+                expected = "TSBackgroundFetch.framework/TSBackgroundFetch"
+                if lib.get("BinaryPath") != expected:
+                    lib["BinaryPath"] = expected
+                    changed = True
+        if changed:
+            info.write_bytes(plistlib.dumps(data))
+            print("Corrected TSBackgroundFetch maccatalyst BinaryPath")
+      PY
+    )
+  end
+  Pod::UI.puts 'Replaced TSBackgroundFetch.xcframework with npm copy (includes Mac Catalyst slice)'
+end
 
 def mac_catalyst_prebuilt_fix_shell(scope)
   # Invoked from Xcode via PODS_ROOT so we don't bake a machine-local absolute
@@ -124,6 +164,9 @@ post_install do |installer|
       File.write(xcconfig_path, content)
     end
   end
+
+  # Mac Catalyst: trunk TSBackgroundFetch lacks maccatalyst; swap in npm's XCFramework.
+  replace_tsbackgroundfetch_xcframework_with_npm_copy!(installer)
 
   # Mac Catalyst + RN prebuilts (RN 0.84+): repair framework symlinks after pod
   # install, and install build phases so Debug/Release tarball swaps stay fixed.
