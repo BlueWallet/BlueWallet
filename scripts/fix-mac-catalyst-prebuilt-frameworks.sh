@@ -129,7 +129,9 @@ fi
 RNDEPS_XCF="${PODS_ROOT}/ReactNativeDependencies/framework/packages/react-native/ReactNativeDependencies.xcframework"
 if [[ ! -d "${RNDEPS_XCF}" ]]; then
   # Fallback if CocoaPods flattens the layout differently.
-  RNDEPS_XCF="$(find "${PODS_ROOT}/ReactNativeDependencies" -type d -name 'ReactNativeDependencies.xcframework' 2>/dev/null | head -1 || true)"
+  # Avoid pipefail+SIGPIPE from `find | head` aborting the script under `set -e`.
+  RNDEPS_XCF="$(find "${PODS_ROOT}/ReactNativeDependencies" -type d -name 'ReactNativeDependencies.xcframework' 2>/dev/null | head -1)" || true
+  RNDEPS_XCF="${RNDEPS_XCF:-}"
 fi
 if [[ -n "${RNDEPS_XCF}" ]] && framework_path="$(find_maccatalyst_framework "${RNDEPS_XCF}" "ReactNativeDependencies")"; then
   fix_framework "${framework_path}" "ReactNativeDependencies" "A"

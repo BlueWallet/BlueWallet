@@ -42,9 +42,13 @@ end
 # https://github.com/facebook/react-native/issues/55540
 MAC_CATALYST_PREBUILT_FIX_SCRIPT = File.expand_path('../scripts/fix-mac-catalyst-prebuilt-frameworks.sh', __dir__)
 MAC_CATALYST_PREBUILT_FIX_PHASE_NAME = '[BlueWallet] Fix Mac Catalyst prebuilt frameworks'
+# Invoked from Xcode via PODS_ROOT so we don't bake a machine-local absolute path
+# into the Pods project (and so we run with the same write access as RN's own
+# replace-*-version script phases).
+MAC_CATALYST_PREBUILT_FIX_SHELL = 'bash "${PODS_ROOT}/../scripts/fix-mac-catalyst-prebuilt-frameworks.sh" "${PODS_ROOT}"'
 
 def run_mac_catalyst_prebuilt_fix!(pods_root)
-  unless File.executable?(MAC_CATALYST_PREBUILT_FIX_SCRIPT) || File.exist?(MAC_CATALYST_PREBUILT_FIX_SCRIPT)
+  unless File.exist?(MAC_CATALYST_PREBUILT_FIX_SCRIPT)
     Pod::UI.warn "Mac Catalyst prebuilt fix script missing: #{MAC_CATALYST_PREBUILT_FIX_SCRIPT}"
     return
   end
@@ -52,21 +56,24 @@ def run_mac_catalyst_prebuilt_fix!(pods_root)
 end
 
 # RN's replace-*-version.js scripts re-extract Debug/Release tarballs before
-# compile and wipe the post_install repair. Re-apply on the same pod targets
-# after those script phases.
+# compile and wipe the post_install repair. Append our fix to the END of those
+# existing phases (do not add a separate phase — Xcode user-script sandboxing
+# made a dedicated phase fail with PhaseScriptExecution on hermes-engine).
 def install_mac_catalyst_prebuilt_fix_build_phases!(installer)
-  targets = installer.pods_project.targets.select do |target|
-    %w[React-Core-prebuilt ReactNativeDependencies hermes-engine].include?(target.name)
-  end
-  return if targets.empty?
+  replace_phase_pattern = /Replace (Hermes|React Native Dependencies|React Native Core)/i
+  marker = 'fix-mac-catalyst-prebuilt-frameworks.sh'
 
-  targets.each do |target|
-    existing = target.shell_script_build_phases.find { |phase| phase.name == MAC_CATALYST_PREBUILT_FIX_PHASE_NAME }
-    phase = existing || target.new_shell_script_build_phase(MAC_CATALYST_PREBUILT_FIX_PHASE_NAME)
-    phase.shell_script = "bash \"#{MAC_CATALYST_PREBUILT_FIX_SCRIPT}\" \"${PODS_ROOT}\"\n"
-    # Always re-run: Debug↔Release prebuilt swaps rewrite the xcframeworks.
-    if phase.respond_to?(:always_out_of_date=)
-      phase.always_out_of_date = '1'
+  installer.pods_project.targets.each do |target|
+    next unless %w[React-Core-prebuilt ReactNativeDependencies hermes-engine].include?(target.name)
+
+    # Drop any previously injected dedicated phase from an earlier iteration.
+    target.shell_script_build_phases.select { |phase| phase.name == MAC_CATALYST_PREBUILT_FIX_PHASE_NAME }.each(&:remove_from_project)
+
+    target.shell_script_build_phases.each do |phase|
+      next unless phase.name =~ replace_phase_pattern
+      next if phase.shell_script&.include?(marker)
+
+      phase.shell_script = "#{phase.shell_script.rstrip}\n\n# BlueWallet: re-apply Mac Catalyst framework symlink repair after tarball swap\n#{MAC_CATALYST_PREBUILT_FIX_SHELL}\n"
     end
   end
   installer.pods_project.save
