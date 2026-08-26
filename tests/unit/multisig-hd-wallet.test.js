@@ -766,7 +766,7 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(
       MultisigHDWallet.isValidElectrumSeed('electrumseed:during pride layer jelly admit army want melody check witness favorite prosper'),
-      true,
+      false,
     );
 
     assert.strictEqual(
@@ -1857,24 +1857,27 @@ describe('multisig-wallet (native segwit)', () => {
       electrumWallet.getCosigner(1),
       'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
     );
+    assert.strictEqual(electrumWallet.getFingerprint(1), '8AAA5D05');
     electrumWallet.replaceCosignerSeedWithXpub(1);
     assert.strictEqual(
       electrumWallet.getCosigner(1),
       'Zpub6yUED4tEZDX9v4RbbrJVfEMSHJu7yFGfpbHt4jxf48m5oEFGWCXtu32o1wQkEbCCrHJfRbc8GeoBwpRowcvTMHruNcsbm97QD4uUzaXrtNK',
     );
+    assert.strictEqual(electrumWallet.getFingerprint(1), '8AAA5D05');
     electrumWallet.replaceCosignerXpubWithSeed(1, 'during pride layer jelly admit army want melody check witness favorite prosper');
     assert.strictEqual(
       electrumWallet.getCosigner(1),
       'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
     );
+    assert.strictEqual(electrumWallet.getFingerprint(1), '8AAA5D05');
     electrumWallet.replaceCosignerSeedWithXpub(1);
-    electrumWallet.replaceCosignerXpubWithSeed(
-      1,
-      'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
-    );
-    assert.strictEqual(
-      electrumWallet.getCosigner(1),
-      'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+    assert.throws(
+      () =>
+        electrumWallet.replaceCosignerXpubWithSeed(
+          1,
+          'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+        ),
+      /Not a valid mnemonic phrase/,
     );
   });
 

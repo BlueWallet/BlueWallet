@@ -202,10 +202,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   }
 
   static isValidElectrumSeed(seed: string) {
-    return (
-      mn.validateMnemonic(seed.replace(ELECTRUM_SEED_PREFIX, ''), mn.PREFIXES.segwit) ||
-      mn.validateMnemonic(seed.replace(ELECTRUM_SEED_PREFIX, ''), mn.PREFIXES.standard)
-    );
+    return mn.validateMnemonic(seed, mn.PREFIXES.segwit) || mn.validateMnemonic(seed, mn.PREFIXES.standard);
   }
 
   /**
@@ -1243,13 +1240,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       throw new Error('Not a valid mnemonic phrase');
     let calculatedFingerprint: string | undefined;
     if (MultisigHDWallet.isValidElectrumSeed(mnemonic)) {
-      if (!mnemonic.startsWith(ELECTRUM_SEED_PREFIX)) {
-        mnemonic = ELECTRUM_SEED_PREFIX + mnemonic;
-      }
+      mnemonic = ELECTRUM_SEED_PREFIX + mnemonic;
       const electrumSeed = MultisigHDWallet.convertElectrumMnemonicToSeed(mnemonic, passphrase);
       calculatedFingerprint = MultisigHDWallet.seedToFingerprint(electrumSeed);
+    } else {
+      calculatedFingerprint = MultisigHDWallet.mnemonicToFingerprint(mnemonic, passphrase);
     }
-    if (fingerprint !== MultisigHDWallet.mnemonicToFingerprint(mnemonic, passphrase) && fingerprint !== calculatedFingerprint) {
+    if (fingerprint !== calculatedFingerprint) {
       throw new Error('Fingerprint of new seed doesnt match');
     }
     this._cosigners[index] = mnemonic.trim();
@@ -1262,7 +1259,7 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
   replaceCosignerSeedWithXpub(externalIndex: number) {
     const index = externalIndex - 1;
     const mnemonics = this._cosigners[index];
-    if (!bip39.validateMnemonic(mnemonics) && !MultisigHDWallet.isValidElectrumSeed(mnemonics))
+    if (!bip39.validateMnemonic(mnemonics) && !MultisigHDWallet.isValidElectrumSeed(mnemonics.replace(ELECTRUM_SEED_PREFIX, '')))
       throw new Error('This cosigner doesnt contain valid xpub mnemonic phrase');
     const passphrase = this._cosignersPassphrases[index];
     const path = this._cosignersCustomPaths[index] || this._derivationPath;

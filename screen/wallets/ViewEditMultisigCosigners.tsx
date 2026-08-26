@@ -397,7 +397,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
       const hd = new HDSegwitBech32Wallet();
       hd.setSecret(mnemonic);
-      if (!hd.validateMnemonic() && !MultisigHDWallet.isValidElectrumSeed(mnemonic))
+      if (!hd.validateMnemonic() && !MultisigHDWallet.isValidElectrumSeed(hd.getSecret()))
         return presentAlert({ message: loc.multisig.invalid_mnemonics });
       try {
         wallet.replaceCosignerXpubWithSeed(cosignerNum, hd.getSecret(), passphrase);
