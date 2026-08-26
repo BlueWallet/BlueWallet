@@ -224,16 +224,8 @@ describe('BlueWallet UI Tests - no wallets', () => {
         await waitForId('WalletsList');
         await element(by.id('SettingsButton')).tap();
       } else {
-        try {
-          await goBack();
-          await goBack();
-        } catch (e) {
-          // iOS 26 liquid glass: Close/Back can be un-tappable after the alert.
-          console.warn('Leaving notifications via goBack failed, relaunching:', e.message);
-          await device.launchApp({ newInstance: true });
-          await waitForId('WalletsList');
-          await element(by.id('SettingsButton')).tap();
-        }
+        await goBack();
+        await goBack();
       }
     } else {
       await goBack();
@@ -306,27 +298,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
 
-    // Android: a second receive sheet in the same session has no RESUMED Activity.
-    if (device.getPlatform() === 'android') {
-      await device.launchApp({ newInstance: true });
-      await waitForId('WalletsList');
-      await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
-      await element(by.id('ReceiveButton')).tap();
-      await tapIfTextPresent('Yes, I have.');
-      await waitForId('BitcoinAddressQRCode');
-      await waitForId('CopyTextToClipboard');
-    }
-
-    // add per-address label then verify it renders on the receive screen
-    await element(by.id('ReceiveMoreOptionsButton')).tap();
-    await waitForId('AddressLabelOption');
-    await tapAndTapAgainIfElementIsNotVisible('AddressLabelOption', 'AddressLabelInput');
-    await element(by.id('AddressLabelInput')).replaceText('my recv label');
-    await element(by.id('AddressLabelInput')).tapReturnKey();
-    await waitForKeyboardToClose();
-    await tapAndTapAgainIfElementIsNotVisible('AddressLabelSaveButton', 'ReceiveAddressLabel');
-    await expect(element(by.text('my recv label'))).toBeVisible();
-
     // ManageWallets: relaunch to clear receive modal, then open via long-press, swipe-to-hide, verify persists across restart
     await device.launchApp({ newInstance: true });
     await waitForId('WalletsList');
@@ -354,7 +325,23 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('NavigationCloseButton')).tap();
     await waitForId('WalletsList');
 
-    // address label persisted, reopen receive and verify it's still there
+    // Per-address label on a fresh receive session. A second formSheet in the
+    // same session leaves Android Detox with no RESUMED Activity.
+    await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
+    await element(by.id('ReceiveButton')).tap();
+    await waitForId('BitcoinAddressQRCode');
+    await waitForId('CopyTextToClipboard');
+    await element(by.id('ReceiveMoreOptionsButton')).tap();
+    await waitForId('AddressLabelOption');
+    await tapAndTapAgainIfElementIsNotVisible('AddressLabelOption', 'AddressLabelInput');
+    await element(by.id('AddressLabelInput')).replaceText('my recv label');
+    await element(by.id('AddressLabelInput')).tapReturnKey();
+    await waitForKeyboardToClose();
+    await tapAndTapAgainIfElementIsNotVisible('AddressLabelSaveButton', 'ReceiveAddressLabel');
+    await expect(element(by.text('my recv label'))).toBeVisible();
+
+    await device.launchApp({ newInstance: true });
+    await waitForId('WalletsList');
     await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
     await waitForId('BitcoinAddressQRCode');
@@ -749,6 +736,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
 
     await waitForId('ProvideSignature');
     await element(by.id('ProvideSignature')).tap();
+    await waitFor(element(by.id('CosignedScanOrImportFile')))
+      .toBeVisible()
+      .whileElement(by.id('PsbtMultisigQRCodeScrollView'))
+      .scroll(500, 'down'); // in case emu screen is small and it doesnt fit
+
+    await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
 
     const ursSignedByPassport = [
       'UR:CRYPTO-PSBT/22-4/LPCMAACFAXPLCYZTVYVOPKHDWPHKAXPYJOIHIDHNJSATRTSWEYGUHDURWYDECAGLAAHTTBHTFZFPWDRTLROXLUEHCXAHJTIHTEHDHKTEVTOTIOWFSKGEOSCFFLDRGLFTCYKELSRDNSHYGLLEVYIDGYZOEEDAAOENHGASFDHFVWNSATVYCFETATZSFROXFPMHGUJNWDSPNYMHHGPAIMGYURAYCXLEZEZSCLKBJZLFSRAOOYMSYNCEHDOSPYGTTDSODRSKLALBCAVYBNOLOEGSOYVOVLMWFDPFHGBAVDAEAEAEADADWMDTGDPTADAEADADSTENFYASFDTBCLDINBAOHFHYTPPKWYMSSNDKHKKNUOIELPDRKTOYHPCFCSWNFXPKFZNEPKVOIOCNAOAXMNPSKPLTGYFLRHLOHGUYKISWBWVEGUGMLAAYDLLDLSAAVDTDSADLIDFXYLKKFYURMTOXLKMDRSTYTERSJNHSBDPSGOGWJKJESTWLZCTKGE',
@@ -760,18 +753,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // Keep sync disabled across animated QR cosign screens — re-enabling here
     // waits on pending layer animations and can hang the suite.
     try {
-      if (device.getPlatform() === 'ios') {
-        await device.disableSynchronization();
-      }
-      await waitFor(element(by.id('PsbtMultisigQRCodeScrollView')))
-        .toBeVisible()
-        .withTimeout(30_000);
-      await waitFor(element(by.id('CosignedScanOrImportFile')))
-        .toBeVisible()
-        .whileElement(by.id('PsbtMultisigQRCodeScrollView'))
-        .scroll(500, 'down');
-      await tapAndTapAgainIfElementIsNotVisible('CosignedScanOrImportFile', 'ScanQrBackdoorButton');
-
       await scanUrParts(ursSignedByPassport);
       await waitFor(element(by.id('ItemSigned')))
         .toBeVisible()
