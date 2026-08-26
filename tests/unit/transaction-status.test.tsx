@@ -277,6 +277,16 @@ describe('TransactionStatus regression', () => {
     jest.clearAllMocks();
   });
 
+  it('exposes the block explorer control as a button', async () => {
+    const { view } = setup(1, 1000);
+
+    await waitFor(() => {
+      const explorerButton = view.getByTestId('TransactionExplorerButton');
+      expect(explorerButton.props.accessibilityRole).toBe('button');
+      expect(explorerButton.props.accessibilityLabel).toBe('Explorer');
+    });
+  });
+
   it('re-fetches wallet transactions when lastTxFetch changes', async () => {
     const { view, update, walletMock } = setup(1, 1000);
 

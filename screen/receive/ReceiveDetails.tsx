@@ -508,8 +508,7 @@ const ReceiveDetails = () => {
         onPressOut={handlePressOut}
         disabled={!copyText}
         style={styles.cardPressable}
-        accessibilityRole="button"
-        accessibilityLabel={loc.transactions.details_copy}
+        accessible={false}
         testID="ReceiveCard"
       >
         <Animated.View style={[styles.receiveCard, stylesHook.receiveCard, stylesHook.receiveCardColumn, pressAnimatedStyle]}>
@@ -561,13 +560,22 @@ const ReceiveDetails = () => {
             <>
               <View style={styles.cardSpacer} />
               <View style={styles.addressRow}>
+                <Text
+                  accessible
+                  accessibilityRole="text"
+                  accessibilityLabel={copyText}
+                  importantForAccessibility="yes"
+                  style={styles.accessibilityOnly}
+                >
+                  {copyText}
+                </Text>
                 <CopyTextToClipboard
                   ref={copyRef}
                   text={copyText}
                   displayText={displayCopyText}
                   isAddress={isAddressTab}
                   truncated={false}
-                  interactive={false}
+                  accessibilityLabel={loc.transactions.details_copy}
                 />
               </View>
             </>
@@ -832,6 +840,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     minHeight: 48,
     justifyContent: 'center',
+  },
+  accessibilityOnly: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: 1,
+    height: 1,
+    fontSize: 1,
+    color: 'transparent',
   },
   bip47NotFoundContainer: {
     paddingVertical: 40,
