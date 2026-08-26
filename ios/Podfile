@@ -46,9 +46,10 @@ MAC_CATALYST_PREBUILT_FIX_MARKER = 'fix-mac-catalyst-prebuilt-frameworks.sh'
 
 def mac_catalyst_prebuilt_fix_shell(scope)
   # Invoked from Xcode via PODS_ROOT so we don't bake a machine-local absolute
-  # path into the Pods project. SCOPE limits writes to the pod that owns the
-  # script phase (Xcode user-script sandboxing).
-  %(bash "${PODS_ROOT}/../scripts/fix-mac-catalyst-prebuilt-frameworks.sh" "${PODS_ROOT}" #{scope})
+  # path into the Pods project. PODS_ROOT is ios/Pods, so ../../scripts is the
+  # repo-root scripts/ directory (not ios/scripts). SCOPE limits writes to the
+  # pod that owns the script phase (Xcode user-script sandboxing).
+  %(bash "${PODS_ROOT}/../../scripts/fix-mac-catalyst-prebuilt-frameworks.sh" "${PODS_ROOT}" #{scope})
 end
 
 def run_mac_catalyst_prebuilt_fix!(pods_root)
