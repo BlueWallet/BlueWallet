@@ -54,7 +54,7 @@ import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
-import { getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
+import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
 import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
@@ -361,8 +361,7 @@ const DetailViewStackScreensStack = () => {
     walletTransactionUpdateStatus,
   ]);
 
-  const settingsScreenOptions = (title: string) =>
-    isIOS26OrHigher ? getSettingsHeaderOptions(title, theme) : navigationStyle(getSettingsHeaderOptions(title, theme))(theme);
+  const settingsScreenOptions = createSettingsScreenOptions(theme);
 
   return (
     <ConnectionPollContext.Provider value={connectionPollContextValue}>
@@ -479,43 +478,7 @@ const DetailViewStackScreensStack = () => {
           options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
         />
 
-        <DetailViewStack.Screen
-          name="Settings"
-          component={Settings}
-          options={
-            isIOS26OrHigher
-              ? getSettingsHeaderOptions(loc.settings.header, theme)
-              : navigationStyle({
-                  title: loc.settings.header,
-                  headerBackButtonDisplayMode: 'minimal',
-                  headerBackTitle: '',
-                  headerShadowVisible: false,
-                  // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
-                  headerLargeTitle: Platform.OS === 'ios',
-                  headerLargeTitleStyle:
-                    Platform.OS === 'ios'
-                      ? {
-                          color:
-                            typeof theme.colors.foregroundColor === 'string'
-                              ? theme.colors.foregroundColor
-                              : String(theme.colors.foregroundColor),
-                        }
-                      : undefined,
-                  headerTitleStyle: {
-                    color:
-                      typeof theme.colors.foregroundColor === 'string'
-                        ? theme.colors.foregroundColor
-                        : String(theme.colors.foregroundColor),
-                  },
-                  headerTransparent: false,
-                  headerBlurEffect: undefined,
-                  headerStyle: {
-                    backgroundColor: theme.colors.background,
-                  },
-                  animationTypeForReplace: 'push',
-                })(theme)
-          }
-        />
+        <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
         <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
