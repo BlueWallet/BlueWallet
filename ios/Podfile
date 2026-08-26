@@ -37,6 +37,41 @@ target 'BlueWallet' do
   configure_target()
 end
 
+# Repair Mac Catalyst slices of RN prebuilt xcframeworks.
+# See scripts/fix-mac-catalyst-prebuilt-frameworks.sh and
+# https://github.com/facebook/react-native/issues/55540
+MAC_CATALYST_PREBUILT_FIX_SCRIPT = File.expand_path('../scripts/fix-mac-catalyst-prebuilt-frameworks.sh', __dir__)
+MAC_CATALYST_PREBUILT_FIX_PHASE_NAME = '[BlueWallet] Fix Mac Catalyst prebuilt frameworks'
+
+def run_mac_catalyst_prebuilt_fix!(pods_root)
+  unless File.executable?(MAC_CATALYST_PREBUILT_FIX_SCRIPT) || File.exist?(MAC_CATALYST_PREBUILT_FIX_SCRIPT)
+    Pod::UI.warn "Mac Catalyst prebuilt fix script missing: #{MAC_CATALYST_PREBUILT_FIX_SCRIPT}"
+    return
+  end
+  system('bash', MAC_CATALYST_PREBUILT_FIX_SCRIPT, pods_root.to_s)
+end
+
+# RN's replace-*-version.js scripts re-extract Debug/Release tarballs before
+# compile and wipe the post_install repair. Re-apply on the same pod targets
+# after those script phases.
+def install_mac_catalyst_prebuilt_fix_build_phases!(installer)
+  targets = installer.pods_project.targets.select do |target|
+    %w[React-Core-prebuilt ReactNativeDependencies hermes-engine].include?(target.name)
+  end
+  return if targets.empty?
+
+  targets.each do |target|
+    existing = target.shell_script_build_phases.find { |phase| phase.name == MAC_CATALYST_PREBUILT_FIX_PHASE_NAME }
+    phase = existing || target.new_shell_script_build_phase(MAC_CATALYST_PREBUILT_FIX_PHASE_NAME)
+    phase.shell_script = "bash \"#{MAC_CATALYST_PREBUILT_FIX_SCRIPT}\" \"${PODS_ROOT}\"\n"
+    # Always re-run: Debug↔Release prebuilt swaps rewrite the xcframeworks.
+    if phase.respond_to?(:always_out_of_date=)
+      phase.always_out_of_date = '1'
+    end
+  end
+  installer.pods_project.save
+end
+
 post_install do |installer|
   react_native_post_install(
     installer,
@@ -61,4 +96,9 @@ post_install do |installer|
       File.write(xcconfig_path, content)
     end
   end
+
+  # Mac Catalyst + RN prebuilts (RN 0.84+): repair framework symlinks after pod
+  # install, and install build phases so Debug/Release tarball swaps stay fixed.
+  run_mac_catalyst_prebuilt_fix!(installer.sandbox.root)
+  install_mac_catalyst_prebuilt_fix_build_phases!(installer)
 end
