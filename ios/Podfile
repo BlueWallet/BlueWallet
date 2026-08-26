@@ -34,8 +34,12 @@ end
 
 
 target 'BlueWallet' do
+  # CocoaPods trunk TSBackgroundFetch 4.1.1 omits the Mac Catalyst slice;
+  # prefer the XCFramework shipped inside react-native-background-fetch.
+  pod 'TSBackgroundFetch', :podspec => './podspecs/TSBackgroundFetch.podspec'
   configure_target()
 end
+
 
 # Repair Mac Catalyst slices of RN prebuilt xcframeworks.
 # See scripts/fix-mac-catalyst-prebuilt-frameworks.sh and
