@@ -405,7 +405,7 @@ const ElectrumSettings: React.FC = () => {
       <HeaderMenuButton
         actions={generateToolTipActions()}
         onPressMenuItem={onPressMenuItem}
-        accessibilityLabel={loc.settings.electrum_preferred_server}
+        accessibilityLabel={loc.settings.electrum_server_options}
       />
     ),
     [onPressMenuItem, generateToolTipActions],

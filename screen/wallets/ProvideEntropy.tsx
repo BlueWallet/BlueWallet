@@ -368,7 +368,12 @@ const ProvideEntropy = () => {
         </View>
       </TouchableOpacity>
 
-      <Tabs active={tab} onSwitch={setTab} tabs={[TollTab, D6Tab, D20Tab]} />
+      <Tabs
+        active={tab}
+        onSwitch={setTab}
+        tabs={[TollTab, D6Tab, D20Tab]}
+        accessibilityLabels={[loc.entropy.coin, loc.entropy.d6, loc.entropy.d20]}
+      />
 
       <View style={styles.tabContent}>
         {tab === 0 && (

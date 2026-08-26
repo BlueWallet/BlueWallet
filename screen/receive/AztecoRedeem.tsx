@@ -105,7 +105,7 @@ const AztecoRedeem = () => {
         <View style={styles.selectWallet1}>
           <TouchableOpacity
             accessibilityRole="button"
-            accessibilityLabel={loc.wallets.select_wallet}
+            accessibilityLabel={loc.azteco.redeem}
             style={styles.selectTouch}
             onPress={handleSelectWallet}
           >
