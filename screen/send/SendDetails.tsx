@@ -1213,6 +1213,7 @@ const SendDetails = () => {
         onPressMenuItem: headerRightOnPress,
         disabled: isLoading,
         preserveGroups: true,
+        accessibilityLabel: loc.wallets.details_options,
       }),
     [headerRightActionGroups, headerRightOnPress, isLoading],
   );
