@@ -144,6 +144,8 @@ const CameraScreen: React.FC<CameraScreenProps> = ({
           style={styles.cameraPreview}
           cameraType={cameraType}
           scanBarcode
+          // camera-kit defaults to 2000ms, which drops unique frames of animated QR codes
+          scanThrottleDelay={0}
           resizeMode="cover"
           onReadCode={handleReadCode}
           torchMode={torchMode ? 'on' : 'off'}
