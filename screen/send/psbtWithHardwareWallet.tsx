@@ -8,6 +8,7 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import presentAlert from '../../components/Alert';
+import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
@@ -289,7 +290,7 @@ const PsbtWithHardwareWallet = () => {
             }}
             onPress={() =>
               navigation.navigate('PsbtRaw', {
-                psbtBase64: typeof psbt === 'string' ? psbt : psbt.toBase64(),
+                psbtBase64: psbt.toBase64(),
               })
             }
             title={loc.send.psbt_view_raw}
@@ -314,12 +315,19 @@ const PsbtWithHardwareWallet = () => {
             />
           </SaveFileButton>
         )}
+        <BlueSpacing10 />
+        {psbt && (
+          <View style={styles.copyToClipboard}>
+            <CopyToClipboardButton stringToCopy={psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
+          </View>
+        )}
       </BlueCard>
     </View>
   );
 
   return (
     <ScrollView
+      centerContent
       style={stylesHook.scrollViewContent}
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
@@ -336,7 +344,7 @@ export default PsbtWithHardwareWallet;
 const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
-    paddingBottom: 24,
+    justifyContent: 'space-between',
   },
   container: {
     flexDirection: 'row',
@@ -379,6 +387,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     alignSelf: 'center',
+  },
+  copyToClipboard: {
+    marginVertical: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   hidden: {
     width: 0,

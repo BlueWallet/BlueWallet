@@ -195,6 +195,7 @@
     "psbt_sign": "Sign a transaction",
     "invalid_psbt": "Invalid PSBT provided.",
     "open_settings": "Open Settings",
+    "psbt_clipboard": "Copy to Clipboard",
     "psbt_view_raw": "View raw PSBT",
     "psbt_raw_helper": "This is the raw PSBT (base64). Tap to copy.",
     "psbt_this_is_psbt": "This is a Partially Signed Bitcoin Transaction (PSBT). Please finish signing it with your hardware wallet.",
