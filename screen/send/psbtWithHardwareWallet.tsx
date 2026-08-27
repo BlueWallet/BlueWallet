@@ -8,7 +8,6 @@ import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/h
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import presentAlert from '../../components/Alert';
-import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
@@ -19,7 +18,7 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { openSignedTransactionRaw } from '../../blue_modules/fs';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
@@ -252,12 +251,12 @@ const PsbtWithHardwareWallet = () => {
     <View style={styles.container}>
       <BlueCard>
         <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
-        <BlueSpacing20 />
+        <BlueSpacing10 />
         <Text testID="PSBTHex" style={styles.hidden}>
           {psbt?.toHex()}
         </Text>
         {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />}
-        <BlueSpacing20 />
+        <BlueSpacing10 />
         <SecondButton
           testID="PsbtTxScanButton"
           icon={{
@@ -269,7 +268,7 @@ const PsbtWithHardwareWallet = () => {
           ref={openScannerButton}
           title={loc.send.psbt_tx_scan}
         />
-        <BlueSpacing20 />
+        <BlueSpacing10 />
         <SecondButton
           icon={{
             name: 'login',
@@ -279,13 +278,31 @@ const PsbtWithHardwareWallet = () => {
           onPress={onOpenSignedTransaction}
           title={loc.send.psbt_tx_open}
         />
-        <BlueSpacing20 />
+        <BlueSpacing10 />
+        {psbt && (
+          <SecondButton
+            testID="PsbtViewRawButton"
+            icon={{
+              name: 'code',
+              type: 'font-awesome',
+              color: colors.secondButtonTextColor,
+            }}
+            onPress={() =>
+              navigation.navigate('PsbtRaw', {
+                psbtBase64: typeof psbt === 'string' ? psbt : psbt.toBase64(),
+              })
+            }
+            title={loc.send.psbt_view_raw}
+          />
+        )}
+        <BlueSpacing10 />
         {psbt && (
           <SaveFileButton
             fileName={`${Date.now()}.psbt`}
             fileContent={psbt.toBase64()}
             beforeOnPress={saveFileButtonBeforeOnPress}
             afterOnPress={saveFileButtonAfterOnPress}
+            style={styles.exportButton}
           >
             <SecondButton
               icon={{
@@ -297,19 +314,12 @@ const PsbtWithHardwareWallet = () => {
             />
           </SaveFileButton>
         )}
-        <BlueSpacing20 />
-        {psbt && (
-          <View style={styles.copyToClipboard}>
-            <CopyToClipboardButton stringToCopy={typeof psbt === 'string' ? psbt : psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
-          </View>
-        )}
       </BlueCard>
     </View>
   );
 
   return (
     <ScrollView
-      centerContent
       style={stylesHook.scrollViewContent}
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
@@ -326,13 +336,17 @@ export default PsbtWithHardwareWallet;
 const styles = StyleSheet.create({
   scrollViewContent: {
     flexGrow: 1,
-    justifyContent: 'space-between',
+    paddingBottom: 24,
   },
   container: {
     flexDirection: 'row',
     justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 16,
+  },
+  exportButton: {
+    alignSelf: 'stretch',
+    width: '100%',
   },
   rootPadding: {
     flex: 1,
@@ -365,11 +379,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     alignSelf: 'center',
-  },
-  copyToClipboard: {
-    marginVertical: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   hidden: {
     width: 0,
