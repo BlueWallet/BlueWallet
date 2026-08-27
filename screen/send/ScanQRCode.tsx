@@ -65,7 +65,7 @@ const ScanQRCode = () => {
 
   const { launchedBy = defaultLaunchedBy, showFileImportButton, onBarScanned } = route.params || {};
   const scannedCache: Record<string, number> = {};
-  const lastScannedData = useRef<string | undefined>();
+  let lastScannedData: string | undefined;
   const { colors } = useTheme();
   const isFocused = useIsFocused();
   const [backdoorPressed, setBackdoorPressed] = useState(0);
@@ -160,10 +160,10 @@ const ScanQRCode = () => {
       return;
     }
     // Camera delivers the same payload many times while a QR is on screen; skip hashing.
-    if (ret.data === lastScannedData.current) {
+    if (ret.data === lastScannedData) {
       return;
     }
-    lastScannedData.current = ret.data;
+    lastScannedData = ret.data;
 
     const h = HashIt(ret.data);
     if (scannedCache[h]) {
