@@ -620,10 +620,59 @@ const styles = StyleSheet.create({
 });
 
 const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
-  navigationStyle({
-    title: loc.receive.header,
-    closeButtonPosition: CloseButtonPosition.Right,
-    headerShown: true,
-    presentation: 'modal',
-    headerBackVisible: false,
-  })(theme);
+
+  navigationStyle(
+    {
+      title: loc.receive.header,
+      closeButtonPosition: CloseButtonPosition.Left,
+      headerShown: true,
+      presentation: 'modal',
+      headerBackVisible: false,
+    },
+    (options, { navigation, route }) => {
+      const allowBIP47 = route.params?.allowBIP47 ?? false;
+      const isBIP47Enabled = route.params?.isBIP47Enabled ?? false;
+      const showBip47Menu = allowBIP47;
+      const onPressMenuItem = () => {
+        navigation.setParams({ toggleBIP47RequestedAt: Date.now() });
+      };
+
+      const actions: Action[] = [{ ...CommonToolTipActions.PaymentsCode, menuState: isBIP47Enabled }];
+      const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem });
+      const emptyLeft = () => React.createElement(View, { style: styles.receiveHeaderEmptyLeftSlot });
+
+      if (showBip47Menu) {
+        return {
+          ...options,
+          headerLeft: options.headerLeft,
+          headerRight: headerMenuOptions.headerRight,
+          unstable_headerLeftItems: options.unstable_headerLeftItems,
+          unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
+        };
+      }
+
+      const renderCloseRight = () => (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc._.close}
+          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+          onPress={navigation.goBack}
+          testID="NavigationCloseButton"
+        >
+          <Image source={theme.closeImage} />
+        </Pressable>
+      );
+
+      return {
+        ...options,
+        // On Android a left-positioned close is the native back button restyled as an X
+        // (headerBackImageSource), so overriding headerLeft alone would leave it on screen
+        // next to the close button we render on the right.
+        headerBackVisible: false,
+        headerLeft: emptyLeft,
+        headerRight: renderCloseRight,
+        unstable_headerLeftItems: () => [],
+        unstable_headerRightItems: options.unstable_headerRightItems,
+      };
+    },
+  )(theme);
