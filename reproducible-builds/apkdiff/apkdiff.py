@@ -16,8 +16,7 @@ from collections import defaultdict
 from androguard.core import axml
 from loguru import logger
 
-from util import deep_compare, format_differences
-from tqdm import tqdm
+from util import deep_compare, show_diffs
 
 logging.getLogger("deepdiff").setLevel(logging.ERROR)
 
@@ -257,9 +256,16 @@ def compare_resources_arsc(first_entry_bytes: bytes, second_entry_bytes: bytes) 
             continue
 
         # Compare each package element
-        for i in tqdm(range(len(packages1))):
-            pkg1 = packages1[i]
-            pkg2 = packages2[i]
+        total = len(packages1)
+        log_interval = max(1, total // 10)  # Log at 10% intervals, minimum every item
+        for idx, (pkg1, pkg2) in enumerate(zip(packages1, packages2)):
+            if idx % log_interval == 0 or idx == total - 1:
+                progress_pct = ((idx + 1) * 100) // total
+                print(
+                    f"\rProcessing package {idx + 1}/{total} ({progress_pct}%) in {package_name}...",
+                    end="",
+                    flush=True,
+                )
 
             if type(pkg1) is not type(pkg2):
                 print(f"Element type mismatch at index {i}: {type(pkg1).__name__} vs {type(pkg2).__name__}")
@@ -325,6 +331,9 @@ def compare_resources_arsc(first_entry_bytes: bytes, second_entry_bytes: bytes) 
                 if diffs:
                     total_diffs[type(pkg1).__name__].append((i, diffs))
                     success = False
+
+        print()  # Clear the progress line
+        logger.info("Completed processing {} packages in {}", total, package_name)
 
     for type_name, diffs in total_diffs.items():
         if diffs:
@@ -420,7 +429,9 @@ def compare_xml_elements(elem1: Element, elem2: Element, path: str = "") -> list
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: apkdiff <pathToFirstApk> <pathToSecondApk>")
+        logger.error(
+            "Not enough arguments. Usage: apkdiff <path_to_first_apk> <path_to_second_apk>"
+        )
         sys.exit(1)
 
     if compare(sys.argv[1], sys.argv[2]):
