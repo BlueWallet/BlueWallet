@@ -5,6 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 
 import * as AmountInput from '../../components/AmountInput';
+import BlueButtonLink from '../../components/BlueButtonLink';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -140,25 +141,8 @@ const ReceiveCustomAmountSheet = () => {
         <BlueSpacing20 />
         <BlueSpacing20 />
         <View style={styles.modalButtonContainer}>
-          <View style={styles.modalButton}>
-            <Button
-              testID="CustomAmountResetButton"
-              backgroundColor={colors.modalButton}
-              buttonTextColor={colors.foregroundColor}
-              title={loc.receive.reset}
-              onPress={handleReset}
-            />
-          </View>
-          <View style={styles.modalButtonSpacing} />
-          <View style={styles.modalButton}>
-            <Button
-              testID="CustomAmountSaveButton"
-              backgroundColor={colors.modalButton}
-              buttonTextColor={colors.foregroundColor}
-              title={loc.receive.details_create}
-              onPress={handleSave}
-            />
-          </View>
+          <Button testID="CustomAmountSaveButton" title={loc.receive.details_add} onPress={handleSave} />
+          <BlueButtonLink testID="CustomAmountResetButton" style={styles.resetLink} title={loc.receive.reset} onPress={handleReset} />
         </View>
       </View>
     </SafeAreaView>
@@ -185,18 +169,14 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     borderRadius: 4,
   },
-  modalButton: {
-    flex: 0.5,
-  },
   modalButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
     width: '100%',
   },
-  modalButtonSpacing: {
-    width: 16,
+  resetLink: {
+    marginTop: 12,
+    alignSelf: 'center',
   },
   customAmountText: {
     flex: 1,

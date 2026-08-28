@@ -3,7 +3,7 @@ import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from '
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
-import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
+import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
 import { Action } from '../components/types';
 import loc from '../loc';
@@ -62,6 +62,8 @@ import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
+import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
+import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -564,13 +566,17 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
           component={ReceiveCustomAmountSheet}
-          options={navigationStyle({
-            presentation: 'formSheet',
-            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
-            headerTitle: loc.receive.details_setAmount,
-            sheetGrabberVisible: true,
-            closeButtonPosition: CloseButtonPosition.Right,
-          })(theme)}
+          options={receiveSheetOptions(loc.receive.details_setAmount, 0.9)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveMoreOptions"
+          component={ReceiveMoreOptionsSheet}
+          options={receiveSheetOptions(loc.receive.details_more_options)(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ReceiveAddressLabel"
+          component={ReceiveAddressLabelSheet}
+          options={receiveSheetOptions(loc.receive.option_label)(theme)}
         />
       </DetailViewStack.Navigator>
     </ConnectionPollContext.Provider>
@@ -614,9 +620,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
-  receiveHeaderEmptyLeftSlot: {
-    width: 40,
-  },
 });
 
 const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
@@ -637,36 +640,15 @@ const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
 
       const actions: Action[] = [{ ...CommonToolTipActions.PaymentsCode, menuState: isBIP47Enabled }];
       const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem });
-      const emptyLeft = () => React.createElement(View, { style: styles.receiveHeaderEmptyLeftSlot });
 
       if (showBip47Menu) {
         return {
           ...options,
-          headerLeft: options.headerLeft,
           headerRight: headerMenuOptions.headerRight,
-          unstable_headerLeftItems: options.unstable_headerLeftItems,
           unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
         };
       }
 
-      const renderCloseRight = () => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={loc._.close}
-          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-          onPress={navigation.goBack}
-          testID="NavigationCloseButton"
-        >
-          <Image source={theme.closeImage} />
-        </Pressable>
-      );
-
-      return {
-        ...options,
-        headerLeft: emptyLeft,
-        headerRight: renderCloseRight,
-        unstable_headerLeftItems: () => [],
-        unstable_headerRightItems: options.unstable_headerRightItems,
-      };
+      return options;
     },
   )(theme);

@@ -127,7 +127,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
 }: TransactionListItemProps) => {
   const { colors } = useTheme();
   const { navigate } = useNavigation<NavigationProps>();
-  const { txMetadata, counterpartyMetadata, wallets } = useStorage();
+  const { txMetadata, counterpartyMetadata, addressMetadata, wallets } = useStorage();
   const { language, selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
@@ -152,6 +152,25 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   }
   const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
+
+  // Labels of every address in this tx, comma separated. Not memoized: addressMetadata is mutated in
+  // place, so a useMemo keyed on it would return a stale label after every edit.
+  const addressLabel = ((): string | undefined => {
+    if (Object.keys(addressMetadata).length === 0) return undefined;
+    const labels = new Set<string>();
+    const txAddresses = [
+      ...(item.outputs ?? []).flatMap(o => o?.scriptPubKey?.addresses ?? []),
+      ...(item.inputs ?? []).flatMap(i => i?.addresses ?? (i?.address ? [i.address] : [])),
+    ];
+    for (const addr of txAddresses) {
+      const label = addressMetadata[addr]?.label;
+      if (label) labels.add(label);
+    }
+    return labels.size > 0 ? [...labels].join(', ') : undefined;
+  })();
+
+  // Priority: contact > memo/note > address label > empty.
+  const rightSubtitle = counterparty ? noteForCopy : (txMetadata[item.hash]?.memo || item.memo || '').trim() || addressLabel;
 
   // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
   // wallet transacts entirely via Boltz swaps, so every row is Lightning; the
@@ -553,7 +572,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
           chevron={false}
           rightTitle={rowTitle}
           rightTitleStyle={rowTitleStyle}
-          rightSubtitle={noteForCopy}
+          rightSubtitle={rightSubtitle}
           rightSubtitleStyle={styles.rightColumn}
           containerStyle={combinedStyle}
           testID="TransactionListItem"

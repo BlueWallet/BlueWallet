@@ -54,6 +54,12 @@ export type TCounterpartyMetadata = {
   };
 };
 
+export type TAddressMetadata = {
+  [address: string]: {
+    label: string;
+  };
+};
+
 type TRealmTransaction = {
   internal: boolean;
   index: number;
@@ -64,6 +70,7 @@ type TBucketStorage = {
   wallets: string[]; // array of serialized wallets, not actual wallet objects
   tx_metadata: TTXMetadata;
   counterparty_metadata: TCounterpartyMetadata;
+  address_metadata?: TAddressMetadata; // absent in older buckets
 };
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
@@ -81,12 +88,14 @@ export class BlueApp {
   public cachedPassword?: false | string;
   public tx_metadata: TTXMetadata;
   public counterparty_metadata: TCounterpartyMetadata;
+  public address_metadata: TAddressMetadata;
   public wallets: TWallet[];
 
   constructor() {
     this.wallets = [];
     this.tx_metadata = {};
     this.counterparty_metadata = {};
+    this.address_metadata = {};
     this.cachedPassword = false;
   }
 
@@ -208,6 +217,7 @@ export class BlueApp {
       this.wallets = [];
       this.tx_metadata = {};
       this.counterparty_metadata = {};
+      this.address_metadata = {};
       return this.loadFromDisk();
     } else {
       throw new Error('Incorrect password. Please, try again.');
@@ -238,11 +248,13 @@ export class BlueApp {
     this.wallets = [];
     this.tx_metadata = {};
     this.counterparty_metadata = {};
+    this.address_metadata = {};
 
     const data: TBucketStorage = {
       wallets: [],
       tx_metadata: {},
       counterparty_metadata: {},
+      address_metadata: {},
     };
 
     let buckets = await this.getItem('data');
@@ -379,6 +391,11 @@ export class BlueApp {
       const data: TBucketStorage = JSON.parse(dataRaw);
       if (!data.wallets) return false;
       const wallets = data.wallets;
+      // Bucket-wide, not per-wallet, so hoisted out of the loop: an empty wallets array must still
+      // load it. `?? {}` because older buckets predate some of these fields.
+      this.tx_metadata = data.tx_metadata ?? {};
+      this.counterparty_metadata = data.counterparty_metadata ?? {};
+      this.address_metadata = data.address_metadata ?? {};
       for (const key of wallets) {
         // deciding which type is wallet and instantiating correct object
         const tempObj = JSON.parse(key);
@@ -486,8 +503,6 @@ export class BlueApp {
         const ID = unserializedWallet.getID();
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
-          this.tx_metadata = data.tx_metadata;
-          this.counterparty_metadata = data.counterparty_metadata;
         }
       }
       if (realm) realm.close();
@@ -654,6 +669,7 @@ export class BlueApp {
         wallets: walletsToSave,
         tx_metadata: this.tx_metadata,
         counterparty_metadata: this.counterparty_metadata,
+        address_metadata: this.address_metadata,
       };
 
       if (this.cachedPassword) {
