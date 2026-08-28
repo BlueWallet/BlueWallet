@@ -103,6 +103,7 @@ export class BlueApp {
   private appDataRealmPromise?: Promise<Realm>;
   private appDataRealmListeners = new Set<(realm: Realm | undefined) => void>();
   private retiredAppDataRealms = new Set<Realm>();
+  private appDataRealmReleaseWaiters = new Map<Realm, Set<() => void>>();
   private walletStorageSaveQueue: Promise<void> = Promise.resolve();
 
   constructor() {
@@ -296,7 +297,12 @@ export class BlueApp {
   subscribeToAppDataRealm = (listener: (realm: Realm | undefined) => void): (() => void) => {
     this.appDataRealmListeners.add(listener);
     listener(this.appDataRealm && !this.appDataRealm.isClosed ? this.appDataRealm : undefined);
-    return () => this.appDataRealmListeners.delete(listener);
+    return () => {
+      this.appDataRealmListeners.delete(listener);
+      if (this.appDataRealmListeners.size === 0) {
+        for (const realm of Array.from(this.retiredAppDataRealms)) this.releaseAppDataRealm(realm);
+      }
+    };
   };
 
   private publishAppDataRealm(realm: Realm | undefined): void {
@@ -308,7 +314,30 @@ export class BlueApp {
     if (realm === this.appDataRealm) return;
     this.retiredAppDataRealms.delete(realm);
     if (!realm.isClosed) realm.close();
+    const waiters = this.appDataRealmReleaseWaiters.get(realm);
+    this.appDataRealmReleaseWaiters.delete(realm);
+    for (const resolve of waiters ?? []) resolve();
   };
+
+  /** Waits until React has committed the replacement Realm before touching the retired file. */
+  private waitForAppDataRealmRelease(realm: Realm): Promise<void> {
+    if (realm.isClosed || !this.retiredAppDataRealms.has(realm)) return Promise.resolve();
+    if (this.appDataRealmListeners.size === 0) {
+      this.releaseAppDataRealm(realm);
+      return Promise.resolve();
+    }
+
+    return new Promise(resolve => {
+      const waiters = this.appDataRealmReleaseWaiters.get(realm) ?? new Set<() => void>();
+      waiters.add(resolve);
+      this.appDataRealmReleaseWaiters.set(realm, waiters);
+    });
+  }
+
+  private async releaseRetiredAppDataRealmsAtPath(path: string): Promise<void> {
+    const realms = Array.from(this.retiredAppDataRealms).filter(realm => realm.path === path);
+    await Promise.all(realms.map(realm => this.waitForAppDataRealmRelease(realm)));
+  }
 
   private getAppDataRealmPath(fileName: string): string {
     return `${RNFS.DocumentDirectoryPath}/app-data/${fileName}-appdata.realm`;
@@ -324,9 +353,7 @@ export class BlueApp {
       return;
     }
 
-    for (const realm of this.retiredAppDataRealms) {
-      if (realm.path === path) this.releaseAppDataRealm(realm);
-    }
+    await this.releaseRetiredAppDataRealmsAtPath(path);
     if (Realm.exists({ path })) Realm.deleteFile({ path });
     sourceRealm.writeCopyTo({ path, encryptionKey });
     this.cachedPassword = password;
@@ -340,9 +367,7 @@ export class BlueApp {
     const path = this.getAppDataRealmPath(fileName);
     if (!Realm.exists({ path })) return;
 
-    for (const realm of this.retiredAppDataRealms) {
-      if (realm.path === path) this.releaseAppDataRealm(realm);
-    }
+    await this.releaseRetiredAppDataRealmsAtPath(path);
 
     let clearingError: unknown;
     try {

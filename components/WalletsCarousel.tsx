@@ -280,8 +280,7 @@ const iStyles = StyleSheet.create({
   },
 });
 
-export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
-  ({
+export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
     item,
     hideBalance,
     onPress,
@@ -431,14 +430,6 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
     }
 
     let latestTransactionText;
-
-    // Lightning / Ark wallets do not have on-chain confirmations — settlement is
-    // signaled by `ispaid`. Bitcoin/on-chain wallets keep the existing
-    // `confirmations === 0` rule unchanged so their pending-pill semantics
-    // never depend on a Lightning shape.
-    // `ispaid === false` alone is not "pending": it is also true for terminal
-    // failed/refunded swaps, which stay in history. Gate on `!tx.failed` so a
-    // dead swap doesn't pin the card to "pending" forever.
     const latestTransactionTime = latestTransaction?.timestamp ? new Date(latestTransaction.timestamp * 1000).toString() : 0;
 
     if (item.getBalance() !== 0 && latestTransactionTime === 0) {
@@ -542,8 +533,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         </Pressable>
       </Animated.View>
     );
-  },
-);
+};
 
 interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   horizontal?: boolean;
@@ -911,7 +901,6 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
-      extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
       pagingEnabled={false}
@@ -935,6 +924,8 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
       {...props}
+      // After `{...props}` so a caller `extraData` cannot drop `data` from the list's update signal.
+      extraData={[props.extraData, data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
     />
   ) : (
     <View style={cStyles.contentLargeScreen}>

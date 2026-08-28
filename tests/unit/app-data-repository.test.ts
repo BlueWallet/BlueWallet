@@ -103,6 +103,29 @@ it('publishes the shared Realm when the active encryption bucket changes', async
   assert.strictEqual(encryptedRealm.isClosed, false);
 });
 
+it('waits for the Realm provider to commit a bucket switch before deleting the retired file', async () => {
+  const storage = new BlueApp();
+  await storage.setItem('data', JSON.stringify({ wallets: [] }));
+  const defaultRealm = await storage.getRealmForTransactions();
+  let notifyReplacement: (() => void) | undefined;
+  const replacementPublished = new Promise<void>(resolve => {
+    notifyReplacement = resolve;
+  });
+  const unsubscribe = storage.subscribeToAppDataRealm(realm => {
+    if (realm && realm !== defaultRealm) notifyReplacement?.();
+  });
+
+  const encryption = storage.encryptStorage('provider-commit-password');
+  await replacementPublished;
+  await new Promise(resolve => setTimeout(resolve, 0));
+
+  assert.strictEqual(defaultRealm.isClosed, false, 'React may still be rendering the retired Realm before its commit effect');
+  storage.releaseAppDataRealm(defaultRealm);
+  await encryption;
+  unsubscribe();
+  assert.strictEqual(defaultRealm.isClosed, true);
+});
+
 it('does not report encryption success while a known-key Realm file remains', async () => {
   const storage = new BlueApp();
   await storage.setItem('data', JSON.stringify({ wallets: [] }));
