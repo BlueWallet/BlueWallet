@@ -383,9 +383,9 @@ const TransactionStatus: React.FC = () => {
       setFrom(newFrom);
       setTo(newTo);
 
-      // Dev Menu fixtures exist only to exercise Realm and UI propagation.
-      // They deliberately have no corresponding Electrum transaction.
-      if (isRealmDeveloperFixture) return;
+      // Synthetic Realm rows (Ark, swaps, and Dev Menu fixtures) have no
+      // corresponding Electrum transaction.
+      if (isRealmDeveloperFixture || !isOnChainTransaction(liveTransaction)) return;
 
       // Also fetch from Electrum to get complete transaction data including fee
       // For received transactions, we need to populate vin.value by fetching previous transactions

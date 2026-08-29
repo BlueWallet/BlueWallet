@@ -8,7 +8,7 @@ import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
 import { CpfpScreen } from './CPFP';
-import { StorageContext } from '../../components/Context/StorageProvider';
+import { WalletStorageContext } from '../../components/Context/WalletStorageProvider';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 import { useSetTransactionMemo, useTransactionMemo } from '../../hooks/useRealmMetadata';
@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
 });
 
 class RBFBumpFee extends CpfpScreen {
-  static contextType = StorageContext;
+  static contextType = WalletStorageContext;
 
   async componentDidMount() {
     console.log('transactions/RBFBumpFee - componentDidMount');

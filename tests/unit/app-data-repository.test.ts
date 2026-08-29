@@ -1,4 +1,5 @@
 import assert from 'assert';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Realm from 'realm';
 
 import {
@@ -56,7 +57,10 @@ const wallet = (
     getPreferredBalanceUnit: () => BitcoinUnit.SATS,
   }) as unknown as TWallet;
 
-beforeEach(() => RealmMock.__mockRealmHelpers.reset());
+beforeEach(async () => {
+  RealmMock.__mockRealmHelpers.reset();
+  await AsyncStorage.clear();
+});
 
 it('stores and updates wallet order in Realm', async () => {
   const realm = await Realm.open({ path: 'wallet-order-test.realm', schema: AppDataSchemas });
@@ -85,6 +89,87 @@ it('shares one Realm open operation between concurrent consumers', async () => {
 
   assert.strictEqual(first, second);
   assert.strictEqual(RealmMock.open.mock.calls.length, 1);
+});
+
+it('migrates app data out of Documents and deletes the shareable source', async () => {
+  const pathProbe = new BlueApp();
+  const privateRealm = await pathProbe.getRealmForTransactions();
+  const fileName = privateRealm.path.split('/').at(-1);
+  privateRealm.close();
+  Realm.deleteFile({ path: privateRealm.path });
+
+  const documentsPath = `/mock/Documents/app-data/${fileName}`;
+  const documentsRealm = await Realm.open({ path: documentsPath, schema: AppDataSchemas });
+  replaceCanonicalData(documentsRealm, [wallet([{ txid: 'documents-history', timestamp: 1 }])], {}, {});
+  documentsRealm.close();
+
+  const storage = new BlueApp();
+  const migratedRealm = await storage.getRealmForTransactions();
+
+  assert.strictEqual(queryWalletActivity(migratedRealm, 'wallet-1').length, 1);
+  assert.strictEqual(Realm.exists({ path: documentsPath }), false);
+});
+
+it('deletes the legacy transaction cache even when canonical Realm is already initialized', async () => {
+  const storage = new BlueApp();
+  await storage.setItem('data', JSON.stringify({ wallets: [] }));
+  const canonicalRealm = await storage.getRealmForTransactions();
+  replaceCanonicalData(canonicalRealm, [], {}, {});
+  const fileIdentity = canonicalRealm.path.split('/').at(-1)?.replace('-appdata.realm', '');
+  const legacyPath = `/mock/Caches/${fileIdentity}-wallettransactions.realm`;
+  const legacyRealm = await Realm.open({
+    path: legacyPath,
+    schema: [{ name: 'WalletTransactions', properties: { walletid: 'string', tx: 'string' } }],
+  });
+  legacyRealm.write(() => legacyRealm.create('WalletTransactions', { walletid: 'wallet-1', tx: '{}' }));
+  legacyRealm.close();
+
+  await storage.loadFromDisk();
+
+  assert.strictEqual(Realm.exists({ path: legacyPath }), false);
+});
+
+it('uses only an in-memory provider Realm while encrypted storage is locked', async () => {
+  const storage = new BlueApp();
+  await storage.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+  RealmMock.open.mockClear();
+
+  const lockedRealm = await storage.getRealmForTransactions();
+  const providerRealm = await storage.getWalletDataRealmForProvider();
+  const openConfig = RealmMock.open.mock.calls[0][0];
+
+  assert.strictEqual(openConfig.inMemory, true);
+  assert.strictEqual(openConfig.path, undefined);
+  assert.strictEqual(lockedRealm.path, '__default__');
+  assert.strictEqual(providerRealm, lockedRealm);
+  assert.strictEqual(
+    RealmMock.open.mock.calls.some(([config]) => config.path?.includes('/app-data/')),
+    false,
+    'the known-key durable Realm must not be opened before unlock',
+  );
+  await storage.setItem(BlueApp.FLAG_ENCRYPTED, '');
+});
+
+it('publishes an empty decoy Realm without changing or leaking the hidden Realm', async () => {
+  const storage = new BlueApp();
+  const hiddenWallet = wallet([{ txid: 'hidden-history', timestamp: 1 }], [], {}, 'hidden-wallet');
+  storage.cachedPassword = 'hidden-password';
+  storage.wallets = [hiddenWallet];
+  await storage.setItem('data', '[]');
+  const hiddenRealm = await storage.getRealmForTransactions();
+  replaceCanonicalData(hiddenRealm, [hiddenWallet], {}, {});
+
+  await storage.createFakeStorage('decoy-password');
+  const decoyRealm = await storage.getRealmForTransactions();
+
+  assert.notStrictEqual(decoyRealm.path, hiddenRealm.path);
+  assert.strictEqual(decoyRealm.objects('WalletActivity').length, 0);
+  await storage.persistWalletTransactions([hiddenWallet]);
+  assert.strictEqual(decoyRealm.objects('WalletActivity').length, 0, 'a stale hidden-wallet refresh must not leak into the decoy');
+
+  storage.cachedPassword = 'hidden-password';
+  const reopenedHiddenRealm = await storage.getRealmForTransactions();
+  assert.strictEqual(queryWalletActivity(reopenedHiddenRealm, 'hidden-wallet').length, 1);
 });
 
 it('publishes the shared Realm when the active encryption bucket changes', async () => {

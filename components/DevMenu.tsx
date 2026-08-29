@@ -5,7 +5,7 @@ import { HDSegwitBech32Wallet } from '../class/wallets/hd-segwit-bech32-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
 import { Chain } from '../models/bitcoinUnits';
-import { useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
+import { useWalletDataRealm } from '../blue_modules/realm/WalletDataRealmProvider';
 import {
   insertDeveloperIncomingTransaction,
   removeDeveloperTransactions,
@@ -77,7 +77,7 @@ const showAlertWithWalletOptions = (
 
 const DevMenu: React.FC = () => {
   const { wallets, addWallet, purgeWalletTransactions } = useStorage();
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
 
   useEffect(() => {
     if (__DEV__) {

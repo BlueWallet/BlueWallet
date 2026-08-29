@@ -33,7 +33,7 @@ npm run android:clean        # Android clean
 ## Architecture
 
 **Directory Structure:**
-- `components/` - React components and Context providers (SettingsProvider, StorageProvider)
+- `components/` - React components and Context providers (SettingsProvider, WalletStorageProvider)
 - `class/` - Core business logic including wallet implementations in `class/wallets/`
 - `blue_modules/` - Utility modules (BlueElectrum, currency, encryption, etc.)
 - `screen/` - Navigation screens organized by feature (wallets, send, receive, settings, lnd)

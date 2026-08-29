@@ -5,14 +5,14 @@ import type Realm from 'realm';
 import { BlueApp as BlueAppClass } from '../../class/blue-app';
 
 const BlueApp = BlueAppClass.getInstance();
-const AppDataRealmContext = createRealmContext();
+const WalletDataRealmContext = createRealmContext();
 
-export const useAppDataRealm = AppDataRealmContext.useRealm;
-export const useAppDataQuery = AppDataRealmContext.useQuery;
-export const useAppDataObject = AppDataRealmContext.useObject;
+export const useWalletDataRealm = WalletDataRealmContext.useRealm;
+export const useWalletDataQuery = WalletDataRealmContext.useQuery;
+export const useWalletDataObject = WalletDataRealmContext.useObject;
 
-/** Provides the encrypted, bucket-specific Realm already owned by BlueApp. */
-export const AppDataRealmProvider = ({ children }: React.PropsWithChildren) => {
+/** Provides live canonical transactions, UTXOs, metadata, and wallet ordering. */
+export const WalletDataRealmProvider = ({ children }: React.PropsWithChildren) => {
   const [realm, setRealm] = useState<Realm>();
   const committedRealm = useRef<Realm | undefined>(undefined);
 
@@ -22,7 +22,9 @@ export const AppDataRealmProvider = ({ children }: React.PropsWithChildren) => {
       if (mounted) setRealm(nextRealm);
     });
 
-    BlueApp.getRealmForTransactions().catch(error => console.warn('[AppDataRealmProvider] Failed to open app data Realm:', error));
+    BlueApp.getWalletDataRealmForProvider().catch(error =>
+      console.warn('[WalletDataRealmProvider] Failed to open wallet data Realm:', error),
+    );
 
     return () => {
       mounted = false;
@@ -37,5 +39,5 @@ export const AppDataRealmProvider = ({ children }: React.PropsWithChildren) => {
   }, [realm]);
 
   if (!realm || realm.isClosed) return null;
-  return <AppDataRealmContext.RealmProvider realm={realm}>{children}</AppDataRealmContext.RealmProvider>;
+  return <WalletDataRealmContext.RealmProvider realm={realm}>{children}</WalletDataRealmContext.RealmProvider>;
 };

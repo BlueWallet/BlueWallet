@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useAppDataObject, useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
+import { useWalletDataObject, useWalletDataQuery, useWalletDataRealm } from '../blue_modules/realm/WalletDataRealmProvider';
 import {
   setCounterpartyMetadata as writeCounterpartyMetadata,
   setTransactionMemo as writeTransactionMemo,
@@ -11,7 +11,7 @@ import type { TCounterpartyMetadata, TTXMetadata } from '../class/blue-app';
 
 /** Returns a stable Realm-backed memo writer without subscribing to every metadata row. */
 export function useSetTransactionMemo() {
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
   return useCallback(
     async (txid: string, memo: string) => {
       writeTransactionMemo(realm, txid, memo);
@@ -21,19 +21,19 @@ export function useSetTransactionMemo() {
 }
 
 export function useTransactionMetadata() {
-  const rows = useAppDataQuery<TransactionMetadataRow>({ type: 'TransactionMetadata' });
+  const rows = useWalletDataQuery<TransactionMetadataRow>({ type: 'TransactionMetadata' });
   const metadata: TTXMetadata = {};
   for (const row of rows) metadata[row.txid] = row.memo === null ? {} : { memo: row.memo };
   return metadata;
 }
 
 export function useTransactionMemo(txid: string | undefined): string {
-  const row = useAppDataObject<TransactionMetadataRow>('TransactionMetadata', txid ?? '');
+  const row = useWalletDataObject<TransactionMetadataRow>('TransactionMetadata', txid ?? '');
   return row?.memo ?? '';
 }
 
 export function useCounterpartyMetadata() {
-  const rows = useAppDataQuery<CounterpartyMetadataRow>({ type: 'CounterpartyMetadata' });
+  const rows = useWalletDataQuery<CounterpartyMetadataRow>({ type: 'CounterpartyMetadata' });
   const metadata: TCounterpartyMetadata = {};
   for (const row of rows) {
     metadata[row.counterparty] = {
@@ -46,7 +46,7 @@ export function useCounterpartyMetadata() {
 }
 
 export function useSetCounterpartyMetadata() {
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
   return useCallback(
     async (counterparty: string, value: TCounterpartyMetadata[string]) => {
       writeCounterpartyMetadata(realm, counterparty, value);
@@ -56,6 +56,6 @@ export function useSetCounterpartyMetadata() {
 }
 
 export function useCounterpartyMetadataEntry(counterparty: string | undefined): TCounterpartyMetadata[string] | undefined {
-  const row = useAppDataObject<CounterpartyMetadataRow>('CounterpartyMetadata', counterparty ?? '');
+  const row = useWalletDataObject<CounterpartyMetadataRow>('CounterpartyMetadata', counterparty ?? '');
   return row ? { label: row.label, ...(row.hidden ? { hidden: true } : {}) } : undefined;
 }

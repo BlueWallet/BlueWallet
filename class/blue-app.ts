@@ -83,6 +83,7 @@ type TBucketStorage = {
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
 const APP_DATA_DEFAULT_PASSWORD = 'fyegjitkyf[eqjnc.lf';
+const LOCKED_APP_DATA_REALM_IDENTITY = 'locked-app-data';
 
 export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -105,6 +106,7 @@ export class BlueApp {
   private retiredAppDataRealms = new Set<Realm>();
   private appDataRealmReleaseWaiters = new Map<Realm, Set<() => void>>();
   private walletStorageSaveQueue: Promise<void> = Promise.resolve();
+  private appDataBucketTransition?: Promise<void>;
 
   constructor() {
     this.wallets = [];
@@ -228,33 +230,37 @@ export class BlueApp {
   }
 
   decryptStorage = async (password: string): Promise<boolean> => {
-    if (password === this.cachedPassword) {
+    if (password !== this.cachedPassword) throw new Error('Incorrect password. Please, try again.');
+
+    return this.runAppDataBucketTransition(async () => {
+      const sourcePassword = password;
       await this.copyAppDataRealmToBucket(false);
-      await this.saveToDisk();
+      await this.performWalletStorageSave();
+      await this.clearAndDeleteAppDataRealm(sourcePassword);
       this.wallets = [];
       this.tx_metadata = {};
       this.counterparty_metadata = {};
       return this.loadFromDisk();
-    } else {
-      throw new Error('Incorrect password. Please, try again.');
-    }
+    });
   };
 
   encryptStorage = async (password: string): Promise<void> => {
-    // assuming the storage is not yet encrypted
-    await this.saveToDisk();
-    let data = await this.getItem('data');
-    // TODO: refactor ^^^ (should not save & load to fetch data)
+    await this.runAppDataBucketTransition(async () => {
+      // assuming the storage is not yet encrypted
+      await this.performWalletStorageSave();
+      let data = await this.getItem('data');
+      // TODO: refactor ^^^ (should not save & load to fetch data)
 
-    const encrypted = encryption.encrypt(data, password);
-    data = [];
-    data.push(encrypted); // putting in array as we might have many buckets with storages
-    data = JSON.stringify(data);
-    await this.setItem('data', data);
-    await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+      const encrypted = encryption.encrypt(data, password);
+      data = [];
+      data.push(encrypted); // putting in array as we might have many buckets with storages
+      data = JSON.stringify(data);
+      await this.setItem('data', data);
+      await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
 
-    await this.copyAppDataRealmToBucket(password);
-    await this.clearAndDeleteDefaultAppDataRealm();
+      await this.copyAppDataRealmToBucket(password);
+      await this.clearAndDeleteAppDataRealm(false);
+    });
   };
 
   /**
@@ -262,22 +268,18 @@ export class BlueApp {
    * Encrypts the bucket and saves it storage
    */
   createFakeStorage = async (fakePassword: string): Promise<boolean> => {
-    usedBucketNum = false; // resetting currently used bucket so we wont overwrite it
-    this.wallets = [];
-    this.tx_metadata = {};
-    this.counterparty_metadata = {};
+    return this.runAppDataBucketTransition(async () => {
+      usedBucketNum = false; // resetting currently used bucket so we wont overwrite it
+      const data: TBucketStorage = { wallets: [] };
+      let buckets = await this.getItem('data');
+      buckets = JSON.parse(buckets);
+      buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
+      const bucketsString = JSON.stringify(buckets);
+      await this.setItem('data', bucketsString);
 
-    const data: TBucketStorage = {
-      wallets: [],
-    };
-
-    let buckets = await this.getItem('data');
-    buckets = JSON.parse(buckets);
-    buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
-    this.cachedPassword = fakePassword;
-    const bucketsString = JSON.stringify(buckets);
-    await this.setItem('data', bucketsString);
-    return (await this.getItem('data')) === bucketsString;
+      await this.switchToEmptyAppDataRealm(fakePassword);
+      return (await this.getItem('data')) === bucketsString;
+    });
   };
 
   hashIt = (s: string): string => {
@@ -339,8 +341,94 @@ export class BlueApp {
     await Promise.all(realms.map(realm => this.waitForAppDataRealmRelease(realm)));
   }
 
+  /** Serializes encryption-bucket changes against wallet saves started by the UI. */
+  private async runAppDataBucketTransition<T>(operation: () => Promise<T>): Promise<T> {
+    if (this.appDataBucketTransition) {
+      await this.appDataBucketTransition;
+      return this.runAppDataBucketTransition(operation);
+    }
+
+    const savesToDrain = this.walletStorageSaveQueue;
+    let finishTransition!: () => void;
+    const transition = new Promise<void>(resolve => {
+      finishTransition = resolve;
+    });
+    this.appDataBucketTransition = transition;
+
+    try {
+      await savesToDrain;
+      return await operation();
+    } finally {
+      finishTransition();
+      if (this.appDataBucketTransition === transition) this.appDataBucketTransition = undefined;
+    }
+  }
+
   private getAppDataRealmPath(fileName: string): string {
+    const privateRoot = RNFS.LibraryDirectoryPath || RNFS.DocumentDirectoryPath;
+    return `${privateRoot}/app-data/${fileName}-appdata.realm`;
+  }
+
+  private getLegacyDocumentsAppDataRealmPath(fileName: string): string {
     return `${RNFS.DocumentDirectoryPath}/app-data/${fileName}-appdata.realm`;
+  }
+
+  private async clearAndDeleteAppDataRealmFile(path: string, encryptionKey: Int8Array): Promise<void> {
+    if (!Realm.exists({ path })) return;
+    await this.releaseRetiredAppDataRealmsAtPath(path);
+
+    let clearingError: unknown;
+    try {
+      const realm = await Realm.open({
+        schema: AppDataSchemas,
+        schemaVersion: APP_DATA_SCHEMA_VERSION,
+        path,
+        encryptionKey,
+        excludeFromIcloudBackup: true,
+      });
+      scrubWalletUtxoSecrets(realm);
+      realm.write(() => realm.deleteAll());
+      realm.close();
+    } catch (error) {
+      clearingError = error;
+    }
+
+    let deletionError: unknown;
+    try {
+      Realm.deleteFile({ path });
+    } catch (error) {
+      deletionError = error;
+    }
+    if (Realm.exists({ path })) {
+      const failure = deletionError ?? clearingError;
+      const detail = failure instanceof Error ? `: ${failure.message}` : '';
+      throw new Error(`Failed to clear and delete an app-data Realm${detail}`);
+    }
+  }
+
+  /** Migrates app-data out of the user-shareable Documents directory. */
+  private async migrateAppDataRealmFromDocuments(fileName: string, encryptionKey: Int8Array): Promise<void> {
+    const sourcePath = this.getLegacyDocumentsAppDataRealmPath(fileName);
+    const destinationPath = this.getAppDataRealmPath(fileName);
+    if (sourcePath === destinationPath || !Realm.exists({ path: sourcePath })) return;
+
+    if (!Realm.exists({ path: destinationPath })) {
+      const sourceRealm = await Realm.open({
+        schema: AppDataSchemas,
+        schemaVersion: APP_DATA_SCHEMA_VERSION,
+        path: sourcePath,
+        encryptionKey,
+        excludeFromIcloudBackup: true,
+      });
+      try {
+        scrubWalletUtxoSecrets(sourceRealm);
+        sourceRealm.writeCopyTo({ path: destinationPath, encryptionKey });
+      } finally {
+        sourceRealm.close();
+      }
+    }
+
+    await this.clearAndDeleteAppDataRealmFile(sourcePath, encryptionKey);
   }
 
   /** Copies canonical data between encryption buckets without routing it through wallet memory. */
@@ -360,41 +448,74 @@ export class BlueApp {
     await this.getRealmForTransactions();
   }
 
-  /** Clears and removes the known-key Realm. Throws unless no readable canonical data remains there. */
-  private async clearAndDeleteDefaultAppDataRealm(): Promise<void> {
-    const { encryptionKey, fileName } = this.getAppDataRealmConfig(false);
-    if (this.appDataRealmIdentity === fileName) return;
+  /** Publishes a brand-new empty Realm before exposing a plausible-deniability wallet bucket. */
+  private async switchToEmptyAppDataRealm(password: string): Promise<void> {
+    const previousPassword = this.cachedPassword;
+    const previousWallets = this.wallets;
+    const previousTxMetadata = this.tx_metadata;
+    const previousCounterpartyMetadata = this.counterparty_metadata;
+    const previousRealm = await this.getRealmForTransactions();
+    await this.clearAndDeleteAppDataRealm(password);
+
+    this.cachedPassword = password;
+    const nextRealmPromise = this.getRealmForTransactions();
+    this.wallets = [];
+    this.tx_metadata = {};
+    this.counterparty_metadata = {};
+
+    try {
+      const nextRealm = await nextRealmPromise;
+      replaceCanonicalData(nextRealm, [], {}, {});
+      await this.waitForAppDataRealmRelease(previousRealm);
+    } catch (error) {
+      this.cachedPassword = previousPassword;
+      this.wallets = previousWallets;
+      this.tx_metadata = previousTxMetadata;
+      this.counterparty_metadata = previousCounterpartyMetadata;
+      await this.getRealmForTransactions();
+      throw error;
+    }
+  }
+
+  /** Clears and removes an inactive app-data Realm. */
+  private async clearAndDeleteAppDataRealm(password: false | string): Promise<void> {
+    const { encryptionKey, fileName } = this.getAppDataRealmConfig(password);
+    if (this.appDataRealmIdentity === fileName) throw new Error('Cannot delete the active app-data Realm');
     const path = this.getAppDataRealmPath(fileName);
-    if (!Realm.exists({ path })) return;
+    await this.clearAndDeleteAppDataRealmFile(path, encryptionKey);
+    await this.clearAndDeleteAppDataRealmFile(this.getLegacyDocumentsAppDataRealmPath(fileName), encryptionKey);
+    await this.clearAndDeleteLegacyTransactionRealm(password);
+  }
 
-    await this.releaseRetiredAppDataRealmsAtPath(path);
+  /** Gives React the same guarded Realm instance used by non-React consumers. */
+  getWalletDataRealmForProvider(): Promise<Realm> {
+    return this.getRealmForTransactions();
+  }
 
-    let clearingError: unknown;
-    try {
-      const legacyRealm = await Realm.open({
-        schema: AppDataSchemas,
-        schemaVersion: APP_DATA_SCHEMA_VERSION,
-        path,
-        encryptionKey,
-        excludeFromIcloudBackup: true,
-      });
-      scrubWalletUtxoSecrets(legacyRealm);
-      legacyRealm.write(() => legacyRealm.deleteAll());
-      legacyRealm.close();
-    } catch (error) {
-      clearingError = error;
+  private async getLockedAppDataRealm(): Promise<Realm> {
+    if (this.appDataRealmIdentity === LOCKED_APP_DATA_REALM_IDENTITY && this.appDataRealm && !this.appDataRealm.isClosed) {
+      return this.appDataRealm;
     }
+    if (this.appDataRealmIdentity === LOCKED_APP_DATA_REALM_IDENTITY && this.appDataRealmPromise) return this.appDataRealmPromise;
 
-    let deletionError: unknown;
+    const previousRealm = this.appDataRealm;
+    if (previousRealm) this.retiredAppDataRealms.add(previousRealm);
+    this.appDataRealm = undefined;
+    this.appDataRealmIdentity = LOCKED_APP_DATA_REALM_IDENTITY;
+    const opening = Realm.open({ schema: AppDataSchemas, schemaVersion: APP_DATA_SCHEMA_VERSION, inMemory: true });
+    this.appDataRealmPromise = opening;
     try {
-      Realm.deleteFile({ path });
-    } catch (error) {
-      deletionError = error;
-    }
-    if (Realm.exists({ path })) {
-      const failure = deletionError ?? clearingError;
-      const detail = failure instanceof Error ? `: ${failure.message}` : '';
-      throw new Error(`Failed to clear and delete the previous known-key app-data Realm${detail}`);
+      const realm = await opening;
+      if (this.appDataRealmIdentity !== LOCKED_APP_DATA_REALM_IDENTITY) {
+        realm.close();
+        return this.getRealmForTransactions();
+      }
+      this.appDataRealm = realm;
+      this.publishAppDataRealm(realm);
+      if (this.appDataRealmListeners.size === 0 && previousRealm) this.releaseAppDataRealm(previousRealm);
+      return realm;
+    } finally {
+      if (this.appDataRealmPromise === opening) this.appDataRealmPromise = undefined;
     }
   }
 
@@ -403,6 +524,15 @@ export class BlueApp {
    * Its filename and key remain bucket-specific to preserve plausible deniability.
    */
   async getRealmForTransactions(): Promise<Realm> {
+    if (
+      this.cachedPassword === false &&
+      (this.appDataRealmIdentity === undefined || this.appDataRealmIdentity === LOCKED_APP_DATA_REALM_IDENTITY)
+    ) {
+      if (this.appDataRealmIdentity === LOCKED_APP_DATA_REALM_IDENTITY || (await this.storageIsEncrypted())) {
+        return this.getLockedAppDataRealm();
+      }
+    }
+
     const { encryptionKey, fileName } = this.getAppDataRealmConfig();
     if (this.appDataRealmIdentity === fileName && this.appDataRealm && !this.appDataRealm.isClosed) return this.appDataRealm;
     if (this.appDataRealmIdentity === fileName && this.appDataRealmPromise) return await this.appDataRealmPromise;
@@ -413,8 +543,9 @@ export class BlueApp {
     this.appDataRealmIdentity = fileName;
 
     const opening = (async () => {
-      const directory = `${RNFS.DocumentDirectoryPath}/app-data`;
+      const directory = `${RNFS.LibraryDirectoryPath || RNFS.DocumentDirectoryPath}/app-data`;
       if (!(await RNFS.exists(directory))) await RNFS.mkdir(directory);
+      await this.migrateAppDataRealmFromDocuments(fileName, encryptionKey);
       const realm = await Realm.open({
         schema: AppDataSchemas,
         schemaVersion: APP_DATA_SCHEMA_VERSION,
@@ -448,9 +579,15 @@ export class BlueApp {
   }
 
   /** Opens the pre-v8 transaction cache for one-time migration only. */
-  private async getLegacyRealmForTransactions() {
-    const { encryptionKey, fileName } = this.getAppDataRealmConfig();
-    const path = `${RNFS.CachesDirectoryPath}/${fileName}-wallettransactions.realm`;
+  private getLegacyTransactionRealmPath(password: false | string = this.cachedPassword ?? false): string {
+    const { fileName } = this.getAppDataRealmConfig(password);
+    return `${RNFS.CachesDirectoryPath}/${fileName}-wallettransactions.realm`;
+  }
+
+  private async getLegacyRealmForTransactions(password: false | string = this.cachedPassword ?? false): Promise<Realm | undefined> {
+    const { encryptionKey } = this.getAppDataRealmConfig(password);
+    const path = this.getLegacyTransactionRealmPath(password);
+    if (!Realm.exists({ path })) return undefined;
 
     const schema = [
       {
@@ -471,6 +608,20 @@ export class BlueApp {
       encryptionKey,
       excludeFromIcloudBackup: true,
     });
+  }
+
+  /** Removes the pre-v8 cache only after its contents have reached canonical Realm. */
+  private deleteMigratedLegacyTransactionRealm(realm: Realm): void {
+    const path = realm.path;
+    realm.write(() => realm.deleteAll());
+    realm.close();
+    Realm.deleteFile({ path });
+    if (Realm.exists({ path })) throw new Error('Failed to clear and delete the migrated transaction cache Realm');
+  }
+
+  private async clearAndDeleteLegacyTransactionRealm(password: false | string): Promise<void> {
+    const realm = await this.getLegacyRealmForTransactions(password);
+    if (realm) this.deleteMigratedLegacyTransactionRealm(realm);
   }
 
   /**
@@ -536,6 +687,8 @@ export class BlueApp {
       if (dataRaw) {
         // password is good, cache it
         this.cachedPassword = password;
+      } else {
+        return false;
       }
     }
     if (dataRaw !== null) {
@@ -547,7 +700,7 @@ export class BlueApp {
         realm = await this.getRealmForTransactions();
         canonicalDataExists = isAppDataInitialized(realm);
         canonicalUtxoDataExists = isUtxoDataInitialized(realm);
-        if (!canonicalDataExists) legacyRealm = await this.getLegacyRealmForTransactions();
+        legacyRealm = await this.getLegacyRealmForTransactions();
       } catch (error: any) {
         presentAlert({ message: error.message });
       }
@@ -663,19 +816,23 @@ export class BlueApp {
           this.wallets.push(unserializedWallet);
         }
       }
-      legacyRealm?.close();
-
-      if (realm && canonicalDataExists) {
-        const metadata = readMetadata(realm);
-        this.tx_metadata = metadata.txMetadata;
-        this.counterparty_metadata = metadata.counterpartyMetadata;
-        if (!canonicalUtxoDataExists) replaceCanonicalWalletUtxos(realm, this.wallets);
-      } else {
-        this.tx_metadata = data.tx_metadata ?? {};
-        this.counterparty_metadata = data.counterparty_metadata ?? {};
-        if (realm) replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
+      try {
+        if (realm && canonicalDataExists) {
+          const metadata = readMetadata(realm);
+          this.tx_metadata = metadata.txMetadata;
+          this.counterparty_metadata = metadata.counterpartyMetadata;
+          if (!canonicalUtxoDataExists) replaceCanonicalWalletUtxos(realm, this.wallets);
+        } else {
+          this.tx_metadata = data.tx_metadata ?? {};
+          this.counterparty_metadata = data.counterparty_metadata ?? {};
+          if (realm) replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
+        }
+      } catch (error) {
+        legacyRealm?.close();
+        throw error;
       }
-      if (this.cachedPassword) await this.clearAndDeleteDefaultAppDataRealm();
+      if (legacyRealm) this.deleteMigratedLegacyTransactionRealm(legacyRealm);
+      if (this.cachedPassword) await this.clearAndDeleteAppDataRealm(false);
       return true;
     } else {
       return false; // failed loading data or loading/decryptin data
@@ -784,9 +941,16 @@ export class BlueApp {
    * @returns {Promise} Result of storage save
    */
   saveToDisk(): Promise<void> {
+    const bucketTransition = this.appDataBucketTransition;
     const save = this.walletStorageSaveQueue.then(
-      () => this.performWalletStorageSave(),
-      () => this.performWalletStorageSave(),
+      async () => {
+        if (bucketTransition) await bucketTransition;
+        return this.performWalletStorageSave();
+      },
+      async () => {
+        if (bucketTransition) await bucketTransition;
+        return this.performWalletStorageSave();
+      },
     );
     // Keep later saves usable after a failed write while returning the actual
     // failure to the caller that requested this save.
@@ -960,14 +1124,22 @@ export class BlueApp {
   };
 
   persistWalletTransactions = async (wallets: TWallet[]): Promise<void> => {
+    const bucketTransition = this.appDataBucketTransition;
+    if (bucketTransition) await bucketTransition;
     const realm = await this.getRealmForTransactions();
+    const activeWallets = wallets.filter(wallet => this.wallets.includes(wallet));
+    if (activeWallets.length === 0) return;
     const { txMetadata } = readMetadata(realm);
-    replaceCanonicalWalletTransactions(realm, wallets, txMetadata);
+    replaceCanonicalWalletTransactions(realm, activeWallets, txMetadata);
   };
 
   persistWalletUtxos = async (wallets: TWallet[]): Promise<void> => {
+    const bucketTransition = this.appDataBucketTransition;
+    if (bucketTransition) await bucketTransition;
     const realm = await this.getRealmForTransactions();
-    replaceCanonicalWalletUtxos(realm, wallets);
+    const activeWallets = wallets.filter(wallet => this.wallets.includes(wallet));
+    if (activeWallets.length === 0) return;
+    replaceCanonicalWalletUtxos(realm, activeWallets);
   };
 
   fetchWalletUtxos = async (walletId: string): Promise<void> => {

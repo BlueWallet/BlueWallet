@@ -452,8 +452,10 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   assert.ok(isEncrypted);
   loadResult = await Storage4.loadFromDisk('password');
   assert.ok(loadResult);
+  const encryptedRealmPath = (await Storage4.getRealmForTransactions()).path;
   const decryptStorageResult = await Storage4.decryptStorage('password');
   assert.ok(decryptStorageResult);
+  assert.strictEqual(Realm.exists({ path: encryptedRealmPath }), false, 'decryption must delete the former password Realm');
 
   const Storage5 = new BlueApp();
   isEncrypted = await Storage5.storageIsEncrypted();

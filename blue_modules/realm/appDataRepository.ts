@@ -335,11 +335,12 @@ function limitActivityResults(results: Realm.Results<WalletActivityRow>, limit?:
   return results.filtered(`TRUEPREDICATE LIMIT(${Math.max(0, Math.floor(limit))})`);
 }
 
-export function filterWalletActivity(
-  collection: Realm.Results<WalletActivityRow>,
+export function queryWalletActivity(
+  source: Realm | Realm.Results<WalletActivityRow>,
   walletId: string,
   { search = '', transactionId: requestedTransactionId, pending, confirmed, limit }: WalletActivityQuery = {},
 ): Realm.Results<WalletActivityRow> {
+  const collection = source instanceof Realm ? source.objects<WalletActivityRow>('WalletActivity') : source;
   let results = collection.filtered('walletId == $0', walletId);
   if (requestedTransactionId) results = results.filtered('transactionId == $0', requestedTransactionId);
   if (pending !== undefined) results = results.filtered('pending == $0', pending);
@@ -355,17 +356,14 @@ export function filterWalletActivity(
   );
 }
 
-export function queryWalletActivity(realm: Realm, walletId: string, options: WalletActivityQuery = {}): Realm.Results<WalletActivityRow> {
-  return filterWalletActivity(realm.objects<WalletActivityRow>('WalletActivity'), walletId, options);
-}
-
 /** Builds one globally sorted live query across the requested wallet IDs. */
-export function filterWalletActivityForWallets(
-  collection: Realm.Results<WalletActivityRow>,
+export function queryWalletActivityForWallets(
+  source: Realm | Realm.Results<WalletActivityRow>,
   walletIds: string[],
   search = '',
   limit?: number,
 ): Realm.Results<WalletActivityRow> {
+  const collection = source instanceof Realm ? source.objects<WalletActivityRow>('WalletActivity') : source;
   let results = collection;
   if (walletIds.length === 0) {
     results = results.filtered('walletId == $0', '');
@@ -382,15 +380,6 @@ export function filterWalletActivityForWallets(
     ]),
     limit,
   );
-}
-
-export function queryWalletActivityForWallets(
-  realm: Realm,
-  walletIds: string[],
-  search = '',
-  limit?: number,
-): Realm.Results<WalletActivityRow> {
-  return filterWalletActivityForWallets(realm.objects<WalletActivityRow>('WalletActivity'), walletIds, search, limit);
 }
 
 export function queryWalletActivityByPaymentRequest(
@@ -422,12 +411,13 @@ export function queryWalletActivityByTransactionId(
 }
 
 /** Finds payments to an exact output address using Realm's query engine. */
-export function filterWalletActivityByOutputAddress(
-  collection: Realm.Results<WalletActivityRow>,
+export function queryWalletActivityByOutputAddress(
+  source: Realm | Realm.Results<WalletActivityRow>,
   walletId: string,
   address: string,
   limit?: number,
 ): Realm.Results<WalletActivityRow> {
+  const collection = source instanceof Realm ? source.objects<WalletActivityRow>('WalletActivity') : source;
   if (!walletId || !address) return collection.filtered('walletId == $0', '');
   return limitActivityResults(
     collection.filtered('walletId == $0 AND outputAddresses CONTAINS $1', walletId, `\n${address}\n`).sorted([
@@ -438,12 +428,8 @@ export function filterWalletActivityByOutputAddress(
   );
 }
 
-export function queryWalletActivityByOutputAddress(realm: Realm, walletId: string, address: string): Realm.Results<WalletActivityRow> {
-  return filterWalletActivityByOutputAddress(realm.objects<WalletActivityRow>('WalletActivity'), walletId, address);
-}
-
-export function filterWalletUtxos(
-  collection: Realm.Results<WalletUtxoRow>,
+export function queryWalletUtxos(
+  source: Realm | Realm.Results<WalletUtxoRow>,
   walletId: string,
   {
     sortType = 'height',
@@ -461,6 +447,7 @@ export function filterWalletUtxos(
     outpoints?: string[];
   } = {},
 ): Realm.Results<WalletUtxoRow> {
+  const collection = source instanceof Realm ? source.objects<WalletUtxoRow>('WalletUtxo') : source;
   const descending = sortDirection === 'desc';
   const primarySort = sortType === 'label' ? 'memo' : sortType;
   const primaryDescending = sortType === 'frozen' ? !descending : descending;
@@ -481,14 +468,6 @@ export function filterWalletUtxos(
     ['txid', descending],
     ['vout', descending],
   ]);
-}
-
-export function queryWalletUtxos(
-  realm: Realm,
-  walletId: string,
-  options: Parameters<typeof filterWalletUtxos>[2] = {},
-): Realm.Results<WalletUtxoRow> {
-  return filterWalletUtxos(realm.objects<WalletUtxoRow>('WalletUtxo'), walletId, options);
 }
 
 export const queryWalletTransactions = (realm: Realm, walletId: string): Realm.Results<WalletTransactionRow> =>
@@ -573,7 +552,8 @@ export function replaceCanonicalData(
   });
 }
 
-export function filterWalletOrder(collection: Realm.Results<WalletOrderRow>, walletIds: string[]): Realm.Results<WalletOrderRow> {
+export function queryWalletOrder(source: Realm | Realm.Results<WalletOrderRow>, walletIds: string[]): Realm.Results<WalletOrderRow> {
+  const collection = source instanceof Realm ? source.objects<WalletOrderRow>('WalletOrder') : source;
   if (walletIds.length === 0) return collection.filtered('walletId == $0', '');
   const parameters = walletIds.map((_, index) => `$${index}`).join(', ');
   return collection.filtered(`walletId IN {${parameters}}`, ...walletIds).sorted([
@@ -581,9 +561,6 @@ export function filterWalletOrder(collection: Realm.Results<WalletOrderRow>, wal
     ['walletId', false],
   ]);
 }
-
-export const queryWalletOrder = (realm: Realm, walletIds: string[]): Realm.Results<WalletOrderRow> =>
-  filterWalletOrder(realm.objects<WalletOrderRow>('WalletOrder'), walletIds);
 
 export function syncWalletOrder(realm: Realm, walletIds: string[]): void {
   const retainedIds = new Set(walletIds);

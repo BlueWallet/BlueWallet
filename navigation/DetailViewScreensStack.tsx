@@ -31,7 +31,7 @@ import Icon from '../components/Icon';
 import SettingsButton from '../components/icons/SettingsButton';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
-import { WalletTransactionsStatus } from '../components/Context/StorageProvider';
+import { WalletTransactionsStatus } from '../components/Context/WalletStorageProvider';
 import WalletTransactions from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';

@@ -1,8 +1,7 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 
-import { useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
+import { useWalletDataQuery, useWalletDataRealm } from '../blue_modules/realm/WalletDataRealmProvider';
 import {
-  filterWalletUtxos,
   queryWalletUtxos,
   setWalletOutpointsFrozen,
   setWalletUtxoMetadata,
@@ -22,10 +21,10 @@ export type WalletUtxoQuery = {
 const useWalletUtxoRows = (walletId: string, query: WalletUtxoQuery = {}) => {
   const { sortType = 'height', sortDirection = 'asc', frozen, txid, vout, outpoints } = query;
   const outpointsKey = outpoints?.join('|') ?? '';
-  return useAppDataQuery<WalletUtxoRow>(
+  return useWalletDataQuery<WalletUtxoRow>(
     {
       type: 'WalletUtxo',
-      query: collection => filterWalletUtxos(collection, walletId, { sortType, sortDirection, frozen, txid, vout, outpoints }),
+      query: collection => queryWalletUtxos(collection, walletId, { sortType, sortDirection, frozen, txid, vout, outpoints }),
     },
     [frozen, outpointsKey, sortDirection, sortType, txid, vout, walletId],
   );
@@ -45,19 +44,7 @@ const rowsToUtxos = (rows: Iterable<WalletUtxoRow>): RealmUtxo[] => {
 
 export const useWalletUtxoQuery = (walletId: string, query: WalletUtxoQuery = {}) => {
   const rows = useWalletUtxoRows(walletId, query);
-  const snapshotKey = Array.from(rows, row => `${row.outpoint}\u0000${row.memo}\u0000${row.frozen ? 1 : 0}\u0000${row.payloadJson}`).join(
-    '\u0001',
-  );
-  const cached = useRef<{ key: string; value: { utxos: RealmUtxo[]; totalValue: number; count: number } } | undefined>(undefined);
-
-  if (!cached.current || cached.current.key !== snapshotKey) {
-    cached.current = {
-      key: snapshotKey,
-      value: { utxos: rowsToUtxos(rows), totalValue: rows.sum('value'), count: rows.length },
-    };
-  }
-
-  return cached.current.value;
+  return useMemo(() => ({ utxos: rowsToUtxos(rows), totalValue: rows.sum('value'), count: rows.length }), [rows]);
 };
 
 export default function useWalletUtxos(walletId: string, query: WalletUtxoQuery = {}): RealmUtxo[] {
@@ -69,7 +56,7 @@ export const useWalletUtxo = (walletId: string, txid: string, vout: number): Rea
 
 /** Reads the current Realm snapshot inside an async action without exposing Realm to the component. */
 export const useGetWalletUtxos = (walletId: string) => {
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
   return useCallback((query: WalletUtxoQuery = {}) => rowsToUtxos(queryWalletUtxos(realm, walletId, query)), [realm, walletId]);
 };
 
@@ -84,7 +71,7 @@ export const useWalletUtxoSelection = (walletId: string, outpoints: string[]) =>
 
 /** Writes canonical UTXO metadata directly to Realm, its sole source of truth. */
 export const useWalletUtxoMutations = (walletId: string) => {
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
   const setMetadata = useCallback(
     async (txid: string, vout: number, metadata: { memo?: string; frozen?: boolean }) => {
       setWalletUtxoMetadata(realm, walletId, txid, vout, metadata);

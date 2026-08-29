@@ -120,7 +120,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             continue;
           }
           // Refresh swap-derived rows directly via the wallet method to
-          // bypass the 5-second NOP throttle in StorageProvider.fetchAndSaveWalletTransactions:
+          // bypass the 5-second NOP throttle in WalletStorageProvider.fetchAndSaveWalletTransactions:
           // reconcileArkBackgroundTaskResults often runs on app resume immediately
           // before this handler, which would make a throttled call NOP and
           // leave the synthetic row stale.

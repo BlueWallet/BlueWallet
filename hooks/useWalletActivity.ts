@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from 'react';
 
-import { useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
+import { useWalletDataQuery, useWalletDataRealm } from '../blue_modules/realm/WalletDataRealmProvider';
 import {
   activityRowToTransaction,
   findWalletTransactionByOutputAddress,
-  filterWalletActivity,
-  filterWalletActivityByOutputAddress,
-  filterWalletActivityForWallets,
+  queryWalletActivity,
+  queryWalletActivityByOutputAddress,
+  queryWalletActivityForWallets,
   walletAddressHasActivity,
   type WalletActivityQuery,
   type WalletActivityRow,
@@ -32,11 +32,11 @@ const toTransaction = (row: WalletActivityRow, wallet: TWallet): WalletActivityT
 const useWalletActivityRows = (walletId: string, options: WalletActivityQuery = {}) => {
   const { search = '', transactionId, pending, confirmed, limit } = options;
   const normalizedSearch = search.trim().toLowerCase();
-  return useAppDataQuery<WalletActivityRow>(
+  return useWalletDataQuery<WalletActivityRow>(
     {
       type: 'WalletActivity',
       query: collection =>
-        filterWalletActivity(collection, walletId, { search: normalizedSearch, transactionId, pending, confirmed, limit }),
+        queryWalletActivity(collection, walletId, { search: normalizedSearch, transactionId, pending, confirmed, limit }),
     },
     [confirmed, limit, normalizedSearch, pending, transactionId, walletId],
   );
@@ -86,10 +86,10 @@ export default function useWalletActivity(
   const normalizedSearch = search.trim().toLowerCase();
   const walletIds = wallets.map(wallet => wallet.getID());
   const walletKey = walletIds.join('|');
-  const rows = useAppDataQuery<WalletActivityRow>(
+  const rows = useWalletDataQuery<WalletActivityRow>(
     {
       type: 'WalletActivity',
-      query: collection => filterWalletActivityForWallets(collection, walletIds, normalizedSearch, limit),
+      query: collection => queryWalletActivityForWallets(collection, walletIds, normalizedSearch, limit),
     },
     [limit, normalizedSearch, walletKey],
   );
@@ -130,10 +130,10 @@ export function useWalletTransaction(wallet: TWallet | undefined, transactionId:
 export function useWalletTransactionByOutputAddress(wallet: TWallet | undefined, address: string | undefined) {
   const walletId = wallet?.getID() ?? '';
   const outputAddress = address ?? '';
-  const rows = useAppDataQuery<WalletActivityRow>(
+  const rows = useWalletDataQuery<WalletActivityRow>(
     {
       type: 'WalletActivity',
-      query: collection => filterWalletActivityByOutputAddress(collection, walletId, outputAddress, 1),
+      query: collection => queryWalletActivityByOutputAddress(collection, walletId, outputAddress, 1),
     },
     [outputAddress, walletId],
   );
@@ -142,13 +142,13 @@ export function useWalletTransactionByOutputAddress(wallet: TWallet | undefined,
 
 /** Returns an imperative exact-address lookup without exposing Realm to components. */
 export function useFindWalletTransactionByOutputAddress(walletId: string) {
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
   return useCallback((address: string) => findWalletTransactionByOutputAddress(realm, walletId, address), [realm, walletId]);
 }
 
 /** Imperatively checks whether an address already appears in canonical wallet activity. */
 export function useIsWalletAddressUsed(walletId: string) {
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
   return useCallback((address: string) => walletAddressHasActivity(realm, walletId, address), [realm, walletId]);
 }
 
@@ -170,10 +170,10 @@ export function useWalletActivityFeed(wallets: TWallet[], search = '', limit = 2
   const visibleWallets = wallets.filter(wallet => !wallet.getHideTransactionsInWalletsList());
   const walletIds = visibleWallets.map(wallet => wallet.getID());
   const walletKey = walletIds.join('|');
-  const rows = useAppDataQuery<WalletActivityRow>(
+  const rows = useWalletDataQuery<WalletActivityRow>(
     {
       type: 'WalletActivity',
-      query: collection => filterWalletActivityForWallets(collection, walletIds, normalizedSearch, limit),
+      query: collection => queryWalletActivityForWallets(collection, walletIds, normalizedSearch, limit),
     },
     [limit, normalizedSearch, walletKey],
   );
@@ -182,7 +182,7 @@ export function useWalletActivityFeed(wallets: TWallet[], search = '', limit = 2
 
 /** Counts raw address-index transactions from one live Realm query. */
 export function useWalletAddressTransactionCounts(walletId: string): ReadonlyMap<string, number> {
-  const rows = useAppDataQuery<WalletTransactionRow>(
+  const rows = useWalletDataQuery<WalletTransactionRow>(
     { type: 'WalletTransaction', query: collection => collection.filtered('walletId == $0', walletId) },
     [walletId],
   );

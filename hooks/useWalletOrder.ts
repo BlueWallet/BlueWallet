@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
-import { useAppDataQuery, useAppDataRealm } from '../blue_modules/realm/AppDataRealmProvider';
-import { filterWalletOrder, setWalletOrder, syncWalletOrder, type WalletOrderRow } from '../blue_modules/realm/appDataRepository';
+import { useWalletDataQuery, useWalletDataRealm } from '../blue_modules/realm/WalletDataRealmProvider';
+import { queryWalletOrder, setWalletOrder, syncWalletOrder, type WalletOrderRow } from '../blue_modules/realm/appDataRepository';
 import type { TWallet } from '../class/wallets/types';
 
 /** Maps secure wallet objects onto the live order stored in Realm. */
 export function useOrderedWallets(wallets: TWallet[]): TWallet[] {
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
   const walletIds = useMemo(() => wallets.map(wallet => wallet.getID()), [wallets]);
   const walletIdsKey = walletIds.join('|');
-  const rows = useAppDataQuery<WalletOrderRow>({ type: 'WalletOrder', query: collection => filterWalletOrder(collection, walletIds) }, [
+  const rows = useWalletDataQuery<WalletOrderRow>({ type: 'WalletOrder', query: collection => queryWalletOrder(collection, walletIds) }, [
     walletIdsKey,
   ]);
 
@@ -32,6 +32,6 @@ export function useOrderedWallets(wallets: TWallet[]): TWallet[] {
 }
 
 export function useSetWalletOrder() {
-  const realm = useAppDataRealm();
+  const realm = useWalletDataRealm();
   return useCallback((walletIds: string[]) => setWalletOrder(realm, walletIds), [realm]);
 }

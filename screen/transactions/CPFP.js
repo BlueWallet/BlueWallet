@@ -13,7 +13,7 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
-import { StorageContext } from '../../components/Context/StorageProvider';
+import { WalletStorageContext } from '../../components/Context/WalletStorageProvider';
 import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { BlueSpacing, BlueSpacing20 } from '../../components/BlueSpacing';
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
 });
 
 export class CpfpScreen extends Component {
-  static contextType = StorageContext;
+  static contextType = WalletStorageContext;
   constructor(props) {
     super(props);
     let txid;

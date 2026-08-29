@@ -1,7 +1,7 @@
 import { useContext } from 'react';
-import { StorageContext } from '../../components/Context/StorageProvider';
+import { WalletStorageContext } from '../../components/Context/WalletStorageProvider';
 
-export const useStorage = () => useContext(StorageContext);
+export const useStorage = () => useContext(WalletStorageContext);
 
 /** Selects wallet configuration directly from storage context. Transaction state belongs in Realm hooks. */
 export const useWallet = (walletID: string) => {

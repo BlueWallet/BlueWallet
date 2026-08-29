@@ -22,7 +22,7 @@ const BlueApp = BlueAppClass.getInstance();
 // hashmap of timestamps we _started_ refetching some wallet
 const _lastTimeTriedToRefetchWallet: { [walletID: string]: number } = {};
 
-interface StorageContextType {
+interface WalletStorageContextType {
   wallets: TWallet[];
   setWalletOrder: (walletIds: string[]) => void;
   saveToDisk: (force?: boolean) => Promise<void>;
@@ -64,9 +64,10 @@ export enum WalletTransactionsStatus {
 }
 
 // @ts-ignore default value does not match the type
-export const StorageContext = createContext<StorageContextType>(undefined);
+export const WalletStorageContext = createContext<WalletStorageContextType>(undefined);
 
-export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
+/** Owns secure wallet configuration, encryption, lifecycle, and network refresh operations. */
+export const WalletStorageProvider = ({ children }: { children: React.ReactNode }) => {
   const [walletConfigurations, setWallets] = useState<TWallet[]>([]);
   const wallets = useOrderedWallets(walletConfigurations);
   const setWalletOrder = useSetWalletOrder();
@@ -82,13 +83,13 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     const screensToCheck = ['LNDCreateInvoice', 'SendDetails', 'WalletTransactions', 'TransactionStatus'];
 
     const currentRoute = navigationRef.current.getCurrentRoute();
-    console.debug('[StorageProvider] Current route:', currentRoute?.name);
+    console.debug('[WalletStorageProvider] Current route:', currentRoute?.name);
 
     if (currentRoute) {
       if (screensToCheck.includes(currentRoute.name) && currentRoute.params) {
         const params = currentRoute.params as { walletID?: string };
         if (params.walletID) {
-          console.debug('[StorageProvider] selectedWalletID from current route:', params.walletID);
+          console.debug('[WalletStorageProvider] selectedWalletID from current route:', params.walletID);
           return params.walletID;
         }
       }
@@ -100,7 +101,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       for (const screenName of screensToCheck) {
         const walletID = findWalletIDInNavigationState(state.routes, screenName);
         if (walletID) {
-          console.debug('[StorageProvider] selectedWalletID from navigation state:', walletID, 'in screen:', screenName);
+          console.debug('[WalletStorageProvider] selectedWalletID from navigation state:', walletID, 'in screen:', screenName);
           return walletID;
         }
       }
@@ -112,7 +113,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
           for (const route of detailViewStack.state.routes) {
             if (screensToCheck.includes(route.name) && (route.params as { walletID?: string })?.walletID) {
               console.debug(
-                '[StorageProvider] selectedWalletID from drawer navigation:',
+                '[WalletStorageProvider] selectedWalletID from drawer navigation:',
                 (route.params as { walletID?: string })?.walletID,
               );
               return (route.params as { walletID?: string })?.walletID;
@@ -181,9 +182,11 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       // Fire-and-forget: cleans up the per-wallet Arkade Realm (close + delete files)
       // and the Keychain encryption key. Errors stay scoped to the Ark wallet path
       // and never block deletion.
-      (wallet as LightningArkWallet).onDelete().catch(e => console.warn('[StorageProvider] Ark wallet cleanup failed:', e?.message ?? e));
+      (wallet as LightningArkWallet)
+        .onDelete()
+        .catch(e => console.warn('[WalletStorageProvider] Ark wallet cleanup failed:', e?.message ?? e));
       if (!BlueApp.getWallets().some(w => w.type === LightningArkWallet.type)) {
-        stopArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task stop failed:', e?.message ?? e));
+        stopArkBackgroundTask().catch(e => console.warn('[WalletStorageProvider] Ark background task stop failed:', e?.message ?? e));
       }
     }
   }, []);
@@ -312,7 +315,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
       if (loaded.some(w => w.type === LightningArkWallet.type)) {
-        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
+        registerArkBackgroundTask().catch(e =>
+          console.warn('[WalletStorageProvider] Ark background task register failed:', e?.message ?? e),
+        );
       }
     }
   }, [walletsInitialized]);
@@ -463,7 +468,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       w.setUserHasSavedExport(true);
       addWallet(w);
       if (w instanceof LightningArkWallet) {
-        registerArkBackgroundTask().catch(e => console.warn('[StorageProvider] Ark background task register failed:', e?.message ?? e));
+        registerArkBackgroundTask().catch(e =>
+          console.warn('[WalletStorageProvider] Ark background task register failed:', e?.message ?? e),
+        );
       }
       if (getScanWasBBQR()) {
         // to avoid proxying `useBBQR` through a bunch of screens during import procedure, we use a trick:
@@ -523,7 +530,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }
   }
 
-  const value: StorageContextType = useMemo(
+  const value: WalletStorageContextType = useMemo(
     () => ({
       wallets,
       setWalletOrder,
@@ -579,5 +586,5 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     ],
   );
 
-  return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>;
+  return <WalletStorageContext.Provider value={value}>{children}</WalletStorageContext.Provider>;
 };

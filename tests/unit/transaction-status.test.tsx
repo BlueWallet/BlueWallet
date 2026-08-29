@@ -1,8 +1,28 @@
 import React from 'react';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import Realm from 'realm';
 
 import { _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
+import {
+  APP_DATA_SCHEMA_VERSION,
+  AppDataSchemas,
+  replaceCanonicalData,
+  replaceCanonicalWalletTransactions,
+} from '../../blue_modules/realm/appDataRepository';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
+
+jest.unmock('realm');
+jest.mock('../../blue_modules/realm/WalletDataRealmProvider', () => {
+  const { createRealmContext } = jest.requireActual('@realm/react');
+  const context = createRealmContext();
+  return {
+    useWalletDataQuery: context.useQuery,
+    useWalletDataRealm: context.useRealm,
+    TestRealmProvider: context.RealmProvider,
+  };
+});
+
+const { TestRealmProvider } = jest.requireMock('../../blue_modules/realm/WalletDataRealmProvider');
 
 // TransactionStatus renders fiat amounts via satoshiToLocalCurrency(), which
 // kicks off a real exchange-rate fetch when no rate is cached — leaving a TLS
@@ -42,18 +62,6 @@ jest.mock('../../hooks/useRealmMetadata', () => ({
   useTransactionMemo: (txid: string) => mockStorageState.txMetadata[txid]?.memo ?? '',
   useSetTransactionMemo: () => mockStorageState.setTransactionMemo,
   useCounterpartyMetadata: () => mockStorageState.counterpartyMetadata,
-}));
-
-let mockActivityTransactions: any[] = [];
-jest.mock('../../hooks/useWalletActivity', () => ({
-  __esModule: true,
-  default: () => new Map([['mock-wallet', mockActivityTransactions]]),
-  // Return a fresh projection like a naïvely mapped live Realm row. The screen
-  // must key its effects by transaction data, not JavaScript object identity.
-  useWalletTransaction: (_wallet: unknown, transactionId: string) => {
-    const transaction = mockActivityTransactions.find(candidate => candidate.hash === transactionId || candidate.txid === transactionId);
-    return transaction ? { ...transaction } : undefined;
-  },
 }));
 
 let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet' };
@@ -129,7 +137,16 @@ jest.mock('../../components/BlueText', () => {
   };
 });
 
-jest.mock('../../components/Button', () => 'Button');
+jest.mock('../../components/Button', () => {
+  const ReactModule = require('react');
+  const { Text } = require('react-native');
+  return ({ title }: { title: string }) => ReactModule.createElement(Text, null, title);
+});
+jest.mock('../../components/CopyTextToClipboard', () => {
+  const ReactModule = require('react');
+  const { Text } = require('react-native');
+  return ({ text, displayText }: { text: string; displayText?: string }) => ReactModule.createElement(Text, null, displayText ?? text);
+});
 jest.mock('../../components/HandOffComponent', () => 'HandOffComponent');
 jest.mock('../../components/HeaderRightButton', () => 'HeaderRightButton');
 jest.mock('../../components/BlueSpacing', () => ({
@@ -170,6 +187,17 @@ jest.mock('../../blue_modules/BlueElectrum', () => ({
   estimateFees: jest.fn(() => Promise.resolve({ fast: 1, medium: 1, slow: 1 })),
   getConfirmedBlockHeight: jest.fn(() => Promise.resolve({ height: 800000, tip: 800002 })),
   getBlockTimestamps: jest.fn((heights: number[]) => Promise.resolve(Object.fromEntries(heights.map((h: number) => [h, 1700000000])))),
+}));
+
+jest.mock('../../class/hd-segwit-bech32-transaction', () => ({
+  HDSegwitBech32Transaction: jest.fn().mockImplementation(() => ({
+    isToUsTransaction: jest.fn(async () => true),
+    isOurTransaction: jest.fn(async () => true),
+    getRemoteConfirmationsNum: jest.fn(async () => 0),
+    isSequenceReplaceable: jest.fn(async () => true),
+    canBumpTx: jest.fn(async () => true),
+    canCancelTx: jest.fn(async () => true),
+  })),
 }));
 
 jest.mock('../../loc', () => ({
@@ -242,6 +270,14 @@ const mockTxBase = {
   counterparty: undefined,
 };
 
+let testRealm: Realm;
+const renderStatus = () => {
+  replaceCanonicalData(testRealm, mockStorageState.wallets, mockStorageState.txMetadata, mockStorageState.counterpartyMetadata);
+  return render(<TransactionStatus />, {
+    wrapper: ({ children }) => <TestRealmProvider realm={testRealm}>{children}</TestRealmProvider>,
+  });
+};
+
 const setup = (confirmations: number, lastFetch: number) => {
   let currentConfirmations = confirmations;
   let currentLastFetch = lastFetch;
@@ -259,19 +295,16 @@ const setup = (confirmations: number, lastFetch: number) => {
     wallets: [walletMock],
   };
 
-  mockActivityTransactions = [{ ...mockTxBase, confirmations: currentConfirmations }];
-
-  const view = render(<TransactionStatus />);
+  const view = renderStatus();
 
   const update = async (nextConfirmations: number, nextFetch: number) => {
     currentConfirmations = nextConfirmations;
     currentLastFetch = nextFetch;
-    mockActivityTransactions = [{ ...mockTxBase, confirmations: currentConfirmations }];
-
     mockStorageState = {
       ...mockStorageState,
       wallets: [walletMock],
     };
+    await act(async () => replaceCanonicalWalletTransactions(testRealm, [walletMock], mockStorageState.txMetadata));
     view.rerender(<TransactionStatus />);
     return view;
   };
@@ -280,7 +313,14 @@ const setup = (confirmations: number, lastFetch: number) => {
 };
 
 describe('TransactionStatus regression', () => {
-  beforeEach(() => {
+  afterAll(() => Realm.shutdown());
+
+  beforeEach(async () => {
+    testRealm = await Realm.open({ inMemory: true, schema: AppDataSchemas, schemaVersion: APP_DATA_SCHEMA_VERSION });
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    BlueElectrum.multiGetTransactionByTxid.mockImplementation((txids: string[]) =>
+      Promise.resolve(Object.fromEntries(txids.map(txid => [txid, { hash: txid, value: 1200, confirmations: 1, vin: [], vout: [] }]))),
+    );
     mockStorageState = {
       wallets: [],
       txMetadata: {},
@@ -292,12 +332,12 @@ describe('TransactionStatus regression', () => {
         mockStorageState.txMetadata[txid] = { memo };
       }),
     };
-    mockActivityTransactions = [];
     routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    testRealm.close();
   });
 
   it('updates when the canonical Realm activity snapshot changes', async () => {
@@ -312,6 +352,45 @@ describe('TransactionStatus regression', () => {
     await waitFor(() => {
       expect(view.getByText('confirmations: 4')).toBeTruthy();
     });
+  });
+
+  it('checks CPFP and RBF from the Realm transaction when wallet transaction memory is empty', async () => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    BlueElectrum.multiGetTransactionByTxid.mockResolvedValue({
+      'mock-tx': { hash: 'mock-tx', value: 1200, confirmations: 0, vin: [], vout: [] },
+    });
+    const walletMock = {
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => []),
+      getLastTxFetch: jest.fn(() => 1000),
+      getUtxo: jest.fn(() => []),
+      allowRBF: jest.fn(() => true),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    testRealm.write(() => {
+      testRealm.create('WalletActivity', {
+        walletId: 'mock-wallet',
+        transactionId: 'mock-tx',
+        paymentRequest: '',
+        outputAddresses: '',
+        timestamp: 1,
+        confirmations: 0,
+        pending: true,
+        searchText: 'mock-tx',
+        payloadJson: JSON.stringify({ ...mockTxBase, confirmations: 0 }),
+      });
+    });
+
+    const view = render(<TransactionStatus />, {
+      wrapper: ({ children }) => <TestRealmProvider realm={testRealm}>{children}</TestRealmProvider>,
+    });
+
+    await waitFor(() => {
+      expect(view.getAllByText('Bump Fee').length).toBeGreaterThan(0);
+      expect(view.getByText('Cancel')).toBeTruthy();
+    });
+    expect(walletMock.getTransactions).not.toHaveBeenCalled();
   });
 
   it('when editing a note, passes current memo as default value in the input (not in alert message)', async () => {
@@ -362,7 +441,7 @@ describe('TransactionStatus regression', () => {
     } as any;
     mockStorageState = { ...mockStorageState, wallets: [walletMock] };
 
-    const view = render(<TransactionStatus />);
+    const view = renderStatus();
 
     // #1: the row shows its real direction (received), not a false "Pending".
     await waitFor(() => {
@@ -440,7 +519,7 @@ describe('TransactionStatus regression', () => {
     routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
     mockStorageState = { ...mockStorageState, wallets: [walletMock] };
 
-    const view = render(<TransactionStatus />);
+    const view = renderStatus();
 
     await waitFor(() => {
       expect(view.getByText('received')).toBeTruthy();
@@ -481,7 +560,7 @@ describe('TransactionStatus regression', () => {
     } as any;
     mockStorageState = { ...mockStorageState, wallets: [walletMock] };
 
-    const view = render(<TransactionStatus />);
+    const view = renderStatus();
 
     await waitFor(() => {
       expect(view.getByText('received')).toBeTruthy();
