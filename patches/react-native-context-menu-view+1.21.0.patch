@@ -1,0 +1,144 @@
+diff --git a/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java b/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
+index c6f5b9a..d1b85e6 100644
+--- a/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
++++ b/node_modules/react-native-context-menu-view/android/src/main/java/com/mpiannucci/reactnativecontextmenu/ContextMenuView.java
+@@ -19,6 +19,7 @@ import android.view.MenuItem;
+ import android.view.MotionEvent;
+ import android.view.View;
+ import android.view.ContextMenu;
++import android.widget.PopupMenu;
+ 
+ import androidx.annotation.NonNull;
+ import androidx.core.content.res.ResourcesCompat;
+@@ -99,9 +100,8 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+             @Override
+             public boolean onSingleTapConfirmed(MotionEvent e) {
+                 if (dropdownMenuMode && !disabled) {
+-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+-                        showContextMenu(e.getX(), e.getY());
+-                    }
++                    // PopupMenu renders checkable/`selected` items; floating ContextMenu does not.
++                    showDropdownMenu();
+                 }
+                 return super.onSingleTapConfirmed(e);
+             }
+@@ -160,19 +160,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+     public void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenu.ContextMenuInfo contextMenuInfo) {
+         contextMenu.clear();
+         setMenuIconDisplay(contextMenu, true);
+-
+-        for (int i = 0; i < actions.size(); i++) {
+-            ReadableMap action = actions.getMap(i);
+-            ReadableArray childActions = action.getArray("actions");
+-
+-            // If there are child actions, this action is a submenu
+-            if (childActions != null) {
+-                createContextMenuSubMenu(contextMenu, action, childActions, i);
+-            } else {
+-                // Otherwise its a normal menu item
+-                createContextMenuAction(contextMenu, action, i, -1);
+-            }
+-        }
++        populateMenu(contextMenu);
+     }
+ 
+     public void setActions(@Nullable ReadableArray actions) {
+@@ -191,6 +179,52 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+         this.fontName = fontName;
+     }
+ 
++    private void showDropdownMenu() {
++        if (actions == null) {
++            return;
++        }
++
++        cancelled = true;
++        final PopupMenu popupMenu = new PopupMenu(getContext(), this);
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
++            popupMenu.setForceShowIcon(true);
++        }
++        Menu menu = popupMenu.getMenu();
++        populateMenu(menu);
++        setMenuIconDisplay(menu, true);
++
++        popupMenu.setOnDismissListener(dismissed -> {
++            if (cancelled) {
++                ReactContext reactContext = (ReactContext) getContext();
++                if (reactContext != null) {
++                    reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(getId(), "onCancel", null);
++                }
++            }
++            cancelled = true;
++        });
++
++        popupMenu.show();
++    }
++
++    private void populateMenu(Menu menu) {
++        if (actions == null) {
++            return;
++        }
++
++        for (int i = 0; i < actions.size(); i++) {
++            ReadableMap action = actions.getMap(i);
++            ReadableArray childActions = action.getArray("actions");
++
++            // If there are child actions, this action is a submenu
++            if (childActions != null) {
++                createContextMenuSubMenu(menu, action, childActions, i);
++            } else {
++                // Otherwise its a normal menu item
++                createContextMenuAction(menu, action, i, -1);
++            }
++        }
++    }
++
+     private Typeface getCustomFont() {
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && fontName != null) {
+             try {
+@@ -218,7 +252,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+ 
+         Menu parentMenu = menu.addSubMenu(spannableTitle);
+ 
+-        @Nullable Drawable icon = getResourceWithName(getContext(), action.getString("icon"));
++        @Nullable Drawable icon = getResourceWithName(getContext(), action.hasKey("icon") ? action.getString("icon") : null);
+         menu.getItem(i).setIcon(icon);  // set icon to current item.
+ 
+         for (int j = 0; j < childActions.size(); j++) {
+@@ -230,7 +264,7 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+ 
+     private void createContextMenuAction(Menu menu, ReadableMap action, int i, int parentIndex) {
+         String title = action.getString("title");
+-        @Nullable Drawable icon = getResourceWithName(getContext(), action.getString("icon"));
++        @Nullable Drawable icon = getResourceWithName(getContext(), action.hasKey("icon") ? action.getString("icon") : null);
+ 
+         // Create spannable string with custom font
+         SpannableString spannableTitle = new SpannableString(title);
+@@ -256,6 +290,11 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+             item.setTitle(redTitle);
+         }
+ 
++        if (action.hasKey("selected")) {
++            item.setCheckable(true);
++            item.setChecked(action.getBoolean("selected"));
++        }
++
+         // We need a different listener for nested menus and parent menus
+         item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+             @Override
+@@ -265,12 +304,12 @@ public class ContextMenuView extends ReactViewGroup implements View.OnCreateCont
+                 WritableMap event = Arguments.createMap();
+                 event.putInt("index", i);
+                 event.putString("name", title);
++                WritableArray indexPath = Arguments.createArray();
+                 if (parentIndex >= 0) {
+-                    WritableArray indexPath = Arguments.createArray();
+                     indexPath.pushInt(parentIndex);
+-                    indexPath.pushInt(i);
+-                    event.putArray("indexPath", indexPath);
+                 }
++                indexPath.pushInt(i);
++                event.putArray("indexPath", indexPath);
+                 reactContext.getJSModule(RCTEventEmitter.class).receiveEvent(getId(), "onPress", event);
+                 return false;
+             }

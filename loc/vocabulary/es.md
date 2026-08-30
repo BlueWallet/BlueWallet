@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Hardware wallet | cartera de hardware / monedero de hardware | noun, lowercase · Bitcoin Core es. |
 | Seed | semilla / frase de recuperación | noun · technical / mainstream. |
 | Mnemonic | frase mnemónica / frase mnemotécnica | noun · es.json uses both forms. |
-| Passphrase | frase de contraseña / frase de seguridad | noun · ⚠️ NOT `contraseña` alone (= password) · Bitcoin Core es + Electrum es. Shipped strings still keep English `Passphrase`. |
+| Passphrase | Passphrase | noun · kept English per maintainer decision (PR #8738) — Trezor es + Ledger es also keep it. ⚠️ NOT `contraseña` (= password) and NOT `frase de contraseña` — reads as just another password (issue #8626). |
 | Public key | llave pública / clave pública | noun, lowercase · app uses `llave`; `clave` is the Bitcoin Core es form. |
 | Private key | llave privada / clave privada | noun, lowercase. |
 | WIF | WIF | acronym. |

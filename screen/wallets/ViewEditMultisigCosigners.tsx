@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
+import { useNavigation, RouteProp, useFocusEffect, useRoute, usePreventRemove } from '@react-navigation/native';
 import { Alert, findNodeHandle, FlatList, GestureResponderEvent, ListRenderItemInfo, StyleSheet, Text, View } from 'react-native';
 import Badge from '../../components/Badge';
 import { isDesktop } from '../../blue_modules/environment';
@@ -17,7 +17,6 @@ import MultipleStepsListItem, {
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -28,6 +27,7 @@ import { TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
+import { navigateToWalletsList } from '../../NavigationService';
 
 type RouteParams = RouteProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
 type NavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'ViewEditMultisigCosigners'>;
@@ -39,7 +39,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { dispatch, navigate, navigateToWalletsList, setParams } = useExtendedNavigation<NavigationProp>();
+  const { dispatch, navigate, setParams } = useNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));

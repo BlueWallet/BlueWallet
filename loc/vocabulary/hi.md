@@ -28,7 +28,7 @@ Note: Hindi (हिन्दी), Devanagari script, LTR. Hindi has no letter-ca
 | Hardware wallet | हार्डवेयर वॉलेट | noun · transliteration parallel to Wallet=वॉलेट (no upstream wallet citation). |
 | Seed | सीड / रिकवरी फ्रेज़ | noun · transliteration / "recovery phrase" mainstream form (no upstream wallet citation). |
 | Mnemonic | निमॉनिक फ्रेज़ / स्मरक वाक्यांश | noun · transliteration / native "mnemonic phrase" (no upstream wallet citation). |
-| Passphrase | पासफ्रेज़ | noun · ⚠️ NOT पासवर्ड (password) and NOT पासकोड — distinct transliteration (no upstream wallet citation). |
+| Passphrase | पासफ्रेज़ | noun · ⚠️ NOT पासवर्ड (password) and NOT पासकोड — distinct transliteration · Bitcoin Core hi uses पासफ़्रेज़ (spelling variant). |
 | Public key | सार्वजनिक कुंजी | noun · parallel to निजी कुंजी (Bitcoin Core hi has निजी कुंजी for private). |
 | Private key | निजी कुंजी | noun · Bitcoin Core hi |
 | WIF | WIF | acronym. |

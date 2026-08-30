@@ -111,33 +111,42 @@ const navigationStyle = (
           : getCloseButtonPosition(closeButtonPosition, isFirstRouteInStack, isModal);
       const handleClose = getHandleCloseAction(onCloseButtonPressed, navigation, route);
 
+      type HeaderItemsGetter = NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>;
+
       let headerRight;
       let headerLeft;
+      let unstable_headerRightItems: HeaderItemsGetter | undefined;
+      let unstable_headerLeftItems: HeaderItemsGetter | undefined;
+
+      const renderCloseButtonElement = () => (
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={loc._.close}
+          style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
+          onPress={handleClose}
+          testID="NavigationCloseButton"
+        >
+          <Image source={theme.closeImage} />
+        </TouchableOpacity>
+      );
+
+      const buildUnstableCloseButtonItems = (): ReturnType<HeaderItemsGetter> => [
+        {
+          type: 'button',
+          label: loc._.close,
+          icon: { type: 'sfSymbol', name: 'xmark' },
+          identifier: 'NavigationCloseButton',
+          onPress: handleClose,
+          accessibilityLabel: loc._.close,
+        },
+      ];
 
       if (closeButton === CloseButtonPosition.Right) {
-        headerRight = () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
-            onPress={handleClose}
-            testID="NavigationCloseButton"
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        );
+        headerRight = renderCloseButtonElement;
+        unstable_headerRightItems = buildUnstableCloseButtonItems;
       } else if (closeButton === CloseButtonPosition.Left) {
-        headerLeft = () => (
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={loc._.close}
-            style={isFormSheet ? [styles.buttonFormSheet, { backgroundColor: theme.colors.lightButton }] : styles.button}
-            onPress={handleClose}
-            testID="NavigationCloseButton"
-          >
-            <Image source={theme.closeImage} />
-          </TouchableOpacity>
-        );
+        headerLeft = renderCloseButtonElement;
+        unstable_headerLeftItems = buildUnstableCloseButtonItems;
       }
       const baseHeaderStyle = {
         headerShadowVisible: false,
@@ -161,6 +170,8 @@ const navigationStyle = (
         ...leftCloseButtonStyle,
         headerBackButtonDisplayMode: 'minimal',
         headerRight,
+        ...(unstable_headerRightItems ? { unstable_headerRightItems } : {}),
+        ...(unstable_headerLeftItems ? { unstable_headerLeftItems } : {}),
         ...opts,
         statusBarStyle,
       };

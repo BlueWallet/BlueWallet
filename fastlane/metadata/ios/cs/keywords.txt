@@ -1,0 +1,1 @@
+bitcoin,peněženka,bitcoinová peněženka,blockchain,btc,kryptoměna,lightning,segwit,multisig,electrum

@@ -28,7 +28,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { stopArkBackgroundTask } from '../../blue_modules/arkade-background';
-import { SettingsCard, SettingsScrollView } from '../../components/platform';
+import { SettingsSection, SettingsScrollView, settingsCardContent } from '../../components/SettingsSection';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -402,34 +402,34 @@ const SelfTestContent: React.FC<{ state: TState; onPressImportDocument: () => vo
 
   return (
     <SettingsScrollView automaticallyAdjustContentInsets contentInsetAdjustmentBehavior="automatic">
-      <SettingsCard>
-        <BlueSpacing20 />
-
-        {selfTestResult}
-        {!state.isLoading && (
-          <>
-            <BlueSpacing20 />
-            <View style={styles.fullWidth}>
-              <Button title="Run self-test" onPress={onPressRunSelfTest} testID="SelfTestLoading" />
-            </View>
-            <BlueSpacing20 />
-            <View style={styles.fullWidth}>
-              <SaveFileButton
-                fileName="bluewallet-selftest.txt"
-                fileContent={'Success on ' + new Date().toUTCString()}
-                style={styles.fullWidth}
-              >
-                <Button title="Test Save to Storage" />
-              </SaveFileButton>
-            </View>
-            <BlueSpacing20 />
-            <View style={styles.fullWidth}>
-              <Button title="Test File Import" onPress={onPressImportDocument} />
-            </View>
-            <BlueSpacing20 />
-          </>
-        )}
-      </SettingsCard>
+      <SettingsSection>
+        <View style={settingsCardContent}>
+          {selfTestResult}
+          {!state.isLoading && (
+            <>
+              <BlueSpacing20 />
+              <View style={styles.fullWidth}>
+                <Button title="Run self-test" onPress={onPressRunSelfTest} testID="SelfTestLoading" />
+              </View>
+              <BlueSpacing20 />
+              <View style={styles.fullWidth}>
+                <SaveFileButton
+                  fileName="bluewallet-selftest.txt"
+                  fileContent={'Success on ' + new Date().toUTCString()}
+                  style={styles.fullWidth}
+                >
+                  <Button title="Test Save to Storage" />
+                </SaveFileButton>
+              </View>
+              <BlueSpacing20 />
+              <View style={styles.fullWidth}>
+                <Button title="Test File Import" onPress={onPressImportDocument} />
+              </View>
+              <BlueSpacing20 />
+            </>
+          )}
+        </View>
+      </SettingsSection>
     </SettingsScrollView>
   );
 };

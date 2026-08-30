@@ -69,7 +69,7 @@ const getCachedMatrix = (value: string, ecl: ErrorCorrectionLevel): boolean[][] 
     matrixCache.set(key, hit);
     return hit;
   }
-  const m = encodeQR(value, 'raw', { ecc: eclMap[ecl], border: 0 });
+  const m = encodeQR(value, 'raw', { ecc: eclMap[ecl], border: 1 });
   matrixCache.set(key, m);
   if (matrixCache.size > MATRIX_CACHE_MAX) {
     const first = matrixCache.keys().next().value;
@@ -101,7 +101,7 @@ const getCachedPlan = (value: string, ecl: ErrorCorrectionLevel, size: number, i
 
   const matrix = getCachedMatrix(value, ecl);
   const N = matrix.length;
-  const cell = size / (N + 2);
+  const cell = size / N;
 
   let logoCells = 0;
   let logoStart = 0;
@@ -113,11 +113,11 @@ const getCachedPlan = (value: string, ecl: ErrorCorrectionLevel, size: number, i
   const logoEnd = logoStart + logoCells;
 
   const finderOrigins: Array<[number, number]> =
-    N >= 7
+    N >= 9
       ? [
-          [0, 0],
-          [0, N - 7],
-          [N - 7, 0],
+          [1, 1],
+          [1, N - 8],
+          [N - 8, 1],
         ]
       : [];
   const isInsideFinder = (r: number, c: number): boolean =>
@@ -129,7 +129,7 @@ const getCachedPlan = (value: string, ecl: ErrorCorrectionLevel, size: number, i
       if (!matrix[r][c]) continue;
       if (isLogoRendered && r >= logoStart && r < logoEnd && c >= logoStart && c < logoEnd) continue;
       if (isInsideFinder(r, c)) continue;
-      dataPath += `M${(c + 1) * cell} ${(r + 1) * cell}h${cell}v${cell}h-${cell}z`;
+      dataPath += `M${c * cell} ${r * cell}h${cell}v${cell}h-${cell}z`;
     }
   }
 
@@ -217,8 +217,8 @@ const QRCode: React.FC<QRCodeProps> = ({
 
     const finderShapes: React.ReactElement[] = [];
     finderOrigins.forEach(([fr, fc], i) => {
-      const x = (fc + 1) * cell;
-      const y = (fr + 1) * cell;
+      const x = fc * cell;
+      const y = fr * cell;
       finderShapes.push(
         <Rect key={`finder-frame-${i}`} testID="qr-finder-frame" x={x} y={y} width={7 * cell} height={7 * cell} fill={gradFill} />,
         <Rect
@@ -242,8 +242,8 @@ const QRCode: React.FC<QRCodeProps> = ({
       );
     });
 
-    const backdropX = (logoStart + 1) * cell;
-    const backdropY = (logoStart + 1) * cell;
+    const backdropX = logoStart * cell;
+    const backdropY = logoStart * cell;
     const backdropSize = logoCells * cell;
     const logoCenter = size / 2;
 

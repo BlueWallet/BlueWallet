@@ -8,6 +8,20 @@ import { NetworkTransactionFeeType } from '../models/networkTransactionFees';
 
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
+export const CoinControlSortDirection = {
+  ASC: 'asc',
+  DESC: 'desc',
+} as const;
+export type CoinControlSortDirection = (typeof CoinControlSortDirection)[keyof typeof CoinControlSortDirection];
+
+export const CoinControlSortType = {
+  HEIGHT: 'height',
+  LABEL: 'label',
+  VALUE: 'value',
+  FROZEN: 'frozen',
+} as const;
+export type CoinControlSortType = (typeof CoinControlSortType)[keyof typeof CoinControlSortType];
+
 export type SendDetailsParams = {
   transactionMemo?: string;
   isTransactionReplaceable?: boolean;
@@ -86,6 +100,9 @@ export type SendDetailsStackParamList = {
     deepLinkPSBT?: string;
     onBarScanned?: string;
   };
+  PsbtRaw: {
+    psbtBase64: string;
+  };
   CreateTransaction: {
     memo?: string;
     psbt?: Psbt;
@@ -118,6 +135,8 @@ export type SendDetailsStackParamList = {
     amountUnit?: BitcoinUnit;
     txid?: string;
     invoiceDescription?: string;
+    walletID?: string;
+    walletType?: string;
   };
   SelectWallet: {
     chainType?: Chain;
@@ -129,7 +148,9 @@ export type SendDetailsStackParamList = {
   };
   CoinControl: {
     walletID: string;
-    headerRight?: HeaderRightRenderer;
+    sortDirection?: CoinControlSortDirection;
+    sortType?: CoinControlSortType;
+    hasUtxos?: boolean;
   };
   PaymentCodeList: {
     walletID: string;

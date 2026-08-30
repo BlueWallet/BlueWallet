@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { BackHandler, Image, ImageSourcePropType, Platform, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { BackHandler, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import Animated, { Easing, Layout, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import Share from 'react-native-share';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
@@ -16,7 +16,6 @@ import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import CopyTextToClipboard, { CopyTextToClipboardHandle } from '../../components/CopyTextToClipboard';
 import HandOffComponent from '../../components/HandOffComponent';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
 import QRCode from '../../components/QRCode';
 import SegmentedControl from '../../components/SegmentedControl';
 import { useTheme } from '../../components/themes';
@@ -24,11 +23,9 @@ import { TransactionPendingIconBig } from '../../components/TransactionPendingIc
 import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { ReceiveDetailsStackParamList } from '../../navigation/ReceiveDetailsStackParamList';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { SuccessView } from '../send/success';
 import { BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
@@ -68,17 +65,8 @@ function staggerDelaysForRunKey(runKey: string, tileCount: number, maxDelayMs: n
 }
 
 const receiveAuxStyles = StyleSheet.create({
-  headerCloseButton: {
-    minWidth: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   qrRevealTile: {
     position: 'absolute',
-  },
-  headerCloseButtonPressed: {
-    opacity: 0.6,
   },
   qrStaggerHost: {
     overflow: 'hidden',
@@ -152,23 +140,6 @@ const QrStaggerReveal: React.FC<QrStaggerRevealProps> = ({ size, maskColor, runK
   );
 };
 
-type ReceiveDetailsCloseButtonProps = {
-  closeImage: ImageSourcePropType;
-  onPress: () => void;
-};
-
-const ReceiveDetailsCloseButton: React.FC<ReceiveDetailsCloseButtonProps> = ({ closeImage, onPress }) => (
-  <Pressable
-    accessibilityRole="button"
-    accessibilityLabel={loc._.close}
-    style={({ pressed }) => [receiveAuxStyles.headerCloseButton, pressed && receiveAuxStyles.headerCloseButtonPressed]}
-    onPress={onPress}
-    testID="NavigationCloseButton"
-  >
-    <Image source={closeImage} />
-  </Pressable>
-);
-
 type NavigationProps = NativeStackNavigationProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 type RouteProps = RouteProp<ReceiveDetailsStackParamList, 'ReceiveDetails'>;
 
@@ -177,7 +148,7 @@ const ReceiveDetails = () => {
   const { walletID, address } = route.params;
   const { wallets, saveToDisk, sleep, fetchAndSaveWalletTransactions } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { colors, closeImage } = useTheme();
+  const { colors } = useTheme();
   const isDarkTheme = useColorScheme() === 'dark';
   const [customLabel, setCustomLabel] = useState('');
   const [customAmount, setCustomAmount] = useState('');
@@ -188,7 +159,7 @@ const ReceiveDetails = () => {
   const [showConfirmedBalance, setShowConfirmedBalance] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
   const [currentTab, setCurrentTab] = useState(segmentControlValues[0]);
-  const { goBack, setParams, navigate } = useExtendedNavigation<NavigationProps>();
+  const { goBack, setParams, navigate } = useNavigation<NavigationProps>();
   const [intervalMs, setIntervalMs] = useState(5000);
   const [eta, setEta] = useState('');
   const [initialConfirmed, setInitialConfirmed] = useState(0);
@@ -319,14 +290,6 @@ const ReceiveDetails = () => {
     }
   }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
-  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
-    if (wallet && wallet.allowBIP47()) {
-      wallet.switchBIP47(!wallet.isBIP47Enabled());
-    }
-    saveToDisk();
-    obtainWalletAddress();
-  }, [wallet, saveToDisk, obtainWalletAddress]);
-
   useEffect(() => {
     if (showConfirmedBalance) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -338,49 +301,6 @@ const ReceiveDetails = () => {
       setAddressBIP21Encoded(address);
     }
   }, [address, isCustom, setAddressBIP21Encoded]);
-
-  const toolTipActions = useMemo(() => {
-    const action = { ...CommonToolTipActions.PaymentsCode };
-    action.menuState = isBIP47Enabled;
-    return [action];
-  }, [isBIP47Enabled]);
-
-  const onPressMenuItem = useCallback(() => {
-    onEnablePaymentsCodeSwitchValue();
-  }, [onEnablePaymentsCodeSwitchValue]);
-
-  const HeaderRight = useMemo(
-    () => <HeaderMenuButton actions={toolTipActions} onPressMenuItem={onPressMenuItem} />,
-    [onPressMenuItem, toolTipActions],
-  );
-
-  const renderHeaderCloseButton = useCallback(
-    () => <ReceiveDetailsCloseButton closeImage={closeImage} onPress={goBack} />,
-    [closeImage, goBack],
-  );
-
-  const renderHeaderRightMenu = useCallback(() => HeaderRight, [HeaderRight]);
-
-  useEffect(() => {
-    const androidNoDuplicateBack = Platform.OS === 'android' ? { headerBackVisible: false as const } : {};
-
-    if (wallet?.allowBIP47() && isBIP47Enabled) {
-      setParams({
-        ...androidNoDuplicateBack,
-        headerLeft: renderHeaderCloseButton,
-        headerRight: renderHeaderRightMenu,
-      });
-      return;
-    }
-
-    // When payment-code menu is hidden, move close button to the right.
-    // Android: static `navigationStyle` uses `headerBackImageSource` for left "close"; hide back so only `headerRight` shows.
-    setParams({
-      ...androidNoDuplicateBack,
-      headerLeft: () => null,
-      headerRight: renderHeaderCloseButton,
-    });
-  }, [isBIP47Enabled, renderHeaderCloseButton, renderHeaderRightMenu, setParams, wallet]);
 
   // re-fetching address balance periodically
   useEffect(() => {

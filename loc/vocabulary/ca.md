@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms, vocabulary
 | Hardware wallet | moneder de maquinari / moneder hardware | noun, lowercase · Bitcoin Core ca uses `cartera de maquinari`; BlueWallet ships `moneder hardware`. |
 | Seed | llavor / frase de recuperació | noun · literal / mainstream; ca.json ships `Llavor` and `frase de recuperació`. |
 | Mnemonic | frase mnemònica / frase de recuperació | noun · technical / mainstream. |
-| Passphrase | frase de contrasenya | noun · ⚠️ NOT just `contrasenya` (= password). Bitcoin Core ca collapses to `contrasenya`; disambiguate here. |
+| Passphrase | frase de seguretat | noun · ⚠️ NOT just `contrasenya` (= password) and NOT `frase de contrasenya` — reads as just another password (issue #8626). Bitcoin Core ca collapses to `contrasenya`; no upstream wallet citation for `frase de seguretat` (aligned with es `frase de seguridad`). |
 | Public key | clau pública | noun, lowercase. |
 | Private key | clau privada | noun, lowercase · Bitcoin Core ca |
 | WIF | WIF | acronym · gloss: format d'importació de moneder. |

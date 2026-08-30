@@ -26,7 +26,7 @@ See [`../vocabulary.md`](../vocabulary.md) for the glossary of terms and the mea
 | Hardware wallet | carteira hardware | noun, lowercase · Cake pt_BR uses `carteira de hardware`. |
 | Seed | seed / frase de recuperação | noun · technical / mainstream. App ships loanword `seed`. |
 | Mnemonic | frase mnemônica / frase de recuperação | noun · technical / mainstream. |
-| Passphrase | frase secreta / frase de segurança | noun · ⚠️ NOT `senha` (= password) · `frase de segurança` per Bitcoin Core pt_BR. |
+| Passphrase | Passphrase | noun · kept English per maintainer decision (PR #8738). ⚠️ NOT `senha` (= password). Native alternates if ever needed: `frase secreta` (Trezor pt), `frase de segurança` (Bitcoin Core pt_BR). |
 | Public key | chave pública | noun, lowercase · Bitcoin Core pt_BR + Zeus pt_BR + Cake pt_BR. |
 | Private key | chave privada | noun, lowercase · Cake pt_BR. |
 | WIF | WIF | acronym · gloss: formato de importação de carteira. |

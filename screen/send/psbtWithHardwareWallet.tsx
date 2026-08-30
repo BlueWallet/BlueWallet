@@ -1,5 +1,5 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -16,11 +16,10 @@ import { useTheme } from '../../components/themes';
 import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { openSignedTransactionRaw } from '../../blue_modules/fs';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
@@ -28,7 +27,7 @@ const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const route = useRoute<RouteProp<SendDetailsStackParamList, 'PsbtWithHardwareWallet'>>();
   const { walletID, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID) as WatchOnlyWallet;
@@ -253,12 +252,12 @@ const PsbtWithHardwareWallet = () => {
     <View style={styles.container}>
       <BlueCard>
         <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
-        <BlueSpacing20 />
+        <BlueSpacing10 />
         <Text testID="PSBTHex" style={styles.hidden}>
           {psbt?.toHex()}
         </Text>
         {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />}
-        <BlueSpacing20 />
+        <BlueSpacing10 />
         <SecondButton
           testID="PsbtTxScanButton"
           icon={{
@@ -270,7 +269,7 @@ const PsbtWithHardwareWallet = () => {
           ref={openScannerButton}
           title={loc.send.psbt_tx_scan}
         />
-        <BlueSpacing20 />
+        <BlueSpacing10 />
         <SecondButton
           icon={{
             name: 'login',
@@ -280,13 +279,31 @@ const PsbtWithHardwareWallet = () => {
           onPress={onOpenSignedTransaction}
           title={loc.send.psbt_tx_open}
         />
-        <BlueSpacing20 />
+        <BlueSpacing10 />
+        {psbt && (
+          <SecondButton
+            testID="PsbtViewRawButton"
+            icon={{
+              name: 'code',
+              type: 'font-awesome',
+              color: colors.secondButtonTextColor,
+            }}
+            onPress={() =>
+              navigation.navigate('PsbtRaw', {
+                psbtBase64: psbt.toBase64(),
+              })
+            }
+            title={loc.send.psbt_view_raw}
+          />
+        )}
+        <BlueSpacing10 />
         {psbt && (
           <SaveFileButton
             fileName={`${Date.now()}.psbt`}
             fileContent={psbt.toBase64()}
             beforeOnPress={saveFileButtonBeforeOnPress}
             afterOnPress={saveFileButtonAfterOnPress}
+            style={styles.exportButton}
           >
             <SecondButton
               icon={{
@@ -298,10 +315,10 @@ const PsbtWithHardwareWallet = () => {
             />
           </SaveFileButton>
         )}
-        <BlueSpacing20 />
+        <BlueSpacing10 />
         {psbt && (
           <View style={styles.copyToClipboard}>
-            <CopyToClipboardButton stringToCopy={typeof psbt === 'string' ? psbt : psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
+            <CopyToClipboardButton stringToCopy={psbt.toBase64()} displayText={loc.send.psbt_clipboard} />
           </View>
         )}
       </BlueCard>
@@ -334,6 +351,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 16,
+  },
+  exportButton: {
+    alignSelf: 'stretch',
+    width: '100%',
   },
   rootPadding: {
     flex: 1,

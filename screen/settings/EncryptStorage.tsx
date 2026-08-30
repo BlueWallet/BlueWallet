@@ -1,16 +1,11 @@
 import React, { useCallback, useEffect, useReducer } from 'react';
-import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
-import ListItem from '../../components/ListItem';
-import { useTheme } from '../../components/themes';
+import { Alert, Platform, StyleSheet, Text } from 'react-native';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc from '../../loc';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useStorage } from '../../hooks/context/useStorage';
 import { MODAL_TYPES } from '../PromptPasswordConfirmationSheet.types';
-import { Header } from '../../components/Header';
-import { useFocusEffect } from '@react-navigation/native';
-import SafeAreaScrollView from '../../components/SafeAreaScrollView';
-import { BlueSpacing20 } from '../../components/BlueSpacing';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
 
 enum ActionType {
   SetLoading = 'SET_LOADING',
@@ -62,15 +57,7 @@ const EncryptStorage = () => {
   const { isStorageEncrypted } = useStorage();
   const { isDeviceBiometricCapable, biometricEnabled, setBiometricUseEnabled, deviceBiometricType } = useBiometrics();
   const [state, dispatch] = useReducer(reducer, initialState);
-  const navigation = useExtendedNavigation();
-  const { colors } = useTheme();
-
-  const styleHooks = StyleSheet.create({
-    root: {
-      backgroundColor: colors.background,
-    },
-  });
-
+  const navigation = useNavigation();
   const initializeState = useCallback(async () => {
     const isStorageEncryptedSwitchEnabled = await isStorageEncrypted();
     const isDeviceBiometricCapableSync = await isDeviceBiometricCapable();
@@ -148,12 +135,10 @@ const EncryptStorage = () => {
   };
 
   return (
-    <SafeAreaScrollView>
-      <View style={styles.paddingTop} />
+    <SettingsScrollView>
       {state.deviceBiometricCapable && (
-        <>
-          <Header leftText={loc.settings.biometrics} />
-          <ListItem
+        <SettingsSection title={loc.settings.biometrics}>
+          <SettingsListItem
             title={loc.formatString(loc.settings.encrypt_use, { type: deviceBiometricType! })}
             switch={{
               value: biometricEnabled,
@@ -161,7 +146,7 @@ const EncryptStorage = () => {
               disabled: state.currentLoadingSwitch !== null,
             }}
             isLoading={state.currentLoadingSwitch === 'biometric' && state.isLoading}
-            containerStyle={[styles.row, styleHooks.root]}
+            bottomDivider={false}
             subtitle={
               <>
                 <Text style={styles.subtitleText}>{loc.formatString(loc.settings.encrypt_use_expl, { type: deviceBiometricType! })}</Text>
@@ -171,38 +156,36 @@ const EncryptStorage = () => {
               </>
             }
           />
-        </>
+        </SettingsSection>
       )}
-      <BlueSpacing20 />
-      <Header leftText={loc.settings.encrypt_tstorage} />
-      <ListItem
-        testID="EncyptedAndPasswordProtected"
-        title={loc.settings.encrypt_enc_and_pass}
-        switch={{
-          onValueChange: onEncryptStorageSwitch,
-          value: state.storageIsEncryptedSwitchEnabled,
-          disabled: state.currentLoadingSwitch !== null,
-          testID: 'EncyptedAndPasswordProtectedSwitch',
-        }}
-        isLoading={state.currentLoadingSwitch === 'encrypt' && state.isLoading}
-        containerStyle={[styles.row, styleHooks.root]}
-      />
-      {state.storageIsEncryptedSwitchEnabled && (
-        <ListItem
-          onPress={navigateToPlausibleDeniability}
-          title={loc.settings.plausible_deniability}
-          chevron
-          testID="PlausibleDeniabilityButton"
-          containerStyle={[styles.row, styleHooks.root]}
+      <SettingsSection title={loc.settings.encrypt_tstorage}>
+        <SettingsListItem
+          testID="EncyptedAndPasswordProtected"
+          title={loc.settings.encrypt_enc_and_pass}
+          switch={{
+            onValueChange: onEncryptStorageSwitch,
+            value: state.storageIsEncryptedSwitchEnabled,
+            disabled: state.currentLoadingSwitch !== null,
+            testID: 'EncyptedAndPasswordProtectedSwitch',
+          }}
+          isLoading={state.currentLoadingSwitch === 'encrypt' && state.isLoading}
+          bottomDivider={state.storageIsEncryptedSwitchEnabled}
         />
-      )}
-    </SafeAreaScrollView>
+        {state.storageIsEncryptedSwitchEnabled && (
+          <SettingsListItem
+            onPress={navigateToPlausibleDeniability}
+            title={loc.settings.plausible_deniability}
+            chevron
+            testID="PlausibleDeniabilityButton"
+            bottomDivider={false}
+          />
+        )}
+      </SettingsSection>
+    </SettingsScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  paddingTop: { paddingTop: 19 },
-  row: { minHeight: 60 },
   subtitleText: {
     fontSize: 14,
     marginTop: 5,

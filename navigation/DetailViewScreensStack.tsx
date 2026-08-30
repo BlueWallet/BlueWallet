@@ -1,9 +1,11 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, PlatformColor, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
+import { createEllipsisHeaderMenuOptions } from '../components/headerMenuOptions';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
-import { useExtendedNavigation } from '../hooks/useExtendedNavigation';
+import { Action } from '../components/types';
 import loc from '../loc';
 import LNDViewAdditionalInvoicePreImage from '../screen/lnd/lndViewAdditionalInvoicePreImage';
 import LNDViewInvoice from '../screen/lnd/lndViewInvoice';
@@ -24,6 +26,7 @@ import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
 import { DetailViewStack } from './index';
 import { withLazySuspense } from './LazyLoadingIndicator';
+import { navigationGuardRouter } from './navigationGuard';
 import Icon from '../components/Icon';
 import SettingsButton from '../components/icons/SettingsButton';
 import { useSettings } from '../hooks/context/useSettings';
@@ -51,13 +54,14 @@ import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
-import { isDesktop } from '../blue_modules/environment';
+import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
+import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { ConnectionPollContext } from './ConnectionPollContext';
 import ManageWallets from '../screen/wallets/ManageWallets';
 import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
-import { isIOS26OrHigher } from '../components/platform';
+import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
@@ -93,9 +97,66 @@ const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = (
   );
 };
 
+type ManageWalletsCloseButtonProps = {
+  onPress: () => void;
+  closeImage: any;
+};
+
+const ManageWalletsCloseButton: React.FC<ManageWalletsCloseButtonProps> = ({ onPress, closeImage }) => (
+  <Pressable
+    accessibilityRole="button"
+    accessibilityLabel={loc._.close}
+    style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+    onPress={onPress}
+    testID="NavigationCloseButton"
+  >
+    <Image source={closeImage} />
+  </Pressable>
+);
+
+const makeManageWalletsHeaderLeft = (onPress: () => void, closeImage: any): NonNullable<NativeStackNavigationOptions['headerLeft']> => {
+  return () => React.createElement(ManageWalletsCloseButton, { onPress, closeImage });
+};
+
+type OfflineModePillProps = {
+  onPress: () => void;
+  backgroundColor: string;
+};
+
+const OfflineModePill: React.FC<OfflineModePillProps> = ({ onPress, backgroundColor }) => (
+  <Pressable onPress={onPress} style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor }]}>
+    <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
+    <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
+  </Pressable>
+);
+
+type NotConnectedPillProps = {
+  onPress: () => void;
+  backgroundColor: string;
+  textColor: string;
+};
+
+const NotConnectedPill: React.FC<NotConnectedPillProps> = ({ onPress, backgroundColor, textColor }) => (
+  <Pressable onPress={onPress} style={[styles.updatingLabelContainer, { backgroundColor }]}>
+    <Text style={[styles.updatingLabelText, { color: textColor }]}>{loc.settings.electrum_connected_not}</Text>
+  </Pressable>
+);
+
+type UpdatingPillProps = {
+  backgroundColor: string;
+  textColor: string;
+};
+
+const UpdatingPill: React.FC<UpdatingPillProps> = ({ backgroundColor, textColor }) => (
+  <UpdatingLabel
+    containerStyle={[styles.updatingLabelContainer, { backgroundColor }]}
+    textStyle={[styles.updatingLabelText, { color: textColor }]}
+  />
+);
+
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
-  const navigation = useExtendedNavigation();
+  const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
@@ -188,17 +249,7 @@ const DetailViewStackScreensStack = () => {
   const renderManageWalletsHeaderLeft = useCallback(
     (options: NativeStackNavigationOptions, { navigation: screenNavigation }: { navigation: any; route: any; theme: any }) => ({
       ...options,
-      headerLeft: () => (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={loc._.close}
-          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
-          onPress={screenNavigation.goBack}
-          testID="NavigationCloseButton"
-        >
-          <Image source={theme.closeImage} />
-        </Pressable>
-      ),
+      headerLeft: makeManageWalletsHeaderLeft(screenNavigation.goBack, theme.closeImage),
     }),
     [theme.closeImage],
   );
@@ -214,37 +265,24 @@ const DetailViewStackScreensStack = () => {
     const renderHeaderLeft = () => {
       if (showOffline) {
         const offlineBg = theme.dark ? theme.colors.darkGray : '#000000';
-        return (
-          <Pressable
-            onPress={navigateToElectrumSettings}
-            style={[styles.updatingLabelContainer, styles.offlineLabelRow, { backgroundColor: offlineBg }]}
-          >
-            <Icon name="mask" type="font-awesome-6" size={14} color="#ffffff" style={styles.offlineLabelIcon} />
-            <Text style={styles.offlineLabelText}>{loc.settings.electrum_offline_mode}</Text>
-          </Pressable>
-        );
+        return React.createElement(OfflineModePill, { onPress: navigateToElectrumSettings, backgroundColor: offlineBg });
       }
       if (showNotConnected) {
-        return (
-          <Pressable
-            onPress={() => {
-              BlueElectrum.presentElectrumDisconnectedHelpAlert().catch(() => {
-                /* alert helper failed; ignore */
-              });
-            }}
-            style={[styles.updatingLabelContainer, { backgroundColor: theme.colors.redBG }]}
-          >
-            <Text style={[styles.updatingLabelText, { color: theme.colors.redText }]}>{loc.settings.electrum_connected_not}</Text>
-          </Pressable>
-        );
+        return React.createElement(NotConnectedPill, {
+          onPress: () => {
+            BlueElectrum.presentElectrumDisconnectedHelpAlert().catch(() => {
+              /* alert helper failed; ignore */
+            });
+          },
+          backgroundColor: theme.colors.redBG,
+          textColor: theme.colors.redText,
+        });
       }
       if (showUpdating) {
-        return (
-          <UpdatingLabel
-            containerStyle={[styles.updatingLabelContainer, { backgroundColor: theme.colors.lightButton }]}
-            textStyle={[styles.updatingLabelText, { color: theme.colors.foregroundColor }]}
-          />
-        );
+        return React.createElement(UpdatingPill, {
+          backgroundColor: theme.colors.lightButton,
+          textColor: theme.colors.foregroundColor,
+        });
       }
       return null;
     };
@@ -276,7 +314,6 @@ const DetailViewStackScreensStack = () => {
               tintColor: theme.colors.headerProminentButtonBackgroundColor,
               identifier: 'AddWalletButton',
               accessibilityLabel: 'AddWalletButton',
-              sharesBackground: false,
               onPress: navigateToAddWallet,
             },
           ];
@@ -287,7 +324,6 @@ const DetailViewStackScreensStack = () => {
               icon: { type: 'sfSymbol', name: 'ellipsis' },
               identifier: 'SettingsButton',
               accessibilityLabel: 'SettingsButton',
-              sharesBackground: false,
               onPress: navigateToSettings,
             });
           }
@@ -325,48 +361,12 @@ const DetailViewStackScreensStack = () => {
     walletTransactionUpdateStatus,
   ]);
 
-  const isIOSLightMode = Platform.OS === 'ios' && !theme.dark;
-  const settingsCardColor = theme.colors.lightButton ?? theme.colors.modal ?? theme.colors.elevated ?? theme.colors.background;
-  const settingsHeaderBackgroundColor = isIOSLightMode ? settingsCardColor : theme.colors.customHeader;
-
-  // Consistent header configuration for all settings screens
-  const getSettingsHeaderOptions = (title: string) => {
-    if (isIOS26OrHigher) {
-      return {
-        title,
-        headerLargeTitle: true,
-        headerLargeTitleShadowVisible: true,
-        headerBackButtonDisplayMode: 'minimal' as const,
-      };
-    }
-    // Use PlatformColor for iOS to match the Settings component, fallback to theme color
-    const titleColor = Platform.OS === 'ios' ? PlatformColor('label') : theme.colors.foregroundColor;
-    // Convert PlatformColor to string for TypeScript compatibility
-    const titleColorString = typeof titleColor === 'string' ? titleColor : String(titleColor);
-    return {
-      title,
-      headerBackButtonDisplayMode: 'default' as const,
-      headerBackVisible: true, // Show back button on Android
-      headerShadowVisible: false,
-      headerLargeTitle: false,
-      headerLargeTitleStyle: undefined,
-      headerTitleStyle: {
-        color: titleColorString,
-      },
-      headerTransparent: false,
-      headerBlurEffect: undefined,
-      headerStyle: {
-        backgroundColor: settingsHeaderBackgroundColor,
-      },
-    };
-  };
-
-  const settingsScreenOptions = (title: string) =>
-    isIOS26OrHigher ? getSettingsHeaderOptions(title) : navigationStyle(getSettingsHeaderOptions(title))(theme);
+  const settingsScreenOptions = createSettingsScreenOptions(theme);
 
   return (
     <ConnectionPollContext.Provider value={connectionPollContextValue}>
       <DetailViewStack.Navigator
+        UNSTABLE_router={navigationGuardRouter}
         initialRouteName="WalletsList"
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
@@ -478,43 +478,7 @@ const DetailViewStackScreensStack = () => {
           options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
         />
 
-        <DetailViewStack.Screen
-          name="Settings"
-          component={Settings}
-          options={
-            isIOS26OrHigher
-              ? getSettingsHeaderOptions(loc.settings.header)
-              : navigationStyle({
-                  title: loc.settings.header,
-                  headerBackButtonDisplayMode: 'minimal',
-                  headerBackTitle: '',
-                  headerShadowVisible: false,
-                  // headerLargeTitle is iOS-only, disable on Android for better compatibility with older versions
-                  headerLargeTitle: Platform.OS === 'ios',
-                  headerLargeTitleStyle:
-                    Platform.OS === 'ios'
-                      ? {
-                          color:
-                            typeof theme.colors.foregroundColor === 'string'
-                              ? theme.colors.foregroundColor
-                              : String(theme.colors.foregroundColor),
-                        }
-                      : undefined,
-                  headerTitleStyle: {
-                    color:
-                      typeof theme.colors.foregroundColor === 'string'
-                        ? theme.colors.foregroundColor
-                        : String(theme.colors.foregroundColor),
-                  },
-                  headerTransparent: false,
-                  headerBlurEffect: undefined,
-                  headerStyle: {
-                    backgroundColor: settingsHeaderBackgroundColor,
-                  },
-                  animationTypeForReplace: 'push',
-                })(theme)
-          }
-        />
+        <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
         <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
@@ -540,7 +504,7 @@ const DetailViewStackScreensStack = () => {
           name="ElectrumSettings"
           component={ElectrumSettings}
           options={navigationStyle(
-            getSettingsHeaderOptions(loc.settings.electrum_settings_server),
+            getSettingsHeaderOptions(loc.settings.electrum_settings_server, theme),
             withRouteParamHeaderOptions({ headerRight: true }),
           )(theme)}
           initialParams={{ server: undefined }}
@@ -596,19 +560,7 @@ const DetailViewStackScreensStack = () => {
             renderManageWalletsHeaderLeft,
           )(theme)}
         />
-        <DetailViewStack.Screen
-          name="ReceiveDetails"
-          component={ReceiveDetails}
-          options={navigationStyle(
-            {
-              title: loc.receive.header,
-              closeButtonPosition: CloseButtonPosition.Left,
-              headerShown: true,
-              presentation: 'modal',
-            },
-            withRouteParamHeaderOptions({ headerLeft: true, headerRight: true, headerBackVisible: true }),
-          )(theme)}
-        />
+        <DetailViewStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={createReceiveDetailsOptions(theme)} />
         <DetailViewStack.Screen
           name="ReceiveCustomAmount"
           component={ReceiveCustomAmountSheet}
@@ -662,4 +614,59 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
+  receiveHeaderEmptyLeftSlot: {
+    width: 40,
+  },
 });
+
+const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
+  navigationStyle(
+    {
+      title: loc.receive.header,
+      closeButtonPosition: CloseButtonPosition.Left,
+      headerShown: true,
+      presentation: 'modal',
+    },
+    (options, { navigation, route }) => {
+      const allowBIP47 = route.params?.allowBIP47 ?? false;
+      const isBIP47Enabled = route.params?.isBIP47Enabled ?? false;
+      const showBip47Menu = allowBIP47;
+      const onPressMenuItem = () => {
+        navigation.setParams({ toggleBIP47RequestedAt: Date.now() });
+      };
+
+      const actions: Action[] = [{ ...CommonToolTipActions.PaymentsCode, menuState: isBIP47Enabled }];
+      const headerMenuOptions = createEllipsisHeaderMenuOptions({ actions, onPressMenuItem });
+      const emptyLeft = () => React.createElement(View, { style: styles.receiveHeaderEmptyLeftSlot });
+
+      if (showBip47Menu) {
+        return {
+          ...options,
+          headerLeft: options.headerLeft,
+          headerRight: headerMenuOptions.headerRight,
+          unstable_headerLeftItems: options.unstable_headerLeftItems,
+          unstable_headerRightItems: headerMenuOptions.unstable_headerRightItems,
+        };
+      }
+
+      const renderCloseRight = () => (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={loc._.close}
+          style={({ pressed }) => [styles.headerIconButton, pressed && styles.headerIconButtonPressed]}
+          onPress={navigation.goBack}
+          testID="NavigationCloseButton"
+        >
+          <Image source={theme.closeImage} />
+        </Pressable>
+      );
+
+      return {
+        ...options,
+        headerLeft: emptyLeft,
+        headerRight: renderCloseRight,
+        unstable_headerLeftItems: () => [],
+        unstable_headerRightItems: options.unstable_headerRightItems,
+      };
+    },
+  )(theme);

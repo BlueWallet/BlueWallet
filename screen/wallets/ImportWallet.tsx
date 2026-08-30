@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
 import {
   Keyboard,
@@ -16,13 +16,10 @@ import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import Button from '../../components/Button';
 import ImportWalletKeyboardAccessory, { ImportWalletKeyboardAccessoryViewID } from '../../components/ImportWalletKeyboardAccessory';
 import InputClearPasteOverlay from '../../components/InputClearPasteOverlay';
-import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useExtendedNavigation } from '../../hooks/useExtendedNavigation';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import loc from '../../loc';
-import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
@@ -34,7 +31,7 @@ type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
 
 const ImportWallet = () => {
-  const navigation = useExtendedNavigation<NavigationProps>();
+  const navigation = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const route = useRoute<RouteProps>();
   const label = route?.params?.label ?? '';
@@ -49,9 +46,9 @@ const ImportWallet = () => {
   const inputRef = useRef<TextInput>(null);
   const screenRef = useRef<View>(null);
   const [anchorScreenY, setAnchorScreenY] = useState(0);
-  const [searchAccountsMenuState, setSearchAccountsMenuState] = useState<boolean>(false);
-  const [askPassphraseMenuState, setAskPassphraseMenuState] = useState<boolean>(false);
-  const [clearClipboardMenuState, setClearClipboardMenuState] = useState<boolean>(true);
+  const askPassphraseMenuState = route.params?.askPassphraseMenuState ?? false;
+  const searchAccountsMenuState = route.params?.searchAccountsMenuState ?? false;
+  const clearClipboardMenuState = route.params?.clearClipboardMenuState ?? true;
   const { isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const styles = StyleSheet.create({
@@ -201,42 +198,6 @@ const ImportWallet = () => {
     }
   };
 
-  const toolTipOnPressMenuItem = useCallback(
-    (menuItem: string) => {
-      Keyboard.dismiss();
-      if (menuItem === CommonToolTipActions.Passphrase.id) {
-        setAskPassphraseMenuState(!askPassphraseMenuState);
-      } else if (menuItem === CommonToolTipActions.SearchAccount.id) {
-        setSearchAccountsMenuState(!searchAccountsMenuState);
-      } else if (menuItem === CommonToolTipActions.ClearClipboard.id) {
-        setClearClipboardMenuState(!clearClipboardMenuState);
-      }
-    },
-    [askPassphraseMenuState, clearClipboardMenuState, searchAccountsMenuState],
-  );
-
-  // ToolTipMenu actions for advanced options
-  const toolTipActions = useMemo(() => {
-    return [
-      { ...CommonToolTipActions.Passphrase, menuState: askPassphraseMenuState },
-      {
-        ...CommonToolTipActions.SearchAccount,
-        menuState: searchAccountsMenuState,
-      },
-      {
-        ...CommonToolTipActions.ClearClipboard,
-        menuState: clearClipboardMenuState,
-      },
-    ];
-  }, [askPassphraseMenuState, clearClipboardMenuState, searchAccountsMenuState]);
-
-  const HeaderRight = useMemo(
-    () => <HeaderMenuButton onPressMenuItem={toolTipOnPressMenuItem} actions={toolTipActions} />,
-    [toolTipOnPressMenuItem, toolTipActions],
-  );
-
-  const renderHeaderRight = useCallback(() => HeaderRight, [HeaderRight]);
-
   useEffect(() => {
     if (isPrivacyBlurEnabled) {
       enableScreenProtect();
@@ -249,13 +210,6 @@ const ImportWallet = () => {
   useEffect(() => {
     if (triggerImport) handleImport();
   }, [triggerImport, handleImport]);
-
-  // Adding the ToolTipMenu to the header
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: renderHeaderRight,
-    });
-  }, [navigation, renderHeaderRight]);
 
   const renderOptionsAndImportButton = (
     <>

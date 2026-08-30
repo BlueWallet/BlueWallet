@@ -194,44 +194,52 @@ const setDateTimeLocale = async () => {
     case 'fil_PH':
       lang = 'tl-ph';
       require('dayjs/locale/tl-ph');
+      break;
     case 'hy':
       lang = 'hy-am';
       require('dayjs/locale/hy-am');
+      break;
+    // Akan, Sesotho, Fula, Zulu, Hakka, Guaraní — no dayjs locale available, using English as closest match
     case 'ak':
-      // Akan — no dayjs locale available, using English as closest match
     case 'st_ZA':
-      // Sesotho — no dayjs locale available, using English as closest match
     case 'ff':
-      // Fula — no dayjs locale available, using English as closest match
     case 'zu_ZA':
-      // Zulu — no dayjs locale available, using English as closest match
     case 'hak':
-      // Hakka — no dayjs locale available, using English as closest match
     case 'gug_PY':
-      // Guaraní — no dayjs locale available, using English as closest match
       lang = 'en';
       require('dayjs/locale/en');
+      break;
     case 'hi':
       require('dayjs/locale/hi');
+      break;
     case 'bn':
       require('dayjs/locale/bn');
+      break;
     case 'ur':
       require('dayjs/locale/ur');
+      break;
     case 'sw':
       require('dayjs/locale/sw');
+      break;
     case 'pa':
       lang = 'pa-in';
       require('dayjs/locale/pa-in');
+      break;
     case 'am':
       require('dayjs/locale/am');
+      break;
     case 'az':
       require('dayjs/locale/az');
+      break;
     case 'km':
       require('dayjs/locale/km');
+      break;
     case 'lv':
       require('dayjs/locale/lv');
+      break;
     case 'eu':
       require('dayjs/locale/eu');
+      break;
     case 'ka':
       require('dayjs/locale/ka');
       break;

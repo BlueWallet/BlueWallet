@@ -1,6 +1,5 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
-
 import ecc from '../../blue_modules/noble_ecc';
 import { AbstractWallet } from './abstract-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
@@ -45,6 +44,10 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   allowSend() {
     return this.useWithHardwareWalletEnabled() && this.isHd() && this._hdWalletInstance!.allowSend();
+  }
+
+  allowRBF() {
+    return this._hdWalletInstance?.allowRBF() ?? false;
   }
 
   allowSignVerifyMessage() {
@@ -143,29 +146,27 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   async fetchBalance() {
-    if (this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub')) {
+    if (this.isHd()) {
       if (!this._hdWalletInstance) this.init();
       if (!this._hdWalletInstance) throw new Error('Internal error: _hdWalletInstance is not initialized');
       return this._hdWalletInstance.fetchBalance();
     } else {
-      // return LegacyWallet.prototype.fetchBalance.call(this);
       return super.fetchBalance();
     }
   }
 
   async fetchTransactions() {
-    if (this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub')) {
+    if (this.isHd()) {
       if (!this._hdWalletInstance) this.init();
       if (!this._hdWalletInstance) throw new Error('Internal error: _hdWalletInstance is not initialized');
       return this._hdWalletInstance.fetchTransactions();
     } else {
-      // return LegacyWallet.prototype.fetchBalance.call(this);
       return super.fetchTransactions();
     }
   }
 
   async getAddressAsync(): Promise<string> {
-    if (this.isAddressValid(this.secret)) return new Promise(resolve => resolve(this.secret));
+    if (this.isAddressValid(this.secret)) return Promise.resolve(this.secret);
     if (this._hdWalletInstance) return this._hdWalletInstance.getAddressAsync();
     throw new Error('Not initialized');
   }
@@ -204,6 +205,12 @@ export class WatchOnlyWallet extends LegacyWallet {
   getUtxo(...args: Parameters<THDWalletForWatchOnly['getUtxo']>) {
     if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo(...args);
     return super.getUtxo(...args);
+  }
+
+  // Same path as createTransaction — needed so SendDetails fee matches the PSBT (#8803)
+  coinselect(...args: Parameters<LegacyWallet['coinselect']>) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.coinselect(...args);
+    return super.coinselect(...args);
   }
 
   combinePsbt(...args: Parameters<THDWalletForWatchOnly['combinePsbt']>) {
@@ -268,7 +275,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   allowMasterFingerprint() {
-    return this.getSecret().startsWith('zpub') || this.getSecret().startsWith('ypub') || this.getSecret().startsWith('xpub');
+    return this.isHd();
   }
 
   useWithHardwareWalletEnabled() {
