@@ -543,6 +543,11 @@ const WalletDetails: React.FC = () => {
     setMasterFingerprint((wallet as WatchOnlyWallet).getMasterFingerprintHex());
   };
 
+  let onMasterFingerprintPress: (() => void) | undefined = onViewMasterFingerPrintPress;
+  if (isMasterFingerPrintVisible) {
+    onMasterFingerprintPress = isWatchOnlyHd ? onEditMasterFingerprintPress : undefined;
+  }
+
   return (
     <SafeAreaScrollView centerContent={isLoading} testID="WalletDetailsScroll">
       <>
@@ -842,13 +847,7 @@ const WalletDetails: React.FC = () => {
                   )}
                   {wallet.allowMasterFingerprint && wallet.allowMasterFingerprint() && (
                     <SettingsListItem
-                      onPress={
-                        isMasterFingerPrintVisible
-                          ? isWatchOnlyHd
-                            ? onEditMasterFingerprintPress
-                            : undefined
-                          : onViewMasterFingerPrintPress
-                      }
+                      onPress={onMasterFingerprintPress}
                       title={loc.wallets.details_master_fingerprint}
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={
