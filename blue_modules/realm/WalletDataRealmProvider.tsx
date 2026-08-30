@@ -39,5 +39,12 @@ export const WalletDataRealmProvider = ({ children }: React.PropsWithChildren) =
   }, [realm]);
 
   if (!realm || realm.isClosed) return null;
-  return <WalletDataRealmContext.RealmProvider realm={realm}>{children}</WalletDataRealmContext.RealmProvider>;
+  // A Realm switch must remount every live query before the retired Realm is
+  // released. Reusing the provider subtree leaves useQuery holding Results
+  // from the previous bucket, which become invalid as soon as it is closed.
+  return (
+    <WalletDataRealmContext.RealmProvider key={realm.path} realm={realm}>
+      {children}
+    </WalletDataRealmContext.RealmProvider>
+  );
 };

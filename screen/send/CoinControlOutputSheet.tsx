@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import debounce from '../../blue_modules/debounce';
 import Avatar from '../../components/Avatar';
 import ListItem from '../../components/ListItem';
 import { BlueSpacing10 } from '../../components/BlueSpacing';
@@ -35,16 +34,15 @@ const CoinControlOutputSheet: React.FC = () => {
   const { isVisible } = useKeyboard();
 
   const [memo, setMemo] = useState<string>('');
-  const memoWasEdited = useRef(false);
   const [frozen, setFrozen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!wallet || !realmUtxo) return;
+    if (!loading || !wallet || !realmUtxo) return;
     setMemo(realmUtxo.memo || transactionMemo);
     setFrozen(realmUtxo.frozen);
     setLoading(false);
-  }, [realmUtxo, transactionMemo, wallet]);
+  }, [loading, realmUtxo, transactionMemo, wallet]);
 
   const switchValue = useMemo(
     () => ({
@@ -59,23 +57,16 @@ const CoinControlOutputSheet: React.FC = () => {
     [frozen, setUtxoMetadata, utxo.txid, utxo.vout, wallet],
   );
 
-  const onMemoChange = (value: string) => {
-    memoWasEdited.current = true;
-    setMemo(value);
-  };
-
-  const debouncedSaveMemo = useRef(
-    debounce(async m => {
+  const onMemoChange = useCallback(
+    (value: string) => {
       if (!wallet) return;
-      await setUtxoMetadata(utxo.txid, utxo.vout, { memo: m });
-    }, 500),
+      setMemo(value);
+      setUtxoMetadata(utxo.txid, utxo.vout, { memo: value }).catch(error =>
+        console.warn('[CoinControlOutputSheet] Failed to update output memo:', error),
+      );
+    },
+    [setUtxoMetadata, utxo.txid, utxo.vout, wallet],
   );
-
-  useEffect(() => {
-    if (!memoWasEdited.current) return;
-    memoWasEdited.current = false;
-    debouncedSaveMemo.current(memo);
-  }, [memo]);
 
   const amount = formatBalance(utxo.value, wallet?.getPreferredBalanceUnit?.() ?? BitcoinUnit.BTC, true);
   const color = `#${utxo.txid.substring(0, 6)}`;
@@ -89,14 +80,12 @@ const CoinControlOutputSheet: React.FC = () => {
 
   const handleUseCoin = useCallback(async () => {
     if (!wallet) return;
-    debouncedSaveMemo.current.cancel();
     await setUtxoMetadata(utxo.txid, utxo.vout, { memo });
     goFromCoinControlToSendDetails(navigation, walletID, [utxo]);
   }, [memo, navigation, setUtxoMetadata, utxo, wallet, walletID]);
 
   const applyChangesAndClose = useCallback(async () => {
     if (!wallet) return;
-    debouncedSaveMemo.current.cancel();
     await setUtxoMetadata(utxo.txid, utxo.vout, { memo });
     navigation.goBack();
   }, [memo, navigation, setUtxoMetadata, utxo.txid, utxo.vout, wallet]);

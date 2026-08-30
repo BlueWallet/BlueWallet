@@ -490,13 +490,20 @@ export const WalletStorageProvider = ({ children }: { children: React.ReactNode 
         message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       });
 
-      await w.fetchBalance();
-      try {
-        await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
-      } catch (error) {
-        console.warn('Failed to setup notifications:', error);
-        // Consider if user should be notified of notification setup failure
-      }
+      // Import is complete once secure storage and canonical Realm are saved.
+      // Optional network setup must not strand the user on the import screen.
+      (async () => {
+        try {
+          await w.fetchBalance();
+        } catch (error) {
+          console.warn('[WalletStorageProvider] Initial imported-wallet balance fetch failed:', error);
+        }
+        try {
+          await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+        } catch (error) {
+          console.warn('[WalletStorageProvider] Failed to setup imported-wallet notifications:', error);
+        }
+      })().catch(error => console.warn('[WalletStorageProvider] Imported-wallet setup failed:', error));
     },
     [wallets, addWallet, saveToDisk],
   );
