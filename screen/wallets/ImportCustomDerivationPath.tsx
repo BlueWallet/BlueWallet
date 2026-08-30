@@ -46,7 +46,16 @@ const ImportCustomDerivationPath: React.FC = () => {
   const { colors } = useTheme();
   const { importText, password } = useRoute<RouteProps>().params;
   const { addAndSaveWallet } = useStorage();
-  const [path, setPath] = useState<string>("m/84'/0'/0'");
+  const watchOnlyImport = useMemo(() => {
+    const wallet = new WatchOnlyWallet();
+    wallet.setSecret(importText);
+    if (!(wallet.valid() && wallet.isHd())) {
+      return { isWatchOnlyHd: false, defaultPath: "m/84'/0'/0'" };
+    }
+    wallet.init();
+    return { isWatchOnlyHd: true, defaultPath: wallet.getDerivationPath() || "m/84'/0'/0'" };
+  }, [importText]);
+  const [path, setPath] = useState<string>(watchOnlyImport.defaultPath);
   const [wallets, setWallets] = useState<TWalletsByPath>({});
   const [used, setUsed] = useState<TUsedByPath>({});
   const [selected, setSelected] = useState<string>('');
@@ -113,11 +122,7 @@ const ImportCustomDerivationPath: React.FC = () => {
     debouncedSavePath.current(path);
   }, [path, wallets]);
 
-  const isWatchOnlyImport = useMemo<boolean>(() => {
-    const wallet = new WatchOnlyWallet();
-    wallet.setSecret(importText);
-    return wallet.valid() && wallet.isHd();
-  }, [importText]);
+  const isWatchOnlyImport = watchOnlyImport.isWatchOnlyHd;
 
   const items: TItem[] = useMemo(() => {
     if (wallets[path] === WRONG_PATH) return [];
