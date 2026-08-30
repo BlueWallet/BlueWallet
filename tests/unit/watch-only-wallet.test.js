@@ -712,6 +712,125 @@ describe('Watch only wallet', () => {
     const { fee: estimatedFee } = w.coinselect(utxos, targets, 1);
     assert.strictEqual(estimatedFee, fee);
   });
+
+  it('can edit derivation path and master fingerprint without changing addresses', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    w.init();
+    const addressBefore = w._getExternalAddressByIndex(0);
+    const idBefore = w.getID();
+    assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+
+    // a bare zpub carries no key origin info; the user corrects it,
+    // e.g. for an Electrum-seed wallet whose account root is m/0'
+    w.setDerivationPath("m/0'");
+    w.setMasterFingerprintFromHex('73c5da0a');
+
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(w.getID(), idBefore);
+
+    const { psbt } = w.createTransaction(
+      [{ value: 100000, address: addressBefore, vout: 0, txid: '11'.repeat(32) }],
+      [{ address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', value: 5000 }],
+      1,
+      w._getInternalAddressByIndex(0),
+    );
+    assert.strictEqual(psbt.data.inputs[0].bip32Derivation[0].path, "m/0'/0/0");
+    assert.strictEqual(uint8ArrayToHex(psbt.data.inputs[0].bip32Derivation[0].masterFingerprint), '73c5da0a');
+
+    // metadata edits must survive re-init and never change address derivation or wallet ID
+    w.init();
+    w._hdWalletInstance.external_addresses_cache = {};
+    assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(w.getID(), idBefore);
+
+    // save/load (app restart): path lives on the HD instance, ID stays on this._derivationPath
+    w.prepareForSerialization();
+    const restored = WatchOnlyWallet.fromJson(JSON.stringify(w));
+    restored.init();
+    restored._hdWalletInstance.external_addresses_cache = {};
+    assert.strictEqual(restored.getID(), idBefore);
+    assert.strictEqual(restored.getDerivationPath(), "m/0'");
+    assert.strictEqual(restored.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
+
+    // even a path that init() would normally map to another script type must not flip addresses
+    w.setDerivationPath("m/49'/0'/0'");
+    assert.strictEqual(w.getID(), idBefore);
+    w.init();
+    w._hdWalletInstance.external_addresses_cache = {};
+    assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(w.getID(), idBefore);
+
+    w.prepareForSerialization();
+    const restoredHostile = WatchOnlyWallet.fromJson(JSON.stringify(w));
+    restoredHostile.init();
+    restoredHostile._hdWalletInstance.external_addresses_cache = {};
+    assert.strictEqual(restoredHostile.getID(), idBefore);
+    assert.strictEqual(restoredHostile.getDerivationPath(), "m/49'/0'/0'");
+    assert.strictEqual(restoredHostile._getExternalAddressByIndex(0), addressBefore);
+  });
+
+  it('path edit does not flip script type for xpub and ypub', () => {
+    const cases = [
+      {
+        secret: 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps',
+        hostilePath: "m/84'/0'/0'",
+        prefix: '1',
+      },
+      {
+        secret: 'ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo',
+        hostilePath: "m/84'/0'/0'",
+        prefix: '3',
+      },
+    ];
+    for (const { secret, hostilePath, prefix } of cases) {
+      const w = new WatchOnlyWallet();
+      w.setSecret(secret);
+      w.init();
+      const addressBefore = w._getExternalAddressByIndex(0);
+      const idBefore = w.getID();
+      assert.ok(addressBefore.startsWith(prefix), addressBefore);
+      w.setDerivationPath(hostilePath);
+      w.init();
+      w._hdWalletInstance.external_addresses_cache = {};
+      assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+      assert.strictEqual(w.getID(), idBefore);
+      assert.ok(w._getExternalAddressByIndex(0).startsWith(prefix));
+    }
+  });
+
+  it('can set derivation path right after import, before and without explicit init()', () => {
+    // same call order as the custom derivation path import flow
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    const idBefore = w.getID();
+    w.setDerivationPath("m/0'"); // no explicit init() — the setter must handle it
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getID(), idBefore);
+
+    const reference = new WatchOnlyWallet();
+    reference.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    reference.init();
+    assert.strictEqual(w._getExternalAddressByIndex(0), reference._getExternalAddressByIndex(0));
+    assert.strictEqual(w.getID(), reference.getID());
+  });
+
+  it('setDerivationPath and setMasterFingerprintFromHex reject invalid input', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'); // plain address, not HD
+    assert.throws(() => w.setDerivationPath("m/0'"));
+
+    const hd = new WatchOnlyWallet();
+    hd.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    hd.init();
+    assert.throws(() => hd.setMasterFingerprintFromHex('nothex00'));
+    assert.strictEqual(hd.getMasterFingerprintHex(), '00000000');
+  });
 });
 
 describe('BC-UR', () => {
@@ -912,82 +1031,5 @@ describe('BC-UR', () => {
     const [index, total] = extractSingleWorkload('ur:bytes/2of3/fc38n9ue84vu8ra8ue6cdnrghws0dwep4f46q4rlrgdncwsg49lsw38e6m/s8wmmjd3jq');
     assert.strictEqual(index, 2);
     assert.strictEqual(total, 3);
-  });
-
-  it('can edit derivation path and master fingerprint without changing addresses', () => {
-    const w = new WatchOnlyWallet();
-    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
-    w.init();
-    const addressBefore = w._getExternalAddressByIndex(0);
-    const idBefore = w.getID();
-    assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
-    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
-
-    // a bare zpub carries no key origin info; the user corrects it,
-    // e.g. for an Electrum-seed wallet whose account root is m/0'
-    w.setDerivationPath("m/0'");
-    w.setMasterFingerprintFromHex('73c5da0a');
-
-    assert.strictEqual(w.getDerivationPath(), "m/0'");
-    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
-    assert.strictEqual(w.getID(), idBefore);
-
-    // metadata edits must survive re-init and never change address derivation or wallet ID
-    w.init();
-    assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
-    assert.strictEqual(w.getDerivationPath(), "m/0'");
-    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
-    assert.strictEqual(w.getID(), idBefore);
-
-    // save/load (app restart): path lives on the HD instance, ID stays on this._derivationPath
-    w.prepareForSerialization();
-    const restored = WatchOnlyWallet.fromJson(JSON.stringify(w));
-    restored.init();
-    assert.strictEqual(restored.getID(), idBefore);
-    assert.strictEqual(restored.getDerivationPath(), "m/0'");
-    assert.strictEqual(restored.getMasterFingerprintHex(), '73c5da0a');
-    assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
-
-    // even a path that init() would normally map to another script type must not flip addresses
-    w.setDerivationPath("m/49'/0'/0'");
-    assert.strictEqual(w.getID(), idBefore);
-    w.init();
-    assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
-    assert.strictEqual(w.getID(), idBefore);
-
-    w.prepareForSerialization();
-    const restoredHostile = WatchOnlyWallet.fromJson(JSON.stringify(w));
-    restoredHostile.init();
-    assert.strictEqual(restoredHostile.getID(), idBefore);
-    assert.strictEqual(restoredHostile.getDerivationPath(), "m/49'/0'/0'");
-    assert.strictEqual(restoredHostile._getExternalAddressByIndex(0), addressBefore);
-  });
-
-  it('can set derivation path right after import, before and without explicit init()', () => {
-    // same call order as the custom derivation path import flow
-    const w = new WatchOnlyWallet();
-    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
-    const idBefore = w.getID();
-    w.setDerivationPath("m/0'"); // no explicit init() — the setter must handle it
-    assert.strictEqual(w.getDerivationPath(), "m/0'");
-    assert.strictEqual(w.getID(), idBefore);
-
-    const reference = new WatchOnlyWallet();
-    reference.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
-    reference.init();
-    assert.strictEqual(w._getExternalAddressByIndex(0), reference._getExternalAddressByIndex(0));
-    assert.strictEqual(w.getID(), reference.getID());
-  });
-
-  it('setDerivationPath and setMasterFingerprintFromHex reject invalid input', () => {
-    const w = new WatchOnlyWallet();
-    w.setSecret('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'); // plain address, not HD
-    assert.throws(() => w.setDerivationPath("m/0'"));
-
-    const hd = new WatchOnlyWallet();
-    hd.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
-    hd.init();
-    assert.throws(() => hd.setMasterFingerprintFromHex('nothex00'));
-    assert.strictEqual(hd.getMasterFingerprintHex(), '00000000');
   });
 });
