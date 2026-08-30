@@ -196,6 +196,8 @@
     "invalid_psbt": "提供的部分签名比特币交易（PSBT）无效。",
     "open_settings": "打开设置",
     "psbt_clipboard": "复制到剪贴板",
+    "psbt_view_raw": "查看原始 PSBT",
+    "psbt_raw_helper": "这是原始的 PSBT（Base64 编码）。点击以复制。",
     "psbt_this_is_psbt": "这是一个部分签名的比特币交易（PSBT）。请使用您的硬件钱包以完成签名。",
     "psbt_tx_export": "导出到文件",
     "no_tx_signing_in_progress": "当前没有正在进行的交易签名。",
