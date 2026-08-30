@@ -243,8 +243,8 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   getMasterFingerprintHex() {
     if (!this.masterFingerprint) return '00000000';
-    let masterFingerprintHex = Number(this.masterFingerprint).toString(16);
-    if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
+    // toString(16) drops leading zeros; one extra '0' is not enough when the high byte is 00
+    const masterFingerprintHex = Number(this.masterFingerprint).toString(16).padStart(8, '0');
     // poor man's little-endian conversion:
     // ¯\_(ツ)_/¯
     return (

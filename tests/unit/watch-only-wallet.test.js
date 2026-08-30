@@ -831,6 +831,27 @@ describe('Watch only wallet', () => {
     assert.throws(() => hd.setMasterFingerprintFromHex('nothex00'));
     assert.strictEqual(hd.getMasterFingerprintHex(), '00000000');
   });
+
+  it('master fingerprint with 00 at the end round-trips and can create a PSBT', () => {
+    const zpub = 'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP';
+    // beeb0000 stores as 0x0000ebbe, so its hex is 4 chars and needs four pad chars —
+    // the case a single prepended '0' could never have covered
+    const cases = ['beebee00', 'beeb0000', '00beebee', 'be00ebee', 'beebee0a'];
+    for (const fp of cases) {
+      const w = new WatchOnlyWallet();
+      w.setSecret(zpub);
+      w.init();
+      w.setMasterFingerprintFromHex(fp);
+      assert.strictEqual(w.getMasterFingerprintHex(), fp);
+      const { psbt } = w.createTransaction(
+        [{ value: 100000, address: w._getExternalAddressByIndex(0), vout: 0, txid: '11'.repeat(32) }],
+        [{ address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', value: 5000 }],
+        1,
+        w._getInternalAddressByIndex(0),
+      );
+      assert.strictEqual(uint8ArrayToHex(psbt.data.inputs[0].bip32Derivation[0].masterFingerprint), fp);
+    }
+  });
 });
 
 describe('BC-UR', () => {
