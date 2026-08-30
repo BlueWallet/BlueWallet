@@ -25,7 +25,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeArea from '../../components/SafeArea';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import { getBip39PrefixMatches, getWordFragmentAtCursor, replaceWordFragment } from '../../blue_modules/bip39WordSuggestions';
+import { getImportWalletSuggestions, getWordFragmentAtCursor, replaceWordFragment } from '../../blue_modules/bip39WordSuggestions';
 
 type RouteProps = RouteProp<AddWalletStackParamList, 'ImportWallet'>;
 type NavigationProps = NativeStackNavigationProp<AddWalletStackParamList, 'ImportWallet'>;
@@ -98,13 +98,8 @@ const ImportWallet = () => {
     return valueWithSingleWhitespace;
   }, [importText]);
 
-  const suggestions = useMemo(() => {
-    const fragment = getWordFragmentAtCursor(importText, selection.start);
-    if (!fragment) {
-      return [];
-    }
-    return getBip39PrefixMatches(fragment.fragment);
-  }, [importText, selection.start]);
+  const suggestions = useMemo(() => getImportWalletSuggestions(importText, selection.start), [importText, selection.start]);
+  const showSuggestionAccessory = suggestions.length > 0;
 
   const handleSelectionChange = useCallback((event: TextInputSelectionChangeEvent) => {
     const { selection: nextSelection } = event.nativeEvent;
@@ -245,15 +240,17 @@ const ImportWallet = () => {
               testID="MnemonicInput"
               numberOfLines={12}
               style={styles.importInput}
-              inputAccessoryViewID={ImportWalletKeyboardAccessoryViewID}
+              inputAccessoryViewID={showSuggestionAccessory ? ImportWalletKeyboardAccessoryViewID : undefined}
             />
           </InputClearPasteOverlay>
 
           {renderOptionsAndImportButton}
         </ScrollView>
-        {Platform.OS === 'ios' && <ImportWalletKeyboardAccessory suggestions={suggestions} onSuggestionTapped={handleSuggestionTapped} />}
+        {Platform.OS === 'ios' && showSuggestionAccessory && (
+          <ImportWalletKeyboardAccessory suggestions={suggestions} onSuggestionTapped={handleSuggestionTapped} />
+        )}
       </SafeArea>
-      {Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0 && (
+      {Platform.OS === 'android' && showSuggestionAccessory && isKeyboardVisible && keyboardHeight > 0 && (
         <ImportWalletKeyboardAccessory
           suggestions={suggestions}
           onSuggestionTapped={handleSuggestionTapped}

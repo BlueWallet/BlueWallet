@@ -1,6 +1,15 @@
 import * as bip39 from 'bip39';
 
 const ENGLISH_BIP39_WORDS: string[] = bip39.wordlists.english;
+const ENGLISH_BIP39_WORD_SET = new Set(ENGLISH_BIP39_WORDS);
+
+/** Minimum typed characters before showing prefix suggestions. */
+export const BIP39_SUGGESTION_MIN_PREFIX_LENGTH = 2;
+
+const EXTENDED_KEY_PREFIX = /^(xprv|xpub|ypub|yprv|zpub|zprv|tpub|tprv|vprv|vpub)/i;
+const HEX_BODY_PATTERN = /^[0-9a-fA-F]+$/;
+const LND_AEZEED_PREFIX = /^aezeed/i;
+const BASIC_LATIN_FRAGMENT_PATTERN = /^[\p{L}\p{M}]+$/u;
 
 export interface WordFragment {
   fragment: string;
@@ -8,7 +17,7 @@ export interface WordFragment {
   end: number;
 }
 
-const WORD_FRAGMENT_PATTERN = /^[\p{L}\p{M}]+$/u;
+const WORD_FRAGMENT_PATTERN = BASIC_LATIN_FRAGMENT_PATTERN;
 
 export function getWordFragmentAtCursor(text: string, cursor: number): WordFragment | null {
   if (cursor < 0 || cursor > text.length) {
@@ -57,4 +66,69 @@ export function replaceWordFragment(text: string, fragment: WordFragment, word: 
   const newText = text.slice(0, fragment.start) + word + ' ' + text.slice(fragment.end);
   const newCursor = fragment.start + word.length + 1;
   return { newText, newCursor };
+}
+
+function getCompletedWords(text: string): string[] {
+  const trimmed = text.trimEnd();
+  if (!trimmed) {
+    return [];
+  }
+
+  if (!/\s$/.test(text)) {
+    const parts = trimmed.split(/\s+/);
+    return parts.slice(0, -1);
+  }
+
+  return trimmed.split(/\s+/).filter(word => word.length > 0);
+}
+
+export function shouldOfferBip39Suggestions(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return true;
+  }
+
+  const normalized = trimmed.toLowerCase();
+
+  if (EXTENDED_KEY_PREFIX.test(normalized)) {
+    return false;
+  }
+
+  if (LND_AEZEED_PREFIX.test(normalized)) {
+    return false;
+  }
+
+  const withoutSpaces = trimmed.replace(/\s+/g, '');
+  if (withoutSpaces.length >= 16 && HEX_BODY_PATTERN.test(withoutSpaces)) {
+    return false;
+  }
+
+  if (/[^\u0000-\u024F\s]/u.test(trimmed)) {
+    return false;
+  }
+
+  const completedWords = getCompletedWords(text);
+  for (const word of completedWords) {
+    if (!BASIC_LATIN_FRAGMENT_PATTERN.test(word)) {
+      return false;
+    }
+    if (!ENGLISH_BIP39_WORD_SET.has(word.toLowerCase())) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+export function getImportWalletSuggestions(text: string, cursor: number): string[] {
+  if (!shouldOfferBip39Suggestions(text)) {
+    return [];
+  }
+
+  const fragment = getWordFragmentAtCursor(text, cursor);
+  if (!fragment || fragment.fragment.length < BIP39_SUGGESTION_MIN_PREFIX_LENGTH) {
+    return [];
+  }
+
+  return getBip39PrefixMatches(fragment.fragment);
 }

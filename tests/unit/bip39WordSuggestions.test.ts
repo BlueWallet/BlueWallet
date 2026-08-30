@@ -1,11 +1,14 @@
-import assert from "assert";
-import * as bip39 from "bip39";
+import assert from 'assert';
+import * as bip39 from 'bip39';
 
 import {
+  BIP39_SUGGESTION_MIN_PREFIX_LENGTH,
   getBip39PrefixMatches,
+  getImportWalletSuggestions,
   getWordFragmentAtCursor,
   replaceWordFragment,
-} from "../../blue_modules/bip39WordSuggestions";
+  shouldOfferBip39Suggestions,
+} from '../../blue_modules/bip39WordSuggestions';
 
 describe("getWordFragmentAtCursor", () => {
   it("extracts fragment at end of text", () => {
@@ -72,26 +75,68 @@ describe("getBip39PrefixMatches", () => {
   });
 });
 
-describe("replaceWordFragment", () => {
-  it("replaces fragment with word and trailing space", () => {
-    const fragment = getWordFragmentAtCursor("aban", 4)!;
-    const { newText, newCursor } = replaceWordFragment(
-      "aban",
-      fragment,
-      "abandon",
-    );
-    assert.strictEqual(newText, "abandon ");
+describe('replaceWordFragment', () => {
+  it('replaces fragment with word and trailing space', () => {
+    const fragment = getWordFragmentAtCursor('aban', 4)!;
+    const { newText, newCursor } = replaceWordFragment('aban', fragment, 'abandon');
+    assert.strictEqual(newText, 'abandon ');
     assert.strictEqual(newCursor, 8);
   });
 
-  it("replaces fragment in the middle of a phrase", () => {
-    const fragment = getWordFragmentAtCursor("abandon aban", 12)!;
-    const { newText, newCursor } = replaceWordFragment(
-      "abandon aban",
-      fragment,
-      "abandon",
-    );
-    assert.strictEqual(newText, "abandon abandon ");
+  it('replaces fragment in the middle of a phrase', () => {
+    const fragment = getWordFragmentAtCursor('abandon aban', 12)!;
+    const { newText, newCursor } = replaceWordFragment('abandon aban', fragment, 'abandon');
+    assert.strictEqual(newText, 'abandon abandon ');
     assert.strictEqual(newCursor, 16);
+  });
+});
+
+describe('shouldOfferBip39Suggestions', () => {
+  it('allows empty input', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions(''), true);
+  });
+
+  it('rejects extended keys', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions('xprv9s21ZrQH143K'), false);
+    assert.strictEqual(shouldOfferBip39Suggestions('zpub6rfr'), false);
+  });
+
+  it('rejects long hex strings', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions('0123456789abcdef0123456789abcdef'), false);
+  });
+
+  it('rejects lnd aezeed payloads', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions('aezeed12345'), false);
+  });
+
+  it('rejects non-latin mnemonics', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions('あいう'), false);
+  });
+
+  it('rejects when a completed word is not in the english bip39 wordlist', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions('abstracted abandon'), false);
+  });
+
+  it('allows in-progress english bip39 phrases', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions('abandon aban'), true);
+  });
+});
+
+describe('getImportWalletSuggestions', () => {
+  it('returns matches for english bip39 prefixes', () => {
+    const matches = getImportWalletSuggestions('aban', 4);
+    assert.ok(matches.includes('abandon'));
+  });
+
+  it('returns empty array for single-character prefixes', () => {
+    assert.deepStrictEqual(getImportWalletSuggestions('a', 1), []);
+  });
+
+  it('returns empty array for extended keys', () => {
+    assert.deepStrictEqual(getImportWalletSuggestions('xprv9s21ZrQH143K', 5), []);
+  });
+
+  it('respects the minimum prefix length constant', () => {
+    assert.strictEqual(BIP39_SUGGESTION_MIN_PREFIX_LENGTH, 2);
   });
 });
