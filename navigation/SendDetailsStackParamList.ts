@@ -100,6 +100,9 @@ export type SendDetailsStackParamList = {
     deepLinkPSBT?: string;
     onBarScanned?: string;
   };
+  PsbtRaw: {
+    psbtBase64: string;
+  };
   CreateTransaction: {
     memo?: string;
     psbt?: Psbt;
@@ -132,6 +135,8 @@ export type SendDetailsStackParamList = {
     amountUnit?: BitcoinUnit;
     txid?: string;
     invoiceDescription?: string;
+    walletID?: string;
+    walletType?: string;
   };
   SelectWallet: {
     chainType?: Chain;
