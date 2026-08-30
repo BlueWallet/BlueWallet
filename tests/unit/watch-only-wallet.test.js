@@ -636,8 +636,10 @@ describe('Watch only wallet', () => {
 
     const newPath = "m/66'/6'/6'";
     assert.strictEqual(w.getDerivationPath(), "m/49'/0'/0'");
+    const idBefore = w.getID();
     w.setDerivationPath(newPath);
     assert.strictEqual(w.getDerivationPath(), newPath);
+    assert.strictEqual(w.getID(), idBefore);
 
     const { psbt: psbt2 } = await w.createTransaction(
       utxos,
@@ -917,7 +919,9 @@ describe('BC-UR', () => {
     w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
     w.init();
     const addressBefore = w._getExternalAddressByIndex(0);
+    const idBefore = w.getID();
     assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
 
     // a bare zpub carries no key origin info; the user corrects it,
     // e.g. for an Electrum-seed wallet whose account root is m/0'
@@ -926,30 +930,53 @@ describe('BC-UR', () => {
 
     assert.strictEqual(w.getDerivationPath(), "m/0'");
     assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(w.getID(), idBefore);
 
-    // metadata edits must survive re-init (app restart) and never change address derivation
+    // metadata edits must survive re-init and never change address derivation or wallet ID
     w.init();
     assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
     assert.strictEqual(w.getDerivationPath(), "m/0'");
     assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(w.getID(), idBefore);
+
+    // save/load (app restart): path lives on the HD instance, ID stays on this._derivationPath
+    w.prepareForSerialization();
+    const restored = WatchOnlyWallet.fromJson(JSON.stringify(w));
+    restored.init();
+    assert.strictEqual(restored.getID(), idBefore);
+    assert.strictEqual(restored.getDerivationPath(), "m/0'");
+    assert.strictEqual(restored.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
 
     // even a path that init() would normally map to another script type must not flip addresses
     w.setDerivationPath("m/49'/0'/0'");
+    assert.strictEqual(w.getID(), idBefore);
     w.init();
     assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(w.getID(), idBefore);
+
+    w.prepareForSerialization();
+    const restoredHostile = WatchOnlyWallet.fromJson(JSON.stringify(w));
+    restoredHostile.init();
+    assert.strictEqual(restoredHostile.getID(), idBefore);
+    assert.strictEqual(restoredHostile.getDerivationPath(), "m/49'/0'/0'");
+    assert.strictEqual(restoredHostile._getExternalAddressByIndex(0), addressBefore);
   });
 
   it('can set derivation path right after import, before and without explicit init()', () => {
     // same call order as the custom derivation path import flow
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    const idBefore = w.getID();
     w.setDerivationPath("m/0'"); // no explicit init() — the setter must handle it
     assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getID(), idBefore);
 
     const reference = new WatchOnlyWallet();
     reference.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
     reference.init();
     assert.strictEqual(w._getExternalAddressByIndex(0), reference._getExternalAddressByIndex(0));
+    assert.strictEqual(w.getID(), reference.getID());
   });
 
   it('setDerivationPath and setMasterFingerprintFromHex reject invalid input', () => {
