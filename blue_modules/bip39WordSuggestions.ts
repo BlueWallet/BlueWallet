@@ -74,12 +74,12 @@ function getCompletedWords(text: string): string[] {
     return [];
   }
 
+  const parts = trimmed.split(/\s+/).filter(word => word.length > 0);
   if (!/\s$/.test(text)) {
-    const parts = trimmed.split(/\s+/);
     return parts.slice(0, -1);
   }
 
-  return trimmed.split(/\s+/).filter(word => word.length > 0);
+  return parts;
 }
 
 export function shouldOfferBip39Suggestions(text: string): boolean {

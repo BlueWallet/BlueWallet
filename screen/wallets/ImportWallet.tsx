@@ -99,7 +99,6 @@ const ImportWallet = () => {
   }, [importText]);
 
   const suggestions = useMemo(() => getImportWalletSuggestions(importText, selection.start), [importText, selection.start]);
-  const showSuggestionAccessory = suggestions.length > 0;
 
   const handleSelectionChange = useCallback((event: TextInputSelectionChangeEvent) => {
     const { selection: nextSelection } = event.nativeEvent;
@@ -240,17 +239,17 @@ const ImportWallet = () => {
               testID="MnemonicInput"
               numberOfLines={12}
               style={styles.importInput}
-              inputAccessoryViewID={showSuggestionAccessory ? ImportWalletKeyboardAccessoryViewID : undefined}
+              inputAccessoryViewID={ImportWalletKeyboardAccessoryViewID}
             />
           </InputClearPasteOverlay>
 
-          {renderOptionsAndImportButton}
+          {Platform.select({ android: !isKeyboardVisible && renderOptionsAndImportButton, default: renderOptionsAndImportButton })}
         </ScrollView>
-        {Platform.OS === 'ios' && showSuggestionAccessory && (
+        {Platform.OS === 'ios' && (
           <ImportWalletKeyboardAccessory suggestions={suggestions} onSuggestionTapped={handleSuggestionTapped} />
         )}
       </SafeArea>
-      {Platform.OS === 'android' && showSuggestionAccessory && isKeyboardVisible && keyboardHeight > 0 && (
+      {Platform.OS === 'android' && isKeyboardVisible && keyboardHeight > 0 && (
         <ImportWalletKeyboardAccessory
           suggestions={suggestions}
           onSuggestionTapped={handleSuggestionTapped}

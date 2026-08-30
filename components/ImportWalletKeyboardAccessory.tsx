@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   InputAccessoryView,
   Keyboard,
@@ -11,7 +11,6 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 import BlueButtonLink from './BlueButtonLink';
 import loc from '../loc';
 import { useTheme } from './themes';
@@ -19,19 +18,11 @@ import { withAlpha } from './color';
 
 const BAR_HEIGHT = 44;
 
-/**
- * Edge-to-edge Android: extra lift above IME-reported keyboard top so the bar sits on the visible keys.
- * Tune on device: increase if the bar hides behind the keyboard, decrease if it floats with a gap.
- */
+/** Extra lift above IME-reported keyboard top on Android. Tune on device if misaligned. */
 const ANDROID_KEYBOARD_TOP_EXTRA_OFFSET = 24;
 
-function computeAndroidAccessoryTop(
-  keyboardTop: number,
-  anchorScreenY: number,
-  barHeight: number = BAR_HEIGHT,
-  extraOffset: number = ANDROID_KEYBOARD_TOP_EXTRA_OFFSET,
-): number {
-  return keyboardTop - anchorScreenY - barHeight - extraOffset;
+function computeAndroidAccessoryTop(keyboardTop: number, anchorScreenY: number): number {
+  return keyboardTop - anchorScreenY - BAR_HEIGHT - ANDROID_KEYBOARD_TOP_EXTRA_OFFSET;
 }
 
 function computeKeyboardTop(keyboardScreenY: number, keyboardHeight: number, windowHeight: number): number {
@@ -49,11 +40,8 @@ interface ImportWalletKeyboardAccessoryProps {
   suggestions: string[];
   onSuggestionTapped: (word: string) => void;
   onDone?: () => void;
-  /** Android only: keyboard top edge in screen coordinates (from Keyboard.endCoordinates.screenY). */
   keyboardScreenY?: number;
-  /** Android only: keyboard height (from Keyboard.endCoordinates.height). */
   keyboardHeight?: number;
-  /** Android only: Y of the positioning anchor view in screen coordinates. */
   anchorScreenY?: number;
 }
 
@@ -90,55 +78,33 @@ const ImportWalletKeyboardAccessory: React.FC<ImportWalletKeyboardAccessoryProps
     },
   });
 
-  const fadeColorsLeft = useMemo(
-    () => [colors.inputBackgroundColor, withAlpha(colors.inputBackgroundColor, 0)],
-    [colors.inputBackgroundColor],
-  );
-  const fadeColorsRight = useMemo(
-    () => [withAlpha(colors.inputBackgroundColor, 0), colors.inputBackgroundColor],
-    [colors.inputBackgroundColor],
-  );
-
-  const keyboardTop = useMemo(() => {
-    if (!isAndroid) {
-      return 0;
-    }
-    return computeKeyboardTop(keyboardScreenY, keyboardHeight, windowHeight);
-  }, [isAndroid, keyboardHeight, keyboardScreenY, windowHeight]);
+  const keyboardTop = isAndroid ? computeKeyboardTop(keyboardScreenY, keyboardHeight, windowHeight) : 0;
 
   const inputView = (
     <View
       style={[styles.root, isAndroid ? styles.rootAndroid : styles.rootIOS, isAndroid && stylesHook.androidSeparator, stylesHook.root]}
       testID="ImportWalletKeyboardAccessoryBar"
     >
-      <View style={styles.suggestionsContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.suggestionsScroll}
-          contentContainerStyle={styles.suggestionsContent}
-          keyboardShouldPersistTaps="always"
-        >
-          {suggestions.map(word => (
-            <Pressable
-              key={word}
-              accessibilityRole="button"
-              accessibilityLabel={word}
-              testID={`Bip39Suggestion-${word}`}
-              onPress={() => onSuggestionTapped(word)}
-              style={({ pressed }) => [styles.chip, stylesHook.chip, pressed && styles.chipPressed]}
-            >
-              <Text style={stylesHook.chipText}>{word}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-        <View pointerEvents="none" style={styles.fadeLeft}>
-          <LinearGradient colors={fadeColorsLeft} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.fadeGradient} />
-        </View>
-        <View pointerEvents="none" style={styles.fadeRight}>
-          <LinearGradient colors={fadeColorsRight} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.fadeGradient} />
-        </View>
-      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.suggestionsScroll}
+        contentContainerStyle={styles.suggestionsContent}
+        keyboardShouldPersistTaps="always"
+      >
+        {suggestions.map(word => (
+          <Pressable
+            key={word}
+            accessibilityRole="button"
+            accessibilityLabel={word}
+            testID={`Bip39Suggestion-${word}`}
+            onPress={() => onSuggestionTapped(word)}
+            style={({ pressed }) => [styles.chip, stylesHook.chip, pressed && styles.chipPressed]}
+          >
+            <Text style={stylesHook.chipText}>{word}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
       <View style={styles.right}>
         <BlueButtonLink
           style={isAndroid ? styles.doneAndroid : styles.doneIOS}
@@ -154,10 +120,8 @@ const ImportWalletKeyboardAccessory: React.FC<ImportWalletKeyboardAccessoryProps
     return <InputAccessoryView nativeID={ImportWalletKeyboardAccessoryViewID}>{inputView}</InputAccessoryView>;
   }
 
-  const androidTop = computeAndroidAccessoryTop(keyboardTop, anchorScreenY);
-
   return (
-    <View pointerEvents="box-none" style={[styles.androidFloating, { top: androidTop, height: BAR_HEIGHT }]}>
+    <View pointerEvents="box-none" style={[styles.androidFloating, { top: computeAndroidAccessoryTop(keyboardTop, anchorScreenY), height: BAR_HEIGHT }]}>
       {inputView}
     </View>
   );
@@ -179,39 +143,10 @@ const styles = StyleSheet.create({
   rootAndroid: {
     borderTopWidth: StyleSheet.hairlineWidth,
   },
-  suggestionsContainer: {
+  suggestionsScroll: {
     flex: 1,
     flexShrink: 1,
     minWidth: 0,
-    height: BAR_HEIGHT,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  suggestionsScroll: {
-    ...StyleSheet.absoluteFill,
-  },
-  fadeLeft: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 2,
-    zIndex: 2,
-    elevation: 2,
-  },
-  fadeRight: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: 24,
-    zIndex: 2,
-    elevation: 2,
-  },
-  fadeGradient: {
-    flex: 1,
-    width: 24,
-    height: '100%',
   },
   suggestionsContent: {
     flexDirection: 'row',

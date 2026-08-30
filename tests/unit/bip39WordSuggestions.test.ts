@@ -2,7 +2,6 @@ import assert from 'assert';
 import * as bip39 from 'bip39';
 
 import {
-  BIP39_SUGGESTION_MIN_PREFIX_LENGTH,
   getBip39PrefixMatches,
   getImportWalletSuggestions,
   getWordFragmentAtCursor,
@@ -120,6 +119,10 @@ describe('shouldOfferBip39Suggestions', () => {
   it('allows in-progress english bip39 phrases', () => {
     assert.strictEqual(shouldOfferBip39Suggestions('abandon aban'), true);
   });
+
+  it('allows phrases with leading whitespace', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions(' abandon aban'), true);
+  });
 });
 
 describe('getImportWalletSuggestions', () => {
@@ -136,7 +139,13 @@ describe('getImportWalletSuggestions', () => {
     assert.deepStrictEqual(getImportWalletSuggestions('xprv9s21ZrQH143K', 5), []);
   });
 
-  it('respects the minimum prefix length constant', () => {
-    assert.strictEqual(BIP39_SUGGESTION_MIN_PREFIX_LENGTH, 2);
+  it('returns empty array for single-character prefixes even when prefix would match', () => {
+    assert.deepStrictEqual(getImportWalletSuggestions('a', 1), []);
+    assert.ok(getBip39PrefixMatches('a').length > 0);
+  });
+
+  it('returns matches when leading whitespace precedes the seed phrase', () => {
+    const matches = getImportWalletSuggestions(' abandon aban', 13);
+    assert.ok(matches.includes('abandon'));
   });
 });
