@@ -513,7 +513,7 @@ const WalletDetails: React.FC = () => {
     } catch (_) {
       return; // cancelled
     }
-    newPath = newPath.trim().replace(/h/gi, "'");
+    newPath = newPath.trim().split('‘').join("'").split('’').join("'").replace(/h/gi, "'");
     if (!/^m(\/\d+'?)*$/.test(newPath)) {
       presentAlert({ message: loc.wallets.details_derivation_path_invalid });
       return;
