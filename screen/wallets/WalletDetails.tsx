@@ -499,8 +499,6 @@ const WalletDetails: React.FC = () => {
     setIsMasterFingerPrintVisible(true);
   };
 
-  // for watch-only HD wallets both values are signer metadata (PSBT bip32Derivation), not key material,
-  // so the user can correct them, e.g. after importing a bare xpub/ypub/zpub which carries neither
   const isWatchOnlyHd = wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd();
 
   const onEditDerivationPathPress = async () => {

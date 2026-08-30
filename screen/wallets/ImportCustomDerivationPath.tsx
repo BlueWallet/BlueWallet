@@ -74,8 +74,6 @@ const ImportCustomDerivationPath: React.FC = () => {
       const watchOnly = new WatchOnlyWallet();
       watchOnly.setSecret(importText);
       if (watchOnly.valid() && watchOnly.isHd()) {
-        // watch-only extended key: the script type is determined by the key itself, and the
-        // path is signer metadata (PSBT bip32Derivation), so offer one candidate at the chosen path
         watchOnly.init();
         watchOnly.setDerivationPath(newPath);
         newWallets[WatchOnlyWallet.type] = watchOnly;

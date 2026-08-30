@@ -338,7 +338,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     if (!this.isHd()) throw new Error("Not a HD watch-only wallet, can't use derivation path");
     if (!this._hdWalletInstance) this.init();
     if (!this._hdWalletInstance) throw new Error("Not a HD watch-only wallet, can't use derivation path");
-    // pin script type so a later init() does not re-detect it from the path
+    // defensive: init() can still pick a class from this._derivationPath if segwitType is unset
     if (!this.segwitType) {
       this.segwitType = this._hdWalletInstance.segwitType ?? 'p2pkh';
     }
