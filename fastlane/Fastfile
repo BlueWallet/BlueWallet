@@ -423,18 +423,29 @@ platform :ios do
     Base64.strict_encode64("x-access-token:#{value}")
   end
 
-  def provisioning_profile_build_error?(log_contents)
-    patterns = [
+  def provisioning_profile_build_error_message(log_contents)
+    capability_patterns = [
+      /provisioning profile .* doesn't include/i,
+      /profile doesn't match the entitlements/i
+    ]
+    if capability_patterns.any? { |pattern| log_contents.match?(pattern) }
+      return "A selected provisioning profile does not contain the target's required capabilities or entitlements. " \
+             "Run `bundle exec fastlane ios setup_provisioning_profiles` to remap profiles, then renew the affected " \
+             "profile in Match if its App ID capabilities changed."
+    end
+
+    missing_patterns = [
       /no profile for team/i,
       /no (?:matching )?provisioning profiles? found/i,
       /provisioning profile .* not found/i,
-      /provisioning profile .* doesn't include/i,
       /requires a provisioning profile/i,
-      /couldn't find any provisioning profiles?/i,
-      /profile doesn't match the entitlements/i
+      /couldn't find any provisioning profiles?/i
     ]
+    return nil unless missing_patterns.any? { |pattern| log_contents.match?(pattern) }
 
-    patterns.any? { |pattern| log_contents.match?(pattern) }
+    "The App Store provisioning profiles selected by the Xcode project are not installed. " \
+      "Run `bundle exec fastlane ios setup_provisioning_profiles` before building and ensure " \
+      "the Match repository contains profiles for every app identifier."
   end
   
   def log_success(message)
@@ -542,22 +553,32 @@ platform :ios do
       end
     end
 
+    require "xcodeproj"
     project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
+    project = Xcodeproj::Project.open(project_path)
+    configured_identifiers = []
 
-    profile_mapping.each do |app_identifier, profile_name|
-      update_code_signing_settings(
-        path: project_path,
-        use_automatic_signing: false,
-        sdk: "iphoneos*",
-        team_id: ENV["ITC_TEAM_ID"],
-        bundle_identifier: app_identifier,
-        build_configurations: ["Release"],
-        code_sign_identity: "Apple Distribution",
-        profile_name: profile_name
-      )
+    project.targets.each do |target|
+      target.build_configurations.select { |configuration| configuration.name == "Release" }.each do |configuration|
+        app_identifier = configuration.build_settings["PRODUCT_BUNDLE_IDENTIFIER"]
+        profile_name = profile_mapping[app_identifier]
+        next if profile_name.nil?
+
+        configuration.build_settings["CODE_SIGN_STYLE"] = "Manual"
+        configuration.build_settings["DEVELOPMENT_TEAM"] = ENV["ITC_TEAM_ID"]
+        configuration.build_settings["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = "Apple Distribution"
+        configuration.build_settings["PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]"] = profile_name
+        configured_identifiers << app_identifier
+        UI.message("Configured target #{target.name} with #{profile_name}")
+      end
     end
 
-    require "xcodeproj"
+    missing_identifiers = profile_mapping.keys - configured_identifiers.uniq
+    unless missing_identifiers.empty?
+      UI.user_error!("No Release target found for bundle identifiers: #{missing_identifiers.join(', ')}")
+    end
+    project.save
+
     export_options_path = File.join(PROJECT_ROOT, "ios", "export_options.plist")
     export_options = Xcodeproj::Plist.read_from_path(export_options_path)
     export_options["provisioningProfiles"] = profile_mapping
@@ -1377,13 +1398,8 @@ end
         build_log = Dir.glob(File.join(build_logs_dir, "*.log")).max_by { |path| File.mtime(path) }
         build_log_contents = build_log && File.exist?(build_log) ? File.read(build_log) : ""
 
-        if provisioning_profile_build_error?(build_log_contents)
-          UI.user_error!(
-            "The App Store provisioning profiles selected by the Xcode project are not installed. " \
-            "Run `bundle exec fastlane ios setup_provisioning_profiles` before building and ensure " \
-            "the Match repository contains profiles for every app identifier."
-          )
-        end
+        provisioning_error = provisioning_profile_build_error_message(build_log_contents)
+        UI.user_error!(provisioning_error) unless provisioning_error.nil?
 
         # Repeating the same archive command cannot recover deterministic build
         # failures and hides the original error behind a second attempt.
