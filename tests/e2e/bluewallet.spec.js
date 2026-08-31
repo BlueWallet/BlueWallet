@@ -20,6 +20,7 @@ import {
   tapAndTapAgainIfElementIsNotVisible,
   tapIfTextPresent,
   waitForId,
+  waitForIdToExist,
   waitForKeyboardToClose,
   waitForText,
   waitForLabel,
@@ -329,7 +330,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapAndTapAgainIfElementIsNotVisible('cr34t3d', 'ReceiveButton');
     await element(by.id('ReceiveButton')).tap();
     await element(by.text('Yes, I have.')).tap();
-    await waitForId('BitcoinAddressQRCode');
+    await waitForIdToExist('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
     await element(by.id('SetCustomAmountButton')).tap();
     await element(by.id('BitcoinAmountInput')).replaceText('1');
@@ -340,7 +341,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await expect(element(by.id('CustomAmountDescriptionText'))).toHaveText('test');
     await expect(element(by.id('BitcoinAmountText'))).toHaveText('1 BTC');
 
-    await waitForId('BitcoinAddressQRCode');
+    await waitForIdToExist('BitcoinAddressQRCode');
     await waitForId('CopyTextToClipboard');
 
     // ManageWallets: relaunch to clear receive modal, then open via long-press, swipe-to-hide, verify persists across restart
@@ -471,7 +472,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForKeyboardToClose();
     await enterConfirmationPassword('passwordForFakeStorage');
     await confirmPasswordDialog(); // first time might not always work
-    await sleep(1000); // propagate
+    await waitForId('WalletsList');
     await scrollUpOnHomeScreen();
 
     // Create a wallet in the decoy wallet set.
@@ -648,11 +649,7 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForKeyboardToClose();
     await enterConfirmationPassword('fake');
     await confirmPasswordDialog();
-    if (device.getPlatform() === 'ios') {
-      // FIXME: WAllets does not exists on android
-      await waitForId('Wallets');
-    }
-    await sleep(1000); // propagate
+    await waitForId('WalletsList');
     // Match t4's flow: scroll up so the next helperCreateWallet's
     // whileElement(WalletsList).scroll('right') starts from a known
     // position. Without this, Android lands the user on a list state
@@ -950,10 +947,13 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('DerivationPathInput')).clearText();
     await element(by.id('DerivationPathInput')).typeText("m/44'/0'/0'\n");
     await waitForKeyboardToClose();
-    await waitFor(element(by.text('Found'))) // wait for discovery to be completed
+    // Account discovery was already exercised above. Select the requested
+    // wallet type directly; waiting for another live Electrum probe here makes
+    // this import/navigation assertion depend on unrelated network latency.
+    await waitFor(element(by.text('HD Legacy (BIP44 P2PKH)')))
       .toExist()
-      .withTimeout(300 * 1000);
-    await element(by.text('Found')).tap();
+      .withTimeout(10_000);
+    await element(by.text('HD Legacy (BIP44 P2PKH)')).tap();
     await element(by.id('ImportButton')).tap();
     await element(by.text('OK')).tap();
 

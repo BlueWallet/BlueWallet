@@ -43,6 +43,23 @@ export async function waitForId(id, timeout = 33000) {
   }
 }
 
+/**
+ * Waits for a non-interactive view to be mounted. This is appropriate for
+ * content covered by a deliberate reveal animation, where Detox's Android
+ * visibility matcher can continue treating transparent overlay tiles as
+ * occluding the underlying view.
+ */
+export async function waitForIdToExist(id, timeout = 33000) {
+  const callsite = captureCallsite(waitForIdToExist);
+  try {
+    await waitFor(element(by.id(id)))
+      .toExist()
+      .withTimeout(timeout);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
+}
+
 export async function waitForText(text, timeout = 33000) {
   const callsite = captureCallsite(waitForText);
   try {
