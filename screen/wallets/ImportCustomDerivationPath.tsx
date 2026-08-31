@@ -189,9 +189,9 @@ const ImportCustomDerivationPath: React.FC = () => {
 
   const disabled = wallets[path] === WRONG_PATH || wallets[path]?.[selected] === undefined;
 
-  // iOS smart punctuation turns ' into ’ and " into ”. Normalize back to ASCII so derivation paths parse.
+  // iOS curly quotes and hardware-wallet h → ' so validateBip32 can accept the path
   const handlePathChange = useCallback((text: string) => {
-    const normalized = text.split('‘').join("'").split('’').join("'").split('“').join('"').split('”').join('"');
+    const normalized = text.split('‘').join("'").split('’').join("'").split('“').join('"').split('”').join('"').replace(/h/gi, "'");
     setPath(normalized);
   }, []);
 
