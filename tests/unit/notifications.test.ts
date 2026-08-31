@@ -2,6 +2,7 @@ import assert from 'assert';
 
 import {
   majorTomToGroundControl,
+  registerArkPaymentPush,
   setCustomElectrumPushNotificationsEnabled,
 } from '../../blue_modules/notifications';
 import { isCustomElectrumServerConfigured } from '../../blue_modules/BlueElectrum';
@@ -56,6 +57,31 @@ describe('Ground Control registration privacy', () => {
     assert.strictEqual(fetchMock.mock.calls.length, 0);
   });
 
+  it('does not send registration data when notifications are disabled', async () => {
+    notificationsStorage.set('NOTIFICATIONS_NO_AND_DONT_ASK_FLAG', 'true');
+    isCustomElectrumServerConfiguredMock.mockResolvedValue(false);
+
+    await majorTomToGroundControl(['bc1qaddress'], [], ['transaction-id']);
+
+    assert.strictEqual(fetchMock.mock.calls.length, 0);
+  });
+
+  it('fails closed without rejecting when the preferred-server check fails', async () => {
+    isCustomElectrumServerConfiguredMock.mockRejectedValue(new Error('Preference unavailable'));
+
+    await majorTomToGroundControl(['bc1qaddress'], [], ['transaction-id']);
+
+    assert.strictEqual(fetchMock.mock.calls.length, 0);
+  });
+
+  it('does not register Ark payment pushes for a custom Electrum server without explicit consent', async () => {
+    isCustomElectrumServerConfiguredMock.mockResolvedValue(true);
+
+    await registerArkPaymentPush('payment-hash', 'Payment', {} as any);
+
+    assert.strictEqual(fetchMock.mock.calls.length, 0);
+  });
+
   it('sends registration data for a custom Electrum server only after explicit consent', async () => {
     isCustomElectrumServerConfiguredMock.mockResolvedValue(true);
     await setCustomElectrumPushNotificationsEnabled(true);
@@ -79,5 +105,25 @@ describe('Ground Control registration privacy', () => {
     await majorTomToGroundControl(['bc1qaddress'], [], ['transaction-id']);
 
     assert.strictEqual(fetchMock.mock.calls.length, 1);
+  });
+
+  it('unsubscribes successful registrations when custom Electrum consent is withdrawn', async () => {
+    isCustomElectrumServerConfiguredMock.mockResolvedValue(true);
+    await setCustomElectrumPushNotificationsEnabled(true);
+    await majorTomToGroundControl(['bc1qaddress'], [], ['transaction-id']);
+    fetchMock.mockClear();
+
+    await setCustomElectrumPushNotificationsEnabled(false);
+
+    assert.strictEqual(fetchMock.mock.calls.length, 1);
+    const [url, options] = fetchMock.mock.calls[0];
+    assert.strictEqual(url, 'https://groundcontrol.bluewallet.io/unsubscribe');
+    assert.deepStrictEqual(JSON.parse(options.body), {
+      addresses: ['bc1qaddress'],
+      hashes: [],
+      txids: ['transaction-id'],
+      token: 'push-token',
+      os: 'ios',
+    });
   });
 });

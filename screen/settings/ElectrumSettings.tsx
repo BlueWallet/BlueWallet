@@ -8,6 +8,7 @@ import { hardcodedPeers, presentResetToDefaultsAlert, suggestedServers } from '.
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
 import {
+  clearCustomElectrumPushNotificationsConsent,
   isCustomElectrumPushNotificationsEnabled,
   setCustomElectrumPushNotificationsEnabled,
 } from '../../blue_modules/notifications';
@@ -31,9 +32,11 @@ import {
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useStorage } from '../../hooks/context/useStorage';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
+import type { TWallet } from '../../class/wallets/types';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'ElectrumSettings'>;
 
@@ -44,6 +47,12 @@ export interface ElectrumServerItem {
 }
 
 const SET_PREFERRED_PREFIX = 'set_preferred_';
+
+const getWalletGroundControlSubscriptions = (wallets: TWallet[]) => ({
+  addresses: [...new Set(wallets.flatMap(wallet => wallet.getAllExternalAddresses()))],
+  hashes: [],
+  txids: [...new Set(wallets.flatMap(wallet => wallet.getTransactions().map(transaction => transaction.txid)))],
+});
 
 const ElectrumSettings: React.FC = () => {
   const { colors } = useTheme();
@@ -61,6 +70,7 @@ const ElectrumSettings: React.FC = () => {
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
+  const { wallets } = useStorage();
   const [savedServer, setSavedServer] = useState<{ host: string; tcp: string; ssl: string }>({
     host: '',
     tcp: '',
@@ -220,7 +230,7 @@ const ElectrumSettings: React.FC = () => {
           const serverChanged =
             serverHost !== savedServer.host || serverPort !== savedServer.tcp || serverSslPort !== savedServer.ssl;
           if (serverChanged) {
-            await setCustomElectrumPushNotificationsEnabled(false);
+            await setCustomElectrumPushNotificationsEnabled(false, getWalletGroundControlSubscriptions(wallets));
             setCustomElectrumPushNotificationsEnabledState(false);
           }
 
@@ -249,13 +259,13 @@ const ElectrumSettings: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [host, port, sslPort, fetchData, savedServer, serverHistory],
+    [host, port, sslPort, fetchData, savedServer, serverHistory, wallets],
   );
 
   const onCustomElectrumPushNotificationsChange = useCallback((value: boolean) => {
     if (!value) {
-      setCustomElectrumPushNotificationsEnabled(false)
-        .then(() => setCustomElectrumPushNotificationsEnabledState(false))
+      setCustomElectrumPushNotificationsEnabledState(false);
+      setCustomElectrumPushNotificationsEnabled(false, getWalletGroundControlSubscriptions(wallets))
         .catch(error => presentAlert({ message: (error as Error).message }));
       return;
     }
@@ -276,7 +286,7 @@ const ElectrumSettings: React.FC = () => {
       ],
       { cancelable: true },
     );
-  }, []);
+  }, [wallets]);
 
   const selectServer = useCallback(
     (value: string) => {
@@ -319,13 +329,17 @@ const ElectrumSettings: React.FC = () => {
       } else {
         switch (id) {
           case CommonToolTipActions.ResetToDefault.id:
-            presentResetToDefaultsAlert().then(reset => {
-              if (reset) {
-                triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
-                presentAlert({ message: loc.settings.electrum_saved });
-                fetchData();
-              }
-            });
+            presentResetToDefaultsAlert()
+              .then(async reset => {
+                if (reset) {
+                  await clearCustomElectrumPushNotificationsConsent();
+                  setCustomElectrumPushNotificationsEnabledState(false);
+                  triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+                  presentAlert({ message: loc.settings.electrum_saved });
+                  fetchData();
+                }
+              })
+              .catch(error => presentAlert({ message: (error as Error).message }));
             break;
           default:
             try {
