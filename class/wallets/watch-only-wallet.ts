@@ -351,14 +351,11 @@ export class WatchOnlyWallet extends LegacyWallet {
     this.masterFingerprint = this.getMasterFingerprintFromHex(hexValue);
   }
 
-  // For the custom derivation path import flow: a valid bare xpub does not say which script
-  // type it is for, so the chosen path decides — the key-origin form makes setSecret apply
-  // its existing mapping (m/84' -> zpub, m/49' -> ypub, m/86' -> taproot). Anything else,
-  // and paths whose converted key would not survive an export round trip, import unchanged.
+  // wrap only export-safe 84/49/86 paths so setSecret's mapping applies
   setSecretForCustomPathImport(importText: string, path: string): this {
     const wrapPath = path.startsWith("m/84'/0'/") || path.startsWith("m/49'/0'/") || path.startsWith("m/86'");
     const trimmed = importText.trim();
-    // a bare xpub is base58: anything with a bracket is an origin form whose fingerprint must be kept
+    // skip key-origin forms; wrapping would replace their fingerprint
     if (wrapPath && trimmed.startsWith('xpub') && !trimmed.includes('[')) {
       this.setSecret(trimmed);
       if (this.valid() && this.isHd()) {
@@ -368,11 +365,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     return this.setSecret(importText);
   }
 
-  // What Export/Backup should display. A taproot watch-only stores its secret as a bare
-  // xpub, which would re-import as legacy, so it exports as a tr() descriptor instead.
-  // Keyed on the wallet's actual script type, not the derivation path, which is editable
-  // signer metadata: a path starting with m/86 does not mean the wallet is taproot
-  // (and vice versa).
+  // taproot secret is a bare xpub; export tr() so re-import is not legacy
   getSecretForExport(): string {
     try {
       if (this.segwitType === 'p2tr' || this._hdWalletInstance instanceof HDTaprootWallet) {

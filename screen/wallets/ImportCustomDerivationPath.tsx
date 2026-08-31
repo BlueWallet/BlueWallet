@@ -77,7 +77,6 @@ const ImportCustomDerivationPath: React.FC = () => {
       const watchOnly = new WatchOnlyWallet();
       let isWatchOnlyHd = false;
       try {
-        // a bare xpub at a script-typed path gets that script type; see setSecretForCustomPathImport
         watchOnly.setSecretForCustomPathImport(importText, newPath);
         isWatchOnlyHd = watchOnly.valid() && watchOnly.isHd();
       } catch {
