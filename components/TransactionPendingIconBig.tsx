@@ -17,7 +17,7 @@ export const TransactionPendingIconBig: React.FC = () => {
     <View>
       <View style={styles.boxIncoming}>
         <View style={[styles.ball, hookStyles.ball]}>
-          <Icon name="more-horiz" type="material" size={100} color={colors.foregroundColor} iconStyle={styles.iconStyle} />
+          <Icon name="more-horiz" type="material" size={100} color={colors.foregroundColor} />
         </View>
       </View>
     </View>
@@ -32,9 +32,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
-  },
-  iconStyle: {
-    left: 0,
-    top: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
