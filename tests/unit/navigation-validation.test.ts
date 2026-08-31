@@ -40,6 +40,15 @@ describe('navigation validation', () => {
     }
   });
 
+  it('registers Settings through createSettingsScreenOptions', () => {
+    const stackSource = readFileSync(path.join(__dirname, '../../navigation/DetailViewScreensStack.tsx'), 'utf8');
+    expect(stackSource).toContain('const settingsScreenOptions = createSettingsScreenOptions(theme)');
+    expect(stackSource).toContain(
+      '<DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />',
+    );
+    expect(stackSource).not.toMatch(/name="Settings"[\s\S]*headerLargeTitle:\s*Platform\.OS/);
+  });
+
   it('finds a guarded route nested inside parent navigator params', () => {
     const action = CommonActions.navigate('DrawerRoot', {
       screen: 'DetailViewStackScreensStack',
