@@ -43,6 +43,12 @@ describe('Watch only wallet', () => {
     }
   });
 
+  it('setSecret throws on invalid hex in a key-origin fingerprint', () => {
+    const w = new WatchOnlyWallet();
+    const xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
+    assert.throws(() => w.setSecret(`[73c5da0g/84'/0'/0']${xpub}`));
+  });
+
   it('can validate xpub', () => {
     const w = new WatchOnlyWallet();
     w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');

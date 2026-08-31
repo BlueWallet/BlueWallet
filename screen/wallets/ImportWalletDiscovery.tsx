@@ -54,9 +54,13 @@ const ImportWalletDiscovery: React.FC = () => {
   }, [importText]);
 
   const isWatchOnlyHd = useMemo(() => {
-    const wallet = new WatchOnlyWallet();
-    wallet.setSecret(importText);
-    return wallet.valid() && wallet.isHd();
+    try {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(importText);
+      return wallet.valid() && wallet.isHd();
+    } catch {
+      return false;
+    }
   }, [importText]);
 
   const stylesHook = StyleSheet.create({

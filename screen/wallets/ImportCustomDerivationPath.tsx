@@ -47,13 +47,16 @@ const ImportCustomDerivationPath: React.FC = () => {
   const { importText, password } = useRoute<RouteProps>().params;
   const { addAndSaveWallet } = useStorage();
   const watchOnlyImport = useMemo(() => {
-    const wallet = new WatchOnlyWallet();
-    wallet.setSecret(importText);
-    if (!(wallet.valid() && wallet.isHd())) {
-      return { isWatchOnlyHd: false, defaultPath: "m/84'/0'/0'" };
+    const fallback = { isWatchOnlyHd: false, defaultPath: "m/84'/0'/0'" };
+    try {
+      const wallet = new WatchOnlyWallet();
+      wallet.setSecret(importText);
+      if (!(wallet.valid() && wallet.isHd())) return fallback;
+      wallet.init();
+      return { isWatchOnlyHd: true, defaultPath: wallet.getDerivationPath() || fallback.defaultPath };
+    } catch {
+      return fallback;
     }
-    wallet.init();
-    return { isWatchOnlyHd: true, defaultPath: wallet.getDerivationPath() || "m/84'/0'/0'" };
   }, [importText]);
   const [path, setPath] = useState<string>(watchOnlyImport.defaultPath);
   const [wallets, setWallets] = useState<TWalletsByPath>({});
@@ -72,9 +75,15 @@ const ImportCustomDerivationPath: React.FC = () => {
       // create wallets
       const newWallets: { [type: string]: TWallet } = {};
       const watchOnly = new WatchOnlyWallet();
-      // a bare xpub at a script-typed path gets that script type; see setSecretForCustomPathImport
-      watchOnly.setSecretForCustomPathImport(importText, newPath);
-      if (watchOnly.valid() && watchOnly.isHd()) {
+      let isWatchOnlyHd = false;
+      try {
+        // a bare xpub at a script-typed path gets that script type; see setSecretForCustomPathImport
+        watchOnly.setSecretForCustomPathImport(importText, newPath);
+        isWatchOnlyHd = watchOnly.valid() && watchOnly.isHd();
+      } catch {
+        isWatchOnlyHd = false;
+      }
+      if (isWatchOnlyHd) {
         watchOnly.init();
         watchOnly.setDerivationPath(newPath);
         newWallets[WatchOnlyWallet.type] = watchOnly;
