@@ -486,13 +486,22 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
       });
 
-      await w.fetchBalance();
-      try {
-        await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
-      } catch (error) {
-        console.warn('Failed to setup notifications:', error);
-        // Consider if user should be notified of notification setup failure
-      }
+      // The wallet is durable at this point. Balance refresh and notification
+      // registration are best-effort network work and must not strand the
+      // importer after its success alert.
+      (async () => {
+        try {
+          await w.fetchBalance();
+        } catch (error) {
+          console.warn('Failed to refresh imported wallet balance:', error);
+        }
+
+        try {
+          await majorTomToGroundControl(w.getAllExternalAddresses(), [], []);
+        } catch (error) {
+          console.warn('Failed to setup notifications:', error);
+        }
+      })().catch(error => console.warn('Failed to finish imported wallet setup:', error));
     },
     [wallets, addWallet, saveToDisk],
   );
