@@ -74,7 +74,7 @@ const WalletXpub: React.FC = () => {
         // need to convert xpub to a wallet descriptor
         const fp = wallet.getMasterFingerprintHex();
         const path = wallet.getDerivationPath() ?? '';
-        const xpub2 = WalletDescriptor.getDescriptor(fp, path, wallet.getXpub());
+        const xpub2 = WalletDescriptor.getDescriptor(fp, path, wallet.getXpub(), 'p2tr');
         setXPubText(xpub2);
       } else {
         setXPubText(xpub);
