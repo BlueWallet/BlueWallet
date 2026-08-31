@@ -414,6 +414,28 @@ platform :ios do
 
     ENV[env_name] = value
   end
+
+  def normalize_git_basic_authorization(value)
+    github_token = value.match?(/\A(?:github_pat_|gh[pousr]_)/)
+    return value unless github_token
+
+    require "base64"
+    Base64.strict_encode64("x-access-token:#{value}")
+  end
+
+  def provisioning_profile_build_error?(log_contents)
+    patterns = [
+      /no profile for team/i,
+      /no (?:matching )?provisioning profiles? found/i,
+      /provisioning profile .* not found/i,
+      /provisioning profile .* doesn't include/i,
+      /requires a provisioning profile/i,
+      /couldn't find any provisioning profiles?/i,
+      /profile doesn't match the entitlements/i
+    ]
+
+    patterns.any? { |pattern| log_contents.match?(pattern) }
+  end
   
   def log_success(message)
     UI.success("✅ #{message}")
@@ -520,11 +542,6 @@ platform :ios do
       end
     end
 
-    target_mapping = {
-      "io.bluewallet.bluewallet" => "BlueWallet",
-      "io.bluewallet.bluewallet.Stickers" => "Stickers",
-      "io.bluewallet.bluewallet.MarketWidget" => "WidgetsExtension"
-    }
     project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
 
     profile_mapping.each do |app_identifier, profile_name|
@@ -533,7 +550,7 @@ platform :ios do
         use_automatic_signing: false,
         sdk: "iphoneos*",
         team_id: ENV["ITC_TEAM_ID"],
-        targets: [target_mapping.fetch(app_identifier)],
+        bundle_identifier: app_identifier,
         build_configurations: ["Release"],
         code_sign_identity: "Apple Distribution",
         profile_name: profile_name
@@ -588,6 +605,31 @@ platform :ios do
       prompt: "Match repository encryption password:",
       sensitive: true
     )
+    git_access_token = resolve_signing_value(
+      options: options,
+      option_name: :git_access_token,
+      env_name: "GIT_ACCESS_TOKEN",
+      prompt: "GitHub access token (or Base64 Git basic authorization):",
+      sensitive: true
+    )
+    ENV["GIT_ACCESS_TOKEN"] = normalize_git_basic_authorization(git_access_token)
+    keychain_password = resolve_signing_value(
+      options: options,
+      option_name: :keychain_password,
+      env_name: "KEYCHAIN_PASSWORD",
+      prompt: "Temporary keychain password:",
+      sensitive: true
+    )
+
+    keychain_name = "bluewallet_match_#{Process.pid}"
+    create_keychain(
+      name: keychain_name,
+      password: keychain_password,
+      default_keychain: false,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
 
     signing_configurations = [
       {
@@ -602,23 +644,34 @@ platform :ios do
       }
     ]
 
-    signing_configurations.each do |configuration|
-      configuration[:profile_types].each do |profile_type|
-        UI.message("Updating #{profile_type} signing assets for #{configuration[:platform]}...")
-        match(
-          type: profile_type,
-          platform: configuration[:platform],
-          app_identifier: configuration[:app_identifiers],
-          readonly: false,
-          renew_expired_certs: true,
-          force: true,
-          force_for_new_devices: profile_type != "appstore",
-          clone_branch_directly: true
-        )
+    begin
+      signing_configurations.each do |configuration|
+        configuration[:profile_types].each do |profile_type|
+          UI.message("Checking #{profile_type} signing assets for #{configuration[:platform]}...")
+          match(
+            type: profile_type,
+            platform: configuration[:platform],
+            app_identifier: configuration[:app_identifiers],
+            readonly: false,
+            renew_expired_certs: true,
+            git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+            keychain_name: keychain_name,
+            keychain_password: keychain_password,
+            clone_branch_directly: true
+          )
+        end
+      end
+    ensure
+      signing_error = $!
+      begin
+        delete_keychain(name: keychain_name)
+      rescue => cleanup_error
+        UI.error("Could not delete temporary keychain #{keychain_name}: #{cleanup_error.message}")
+        raise cleanup_error if signing_error.nil?
       end
     end
 
-    log_success("All Apple certificates and provisioning profiles updated")
+    log_success("All Apple certificates and provisioning profiles are valid")
   end
 
   # Only these targets support Mac Catalyst (watch/stickers do not)
@@ -1324,7 +1377,7 @@ end
         build_log = Dir.glob(File.join(build_logs_dir, "*.log")).max_by { |path| File.mtime(path) }
         build_log_contents = build_log && File.exist?(build_log) ? File.read(build_log) : ""
 
-        if build_log_contents.include?("No profile for team")
+        if provisioning_profile_build_error?(build_log_contents)
           UI.user_error!(
             "The App Store provisioning profiles selected by the Xcode project are not installed. " \
             "Run `bundle exec fastlane ios setup_provisioning_profiles` before building and ensure " \
