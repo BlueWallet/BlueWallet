@@ -805,6 +805,64 @@ describe('Watch only wallet', () => {
     }
   });
 
+  it('bare xpub imported at a script-typed path gets that script type', () => {
+    // same call order as the custom derivation path import flow
+    const xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
+    const cases = [
+      { path: "m/84'/0'/0'", secretPrefix: 'zpub', addressPrefix: 'bc1q' },
+      { path: "m/49'/0'/0'", secretPrefix: 'ypub', addressPrefix: '3' },
+      { path: "m/86'/0'/0'", secretPrefix: 'xpub', addressPrefix: 'bc1p' },
+      { path: "m/44'/0'/0'", secretPrefix: 'xpub', addressPrefix: '1' },
+      { path: "m/0'", secretPrefix: 'xpub', addressPrefix: '1' }, // path says nothing about script type
+    ];
+    for (const { path, secretPrefix, addressPrefix } of cases) {
+      const w = new WatchOnlyWallet();
+      w.setSecretForCustomPathImport(xpub, path);
+      w.init();
+      w.setDerivationPath(path);
+      assert.ok(w.getSecret().startsWith(secretPrefix), `${path}: ${w.getSecret().slice(0, 4)}`);
+      assert.ok(w._getExternalAddressByIndex(0).startsWith(addressPrefix), `${path}: ${w._getExternalAddressByIndex(0)}`);
+      assert.strictEqual(w.getDerivationPath(), path);
+      assert.strictEqual(w.getMasterFingerprintHex(), '00000000'); // synthetic origin carries no fingerprint
+
+      // and what Export/Backup shows restores the same wallet
+      const restored = new WatchOnlyWallet();
+      restored.setSecret(w.getSecretForExport());
+      restored.init();
+      assert.strictEqual(restored._getExternalAddressByIndex(0), w._getExternalAddressByIndex(0), path);
+    }
+  });
+
+  it('setSecretForCustomPathImport changes nothing except a valid bare xpub at an export-safe path', () => {
+    const xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
+    const zpub = 'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP';
+
+    // these must behave exactly as a plain setSecret: script-typed keys, key origins with a
+    // genuine fingerprint, an xpub-prefixed string with an embedded origin, and invalid input
+    const passthrough = [zpub, `[aabbccdd/44'/0'/0']${xpub}`, `xpubZZZ[beebeeb0/84'/0'/0']${xpub}`, 'xpubGARBAGE', `${xpub}/0/*`];
+    for (const input of passthrough) {
+      const w = new WatchOnlyWallet();
+      w.setSecretForCustomPathImport(input, "m/84'/0'/0'");
+      const reference = new WatchOnlyWallet();
+      reference.setSecret(input);
+      assert.strictEqual(w.getSecret(), reference.getSecret(), input.slice(0, 24));
+      assert.strictEqual(w.getMasterFingerprintHex(), reference.getMasterFingerprintHex(), input.slice(0, 24));
+    }
+
+    // short and testnet 84/49 paths stay unwrapped: the converted key would not survive an
+    // export round trip (the secret would stay xpub while addresses are segwit)
+    for (const path of ["m/84'", "m/84'/1'/0'", "m/49'/1'/0'", "m/44'/0'/0'", "m/0'"]) {
+      const w = new WatchOnlyWallet();
+      w.setSecretForCustomPathImport(xpub, path);
+      assert.strictEqual(w.getSecret(), xpub, path);
+    }
+
+    // whitespace around a valid bare xpub is tolerated
+    const w = new WatchOnlyWallet();
+    w.setSecretForCustomPathImport(`  ${xpub}  `, "m/84'/0'/0'");
+    assert.ok(w.getSecret().startsWith('zpub'));
+  });
+
   it('can set derivation path right after import, before and without explicit init()', () => {
     // same call order as the custom derivation path import flow
     const w = new WatchOnlyWallet();

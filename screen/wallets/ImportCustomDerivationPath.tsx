@@ -72,7 +72,8 @@ const ImportCustomDerivationPath: React.FC = () => {
       // create wallets
       const newWallets: { [type: string]: TWallet } = {};
       const watchOnly = new WatchOnlyWallet();
-      watchOnly.setSecret(importText);
+      // a bare xpub at a script-typed path gets that script type; see setSecretForCustomPathImport
+      watchOnly.setSecretForCustomPathImport(importText, newPath);
       if (watchOnly.valid() && watchOnly.isHd()) {
         watchOnly.init();
         watchOnly.setDerivationPath(newPath);
