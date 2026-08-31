@@ -423,6 +423,80 @@ platform :ios do
     Base64.strict_encode64("x-access-token:#{value}")
   end
 
+  def resolve_git_access_token(options)
+    value = options[:git_access_token] || ENV["GIT_ACCESS_TOKEN"]
+    return value unless value.nil? || value.empty?
+
+    unless UI.interactive?
+      UI.user_error!(
+        "GIT_ACCESS_TOKEN is required in non-interactive environments. " \
+        "Set it to a GitHub token or Base64 Git basic authorization."
+      )
+    end
+
+    gh_available = system("gh", "--version", out: File::NULL, err: File::NULL)
+    if gh_available && UI.confirm("GIT_ACCESS_TOKEN is not set. Log in to GitHub through your browser?")
+      authenticated = system(
+        "gh", "auth", "login",
+        "--hostname", "github.com",
+        "--git-protocol", "https",
+        "--web"
+      )
+      UI.user_error!("GitHub browser login did not complete successfully") unless authenticated
+
+      require "open3"
+      token, error, status = Open3.capture3("gh", "auth", "token", "--hostname", "github.com")
+      UI.user_error!("Could not retrieve the GitHub token: #{error.strip}") unless status.success?
+      value = token.strip
+    else
+      UI.important("GitHub CLI is unavailable or browser login was declined; enter a token manually.")
+      value = UI.password("GitHub access token (or Base64 Git basic authorization):")
+    end
+
+    UI.user_error!("GIT_ACCESS_TOKEN is required") if value.nil? || value.empty?
+    ENV["GIT_ACCESS_TOKEN"] = value
+  end
+
+  def resolve_developer_team_id(options)
+    value = options[:team_id] || ENV["ITC_TEAM_ID"]
+    unless value.nil? || value.empty?
+      ENV["ITC_TEAM_ID"] = value
+      return value
+    end
+
+    require "xcodeproj"
+    project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
+    project = Xcodeproj::Project.open(project_path)
+    project_team_ids = project.targets.flat_map do |target|
+      target.build_configurations.flat_map do |configuration|
+        configuration.build_settings.filter_map do |setting, setting_value|
+          setting_value if setting == "DEVELOPMENT_TEAM" || setting.start_with?("DEVELOPMENT_TEAM[")
+        end
+      end
+    end.compact.reject(&:empty?).uniq
+
+    if project_team_ids.one?
+      value = project_team_ids.first
+      UI.message("Using Developer Team ID #{value} from ios/BlueWallet.xcodeproj")
+    elsif project_team_ids.length > 1
+      if UI.interactive?
+        value = UI.select("Multiple DEVELOPMENT_TEAM values were found. Select one:", project_team_ids)
+      else
+        UI.user_error!(
+          "Multiple DEVELOPMENT_TEAM values found in #{project_path}: #{project_team_ids.join(', ')}. " \
+          "Set ITC_TEAM_ID explicitly."
+        )
+      end
+    elsif UI.interactive?
+      value = UI.input("Apple Developer Team ID:")
+    else
+      UI.user_error!("No DEVELOPMENT_TEAM found in #{project_path}; set ITC_TEAM_ID explicitly")
+    end
+
+    UI.user_error!("Apple Developer Team ID is required") if value.nil? || value.empty?
+    ENV["ITC_TEAM_ID"] = value
+  end
+
   def provisioning_profile_build_error_message(log_contents)
     capability_patterns = [
       /provisioning profile .* doesn't include/i,
@@ -607,12 +681,7 @@ platform :ios do
       env_name: "GIT_URL",
       prompt: "Certificates repository URL:"
     )
-    resolve_signing_value(
-      options: options,
-      option_name: :team_id,
-      env_name: "ITC_TEAM_ID",
-      prompt: "Apple Developer Team ID:"
-    )
+    resolve_developer_team_id(options)
     resolve_signing_value(
       options: options,
       option_name: :apple_id,
@@ -626,21 +695,13 @@ platform :ios do
       prompt: "Match repository encryption password:",
       sensitive: true
     )
-    git_access_token = resolve_signing_value(
-      options: options,
-      option_name: :git_access_token,
-      env_name: "GIT_ACCESS_TOKEN",
-      prompt: "GitHub access token (or Base64 Git basic authorization):",
-      sensitive: true
-    )
+    git_access_token = resolve_git_access_token(options)
     ENV["GIT_ACCESS_TOKEN"] = normalize_git_basic_authorization(git_access_token)
-    keychain_password = resolve_signing_value(
-      options: options,
-      option_name: :keychain_password,
-      env_name: "KEYCHAIN_PASSWORD",
-      prompt: "Temporary keychain password:",
-      sensitive: true
-    )
+    keychain_password = options[:keychain_password] || ENV["KEYCHAIN_PASSWORD"]
+    if keychain_password.nil? || keychain_password.empty?
+      keychain_password = SecureRandom.hex(32)
+      UI.message("Generated a temporary keychain password for this run")
+    end
 
     keychain_name = "bluewallet_match_#{Process.pid}"
     create_keychain(
