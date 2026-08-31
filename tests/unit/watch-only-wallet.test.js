@@ -3,6 +3,7 @@ import { Psbt } from 'bitcoinjs-lib';
 
 import { BlueURDecoder, clearUseURv1, decodeUR, encodeUR, extractSingleWorkload, setUseURv1 } from '../../blue_modules/ur';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Watch only wallet', () => {
@@ -851,6 +852,60 @@ describe('Watch only wallet', () => {
       );
       assert.strictEqual(uint8ArrayToHex(psbt.data.inputs[0].bip32Derivation[0].masterFingerprint), fp);
     }
+  });
+
+  it('editing the path to m/86 does not make a non-taproot wallet export as a tr() descriptor', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    w.init();
+    const addressBefore = w._getExternalAddressByIndex(0);
+    w.setDerivationPath("m/86'/0'/0'");
+    w.init();
+
+    // still a bech32 wallet, so export must show the bare zpub, not a descriptor
+    assert.ok(!(w._hdWalletInstance instanceof HDTaprootWallet));
+    assert.strictEqual(w.segwitType, 'p2wpkh');
+    assert.strictEqual(w.getSecretForExport(), w.getSecret());
+
+    // and what it exports restores the same wallet
+    const restored = new WatchOnlyWallet();
+    restored.setSecret(w.getSecretForExport());
+    restored.init();
+    assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
+  });
+
+  it('taproot watch-only exports a tr() descriptor that restores the same wallet, even after a path edit', () => {
+    const descriptor =
+      "tr([97311f91/86'/0'/0']xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw)";
+    const w = new WatchOnlyWallet();
+    w.setSecret(descriptor);
+    w.init();
+    assert.strictEqual(w.segwitType, 'p2tr');
+    const addressBefore = w._getExternalAddressByIndex(0);
+    assert.ok(addressBefore.startsWith('bc1p'));
+
+    // the secret is stored as a bare xpub, which is why export must rebuild the descriptor
+    assert.ok(w.getSecret().startsWith('xpub'));
+
+    const exported = w.getSecretForExport();
+    assert.strictEqual(exported, `tr([97311f91/86'/0'/0']${w.getSecret()})`);
+    const restored = new WatchOnlyWallet();
+    restored.setSecret(exported);
+    restored.init();
+    assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(restored.getDerivationPath(), "m/86'/0'/0'");
+    assert.strictEqual(restored.getMasterFingerprintHex(), '97311f91');
+
+    // a path edit must not stop the wallet exporting as taproot
+    w.setDerivationPath("m/0'");
+    assert.ok(w._hdWalletInstance instanceof HDTaprootWallet);
+    const exported2 = w.getSecretForExport();
+    assert.strictEqual(exported2, `tr([97311f91/0']${w.getSecret()})`);
+    const restored2 = new WatchOnlyWallet();
+    restored2.setSecret(exported2);
+    restored2.init();
+    assert.strictEqual(restored2._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(restored2.getDerivationPath(), "m/0'");
   });
 });
 

@@ -8,6 +8,7 @@ import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
 import { LegacyWallet } from './legacy-wallet';
 import { THDWalletForWatchOnly } from './types';
 import { HDTaprootWallet } from './hd-taproot-wallet';
+import { WalletDescriptor } from '../wallet-descriptor.ts';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -348,6 +349,21 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   setMasterFingerprintFromHex(hexValue: string) {
     this.masterFingerprint = this.getMasterFingerprintFromHex(hexValue);
+  }
+
+  // What Export/Backup should display. A taproot watch-only stores its secret as a bare
+  // xpub, which would re-import as legacy, so it exports as a tr() descriptor instead.
+  // Keyed on the wallet's actual script type, not the derivation path, which is editable
+  // signer metadata: a path starting with m/86 does not mean the wallet is taproot
+  // (and vice versa).
+  getSecretForExport(): string {
+    try {
+      if (this.segwitType === 'p2tr' || this._hdWalletInstance instanceof HDTaprootWallet) {
+        const path = this.getDerivationPath();
+        if (path) return WalletDescriptor.getDescriptor(this.getMasterFingerprintHex(), path, this.getSecret(), 'p2tr');
+      }
+    } catch (_) {}
+    return this.getSecret();
   }
 
   isSegwit(): boolean {
