@@ -242,6 +242,15 @@ export const getPreferredServer = async (): Promise<ElectrumServerItem | undefin
   }
 };
 
+/**
+ * Whether the user has configured a preferred Electrum server. This intentionally
+ * propagates preference-read errors so privacy-sensitive callers can fail closed.
+ */
+export const isCustomElectrumServerConfigured = async (): Promise<boolean> => {
+  await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
+  return Boolean(await DefaultPreference.get(ELECTRUM_HOST));
+};
+
 export const removePreferredServer = async () => {
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);

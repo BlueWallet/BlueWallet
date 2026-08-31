@@ -7,6 +7,10 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { hardcodedPeers, presentResetToDefaultsAlert, suggestedServers } from '../../blue_modules/BlueElectrum';
 import { GROUP_IO_BLUEWALLET } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes, triggerSelectionHapticFeedback } from '../../blue_modules/hapticFeedback';
+import {
+  isCustomElectrumPushNotificationsEnabled,
+  setCustomElectrumPushNotificationsEnabled,
+} from '../../blue_modules/notifications';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import AddressInput from '../../components/AddressInput';
 import presentAlert from '../../components/Alert';
@@ -53,6 +57,7 @@ const ElectrumSettings: React.FC = () => {
   const [port, setPort] = useState<number | undefined>();
   const [sslPort, setSslPort] = useState<number | undefined>(undefined);
   const [serverBanner, setServerBanner] = useState<string>('');
+  const [isCustomElectrumPushNotificationsEnabledState, setCustomElectrumPushNotificationsEnabledState] = useState(false);
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
@@ -126,6 +131,7 @@ const ElectrumSettings: React.FC = () => {
     setPort(savedPort);
     setSslPort(savedSslPort);
     setServerHistory(filteredServerHistory);
+    setCustomElectrumPushNotificationsEnabledState(await isCustomElectrumPushNotificationsEnabled());
 
     setConfig(await BlueElectrum.getConfig());
     configIntervalRef.current = setInterval(async () => {
@@ -211,6 +217,13 @@ const ElectrumSettings: React.FC = () => {
           await DefaultPreference.set(BlueElectrum.ELECTRUM_TCP_PORT, serverPort);
           await DefaultPreference.set(BlueElectrum.ELECTRUM_SSL_PORT, serverSslPort);
 
+          const serverChanged =
+            serverHost !== savedServer.host || serverPort !== savedServer.tcp || serverSslPort !== savedServer.ssl;
+          if (serverChanged) {
+            await setCustomElectrumPushNotificationsEnabled(false);
+            setCustomElectrumPushNotificationsEnabledState(false);
+          }
+
           const serverExistsInHistory = Array.from(serverHistory).some(
             s => s.host === serverHost && s.tcp === Number(serverPort) && s.ssl === Number(serverSslPort),
           );
@@ -236,8 +249,34 @@ const ElectrumSettings: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [host, port, sslPort, fetchData, serverHistory],
+    [host, port, sslPort, fetchData, savedServer, serverHistory],
   );
+
+  const onCustomElectrumPushNotificationsChange = useCallback((value: boolean) => {
+    if (!value) {
+      setCustomElectrumPushNotificationsEnabled(false)
+        .then(() => setCustomElectrumPushNotificationsEnabledState(false))
+        .catch(error => presentAlert({ message: (error as Error).message }));
+      return;
+    }
+
+    Alert.alert(
+      loc.notifications.custom_electrum_push_notifications_title,
+      loc.notifications.custom_electrum_push_notifications_confirmation,
+      [
+        { text: loc._.cancel, style: 'cancel' },
+        {
+          text: loc.notifications.custom_electrum_push_notifications_allow,
+          onPress: () => {
+            setCustomElectrumPushNotificationsEnabled(true)
+              .then(() => setCustomElectrumPushNotificationsEnabledState(true))
+              .catch(error => presentAlert({ message: (error as Error).message }));
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  }, []);
 
   const selectServer = useCallback(
     (value: string) => {
@@ -562,6 +601,21 @@ const ElectrumSettings: React.FC = () => {
             </View>
           </View>
         </SettingsSection>
+
+        {!preferredServerIsEmpty && (
+          <SettingsSection>
+            <SettingsListItem
+              title={loc.notifications.custom_electrum_push_notifications_title}
+              subtitle={loc.notifications.custom_electrum_push_notifications_subtitle}
+              switch={{
+                value: isCustomElectrumPushNotificationsEnabledState,
+                onValueChange: onCustomElectrumPushNotificationsChange,
+                disabled: isLoading,
+              }}
+              bottomDivider={false}
+            />
+          </SettingsSection>
+        )}
 
         {Platform.select({
           ios: <DismissKeyboardInputAccessory />,

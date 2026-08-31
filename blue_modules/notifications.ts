@@ -12,11 +12,13 @@ import type { BoltzReverseSwap } from '@arkade-os/boltz-swap';
 import loc from '../loc';
 import { arkadePaymentPushUri, groundControlUri } from './constants';
 import { fetch } from '../util/fetch';
+import { isCustomElectrumServerConfigured } from './BlueElectrum';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 const ANDROID_NOTIFICATION_CHANNEL_ID = 'channel_01';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
+const CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN = 'CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN';
 const baseURI = groundControlUri;
 let notificationSubscriptions: EmitterSubscription[] = [];
 let onProcessNotificationsHandler: undefined | (() => void | Promise<void>);
@@ -215,6 +217,14 @@ export const cleanUserOptOutFlag = async () => {
   return AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
 };
 
+export const isCustomElectrumPushNotificationsEnabled = async (): Promise<boolean> => {
+  return (await AsyncStorage.getItem(CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN)) === 'true';
+};
+
+export const setCustomElectrumPushNotificationsEnabled = async (enabled: boolean): Promise<void> => {
+  await AsyncStorage.setItem(CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN, String(enabled));
+};
+
 /**
  * Should be called when user is most interested in receiving push notifications.
  * If we dont have a token it will show alert asking whether
@@ -300,6 +310,11 @@ export const majorTomToGroundControl = async (addresses: string[], hashes: strin
 
     if (!Array.isArray(addresses) || !Array.isArray(hashes) || !Array.isArray(txids)) {
       throw new Error('No addresses, hashes, or txids provided');
+    }
+
+    if ((await isCustomElectrumServerConfigured()) && !(await isCustomElectrumPushNotificationsEnabled())) {
+      console.warn('Push registration blocked because custom Electrum push sharing has not been explicitly enabled.');
+      return;
     }
 
     const pushToken = await getPushToken();

@@ -330,7 +330,11 @@
     "redact_notifications": "Hide payment details",
     "redact_notifications_subtitle": "Notifications won't show amounts or transaction info on your lock screen.",
     "no_and_dont_ask": "No, and do not ask me again.",
-    "permission_denied_message": "You have denied permission to send you notifications. If you would like to receive notifications, please enable them in your device settings."
+    "permission_denied_message": "You have denied permission to send you notifications. If you would like to receive notifications, please enable them in your device settings.",
+    "custom_electrum_push_notifications_title": "Share data with push notifications",
+    "custom_electrum_push_notifications_subtitle": "Allow the push notification service to receive wallet addresses and transaction IDs while using a preferred Electrum server.",
+    "custom_electrum_push_notifications_confirmation": "BlueWallet's push notification service is separate from your preferred Electrum server. Enabling this sends wallet addresses and transaction IDs to the push service so it can monitor them and send notifications.",
+    "custom_electrum_push_notifications_allow": "Allow sharing"
   },
   "transactions": {
     "cancel_explain": "We will replace this transaction with one that pays you and has higher fees. This effectively cancels the current transaction. This is called RBF—Replace by Fee.",
