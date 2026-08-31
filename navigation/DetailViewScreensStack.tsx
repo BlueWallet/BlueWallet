@@ -663,6 +663,10 @@ const createReceiveDetailsOptions = (theme: ReturnType<typeof useTheme>) =>
 
       return {
         ...options,
+        // On Android a left-positioned close is the native back button restyled as an X
+        // (headerBackImageSource), so overriding headerLeft alone would leave it on screen
+        // next to the close button we render on the right.
+        headerBackVisible: false,
         headerLeft: emptyLeft,
         headerRight: renderCloseRight,
         unstable_headerLeftItems: () => [],
