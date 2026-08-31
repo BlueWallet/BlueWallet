@@ -202,7 +202,7 @@ before_all do |lane, options|
     next
   end
 
-  skip_auth_lanes = ['register_devices_from_txt', 'update_apple_signing_assets', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
+  skip_auth_lanes = ['register_devices_from_txt', 'setup_provisioning_profiles', 'update_apple_signing_assets', 'build_app_lane', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
   lane_name = lane.to_s
   should_skip_auth = skip_auth_lanes.any? { |skip_lane| lane_name == skip_lane || lane_name.end_with?(" #{skip_lane}") }
   
@@ -492,6 +492,7 @@ platform :ios do
     ensure_env_vars(required_vars)
     
     UI.message("Setting up provisioning profiles...")
+    profile_mapping = {}
     
     # Iterate over app identifiers to fetch provisioning profiles
     app_identifiers.each do |app_identifier|
@@ -510,9 +511,43 @@ platform :ios do
           keychain_name: "temp_keychain",
           keychain_password: ENV["KEYCHAIN_PASSWORD"]
         )
+
+        match_mapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
+        profile_name = match_mapping[app_identifier]
+        UI.user_error!("Match did not install an App Store profile for #{app_identifier}") if profile_name.nil? || profile_name.empty?
+        profile_mapping[app_identifier] = profile_name
         log_success("Successfully fetched provisioning profile for #{app_identifier}")
       end
     end
+
+    target_mapping = {
+      "io.bluewallet.bluewallet" => "BlueWallet",
+      "io.bluewallet.bluewallet.Stickers" => "Stickers",
+      "io.bluewallet.bluewallet.MarketWidget" => "WidgetsExtension"
+    }
+    project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
+
+    profile_mapping.each do |app_identifier, profile_name|
+      update_code_signing_settings(
+        path: project_path,
+        use_automatic_signing: false,
+        sdk: "iphoneos*",
+        team_id: ENV["ITC_TEAM_ID"],
+        targets: [target_mapping.fetch(app_identifier)],
+        build_configurations: ["Release"],
+        code_sign_identity: "Apple Distribution",
+        profile_name: profile_name
+      )
+    end
+
+    require "xcodeproj"
+    export_options_path = File.join(PROJECT_ROOT, "ios", "export_options.plist")
+    export_options = Xcodeproj::Plist.read_from_path(export_options_path)
+    export_options["provisioningProfiles"] = profile_mapping
+    Xcodeproj::Plist.write_to_path(export_options, export_options_path)
+
+    UI.message("Using App Store provisioning profiles:")
+    profile_mapping.each { |app_identifier, profile_name| UI.message("  #{app_identifier}: #{profile_name}") }
     
     log_success("All provisioning profiles set up")
   end
@@ -1286,21 +1321,20 @@ end
           archives.last(3).each { |archive| UI.message("    #{archive}") }
         end
         
-        # If iOS build fails, check if we can build using available destinations
-        if destinations_output.include?("Any iOS Device")
-          UI.message("Retrying build without explicit destination...")
-          build_ios_app(
-            scheme: "BlueWallet",
-            workspace: workspace_path,
-            export_method: "app-store",
-            export_options: export_options_path,
-            output_directory: ipa_directory,
-            output_name: ipa_name,
-            buildlog_path: File.join(project_root, "ios", "build_logs")
+        build_log = Dir.glob(File.join(build_logs_dir, "*.log")).max_by { |path| File.mtime(path) }
+        build_log_contents = build_log && File.exist?(build_log) ? File.read(build_log) : ""
+
+        if build_log_contents.include?("No profile for team")
+          UI.user_error!(
+            "The App Store provisioning profiles selected by the Xcode project are not installed. " \
+            "Run `bundle exec fastlane ios setup_provisioning_profiles` before building and ensure " \
+            "the Match repository contains profiles for every app identifier."
           )
-        else
-          UI.user_error!("build_ios_app failed: #{build_error.message}")
         end
+
+        # Repeating the same archive command cannot recover deterministic build
+        # failures and hides the original error behind a second attempt.
+        raise build_error
       end
 
       # Check for IPA path from both our defined path and fastlane's context
