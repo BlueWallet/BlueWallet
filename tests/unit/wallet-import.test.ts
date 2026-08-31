@@ -9,6 +9,7 @@ describe('validateBip32', () => {
     assert.ok(validateBip32('m/0/0'));
     assert.ok(!validateBip32("84'/0'/0'"));
     assert.ok(!validateBip32('m'));
+    assert.ok(!validateBip32('m/84h/0h/0h'));
     assert.ok(!validateBip32(''));
   });
 });

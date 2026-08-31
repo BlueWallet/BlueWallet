@@ -13,6 +13,7 @@ import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { validateBip32 } from '../../class/wallet-import';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
@@ -512,7 +513,7 @@ const WalletDetails: React.FC = () => {
       return; // cancelled
     }
     newPath = newPath.trim().split('‘').join("'").split('’').join("'").replace(/h/gi, "'");
-    if (!/^m(\/\d+'?)*$/.test(newPath)) {
+    if (!validateBip32(newPath)) {
       presentAlert({ message: loc.wallets.details_derivation_path_invalid });
       return;
     }
