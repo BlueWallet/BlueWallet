@@ -19,26 +19,30 @@ jest.mock('react-native-notifications', () => ({
   Notifications: {},
 }));
 
-const storage = new Map<string, string>();
-jest.mock('@react-native-async-storage/async-storage', () => ({
-  getItem: jest.fn((key: string) => Promise.resolve(storage.get(key) ?? null)),
-  setItem: jest.fn((key: string, value: string) => {
-    storage.set(key, value);
-    return Promise.resolve();
-  }),
-  removeItem: jest.fn((key: string) => {
-    storage.delete(key);
-    return Promise.resolve();
-  }),
-}));
+jest.mock('@react-native-async-storage/async-storage', () => {
+  const storage = new Map<string, string>();
+  return {
+    getItem: jest.fn((key: string) => Promise.resolve(storage.get(key) ?? null)),
+    setItem: jest.fn((key: string, value: string) => {
+      storage.set(key, value);
+      return Promise.resolve();
+    }),
+    removeItem: jest.fn((key: string) => {
+      storage.delete(key);
+      return Promise.resolve();
+    }),
+    __storage: storage,
+  };
+});
 
 const isCustomElectrumServerConfiguredMock = isCustomElectrumServerConfigured as jest.Mock;
 const fetchMock = fetch as jest.Mock;
+const notificationsStorage = jest.requireMock('@react-native-async-storage/async-storage').__storage as Map<string, string>;
 
 describe('Ground Control registration privacy', () => {
   beforeEach(() => {
-    storage.clear();
-    storage.set('PUSH_TOKEN', JSON.stringify({ token: 'push-token', os: 'ios' }));
+    notificationsStorage.clear();
+    notificationsStorage.set('PUSH_TOKEN', JSON.stringify({ token: 'push-token', os: 'ios' }));
     isCustomElectrumServerConfiguredMock.mockReset();
     fetchMock.mockReset();
     fetchMock.mockResolvedValue({ ok: true, text: jest.fn().mockResolvedValue('') });
