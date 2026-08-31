@@ -202,7 +202,7 @@ before_all do |lane, options|
     next
   end
 
-  skip_auth_lanes = ['register_devices_from_txt', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
+  skip_auth_lanes = ['register_devices_from_txt', 'update_apple_signing_assets', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
   lane_name = lane.to_s
   should_skip_auth = skip_auth_lanes.any? { |skip_lane| lane_name == skip_lane || lane_name.end_with?(" #{skip_lane}") }
   
@@ -406,6 +406,14 @@ platform :ios do
       UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
     end
   end
+
+  def resolve_signing_value(options:, option_name:, env_name:, prompt:, sensitive: false)
+    value = options[option_name] || ENV[env_name]
+    value = sensitive ? UI.password(prompt) : UI.input(prompt) if value.nil? || value.empty?
+    UI.user_error!("#{env_name} is required") if value.nil? || value.empty?
+
+    ENV[env_name] = value
+  end
   
   def log_success(message)
     UI.success("✅ #{message}")
@@ -507,6 +515,75 @@ platform :ios do
     end
     
     log_success("All provisioning profiles set up")
+  end
+
+  desc "Update all Apple certificates and provisioning profiles"
+  lane :update_apple_signing_assets do |options|
+    minimum_fastlane_version = Gem::Version.new("2.238.0")
+    current_fastlane_version = Gem::Version.new(Fastlane::VERSION)
+    if current_fastlane_version < minimum_fastlane_version
+      UI.user_error!(
+        "Fastlane 2.238.0 or newer is required to renew expired certificates. " \
+        "Run `bundle update fastlane` and retry this lane."
+      )
+    end
+
+    resolve_signing_value(
+      options: options,
+      option_name: :git_url,
+      env_name: "GIT_URL",
+      prompt: "Certificates repository URL:"
+    )
+    resolve_signing_value(
+      options: options,
+      option_name: :team_id,
+      env_name: "ITC_TEAM_ID",
+      prompt: "Apple Developer Team ID:"
+    )
+    resolve_signing_value(
+      options: options,
+      option_name: :apple_id,
+      env_name: "APPLE_ID",
+      prompt: "Apple ID email:"
+    )
+    resolve_signing_value(
+      options: options,
+      option_name: :match_password,
+      env_name: "MATCH_PASSWORD",
+      prompt: "Match repository encryption password:",
+      sensitive: true
+    )
+
+    signing_configurations = [
+      {
+        platform: "ios",
+        app_identifiers: app_identifiers,
+        profile_types: %w[development adhoc appstore]
+      },
+      {
+        platform: "catalyst",
+        app_identifiers: catalyst_app_identifiers,
+        profile_types: %w[development appstore]
+      }
+    ]
+
+    signing_configurations.each do |configuration|
+      configuration[:profile_types].each do |profile_type|
+        UI.message("Updating #{profile_type} signing assets for #{configuration[:platform]}...")
+        match(
+          type: profile_type,
+          platform: configuration[:platform],
+          app_identifier: configuration[:app_identifiers],
+          readonly: false,
+          renew_expired_certs: true,
+          force: true,
+          force_for_new_devices: profile_type != "appstore",
+          clone_branch_directly: true
+        )
+      end
+    end
+
+    log_success("All Apple certificates and provisioning profiles updated")
   end
 
   # Only these targets support Mac Catalyst (watch/stickers do not)
