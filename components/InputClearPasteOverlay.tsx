@@ -70,6 +70,7 @@ const InputClearPasteOverlay: React.FC<InputClearPasteOverlayProps> = ({ onClear
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
+    flexShrink: 0,
   },
   inputPadding: {
     paddingBottom: 40,

@@ -16,13 +16,20 @@ import loc from '../loc';
 import { useTheme } from './themes';
 import { withAlpha } from './color';
 
-const BAR_HEIGHT = 44;
+export const IMPORT_WALLET_ACCESSORY_BAR_HEIGHT = 44;
 
 /** Extra lift above IME-reported keyboard top on Android. Tune on device if misaligned. */
-const ANDROID_KEYBOARD_TOP_EXTRA_OFFSET = 24;
+export const ANDROID_KEYBOARD_TOP_EXTRA_OFFSET = 24;
 
-function computeAndroidAccessoryTop(keyboardTop: number, anchorScreenY: number): number {
-  return keyboardTop - anchorScreenY - BAR_HEIGHT - ANDROID_KEYBOARD_TOP_EXTRA_OFFSET;
+const BAR_HEIGHT = IMPORT_WALLET_ACCESSORY_BAR_HEIGHT;
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function computeAndroidAccessoryTop(keyboardTop: number, anchorScreenY: number, windowHeight: number): number {
+  const unclamped = keyboardTop - anchorScreenY - BAR_HEIGHT - ANDROID_KEYBOARD_TOP_EXTRA_OFFSET;
+  return clamp(unclamped, 0, Math.max(0, windowHeight - BAR_HEIGHT));
 }
 
 function computeKeyboardTop(keyboardScreenY: number, keyboardHeight: number, windowHeight: number): number {
@@ -121,7 +128,16 @@ const ImportWalletKeyboardAccessory: React.FC<ImportWalletKeyboardAccessoryProps
   }
 
   return (
-    <View pointerEvents="box-none" style={[styles.androidFloating, { top: computeAndroidAccessoryTop(keyboardTop, anchorScreenY), height: BAR_HEIGHT }]}>
+    <View
+      pointerEvents="box-none"
+      style={[
+        styles.androidFloating,
+        {
+          top: computeAndroidAccessoryTop(keyboardTop, anchorScreenY, windowHeight),
+          height: BAR_HEIGHT,
+        },
+      ]}
+    >
       {inputView}
     </View>
   );

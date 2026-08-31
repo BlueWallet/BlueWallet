@@ -6,6 +6,12 @@ const ENGLISH_BIP39_WORD_SET = new Set(ENGLISH_BIP39_WORDS);
 /** Minimum typed characters before showing prefix suggestions. */
 export const BIP39_SUGGESTION_MIN_PREFIX_LENGTH = 2;
 
+/** Hide suggestions after this many completed words that are not English BIP39. */
+const INVALID_COMPLETED_WORD_LIMIT = 2;
+
+/** Disable suggestions once pasted/typed input looks like hex rather than words. */
+const HEX_SUGGESTION_DISABLE_LENGTH = 8;
+
 const EXTENDED_KEY_PREFIX = /^(xprv|xpub|ypub|yprv|zpub|zprv|tpub|tprv|vprv|vpub)/i;
 const HEX_BODY_PATTERN = /^[0-9a-fA-F]+$/;
 const LND_AEZEED_PREFIX = /^aezeed/i;
@@ -99,7 +105,7 @@ export function shouldOfferBip39Suggestions(text: string): boolean {
   }
 
   const withoutSpaces = trimmed.replace(/\s+/g, '');
-  if (withoutSpaces.length >= 16 && HEX_BODY_PATTERN.test(withoutSpaces)) {
+  if (withoutSpaces.length >= HEX_SUGGESTION_DISABLE_LENGTH && HEX_BODY_PATTERN.test(withoutSpaces)) {
     return false;
   }
 
@@ -108,12 +114,16 @@ export function shouldOfferBip39Suggestions(text: string): boolean {
   }
 
   const completedWords = getCompletedWords(text);
+  let invalidCompletedWords = 0;
   for (const word of completedWords) {
     if (!BASIC_LATIN_FRAGMENT_PATTERN.test(word)) {
       return false;
     }
     if (!ENGLISH_BIP39_WORD_SET.has(word.toLowerCase())) {
-      return false;
+      invalidCompletedWords++;
+      if (invalidCompletedWords >= INVALID_COMPLETED_WORD_LIMIT) {
+        return false;
+      }
     }
   }
 
