@@ -14,6 +14,7 @@ import { HandOffActivityType } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList.ts';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList.ts';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'Success'>;
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'Success'>;
@@ -23,7 +24,7 @@ const Success = () => {
   const { selectedBlockExplorer } = useSettings();
   const route = useRoute<RouteProps>();
   const navigation = useNavigation<NavigationProps>();
-  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', txid } = route.params || {};
+  const { amount, fee, amountUnit = BitcoinUnit.BTC, invoiceDescription = '', txid, walletID, walletType } = route.params || {};
   const stylesHook = StyleSheet.create({
     root: {
       backgroundColor: colors.elevated,
@@ -38,6 +39,13 @@ const Success = () => {
 
   const onDonePressed = () => {
     // Close SendDetails modal stack and return to the underlying wallet view.
+    if (walletID && walletType) {
+      (navigation as NativeStackNavigationProp<DetailViewStackParamList>).popTo('WalletTransactions', {
+        walletID,
+        walletType,
+      });
+      return;
+    }
     navigation.getParent()?.goBack();
   };
 

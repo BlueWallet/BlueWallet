@@ -290,14 +290,6 @@ const ReceiveDetails = () => {
     }
   }, [wallet, saveToDisk, address, setAddressBIP21Encoded, isElectrumDisabled, sleep]);
 
-  const onEnablePaymentsCodeSwitchValue = useCallback(() => {
-    if (wallet && wallet.allowBIP47()) {
-      wallet.switchBIP47(!wallet.isBIP47Enabled());
-    }
-    saveToDisk();
-    obtainWalletAddress();
-  }, [wallet, saveToDisk, obtainWalletAddress]);
-
   useEffect(() => {
     if (showConfirmedBalance) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -309,26 +301,6 @@ const ReceiveDetails = () => {
       setAddressBIP21Encoded(address);
     }
   }, [address, isCustom, setAddressBIP21Encoded]);
-
-  useEffect(() => {
-    setParams({
-      allowBIP47: Boolean(wallet?.allowBIP47()),
-      isBIP47Enabled: Boolean(isBIP47Enabled),
-    });
-  }, [isBIP47Enabled, setParams, wallet]);
-
-  const lastToggleRequestRef = useRef<number | undefined>(undefined);
-  const toggleBIP47RequestedAt = route.params?.toggleBIP47RequestedAt;
-
-  useEffect(() => {
-    if (!toggleBIP47RequestedAt || toggleBIP47RequestedAt === lastToggleRequestRef.current) {
-      return;
-    }
-
-    lastToggleRequestRef.current = toggleBIP47RequestedAt;
-    onEnablePaymentsCodeSwitchValue();
-    setParams({ toggleBIP47RequestedAt: undefined });
-  }, [toggleBIP47RequestedAt, onEnablePaymentsCodeSwitchValue, setParams]);
 
   // re-fetching address balance periodically
   useEffect(() => {

@@ -64,6 +64,16 @@ const WALLET_CARD_TEXT_OPACITY = 0.85;
 
 export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
 
+/** Shared pending-pill rule for on-chain vs Lightning/Ark cards. */
+export const walletHasPendingTransaction = (item: TWallet): boolean => {
+  const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
+  // Lightning/Ark: `ispaid === false` alone is not pending (failed/refunded swaps stay in history).
+  if (isLightningShaped) {
+    return item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed);
+  }
+  return item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
+};
+
 interface NewWalletPanelProps {
   onPress: () => void;
 }
@@ -279,8 +289,7 @@ const iStyles = StyleSheet.create({
   },
 });
 
-export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
-  ({
+export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
     item,
     hideBalance,
     onPress,
@@ -430,21 +439,9 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
 
     let latestTransactionText;
 
-    // Lightning / Ark wallets do not have on-chain confirmations — settlement is
-    // signaled by `ispaid`. Bitcoin/on-chain wallets keep the existing
-    // `confirmations === 0` rule unchanged so their pending-pill semantics
-    // never depend on a Lightning shape.
-    // `ispaid === false` alone is not "pending": it is also true for terminal
-    // failed/refunded swaps, which stay in history. Gate on `!tx.failed` so a
-    // dead swap doesn't pin the card to "pending" forever.
-    const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
-    const hasPendingTx = isLightningShaped
-      ? item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed)
-      : item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
-
     if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
-    } else if (hasPendingTx) {
+    } else if (walletHasPendingTransaction(item)) {
       latestTransactionText = loc.transactions.pending;
     } else {
       latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
@@ -543,8 +540,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = React.memo(
         </Pressable>
       </Animated.View>
     );
-  },
-);
+};
 
 interface WalletsCarouselProps extends Partial<FlatListProps<any>> {
   horizontal?: boolean;
@@ -912,7 +908,6 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
     <FlatList
       ref={flatListRef}
       renderItem={renderItem}
-      extraData={[data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
       keyExtractor={keyExtractor}
       showsVerticalScrollIndicator={false}
       pagingEnabled={false}
@@ -936,6 +931,8 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}
       {...props}
+      // After `{...props}` so a caller `extraData` cannot drop `data` from the list's update signal.
+      extraData={[props.extraData, data, animateChanges, newWalletsMap.current, selectedWallet, lastAddedWalletId.current]}
     />
   ) : (
     <View style={cStyles.contentLargeScreen}>

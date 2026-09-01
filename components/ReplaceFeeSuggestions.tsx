@@ -91,9 +91,9 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
   };
 
   const handleCustomFeeChange = (customFee: string) => {
-    const sanitizedFee = customFee.replace(/[^0-9]/g, '');
+    const sanitizedFee = customFee.replace(/[^\d.,]/g, '').replace(/([.,].*?)[.,]/g, '$1');
     setCustomFeeValue(sanitizedFee);
-    onFeeSelected(Number(sanitizedFee));
+    onFeeSelected(Number(sanitizedFee.replace(',', '.')));
     setSelectedFeeType(NetworkTransactionFeeType.CUSTOM);
   };
 

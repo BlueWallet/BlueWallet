@@ -53,7 +53,7 @@ export default class RBFCancel extends CPFP {
   }
 
   async createTransaction() {
-    const newFeeRate = parseInt(this.state.newFeeRate, 10);
+    const newFeeRate = Number(this.state.newFeeRate);
     if (newFeeRate > this.state.feeRate) {
       /** @type {HDSegwitBech32Transaction} */
       const tx = this.state.tx;
@@ -107,7 +107,11 @@ export default class RBFCancel extends CPFP {
       this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
-    this.props.navigation.navigate('Success', { amount: undefined });
+    this.props.navigation.navigate('Success', {
+      amount: undefined,
+      walletID: this.state.wallet.getID(),
+      walletType: this.state.wallet.type,
+    });
   }
 
   render() {
