@@ -5,6 +5,7 @@ import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import { ClipboardPaymentKind } from '../blue_modules/clipboardPayment';
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -166,4 +167,9 @@ export type DetailViewStackParamList = {
   };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
   ManageWallets: undefined;
+  ClipboardDetected: {
+    payload: string;
+    kind: ClipboardPaymentKind;
+    contentHash: string;
+  };
 };
