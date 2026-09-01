@@ -31,6 +31,9 @@ const ImportWallet = () => {
   const label = route?.params?.label ?? '';
   const triggerImport = route?.params?.triggerImport ?? false;
   const [importText, setImportText] = useState<string>(label);
+  // Native caret is the source of truth. Do not bind selection={} on this Android
+  // multiline field — a fully controlled cursor jumps. Chips use refs, onChangeText
+  // estimates, and setNativeProps after a suggestion tap.
   const [selection, setSelection] = useState({
     start: label.length,
     end: label.length,
@@ -52,6 +55,9 @@ const ImportWallet = () => {
     root: {
       paddingTop: 10,
       backgroundColor: colors.elevated,
+    },
+    androidScrollContent: {
+      flexGrow: 1,
     },
     center: {
       marginHorizontal: 16,
@@ -215,38 +221,46 @@ const ImportWallet = () => {
     />
   );
 
+  const scrollView = (
+    <SafeAreaScrollView
+      contentContainerStyle={[styles.root, Platform.OS === 'android' && styles.androidScrollContent]}
+      keyboardShouldPersistTaps="always"
+      // Android IME lift comes from AndroidKeyboardAccessoryDock (same height as the bar).
+      automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+    >
+      <BlueSpacing20 />
+      <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
+        <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
+      </TouchableWithoutFeedback>
+      <BlueSpacing20 />
+      <InputClearPasteOverlay onClear={handleClearTapped} onPaste={handlePasteTapped} onScan={onBarScanned} scanTestID="ScanImport">
+        <BlueFormMultiInput
+          ref={inputRef}
+          value={importText}
+          onBlur={onBlur}
+          onChangeText={handleChangeText}
+          onSelectionChange={handleSelectionChange}
+          testID="MnemonicInput"
+          numberOfLines={12}
+          style={styles.importInput}
+          inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
+        />
+      </InputClearPasteOverlay>
+      <BlueSpacing20 />
+      <View style={styles.center}>
+        <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} testID="DoImport" onPress={handleImport} />
+      </View>
+      {Platform.OS === 'ios' && keyboardAccessory}
+    </SafeAreaScrollView>
+  );
+
   return (
     <View style={styles.screen}>
-      <SafeAreaScrollView
-        contentContainerStyle={styles.root}
-        keyboardShouldPersistTaps="always"
-        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-      >
-        <BlueSpacing20 />
-        <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
-          <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
-        </TouchableWithoutFeedback>
-        <BlueSpacing20 />
-        <InputClearPasteOverlay onClear={handleClearTapped} onPaste={handlePasteTapped} onScan={onBarScanned} scanTestID="ScanImport">
-          <BlueFormMultiInput
-            ref={inputRef}
-            value={importText}
-            onBlur={onBlur}
-            onChangeText={handleChangeText}
-            onSelectionChange={handleSelectionChange}
-            testID="MnemonicInput"
-            numberOfLines={12}
-            style={styles.importInput}
-            inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
-          />
-        </InputClearPasteOverlay>
-        <BlueSpacing20 />
-        <View style={styles.center}>
-          <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} testID="DoImport" onPress={handleImport} />
-        </View>
-        {Platform.OS === 'ios' && keyboardAccessory}
-      </SafeAreaScrollView>
-      {Platform.OS === 'android' && <AndroidKeyboardAccessoryDock>{keyboardAccessory}</AndroidKeyboardAccessoryDock>}
+      {Platform.OS === 'android' ? (
+        <AndroidKeyboardAccessoryDock accessory={keyboardAccessory}>{scrollView}</AndroidKeyboardAccessoryDock>
+      ) : (
+        scrollView
+      )}
     </View>
   );
 };

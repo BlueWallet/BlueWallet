@@ -1,63 +1,61 @@
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
-import Animated, { KeyboardState, runOnJS, useAnimatedKeyboard, useAnimatedReaction, useAnimatedStyle } from 'react-native-reanimated';
+import { StyleSheet, View } from 'react-native';
+import { KeyboardState, runOnJS, useAnimatedKeyboard, useAnimatedReaction } from 'react-native-reanimated';
+
+import { KEYBOARD_ACCESSORY_BAR_HEIGHT } from './DoneAndDismissKeyboardInputAccessory';
 
 interface AndroidKeyboardAccessoryDockProps {
+  accessory: React.ReactNode;
   children: React.ReactNode;
 }
 
 /**
- * Android has no InputAccessoryView. RN's keyboardDidShow also fires when the IME
- * *starts* animating, with a stale height, and never emits the settled frame.
- * Reanimated listens to WindowInsetsAnimation, so we wait until the IME is OPEN
- * and then pin to the live inset.
+ * Android has no InputAccessoryView. useAnimatedKeyboard is the height source
+ * that actually matches the IME. Wait until the IME is OPEN, then snap the
+ * accessory and the scroll lift together so the bar does not appear before
+ * the keyboard.
+ *
+ * Keep this hook mounted for the lifetime of Import Wallet. Unmounting it on
+ * blur (Scan is a root modal) does not reliably resubscribe when we return.
  */
-const AndroidKeyboardAccessoryDock: React.FC<AndroidKeyboardAccessoryDockProps> = ({ children }) => {
+const AndroidKeyboardAccessoryDock: React.FC<AndroidKeyboardAccessoryDockProps> = ({ accessory, children }) => {
   const keyboard = useAnimatedKeyboard();
-  const [isSettled, setIsSettled] = useState(false);
+  const [settledHeight, setSettledHeight] = useState(0);
 
   useAnimatedReaction(
-    () => {
-      if (keyboard.state.value === KeyboardState.OPEN && keyboard.height.value > 0) {
-        return 1;
-      }
-      return keyboard.height.value <= 0 ? 0 : -1;
-    },
-    (phase, previous) => {
-      if (phase === previous) {
-        return;
-      }
-      if (phase === 1) {
-        runOnJS(setIsSettled)(true);
-      } else if (phase === 0) {
-        runOnJS(setIsSettled)(false);
+    () => (keyboard.state.value === KeyboardState.OPEN && keyboard.height.value > 0 ? keyboard.height.value : 0),
+    (height, previous) => {
+      if (height !== previous) {
+        runOnJS(setSettledHeight)(height);
       }
     },
   );
 
-  const dockStyle = useAnimatedStyle(() => ({
-    bottom: keyboard.height.value,
-  }));
-
-  if (!isSettled) {
-    return null;
-  }
+  const layoutStyle = StyleSheet.create({
+    shell: {
+      flex: 1,
+      paddingBottom: settledHeight > 0 ? settledHeight + KEYBOARD_ACCESSORY_BAR_HEIGHT : 0,
+    },
+    dock: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: settledHeight,
+      zIndex: 10,
+      elevation: 10,
+    },
+  });
 
   return (
-    <Animated.View pointerEvents="box-none" style={[styles.dock, dockStyle]}>
+    <View style={layoutStyle.shell}>
       {children}
-    </Animated.View>
+      {settledHeight > 0 && (
+        <View pointerEvents="box-none" style={layoutStyle.dock}>
+          {accessory}
+        </View>
+      )}
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  dock: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    elevation: 10,
-  },
-});
 
 export default AndroidKeyboardAccessoryDock;

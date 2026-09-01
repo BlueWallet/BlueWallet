@@ -91,6 +91,7 @@ describe('shouldOfferBip39Suggestions', () => {
   it('rejects extended keys', () => {
     assert.strictEqual(shouldOfferBip39Suggestions('xprv9s21ZrQH143K'), false);
     assert.strictEqual(shouldOfferBip39Suggestions('zpub6rfr'), false);
+    assert.strictEqual(shouldOfferBip39Suggestions('wallet: xprv9s21ZrQH143K'), false);
   });
 
   it('rejects hex strings of 8 or more characters', () => {
@@ -100,6 +101,7 @@ describe('shouldOfferBip39Suggestions', () => {
 
   it('rejects lnd aezeed payloads', () => {
     assert.strictEqual(shouldOfferBip39Suggestions('aezeed12345'), false);
+    assert.strictEqual(shouldOfferBip39Suggestions('payload aezeed12345'), false);
   });
 
   it('rejects non-latin mnemonics', () => {
@@ -136,6 +138,7 @@ describe('getImportWalletSuggestions', () => {
 
   it('returns empty array for extended keys', () => {
     assert.deepStrictEqual(getImportWalletSuggestions('xprv9s21ZrQH143K', 5), []);
+    assert.deepStrictEqual(getImportWalletSuggestions('wallet: xprv9s21ZrQH143K', 10), []);
   });
 
   it('returns matches after a single completed typo', () => {

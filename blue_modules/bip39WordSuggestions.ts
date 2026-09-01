@@ -12,9 +12,9 @@ const INVALID_COMPLETED_WORD_LIMIT = 2;
 /** Disable suggestions once pasted/typed input looks like hex rather than words. */
 const HEX_SUGGESTION_DISABLE_LENGTH = 8;
 
-const EXTENDED_KEY_PREFIX = /^(xprv|xpub|ypub|yprv|zpub|zprv|tpub|tprv|vprv|vpub)/i;
+const EXTENDED_KEY_PREFIX = /(xprv|xpub|ypub|yprv|zpub|zprv|tpub|tprv|vprv|vpub)/i;
 const HEX_BODY_PATTERN = /^[0-9a-fA-F]+$/;
-const LND_AEZEED_PREFIX = /^aezeed/i;
+const LND_AEZEED_PREFIX = /aezeed/i;
 const BASIC_LATIN_FRAGMENT_PATTERN = /^[\p{L}\p{M}]+$/u;
 
 export interface WordFragment {
