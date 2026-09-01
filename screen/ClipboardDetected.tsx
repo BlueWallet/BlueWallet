@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { InteractionManager, LayoutChangeEvent, StyleSheet, View } from 'react-native';
+import { Image, InteractionManager, LayoutChangeEvent, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,6 +19,16 @@ import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'ClipboardDetected'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'ClipboardDetected'>;
 
+export const ClipboardDetectedHeaderTitle = () => {
+  const { colors } = useTheme();
+  const titleStyle = useMemo(() => ({ color: colors.labelText }), [colors.labelText]);
+  return (
+    <Text style={[styles.headerTitle, titleStyle]} accessibilityRole="header">
+      {loc.wallets.detect_on_clipboard}
+    </Text>
+  );
+};
+
 const copyForKind = (kind: ClipboardPaymentKind) => {
   switch (kind) {
     case ClipboardPaymentKind.Lnurl:
@@ -32,8 +42,12 @@ const copyForKind = (kind: ClipboardPaymentKind) => {
 
 const ClipboardDetected = () => {
   const navigation = useNavigation<NavigationProps>();
-  const { payload, kind, contentHash } = useRoute<RouteProps>().params;
-  const { colors } = useTheme();
+  const routeParams = useRoute<RouteProps>().params;
+  const payload = routeParams?.payload ?? '';
+  const kind = routeParams?.kind ?? ClipboardPaymentKind.Bitcoin;
+  const contentHash = routeParams?.contentHash;
+  const theme = useTheme();
+  const { colors } = theme;
   const { wallets, addWallet, saveToDisk, setSharedCosigner } = useStorage();
 
   const stylesHook = useMemo(
@@ -41,8 +55,11 @@ const ClipboardDetected = () => {
       safeArea: {
         backgroundColor: colors.elevated,
       },
+      closeButton: {
+        backgroundColor: colors.lightButton,
+      },
     }),
-    [colors.elevated],
+    [colors.elevated, colors.lightButton],
   );
 
   const { kindMessage, actionTitle } = copyForKind(kind);
@@ -50,8 +67,10 @@ const ClipboardDetected = () => {
 
   useFocusEffect(
     useCallback(() => {
+      setClipboardSheetFocused(true);
+      if (contentHash) setLastSeenClipboardHash(contentHash).catch(() => {});
       return () => setClipboardSheetFocused(false);
-    }, []),
+    }, [contentHash]),
   );
 
   const persistIfVisible = useCallback(
@@ -85,6 +104,20 @@ const ClipboardDetected = () => {
       accessibilityLabel={loc._.clipboard}
       onLayout={persistIfVisible}
     >
+      {Platform.OS === 'android' && (
+        <View style={styles.androidHeader}>
+          <ClipboardDetectedHeaderTitle />
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc._.close}
+            style={[styles.androidCloseButton, stylesHook.closeButton]}
+            onPress={() => navigation.goBack()}
+            testID="NavigationCloseButton"
+          >
+            <Image source={theme.closeImage} />
+          </TouchableOpacity>
+        </View>
+      )}
       <View style={styles.content}>
         <ClipboardDetectedItem value={payload} onPress={handleUseClipboard} accessibilityHint={accessibilityHint} />
       </View>
@@ -98,7 +131,27 @@ const ClipboardDetected = () => {
 export default ClipboardDetected;
 
 const styles = StyleSheet.create({
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  androidHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 8,
+  },
+  androidCloseButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
   safeArea: {
+    flex: 1,
     minHeight: 280,
   },
   content: {

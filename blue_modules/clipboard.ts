@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Clipboard from '@react-native-clipboard/clipboard';
 
 const STORAGE_KEY: string = 'ClipboardReadAllowed';
-const LAST_SEEN_HASH_KEY: string = 'ClipboardLastSeenHashV5';
+const LAST_SEEN_HASH_KEY: string = 'ClipboardLastSeenHashV6';
 
 let lastSeenHashMemory: string | undefined;
 let clipboardSheetFocused = false;
@@ -65,12 +65,12 @@ export const readClipboardForDetection = async (): Promise<{
     const isAllowed = await isReadClipboardAllowed();
     if (!isAllowed) return { content: undefined, pasteBlocked: false };
 
-    const hasString = await Clipboard.hasString();
-    if (!hasString) return { content: undefined, pasteBlocked: false };
-
     const content = await Clipboard.getString();
-    if (!content) return { content: undefined, pasteBlocked: true };
-    return { content, pasteBlocked: false };
+    if (content) return { content, pasteBlocked: false };
+
+    const hasString = await Clipboard.hasString();
+    if (hasString) return { content: undefined, pasteBlocked: true };
+    return { content: undefined, pasteBlocked: false };
   } catch (error) {
     console.error('Error accessing clipboard:', error);
     return { content: undefined, pasteBlocked: true };

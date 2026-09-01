@@ -330,12 +330,13 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
   const handleAppStateChange = useCallback(
     async (nextAppState: AppStateStatus) => {
+      const previousState = appState.current;
+      appState.current = nextAppState;
+
       if (!shouldActivateListeners || wallets.length === 0) return;
 
-      const previousState = appState.current;
       if (nextAppState !== 'active') {
         onLeaveForeground(nextAppState);
-        appState.current = nextAppState;
         return;
       }
 
@@ -352,11 +353,11 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           // wallets need a transactions refresh whether or not a notification
           // also fired.
           reconcileArkBackgroundTaskResults(fetchAndSaveWalletTransactions);
+          if (AppState.currentState !== 'active') return;
         }
 
         onEnterForeground(previousState, { skipRead: processed });
       }
-      appState.current = nextAppState;
     },
     [processPushNotifications, fetchAndSaveWalletTransactions, onLeaveForeground, onEnterForeground, wallets, shouldActivateListeners],
   );
