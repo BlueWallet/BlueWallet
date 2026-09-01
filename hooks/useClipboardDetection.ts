@@ -9,17 +9,19 @@ import {
   setLastSeenClipboardHash,
 } from '../blue_modules/clipboard';
 import {
-  ClipboardPaymentKind,
   CLIPBOARD_IDLE_DELAY_MS,
-  CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS,
   CLIPBOARD_PRESENT_MAX_ATTEMPTS,
   CLIPBOARD_REFRESH_POLL_MS,
   CLIPBOARD_RETRY_DELAY_MS,
+  ClipboardPaymentKind,
   clipboardActionOnAppStateChange,
+  clipboardReadRetryLimit,
   delayForClipboardAction,
   delayForClipboardPresentAttempt,
   evaluateClipboardOnForeground,
   isWalletUpdateInProgress,
+  shouldIgnoreLastSeenOnClipboardRetry,
+  type ClipboardReadRetryReason,
 } from '../blue_modules/clipboardPayment';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../blue_modules/hapticFeedback';
 import { navigationRef } from '../NavigationService';
@@ -76,7 +78,7 @@ const useClipboardDetection = (enabled: boolean) => {
   walletTxStatusRef.current = walletTransactionUpdateStatus;
   const pendingClipboardSheet = useRef<PendingClipboardSheet | null>(null);
   const androidWindowBlurred = useRef(false);
-  const resumeClipboardRetry = useRef(false);
+  const queuedForegroundRead = useRef(false);
 
   const cancelScheduledClipboard = useCallback(() => {
     if (clipboardScheduleTimer.current) {
@@ -149,17 +151,21 @@ const useClipboardDetection = (enabled: boolean) => {
     async (lastSeen: string | undefined) => {
       if (!enabled || wallets.length === 0) return;
       if (clipboardReadInFlight.current) {
-        retryClipboardAfterPastePrompt.current = true;
+        queuedForegroundRead.current = true;
+        if (Platform.OS === 'ios') retryClipboardAfterPastePrompt.current = true;
         return;
       }
       clipboardReadInFlight.current = true;
 
-      const scheduleReadRetry = () => {
+      const scheduleReadRetry = (reason: ClipboardReadRetryReason) => {
+        const platform = Platform.OS === 'ios' ? 'ios' : 'android';
         if (AppState.currentState !== 'active') return false;
-        if (clipboardPasteFollowUpAttempts.current >= CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS) return false;
+        if (clipboardPasteFollowUpAttempts.current >= clipboardReadRetryLimit(platform, reason)) return false;
         clipboardPasteFollowUpAttempts.current += 1;
-        ignoreLastSeenOnNextRead.current = true;
-        retryClipboardAfterPastePrompt.current = true;
+        if (shouldIgnoreLastSeenOnClipboardRetry(reason)) {
+          ignoreLastSeenOnNextRead.current = true;
+        }
+        retryClipboardAfterPastePrompt.current = reason === 'paste_blocked';
         cancelPastePoll();
         clipboardPastePollTimer.current = setTimeout(() => {
           clipboardPastePollTimer.current = null;
@@ -177,24 +183,21 @@ const useClipboardDetection = (enabled: boolean) => {
         }
         const { content, pasteBlocked } = await readClipboardForDetection();
         if (pasteBlocked) {
-          if (!scheduleReadRetry()) {
+          if (!scheduleReadRetry('paste_blocked')) {
             retryClipboardAfterPastePrompt.current = false;
             clearIgnoreLastSeen();
           }
           return;
         }
         if (!content) {
-          const retryEmpty = retryClipboardAfterPastePrompt.current || resumeClipboardRetry.current;
-          if (retryEmpty && scheduleReadRetry()) return;
-          resumeClipboardRetry.current = false;
-          if (AppState.currentState !== 'active') {
-            retryClipboardAfterPastePrompt.current = Platform.OS === 'ios';
+          if (scheduleReadRetry('empty')) return;
+          if (AppState.currentState !== 'active' && Platform.OS === 'ios') {
+            retryClipboardAfterPastePrompt.current = true;
           }
           return;
         }
 
         clipboardPasteFollowUpAttempts.current = 0;
-        resumeClipboardRetry.current = false;
         const ignoreLastSeen = ignoreLastSeenOnNextRead.current;
         clearIgnoreLastSeen();
         const lastSeenHash = ignoreLastSeen ? lastSeen : ((await getLastSeenClipboardHash()) ?? lastSeen);
@@ -219,6 +222,12 @@ const useClipboardDetection = (enabled: boolean) => {
         });
       } finally {
         clipboardReadInFlight.current = false;
+        if (queuedForegroundRead.current) {
+          queuedForegroundRead.current = false;
+          if (!clipboardPastePollTimer.current) {
+            scheduleClipboardDetectionRef.current(CLIPBOARD_RETRY_DELAY_MS, { requireIdleSettle: false });
+          }
+        }
       }
     },
     [cancelPastePoll, clearIgnoreLastSeen, enabled, presentClipboardSheetUntilVisible, wallets],
@@ -264,7 +273,6 @@ const useClipboardDetection = (enabled: boolean) => {
     (nextAppState: AppStateStatus) => {
       if (!enabled || wallets.length === 0) return;
       androidWindowBlurred.current = true;
-      resumeClipboardRetry.current = true;
       cancelScheduledClipboard();
       cancelPresentLoop();
       if (nextAppState === 'background') {
@@ -324,7 +332,6 @@ const useClipboardDetection = (enabled: boolean) => {
     if (!enabled || Platform.OS !== 'android') return undefined;
     const blurSub = AppState.addEventListener('blur', () => {
       androidWindowBlurred.current = true;
-      resumeClipboardRetry.current = true;
     });
     const focusSub = AppState.addEventListener('focus', () => {
       if (!androidWindowBlurred.current) return;

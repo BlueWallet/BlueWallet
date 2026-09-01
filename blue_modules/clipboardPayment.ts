@@ -175,6 +175,19 @@ export const CLIPBOARD_PRESENT_SLOW_RETRY_MS = 2000;
 export const CLIPBOARD_PRESENT_MAX_ATTEMPTS = 12;
 /** Keep polling after iOS Allow Paste; the system dialog often outlives a single follow-up. */
 export const CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS = 20;
+/** Android 12+ toasts on each clipboard read; keep paste-blocked follow-ups short. */
+export const CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS = 3;
+
+export type ClipboardReadRetryReason = 'paste_blocked' | 'empty';
+
+export function clipboardReadRetryLimit(platform: 'ios' | 'android', reason: ClipboardReadRetryReason): number {
+  if (reason === 'empty') return 0;
+  return platform === 'ios' ? CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS : CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS;
+}
+
+export function shouldIgnoreLastSeenOnClipboardRetry(reason: ClipboardReadRetryReason): boolean {
+  return reason === 'paste_blocked';
+}
 
 export function isWalletUpdateInProgress(status: string): boolean {
   return status !== 'NONE';

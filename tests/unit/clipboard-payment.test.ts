@@ -1,7 +1,9 @@
 import assert from 'assert';
 
 import {
+  CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS,
   CLIPBOARD_IDLE_DELAY_MS,
+  CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS,
   CLIPBOARD_PRESENT_MAX_ATTEMPTS,
   CLIPBOARD_PRESENT_RETRY_MS,
   CLIPBOARD_PRESENT_SLOW_RETRY_MS,
@@ -9,12 +11,14 @@ import {
   ClipboardPaymentKind,
   classifyClipboardPayment,
   clipboardActionOnAppStateChange,
+  clipboardReadRetryLimit,
   delayForClipboardAction,
   delayForClipboardPresentAttempt,
   evaluateClipboardOnForeground,
   hashClipboardContent,
   isClipboardPaymentFromOwnWallet,
   isWalletUpdateInProgress,
+  shouldIgnoreLastSeenOnClipboardRetry,
   stripBitcoinUriToAddress,
 } from '../../blue_modules/clipboardPayment';
 import { Chain } from '../../models/bitcoinUnits';
@@ -202,6 +206,15 @@ describe('clipboardPayment ownership and last-seen', () => {
     assert.strictEqual(skipped.offer, null);
     const retried = evaluateClipboardOnForeground(P2WPKH, first.nextHash, wallets, { ignoreLastSeen: true });
     assert.deepStrictEqual(retried.offer, { kind: ClipboardPaymentKind.Bitcoin, payload: P2WPKH });
+  });
+
+  it('only ignores last-seen when retrying a blocked paste, not an empty read', () => {
+    assert.ok(shouldIgnoreLastSeenOnClipboardRetry('paste_blocked'));
+    assert.ok(!shouldIgnoreLastSeenOnClipboardRetry('empty'));
+    assert.strictEqual(clipboardReadRetryLimit('ios', 'empty'), 0);
+    assert.strictEqual(clipboardReadRetryLimit('android', 'empty'), 0);
+    assert.strictEqual(clipboardReadRetryLimit('ios', 'paste_blocked'), CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS);
+    assert.strictEqual(clipboardReadRetryLimit('android', 'paste_blocked'), CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS);
   });
 
   it('does not re-read clipboard after Control Center (inactive), but retries after a paste prompt', () => {
