@@ -1,33 +1,23 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import Clipboard from '@react-native-clipboard/clipboard';
-import {
-  Keyboard,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  TextInputSelectionChangeEvent,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import { Keyboard, Platform, StyleSheet, TextInput, TextInputSelectionChangeEvent, TouchableWithoutFeedback, View } from 'react-native';
+import AndroidKeyboardAccessoryDock from '../../components/AndroidKeyboardAccessoryDock';
 import BlueFormLabel from '../../components/BlueFormLabel';
 import BlueFormMultiInput from '../../components/BlueFormMultiInput';
 import Button from '../../components/Button';
-import ImportWalletKeyboardAccessory, {
-  ANDROID_KEYBOARD_TOP_EXTRA_OFFSET,
-  IMPORT_WALLET_ACCESSORY_BAR_HEIGHT,
-  ImportWalletKeyboardAccessoryViewID,
-} from '../../components/ImportWalletKeyboardAccessory';
+import {
+  DoneAndDismissKeyboardInputAccessory,
+  DoneAndDismissKeyboardInputAccessoryViewID,
+} from '../../components/DoneAndDismissKeyboardInputAccessory';
 import InputClearPasteOverlay from '../../components/InputClearPasteOverlay';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
-import { useKeyboard } from '../../hooks/useKeyboard';
 import loc from '../../loc';
 import { AddWalletStackParamList } from '../../navigation/AddWalletStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
-import SafeArea from '../../components/SafeArea';
+import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { getImportWalletSuggestions, getWordFragmentAtCursor, replaceWordFragment } from '../../blue_modules/bip39WordSuggestions';
 
@@ -47,12 +37,8 @@ const ImportWallet = () => {
   });
   const importTextRef = useRef(label);
   const selectionRef = useRef({ start: label.length, end: label.length });
-  const { isVisible: isKeyboardVisible, screenY: keyboardScreenY, height: keyboardHeight } = useKeyboard();
-  const isKeyboardOpen = isKeyboardVisible && keyboardHeight > 0;
   const speedBackdoorTapCountRef = useRef(0);
   const inputRef = useRef<TextInput>(null);
-  const screenRef = useRef<View>(null);
-  const [anchorScreenY, setAnchorScreenY] = useState(0);
   const askPassphraseMenuState = route.params?.askPassphraseMenuState ?? false;
   const searchAccountsMenuState = route.params?.searchAccountsMenuState ?? false;
   const clearClipboardMenuState = route.params?.clearClipboardMenuState ?? true;
@@ -63,17 +49,8 @@ const ImportWallet = () => {
       flex: 1,
       backgroundColor: colors.elevated,
     },
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.elevated,
-    },
-    scrollView: {
-      flex: 1,
-    },
     root: {
       paddingTop: 10,
-      paddingBottom:
-        isKeyboardOpen && Platform.OS === 'android' ? IMPORT_WALLET_ACCESSORY_BAR_HEIGHT + ANDROID_KEYBOARD_TOP_EXTRA_OFFSET : 20,
       backgroundColor: colors.elevated,
     },
     center: {
@@ -87,11 +64,6 @@ const ImportWallet = () => {
       minHeight: 180,
     },
   });
-  const updateAnchorPosition = useCallback(() => {
-    screenRef.current?.measureInWindow((_x, y) => {
-      setAnchorScreenY(y);
-    });
-  }, []);
 
   const commitImportText = useCallback((text: string, cursor?: number) => {
     importTextRef.current = text;
@@ -103,13 +75,6 @@ const ImportWallet = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (Platform.OS === 'android' && isKeyboardVisible) {
-      updateAnchorPosition();
-      requestAnimationFrame(updateAnchorPosition);
-    }
-  }, [isKeyboardVisible, keyboardScreenY, keyboardHeight, updateAnchorPosition]);
-
   const onBlur = useCallback(() => {
     const valueWithSingleWhitespace = importTextRef.current.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
     commitImportText(valueWithSingleWhitespace);
@@ -117,6 +82,22 @@ const ImportWallet = () => {
   }, [commitImportText]);
 
   const suggestions = useMemo(() => getImportWalletSuggestions(importText, selection.start), [importText, selection.start]);
+
+  const handleChangeText = useCallback(
+    (text: string) => {
+      const previous = importTextRef.current;
+      const { start, end } = selectionRef.current;
+      let nextCursor: number;
+      if (start === end && start >= previous.length) {
+        nextCursor = text.length;
+      } else {
+        const insertedLength = text.length - (previous.length - (end - start));
+        nextCursor = Math.max(0, Math.min(text.length, start + Math.max(insertedLength, 0)));
+      }
+      commitImportText(text, nextCursor);
+    },
+    [commitImportText],
+  );
 
   const handleSelectionChange = useCallback((event: TextInputSelectionChangeEvent) => {
     const { selection: nextSelection } = event.nativeEvent;
@@ -225,55 +206,47 @@ const ImportWallet = () => {
     if (triggerImport) handleImport();
   }, [triggerImport, handleImport]);
 
+  const keyboardAccessory = (
+    <DoneAndDismissKeyboardInputAccessory
+      onClearTapped={handleClearTapped}
+      onPasteTapped={handlePasteTapped}
+      suggestions={suggestions}
+      onSuggestionTapped={handleSuggestionTapped}
+    />
+  );
+
   return (
-    <View ref={screenRef} onLayout={updateAnchorPosition} style={styles.screen}>
-      <SafeArea style={styles.safeArea} ignoreTopInset>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.root}
-          keyboardShouldPersistTaps="always"
-          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-          contentInsetAdjustmentBehavior="never"
-        >
-          <BlueSpacing20 />
-          <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
-            <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
-          </TouchableWithoutFeedback>
-          <BlueSpacing20 />
-          <InputClearPasteOverlay onClear={handleClearTapped} onPaste={handlePasteTapped} onScan={onBarScanned} scanTestID="ScanImport">
-            <BlueFormMultiInput
-              ref={inputRef}
-              value={importText}
-              onBlur={onBlur}
-              onChangeText={commitImportText}
-              onSelectionChange={handleSelectionChange}
-              testID="MnemonicInput"
-              numberOfLines={12}
-              style={styles.importInput}
-              inputAccessoryViewID={ImportWalletKeyboardAccessoryViewID}
-            />
-          </InputClearPasteOverlay>
-          <BlueSpacing20 />
-          <View style={styles.center}>
-            <Button
-              disabled={importText.trim().length === 0}
-              title={loc.wallets.import_do_import}
-              testID="DoImport"
-              onPress={handleImport}
-            />
-          </View>
-        </ScrollView>
-        {Platform.OS === 'ios' && <ImportWalletKeyboardAccessory suggestions={suggestions} onSuggestionTapped={handleSuggestionTapped} />}
-      </SafeArea>
-      {Platform.OS === 'android' && isKeyboardOpen && (
-        <ImportWalletKeyboardAccessory
-          suggestions={suggestions}
-          onSuggestionTapped={handleSuggestionTapped}
-          keyboardScreenY={keyboardScreenY}
-          keyboardHeight={keyboardHeight}
-          anchorScreenY={anchorScreenY}
-        />
-      )}
+    <View style={styles.screen}>
+      <SafeAreaScrollView
+        contentContainerStyle={styles.root}
+        keyboardShouldPersistTaps="always"
+        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      >
+        <BlueSpacing20 />
+        <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">
+          <BlueFormLabel>{loc.wallets.import_explanation}</BlueFormLabel>
+        </TouchableWithoutFeedback>
+        <BlueSpacing20 />
+        <InputClearPasteOverlay onClear={handleClearTapped} onPaste={handlePasteTapped} onScan={onBarScanned} scanTestID="ScanImport">
+          <BlueFormMultiInput
+            ref={inputRef}
+            value={importText}
+            onBlur={onBlur}
+            onChangeText={handleChangeText}
+            onSelectionChange={handleSelectionChange}
+            testID="MnemonicInput"
+            numberOfLines={12}
+            style={styles.importInput}
+            inputAccessoryViewID={DoneAndDismissKeyboardInputAccessoryViewID}
+          />
+        </InputClearPasteOverlay>
+        <BlueSpacing20 />
+        <View style={styles.center}>
+          <Button disabled={importText.trim().length === 0} title={loc.wallets.import_do_import} testID="DoImport" onPress={handleImport} />
+        </View>
+        {Platform.OS === 'ios' && keyboardAccessory}
+      </SafeAreaScrollView>
+      {Platform.OS === 'android' && <AndroidKeyboardAccessoryDock>{keyboardAccessory}</AndroidKeyboardAccessoryDock>}
     </View>
   );
 };

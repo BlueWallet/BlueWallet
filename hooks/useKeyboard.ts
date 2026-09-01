@@ -4,7 +4,6 @@ import { Keyboard, KeyboardEvent, Platform } from 'react-native';
 interface KeyboardInfo {
   isVisible: boolean;
   height: number;
-  screenY: number;
 }
 
 interface UseKeyboardProps {
@@ -16,7 +15,6 @@ export const useKeyboard = ({ onKeyboardDidShow, onKeyboardDidHide }: UseKeyboar
   const [keyboardInfo, setKeyboardInfo] = useState<KeyboardInfo>({
     isVisible: false,
     height: 0,
-    screenY: 0,
   });
 
   useEffect(() => {
@@ -24,7 +22,6 @@ export const useKeyboard = ({ onKeyboardDidShow, onKeyboardDidHide }: UseKeyboar
       setKeyboardInfo({
         isVisible: true,
         height: event.endCoordinates.height,
-        screenY: event.endCoordinates.screenY,
       });
       if (onKeyboardDidShow) {
         onKeyboardDidShow();
@@ -35,7 +32,6 @@ export const useKeyboard = ({ onKeyboardDidShow, onKeyboardDidHide }: UseKeyboar
       setKeyboardInfo({
         isVisible: false,
         height: 0,
-        screenY: 0,
       });
       if (onKeyboardDidHide) {
         onKeyboardDidHide();

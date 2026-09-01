@@ -14,6 +14,7 @@ import { scanQrHelper } from '../helpers/scan-qr.ts';
 interface AddressInputScanButtonProps {
   isLoading?: boolean;
   onChangeText: (text: string) => void;
+  onPasteFromClipboard?: (text: string) => void;
   type?: 'default' | 'link' | 'compact';
   testID?: string;
   beforePress?: () => Promise<void> | void;
@@ -22,6 +23,7 @@ interface AddressInputScanButtonProps {
 export const AddressInputScanButton = ({
   isLoading,
   onChangeText,
+  onPasteFromClipboard,
   type = 'default',
   testID = 'BlueAddressInputScanQrButton',
   beforePress,
@@ -90,7 +92,11 @@ export const AddressInputScanButton = ({
               }
             } else {
               const clipboardText = await Clipboard.getString();
-              onChangeText(clipboardText);
+              if (onPasteFromClipboard) {
+                onPasteFromClipboard(clipboardText);
+              } else {
+                onChangeText(clipboardText);
+              }
             }
           } catch (error) {
             presentAlert({ message: (error as Error).message });
@@ -121,7 +127,7 @@ export const AddressInputScanButton = ({
       }
       Keyboard.dismiss();
     },
-    [onChangeText],
+    [onChangeText, onPasteFromClipboard],
   );
 
   const menuButtonStyle = useMemo(() => {

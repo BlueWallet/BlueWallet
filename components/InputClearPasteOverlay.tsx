@@ -60,7 +60,7 @@ const InputClearPasteOverlay: React.FC<InputClearPasteOverlayProps> = ({ onClear
       })}
       <View style={styles.overlay} pointerEvents="box-none">
         <InputOverlayActionButton title={loc.send.input_paste} onPress={onPasteTapped} testID="InputPaste" />
-        <AddressInputScanButton type="compact" onChangeText={onScan} testID={scanTestID} />
+        <AddressInputScanButton type="compact" onChangeText={onScan} onPasteFromClipboard={onPaste} testID={scanTestID} />
         <InputOverlayActionButton title={loc.send.input_clear} onPress={onClear} testID="InputClear" />
       </View>
     </View>
