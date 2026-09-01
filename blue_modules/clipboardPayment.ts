@@ -170,9 +170,6 @@ export const CLIPBOARD_IDLE_DELAY_MS = 1500;
 export const CLIPBOARD_RETRY_DELAY_MS = 800;
 export const CLIPBOARD_RESUME_DELAY_MS = 400;
 export const CLIPBOARD_REFRESH_POLL_MS = 400;
-export const CLIPBOARD_PRESENT_RETRY_MS = 400;
-export const CLIPBOARD_PRESENT_SLOW_RETRY_MS = 2000;
-export const CLIPBOARD_PRESENT_MAX_ATTEMPTS = 12;
 /** Keep polling after iOS Allow Paste; the system dialog often outlives a single follow-up. */
 export const CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS = 20;
 /** Android 12+ toasts on each clipboard read; keep paste-blocked follow-ups short. */
@@ -206,10 +203,6 @@ export function delayForClipboardAction(action: ClipboardForegroundAction): numb
     default:
       return CLIPBOARD_IDLE_DELAY_MS;
   }
-}
-
-export function delayForClipboardPresentAttempt(attempt: number): number {
-  return attempt >= CLIPBOARD_PRESENT_MAX_ATTEMPTS ? CLIPBOARD_PRESENT_SLOW_RETRY_MS : CLIPBOARD_PRESENT_RETRY_MS;
 }
 
 /**

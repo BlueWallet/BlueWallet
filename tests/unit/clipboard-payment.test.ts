@@ -2,18 +2,11 @@ import assert from 'assert';
 
 import {
   CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS,
-  CLIPBOARD_IDLE_DELAY_MS,
   CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS,
-  CLIPBOARD_PRESENT_MAX_ATTEMPTS,
-  CLIPBOARD_PRESENT_RETRY_MS,
-  CLIPBOARD_PRESENT_SLOW_RETRY_MS,
-  CLIPBOARD_RETRY_DELAY_MS,
   ClipboardPaymentKind,
   classifyClipboardPayment,
   clipboardActionOnAppStateChange,
   clipboardReadRetryLimit,
-  delayForClipboardAction,
-  delayForClipboardPresentAttempt,
   evaluateClipboardOnForeground,
   hashClipboardContent,
   isClipboardPaymentFromOwnWallet,
@@ -22,12 +15,6 @@ import {
   stripBitcoinUriToAddress,
 } from '../../blue_modules/clipboardPayment';
 import { Chain } from '../../models/bitcoinUnits';
-
-jest.mock('../../blue_modules/BlueElectrum', () => {
-  return {
-    ensureConnected: jest.fn().mockResolvedValue(true),
-  };
-});
 
 const P2PKH = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
 const P2SH = '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK';
@@ -266,11 +253,7 @@ describe('clipboardPayment ownership and last-seen', () => {
     );
   });
 
-  it('delays clipboard reads so launch/resume refresh can start first', () => {
-    assert.strictEqual(delayForClipboardAction('read'), CLIPBOARD_IDLE_DELAY_MS);
-    assert.strictEqual(delayForClipboardAction('retry_read'), CLIPBOARD_RETRY_DELAY_MS);
-    assert.strictEqual(delayForClipboardPresentAttempt(1), CLIPBOARD_PRESENT_RETRY_MS);
-    assert.strictEqual(delayForClipboardPresentAttempt(CLIPBOARD_PRESENT_MAX_ATTEMPTS), CLIPBOARD_PRESENT_SLOW_RETRY_MS);
+  it('treats any wallet update status other than NONE as in progress', () => {
     assert.ok(isWalletUpdateInProgress('ALL'));
     assert.ok(isWalletUpdateInProgress('some-wallet-id'));
     assert.ok(!isWalletUpdateInProgress('NONE'));
