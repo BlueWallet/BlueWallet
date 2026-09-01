@@ -27,8 +27,6 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { BlueLoading } from '../../components/BlueLoading';
-import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
-import Button from '../../components/Button';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import BlocksAccordion from '../../components/BlocksAccordion';
@@ -831,24 +829,6 @@ const TransactionStatus: React.FC = () => {
       });
   }, [tx?.hash, selectedBlockExplorer]);
 
-  const renderCPFP = (transaction: Transaction, w: TWallet) => {
-    if (isCPFPPossible === ButtonStatus.Unknown) {
-      return (
-        <>
-          <ActivityIndicator />
-          <BlueSpacing20 />
-        </>
-      );
-    } else if (isCPFPPossible === ButtonStatus.Possible) {
-      return (
-        <>
-          <Button onPress={() => navigateToCPFP(transaction, w)} title={loc.transactions.status_bump} />
-          <BlueSpacing10 />
-        </>
-      );
-    }
-  };
-
   const shortenCounterpartyName = (addr: string): string => {
     if (addr.length < 20) return addr;
     return addr.substr(0, 10) + '...' + addr.substr(addr.length - 10, 10);
@@ -1134,28 +1114,40 @@ const TransactionStatus: React.FC = () => {
                   </BlueText>
                 </View>
               </View>
-              {wallet && (isRBFBumpFeePossible === ButtonStatus.Possible || isRBFCancelPossible === ButtonStatus.Possible) && (
-                <View style={styles.stateButtons}>
-                  {isRBFBumpFeePossible === ButtonStatus.Possible && (
-                    <TouchableOpacity
-                      onPress={() => navigateToRBF('RBFBumpFee', tx, wallet)}
-                      style={[styles.speedUpButton, stylesHook.speedUpButton]}
-                      accessibilityRole="button"
-                    >
-                      <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
-                    </TouchableOpacity>
-                  )}
-                  {isRBFCancelPossible === ButtonStatus.Possible && (
-                    <TouchableOpacity
-                      onPress={() => navigateToRBF('RBFCancel', tx, wallet)}
-                      style={[styles.cancelButton, stylesHook.cancelButton]}
-                      accessibilityRole="button"
-                    >
-                      <BlueText style={[styles.cancelButtonText, stylesHook.cancelButtonText]}>{loc.transactions.status_cancel}</BlueText>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              )}
+              {wallet &&
+                (isRBFBumpFeePossible === ButtonStatus.Possible ||
+                  isRBFCancelPossible === ButtonStatus.Possible ||
+                  isCPFPPossible === ButtonStatus.Possible) && (
+                  <View style={styles.stateButtons}>
+                    {isRBFBumpFeePossible === ButtonStatus.Possible && (
+                      <TouchableOpacity
+                        onPress={() => navigateToRBF('RBFBumpFee', tx, wallet)}
+                        style={[styles.speedUpButton, stylesHook.speedUpButton]}
+                        accessibilityRole="button"
+                      >
+                        <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
+                      </TouchableOpacity>
+                    )}
+                    {isCPFPPossible === ButtonStatus.Possible && (
+                      <TouchableOpacity
+                        onPress={() => navigateToCPFP(tx, wallet)}
+                        style={[styles.speedUpButton, stylesHook.speedUpButton]}
+                        accessibilityRole="button"
+                      >
+                        <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
+                      </TouchableOpacity>
+                    )}
+                    {isRBFCancelPossible === ButtonStatus.Possible && (
+                      <TouchableOpacity
+                        onPress={() => navigateToRBF('RBFCancel', tx, wallet)}
+                        style={[styles.cancelButton, stylesHook.cancelButton]}
+                        accessibilityRole="button"
+                      >
+                        <BlueText style={[styles.cancelButtonText, stylesHook.cancelButtonText]}>{loc.transactions.status_cancel}</BlueText>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                )}
             </>
           ) : txValue !== null && txValue < 0 ? (
             <TransactionStateHeader
@@ -1462,9 +1454,6 @@ const TransactionStatus: React.FC = () => {
           </View>
         )}
       </SettingsSection>
-
-      {/* Action Buttons - Only show CPFP here, Speed Up and Cancel are in state section for pending */}
-      {wallet && parsedConfirmations === 0 && <View style={styles.actions}>{renderCPFP(tx, wallet)}</View>}
     </SafeAreaScrollView>
   );
 };
@@ -1767,13 +1756,6 @@ const styles = StyleSheet.create({
     paddingTop: 0,
     paddingBottom: 0,
     borderTopWidth: 1,
-  },
-  actions: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-    marginVertical: 24,
-    width: '100%',
-    paddingHorizontal: 16,
   },
   weOwnAddress: {
     fontWeight: '700',
