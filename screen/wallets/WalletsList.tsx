@@ -30,6 +30,7 @@ import useMenuElements from '../../hooks/useMenuElements';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scanQrHelper } from '../../helpers/scan-qr';
+import { useWalletActivityFeed } from '../../hooks/useWalletActivity';
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', TRANSACTIONS: 'TRANSACTIONS' };
 const SECTION_HEADER_BASE_HEIGHT = 56;
@@ -111,7 +112,7 @@ const WalletsList: React.FC = () => {
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
-  const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
+  const { wallets, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width, fontScale } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -123,7 +124,7 @@ const WalletsList: React.FC = () => {
   const navigation = useNavigation<NavigationProps>();
   const isFocused = useIsFocused();
   const route = useRoute<RouteProps>();
-  const dataSource = getTransactions(undefined, 10);
+  const dataSource = useWalletActivityFeed(wallets, '', 10);
   const walletsCount = useRef<number>(wallets.length);
   const walletActionButtonsRef = useRef<View>(null);
 
@@ -143,11 +144,11 @@ const WalletsList: React.FC = () => {
   });
 
   const refreshWallets = useCallback(
-    async (index: number | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
+    async (walletId: string | undefined, showLoadingIndicator = true, showUpdateStatusIndicator = false) => {
       if (isElectrumDisabled) return;
       dispatch({ type: ActionTypes.SET_LOADING, payload: showLoadingIndicator });
       try {
-        await refreshAllWalletTransactions(index, showUpdateStatusIndicator);
+        await refreshAllWalletTransactions(walletId, showUpdateStatusIndicator);
       } catch (error) {
         console.error(error);
       } finally {
@@ -274,7 +275,7 @@ const WalletsList: React.FC = () => {
         console.debug('onSnapToItem', wallets.length === index ? 'NewWallet/Importing card' : index);
         triggerHapticFeedback(HapticFeedbackTypes.Selection);
         if (wallets[index] && (wallets[index].timeToRefreshBalance() || wallets[index].timeToRefreshTransaction())) {
-          refreshWallets(index, false, false);
+          refreshWallets(wallets[index].getID(), false, false);
         }
         currentWalletIndex.current = index;
       }

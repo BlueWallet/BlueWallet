@@ -22,9 +22,11 @@ import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { useSetTransactionMemo } from '../../hooks/useRealmMetadata';
 
 const PsbtWithHardwareWallet = () => {
-  const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
+  const { fetchAndSaveWalletTransactions, wallets } = useStorage();
+  const setTransactionMemo = useSetTransactionMemo();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation();
@@ -77,7 +79,9 @@ const PsbtWithHardwareWallet = () => {
     (ret: string | { data: string }) => {
       const data = typeof ret === 'string' ? ret : ret.data;
       if (data.toUpperCase().startsWith('UR')) {
-        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
+        presentAlert({
+          message: 'BC-UR not decoded. This should never happen',
+        });
       }
       if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
@@ -162,9 +166,7 @@ const PsbtWithHardwareWallet = () => {
         const txDecoded = bitcoin.Transaction.fromHex(txHex);
         const txid = txDecoded.getId();
         majorTomToGroundControl([], [], [txid]);
-        if (memo) {
-          txMetadata[txid] = { memo };
-        }
+        if (memo) await setTransactionMemo(txid, memo);
         navigation.navigate('Success', { amount: undefined });
         await new Promise(resolve => setTimeout(resolve, 3000)); // sleep to make sure network propagates
         fetchAndSaveWalletTransactions(wallet.getID());

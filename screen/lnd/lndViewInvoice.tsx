@@ -24,6 +24,7 @@ import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import presentAlert from '../../components/Alert';
 import { isReverseSuccessStatus } from '@arkade-os/boltz-swap';
 import type { BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -53,6 +54,7 @@ const LNDViewInvoice = () => {
   // to the existing branches.
   const invoiceTxid = typeof invoice === 'object' ? (invoice as { txid?: unknown }).txid : undefined;
   const swapId = typeof invoiceTxid === 'string' && invoiceTxid.startsWith('swap-') ? invoiceTxid.slice('swap-'.length) : undefined;
+  const realmSwapRow = useWalletTransaction(wallet, swapId ? `swap-${swapId}` : undefined);
   // Force-render token: bumped by the swap-event subscription below so live
   // `swap.status` lookups (via getSwapById → _swapHistory) re-evaluate the
   // moment the SDK observes a status transition, without waiting for the
@@ -75,12 +77,14 @@ const LNDViewInvoice = () => {
     });
   }, [arkWallet, swapId]);
 
+  useEffect(() => {
+    if (realmSwapRow) setParams({ invoice: realmSwapRow });
+  }, [realmSwapRow, setParams]);
+
   const refreshAfterAction = async () => {
     if (!arkWallet || !swapId) return;
-    const updatedRow = arkWallet.getTransactions().find(tx => tx.txid === `swap-${swapId}`);
-    if (updatedRow) setParams({ invoice: updatedRow });
     setInvoiceStatusChanged(true);
-    fetchAndSaveWalletTransactions(walletID);
+    await fetchAndSaveWalletTransactions(walletID);
   };
 
   const onRefundPressed = async () => {

@@ -28,9 +28,22 @@ import { getLNDHub } from '../helpers/lndHub';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
+import {
+  APP_DATA_SCHEMA_VERSION,
+  AppDataSchemas,
+  isAppDataInitialized,
+  isUtxoDataInitialized,
+  activityRowToTransaction,
+  queryWalletActivityForWallets,
+  pruneCanonicalWalletData,
+  readMetadata,
+  replaceCanonicalData,
+  replaceCanonicalWalletTransactions,
+  replaceCanonicalWalletUtxos,
+  scrubWalletUtxoSecrets,
+} from '../blue_modules/realm/appDataRepository';
 
 let usedBucketNum: boolean | number = false;
-let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
 
 export type TTXMetadata = {
   [txid: string]: {
@@ -62,11 +75,15 @@ type TRealmTransaction = {
 
 type TBucketStorage = {
   wallets: string[]; // array of serialized wallets, not actual wallet objects
-  tx_metadata: TTXMetadata;
-  counterparty_metadata: TCounterpartyMetadata;
+  /** Present only in storage written before metadata moved to Realm. */
+  tx_metadata?: TTXMetadata;
+  /** Present only in storage written before metadata moved to Realm. */
+  counterparty_metadata?: TCounterpartyMetadata;
 };
 
 const isReactNative = typeof navigator !== 'undefined' && navigator?.product === 'ReactNative';
+const APP_DATA_DEFAULT_PASSWORD = 'fyegjitkyf[eqjnc.lf';
+const LOCKED_APP_DATA_REALM_IDENTITY = 'locked-app-data';
 
 export class BlueApp {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -82,6 +99,14 @@ export class BlueApp {
   public tx_metadata: TTXMetadata;
   public counterparty_metadata: TCounterpartyMetadata;
   public wallets: TWallet[];
+  private appDataRealm?: Realm;
+  private appDataRealmIdentity?: string;
+  private appDataRealmPromise?: Promise<Realm>;
+  private appDataRealmListeners = new Set<(realm: Realm | undefined) => void>();
+  private retiredAppDataRealms = new Set<Realm>();
+  private appDataRealmReleaseWaiters = new Map<Realm, Set<() => void>>();
+  private walletStorageSaveQueue: Promise<void> = Promise.resolve();
+  private appDataBucketTransition?: Promise<void>;
 
   constructor() {
     this.wallets = [];
@@ -121,7 +146,9 @@ export class BlueApp {
    */
   setItem = (key: string, value: any): Promise<any> => {
     if (isReactNative) {
-      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
+      return RNSecureKeyStore.set(key, value, {
+        accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
     } else {
       return AsyncStorage.setItem(key, value);
     }
@@ -140,21 +167,22 @@ export class BlueApp {
   };
 
   getItemWithFallbackToRealm = async (key: string): Promise<any | null> => {
-    let value;
     try {
       return await this.getItem(key);
     } catch (error: any) {
       console.warn('error reading', key, error.message);
       console.warn('fallback to realm');
       const realmKeyValue = await this.openRealmKeyValue();
-      const obj = realmKeyValue.objectForPrimaryKey<{ key: string; value: string }>('KeyValue', key);
-      value = obj?.value;
-      realmKeyValue.close();
-      if (value) {
-        console.warn('successfully recovered', value.length, 'bytes from realm for key', key);
-        return value;
+      try {
+        const value = realmKeyValue.objectForPrimaryKey<{ key: string; value: string }>('KeyValue', key)?.value;
+        if (value) {
+          console.warn('successfully recovered', value.length, 'bytes from realm for key', key);
+          return value;
+        }
+        return null;
+      } finally {
+        realmKeyValue.close();
       }
-      return null;
     }
   };
 
@@ -202,31 +230,37 @@ export class BlueApp {
   }
 
   decryptStorage = async (password: string): Promise<boolean> => {
-    if (password === this.cachedPassword) {
-      this.cachedPassword = undefined;
-      await this.saveToDisk();
+    if (password !== this.cachedPassword) throw new Error('Incorrect password. Please, try again.');
+
+    return this.runAppDataBucketTransition(async () => {
+      const sourcePassword = password;
+      await this.copyAppDataRealmToBucket(false);
+      await this.performWalletStorageSave();
+      await this.clearAndDeleteAppDataRealm(sourcePassword);
       this.wallets = [];
       this.tx_metadata = {};
       this.counterparty_metadata = {};
       return this.loadFromDisk();
-    } else {
-      throw new Error('Incorrect password. Please, try again.');
-    }
+    });
   };
 
   encryptStorage = async (password: string): Promise<void> => {
-    // assuming the storage is not yet encrypted
-    await this.saveToDisk();
-    let data = await this.getItem('data');
-    // TODO: refactor ^^^ (should not save & load to fetch data)
+    await this.runAppDataBucketTransition(async () => {
+      // assuming the storage is not yet encrypted
+      await this.performWalletStorageSave();
+      let data = await this.getItem('data');
+      // TODO: refactor ^^^ (should not save & load to fetch data)
 
-    const encrypted = encryption.encrypt(data, password);
-    data = [];
-    data.push(encrypted); // putting in array as we might have many buckets with storages
-    data = JSON.stringify(data);
-    this.cachedPassword = password;
-    await this.setItem('data', data);
-    await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+      const encrypted = encryption.encrypt(data, password);
+      data = [];
+      data.push(encrypted); // putting in array as we might have many buckets with storages
+      data = JSON.stringify(data);
+      await this.setItem('data', data);
+      await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+
+      await this.copyAppDataRealmToBucket(password);
+      await this.clearAndDeleteAppDataRealm(false);
+    });
   };
 
   /**
@@ -234,41 +268,326 @@ export class BlueApp {
    * Encrypts the bucket and saves it storage
    */
   createFakeStorage = async (fakePassword: string): Promise<boolean> => {
-    usedBucketNum = false; // resetting currently used bucket so we wont overwrite it
-    this.wallets = [];
-    this.tx_metadata = {};
-    this.counterparty_metadata = {};
+    return this.runAppDataBucketTransition(async () => {
+      usedBucketNum = false; // resetting currently used bucket so we wont overwrite it
+      const data: TBucketStorage = { wallets: [] };
+      let buckets = await this.getItem('data');
+      buckets = JSON.parse(buckets);
+      buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
+      const bucketsString = JSON.stringify(buckets);
+      await this.setItem('data', bucketsString);
 
-    const data: TBucketStorage = {
-      wallets: [],
-      tx_metadata: {},
-      counterparty_metadata: {},
-    };
-
-    let buckets = await this.getItem('data');
-    buckets = JSON.parse(buckets);
-    buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
-    this.cachedPassword = fakePassword;
-    const bucketsString = JSON.stringify(buckets);
-    await this.setItem('data', bucketsString);
-    return (await this.getItem('data')) === bucketsString;
+      await this.switchToEmptyAppDataRealm(fakePassword);
+      return (await this.getItem('data')) === bucketsString;
+    });
   };
 
   hashIt = (s: string): string => {
     return uint8ArrayToHex(sha256(s));
   };
 
-  /**
-   * Returns instace of the Realm database, which is encrypted either by cached user's password OR default password.
-   * Database file is deterministically derived from encryption key.
-   */
-  async getRealmForTransactions() {
-    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
-    const password = this.hashIt(this.cachedPassword || 'fyegjitkyf[eqjnc.lf');
+  private getAppDataRealmConfig(passwordOverride: false | string | undefined = this.cachedPassword) {
+    const password = this.hashIt(passwordOverride || APP_DATA_DEFAULT_PASSWORD);
     const buf = hexToUint8Array(this.hashIt(password) + this.hashIt(password));
     const encryptionKey = Int8Array.from(buf);
-    const fileName = this.hashIt(this.hashIt(password)) + '-wallettransactions.realm';
-    const path = `${cacheFolderPath}/${fileName}`; // Use cache folder path
+    const fileName = this.hashIt(this.hashIt(password));
+    return { encryptionKey, fileName };
+  }
+
+  getAppDataRealmIdentity = (): string => this.getAppDataRealmConfig().fileName;
+
+  subscribeToAppDataRealm = (listener: (realm: Realm | undefined) => void): (() => void) => {
+    this.appDataRealmListeners.add(listener);
+    listener(this.appDataRealm && !this.appDataRealm.isClosed ? this.appDataRealm : undefined);
+    return () => {
+      this.appDataRealmListeners.delete(listener);
+      if (this.appDataRealmListeners.size === 0) {
+        for (const realm of Array.from(this.retiredAppDataRealms)) this.releaseAppDataRealm(realm);
+      }
+    };
+  };
+
+  private publishAppDataRealm(realm: Realm | undefined): void {
+    for (const listener of this.appDataRealmListeners) listener(realm);
+  }
+
+  /** Closes a superseded Realm after React has committed the replacement provider value. */
+  releaseAppDataRealm = (realm: Realm): void => {
+    if (realm === this.appDataRealm) return;
+    this.retiredAppDataRealms.delete(realm);
+    if (!realm.isClosed) realm.close();
+    const waiters = this.appDataRealmReleaseWaiters.get(realm);
+    this.appDataRealmReleaseWaiters.delete(realm);
+    for (const resolve of waiters ?? []) resolve();
+  };
+
+  /** Waits until React has committed the replacement Realm before touching the retired file. */
+  private waitForAppDataRealmRelease(realm: Realm): Promise<void> {
+    if (realm.isClosed || !this.retiredAppDataRealms.has(realm)) return Promise.resolve();
+    if (this.appDataRealmListeners.size === 0) {
+      this.releaseAppDataRealm(realm);
+      return Promise.resolve();
+    }
+
+    return new Promise(resolve => {
+      const waiters = this.appDataRealmReleaseWaiters.get(realm) ?? new Set<() => void>();
+      waiters.add(resolve);
+      this.appDataRealmReleaseWaiters.set(realm, waiters);
+    });
+  }
+
+  private async releaseRetiredAppDataRealmsAtPath(path: string): Promise<void> {
+    const realms = Array.from(this.retiredAppDataRealms).filter(realm => realm.path === path);
+    await Promise.all(realms.map(realm => this.waitForAppDataRealmRelease(realm)));
+  }
+
+  /** Serializes encryption-bucket changes against wallet saves started by the UI. */
+  private async runAppDataBucketTransition<T>(operation: () => Promise<T>): Promise<T> {
+    if (this.appDataBucketTransition) {
+      await this.appDataBucketTransition;
+      return this.runAppDataBucketTransition(operation);
+    }
+
+    const savesToDrain = this.walletStorageSaveQueue;
+    let finishTransition!: () => void;
+    const transition = new Promise<void>(resolve => {
+      finishTransition = resolve;
+    });
+    this.appDataBucketTransition = transition;
+
+    try {
+      await savesToDrain;
+      return await operation();
+    } finally {
+      finishTransition();
+      if (this.appDataBucketTransition === transition) this.appDataBucketTransition = undefined;
+    }
+  }
+
+  private getAppDataRealmPath(fileName: string): string {
+    const privateRoot = RNFS.LibraryDirectoryPath || RNFS.DocumentDirectoryPath;
+    return `${privateRoot}/app-data/${fileName}-appdata.realm`;
+  }
+
+  private getLegacyDocumentsAppDataRealmPath(fileName: string): string {
+    return `${RNFS.DocumentDirectoryPath}/app-data/${fileName}-appdata.realm`;
+  }
+
+  private async clearAndDeleteAppDataRealmFile(path: string, encryptionKey: Int8Array): Promise<void> {
+    if (!Realm.exists({ path })) return;
+    await this.releaseRetiredAppDataRealmsAtPath(path);
+
+    let clearingError: unknown;
+    try {
+      const realm = await Realm.open({
+        schema: AppDataSchemas,
+        schemaVersion: APP_DATA_SCHEMA_VERSION,
+        path,
+        encryptionKey,
+        excludeFromIcloudBackup: true,
+      });
+      scrubWalletUtxoSecrets(realm);
+      realm.write(() => realm.deleteAll());
+      realm.close();
+    } catch (error) {
+      clearingError = error;
+    }
+
+    let deletionError: unknown;
+    try {
+      Realm.deleteFile({ path });
+    } catch (error) {
+      deletionError = error;
+    }
+    if (Realm.exists({ path })) {
+      const failure = deletionError ?? clearingError;
+      const detail = failure instanceof Error ? `: ${failure.message}` : '';
+      throw new Error(`Failed to clear and delete an app-data Realm${detail}`);
+    }
+  }
+
+  /** Migrates app-data out of the user-shareable Documents directory. */
+  private async migrateAppDataRealmFromDocuments(fileName: string, encryptionKey: Int8Array): Promise<void> {
+    const sourcePath = this.getLegacyDocumentsAppDataRealmPath(fileName);
+    const destinationPath = this.getAppDataRealmPath(fileName);
+    if (sourcePath === destinationPath || !Realm.exists({ path: sourcePath })) return;
+
+    if (!Realm.exists({ path: destinationPath })) {
+      const sourceRealm = await Realm.open({
+        schema: AppDataSchemas,
+        schemaVersion: APP_DATA_SCHEMA_VERSION,
+        path: sourcePath,
+        encryptionKey,
+        excludeFromIcloudBackup: true,
+      });
+      try {
+        scrubWalletUtxoSecrets(sourceRealm);
+        sourceRealm.writeCopyTo({ path: destinationPath, encryptionKey });
+      } finally {
+        sourceRealm.close();
+      }
+    }
+
+    await this.clearAndDeleteAppDataRealmFile(sourcePath, encryptionKey);
+  }
+
+  /** Copies canonical data between encryption buckets without routing it through wallet memory. */
+  private async copyAppDataRealmToBucket(password: false | string): Promise<void> {
+    const sourceRealm = await this.getRealmForTransactions();
+    const { encryptionKey, fileName } = this.getAppDataRealmConfig(password);
+    const path = this.getAppDataRealmPath(fileName);
+    if (sourceRealm.path === path) {
+      this.cachedPassword = password;
+      return;
+    }
+
+    await this.releaseRetiredAppDataRealmsAtPath(path);
+    if (Realm.exists({ path })) Realm.deleteFile({ path });
+    sourceRealm.writeCopyTo({ path, encryptionKey });
+    this.cachedPassword = password;
+    await this.getRealmForTransactions();
+  }
+
+  /** Publishes a brand-new empty Realm before exposing a plausible-deniability wallet bucket. */
+  private async switchToEmptyAppDataRealm(password: string): Promise<void> {
+    const previousPassword = this.cachedPassword;
+    const previousWallets = this.wallets;
+    const previousTxMetadata = this.tx_metadata;
+    const previousCounterpartyMetadata = this.counterparty_metadata;
+    const previousRealm = await this.getRealmForTransactions();
+    await this.clearAndDeleteAppDataRealm(password);
+
+    this.cachedPassword = password;
+    const nextRealmPromise = this.getRealmForTransactions();
+    this.wallets = [];
+    this.tx_metadata = {};
+    this.counterparty_metadata = {};
+
+    try {
+      const nextRealm = await nextRealmPromise;
+      replaceCanonicalData(nextRealm, [], {}, {});
+      await this.waitForAppDataRealmRelease(previousRealm);
+    } catch (error) {
+      this.cachedPassword = previousPassword;
+      this.wallets = previousWallets;
+      this.tx_metadata = previousTxMetadata;
+      this.counterparty_metadata = previousCounterpartyMetadata;
+      await this.getRealmForTransactions();
+      throw error;
+    }
+  }
+
+  /** Clears and removes an inactive app-data Realm. */
+  private async clearAndDeleteAppDataRealm(password: false | string): Promise<void> {
+    const { encryptionKey, fileName } = this.getAppDataRealmConfig(password);
+    if (this.appDataRealmIdentity === fileName) throw new Error('Cannot delete the active app-data Realm');
+    const path = this.getAppDataRealmPath(fileName);
+    await this.clearAndDeleteAppDataRealmFile(path, encryptionKey);
+    await this.clearAndDeleteAppDataRealmFile(this.getLegacyDocumentsAppDataRealmPath(fileName), encryptionKey);
+    await this.clearAndDeleteLegacyTransactionRealm(password);
+  }
+
+  /** Gives React the same guarded Realm instance used by non-React consumers. */
+  getWalletDataRealmForProvider(): Promise<Realm> {
+    return this.getRealmForTransactions();
+  }
+
+  private async getLockedAppDataRealm(): Promise<Realm> {
+    if (this.appDataRealmIdentity === LOCKED_APP_DATA_REALM_IDENTITY && this.appDataRealm && !this.appDataRealm.isClosed) {
+      return this.appDataRealm;
+    }
+    if (this.appDataRealmIdentity === LOCKED_APP_DATA_REALM_IDENTITY && this.appDataRealmPromise) return this.appDataRealmPromise;
+
+    const previousRealm = this.appDataRealm;
+    if (previousRealm) this.retiredAppDataRealms.add(previousRealm);
+    this.appDataRealm = undefined;
+    this.appDataRealmIdentity = LOCKED_APP_DATA_REALM_IDENTITY;
+    const opening = Realm.open({ schema: AppDataSchemas, schemaVersion: APP_DATA_SCHEMA_VERSION, inMemory: true });
+    this.appDataRealmPromise = opening;
+    try {
+      const realm = await opening;
+      if (this.appDataRealmIdentity !== LOCKED_APP_DATA_REALM_IDENTITY) {
+        realm.close();
+        return this.getRealmForTransactions();
+      }
+      this.appDataRealm = realm;
+      this.publishAppDataRealm(realm);
+      if (this.appDataRealmListeners.size === 0 && previousRealm) this.releaseAppDataRealm(previousRealm);
+      return realm;
+    } finally {
+      if (this.appDataRealmPromise === opening) this.appDataRealmPromise = undefined;
+    }
+  }
+
+  /**
+   * Opens the durable, encrypted source of truth for transactions and their metadata.
+   * Its filename and key remain bucket-specific to preserve plausible deniability.
+   */
+  async getRealmForTransactions(): Promise<Realm> {
+    if (
+      this.cachedPassword === false &&
+      (this.appDataRealmIdentity === undefined || this.appDataRealmIdentity === LOCKED_APP_DATA_REALM_IDENTITY)
+    ) {
+      if (this.appDataRealmIdentity === LOCKED_APP_DATA_REALM_IDENTITY || (await this.storageIsEncrypted())) {
+        return this.getLockedAppDataRealm();
+      }
+    }
+
+    const { encryptionKey, fileName } = this.getAppDataRealmConfig();
+    if (this.appDataRealmIdentity === fileName && this.appDataRealm && !this.appDataRealm.isClosed) return this.appDataRealm;
+    if (this.appDataRealmIdentity === fileName && this.appDataRealmPromise) return await this.appDataRealmPromise;
+
+    const previousRealm = this.appDataRealm;
+    if (previousRealm) this.retiredAppDataRealms.add(previousRealm);
+    this.appDataRealm = undefined;
+    this.appDataRealmIdentity = fileName;
+
+    const opening = (async () => {
+      const directory = `${RNFS.LibraryDirectoryPath || RNFS.DocumentDirectoryPath}/app-data`;
+      if (!(await RNFS.exists(directory))) await RNFS.mkdir(directory);
+      await this.migrateAppDataRealmFromDocuments(fileName, encryptionKey);
+      const realm = await Realm.open({
+        schema: AppDataSchemas,
+        schemaVersion: APP_DATA_SCHEMA_VERSION,
+        path: this.getAppDataRealmPath(fileName),
+        encryptionKey,
+        excludeFromIcloudBackup: true,
+      });
+      scrubWalletUtxoSecrets(realm);
+      return realm;
+    })();
+    this.appDataRealmPromise = opening;
+    try {
+      const realm = await opening;
+      if (this.appDataRealmIdentity !== fileName) {
+        realm.close();
+        return await this.getRealmForTransactions();
+      }
+      this.appDataRealm = realm;
+      this.publishAppDataRealm(realm);
+      if (this.appDataRealmListeners.size === 0 && previousRealm) this.releaseAppDataRealm(previousRealm);
+      return realm;
+    } catch (error) {
+      if (this.appDataRealmIdentity === fileName) {
+        this.publishAppDataRealm(undefined);
+        if (previousRealm) this.releaseAppDataRealm(previousRealm);
+      }
+      throw error;
+    } finally {
+      if (this.appDataRealmPromise === opening) this.appDataRealmPromise = undefined;
+    }
+  }
+
+  /** Opens the pre-v8 transaction cache for one-time migration only. */
+  private getLegacyTransactionRealmPath(password: false | string = this.cachedPassword ?? false): string {
+    const { fileName } = this.getAppDataRealmConfig(password);
+    return `${RNFS.CachesDirectoryPath}/${fileName}-wallettransactions.realm`;
+  }
+
+  private async getLegacyRealmForTransactions(password: false | string = this.cachedPassword ?? false): Promise<Realm | undefined> {
+    const { encryptionKey } = this.getAppDataRealmConfig(password);
+    const path = this.getLegacyTransactionRealmPath(password);
+    if (!Realm.exists({ path })) return undefined;
 
     const schema = [
       {
@@ -289,6 +608,20 @@ export class BlueApp {
       encryptionKey,
       excludeFromIcloudBackup: true,
     });
+  }
+
+  /** Removes the pre-v8 cache only after its contents have reached canonical Realm. */
+  private deleteMigratedLegacyTransactionRealm(realm: Realm): void {
+    const path = realm.path;
+    realm.write(() => realm.deleteAll());
+    realm.close();
+    Realm.deleteFile({ path });
+    if (Realm.exists({ path })) throw new Error('Failed to clear and delete the migrated transaction cache Realm');
+  }
+
+  private async clearAndDeleteLegacyTransactionRealm(password: false | string): Promise<void> {
+    const realm = await this.getLegacyRealmForTransactions(password);
+    if (realm) this.deleteMigratedLegacyTransactionRealm(realm);
   }
 
   /**
@@ -334,19 +667,6 @@ export class BlueApp {
     });
   }
 
-  saveToRealmKeyValue(realmkeyValue: Realm, key: string, value: any) {
-    realmkeyValue.write(() => {
-      realmkeyValue.create(
-        'KeyValue',
-        {
-          key,
-          value,
-        },
-        Realm.UpdateMode.Modified,
-      );
-    });
-  }
-
   /**
    * Loads from storage all wallets and
    * maps them to `this.wallets`
@@ -367,12 +687,20 @@ export class BlueApp {
       if (dataRaw) {
         // password is good, cache it
         this.cachedPassword = password;
+      } else {
+        return false;
       }
     }
     if (dataRaw !== null) {
-      let realm;
+      let realm: Realm | undefined;
+      let legacyRealm: Realm | undefined;
+      let canonicalDataExists = false;
+      let canonicalUtxoDataExists = false;
       try {
         realm = await this.getRealmForTransactions();
+        canonicalDataExists = isAppDataInitialized(realm);
+        canonicalUtxoDataExists = isUtxoDataInitialized(realm);
+        legacyRealm = await this.getLegacyRealmForTransactions();
       } catch (error: any) {
         presentAlert({ message: error.message });
       }
@@ -477,7 +805,7 @@ export class BlueApp {
         }
 
         try {
-          if (realm) this.inflateWalletFromRealm(realm, unserializedWallet);
+          if (!canonicalDataExists && legacyRealm) this.inflateWalletFromLegacyRealm(legacyRealm, unserializedWallet);
         } catch (error: any) {
           presentAlert({ message: error.message });
         }
@@ -486,11 +814,25 @@ export class BlueApp {
         const ID = unserializedWallet.getID();
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
-          this.tx_metadata = data.tx_metadata;
-          this.counterparty_metadata = data.counterparty_metadata;
         }
       }
-      if (realm) realm.close();
+      try {
+        if (realm && canonicalDataExists) {
+          const metadata = readMetadata(realm);
+          this.tx_metadata = metadata.txMetadata;
+          this.counterparty_metadata = metadata.counterpartyMetadata;
+          if (!canonicalUtxoDataExists) replaceCanonicalWalletUtxos(realm, this.wallets);
+        } else {
+          this.tx_metadata = data.tx_metadata ?? {};
+          this.counterparty_metadata = data.counterparty_metadata ?? {};
+          if (realm) replaceCanonicalData(realm, this.wallets, this.tx_metadata, this.counterparty_metadata);
+        }
+      } catch (error) {
+        legacyRealm?.close();
+        throw error;
+      }
+      if (legacyRealm) this.deleteMigratedLegacyTransactionRealm(legacyRealm);
+      if (this.cachedPassword) await this.clearAndDeleteAppDataRealm(false);
       return true;
     } else {
       return false; // failed loading data or loading/decryptin data
@@ -519,9 +861,45 @@ export class BlueApp {
     this.wallets = tempWallets;
   };
 
-  inflateWalletFromRealm(realm: Realm, walletToInflate: TWallet) {
+  addWallet = (wallet: TWallet): void => {
+    this.wallets.push(wallet);
+  };
+
+  replaceWallet = (walletId: string, wallet: TWallet): void => {
+    this.wallets = this.wallets.map(existing => (existing.getID() === walletId ? wallet : existing));
+  };
+
+  /** Purges canonical transaction rows and resets the wallet engine's fetch cache in one operation. */
+  purgeWalletTransactions = async (walletId: string): Promise<void> => {
+    const wallet = this.wallets.find(candidate => candidate.getID() === walletId);
+    if (!wallet) return;
+
+    const transactionWallet = (('_hdWalletInstance' in wallet && wallet._hdWalletInstance) || wallet) as any;
+    transactionWallet._txs_by_external_index = {};
+    transactionWallet._txs_by_internal_index = {};
+    transactionWallet._balances_by_external_index = {};
+    transactionWallet._balances_by_internal_index = {};
+    transactionWallet._lastTxFetch = 0;
+    transactionWallet._lastBalanceFetch = 0;
+
+    if (wallet.type === LightningCustodianWallet.type) {
+      const lightningWallet = wallet as LightningCustodianWallet;
+      lightningWallet.pending_transactions_raw = [];
+      lightningWallet.transactions_raw = [];
+      lightningWallet.user_invoices_raw = [];
+    }
+
+    const realm = await this.getRealmForTransactions();
+    realm.write(() => {
+      realm.delete(realm.objects('WalletActivity').filtered('walletId == $0', walletId));
+      realm.delete(realm.objects('WalletTransaction').filtered('walletId == $0', walletId));
+    });
+    await this.saveToDisk();
+  };
+
+  inflateWalletFromLegacyRealm(realm: Realm, walletToInflate: TWallet) {
     const transactions = realm.objects('WalletTransactions');
-    const transactionsForWallet = transactions.filtered(`walletid = "${walletToInflate.getID()}"`) as unknown as TRealmTransaction[];
+    const transactionsForWallet = transactions.filtered('walletid == $0', walletToInflate.getID()) as unknown as TRealmTransaction[];
     for (const tx of transactionsForWallet) {
       if (tx.internal === false) {
         if ('_hdWalletInstance' in walletToInflate && walletToInflate._hdWalletInstance) {
@@ -555,50 +933,6 @@ export class BlueApp {
     }
   }
 
-  offloadWalletToRealm(realm: Realm, wallet: TWallet): void {
-    const id = wallet.getID();
-    const walletToSave = ('_hdWalletInstance' in wallet && wallet._hdWalletInstance) || wallet;
-
-    if (walletToSave._txs_by_external_index) {
-      realm.write(() => {
-        // cleanup all existing transactions for the wallet first
-        const walletTransactionsToDelete = realm.objects('WalletTransactions').filtered(`walletid = '${id}'`);
-        realm.delete(walletTransactionsToDelete);
-
-        // insert new ones:
-        for (const [indexStr, txs] of Object.entries(walletToSave._txs_by_external_index)) {
-          for (const tx of txs) {
-            realm.create(
-              'WalletTransactions',
-              {
-                walletid: id,
-                internal: false,
-                index: parseInt(indexStr, 10),
-                tx: JSON.stringify(tx),
-              },
-              Realm.UpdateMode.Modified,
-            );
-          }
-        }
-
-        for (const [indexStr, txs] of Object.entries(walletToSave._txs_by_internal_index)) {
-          for (const tx of txs) {
-            realm.create(
-              'WalletTransactions',
-              {
-                walletid: id,
-                internal: true,
-                index: parseInt(indexStr, 10),
-                tx: JSON.stringify(tx),
-              },
-              Realm.UpdateMode.Modified,
-            );
-          }
-        }
-      });
-    }
-  }
-
   /**
    * Serializes and saves to storage object data.
    * If cached password is saved - finds the correct bucket
@@ -606,40 +940,56 @@ export class BlueApp {
    *
    * @returns {Promise} Result of storage save
    */
-  async saveToDisk(): Promise<void> {
-    if (savingInProgress) {
-      console.warn('saveToDisk is in progress');
-      if (++savingInProgress > 10) presentAlert({ message: 'Critical error. Last actions were not saved' }); // should never happen
-      await new Promise(resolve => setTimeout(resolve, 1000 * savingInProgress)); // sleep
-      return this.saveToDisk();
-    }
-    savingInProgress = 1;
+  saveToDisk(): Promise<void> {
+    const bucketTransition = this.appDataBucketTransition;
+    const save = this.walletStorageSaveQueue.then(
+      async () => {
+        if (bucketTransition) await bucketTransition;
+        return this.performWalletStorageSave();
+      },
+      async () => {
+        if (bucketTransition) await bucketTransition;
+        return this.performWalletStorageSave();
+      },
+    );
+    // Keep later saves usable after a failed write while returning the actual
+    // failure to the caller that requested this save.
+    this.walletStorageSaveQueue = save.catch(() => undefined);
+    return save;
+  }
 
+  private async performWalletStorageSave(): Promise<void> {
     try {
       const walletsToSave: string[] = []; // serialized wallets
-      let realm;
-      try {
-        realm = await this.getRealmForTransactions();
-      } catch (error: any) {
-        presentAlert({ message: error.message });
-      }
       for (const key of this.wallets) {
         if (typeof key === 'boolean') continue;
-        key.prepareForSerialization();
-        // @ts-ignore wtf is wallet.current? Does it even exist?
-        delete key.current;
-        const keyCloned = Object.assign({}, key); // stripped-down version of a wallet to save to secure keystore
-        if ('_hdWalletInstance' in key) {
+        const keyCloned = Object.assign(Object.create(Object.getPrototypeOf(key)), key) as TWallet;
+        if ('_hdWalletInstance' in key && key._hdWalletInstance) {
           const k = keyCloned as any & WatchOnlyWallet;
-          k._hdWalletInstance = Object.assign({}, key._hdWalletInstance);
+          k._hdWalletInstance = Object.assign(Object.create(Object.getPrototypeOf(key._hdWalletInstance)), key._hdWalletInstance);
+        }
+        keyCloned.prepareForSerialization();
+        // @ts-ignore wtf is wallet.current? Does it even exist?
+        delete keyCloned.current;
+        if ('_hdWalletInstance' in keyCloned && keyCloned._hdWalletInstance) {
+          const k = keyCloned as any & WatchOnlyWallet;
           k._hdWalletInstance._txs_by_external_index = {};
           k._hdWalletInstance._txs_by_internal_index = {};
+          k._hdWalletInstance._utxo = [];
+          k._hdWalletInstance._utxoMetadata = {};
         }
-        if (realm) this.offloadWalletToRealm(realm, key);
         // stripping down:
         if (key._txs_by_external_index) {
           keyCloned._txs_by_external_index = {};
           keyCloned._txs_by_internal_index = {};
+        }
+        keyCloned._utxo = [];
+        keyCloned._utxoMetadata = {};
+        if (key.type === LightningCustodianWallet.type) {
+          const lightningClone = keyCloned as LightningCustodianWallet;
+          lightningClone.pending_transactions_raw = [];
+          lightningClone.transactions_raw = [];
+          lightningClone.user_invoices_raw = [];
         }
 
         if ('_bip47_instance' in keyCloned) {
@@ -648,12 +998,9 @@ export class BlueApp {
 
         walletsToSave.push(JSON.stringify({ ...keyCloned, type: keyCloned.type }));
       }
-      if (realm) realm.close();
 
       let data: TBucketStorage | string[] /* either a bucket, or an array of encrypted buckets */ = {
         wallets: walletsToSave,
-        tx_metadata: this.tx_metadata,
-        counterparty_metadata: this.counterparty_metadata,
       };
 
       if (this.cachedPassword) {
@@ -695,18 +1042,37 @@ export class BlueApp {
 
       // now, backing up same data in realm:
       const realmkeyValue = await this.openRealmKeyValue();
-      this.saveToRealmKeyValue(realmkeyValue, 'data', JSON.stringify(data));
-      this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
-      realmkeyValue.close();
-    } catch (error: any) {
-      console.error('save to disk exception:', error.message);
-      presentAlert({ message: 'save to disk exception: ' + error.message });
-      if (error.message.includes('Realm file decryption failed')) {
+      try {
+        realmkeyValue.write(() => {
+          realmkeyValue.create('KeyValue', { key: 'data', value: JSON.stringify(data) }, Realm.UpdateMode.Modified);
+          realmkeyValue.create(
+            'KeyValue',
+            { key: BlueApp.FLAG_ENCRYPTED, value: this.cachedPassword ? '1' : '' },
+            Realm.UpdateMode.Modified,
+          );
+        });
+      } finally {
+        realmkeyValue.close();
+      }
+
+      // Persist the wallet bucket before deleting orphaned canonical rows. If
+      // wallet storage fails, a wallet must not reappear on restart without the
+      // transaction history that belonged to it.
+      const realm = await this.getRealmForTransactions();
+      if (!isAppDataInitialized(realm)) {
+        const metadata = readMetadata(realm);
+        replaceCanonicalData(realm, this.wallets, metadata.txMetadata, metadata.counterpartyMetadata);
+      }
+      pruneCanonicalWalletData(realm, new Set(this.wallets.map(wallet => wallet.getID())));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('save to disk exception:', message);
+      presentAlert({ message: 'save to disk exception: ' + message });
+      if (message.includes('Realm file decryption failed')) {
         console.warn('purging realm key-value database file');
         this.purgeRealmKeyValueFile();
       }
-    } finally {
-      savingInProgress = 0;
+      throw error;
     }
   }
 
@@ -714,73 +1080,85 @@ export class BlueApp {
    * For each wallet, fetches balance from remote endpoint.
    * Use getter for a specific wallet to get actual balance.
    * Returns void.
-   * If index is present then fetch only from this specific wallet
+   * If walletId is present then fetch only that wallet. Wallet identity is used
+   * instead of array position because display order is canonical in Realm and
+   * may differ from the secure wallet registry's serialization order.
    */
-  fetchWalletBalances = async (index?: number): Promise<void> => {
-    console.log('fetchWalletBalances for wallet#', typeof index === 'undefined' ? '(all)' : index);
-    if (index || index === 0) {
-      let c = 0;
-      for (const wallet of this.wallets) {
-        if (c++ === index) {
-          await wallet.fetchBalance();
-        }
-      }
-    } else {
-      await Promise.all(
-        this.wallets.map(async wallet => {
-          console.log('fetching balance for', wallet.getLabel());
-          await wallet.fetchBalance();
-        }),
-      );
-    }
+  fetchWalletBalances = async (walletId?: string): Promise<void> => {
+    console.log('fetchWalletBalances for wallet', walletId ?? '(all)');
+    const wallets = walletId ? [this.getWalletById(walletId)] : this.wallets;
+    await Promise.all(
+      wallets.map(async wallet => {
+        if (!wallet) throw new Error(`Wallet not found: ${walletId}`);
+        console.log('fetching balance for', wallet.getLabel());
+        await wallet.fetchBalance();
+      }),
+    );
   };
 
   /**
    * Fetches from remote endpoint all transactions for each wallet.
    * Returns void.
    * To access transactions - get them from each respective wallet.
-   * If index is present then fetch only from this specific wallet.
+   * If walletId is present then fetch only that wallet.
    *
-   * @param index {Integer} Index of the wallet in this.wallets array,
-   *                        blank to fetch from all wallets
+   * @param walletId Wallet identifier, blank to fetch from all wallets
    * @return {Promise.<void>}
    */
-  fetchWalletTransactions = async (index?: number) => {
-    console.log('fetchWalletTransactions for wallet#', typeof index === 'undefined' ? '(all)' : index);
-    if (index || index === 0) {
-      let c = 0;
-      for (const wallet of this.wallets) {
-        if (c++ === index) {
-          await wallet.fetchTransactions();
-
-          if ('fetchPendingTransactions' in wallet) {
-            await wallet.fetchPendingTransactions();
-            await wallet.fetchUserInvoices();
-          }
+  fetchWalletTransactions = async (walletId?: string): Promise<void> => {
+    console.log('fetchWalletTransactions for wallet', walletId ?? '(all)');
+    const wallets = walletId ? [this.getWalletById(walletId)] : this.wallets;
+    await Promise.all(
+      wallets.map(async wallet => {
+        if (!wallet) throw new Error(`Wallet not found: ${walletId}`);
+        await wallet.fetchTransactions();
+        if ('fetchPendingTransactions' in wallet) {
+          await wallet.fetchPendingTransactions();
+          await wallet.fetchUserInvoices();
         }
-      }
-    } else {
-      await Promise.all(
-        this.wallets.map(async wallet => {
-          await wallet.fetchTransactions();
-          if ('fetchPendingTransactions' in wallet) {
-            await wallet.fetchPendingTransactions();
-            await wallet.fetchUserInvoices();
-          }
-        }),
-      );
-    }
+        // The network snapshot becomes canonical before this method resolves;
+        // live Realm queries then update every mounted screen on the nav stack.
+        await this.persistWalletTransactions([wallet]);
+      }),
+    );
   };
 
-  fetchSenderPaymentCodes = async (index?: number) => {
-    console.log('fetchSenderPaymentCodes for wallet#', typeof index === 'undefined' ? '(all)' : index);
-    if (index || index === 0) {
-      const wallet = this.wallets[index];
+  persistWalletTransactions = async (wallets: TWallet[]): Promise<void> => {
+    const bucketTransition = this.appDataBucketTransition;
+    if (bucketTransition) await bucketTransition;
+    const realm = await this.getRealmForTransactions();
+    const activeWallets = wallets.filter(wallet => this.wallets.includes(wallet));
+    if (activeWallets.length === 0) return;
+    const { txMetadata } = readMetadata(realm);
+    replaceCanonicalWalletTransactions(realm, activeWallets, txMetadata);
+  };
+
+  persistWalletUtxos = async (wallets: TWallet[]): Promise<void> => {
+    const bucketTransition = this.appDataBucketTransition;
+    if (bucketTransition) await bucketTransition;
+    const realm = await this.getRealmForTransactions();
+    const activeWallets = wallets.filter(wallet => this.wallets.includes(wallet));
+    if (activeWallets.length === 0) return;
+    replaceCanonicalWalletUtxos(realm, activeWallets);
+  };
+
+  fetchWalletUtxos = async (walletId: string): Promise<void> => {
+    const wallet = this.getWalletById(walletId);
+    if (!wallet) throw new Error(`Wallet not found: ${walletId}`);
+    await wallet.fetchUtxo();
+    await this.persistWalletUtxos([wallet]);
+  };
+
+  fetchSenderPaymentCodes = async (walletId?: string) => {
+    console.log('fetchSenderPaymentCodes for wallet', walletId ?? '(all)');
+    if (walletId) {
+      const wallet = this.getWalletById(walletId);
+      if (!wallet) throw new Error(`Wallet not found: ${walletId}`);
       try {
         if (!(wallet.allowBIP47() && wallet.isBIP47Enabled() && 'fetchBIP47SenderPaymentCodes' in wallet)) return;
         await wallet.fetchBIP47SenderPaymentCodes();
       } catch (error) {
-        console.error('Failed to fetch sender payment codes for wallet', index, error);
+        console.error('Failed to fetch sender payment codes for wallet', walletId, error);
       }
     } else {
       await Promise.all(
@@ -800,6 +1178,10 @@ export class BlueApp {
     return this.wallets;
   };
 
+  getWalletById = (walletId: string): TWallet | undefined => {
+    return this.wallets.find(wallet => wallet.getID() === walletId);
+  };
+
   /**
    * Getter for all transactions in all wallets.
    * But if index is provided - only for wallet with corresponding index
@@ -813,47 +1195,30 @@ export class BlueApp {
     limit: number = Infinity,
     includeWalletsWithHideTransactionsEnabled: boolean = false,
   ): ExtendedTransaction[] => {
-    if (index || index === 0) {
-      let txs: Transaction[] = [];
-      let c = 0;
-      for (const wallet of this.wallets) {
-        if (c++ === index) {
-          txs = txs.concat(wallet.getTransactions());
-
-          const txsRet: ExtendedTransaction[] = [];
-          const walletID = wallet.getID();
-          const walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
-          txs.map(tx =>
-            txsRet.push({
-              ...tx,
-              walletID,
-              walletPreferredBalanceUnit,
-            }),
-          );
-          return txsRet;
-        }
-      }
+    if (!this.appDataRealm || this.appDataRealm.isClosed) return [];
+    const selectedWallet = index || index === 0 ? this.wallets[index] : undefined;
+    const selectedWallets = selectedWallet ? [selectedWallet] : index === undefined ? this.wallets : [];
+    const visibleWallets = selectedWallets.filter(
+      w => includeWalletsWithHideTransactionsEnabled || index !== undefined || !w.getHideTransactionsInWalletsList(),
+    );
+    const walletById = new Map(visibleWallets.map(wallet => [wallet.getID(), wallet]));
+    const rows = queryWalletActivityForWallets(
+      this.appDataRealm,
+      visibleWallets.map(wallet => wallet.getID()),
+      '',
+      limit,
+    );
+    const transactions: ExtendedTransaction[] = [];
+    for (const row of rows) {
+      const wallet = walletById.get(row.walletId);
+      if (!wallet) continue;
+      transactions.push({
+        ...activityRowToTransaction(row),
+        walletID: row.walletId,
+        walletPreferredBalanceUnit: wallet.getPreferredBalanceUnit(),
+      });
     }
-
-    const txs: ExtendedTransaction[] = [];
-    for (const wallet of this.wallets.filter(w => includeWalletsWithHideTransactionsEnabled || !w.getHideTransactionsInWalletsList())) {
-      const walletTransactions: Transaction[] = wallet.getTransactions();
-      const walletID = wallet.getID();
-      const walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
-      for (const t of walletTransactions) {
-        txs.push({
-          ...t,
-          walletID,
-          walletPreferredBalanceUnit,
-        });
-      }
-    }
-
-    return txs
-      .sort((a, b) => {
-        return b.timestamp - a.timestamp;
-      })
-      .slice(0, limit);
+    return transactions;
   };
 
   /**

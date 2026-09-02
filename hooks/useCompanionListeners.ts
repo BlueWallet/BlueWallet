@@ -15,6 +15,7 @@ import {
 } from '../blue_modules/notifications';
 import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+import type { TWallet } from '../class/wallets/types';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
@@ -28,25 +29,42 @@ import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
+import { BlueApp } from '../class/blue-app';
+import {
+  activityRowToTransaction,
+  queryWalletActivity,
+  queryWalletActivityByPaymentRequest,
+  queryWalletActivityByTransactionId,
+} from '../blue_modules/realm/appDataRepository';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
   LIGHTNING: 'LIGHTNING',
 });
 
+const findCanonicalSwapRow = async (walletID: string, swapId: string) => {
+  const realm = await BlueApp.getInstance().getRealmForTransactions();
+  const row = queryWalletActivity(realm, walletID, { transactionId: `swap-${swapId}`, limit: 1 })[0];
+  return row ? activityRowToTransaction(row) : undefined;
+};
+
+const findWalletByTransactionId = async (wallets: TWallet[], transactionId: string | undefined) => {
+  if (!transactionId) return undefined;
+  const realm = await BlueApp.getInstance().getRealmForTransactions();
+  const row = queryWalletActivityByTransactionId(
+    realm,
+    wallets.map(wallet => wallet.getID()),
+    transactionId,
+  )[0];
+  return row ? wallets.find(wallet => wallet.getID() === row.walletId) : undefined;
+};
+
 /**
  * Hook that initializes all companion listeners and functionality without rendering a component
  */
 const useCompanionListeners = (skipIfNotInitialized = true) => {
-  const {
-    wallets,
-    addWallet,
-    saveToDisk,
-    fetchAndSaveWalletTransactions,
-    refreshAllWalletTransactions,
-    setSharedCosigner,
-    walletsInitialized,
-  } = useStorage();
+  const { wallets, saveToDisk, fetchAndSaveWalletTransactions, refreshAllWalletTransactions, setSharedCosigner, walletsInitialized } =
+    useStorage();
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>(undefined);
   const navigation = useNavigation();
@@ -102,12 +120,13 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             continue;
           }
           // Refresh swap-derived rows directly via the wallet method to
-          // bypass the 5-second NOP throttle in StorageProvider.fetchAndSaveWalletTransactions:
+          // bypass the 5-second NOP throttle in WalletStorageProvider.fetchAndSaveWalletTransactions:
           // reconcileArkBackgroundTaskResults often runs on app resume immediately
           // before this handler, which would make a throttled call NOP and
           // leave the synthetic row stale.
           try {
             await arkWallet.fetchTransactions();
+            await BlueApp.getInstance().persistWalletTransactions([arkWallet]);
             await saveToDisk();
           } catch (e: any) {
             console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
@@ -115,7 +134,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
           if (wasTapped) {
             const arkWalletID = arkWallet.getID();
-            const row = arkWallet.getTransactions().find(tx => tx.txid === `swap-${payload.swapId}`);
+            const row = await findCanonicalSwapRow(arkWalletID, payload.swapId);
             if (row) {
               navigation.navigate('LNDViewInvoice', { invoice: row, walletID: arkWalletID });
             } else {
@@ -134,7 +153,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             break;
           case 1:
           case 4:
-            wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+            wallet = await findWalletByTransactionId(wallets, payload.txid || payload.hash);
             break;
         }
 
@@ -183,6 +202,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             }
             try {
               await arkWallet.fetchTransactions();
+              await BlueApp.getInstance().persistWalletTransactions([arkWallet]);
               await saveToDisk();
             } catch (e: any) {
               console.warn('[useCompanionListeners] arkWallet.fetchTransactions failed:', e?.message ?? e);
@@ -190,7 +210,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
             if (wasTapped) {
               const arkWalletID = arkWallet.getID();
-              const row = arkWallet.getTransactions().find(tx => tx.txid === `swap-${payload.swapId}`);
+              const row = await findCanonicalSwapRow(arkWalletID, payload.swapId);
               if (row) {
                 navigationRef.dispatch(
                   CommonActions.navigate({
@@ -219,7 +239,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
               break;
             case 1:
             case 4:
-              wallet = wallets.find(w => w.weOwnTransaction(payload.txid || payload.hash));
+              wallet = await findWalletByTransactionId(wallets, payload.txid || payload.hash);
               break;
           }
 
@@ -301,15 +321,11 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           DeeplinkSchemaMatch.navigationRouteFor({ url: qrValue }, (value: [string, any]) => navigationRef.navigate(...value), {
             wallets,
-            addWallet,
-            saveToDisk,
             setSharedCosigner,
           });
         } else {
           DeeplinkSchemaMatch.navigationRouteFor(event, (value: [string, any]) => navigationRef.navigate(...value), {
             wallets,
-            addWallet,
-            saveToDisk,
             setSharedCosigner,
           });
         }
@@ -319,7 +335,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         presentAlert({ message: err.message || loc.send.qr_error_no_qrcode });
       }
     },
-    [wallets, addWallet, saveToDisk, setSharedCosigner, shouldActivateListeners],
+    [wallets, setSharedCosigner, shouldActivateListeners],
   );
 
   const showClipboardAlert = useCallback(
@@ -367,13 +383,19 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         if (processed) return;
         const clipboard = await getClipboardContent();
         if (!clipboard) return;
-        const isAddressFromStoredWallet = wallets.some(wallet => {
-          if (wallet.chain === Chain.ONCHAIN) {
-            return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
-          } else {
-            return (wallet as LightningCustodianWallet).isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
-          }
-        });
+        const realm = await BlueApp.getInstance().getRealmForTransactions();
+        const custodialWalletIds = wallets.filter(wallet => wallet.type === LightningCustodianWallet.type).map(wallet => wallet.getID());
+        const isCustodialInvoiceFromStoredWallet = queryWalletActivityByPaymentRequest(realm, custodialWalletIds, clipboard).length > 0;
+        const isAddressFromStoredWallet =
+          isCustodialInvoiceFromStoredWallet ||
+          wallets.some(wallet => {
+            if (wallet.chain === Chain.ONCHAIN) {
+              return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
+            }
+            return wallet instanceof LightningArkWallet
+              ? wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard)
+              : wallet.weOwnAddress(clipboard);
+          });
         const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
         const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
         const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);

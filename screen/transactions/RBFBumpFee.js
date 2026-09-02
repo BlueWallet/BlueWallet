@@ -7,10 +7,13 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
-import CPFP from './CPFP';
-import { StorageContext } from '../../components/Context/StorageProvider';
+import { CpfpScreen } from './CPFP';
+import { WalletStorageContext } from '../../components/Context/WalletStorageProvider';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { useSetTransactionMemo, useTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 
 const styles = StyleSheet.create({
   root: {
@@ -19,8 +22,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class RBFBumpFee extends CPFP {
-  static contextType = StorageContext;
+class RBFBumpFee extends CpfpScreen {
+  static contextType = WalletStorageContext;
 
   async componentDidMount() {
     console.log('transactions/RBFBumpFee - componentDidMount');
@@ -46,7 +49,11 @@ export default class RBFBumpFee extends CPFP {
     } else {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
-    if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
+    if (
+      (await tx.isOurTransaction(this.props.canonicalTransaction)) &&
+      (await tx.getRemoteConfirmationsNum()) === 0 &&
+      (await tx.isSequenceReplaceable())
+    ) {
       const info = await tx.getInfo();
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
@@ -68,11 +75,7 @@ export default class RBFBumpFee extends CPFP {
         // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
         // user whether he wants to broadcast it
         if (isWatchOnlySegwitBech32(this.state.wallet)) {
-          let memo;
-          // porting memo from old tx:
-          if (this.context.txMetadata[this.state.txid]?.memo) {
-            memo = this.context.txMetadata[this.state.txid]?.memo;
-          }
+          const memo = this.props.transactionMemo || undefined;
 
           this.props.navigation
             .getParent()
@@ -98,11 +101,8 @@ export default class RBFBumpFee extends CPFP {
     }
   }
 
-  onSuccessBroadcast() {
-    // porting memo from old tx:
-    if (this.context.txMetadata[this.state.txid]) {
-      this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid];
-    }
+  async onSuccessBroadcast() {
+    if (this.props.transactionMemo) await this.props.setTransactionMemo(this.state.newTxid, this.props.transactionMemo);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', {
       amount: undefined,
@@ -163,4 +163,39 @@ RBFBumpFee.propTypes = {
       }),
     }),
   }),
+  route: PropTypes.shape({
+    params: PropTypes.shape({
+      txid: PropTypes.string,
+      wallet: PropTypes.object,
+      transaction: PropTypes.object,
+    }),
+  }),
+  transactionMemo: PropTypes.string,
+  isElectrumDisabled: PropTypes.bool,
+  setTransactionMemo: PropTypes.func,
+  canonicalTransaction: PropTypes.object,
 };
+
+const RBFBumpFeeWithRealm = props => {
+  const txid = props.route?.params?.txid;
+  const wallet = props.route?.params?.wallet;
+  const canonicalTransaction = useWalletTransaction(wallet, txid) ?? props.route?.params?.transaction;
+  const transactionMemo = useTransactionMemo(txid);
+  const setTransactionMemo = useSetTransactionMemo();
+  const { isElectrumDisabled } = useSettings();
+  return (
+    <RBFBumpFee
+      {...props}
+      canonicalTransaction={canonicalTransaction}
+      transactionMemo={transactionMemo}
+      setTransactionMemo={setTransactionMemo}
+      isElectrumDisabled={isElectrumDisabled}
+    />
+  );
+};
+
+RBFBumpFeeWithRealm.propTypes = {
+  route: RBFBumpFee.propTypes.route,
+};
+
+export default RBFBumpFeeWithRealm;

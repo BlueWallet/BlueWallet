@@ -11,7 +11,7 @@ import loc from '../../loc';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
-import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
+import { useWallet } from '../../hooks/context/useStorage';
 
 type PleaseBackupLNDHubRouteParams = {
   walletID: string;
@@ -19,7 +19,7 @@ type PleaseBackupLNDHubRouteParams = {
 
 const PleaseBackupLNDHub = () => {
   const { walletID } = useRoute<RouteProp<{ params: PleaseBackupLNDHubRouteParams }, 'params'>>().params;
-  const wallet = useWalletSubscribe(walletID);
+  const wallet = useWallet(walletID);
   const navigation = useNavigation();
   const { colors } = useTheme();
   const [qrCodeSize, setQRCodeSize] = useState(90);

@@ -58,6 +58,10 @@ import ActionSheet from '../ActionSheet';
 import { isCancel, pickTransaction } from '../../blue_modules/fs';
 import { Measure } from '../../class/measure';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { useWalletUtxoQuery, useWalletUtxoSelection } from '../../hooks/useWalletUtxos';
+import { utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
+import { useSetTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useFindWalletTransactionByOutputAddress } from '../../hooks/useWalletActivity';
 
 interface IPaymentDestinations {
   address: string; // btc address or payment code
@@ -76,7 +80,8 @@ export interface IFee {
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'SendDetails'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'SendDetails'>;
 const SendDetails = () => {
-  const { wallets, sleep, txMetadata, saveToDisk } = useStorage();
+  const { wallets, sleep, saveToDisk, fetchWalletUtxos } = useStorage();
+  const writeTransactionMemo = useSetTransactionMemo();
   const navigation = useNavigation<NavigationProps>();
   const { direction } = useLocale();
   const selectedDataProcessor = useRef<ToolTipAction | undefined>(undefined);
@@ -84,7 +89,6 @@ const SendDetails = () => {
   const route = useRoute<RouteProps>();
   const feeUnit = route.params?.feeUnit ?? BitcoinUnit.BTC;
   const amountUnit = route.params?.amountUnit ?? BitcoinUnit.BTC;
-  const frozenBalance = route.params?.frozenBalance ?? 0;
   const transactionMemo = route.params?.transactionMemo;
   const utxos = route.params?.utxos;
   const payjoinUrl = route.params?.payjoinUrl;
@@ -97,21 +101,39 @@ const SendDetails = () => {
   const { colors } = useTheme();
 
   // state
-  const [dimensions, setDimensions] = useState({ width: Dimensions.get('window').width, height: 0 });
+  const [dimensions, setDimensions] = useState({
+    width: Dimensions.get('window').width,
+    height: 0,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [wallet, setWallet] = useState<TWallet | null>(null);
+  const walletId = wallet?.getID() ?? '';
+  const { utxos: spendableUtxos, totalValue: spendableUtxoValue } = useWalletUtxoQuery(walletId, {
+    frozen: false,
+    sortType: 'ordinal',
+  });
+  const selectedOutpoints = useMemo(() => utxos?.map(utxo => `${utxo.txid}:${utxo.vout}`) ?? [], [utxos]);
+  const { utxos: selectedUtxos, totalValue: selectedUtxoValue } = useWalletUtxoSelection(walletId, selectedOutpoints);
+  const { totalValue: frozenUtxoValue } = useWalletUtxoQuery(walletId, { frozen: true });
+  const findTransactionByOutputAddress = useFindWalletTransactionByOutputAddress(walletId);
+  const transactionUtxos = utxos ? selectedUtxos : spendableUtxos;
+  const frozenBalance = utxos ? 0 : frozenUtxoValue;
   const { isVisible } = useKeyboard();
   const [addresses, setAddresses] = useState<IPaymentDestinations[]>([{ address: '', key: String(Math.random()), unit: amountUnit }]);
   const [networkTransactionFees, setNetworkTransactionFees] = useState(new NetworkTransactionFee(3, 2, 1));
   const [networkTransactionFeesIsLoading, setNetworkTransactionFeesIsLoading] = useState(false);
   const [customFee, setCustomFee] = useState<string | null>(null);
   const [selectedPresetFeeRate, setSelectedPresetFeeRate] = useState<string | null>(null);
-  const [feePrecalc, setFeePrecalc] = useState<IFee>({ current: null, slowFee: null, mediumFee: null, fastestFee: null });
+  const [feePrecalc, setFeePrecalc] = useState<IFee>({
+    current: null,
+    slowFee: null,
+    mediumFee: null,
+    fastestFee: null,
+  });
   const [changeAddress, setChangeAddress] = useState<string | null>(null);
-  const [dumb, setDumb] = useState(false);
   const { isEditable } = routeParams;
   // if utxo is limited we use it to calculate available balance
-  const balance: number = utxos ? utxos.reduce((prev, curr) => prev + curr.value, 0) : (wallet?.getBalance() ?? 0);
+  const balance = utxos ? selectedUtxoValue : spendableUtxoValue;
   const allBalance = formatBalanceWithoutSuffix(balance, BitcoinUnit.BTC, true);
   // estimated sendable amount when MAX is selected (null if not applicable)
   const [maxSendableAmount, setMaxSendableAmount] = useState<number | null>(null);
@@ -178,7 +200,16 @@ const SendDetails = () => {
             addrs[scrollIndex.current] = currentAddress;
             return [...addrs];
           } else {
-            return [...addrs, { address, amount, amountSats: btcToSatoshi(amount!), key: String(Math.random()), unit: amountUnit }];
+            return [
+              ...addrs,
+              {
+                address,
+                amount,
+                amountSats: btcToSatoshi(amount!),
+                key: String(Math.random()),
+                unit: amountUnit,
+              },
+            ];
           }
         });
 
@@ -189,7 +220,10 @@ const SendDetails = () => {
       } catch (error) {
         console.log(error);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ title: loc.errors.error, message: loc.send.details_error_decode });
+        presentAlert({
+          title: loc.errors.error,
+          message: loc.send.details_error_decode,
+        });
       }
     } else if (routeParams.address) {
       // screen was called with `address` parameter, so we just prefill it
@@ -232,13 +266,19 @@ const SendDetails = () => {
     const suitable = wallets.filter(w => w.chain === Chain.ONCHAIN && w.allowSend());
     if (suitable.length === 0) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, message: loc.send.details_wallet_before_tx });
+      presentAlert({
+        title: loc.errors.error,
+        message: loc.send.details_wallet_before_tx,
+      });
       navigation.goBack();
       return;
     }
     const newWallet = (routeParams.walletID && wallets.find(w => w.getID() === routeParams.walletID)) || suitable[0];
     setWallet(newWallet);
-    setParams({ feeUnit: newWallet.getPreferredBalanceUnit(), amountUnit: newWallet.getPreferredBalanceUnit() });
+    setParams({
+      feeUnit: newWallet.getPreferredBalanceUnit(),
+      amountUnit: newWallet.getPreferredBalanceUnit(),
+    });
 
     // we are ready!
     setIsLoading(false);
@@ -286,12 +326,7 @@ const SendDetails = () => {
     });
     prevWalletIdForCoinResetRef.current = currentId;
 
-    wallet
-      .fetchUtxo()
-      .then(() => {
-        setDumb(v => !v);
-      })
-      .catch(e => console.log('fetchUtxo error', e));
+    fetchWalletUtxos(wallet.getID()).catch(e => console.log('fetchUtxo error', e));
   }, [wallet]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // recalc fees in effect so we don't block render
@@ -300,17 +335,8 @@ const SendDetails = () => {
     const fees = networkTransactionFees;
     const requestedSatPerByte = Number(feeRate);
     const m = new Measure('getUtxo');
-    const lutxo = utxos || wallet.getUtxo();
+    const lutxo = transactionUtxos.map(utxo => utxoToCreateTransactionInput(utxo, wallet));
     m.end();
-    let frozen = 0;
-    if (!utxos) {
-      // if utxo is not limited search for frozen outputs and calc it's balance
-      frozen = wallet
-        .getUtxo(true)
-        .filter(o => !lutxo.some(i => i.txid === o.txid && i.vout === o.vout))
-        .reduce((prev, curr) => prev + curr.value, 0);
-    }
-
     const options = [
       { key: 'current', fee: requestedSatPerByte },
       { key: 'slowFee', fee: fees.slowFee },
@@ -318,7 +344,12 @@ const SendDetails = () => {
       { key: 'fastestFee', fee: fees.fastestFee },
     ] as const;
 
-    const newFeePrecalc: /* Record<string, any> */ IFee = { ...feePrecalc };
+    const newFeePrecalc: IFee = {
+      current: null,
+      slowFee: null,
+      mediumFee: null,
+      fastestFee: null,
+    };
 
     let targets = [];
     for (const transaction of addresses) {
@@ -336,14 +367,20 @@ const SendDetails = () => {
         targets.push({ address: transaction.address, value });
       } else if (transaction.amount) {
         if (btcToSatoshi(transaction.amount) > 0) {
-          targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+          targets.push({
+            address: transaction.address,
+            value: btcToSatoshi(transaction.amount),
+          });
         }
       }
     }
 
     // if targets is empty, insert dust
     if (targets.length === 0) {
-      targets.push({ address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV', value: 546 });
+      targets.push({
+        address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV',
+        value: 546,
+      });
     }
 
     // replace wrong addresses with dump
@@ -374,27 +411,29 @@ const SendDetails = () => {
       }
     }
 
-    setFeePrecalc(newFeePrecalc);
+    setFeePrecalc(current =>
+      current.current === newFeePrecalc.current &&
+      current.slowFee === newFeePrecalc.slowFee &&
+      current.mediumFee === newFeePrecalc.mediumFee &&
+      current.fastestFee === newFeePrecalc.fastestFee
+        ? current
+        : newFeePrecalc,
+    );
 
     // Calculate maxSendableAmount (only for single recipient with MAX)
     if (addresses.length === 1 && addresses[0].amount === BitcoinUnit.MAX && newFeePrecalc.current !== null) {
       // use lutxo to match what coinSelectSplit actually receives
-      const spendableBalance = lutxo.reduce((prev: number, curr: { value: number }) => prev + curr.value, 0);
-      const sendable = spendableBalance - newFeePrecalc.current;
+      const sendable = balance - newFeePrecalc.current;
       setMaxSendableAmount(sendable > 0 ? sendable : null);
     } else {
       setMaxSendableAmount(null);
     }
-
-    setParams({ frozenBalance: frozen });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, networkTransactionFees, utxos, addresses, feeRate, dumb]);
+  }, [wallet, networkTransactionFees, addresses, feeRate, transactionUtxos, balance]);
 
   // we need to re-calculate fees if user opens-closes coin control
   useFocusEffect(
     useCallback(() => {
       setIsLoading(false);
-      setDumb(v => !v);
       return () => {};
     }, []),
   );
@@ -450,7 +489,10 @@ const SendDetails = () => {
         // user probably scanned PSBT and got an object instead of string..?
         setIsLoading(false);
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        return presentAlert({ title: loc.errors.error, message: loc.send.details_address_field_is_not_valid });
+        return presentAlert({
+          title: loc.errors.error,
+          message: loc.send.details_address_field_is_not_valid,
+        });
       }
 
       const cl = new ContactList();
@@ -462,7 +504,14 @@ const SendDetails = () => {
           return [...addrs];
         });
         setIsLoading(false);
-        setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
+        setTimeout(
+          () =>
+            scrollView.current?.scrollToIndex({
+              index: currentIndex,
+              animated: false,
+            }),
+          50,
+        );
         return;
       }
 
@@ -493,9 +542,20 @@ const SendDetails = () => {
           addrs[scrollIndex.current].unit = BitcoinUnit.BTC;
           return [...addrs];
         });
-        setParams({ transactionMemo: options.label || '', amountUnit: BitcoinUnit.BTC, payjoinUrl: options.pj || '' }); // there used to be `options.message` here as well. bug?
+        setParams({
+          transactionMemo: options.label || '',
+          amountUnit: BitcoinUnit.BTC,
+          payjoinUrl: options.pj || '',
+        }); // there used to be `options.message` here as well. bug?
         // RN Bug: contentOffset gets reset to 0 when state changes. Remove code once this bug is resolved.
-        setTimeout(() => scrollView.current?.scrollToIndex({ index: currentIndex, animated: false }), 50);
+        setTimeout(
+          () =>
+            scrollView.current?.scrollToIndex({
+              index: currentIndex,
+              animated: false,
+            }),
+          50,
+        );
       }
 
       setIsLoading(false);
@@ -555,12 +615,16 @@ const SendDetails = () => {
           if (!wallet.allowBIP47()) {
             console.log('validation error');
             error = loc.send.cant_send_to_bip47;
-          } else if (!(wallet as unknown as AbstractHDElectrumWallet).getBIP47NotificationTransaction(transaction.address)) {
-            console.log('validation error');
-            error = loc.send.cant_find_bip47_notification;
           } else {
-            // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
-            await (wallet as unknown as AbstractHDElectrumWallet).syncBip47ReceiversAddresses(transaction.address);
+            const bip47Wallet = wallet as unknown as AbstractHDElectrumWallet;
+            const notificationAddress = new ContactList().getBip47NotificationAddress(transaction.address);
+            if (!findTransactionByOutputAddress(notificationAddress)) {
+              console.log('validation error');
+              error = loc.send.cant_find_bip47_notification;
+            } else {
+              // BIP47 is allowed, notif tx is in place, lets sync joint addresses with the receiver
+              await bip47Wallet.syncBip47ReceiversAddresses(transaction.address);
+            }
           }
         }
       }
@@ -572,7 +636,10 @@ const SendDetails = () => {
         presentAlert({
           title:
             addresses.length > 1
-              ? loc.formatString(loc.send.details_recipient_title, { number: index + 1, total: addresses.length })
+              ? loc.formatString(loc.send.details_recipient_title, {
+                  number: index + 1,
+                  total: addresses.length,
+                })
               : undefined,
           message: error,
         });
@@ -601,7 +668,7 @@ const SendDetails = () => {
     const change = await getChangeAddressAsync();
     assert(change, 'Could not get change address');
     const requestedSatPerByte = Number(feeRate);
-    const lutxo: CreateTransactionUtxo[] = utxos || (wallet?.getUtxo() ?? []);
+    const lutxo: CreateTransactionUtxo[] = transactionUtxos.map(utxo => utxoToCreateTransactionInput(utxo, wallet));
     console.log({ requestedSatPerByte, lutxo: lutxo.length });
 
     const targets: CreateTransactionTarget[] = [];
@@ -616,7 +683,10 @@ const SendDetails = () => {
         targets.push({ address: transaction.address, value });
       } else if (transaction.amount) {
         if (btcToSatoshi(transaction.amount) > 0) {
-          targets.push({ address: transaction.address, value: btcToSatoshi(transaction.amount) });
+          targets.push({
+            address: transaction.address,
+            value: btcToSatoshi(transaction.amount),
+          });
         }
       }
     }
@@ -670,9 +740,7 @@ const SendDetails = () => {
 
     assert(tx, 'createTRansaction failed');
 
-    txMetadata[tx.getId()] = {
-      memo: transactionMemo,
-    };
+    await writeTransactionMemo(tx.getId(), transactionMemo ?? '');
     await saveToDisk();
 
     let recipients = outputs.filter(({ address }) => address !== change);
@@ -715,7 +783,10 @@ const SendDetails = () => {
    */
   const importQrTransaction = useCallback(async () => {
     if (wallet?.type !== WatchOnlyWallet.type) {
-      return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
+      return presentAlert({
+        title: loc.errors.error,
+        message: 'Importing transaction in non-watchonly wallet (this should never happen)',
+      });
     }
 
     navigateToQRCodeScanner();
@@ -726,7 +797,10 @@ const SendDetails = () => {
       if (!wallet) return;
       if (!ret.data) ret = { data: ret };
       if (ret.data.toUpperCase().startsWith('UR')) {
-        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
+        presentAlert({
+          title: loc.errors.error,
+          message: 'BC-UR not decoded. This should never happen',
+        });
       } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
@@ -759,7 +833,10 @@ const SendDetails = () => {
    */
   const importTransaction = useCallback(async () => {
     if (wallet?.type !== WatchOnlyWallet.type) {
-      return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
+      return presentAlert({
+        title: loc.errors.error,
+        message: 'Importing transaction in non-watchonly wallet (this should never happen)',
+      });
     }
 
     try {
@@ -778,7 +855,11 @@ const SendDetails = () => {
 
         try {
           const txhex = possiblySignedPsbt.extractTransaction().toHex();
-          navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex });
+          navigation.navigate('PsbtWithHardwareWallet', {
+            memo: transactionMemo,
+            walletID: wallet.getID(),
+            txhex,
+          });
           setIsLoading(false);
 
           return;
@@ -786,7 +867,11 @@ const SendDetails = () => {
 
         // looks like transaction is UNsigned, so we construct PSBT object and pass to next screen
         // so user can do smth with it:
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), psbt });
+        navigation.navigate('PsbtWithHardwareWallet', {
+          memo: transactionMemo,
+          walletID: wallet.getID(),
+          psbt,
+        });
         setIsLoading(false);
 
         return;
@@ -795,19 +880,29 @@ const SendDetails = () => {
       if (DeeplinkSchemaMatch.isTXNFile(String(res.name))) {
         // plain text file with txhex ready to broadcast
         const file = (await RNFS.readFile(res.uri, 'ascii')).replace('\n', '').replace('\r', '');
-        navigation.navigate('PsbtWithHardwareWallet', { memo: transactionMemo, walletID: wallet.getID(), txhex: file });
+        navigation.navigate('PsbtWithHardwareWallet', {
+          memo: transactionMemo,
+          walletID: wallet.getID(),
+          txhex: file,
+        });
         setIsLoading(false);
 
         return;
       }
 
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ title: loc.errors.error, message: loc.send.details_unrecognized_file_format });
+      presentAlert({
+        title: loc.errors.error,
+        message: loc.send.details_unrecognized_file_format,
+      });
     } catch (err: any) {
       console.error('error picking transaction:', err?.message);
       if (!isCancel(err)) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
+        presentAlert({
+          title: loc.errors.error,
+          message: loc.send.details_no_signed_tx,
+        });
       }
     }
   }, [navigation, setIsLoading, transactionMemo, wallet]);
@@ -857,7 +952,10 @@ const SendDetails = () => {
         }
       } catch (error: any) {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ title: loc.send.problem_with_psbt, message: error.message });
+        presentAlert({
+          title: loc.send.problem_with_psbt,
+          message: error.message,
+        });
       }
       setIsLoading(false);
     },
@@ -872,7 +970,10 @@ const SendDetails = () => {
     (ret: any) => {
       if (!ret.data) ret = { data: ret };
       if (ret.data.toUpperCase().startsWith('UR')) {
-        presentAlert({ title: loc.errors.error, message: 'BC-UR not decoded. This should never happen' });
+        presentAlert({
+          title: loc.errors.error,
+          message: 'BC-UR not decoded. This should never happen',
+        });
       } else if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
         // we dont support it in this flow
@@ -968,10 +1069,15 @@ const SendDetails = () => {
     const incompleteIndex = addresses.findIndex(item => !item.address || !item.amount);
     if (incompleteIndex !== -1) {
       scrollIndex.current = incompleteIndex;
-      scrollView.current?.scrollToIndex({ index: incompleteIndex, animated: true });
+      scrollView.current?.scrollToIndex({
+        index: incompleteIndex,
+        animated: true,
+      });
       presentAlert({
         title: loc.send.please_complete_recipient_title,
-        message: loc.formatString(loc.send.please_complete_recipient_details, { number: incompleteIndex + 1 }),
+        message: loc.formatString(loc.send.please_complete_recipient_details, {
+          number: incompleteIndex + 1,
+        }),
       });
       return;
     }
@@ -1354,7 +1460,10 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={({ pressed }) => [pressed && styles.pressed, styles.selectTouch]}
             onPress={() => {
-              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
+              navigation.navigate('SelectWallet', {
+                chainType: Chain.ONCHAIN,
+                selectedWalletID: wallet?.getID(),
+              });
             }}
           >
             <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
@@ -1366,7 +1475,10 @@ const SendDetails = () => {
             accessibilityRole="button"
             style={({ pressed }) => [pressed && styles.pressed, styles.selectTouch]}
             onPress={() => {
-              navigation.navigate('SelectWallet', { chainType: Chain.ONCHAIN, selectedWalletID: wallet?.getID() });
+              navigation.navigate('SelectWallet', {
+                chainType: Chain.ONCHAIN,
+                selectedWalletID: wallet?.getID(),
+              });
             }}
             disabled={!isEditable || isLoading}
           >
@@ -1445,7 +1557,9 @@ const SendDetails = () => {
             onPress={handleCoinControl}
           >
             <BlueText>
-              {loc.formatString(loc.send.details_frozen, { amount: formatBalanceWithoutSuffix(frozenBalance, BitcoinUnit.BTC, true) })}
+              {loc.formatString(loc.send.details_frozen, {
+                amount: formatBalanceWithoutSuffix(frozenBalance, BitcoinUnit.BTC, true),
+              })}
             </BlueText>
           </Pressable>
         )}
@@ -1486,7 +1600,10 @@ const SendDetails = () => {
 
         {addresses.length > 1 && (
           <Text style={[styles.of, stylesHook.of, styles.ofMargin]}>
-            {loc.formatString(loc._.of, { number: index + 1, total: addresses.length })}
+            {loc.formatString(loc._.of, {
+              number: index + 1,
+              total: addresses.length,
+            })}
           </Text>
         )}
       </View>

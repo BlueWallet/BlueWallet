@@ -15,7 +15,7 @@ import { Chain } from '../../models/bitcoinUnits';
 import { SuccessView } from '../send/success';
 import { BlueSpacing20, BlueSpacing40 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
-import useWalletSubscribe from '../../hooks/useWalletSubscribe.tsx';
+import { useWallet } from '../../hooks/context/useStorage';
 import assert from 'assert';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
@@ -36,7 +36,7 @@ const LnurlAuth = () => {
   const { name } = useRoute();
   const { direction } = useLocale();
   const { lnurl, walletID } = useRoute<RouteProp<{ params: LnurlAuthRouteParams }, 'params'>>().params;
-  const wallet = useWalletSubscribe(walletID);
+  const wallet = useWallet(walletID);
   const LN = useMemo(() => new Lnurl(lnurl), [lnurl]);
   const parsedLnurl = useMemo(
     () => (lnurl ? URL.parse(String(Lnurl.getUrlFromLnurl(lnurl)), true) : ({} as any)), // eslint-disable-line n/no-deprecated-api
@@ -134,7 +134,9 @@ const LnurlAuth = () => {
         <BlueCard>
           <BlueSpacing20 />
           <BlueText style={styles.alignSelfCenter}>
-            {loc.formatString(loc.lnurl_auth.could_not_auth, { hostname: parsedLnurl.hostname })}
+            {loc.formatString(loc.lnurl_auth.could_not_auth, {
+              hostname: parsedLnurl.hostname,
+            })}
           </BlueText>
           <BlueText style={styles.alignSelfCenter}>{errMsg}</BlueText>
           <BlueSpacing20 />

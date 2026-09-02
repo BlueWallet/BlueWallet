@@ -13,10 +13,13 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { BlueCurrentTheme } from '../../components/themes';
 import loc from '../../loc';
-import { StorageContext } from '../../components/Context/StorageProvider';
+import { WalletStorageContext } from '../../components/Context/WalletStorageProvider';
 import ReplaceFeeSuggestions from '../../components/ReplaceFeeSuggestions';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { BlueSpacing, BlueSpacing20 } from '../../components/BlueSpacing';
+import { useSetTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 
 const styles = StyleSheet.create({
   root: {
@@ -57,8 +60,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class CPFP extends Component {
-  static contextType = StorageContext;
+export class CpfpScreen extends Component {
+  static contextType = WalletStorageContext;
   constructor(props) {
     super(props);
     let txid;
@@ -83,7 +86,7 @@ export default class CPFP extends Component {
         }
         const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
-          this.onSuccessBroadcast();
+          await this.onSuccessBroadcast();
         } else {
           triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
           this.setState({ isLoading: false });
@@ -97,8 +100,8 @@ export default class CPFP extends Component {
     });
   };
 
-  onSuccessBroadcast() {
-    this.context.txMetadata[this.state.newTxid] = { memo: 'Child pays for parent (CPFP)' };
+  async onSuccessBroadcast() {
+    await this.props.setTransactionMemo(this.state.newTxid, 'Child pays for parent (CPFP)');
     majorTomToGroundControl([], [], [this.state.newTxid]);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', {
@@ -128,7 +131,7 @@ export default class CPFP extends Component {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
     const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
-    if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
+    if ((await tx.isToUsTransaction(this.props.canonicalTransaction)) && (await tx.getRemoteConfirmationsNum()) === 0) {
       const info = await tx.getInfo();
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
@@ -190,7 +193,7 @@ export default class CPFP extends Component {
           >
             <Text style={styles.actionText}>{loc.send.create_verify}</Text>
           </TouchableOpacity>
-          <Button disabled={this.context.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
+          <Button disabled={this.props.isElectrumDisabled} onPress={this.broadcast} title={loc.send.confirm_sendNow} />
         </BlueCard>
       </View>
     );
@@ -238,7 +241,7 @@ export default class CPFP extends Component {
   }
 }
 
-CPFP.propTypes = {
+CpfpScreen.propTypes = {
   navigation: PropTypes.shape({
     popToTop: PropTypes.func,
     navigate: PropTypes.func,
@@ -247,6 +250,32 @@ CPFP.propTypes = {
     params: PropTypes.shape({
       txid: PropTypes.string,
       wallet: PropTypes.object,
+      transaction: PropTypes.object,
     }),
   }),
+  isElectrumDisabled: PropTypes.bool,
+  setTransactionMemo: PropTypes.func,
+  canonicalTransaction: PropTypes.object,
 };
+
+const CPFPWithRealm = props => {
+  const setTransactionMemo = useSetTransactionMemo();
+  const { isElectrumDisabled } = useSettings();
+  const wallet = props.route?.params?.wallet;
+  const txid = props.route?.params?.txid;
+  const canonicalTransaction = useWalletTransaction(wallet, txid) ?? props.route?.params?.transaction;
+  return (
+    <CpfpScreen
+      {...props}
+      canonicalTransaction={canonicalTransaction}
+      isElectrumDisabled={isElectrumDisabled}
+      setTransactionMemo={setTransactionMemo}
+    />
+  );
+};
+
+CPFPWithRealm.propTypes = {
+  route: CpfpScreen.propTypes.route,
+};
+
+export default CPFPWithRealm;

@@ -27,6 +27,7 @@ import { pop } from '../NavigationService';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import ListItem from './ListItem';
+import { useCounterpartyMetadataEntry, useTransactionMemo } from '../hooks/useRealmMetadata';
 
 const styles = StyleSheet.create({
   fullWidthButton: {
@@ -127,7 +128,9 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
 }: TransactionListItemProps) => {
   const { colors } = useTheme();
   const { navigate } = useNavigation<NavigationProps>();
-  const { txMetadata, counterpartyMetadata, wallets } = useStorage();
+  const { wallets } = useStorage();
+  const transactionMemo = useTransactionMemo(item.hash);
+  const counterpartyMetadata = useCounterpartyMetadataEntry(item.counterparty);
   const { language, selectedBlockExplorer } = useSettings();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
@@ -148,9 +151,9 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
 
   let counterparty;
   if (item.counterparty) {
-    counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
+    counterparty = counterpartyMetadata?.label ?? item.counterparty;
   }
-  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
+  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + transactionMemo;
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
 
   // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a
@@ -284,8 +287,14 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     // not on-chain transfers — render them with the off-chain (Lightning) icon.
     if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
       return item.value! < 0
-        ? { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> }
-        : { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };
+        ? {
+            label: loc.transactions.offchain,
+            icon: <TransactionOffchainIcon />,
+          }
+        : {
+            label: loc.transactions.incoming_transaction,
+            icon: <TransactionOffchainIncomingIcon />,
+          };
     }
 
     if (item.type && item.type === 'bitcoind_tx') {

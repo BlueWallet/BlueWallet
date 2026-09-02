@@ -24,9 +24,9 @@ import prompt from '../../helpers/prompt';
 import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { useStorage } from '../../hooks/context/useStorage';
+import { useStorage, useWallet } from '../../hooks/context/useStorage';
 import { useNavigation, useFocusEffect, useRoute, RouteProp, usePreventRemove, useLocale } from '@react-navigation/native';
-import { LightningTransaction, Transaction, TWallet } from '../../class/wallets/types';
+import { TWallet } from '../../class/wallets/types';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import ToolTipMenu from '../../components/TooltipMenu';
 import { Action } from '../../components/types';
@@ -36,27 +36,24 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
+import { useWalletTransactions } from '../../hooks/useWalletActivity';
+import useWalletUtxos from '../../hooks/useWalletUtxos';
+import { useTransactionMetadata } from '../../hooks/useRealmMetadata';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 
-function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: number | null } {
-  if (typeof w.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null };
-  try {
-    return { hasCoinControl: true, utxoCount: w.getUtxo().length };
-  } catch {
-    return { hasCoinControl: false, utxoCount: null };
-  }
-}
-
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
+  const { saveToDisk, handleWalletDeletion, purgeWalletTransactions, fetchAndSaveWalletTransactions, fetchWalletUtxos, sleep } =
+    useStorage();
+  const txMetadata = useTransactionMetadata();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [backdoorPressed, setBackdoorPressed] = useState<number>(0);
-  const walletRef = useRef<TWallet | undefined>(wallets.find(w => w.getID() === walletID));
-  const wallet = walletRef.current as TWallet;
+  const wallet = useWallet(walletID);
+  const walletRef = useRef<TWallet>(wallet);
+  walletRef.current = wallet;
   const [walletUseWithHardwareWallet, setWalletUseWithHardwareWallet] = useState<boolean>(
     wallet.useWithHardwareWalletEnabled ? wallet.useWithHardwareWalletEnabled() : false,
   );
@@ -75,39 +72,31 @@ const WalletDetails: React.FC = () => {
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
-  const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
-  const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
-
-  useEffect(() => {
-    const w = walletRef.current;
-    if (w) setCoinControlStats(getCoinControlStats(w));
-  }, [walletID]);
+  const walletTransactions = useWalletTransactions(wallet);
+  const walletTransactionsLength = walletTransactions.length;
+  const walletUtxos = useWalletUtxos(walletID);
 
   useFocusEffect(
     useCallback(() => {
-      let cancelled = false;
       const w = walletRef.current;
       if (!w || typeof w.getUtxo !== 'function') return;
 
       const refresh = async () => {
         if (typeof w.fetchUtxo === 'function') {
           try {
-            await Promise.race([w.fetchUtxo(), sleep(12000)]);
+            await Promise.race([fetchWalletUtxos(w.getID()), sleep(12000)]);
           } catch {
-            // Same pattern as CoinControl: timeout or network errors; still re-read getUtxo() below.
+            // Keep showing the last canonical Realm snapshot when refresh fails.
           }
         }
-        if (!cancelled) setCoinControlStats(getCoinControlStats(w));
       };
 
       refresh().catch(() => {});
-      return () => {
-        cancelled = true;
-      };
-    }, [sleep]),
+    }, [fetchWalletUtxos, sleep]),
   );
 
-  const { hasCoinControl, utxoCount } = coinControlStats;
+  const hasCoinControl = typeof wallet.getUtxo === 'function';
+  const utxoCount = walletUtxos.length;
   const derivationPath = useMemo<string | null>(() => {
     try {
       // @ts-expect-error: Need to fix later
@@ -173,7 +162,11 @@ const WalletDetails: React.FC = () => {
       const walletBalanceConfirmation = await prompt(
         loc.wallets.details_delete_wallet,
         loc.formatString(loc.wallets.details_del_wb_q, { balance }),
-        { type: 'numeric', destructive: true, continueButtonText: loc.wallets.details_delete },
+        {
+          type: 'numeric',
+          destructive: true,
+          continueButtonText: loc.wallets.details_delete,
+        },
       );
       // Remove any non-numeric characters before comparison
       const cleanedConfirmation = (walletBalanceConfirmation || '').replace(/[^0-9]/g, '');
@@ -233,9 +226,7 @@ const WalletDetails: React.FC = () => {
     }
 
     const rows = [headers.join(',')];
-    const transactions = wallet.getTransactions();
-
-    transactions.forEach((transaction: Transaction & LightningTransaction) => {
+    walletTransactions.forEach(transaction => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
       let hash: string = transaction.hash || '';
       let memo = (transaction.hash && txMetadata[transaction.hash]?.memo?.trim()) || '';
@@ -261,7 +252,7 @@ const WalletDetails: React.FC = () => {
     });
 
     return rows.join('\n');
-  }, [wallet, txMetadata]);
+  }, [wallet, walletTransactions, txMetadata]);
 
   const fileName = useMemo(() => {
     const label = wallet.getLabel().replace(' ', '-');
@@ -411,9 +402,8 @@ const WalletDetails: React.FC = () => {
       {
         _balances_by_external_index: wallet._balances_by_external_index,
         _balances_by_internal_index: wallet._balances_by_internal_index,
-        _txs_by_external_index: wallet._txs_by_external_index,
-        _txs_by_internal_index: wallet._txs_by_internal_index,
-        _utxo: wallet._utxo,
+        transactions: walletTransactions,
+        utxos: walletUtxos,
         next_free_address_index: wallet.next_free_address_index,
         next_free_change_address_index: wallet.next_free_change_address_index,
         internal_addresses_cache: wallet.internal_addresses_cache,
@@ -434,42 +424,17 @@ const WalletDetails: React.FC = () => {
   const purgeTransactions = async () => {
     if (backdoorPressed < 10) return setBackdoorPressed(backdoorPressed + 1);
     setBackdoorPressed(0);
-    const msg = 'Transactions & balances purged. Pls go to main screen and back to rerender screen';
-
-    if (wallet.type === HDSegwitBech32Wallet.type) {
-      wallet._txs_by_external_index = {};
-      wallet._txs_by_internal_index = {};
-      presentAlert({ message: msg });
-
-      wallet._balances_by_external_index = {};
-      wallet._balances_by_internal_index = {};
-      wallet._lastTxFetch = 0;
-      wallet._lastBalanceFetch = 0;
-    }
-
-    // @ts-expect-error: Need to fix later
-    if (wallet._hdWalletInstance) {
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._txs_by_external_index = {};
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._txs_by_internal_index = {};
-
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._balances_by_external_index = {};
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._balances_by_internal_index = {};
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._lastTxFetch = 0;
-      // @ts-expect-error: Need to fix later
-      wallet._hdWalletInstance._lastBalanceFetch = 0;
-      presentAlert({ message: msg });
-    }
+    await purgeWalletTransactions(walletID);
+    presentAlert({ message: 'Transactions & balances purged' });
   };
 
   const handleEditWalletName = useCallback(async () => {
     let newName: string;
     try {
-      newName = await prompt(loc.wallets.add_wallet_name, '', { type: 'plain-text', defaultValue: wallet.getLabel() });
+      newName = await prompt(loc.wallets.add_wallet_name, '', {
+        type: 'plain-text',
+        defaultValue: wallet.getLabel(),
+      });
     } catch (_) {
       // User cancelled
       return;
@@ -486,7 +451,9 @@ const WalletDetails: React.FC = () => {
       wallet.setLabel(previousLabel);
       setWalletName(previousLabel);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: error instanceof Error ? error.message : String(error) });
+      presentAlert({
+        message: error instanceof Error ? error.message : String(error),
+      });
     }
   }, [wallet, saveToDisk]);
 
@@ -576,12 +543,17 @@ const WalletDetails: React.FC = () => {
                       </ToolTipMenu>
                     )}
                   </View>
-                  <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{wallet.getTransactions().length}</BlueText>
+                  <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{walletTransactionsLength}</BlueText>
                 </View>
                 {hasCoinControl && utxoCount !== null && utxoCount > 0 ? (
                   <Pressable
                     style={({ pressed }) => [styles.statsBox, stylesHook.statsBox, pressed && styles.pressablePressed]}
-                    onPress={() => navigate('SendDetailsRoot', { screen: 'CoinControl', params: { walletID } })}
+                    onPress={() =>
+                      navigate('SendDetailsRoot', {
+                        screen: 'CoinControl',
+                        params: { walletID },
+                      })
+                    }
                     testID="CoinsStatsBox"
                   >
                     <View style={styles.statsBoxTitleRow}>

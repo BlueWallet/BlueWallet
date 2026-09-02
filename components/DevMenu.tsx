@@ -2,9 +2,15 @@ import React, { useEffect } from 'react';
 import { DevSettings, Alert, Platform, AlertButton } from 'react-native';
 import { useStorage } from '../hooks/context/useStorage';
 import { HDSegwitBech32Wallet } from '../class/wallets/hd-segwit-bech32-wallet';
-import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
+import { Chain } from '../models/bitcoinUnits';
+import { useWalletDataRealm } from '../blue_modules/realm/WalletDataRealmProvider';
+import {
+  insertDeveloperIncomingTransaction,
+  removeDeveloperTransactions,
+  type DeveloperTransactionState,
+} from '../blue_modules/realm/developerFixtures';
 
 const getRandomLabelFromSecret = (secret: string): string => {
   const words = secret.split(' ');
@@ -70,7 +76,8 @@ const showAlertWithWalletOptions = (
 };
 
 const DevMenu: React.FC = () => {
-  const { wallets, addWallet } = useStorage();
+  const { wallets, addWallet, purgeWalletTransactions } = useStorage();
+  const realm = useWalletDataRealm();
 
   useEffect(() => {
     if (__DEV__) {
@@ -143,24 +150,39 @@ const DevMenu: React.FC = () => {
           return;
         }
 
-        showAlertWithWalletOptions(wallets, 'Purge Wallet Transactions', 'Select the wallet to purge transactions', wallet => {
-          const msg = 'Transactions purged successfully!';
-
-          if (wallet.type === HDSegwitBech32Wallet.type) {
-            wallet._txs_by_external_index = {};
-            wallet._txs_by_internal_index = {};
-          }
-
-          if (wallet.type === WatchOnlyWallet.type && wallet._hdWalletInstance) {
-            wallet._hdWalletInstance._txs_by_external_index = {};
-            wallet._hdWalletInstance._txs_by_internal_index = {};
-          }
-
-          Alert.alert(msg);
+        showAlertWithWalletOptions(wallets, 'Purge Wallet Transactions', 'Select the wallet to purge transactions', async wallet => {
+          await purgeWalletTransactions(wallet.getID());
+          Alert.alert('Transactions purged successfully!');
         });
       });
+
+      const addFakeIncomingTransaction = (state: DeveloperTransactionState) => {
+        showAlertWithWalletOptions(
+          wallets,
+          `Add Fake ${state === 'pending' ? 'Pending' : 'Confirmed'} Transaction`,
+          'Select the on-chain wallet that should receive the fake transaction',
+          wallet => {
+            // The fixture's positive value makes it an incoming wallet row. Do
+            // not target the wallet's active receive address, otherwise the
+            // Receive screen correctly treats its QR request as already paid.
+            const transactionId = insertDeveloperIncomingTransaction(realm, wallet.getID(), state);
+            Alert.alert(
+              'Fake Realm transaction added',
+              `${state === 'pending' ? 'Pending' : 'Confirmed'} incoming transaction added to ${wallet.getLabel()}.\n\n${transactionId}`,
+            );
+          },
+          wallet => wallet.chain === Chain.ONCHAIN,
+        );
+      };
+
+      DevSettings.addMenuItem('Add Fake Incoming Transaction (Pending)', () => addFakeIncomingTransaction('pending'));
+      DevSettings.addMenuItem('Add Fake Incoming Transaction (Confirmed)', () => addFakeIncomingTransaction('confirmed'));
+      DevSettings.addMenuItem('Remove Fake Realm Transactions', () => {
+        const removed = removeDeveloperTransactions(realm);
+        Alert.alert('Fake Realm transactions removed', `${removed} transaction${removed === 1 ? '' : 's'} removed.`);
+      });
     }
-  }, [wallets, addWallet]);
+  }, [wallets, addWallet, purgeWalletTransactions, realm]);
 
   return null;
 };

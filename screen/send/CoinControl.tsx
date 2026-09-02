@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigation, RouteProp, useFocusEffect, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Avatar from '../../components/Avatar';
 import Badge from '../../components/Badge';
 import Icon from '../../components/Icon';
 import { Animated, ActivityIndicator, PixelRatio, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import debounce from '../../blue_modules/debounce';
 import { TWallet, Utxo } from '../../class/wallets/types';
 import { FButton, FContainer } from '../../components/FloatButtons';
 import SafeArea from '../../components/SafeArea';
@@ -16,6 +15,9 @@ import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
 import { CoinControlSortDirection, CoinControlSortType, SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import useWalletUtxos, { useWalletUtxoMutations, useWalletUtxoSelection } from '../../hooks/useWalletUtxos';
+import type { RealmUtxo } from '../../blue_modules/realm/appDataRepository';
+import { useTransactionMemo } from '../../hooks/useRealmMetadata';
 
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControl'>;
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControl'>;
@@ -61,7 +63,11 @@ const AnimatedTip: React.FC<{ text: string }> = ({ text }) => {
       }
       if (Math.abs(newHeight - currentHeight.current) < 1) return;
       currentHeight.current = newHeight;
-      Animated.timing(heightAnim, { toValue: newHeight, duration: 250, useNativeDriver: false }).start();
+      Animated.timing(heightAnim, {
+        toValue: newHeight,
+        duration: 250,
+        useNativeDriver: false,
+      }).start();
     },
     [heightAnim, measured],
   );
@@ -104,8 +110,8 @@ const OutputList: React.FC<TOutputListProps> = ({
   onDeSelect,
 }: TOutputListProps) => {
   const { colors } = useTheme();
-  const { txMetadata } = useStorage();
-  const memo = oMemo || txMetadata[txid]?.memo || '';
+  const transactionMemo = useTransactionMemo(txid);
+  const memo = oMemo || transactionMemo;
   const color = `#${txid.substring(0, 6)}`;
   const amount = formatBalance(value, balanceUnit, true);
 
@@ -115,12 +121,22 @@ const OutputList: React.FC<TOutputListProps> = ({
   }
 
   const oStyles = StyleSheet.create({
-    container: { borderBottomColor: colors.lightBorder, backgroundColor: 'transparent' },
+    container: {
+      borderBottomColor: colors.lightBorder,
+      backgroundColor: 'transparent',
+    },
     avatar: { borderColor: 'white', borderWidth: 1, backgroundColor: color },
-    avatarSelected: { borderColor: 'white', borderWidth: 1, backgroundColor: colors.successColor },
+    avatarSelected: {
+      borderColor: 'white',
+      borderWidth: 1,
+      backgroundColor: colors.successColor,
+    },
     amount: { fontWeight: 'bold', color: colors.foregroundColor },
     memo: { fontSize: 13, marginTop: 3, color: colors.alternativeTextColor },
-    containerSelected: { backgroundColor: colors.ballOutgoingExpired, borderBottomColor: 'rgba(0, 0, 0, 0)' },
+    containerSelected: {
+      backgroundColor: colors.ballOutgoingExpired,
+      borderBottomColor: 'rgba(0, 0, 0, 0)',
+    },
   });
 
   return (
@@ -130,7 +146,16 @@ const OutputList: React.FC<TOutputListProps> = ({
         size={40}
         containerStyle={selected ? oStyles.avatarSelected : oStyles.avatar}
         onPress={selected ? onDeSelect : onSelect}
-        icon={selected ? { name: 'check', type: 'font-awesome-6', color: 'white', size: 18 } : undefined}
+        icon={
+          selected
+            ? {
+                name: 'check',
+                type: 'font-awesome-6',
+                color: 'white',
+                size: 18,
+              }
+            : undefined
+        }
       />
       <View style={styles.itemContent}>
         <Text style={oStyles.amount}>{amount}</Text>
@@ -152,82 +177,30 @@ const CoinControl: React.FC = () => {
   const { width } = useWindowDimensions();
   const route = useRoute<RouteProps>();
   const { walletID } = route.params;
-  const { wallets, saveToDisk, sleep } = useStorage();
+  const { wallets, fetchWalletUtxos, sleep } = useStorage();
   const sortDirection = route.params?.sortDirection ?? CoinControlSortDirection.ASC;
   const sortType = route.params?.sortType ?? CoinControlSortType.HEIGHT;
   const wallet = useMemo(() => wallets.find(w => w.getID() === walletID) as TWallet, [walletID, wallets]);
-  const [frozen, setFrozen] = useState<string[]>(
-    wallet
-      .getUtxo(true)
-      .filter(out => wallet.getUTXOMetadata(out.txid, out.vout).frozen)
-      .map(({ txid, vout }) => `${txid}:${vout}`),
-  );
-  const utxos: Utxo[] = useMemo(() => {
-    const res = wallet.getUtxo(true).sort((a, b) => {
-      switch (sortType) {
-        case CoinControlSortType.HEIGHT:
-          return a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout;
-        case CoinControlSortType.VALUE:
-          return a.value - b.value || a.txid.localeCompare(b.txid) || a.vout - b.vout;
-        case CoinControlSortType.LABEL: {
-          const aMemo = wallet.getUTXOMetadata(a.txid, a.vout).memo || '';
-          const bMemo = wallet.getUTXOMetadata(b.txid, b.vout).memo || '';
-          return aMemo.localeCompare(bMemo) || a.txid.localeCompare(b.txid) || a.vout - b.vout;
-        }
-        case CoinControlSortType.FROZEN: {
-          const aF = frozen.includes(`${a.txid}:${a.vout}`);
-          const bF = frozen.includes(`${b.txid}:${b.vout}`);
-          return aF !== bF ? (aF ? -1 : 1) : a.txid.localeCompare(b.txid) || a.vout - b.vout;
-        }
-        default:
-          return 0;
-      }
-    });
-    // invert if descending
-    return sortDirection === CoinControlSortDirection.DESC ? res.reverse() : res;
-  }, [sortDirection, sortType, wallet, frozen]);
+  const utxos = useWalletUtxos(walletID, { sortType, sortDirection });
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
-
-  // save frozen status. Because effect called on each event, debounce it.
-  const debouncedSaveFronen = useRef(
-    debounce(async frzn => {
-      utxos.forEach(({ txid, vout }) => {
-        wallet.setUTXOMetadata(txid, vout, { frozen: frzn.includes(`${txid}:${vout}`) });
-      });
-      await saveToDisk();
-    }, 500),
-  );
-  useEffect(() => {
-    debouncedSaveFronen.current(frozen);
-  }, [frozen]);
+  const { utxos: selectedUtxos, totalValue: selectedValue, allFrozen } = useWalletUtxoSelection(walletID, selected);
+  const { setOutpointsFrozen } = useWalletUtxoMutations(walletID);
 
   useEffect(() => {
     (async () => {
       try {
-        await Promise.race([wallet.fetchUtxo(), sleep(10000)]);
+        await Promise.race([fetchWalletUtxos(wallet.getID()), sleep(10000)]);
       } catch (e) {
         console.log('coincontrol wallet.fetchUtxo() failed'); // either sleep expired or fetchUtxo threw an exception
       }
-      const freshUtxo = wallet.getUtxo(true);
-      setFrozen(freshUtxo.filter(out => wallet.getUTXOMetadata(out.txid, out.vout).frozen).map(({ txid, vout }) => `${txid}:${vout}`));
       setLoading(false);
     })();
-  }, [wallet, setLoading, sleep]);
+  }, [fetchWalletUtxos, wallet, setLoading, sleep]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!wallet) return;
-      const refreshedFrozen = wallet
-        .getUtxo(true)
-        .filter(out => wallet.getUTXOMetadata(out.txid, out.vout).frozen)
-        .map(({ txid, vout }) => `${txid}:${vout}`);
-
-      setFrozen(refreshedFrozen);
-      // Clear any stale selection that might reference outdated frozen state.
-      setSelected([]);
-    }, [wallet]),
-  );
+  useEffect(() => {
+    setSelected([]);
+  }, [walletID]);
 
   useEffect(() => {
     const hasUtxos = utxos.length > 0;
@@ -244,12 +217,9 @@ const CoinControl: React.FC = () => {
   const tipText = useMemo(() => {
     if (utxos.length === 0) return '';
     if (selected.length === 0) return loc.cc.tip;
-    const summ = selected.reduce((prev, curr) => {
-      return prev + (utxos.find(({ txid, vout }) => `${txid}:${vout}` === curr) as Utxo).value;
-    }, 0);
-    const value = formatBalance(summ, wallet.getPreferredBalanceUnit(), true);
+    const value = formatBalance(selectedValue, wallet.getPreferredBalanceUnit(), true);
     return loc.formatString(loc.cc.selected_summ, { value });
-  }, [selected, utxos, wallet]);
+  }, [selected.length, selectedValue, utxos.length, wallet]);
 
   const tipCoins = () => {
     if (utxos.length === 0) return null;
@@ -262,37 +232,27 @@ const CoinControl: React.FC = () => {
     goFromCoinControlToSendDetails(navigation, walletID, u);
   };
 
-  const handleMassFreeze = () => {
-    if (allFrozen) {
-      setFrozen(f => f.filter(i => !selected.includes(i))); // unfreeze
-    } else {
-      setFrozen(f => [...new Set([...f, ...selected])]); // freeze
-    }
-  };
+  const handleMassFreeze = () => setOutpointsFrozen(selected, !allFrozen);
 
   const handleMassUse = () => {
-    const fUtxo = utxos.filter(({ txid, vout }) => selected.includes(`${txid}:${vout}`));
-    handleUseCoin(fUtxo);
+    handleUseCoin(selectedUtxos);
   };
 
   // check if any outputs are selected
   const selectionStarted = selected.length > 0;
-  // check if all selected items are frozen
-  const allFrozen = selectionStarted && selected.reduce((prev, curr) => (prev ? frozen.includes(curr) : false), true);
   const buttonFontSize = PixelRatio.roundToNearestPixel(width / 26) > 22 ? 22 : PixelRatio.roundToNearestPixel(width / 26);
 
-  const renderItem = (item: Utxo) => {
+  const renderItem = (item: RealmUtxo) => {
     const key = `${item.txid}:${item.vout}`;
-    const { memo } = wallet.getUTXOMetadata(item.txid, item.vout);
+    const { memo } = item;
     const isChange = wallet.addressIsChange(item.address);
-    const oFrozen = frozen.includes(key);
     return (
       <OutputList
         key={key}
         balanceUnit={wallet.getPreferredBalanceUnit()}
         item={item}
         oMemo={memo}
-        frozen={oFrozen}
+        frozen={item.frozen}
         change={isChange}
         onOpen={() => handleChoose(item)}
         selected={selected.includes(key)}

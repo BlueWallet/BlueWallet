@@ -835,6 +835,9 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.text('OK')).tap();
 
     // go to wallet and check derivation path
+    await waitFor(element(by.id('Imported HD Legacy (BIP44 P2PKH)')))
+      .toBeVisible()
+      .withTimeout(10000);
     await element(by.id('Imported HD Legacy (BIP44 P2PKH)')).tap();
     await element(by.id('WalletDetails')).tap();
     await waitFor(element(by.text('Advanced')))

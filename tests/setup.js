@@ -272,6 +272,7 @@ jest.mock('react-native-haptic-feedback', () => ({}));
 // "no contract matched vtxo.script" when the test wallet has live VTXOs.
 jest.mock('realm', () => {
   const mockRealmStore = new Map();
+  const mockRealmData = new Map();
   // Persisted-on-disk view: paths that have been opened at least once and not
   // yet deleted. Realm.exists / Realm.deleteFile read this rather than the
   // live (memory-cached, possibly-closed) instance map so deleteArkadeRealm
@@ -288,6 +289,10 @@ jest.mock('realm', () => {
     ArkWalletState: 'key',
     BoltzSwap: 'id',
     ArkSwapNotificationSuppression: 'id',
+    TransactionMetadata: 'txid',
+    CounterpartyMetadata: 'counterparty',
+    AppDataState: 'key',
+    WalletOrder: 'walletId',
   };
 
   // Split a query string at a top-level separator (i.e. not inside parens/braces).
@@ -310,7 +315,7 @@ jest.mock('realm', () => {
   };
 
   // Evaluate a Realm query expression against a plain object.
-  // Handles: `field == $N`, `field IN {$0,$1,...}`, AND, OR, and parens.
+  // Handles: `field == $N`, `[NOT] field IN {$0,$1,...}`, AND, OR, and parens.
   const evalExpr = (obj, expr, args) => {
     expr = expr.trim();
     // Strip matching outer parens — e.g. "(a == $0 OR a == $1)" → "a == $0 OR a == $1"
@@ -335,19 +340,26 @@ jest.mock('realm', () => {
     // OR: any sub-expression must match
     const orParts = splitTop(expr, ' OR ');
     if (orParts.length > 1) return orParts.some(p => evalExpr(obj, p, args));
-    // IN {$0, $1, ...} — used by BoltzSwap repository
-    const inMatch = expr.match(/^(\w+)\s+IN\s+\{([^}]*)\}$/i);
+    // [NOT] field IN {$0, $1, ...}
+    const inMatch = expr.match(/^(NOT\s+)?(\w+)\s+IN\s+\{([^}]*)\}$/i);
     if (inMatch) {
-      const field = inMatch[1];
-      const values = inMatch[2].split(',').map(p => {
+      const field = inMatch[2];
+      const values = inMatch[3].split(',').map(p => {
         const m = p.trim().match(/^\$(\d+)$/);
         return m ? args[+m[1]] : undefined;
       });
-      return values.includes(obj[field]);
+      const included = values.includes(obj[field]);
+      return inMatch[1] ? !included : included;
     }
     // field == $N
     const eqMatch = expr.match(/^(\w+)\s*==\s*\$(\d+)$/);
     if (eqMatch) return obj[eqMatch[1]] === args[+eqMatch[2]];
+    // field > $N
+    const gtMatch = expr.match(/^(\w+)\s*>\s*\$(\d+)$/);
+    if (gtMatch) return obj[gtMatch[1]] > args[+gtMatch[2]];
+    // field CONTAINS $N
+    const containsMatch = expr.match(/^(\w+)\s+CONTAINS\s+\$(\d+)$/i);
+    if (containsMatch) return String(obj[containsMatch[1]] ?? '').includes(String(args[+containsMatch[2]] ?? ''));
     return true; // unknown expression — pass through
   };
 
@@ -355,19 +367,29 @@ jest.mock('realm', () => {
   const makeCollection = (type, items) => {
     const arr = Array.isArray(items) ? items : [...items];
     return {
-      filtered: (query, ...args) =>
-        makeCollection(
-          type,
-          arr.filter(o => evalExpr(o, query, args)),
-        ),
+      filtered: (query, ...args) => {
+        const limitMatch = query.match(/\s+LIMIT\((\d+)\)\s*$/i);
+        const predicate = limitMatch ? query.slice(0, limitMatch.index).trim() : query;
+        const filtered = predicate === 'TRUEPREDICATE' ? arr : arr.filter(o => evalExpr(o, predicate, args));
+        return makeCollection(type, limitMatch ? filtered.slice(0, Number(limitMatch[1])) : filtered);
+      },
       sorted: (field, reverse) => {
+        const descriptors = Array.isArray(field) ? field : [[field, Boolean(reverse)]];
         const sorted = [...arr].sort((a, b) => {
-          if (a[field] < b[field]) return reverse ? 1 : -1;
-          if (a[field] > b[field]) return reverse ? -1 : 1;
+          for (const [key, descending] of descriptors) {
+            if (a[key] < b[key]) return descending ? 1 : -1;
+            if (a[key] > b[key]) return descending ? -1 : 1;
+          }
           return 0;
         });
         return makeCollection(type, sorted);
       },
+      flatMap: callback => arr.flatMap(callback),
+      slice: (...args) => arr.slice(...args),
+      sum: property => arr.reduce((total, item) => total + Number(item[property] ?? 0), 0),
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      isValid: () => true,
       get length() {
         return arr.length;
       },
@@ -380,17 +402,24 @@ jest.mock('realm', () => {
     };
   };
 
+  class RealmMock {
+    constructor(config = {}) {
+      return makeRealmInstance(config.path || '__default__');
+    }
+  }
+
   const makeRealmInstance = path => {
     let isClosed = false;
     // type → Map<primaryKey, object>
-    const typeStore = new Map();
+    const typeStore = mockRealmData.get(path) ?? new Map();
+    mockRealmData.set(path, typeStore);
 
     const getStore = type => {
       if (!typeStore.has(type)) typeStore.set(type, new Map());
       return typeStore.get(type);
     };
 
-    return {
+    const instance = {
       path,
       get isClosed() {
         return isClosed;
@@ -422,10 +451,14 @@ jest.mock('realm', () => {
           const store = getStore(target._type);
           const pkField = PK_FIELD[target._type];
           for (const item of target._items) {
-            const pk = pkField !== undefined ? item[pkField] : undefined;
+            const pk = pkField !== undefined ? item[pkField] : item._realmMeta?.pk;
             if (pk !== undefined) store.delete(pk);
           }
         }
+      },
+
+      deleteAll() {
+        typeStore.clear();
       },
 
       write(transactionFn) {
@@ -440,6 +473,26 @@ jest.mock('realm', () => {
         return makeCollection(type, getStore(type).values());
       },
 
+      writeCopyTo(config) {
+        const copiedStore = new Map();
+        for (const [type, objects] of typeStore) {
+          copiedStore.set(
+            type,
+            new Map(
+              Array.from(objects, ([key, value]) => [
+                key,
+                Object.defineProperty({ ...value }, '_realmMeta', {
+                  value: value._realmMeta,
+                  enumerable: false,
+                }),
+              ]),
+            ),
+          );
+        }
+        mockRealmData.set(config.path, copiedStore);
+        mockRealmFiles.add(config.path);
+      },
+
       close() {
         isClosed = true;
       },
@@ -450,9 +503,11 @@ jest.mock('realm', () => {
       // Exposed so __mockRealmHelpers.reset() can wipe data in open instances.
       _clearData: () => typeStore.clear(),
     };
+    Object.setPrototypeOf(instance, RealmMock.prototype);
+    return instance;
   };
 
-  return {
+  return Object.assign(RealmMock, {
     UpdateMode: { Modified: 1 },
     open: jest.fn(async config => {
       const path = (config && config.path) || '__default__';
@@ -471,6 +526,7 @@ jest.mock('realm', () => {
     deleteFile: jest.fn(config => {
       const path = (config && config.path) || '__default__';
       mockRealmStore.delete(path);
+      mockRealmData.delete(path);
       mockRealmFiles.delete(path);
     }),
     __mockRealmHelpers: {
@@ -481,12 +537,13 @@ jest.mock('realm', () => {
           if (typeof inst._clearData === 'function') inst._clearData();
         }
         mockRealmStore.clear();
+        mockRealmData.clear();
         mockRealmFiles.clear();
       },
       store: mockRealmStore,
       files: mockRealmFiles,
     },
-  };
+  });
 });
 
 jest.mock('react-native-camera-kit-no-google', () => ({

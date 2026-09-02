@@ -12,6 +12,7 @@ import loc from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
+import { useWalletAddressTransactionCounts } from '../../hooks/useWalletActivity';
 
 export const TABS = {
   EXTERNAL: 'receive',
@@ -71,19 +72,16 @@ const reducer = (state: WalletAddressesState, action: WalletAddressesAction): Wa
 
 export const totalBalance = ({ c, u } = { c: 0, u: 0 }) => c + u;
 
-export const getAddress = (wallet: any, index: number, isInternal: boolean): Address => {
+export const getAddress = (wallet: any, index: number, isInternal: boolean, transactions = 0): Address => {
   let address: string;
   let balance = 0;
-  let transactions = 0;
 
   if (isInternal) {
     address = wallet._getInternalAddressByIndex(index);
     balance = totalBalance(wallet._balances_by_internal_index[index]);
-    transactions = wallet._txs_by_internal_index[index]?.length;
   } else {
     address = wallet._getExternalAddressByIndex(index);
     balance = totalBalance(wallet._balances_by_external_index[index]);
-    transactions = wallet._txs_by_external_index[index]?.length;
   }
 
   return {
@@ -119,6 +117,7 @@ const WalletAddresses: React.FC = () => {
 
   const addressList = useRef<FlatList<Address>>(null);
   const wallet = wallets.find((w: any) => w.getID() === walletID);
+  const transactionCounts = useWalletAddressTransactionCounts(walletID);
 
   const balanceUnit = wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC;
   const isWatchOnly = wallet?.type === WatchOnlyWallet.type;
@@ -153,7 +152,7 @@ const WalletAddresses: React.FC = () => {
     const changeMaxIndex = 'next_free_change_address_index' in walletInstance ? walletInstance.next_free_change_address_index : 0;
     for (let index = 0; index <= changeMaxIndex; index++) {
       try {
-        newAddresses.push(getAddress(walletInstance, index, true));
+        newAddresses.push(getAddress(walletInstance, index, true, transactionCounts.get(`internal:${index}`) ?? 0));
       } catch (error: any) {
         console.error('error', error);
       }
@@ -163,13 +162,13 @@ const WalletAddresses: React.FC = () => {
     const addressMaxIndex = 'next_free_address_index' in walletInstance ? walletInstance.next_free_address_index : 0;
     for (let index = 0; index < addressMaxIndex + gapLimit; index++) {
       try {
-        newAddresses.push(getAddress(walletInstance, index, false));
+        newAddresses.push(getAddress(walletInstance, index, false, transactionCounts.get(`external:${index}`) ?? 0));
       } catch (error: any) {
         console.error('error', error);
       }
     }
     return newAddresses;
-  }, [walletInstance]);
+  }, [transactionCounts, walletInstance]);
 
   useEffect(() => {
     dispatch({ type: SET_ADDRESSES, payload: getAddresses });

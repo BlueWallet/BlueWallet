@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import DefaultPreference from 'react-native-default-preference';
-import { Transaction, TWallet } from '../class/wallets/types';
+import { TWallet } from '../class/wallets/types';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import debounce from '../blue_modules/debounce';
+import { BlueApp } from '../class/blue-app';
+import { queryWalletActivity } from '../blue_modules/realm/appDataRepository';
 
 enum WidgetCommunicationKeys {
   AllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance',
@@ -68,17 +70,17 @@ export const calculateBalanceAndTransactionTime = async (
     return { allWalletsBalance: 0, latestTransactionTime: 0 };
   }
 
+  const realm = await BlueApp.getInstance().getRealmForTransactions();
+
   const results = await Promise.allSettled(
     wallets.map(async wallet => {
       if (wallet.hideBalance) return { balance: 0, latestTransactionTime: 0 };
 
       const balance = await wallet.getBalance();
-      const transactions: Transaction[] = await wallet.getTransactions();
-      const confirmedTransactions = transactions.filter(t => (t.confirmations ?? 0) > 0);
-      const latestTransactionTime =
-        confirmedTransactions.length > 0
-          ? secondsToMilliseconds(Math.max(...confirmedTransactions.map(t => t.timestamp || t.time || 0)))
-          : WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
+      const latestConfirmedTransaction = queryWalletActivity(realm, wallet.getID(), { confirmed: true, limit: 1 })[0];
+      const latestTransactionTime = latestConfirmedTransaction
+        ? secondsToMilliseconds(latestConfirmedTransaction.timestamp)
+        : WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
 
       return { balance, latestTransactionTime };
     }),

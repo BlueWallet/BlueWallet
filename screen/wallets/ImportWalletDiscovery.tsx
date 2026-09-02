@@ -63,10 +63,10 @@ const ImportWalletDiscovery: React.FC = () => {
   });
 
   const saveWallet = useCallback(
-    (wallet: TWallet | THDWalletForWatchOnly) => {
+    async (wallet: TWallet | THDWalletForWatchOnly) => {
       if (importing.current) return;
       importing.current = true;
-      addAndSaveWallet(wallet);
+      await addAndSaveWallet(wallet);
       navigation.getParent()?.goBack();
     },
     [addAndSaveWallet, navigation],

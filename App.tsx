@@ -8,7 +8,8 @@ import { BlueDarkTheme, BlueDefaultTheme } from './components/themes';
 import MasterView from './navigation/MasterView';
 import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
-import { StorageProvider } from './components/Context/StorageProvider';
+import { WalletStorageProvider } from './components/Context/WalletStorageProvider';
+import { WalletDataRealmProvider } from './blue_modules/realm/WalletDataRealmProvider';
 import { useStorage } from './hooks/context/useStorage';
 import { unlockWithBiometrics, useBiometrics } from './hooks/useBiometrics';
 import { presentWalletExportReminder } from './helpers/presentWalletExportReminder';
@@ -92,11 +93,13 @@ const App = () => {
   return (
     <SizeClassProvider>
       <SafeAreaProvider>
-        <StorageProvider>
-          <SettingsProvider>
-            <Navigation colorScheme={colorScheme} />
-          </SettingsProvider>
-        </StorageProvider>
+        <WalletDataRealmProvider>
+          <WalletStorageProvider>
+            <SettingsProvider>
+              <Navigation colorScheme={colorScheme} />
+            </SettingsProvider>
+          </WalletStorageProvider>
+        </WalletDataRealmProvider>
       </SafeAreaProvider>
     </SizeClassProvider>
   );

@@ -26,6 +26,7 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { useCounterpartyMetadata } from '../../hooks/useRealmMetadata';
 
 enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -67,7 +68,8 @@ type ConfirmRouteProp = RouteProp<SendDetailsStackParamList, 'Confirm'>;
 type ConfirmNavigationProp = NativeStackNavigationProp<SendDetailsStackParamList, 'Confirm'>;
 
 const Confirm: React.FC = () => {
-  const { wallets, fetchAndSaveWalletTransactions, counterpartyMetadata } = useStorage();
+  const { wallets, fetchAndSaveWalletTransactions } = useStorage();
+  const counterpartyMetadata = useCounterpartyMetadata();
   const { isElectrumDisabled } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation<ConfirmNavigationProp>();
@@ -311,7 +313,12 @@ const Confirm: React.FC = () => {
           {contact ? <Text style={[styles.transactionDetailsSubtitle, stylesHook.transactionDetailsSubtitle]}>[{contact}]</Text> : null}
         </BlueCard>
         {recipients.length > 1 && (
-          <BlueText style={styles.valueOf}>{loc.formatString(loc._.of, { number: index + 1, total: recipients.length })}</BlueText>
+          <BlueText style={styles.valueOf}>
+            {loc.formatString(loc._.of, {
+              number: index + 1,
+              total: recipients.length,
+            })}
+          </BlueText>
         )}
       </>
     );
@@ -340,7 +347,12 @@ const Confirm: React.FC = () => {
                 <Switch
                   testID="PayjoinSwitch"
                   value={state.isPayjoinEnabled}
-                  onValueChange={value => dispatch({ type: ActionType.SET_PAYJOIN_ENABLED, payload: value })}
+                  onValueChange={value =>
+                    dispatch({
+                      type: ActionType.SET_PAYJOIN_ENABLED,
+                      payload: value,
+                    })
+                  }
                 />
               </View>
             </BlueCard>

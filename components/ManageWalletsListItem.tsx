@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { StyleSheet, ViewStyle, ActivityIndicator, Platform, Animated, View, Text, Pressable } from 'react-native';
 import { useLocale } from '@react-navigation/native';
 import { Swipeable } from 'react-native-gesture-handler';
-import { ExtendedTransaction, LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
+import { ExtendedTransaction, LightningTransaction, TWallet } from '../class/wallets/types';
 import loc from '../loc';
 import { TransactionListItem } from './TransactionListItem';
 import { useTheme } from './themes';
@@ -205,7 +205,7 @@ const ManageWalletsListItem: React.FC<ManageWalletsListItemProps> = ({
     );
   } else if (item.type === ItemType.TransactionSection && item.data) {
     try {
-      const w = state.wallets.find(wallet => wallet.getTransactions()?.some((tx: Transaction) => tx.hash === item.data.hash));
+      const w = state.wallets.find(wallet => wallet.getID() === item.data.walletID);
 
       const walletID = w ? w.getID() : '';
 

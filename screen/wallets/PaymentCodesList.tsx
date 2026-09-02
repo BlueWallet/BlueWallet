@@ -1,15 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, RouteProp, StackActions, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import assert from 'assert';
 import { sha256 } from '@noble/hashes/sha256';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { ContactList } from '../../class/contact-list';
-import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import presentAlert from '../../components/Alert';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -20,10 +18,14 @@ import prompt from '../../helpers/prompt';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import SafeArea from '../../components/SafeArea';
-import { useStorage } from '../../hooks/context/useStorage';
+import { useStorage, useWallet } from '../../hooks/context/useStorage';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { BlueLoading } from '../../components/BlueLoading';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { utxoToCreateTransactionInput } from '../../blue_modules/realm/appDataRepository';
+import { useCounterpartyMetadata, useSetCounterpartyMetadata, useSetTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useGetWalletUtxos } from '../../hooks/useWalletUtxos';
+import { useFindWalletTransactionByOutputAddress } from '../../hooks/useWalletActivity';
 
 interface DataSection {
   title: string;
@@ -68,10 +70,6 @@ const actionKeys: Action[] = [
   },
 ];
 
-function onlyUnique(value: any, index: number, self: any[]) {
-  return self.indexOf(value) === index;
-}
-
 type PaymentCodeListRouteProp = RouteProp<DetailViewStackParamList, 'PaymentCodeList'>;
 type PaymentCodesListNavigationProp = NativeStackNavigationProp<DetailViewStackParamList, 'PaymentCodeList'>;
 
@@ -79,9 +77,13 @@ export default function PaymentCodesList() {
   const navigation = useNavigation<PaymentCodesListNavigationProp>();
   const route = useRoute<PaymentCodeListRouteProp>();
   const { walletID } = route.params;
-  const { wallets, txMetadata, counterpartyMetadata, saveToDisk } = useStorage();
-  const [reload, setReload] = useState<number>(0);
-  const [data, setData] = useState<DataSection[]>([]);
+  const { saveToDisk, fetchWalletUtxos, fetchAndSaveWalletTransactions } = useStorage();
+  const foundWallet = useWallet(walletID) as unknown as HDSegwitBech32Wallet;
+  const getWalletUtxos = useGetWalletUtxos(walletID);
+  const findTransactionByOutputAddress = useFindWalletTransactionByOutputAddress(walletID);
+  const counterpartyMetadata = useCounterpartyMetadata();
+  const setCounterparty = useSetCounterpartyMetadata();
+  const setTransactionMemo = useSetTransactionMemo();
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Loading...');
@@ -93,20 +95,12 @@ export default function PaymentCodesList() {
     previousRouteName = state.routes[previousRouteIndex].name;
   }
 
-  useEffect(() => {
-    if (!walletID) return;
-
-    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as AbstractHDElectrumWallet;
-    if (!foundWallet) return;
-
-    const newData: DataSection[] = [
-      {
-        title: '',
-        data: foundWallet.getBIP47SenderPaymentCodes().concat(foundWallet.getBIP47ReceiverPaymentCodes()).filter(onlyUnique),
-      },
-    ];
-    setData(newData);
-  }, [walletID, wallets, reload]);
+  const data: DataSection[] = [
+    {
+      title: '',
+      data: Array.from(new Set(foundWallet.getBIP47SenderPaymentCodes().concat(foundWallet.getBIP47ReceiverPaymentCodes()))),
+    },
+  ];
 
   const toolTipActions = useMemo(() => actionKeys, []);
 
@@ -133,12 +127,12 @@ export default function PaymentCodesList() {
         break;
       }
       case String(Actions.rename): {
-        const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, { type: 'plain-text' });
+        const newName = await prompt(loc.bip47.rename, loc.bip47.provide_name, {
+          type: 'plain-text',
+        });
         if (!newName) return;
 
-        counterpartyMetadata[pc] = { label: newName };
-        setReload(Math.random());
-        await saveToDisk();
+        await setCounterparty(pc, { label: newName });
         break;
       }
       case String(Actions.pay): {
@@ -149,9 +143,8 @@ export default function PaymentCodesList() {
           return;
         }
         // check if notif tx is in place and has confirmations
-        const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
-        assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
-        const notifTx = foundWallet.getBIP47NotificationTransaction(pc);
+        const notificationAddress = cl.getBip47NotificationAddress(pc);
+        const notifTx = findTransactionByOutputAddress(notificationAddress);
         if (!notifTx) {
           await _addContact(pc);
           return;
@@ -168,9 +161,10 @@ export default function PaymentCodesList() {
         if (!(await confirm(loc.wallets.details_are_you_sure))) {
           return;
         }
-        counterpartyMetadata[pc] = { label: counterpartyMetadata[pc]?.label, hidden: true };
-        setReload(Math.random());
-        await saveToDisk();
+        await setCounterparty(pc, {
+          label: counterpartyMetadata[pc]?.label ?? pc,
+          hidden: true,
+        });
         break;
       }
       default:
@@ -256,14 +250,12 @@ export default function PaymentCodesList() {
   };
 
   const _addContact = async (newPc: string) => {
-    const foundWallet = wallets.find(w => w.getID() === walletID) as unknown as HDSegwitBech32Wallet;
-    assert(foundWallet, 'Internal error: cant find walletID ' + walletID);
-
     if (counterpartyMetadata[newPc]?.hidden) {
       // contact already present, just need to unhide it
-      counterpartyMetadata[newPc].hidden = false;
-      await saveToDisk();
-      setReload(Math.random());
+      await setCounterparty(newPc, {
+        ...counterpartyMetadata[newPc],
+        hidden: false,
+      });
       return;
     }
 
@@ -273,7 +265,6 @@ export default function PaymentCodesList() {
       // this is not a payment code but a regular onchain address. pretending its a payment code and adding it
       foundWallet.addBIP47Receiver(newPc);
       await saveToDisk();
-      setReload(Math.random());
       return;
     }
 
@@ -286,13 +277,13 @@ export default function PaymentCodesList() {
       // ok its a SilentPayments code, notification tx is not needed, just add it to recipients:
       foundWallet.addBIP47Receiver(newPc);
       await saveToDisk();
-      setReload(Math.random());
       return;
     }
 
     setIsLoading(true);
 
-    const notificationTx = foundWallet.getBIP47NotificationTransaction(newPc);
+    const notificationAddress = cl.getBip47NotificationAddress(newPc);
+    const notificationTx = findTransactionByOutputAddress(notificationAddress);
     // Normalize once so both branches treat a mempool tx (undefined confirmations) as 0.
     // Without this, a fresh mempool notification tx falls through to creating a duplicate.
     const notificationTxConfirmations = notificationTx?.confirmations ?? 0;
@@ -303,7 +294,6 @@ export default function PaymentCodesList() {
       await foundWallet.syncBip47ReceiversAddresses(newPc); // so we can unwrap and save all his possible addresses
       // (for a case if already have txs with him, we will now be able to label them on tx list)
       await saveToDisk();
-      setReload(Math.random());
       return;
     }
 
@@ -316,18 +306,19 @@ export default function PaymentCodesList() {
     // need to send notif tx:
 
     setLoadingText('Fetching UTXO...');
-    await foundWallet.fetchUtxo();
+    await fetchWalletUtxos(foundWallet.getID());
+    const spendableUtxos = getWalletUtxos({ frozen: false }).map(utxo => utxoToCreateTransactionInput(utxo, foundWallet));
     setLoadingText('Fetching fees...');
     const fees = await BlueElectrum.estimateFees();
     setLoadingText('Fetching change address...');
     const changeAddress = await foundWallet.getChangeAddressAsync();
     setLoadingText('Crafting notification transaction...');
-    if (foundWallet.getUtxo().length === 0) {
+    if (spendableUtxos.length === 0) {
       // no balance..?
       presentAlert({ message: loc.send.details_total_exceeds_balance });
       return;
     }
-    const { tx, fee } = foundWallet.createBip47NotificationTransaction(foundWallet.getUtxo(), newPc, fees.fast, changeAddress);
+    const { tx, fee } = foundWallet.createBip47NotificationTransaction(spendableUtxos, newPc, fees.fast, changeAddress);
 
     if (!tx) {
       presentAlert({ message: loc.bip47.failed_create_notif_tx });
@@ -342,16 +333,13 @@ export default function PaymentCodesList() {
       )
     ) {
       setLoadingText('Broadcasting...');
-      try {
-        await foundWallet.broadcastTx(tx.toHex());
-        foundWallet.addBIP47Receiver(newPc);
-        presentAlert({ message: loc.bip47.notif_tx_sent });
-        txMetadata[tx.getId()] = { memo: loc.bip47.notif_tx };
-        setReload(Math.random());
-        await new Promise(resolve => setTimeout(resolve, 5000)); // tx propagate on backend so our fetch will actually get the new tx
-      } catch (_) {}
+      await foundWallet.broadcastTx(tx.toHex());
+      foundWallet.addBIP47Receiver(newPc);
+      presentAlert({ message: loc.bip47.notif_tx_sent });
+      await setTransactionMemo(tx.getId(), loc.bip47.notif_tx);
+      await new Promise(resolve => setTimeout(resolve, 5000)); // tx propagate on backend so our fetch will actually get the new tx
       setLoadingText('Fetching transactions...');
-      await foundWallet.fetchTransactions();
+      await fetchAndSaveWalletTransactions(foundWallet.getID());
       setLoadingText('');
     }
   };
@@ -396,9 +384,22 @@ const styles = StyleSheet.create({
     height: 35,
     borderRadius: 25,
   },
-  contactRowBody: { justifyContent: 'center', top: -3, marginLeft: 10, flexShrink: 1 },
+  contactRowBody: {
+    justifyContent: 'center',
+    top: -3,
+    marginLeft: 10,
+    flexShrink: 1,
+  },
   contactRowNameText: { fontSize: 16 },
   contactRowContainer: { flexDirection: 'row', padding: 15 },
-  stick: { borderStyle: 'solid', borderWidth: 0.5, borderColor: 'gray', opacity: 0.5, top: 0, left: -10, width: '110%' },
+  stick: {
+    borderStyle: 'solid',
+    borderWidth: 0.5,
+    borderColor: 'gray',
+    opacity: 0.5,
+    top: 0,
+    left: -10,
+    width: '110%',
+  },
   tooltipButton: { width: '100%', alignSelf: 'stretch' },
 });

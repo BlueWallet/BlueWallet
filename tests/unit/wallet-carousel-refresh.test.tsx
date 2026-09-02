@@ -2,8 +2,7 @@ import React from 'react';
 import assert from 'assert';
 import { render } from '@testing-library/react-native';
 
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
-import WalletsCarousel, { walletHasPendingTransaction } from '../../components/WalletsCarousel';
+import WalletsCarousel from '../../components/WalletsCarousel';
 import { TWallet } from '../../class/wallets/types';
 import loc, { formatBalance } from '../../loc';
 
@@ -23,6 +22,24 @@ jest.mock('../../components/themes', () => ({
       brandingColor: '#000',
     },
   }),
+}));
+
+jest.mock('../../hooks/useWalletActivity', () => ({
+  useWalletActivitySummary: (wallet: TWallet) => {
+    const transactions = wallet.getTransactions();
+    return {
+      latestTransaction:
+        transactions.length > 0
+          ? {
+              ...transactions[0],
+              timestamp: new Date(wallet.getLatestTransactionTime()).getTime() / 1000,
+            }
+          : undefined,
+      hasPendingTransaction: transactions.some((transaction: any) =>
+        typeof transaction.ispaid === 'boolean' ? transaction.ispaid === false && !transaction.failed : transaction.confirmations === 0,
+      ),
+    };
+  },
 }));
 
 jest.mock('react-native-linear-gradient', () => {
@@ -75,21 +92,6 @@ const makeWallet = (partial: Partial<MutableWallet> = {}): MutableWallet => {
   };
   return w as MutableWallet;
 };
-
-describe('walletHasPendingTransaction', () => {
-  it('flags on-chain unconfirmed txs and Lightning in-flight (not failed) swaps', () => {
-    assert.strictEqual(walletHasPendingTransaction(makeWallet({ transactions: [{ confirmations: 1 }] })), false);
-    assert.strictEqual(walletHasPendingTransaction(makeWallet({ transactions: [{ confirmations: 0 }] })), true);
-    assert.strictEqual(
-      walletHasPendingTransaction(makeWallet({ type: LightningArkWallet.type, transactions: [{ ispaid: false, failed: false }] })),
-      true,
-    );
-    assert.strictEqual(
-      walletHasPendingTransaction(makeWallet({ type: LightningArkWallet.type, transactions: [{ ispaid: false, failed: true }] })),
-      false,
-    );
-  });
-});
 
 describe('wallet carousel refresh publish', () => {
   it.each([

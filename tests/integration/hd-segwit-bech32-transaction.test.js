@@ -7,6 +7,8 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { BlueApp } from '../../class/blue-app';
+import { activityRowToTransaction, queryWalletActivity } from '../../blue_modules/realm/appDataRepository';
 
 jest.setTimeout(150 * 1000);
 
@@ -35,6 +37,7 @@ async function _getHdWallet() {
   _cachedHdWallet.setSecret(process.env.HD_MNEMONIC_BIP84);
   await _cachedHdWallet.fetchBalance();
   await _cachedHdWallet.fetchTransactions();
+  await BlueApp.getInstance().persistWalletTransactions([_cachedHdWallet]);
   return _cachedHdWallet;
 }
 
@@ -69,6 +72,32 @@ describe('HDSegwitBech32Transaction', () => {
     tt = new HDSegwitBech32Transaction(null, '89bcff166c39b3831e03257d4bcc1034dd52c18af46a3eb459e72e692a88a2d8', hd);
 
     assert.ok(!(await tt.isOurTransaction()));
+  });
+
+  it('uses canonical Realm ownership after wallet transaction memory is emptied', async function () {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    const populatedWallet = await _getHdWallet();
+    const realm = await BlueApp.getInstance().getRealmForTransactions();
+    const emptyWallet = new HDSegwitBech32Wallet();
+    emptyWallet.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.strictEqual(emptyWallet.getTransactions().length, 0);
+
+    const outgoingTxid = '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e';
+    const outgoingRow = queryWalletActivity(realm, populatedWallet.getID(), { transactionId: outgoingTxid })[0];
+    assert.ok(outgoingRow);
+    const outgoing = new HDSegwitBech32Transaction(null, outgoingTxid, emptyWallet);
+    assert.strictEqual(await outgoing.isOurTransaction(activityRowToTransaction(outgoingRow)), true);
+
+    const incomingTxid = '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f';
+    const incomingRow = queryWalletActivity(realm, populatedWallet.getID(), { transactionId: incomingTxid })[0];
+    assert.ok(incomingRow);
+    const incoming = new HDSegwitBech32Transaction(null, incomingTxid, emptyWallet);
+    assert.strictEqual(await incoming.isToUsTransaction(activityRowToTransaction(incomingRow)), true);
+    assert.strictEqual(emptyWallet.getTransactions().length, 0);
   });
 
   it('can tell tx info', async function () {

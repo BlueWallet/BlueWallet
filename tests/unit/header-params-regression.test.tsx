@@ -40,6 +40,10 @@ jest.mock('../../hooks/context/useStorage', () => ({
   }),
 }));
 
+jest.mock('../../hooks/useRealmMetadata', () => ({
+  useCounterpartyMetadata: () => ({}),
+}));
+
 jest.mock('../../hooks/context/useSettings', () => ({
   useSettings: () => ({
     isElectrumDisabled: false,

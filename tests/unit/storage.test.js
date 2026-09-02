@@ -1,10 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import assert from 'assert';
+import Realm from 'realm';
 
 import { BlueApp } from '../../class/blue-app';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { queryWalletActivity, setCounterpartyMetadata, setTransactionMemo } from '../../blue_modules/realm/appDataRepository';
 
 jest.mock('../../blue_modules/BlueElectrum', () => {
   return {
@@ -19,17 +21,17 @@ it('Appstorage - loadFromDisk works', async () => {
   w.setLabel('testlabel');
   await w.generate();
   Storage.wallets.push(w);
-  Storage.tx_metadata = {
-    txid: {
-      memo: 'tx label',
-    },
-  };
-  Storage.counterparty_metadata = {
-    'payment code': {
-      label: 'yegor letov',
-    },
-  };
+  const realm = await Storage.getRealmForTransactions();
+  setTransactionMemo(realm, 'txid', 'tx label');
+  setCounterpartyMetadata(realm, 'payment code', { label: 'yegor letov' });
   await Storage.saveToDisk();
+
+  // Realm is authoritative once initialized. A stale legacy bucket mirror
+  // must not overwrite canonical metadata during the next load.
+  const staleBucket = JSON.parse(await AsyncStorage.getItem('data'));
+  staleBucket.tx_metadata = { txid: { memo: 'stale bucket label' } };
+  staleBucket.counterparty_metadata = { 'payment code': { label: 'stale bucket contact' } };
+  await AsyncStorage.setItem('data', JSON.stringify(staleBucket));
 
   // saved, now trying to load
 
@@ -41,6 +43,10 @@ it('Appstorage - loadFromDisk works', async () => {
   assert.strictEqual(Storage2.counterparty_metadata['payment code'].label, 'yegor letov');
   let isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(!isEncrypted);
+
+  const defaultRealmPath = (await Storage2.getRealmForTransactions()).path;
+  await Storage2.encryptStorage('new-storage-password');
+  assert.strictEqual(Realm.exists({ path: defaultRealmPath }), false, 'known-key app-data Realm must be deleted after encryption');
 
   // emulating encrypted storage (and testing flag)
 
@@ -217,9 +223,10 @@ it('AppStorage - getTransactions() work', async () => {
 
   Storage.wallets.push(w);
   Storage.wallets.push(w2);
+  await Storage.persistWalletTransactions([w, w2]);
+  await Storage.saveToDisk();
 
-  // setup complete. now we have a storage with 2 wallets, each wallet has
-  // exactly one transaction
+  // The canonical Realm now has two wallets with one transaction each.
 
   let txs = Storage.getTransactions();
   assert.strictEqual(txs.length, 2); // getter for _all_ txs works
@@ -251,6 +258,20 @@ it('AppStorage - getTransactions() work', async () => {
     assert.strictEqual(tx.walletPreferredBalanceUnit, w.getPreferredBalanceUnit());
     assert.strictEqual(tx.walletPreferredBalanceUnit, 'BTC');
   }
+
+  await Storage.saveToDisk();
+  const ReloadedStorage = new BlueApp();
+  await ReloadedStorage.loadFromDisk();
+  assert.strictEqual(
+    ReloadedStorage.getTransactions(undefined, Infinity, true).length,
+    2,
+    'transactions remain available from canonical Realm',
+  );
+  assert.strictEqual(
+    ReloadedStorage.wallets[0].getTransactions().length,
+    0,
+    'loadFromDisk must not copy Realm transactions into wallet memory',
+  );
 });
 
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {
@@ -431,8 +452,10 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   assert.ok(isEncrypted);
   loadResult = await Storage4.loadFromDisk('password');
   assert.ok(loadResult);
+  const encryptedRealmPath = (await Storage4.getRealmForTransactions()).path;
   const decryptStorageResult = await Storage4.decryptStorage('password');
   assert.ok(decryptStorageResult);
+  assert.strictEqual(Realm.exists({ path: encryptedRealmPath }), false, 'decryption must delete the former password Realm');
 
   const Storage5 = new BlueApp();
   isEncrypted = await Storage5.storageIsEncrypted();
@@ -519,6 +542,94 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   const storage5loadResult = await Storage7.loadFromDisk();
   assert.ok(storage5loadResult);
   assert.strictEqual(Storage7.wallets[0].getLabel(), 'fakewallet');
+});
+
+it('serializes concurrent wallet saves without mutating live wallet caches', async () => {
+  const storage = new BlueApp();
+  const wallet = new HDSegwitBech32Wallet();
+  await wallet.generate();
+  const liveNode = { retained: true };
+  wallet._node0 = liveNode;
+  storage.wallets.push(wallet);
+
+  const setItem = storage.setItem;
+  let activeWrites = 0;
+  let maximumConcurrentWrites = 0;
+  storage.setItem = async (...args) => {
+    activeWrites += 1;
+    maximumConcurrentWrites = Math.max(maximumConcurrentWrites, activeWrites);
+    await new Promise(resolve => setTimeout(resolve, 5));
+    try {
+      return await setItem(...args);
+    } finally {
+      activeWrites -= 1;
+    }
+  };
+
+  await Promise.all([storage.saveToDisk(), storage.saveToDisk()]);
+
+  assert.strictEqual(maximumConcurrentWrites, 1);
+  assert.strictEqual(wallet._node0, liveNode);
+});
+
+it('reports a wallet save failure and allows the next queued save to retry', async () => {
+  const storage = new BlueApp();
+  const wallet = new SegwitP2SHWallet();
+  await wallet.generate();
+  storage.wallets.push(wallet);
+  const realm = await storage.getRealmForTransactions();
+  realm.write(() => {
+    realm.create('WalletActivity', {
+      walletId: wallet.getID(),
+      transactionId: 'retained-on-failure',
+      paymentRequest: '',
+      timestamp: 1,
+      confirmations: 1,
+      pending: false,
+      searchText: 'retained-on-failure',
+      payloadJson: JSON.stringify({ txid: 'retained-on-failure' }),
+    });
+  });
+  assert.strictEqual(queryWalletActivity(realm, wallet.getID()).length, 1);
+
+  const setItem = storage.setItem;
+  storage.wallets = [];
+  storage.setItem = async () => {
+    throw new Error('simulated storage write failure');
+  };
+  await assert.rejects(storage.saveToDisk(), /simulated storage write failure/);
+  assert.strictEqual(queryWalletActivity(realm, wallet.getID()).length, 1, 'failed wallet storage must not prune canonical history');
+
+  storage.setItem = setItem;
+  await storage.saveToDisk();
+  assert.strictEqual(queryWalletActivity(realm, wallet.getID()).length, 0);
+});
+
+it('refreshes and persists the wallet selected by ID, independent of array order', async () => {
+  const storage = new BlueApp();
+  const first = {
+    getID: () => 'first-wallet',
+    getLabel: () => 'First wallet',
+    fetchBalance: jest.fn(),
+    fetchTransactions: jest.fn(),
+  };
+  const second = {
+    getID: () => 'second-wallet',
+    getLabel: () => 'Second wallet',
+    fetchBalance: jest.fn(),
+    fetchTransactions: jest.fn(),
+  };
+  storage.wallets = [first, second];
+  storage.persistWalletTransactions = jest.fn();
+
+  await storage.fetchWalletBalances('second-wallet');
+  await storage.fetchWalletTransactions('second-wallet');
+
+  expect(first.fetchBalance).not.toHaveBeenCalled();
+  expect(first.fetchTransactions).not.toHaveBeenCalled();
+  expect(second.fetchBalance).toHaveBeenCalledTimes(1);
+  expect(second.fetchTransactions).toHaveBeenCalledTimes(1);
+  expect(storage.persistWalletTransactions).toHaveBeenCalledWith([second]);
 });
 
 it('Appstorage - hashIt() works', async () => {

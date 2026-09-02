@@ -1,8 +1,30 @@
 import React from 'react';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import Realm from 'realm';
 
 import { _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
+import {
+  APP_DATA_SCHEMA_VERSION,
+  AppDataSchemas,
+  replaceCanonicalData,
+  replaceCanonicalWalletTransactions,
+} from '../../blue_modules/realm/appDataRepository';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
+import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+
+jest.unmock('realm');
+jest.mock('../../blue_modules/realm/WalletDataRealmProvider', () => {
+  const { createRealmContext } = jest.requireActual('@realm/react');
+  const context = createRealmContext();
+  return {
+    useWalletDataQuery: context.useQuery,
+    useWalletDataRealm: context.useRealm,
+    TestRealmProvider: context.RealmProvider,
+  };
+});
+
+const { TestRealmProvider } = jest.requireMock('../../blue_modules/realm/WalletDataRealmProvider');
 
 // TransactionStatus renders fiat amounts via satoshiToLocalCurrency(), which
 // kicks off a real exchange-rate fetch when no rate is cached — leaving a TLS
@@ -16,6 +38,7 @@ type MockStorage = {
   fetchAndSaveWalletTransactions: jest.Mock;
   getTransactions: jest.Mock;
   saveToDisk: jest.Mock;
+  setTransactionMemo: jest.Mock;
 };
 
 const mockFetchAndSaveWalletTransactions = jest.fn(() => Promise.resolve());
@@ -26,17 +49,21 @@ let mockStorageState: MockStorage = {
   fetchAndSaveWalletTransactions: mockFetchAndSaveWalletTransactions,
   getTransactions: jest.fn(() => Promise.resolve([])),
   saveToDisk: jest.fn(() => Promise.resolve()),
+  setTransactionMemo: jest.fn(async (txid: string, memo: string) => {
+    mockStorageState.txMetadata[txid] = { memo };
+  }),
 };
 
 jest.mock('../../hooks/context/useStorage', () => ({
   useStorage: () => mockStorageState,
+  useWallet: (walletID: string) => mockStorageState.wallets.find(wallet => wallet.getID() === walletID),
 }));
 
-let mockWalletSubscribe: any = null;
-
-jest.mock('../../hooks/useWalletSubscribe', () => ({
-  __esModule: true,
-  default: () => mockWalletSubscribe,
+jest.mock('../../hooks/useRealmMetadata', () => ({
+  useTransactionMetadata: () => mockStorageState.txMetadata,
+  useTransactionMemo: (txid: string) => mockStorageState.txMetadata[txid]?.memo ?? '',
+  useSetTransactionMemo: () => mockStorageState.setTransactionMemo,
+  useCounterpartyMetadata: () => mockStorageState.counterpartyMetadata,
 }));
 
 let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet' };
@@ -99,21 +126,38 @@ jest.mock('react-native-linear-gradient', () => 'LinearGradient');
 
 jest.mock('../../components/BlueCard', () => {
   const { View } = require('react-native');
-  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <View>{children}</View> };
+  return {
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
+  };
 });
 jest.mock('../../components/BlueText', () => {
   const { Text } = require('react-native');
-  return { __esModule: true, default: ({ children }: { children: React.ReactNode }) => <Text>{children}</Text> };
+  return {
+    __esModule: true,
+    default: ({ children }: { children: React.ReactNode }) => <Text>{children}</Text>,
+  };
 });
 
-jest.mock('../../components/Button', () => 'Button');
+jest.mock('../../components/Button', () => {
+  const ReactModule = require('react');
+  const { Text } = require('react-native');
+  return ({ title }: { title: string }) => ReactModule.createElement(Text, null, title);
+});
+jest.mock('../../components/CopyTextToClipboard', () => {
+  const ReactModule = require('react');
+  const { Text } = require('react-native');
+  return ({ text, displayText }: { text: string; displayText?: string }) => ReactModule.createElement(Text, null, displayText ?? text);
+});
 jest.mock('../../components/HandOffComponent', () => 'HandOffComponent');
 jest.mock('../../components/HeaderRightButton', () => 'HeaderRightButton');
 jest.mock('../../components/BlueSpacing', () => ({
   BlueSpacing10: 'BlueSpacing10',
   BlueSpacing20: 'BlueSpacing20',
 }));
-jest.mock('../../components/BlueLoading', () => ({ BlueLoading: 'BlueLoading' }));
+jest.mock('../../components/BlueLoading', () => ({
+  BlueLoading: 'BlueLoading',
+}));
 jest.mock('../../components/SafeArea', () => ({ children }: { children: React.ReactNode }) => <>{children}</>);
 jest.mock('../../components/SafeAreaScrollView', () => ({ children }: { children: React.ReactNode }) => <>{children}</>);
 
@@ -217,6 +261,14 @@ const mockTxBase = {
   counterparty: undefined,
 };
 
+let testRealm: Realm;
+const renderStatus = () => {
+  replaceCanonicalData(testRealm, mockStorageState.wallets, mockStorageState.txMetadata, mockStorageState.counterpartyMetadata);
+  return render(<TransactionStatus />, {
+    wrapper: ({ children }) => <TestRealmProvider realm={testRealm}>{children}</TestRealmProvider>,
+  });
+};
+
 const setup = (confirmations: number, lastFetch: number) => {
   let currentConfirmations = confirmations;
   let currentLastFetch = lastFetch;
@@ -234,25 +286,17 @@ const setup = (confirmations: number, lastFetch: number) => {
     wallets: [walletMock],
   };
 
-  mockWalletSubscribe = walletMock;
-
-  const view = render(<TransactionStatus />);
+  const view = renderStatus();
 
   const update = async (nextConfirmations: number, nextFetch: number) => {
     currentConfirmations = nextConfirmations;
     currentLastFetch = nextFetch;
-
-    // Create a new proxy to simulate what useWalletSubscribe does when lastTxFetch changes
-    mockWalletSubscribe = new Proxy(walletMock, {});
-
     mockStorageState = {
       ...mockStorageState,
       wallets: [walletMock],
     };
+    await act(async () => replaceCanonicalWalletTransactions(testRealm, [walletMock], mockStorageState.txMetadata));
     view.rerender(<TransactionStatus />);
-    await waitFor(() => {
-      expect(walletMock.getTransactions).toHaveBeenCalled();
-    });
     return view;
   };
 
@@ -260,7 +304,14 @@ const setup = (confirmations: number, lastFetch: number) => {
 };
 
 describe('TransactionStatus regression', () => {
-  beforeEach(() => {
+  afterAll(() => Realm.shutdown());
+
+  beforeEach(async () => {
+    testRealm = await Realm.open({ inMemory: true, schema: AppDataSchemas, schemaVersion: APP_DATA_SCHEMA_VERSION });
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    BlueElectrum.multiGetTransactionByTxid.mockImplementation((txids: string[]) =>
+      Promise.resolve(Object.fromEntries(txids.map(txid => [txid, { hash: txid, value: 1200, confirmations: 1, vin: [], vout: [] }]))),
+    );
     mockStorageState = {
       wallets: [],
       txMetadata: {},
@@ -268,30 +319,91 @@ describe('TransactionStatus regression', () => {
       fetchAndSaveWalletTransactions: mockFetchAndSaveWalletTransactions,
       getTransactions: jest.fn(() => Promise.resolve([])),
       saveToDisk: jest.fn(() => Promise.resolve()),
+      setTransactionMemo: jest.fn(async (txid: string, memo: string) => {
+        mockStorageState.txMetadata[txid] = { memo };
+      }),
     };
-    mockWalletSubscribe = null;
     routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
+    jest.spyOn(HDSegwitBech32Transaction.prototype, 'getRemoteConfirmationsNum').mockResolvedValue(0);
+    jest.spyOn(HDSegwitBech32Transaction.prototype, 'isSequenceReplaceable').mockResolvedValue(true);
+    jest.spyOn(HDSegwitBech32Transaction.prototype, 'canBumpTx').mockResolvedValue(true);
+    jest.spyOn(HDSegwitBech32Transaction.prototype, 'canCancelTx').mockResolvedValue(true);
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     jest.clearAllMocks();
+    testRealm.close();
   });
 
-  it('re-fetches wallet transactions when lastTxFetch changes', async () => {
-    const { view, update, walletMock } = setup(1, 1000);
+  it('updates when the canonical Realm activity snapshot changes', async () => {
+    const { view, update } = setup(1, 1000);
 
     await waitFor(() => {
       expect(view.getByText('confirmations: 1')).toBeTruthy();
     });
 
-    const initialCalls = walletMock.getTransactions.mock.calls.length;
-
     await update(4, 2000);
 
     await waitFor(() => {
-      expect(walletMock.getTransactions).toHaveBeenCalledTimes(initialCalls + 1);
       expect(view.getByText('confirmations: 4')).toBeTruthy();
     });
+  });
+
+  const renderEmptyMemoryFeeBump = (value: number) => {
+    const BlueElectrum = require('../../blue_modules/BlueElectrum');
+    BlueElectrum.multiGetTransactionByTxid.mockResolvedValue({
+      'mock-tx': { hash: 'mock-tx', value, confirmations: 0, vin: [], vout: [] },
+    });
+    const walletMock = {
+      type: HDSegwitBech32Wallet.type,
+      getID: () => 'mock-wallet',
+      getTransactions: jest.fn(() => []),
+      getLastTxFetch: jest.fn(() => 1000),
+      getUtxo: jest.fn(() => []),
+      allowRBF: jest.fn(() => true),
+      preferredBalanceUnit: 'BTC',
+    } as any;
+    mockStorageState = { ...mockStorageState, wallets: [walletMock] };
+    testRealm.write(() => {
+      testRealm.create('WalletActivity', {
+        walletId: 'mock-wallet',
+        transactionId: 'mock-tx',
+        paymentRequest: '',
+        outputAddresses: '',
+        timestamp: 1,
+        confirmations: 0,
+        pending: true,
+        searchText: 'mock-tx',
+        payloadJson: JSON.stringify({ ...mockTxBase, value, confirmations: 0 }),
+      });
+    });
+
+    const view = render(<TransactionStatus />, {
+      wrapper: ({ children }) => <TestRealmProvider realm={testRealm}>{children}</TestRealmProvider>,
+    });
+
+    return { view, walletMock };
+  };
+
+  it('checks CPFP from an incoming Realm transaction when wallet transaction memory is empty', async () => {
+    const { view, walletMock } = renderEmptyMemoryFeeBump(1200);
+
+    await waitFor(() => {
+      expect(view.getAllByText('Bump Fee').length).toBeGreaterThan(0);
+    });
+    expect(view.queryByText('Cancel')).toBeNull();
+    expect(walletMock.getTransactions).not.toHaveBeenCalled();
+  });
+
+  it('checks RBF from an outgoing Realm transaction when wallet transaction memory is empty', async () => {
+    const { view, walletMock } = renderEmptyMemoryFeeBump(-1200);
+
+    await waitFor(() => {
+      expect(view.getAllByText('Bump Fee').length).toBeGreaterThan(0);
+      expect(view.getByText('Cancel')).toBeTruthy();
+    });
+    expect(walletMock.getTransactions).not.toHaveBeenCalled();
   });
 
   it('when editing a note, passes current memo as default value in the input (not in alert message)', async () => {
@@ -324,7 +436,13 @@ describe('TransactionStatus regression', () => {
 
   it('renders an Arkade row as received (not pending) and never queries Electrum for its synthetic id', async () => {
     const BlueElectrum = require('../../blue_modules/BlueElectrum');
-    const arkRow = { txid: 'ark-deadbeef', type: 'bitcoind_tx', value: 1200, walletID: 'mock-wallet', timestamp: 1700000000 };
+    const arkRow = {
+      txid: 'ark-deadbeef',
+      type: 'bitcoind_tx',
+      value: 1200,
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
     routeParams = { tx: arkRow, hash: 'ark-deadbeef', walletID: 'mock-wallet' };
 
     const walletMock = {
@@ -335,9 +453,8 @@ describe('TransactionStatus regression', () => {
       preferredBalanceUnit: 'BTC',
     } as any;
     mockStorageState = { ...mockStorageState, wallets: [walletMock] };
-    mockWalletSubscribe = walletMock;
 
-    const view = render(<TransactionStatus />);
+    const view = renderStatus();
 
     // #1: the row shows its real direction (received), not a false "Pending".
     await waitFor(() => {
@@ -414,9 +531,8 @@ describe('TransactionStatus regression', () => {
     } as any;
     routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
     mockStorageState = { ...mockStorageState, wallets: [walletMock] };
-    mockWalletSubscribe = walletMock;
 
-    const view = render(<TransactionStatus />);
+    const view = renderStatus();
 
     await waitFor(() => {
       expect(view.getByText('received')).toBeTruthy();
@@ -439,7 +555,13 @@ describe('TransactionStatus regression', () => {
 
   it('does not fetch block accordion data for off-chain Ark rows', async () => {
     const BlueElectrum = require('../../blue_modules/BlueElectrum');
-    const arkRow = { txid: 'ark-deadbeef', type: 'bitcoind_tx', value: 1200, walletID: 'mock-wallet', timestamp: 1700000000 };
+    const arkRow = {
+      txid: 'ark-deadbeef',
+      type: 'bitcoind_tx',
+      value: 1200,
+      walletID: 'mock-wallet',
+      timestamp: 1700000000,
+    };
     routeParams = { tx: arkRow, hash: 'ark-deadbeef', walletID: 'mock-wallet' };
 
     const walletMock = {
@@ -450,9 +572,8 @@ describe('TransactionStatus regression', () => {
       preferredBalanceUnit: 'BTC',
     } as any;
     mockStorageState = { ...mockStorageState, wallets: [walletMock] };
-    mockWalletSubscribe = walletMock;
 
-    const view = render(<TransactionStatus />);
+    const view = renderStatus();
 
     await waitFor(() => {
       expect(view.getByText('received')).toBeTruthy();

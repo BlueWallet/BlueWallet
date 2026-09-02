@@ -32,9 +32,10 @@ import loc, { formatBalance, transactionTimeToReadable } from '../loc';
 import { BlurredBalanceView } from './BlurredBalanceView';
 import { withAlpha } from './color';
 import { useTheme } from './themes';
-import { Transaction, TWallet } from '../class/wallets/types';
+import { TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
+import { useWalletActivitySummary } from '../hooks/useWalletActivity';
 
 export const WALLET_CAROUSEL_HEADER_WIDTH = 16;
 
@@ -63,16 +64,6 @@ const WALLET_CARD_SECTION_GAP = 12;
 const WALLET_CARD_TEXT_OPACITY = 0.85;
 
 export const getWalletCarouselItemWidth = (screenWidth: number) => Math.round(screenWidth * 0.82 > 375 ? 375 : screenWidth * 0.82);
-
-/** Shared pending-pill rule for on-chain vs Lightning/Ark cards. */
-export const walletHasPendingTransaction = (item: TWallet): boolean => {
-  const isLightningShaped = item.type === LightningCustodianWallet.type || item.type === LightningArkWallet.type;
-  // Lightning/Ark: `ispaid === false` alone is not pending (failed/refunded swaps stay in history).
-  if (isLightningShaped) {
-    return item.getTransactions().some((tx: any) => tx.ispaid === false && !tx.failed);
-  }
-  return item.getTransactions().some((tx: Transaction) => tx.confirmations === 0);
-};
 
 interface NewWalletPanelProps {
   onPress: () => void;
@@ -322,6 +313,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
     const { sizeClass } = useSizeClass();
     const isCompact = sizeVariant === 'compact';
     const { direction } = useLocale();
+    const { latestTransaction, hasPendingTransaction } = useWalletActivitySummary(item);
     const scaledCardStyles = useMemo(
       () => ({
         grad: { minHeight: getWalletCardMinHeight(fontScale) },
@@ -438,13 +430,14 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
     }
 
     let latestTransactionText;
+    const latestTransactionTime = latestTransaction?.timestamp ? new Date(latestTransaction.timestamp * 1000).toString() : 0;
 
-    if (item.getBalance() !== 0 && item.getLatestTransactionTime() === 0) {
+    if (item.getBalance() !== 0 && latestTransactionTime === 0) {
       latestTransactionText = loc.wallets.pull_to_refresh;
-    } else if (walletHasPendingTransaction(item)) {
+    } else if (hasPendingTransaction) {
       latestTransactionText = loc.transactions.pending;
     } else {
-      latestTransactionText = transactionTimeToReadable(item.getLatestTransactionTime());
+      latestTransactionText = transactionTimeToReadable(latestTransactionTime);
     }
 
     return (

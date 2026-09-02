@@ -7,13 +7,16 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import presentAlert from '../../components/Alert';
 import SafeArea from '../../components/SafeArea';
 import loc from '../../loc';
-import CPFP from './CPFP';
-import { StorageContext } from '../../components/Context/StorageProvider';
+import { CpfpScreen } from './CPFP';
+import { WalletStorageContext } from '../../components/Context/WalletStorageProvider';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import { useSetTransactionMemo, useTransactionMemo } from '../../hooks/useRealmMetadata';
+import { useSettings } from '../../hooks/context/useSettings';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 
-export default class RBFCancel extends CPFP {
-  static contextType = StorageContext;
+class RBFCancel extends CpfpScreen {
+  static contextType = WalletStorageContext;
   async componentDidMount() {
     console.log('transactions/RBFCancel - componentDidMount');
     this.setState({
@@ -39,7 +42,7 @@ export default class RBFCancel extends CPFP {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
     if (
-      (await tx.isOurTransaction()) &&
+      (await tx.isOurTransaction(this.props.canonicalTransaction)) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
       (await tx.isSequenceReplaceable()) &&
       (await tx.canCancelTx())
@@ -65,12 +68,7 @@ export default class RBFCancel extends CPFP {
         // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
         // user whether he wants to broadcast it
         if (isWatchOnlySegwitBech32(this.state.wallet)) {
-          let memo;
-
-          // porting tx memo
-          if (this.context.txMetadata[this.state.txid]?.memo) {
-            memo = this.context.txMetadata[this.state.txid]?.memo;
-          }
+          const memo = this.props.transactionMemo || undefined;
 
           this.props.navigation
             .getParent()
@@ -96,16 +94,9 @@ export default class RBFCancel extends CPFP {
     }
   }
 
-  onSuccessBroadcast() {
-    // porting metadata, if any
-    this.context.txMetadata[this.state.newTxid] = this.context.txMetadata[this.state.txid] || {};
-
-    // porting tx memo
-    if (this.context.txMetadata[this.state.newTxid].memo) {
-      this.context.txMetadata[this.state.newTxid].memo = 'Cancelled: ' + this.context.txMetadata[this.state.newTxid].memo;
-    } else {
-      this.context.txMetadata[this.state.newTxid].memo = 'Cancelled transaction';
-    }
+  async onSuccessBroadcast() {
+    const memo = this.props.transactionMemo ? 'Cancelled: ' + this.props.transactionMemo : 'Cancelled transaction';
+    await this.props.setTransactionMemo(this.state.newTxid, memo);
     this.context.sleep(4000).then(() => this.context.fetchAndSaveWalletTransactions(this.state.wallet.getID()));
     this.props.navigation.navigate('Success', {
       amount: undefined,
@@ -166,4 +157,39 @@ RBFCancel.propTypes = {
       }),
     }),
   }),
+  route: PropTypes.shape({
+    params: PropTypes.shape({
+      txid: PropTypes.string,
+      wallet: PropTypes.object,
+      transaction: PropTypes.object,
+    }),
+  }),
+  transactionMemo: PropTypes.string,
+  isElectrumDisabled: PropTypes.bool,
+  setTransactionMemo: PropTypes.func,
+  canonicalTransaction: PropTypes.object,
 };
+
+const RBFCancelWithRealm = props => {
+  const txid = props.route?.params?.txid;
+  const wallet = props.route?.params?.wallet;
+  const canonicalTransaction = useWalletTransaction(wallet, txid) ?? props.route?.params?.transaction;
+  const transactionMemo = useTransactionMemo(txid);
+  const setTransactionMemo = useSetTransactionMemo();
+  const { isElectrumDisabled } = useSettings();
+  return (
+    <RBFCancel
+      {...props}
+      canonicalTransaction={canonicalTransaction}
+      transactionMemo={transactionMemo}
+      setTransactionMemo={setTransactionMemo}
+      isElectrumDisabled={isElectrumDisabled}
+    />
+  );
+};
+
+RBFCancelWithRealm.propTypes = {
+  route: RBFCancel.propTypes.route,
+};
+
+export default RBFCancelWithRealm;
