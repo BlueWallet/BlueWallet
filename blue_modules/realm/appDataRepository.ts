@@ -4,7 +4,7 @@ import type { TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import type { CreateTransactionUtxo, LightningTransaction, Transaction, TWallet, Utxo } from '../../class/wallets/types';
 
-export const APP_DATA_SCHEMA_VERSION = 10;
+export const APP_DATA_SCHEMA_VERSION = 11;
 export const APP_DATA_INITIALIZED_KEY = 'canonical-data-v1';
 export const APP_UTXO_INITIALIZED_KEY = 'canonical-utxo-v1';
 
@@ -39,6 +39,7 @@ export const AppDataSchemas: Realm.ObjectSchema[] = [
       txid: 'string',
       vout: 'int',
       outpoint: { type: 'string', indexed: true },
+      ordinal: 'int',
       height: 'int',
       value: 'double',
       memo: 'string',
@@ -97,6 +98,7 @@ export interface WalletUtxoRow extends Realm.Object<WalletUtxoRow> {
   txid: string;
   vout: number;
   outpoint: string;
+  ordinal: number;
   height: number;
   value: number;
   memo: string;
@@ -234,7 +236,7 @@ const createUtxoRows = (wallets: TWallet[], canonicalMetadata?: CanonicalUtxoMet
   for (const wallet of wallets) {
     try {
       const walletId = wallet.getID();
-      for (const utxo of wallet.getUtxo(true)) {
+      for (const [ordinal, utxo] of wallet.getUtxo(true).entries()) {
         // Wallet metadata is consulted only during the one-time migration. Once
         // Realm exists, its row is authoritative across subsequent refreshes.
         const metadata = canonicalMetadata?.get(`${walletId}:${utxo.txid}:${utxo.vout}`) ?? wallet.getUTXOMetadata(utxo.txid, utxo.vout);
@@ -245,6 +247,7 @@ const createUtxoRows = (wallets: TWallet[], canonicalMetadata?: CanonicalUtxoMet
           txid: utxo.txid,
           vout: utxo.vout,
           outpoint: `${utxo.txid}:${utxo.vout}`,
+          ordinal,
           height: utxo.height ?? 0,
           value: utxo.value,
           memo: metadata.memo ?? '',
@@ -436,7 +439,7 @@ export function queryWalletUtxos(
     vout,
     outpoints,
   }: {
-    sortType?: 'height' | 'label' | 'value' | 'frozen';
+    sortType?: 'ordinal' | 'height' | 'label' | 'value' | 'frozen';
     sortDirection?: 'asc' | 'desc';
     frozen?: boolean;
     txid?: string;

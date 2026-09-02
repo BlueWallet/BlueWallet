@@ -4,7 +4,12 @@ import { act, render, waitFor } from '@testing-library/react-native';
 import Realm from 'realm';
 import { tmpdir } from 'os';
 
-import { APP_DATA_SCHEMA_VERSION, AppDataSchemas } from '../../blue_modules/realm/appDataRepository';
+import {
+  APP_DATA_SCHEMA_VERSION,
+  AppDataSchemas,
+  type TransactionMetadataRow,
+  type WalletOrderRow,
+} from '../../blue_modules/realm/appDataRepository';
 
 jest.unmock('realm');
 
@@ -24,10 +29,10 @@ jest.mock('../../class/blue-app', () => ({
   BlueApp: { getInstance: () => mockBlueApp },
 }));
 
-const { WalletDataRealmProvider, useWalletDataQuery } =
+const { WalletDataRealmProvider, useWalletDataQuery, useWalletDataObject, useWalletDataRealm } =
   require('../../blue_modules/realm/WalletDataRealmProvider') as typeof import('../../blue_modules/realm/WalletDataRealmProvider');
 
-it('remounts live queries before releasing a superseded Realm', async () => {
+it('switches live queries without remounting their consumers', async () => {
   const suffix = `${Date.now()}-${Math.random()}`;
   const firstRealm = await Realm.open({
     inMemory: true,
@@ -41,13 +46,23 @@ it('remounts live queries before releasing a superseded Realm', async () => {
     schema: AppDataSchemas,
     schemaVersion: APP_DATA_SCHEMA_VERSION,
   });
-  firstRealm.write(() => firstRealm.create('WalletOrder', { walletId: 'first', position: 0 }));
-  secondRealm.write(() => secondRealm.create('WalletOrder', { walletId: 'second', position: 0 }));
+  firstRealm.write(() => {
+    firstRealm.create('WalletOrder', { walletId: 'first', position: 0 });
+    firstRealm.create('TransactionMetadata', { txid: 'shared', memo: 'first memo' });
+  });
+  secondRealm.write(() => {
+    secondRealm.create('WalletOrder', { walletId: 'second', position: 0 });
+    secondRealm.create('TransactionMetadata', { txid: 'shared', memo: 'second memo' });
+  });
   mockBlueApp.getWalletDataRealmForProvider.mockResolvedValue(firstRealm);
 
+  let mounts = 0;
   const Consumer = () => {
-    const rows = useWalletDataQuery<{ walletId: string }>('WalletOrder');
-    return <Text>{rows[0]?.walletId ?? 'empty'}</Text>;
+    const [mount] = React.useState(() => ++mounts);
+    const currentRealm = useWalletDataRealm();
+    const rows = useWalletDataQuery<WalletOrderRow>('WalletOrder');
+    const metadata = useWalletDataObject<TransactionMetadataRow>('TransactionMetadata', 'shared');
+    return <Text>{`${mount}:${currentRealm.path}:${rows[0]?.walletId ?? 'empty'}:${metadata?.memo ?? 'empty'}`}</Text>;
   };
 
   const view = render(
@@ -57,10 +72,11 @@ it('remounts live queries before releasing a superseded Realm', async () => {
   );
 
   await act(async () => mockRealmListener?.(firstRealm));
-  await waitFor(() => expect(view.getByText('first')).toBeTruthy());
+  await waitFor(() => expect(view.getByText(`1:${firstRealm.path}:first:first memo`)).toBeTruthy());
 
   await act(async () => mockRealmListener?.(secondRealm));
-  await waitFor(() => expect(view.getByText('second')).toBeTruthy());
+  await waitFor(() => expect(view.getByText(`1:${secondRealm.path}:second:second memo`)).toBeTruthy());
+  expect(mounts).toBe(1);
   expect(mockBlueApp.releaseAppDataRealm).toHaveBeenCalledWith(firstRealm);
   expect(firstRealm.isClosed).toBe(true);
 

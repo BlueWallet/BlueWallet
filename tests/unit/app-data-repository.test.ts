@@ -430,6 +430,11 @@ it('stores and queries UTXOs with their canonical metadata', async () => {
     ],
   );
   assert.deepStrictEqual(
+    Array.from(queryWalletUtxos(realm, 'wallet-1', { sortType: 'ordinal' }), utxoRowToUtxo).map(output => output.txid),
+    ['small', 'large'],
+    'transaction construction must preserve the wallet snapshot order',
+  );
+  assert.deepStrictEqual(
     Array.from(queryWalletUtxos(realm, 'wallet-1', { frozen: false }), utxoRowToUtxo).map(output => output.txid),
     ['large'],
   );
@@ -458,6 +463,7 @@ it('scrubs WIFs from UTXO rows created by older app-data schemas', async () => {
       txid: 'legacy-secret',
       vout: 0,
       outpoint: 'legacy-secret:0',
+      ordinal: 0,
       height: 1,
       value: 100,
       memo: '',

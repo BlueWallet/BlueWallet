@@ -10,7 +10,7 @@ import {
   utxoRowToUtxo,
 } from '../blue_modules/realm/appDataRepository';
 export type WalletUtxoQuery = {
-  sortType?: 'height' | 'label' | 'value' | 'frozen';
+  sortType?: 'ordinal' | 'height' | 'label' | 'value' | 'frozen';
   sortDirection?: 'asc' | 'desc';
   frozen?: boolean;
   txid?: string;
@@ -61,8 +61,8 @@ export const useGetWalletUtxos = (walletId: string) => {
 };
 
 export const useWalletUtxoSelection = (walletId: string, outpoints: string[]) => {
-  const selection = useWalletUtxoQuery(walletId, { outpoints });
-  const unfrozen = useWalletUtxoQuery(walletId, { outpoints, frozen: false });
+  const selection = useWalletUtxoQuery(walletId, { outpoints, sortType: 'ordinal' });
+  const unfrozen = useWalletUtxoQuery(walletId, { outpoints, frozen: false, sortType: 'ordinal' });
   return {
     ...selection,
     allFrozen: selection.count > 0 && unfrozen.count === 0,

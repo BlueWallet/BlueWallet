@@ -110,6 +110,7 @@ const SendDetails = () => {
   const walletId = wallet?.getID() ?? '';
   const { utxos: spendableUtxos, totalValue: spendableUtxoValue } = useWalletUtxoQuery(walletId, {
     frozen: false,
+    sortType: 'ordinal',
   });
   const selectedOutpoints = useMemo(() => utxos?.map(utxo => `${utxo.txid}:${utxo.vout}`) ?? [], [utxos]);
   const { utxos: selectedUtxos, totalValue: selectedUtxoValue } = useWalletUtxoSelection(walletId, selectedOutpoints);
