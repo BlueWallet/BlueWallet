@@ -1,6 +1,6 @@
 import { AztecoVoucher } from '../class/azteco';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { LightningTransaction, TWallet } from '../class/wallets/types';
+import { LightningTransaction, Transaction, TWallet } from '../class/wallets/types';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
@@ -46,9 +46,10 @@ export type DetailViewStackParamList = {
   CPFP: {
     wallet: TWallet | null;
     txid: string;
+    transaction: Transaction;
   };
-  RBFBumpFee: { txid: string; wallet: TWallet | null };
-  RBFCancel: { txid: string; wallet: TWallet | null };
+  RBFBumpFee: { txid: string; wallet: TWallet | null; transaction: Transaction };
+  RBFCancel: { txid: string; wallet: TWallet | null; transaction: Transaction };
   SelectWallet: {
     chainType?: Chain;
     onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;

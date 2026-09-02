@@ -42,7 +42,8 @@ const useWalletActivityRows = (walletId: string, options: WalletActivityQuery = 
   );
 };
 
-const mapTransactions = (rows: Iterable<WalletActivityRow>, wallets: TWallet[]): WalletActivityTransaction[] => {
+const mapTransactions = (rows: Iterable<WalletActivityRow>, wallets: TWallet[], limit = Infinity): WalletActivityTransaction[] => {
+  if (limit <= 0) return [];
   const walletById = new Map(wallets.map(wallet => [wallet.getID(), wallet]));
   const transactions: WalletActivityTransaction[] = [];
   for (const row of rows) {
@@ -50,6 +51,7 @@ const mapTransactions = (rows: Iterable<WalletActivityRow>, wallets: TWallet[]):
     if (!wallet) continue;
     const transaction = toTransaction(row, wallet);
     if (transaction) transactions.push(transaction);
+    if (transactions.length >= limit) break;
   }
   return transactions;
 };
@@ -108,10 +110,13 @@ export default function useWalletActivity(
 
 export function useWalletActivityPage(wallet: TWallet, search = '', limit = 20) {
   const walletId = wallet.getID();
-  const rows = useWalletActivityRows(walletId, { search, limit });
-  const allRows = useWalletActivityRows(walletId, { search });
-  const transactions = mapTransactions(rows, [wallet]);
-  return { transactions, hasMore: allRows.length > rows.length };
+  const pageSize = Math.max(0, Math.floor(limit));
+  // One bounded live query includes a single look-ahead row. Realm performs
+  // filtering, ordering, and pagination; JS only maps the requested view-model
+  // rows and uses the look-ahead to report whether another page exists.
+  const rows = useWalletActivityRows(walletId, { search, limit: pageSize + 1 });
+  const transactions = mapTransactions(rows, [wallet], pageSize);
+  return { transactions, hasMore: rows.length > pageSize };
 }
 
 /** Returns one wallet's live, Realm-filtered activity without a per-wallet map. */

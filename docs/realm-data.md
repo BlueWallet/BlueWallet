@@ -14,6 +14,7 @@ The implementation targets Realm JS 20.x. `BlueApp` owns one open app-data Realm
 1. Wallet implementations fetch data into temporary operational structures.
 2. Transaction and UTXO fetch methods replace only that wallet's corresponding Realm rows. Ordinary `saveToDisk()` calls persist wallet configuration without rebuilding canonical data from memory.
 3. Raw on-chain/LNDHub transactions, UTXOs, and their metadata are stripped from the wallet configuration.
+   `WalletActivity` stores the single canonical transaction payload. `WalletTransaction` stores only address-chain, index, and ordinal markers for the address browser; it does not duplicate transaction JSON.
 4. On startup, wallet configuration is reconstructed from the encrypted bucket while transactions, UTXOs, and metadata remain in Realm. The old cache Realm and legacy bucket metadata are read only for a first-run migration.
 
 Activity hooks pass search, pending/confirmed filters, ordering, and page bounds to Realm. Home feeds and carousel summaries use Realm's native `LIMIT` descriptor; JavaScript only maps the bounded managed rows into the existing view-model shape. Metadata is read and mutated by `WalletDataRealmProvider` hooks at the consuming component instead of being copied through `WalletStorageProvider`.

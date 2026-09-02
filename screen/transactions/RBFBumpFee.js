@@ -13,6 +13,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 import { useSetTransactionMemo, useTransactionMemo } from '../../hooks/useRealmMetadata';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 
 const styles = StyleSheet.create({
   root: {
@@ -48,7 +49,11 @@ class RBFBumpFee extends CpfpScreen {
     } else {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
-    if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
+    if (
+      (await tx.isOurTransaction(this.props.canonicalTransaction)) &&
+      (await tx.getRemoteConfirmationsNum()) === 0 &&
+      (await tx.isSequenceReplaceable())
+    ) {
       const info = await tx.getInfo();
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
@@ -162,21 +167,26 @@ RBFBumpFee.propTypes = {
     params: PropTypes.shape({
       txid: PropTypes.string,
       wallet: PropTypes.object,
+      transaction: PropTypes.object,
     }),
   }),
   transactionMemo: PropTypes.string,
   isElectrumDisabled: PropTypes.bool,
   setTransactionMemo: PropTypes.func,
+  canonicalTransaction: PropTypes.object,
 };
 
 const RBFBumpFeeWithRealm = props => {
   const txid = props.route?.params?.txid;
+  const wallet = props.route?.params?.wallet;
+  const canonicalTransaction = useWalletTransaction(wallet, txid) ?? props.route?.params?.transaction;
   const transactionMemo = useTransactionMemo(txid);
   const setTransactionMemo = useSetTransactionMemo();
   const { isElectrumDisabled } = useSettings();
   return (
     <RBFBumpFee
       {...props}
+      canonicalTransaction={canonicalTransaction}
       transactionMemo={transactionMemo}
       setTransactionMemo={setTransactionMemo}
       isElectrumDisabled={isElectrumDisabled}

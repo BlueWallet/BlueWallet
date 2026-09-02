@@ -19,6 +19,7 @@ import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { BlueSpacing, BlueSpacing20 } from '../../components/BlueSpacing';
 import { useSetTransactionMemo } from '../../hooks/useRealmMetadata';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 
 const styles = StyleSheet.create({
   root: {
@@ -130,7 +131,7 @@ export class CpfpScreen extends Component {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
     const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
-    if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
+    if ((await tx.isToUsTransaction(this.props.canonicalTransaction)) && (await tx.getRemoteConfirmationsNum()) === 0) {
       const info = await tx.getInfo();
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
@@ -249,16 +250,32 @@ CpfpScreen.propTypes = {
     params: PropTypes.shape({
       txid: PropTypes.string,
       wallet: PropTypes.object,
+      transaction: PropTypes.object,
     }),
   }),
   isElectrumDisabled: PropTypes.bool,
   setTransactionMemo: PropTypes.func,
+  canonicalTransaction: PropTypes.object,
 };
 
 const CPFPWithRealm = props => {
   const setTransactionMemo = useSetTransactionMemo();
   const { isElectrumDisabled } = useSettings();
-  return <CpfpScreen {...props} isElectrumDisabled={isElectrumDisabled} setTransactionMemo={setTransactionMemo} />;
+  const wallet = props.route?.params?.wallet;
+  const txid = props.route?.params?.txid;
+  const canonicalTransaction = useWalletTransaction(wallet, txid) ?? props.route?.params?.transaction;
+  return (
+    <CpfpScreen
+      {...props}
+      canonicalTransaction={canonicalTransaction}
+      isElectrumDisabled={isElectrumDisabled}
+      setTransactionMemo={setTransactionMemo}
+    />
+  );
+};
+
+CPFPWithRealm.propTypes = {
+  route: CpfpScreen.propTypes.route,
 };
 
 export default CPFPWithRealm;

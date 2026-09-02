@@ -10,6 +10,8 @@ import {
   replaceCanonicalWalletTransactions,
 } from '../../blue_modules/realm/appDataRepository';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
+import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
+import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 
 jest.unmock('realm');
 jest.mock('../../blue_modules/realm/WalletDataRealmProvider', () => {
@@ -189,17 +191,6 @@ jest.mock('../../blue_modules/BlueElectrum', () => ({
   getBlockTimestamps: jest.fn((heights: number[]) => Promise.resolve(Object.fromEntries(heights.map((h: number) => [h, 1700000000])))),
 }));
 
-jest.mock('../../class/hd-segwit-bech32-transaction', () => ({
-  HDSegwitBech32Transaction: jest.fn().mockImplementation(() => ({
-    isToUsTransaction: jest.fn(async () => true),
-    isOurTransaction: jest.fn(async () => true),
-    getRemoteConfirmationsNum: jest.fn(async () => 0),
-    isSequenceReplaceable: jest.fn(async () => true),
-    canBumpTx: jest.fn(async () => true),
-    canCancelTx: jest.fn(async () => true),
-  })),
-}));
-
 jest.mock('../../loc', () => ({
   __esModule: true,
   default: {
@@ -333,9 +324,14 @@ describe('TransactionStatus regression', () => {
       }),
     };
     routeParams = { hash: 'mock-tx', walletID: 'mock-wallet' };
+    jest.spyOn(HDSegwitBech32Transaction.prototype, 'getRemoteConfirmationsNum').mockResolvedValue(0);
+    jest.spyOn(HDSegwitBech32Transaction.prototype, 'isSequenceReplaceable').mockResolvedValue(true);
+    jest.spyOn(HDSegwitBech32Transaction.prototype, 'canBumpTx').mockResolvedValue(true);
+    jest.spyOn(HDSegwitBech32Transaction.prototype, 'canCancelTx').mockResolvedValue(true);
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     jest.clearAllMocks();
     testRealm.close();
   });
@@ -354,12 +350,13 @@ describe('TransactionStatus regression', () => {
     });
   });
 
-  it('checks CPFP and RBF from the Realm transaction when wallet transaction memory is empty', async () => {
+  const renderEmptyMemoryFeeBump = (value: number) => {
     const BlueElectrum = require('../../blue_modules/BlueElectrum');
     BlueElectrum.multiGetTransactionByTxid.mockResolvedValue({
-      'mock-tx': { hash: 'mock-tx', value: 1200, confirmations: 0, vin: [], vout: [] },
+      'mock-tx': { hash: 'mock-tx', value, confirmations: 0, vin: [], vout: [] },
     });
     const walletMock = {
+      type: HDSegwitBech32Wallet.type,
       getID: () => 'mock-wallet',
       getTransactions: jest.fn(() => []),
       getLastTxFetch: jest.fn(() => 1000),
@@ -378,13 +375,29 @@ describe('TransactionStatus regression', () => {
         confirmations: 0,
         pending: true,
         searchText: 'mock-tx',
-        payloadJson: JSON.stringify({ ...mockTxBase, confirmations: 0 }),
+        payloadJson: JSON.stringify({ ...mockTxBase, value, confirmations: 0 }),
       });
     });
 
     const view = render(<TransactionStatus />, {
       wrapper: ({ children }) => <TestRealmProvider realm={testRealm}>{children}</TestRealmProvider>,
     });
+
+    return { view, walletMock };
+  };
+
+  it('checks CPFP from an incoming Realm transaction when wallet transaction memory is empty', async () => {
+    const { view, walletMock } = renderEmptyMemoryFeeBump(1200);
+
+    await waitFor(() => {
+      expect(view.getAllByText('Bump Fee').length).toBeGreaterThan(0);
+    });
+    expect(view.queryByText('Cancel')).toBeNull();
+    expect(walletMock.getTransactions).not.toHaveBeenCalled();
+  });
+
+  it('checks RBF from an outgoing Realm transaction when wallet transaction memory is empty', async () => {
+    const { view, walletMock } = renderEmptyMemoryFeeBump(-1200);
 
     await waitFor(() => {
       expect(view.getAllByText('Bump Fee').length).toBeGreaterThan(0);

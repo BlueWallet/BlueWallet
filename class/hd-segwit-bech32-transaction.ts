@@ -5,7 +5,7 @@ import assert from 'assert';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
 import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
-import { CreateTransactionUtxo } from './wallets/types.ts';
+import { CreateTransactionUtxo, Transaction } from './wallets/types.ts';
 import { CoinSelectOutput, CoinSelectReturnInput } from 'coinselect';
 import { isUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 
@@ -119,11 +119,15 @@ export class HDSegwitBech32Transaction {
    *
    * @returns {Promise<boolean>}
    */
-  async isOurTransaction() {
+  async isOurTransaction(canonicalTransaction?: Transaction) {
     if (!this._wallet) throw new Error('Wallet required for this method');
+    const txid = this._txid || this._txDecoded!.getId();
+    if (canonicalTransaction) {
+      return (canonicalTransaction.txid === txid || canonicalTransaction.hash === txid) && Number(canonicalTransaction.value) < 0;
+    }
     let found = false;
     for (const tx of this._wallet.getTransactions()) {
-      if (tx.txid === (this._txid || this._txDecoded!.getId())) {
+      if (tx.txid === txid) {
         // its our transaction, and its spending transaction, which means we initiated it
         if (tx.value && tx.value < 0) found = true;
       }
@@ -138,11 +142,15 @@ export class HDSegwitBech32Transaction {
    *
    * @returns {Promise<boolean>}
    */
-  async isToUsTransaction() {
+  async isToUsTransaction(canonicalTransaction?: Transaction) {
     if (!this._wallet) throw new Error('Wallet required for this method');
+    const txid = this._txid || this._txDecoded!.getId();
+    if (canonicalTransaction) {
+      return (canonicalTransaction.txid === txid || canonicalTransaction.hash === txid) && Number(canonicalTransaction.value) > 0;
+    }
     let found = false;
     for (const tx of this._wallet.getTransactions()) {
-      if (tx.txid === (this._txid || this._txDecoded!.getId())) {
+      if (tx.txid === txid) {
         if (tx.value && tx.value > 0) found = true;
       }
     }

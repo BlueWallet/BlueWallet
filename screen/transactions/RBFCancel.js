@@ -13,6 +13,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
 import { useSetTransactionMemo, useTransactionMemo } from '../../hooks/useRealmMetadata';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useWalletTransaction } from '../../hooks/useWalletActivity';
 
 class RBFCancel extends CpfpScreen {
   static contextType = WalletStorageContext;
@@ -41,7 +42,7 @@ class RBFCancel extends CpfpScreen {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
     if (
-      (await tx.isOurTransaction()) &&
+      (await tx.isOurTransaction(this.props.canonicalTransaction)) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
       (await tx.isSequenceReplaceable()) &&
       (await tx.canCancelTx())
@@ -160,21 +161,26 @@ RBFCancel.propTypes = {
     params: PropTypes.shape({
       txid: PropTypes.string,
       wallet: PropTypes.object,
+      transaction: PropTypes.object,
     }),
   }),
   transactionMemo: PropTypes.string,
   isElectrumDisabled: PropTypes.bool,
   setTransactionMemo: PropTypes.func,
+  canonicalTransaction: PropTypes.object,
 };
 
 const RBFCancelWithRealm = props => {
   const txid = props.route?.params?.txid;
+  const wallet = props.route?.params?.wallet;
+  const canonicalTransaction = useWalletTransaction(wallet, txid) ?? props.route?.params?.transaction;
   const transactionMemo = useTransactionMemo(txid);
   const setTransactionMemo = useSetTransactionMemo();
   const { isElectrumDisabled } = useSettings();
   return (
     <RBFCancel
       {...props}
+      canonicalTransaction={canonicalTransaction}
       transactionMemo={transactionMemo}
       setTransactionMemo={setTransactionMemo}
       isElectrumDisabled={isElectrumDisabled}

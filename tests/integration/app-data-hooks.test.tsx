@@ -11,7 +11,7 @@ import {
   setWalletUtxoMetadata,
 } from '../../blue_modules/realm/appDataRepository';
 import type { TWallet } from '../../class/wallets/types';
-import { useWalletTransaction } from '../../hooks/useWalletActivity';
+import { useWalletActivityPage, useWalletTransaction } from '../../hooks/useWalletActivity';
 import { useWalletUtxoQuery } from '../../hooks/useWalletUtxos';
 
 jest.unmock('realm');
@@ -26,6 +26,46 @@ jest.mock('../../blue_modules/realm/WalletDataRealmProvider', () => {
 });
 
 const { TestRealmProvider } = jest.requireMock('../../blue_modules/realm/WalletDataRealmProvider');
+
+it('uses one bounded Realm result with a look-ahead row for pagination', async () => {
+  let transactions = [
+    { hash: 'tx-3', txid: 'tx-3', timestamp: 3, confirmations: 0, value: -1 },
+    { hash: 'tx-2', txid: 'tx-2', timestamp: 2, confirmations: 1, value: -1 },
+    { hash: 'tx-1', txid: 'tx-1', timestamp: 1, confirmations: 1, value: -1 },
+  ];
+  const wallet = {
+    type: 'test-wallet',
+    _txs_by_external_index: { 0: transactions },
+    _txs_by_internal_index: {},
+    getID: () => 'wallet-page',
+    getPreferredBalanceUnit: () => 'BTC',
+    getTransactions: () => transactions,
+    getUtxo: () => [],
+    getUTXOMetadata: () => ({}),
+  } as unknown as TWallet;
+  const realm = await Realm.open({ inMemory: true, schema: AppDataSchemas, schemaVersion: APP_DATA_SCHEMA_VERSION });
+  replaceCanonicalData(realm, [wallet], {}, {});
+
+  const Consumer = () => {
+    const page = useWalletActivityPage(wallet, '', 2);
+    return <Text>{`${page.transactions.map(transaction => transaction.txid).join(',')}:${page.hasMore}`}</Text>;
+  };
+
+  const view = render(
+    <TestRealmProvider realm={realm}>
+      <Consumer />
+    </TestRealmProvider>,
+  );
+  await waitFor(() => expect(view.getByText('tx-3,tx-2:true')).toBeTruthy());
+
+  transactions = transactions.slice(0, 2);
+  await act(async () => replaceCanonicalWalletTransactions(realm, [wallet], {}));
+  await waitFor(() => expect(view.getByText('tx-3,tx-2:false')).toBeTruthy());
+
+  view.unmount();
+  realm.close();
+  Realm.shutdown();
+});
 
 it('updates activity and UTXO hooks from live Realm writes', async () => {
   let transactions = [{ hash: 'tx-1', txid: 'tx-1', timestamp: 1, confirmations: 0, value: -1 }];

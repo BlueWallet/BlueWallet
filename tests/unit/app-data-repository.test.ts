@@ -250,6 +250,14 @@ it('stores transactions and metadata as canonical Realm data', async () => {
 
   replaceCanonicalData(realm, [testWallet], { 'new-tx': { memo: 'Coffee beans' } }, { contact: { label: 'Alice', hidden: true } });
 
+  const addressIndexRows = realm.objects<Record<string, unknown>>('WalletTransaction');
+  assert.strictEqual(addressIndexRows.length, 2);
+  assert.strictEqual(
+    'payloadJson' in addressIndexRows.slice(0, 1)[0],
+    false,
+    'address-index rows must not duplicate canonical transaction payloads',
+  );
+
   assert.strictEqual(isAppDataInitialized(realm), true);
   const metadata = readMetadata(realm);
   assert.strictEqual(metadata.txMetadata['new-tx'].memo, 'Coffee beans');

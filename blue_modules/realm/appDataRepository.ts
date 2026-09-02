@@ -4,7 +4,7 @@ import type { TCounterpartyMetadata, TTXMetadata } from '../../class/blue-app';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import type { CreateTransactionUtxo, LightningTransaction, Transaction, TWallet, Utxo } from '../../class/wallets/types';
 
-export const APP_DATA_SCHEMA_VERSION = 9;
+export const APP_DATA_SCHEMA_VERSION = 10;
 export const APP_DATA_INITIALIZED_KEY = 'canonical-data-v1';
 export const APP_UTXO_INITIALIZED_KEY = 'canonical-utxo-v1';
 
@@ -30,7 +30,6 @@ export const AppDataSchemas: Realm.ObjectSchema[] = [
       collection: 'string',
       index: 'int?',
       ordinal: 'int',
-      payloadJson: 'string',
     },
   },
   {
@@ -110,7 +109,6 @@ export interface WalletTransactionRow extends Realm.Object<WalletTransactionRow>
   collection: string;
   index: number | null;
   ordinal: number;
-  payloadJson: string;
 }
 
 export interface TransactionMetadataRow extends Realm.Object<TransactionMetadataRow> {
@@ -199,13 +197,12 @@ const createActivityRows = (wallets: TWallet[], metadata: TTXMetadata) => {
 const createRawTransactionRows = (wallets: TWallet[]) => {
   const rows: Array<Record<string, unknown>> = [];
   const add = (walletId: string, collection: string, transactions: unknown[], index?: number) => {
-    transactions.forEach((transaction, ordinal) => {
+    transactions.forEach((_, ordinal) => {
       rows.push({
         walletId,
         collection,
         index,
         ordinal,
-        payloadJson: JSON.stringify(transaction),
       });
     });
   };
@@ -469,9 +466,6 @@ export function queryWalletUtxos(
     ['vout', descending],
   ]);
 }
-
-export const queryWalletTransactions = (realm: Realm, walletId: string): Realm.Results<WalletTransactionRow> =>
-  realm.objects<WalletTransactionRow>('WalletTransaction').filtered('walletId == $0', walletId);
 
 export function setWalletUtxoMetadata(
   realm: Realm,

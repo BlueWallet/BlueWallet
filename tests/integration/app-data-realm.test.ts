@@ -100,4 +100,29 @@ describe('canonical app-data Realm', () => {
       }),
     );
   });
+
+  it('migrates legacy address-index rows without retaining duplicate transaction JSON', async () => {
+    const migrationPath = path.join(directory, 'canonical-v9.realm');
+    const legacySchemas = AppDataSchemas.map(schema =>
+      schema.name === 'WalletTransaction' ? { ...schema, properties: { ...schema.properties, payloadJson: 'string' } } : schema,
+    );
+    let realm = await Realm.open({ path: migrationPath, schema: legacySchemas, schemaVersion: 9, encryptionKey });
+    realm.write(() => {
+      realm.create('WalletTransaction', {
+        walletId: 'wallet-1',
+        collection: 'external',
+        index: 0,
+        ordinal: 0,
+        payloadJson: JSON.stringify({ txid: 'duplicated' }),
+      });
+    });
+    realm.close();
+
+    realm = await Realm.open({ path: migrationPath, schema: AppDataSchemas, schemaVersion: APP_DATA_SCHEMA_VERSION, encryptionKey });
+    const row = realm.objects<Record<string, unknown>>('WalletTransaction')[0];
+    assert.strictEqual(row.walletId, 'wallet-1');
+    assert.strictEqual('payloadJson' in row, false);
+    realm.close();
+    Realm.deleteFile({ path: migrationPath });
+  });
 });

@@ -181,6 +181,7 @@ const TransactionStatus: React.FC = () => {
   const realmTransaction = useWalletTransaction(subscribedWallet, hash);
   const isRealmDeveloperFixture = Boolean((realmTransaction as { isRealmDeveloperFixture?: boolean } | undefined)?.isRealmDeveloperFixture);
   const realmTransactionSnapshot = realmTransaction ? JSON.stringify(realmTransaction) : '';
+  const canonicalFeeBumpTransaction = (realmTransaction ?? tx) as Transaction | undefined;
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
@@ -625,7 +626,7 @@ const TransactionStatus: React.FC = () => {
     }
     initialButtonsState().catch(error => console.error('Unhandled error in initialButtonsState:', error));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx?.hash, wallet]);
+  }, [tx?.hash, wallet, realmTransactionSnapshot]);
 
   useEffect(() => {
     if (!tx && hash) {
@@ -686,7 +687,7 @@ const TransactionStatus: React.FC = () => {
 
     const cpfbTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
 
-    if ((await cpfbTx.isToUsTransaction()) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
+    if ((await cpfbTx.isToUsTransaction(canonicalFeeBumpTransaction)) && (await cpfbTx.getRemoteConfirmationsNum()) === 0) {
       return setIsCPFPPossible(ButtonStatus.Possible);
     } else {
       return setIsCPFPPossible(ButtonStatus.NotPossible);
@@ -708,7 +709,7 @@ const TransactionStatus: React.FC = () => {
       rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
     }
     if (
-      (await rbfTx.isOurTransaction()) &&
+      (await rbfTx.isOurTransaction(canonicalFeeBumpTransaction)) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
       (await rbfTx.isSequenceReplaceable()) &&
       (await rbfTx.canBumpTx())
@@ -734,7 +735,7 @@ const TransactionStatus: React.FC = () => {
       rbfTx = new HDSegwitBech32Transaction(null, tx.hash, wallet as HDSegwitBech32Wallet);
     }
     if (
-      (await rbfTx.isOurTransaction()) &&
+      (await rbfTx.isOurTransaction(canonicalFeeBumpTransaction)) &&
       (await rbfTx.getRemoteConfirmationsNum()) === 0 &&
       (await rbfTx.isSequenceReplaceable()) &&
       (await rbfTx.canCancelTx())
@@ -759,6 +760,7 @@ const TransactionStatus: React.FC = () => {
               navigate(route, {
                 txid: transaction.hash,
                 wallet: w,
+                transaction,
               });
             },
             style: 'default',
@@ -774,6 +776,7 @@ const TransactionStatus: React.FC = () => {
       navigate(route, {
         txid: transaction.hash,
         wallet: w,
+        transaction,
       });
     }
   };
@@ -782,6 +785,7 @@ const TransactionStatus: React.FC = () => {
     navigate('CPFP', {
       txid: transaction.hash,
       wallet: w,
+      transaction,
     });
   };
 
