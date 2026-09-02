@@ -104,8 +104,8 @@ export function shouldOfferBip39Suggestions(text: string): boolean {
     return false;
   }
 
-  const withoutSpaces = trimmed.replace(/\s+/g, '');
-  if (withoutSpaces.length >= HEX_SUGGESTION_DISABLE_LENGTH && HEX_BODY_PATTERN.test(withoutSpaces)) {
+  // Contiguous hex only. Stripping spaces would treat "face beef" (BIP39 words) as "facebeef".
+  if (trimmed.length >= HEX_SUGGESTION_DISABLE_LENGTH && HEX_BODY_PATTERN.test(trimmed)) {
     return false;
   }
 

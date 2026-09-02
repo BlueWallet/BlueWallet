@@ -97,6 +97,14 @@ describe('shouldOfferBip39Suggestions', () => {
   it('rejects hex strings of 8 or more characters', () => {
     assert.strictEqual(shouldOfferBip39Suggestions('0123456789abcdef'), false);
     assert.strictEqual(shouldOfferBip39Suggestions('0123456789abcdef0123456789abcdef'), false);
+    assert.strictEqual(shouldOfferBip39Suggestions('cafedead'), false);
+  });
+
+  it('allows spaced bip39 words that concatenate to hex', () => {
+    assert.strictEqual(shouldOfferBip39Suggestions('cafe dead'), true);
+    assert.strictEqual(shouldOfferBip39Suggestions('face beef aban'), true);
+    assert.strictEqual(shouldOfferBip39Suggestions('face dead beef'), true);
+    assert.strictEqual(shouldOfferBip39Suggestions('feed face aban'), true);
   });
 
   it('rejects lnd aezeed payloads', () => {
@@ -153,5 +161,14 @@ describe('getImportWalletSuggestions', () => {
   it('returns matches when leading whitespace precedes the seed phrase', () => {
     const matches = getImportWalletSuggestions(' abandon aban', 13);
     assert.ok(matches.includes('abandon'));
+  });
+
+  it('returns matches after spaced words that concatenate to hex', () => {
+    const cafe = getImportWalletSuggestions('cafe aban', 9);
+    assert.ok(cafe.includes('abandon'));
+    const faceBeef = getImportWalletSuggestions('face beef aban', 14);
+    assert.ok(faceBeef.includes('abandon'));
+    const faceDeadBeef = getImportWalletSuggestions('face dead beef aban', 19);
+    assert.ok(faceDeadBeef.includes('abandon'));
   });
 });
