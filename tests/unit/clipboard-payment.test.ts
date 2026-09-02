@@ -1,17 +1,12 @@
 import assert from 'assert';
 
 import {
-  CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS,
-  CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS,
   ClipboardPaymentKind,
   classifyClipboardPayment,
   clipboardActionOnAppStateChange,
-  clipboardReadRetryLimit,
   evaluateClipboardOnForeground,
   hashClipboardContent,
   isClipboardPaymentFromOwnWallet,
-  isWalletUpdateInProgress,
-  shouldIgnoreLastSeenOnClipboardRetry,
   stripBitcoinUriToAddress,
 } from '../../blue_modules/clipboardPayment';
 import { Chain } from '../../models/bitcoinUnits';
@@ -21,7 +16,6 @@ const P2SH = '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK';
 const P2WPKH = 'bc1qykcp2x3djgdtdwelxn9z4j2y956npte0a4sref';
 const P2TR = 'bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr';
 const TESTNET_SEGWIT = 'tb1ql4jps5nxnyz7qxgle9dp3q0mww2jk4ckfua6lr';
-const FUTURE_V2 = 'bc1zw508d6qejxtdg4y5r3zarvaryvaxxpcs';
 const SILENT_PAYMENT =
   'sp1qqgste7k9hx0qftg6qmwlkqtwuy6cycyavzmzj85c6qdfhjdpdjtdgqjuexzk6murw56suy3e0rd2cgqvycxttddwsvgxe2usfpxumr70xc9pkqwv';
 const BIP47 = 'PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97';
@@ -131,7 +125,6 @@ describe('clipboardPayment classifier', () => {
     assert.strictEqual(classifyClipboardPayment('user@gmail.com'), null);
     assert.strictEqual(classifyClipboardPayment('Please pay me at this address later'), null);
     assert.strictEqual(classifyClipboardPayment(TESTNET_SEGWIT), null);
-    assert.strictEqual(classifyClipboardPayment(FUTURE_V2), null);
     assert.strictEqual(classifyClipboardPayment('sp1qq'), null);
     assert.strictEqual(classifyClipboardPayment('lnurl1qqqqqqqqqq'), null);
   });
@@ -192,16 +185,10 @@ describe('clipboardPayment ownership and last-seen', () => {
     const skipped = evaluateClipboardOnForeground(P2WPKH, first.nextHash, wallets);
     assert.strictEqual(skipped.offer, null);
     const retried = evaluateClipboardOnForeground(P2WPKH, first.nextHash, wallets, { ignoreLastSeen: true });
-    assert.deepStrictEqual(retried.offer, { kind: ClipboardPaymentKind.Bitcoin, payload: P2WPKH });
-  });
-
-  it('only ignores last-seen when retrying a blocked paste, not an empty read', () => {
-    assert.ok(shouldIgnoreLastSeenOnClipboardRetry('paste_blocked'));
-    assert.ok(!shouldIgnoreLastSeenOnClipboardRetry('empty'));
-    assert.strictEqual(clipboardReadRetryLimit('ios', 'empty'), 0);
-    assert.strictEqual(clipboardReadRetryLimit('android', 'empty'), 0);
-    assert.strictEqual(clipboardReadRetryLimit('ios', 'paste_blocked'), CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS);
-    assert.strictEqual(clipboardReadRetryLimit('android', 'paste_blocked'), CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS);
+    assert.deepStrictEqual(retried.offer, {
+      kind: ClipboardPaymentKind.Bitcoin,
+      payload: P2WPKH,
+    });
   });
 
   it('does not re-read clipboard after Control Center (inactive), but retries after a paste prompt', () => {
@@ -209,7 +196,6 @@ describe('clipboardPayment ownership and last-seen', () => {
       clipboardActionOnAppStateChange({
         previous: 'inactive',
         next: 'active',
-        hasPendingOffer: false,
         shouldRetryPaste: false,
       }),
       'none',
@@ -218,45 +204,18 @@ describe('clipboardPayment ownership and last-seen', () => {
       clipboardActionOnAppStateChange({
         previous: 'inactive',
         next: 'active',
-        hasPendingOffer: false,
         shouldRetryPaste: true,
       }),
       'retry_read',
     );
     assert.strictEqual(
       clipboardActionOnAppStateChange({
-        previous: 'inactive',
-        next: 'active',
-        hasPendingOffer: true,
-        shouldRetryPaste: false,
-      }),
-      'flush_pending',
-    );
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
         previous: 'background',
         next: 'active',
-        hasPendingOffer: false,
         shouldRetryPaste: false,
       }),
       'read',
     );
-    assert.strictEqual(
-      clipboardActionOnAppStateChange({
-        previous: 'inactive',
-        next: 'active',
-        hasPendingOffer: false,
-        shouldRetryPaste: false,
-        hasScheduledCheck: true,
-      }),
-      'resume_scheduled',
-    );
-  });
-
-  it('treats any wallet update status other than NONE as in progress', () => {
-    assert.ok(isWalletUpdateInProgress('ALL'));
-    assert.ok(isWalletUpdateInProgress('some-wallet-id'));
-    assert.ok(!isWalletUpdateInProgress('NONE'));
   });
 
   it('offers a payment when the persisted last-seen hash is from different content', () => {

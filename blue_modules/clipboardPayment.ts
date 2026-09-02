@@ -77,22 +77,16 @@ function isDecodedLnurl(text: string): boolean {
 function classifyNormalized(text: string): ClipboardPayment | null {
   const both = DeeplinkSchemaMatch.isBothBitcoinAndLightning(text);
   if (both) {
-    const address = stripBitcoinUriToAddress(both.bitcoin);
     const invoice = stripLightningScheme(both.lndInvoice);
-    if (contacts.isAddressValid(address) && isBolt11Invoice(invoice)) {
+    if (DeeplinkSchemaMatch.isBitcoinAddress(both.bitcoin) && isBolt11Invoice(invoice)) {
       return { kind: ClipboardPaymentKind.Bitcoin, payload: text };
     }
-    if (contacts.isAddressValid(address)) {
+    if (DeeplinkSchemaMatch.isBitcoinAddress(both.bitcoin)) {
       return { kind: ClipboardPaymentKind.Bitcoin, payload: both.bitcoin };
     }
   }
 
-  const scriptAddress = stripBitcoinUriToAddress(text);
-  if (scriptAddress && contacts.isAddressValid(scriptAddress)) {
-    return { kind: ClipboardPaymentKind.Bitcoin, payload: text };
-  }
-
-  if (contacts.isPaymentCodeValid(text)) {
+  if (DeeplinkSchemaMatch.isBitcoinAddress(text) || contacts.isPaymentCodeValid(text)) {
     return { kind: ClipboardPaymentKind.Bitcoin, payload: text };
   }
 
@@ -101,7 +95,7 @@ function classifyNormalized(text: string): ClipboardPayment | null {
     return { kind: ClipboardPaymentKind.Lightning, payload: text };
   }
 
-  if (isDecodedLnurl(text)) {
+  if (DeeplinkSchemaMatch.isLnUrl(text) && isDecodedLnurl(text)) {
     return { kind: ClipboardPaymentKind.Lnurl, payload: text };
   }
 
@@ -163,71 +157,29 @@ export function evaluateClipboardOnForeground(
 
 export type ClipboardAppState = 'active' | 'background' | 'inactive' | 'unknown' | 'extension';
 
-export type ClipboardForegroundAction = 'none' | 'read' | 'retry_read' | 'flush_pending' | 'resume_scheduled';
+export type ClipboardForegroundAction = 'none' | 'read' | 'retry_read';
 
 /** Let Electrum start connecting before the iOS paste prompt. */
 export const CLIPBOARD_IDLE_DELAY_MS = 1500;
 export const CLIPBOARD_RETRY_DELAY_MS = 800;
-export const CLIPBOARD_RESUME_DELAY_MS = 400;
 export const CLIPBOARD_REFRESH_POLL_MS = 400;
-/** Keep polling after iOS Allow Paste; the system dialog often outlives a single follow-up. */
-export const CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS = 20;
-/** Android 12+ toasts on each clipboard read; keep paste-blocked follow-ups short. */
-export const CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS = 3;
-
-export type ClipboardReadRetryReason = 'paste_blocked' | 'empty';
-
-export function clipboardReadRetryLimit(platform: 'ios' | 'android', reason: ClipboardReadRetryReason): number {
-  if (reason === 'empty') return 0;
-  return platform === 'ios' ? CLIPBOARD_PASTE_POLL_MAX_ATTEMPTS : CLIPBOARD_ANDROID_PASTE_POLL_MAX_ATTEMPTS;
-}
-
-export function shouldIgnoreLastSeenOnClipboardRetry(reason: ClipboardReadRetryReason): boolean {
-  return reason === 'paste_blocked';
-}
-
-export function isWalletUpdateInProgress(status: string): boolean {
-  return status !== 'NONE';
-}
-
-export function delayForClipboardAction(action: ClipboardForegroundAction): number {
-  switch (action) {
-    case 'retry_read':
-      return CLIPBOARD_RETRY_DELAY_MS;
-    case 'resume_scheduled':
-      return CLIPBOARD_RESUME_DELAY_MS;
-    case 'flush_pending':
-      return CLIPBOARD_RESUME_DELAY_MS;
-    case 'read':
-      return CLIPBOARD_IDLE_DELAY_MS;
-    default:
-      return CLIPBOARD_IDLE_DELAY_MS;
-  }
-}
 
 /**
  * Control Center / the iOS paste dialog both move the app to `inactive`.
  * Only re-read clipboard after a real background, or after a paste prompt that
- * returned empty / could not present a sheet yet. An interrupted idle wait
- * (`hasScheduledCheck`) resumes without treating Control Center as a new copy.
+ * returned empty.
  */
 export function clipboardActionOnAppStateChange({
   previous,
   next,
-  hasPendingOffer,
   shouldRetryPaste,
-  hasScheduledCheck = false,
 }: {
   previous: ClipboardAppState;
   next: ClipboardAppState;
-  hasPendingOffer: boolean;
   shouldRetryPaste: boolean;
-  hasScheduledCheck?: boolean;
 }): ClipboardForegroundAction {
   if (next !== 'active') return 'none';
-  if (hasPendingOffer) return 'flush_pending';
   if (shouldRetryPaste) return 'retry_read';
   if (previous === 'background') return 'read';
-  if (hasScheduledCheck) return 'resume_scheduled';
   return 'none';
 }

@@ -32,11 +32,20 @@ export const ClipboardDetectedHeaderTitle = () => {
 const copyForKind = (kind: ClipboardPaymentKind) => {
   switch (kind) {
     case ClipboardPaymentKind.Lnurl:
-      return { kindMessage: loc.wallets.clipboard_lnurl, actionTitle: loc.wallets.use_lnurl };
+      return {
+        kindMessage: loc.wallets.clipboard_lnurl,
+        actionTitle: loc.wallets.use_lnurl,
+      };
     case ClipboardPaymentKind.Lightning:
-      return { kindMessage: loc.wallets.clipboard_lightning, actionTitle: loc.wallets.use_invoice };
+      return {
+        kindMessage: loc.wallets.clipboard_lightning,
+        actionTitle: loc.wallets.use_invoice,
+      };
     default:
-      return { kindMessage: loc.wallets.clipboard_bitcoin, actionTitle: loc.wallets.use_address };
+      return {
+        kindMessage: loc.wallets.clipboard_bitcoin,
+        actionTitle: loc.wallets.use_address,
+      };
   }
 };
 
@@ -58,8 +67,11 @@ const ClipboardDetected = () => {
       closeButton: {
         backgroundColor: colors.lightButton,
       },
+      kindMessage: {
+        color: colors.alternativeTextColor,
+      },
     }),
-    [colors.elevated, colors.lightButton],
+    [colors.alternativeTextColor, colors.elevated, colors.lightButton],
   );
 
   const { kindMessage, actionTitle } = copyForKind(kind);
@@ -119,6 +131,9 @@ const ClipboardDetected = () => {
         </View>
       )}
       <View style={styles.content}>
+        <Text style={[styles.kindMessage, stylesHook.kindMessage]} accessibilityHint={accessibilityHint}>
+          {kindMessage}
+        </Text>
         <ClipboardDetectedItem value={payload} onPress={handleUseClipboard} accessibilityHint={accessibilityHint} />
       </View>
       <View style={styles.footer}>
@@ -157,6 +172,11 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingTop: 8,
+  },
+  kindMessage: {
+    fontSize: 15,
+    lineHeight: 22,
+    marginBottom: 12,
   },
   footer: {
     paddingHorizontal: 16,

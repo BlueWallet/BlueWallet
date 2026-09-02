@@ -17,6 +17,7 @@ import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
 import loc from '../loc';
 import { Chain } from '../models/bitcoinUnits';
 import { navigationRef } from '../NavigationService';
+import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
 import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import RNFS from 'react-native-fs';
@@ -46,8 +47,9 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   // We need to call hooks unconditionally before any conditional logic
   // We'll use this check inside the effects to conditionally run logic
   const shouldActivateListeners = !skipIfNotInitialized || walletsInitialized;
+  const { isClipboardGetContentEnabled } = useSettings();
 
-  const { onLeaveForeground, onEnterForeground } = useClipboardDetection(shouldActivateListeners);
+  const { onLeaveForeground, onEnterForeground } = useClipboardDetection(shouldActivateListeners && isClipboardGetContentEnabled);
 
   // Initialize other hooks regardless of activation status
   // They'll handle their own conditional logic internally
@@ -340,21 +342,17 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         return;
       }
 
-      const cameFromBackground = previousState === 'background';
       const wasBackgroundOrInactive = /inactive|background/.test(previousState);
       if (wasBackgroundOrInactive) {
-        let processed = false;
-        if (cameFromBackground) {
-          updateExchangeRate();
-          processed = await processPushNotifications();
-          // Reconcile in-process Ark background task results before the
-          // notification-handled early return: if the background task observed
-          // status changes while the app was backgrounded, the affected
-          // wallets need a transactions refresh whether or not a notification
-          // also fired.
-          reconcileArkBackgroundTaskResults(fetchAndSaveWalletTransactions);
-          if (AppState.currentState !== 'active') return;
-        }
+        updateExchangeRate();
+        const processed = await processPushNotifications();
+        // Reconcile in-process Ark background task results before the
+        // notification-handled early return: if the background task observed
+        // status changes while the app was backgrounded, the affected
+        // wallets need a transactions refresh whether or not a notification
+        // also fired.
+        reconcileArkBackgroundTaskResults(fetchAndSaveWalletTransactions);
+        if (AppState.currentState !== 'active') return;
 
         onEnterForeground(previousState, { skipRead: processed });
       }
