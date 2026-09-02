@@ -757,30 +757,6 @@ describe('multisig-wallet (native segwit)', () => {
     w.addCosigner(process.env.MNEMONICS_COBO);
     assert.strictEqual(w.getFingerprint(1), 'DEADBABE');
     assert.strictEqual(w.getCosignerForFingerprint('DEADBABE'), process.env.MNEMONICS_COLDCARD);
-
-    // isValidElectrumSeed method can correctly detect electrum seed
-    assert.strictEqual(
-      MultisigHDWallet.isValidElectrumSeed('during pride layer jelly admit army want melody check witness favorite prosper'),
-      true,
-    );
-
-    assert.strictEqual(
-      MultisigHDWallet.isValidElectrumSeed('electrumseed:during pride layer jelly admit army want melody check witness favorite prosper'),
-      false,
-    );
-
-    assert.strictEqual(
-      MultisigHDWallet.isValidElectrumSeed(
-        'electrumseed:electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
-      ),
-      false,
-    );
-
-    // bip39 seed phrase is not a valid electrum seed
-    assert.strictEqual(
-      MultisigHDWallet.isValidElectrumSeed('hybrid husband luggage assume lake trend armed decorate grocery rebel hood unique'),
-      false,
-    );
   });
 
   it('basic operations work for 2-of-3', async () => {
@@ -1339,6 +1315,31 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getDerivationPath(), ''); // unknown
   });
 
+  it('isValidElectrumSeed method detect valid electrum seed', () => {
+    assert.strictEqual(
+      MultisigHDWallet.isValidElectrumSeed('during pride layer jelly admit army want melody check witness favorite prosper'),
+      true,
+    );
+
+    assert.strictEqual(
+      MultisigHDWallet.isValidElectrumSeed('electrumseed:during pride layer jelly admit army want melody check witness favorite prosper'),
+      false,
+    );
+
+    assert.strictEqual(
+      MultisigHDWallet.isValidElectrumSeed(
+        'electrumseed:electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+      ),
+      false,
+    );
+
+    // bip39 seed phrase is not a valid electrum seed
+    assert.strictEqual(
+      MultisigHDWallet.isValidElectrumSeed('hybrid husband luggage assume lake trend armed decorate grocery rebel hood unique'),
+      false,
+    );
+  });
+
   it('can import electrum json file format', () => {
     assert.strictEqual(MultisigHDWallet.ckccXfp2fingerprint(64392470), '168DD603');
     assert.strictEqual(MultisigHDWallet.ckccXfp2fingerprint('64392470'), '168DD603');
@@ -1846,36 +1847,42 @@ describe('multisig-wallet (native segwit)', () => {
     assert.strictEqual(w.getFingerprint(1), fp1cobo);
     assert.strictEqual(w.getCustomDerivationPathForCosigner(1), path);
     assert.strictEqual(w.getCosignerPassphrase(1), undefined);
+  });
 
+  it('can replace electrum seed with xpub and can replace xpub with electrum seed', () => {
     const electrumWallet = new MultisigHDWallet();
-    const electrumJson = require('./fixtures/electrum-multisig-wallet-with-seed.json');
+    const electrumJson = require('./fixtures/electrum-multisig-wallet-with-seed-and-passphrase.json');
 
     electrumWallet.setSecret(JSON.stringify(electrumJson));
-    assert.strictEqual(electrumWallet.getN(), 3);
+    assert.strictEqual(electrumWallet.getN(), 2);
     assert.strictEqual(electrumWallet.getM(), 2);
     assert.strictEqual(
       electrumWallet.getCosigner(1),
-      'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+      'electrumseed:diagram grape account sustain bright member ethics strategy burger senior capital enforce',
     );
-    assert.strictEqual(electrumWallet.getFingerprint(1), '8AAA5D05');
+    assert.strictEqual(electrumWallet.getFingerprint(1), '8DE7B2C3');
     electrumWallet.replaceCosignerSeedWithXpub(1);
     assert.strictEqual(
       electrumWallet.getCosigner(1),
-      'Zpub6yUED4tEZDX9v4RbbrJVfEMSHJu7yFGfpbHt4jxf48m5oEFGWCXtu32o1wQkEbCCrHJfRbc8GeoBwpRowcvTMHruNcsbm97QD4uUzaXrtNK',
+      'Zpub6yVcJzRPEwQAjC2GsJSqZJTZAhf7VM6PGdin9jFTQ6zUia3aFtdn9WzXEZBk1AcgSgQ7kLcysk5CWTuJppjFKdYJDMYVT9hZF71PyPijNUF',
     );
-    assert.strictEqual(electrumWallet.getFingerprint(1), '8AAA5D05');
-    electrumWallet.replaceCosignerXpubWithSeed(1, 'during pride layer jelly admit army want melody check witness favorite prosper');
+    assert.strictEqual(electrumWallet.getFingerprint(1), '8DE7B2C3');
+    electrumWallet.replaceCosignerXpubWithSeed(
+      1,
+      'diagram grape account sustain bright member ethics strategy burger senior capital enforce',
+      'BlueWallet',
+    );
     assert.strictEqual(
       electrumWallet.getCosigner(1),
-      'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+      'electrumseed:diagram grape account sustain bright member ethics strategy burger senior capital enforce',
     );
-    assert.strictEqual(electrumWallet.getFingerprint(1), '8AAA5D05');
+    assert.strictEqual(electrumWallet.getFingerprint(1), '8DE7B2C3');
     electrumWallet.replaceCosignerSeedWithXpub(1);
     assert.throws(
       () =>
         electrumWallet.replaceCosignerXpubWithSeed(
           1,
-          'electrumseed:during pride layer jelly admit army want melody check witness favorite prosper',
+          'electrumseed:diagram grape account sustain bright member ethics strategy burger senior capital enforce',
         ),
       /Not a valid mnemonic phrase/,
     );

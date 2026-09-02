@@ -160,10 +160,14 @@ const ViewEditMultisigCosigners: React.FC = () => {
             w.current = new MultisigHDWallet();
             w.current.setNativeSegwit();
           } else {
-            tempWallet.current.setSecret(w.current.getSecret());
-            if (!cancelled) {
-              setWalletData(new Array(tempWallet.current.getN()));
-              setWallet(tempWallet.current);
+            try {
+              tempWallet.current.setSecret(w.current.getSecret());
+              if (!cancelled) {
+                setWalletData(new Array(tempWallet.current.getN()));
+                setWallet(tempWallet.current);
+              }
+            } catch (_) {
+              presentAlert({ message: loc.multisig.invalid_cosigner });
             }
           }
           hasLoaded.current = true;
