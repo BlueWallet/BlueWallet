@@ -301,6 +301,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
     sizeVariant = 'default',
   }: WalletCarouselItemProps) => {
     const walletLabel = item.getLabel ? item.getLabel() : '';
+    const longPressHandled = useRef(false);
     const pressScale = useSharedValue(1.0);
     const dragScale = useSharedValue(isDraggingActive ? dragActiveScale : 1.0);
     const opacityValue = useSharedValue(isSelectedWallet === false ? 0.5 : 1.0);
@@ -358,6 +359,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
     }, [isSelectedWallet, opacityValue, animationsEnabled]);
 
     const onPressedIn = useCallback(() => {
+      longPressHandled.current = false;
       if (animationsEnabled) {
         animatePressScale(0.97);
       }
@@ -372,6 +374,13 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
     }, [animatePressScale, animationsEnabled, onPressOut]);
 
     const handlePress = useCallback(() => {
+      // Android can dispatch onPress after onLongPress. Do not let the
+      // trailing press replace the Manage Wallets navigation with wallet
+      // details.
+      if (longPressHandled.current) {
+        longPressHandled.current = false;
+        return;
+      }
       onPress(item);
     }, [item, onPress]);
 
@@ -455,6 +464,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
           onPressIn={onPressedIn}
           onPressOut={onPressedOut}
           onLongPress={() => {
+            longPressHandled.current = true;
             if (handleLongPress) handleLongPress();
           }}
           onPress={handlePress}

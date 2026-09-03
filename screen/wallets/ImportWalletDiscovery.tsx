@@ -66,6 +66,7 @@ const ImportWalletDiscovery: React.FC = () => {
     async (wallet: TWallet | THDWalletForWatchOnly) => {
       if (importing.current) return;
       importing.current = true;
+      task.current?.stop();
       await addAndSaveWallet(wallet);
       navigation.getParent()?.goBack();
     },
@@ -78,6 +79,11 @@ const ImportWalletDiscovery: React.FC = () => {
   };
 
   useEffect(() => {
+    // Saving updates the storage context before this screen is removed from
+    // the stack. Do not restart discovery (and its passphrase prompt) during
+    // that brief rerender.
+    if (importing.current) return;
+
     const onProgress = (data: string) => setProgress(data);
 
     const onWallet = (wallet: TWallet | THDWalletForWatchOnly) => {
