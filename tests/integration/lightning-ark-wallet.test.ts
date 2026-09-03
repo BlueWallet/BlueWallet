@@ -26,7 +26,13 @@ beforeAll(async () => {
   }
   w.setSecret('arkade://' + process.env.HD_MNEMONIC_OLD);
   await w.init();
-  await w.restoreSwaps();
+  try {
+    await w.restoreSwaps();
+  } catch (error) {
+    // Balance and transaction-history integration remains useful when the
+    // independent Boltz service is temporarily unavailable.
+    console.warn('[LightningArkWallet integration] Could not restore optional swap history:', error);
+  }
 });
 
 afterAll(async () => {

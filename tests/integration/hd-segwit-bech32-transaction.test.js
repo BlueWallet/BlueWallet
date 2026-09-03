@@ -37,7 +37,9 @@ async function _getHdWallet() {
   _cachedHdWallet.setSecret(process.env.HD_MNEMONIC_BIP84);
   await _cachedHdWallet.fetchBalance();
   await _cachedHdWallet.fetchTransactions();
-  await BlueApp.getInstance().persistWalletTransactions([_cachedHdWallet]);
+  const appStorage = BlueApp.getInstance();
+  appStorage.addWallet(_cachedHdWallet);
+  await appStorage.persistWalletTransactions([_cachedHdWallet]);
   return _cachedHdWallet;
 }
 
