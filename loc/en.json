@@ -529,8 +529,7 @@
     "xpub_title": "Wallet XPUB",
     "manage_wallets_search_placeholder": "Search wallets, addresses, transactions and memos",
     "more_info": "More Info",
-    "details_delete_wallet_error_message": "There was an issue confirming if this wallet was removed from notifications—this could be due to a network issue or poor connection. If you continue, you might still receive notifications for transactions related to this wallet, even after it is deleted.",
-    "details_delete_anyway": "Delete anyway"
+    "details_delete_wallet_error_message": "There was an issue removing this wallet from notifications — this could be due to a network issue or poor connection. You might still receive notifications for transactions related to this wallet."
   },
   "total_balance_view": {
     "display_in_bitcoin": "Display in Bitcoin",
