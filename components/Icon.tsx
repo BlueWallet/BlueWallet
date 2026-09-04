@@ -31,7 +31,7 @@ type IconNameFor<T extends IconType> = T extends 'font-awesome'
             ? EntypoIconName
             : never;
 
-export interface IconProps<T extends IconType = IconType> {
+interface IconBaseProps<T extends IconType = IconType> {
   name: IconNameFor<T>;
   type?: T;
   /**
@@ -42,10 +42,20 @@ export interface IconProps<T extends IconType = IconType> {
   style?: StyleProp<TextStyle>;
   iconStyle?: T extends 'font-awesome-6' ? 'solid' | 'brand' | 'regular' : StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;
-  onPress?: () => void;
-  accessibilityLabel?: string;
   testID?: string;
 }
+
+type StaticIconProps = {
+  onPress?: undefined;
+  accessibilityLabel?: string;
+};
+
+type InteractiveIconProps = {
+  onPress: () => void;
+  accessibilityLabel: string;
+};
+
+export type IconProps<T extends IconType = IconType> = IconBaseProps<T> & (StaticIconProps | InteractiveIconProps);
 
 const ICON_COMPONENTS: Record<IconType, IconComponentType> = {
   'font-awesome': FontAwesome,

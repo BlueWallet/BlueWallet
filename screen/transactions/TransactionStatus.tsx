@@ -1321,6 +1321,7 @@ const TransactionStatus: React.FC = () => {
             {memo ? (
               <TouchableOpacity
                 accessibilityRole="button"
+                accessibilityLabel={`${loc.wallets.details_edit} ${loc.transactions.details_note}: ${memo}`}
                 onPress={handleNotePress}
                 activeOpacity={0.7}
                 style={styles.memoContainer}

@@ -560,22 +560,13 @@ const ReceiveDetails = () => {
             <>
               <View style={styles.cardSpacer} />
               <View style={styles.addressRow}>
-                <Text
-                  accessible
-                  accessibilityRole="text"
-                  accessibilityLabel={copyText}
-                  importantForAccessibility="yes"
-                  style={styles.accessibilityOnly}
-                >
-                  {copyText}
-                </Text>
                 <CopyTextToClipboard
                   ref={copyRef}
                   text={copyText}
                   displayText={displayCopyText}
                   isAddress={isAddressTab}
                   truncated={false}
-                  accessibilityLabel={loc.transactions.details_copy}
+                  accessibilityLabel={`${loc.transactions.details_copy}: ${copyText}`}
                 />
               </View>
             </>
@@ -840,15 +831,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     minHeight: 48,
     justifyContent: 'center',
-  },
-  accessibilityOnly: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    width: 1,
-    height: 1,
-    fontSize: 1,
-    color: 'transparent',
   },
   bip47NotFoundContainer: {
     paddingVertical: 40,

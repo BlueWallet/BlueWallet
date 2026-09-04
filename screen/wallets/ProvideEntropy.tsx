@@ -196,13 +196,14 @@ const Dice = ({ push, sides }: { push: TPush; sides: number }) => {
       backgroundColor: colors.background,
     },
   });
+  const accessibilityLabel = sides === 6 ? loc.entropy.d6 : loc.entropy.d20;
 
   return (
     <ScrollView contentContainerStyle={[styles.diceContainer, stylesHook.diceContainer]}>
       {[...Array(sides)].map((_, i) => (
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel={String(i + 1)}
+          accessibilityLabel={`${accessibilityLabel}: ${i + 1}`}
           testID={`Dice${sides}Roll${i + 1}`}
           key={i}
           onPress={() => push(getEntropy(i, sides))}

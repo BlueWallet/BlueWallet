@@ -12,7 +12,7 @@ interface TabsProps {
   active: number;
   onSwitch: (index: number) => void;
   tabs: React.ComponentType<TabProps>[];
-  accessibilityLabels?: string[];
+  accessibilityLabels: string[];
   isIpad?: boolean;
 }
 
@@ -36,7 +36,7 @@ export const Tabs: React.FC<TabsProps> = ({ active, onSwitch, tabs, accessibilit
         <TouchableOpacity
           key={i}
           accessibilityRole="button"
-          accessibilityLabel={accessibilityLabels?.[i]}
+          accessibilityLabel={accessibilityLabels[i]}
           accessibilityState={{ selected: active === i }}
           testID={`Tab${i}`}
           onPress={() => onSwitch(i)}

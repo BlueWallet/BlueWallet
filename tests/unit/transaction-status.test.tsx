@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { Linking } from 'react-native';
 
 import { _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
 import TransactionStatus from '../../screen/transactions/TransactionStatus';
@@ -202,6 +203,9 @@ jest.mock('../../loc', () => ({
       create_fee: 'Fee',
       details_note_placeholder: 'Note to Self',
     },
+    wallets: {
+      details_edit: 'Edit',
+    },
     _: {
       ok: 'OK',
       cancel: 'Cancel',
@@ -275,15 +279,23 @@ describe('TransactionStatus regression', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
-  it('exposes the block explorer control as a button', async () => {
+  it('opens the transaction in the selected block explorer', async () => {
+    const canOpenURL = jest.spyOn(Linking, 'canOpenURL').mockResolvedValue(true);
+    const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
     const { view } = setup(1, 1000);
 
     await waitFor(() => {
-      const explorerButton = view.getByTestId('TransactionExplorerButton');
-      expect(explorerButton.props.accessibilityRole).toBe('button');
-      expect(explorerButton.props.accessibilityLabel).toBe('Explorer');
+      expect(view.getByRole('button', { name: 'Explorer' })).toBeTruthy();
+    });
+
+    fireEvent.press(view.getByRole('button', { name: 'Explorer' }));
+
+    await waitFor(() => {
+      expect(canOpenURL).toHaveBeenCalledWith('https://block.explorer/tx/mock-tx');
+      expect(openURL).toHaveBeenCalledWith('https://block.explorer/tx/mock-tx');
     });
   });
 
@@ -318,8 +330,7 @@ describe('TransactionStatus regression', () => {
 
     mockPrompt.mockResolvedValue(undefined);
 
-    const noteText = view.getByText(existingMemo);
-    fireEvent.press(noteText);
+    fireEvent.press(view.getByRole('button', { name: `Edit Note: ${existingMemo}` }));
 
     await waitFor(() => {
       expect(mockPrompt).toHaveBeenCalledTimes(1);

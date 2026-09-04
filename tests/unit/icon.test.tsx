@@ -1,40 +1,28 @@
 import React from 'react';
-import { configure, render } from '@testing-library/react-native';
+import { fireEvent, isHiddenFromAccessibility, render } from '@testing-library/react-native';
 import Icon from '../../components/Icon';
-
-configure({ defaultIncludeHiddenElements: true });
-
-jest.mock('@react-native-vector-icons/fontawesome', () => {
-  const ReactLocal = require('react');
-  return {
-    __esModule: true,
-    default: (props: Record<string, unknown>) => ReactLocal.createElement('Text', props),
-  };
-});
 
 describe('Icon accessibility', () => {
   it('hides unlabeled decorative icons from accessibility', () => {
     const { getByTestId } = render(<Icon name="star" testID="icon" />);
-    const icon = getByTestId('icon');
+    const icon = getByTestId('icon', { includeHiddenElements: true });
 
-    expect(icon.props.accessible).toBe(false);
-    expect(icon.props.accessibilityElementsHidden).toBe(true);
-    expect(icon.props.importantForAccessibility).toBe('no-hide-descendants');
+    expect(isHiddenFromAccessibility(icon)).toBe(true);
   });
 
   it('exposes labeled non-interactive icons', () => {
-    const { getByTestId } = render(<Icon name="star" accessibilityLabel="Favorite" testID="icon" />);
-    const icon = getByTestId('icon');
+    const { getByLabelText } = render(<Icon name="star" accessibilityLabel="Favorite" />);
+    const icon = getByLabelText('Favorite');
 
-    expect(icon.props.accessible).toBe(true);
-    expect(icon.props.accessibilityElementsHidden).toBe(false);
-    expect(icon.props.importantForAccessibility).toBe('yes');
-    expect(icon.props.accessibilityLabel).toBe('Favorite');
+    expect(isHiddenFromAccessibility(icon)).toBe(false);
   });
 
-  it('puts the label on the pressable for interactive icons', () => {
-    const { getByRole } = render(<Icon name="star" accessibilityLabel="Favorite" onPress={jest.fn()} />);
+  it('exposes and activates a labeled interactive icon', () => {
+    const onPress = jest.fn();
+    const { getByRole } = render(<Icon name="star" accessibilityLabel="Favorite" onPress={onPress} />);
 
-    expect(getByRole('imagebutton').props.accessibilityLabel).toBe('Favorite');
+    fireEvent.press(getByRole('imagebutton', { name: 'Favorite' }));
+
+    expect(onPress).toHaveBeenCalledTimes(1);
   });
 });
