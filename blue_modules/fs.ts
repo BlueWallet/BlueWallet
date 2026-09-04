@@ -8,7 +8,6 @@ import Share from 'react-native-share';
 import type { TTXMetadata } from '../class/blue-app';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
-import { Chain } from '../models/bitcoinUnits';
 import { isDesktop } from './environment';
 import { readFile } from './react-native-bw-file-access';
 import { base64ToUint8Array, uint8ArrayToString } from './uint8array-extras/index';
@@ -21,8 +20,6 @@ const _sanitizeFileName = (fileName: string) => {
 export const isCancel = (err: any): boolean => {
   return err.code && err.code === errorCodes.OPERATION_CANCELED;
 };
-
-export const canImportWalletHistoryNotes = (chain: Chain): boolean => chain === Chain.ONCHAIN;
 
 export const encodeCsvRow = (values: Array<string | number>): string =>
   values
@@ -79,7 +76,7 @@ const parseCsv = (contents: string): string[][] => {
  * Reads notes from the wallet-history CSV format. Older BlueWallet exports did
  * not escape commas in memos, so extra columns are joined back into the memo.
  */
-export const parseWalletHistoryNotes = (contents: string, hasStatusColumn: boolean): Array<{ transactionId: string; memo: string }> => {
+export const parseWalletHistoryNotes = (contents: string): Array<{ transactionId: string; memo: string }> => {
   const rows = parseCsv(contents.replace(/^\uFEFF/, ''));
   if (rows.length === 0 || rows[0].length < 4) throw new Error('Invalid wallet history CSV');
 
@@ -87,8 +84,7 @@ export const parseWalletHistoryNotes = (contents: string, hasStatusColumn: boole
     if (row.length < 4) return [];
 
     const transactionId = row[1].trim();
-    const memoColumns = hasStatusColumn && row.length > 4 ? row.slice(3, -1) : row.slice(3);
-    const memo = memoColumns.join(',').trim();
+    const memo = row.slice(3).join(',').trim();
 
     return transactionId && memo ? [{ transactionId, memo }] : [];
   });

@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   applyWalletHistoryNoteUpdates,
-  canImportWalletHistoryNotes,
   encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
@@ -46,6 +45,7 @@ import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
+const IMPORT_NOTES_ACTION_ID = 'import_notes';
 
 function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: number | null } {
   if (typeof w.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null };
@@ -245,8 +245,8 @@ const WalletDetails: React.FC = () => {
 
     transactions.forEach((transaction: Transaction & LightningTransaction) => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
-      let hash: string = transaction.hash || '';
-      const metadataKey = transaction.hash ?? transaction.txid;
+      let hash: string = transaction.hash || transaction.txid || '';
+      const metadataKey = transaction.hash || transaction.txid;
       let memo = (metadataKey && txMetadata[metadataKey]?.memo?.trim()) || '';
       let status = '';
 
@@ -278,14 +278,14 @@ const WalletDetails: React.FC = () => {
   }, [wallet]);
 
   const importNotes = useCallback(async () => {
-    if (!canImportWalletHistoryNotes(wallet.chain)) return;
+    if (wallet.chain !== Chain.ONCHAIN) return;
 
     const { data } = await showFilePickerAndReadFile();
     if (data === false) return;
 
     let importedNotes;
     try {
-      importedNotes = parseWalletHistoryNotes(data, false);
+      importedNotes = parseWalletHistoryNotes(data);
     } catch {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
       presentAlert({ message: loc.wallets.import_error });
@@ -294,7 +294,8 @@ const WalletDetails: React.FC = () => {
 
     const transactionMetadataKeys = new Map<string, string>();
     for (const transaction of wallet.getTransactions()) {
-      if (transaction.hash) transactionMetadataKeys.set(transaction.hash.toLowerCase(), transaction.hash);
+      const transactionId = transaction.hash || transaction.txid;
+      if (transactionId) transactionMetadataKeys.set(transactionId.toLowerCase(), transactionId);
     }
 
     const { updates, overwriteCount } = planWalletHistoryNoteImport(importedNotes, transactionMetadataKeys, txMetadata);
@@ -337,7 +338,7 @@ const WalletDetails: React.FC = () => {
         {
           text: loc.wallets.import_do_import,
           onPress: () => {
-            applyUpdates().catch(() => {});
+            applyUpdates();
           },
           style: 'destructive',
         },
@@ -353,7 +354,7 @@ const WalletDetails: React.FC = () => {
         await writeFileAndExport(fileName, exportHistoryContent(), true);
       } else if (id === CommonToolTipActions.SaveFile.id) {
         await writeFileAndExport(fileName, exportHistoryContent(), false);
-      } else if (id === loc.wallets.details_import_notes) {
+      } else if (id === IMPORT_NOTES_ACTION_ID) {
         await importNotes();
       }
     },
@@ -370,10 +371,10 @@ const WalletDetails: React.FC = () => {
         subactions: [CommonToolTipActions.Share, CommonToolTipActions.SaveFile],
       },
       {
-        id: loc.wallets.details_import_notes,
+        id: IMPORT_NOTES_ACTION_ID,
         text: loc.wallets.details_import_notes,
         icon: CommonToolTipActions.ImportFile.icon,
-        hidden: walletTransactionsLength === 0 || !canImportWalletHistoryNotes(wallet.chain),
+        hidden: walletTransactionsLength === 0 || wallet.chain !== Chain.ONCHAIN,
       },
     ],
     [wallet.chain, walletTransactionsLength],

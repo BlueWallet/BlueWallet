@@ -1,92 +1,22 @@
-import RNFS from 'react-native-fs';
-import { keepLocalCopy, pick, types } from '@react-native-documents/picker';
-import {
-  applyWalletHistoryNoteUpdates,
-  canImportWalletHistoryNotes,
-  encodeCsvRow,
-  parseWalletHistoryNotes,
-  planWalletHistoryNoteImport,
-  showFilePickerAndReadFile,
-} from '../../blue_modules/fs';
-import { Chain } from '../../models/bitcoinUnits';
-
-jest.mock('@react-native-documents/picker', () => ({
-  ...jest.requireActual('@react-native-documents/picker'),
-  keepLocalCopy: jest.fn(),
-  pick: jest.fn(),
-}));
+import { applyWalletHistoryNoteUpdates, encodeCsvRow, parseWalletHistoryNotes, planWalletHistoryNoteImport } from '../../blue_modules/fs';
 
 describe('fs wallet history notes', () => {
-  it('only allows note imports for on-chain wallets', () => {
-    expect(canImportWalletHistoryNotes(Chain.ONCHAIN)).toBe(true);
-    expect(canImportWalletHistoryNotes(Chain.OFFCHAIN)).toBe(false);
-  });
-
-  it('imports a note from a document selected with the native picker', async () => {
-    const csv = [encodeCsvRow(['Date', 'Transaction ID', 'Amount', 'Memo']), encodeCsvRow(['today', 'abc123', 1, 'Imported note'])].join(
-      '\n',
-    );
-    (RNFS.readFile as jest.Mock).mockResolvedValueOnce(csv);
-    (pick as jest.Mock).mockResolvedValueOnce([
-      {
-        uri: 'content://mock/notes.csv',
-        name: 'notes.csv',
-        hasRequestedType: true,
-      },
-    ]);
-    (keepLocalCopy as jest.Mock).mockResolvedValueOnce([
-      {
-        sourceUri: 'content://mock/notes.csv',
-        localUri: 'file:///mock/notes.csv',
-        status: 'success',
-      },
-    ]);
-
-    const selectedFile = await showFilePickerAndReadFile();
-    expect(selectedFile).toEqual({
-      data: csv,
-      uri: 'file:///mock/notes.csv',
-    });
-
-    const importedNotes = parseWalletHistoryNotes(selectedFile.data as string, false);
-    const metadata = {};
-    const plan = planWalletHistoryNoteImport(importedNotes, new Map([['abc123', 'abc123']]), metadata);
-    const saveToDisk = jest.fn().mockResolvedValue(undefined);
-
-    await applyWalletHistoryNoteUpdates(metadata, plan.updates, saveToDisk);
-
-    expect(plan.overwriteCount).toBe(0);
-    expect(metadata).toEqual({ abc123: { memo: 'Imported note' } });
-    expect(saveToDisk).toHaveBeenCalledTimes(1);
-    expect(pick).toHaveBeenCalledWith({ type: [types.allFiles] });
-    expect(keepLocalCopy).toHaveBeenCalledWith({
-      files: [{ uri: 'content://mock/notes.csv', fileName: 'notes.csv' }],
-      destination: 'cachesDirectory',
-    });
-  });
-
   it('round-trips notes containing commas, quotes, and line breaks', () => {
     const memo = 'Coffee, "breakfast"\nwith Alice';
     const csv = [encodeCsvRow(['Date', 'Transaction ID', 'Amount', 'Memo']), encodeCsvRow(['today', 'abc123', 1, memo])].join('\n');
 
-    expect(parseWalletHistoryNotes(csv, false)).toEqual([{ transactionId: 'abc123', memo }]);
+    expect(parseWalletHistoryNotes(csv)).toEqual([{ transactionId: 'abc123', memo }]);
   });
 
   it('accepts commas in notes from legacy on-chain exports', () => {
     const csv = ['Date,Transaction ID,Amount,Memo', 'today,abc123,1,coffee, breakfast'].join('\n');
 
-    expect(parseWalletHistoryNotes(csv, false)).toEqual([{ transactionId: 'abc123', memo: 'coffee, breakfast' }]);
-  });
-
-  it('does not include the status column in legacy off-chain notes', () => {
-    const csv = ['Date,Transaction ID,Amount,Memo,Payment', 'today,abc123,1,coffee, breakfast,Success'].join('\n');
-
-    expect(parseWalletHistoryNotes(csv, true)).toEqual([{ transactionId: 'abc123', memo: 'coffee, breakfast' }]);
+    expect(parseWalletHistoryNotes(csv)).toEqual([{ transactionId: 'abc123', memo: 'coffee, breakfast' }]);
   });
 
   it('ignores empty notes and rejects malformed files', () => {
-    expect(parseWalletHistoryNotes('Date,Transaction ID,Amount,Memo\ntoday,abc123,1,', false)).toEqual([]);
-    expect(() => parseWalletHistoryNotes('not,a,history', false)).toThrow();
+    expect(parseWalletHistoryNotes('Date,Transaction ID,Amount,Memo\ntoday,abc123,1,')).toEqual([]);
+    expect(() => parseWalletHistoryNotes('not,a,history')).toThrow();
   });
 
   it('matches transaction IDs case-insensitively and identifies overwrites', () => {
