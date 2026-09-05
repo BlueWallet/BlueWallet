@@ -104,6 +104,11 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('ClipboardSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
     await element(by.id('QuickActionsSwitch')).tap();
+    if (device.getPlatform() === 'ios') {
+      await waitForId('DynamicIslandSwitch');
+      await element(by.id('DynamicIslandSwitch')).tap();
+      await element(by.id('DynamicIslandSwitch')).tap();
+    }
     await goBack();
 
     //

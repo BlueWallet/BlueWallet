@@ -5,6 +5,90 @@ import { HDSegwitBech32Wallet } from '../class/wallets/hd-segwit-bech32-wallet';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { TWallet } from '../class/wallets/types';
+import { previewPendingTransactionsLiveActivity, showcasePendingTransactionsLiveActivity } from '../blue_modules/dynamicIslandPreview';
+import type { PendingTransactionDirection } from '../blue_modules/pendingTransactions';
+
+type DynamicIslandPreview = {
+  title: string;
+  pendingTransactionCount: number;
+  totalPendingSats: number;
+  direction: PendingTransactionDirection;
+};
+
+export const DYNAMIC_ISLAND_PREVIEWS: DynamicIslandPreview[] = [
+  {
+    title: 'Unknown direction · zero amount',
+    pendingTransactionCount: 1,
+    totalPendingSats: 0,
+    direction: 'unknown',
+  },
+  {
+    title: 'Receiving · 1 sat',
+    pendingTransactionCount: 1,
+    totalPendingSats: 1,
+    direction: 'receiving',
+  },
+  {
+    title: 'Sending · 0.001 BTC',
+    pendingTransactionCount: 1,
+    totalPendingSats: 100_000,
+    direction: 'sending',
+  },
+  {
+    title: 'Mixed · 0.00175 BTC',
+    pendingTransactionCount: 2,
+    totalPendingSats: 175_000,
+    direction: 'mixed',
+  },
+  {
+    title: '12 transactions · 1.23456789 BTC',
+    pendingTransactionCount: 12,
+    totalPendingSats: 123_456_789,
+    direction: 'receiving',
+  },
+  {
+    title: '999 transactions · 21M BTC',
+    pendingTransactionCount: 999,
+    totalPendingSats: 2_100_000_000_000_000,
+    direction: 'sending',
+  },
+];
+
+const showDynamicIslandPreviews = () => {
+  const options: AlertButton[] = DYNAMIC_ISLAND_PREVIEWS.map(preview => ({
+    text: preview.title,
+    onPress: () => previewPendingTransactionsLiveActivity(preview.pendingTransactionCount, preview.totalPendingSats, preview.direction),
+  }));
+
+  options.push({
+    text: 'End Live Activity',
+    style: 'destructive',
+    onPress: () => previewPendingTransactionsLiveActivity(0, 0, 'unknown'),
+  });
+  options.push({ text: 'Cancel', style: 'cancel' });
+
+  Alert.alert(
+    'Dynamic Island Preview',
+    'Choose a content state. Lock the simulator to inspect the Lock Screen view, or press and hold the Dynamic Island for its expanded view.',
+    options,
+    { cancelable: true },
+  );
+};
+
+const showDynamicIslandShowcase = () => {
+  Alert.alert(
+    'Dynamic Island Showcase',
+    'Cycles through receiving, sending, mixed, unknown, tiny, large, and stress-test states every 5 seconds. Swipe home to see the compact view, then press and hold it to inspect the expanded view.',
+    [
+      {
+        text: 'Start Showcase',
+        onPress: showcasePendingTransactionsLiveActivity,
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ],
+    { cancelable: true },
+  );
+};
 
 const getRandomLabelFromSecret = (secret: string): string => {
   const words = secret.split(' ');
@@ -74,6 +158,11 @@ const DevMenu: React.FC = () => {
 
   useEffect(() => {
     if (__DEV__) {
+      if (Platform.OS === 'ios') {
+        DevSettings.addMenuItem('Showcase Dynamic Island (5s)', showDynamicIslandShowcase);
+        DevSettings.addMenuItem('Preview Dynamic Island', showDynamicIslandPreviews);
+      }
+
       // Clear existing Dev Menu items to prevent duplication
       DevSettings.addMenuItem('Reset Dev Menu', () => {
         DevSettings.reload();

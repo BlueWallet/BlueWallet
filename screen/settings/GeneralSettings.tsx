@@ -14,6 +14,7 @@ enum SettingsPrivacySection {
   ReadClipboard,
   QuickActions,
   Widget,
+  DynamicIsland,
   TemporaryScreenshots,
   TotalBalance,
 }
@@ -28,6 +29,8 @@ const GeneralSettings: React.FC = () => {
     setIsPrivacyBlurEnabled,
     isWidgetBalanceDisplayAllowed,
     setIsWidgetBalanceDisplayAllowedStorage,
+    isDynamicIslandEnabled,
+    setIsDynamicIslandEnabledStorage,
     isClipboardGetContentEnabled,
     setIsClipboardGetContentEnabledStorage,
     isQuickActionsEnabled,
@@ -102,6 +105,19 @@ const GeneralSettings: React.FC = () => {
       setIsLoading(SettingsPrivacySection.None);
     },
     [setIsTotalBalanceEnabledStorage],
+  );
+
+  const onDynamicIslandValueChange = useCallback(
+    async (value: boolean) => {
+      setIsLoading(SettingsPrivacySection.DynamicIsland);
+      try {
+        await setIsDynamicIslandEnabledStorage(value);
+      } catch (e) {
+        console.debug('onDynamicIslandValueChange catch', e);
+      }
+      setIsLoading(SettingsPrivacySection.None);
+    },
+    [setIsDynamicIslandEnabledStorage],
   );
 
   const onTemporaryScreenshotsValueChange = useCallback(
@@ -193,6 +209,16 @@ const GeneralSettings: React.FC = () => {
                 onValueChange: onWidgetsTotalBalanceValueChange,
                 disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
               }}
+            />
+            <SettingsListItem
+              title={loc.settings.dynamic_island}
+              subtitle={loc.settings.dynamic_island_explanation}
+              switch={{
+                value: isDynamicIslandEnabled,
+                onValueChange: onDynamicIslandValueChange,
+                disabled: isLoading === SettingsPrivacySection.All,
+              }}
+              switchTestID="DynamicIslandSwitch"
               bottomDivider={false}
             />
           </SettingsSection>

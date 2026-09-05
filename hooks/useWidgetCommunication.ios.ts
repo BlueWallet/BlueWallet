@@ -5,17 +5,36 @@ import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 import { GROUP_IO_BLUEWALLET } from '../blue_modules/currency';
 import debounce from '../blue_modules/debounce';
+import { requestPendingTransactionsLiveActivityRefresh } from '../blue_modules/NativeWidgetHelper';
+import {
+  calculatePendingOnchainTransactions,
+  createPendingTransactionsSharedSnapshot,
+  createPendingTransactionsWatchConfiguration,
+  type PendingTransactionDirection,
+  type PendingTransactionsWatchConfiguration,
+} from '../blue_modules/pendingTransactions';
 
 enum WidgetCommunicationKeys {
   AllWalletsSatoshiBalance = 'WidgetCommunicationAllWalletsSatoshiBalance',
   AllWalletsLatestTransactionTime = 'WidgetCommunicationAllWalletsLatestTransactionTime',
   DisplayBalanceAllowed = 'WidgetCommunicationDisplayBalanceAllowed',
   LatestTransactionIsUnconfirmed = 'WidgetCommunicationLatestTransactionIsUnconfirmed',
+  PendingTransactionsLiveActivityEnabled = 'PendingTransactionsLiveActivityEnabled',
+  PendingTransactionsLiveActivitySnapshot = 'PendingTransactionsLiveActivitySnapshot',
+  PendingTransactionsLiveActivityWatchConfiguration = 'PendingTransactionsLiveActivityWatchConfiguration',
 }
 
 const WIDGET_ENABLED = '1';
 const WIDGET_DISABLED = '0';
 const WIDGET_CLEARED_VALUE = '0';
+const DISABLED_PENDING_TRANSACTIONS_CONFIGURATION = JSON.stringify(createPendingTransactionsWatchConfiguration([], false));
+const EMPTY_PENDING_TRANSACTIONS_SNAPSHOT = JSON.stringify(
+  createPendingTransactionsSharedSnapshot({
+    pendingTransactionCount: 0,
+    totalPendingSats: 0,
+    direction: 'unknown',
+  }),
+);
 
 const secondsToMilliseconds = (seconds: number): number => seconds * 1000;
 
@@ -45,7 +64,6 @@ export const setBalanceDisplayAllowed = async (allowed: boolean): Promise<void> 
       await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, WIDGET_ENABLED);
     } else {
       await DefaultPreference.set(WidgetCommunicationKeys.DisplayBalanceAllowed, WIDGET_DISABLED);
-      // Clear widget data immediately when disabling
       await Promise.all([
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, WIDGET_CLEARED_VALUE),
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, WIDGET_CLEARED_VALUE),
@@ -57,43 +75,120 @@ export const setBalanceDisplayAllowed = async (allowed: boolean): Promise<void> 
   }
 };
 
+export const isPendingTransactionsLiveActivityEnabled = async (): Promise<boolean> => {
+  try {
+    const enabled = await DefaultPreference.get(WidgetCommunicationKeys.PendingTransactionsLiveActivityEnabled);
+    if (enabled === WIDGET_DISABLED) return false;
+    if (enabled !== WIDGET_ENABLED) {
+      await DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivityEnabled, WIDGET_ENABLED);
+    }
+    return true;
+  } catch (error) {
+    console.error('Failed to get PendingTransactionsLiveActivityEnabled:', error);
+    return true;
+  }
+};
+
+export const setPendingTransactionsLiveActivityEnabled = async (enabled: boolean): Promise<void> => {
+  try {
+    await DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivityEnabled, enabled ? WIDGET_ENABLED : WIDGET_DISABLED);
+
+    if (!enabled) {
+      await Promise.all([
+        DefaultPreference.set(
+          WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration,
+          DISABLED_PENDING_TRANSACTIONS_CONFIGURATION,
+        ),
+        DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivitySnapshot, EMPTY_PENDING_TRANSACTIONS_SNAPSHOT),
+      ]);
+      requestPendingTransactionsLiveActivityRefresh();
+    }
+  } catch (error) {
+    console.error('Failed to set PendingTransactionsLiveActivityEnabled:', error);
+  }
+};
+
 export const calculateBalanceAndTransactionTime = async (
   wallets: TWallet[],
   walletsInitialized: boolean,
 ): Promise<{
   allWalletsBalance: number;
   latestTransactionTime: number | string;
+  pendingTransactionCount: number;
+  totalPendingSats: number;
+  pendingTransactionDirection: PendingTransactionDirection;
+  pendingTransactionsWatchConfiguration: PendingTransactionsWatchConfiguration;
 }> => {
-  if (!walletsInitialized || !(await isBalanceDisplayAllowed())) {
-    return { allWalletsBalance: 0, latestTransactionTime: 0 };
+  if (!walletsInitialized) {
+    return {
+      allWalletsBalance: 0,
+      latestTransactionTime: 0,
+      pendingTransactionCount: 0,
+      totalPendingSats: 0,
+      pendingTransactionDirection: 'unknown',
+      pendingTransactionsWatchConfiguration: createPendingTransactionsWatchConfiguration([], false),
+    };
   }
 
-  const results = await Promise.allSettled(
-    wallets.map(async wallet => {
-      if (wallet.hideBalance) return { balance: 0, latestTransactionTime: 0 };
+  const [balanceDisplayAllowed, liveActivityEnabled] = await Promise.all([
+    isBalanceDisplayAllowed(),
+    isPendingTransactionsLiveActivityEnabled(),
+  ]);
 
-      const balance = await wallet.getBalance();
-      const transactions: Transaction[] = await wallet.getTransactions();
-      const confirmedTransactions = transactions.filter(t => (t.confirmations ?? 0) > 0);
-      const latestTransactionTime =
-        confirmedTransactions.length > 0
-          ? secondsToMilliseconds(Math.max(...confirmedTransactions.map(t => t.timestamp || t.time || 0)))
-          : WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
+  let allWalletsBalance = 0;
+  let latestTransactionTime: number | string = 0;
 
-      return { balance, latestTransactionTime };
-    }),
-  );
+  if (balanceDisplayAllowed) {
+    const results = await Promise.allSettled(
+      wallets.map(async wallet => {
+        if (wallet.hideBalance) return { balance: 0, latestTransactionTime: 0 };
 
-  const allWalletsBalance = results.reduce((acc, result) => acc + (result.status === 'fulfilled' ? result.value.balance : 0), 0);
-  const latestTransactionTime = results.reduce(
-    (max, result) =>
-      result.status === 'fulfilled' && typeof result.value.latestTransactionTime === 'number' && result.value.latestTransactionTime > max
-        ? result.value.latestTransactionTime
-        : max,
-    0,
-  );
+        const balance = await wallet.getBalance();
+        const transactions: Transaction[] = await wallet.getTransactions();
+        const confirmedTransactions = transactions.filter(t => (t.confirmations ?? 0) > 0);
+        const walletLatestTransactionTime =
+          confirmedTransactions.length > 0
+            ? secondsToMilliseconds(Math.max(...confirmedTransactions.map(t => t.timestamp || t.time || 0)))
+            : WidgetCommunicationKeys.LatestTransactionIsUnconfirmed;
 
-  return { allWalletsBalance, latestTransactionTime };
+        return { balance, latestTransactionTime: walletLatestTransactionTime };
+      }),
+    );
+
+    allWalletsBalance = results.reduce((acc, result) => acc + (result.status === 'fulfilled' ? result.value.balance : 0), 0);
+    latestTransactionTime = results.reduce<number | string>(
+      (max, result) =>
+        result.status === 'fulfilled' &&
+        typeof result.value.latestTransactionTime === 'number' &&
+        typeof max === 'number' &&
+        result.value.latestTransactionTime > max
+          ? result.value.latestTransactionTime
+          : max,
+      0,
+    );
+  }
+
+  const {
+    pendingTransactionCount,
+    totalPendingSats,
+    direction: pendingTransactionDirection,
+  } = liveActivityEnabled
+    ? calculatePendingOnchainTransactions(wallets)
+    : {
+        pendingTransactionCount: 0,
+        totalPendingSats: 0,
+        direction: 'unknown' as const,
+      };
+  const pendingTransactionsWatchConfiguration = createPendingTransactionsWatchConfiguration(wallets, liveActivityEnabled);
+
+  return {
+    allWalletsBalance,
+    latestTransactionTime,
+    pendingTransactionCount,
+    totalPendingSats,
+    pendingTransactionDirection,
+    pendingTransactionsWatchConfiguration,
+  };
 };
 
 export const syncWidgetBalanceWithWallets = async (
@@ -101,18 +196,53 @@ export const syncWidgetBalanceWithWallets = async (
   walletsInitialized: boolean,
   cachedBalance: { current: number },
   cachedLatestTransactionTime: { current: number | string },
+  cachedPendingTransactionCount: { current: number },
+  cachedTotalPendingSats: { current: number },
+  cachedPendingTransactionDirection: { current: PendingTransactionDirection },
+  cachedPendingTransactionsWatchConfiguration: { current: string },
 ): Promise<void> => {
   try {
-    const { allWalletsBalance, latestTransactionTime } = await calculateBalanceAndTransactionTime(wallets, walletsInitialized);
+    const {
+      allWalletsBalance,
+      latestTransactionTime,
+      pendingTransactionCount,
+      totalPendingSats,
+      pendingTransactionDirection,
+      pendingTransactionsWatchConfiguration,
+    } = await calculateBalanceAndTransactionTime(wallets, walletsInitialized);
+    const encodedWatchConfiguration = JSON.stringify(pendingTransactionsWatchConfiguration);
 
-    if (cachedBalance.current !== allWalletsBalance || cachedLatestTransactionTime.current !== latestTransactionTime) {
+    if (
+      cachedBalance.current !== allWalletsBalance ||
+      cachedLatestTransactionTime.current !== latestTransactionTime ||
+      cachedPendingTransactionCount.current !== pendingTransactionCount ||
+      cachedTotalPendingSats.current !== totalPendingSats ||
+      cachedPendingTransactionDirection.current !== pendingTransactionDirection ||
+      cachedPendingTransactionsWatchConfiguration.current !== encodedWatchConfiguration
+    ) {
+      const encodedSnapshot = JSON.stringify(
+        createPendingTransactionsSharedSnapshot({
+          pendingTransactionCount,
+          totalPendingSats,
+          direction: pendingTransactionDirection,
+        }),
+      );
       await Promise.all([
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsSatoshiBalance, String(allWalletsBalance)),
         DefaultPreference.set(WidgetCommunicationKeys.AllWalletsLatestTransactionTime, String(latestTransactionTime)),
+        DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivitySnapshot, encodedSnapshot),
       ]);
+      // The watch configuration is the final handoff record. Native iOS only
+      // refreshes after both the fallback state and public script hashes exist.
+      await DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration, encodedWatchConfiguration);
+      requestPendingTransactionsLiveActivityRefresh();
 
       cachedBalance.current = allWalletsBalance;
       cachedLatestTransactionTime.current = latestTransactionTime;
+      cachedPendingTransactionCount.current = pendingTransactionCount;
+      cachedTotalPendingSats.current = totalPendingSats;
+      cachedPendingTransactionDirection.current = pendingTransactionDirection;
+      cachedPendingTransactionsWatchConfiguration.current = encodedWatchConfiguration;
     }
   } catch (error) {
     console.error('Failed to sync widget balance with wallets:', error);
@@ -125,19 +255,37 @@ const debouncedSyncWidgetBalanceWithWallets = debounce(
     walletsInitialized: boolean,
     cachedBalance: { current: number },
     cachedLatestTransactionTime: { current: number | string },
+    cachedPendingTransactionCount: { current: number },
+    cachedTotalPendingSats: { current: number },
+    cachedPendingTransactionDirection: { current: PendingTransactionDirection },
+    cachedPendingTransactionsWatchConfiguration: { current: string },
   ) => {
-    await syncWidgetBalanceWithWallets(wallets, walletsInitialized, cachedBalance, cachedLatestTransactionTime);
+    await syncWidgetBalanceWithWallets(
+      wallets,
+      walletsInitialized,
+      cachedBalance,
+      cachedLatestTransactionTime,
+      cachedPendingTransactionCount,
+      cachedTotalPendingSats,
+      cachedPendingTransactionDirection,
+      cachedPendingTransactionsWatchConfiguration,
+    );
   },
   500,
 );
 
 const useWidgetCommunication = (): void => {
   const { wallets, walletsInitialized } = useStorage();
-  const { isWidgetBalanceDisplayAllowed } = useSettings();
+  const { isDynamicIslandEnabled, isWidgetBalanceDisplayAllowed } = useSettings();
   const cachedBalance = useRef<number>(0);
   const cachedLatestTransactionTime = useRef<number | string>(0);
+  const cachedPendingTransactionCount = useRef<number>(-1);
+  const cachedTotalPendingSats = useRef<number>(-1);
+  const cachedPendingTransactionDirection = useRef<PendingTransactionDirection>('unknown');
+  const cachedPendingTransactionsWatchConfiguration = useRef<string>('');
 
-  // Handle widget data clearing when the setting is disabled
+  // Keep the two privacy controls independent: one clears home-screen widget
+  // balances, while the other ends and clears the pending-transactions activity.
   useEffect(() => {
     const clearWidgetData = async () => {
       if (walletsInitialized && !isWidgetBalanceDisplayAllowed) {
@@ -158,12 +306,47 @@ const useWidgetCommunication = (): void => {
     clearWidgetData();
   }, [isWidgetBalanceDisplayAllowed, walletsInitialized]);
 
+  useEffect(() => {
+    const clearLiveActivityData = async () => {
+      if (walletsInitialized && !isDynamicIslandEnabled) {
+        try {
+          await Promise.all([
+            DefaultPreference.set(
+              WidgetCommunicationKeys.PendingTransactionsLiveActivityWatchConfiguration,
+              DISABLED_PENDING_TRANSACTIONS_CONFIGURATION,
+            ),
+            DefaultPreference.set(WidgetCommunicationKeys.PendingTransactionsLiveActivitySnapshot, EMPTY_PENDING_TRANSACTIONS_SNAPSHOT),
+          ]);
+          requestPendingTransactionsLiveActivityRefresh();
+          cachedPendingTransactionCount.current = 0;
+          cachedTotalPendingSats.current = 0;
+          cachedPendingTransactionDirection.current = 'unknown';
+          cachedPendingTransactionsWatchConfiguration.current = DISABLED_PENDING_TRANSACTIONS_CONFIGURATION;
+          console.debug('Dynamic Island data cleared due to setting being disabled');
+        } catch (error) {
+          console.error('Failed to clear Dynamic Island data:', error);
+        }
+      }
+    };
+
+    clearLiveActivityData();
+  }, [isDynamicIslandEnabled, walletsInitialized]);
+
   // Sync widget data when wallets change or setting is enabled
   useEffect(() => {
     if (walletsInitialized) {
-      debouncedSyncWidgetBalanceWithWallets(wallets, walletsInitialized, cachedBalance, cachedLatestTransactionTime);
+      debouncedSyncWidgetBalanceWithWallets(
+        wallets,
+        walletsInitialized,
+        cachedBalance,
+        cachedLatestTransactionTime,
+        cachedPendingTransactionCount,
+        cachedTotalPendingSats,
+        cachedPendingTransactionDirection,
+        cachedPendingTransactionsWatchConfiguration,
+      );
     }
-  }, [wallets, walletsInitialized, isWidgetBalanceDisplayAllowed]);
+  }, [wallets, walletsInitialized, isDynamicIslandEnabled, isWidgetBalanceDisplayAllowed]);
 
   useEffect(() => {
     return () => {

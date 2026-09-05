@@ -16,7 +16,12 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { TotalWalletsBalanceKey, TotalWalletsBalancePreferredUnit } from '../TotalWalletsBalance';
 import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer, normalizeUrl } from '../../models/blockExplorer';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
-import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
+import {
+  isBalanceDisplayAllowed,
+  isPendingTransactionsLiveActivityEnabled,
+  setBalanceDisplayAllowed,
+  setPendingTransactionsLiveActivityEnabled,
+} from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
@@ -85,6 +90,8 @@ interface SettingsContextType {
   setDoNotTrackStorage: (value: boolean) => Promise<void>;
   isWidgetBalanceDisplayAllowed: boolean;
   setIsWidgetBalanceDisplayAllowedStorage: (value: boolean) => Promise<void>;
+  isDynamicIslandEnabled: boolean;
+  setIsDynamicIslandEnabledStorage: (value: boolean) => Promise<void>;
   isLegacyURv1Enabled: boolean;
   setIsLegacyURv1EnabledStorage: (value: boolean) => Promise<void>;
   isClipboardGetContentEnabled: boolean;
@@ -114,6 +121,8 @@ const defaultSettingsContext: SettingsContextType = {
   setDoNotTrackStorage: async () => {},
   isWidgetBalanceDisplayAllowed: true,
   setIsWidgetBalanceDisplayAllowedStorage: async () => {},
+  isDynamicIslandEnabled: true,
+  setIsDynamicIslandEnabledStorage: async () => {},
   isLegacyURv1Enabled: false,
   setIsLegacyURv1EnabledStorage: async () => {},
   isClipboardGetContentEnabled: true,
@@ -139,6 +148,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isPrivacyBlurEnabled, setIsPrivacyBlurEnabled] = useState<boolean>(true);
   const [isDoNotTrackEnabled, setIsDoNotTrackEnabled] = useState<boolean>(false);
   const [isWidgetBalanceDisplayAllowed, setIsWidgetBalanceDisplayAllowed] = useState<boolean>(true);
+  const [isDynamicIslandEnabled, setIsDynamicIslandEnabled] = useState<boolean>(true);
   const [isLegacyURv1Enabled, setIsLegacyURv1Enabled] = useState<boolean>(false);
   const [isClipboardGetContentEnabled, setIsClipboardGetContentEnabled] = useState<boolean>(true);
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
@@ -169,6 +179,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         }),
         isBalanceDisplayAllowed().then(balanceDisplayAllowed => {
           setIsWidgetBalanceDisplayAllowed(balanceDisplayAllowed);
+        }),
+        isPendingTransactionsLiveActivityEnabled().then(enabled => {
+          setIsDynamicIslandEnabled(enabled);
         }),
         isURv1Enabled().then(urv1Enabled => {
           setIsLegacyURv1Enabled(urv1Enabled);
@@ -279,6 +292,15 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
     }
   }, []);
 
+  const setIsDynamicIslandEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
+    try {
+      await setPendingTransactionsLiveActivityEnabled(value);
+      setIsDynamicIslandEnabled(value);
+    } catch (e) {
+      console.error('Error setting isDynamicIslandEnabled:', e);
+    }
+  }, []);
+
   const setIsLegacyURv1EnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
       if (value) {
@@ -354,6 +376,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setDoNotTrackStorage,
       isWidgetBalanceDisplayAllowed,
       setIsWidgetBalanceDisplayAllowedStorage,
+      isDynamicIslandEnabled,
+      setIsDynamicIslandEnabledStorage,
       isLegacyURv1Enabled,
       setIsLegacyURv1EnabledStorage,
       isClipboardGetContentEnabled,
@@ -382,6 +406,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setDoNotTrackStorage,
       isWidgetBalanceDisplayAllowed,
       setIsWidgetBalanceDisplayAllowedStorage,
+      isDynamicIslandEnabled,
+      setIsDynamicIslandEnabledStorage,
       isLegacyURv1Enabled,
       setIsLegacyURv1EnabledStorage,
       isClipboardGetContentEnabled,
