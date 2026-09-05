@@ -39,7 +39,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { dispatch, navigate, setParams } = useNavigation<NavigationProp>();
+  const { dispatch, navigate, setParams, goBack } = useNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -167,7 +167,20 @@ const ViewEditMultisigCosigners: React.FC = () => {
                 setWallet(tempWallet.current);
               }
             } catch (_) {
-              presentAlert({ message: loc.multisig.invalid_cosigner });
+              return Alert.alert(
+                loc.multisig.manage_keys,
+                loc.multisig.invalid_cosigner,
+                [
+                  {
+                    text: loc._.ok,
+                    onPress: async () => {
+                      goBack();
+                    },
+                    style: 'default',
+                  },
+                ],
+                { cancelable: false },
+              );
             }
           }
           hasLoaded.current = true;

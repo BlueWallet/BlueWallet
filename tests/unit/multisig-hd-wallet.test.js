@@ -1854,6 +1854,25 @@ describe('multisig-wallet (native segwit)', () => {
     const electrumJson = require('./fixtures/electrum-multisig-wallet-with-seed-and-passphrase.json');
 
     electrumWallet.setSecret(JSON.stringify(electrumJson));
+
+    const expected =
+      '# BlueWallet Multisig setup file\n' +
+      '# this file may contain private information\n' +
+      '#\n' +
+      'Name: Wallet\n' +
+      'Policy: 2 of 2\n' +
+      'Format: P2WSH\n' +
+      '\n' +
+      "# derivation: m/1'\n" +
+      'seed: electrumseed:diagram grape account sustain bright member ethics strategy burger senior capital enforce - BlueWallet\n' +
+      '# warning! sensitive information, do not disclose ^^^ \n' +
+      '\n' +
+      "# derivation: m/48'/0'/0'/2'\n" +
+      'seed: ZprvAqPkyb5ridHr1gGiqSuAWcsrZ6jqv31Vyuaj4fzVcgt8v6PXH9tSigE6F8iw8pL16HWnhzEsXvJ5ur9HKvkAW16oHZuFeEYA1CBdsGGDFFB\n' +
+      '# warning! sensitive information, do not disclose ^^^ \n' +
+      '\n';
+
+    assert.strictEqual(electrumWallet.getSecret(), expected);
     assert.strictEqual(electrumWallet.getN(), 2);
     assert.strictEqual(electrumWallet.getM(), 2);
     assert.strictEqual(
