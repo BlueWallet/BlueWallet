@@ -259,4 +259,3 @@ enum FiatUnitEnum: String, AppEnum, CaseIterable, Identifiable, Codable {
         ]
     }
 }
-

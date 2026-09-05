@@ -163,7 +163,9 @@ const CoinControl: React.FC = () => {
       .map(({ txid, vout }) => `${txid}:${vout}`),
   );
   const utxos: Utxo[] = useMemo(() => {
-    const res = wallet.getUtxo(true).sort((a, b) => {
+    // getUtxo() may return the wallet's canonical array. Sort a copy so merely
+    // opening Coin Control cannot change later transaction input selection.
+    const res = [...wallet.getUtxo(true)].sort((a, b) => {
       switch (sortType) {
         case CoinControlSortType.HEIGHT:
           return a.height - b.height || a.txid.localeCompare(b.txid) || a.vout - b.vout;

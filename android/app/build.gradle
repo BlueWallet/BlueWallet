@@ -137,6 +137,7 @@ tasks.configureEach { task ->
 
 dependencies {
     androidTestImplementation('com.wix:detox:20.51.4')
+    testImplementation 'junit:junit:4.13.2'
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation 'androidx.core:core-ktx:1.18.0'
@@ -145,6 +146,7 @@ dependencies {
     implementation 'androidx.compose.ui:ui:1.10.6'
     implementation 'androidx.compose.material3:material3:1.3.2'
     implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'androidx.security:security-crypto:1.0.0'
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

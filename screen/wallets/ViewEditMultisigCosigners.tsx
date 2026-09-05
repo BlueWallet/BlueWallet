@@ -16,7 +16,6 @@ import MultipleStepsListItem, {
 } from '../../components/MultipleStepsListItem';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
 import { useScreenProtect } from '../../hooks/useScreenProtect';
 import loc from '../../loc';
 import ActionSheet from '../ActionSheet';
@@ -36,7 +35,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const hasLoaded = useRef(false);
   const { colors } = useTheme();
   const { wallets, setWalletsWithNewOrder } = useStorage();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
   const { dispatch, navigate, setParams } = useNavigation<NavigationProp>();
@@ -111,15 +109,6 @@ const ViewEditMultisigCosigners: React.FC = () => {
       throw new Error('Wallet is undefined');
     }
     setIsLoading(true);
-
-    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-
-    if (isBiometricsEnabled) {
-      if (!(await unlockWithBiometrics())) {
-        setIsLoading(false);
-        return;
-      }
-    }
 
     setParams({ headerRight: null });
 

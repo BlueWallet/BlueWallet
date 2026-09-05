@@ -13,7 +13,7 @@ import { DynamicQRCode } from '../../components/DynamicQRCode';
 import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
-import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
+import { authenticateSensitiveAction } from '../../hooks/useKeychainAuthentication';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -26,7 +26,6 @@ import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
   const { isElectrumDisabled } = useSettings();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<SendDetailsStackParamList, 'PsbtWithHardwareWallet'>>();
   const { walletID, memo, psbt, deepLinkPSBT, launchedBy } = route.params;
@@ -137,13 +136,9 @@ const PsbtWithHardwareWallet = () => {
 
   const broadcast = async () => {
     setIsLoading(true);
-    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-
-    if (isBiometricsEnabled) {
-      if (!(await unlockWithBiometrics())) {
-        setIsLoading(false);
-        return;
-      }
+    if (!(await authenticateSensitiveAction())) {
+      setIsLoading(false);
+      return;
     }
     try {
       if (!(await BlueElectrum.ensureConnected())) {

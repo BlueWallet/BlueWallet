@@ -171,6 +171,16 @@ const ReceiveDetails = () => {
   const isBIP47Enabled = wallet?.isBIP47Enabled();
 
   const paymentCodeString = useMemo(() => (wallet && 'getBIP47PaymentCode' in wallet && wallet.getBIP47PaymentCode()) || '', [wallet]);
+  const resolvedAddress = useMemo(() => {
+    if (address) return address;
+    if (!bip21encoded) return undefined;
+
+    try {
+      return DeeplinkSchemaMatch.bip21decode(bip21encoded).address;
+    } catch {
+      return undefined;
+    }
+  }, [address, bip21encoded]);
 
   /** Dark: theme input surface (#262626) reads softer than pure elevated / system gray 6. Light: iOS-style grouped background. */
   const cardBackgroundColor = isDarkTheme ? colors.inputBackgroundColor : '#F2F2F7';
@@ -488,9 +498,9 @@ const ReceiveDetails = () => {
     let copyText: string | undefined;
 
     if (isAddressTab) {
-      if (!address) return null;
+      if (!resolvedAddress) return null;
       qrValue = bip21encoded;
-      copyText = isCustom ? bip21encoded : address;
+      copyText = isCustom ? bip21encoded : resolvedAddress;
     } else if (wallet && isBIP47Enabled) {
       qrValue = paymentCodeString || undefined;
       copyText = paymentCodeString || undefined;
@@ -608,15 +618,15 @@ const ReceiveDetails = () => {
   );
 
   const showCustomAmountModal = useCallback(() => {
-    if (!address) return;
+    if (!resolvedAddress) return;
     navigate('ReceiveCustomAmount', {
-      address,
+      address: resolvedAddress,
       currentLabel: customLabel,
       currentAmount: customAmount,
       currentUnit: customUnit,
       preferredUnit: wallet?.getPreferredBalanceUnit() || BitcoinUnit.BTC,
     });
-  }, [address, customAmount, customLabel, customUnit, navigate, wallet]);
+  }, [resolvedAddress, customAmount, customLabel, customUnit, navigate, wallet]);
 
   useEffect(() => {
     const {
@@ -710,8 +720,12 @@ const ReceiveDetails = () => {
       >
         {showAddress && renderReceiveCard()}
         {showReceiveSkeleton && renderReceiveSkeleton()}
-        {showAddress && address !== undefined && (
-          <HandOffComponent title={loc.send.details_address} type={HandOffActivityType.ReceiveOnchain} userInfo={{ address }} />
+        {showAddress && resolvedAddress !== undefined && (
+          <HandOffComponent
+            title={loc.send.details_address}
+            type={HandOffActivityType.ReceiveOnchain}
+            userInfo={{ address: resolvedAddress }}
+          />
         )}
         {showConfirmedBalance && renderConfirmedBalance()}
         {showPendingBalance && renderPendingBalance()}

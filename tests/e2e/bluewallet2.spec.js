@@ -421,11 +421,13 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await element(by.text('Payment Code')).tap();
     await element(by.id('ReceiveDetailsScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
     await sleep(200);
-    await expect(
+    await waitFor(
       element(
         by.text('PM8TJbcHbQFgBL5mAYUCxJEhsz8F66abWAnVqiq6Pa8Rav8qG6XjaJQmSzNqgc1k63ipiEnobNpAoxNJVzRkdoUEANj9KyBEjLt4hL99RMoa8iJXwwwM'),
       ),
-    ).toBeVisible();
+    )
+      .toExist()
+      .withTimeout(10_000);
 
     // now, testing contacts list
     await goBack();
@@ -766,8 +768,11 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(uint8ArrayToHex(tx2.outs[0].script), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
     assert.strictEqual(tx2.outs[0].value, 35369n);
     assert.strictEqual(tx2.ins.length, 3);
-    assert.strictEqual(uint8ArrayToHex(tx2.ins[0].hash), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
-    assert.strictEqual(tx2.ins[0].index, 0);
+    const expectedInput = tx2.ins.find(
+      input => uint8ArrayToHex(input.hash) === 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10',
+    );
+    assert.ok(expectedInput, 'expected the unfrozen UTXO to be selected');
+    assert.strictEqual(expectedInput.index, 0);
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });

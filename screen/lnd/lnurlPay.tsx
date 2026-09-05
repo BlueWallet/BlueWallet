@@ -14,7 +14,7 @@ import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import { authenticateSensitiveAction } from '../../hooks/useKeychainAuthentication';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -34,7 +34,6 @@ const _cacheFiatToSat: Record<string, string> = {};
 
 const LnurlPay: React.FC = () => {
   const { wallets } = useStorage();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const route = useRoute<RouteProp<Record<string, RouteParams>, string>>();
   const { walletID, lnurl } = route.params;
   const wallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
@@ -110,12 +109,7 @@ const LnurlPay: React.FC = () => {
     setPayButtonDisabled(true);
     if (!_LN || !amount) return;
 
-    const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-    if (isBiometricsEnabled) {
-      if (!(await unlockWithBiometrics())) {
-        return;
-      }
-    }
+    if (!(await authenticateSensitiveAction())) return;
 
     let amountSats: number | false;
     switch (unit) {

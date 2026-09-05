@@ -1,195 +1,113 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Alert, Platform } from 'react-native';
-import ReactNativeBiometrics, { BiometryTypes as RNBiometryTypes } from 'react-native-biometrics';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
-import loc from '../loc';
-import * as NavigationService from '../NavigationService';
-import presentAlert from '../components/Alert';
-import { useStorage } from './context/useStorage';
+import { useCallback, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
+import Keychain, { BIOMETRY_TYPE } from 'react-native-keychain';
 
-const STORAGEKEY = 'Biometrics';
-const rnBiometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
+import loc from '../loc';
 
 const FaceID = 'Face ID';
 const TouchID = 'Touch ID';
 const Biometrics = 'Biometrics';
 
-const clearKeychain = async () => {
+export type DeviceBiometricType = BIOMETRY_TYPE | typeof Biometrics;
+export type BiometricAvailability = 'available' | 'notEnrolled' | 'passcodeRequired' | 'unavailable';
+
+export const getDeviceBiometricType = async (): Promise<DeviceBiometricType | undefined> => {
+  return (await Keychain.getSupportedBiometryType()) ?? undefined;
+};
+
+export const getBiometricAvailability = async (): Promise<BiometricAvailability> => {
   try {
-    console.debug('Wiping keychain');
-    console.debug('Wiping key: data');
-    await RNSecureKeyStore.set('data', JSON.stringify({ data: { wallets: [] } }), {
-      accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-    });
-    console.debug('Wiped key: data');
-    console.debug('Wiping key: data_encrypted');
-    await RNSecureKeyStore.set('data_encrypted', '', { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
-    console.debug('Wiped key: data_encrypted');
-    console.debug('Wiping key: STORAGEKEY');
-    await RNSecureKeyStore.set(STORAGEKEY, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY });
-    console.debug('Wiped key: STORAGEKEY');
-    NavigationService.reset();
-  } catch (error: any) {
-    console.warn(error);
-    presentAlert({ message: error.message });
+    const availability = (await Keychain.getSupportedBiometryType())
+      ? 'available'
+      : (await Keychain.isPasscodeAuthAvailable())
+        ? 'notEnrolled'
+        : 'passcodeRequired';
+    console.debug('[useBiometrics] Biometric availability:', availability);
+    return availability;
+  } catch (error) {
+    console.debug('[useBiometrics] Biometric availability check failed:', error);
+    return 'unavailable';
   }
 };
 
-const unlockWithBiometrics = async () => {
-  try {
-    const { available } = await rnBiometrics.isSensorAvailable();
-    if (!available) {
-      return false;
-    }
-
-    return new Promise<boolean>(resolve => {
-      rnBiometrics
-        .simplePrompt({ promptMessage: loc.settings.biom_conf_identity })
-        .then((result: { success: any }) => {
-          if (result.success) {
-            resolve(true);
-          } else {
-            console.debug('Biometrics authentication failed');
-            resolve(false);
-          }
-        })
-        .catch((error: Error) => {
-          console.debug('Biometrics authentication error');
-          presentAlert({ message: error.message });
-          resolve(false);
-        });
-    });
-  } catch (e: Error | any) {
-    console.debug('Biometrics authentication error', e);
-    presentAlert({ message: e.message });
-    return false;
+export const getBiometricAvailabilityMessage = (availability: Exclude<BiometricAvailability, 'available'>): string => {
+  switch (availability) {
+    case 'notEnrolled':
+      return loc.settings.biometrics_not_enrolled;
+    case 'passcodeRequired':
+      return Platform.OS === 'android' ? loc.settings.biometrics_screen_lock_required : loc.settings.biometrics_passcode_required;
+    default:
+      return loc.settings.biometrics_check_failed;
   }
 };
 
-const showKeychainWipeAlert = () => {
-  if (Platform.OS === 'ios') {
-    Alert.alert(
-      loc.settings.encrypt_tstorage,
-      loc.settings.biom_10times,
-      [
-        {
-          text: loc._.cancel,
-          onPress: () => {
-            console.debug('Cancel Pressed');
-          },
-          style: 'cancel',
-        },
-        {
-          text: loc._.ok,
-          onPress: async () => {
-            const { available } = await rnBiometrics.isSensorAvailable();
-            if (!available) {
-              presentAlert({ message: loc.settings.biom_no_passcode });
-              return;
-            }
-            const isAuthenticated = await unlockWithBiometrics();
-            if (isAuthenticated) {
-              Alert.alert(
-                loc.settings.encrypt_tstorage,
-                loc.settings.biom_remove_decrypt,
-                [
-                  { text: loc._.cancel, style: 'cancel' },
-                  {
-                    text: loc._.ok,
-                    style: 'destructive',
-                    onPress: async () => await clearKeychain(),
-                  },
-                ],
-                { cancelable: false },
-              );
-            }
-          },
-          style: 'default',
-        },
-      ],
-      { cancelable: false },
-    );
+const isBiometricCancellationError = (error: unknown): boolean => {
+  const code = String((error as { code?: unknown })?.code ?? '').toLowerCase();
+  const message = String((error as { message?: unknown })?.message ?? error ?? '').toLowerCase();
+  return (
+    code === '-2' ||
+    code === '-4' ||
+    code === '-9' ||
+    code === '-128' ||
+    /code:\s*(10|13)\b/.test(message) ||
+    message.includes('user cancel') ||
+    message.includes('user canceled') ||
+    message.includes('user cancelled') ||
+    message.includes('negative button')
+  );
+};
+
+export const getBiometricErrorMessage = (error: unknown): string | undefined => {
+  if (isBiometricCancellationError(error)) return undefined;
+
+  const code = String((error as { code?: unknown })?.code ?? '').toLowerCase();
+  const message = String((error as { message?: unknown })?.message ?? error ?? '').toLowerCase();
+  if (/code:\s*(7|9)\b/.test(message) || message.includes('lockout') || message.includes('locked out')) {
+    return loc.settings.biometrics_locked_out;
   }
+  if (
+    code === '-25300' ||
+    message.includes('key permanently invalidated') ||
+    message.includes('permanently invalidated') ||
+    message.includes('item could not be found')
+  ) {
+    return Platform.OS === 'android' ? loc.settings.android_keystore_key_invalidated : loc.settings.biometrics_enrollment_changed;
+  }
+  if (code === '-25308' || message.includes('interaction is not allowed') || message.includes('no current activity')) {
+    return loc.settings.biometrics_interaction_unavailable;
+  }
+  if (code === '-25293' || message.includes('authentication failed') || message.includes('not recognized')) {
+    return loc.settings.biometrics_auth_failed;
+  }
+  return loc.settings.keychain_unavailable;
 };
 
 const useBiometrics = () => {
-  const { getItem, setItem } = useStorage();
-  const [biometricEnabled, setBiometricEnabled] = useState(false);
-  const [deviceBiometricType, setDeviceBiometricType] = useState<'TouchID' | 'FaceID' | 'Biometrics' | undefined>(undefined);
+  const [deviceBiometricType, setDeviceBiometricType] = useState<DeviceBiometricType | undefined>();
 
   useEffect(() => {
-    const fetchBiometricEnabledStatus = async () => {
-      const enabled = await isBiometricUseEnabled();
-      setBiometricEnabled(enabled);
-
-      const biometricType = await type();
-      setDeviceBiometricType(biometricType);
+    let active = true;
+    getDeviceBiometricType()
+      .then(type => {
+        if (active) setDeviceBiometricType(type);
+      })
+      .catch(error => console.debug('[useBiometrics] Biometric type check failed:', error));
+    return () => {
+      active = false;
     };
-
-    fetchBiometricEnabledStatus();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isDeviceBiometricCapable = useCallback(async () => {
-    try {
-      const { available } = await rnBiometrics.isSensorAvailable();
-      return available;
-    } catch (e) {
-      console.debug('Biometrics isDeviceBiometricCapable failed');
-      console.debug(e);
-      setBiometricUseEnabled(false);
-    }
-    return false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const capable = (await getBiometricAvailability()) === 'available';
+    console.debug('[useBiometrics] Device biometric capable:', capable);
+    return capable;
   }, []);
-
-  const type = useCallback(async () => {
-    try {
-      const { available, biometryType } = await rnBiometrics.isSensorAvailable();
-      if (!available) {
-        return undefined;
-      }
-
-      return biometryType;
-    } catch (e) {
-      console.debug('Biometrics biometricType failed');
-      console.debug(e);
-      return undefined;
-    }
-  }, []);
-
-  const isBiometricUseEnabled = useCallback(async () => {
-    try {
-      const enabledBiometrics = await getItem(STORAGEKEY);
-      return !!enabledBiometrics;
-    } catch (_) {}
-
-    return false;
-  }, [getItem]);
-
-  const isBiometricUseCapableAndEnabled = useCallback(async () => {
-    const isEnabled = await isBiometricUseEnabled();
-    const isCapable = await isDeviceBiometricCapable();
-    return isEnabled && isCapable;
-  }, [isBiometricUseEnabled, isDeviceBiometricCapable]);
-
-  const setBiometricUseEnabled = useCallback(
-    async (value: boolean) => {
-      await setItem(STORAGEKEY, value === true ? '1' : '');
-      setBiometricEnabled(value);
-    },
-    [setItem],
-  );
 
   return {
-    isDeviceBiometricCapable,
     deviceBiometricType,
-    isBiometricUseEnabled,
-    isBiometricUseCapableAndEnabled,
-    setBiometricUseEnabled,
-    clearKeychain,
-    biometricEnabled,
+    getBiometricAvailability,
+    isDeviceBiometricCapable,
   };
 };
 
-export { FaceID, TouchID, Biometrics, RNBiometryTypes as BiometricType, useBiometrics, showKeychainWipeAlert, unlockWithBiometrics };
+export { FaceID, TouchID, Biometrics, BIOMETRY_TYPE as BiometricType, useBiometrics };
