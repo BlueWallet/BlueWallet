@@ -3,7 +3,7 @@ import React, { lazy } from 'react';
 import { Platform } from 'react-native';
 import UnlockWith from '../screen/UnlockWith';
 import { withLazySuspense } from './LazyLoadingIndicator';
-import { DetailViewStackParamList } from './DetailViewStackParamList';
+import { RootStackParamList } from './RootStackParamList';
 import { useStorage } from '../hooks/context/useStorage';
 import loc from '../loc';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
@@ -47,7 +47,7 @@ export const NavigationFormNoSwipeDefaultOptions: NativeStackNavigationOptions =
 };
 export const StatusBarLightOptions: NativeStackNavigationOptions = { statusBarStyle: 'light' };
 
-const DetailViewStack = createNativeStackNavigator<DetailViewStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const LazyDrawerRoot = withLazySuspense(DrawerRoot);
 const LazyAddWalletStack = withLazySuspense(AddWalletStack);
@@ -66,21 +66,21 @@ const MainRoot = () => {
   const theme = useTheme();
 
   return (
-    <DetailViewStack.Navigator UNSTABLE_router={navigationGuardRouter} screenOptions={{ headerShown: false }}>
+    <RootStack.Navigator UNSTABLE_router={navigationGuardRouter} screenOptions={{ headerShown: false }}>
       {!walletsInitialized ? (
-        <DetailViewStack.Screen name="UnlockWithScreen" component={UnlockWith} />
+        <RootStack.Screen name="UnlockWithScreen" component={UnlockWith} />
       ) : (
         <>
-          <DetailViewStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
+          <RootStack.Screen name="DrawerRoot" component={LazyDrawerRoot} />
 
           {/* Modal stacks */}
-          <DetailViewStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="SendDetailsRoot" component={LazySendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
-          <DetailViewStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
-          <DetailViewStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
+          <RootStack.Screen name="AddWalletRoot" component={LazyAddWalletStack} options={NavigationDefaultOptions} />
+          <RootStack.Screen name="SendDetailsRoot" component={LazySendDetailsStack} options={NavigationFormNoSwipeDefaultOptions} />
+          <RootStack.Screen name="LNDCreateInvoiceRoot" component={LazyLNDCreateInvoiceRoot} options={NavigationDefaultOptions} />
+          <RootStack.Screen name="ScanLNDInvoiceRoot" component={LazyScanLNDInvoiceRoot} options={NavigationDefaultOptions} />
+          <RootStack.Screen name="AztecoRedeemRoot" component={LazyAztecoRedeemStackRoot} options={NavigationDefaultOptions} />
 
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="WalletExport"
             component={WalletExport}
             options={navigationStyle({
@@ -91,12 +91,12 @@ const MainRoot = () => {
               closeButtonPosition: CloseButtonPosition.Right,
             })(theme)}
           />
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="ExportMultisigCoordinationSetupRoot"
             component={LazyExportMultisigCoordinationSetupStack}
             options={NavigationDefaultOptions}
           />
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="ViewEditMultisigCosigners"
             component={LazyViewEditMultisigCosigners}
             options={navigationStyle(
@@ -110,7 +110,7 @@ const MainRoot = () => {
               withRouteParamHeaderOptions({ headerRight: true }),
             )(theme)}
           />
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="ViewEditMultisigCosignerViewSheet"
             component={ViewEditMultisigCosignerViewSheet}
             options={navigationStyle({
@@ -122,7 +122,7 @@ const MainRoot = () => {
               headerTitle: '',
             })(theme)}
           />
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="ViewEditMultisigProvideMnemonicsSheet"
             component={ViewEditMultisigProvideMnemonicsSheet}
             options={navigationStyle({
@@ -134,7 +134,7 @@ const MainRoot = () => {
               headerTitle: '',
             })(theme)}
           />
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="ViewEditMultisigShareCosignerSheet"
             component={ViewEditMultisigShareCosignerSheet}
             options={navigationStyle({
@@ -146,7 +146,7 @@ const MainRoot = () => {
               headerTitle: '',
             })(theme)}
           />
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="WalletXpub"
             component={WalletXpub}
             options={navigationStyle({
@@ -156,13 +156,13 @@ const MainRoot = () => {
               closeButtonPosition: CloseButtonPosition.Right,
             })(theme)}
           />
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="SignVerifyRoot"
             component={LazySignVerifyStackRoot}
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
 
-          <DetailViewStack.Screen
+          <RootStack.Screen
             name="ScanQRCode"
             component={LazyScanQRCodeComponent}
             options={{
@@ -174,9 +174,9 @@ const MainRoot = () => {
           />
         </>
       )}
-    </DetailViewStack.Navigator>
+    </RootStack.Navigator>
   );
 };
 
 export default MainRoot;
-export { DetailViewStack };
+export { RootStack };
