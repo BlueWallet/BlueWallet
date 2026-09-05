@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Platform, StyleSheet, TextInput, TextInputProps } from 'react-native';
 
 import { useTheme } from './themes';
 
-const BlueFormMultiInput: React.FC<TextInputProps> = props => {
+const BlueFormMultiInput = forwardRef<TextInput, TextInputProps>((props, ref) => {
   const { colors } = useTheme();
   const { style, editable, ...restProps } = props;
 
   return (
     <TextInput
+      ref={ref}
       multiline
       underlineColorAndroid="transparent"
       numberOfLines={4}
@@ -31,7 +32,7 @@ const BlueFormMultiInput: React.FC<TextInputProps> = props => {
       keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
     />
   );
-};
+});
 
 const styles = StyleSheet.create({
   blueFormMultiInput: {
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    borderRadius: 4,
+    borderRadius: 8,
     textAlignVertical: 'top',
   },
 });
