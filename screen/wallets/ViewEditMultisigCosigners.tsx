@@ -39,7 +39,7 @@ const ViewEditMultisigCosigners: React.FC = () => {
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { isElectrumDisabled, isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { dispatch, navigate, setParams } = useNavigation<NavigationProp>();
+  const { dispatch, navigate, setParams, goBack } = useNavigation<NavigationProp>();
   const route = useRoute<RouteParams>();
   const { walletID } = route.params;
   const w = useRef(wallets.find(wallet => wallet.getID() === walletID));
@@ -160,10 +160,27 @@ const ViewEditMultisigCosigners: React.FC = () => {
             w.current = new MultisigHDWallet();
             w.current.setNativeSegwit();
           } else {
-            tempWallet.current.setSecret(w.current.getSecret());
-            if (!cancelled) {
-              setWalletData(new Array(tempWallet.current.getN()));
-              setWallet(tempWallet.current);
+            try {
+              tempWallet.current.setSecret(w.current.getSecret());
+              if (!cancelled) {
+                setWalletData(new Array(tempWallet.current.getN()));
+                setWallet(tempWallet.current);
+              }
+            } catch (_) {
+              return Alert.alert(
+                loc.multisig.manage_keys,
+                loc.multisig.invalid_cosigner,
+                [
+                  {
+                    text: loc._.ok,
+                    onPress: async () => {
+                      goBack();
+                    },
+                    style: 'default',
+                  },
+                ],
+                { cancelable: false },
+              );
             }
           }
           hasLoaded.current = true;
@@ -397,7 +414,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
 
       const hd = new HDSegwitBech32Wallet();
       hd.setSecret(mnemonic);
-      if (!hd.validateMnemonic()) return presentAlert({ message: loc.multisig.invalid_mnemonics });
+      if (!hd.validateMnemonic() && !MultisigHDWallet.isValidElectrumSeed(hd.getSecret()))
+        return presentAlert({ message: loc.multisig.invalid_mnemonics });
       try {
         wallet.replaceCosignerXpubWithSeed(cosignerNum, hd.getSecret(), passphrase);
       } catch (e: any) {
