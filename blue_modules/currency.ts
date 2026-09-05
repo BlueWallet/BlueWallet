@@ -3,6 +3,7 @@ import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
+import { BITCOIN_DISPLAY_FORMAT } from './bitcoinFormat';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const PREFERRED_CURRENCY_LOCALE_STORAGE_KEY = 'preferredCurrencyLocale';
@@ -14,6 +15,7 @@ const BTC_PREFIX = 'BTC_';
 export interface CurrencyRate {
   LastUpdated: Date | null;
   Rate: number | string | null;
+  RawRate?: number | null;
 }
 
 interface ExchangeRates {
@@ -37,7 +39,7 @@ function getCurrencyFormatter(): Intl.NumberFormat {
     currencyFormatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
       style: 'currency',
       currency: preferredFiatCurrency.endPointKey,
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 0,
       maximumFractionDigits: 8,
     });
     console.debug('Created new currency formatter for: ', preferredFiatCurrency);
@@ -325,15 +327,18 @@ async function mostRecentFetchedRate(): Promise<CurrencyRate> {
       currencyInformation = {};
     }
 
-    const rate = currencyInformation[BTC_PREFIX + preferredFiatCurrency.endPointKey];
+    const storedRate = currencyInformation[BTC_PREFIX + preferredFiatCurrency.endPointKey];
+    const rawRate = typeof storedRate === 'number' && Number.isFinite(storedRate) && storedRate > 0 ? storedRate : null;
     return {
       LastUpdated: currencyInformation[LAST_UPDATED] ? new Date(currencyInformation[LAST_UPDATED]) : null,
-      Rate: rate ? getCurrencyFormatter().format(rate) : '...',
+      Rate: rawRate !== null ? getCurrencyFormatter().format(rawRate) : '...',
+      RawRate: rawRate,
     };
   } catch {
     return {
       LastUpdated: null,
       Rate: null,
+      RawRate: null,
     };
   }
 }
@@ -362,8 +367,16 @@ function getCurrencySymbol(): string {
   return preferredFiatCurrency.symbol;
 }
 
+function getCurrencyFractionDigits(currency: FiatUnitType = preferredFiatCurrency): number {
+  const fractionDigits = new Intl.NumberFormat(currency.locale, {
+    style: 'currency',
+    currency: currency.endPointKey,
+  }).resolvedOptions().maximumFractionDigits;
+  return fractionDigits ?? 2;
+}
+
 function formatBTC(btc: BigNumber.Value): string {
-  return new BigNumber(btc).toFormat(8);
+  return new BigNumber(btc).toFormat(8, BITCOIN_DISPLAY_FORMAT);
 }
 
 function _setPreferredFiatCurrency(currency: FiatUnitType): void {
@@ -387,6 +400,7 @@ export {
   EXCHANGE_RATES_STORAGE_KEY,
   fiatToBTC,
   getCurrencySymbol,
+  getCurrencyFractionDigits,
   getPreferredCurrency,
   initCurrencyDaemon,
   isRateOutdated,

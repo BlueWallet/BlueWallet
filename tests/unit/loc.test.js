@@ -1,14 +1,7 @@
 import assert from 'assert';
 
 import { _setExchangeRate, _setPreferredFiatCurrency, _setSkipUpdateExchangeRate } from '../../blue_modules/currency';
-import loc, {
-  _leaveNumbersAndDots,
-  formatBalance,
-  formatBalancePlain,
-  formatBalanceWithoutSuffix,
-  parsedLanguages,
-  saveLanguage,
-} from '../../loc';
+import loc, { formatBalance, formatBalancePlain, formatBalanceWithoutSuffix, parsedLanguages, saveLanguage } from '../../loc';
 import enJson from '../../loc/en.json';
 import ruJson from '../../loc/ru.json';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -41,22 +34,16 @@ describe('Localization', () => {
     assert.strictEqual(parsedLanguages.fr_fr, cached, 'cached dict reused, not re-required');
   });
 
-  it('internal formatter', () => {
-    assert.strictEqual(_leaveNumbersAndDots('1,00 ₽'), '1');
-    assert.strictEqual(_leaveNumbersAndDots('0,50 ₽"'), '0.50');
-    assert.strictEqual(_leaveNumbersAndDots('RUB 1,00'), '1');
-  });
-
   it('formatBalancePlain() && formatBalancePlain()', () => {
     _setExchangeRate('BTC_RUB', 660180.143);
     _setPreferredFiatCurrency(FiatUnit.RUB);
     let newInputValue = formatBalanceWithoutSuffix(152, BitcoinUnit.LOCAL_CURRENCY, false);
-    assert.ok(newInputValue === 'RUB 1.00' || newInputValue === '1,00 ₽', 'Unexpected: ' + newInputValue);
+    assert.ok(newInputValue === 'RUB 1' || newInputValue === '1 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(152, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '1');
 
     newInputValue = formatBalanceWithoutSuffix(1515, BitcoinUnit.LOCAL_CURRENCY, false);
-    assert.ok(newInputValue === 'RUB 10.00' || newInputValue === '10,00 ₽', 'Unexpected: ' + newInputValue);
+    assert.ok(newInputValue === 'RUB 10' || newInputValue === '10 ₽', 'Unexpected: ' + newInputValue);
     newInputValue = formatBalancePlain(1515, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '10');
 

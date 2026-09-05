@@ -10,6 +10,7 @@ import Localization, { LocalizedStrings } from 'react-localization';
 import { I18nManager } from 'react-native';
 import * as RNLocalize from 'react-native-localize';
 
+import { formatBitcoinInteger } from '../blue_modules/bitcoinFormat';
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AvailableLanguages, LangCode } from './languages';
@@ -442,7 +443,7 @@ export const removeTrailingZeros = (value: number | string): string => {
  *
  * @param balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, applies fixed Bitcoin digit grouping
  * @returns {string}
  */
 export function formatBalance(balance: number, toUnit: string, withFormatting = false): string {
@@ -453,9 +454,13 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
     return removeTrailingZeros(value) + ' ' + loc.units[BitcoinUnit.BTC];
   } else if (toUnit === BitcoinUnit.SATS) {
-    return (withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
+    return (withFormatting ? formatBitcoinInteger(balance) : String(balance)) + ' ' + loc.units[BitcoinUnit.SATS];
   } else {
-    console.debug('[UnitSwitch/Fiat] formatBalance to fiat', { balance, unit: toUnit, withFormatting });
+    console.debug('[UnitSwitch/Fiat] formatBalance to fiat', {
+      balance,
+      unit: toUnit,
+      withFormatting,
+    });
     return satoshiToLocalCurrency(balance);
   }
 }
@@ -464,7 +469,7 @@ export function formatBalance(balance: number, toUnit: string, withFormatting = 
  *
  * @param balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, applies fixed Bitcoin digit grouping
  * @returns {string}
  */
 export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withFormatting = false): string | number {
@@ -475,9 +480,13 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
     return removeTrailingZeros(value);
   } else if (toUnit === BitcoinUnit.SATS) {
-    return withFormatting ? new Intl.NumberFormat().format(balance).toString() : String(balance);
+    return withFormatting ? formatBitcoinInteger(balance) : String(balance);
   } else {
-    console.debug('[UnitSwitch/Fiat] formatBalanceWithoutSuffix to fiat', { balance, unit: toUnit, withFormatting });
+    console.debug('[UnitSwitch/Fiat] formatBalanceWithoutSuffix to fiat', {
+      balance,
+      unit: toUnit,
+      withFormatting,
+    });
     return satoshiToLocalCurrency(balance);
   }
 }
@@ -487,27 +496,22 @@ export function formatBalanceWithoutSuffix(balance = 0, toUnit: string, withForm
  *
  * @param  balance {number} Satoshis
  * @param toUnit {string} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
- * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, applies fixed Bitcoin digit grouping
  * @returns {string}
  */
 export function formatBalancePlain(balance = 0, toUnit: string, withFormatting = false) {
-  console.debug('[UnitSwitch/Fiat] formatBalancePlain', { balance, unit: toUnit, withFormatting });
-  const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  return _leaveNumbersAndDots(newInputValue.toString());
-}
-
-export function _leaveNumbersAndDots(newInputValue: string) {
-  newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
-  if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
-
-  if (newInputValue[newInputValue.length - 3] === ',') {
-    // this is a fractional value, lets replace comma to dot so it represents actual fractional value for normal people
-    newInputValue = newInputValue.substring(0, newInputValue.length - 3) + '.' + newInputValue.substring(newInputValue.length - 2);
+  console.debug('[UnitSwitch/Fiat] formatBalancePlain', {
+    balance,
+    unit: toUnit,
+    withFormatting,
+  });
+  if (toUnit !== BitcoinUnit.BTC && toUnit !== BitcoinUnit.SATS) {
+    const unformattedAmount = satoshiToLocalCurrency(balance, false);
+    const numericAmount = new BigNumber(unformattedAmount);
+    return numericAmount.isInteger() ? numericAmount.toFixed(0) : unformattedAmount;
   }
-  newInputValue = newInputValue.replace(/,/gi, '');
 
-  return newInputValue;
+  return formatBalanceWithoutSuffix(balance, toUnit, withFormatting).toString();
 }
 
 /**
