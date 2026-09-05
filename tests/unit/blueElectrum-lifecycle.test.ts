@@ -8,6 +8,7 @@
  */
 
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
+import DefaultPreference from 'react-native-default-preference';
 
 // Jest hoists these above the import above. The factories close over `globalThis`
 // so the test body can swap implementations per-test without re-mocking.
@@ -105,10 +106,21 @@ function resolveLastConnect() {
 
 describe('BlueElectrum lifecycle', () => {
   beforeEach(async () => {
+    await DefaultPreference.clearAll();
     BlueElectrum.forceDisconnect();
     await BlueElectrum.setDisabled(false);
     created.length = 0;
     presentAlertMock.mockClear();
+  });
+
+  describe('isCustomElectrumServerConfigured', () => {
+    it('is false without a preferred server and true when a host is configured', async () => {
+      expect(await BlueElectrum.isCustomElectrumServerConfigured()).toBe(false);
+
+      await DefaultPreference.set(BlueElectrum.ELECTRUM_HOST, 'electrum.example.com');
+
+      expect(await BlueElectrum.isCustomElectrumServerConfigured()).toBe(true);
+    });
   });
 
   describe('coalescing', () => {

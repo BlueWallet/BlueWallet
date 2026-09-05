@@ -12,11 +12,14 @@ import type { BoltzReverseSwap } from '@arkade-os/boltz-swap';
 import loc from '../loc';
 import { arkadePaymentPushUri, groundControlUri } from './constants';
 import { fetch } from '../util/fetch';
+import { isCustomElectrumServerConfigured } from './BlueElectrum';
 
 const PUSH_TOKEN = 'PUSH_TOKEN';
 const NOTIFICATIONS_STORAGE = 'NOTIFICATIONS_STORAGE';
 const ANDROID_NOTIFICATION_CHANNEL_ID = 'channel_01';
 export const NOTIFICATIONS_NO_AND_DONT_ASK_FLAG = 'NOTIFICATIONS_NO_AND_DONT_ASK_FLAG';
+const CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN = 'CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN';
+const GROUND_CONTROL_SUBSCRIPTIONS = 'GROUND_CONTROL_SUBSCRIPTIONS';
 const baseURI = groundControlUri;
 let notificationSubscriptions: EmitterSubscription[] = [];
 let onProcessNotificationsHandler: undefined | (() => void | Promise<void>);
@@ -42,6 +45,12 @@ type TPayload = {
   type: number;
   hash: string;
   [key: string]: any;
+};
+
+type GroundControlSubscriptions = {
+  addresses: string[];
+  hashes: string[];
+  txids: string[];
 };
 
 function deepClone<T>(obj: T): T {
@@ -215,6 +224,74 @@ export const cleanUserOptOutFlag = async () => {
   return AsyncStorage.removeItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
 };
 
+export const isCustomElectrumPushNotificationsEnabled = async (): Promise<boolean> => {
+  return (await AsyncStorage.getItem(CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN)) === 'true';
+};
+
+const mergeGroundControlSubscriptions = (...subscriptions: GroundControlSubscriptions[]): GroundControlSubscriptions => ({
+  addresses: [...new Set(subscriptions.flatMap(subscription => subscription.addresses))],
+  hashes: [...new Set(subscriptions.flatMap(subscription => subscription.hashes))],
+  txids: [...new Set(subscriptions.flatMap(subscription => subscription.txids))],
+});
+
+const hasGroundControlSubscriptions = (subscriptions: GroundControlSubscriptions): boolean =>
+  subscriptions.addresses.length > 0 || subscriptions.hashes.length > 0 || subscriptions.txids.length > 0;
+
+const getGroundControlSubscriptions = async (): Promise<GroundControlSubscriptions> => {
+  const storedSubscriptions = await AsyncStorage.getItem(GROUND_CONTROL_SUBSCRIPTIONS);
+  if (!storedSubscriptions) return { addresses: [], hashes: [], txids: [] };
+
+  try {
+    const subscriptions = JSON.parse(storedSubscriptions) as Partial<GroundControlSubscriptions>;
+    return {
+      addresses: Array.isArray(subscriptions.addresses) ? subscriptions.addresses : [],
+      hashes: Array.isArray(subscriptions.hashes) ? subscriptions.hashes : [],
+      txids: Array.isArray(subscriptions.txids) ? subscriptions.txids : [],
+    };
+  } catch (error) {
+    console.error('Failed to read Ground Control subscriptions:', error);
+    return { addresses: [], hashes: [], txids: [] };
+  }
+};
+
+const rememberGroundControlSubscriptions = async (subscriptions: GroundControlSubscriptions): Promise<void> => {
+  const existingSubscriptions = await getGroundControlSubscriptions();
+  await AsyncStorage.setItem(
+    GROUND_CONTROL_SUBSCRIPTIONS,
+    JSON.stringify(mergeGroundControlSubscriptions(existingSubscriptions, subscriptions)),
+  );
+};
+
+export const clearCustomElectrumPushNotificationsConsent = async (): Promise<void> => {
+  await AsyncStorage.setItem(CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN, 'false');
+};
+
+export const setCustomElectrumPushNotificationsEnabled = async (
+  enabled: boolean,
+  currentSubscriptions: GroundControlSubscriptions = { addresses: [], hashes: [], txids: [] },
+): Promise<void> => {
+  if (enabled) {
+    await AsyncStorage.setItem(CUSTOM_ELECTRUM_PUSH_NOTIFICATIONS_OPT_IN, 'true');
+    return;
+  }
+
+  await clearCustomElectrumPushNotificationsConsent();
+  const subscriptions = mergeGroundControlSubscriptions(await getGroundControlSubscriptions(), currentSubscriptions);
+  if (!hasGroundControlSubscriptions(subscriptions)) return;
+
+  await unsubscribe(subscriptions.addresses, subscriptions.hashes, subscriptions.txids);
+  await AsyncStorage.removeItem(GROUND_CONTROL_SUBSCRIPTIONS);
+};
+
+const canShareWithPushService = async (): Promise<boolean> => {
+  try {
+    return !(await isCustomElectrumServerConfigured()) || (await isCustomElectrumPushNotificationsEnabled());
+  } catch (error) {
+    console.error('Unable to verify custom Electrum push consent:', error);
+    return false;
+  }
+};
+
 /**
  * Should be called when user is most interested in receiving push notifications.
  * If we dont have a token it will show alert asking whether
@@ -302,6 +379,11 @@ export const majorTomToGroundControl = async (addresses: string[], hashes: strin
       throw new Error('No addresses, hashes, or txids provided');
     }
 
+    if (!(await canShareWithPushService())) {
+      console.warn('Push registration blocked because custom Electrum push sharing has not been explicitly enabled.');
+      return;
+    }
+
     const pushToken = await getPushToken();
     console.log('majorTomToGroundControl: Retrieved push token:', !!pushToken);
     if (!pushToken || !pushToken.token || !pushToken.os) {
@@ -333,6 +415,7 @@ export const majorTomToGroundControl = async (addresses: string[], hashes: strin
       throw new Error(`Ground Control request failed with status ${response.status}: ${response.statusText}`);
     }
 
+    await rememberGroundControlSubscriptions({ addresses, hashes, txids });
     const responseText = await response.text();
     if (responseText) {
       try {
@@ -353,7 +436,7 @@ export const majorTomToGroundControl = async (addresses: string[], hashes: strin
 /**
  * Registers an Ark swap with the bitcoin-payment-push-service so the device is
  * pushed when the invoice gets paid. Fire-and-forget: never throws, gated by
- * the same opt-out/token rules as majorTomToGroundControl(). The swap's
+ * the same privacy rules as majorTomToGroundControl(). The swap's
  * preimage is always stripped before leaving the device.
  */
 export const registerArkPaymentPush = async (paymentHash: string, label: string, pendingSwap: BoltzReverseSwap): Promise<void> => {
@@ -362,6 +445,11 @@ export const registerArkPaymentPush = async (paymentHash: string, label: string,
     const noAndDontAskFlag = await AsyncStorage.getItem(NOTIFICATIONS_NO_AND_DONT_ASK_FLAG);
     if (noAndDontAskFlag === 'true') {
       console.warn('User has opted out of notifications.');
+      return;
+    }
+
+    if (!(await canShareWithPushService())) {
+      console.warn('Ark payment push registration blocked because custom Electrum push sharing has not been explicitly enabled.');
       return;
     }
 
@@ -673,8 +761,7 @@ export const unsubscribe = async (addresses: string[], hashes: string[], txids: 
 
   const token = await getPushToken();
   if (!token?.token || !token?.os) {
-    console.error('No push token or OS found');
-    return;
+    throw new Error('No push token or OS found');
   }
 
   const body = JSON.stringify({
@@ -693,8 +780,7 @@ export const unsubscribe = async (addresses: string[], hashes: string[], txids: 
     });
 
     if (!response.ok) {
-      console.error('Failed to unsubscribe:', response.statusText);
-      return;
+      throw new Error(`Failed to unsubscribe: ${response.statusText}`);
     }
 
     return response;
