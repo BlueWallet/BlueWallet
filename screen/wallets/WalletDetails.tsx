@@ -13,6 +13,7 @@ import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { validateBip32 } from '../../class/wallet-import';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
@@ -107,6 +108,7 @@ const WalletDetails: React.FC = () => {
   );
 
   const { hasCoinControl, utxoCount } = coinControlStats;
+  const [metadataNonce, setMetadataNonce] = useState<number>(0);
   const derivationPath = useMemo<string | null>(() => {
     try {
       // @ts-expect-error: Need to fix later
@@ -119,7 +121,9 @@ const WalletDetails: React.FC = () => {
     } catch (e) {
       return null;
     }
-  }, [wallet]);
+    // metadataNonce bumps when the user edits watch-only metadata in place
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet, metadataNonce]);
   const [isMasterFingerPrintVisible, setIsMasterFingerPrintVisible] = useState<boolean>(false);
   const [isAdvancedExpanded, setIsAdvancedExpanded] = useState<boolean>(false);
 
@@ -492,6 +496,53 @@ const WalletDetails: React.FC = () => {
     setIsMasterFingerPrintVisible(true);
   };
 
+  const isWatchOnlyHd = wallet.type === WatchOnlyWallet.type && wallet.isHd && wallet.isHd();
+
+  const onEditDerivationPathPress = async () => {
+    let newPath: string;
+    try {
+      newPath = await prompt(loc.wallets.details_derivation_path, loc.wallets.details_derivation_path_edit, {
+        type: 'plain-text',
+        defaultValue: derivationPath ?? '',
+      });
+    } catch (_) {
+      return; // cancelled
+    }
+    newPath = newPath.trim().split('‘').join("'").split('’').join("'").replace(/h/gi, "'");
+    if (!validateBip32(newPath)) {
+      presentAlert({ message: loc.wallets.details_derivation_path_invalid });
+      return;
+    }
+    (wallet as WatchOnlyWallet).setDerivationPath(newPath);
+    await saveToDisk();
+    setMetadataNonce(nonce => nonce + 1);
+  };
+
+  const onEditMasterFingerprintPress = async () => {
+    let newFingerprint: string;
+    try {
+      newFingerprint = await prompt(loc.wallets.details_master_fingerprint, loc.wallets.details_master_fingerprint_edit, {
+        type: 'plain-text',
+        defaultValue: masterFingerprint === '00000000' ? '' : (masterFingerprint ?? ''),
+      });
+    } catch (_) {
+      return; // cancelled
+    }
+    newFingerprint = newFingerprint.trim().toLowerCase();
+    if (!/^[0-9a-f]{8}$/.test(newFingerprint)) {
+      presentAlert({ message: loc.wallets.details_master_fingerprint_invalid });
+      return;
+    }
+    (wallet as WatchOnlyWallet).setMasterFingerprintFromHex(newFingerprint);
+    await saveToDisk();
+    setMasterFingerprint((wallet as WatchOnlyWallet).getMasterFingerprintHex());
+  };
+
+  let onMasterFingerprintPress: (() => void) | undefined = onViewMasterFingerPrintPress;
+  if (isMasterFingerPrintVisible) {
+    onMasterFingerprintPress = isWatchOnlyHd ? onEditMasterFingerprintPress : undefined;
+  }
+
   return (
     <SafeAreaScrollView centerContent={isLoading} testID="WalletDetailsScroll">
       <>
@@ -791,7 +842,7 @@ const WalletDetails: React.FC = () => {
                   )}
                   {wallet.allowMasterFingerprint && wallet.allowMasterFingerprint() && (
                     <SettingsListItem
-                      onPress={isMasterFingerPrintVisible ? undefined : onViewMasterFingerPrintPress}
+                      onPress={onMasterFingerprintPress}
                       title={loc.wallets.details_master_fingerprint}
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={
@@ -804,6 +855,7 @@ const WalletDetails: React.FC = () => {
                   )}
                   {derivationPath && (
                     <SettingsListItem
+                      onPress={isWatchOnlyHd ? onEditDerivationPathPress : undefined}
                       title={loc.wallets.details_derivation_path}
                       titleStyle={stylesHook.advancedListItemTitle}
                       rightTitle={derivationPath}
