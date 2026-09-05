@@ -50,6 +50,7 @@ import SelfTest from '../screen/settings/SelfTest';
 import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
+import ClipboardDetected, { ClipboardDetectedHeaderTitle } from '../screen/ClipboardDetected';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
 import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
@@ -539,6 +540,39 @@ const DetailViewStackScreensStack = () => {
             sheetGrabberVisible: true,
             closeButtonPosition: CloseButtonPosition.Right,
             headerBackButtonDisplayMode: 'minimal',
+          })(theme)}
+        />
+        <DetailViewStack.Screen
+          name="ClipboardDetected"
+          component={ClipboardDetected}
+          options={navigationStyle({
+            presentation: 'formSheet',
+            sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.5],
+            sheetGrabberVisible: true,
+            ...(Platform.OS === 'ios'
+              ? {
+                  closeButtonPosition: CloseButtonPosition.Right,
+                  title: '',
+                  headerTitle: '',
+                  headerBackVisible: false,
+                  ...(isIOS26OrHigher
+                    ? {
+                        unstable_headerLeftItems: () => [
+                          {
+                            type: 'custom' as const,
+                            element: <ClipboardDetectedHeaderTitle />,
+                            hidesSharedBackground: true,
+                          },
+                        ],
+                      }
+                    : {
+                        headerLeft: ClipboardDetectedHeaderTitle,
+                      }),
+                }
+              : {
+                  // Android formSheet does not render the native header; the screen draws it.
+                  headerShown: false,
+                }),
           })(theme)}
         />
         <DetailViewStack.Screen
