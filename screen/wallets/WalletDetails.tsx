@@ -813,7 +813,7 @@ const WalletDetails: React.FC = () => {
                   <SettingsListItem
                     title={loc.wallets.details_type}
                     titleStyle={stylesHook.advancedListItemTitle}
-                    rightTitle={wallet.typeReadable}
+                    rightTitle={wallet.getTypeReadable()}
                     rightTitleStyle={stylesHook.advancedListItemRightTitle}
                     rightTitleSelectable
                     bottomDivider={

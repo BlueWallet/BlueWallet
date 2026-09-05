@@ -465,7 +465,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
         return;
       }
       const emptyWalletLabel = new LegacyWallet().getLabel();
-      if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.typeReadable);
+      if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import_imported + ' ' + w.getTypeReadable());
       w.setUserHasSavedExport(true);
       addWallet(w);
       if (w instanceof LightningArkWallet) {
@@ -483,7 +483,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
       presentAlert({
         hapticFeedback: HapticFeedbackTypes.ImpactHeavy,
-        message: w.type === WatchOnlyWallet.type ? loc.wallets.import_success_watchonly : loc.wallets.import_success,
+        message:
+          w.type === WatchOnlyWallet.type && !(w as WatchOnlyWallet).isHardwareWallet()
+            ? loc.wallets.import_success_watchonly
+            : loc.wallets.import_success,
       });
 
       await w.fetchBalance();

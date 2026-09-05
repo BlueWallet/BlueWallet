@@ -113,7 +113,7 @@ const WalletXpub: React.FC = () => {
             {wallet && (
               <>
                 <View>
-                  <BlueText>{wallet.typeReadable}</BlueText>
+                  <BlueText>{wallet.getTypeReadable()}</BlueText>
                 </View>
                 <BlueSpacing20 />
               </>
