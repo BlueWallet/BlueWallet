@@ -37,6 +37,109 @@ target 'BlueWallet' do
   configure_target()
 end
 
+
+# Repair Mac Catalyst slices of RN prebuilt xcframeworks.
+# See scripts/fix-mac-catalyst-prebuilt-frameworks.sh and
+# https://github.com/facebook/react-native/issues/55540
+MAC_CATALYST_PREBUILT_FIX_SCRIPT = File.expand_path('../scripts/fix-mac-catalyst-prebuilt-frameworks.sh', __dir__)
+MAC_CATALYST_PREBUILT_FIX_PHASE_NAME = '[BlueWallet] Fix Mac Catalyst prebuilt frameworks'
+MAC_CATALYST_PREBUILT_FIX_MARKER = 'fix-mac-catalyst-prebuilt-frameworks.sh'
+
+# CocoaPods trunk TSBackgroundFetch 4.1.1 omits the Mac Catalyst slice. After
+# install, replace it with the npm-bundled XCFramework (which includes
+# ios-arm64_x86_64-maccatalyst) without changing how the pod is declared.
+def replace_tsbackgroundfetch_xcframework_with_npm_copy!(installer)
+  require 'fileutils'
+  src = File.expand_path('../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.xcframework', __dir__)
+  dst = File.join(installer.sandbox.root.to_s, 'TSBackgroundFetch', 'TSBackgroundFetch.xcframework')
+  unless File.directory?(src)
+    Pod::UI.warn "TSBackgroundFetch npm XCFramework missing: #{src}"
+    return
+  end
+  unless File.directory?(File.dirname(dst))
+    Pod::UI.warn "TSBackgroundFetch pod directory missing: #{File.dirname(dst)}"
+    return
+  end
+  FileUtils.rm_rf(dst)
+  FileUtils.cp_r(src, dst)
+  # npm Info.plist lists maccatalyst BinaryPath as Versions/A/... but the slice
+  # is a flat framework layout — correct so Xcode can locate the binary.
+  info = File.join(dst, 'Info.plist')
+  if File.exist?(info)
+    system(
+      'python3', '-c',
+      <<~PY,
+        import plistlib
+        from pathlib import Path
+        info = Path(#{info.inspect})
+        data = plistlib.loads(info.read_bytes())
+        changed = False
+        for lib in data.get("AvailableLibraries", []):
+            if lib.get("LibraryIdentifier") == "ios-arm64_x86_64-maccatalyst":
+                expected = "TSBackgroundFetch.framework/TSBackgroundFetch"
+                if lib.get("BinaryPath") != expected:
+                    lib["BinaryPath"] = expected
+                    changed = True
+        if changed:
+            info.write_bytes(plistlib.dumps(data))
+            print("Corrected TSBackgroundFetch maccatalyst BinaryPath")
+      PY
+    )
+  end
+  Pod::UI.puts 'Replaced TSBackgroundFetch.xcframework with npm copy (includes Mac Catalyst slice)'
+end
+
+def mac_catalyst_prebuilt_fix_shell(scope)
+  # Invoked from Xcode via PODS_ROOT so we don't bake a machine-local absolute
+  # path into the Pods project. PODS_ROOT is ios/Pods, so ../../scripts is the
+  # repo-root scripts/ directory (not ios/scripts). SCOPE limits writes to the
+  # pod that owns the script phase (Xcode user-script sandboxing).
+  %(bash "${PODS_ROOT}/../../scripts/fix-mac-catalyst-prebuilt-frameworks.sh" "${PODS_ROOT}" #{scope})
+end
+
+def run_mac_catalyst_prebuilt_fix!(pods_root)
+  unless File.exist?(MAC_CATALYST_PREBUILT_FIX_SCRIPT)
+    Pod::UI.warn "Mac Catalyst prebuilt fix script missing: #{MAC_CATALYST_PREBUILT_FIX_SCRIPT}"
+    return
+  end
+  system('bash', MAC_CATALYST_PREBUILT_FIX_SCRIPT, pods_root.to_s, 'all')
+end
+
+# RN's replace-*-version.js scripts re-extract Debug/Release tarballs before
+# compile and wipe the post_install repair. Append our fix to the END of those
+# existing phases (do not add a separate phase — Xcode user-script sandboxing
+# made a dedicated phase fail with PhaseScriptExecution on hermes-engine).
+# Each phase only repairs its own pod so sandbox write rules are satisfied.
+def install_mac_catalyst_prebuilt_fix_build_phases!(installer)
+  scope_by_phase = {
+    /Replace Hermes/i => 'hermes',
+    /Replace React Native Dependencies/i => 'rndeps',
+    /Replace React Native Core/i => 'react',
+  }
+
+  installer.pods_project.targets.each do |target|
+    next unless %w[React-Core-prebuilt ReactNativeDependencies hermes-engine].include?(target.name)
+
+    # Drop any previously injected dedicated phase from an earlier iteration.
+    target.shell_script_build_phases.select { |phase| phase.name == MAC_CATALYST_PREBUILT_FIX_PHASE_NAME }.each(&:remove_from_project)
+
+    target.shell_script_build_phases.each do |phase|
+      scope = scope_by_phase.find { |pattern, _| phase.name =~ pattern }&.last
+      next unless scope
+
+      script = phase.shell_script.to_s
+      # Strip any prior BlueWallet append (scoped or unscoped) so pod-cache
+      # leftovers don't keep a sandboxed "all" invocation.
+      if script.include?(MAC_CATALYST_PREBUILT_FIX_MARKER)
+        script = script.gsub(/\n*# BlueWallet: re-apply Mac Catalyst.*?\n.*?#{Regexp.escape(MAC_CATALYST_PREBUILT_FIX_MARKER)}.*?\n?/m, "\n")
+      end
+
+      phase.shell_script = "#{script.rstrip}\n\n# BlueWallet: re-apply Mac Catalyst framework symlink repair after tarball swap (scope=#{scope})\n#{mac_catalyst_prebuilt_fix_shell(scope)}\n"
+    end
+  end
+  installer.pods_project.save
+end
+
 post_install do |installer|
   react_native_post_install(
     installer,
@@ -61,4 +164,12 @@ post_install do |installer|
       File.write(xcconfig_path, content)
     end
   end
+
+  # Mac Catalyst: trunk TSBackgroundFetch lacks maccatalyst; swap in npm's XCFramework.
+  replace_tsbackgroundfetch_xcframework_with_npm_copy!(installer)
+
+  # Mac Catalyst + RN prebuilts (RN 0.84+): repair framework symlinks after pod
+  # install, and install build phases so Debug/Release tarball swaps stay fixed.
+  run_mac_catalyst_prebuilt_fix!(installer.sandbox.root)
+  install_mac_catalyst_prebuilt_fix_build_phases!(installer)
 end
