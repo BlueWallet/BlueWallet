@@ -1,7 +1,7 @@
 import { cbc } from '@noble/ciphers/aes';
 import { md5 } from '@noble/hashes/legacy';
-import { randomBytes } from '@noble/hashes/utils';
 
+import { randomBytes } from '../class/rng';
 import { areUint8ArraysEqual, base64ToUint8Array, concatUint8Arrays, stringToUint8Array, uint8ArrayToBase64 } from './uint8array-extras';
 
 /**
@@ -53,9 +53,9 @@ const BLOCK_LEN = 16;
  * change a drop-in replacement so existing encrypted wallets on user
  * devices remain readable, with no migration step.
  */
-export function encrypt(data: string, password: string): string {
+export async function encrypt(data: string, password: string): Promise<string> {
   if (data.length < 10) throw new Error('data length cant be < 10');
-  const salt = randomBytes(SALT_LEN);
+  const salt = await randomBytes(SALT_LEN);
   const kdf = evpBytesToKeyMd5(stringToUint8Array(password), salt, KEY_LEN + IV_LEN);
   const key = kdf.subarray(0, KEY_LEN);
   const iv = kdf.subarray(KEY_LEN);
