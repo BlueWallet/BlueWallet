@@ -521,7 +521,7 @@ export class AbstractWallet {
   }
 
   getMasterFingerprintFromHex(hexValue: string): number {
-    if (hexValue.length < 8) hexValue = '0' + hexValue;
+    hexValue = hexValue.padStart(8, '0');
     const b = hexToUint8Array(hexValue);
     if (b.length !== 4) throw new Error('invalid fingerprint hex');
 
