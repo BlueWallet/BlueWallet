@@ -252,8 +252,8 @@ export default class SelfTest extends Component {
       //
 
       const data2encrypt = 'really long data string';
-      const crypted = encryption.encrypt(data2encrypt, 'password');
-      const decrypted = encryption.decrypt(crypted, 'password');
+      const crypted = await encryption.encrypt(data2encrypt, 'password');
+      const decrypted = await encryption.decrypt(crypted, 'password');
 
       if (decrypted !== data2encrypt) {
         throw new Error('encryption lib is not ok');
