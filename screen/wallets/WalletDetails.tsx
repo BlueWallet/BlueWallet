@@ -1,6 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { writeFileAndExport } from '../../blue_modules/fs';
+import {
+  applyWalletHistoryNoteUpdates,
+  encodeCsvRow,
+  parseWalletHistoryNotes,
+  planWalletHistoryNoteImport,
+  showFilePickerAndReadFile,
+  writeFileAndExport,
+} from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import BlueCard from '../../components/BlueCard';
@@ -39,6 +46,7 @@ import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
+const IMPORT_NOTES_ACTION_ID = 'import_notes';
 
 function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: number | null } {
   if (typeof w.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null };
@@ -236,18 +244,19 @@ const WalletDetails: React.FC = () => {
       headers.push(loc.lnd.payment);
     }
 
-    const rows = [headers.join(',')];
+    const rows = [encodeCsvRow(headers)];
     const transactions = wallet.getTransactions();
 
     transactions.forEach((transaction: Transaction & LightningTransaction) => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
-      let hash: string = transaction.hash || '';
-      let memo = (transaction.hash && txMetadata[transaction.hash]?.memo?.trim()) || '';
+      let hash: string = transaction.hash || transaction.txid || '';
+      const metadataKey = transaction.hash || transaction.txid;
+      let memo = (metadataKey && txMetadata[metadataKey]?.memo?.trim()) || '';
       let status = '';
 
       if (wallet.chain === Chain.OFFCHAIN) {
         hash = transaction.payment_hash ? transaction.payment_hash.toString() : '';
-        memo = transaction.memo || '';
+        memo = memo || transaction.memo || '';
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (typeof hash !== 'string' && (hash as any)?.type === 'Buffer' && (hash as any)?.data) {
           hash = uint8ArrayToHex(new Uint8Array((hash as any).data));
@@ -261,7 +270,7 @@ const WalletDetails: React.FC = () => {
         data.push(status);
       }
 
-      rows.push(data.join(','));
+      rows.push(encodeCsvRow(data));
     });
 
     return rows.join('\n');
@@ -272,15 +281,88 @@ const WalletDetails: React.FC = () => {
     return `${label}-history.csv`;
   }, [wallet]);
 
+  const importNotes = useCallback(async () => {
+    if (wallet.chain !== Chain.ONCHAIN) return;
+
+    const { data } = await showFilePickerAndReadFile();
+    if (data === false) return;
+
+    let importedNotes;
+    try {
+      importedNotes = parseWalletHistoryNotes(data);
+    } catch {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: loc.wallets.import_error });
+      return;
+    }
+
+    const transactionMetadataKeys = new Map<string, string>();
+    for (const transaction of wallet.getTransactions()) {
+      const transactionId = transaction.hash || transaction.txid;
+      if (transactionId) transactionMetadataKeys.set(transactionId.toLowerCase(), transactionId);
+    }
+
+    const { updates, overwriteCount } = planWalletHistoryNoteImport(importedNotes, transactionMetadataKeys, txMetadata);
+
+    if (updates.size === 0) {
+      presentAlert({ message: loc.wallets.details_import_notes_no_changes });
+      return;
+    }
+
+    const applyUpdates = async () => {
+      try {
+        await applyWalletHistoryNoteUpdates(txMetadata, updates, saveToDisk);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        presentAlert({
+          title: loc._.success,
+          message: loc.formatString(loc.wallets.details_import_notes_success, {
+            count: updates.size,
+          }),
+        });
+      } catch (error: unknown) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    };
+
+    if (overwriteCount === 0) {
+      await applyUpdates();
+      return;
+    }
+
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+    presentAlert({
+      title: loc.wallets.details_import_notes,
+      message: loc.formatString(loc.wallets.details_import_notes_overwrite, {
+        count: overwriteCount,
+      }),
+      buttons: [
+        {
+          text: loc.wallets.import_do_import,
+          onPress: () => {
+            applyUpdates();
+          },
+          style: 'destructive',
+        },
+        { text: loc._.cancel, style: 'cancel' },
+      ],
+      options: { cancelable: false },
+    });
+  }, [saveToDisk, txMetadata, wallet]);
+
   const toolTipOnPressMenuItem = useCallback(
     async (id: string) => {
       if (id === CommonToolTipActions.Share.id) {
         await writeFileAndExport(fileName, exportHistoryContent(), true);
       } else if (id === CommonToolTipActions.SaveFile.id) {
         await writeFileAndExport(fileName, exportHistoryContent(), false);
+      } else if (id === IMPORT_NOTES_ACTION_ID) {
+        await importNotes();
       }
     },
-    [exportHistoryContent, fileName],
+    [exportHistoryContent, fileName, importNotes],
   );
 
   const transactionsBoxMenuActions = useMemo(
@@ -292,8 +374,14 @@ const WalletDetails: React.FC = () => {
         hidden: walletTransactionsLength === 0,
         subactions: [CommonToolTipActions.Share, CommonToolTipActions.SaveFile],
       },
+      {
+        id: IMPORT_NOTES_ACTION_ID,
+        text: loc.wallets.details_import_notes,
+        icon: CommonToolTipActions.ImportFile.icon,
+        hidden: walletTransactionsLength === 0 || wallet.chain !== Chain.ONCHAIN,
+      },
     ],
-    [walletTransactionsLength],
+    [wallet.chain, walletTransactionsLength],
   );
 
   useEffect(() => {
