@@ -175,6 +175,7 @@ const LnurlPay: React.FC = () => {
       {!isLoading && (
         <TouchableOpacity
           accessibilityRole="button"
+          accessibilityLabel={loc.wallets.select_wallet}
           style={styles.walletSelectTouch}
           onPress={() => navigate('SelectWallet', { onWalletSelect, chainType: Chain.OFFCHAIN })}
         >

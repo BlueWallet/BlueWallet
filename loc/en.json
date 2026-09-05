@@ -22,6 +22,9 @@
     "close": "Close",
     "change_input_currency": "Change input currency",
     "refresh": "Refresh",
+    "switch_camera": "Switch camera",
+    "turn_off_flashlight": "Turn off flashlight",
+    "turn_on_flashlight": "Turn on flashlight",
     "pick_image": "Choose from library",
     "pick_file": "Choose file",
     "enter_amount": "Enter amount",
@@ -42,6 +45,9 @@
     "title": "Redeem Azte.co voucher"
   },
   "entropy": {
+    "coin": "Flip coin",
+    "d6": "Roll six-sided die",
+    "d20": "Roll twenty-sided die",
     "save": "Save",
     "title": "Entropy",
     "undo": "Undo",
@@ -211,7 +217,8 @@
     "cant_send_to_silentpayment_adress": "This wallet cannot send to SilentPayment addresses",
     "cant_send_to_bip47": "This wallet cannot send to BIP47 payment codes",
     "cant_find_bip47_notification": "Add this Payment Code to contacts first",
-    "problem_with_psbt": "Problem with PSBT"
+    "problem_with_psbt": "Problem with PSBT",
+    "payjoin": "Payjoin"
   },
   "settings": {
     "about": "About",
@@ -259,6 +266,7 @@
     "electrum_settings_server": "Electrum Server",
     "electrum_status": "Status",
     "electrum_preferred_server": "Preferred Server",
+    "electrum_server_options": "Electrum server options",
     "electrum_preferred_server_description": "Enter the server you want your wallet to use for all Bitcoin activities. Once set, your wallet will exclusively use this server to check balances, send transactions, and fetch network data. Ensure you trust this server before setting it.",
     "electrum_unable_to_connect": "Unable to connect to {server}.",
     "electrum_history": "History",
@@ -586,6 +594,10 @@
     "what_is_vault_description_to_spend_other": "to spend.",
     "quorum": "{m} of {n} quorum",
     "quorum_header": "Quorum",
+    "increase_required_signatures": "Increase required signatures",
+    "decrease_required_signatures": "Decrease required signatures",
+    "increase_total_keys": "Increase total keys",
+    "decrease_total_keys": "Decrease total keys",
     "of": "of",
     "wallet_type": "Wallet Type",
     "invalid_mnemonics": "This mnemonic phrase does not seem to be valid.",

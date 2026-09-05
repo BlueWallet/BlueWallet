@@ -1204,6 +1204,9 @@ const TransactionStatus: React.FC = () => {
         headerRight={
           tx?.hash ? (
             <TouchableOpacity
+              testID="TransactionExplorerButton"
+              accessibilityRole="button"
+              accessibilityLabel={loc.transactions.details_explorer}
               onPress={handleOpenBlockExplorer}
               style={[styles.explorerButton, stylesHook.explorerButton, scaledStyles.explorerButton]}
               activeOpacity={0.7}
@@ -1308,13 +1311,20 @@ const TransactionStatus: React.FC = () => {
           <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_note}</BlueText>
           <View style={styles.detailValueContainer}>
             {memo ? (
-              <TouchableOpacity onPress={handleNotePress} activeOpacity={0.7} style={styles.memoContainer}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={`${loc.wallets.details_edit} ${loc.transactions.details_note}: ${memo}`}
+                onPress={handleNotePress}
+                activeOpacity={0.7}
+                style={styles.memoContainer}
+              >
                 <BlueText style={[styles.memoText, stylesHook.memoText]} numberOfLines={0}>
                   {memo}
                 </BlueText>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
+                accessibilityRole="button"
                 onPress={handleNotePress}
                 style={[styles.addButton, stylesHook.addButton, scaledStyles.addButton]}
                 activeOpacity={0.7}

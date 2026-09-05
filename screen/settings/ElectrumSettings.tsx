@@ -401,7 +401,13 @@ const ElectrumSettings: React.FC = () => {
   }, [config?.connected, config?.host, config.port, createServerAction, host, isPreferred, serverHistory]);
 
   const HeaderRight = useMemo(
-    () => <HeaderMenuButton actions={generateToolTipActions()} onPressMenuItem={onPressMenuItem} />,
+    () => (
+      <HeaderMenuButton
+        actions={generateToolTipActions()}
+        onPressMenuItem={onPressMenuItem}
+        accessibilityLabel={loc.settings.electrum_server_options}
+      />
+    ),
     [onPressMenuItem, generateToolTipActions],
   );
 
@@ -551,6 +557,8 @@ const ElectrumSettings: React.FC = () => {
               <Text style={[styles.usePort, stylesHook.usePort]}>{loc.settings.use_ssl}</Text>
               <Switch
                 testID="SSLPortInput"
+                accessibilityLabel={loc.settings.use_ssl}
+                accessibilityRole="switch"
                 value={sslPort !== undefined}
                 onValueChange={onSSLPortChange}
                 disabled={host?.endsWith('.onion') || isLoading || host === '' || (port === undefined && sslPort === undefined)}

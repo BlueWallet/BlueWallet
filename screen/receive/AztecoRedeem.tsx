@@ -103,7 +103,12 @@ const AztecoRedeem = () => {
         </BlueText>
 
         <View style={styles.selectWallet1}>
-          <TouchableOpacity accessibilityRole="button" style={styles.selectTouch} onPress={handleSelectWallet}>
+          <TouchableOpacity
+            accessibilityRole="button"
+            accessibilityLabel={loc.azteco.redeem}
+            style={styles.selectTouch}
+            onPress={handleSelectWallet}
+          >
             <Text style={[styles.selectText, stylesHook.text]}>{loc.azteco.redeem}</Text>
             <Icon name={I18nManager.isRTL ? 'angle-left' : 'angle-right'} size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
