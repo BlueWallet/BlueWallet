@@ -76,7 +76,45 @@ const _mimeTypeFromFileName = (fileName: string): string => {
   }
 };
 
-const _transactionFilePickerTypes = ['application/octet-stream', 'text/plain'];
+const PSBT_FILE_PICKER_TYPES =
+  Platform.OS === 'ios' ? ['io.bluewallet.psbt'] : ['application/octet-stream', 'text/plain', 'application/vnd.bitcoin.psbt'];
+const TRANSACTION_FILE_PICKER_TYPES =
+  Platform.OS === 'ios'
+    ? [...PSBT_FILE_PICKER_TYPES, 'io.bluewallet.psbt.txn']
+    : [...PSBT_FILE_PICKER_TYPES, 'application/vnd.bitcoin.txn'];
+
+const _pickSingleFile = async (type: string[]) => {
+  const [pickedFile] = await pick({ mode: 'open', type });
+
+  if (pickedFile.hasRequestedType === false) {
+    throw new Error(loc.send.details_unrecognized_file_format);
+  }
+
+  let uri = pickedFile.uri;
+
+  if (Platform.OS === 'android' && uri.startsWith('content://')) {
+    const [localCopy] = await keepLocalCopy({
+      files: [
+        {
+          uri,
+          fileName: pickedFile.name ?? 'unnamed',
+        },
+      ],
+      destination: 'cachesDirectory',
+    });
+
+    if (localCopy.status !== 'success') {
+      throw new Error(localCopy.copyError || 'Could not create local file copy');
+    }
+
+    uri = localCopy.localUri;
+  }
+
+  return {
+    uri: uri.startsWith('content://') ? uri : decodeURI(uri),
+    name: pickedFile.name ?? 'unnamed',
+  };
+};
 
 const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]) => {
   const [pickedFile] = await pick({
@@ -171,8 +209,8 @@ export const writeFileAndExport = async function (fileName: string, contents: st
  */
 export const openSignedTransaction = async function (): Promise<string | false> {
   try {
-    const { localUri } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
-    return await _readPsbtFileIntoBase64(localUri);
+    const { uri } = await _pickSingleFile(PSBT_FILE_PICKER_TYPES);
+    return await _readPsbtFileIntoBase64(uri);
   } catch (err) {
     if (!isCancel(err)) {
       presentAlert({ message: loc.send.details_no_signed_tx });
@@ -282,8 +320,8 @@ export const readFileOutsideSandbox = (filePath: string) => {
 
 export const openSignedTransactionRaw: () => Promise<string> = async () => {
   try {
-    const { localUri } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
-    const file = await RNFS.readFile(localUri);
+    const { uri } = await _pickSingleFile(PSBT_FILE_PICKER_TYPES);
+    const file = await RNFS.readFile(uri);
     if (file) {
       return file;
     } else {
@@ -299,9 +337,5 @@ export const openSignedTransactionRaw: () => Promise<string> = async () => {
 };
 
 export const pickTransaction = async () => {
-  const { localUri, fileName } = await _pickSingleFileAndKeepLocalCopy(_transactionFilePickerTypes);
-  return {
-    uri: localUri,
-    name: fileName,
-  };
+  return await _pickSingleFile(TRANSACTION_FILE_PICKER_TYPES);
 };
