@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   applyWalletHistoryNoteUpdates,
+  encodeBip329TransactionLabel,
   encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
@@ -239,13 +240,24 @@ const WalletDetails: React.FC = () => {
   }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
 
   const exportHistoryContent = useCallback(() => {
-    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
-    if (wallet.chain === Chain.OFFCHAIN) {
-      headers.push(loc.lnd.payment);
+    const transactions = wallet.getTransactions();
+
+    if (wallet.chain === Chain.ONCHAIN) {
+      return transactions
+        .flatMap(transaction => {
+          const transactionId = transaction.hash || transaction.txid;
+          if (!transactionId) return [];
+
+          const memo = txMetadata[transactionId]?.memo?.trim();
+          return [encodeBip329TransactionLabel(transactionId, memo || undefined)];
+        })
+        .join('\n');
     }
 
+    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
+    headers.push(loc.lnd.payment);
+
     const rows = [encodeCsvRow(headers)];
-    const transactions = wallet.getTransactions();
 
     transactions.forEach((transaction: Transaction & LightningTransaction) => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
@@ -278,7 +290,8 @@ const WalletDetails: React.FC = () => {
 
   const fileName = useMemo(() => {
     const label = wallet.getLabel().replace(' ', '-');
-    return `${label}-history.csv`;
+    const extension = wallet.chain === Chain.ONCHAIN ? 'jsonl' : 'csv';
+    return `${label}-history.${extension}`;
   }, [wallet]);
 
   const importNotes = useCallback(async () => {

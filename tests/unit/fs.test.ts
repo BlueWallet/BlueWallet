@@ -1,4 +1,10 @@
-import { applyWalletHistoryNoteUpdates, encodeCsvRow, parseWalletHistoryNotes, planWalletHistoryNoteImport } from '../../blue_modules/fs';
+import {
+  applyWalletHistoryNoteUpdates,
+  encodeBip329TransactionLabel,
+  encodeCsvRow,
+  parseWalletHistoryNotes,
+  planWalletHistoryNoteImport,
+} from '../../blue_modules/fs';
 
 describe('fs wallet history notes', () => {
   const bip329Txid = 'f91d0a8a78462bc59398f2c5d7a84fcff491c26ba54c4833478b202796c8aafd';
@@ -31,6 +37,21 @@ describe('fs wallet history notes', () => {
     ].join('\n');
 
     expect(parseWalletHistoryNotes(labels)).toEqual([{ transactionId: bip329Txid, memo: 'Transaction' }]);
+  });
+
+  it('round-trips an exported BIP-329 transaction label', () => {
+    const memo = 'Coffee, "breakfast"\nwith Alice';
+    const exportedLabel = encodeBip329TransactionLabel(bip329Txid, memo);
+
+    expect(JSON.parse(exportedLabel)).toEqual({ type: 'tx', ref: bip329Txid, label: memo });
+    expect(parseWalletHistoryNotes(exportedLabel)).toEqual([{ transactionId: bip329Txid, memo }]);
+  });
+
+  it('omits the BIP-329 label when an exported transaction has no note', () => {
+    const exportedTransaction = encodeBip329TransactionLabel(bip329Txid);
+
+    expect(JSON.parse(exportedTransaction)).toEqual({ type: 'tx', ref: bip329Txid });
+    expect(parseWalletHistoryNotes(exportedTransaction)).toEqual([]);
   });
 
   it('preserves an explicit empty BIP-329 label so an existing note can be cleared', () => {

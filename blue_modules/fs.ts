@@ -29,6 +29,9 @@ export const encodeCsvRow = (values: Array<string | number>): string =>
     })
     .join(',');
 
+export const encodeBip329TransactionLabel = (transactionId: string, label?: string): string =>
+  JSON.stringify(label === undefined ? { type: 'tx', ref: transactionId } : { type: 'tx', ref: transactionId, label });
+
 const parseCsv = (contents: string): string[][] => {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -189,6 +192,8 @@ const _mimeTypeFromFileName = (fileName: string): string => {
       return 'text/plain';
     case 'json':
       return 'application/json';
+    case 'jsonl':
+      return 'application/x-ndjson';
     case 'csv':
       return 'text/csv';
     case 'pdf':
