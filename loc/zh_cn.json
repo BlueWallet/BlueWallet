@@ -445,11 +445,15 @@
     "details_delete": "删除",
     "details_delete_wallet": "删除钱包",
     "details_derivation_path": "派生路径",
+    "details_derivation_path_edit": "例如：m/84'/0'/0'。这不会更改地址。导出或备份 zpub、ypub 或 xpub 时，不会保留派生路径或指纹。",
+    "details_derivation_path_invalid": "派生路径无效。它应该为 m/84'/0'/0' 的形式。",
     "details_display": "在主屏幕显示",
     "details_edit": "编辑",
     "details_export_backup": "导出/备份",
     "details_export_history": "将历史记录导出为 CSV 文件",
     "details_master_fingerprint": "主密钥指纹",
+    "details_master_fingerprint_edit": "例如：73c5da0a。导出或备份 zpub、ypub 或 xpub 时不会保留此信息。",
+    "details_master_fingerprint_invalid": "主指纹无效。它应该为 8 个十六进制字符。",
     "details_multisig_type": "多重签名",
     "details_options": "选项",
     "details_show_xpub": "展示钱包扩展公钥（XPUB）",
@@ -529,8 +533,7 @@
     "xpub_title": "钱包扩展公钥（XPUB）",
     "manage_wallets_search_placeholder": "搜索钱包、地址、交易和备注",
     "more_info": "更多信息",
-    "details_delete_wallet_error_message": "确认此钱包是否已从通知中移除时出现问题——这可能是由于网络问题或连接不良。如果您继续操作，即使删除此钱包，您仍可能收到与该钱包相关的交易通知。",
-    "details_delete_anyway": "仍然删除"
+    "details_delete_wallet_error_message": "在将此钱包从通知中移除时出错——这可能是由于网络问题或连接不佳所致。您可能仍会收到与该钱包相关的交易通知。"
   },
   "total_balance_view": {
     "display_in_bitcoin": "以比特币显示",

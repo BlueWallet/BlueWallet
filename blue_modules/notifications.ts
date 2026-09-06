@@ -693,8 +693,7 @@ export const unsubscribe = async (addresses: string[], hashes: string[], txids: 
     });
 
     if (!response.ok) {
-      console.error('Failed to unsubscribe:', response.statusText);
-      return;
+      throw new Error(`Unsubscribe request failed with status ${response.status}: ${response.statusText}`);
     }
 
     return response;
