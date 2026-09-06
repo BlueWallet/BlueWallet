@@ -450,7 +450,7 @@
     "details_display": "Display in Home Screen",
     "details_edit": "edit",
     "details_export_backup": "Export/Backup",
-    "details_export_history": "Export History to CSV",
+    "details_export_history": "Export History",
     "details_import_notes": "Import Notes...",
     "details_import_notes_no_changes": "No transaction notes needed to be imported from this file.",
     "details_import_notes_overwrite": "{count} matching transactions already have notes. Importing will overwrite them. Continue?",
