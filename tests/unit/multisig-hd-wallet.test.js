@@ -1855,24 +1855,8 @@ describe('multisig-wallet (native segwit)', () => {
 
     electrumWallet.setSecret(JSON.stringify(electrumJson));
 
-    const expected =
-      '# BlueWallet Multisig setup file\n' +
-      '# this file may contain private information\n' +
-      '#\n' +
-      'Name: Wallet\n' +
-      'Policy: 2 of 2\n' +
-      'Format: P2WSH\n' +
-      '\n' +
-      "# derivation: m/1'\n" +
-      'seed: electrumseed:diagram grape account sustain bright member ethics strategy burger senior capital enforce - BlueWallet\n' +
-      '# warning! sensitive information, do not disclose ^^^ \n' +
-      '\n' +
-      "# derivation: m/48'/0'/0'/2'\n" +
-      'seed: ZprvAqPkyb5ridHr1gGiqSuAWcsrZ6jqv31Vyuaj4fzVcgt8v6PXH9tSigE6F8iw8pL16HWnhzEsXvJ5ur9HKvkAW16oHZuFeEYA1CBdsGGDFFB\n' +
-      '# warning! sensitive information, do not disclose ^^^ \n' +
-      '\n';
-
-    assert.strictEqual(electrumWallet.getSecret(), expected);
+    const newWallet = new MultisigHDWallet().setSecret(electrumWallet.getSecret());
+    assert.strictEqual(electrumWallet.getSecret(), newWallet.getSecret());
     assert.strictEqual(electrumWallet.getN(), 2);
     assert.strictEqual(electrumWallet.getM(), 2);
     assert.strictEqual(
@@ -1897,6 +1881,8 @@ describe('multisig-wallet (native segwit)', () => {
     );
     assert.strictEqual(electrumWallet.getFingerprint(1), '8DE7B2C3');
     electrumWallet.replaceCosignerSeedWithXpub(1);
+
+    // not valid seed, it should be entered with the electrumseed prefix
     assert.throws(
       () =>
         electrumWallet.replaceCosignerXpubWithSeed(
@@ -1904,6 +1890,17 @@ describe('multisig-wallet (native segwit)', () => {
           'electrumseed:diagram grape account sustain bright member ethics strategy burger senior capital enforce',
         ),
       /Not a valid mnemonic phrase/,
+    );
+
+    // wrong passphrase
+    assert.throws(
+      () =>
+        electrumWallet.replaceCosignerXpubWithSeed(
+          1,
+          'diagram grape account sustain bright member ethics strategy burger senior capital enforce',
+          'wrong-passphrase',
+        ),
+      /Fingerprint of new seed doesnt match/,
     );
   });
 

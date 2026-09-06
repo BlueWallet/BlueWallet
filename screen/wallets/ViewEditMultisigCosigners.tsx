@@ -167,6 +167,8 @@ const ViewEditMultisigCosigners: React.FC = () => {
                 setWallet(tempWallet.current);
               }
             } catch (_) {
+              hasLoaded.current = true;
+              setIsLoading(false);
               return Alert.alert(
                 loc.multisig.manage_keys,
                 loc.multisig.invalid_cosigner,
