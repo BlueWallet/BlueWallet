@@ -72,12 +72,32 @@ const parseCsv = (contents: string): string[][] => {
   return rows;
 };
 
+const parseBip329TransactionNotes = (contents: string): Array<{ transactionId: string; memo: string }> =>
+  contents
+    .split(/\r?\n/)
+    .filter(line => line.trim().length > 0)
+    .flatMap(line => {
+      const record: unknown = JSON.parse(line);
+      if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Invalid BIP-329 record');
+
+      const { type, ref, label } = record as Record<string, unknown>;
+      if (typeof type !== 'string' || typeof ref !== 'string') throw new Error('Invalid BIP-329 record');
+      if (type !== 'tx' || label === undefined) return [];
+      if (!/^[0-9a-f]{64}$/i.test(ref) || typeof label !== 'string') throw new Error('Invalid BIP-329 transaction label');
+
+      return [{ transactionId: ref, memo: label }];
+    });
+
 /**
- * Reads notes from the wallet-history CSV format. Older BlueWallet exports did
- * not escape commas in memos, so extra columns are joined back into the memo.
+ * Reads transaction notes from BIP-329 JSONL or BlueWallet wallet-history CSV.
+ * Older BlueWallet exports did not escape commas in memos, so extra CSV
+ * columns are joined back into the memo.
  */
 export const parseWalletHistoryNotes = (contents: string): Array<{ transactionId: string; memo: string }> => {
-  const rows = parseCsv(contents.replace(/^\uFEFF/, ''));
+  const normalizedContents = contents.replace(/^\uFEFF/, '').trimStart();
+  if (normalizedContents.startsWith('{')) return parseBip329TransactionNotes(normalizedContents);
+
+  const rows = parseCsv(normalizedContents);
   if (rows.length === 0 || rows[0].length < 4) throw new Error('Invalid wallet history CSV');
 
   return rows.slice(1).flatMap(row => {

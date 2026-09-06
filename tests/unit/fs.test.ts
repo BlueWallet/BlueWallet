@@ -1,6 +1,9 @@
 import { applyWalletHistoryNoteUpdates, encodeCsvRow, parseWalletHistoryNotes, planWalletHistoryNoteImport } from '../../blue_modules/fs';
 
 describe('fs wallet history notes', () => {
+  const bip329Txid = 'f91d0a8a78462bc59398f2c5d7a84fcff491c26ba54c4833478b202796c8aafd';
+  const otherBip329Txid = 'f546156d9044844e02b181026a1a407abfca62e7ea1159f87bbeaa77b4286c74';
+
   it('round-trips notes containing commas, quotes, and line breaks', () => {
     const memo = 'Coffee, "breakfast"\nwith Alice';
     const csv = [encodeCsvRow(['Date', 'Transaction ID', 'Amount', 'Memo']), encodeCsvRow(['today', 'abc123', 1, memo])].join('\n');
@@ -17,6 +20,48 @@ describe('fs wallet history notes', () => {
   it('ignores empty notes and rejects malformed files', () => {
     expect(parseWalletHistoryNotes('Date,Transaction ID,Amount,Memo\ntoday,abc123,1,')).toEqual([]);
     expect(() => parseWalletHistoryNotes('not,a,history')).toThrow();
+  });
+
+  it('parses BIP-329 transaction labels and ignores other record types and omitted labels', () => {
+    const labels = [
+      JSON.stringify({ type: 'tx', ref: bip329Txid, label: 'Transaction', origin: "wpkh([d34db33f/84'/0'/0'])" }),
+      JSON.stringify({ type: 'addr', ref: 'bc1qexample', label: 'Address' }),
+      JSON.stringify({ type: 'tx', ref: otherBip329Txid }),
+      JSON.stringify({ type: 'future-type', ref: 'extension', label: 'Ignored extension' }),
+    ].join('\n');
+
+    expect(parseWalletHistoryNotes(labels)).toEqual([{ transactionId: bip329Txid, memo: 'Transaction' }]);
+  });
+
+  it('preserves an explicit empty BIP-329 label so an existing note can be cleared', () => {
+    const labels = JSON.stringify({ type: 'tx', ref: bip329Txid, label: '' });
+
+    const notes = parseWalletHistoryNotes(labels);
+    const plan = planWalletHistoryNoteImport(notes, new Map([[bip329Txid, bip329Txid]]), {
+      [bip329Txid]: { memo: 'Existing note' },
+    });
+
+    expect(notes).toEqual([{ transactionId: bip329Txid, memo: '' }]);
+    expect([...plan.updates]).toEqual([[bip329Txid, '']]);
+    expect(plan.overwriteCount).toBe(1);
+  });
+
+  it('rejects malformed BIP-329 records and transaction labels', () => {
+    expect(() => parseWalletHistoryNotes('{not json}')).toThrow();
+    expect(() => parseWalletHistoryNotes(JSON.stringify({ type: 'tx', ref: 'not-a-txid', label: 'Note' }))).toThrow();
+    expect(() => parseWalletHistoryNotes(JSON.stringify({ type: 'tx', ref: bip329Txid, label: 42 }))).toThrow();
+  });
+
+  it('imports and persists a matching BIP-329 transaction label', async () => {
+    const notes = parseWalletHistoryNotes(JSON.stringify({ type: 'tx', ref: bip329Txid.toUpperCase(), label: 'Imported label' }));
+    const metadata: Record<string, { memo?: string }> = {};
+    const plan = planWalletHistoryNoteImport(notes, new Map([[bip329Txid, bip329Txid]]), metadata);
+    const persist = jest.fn().mockResolvedValue(undefined);
+
+    await applyWalletHistoryNoteUpdates(metadata, plan.updates, persist);
+
+    expect(metadata).toEqual({ [bip329Txid]: { memo: 'Imported label' } });
+    expect(persist).toHaveBeenCalledTimes(1);
   });
 
   it('matches transaction IDs case-insensitively and identifies overwrites', () => {
