@@ -10,7 +10,7 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
-import { validateBip32 } from '../../class/wallet-import';
+import { normalizeDerivationPath, validateBip32 } from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
 import Button from '../../components/Button';
 import SafeArea from '../../components/SafeArea';
@@ -53,7 +53,9 @@ const ImportCustomDerivationPath: React.FC = () => {
       wallet.setSecret(importText);
       if (!(wallet.valid() && wallet.isHd())) return fallback;
       wallet.init();
-      return { isWatchOnlyHd: true, defaultPath: wallet.getDerivationPath() || fallback.defaultPath };
+      // belt and braces: keep the field canonical whatever getDerivationPath returns, so importing
+      // without editing never stores a raw h/H path
+      return { isWatchOnlyHd: true, defaultPath: normalizeDerivationPath(wallet.getDerivationPath() || fallback.defaultPath) };
     } catch {
       return fallback;
     }
@@ -188,10 +190,9 @@ const ImportCustomDerivationPath: React.FC = () => {
 
   const disabled = wallets[path] === WRONG_PATH || wallets[path]?.[selected] === undefined;
 
-  // iOS curly quotes and hardware-wallet h → ' so validateBip32 can accept the path
+  // normalize as typed/pasted (smart quotes, h/H → ') so the stored path is canonical
   const handlePathChange = useCallback((text: string) => {
-    const normalized = text.split('‘').join("'").split('’').join("'").split('“').join('"').split('”').join('"').replace(/h/gi, "'");
-    setPath(normalized);
+    setPath(normalizeDerivationPath(text));
   }, []);
 
   return (

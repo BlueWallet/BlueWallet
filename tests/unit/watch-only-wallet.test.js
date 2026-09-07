@@ -379,6 +379,38 @@ describe('Watch only wallet', () => {
     assert.ok(!w.useWithHardwareWalletEnabled());
   });
 
+  it('can import BIP84 origin with uppercase H as native segwit, not legacy', async () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      '[dafedf1c/84H/0H/0H]xpub6DFMZMLizqqnyyHoWTG7qzmCR1irpiDEGT4JQX7ubeoFtV838ABKPfgAPQbM1TEekEyCuJF1BrmnA7JPrnzqi2VbycD3tVE3v5xsDQqYA3A',
+    );
+    w.init();
+    assert.ok(w.valid());
+
+    assert.strictEqual(w.getMasterFingerprintHex(), 'dafedf1c');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rutAggZJCvkgZg3BAqNGAxCkx1khxCE6g6jyJugMfZ1zgkVdUWSdnzSRpWX1GYVZXCpQFS87BUsvgXXJBpsJVroiHbu4Js2TY69zbWcTNb',
+    );
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q68y6r45k4kvxe42xl37dgjueg2suqwnh4ze0sr');
+    assert.ok(!w._getExternalAddressByIndex(0).startsWith('1'));
+  });
+
+  it('can import BIP84 origin with iOS smart quotes as native segwit, not legacy', async () => {
+    // smart quotes ‘ ’ instead of ' — same hardened-marker hole as uppercase H
+    const w = new WatchOnlyWallet();
+    w.setSecret(
+      '[dafedf1c/84‘/0’/0‘]xpub6DFMZMLizqqnyyHoWTG7qzmCR1irpiDEGT4JQX7ubeoFtV838ABKPfgAPQbM1TEekEyCuJF1BrmnA7JPrnzqi2VbycD3tVE3v5xsDQqYA3A',
+    );
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(w.getMasterFingerprintHex(), 'dafedf1c');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+    assert.strictEqual(w._getExternalAddressByIndex(0), 'bc1q68y6r45k4kvxe42xl37dgjueg2suqwnh4ze0sr');
+    assert.ok(!w._getExternalAddressByIndex(0).startsWith('1'));
+  });
+
   it('can import wallet descriptor for BIP84 from Sparrow Wallet', async () => {
     const payload =
       'UR:CRYPTO-OUTPUT/TAADMWTAADDLOLAOWKAXHDCLAXINTOCTFTNNIERONTNYGALYEMAAWPHDAXDIEOWPJEGHKPGMKERHIABDTBLUBNMUMWAAHDCXFHSNBGTSGWSWPTDWVTDIHYHNHPLBBSJEOLSNFZBDIYJLTTPFIMEYTEECKTGSBZBDAHTAADEHOEADAEAOAEAMTAADDYOTADLNCSGHYKAEYKAEYKAOCYFNLBCYGMAXAXAYCYSRRTSPGADLMKBGTD';
