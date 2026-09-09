@@ -78,12 +78,7 @@
     "sats": "sats",
     "date_time": "Data i hora",
     "wasnt_paid_and_expired": "Aquesta factura no ha estat pagada i ha caducat",
-    "receiving_payment": "S'està rebent el pagament…",
-    "refund_funds": "Reemborsar els fons",
-    "refund_deferred": "Els fons encara no es poden reemborsar. Torna-ho a provar quan caduqui el timelock del swap.",
-    "notification_action_title": "Acció necessària",
-    "notification_claim_body": "{walletLabel}: toqueu per reclamar el vostre pagament Lightning entrant.",
-    "notification_refund_body": "{walletLabel}: toqueu per reemborsar el vostre pagament Lightning encallat."
+    "receiving_payment": "S'està rebent el pagament…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Crear informació xifrada falsa",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Mostrar adreces",
     "details_stats_coins": "Monedes",
     "details_title": "Detalls del moneder",
-    "restore_swap_activity": "Restaurar activitat de swap",
-    "restore_swap_activity_done": "Activitat de swap restaurada.",
     "wallets": "moneders",
     "swipe_balance_hide": "Amagar",
     "swipe_balance_show": "Mostrar",

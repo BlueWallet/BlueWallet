@@ -78,12 +78,7 @@
     "sats": "sats",
     "date_time": "日時",
     "wasnt_paid_and_expired": "この請求書は支払いが行われなかったため無効になりました",
-    "receiving_payment": "支払いを受け取り中…",
-    "refund_funds": "資金を返金",
-    "refund_deferred": "資金はまだ返金できません。スワップのタイムロックが切れてから再度お試しください。",
-    "notification_action_title": "操作が必要です",
-    "notification_claim_body": "{walletLabel}：タップして受信中のLightning支払いを受け取ってください。",
-    "notification_refund_body": "{walletLabel}：タップして滞留したLightning支払いを返金してください。"
+    "receiving_payment": "支払いを受け取り中…"
   },
   "plausibledeniability": {
     "create_fake_storage": "ダミーの暗号化ウォレットの作成",
@@ -454,8 +449,6 @@
     "details_show_addresses": "アドレスを表示",
     "details_stats_coins": "コイン",
     "details_title": "ウォレット",
-    "restore_swap_activity": "スワップ履歴を復元",
-    "restore_swap_activity_done": "スワップ履歴を復元しました。",
     "wallets": "ウォレット",
     "swipe_balance_hide": "非表示",
     "swipe_balance_show": "表示",

@@ -78,12 +78,7 @@
     "sats": "بالساتوشي",
     "date_time": "التاريخ والوقت",
     "wasnt_paid_and_expired": "لم يتم دفع هذه البرقية وانتهت صلاحيتها",
-    "receiving_payment": "جارٍ استلام الدفعة…",
-    "refund_funds": "استرداد الأموال",
-    "refund_deferred": "لا يمكن استرداد الأموال حتى الآن. حاول مرة أخرى بعد انتهاء قفل وقت المبادلة (swap).",
-    "notification_action_title": "إجراء مطلوب",
-    "notification_claim_body": "{walletLabel}: انقر لاستلام دفعة Lightning الواردة.",
-    "notification_refund_body": "{walletLabel}: انقر لاسترداد دفعة Lightning العالقة."
+    "receiving_payment": "جارٍ استلام الدفعة…"
   },
   "plausibledeniability": {
     "create_fake_storage": "إنشاء وحدة تخزين مشفرة",
@@ -445,8 +440,6 @@
     "details_show_addresses": "عرض العناوين",
     "details_stats_coins": "العملات",
     "details_title": "المحفظة",
-    "restore_swap_activity": "استعادة نشاط المبادلة (swap)",
-    "restore_swap_activity_done": "تمت استعادة نشاط المبادلة.",
     "wallets": "المحافظ",
     "swipe_balance_hide": "إخفاء",
     "swipe_balance_show": "إظهار",

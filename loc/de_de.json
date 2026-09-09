@@ -78,12 +78,7 @@
     "sats": "sats",
     "date_time": "Datum und Zeit",
     "wasnt_paid_and_expired": "Diese Rechnung ist unbezahlt abgelaufen.",
-    "receiving_payment": "Zahlung wird empfangen…",
-    "refund_funds": "Gelder zurückerstatten",
-    "refund_deferred": "Gelder sind noch nicht erstattungsfähig. Versuche es erneut, nachdem der Timelock des Swaps abgelaufen ist.",
-    "notification_action_title": "Aktion erforderlich",
-    "notification_claim_body": "{walletLabel}: Tippe, um deine eingehende Lightning-Zahlung einzulösen.",
-    "notification_refund_body": "{walletLabel}: Tippe, um deine festhängende Lightning-Zahlung zurückzuerstatten."
+    "receiving_payment": "Zahlung wird empfangen…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Verschlüsselten Speicher erstellen",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Adressen anzeigen",
     "details_stats_coins": "Münzen",
     "details_title": "Wallet",
-    "restore_swap_activity": "Swap-Aktivität wiederherstellen",
-    "restore_swap_activity_done": "Swap-Aktivität wiederhergestellt.",
     "wallets": "Wallets",
     "swipe_balance_hide": "Verbergen",
     "swipe_balance_show": "Anzeigen",

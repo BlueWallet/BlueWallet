@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Tarehe na Saa",
     "wasnt_paid_and_expired": "Ankra hii haikulipwa na imekwisha muda.",
-    "receiving_payment": "Inapokea malipo…",
-    "refund_funds": "Rejesha fedha",
-    "refund_deferred": "Fedha bado haziwezi kurejeshwa. Jaribu tena baada ya kufungwa kwa muda kwa swap kuisha.",
-    "notification_action_title": "Hatua inahitajika",
-    "notification_claim_body": "{walletLabel}: gusa ili kudai malipo yako ya Lightning yanayoingia.",
-    "notification_refund_body": "{walletLabel}: gusa ili kurejesha malipo yako ya Lightning yaliyokwama."
+    "receiving_payment": "Inapokea malipo…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Tengeneza Hifadhi Iliyosimbwa Fiche",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Onyesha anwani",
     "details_stats_coins": "Sarafu",
     "details_title": "Pochi",
-    "restore_swap_activity": "Rejesha shughuli za swap",
-    "restore_swap_activity_done": "Shughuli za swap zimerejeshwa.",
     "wallets": "Pochi",
     "swipe_balance_hide": "Ficha",
     "swipe_balance_show": "Onyesha",

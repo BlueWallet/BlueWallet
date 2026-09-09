@@ -78,12 +78,7 @@
     "sats": "ساتۊشی پرداخت کوݩ.",
     "date_time": "ویرگار وو زمووݩ",
     "wasnt_paid_and_expired": "ای سۊرت هساو پرداخت نوابیڌه ۉ مونقزی وابیڌه.",
-    "receiving_payment": "د حال گرؽڌن پرداخت…",
-    "refund_funds": "بازپرداخت پیل",
-    "refund_deferred": "پیل هونی قاول بازپرداخت نؽ. وستی قفل زمانی (timelock) swap مونقزی وابی، دۊوارته تلاش کۊنین.",
-    "notification_action_title": "اقدام لازمه",
-    "notification_claim_body": "{walletLabel}: سی گرؽڌن پرداخت لایتنینگ ورودی، بزن.",
-    "notification_refund_body": "{walletLabel}: سی بازپرداخت پرداخت لایتنینگ گیر کرده، بزن."
+    "receiving_payment": "د حال گرؽڌن پرداخت…"
   },
   "plausibledeniability": {
     "create_fake_storage": "وورکل جاگه رزم ناڌه وابیڌه سی زفت کردن",
@@ -445,8 +440,6 @@
     "details_show_addresses": "نشووݩ داڌن آدرسا",
     "details_stats_coins": "کوینا",
     "details_title": "کیف پیل",
-    "restore_swap_activity": "بازیابی فعالیت swap",
-    "restore_swap_activity_done": "فعالیت swap بازیابی وابیڌ.",
     "wallets": "کیف پیلا",
     "swipe_balance_hide": "بؽڌار",
     "swipe_balance_show": "نشۉݩ داڌن",

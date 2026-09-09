@@ -78,12 +78,7 @@
     "sats": "ਸੈਟਸ।",
     "date_time": "ਮਿਤੀ ਅਤੇ ਸਮਾਂ",
     "wasnt_paid_and_expired": "ਇਸ ਇਨਵੌਇਸ ਦਾ ਭੁਗਤਾਨ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਅਤੇ ਇਸ ਦੀ ਮਿਆਦ ਪੁੱਗ ਗਈ ਹੈ।",
-    "receiving_payment": "ਭੁਗਤਾਨ ਪ੍ਰਾਪਤ ਹੋ ਰਿਹਾ ਹੈ…",
-    "refund_funds": "ਫੰਡ ਵਾਪਸ ਕਰੋ",
-    "refund_deferred": "ਫੰਡ ਅਜੇ ਵਾਪਸੀਯੋਗ ਨਹੀਂ ਹਨ। ਸਵੈਪ ਟਾਈਮਲਾਕ ਦੀ ਮਿਆਦ ਪੁੱਗਣ ਤੋਂ ਬਾਅਦ ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
-    "notification_action_title": "ਕਾਰਵਾਈ ਲੋੜੀਂਦੀ ਹੈ",
-    "notification_claim_body": "{walletLabel}: ਆਪਣਾ ਆ ਰਿਹਾ Lightning ਭੁਗਤਾਨ ਪ੍ਰਾਪਤ ਕਰਨ ਲਈ ਟੈਪ ਕਰੋ।",
-    "notification_refund_body": "{walletLabel}: ਆਪਣਾ ਅਟਕਿਆ Lightning ਭੁਗਤਾਨ ਵਾਪਸ ਕਰਨ ਲਈ ਟੈਪ ਕਰੋ।"
+    "receiving_payment": "ਭੁਗਤਾਨ ਪ੍ਰਾਪਤ ਹੋ ਰਿਹਾ ਹੈ…"
   },
   "plausibledeniability": {
     "create_fake_storage": "ਇਨਕ੍ਰਿਪਟ ਕੀਤੀ ਸਟੋਰੇਜ ਬਣਾਓ",
@@ -445,8 +440,6 @@
     "details_show_addresses": "ਪਤੇ ਦਿਖਾਓ",
     "details_stats_coins": "ਸਿੱਕੇ",
     "details_title": "ਵਾਲਿਟ",
-    "restore_swap_activity": "ਸਵੈਪ ਗਤੀਵਿਧੀ ਬਹਾਲ ਕਰੋ",
-    "restore_swap_activity_done": "ਸਵੈਪ ਗਤੀਵਿਧੀ ਬਹਾਲ ਹੋ ਗਈ।",
     "wallets": "ਵਾਲਿਟ",
     "swipe_balance_hide": "ਲੁਕਾਓ",
     "swipe_balance_show": "ਦਿਖਾਓ",

@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Dato og klokkeslett",
     "wasnt_paid_and_expired": "Denne fakturaen ble ikke betalt og har utløpt.",
-    "receiving_payment": "Mottar betaling…",
-    "refund_funds": "Refunder midler",
-    "refund_deferred": "Midlene kan ikke refunderes ennå. Prøv igjen etter at swap-timelocken har utløpt.",
-    "notification_action_title": "Handling kreves",
-    "notification_claim_body": "{walletLabel}: trykk for å hente din innkommende Lightning-betaling.",
-    "notification_refund_body": "{walletLabel}: trykk for å refundere din fastlåste Lightning-betaling."
+    "receiving_payment": "Mottar betaling…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Opprett Kryptert Lagring",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Vis adresser",
     "details_stats_coins": "Mynter",
     "details_title": "Lommebok",
-    "restore_swap_activity": "Gjenopprett swap-aktivitet",
-    "restore_swap_activity_done": "Swap-aktivitet gjenopprettet.",
     "wallets": "Lommebøker",
     "swipe_balance_hide": "Skjul",
     "swipe_balance_show": "Vis",

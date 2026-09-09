@@ -78,12 +78,7 @@
     "sats": "සැට්.",
     "date_time": "දිනය සහ වේලාව",
     "wasnt_paid_and_expired": "මෙම ඉන්වොයිසිය ගෙවා නැති අතර කල් ඉකුත් වී ඇත.",
-    "receiving_payment": "ගෙවීම ලැබෙමින් පවතී…",
-    "refund_funds": "මුදල් ආපසු ගෙවන්න",
-    "refund_deferred": "තවම මුදල් ආපසු ගෙවිය නොහැක. swap කාල අගුල කල් ඉකුත් වූ පසු නැවත උත්සාහ කරන්න.",
-    "notification_action_title": "ක්‍රියාමාර්ගයක් අවශ්‍යයි",
-    "notification_claim_body": "{walletLabel}: ඔබට එන Lightning ගෙවීම ලබා ගැනීමට තට්ටු කරන්න.",
-    "notification_refund_body": "{walletLabel}: ඔබේ සිරවී ඇති Lightning ගෙවීම ආපසු ගැනීමට තට්ටු කරන්න."
+    "receiving_payment": "ගෙවීම ලැබෙමින් පවතී…"
   },
   "plausibledeniability": {
     "create_fake_storage": "සංකේතනය කළ ගබඩාවක් සාදන්න",
@@ -445,8 +440,6 @@
     "details_show_addresses": "ලිපිනයන් පෙන්වන්න",
     "details_stats_coins": "කාසි",
     "details_title": "පසුම්බිය",
-    "restore_swap_activity": "swap ක්‍රියාකාරකම් ප්‍රතිසාධනය කරන්න",
-    "restore_swap_activity_done": "Swap ක්‍රියාකාරකම් ප්‍රතිසාධනය විය.",
     "wallets": "පසුම්බි",
     "swipe_balance_hide": "සඟවන්න",
     "swipe_balance_show": "පෙන්වන්න",

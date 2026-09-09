@@ -78,12 +78,7 @@
     "sats": "satoşi.",
     "date_time": "Tarix və Vaxt",
     "wasnt_paid_and_expired": "Bu faktura ödənilmədi və müddəti bitdi.",
-    "receiving_payment": "Ödəniş alınır…",
-    "refund_funds": "Vəsaitləri geri qaytar",
-    "refund_deferred": "Vəsaitlər hələ geri qaytarıla bilməz. Mübadilə vaxt kilidinin müddəti bitdikdən sonra yenidən cəhd edin.",
-    "notification_action_title": "Tədbir tələb olunur",
-    "notification_claim_body": "{walletLabel}: gələn Lightning ödənişinizi almaq üçün toxunun.",
-    "notification_refund_body": "{walletLabel}: ilişib qalmış Lightning ödənişinizi geri qaytarmaq üçün toxunun."
+    "receiving_payment": "Ödəniş alınır…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Şifrələnmiş Yaddaş Yarat",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Ünvanları göstər",
     "details_stats_coins": "Sikkələr",
     "details_title": "Cüzdan",
-    "restore_swap_activity": "Mübadilə fəaliyyətini bərpa et",
-    "restore_swap_activity_done": "Mübadilə fəaliyyəti bərpa edildi.",
     "wallets": "Cüzdanlar",
     "swipe_balance_hide": "Gizlət",
     "swipe_balance_show": "Göstər",

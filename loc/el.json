@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Ημερομηνία και Ώρα",
     "wasnt_paid_and_expired": "Το τιμολόγιο δεν πληρώθηκε και έχει λήξει.",
-    "receiving_payment": "Λήψη πληρωμής…",
-    "refund_funds": "Επιστροφή χρημάτων",
-    "refund_deferred": "Τα κεφάλαια δεν είναι ακόμη επιστρέψιμα. Δοκιμάστε ξανά αφού λήξει το χρονικό κλείδωμα του swap.",
-    "notification_action_title": "Απαιτείται ενέργεια",
-    "notification_claim_body": "{walletLabel}: πατήστε για να εισπράξετε την εισερχόμενη πληρωμή Lightning.",
-    "notification_refund_body": "{walletLabel}: πατήστε για να επιστρέψετε την κολλημένη πληρωμή Lightning."
+    "receiving_payment": "Λήψη πληρωμής…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Δημιούργησε ένα ψεύτικο κρυπτογραφημένο αρχείο",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Εμφάνιση διευθύνσεων",
     "details_stats_coins": "Νομίσματα",
     "details_title": "Πορτοφόλι",
-    "restore_swap_activity": "Επαναφορά δραστηριότητας swap",
-    "restore_swap_activity_done": "Η δραστηριότητα swap επαναφέρθηκε.",
     "wallets": "Πορτοφόλια",
     "swipe_balance_hide": "Απόκρυψη",
     "swipe_balance_show": "Εμφάνιση",

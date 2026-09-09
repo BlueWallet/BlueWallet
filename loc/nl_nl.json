@@ -78,12 +78,7 @@
     "sats": "sats",
     "date_time": "Datum en tijd",
     "wasnt_paid_and_expired": "Deze factuur is niet betaald en is verlopen",
-    "receiving_payment": "Betaling wordt ontvangen…",
-    "refund_funds": "Geld terugvorderen",
-    "refund_deferred": "Geld is nog niet terugvorderbaar. Probeer het opnieuw nadat de timelock van de swap is verlopen.",
-    "notification_action_title": "Actie vereist",
-    "notification_claim_body": "{walletLabel}: tik om je inkomende Lightning-betaling te innen.",
-    "notification_refund_body": "{walletLabel}: tik om je vastgelopen Lightning-betaling terug te vorderen."
+    "receiving_payment": "Betaling wordt ontvangen…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Creëer versleutelde opslag",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Toon adressen",
     "details_stats_coins": "Coins",
     "details_title": "Wallet",
-    "restore_swap_activity": "Swap-activiteit herstellen",
-    "restore_swap_activity_done": "Swap-activiteit hersteld.",
     "wallets": "Wallets",
     "swipe_balance_hide": "Verbergen",
     "swipe_balance_show": "Tonen",

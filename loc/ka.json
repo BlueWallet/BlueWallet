@@ -78,12 +78,7 @@
     "sats": "სატოში.",
     "date_time": "თარიღი და დრო",
     "wasnt_paid_and_expired": "ეს ინვოისი არ გადახდილა და ვადა გაუვიდა.",
-    "receiving_payment": "გადახდის მიღება…",
-    "refund_funds": "თანხის დაბრუნება",
-    "refund_deferred": "თანხა ჯერ არ ექვემდებარება დაბრუნებას. სცადეთ ხელახლა swap-ის დროითი საკეტის ვადის გასვლის შემდეგ.",
-    "notification_action_title": "საჭიროა მოქმედება",
-    "notification_claim_body": "{walletLabel}: შეეხეთ თქვენი შემომავალი Lightning გადახდის მისაღებად.",
-    "notification_refund_body": "{walletLabel}: შეეხეთ თქვენი გაჭედილი Lightning გადახდის დასაბრუნებლად."
+    "receiving_payment": "გადახდის მიღება…"
   },
   "plausibledeniability": {
     "create_fake_storage": "დაშიფრული საცავის შექმნა",
@@ -445,8 +440,6 @@
     "details_show_addresses": "მისამართების ჩვენება",
     "details_stats_coins": "მონეტები",
     "details_title": "საფულე",
-    "restore_swap_activity": "swap აქტივობის აღდგენა",
-    "restore_swap_activity_done": "swap აქტივობა აღდგენილია.",
     "wallets": "საფულეები",
     "swipe_balance_hide": "დამალვა",
     "swipe_balance_show": "ჩვენება",

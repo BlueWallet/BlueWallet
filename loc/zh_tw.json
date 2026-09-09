@@ -78,12 +78,7 @@
     "sats": "聰",
     "date_time": "日期與時間",
     "wasnt_paid_and_expired": "此帳單尚未付款，已過期。",
-    "receiving_payment": "正在接收付款…",
-    "refund_funds": "退還資金",
-    "refund_deferred": "資金暫時無法退還。請在 swap 時間鎖到期後重試。",
-    "notification_action_title": "需要操作",
-    "notification_claim_body": "{walletLabel}：點擊以領取您收到的 Lightning 付款。",
-    "notification_refund_body": "{walletLabel}：點擊以退還您卡住的 Lightning 付款。"
+    "receiving_payment": "正在接收付款…"
   },
   "plausibledeniability": {
     "create_fake_storage": "建立加密儲存",
@@ -445,8 +440,6 @@
     "details_show_addresses": "顯示地址",
     "details_stats_coins": "幣",
     "details_title": "錢包",
-    "restore_swap_activity": "復原 swap 活動",
-    "restore_swap_activity_done": "Swap 活動已復原。",
     "wallets": "錢包",
     "swipe_balance_hide": "隱藏",
     "swipe_balance_show": "顯示",

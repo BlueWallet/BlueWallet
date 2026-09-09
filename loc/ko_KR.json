@@ -78,12 +78,7 @@
     "sats": "사토시",
     "date_time": "날짜와 시간",
     "wasnt_paid_and_expired": "이 청구서는 미결제되었으며 유효기간이 경과되었습니다.",
-    "receiving_payment": "결제를 받는 중…",
-    "refund_funds": "자금 환불",
-    "refund_deferred": "아직 자금을 환불할 수 없습니다. 스왑 타임락이 만료된 후 다시 시도하세요.",
-    "notification_action_title": "조치 필요",
-    "notification_claim_body": "{walletLabel}: 탭하여 수신 예정인 라이트닝 결제를 수령하세요.",
-    "notification_refund_body": "{walletLabel}: 탭하여 처리되지 않은 라이트닝 결제를 환불하세요."
+    "receiving_payment": "결제를 받는 중…"
   },
   "plausibledeniability": {
     "create_fake_storage": "암호화된 스토리지 만들기",
@@ -451,8 +446,6 @@
     "details_show_addresses": "주소 보이기",
     "details_stats_coins": "코인",
     "details_title": "지갑",
-    "restore_swap_activity": "스왑 활동 복원",
-    "restore_swap_activity_done": "스왑 활동이 복원되었습니다.",
     "wallets": "지갑",
     "swipe_balance_hide": "숨기기",
     "swipe_balance_show": "표시",

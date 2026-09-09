@@ -27,7 +27,6 @@ import { CreateTransactionUtxo } from '../../class/wallets/types';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
-import { stopArkBackgroundTask } from '../../blue_modules/arkade-background';
 import { SettingsSection, SettingsScrollView, settingsCardContent } from '../../components/SettingsSection';
 
 const bip32 = BIP32Factory(ecc);
@@ -92,11 +91,6 @@ export default class SelfTest extends Component {
     let isOk = true;
 
     try {
-      // Drain any Ark background-fetch listener before running the self-test.
-      // A live background-fetch timer keeps Detox's FabricTimersIdlingResource
-      // busy and disconnects the JS bridge before SelfTestOk can be observed.
-      await stopArkBackgroundTask();
-
       await new Promise(resolve => setTimeout(resolve, 1_000)); // propagate ui
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {

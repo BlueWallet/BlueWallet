@@ -78,12 +78,7 @@
     "sats": "sat.",
     "date_time": "Tanggal dan Waktu",
     "wasnt_paid_and_expired": "Faktur ini belum dibayar dan telah kedaluwarsa",
-    "receiving_payment": "Menerima pembayaran…",
-    "refund_funds": "Kembalikan dana",
-    "refund_deferred": "Dana belum bisa dikembalikan. Coba lagi setelah timelock swap berakhir.",
-    "notification_action_title": "Tindakan diperlukan",
-    "notification_claim_body": "{walletLabel}: ketuk untuk mengklaim pembayaran Lightning masuk Anda.",
-    "notification_refund_body": "{walletLabel}: ketuk untuk mengembalikan pembayaran Lightning Anda yang macet."
+    "receiving_payment": "Menerima pembayaran…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Buat penyimpanan terenkripsi palsu",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Tunjukkan alamat",
     "details_stats_coins": "Koin",
     "details_title": "Dompet",
-    "restore_swap_activity": "Pulihkan aktivitas swap",
-    "restore_swap_activity_done": "Aktivitas swap dipulihkan.",
     "wallets": "Dompet",
     "swipe_balance_hide": "Sembunyikan",
     "swipe_balance_show": "Tampilkan",

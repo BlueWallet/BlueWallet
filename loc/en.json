@@ -66,7 +66,14 @@
     "refill_external": "Refill with External Wallet",
     "refill_lnd_balance": "Refill Lightning Wallet Balance",
     "sameWalletAsInvoiceError": "You cannot pay an invoice with the same wallet used to create it.",
-    "title": "Manage Funds"
+    "title": "Manage Funds",
+    "confirmPayment": "Confirm payment",
+    "quoteFee": "Swap fee: {fee}",
+    "quoteTotal": "Total debit: {total}",
+    "quoteExpires": "Quote expires: {time}",
+    "quoteExpired": "Quote expired. Please review the new quote and confirm again.",
+    "receiveUnavailable": "Lightning receive is unavailable for this solver right now. Try again later.",
+    "receiveLimits": "Receivable between {min} and {max} sats"
   },
   "lndViewInvoice": {
     "additional_info": "Additional Information",
@@ -79,11 +86,12 @@
     "date_time": "Date and Time",
     "wasnt_paid_and_expired": "This invoice was not paid and has expired.",
     "receiving_payment": "Receiving payment…",
-    "refund_funds": "Refund funds",
-    "refund_deferred": "Funds aren't refundable yet. Try again after the swap timelock expires.",
-    "notification_action_title": "Action needed",
-    "notification_claim_body": "{walletLabel}: tap to claim your incoming Lightning payment.",
-    "notification_refund_body": "{walletLabel}: tap to refund your stuck Lightning payment."
+    "recover_funds": "Recover funds",
+    "recovery_prompt": "This payment needs recovery. Start a recovery round to sweep what can be recovered.",
+    "recovery_not_yet": "Funds can't be recovered yet — try again after {time}.",
+    "recovery_deferred": "Recovery did not include this swap this time. Try again later.",
+    "recovery_nothing_to_recover": "Nothing to recover yet — the counterparty's move is what ends this swap.",
+    "payment_lapsed": "The incoming payment never arrived — the solver reclaimed its lockup."
   },
   "plausibledeniability": {
     "create_fake_storage": "Create Encrypted Storage",
@@ -460,8 +468,6 @@
     "details_show_addresses": "Show addresses",
     "details_stats_coins": "Coins",
     "details_title": "Wallet",
-    "restore_swap_activity": "Restore swap activity",
-    "restore_swap_activity_done": "Swap activity restored.",
     "wallets": "Wallets",
     "swipe_balance_hide": "Hide",
     "swipe_balance_show": "Show",

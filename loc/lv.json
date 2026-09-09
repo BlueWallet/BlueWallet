@@ -78,12 +78,7 @@
     "sats": "sati.",
     "date_time": "Datums un laiks",
     "wasnt_paid_and_expired": "Šis rēķins netika apmaksāts, un tā derīgums ir beidzies.",
-    "receiving_payment": "Notiek maksājuma saņemšana…",
-    "refund_funds": "Atmaksāt līdzekļus",
-    "refund_deferred": "Līdzekļus pagaidām nevar atmaksāt. Mēģiniet vēlreiz pēc tam, kad būs beidzies maiņas laika bloķējums.",
-    "notification_action_title": "Nepieciešama darbība",
-    "notification_claim_body": "{walletLabel}: pieskarieties, lai pieprasītu ienākošo Lightning maksājumu.",
-    "notification_refund_body": "{walletLabel}: pieskarieties, lai atmaksātu iestrēgušo Lightning maksājumu."
+    "receiving_payment": "Notiek maksājuma saņemšana…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Izveidot šifrētu krātuvi",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Rādīt adreses",
     "details_stats_coins": "Monētas",
     "details_title": "Maks",
-    "restore_swap_activity": "Atjaunot maiņas aktivitāti",
-    "restore_swap_activity_done": "Maiņas aktivitāte atjaunota.",
     "wallets": "Maki",
     "swipe_balance_hide": "Slēpt",
     "swipe_balance_show": "Rādīt",

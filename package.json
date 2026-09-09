@@ -91,8 +91,9 @@
     "unit": "jest -b tests/unit/*"
   },
   "dependencies": {
-    "@arkade-os/boltz-swap": "0.3.67",
-    "@arkade-os/sdk": "0.4.67",
+    "@arkade-os/solver-discovery": "0.2.3",
+    "@arkade-os/swap": "0.1.0-rc.7",
+    "@arkade-os/sdk": "0.5.0-rc.7",
     "@bugsnag/react-native": "8.9.0",
     "@bugsnag/source-maps": "2.3.3",
     "@keystonehq/bc-ur-registry": "0.8.0",
@@ -145,6 +146,7 @@
     "electrum-mnemonic": "2.0.0",
     "events": "3.3.0",
     "lottie-react-native": "7.4.0",
+    "nostr-tools": "2.25.2",
     "pako": "file:blue_modules/pako",
     "payjoin-client": "1.0.1",
     "prop-types": "15.8.1",
@@ -152,7 +154,6 @@
     "react": "19.2.3",
     "react-localization": "github:BlueWallet/react-localization#ae7969a",
     "react-native": "0.85.3",
-    "react-native-background-fetch": "4.4.2",
     "react-native-biometrics": "3.0.1",
     "react-native-blue-crypto": "github:BlueWallet/react-native-blue-crypto#3cb5442",
     "react-native-camera-kit-no-google": "github:BlueWallet/react-native-camera-kit-no-google#af2dc02cc4acfef0b9be557631822957ff6f94a4",
@@ -192,6 +193,6 @@
     "wif": "2.0.6"
   },
   "overrides": {
-    "@arkade-os/sdk": "0.4.67"
+    "@arkade-os/sdk": "0.5.0-rc.7"
   }
 }

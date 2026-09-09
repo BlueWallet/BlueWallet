@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Dato og tid",
     "wasnt_paid_and_expired": "Denne faktura blev ikke betalt og er udløbet.",
-    "receiving_payment": "Modtager betaling…",
-    "refund_funds": "Refunder midler",
-    "refund_deferred": "Midlerne kan ikke refunderes endnu. Prøv igen, når swappens timelock er udløbet.",
-    "notification_action_title": "Handling påkrævet",
-    "notification_claim_body": "{walletLabel}: tryk for at hente din indgående Lightning-betaling.",
-    "notification_refund_body": "{walletLabel}: tryk for at refundere din fastlåste Lightning-betaling."
+    "receiving_payment": "Modtager betaling…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Opret falsk krypteret lager",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Vis adresser",
     "details_stats_coins": "Coins",
     "details_title": "Wallet",
-    "restore_swap_activity": "Gendan swap-aktivitet",
-    "restore_swap_activity_done": "Swap-aktivitet gendannet.",
     "wallets": "Wallets",
     "swipe_balance_hide": "Skjul",
     "swipe_balance_show": "Vis",

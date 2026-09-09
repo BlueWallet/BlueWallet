@@ -78,12 +78,7 @@
     "sats": "sats।",
     "date_time": "मिति र समय",
     "wasnt_paid_and_expired": "यो इनभ्वाइस भुक्तान गरिएको थिएन र म्याद सकिएको छ।",
-    "receiving_payment": "भुक्तानी प्राप्त गर्दै…",
-    "refund_funds": "रकम फिर्ता गर्नुहोस्",
-    "refund_deferred": "रकम अहिले फिर्ता गर्न मिल्दैन। स्वैप टाइमलकको म्याद सकिएपछि फेरि प्रयास गर्नुहोस्।",
-    "notification_action_title": "कार्य आवश्यक",
-    "notification_claim_body": "{walletLabel}: तपाईंको आउने Lightning भुक्तानी प्राप्त गर्न ट्याप गर्नुहोस्।",
-    "notification_refund_body": "{walletLabel}: तपाईंको अड्किएको Lightning भुक्तानी फिर्ता गर्न ट्याप गर्नुहोस्।"
+    "receiving_payment": "भुक्तानी प्राप्त गर्दै…"
   },
   "plausibledeniability": {
     "create_fake_storage": "ईन्क्रिप्टेड स्टोरेज सिर्जना गर्नुहोस्",
@@ -445,8 +440,6 @@
     "details_show_addresses": "ठेगानाहरू देखाउनुहोस्",
     "details_stats_coins": "कोइनहरू",
     "details_title": "वालेट",
-    "restore_swap_activity": "स्वैप गतिविधि पुनर्स्थापना गर्नुहोस्",
-    "restore_swap_activity_done": "स्वैप गतिविधि पुनर्स्थापना गरियो।",
     "wallets": "वालेटहरू",
     "swipe_balance_hide": "लुकाउनुहोस्",
     "swipe_balance_show": "देखाउनुहोस्",

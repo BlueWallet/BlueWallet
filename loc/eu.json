@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Data eta ordua",
     "wasnt_paid_and_expired": "Faktura hau ez da ordaindu eta iraungi egin da.",
-    "receiving_payment": "Ordainketa jasotzen…",
-    "refund_funds": "Itzuli funtsak",
-    "refund_deferred": "Funtsak ezin dira oraindik itzuli. Saiatu berriro swap-aren denbora-blokeoa iraungitzen denean.",
-    "notification_action_title": "Ekintza beharrezkoa",
-    "notification_claim_body": "{walletLabel}: sakatu sarrerako Lightning ordainketa erreklamatzeko.",
-    "notification_refund_body": "{walletLabel}: sakatu trabatutako Lightning ordainketa itzultzeko."
+    "receiving_payment": "Ordainketa jasotzen…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Sortu biltegiratze zifratua",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Erakutsi helbideak",
     "details_stats_coins": "Txanponak",
     "details_title": "Diru-zorroa",
-    "restore_swap_activity": "Berreskuratu swap jarduera",
-    "restore_swap_activity_done": "Swap jarduera berreskuratu da.",
     "wallets": "Diru-zorroak",
     "swipe_balance_hide": "Ezkutatu",
     "swipe_balance_show": "Erakutsi",

@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Data dhe ora",
     "wasnt_paid_and_expired": "Fatura nuk është paguar dhe ka skaduar.",
-    "receiving_payment": "Po merret pagesa…",
-    "refund_funds": "Kthe fondet",
-    "refund_deferred": "Fondet nuk janë ende të rimbursueshme. Provoni përsëri pasi të skadojë timelock-u i swap-it.",
-    "notification_action_title": "Nevojitet veprim",
-    "notification_claim_body": "{walletLabel}: trokit për të marrë pagesën hyrëse Lightning.",
-    "notification_refund_body": "{walletLabel}: trokit për të rimbursuar pagesën Lightning të bllokuar."
+    "receiving_payment": "Po merret pagesa…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Krijo një memorie të kriptuar",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Trego adresat",
     "details_stats_coins": "Monedha",
     "details_title": "Portofol",
-    "restore_swap_activity": "Rikupero aktivitetin e swap-it",
-    "restore_swap_activity_done": "Aktiviteti i swap-it u rikuperua.",
     "wallets": "Portofola",
     "swipe_balance_hide": "Fshih",
     "swipe_balance_show": "Shfaq",

@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "दिनांक और समय",
     "wasnt_paid_and_expired": "इस इनवॉइस का भुगतान नहीं किया गया और यह समाप्त हो गया है।",
-    "receiving_payment": "भुगतान प्राप्त हो रहा है…",
-    "refund_funds": "धनराशि वापस करें",
-    "refund_deferred": "धनराशि अभी वापस नहीं की जा सकती। स्वैप टाइमलॉक समाप्त होने के बाद फिर से प्रयास करें।",
-    "notification_action_title": "कार्रवाई आवश्यक",
-    "notification_claim_body": "{walletLabel}: अपना आने वाला Lightning भुगतान क्लेम करने के लिए टैप करें।",
-    "notification_refund_body": "{walletLabel}: अपना अटका हुआ Lightning भुगतान वापस पाने के लिए टैप करें।"
+    "receiving_payment": "भुगतान प्राप्त हो रहा है…"
   },
   "plausibledeniability": {
     "create_fake_storage": "एन्क्रिप्टेड स्टोरेज बनाएं",
@@ -445,8 +440,6 @@
     "details_show_addresses": "पते दिखाएं",
     "details_stats_coins": "सिक्के",
     "details_title": "वॉलेट",
-    "restore_swap_activity": "स्वैप गतिविधि पुनर्स्थापित करें",
-    "restore_swap_activity_done": "स्वैप गतिविधि पुनर्स्थापित कर दी गई।",
     "wallets": "वॉलेट",
     "swipe_balance_hide": "छिपाएं",
     "swipe_balance_show": "दिखाएं",

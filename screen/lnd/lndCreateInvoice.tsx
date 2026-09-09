@@ -52,6 +52,10 @@ const LNDCreateInvoice = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [description, setDescription] = useState('');
   const [lnurlParams, setLNURLParams] = useState<{ k1: any; callback: any; fixed: boolean; min: number; max: number }>();
+  // Receive bounds from the discovered card (never from a constant). A
+  // disabled side (null) means the flow is unavailable — hide it and say
+  // why, not "amount out of range".
+  const [receiveLimits, setReceiveLimits] = useState<{ min: number; max: number } | null | undefined>(undefined);
 
   const styleHooks = StyleSheet.create({
     scanRoot: {
@@ -180,7 +184,19 @@ const LNDCreateInvoice = () => {
   useEffect(() => {
     const showSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', _keyboardDidShow);
     const hideSubscription = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', _keyboardDidHide);
+    let cancelled = false;
+    // Warm the market set so the receive bounds below render. Non-critical:
+    // addInvoice() enforces the same bounds, so a cold read only hides the hint.
+    if (wallet.current instanceof LightningArkWallet) {
+      wallet.current
+        .ensureLightningFeesLoaded()
+        .then(() => {
+          if (!cancelled && wallet.current instanceof LightningArkWallet) setReceiveLimits(wallet.current.getReceiveLimits());
+        })
+        .catch(() => {});
+    }
     return () => {
+      cancelled = true;
       showSubscription.remove();
       hideSubscription.remove();
     };
@@ -275,6 +291,28 @@ const LNDCreateInvoice = () => {
 
       assert(wallet.current instanceof LightningArkWallet || wallet.current instanceof LightningCustodianWallet);
 
+      // Solver bounds pre-check (Ark only): addInvoice() enforces the same,
+      // but the screen owes a disabled-side message rather than a range error.
+      if (wallet.current instanceof LightningArkWallet && !lnurlParams) {
+        const limits = wallet.current.getReceiveLimits() ?? receiveLimits;
+        if (!limits) {
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          presentAlert({ message: loc.lnd.receiveUnavailable });
+          setIsLoading(false);
+          return;
+        }
+        if (+invoiceAmount < limits.min || +invoiceAmount > limits.max) {
+          const text =
+            +invoiceAmount < limits.min
+              ? loc.formatString(loc.receive.minSats, { min: limits.min })
+              : loc.formatString(loc.receive.maxSats, { max: limits.max });
+          triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+          presentAlert({ message: text });
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const invoiceRequest = await wallet.current?.addInvoice(+invoiceAmount, description);
       triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
 
@@ -328,6 +366,15 @@ const LNDCreateInvoice = () => {
           <Button disabled={!(amount && +amount > 0)} onPress={createInvoice} title={loc.send.details_create} />
         )}
       </View>
+    );
+  };
+
+  const renderReceiveLimitsHint = () => {
+    if (!(wallet.current instanceof LightningArkWallet) || lnurlParams) return null;
+    if (receiveLimits === undefined) return null;
+    if (receiveLimits === null) return <Text style={styles.limitsHint}>{loc.lnd.receiveUnavailable}</Text>;
+    return (
+      <Text style={styles.limitsHint}>{loc.formatString(loc.lnd.receiveLimits, { min: receiveLimits.min, max: receiveLimits.max })}</Text>
     );
   };
 
@@ -422,6 +469,7 @@ const LNDCreateInvoice = () => {
             {lnurlParams ? null : renderScanClickable()}
           </View>
           <DismissKeyboardInputAccessory />
+          {renderReceiveLimitsHint()}
           {renderCreateButton()}
         </View>
         {renderWalletSelectionButton()}
@@ -512,6 +560,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 19,
     color: '#81868e',
+  },
+  limitsHint: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    fontSize: 13,
+    color: '#81868e',
+    textAlign: 'center',
   },
 });
 

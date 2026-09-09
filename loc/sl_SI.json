@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Datum in čas",
     "wasnt_paid_and_expired": "Ta račun ni bil plačan in je potekel.",
-    "receiving_payment": "Prejemanje plačila…",
-    "refund_funds": "Vrni sredstva",
-    "refund_deferred": "Sredstev še ni mogoče vrniti. Poskusite znova, ko poteče časovna zapora (timelock) za swap.",
-    "notification_action_title": "Potrebno je ukrepanje",
-    "notification_claim_body": "{walletLabel}: tapnite za prevzem dohodnega Lightning plačila.",
-    "notification_refund_body": "{walletLabel}: tapnite za vračilo obtičalega Lightning plačila."
+    "receiving_payment": "Prejemanje plačila…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Ustvari šifrirano shrambo",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Prikaži naslove",
     "details_stats_coins": "Kovanci",
     "details_title": "Denarnica",
-    "restore_swap_activity": "Obnovi aktivnost swap",
-    "restore_swap_activity_done": "Aktivnost swap je obnovljena.",
     "wallets": "Denarnice",
     "swipe_balance_hide": "Skrij",
     "swipe_balance_show": "Prikaži",

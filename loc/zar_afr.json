@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Datum en tyd",
     "wasnt_paid_and_expired": "Die faktuur was nie betaal nie en het verval.",
-    "receiving_payment": "Betaling word ontvang…",
-    "refund_funds": "Betaal fondse terug",
-    "refund_deferred": "Fondse is nog nie terugbetaalbaar nie. Probeer weer nadat die swap se timelock verstryk het.",
-    "notification_action_title": "Aksie benodig",
-    "notification_claim_body": "{walletLabel}: tik om jou inkomende Lightning-betaling te eis.",
-    "notification_refund_body": "{walletLabel}: tik om jou vasgekeerde Lightning-betaling terug te betaal."
+    "receiving_payment": "Betaling word ontvang…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Skep fantasie berging wagwoord",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Wys adresse",
     "details_stats_coins": "Munte",
     "details_title": "Beursie",
-    "restore_swap_activity": "Herstel swap-aktiwiteit",
-    "restore_swap_activity_done": "Swap-aktiwiteit herstel.",
     "wallets": "beursies",
     "swipe_balance_hide": "Versteek",
     "swipe_balance_show": "Wys",

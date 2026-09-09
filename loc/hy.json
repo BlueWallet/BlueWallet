@@ -78,12 +78,7 @@
     "sats": "սատոշի",
     "date_time": "Ամսաթիվ և ժամ",
     "wasnt_paid_and_expired": "Այս հաշիվ-ֆակտուրան չի վճարվել և ժամկետն անցել է։",
-    "receiving_payment": "Վճարման ստացում…",
-    "refund_funds": "Վերադարձնել միջոցները",
-    "refund_deferred": "Միջոցները դեռ չեն կարող վերադարձվել։ Փորձեք կրկին swap-ի ժամանակային կողպեքի ժամկետն անցնելուց հետո։",
-    "notification_action_title": "Անհրաժեշտ է գործողություն",
-    "notification_claim_body": "{walletLabel}՝ հպեք՝ ձեր մուտքային Lightning վճարումը ստանալու համար։",
-    "notification_refund_body": "{walletLabel}՝ հպեք՝ ձեր կախված Lightning վճարումը վերադարձնելու համար։"
+    "receiving_payment": "Վճարման ստացում…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Ստեղծել գաղտնագրված պահեստ",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Ցույց տալ հասցեները",
     "details_stats_coins": "Մետաղադրամներ",
     "details_title": "Դրամապանակ",
-    "restore_swap_activity": "Վերականգնել փոխանակման ակտիվությունը",
-    "restore_swap_activity_done": "Փոխանակման ակտիվությունը վերականգնված է:",
     "wallets": "Դրամապանակներ",
     "swipe_balance_hide": "Թաքցնել",
     "swipe_balance_show": "Ցույց տալ",

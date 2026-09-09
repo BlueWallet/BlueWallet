@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Petsa at Oras",
     "wasnt_paid_and_expired": "Hindi nabayaran ang invoice na ito at nag-expire na.",
-    "receiving_payment": "Tumatanggap ng kabayaran…",
-    "refund_funds": "I-refund ang pondo",
-    "refund_deferred": "Hindi pa puwedeng i-refund ang pondo. Subukang muli pagkatapos mag-expire ang timelock ng swap.",
-    "notification_action_title": "Kailangan ng aksiyon",
-    "notification_claim_body": "{walletLabel}: i-tap upang i-claim ang iyong papasok na Lightning na kabayaran.",
-    "notification_refund_body": "{walletLabel}: i-tap upang i-refund ang iyong naipit na Lightning na kabayaran."
+    "receiving_payment": "Tumatanggap ng kabayaran…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Gumawa ng Naka-encrypt na Storage",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Ipakita ang mga address",
     "details_stats_coins": "Mga Coin",
     "details_title": "Wallet",
-    "restore_swap_activity": "Ibalik ang aktibidad ng swap",
-    "restore_swap_activity_done": "Naibalik na ang aktibidad ng swap.",
     "wallets": "Mga Wallet",
     "swipe_balance_hide": "Itago",
     "swipe_balance_show": "Ipakita",

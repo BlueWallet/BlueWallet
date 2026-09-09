@@ -78,12 +78,7 @@
     "sats": "сатоши.",
     "date_time": "Дата и время",
     "wasnt_paid_and_expired": "Этот инвойс не был оплачен и просрочен.",
-    "receiving_payment": "Получение платежа…",
-    "refund_funds": "Вернуть средства",
-    "refund_deferred": "Средства пока нельзя вернуть. Повторите попытку после истечения таймлока свопа.",
-    "notification_action_title": "Требуется действие",
-    "notification_claim_body": "{walletLabel}: нажмите, чтобы получить входящий платёж Lightning.",
-    "notification_refund_body": "{walletLabel}: нажмите, чтобы вернуть застрявший платёж Lightning."
+    "receiving_payment": "Получение платежа…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Создать зашифрованное хранилище",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Показать адреса",
     "details_stats_coins": "Монеты",
     "details_title": "Кошелёк",
-    "restore_swap_activity": "Восстановить историю свопов",
-    "restore_swap_activity_done": "История свопов восстановлена.",
     "wallets": "Кошельки",
     "swipe_balance_hide": "Скрыть",
     "swipe_balance_show": "Показать",

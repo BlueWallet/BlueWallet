@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Umhla neXesha",
     "wasnt_paid_and_expired": "Le invoyisi ayihlawulwanga kwaye iphelelwe lixesha.",
-    "receiving_payment": "Kufunyanwa intlawulo…",
-    "refund_funds": "Buyisela imali",
-    "refund_deferred": "Imali ayikabuyiseleki okwangoku. Zama kwakhona emva kokuba i-timelock ye-swap iphelelwe lixesha.",
-    "notification_action_title": "Kufuneka isenzo",
-    "notification_claim_body": "{walletLabel}: cofa ukuze ufumane intlawulo yakho ye-Lightning engenayo.",
-    "notification_refund_body": "{walletLabel}: cofa ukuze ubuyisele intlawulo yakho ye-Lightning ebambekileyo."
+    "receiving_payment": "Kufunyanwa intlawulo…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Ukudala igumbi lokugcina elifihlakeleyo",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Bonisa iidilesi",
     "details_stats_coins": "Iingqekembe",
     "details_title": "Ingxowa",
-    "restore_swap_activity": "Buyisela umsebenzi we-swap",
-    "restore_swap_activity_done": "Umsebenzi we-swap ubuyiselwe.",
     "wallets": "Ingxowa",
     "swipe_balance_hide": "Fihla",
     "swipe_balance_show": "Bonisa",

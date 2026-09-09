@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Ñalnde e waqtu",
     "wasnt_paid_and_expired": "Oo faktiir yoɓaaka kadi o timmii.",
-    "receiving_payment": "Ina jaɓa njoɓdi…",
-    "refund_funds": "Ruttu kaalis",
-    "refund_deferred": "Kaalis on waawaa ruttude tawo. Eto kadi caggal nde timelock swap on timmi.",
-    "notification_action_title": "Golle ina soklaa",
-    "notification_claim_body": "{walletLabel}: mema ngam hettude njoɓdi Lightning naataynde maa.",
-    "notification_refund_body": "{walletLabel}: mema ngam ruttude njoɓdi Lightning maa nde haɓɓii."
+    "receiving_payment": "Ina jaɓa njoɓdi…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Sos mooftirde wirniinde",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Hollu adreesaaji",
     "details_stats_coins": "Koppe",
     "details_title": "Boktoore",
-    "restore_swap_activity": "Artir golle swap",
-    "restore_swap_activity_done": "Golle swap artiraama.",
     "wallets": "Boktooɗe",
     "swipe_balance_hide": "Suuɗ",
     "swipe_balance_show": "Hollu",

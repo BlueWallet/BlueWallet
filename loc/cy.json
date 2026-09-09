@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Dyddiad ac Amser",
     "wasnt_paid_and_expired": "Ni chafodd yr anfoneb ei thalu, ac mae wedi gorffen.",
-    "receiving_payment": "Yn derbyn taliad…",
-    "refund_funds": "Ad-dalu arian",
-    "refund_deferred": "Dydy'r arian ddim yn ad-daladwy eto. Rho gynnig arall ar ôl i glo amser y swap ddod i ben.",
-    "notification_action_title": "Angen gweithredu",
-    "notification_claim_body": "{walletLabel}: tapia i hawlio dy daliad Mellten sy'n dod i mewn.",
-    "notification_refund_body": "{walletLabel}: tapia i ad-dalu dy daliad Mellten sownd."
+    "receiving_payment": "Yn derbyn taliad…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Creu storfa wedi'i hamgryptio",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Dangos cyfeiriadau",
     "details_stats_coins": "Darnau arian",
     "details_title": "Waled",
-    "restore_swap_activity": "Adfer gweithgaredd swap",
-    "restore_swap_activity_done": "Adferwyd gweithgaredd swap.",
     "wallets": "Waledi",
     "swipe_balance_hide": "Cuddio",
     "swipe_balance_show": "Dangos",

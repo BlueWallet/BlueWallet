@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Datum i vrijeme",
     "wasnt_paid_and_expired": "Ova faktura nije plaćena i istekla je.",
-    "receiving_payment": "Primanje plaćanja…",
-    "refund_funds": "Vrati sredstva",
-    "refund_deferred": "Sredstva još nije moguće vratiti. Pokušajte ponovno nakon isteka vremenskog zaključavanja (timelock) swapa.",
-    "notification_action_title": "Potrebna radnja",
-    "notification_claim_body": "{walletLabel}: dodirnite za preuzimanje dolaznog Lightning plaćanja.",
-    "notification_refund_body": "{walletLabel}: dodirnite za povrat zaglavljenog Lightning plaćanja."
+    "receiving_payment": "Primanje plaćanja…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Stvori lažni enkriptirani spremnik",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Prikaži adrese",
     "details_stats_coins": "Kovanice",
     "details_title": "Novčanik",
-    "restore_swap_activity": "Obnovi aktivnost swapova",
-    "restore_swap_activity_done": "Aktivnost swapova je obnovljena.",
     "wallets": "Novčanici",
     "swipe_balance_hide": "Sakrij",
     "swipe_balance_show": "Prikaži",

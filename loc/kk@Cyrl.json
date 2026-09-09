@@ -78,12 +78,7 @@
     "sats": "сат.",
     "date_time": "Күні мен уақыты",
     "wasnt_paid_and_expired": "Бұл шот төленбеді және мерзімі бітті.",
-    "receiving_payment": "Төлем қабылдануда…",
-    "refund_funds": "Қаражатты қайтару",
-    "refund_deferred": "Қаражатты әзірге қайтару мүмкін емес. swap-тың уақыт құлпы аяқталғаннан кейін қайталап көріңіз.",
-    "notification_action_title": "Әрекет қажет",
-    "notification_claim_body": "{walletLabel}: кіріс Lightning төлемін алу үшін түртіңіз.",
-    "notification_refund_body": "{walletLabel}: тұрып қалған Lightning төлемін қайтару үшін түртіңіз."
+    "receiving_payment": "Төлем қабылдануда…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Шифрланған сақтау орнын жасау",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Мекенжайларды көрсету",
     "details_stats_coins": "Тиындар",
     "details_title": "Әмиян",
-    "restore_swap_activity": "swap әрекетін қалпына келтіру",
-    "restore_swap_activity_done": "swap әрекеті қалпына келтірілді.",
     "wallets": "Әмияндар",
     "swipe_balance_hide": "Жасыру",
     "swipe_balance_show": "Көрсету",

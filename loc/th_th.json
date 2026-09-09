@@ -78,12 +78,7 @@
     "sats": "แซท",
     "date_time": "วันที่และเวลา",
     "wasnt_paid_and_expired": "ใบวางบิลนี้ไม่ได้จ่ายและหมดอายุแล้ว",
-    "receiving_payment": "กำลังรับการชำระเงิน…",
-    "refund_funds": "คืนเงิน",
-    "refund_deferred": "ยังไม่สามารถคืนเงินได้ ลองอีกครั้งหลังจาก timelock ของ swap หมดอายุแล้ว",
-    "notification_action_title": "ต้องดำเนินการ",
-    "notification_claim_body": "{walletLabel}: แตะเพื่อรับการชำระเงิน Lightning ขาเข้าของคุณ",
-    "notification_refund_body": "{walletLabel}: แตะเพื่อคืนเงินการชำระเงิน Lightning ที่ค้างอยู่ของคุณ"
+    "receiving_payment": "กำลังรับการชำระเงิน…"
   },
   "plausibledeniability": {
     "create_fake_storage": "สร้างที่เก็บข้อมูลเทียม",
@@ -445,8 +440,6 @@
     "details_show_addresses": "แสดงแอดเดรส",
     "details_stats_coins": "เหรียญ",
     "details_title": "กระเป๋าสตางค์",
-    "restore_swap_activity": "กู้คืนกิจกรรม swap",
-    "restore_swap_activity_done": "กู้คืนกิจกรรม swap แล้ว",
     "wallets": "กระเป๋าสตางค์",
     "swipe_balance_hide": "ซ่อน",
     "swipe_balance_show": "แสดง",

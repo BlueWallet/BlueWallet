@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Data e Horário",
     "wasnt_paid_and_expired": "Esta fatura não foi paga e expirou.",
-    "receiving_payment": "Recebendo pagamento…",
-    "refund_funds": "Reembolsar fundos",
-    "refund_deferred": "Os fundos ainda não podem ser reembolsados. Tente novamente após o timelock do swap expirar.",
-    "notification_action_title": "Ação necessária",
-    "notification_claim_body": "{walletLabel}: toque para resgatar seu pagamento Lightning recebido.",
-    "notification_refund_body": "{walletLabel}: toque para reembolsar seu pagamento Lightning travado."
+    "receiving_payment": "Recebendo pagamento…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Criar armazenamento criptografado",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Mostrar endereços",
     "details_stats_coins": "Moedas",
     "details_title": "Carteira",
-    "restore_swap_activity": "Restaurar atividade de swap",
-    "restore_swap_activity_done": "Atividade de swap restaurada.",
     "wallets": "Carteiras",
     "swipe_balance_hide": "Ocultar",
     "swipe_balance_show": "Mostrar",

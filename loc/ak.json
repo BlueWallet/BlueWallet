@@ -78,12 +78,7 @@
     "sats": "satoshi.",
     "date_time": "Da ne bere",
     "wasnt_paid_and_expired": "Wɔantua ka krataa yi na ne bere nso asa.",
-    "receiving_payment": "Akatua reba…",
-    "refund_funds": "San fa sika no ma",
-    "refund_deferred": "Wɔntumi nsan mfa sika no mma ɛnnɛ. Sɔ hwɛ bio bere a swap timelock no bere asa no.",
-    "notification_action_title": "Ɛsɛ sɛ woyɛ biribi",
-    "notification_claim_body": "{walletLabel}: mia na gye wo Lightning akatua a ɛreba no.",
-    "notification_refund_body": "{walletLabel}: mia na san fa wo Lightning akatua a asɛn no ma."
+    "receiving_payment": "Akatua reba…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Yɛ koraeɛ a wɔakyekyere mu",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Kyerɛ address ahodoɔ",
     "details_stats_coins": "Sika",
     "details_title": "Sika Kotokuo",
-    "restore_swap_activity": "San fa swap dwumadie",
-    "restore_swap_activity_done": "Wɔasan anya swap dwumadie no.",
     "wallets": "Sika Kotokuo",
     "swipe_balance_hide": "Fa Sie",
     "swipe_balance_show": "Kyerɛ",

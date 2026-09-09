@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "תאריך ושעה",
     "wasnt_paid_and_expired": "חשבונית זו לא שולמה ופגה",
-    "receiving_payment": "מתקבל תשלום…",
-    "refund_funds": "החזר כספים",
-    "refund_deferred": "לא ניתן עדיין להחזיר את הכספים. נסו שוב לאחר שתפוג נעילת הזמן (timelock) של ה-swap.",
-    "notification_action_title": "נדרשת פעולה",
-    "notification_claim_body": "{walletLabel}: הקישו כדי לקבל את תשלום ה-Lightning הנכנס.",
-    "notification_refund_body": "{walletLabel}: הקישו כדי להחזיר את תשלום ה-Lightning התקוע."
+    "receiving_payment": "מתקבל תשלום…"
   },
   "plausibledeniability": {
     "create_fake_storage": "צרו אחסון מוצפן",
@@ -445,8 +440,6 @@
     "details_show_addresses": "הצגת כתובות",
     "details_stats_coins": "מטבעות",
     "details_title": "ארנק",
-    "restore_swap_activity": "שחזור פעילות swap",
-    "restore_swap_activity_done": "פעילות ה-swap שוחזרה.",
     "wallets": "ארנקים",
     "swipe_balance_hide": "הסתרה",
     "swipe_balance_show": "הצג",

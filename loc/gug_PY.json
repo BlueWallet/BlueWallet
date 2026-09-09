@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Ára ha aravo",
     "wasnt_paid_and_expired": "Ko factura noñehepymeʼẽi ha opáma.",
-    "receiving_payment": "Ojapyhy jehepymeʼẽ…",
-    "refund_funds": "Embojevy viru",
-    "refund_deferred": "Pe viru ndaikatúi gueteri ojevy. Eñehaʼã jey swap timelock opa rire.",
-    "notification_action_title": "Oñekotevẽ tembiapo",
-    "notification_claim_body": "{walletLabel}: eikutu ejapyhy hag̃ua ne Lightning jehepymeʼẽ oúva.",
-    "notification_refund_body": "{walletLabel}: eikutu emyengovia hag̃ua ne Lightning jehepymeʼẽ ojokóva."
+    "receiving_payment": "Ojapyhy jehepymeʼẽ…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Ejapo ñongatuha encriptado",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Ehechauka rendakuéra",
     "details_stats_coins": "Virukuéra",
     "details_title": "Viru ryru",
-    "restore_swap_activity": "Emoĩjey swap actividad",
-    "restore_swap_activity_done": "Swap actividad oñemoĩjey.",
     "wallets": "Viru ryrukuéra",
     "swipe_balance_hide": "Emokañy",
     "swipe_balance_show": "Ehechauka",

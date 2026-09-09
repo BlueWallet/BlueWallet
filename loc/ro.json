@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Data și ora",
     "wasnt_paid_and_expired": "Această factură nu a fost plătită și a expirat.",
-    "receiving_payment": "Se primește plata…",
-    "refund_funds": "Rambursează fondurile",
-    "refund_deferred": "Fondurile nu pot fi rambursate încă. Încearcă din nou după expirarea blocării temporale (timelock) a swapului.",
-    "notification_action_title": "Acțiune necesară",
-    "notification_claim_body": "{walletLabel}: atinge pentru a revendica plata Lightning primită.",
-    "notification_refund_body": "{walletLabel}: atinge pentru a rambursa plata Lightning blocată."
+    "receiving_payment": "Se primește plata…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Creează Spațiu de Stocare Criptat",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Arată adresele",
     "details_stats_coins": "Monede",
     "details_title": "Portofel",
-    "restore_swap_activity": "Restaurează activitatea swap",
-    "restore_swap_activity_done": "Activitatea swap a fost restaurată.",
     "wallets": "Portofele",
     "swipe_balance_hide": "Ascunde",
     "swipe_balance_show": "Afișează",

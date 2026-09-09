@@ -53,15 +53,31 @@ describe('arkade realm adapter', () => {
     assert.strictEqual(Realm.open.mock.calls.length, 1);
   });
 
-  it('opens encrypted Realm with Ark + Boltz schemas', async () => {
+  it('opens encrypted Realm with Ark + asset-swap schemas (Boltz gone)', async () => {
     await getArkadeRealm('ns');
 
     const config = Realm.open.mock.calls[0][0];
     assert.ok(Array.isArray(config.schema), 'schema is array');
     assert.ok(config.schema.length > 0, 'schema is non-empty');
+    for (const name of [
+      'ArkadeAssetSwap',
+      'ArkadeAssetSwapScannedTxid',
+      'ArkadeAssetSwapMarketsCache',
+      'ArkadeRfqSwap',
+      'ArkadeSwapRecord',
+    ]) {
+      assert.ok(
+        config.schema.some((s: any) => s.name === name),
+        `has ${name} schema`,
+      );
+    }
     assert.ok(
-      config.schema.some((s: any) => s.name === 'BoltzSwap'),
-      'has BoltzSwap schema',
+      config.schema.every((s: any) => s.name !== 'BoltzSwap'),
+      'BoltzSwap is gone forever — not registered',
+    );
+    assert.ok(
+      config.schema.every((s: any) => s.name !== 'ArkSwapNotificationSuppression'),
+      'suppression schema is gone with its subject',
     );
     assert.ok(
       config.schema.some((s: any) => s.name === 'ArkVtxo'),
@@ -72,6 +88,24 @@ describe('arkade realm adapter', () => {
     assert.strictEqual(config.encryptionKey.length, 64, 'encryption key is 64 bytes');
     assert.strictEqual(config.excludeFromIcloudBackup, true);
     assert.ok(typeof config.onMigration === 'function', 'onMigration is a function');
+  });
+
+  it('migration drops the Boltz and suppression models via deleteModel', async () => {
+    await getArkadeRealm('ns-migration');
+
+    const config = Realm.open.mock.calls[0][0];
+    const deleted: string[] = [];
+    config.onMigration(
+      {},
+      {
+        objects: () => [],
+        deleteModel: (name: string) => {
+          deleted.push(name);
+        },
+      },
+    );
+    assert.ok(deleted.includes('BoltzSwap'), 'drops BoltzSwap');
+    assert.ok(deleted.includes('ArkSwapNotificationSuppression'), 'drops suppression table');
   });
 
   it('persists Realm encryption key per namespace and reuses it on reopen', async () => {

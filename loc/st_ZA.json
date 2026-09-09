@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Letsatsi le Nako",
     "wasnt_paid_and_expired": "Invoisi ena ha e a ka ya lefuwa mme e felile.",
-    "receiving_payment": "Ho amohela tefo…",
-    "refund_funds": "Busetsa tjhelete",
-    "refund_deferred": "Tjhelete ha e so kgone ho busetswa. Leka hape ka mor'a hore timelock ya swap e fele.",
-    "notification_action_title": "Ho hlokahala ketso",
-    "notification_claim_body": "{walletLabel}: tobetsa ho amohela tefo ya hao e kenang ya Lightning.",
-    "notification_refund_body": "{walletLabel}: tobetsa ho busetsa tefo ya hao e thibaneng ya Lightning."
+    "receiving_payment": "Ho amohela tefo…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Etsa Polokelo e Patilweng",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Bontsha diaterese",
     "details_stats_coins": "Dikhoine",
     "details_title": "Sepache",
-    "restore_swap_activity": "Tsosolosa mosebetsi wa swap",
-    "restore_swap_activity_done": "Mosebetsi wa swap o tsosolositswe.",
     "wallets": "Dipache",
     "swipe_balance_hide": "Pata",
     "swipe_balance_show": "Bontsha",

@@ -78,12 +78,7 @@
     "sats": "ಸ್ಯಾಟ್‌ಗಳು.",
     "date_time": "ದಿನಾಂಕ ಮತ್ತು ಸಮಯ",
     "wasnt_paid_and_expired": "ಈ ಸರಕುಪಟ್ಟಿ ಪಾವತಿಸಲಾಗಿಲ್ಲ ಮತ್ತು ಅವಧಿ ಮುಗಿದಿದೆ.",
-    "receiving_payment": "ಪಾವತಿಯನ್ನು ಸ್ವೀಕರಿಸಲಾಗುತ್ತಿದೆ…",
-    "refund_funds": "ಹಣವನ್ನು ಮರುಪಾವತಿಸಿ",
-    "refund_deferred": "ಹಣವನ್ನು ಇನ್ನೂ ಮರುಪಾವತಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ. ಸ್ವಾಪ್ ಟೈಮ್‌ಲಾಕ್ ಅವಧಿ ಮುಗಿದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
-    "notification_action_title": "ಕ್ರಮ ಅಗತ್ಯವಿದೆ",
-    "notification_claim_body": "{walletLabel}: ನಿಮ್ಮ ಒಳಬರುವ Lightning ಪಾವತಿಯನ್ನು ಸ್ವೀಕರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ.",
-    "notification_refund_body": "{walletLabel}: ನಿಮ್ಮ ಸಿಲುಕಿಕೊಂಡ Lightning ಪಾವತಿಯನ್ನು ಮರುಪಾವತಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ."
+    "receiving_payment": "ಪಾವತಿಯನ್ನು ಸ್ವೀಕರಿಸಲಾಗುತ್ತಿದೆ…"
   },
   "plausibledeniability": {
     "create_fake_storage": "ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ಸಂಗ್ರಹಣೆ ರಚಿಸಿ",
@@ -445,8 +440,6 @@
     "details_show_addresses": "ವಿಳಾಸಗಳನ್ನು ತೋರಿಸಿ",
     "details_stats_coins": "ಕಾಯಿನ್‌ಗಳು",
     "details_title": "ವ್ಯಾಲೆಟ್",
-    "restore_swap_activity": "ಸ್ವಾಪ್ ಚಟುವಟಿಕೆಯನ್ನು ಪುನರುದ್ಧರಿಸಿ",
-    "restore_swap_activity_done": "ಸ್ವಾಪ್ ಚಟುವಟಿಕೆ ಪುನರುದ್ಧಾರಗೊಂಡಿದೆ.",
     "wallets": "ವ್ಯಾಲೆಟ್‌ಗಳು",
     "swipe_balance_hide": "ಮರೆಮಾಡಿ",
     "swipe_balance_show": "ತೋರಿಸಿ",

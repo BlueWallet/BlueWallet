@@ -78,12 +78,7 @@
     "sats": "satoshi.",
     "date_time": "Data i czas",
     "wasnt_paid_and_expired": "Ta faktura nie została opłacona i przeterminowała się.",
-    "receiving_payment": "Otrzymywanie płatności…",
-    "refund_funds": "Zwróć środki",
-    "refund_deferred": "Środków nie można jeszcze odzyskać. Spróbuj ponownie po wygaśnięciu blokady czasowej swapa.",
-    "notification_action_title": "Wymagane działanie",
-    "notification_claim_body": "{walletLabel}: dotknij, aby odebrać przychodzącą płatność Lightning.",
-    "notification_refund_body": "{walletLabel}: dotknij, aby zwrócić zablokowaną płatność Lightning."
+    "receiving_payment": "Otrzymywanie płatności…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Utwórz zaszyfrowany magazyn danych",
@@ -451,8 +446,6 @@
     "details_show_addresses": "Pokaż adresy",
     "details_stats_coins": "Monety",
     "details_title": "Portfel",
-    "restore_swap_activity": "Przywróć aktywność swapów",
-    "restore_swap_activity_done": "Przywrócono aktywność swapów.",
     "wallets": "Portfele",
     "swipe_balance_hide": "Ukryj",
     "swipe_balance_show": "Pokaż",

@@ -78,12 +78,7 @@
     "sats": "sats",
     "date_time": "Datum och tid",
     "wasnt_paid_and_expired": "Denna faktura har ej betalats och är nu utgången",
-    "receiving_payment": "Tar emot betalning…",
-    "refund_funds": "Återbetala medel",
-    "refund_deferred": "Medlen kan inte återbetalas ännu. Försök igen efter att swappens timelock har gått ut.",
-    "notification_action_title": "Åtgärd krävs",
-    "notification_claim_body": "{walletLabel}: tryck för att hämta din inkommande Lightning-betalning.",
-    "notification_refund_body": "{walletLabel}: tryck för att återbetala din fastnade Lightning-betalning."
+    "receiving_payment": "Tar emot betalning…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Skapa fejkad lagringsyta",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Visa adresser",
     "details_stats_coins": "Mynt",
     "details_title": "Plånbok",
-    "restore_swap_activity": "Återställ swap-aktivitet",
-    "restore_swap_activity_done": "Swap-aktivitet återställd.",
     "wallets": "Plånböcker",
     "swipe_balance_hide": "Dölj",
     "swipe_balance_show": "Visa",

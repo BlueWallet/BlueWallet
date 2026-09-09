@@ -2018,29 +2018,6 @@ PODS:
   - ReactNativeDependencies (0.85.3)
   - RealmJS (20.2.0):
     - React
-  - RNBackgroundFetch (4.4.2):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-Core-prebuilt
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - TSBackgroundFetch (~> 4.1.0)
-    - Yoga
   - RNCAsyncStorage (2.2.0):
     - hermes-engine
     - RCTRequired
@@ -2489,7 +2466,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - TSBackgroundFetch (4.1.1)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2590,7 +2566,6 @@ DEPENDENCIES:
   - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit-no-google`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - RealmJS (from `../node_modules/realm`)
-  - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
@@ -2614,7 +2589,6 @@ SPEC REPOS:
   trunk:
     - CocoaAsyncSocket
     - lottie-ios
-    - TSBackgroundFetch
 
 EXTERNAL SOURCES:
   BugsnagReactNative:
@@ -2810,8 +2784,6 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
   RealmJS:
     :path: "../node_modules/realm"
-  RNBackgroundFetch:
-    :path: "../node_modules/react-native-background-fetch"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
@@ -2948,7 +2920,6 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: 6d499e0906dc8831d1014096ecf7c8fbe036890a
   ReactNativeDependencies: 0a5c93845772e4b1c5ad065c59a859518b13a6b7
   RealmJS: 4066e1880bf38995e96c78a1be19a97f6530488a
-  RNBackgroundFetch: 8e6a3286d7910a148116dc77df9dcad855ae1361
   RNCAsyncStorage: 0f84413588571e74ef9cff6e3b669346e3abf9cb
   RNCClipboard: c1cdf3cdd72df606520114f42e61c6898a488dd8
   RNDefaultPreference: a617d8598db8a9168a5a6d9017dd2b42f834cb6e
@@ -2966,7 +2937,6 @@ SPEC CHECKSUMS:
   RNShare: 61a266b44bfc54e17dedbc81202f5e67cda93674
   RNSVG: a37350c7bc37452fd2b209efa0806f1de0f847ae
   RNWorklets: 82a5f27dcf3bb69267ec6ce662a756a4d3f61522
-  TSBackgroundFetch: 18918b6449a1e3f01eb0f5b44d6d79ce6160a5a5
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
 
 PODFILE CHECKSUM: a6ebefd60fd3fd993430ecd1d3feb222ff502eb0

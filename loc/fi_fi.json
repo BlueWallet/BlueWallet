@@ -78,12 +78,7 @@
     "sats": "sattia",
     "date_time": "Päivämäärä ja aika",
     "wasnt_paid_and_expired": "Tätä laskua ei maksettu, ja se on vanhentunut.",
-    "receiving_payment": "Vastaanotetaan maksua…",
-    "refund_funds": "Palauta varat",
-    "refund_deferred": "Varoja ei voi vielä palauttaa. Yritä uudelleen, kun swapin aikalukko on vanhentunut.",
-    "notification_action_title": "Toimenpide vaaditaan",
-    "notification_claim_body": "{walletLabel}: napauta lunastaaksesi saapuvan Lightning-maksun.",
-    "notification_refund_body": "{walletLabel}: napauta palauttaaksesi jumiutuneen Lightning-maksun."
+    "receiving_payment": "Vastaanotetaan maksua…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Luo salattu tallennustila",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Näytä osoitteet",
     "details_stats_coins": "Kolikot",
     "details_title": "Lompakko",
-    "restore_swap_activity": "Palauta swap-toiminta",
-    "restore_swap_activity_done": "Swap-toiminta palautettu.",
     "wallets": "lompakot",
     "swipe_balance_hide": "Piilota",
     "swipe_balance_show": "Näytä",

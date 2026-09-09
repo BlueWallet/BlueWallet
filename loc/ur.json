@@ -78,12 +78,7 @@
     "sats": "ساتوشی۔",
     "date_time": "تاریخ اور وقت",
     "wasnt_paid_and_expired": "یہ انوائس ادا نہیں ہوئی اور اس کی میعاد ختم ہو گئی ہے۔",
-    "receiving_payment": "ادائیگی وصول ہو رہی ہے…",
-    "refund_funds": "فنڈز واپس کریں",
-    "refund_deferred": "فنڈز ابھی واپس نہیں ہو سکتے۔ سویپ ٹائم لاک کی میعاد ختم ہونے کے بعد دوبارہ کوشش کریں۔",
-    "notification_action_title": "کارروائی درکار ہے",
-    "notification_claim_body": "{walletLabel}: اپنی آنے والی Lightning ادائیگی حاصل کرنے کے لیے ٹیپ کریں۔",
-    "notification_refund_body": "{walletLabel}: اپنی پھنسی ہوئی Lightning ادائیگی واپس لینے کے لیے ٹیپ کریں۔"
+    "receiving_payment": "ادائیگی وصول ہو رہی ہے…"
   },
   "plausibledeniability": {
     "create_fake_storage": "خفیہ کردہ اسٹوریج بنائیں",
@@ -445,8 +440,6 @@
     "details_show_addresses": "پتے دکھائیں",
     "details_stats_coins": "کوائنز",
     "details_title": "والٹ",
-    "restore_swap_activity": "سویپ سرگرمی بحال کریں",
-    "restore_swap_activity_done": "سویپ سرگرمی بحال ہو گئی۔",
     "wallets": "والٹس",
     "swipe_balance_hide": "چھپائیں",
     "swipe_balance_show": "دکھائیں",

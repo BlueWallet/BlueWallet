@@ -78,12 +78,7 @@
     "sats": "sat.",
     "date_time": "Tarih ve saat",
     "wasnt_paid_and_expired": "Bu fatura ödenmeden zaman aşımına uğradı.",
-    "receiving_payment": "Ödeme alınıyor…",
-    "refund_funds": "Parayı iade et",
-    "refund_deferred": "Para henüz iade edilemez. Takas zaman kilidinin süresi dolduktan sonra tekrar deneyin.",
-    "notification_action_title": "İşlem gerekli",
-    "notification_claim_body": "{walletLabel}: gelen Lightning ödemenizi almak için dokunun.",
-    "notification_refund_body": "{walletLabel}: takılan Lightning ödemenizi iade etmek için dokunun."
+    "receiving_payment": "Ödeme alınıyor…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Sahte şifreli depolama oluşturun",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Adresleri göster",
     "details_stats_coins": "Coinler",
     "details_title": "Cüzdan",
-    "restore_swap_activity": "Takas etkinliğini geri yükle",
-    "restore_swap_activity_done": "Takas etkinliği geri yüklendi.",
     "wallets": "cüzdanlar",
     "swipe_balance_hide": "Gizle",
     "swipe_balance_show": "Göster",

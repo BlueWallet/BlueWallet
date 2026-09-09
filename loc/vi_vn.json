@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Ngày và giờ",
     "wasnt_paid_and_expired": "Hoá đơn này chưa được thanh toán và đã hết hạn. ",
-    "receiving_payment": "Đang nhận khoản thanh toán…",
-    "refund_funds": "Hoàn tiền",
-    "refund_deferred": "Chưa thể hoàn tiền. Hãy thử lại sau khi timelock của swap hết hạn.",
-    "notification_action_title": "Cần thực hiện hành động",
-    "notification_claim_body": "{walletLabel}: chạm để nhận khoản thanh toán Lightning đến của bạn.",
-    "notification_refund_body": "{walletLabel}: chạm để hoàn khoản thanh toán Lightning bị kẹt của bạn."
+    "receiving_payment": "Đang nhận khoản thanh toán…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Tạo lưu trữ được mã hoá",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Hiển thị các địa chỉ",
     "details_stats_coins": "Coin",
     "details_title": "Ví",
-    "restore_swap_activity": "Khôi phục hoạt động swap",
-    "restore_swap_activity_done": "Đã khôi phục hoạt động swap.",
     "wallets": "Các ví",
     "swipe_balance_hide": "Ẩn",
     "swipe_balance_show": "Hiển thị",

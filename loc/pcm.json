@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Date and time wey",
     "wasnt_paid_and_expired": "You nor quick pay this invoice and e don kalas",
-    "receiving_payment": "Dey receive payment…",
-    "refund_funds": "Refund money",
-    "refund_deferred": "You no fit get your money back yet. Try am again after the swap timelock don expire.",
-    "notification_action_title": "Action dey needed",
-    "notification_claim_body": "{walletLabel}: tap to collect your Lightning payment wey dey come.",
-    "notification_refund_body": "{walletLabel}: tap to refund your Lightning payment wey stuck."
+    "receiving_payment": "Dey receive payment…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Make we create Encrypted Storage",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Show the addresses",
     "details_stats_coins": "Coins",
     "details_title": "Wallet wey",
-    "restore_swap_activity": "Restore swap activity",
-    "restore_swap_activity_done": "Swap activity don restore.",
     "wallets": "Wallets wey you get",
     "swipe_balance_hide": "Hide am",
     "swipe_balance_show": "Show am",

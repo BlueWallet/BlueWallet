@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Dagfesting og tíð",
     "wasnt_paid_and_expired": "Gjaldsumbønin er ógoldin og fyrnað.",
-    "receiving_payment": "Móttekur gjald…",
-    "refund_funds": "Endurrinda pening",
-    "refund_deferred": "Peningurin kann ikki endurrindast enn. Royn aftur eftir at tíðarlásið á umbýtinum er útgingið.",
-    "notification_action_title": "Atgerð neyðug",
-    "notification_claim_body": "{walletLabel}: trýst fyri at taka ímóti tínum Lightning inngjaldi.",
-    "notification_refund_body": "{walletLabel}: trýst fyri at endurrinda títt uppsteðgaða Lightning gjald."
+    "receiving_payment": "Móttekur gjald…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Ger bronglaða goymslu",
@@ -456,8 +451,6 @@
     "details_show_addresses": "Vís adressur",
     "details_stats_coins": "Myntir",
     "details_title": "Mappa",
-    "restore_swap_activity": "Endurinnles býtisvirksemi",
-    "restore_swap_activity_done": "Býtisvirksemi er endurinnlisið.",
     "wallets": "Mappur",
     "swipe_balance_hide": "Fjal",
     "swipe_balance_show": "Vís",

@@ -78,12 +78,7 @@
     "sats": "satoshi",
     "date_time": "Dátum és idő",
     "wasnt_paid_and_expired": "Ezt a számlát nem fizették ki és lejárt",
-    "receiving_payment": "Fizetés fogadása…",
-    "refund_funds": "Összeg visszatérítése",
-    "refund_deferred": "Az összeg még nem téríthető vissza. Próbálja újra a swap időzárjának (timelock) lejárta után.",
-    "notification_action_title": "Teendő szükséges",
-    "notification_claim_body": "{walletLabel}: koppintson a bejövő Lightning fizetés igényléséhez.",
-    "notification_refund_body": "{walletLabel}: koppintson az elakadt Lightning fizetés visszatérítéséhez."
+    "receiving_payment": "Fizetés fogadása…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Hamis tárhely létrehozása",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Cím mutatása",
     "details_stats_coins": "Érmék",
     "details_title": "Tárca",
-    "restore_swap_activity": "Swap-tevékenység visszaállítása",
-    "restore_swap_activity_done": "A swap-tevékenység visszaállítva.",
     "wallets": "Tárcák",
     "swipe_balance_hide": "Elrejtés",
     "swipe_balance_show": "Mutatás",

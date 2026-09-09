@@ -78,12 +78,7 @@
     "sats": "sats",
     "date_time": "Date et Heure",
     "wasnt_paid_and_expired": "Cette requête n'a pas été réglée et a expiré",
-    "receiving_payment": "Réception du paiement…",
-    "refund_funds": "Rembourser les fonds",
-    "refund_deferred": "Les fonds ne sont pas encore remboursables. Réessayez après l'expiration du timelock du swap.",
-    "notification_action_title": "Action requise",
-    "notification_claim_body": "{walletLabel} : appuyez pour récupérer votre paiement Lightning entrant.",
-    "notification_refund_body": "{walletLabel} : appuyez pour rembourser votre paiement Lightning bloqué."
+    "receiving_payment": "Réception du paiement…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Créer un faux espace de stockage chiffré",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Montrer les adresses",
     "details_stats_coins": "Pièces",
     "details_title": "Portefeuille",
-    "restore_swap_activity": "Restaurer l'activité des swaps",
-    "restore_swap_activity_done": "Activité des swaps restaurée.",
     "wallets": "Portefeuilles",
     "swipe_balance_hide": "Cacher",
     "swipe_balance_show": "Montrer",

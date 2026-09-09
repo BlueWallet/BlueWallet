@@ -78,12 +78,7 @@
     "sats": "স্যাটস।",
     "date_time": "তারিখ ও সময়",
     "wasnt_paid_and_expired": "এই ইনভয়েসটি পরিশোধ করা হয়নি এবং এর মেয়াদ উত্তীর্ণ হয়েছে।",
-    "receiving_payment": "পেমেন্ট গ্রহণ করা হচ্ছে…",
-    "refund_funds": "তহবিল ফেরত দিন",
-    "refund_deferred": "তহবিল এখনও ফেরতযোগ্য নয়। সোয়াপ টাইমলকের মেয়াদ শেষ হওয়ার পর আবার চেষ্টা করুন।",
-    "notification_action_title": "পদক্ষেপ প্রয়োজন",
-    "notification_claim_body": "{walletLabel}: আপনার আগত Lightning পেমেন্ট দাবি করতে ট্যাপ করুন।",
-    "notification_refund_body": "{walletLabel}: আপনার আটকে থাকা Lightning পেমেন্ট ফেরত পেতে ট্যাপ করুন।"
+    "receiving_payment": "পেমেন্ট গ্রহণ করা হচ্ছে…"
   },
   "plausibledeniability": {
     "create_fake_storage": "এনক্রিপ্ট করা স্টোরেজ তৈরি করুন",
@@ -445,8 +440,6 @@
     "details_show_addresses": "ঠিকানা দেখান",
     "details_stats_coins": "কয়েন",
     "details_title": "ওয়ালেট",
-    "restore_swap_activity": "সোয়াপ কার্যকলাপ পুনরুদ্ধার করুন",
-    "restore_swap_activity_done": "সোয়াপ কার্যকলাপ পুনরুদ্ধার করা হয়েছে।",
     "wallets": "ওয়ালেট",
     "swipe_balance_hide": "লুকান",
     "swipe_balance_show": "দেখান",

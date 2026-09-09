@@ -78,12 +78,7 @@
     "sats": "sats.",
     "date_time": "Дата і час",
     "wasnt_paid_and_expired": "Гэты інвойс ня быў аплачаны, і тэрмін яго дзеяньня скончыўся.",
-    "receiving_payment": "Атрыманьне плацяжу…",
-    "refund_funds": "Вярнуць сродкі",
-    "refund_deferred": "Сродкі пакуль нельга вярнуць. Паспрабуйце зноў пасьля сканчэньня часавай блакіроўкі swap.",
-    "notification_action_title": "Патрэбна дзеяньне",
-    "notification_claim_body": "{walletLabel}: націсьніце, каб атрымаць ваш уваходны плацёж Lightning.",
-    "notification_refund_body": "{walletLabel}: націсьніце, каб вярнуць ваш завіслы плацёж Lightning."
+    "receiving_payment": "Атрыманьне плацяжу…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Стварыць зашыфраванае сховішча",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Паказаць адрасы",
     "details_stats_coins": "Манэты",
     "details_title": "Кашалёк",
-    "restore_swap_activity": "Аднавіць актыўнасьць swap",
-    "restore_swap_activity_done": "Актыўнасьць swap адноўлена.",
     "wallets": "Кашалькі",
     "swipe_balance_hide": "Схаваць",
     "swipe_balance_show": "Паказаць",

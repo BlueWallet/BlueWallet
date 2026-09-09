@@ -78,12 +78,7 @@
     "sats": "sats",
     "date_time": "Dátum a čas",
     "wasnt_paid_and_expired": "Táto faktúra nebola zaplatená a jej platnosť uplynula.",
-    "receiving_payment": "Prijímanie platby…",
-    "refund_funds": "Vrátiť prostriedky",
-    "refund_deferred": "Prostriedky zatiaľ nie je možné vrátiť. Skúste to znova po vypršaní časového zámku (timelock) swapu.",
-    "notification_action_title": "Vyžaduje sa akcia",
-    "notification_claim_body": "{walletLabel}: klepnutím vyzdvihnite prichádzajúcu platbu Lightning.",
-    "notification_refund_body": "{walletLabel}: klepnutím vráťte svoju zaseknutú platbu Lightning."
+    "receiving_payment": "Prijímanie platby…"
   },
   "plausibledeniability": {
     "create_fake_storage": "Vytvoriť falošné zašifrované úložisko",
@@ -445,8 +440,6 @@
     "details_show_addresses": "Zobraziť adresy",
     "details_stats_coins": "Mince",
     "details_title": "Peňaženka",
-    "restore_swap_activity": "Obnoviť aktivitu swapov",
-    "restore_swap_activity_done": "Aktivita swapov obnovená.",
     "wallets": "peňaženky",
     "swipe_balance_hide": "Skryť",
     "swipe_balance_show": "Zobraziť",

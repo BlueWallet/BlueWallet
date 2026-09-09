@@ -26,6 +26,8 @@ import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import type { Quote } from '@arkade-os/swap';
+import dayjs from 'dayjs';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
@@ -51,6 +53,11 @@ const ScanLNDInvoice = () => {
   const [isAmountInitiallyEmpty, setIsAmountInitiallyEmpty] = useState<boolean | undefined>();
   const [expiresIn, setExpiresIn] = useState<string | undefined>();
   const [arkFeesReady, setArkFeesReady] = useState<boolean>(false);
+  // Confirm step (Ark only): the first Pay tap quotes, the second accepts
+  // THAT object. A held Quote binds one invoice, one wallet and a deadline —
+  // wallet switches and destination changes must drop it (see onWalletSelect,
+  // onChangeText, onBlur and the uri effect below).
+  const [heldQuote, setHeldQuote] = useState<Quote | null>(null);
   const stylesHook = StyleSheet.create({
     walletWrapLabel: {
       color: colors.buttonAlternativeTextColor,
@@ -78,6 +85,7 @@ const ScanLNDInvoice = () => {
       const newWallet = wallets.find(w => w.getID() === walletID) as LightningCustodianWallet;
       if (newWallet) {
         setWallet(newWallet);
+        setHeldQuote(null);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,6 +126,7 @@ const ScanLNDInvoice = () => {
 
   useEffect(() => {
     if (wallet && uri) {
+      setHeldQuote(null);
       if (Lnurl.isLnurl(uri)) return processLnurlPay(uri);
       if (Lnurl.isLightningAddress(uri)) return processLnurlPay(uri);
 
@@ -229,6 +238,25 @@ const ScanLNDInvoice = () => {
         amountSats = btcToSatoshi(fiatToBTC(Number(amount)));
         break;
     }
+
+    // Ark confirm step: quote first, accept the held object on the second
+    // tap. The fee line above is an estimate off the card; the confirm block
+    // shows the exact fee from the real quote.
+    if (wallet instanceof LightningArkWallet && !heldQuote && !wallet.isAddressValid(destination)) {
+      setIsLoading(true);
+      try {
+        const quote = await wallet.quoteInvoice(destination);
+        setHeldQuote(quote);
+      } catch (Err: any) {
+        console.log(Err.message);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: Err.message });
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
     setIsLoading(true);
 
     const expiryTimeMs = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
@@ -246,7 +274,25 @@ const ScanLNDInvoice = () => {
     }
 
     try {
-      await wallet.payInvoice(destination, amountSats);
+      if (wallet instanceof LightningArkWallet && heldQuote && !wallet.isAddressValid(destination)) {
+        // Accept exactly the confirmed object — never a re-quote. Past
+        // `quote.expiresAt` the client throws `QuoteExpired`: expiry is a UI
+        // state (drop and re-quote), not an error to alert on as failure.
+        try {
+          await wallet.payQuotedInvoice(heldQuote);
+        } catch (Err: any) {
+          if (Err?.name === 'QuoteExpired' || /expired/i.test(Err?.message ?? '')) {
+            setHeldQuote(null);
+            setIsLoading(false);
+            triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+            return presentAlert({ message: loc.lnd.quoteExpired });
+          }
+          throw Err;
+        }
+        setHeldQuote(null);
+      } else {
+        await wallet.payInvoice(destination, amountSats);
+      }
     } catch (Err: any) {
       console.log(Err.message);
       setIsLoading(false);
@@ -340,11 +386,13 @@ const ScanLNDInvoice = () => {
   };
 
   const onBlur = (): void => {
+    setHeldQuote(null);
     processTextForInvoice(destination);
   };
 
   const onWalletSelect = (selectedWallet: TWallet): void => {
     setParams({ walletID: selectedWallet.getID() });
+    setHeldQuote(null);
     pop();
   };
 
@@ -370,6 +418,7 @@ const ScanLNDInvoice = () => {
   const onChangeText = (text: string): void => {
     const trimmedText = text.trim();
     setDestination(trimmedText);
+    setHeldQuote(null);
     processTextForInvoice(trimmedText);
   };
 
@@ -386,6 +435,11 @@ const ScanLNDInvoice = () => {
   // under a definite label ("Network fee"), not a "potential" bracket. Custodial
   // keeps the legacy "Potential fee" label + range.
   const feeLabel = wallet instanceof LightningArkWallet ? loc.lnd.network_fee : loc.lnd.potentialFee;
+
+  const showConfirm = wallet instanceof LightningArkWallet && heldQuote !== null;
+  const quoteFeeSats = heldQuote ? Number(heldQuote.fee?.amount ?? 0n) : 0;
+  const quoteTotalSats = heldQuote ? Number((heldQuote.give as { amount?: bigint })?.amount ?? 0n) : 0;
+  const quoteExpiry = heldQuote ? dayjs(heldQuote.expiresAt * 1000).format('LLL') : '';
 
   return (
     <SafeArea style={stylesHook.root}>
@@ -440,7 +494,23 @@ const ScanLNDInvoice = () => {
                 </View>
               ) : (
                 <View>
-                  <Button title={loc.lnd.payButton} onPress={pay} disabled={shouldDisablePayButton()} />
+                  {showConfirm && (
+                    <View>
+                      <Text style={stylesHook.expiresIn}>
+                        {loc.formatString(loc.lnd.quoteFee, { fee: `${quoteFeeSats} ${BitcoinUnit.SATS}` })}
+                      </Text>
+                      <Text style={stylesHook.expiresIn}>
+                        {loc.formatString(loc.lnd.quoteTotal, { total: `${quoteTotalSats} ${BitcoinUnit.SATS}` })}
+                      </Text>
+                      <Text style={stylesHook.expiresIn}>{loc.formatString(loc.lnd.quoteExpires, { time: quoteExpiry })}</Text>
+                    </View>
+                  )}
+                  <Button
+                    title={showConfirm ? loc.lnd.confirmPayment : loc.lnd.payButton}
+                    onPress={pay}
+                    disabled={shouldDisablePayButton()}
+                  />
+                  {showConfirm && <Button title={loc._.cancel} onPress={() => setHeldQuote(null)} disabled={shouldDisablePayButton()} />}
                 </View>
               )}
             </BlueCard>

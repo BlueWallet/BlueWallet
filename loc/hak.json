@@ -78,12 +78,7 @@
     "sats": "聰。",
     "date_time": "日期摎時間",
     "wasnt_paid_and_expired": "這張發票吂有人支付，已經過期咧。",
-    "receiving_payment": "正在收款…",
-    "refund_funds": "退還資金",
-    "refund_deferred": "資金還做毋得退還。等 swap 時間鎖過期以後再試。",
-    "notification_action_title": "需要動作",
-    "notification_claim_body": "{walletLabel}：撳一下來領取你進來个 Lightning 支付。",
-    "notification_refund_body": "{walletLabel}：撳一下來退還你卡等个 Lightning 支付。"
+    "receiving_payment": "正在收款…"
   },
   "plausibledeniability": {
     "create_fake_storage": "建立加密儲存空間",
@@ -445,8 +440,6 @@
     "details_show_addresses": "顯示地址",
     "details_stats_coins": "比特幣",
     "details_title": "錢包",
-    "restore_swap_activity": "還原 swap 活動",
-    "restore_swap_activity_done": "swap 活動已還原。",
     "wallets": "錢包",
     "swipe_balance_hide": "囥起",
     "swipe_balance_show": "顯示",

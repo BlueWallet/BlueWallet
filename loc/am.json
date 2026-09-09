@@ -78,12 +78,7 @@
     "sats": "ሳት።",
     "date_time": "ቀን እና ሰዓት",
     "wasnt_paid_and_expired": "ይህ ደረሰኝ አልተከፈለም እና ጊዜው አልፏል።",
-    "receiving_payment": "ክፍያ በመቀበል ላይ…",
-    "refund_funds": "ገንዘብ መልስ",
-    "refund_deferred": "ገንዘቡ ገና ሊመለስ አይችልም። የስዋፕ ጊዜ-ቆልፉ ካለፈ በኋላ እንደገና ይሞክሩ።",
-    "notification_action_title": "እርምጃ ያስፈልጋል",
-    "notification_claim_body": "{walletLabel}፡ የሚገባዎትን Lightning ክፍያ ለመጠየቅ ይንኩ።",
-    "notification_refund_body": "{walletLabel}፡ የተጣበቀውን Lightning ክፍያዎን ለማስመለስ ይንኩ።"
+    "receiving_payment": "ክፍያ በመቀበል ላይ…"
   },
   "plausibledeniability": {
     "create_fake_storage": "የተመሰጠረ ማከማቻ ፍጠር",
@@ -445,8 +440,6 @@
     "details_show_addresses": "አድራሻዎችን አሳይ",
     "details_stats_coins": "ኮይኖች",
     "details_title": "ቦርሳ",
-    "restore_swap_activity": "የስዋፕ እንቅስቃሴ መልስ",
-    "restore_swap_activity_done": "የስዋፕ እንቅስቃሴ ተመልሷል።",
     "wallets": "ቦርሳዎች",
     "swipe_balance_hide": "ደብቅ",
     "swipe_balance_show": "አሳይ",

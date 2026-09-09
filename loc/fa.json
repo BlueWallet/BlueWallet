@@ -78,12 +78,7 @@
     "sats": "ساتوشی بپردازید.",
     "date_time": "تاریخ و زمان",
     "wasnt_paid_and_expired": "این صورت‌حساب پرداخت نشده و منقضی شده است.",
-    "receiving_payment": "در حال دریافت پرداخت…",
-    "refund_funds": "بازپرداخت وجوه",
-    "refund_deferred": "وجوه هنوز قابل بازپرداخت نیستند. پس از انقضای قفل‌زمانی (timelock) سواپ دوباره تلاش کنید.",
-    "notification_action_title": "نیاز به اقدام",
-    "notification_claim_body": "{walletLabel}: برای دریافت پرداخت ورودی Lightning ضربه بزنید.",
-    "notification_refund_body": "{walletLabel}: برای بازپرداخت پرداخت گیرکردهٔ Lightning ضربه بزنید."
+    "receiving_payment": "در حال دریافت پرداخت…"
   },
   "plausibledeniability": {
     "create_fake_storage": "ایجاد فضای ذخیره‌سازی رمزگذاری‌شده",
@@ -445,8 +440,6 @@
     "details_show_addresses": "نمایش آدرس‌ها",
     "details_stats_coins": "کوین‌ها",
     "details_title": "کیف پول",
-    "restore_swap_activity": "بازیابی فعالیت سواپ",
-    "restore_swap_activity_done": "فعالیت سواپ بازیابی شد.",
     "wallets": "کیف پول‌ها",
     "swipe_balance_hide": "پنهان‌کردن",
     "swipe_balance_show": "نمایش",
