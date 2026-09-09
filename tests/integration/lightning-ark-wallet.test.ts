@@ -14,10 +14,8 @@ import { installSdkBackgroundLoopStubs, restoreSdkBackgroundLoopStubs } from '..
 
 jest.setTimeout(30_000);
 
-// Muted until Lightning is migrated to Arkade intents (Boltz swap API is failing).
-// https://docs.arkadeos.com/intents/integrate/lightning
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip('LightningArkWallet (integration)', () => {
+// This migration is that event: the suite runs un-skipped (env-gated).
+describe('LightningArkWallet (integration)', () => {
   const w = new LightningArkWallet();
 
   beforeAll(async () => {
@@ -30,7 +28,9 @@ describe.skip('LightningArkWallet (integration)', () => {
     }
     w.setSecret('arkade://' + process.env.HD_MNEMONIC_OLD);
     await w.init();
-    await w.restoreSwaps();
+    // Corridor records restore from the local repository only — `await
+    // client.ready` inside init() already ran the restore read. No
+    // server-side swap refetch exists.
   });
 
   afterAll(async () => {
@@ -97,34 +97,31 @@ describe.skip('LightningArkWallet (integration)', () => {
     assert.ok(receiveTx.timestamp! > 0);
     assert.ok(receiveTx.memo);
 
-    const swapHistory: any[] = (w as any)._swapHistory ?? [];
-    const settledReverse = swapHistory.find(s => s.type === 'reverse' && s.status === 'invoice.settled');
-    if (settledReverse) {
-      // When Boltz reverse-swap history is restored, settled receives are enriched in place.
+    const swapViews: any[] = w.getSwapViews();
+    const settledReceive = swapViews.find(s => s.direction > 0 && ['paid', 'claimed', 'filled'].includes(s.outcome));
+    if (settledReceive) {
+      // When v2 receive history is restored, settled receives read paid.
       assert.strictEqual(receiveTx.ispaid, true);
       assert.ok(receiveTx.payment_hash);
       assert.ok(receiveTx.payment_request);
-      assert.ok(receiveTx.payment_preimage);
-      assert.notStrictEqual(receiveTx.memo, 'Received');
 
-      const ownInvoice = settledReverse.request?.invoice || settledReverse.response?.invoice;
+      const ownInvoice = settledReceive.bolt11;
       if (ownInvoice) {
         assert.ok(w.isInvoiceGeneratedByWallet(ownInvoice));
       }
     }
 
-    const settledSubmarine = swapHistory.find(s => s.type === 'submarine' && s.status === 'transaction.claimed');
-    if (settledSubmarine) {
+    const settledSend = swapViews.find(s => s.direction < 0 && ['paid', 'claimed', 'filled'].includes(s.outcome));
+    if (settledSend) {
       const sendTx = txs.find(t => t.value! < 0);
-      assert.ok(sendTx, 'Should have a send transaction when submarine swap history exists');
+      assert.ok(sendTx, 'Should have a send transaction when settled send history exists');
       assert.strictEqual(sendTx.ispaid, true);
       assert.ok(sendTx.payment_hash);
       assert.ok(sendTx.payment_request);
-      assert.ok(sendTx.payment_preimage);
     }
 
     const invoices = await w.getUserInvoices();
-    if (settledReverse) {
+    if (settledReceive) {
       assert.ok(invoices.length > 0);
       assert(invoices[0].value! > 0);
       assert(invoices[0].ispaid);

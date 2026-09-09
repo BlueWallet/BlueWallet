@@ -67,34 +67,6 @@ jest.mock('react-native-notifications', () => {
   return {};
 });
 
-jest.mock('react-native-background-fetch', () => {
-  // The real module instantiates `new NativeEventEmitter(...)` at module
-  // load, which throws under jest because the underlying native module is
-  // null. Test files that don't drive scheduler behavior (i.e. anything
-  // that transitively imports `blue_modules/arkade-background`) just need a
-  // safe default. Tests that exercise registration/run paths jest.mock this
-  // module locally with their own factory.
-  const noop = jest.fn();
-  const noopAsync = jest.fn().mockResolvedValue(undefined);
-  const stub = {
-    configure: noopAsync,
-    start: noopAsync,
-    stop: jest.fn().mockResolvedValue(true),
-    finish: noop,
-    scheduleTask: noopAsync,
-    registerHeadlessTask: noop,
-    STATUS_RESTRICTED: 0,
-    STATUS_DENIED: 1,
-    STATUS_AVAILABLE: 2,
-    NETWORK_TYPE_NONE: 0,
-    NETWORK_TYPE_ANY: 1,
-    NETWORK_TYPE_CELLULAR: 2,
-    NETWORK_TYPE_UNMETERED: 3,
-    NETWORK_TYPE_NOT_ROAMING: 4,
-  };
-  return { __esModule: true, default: stub, ...stub };
-});
-
 jest.mock('react-native-permissions', () => require('react-native-permissions/mock'));
 
 jest.mock('react-native-device-info', () => {
@@ -286,8 +258,11 @@ jest.mock('realm', () => {
     ArkUtxo: 'pk',
     ArkTransaction: 'pk',
     ArkWalletState: 'key',
-    BoltzSwap: 'id',
-    ArkSwapNotificationSuppression: 'id',
+    ArkadeAssetSwap: 'id',
+    ArkadeAssetSwapScannedTxid: 'txid',
+    ArkadeAssetSwapMarketsCache: 'key',
+    ArkadeRfqSwap: 'rfqId',
+    ArkadeSwapRecord: 'id',
   };
 
   // Split a query string at a top-level separator (i.e. not inside parens/braces).
@@ -335,7 +310,7 @@ jest.mock('realm', () => {
     // OR: any sub-expression must match
     const orParts = splitTop(expr, ' OR ');
     if (orParts.length > 1) return orParts.some(p => evalExpr(obj, p, args));
-    // IN {$0, $1, ...} — used by BoltzSwap repository
+    // IN {$0, $1, ...} — generic set-membership queries
     const inMatch = expr.match(/^(\w+)\s+IN\s+\{([^}]*)\}$/i);
     if (inMatch) {
       const field = inMatch[1];
@@ -508,17 +483,6 @@ jest.mock('../blue_modules/analytics', () => {
   const ret = jest.fn();
   ret.ENUM = { CREATED_WALLET: '' };
   return ret;
-});
-
-// addInvoice() registers a fire-and-forget payment-push callback; disable the
-// URI in unit tests so node-fetch does not leave in-flight handles after the
-// suite exits (which makes Jest fail with "did not exit one second after").
-jest.mock('../blue_modules/constants', () => {
-  const actual = jest.requireActual('../blue_modules/constants');
-  return {
-    ...actual,
-    arkadePaymentPushUri: '',
-  };
 });
 
 jest.mock('react-native-share', () => {

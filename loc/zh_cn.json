@@ -77,12 +77,7 @@
     "sats": "聪",
     "date_time": "日期与时间",
     "wasnt_paid_and_expired": "该发票未支付，已过期。",
-    "receiving_payment": "正在接收付款……",
-    "refund_funds": "退还资金",
-    "refund_deferred": "资金暂时无法退还。请在兑换时间锁到期后再试。",
-    "notification_action_title": "需要操作",
-    "notification_claim_body": "{walletLabel}：点击以领取您接收到的闪电网络付款。",
-    "notification_refund_body": "{walletLabel}：点击以退还您卡住的闪电网络付款。"
+    "receiving_payment": "正在接收付款……"
   },
   "plausibledeniability": {
     "create_fake_storage": "创建加密存储",
@@ -475,8 +470,6 @@
     "details_show_addresses": "显示地址",
     "details_stats_coins": "币",
     "details_title": "钱包",
-    "restore_swap_activity": "恢复兑换活动",
-    "restore_swap_activity_done": "兑换活动已恢复。",
     "wallets": "钱包",
     "swipe_balance_hide": "隐藏",
     "swipe_balance_show": "显示",

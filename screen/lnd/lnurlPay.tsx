@@ -20,6 +20,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { DismissKeyboardInputAccessory, DismissKeyboardInputAccessoryViewID } from '../../components/DismissKeyboardInputAccessory';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { TWallet } from '../../class/wallets/types';
 import { pop } from '../../NavigationService';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
@@ -45,6 +46,51 @@ const LnurlPay: React.FC = () => {
   const [payload, setPayload] = useState<any>();
   const { setParams, navigate } = useNavigation();
   const [amount, setAmount] = useState<string | undefined>();
+  const [arkFeesReady, setArkFeesReady] = useState<boolean>(false);
+  const isArkWallet = wallet instanceof LightningArkWallet;
+
+  // The one-shot `payInvoice` LNURL uses funds a quote nobody authorised on
+  // a confirm screen, so the screen carries the same fee line ScanLNDInvoice
+  // does: the estimate gives the ceiling a user-visible basis (estimate plus
+  // a stated tolerance, applied inside `payInvoice`), with no extra tap.
+  useEffect(() => {
+    if (!isArkWallet) {
+      setArkFeesReady(false);
+      return;
+    }
+    setArkFeesReady(false);
+    let cancelled = false;
+    (wallet as LightningArkWallet)
+      .ensureLightningFeesLoaded()
+      .then(() => !cancelled && setArkFeesReady(true))
+      .catch(() => {}); // fee label is non-critical; stay silent and keep the line hidden
+    return () => {
+      cancelled = true;
+    };
+  }, [wallet, isArkWallet]);
+
+  const amountToSats = (): number | undefined => {
+    if (!amount) return undefined;
+    switch (unit) {
+      case BitcoinUnit.SATS:
+        return parseInt(amount, 10);
+      case BitcoinUnit.BTC:
+        return btcToSatoshi(amount);
+      case BitcoinUnit.LOCAL_CURRENCY:
+        if (_cacheFiatToSat[String(amount)]) return parseInt(_cacheFiatToSat[amount], 10);
+        return btcToSatoshi(fiatToBTC(parseFloat(amount)));
+      default:
+        return undefined;
+    }
+  };
+
+  const lnurlFeeText = (): string => {
+    if (!isArkWallet || !arkFeesReady) return '';
+    const sats = amountToSats();
+    if (!sats || sats <= 0) return '';
+    const est = (wallet as LightningArkWallet).getSubmarineFeeEstimate(sats);
+    return est === undefined ? '' : `${est} ${BitcoinUnit.SATS}`;
+  };
   const { colors } = useTheme();
   const { direction } = useLocale();
   const stylesHook = StyleSheet.create({
@@ -199,6 +245,7 @@ const LnurlPay: React.FC = () => {
   );
 
   const renderGotPayload = () => {
+    const feeText = lnurlFeeText();
     return (
       <SafeArea>
         <ScrollView contentContainerStyle={styles.scrollviewContainer}>
@@ -229,6 +276,9 @@ const LnurlPay: React.FC = () => {
             <BlueText style={styles.alignSelfCenter}>{payload?.description}</BlueText>
             <BlueText style={styles.alignSelfCenter}>{payload?.domain}</BlueText>
             <BlueSpacing20 />
+            {feeText !== '' && (
+              <BlueText style={styles.alignSelfCenter}>{loc.formatString(loc.lnd.network_fee, { fee: feeText })}</BlueText>
+            )}
             {payButtonDisabled ? <BlueLoading /> : <Button title={loc.lnd.payButton} onPress={pay} />}
             <BlueSpacing20 />
           </BlueCard>

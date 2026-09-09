@@ -11,7 +11,10 @@ const TEST_SECRET = 'arkade://abandon abandon abandon abandon abandon abandon ab
 beforeEach(() => {
   // Clear module-private wallet caches between tests so namespaces start cold.
   for (const k of Object.keys(walletTesting.staticWalletCache)) delete walletTesting.staticWalletCache[k];
-  for (const k of Object.keys(walletTesting.staticSwapsCache)) delete walletTesting.staticSwapsCache[k];
+  for (const k of Object.keys(walletTesting.staticSwapClientCache)) delete walletTesting.staticSwapClientCache[k];
+  for (const k of Object.keys(walletTesting.staticSwapRepositoryCache)) delete walletTesting.staticSwapRepositoryCache[k];
+  walletTesting.namespaceInstances.clear();
+  walletTesting.realmListenerAttached.clear();
   walletTesting.initInFlight.clear();
   for (const k of Object.keys(walletTesting.boardingLock)) delete walletTesting.boardingLock[k];
 
@@ -30,7 +33,7 @@ describe('LightningArkWallet.onDelete', () => {
 
     // Pretend a previous init populated caches.
     walletTesting.staticWalletCache[namespace] = { tag: 'wallet' } as any;
-    walletTesting.staticSwapsCache[namespace] = { tag: 'swaps' } as any;
+    walletTesting.staticSwapClientCache[namespace] = { tag: 'swaps' } as any;
     walletTesting.boardingLock[namespace] = true;
     Keychain.__mockKeychainHelpers.store.set(realmTesting.keychainServiceFor(namespace), {
       username: 'svc',
@@ -41,7 +44,7 @@ describe('LightningArkWallet.onDelete', () => {
     await w.onDelete();
 
     assert.strictEqual(walletTesting.staticWalletCache[namespace], undefined);
-    assert.strictEqual(walletTesting.staticSwapsCache[namespace], undefined);
+    assert.strictEqual(walletTesting.staticSwapClientCache[namespace], undefined);
     assert.strictEqual(walletTesting.boardingLock[namespace], undefined);
     assert.ok(!walletTesting.initInFlight.has(namespace));
     assert.strictEqual(Keychain.resetGenericPassword.mock.calls.length, 1);
@@ -53,23 +56,23 @@ describe('LightningArkWallet.onDelete', () => {
     const namespace = w.getNamespace();
 
     // Inject a controlled in-flight init so we can interleave onDelete with its tail.
-    let resolveInit!: (v: { wallet: any; arkadeSwaps: any }) => void;
-    const inFlight = new Promise<{ wallet: any; arkadeSwaps: any }>(resolve => {
+    let resolveInit!: (v: { wallet: any; swapClient: any; repository: any }) => void;
+    const inFlight = new Promise<{ wallet: any; swapClient: any; repository: any }>(resolve => {
       resolveInit = resolve;
     });
 
     // Simulate the init IIFE's tail: when Wallet.create resolves, the IIFE
     // synchronously writes the static caches. We register this BEFORE onDelete
     // attaches its own .then so it fires first when inFlight settles.
-    inFlight.then(({ wallet, arkadeSwaps }) => {
+    inFlight.then(({ wallet, swapClient }) => {
       walletTesting.staticWalletCache[namespace] = wallet;
-      walletTesting.staticSwapsCache[namespace] = arkadeSwaps;
+      walletTesting.staticSwapClientCache[namespace] = swapClient;
     });
     // Simulate init()'s outer continuation that re-assigns this._wallet on the
     // wallet instance. This is the resurrection that the bug reproduces.
-    inFlight.then(({ wallet, arkadeSwaps }) => {
+    inFlight.then(({ wallet, swapClient }) => {
       (w as any)._wallet = wallet;
-      (w as any)._arkadeSwaps = arkadeSwaps;
+      (w as any)._swapClient = swapClient;
     });
 
     walletTesting.initInFlight.set(namespace, inFlight);
@@ -83,15 +86,15 @@ describe('LightningArkWallet.onDelete', () => {
 
     // Resolve inFlight: simulated IIFE tail writes caches, simulated init outer
     // continuation re-assigns this._wallet, then onDelete continues.
-    resolveInit({ wallet: { tag: 'racy-wallet' }, arkadeSwaps: { tag: 'racy-swaps' } });
+    resolveInit({ wallet: { tag: 'racy-wallet' }, swapClient: { tag: 'racy-swaps' }, repository: { tag: 'racy-repo' } });
 
     await onDeletePromise;
 
     // The drain ensures caches are cleared after the resurrection, not before.
     assert.strictEqual(walletTesting.staticWalletCache[namespace], undefined, 'staticWalletCache cleared after drain');
-    assert.strictEqual(walletTesting.staticSwapsCache[namespace], undefined, 'staticSwapsCache cleared after drain');
+    assert.strictEqual(walletTesting.staticSwapClientCache[namespace], undefined, 'staticSwapClientCache cleared after drain');
     assert.strictEqual((w as any)._wallet, undefined, 'wallet instance _wallet cleared after drain');
-    assert.strictEqual((w as any)._arkadeSwaps, undefined, 'wallet instance _arkadeSwaps cleared after drain');
+    assert.strictEqual((w as any)._swapClient, undefined, 'wallet instance _swapClient cleared after drain');
     assert.ok(!walletTesting.initInFlight.has(namespace), 'in-flight entry removed');
   });
 

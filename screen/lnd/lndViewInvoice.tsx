@@ -20,10 +20,9 @@ import dayjs from 'dayjs';
 import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { LightningArkWallet, type ArkSwapView } from '../../class/wallets/lightning-ark-wallet';
 import presentAlert from '../../components/Alert';
-import { isReverseSuccessStatus } from '@arkade-os/boltz-swap';
-import type { BoltzSubmarineSwap } from '@arkade-os/boltz-swap';
+import { SwapDriveRefusedError } from '@arkade-os/swap';
 
 type LNDViewInvoiceRouteParams = {
   walletID: string;
@@ -44,34 +43,40 @@ const LNDViewInvoice = () => {
   const [invoiceStatusChanged, setInvoiceStatusChanged] = useState<boolean>(false);
   const [qrCodeSize, setQRCodeSize] = useState<number>(90);
   const fetchInvoiceInterval = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-  // Per-swap claim/refund lookup, by the `swap-${id}` prefix mapped onto
-  // the row's `txid` field by lightning-ark-wallet getTransactions(). The
-  // route param is typed as LightningTransaction (which doesn't declare
-  // txid) but at runtime carries the merged `Transaction & LightningTransaction`
+  // Per-swap lookup, by the `swap-<AssetSwapId>` prefix mapped onto the
+  // row's `txid` field by lightning-ark-wallet getTransactions(). The route
+  // param is typed as LightningTransaction (which doesn't declare txid) but
+  // at runtime carries the merged `Transaction & LightningTransaction`
   // shape, so we read txid through a narrow local cast. For non-Ark wallets
   // and non-swap rows this resolves to undefined and the UI falls through
-  // to the existing branches.
+  // to the existing branches. The tagged id contains a colon — parse it with
+  // the swap readers, never by splitting on `:` by hand (getSwapById does).
   const invoiceTxid = typeof invoice === 'object' ? (invoice as { txid?: unknown }).txid : undefined;
   const swapId = typeof invoiceTxid === 'string' && invoiceTxid.startsWith('swap-') ? invoiceTxid.slice('swap-'.length) : undefined;
   // Force-render token: bumped by the swap-event subscription below so live
-  // `swap.status` lookups (via getSwapById → _swapHistory) re-evaluate the
-  // moment the SDK observes a status transition, without waiting for the
-  // 3s polling tick to update the route-param snapshot.
+  // outcome lookups (via getSwapById → the cached map) re-evaluate the
+  // moment the drive observes a transition, without waiting for the 3s
+  // polling tick to update the route-param snapshot.
   const [, forceRender] = useReducer((x: number) => x + 1, 0);
-  const swap = swapId && arkWallet ? arkWallet.getSwapById(swapId) : undefined;
+  const swap: ArkSwapView | undefined = swapId && arkWallet ? arkWallet.getSwapById(swapId) : undefined;
+  const outcome = swap?.outcome;
   const [isActioning, setIsActioning] = useState<boolean>(false);
-  const claimable = arkWallet && swap ? arkWallet.isSwapClaimable(swap) : false;
-  const refundable = arkWallet && swap ? arkWallet.isSwapRefundable(swap) : false;
 
-  // Subscribe to SwapManager status transitions for our swap so the spinner
-  // → success transition is driven by SDK events, not the 3s polling lag.
-  // The SDK mutates `swap.status` in place before invoking listeners, so by
-  // the time we force a render `getSwapById(swapId).status` reflects the
-  // new state and the success/refund branches re-evaluate correctly.
+  const isReceive = swap ? swap.direction > 0 : false;
+  const isSettled = !!outcome && (outcome === 'paid' || outcome === 'claimed' || outcome === 'filled');
+  const isPending = !!outcome && ['funded', 'open', 'funding', 'accepted', 'cancelling', 'refunding'].includes(outcome);
+  // Claim is automatic, so the only manual action left is recover() — and
+  // `needs_recovery` is a diagnosis, not a permission (see onRecoverPressed).
+  const needsRecovery = outcome === 'needs_recovery';
+
+  // Subscribe to the client's update stream for our swap so the spinner →
+  // success transition is driven by drive events, not the 3s polling lag.
+  // Subscribing replays the current outcome, so by the time we force a
+  // render `getSwapById(swapId).outcome` reflects the new state.
   useEffect(() => {
     if (!arkWallet || !swapId) return;
-    return arkWallet.subscribeToSwapEvents(updatedSwap => {
-      if (updatedSwap.id === swapId) forceRender();
+    return arkWallet.subscribeToSwapEvents(update => {
+      if (update.swap.id === swapId) forceRender();
     });
   }, [arkWallet, swapId]);
 
@@ -83,23 +88,44 @@ const LNDViewInvoice = () => {
     fetchAndSaveWalletTransactions(walletID);
   };
 
-  const onRefundPressed = async () => {
+  const onRecoverPressed = async () => {
     if (!arkWallet || !swap || isActioning) return;
+    // Predicted locally: a swap still inside its refund window refuses with
+    // `refund-window-open`, so say "not yet — after <time>" up front. The
+    // clock here is the record's refundLocktime, compared against our own.
+    if (swap.refundLocktime && swap.refundLocktime * 1000 > Date.now()) {
+      const time = dayjs(swap.refundLocktime * 1000).format('LLL');
+      presentAlert({ message: loc.formatString(loc.lndViewInvoice.recovery_not_yet, { time }) });
+      return;
+    }
     setIsActioning(true);
     try {
-      const outcome = await arkWallet.refundSwap(swap as BoltzSubmarineSwap);
-      if (outcome.swept === 0) {
-        // Lockup not yet refundable (CLTV not reached / Boltz declined to
-        // co-sign). Surface as info, not an error: the row stays refundable
-        // and the user can retry later.
-        presentAlert({ message: loc.lndViewInvoice.refund_deferred });
+      const result = await arkWallet.recoverSwap(swap.id);
+      if (!result.recovered) {
+        // A resolved call is not a success: the round reads the whole
+        // wallet and may sweep other outpoints first — "not this cycle".
+        presentAlert({ message: loc.lndViewInvoice.recovery_deferred });
       } else {
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
       }
       await refreshAfterAction();
     } catch (e: any) {
       triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-      presentAlert({ message: e?.message ?? String(e) });
+      if (e instanceof SwapDriveRefusedError || e?.name === 'SwapDriveRefusedError') {
+        const reason = String((e as any)?.reason ?? (e as any)?.code ?? e?.message ?? '');
+        if (reason.includes('nothing-swept')) {
+          // Swept-output eligibility is a chain read whose answer is racy
+          // anyway — do not precompute it, report the refusal instead.
+          presentAlert({ message: loc.lndViewInvoice.recovery_nothing_to_recover });
+        } else if (reason.includes('refund-window-open')) {
+          const time = swap.refundLocktime ? dayjs(swap.refundLocktime * 1000).format('LLL') : '';
+          presentAlert({ message: loc.formatString(loc.lndViewInvoice.recovery_not_yet, { time }) });
+        } else {
+          presentAlert({ message: e?.message ?? String(e) });
+        }
+      } else {
+        presentAlert({ message: e?.message ?? String(e) });
+      }
     } finally {
       setIsActioning(false);
     }
@@ -218,17 +244,18 @@ const LNDViewInvoice = () => {
   // and nothing changes after the page first paints. Decode is sync + cached.
   // "Please pay" deliberately shows the invoice-encoded amount (what the payer
   // is actually charged), not invoice.amt — which getTransactions() resolves to
-  // the post-fee on-chain amount and so differs from the BOLT11 by the swap fee.
+  // the swap leg amount and so can differ from the BOLT11 by the swap fee.
   // Likewise we ignore the row's synthesized description/memo: getTransactions()
-  // backfills a "BlueWallet" label there for memo-less reverse swaps (so the tx
-  // list isn't blank) and that placeholder must never surface here as
-  // "For: BlueWallet". "Send to Arkade address" is the SDK's hardcoded default
-  // for a memo-less reverse swap, so it counts as "no description" too.
+  // backfills a "Received via Arkade" label there for memo-less receives (so the
+  // tx list isn't blank) and that placeholder must never surface here as
+  // "For: Received via Arkade". "Send to Arkade address" counts as "no
+  // description" too.
   const decodeForDisplay = (paymentRequest?: string): { amountSats?: number; description?: string } => {
     if (!paymentRequest) return {};
     try {
       const d = wallet?.decodeInvoice(paymentRequest);
-      const description = d?.description && d.description !== 'Send to Arkade address' ? d.description : undefined;
+      const description =
+        d?.description && d.description !== 'Send to Arkade address' && d.description !== 'Received via Arkade' ? d.description : undefined;
       return { amountSats: d?.num_satoshis || undefined, description };
     } catch {
       return {};
@@ -241,13 +268,12 @@ const LNDViewInvoice = () => {
       const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
       const invoiceExpiration = invoice?.timestamp && invoice?.expire_time ? invoice.timestamp + invoice.expire_time : undefined;
 
-      // Settlement wins over any claim/refund CTA. The SDK auto-claims
-      // reverse swaps as soon as Boltz funds the VHTLC, so a stale
-      // route-param snapshot (`invoice.ispaid:false`) can race a live
-      // `_swapHistory` already at `invoice.settled`; checking the live
-      // swap status alongside the snapshot prevents Claim from rendering
-      // (and failing) after the SDK has already claimed.
-      if (invoice.ispaid || invoice.type === 'paid_invoice' || (swap && isReverseSuccessStatus(swap.status))) {
+      // Settlement wins over any recovery CTA. One identity (`swap-<id>`)
+      // for the whole lifecycle means the screen keeps resolving its subject
+      // across settlement — checking the live outcome alongside the snapshot
+      // prevents a stale route-param from rendering recovery after the swap
+      // already settled.
+      if (invoice.ispaid || invoice.type === 'paid_invoice' || (swap && isSettled)) {
         let amount = 0;
         let description;
         let invoiceDate;
@@ -256,8 +282,8 @@ const LNDViewInvoice = () => {
         } else if (invoice.type === 'user_invoice' && invoice.amt) {
           amount = invoice.amt;
         } else if (invoice.value) {
-          // Settled Arkade swap: an enriched native Ark leg (type 'bitcoind_tx')
-          // has no `amt`; its magnitude lives in the signed `value`.
+          // Settled Arkade swap: a record-derived row carries the swap amount
+          // in the signed `value`.
           amount = Math.abs(invoice.value);
         }
         if (invoice.description) {
@@ -301,12 +327,13 @@ const LNDViewInvoice = () => {
         );
       }
 
-      // Reverse swap mid-flight: Boltz funded the VHTLC and the SDK is
-      // auto-claiming (SwapManager.executeAutonomousAction → claimVHTLC).
-      // No manual CTA — the SDK owns claim reliability — so we just show
-      // a "Receiving" indicator until the status transitions to
-      // `invoice.settled` and the success branch above catches it.
-      if (claimable) {
+      // Receive mid-flight: the solver funded the lockup and the drive is
+      // claiming it. No manual CTA — the claim is the client's — so we just
+      // show a "Receiving" indicator until the outcome transitions and the
+      // success branch above catches it. `lapsed` is said out loud instead:
+      // the solver took the lockup back and the incoming payment never
+      // arrived.
+      if (swap && isReceive && isPending) {
         return (
           <View style={[styles.activeRoot, stylesHook.root]}>
             <ActivityIndicator size="large" color={colors.foregroundColor} />
@@ -315,14 +342,31 @@ const LNDViewInvoice = () => {
           </View>
         );
       }
-      if (refundable) {
+      if (swap && isReceive && (outcome === 'lapsed' || outcome === 'failed')) {
+        return (
+          <View style={[styles.root, stylesHook.root, styles.justifyContentCenter]}>
+            <View style={[styles.expired, stylesHook.expired]}>
+              <Icon name="times" size={50} type="font-awesome" color={colors.successCheck} />
+            </View>
+            <BlueTextCentered>{loc.lndViewInvoice.payment_lapsed}</BlueTextCentered>
+          </View>
+        );
+      }
+      if (needsRecovery && swap) {
+        const notYet = swap.refundLocktime && swap.refundLocktime * 1000 > Date.now();
         return (
           <View style={[styles.activeRoot, stylesHook.root]}>
-            <BlueTextCentered>{invoice.description ?? invoice.memo ?? ''}</BlueTextCentered>
+            <BlueTextCentered>
+              {notYet
+                ? loc.formatString(loc.lndViewInvoice.recovery_not_yet, {
+                    time: dayjs((swap.refundLocktime as number) * 1000).format('LLL'),
+                  })
+                : loc.lndViewInvoice.recovery_prompt}
+            </BlueTextCentered>
             <BlueSpacing20 />
             <Button
-              onPress={onRefundPressed}
-              title={loc.lndViewInvoice.refund_funds}
+              onPress={onRecoverPressed}
+              title={loc.lndViewInvoice.recover_funds}
               disabled={isActioning}
               showActivityIndicator={isActioning}
             />

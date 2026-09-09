@@ -3,12 +3,11 @@ import Realm from 'realm';
 import Keychain, { ACCESSIBLE, SECURITY_LEVEL } from 'react-native-keychain';
 
 import { ArkRealmSchemas, ARK_REALM_SCHEMA_VERSION, runArkRealmMigrations } from '@arkade-os/sdk/repositories/realm';
-import { BoltzRealmSchemas } from '@arkade-os/boltz-swap/repositories/realm';
+import { AssetSwapRealmSchemas } from '@arkade-os/swap/repositories/realm';
 import { randomBytes } from '../../../class/rng';
 import { uint8ArrayToHex, hexToUint8Array } from '../../uint8array-extras';
-import { ArkSwapNotificationSuppressionSchema } from './notificationSuppressionRepository';
 
-const AllArkadeSchemas = [...ArkRealmSchemas, ...BoltzRealmSchemas, ArkSwapNotificationSuppressionSchema];
+const AllArkadeSchemas = [...ArkRealmSchemas, ...AssetSwapRealmSchemas];
 
 // App-owned schemas added on top of the SDK's. Bump when an app-owned schema
 // changes; SDK bumps are handled by ARK_REALM_SCHEMA_VERSION. Realm requires
@@ -94,6 +93,16 @@ export async function getArkadeRealm(namespace: string): Promise<Realm> {
       schemaVersion: ARKADE_REALM_SCHEMA_VERSION,
       onMigration: (oldRealm, newRealm) => {
         runArkRealmMigrations(oldRealm, newRealm);
+        // Boltz is gone forever: drop the dead tables rather than leaving a
+        // "we might read it later" story behind. There is no rescue path for
+        // in-flight Boltz swaps at cutover (accepted exposure).
+        for (const model of ['BoltzSwap', 'ArkSwapNotificationSuppression']) {
+          try {
+            newRealm.deleteModel(model);
+          } catch {
+            // Model absent on fresh installs — nothing to drop.
+          }
+        }
       },
       path: realmPathFor(namespace),
       encryptionKey,

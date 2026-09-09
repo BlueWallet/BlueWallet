@@ -1,0 +1,36 @@
+{
+  "version": 0,
+  "name": "beta-solver",
+  "discovery_pubkey": "66422c952f8dcb96e4d0c3f049cd1e265b8461b916d9913c65c2494b64b4e3ce",
+  "transports": {
+    "nostr": {
+      "relays": [
+        "wss://nostr.arkade.sh"
+      ]
+    }
+  },
+  "markets": [
+    {
+      "pair": "BTC/lightning:BTC",
+      "base_asset": {
+        "id": "btc",
+        "name": "Bitcoin",
+        "ticker": "BTC",
+        "decimals": 8
+      },
+      "quote_asset": {
+        "id": "btc",
+        "name": "Bitcoin",
+        "ticker": "BTC",
+        "decimals": 8
+      },
+      "quote_corridor": "lightning",
+      "fee_bps": 30,
+      "min_base_amount": "500",
+      "max_base_amount": "50000",
+      "min_quote_amount": "500",
+      "max_quote_amount": "50000"
+    }
+  ],
+  "sig": "9c9bd039f83587ccf544b3f2664c471f1638993f2991fc35b4a039f5ad6f385ec0ea1964ec53de5eea957e2b8e15fe758cc5188a7d4605f9920d570d043a1f04"
+}
