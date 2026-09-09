@@ -1981,29 +1981,6 @@ PODS:
   - ReactNativeDependencies (0.88.1)
   - RealmJS (20.2.0):
     - React
-  - RNBackgroundFetch (4.4.2):
-    - hermes-engine
-    - RCTRequired
-    - RCTTypeSafety
-    - React-bridging
-    - React-Core
-    - React-Core-prebuilt
-    - React-cxxstableapi
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-jsi
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-renderercss
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/core
-    - ReactNativeDependencies
-    - Yoga
   - RNCAsyncStorage (2.2.0):
     - hermes-engine
     - RCTRequired
@@ -2583,7 +2560,6 @@ DEPENDENCIES:
   - ReactNativeCameraKit (from `../node_modules/react-native-camera-kit-no-google`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - RealmJS (from `../node_modules/realm`)
-  - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
@@ -2824,8 +2800,6 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
   RealmJS:
     :path: "../node_modules/realm"
-  RNBackgroundFetch:
-    :path: "../node_modules/react-native-background-fetch"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
@@ -2973,7 +2947,6 @@ SPEC CHECKSUMS:
   ReactNativeCameraKit: dca102025b429e5aaaede4ba3018a9b53f0a3c71
   ReactNativeDependencies: a5164c3ebbe90d992022b5d9cbabbf770a6d7d05
   RealmJS: 1c37c6bdfe060f4caa0f9175aa0eedb962622ee1
-  RNBackgroundFetch: 7f3ec0a9cc568fca8653762e120bc0a44bfe4132
   RNCAsyncStorage: 9aad1f18e1b3d98690ae696b01bd984054108916
   RNCClipboard: efcb0fcabe40529a32cb0c75fcef4f9c73052c2e
   RNDefaultPreference: 8a089ee8ce829a66c5453e3c5434f0785499d1c3

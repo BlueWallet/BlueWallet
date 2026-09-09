@@ -9,8 +9,10 @@
  * Three sets of adjacent module-private caches need resetting between tests:
  *   - The Realm adapter's `realmInstances` / `openInFlight` (closed via
  *     closeAllArkadeRealms + the __testing__ accessor).
- *   - The wallet module's `staticWalletCache`, `staticSwapsCache`,
- *     `initInFlight`, `boardingLock` (exposed via wallet `__testing__`).
+ *   - The wallet module's `staticWalletCache`, `staticSwapClientCache`,
+ *     `staticSwapRepositoryCache`, `initInFlight`, `boardingLock`,
+ *     `namespaceInstances`, `realmListenerAttached` (exposed via wallet
+ *     `__testing__`).
  *   - The mock backing stores in setup.js (Realm files-on-disk, Keychain
  *     credential map, FS existence set).
  * Without all three, a test that opens a Realm leaks a closed instance into
@@ -50,10 +52,12 @@ export function resetArkadeTestState(): void {
   RNFS.__mockFsHelpers.reset();
 
   for (const k of Object.keys(walletTesting.staticWalletCache)) delete walletTesting.staticWalletCache[k];
-  for (const k of Object.keys(walletTesting.staticSwapsCache)) delete walletTesting.staticSwapsCache[k];
+  for (const k of Object.keys(walletTesting.staticSwapClientCache)) delete walletTesting.staticSwapClientCache[k];
+  for (const k of Object.keys(walletTesting.staticSwapRepositoryCache)) delete walletTesting.staticSwapRepositoryCache[k];
   walletTesting.initInFlight.clear();
-  walletTesting.restoreInFlight.clear();
   for (const k of Object.keys(walletTesting.boardingLock)) delete walletTesting.boardingLock[k];
+  walletTesting.namespaceInstances.clear();
+  walletTesting.realmListenerAttached.clear();
 }
 
 /**
@@ -84,8 +88,8 @@ export const arkadeMockState = {
 
 /**
  * Tear down a LightningArkWallet after integration tests. Stops SDK background
- * loops (ContractWatcher SSE, VtxoManager polling, SwapManager) via dispose()
- * before clearing module-private caches.
+ * loops (ContractWatcher SSE, VtxoManager polling) and releases the swap
+ * client's live resources via dispose() before clearing module-private caches.
  */
 export async function teardownArkadeWallet(w: LightningArkWallet): Promise<void> {
   try {
@@ -97,12 +101,15 @@ export async function teardownArkadeWallet(w: LightningArkWallet): Promise<void>
 
 /** Best-effort dispose of any Arkade SDK runtime still cached module-wide. */
 export async function disposeAllArkadeRuntime(): Promise<void> {
-  for (const ns of Object.keys(walletTesting.staticSwapsCache)) {
-    const swaps = walletTesting.staticSwapsCache[ns];
+  for (const ns of Object.keys(walletTesting.staticSwapClientCache)) {
+    const client = walletTesting.staticSwapClientCache[ns];
     try {
-      if (typeof swaps?.dispose === 'function') await swaps.dispose();
+      if (typeof (client as any)?.[Symbol.asyncDispose] === 'function') await (client as any)[Symbol.asyncDispose]();
     } catch {}
-    delete walletTesting.staticSwapsCache[ns];
+    delete walletTesting.staticSwapClientCache[ns];
+  }
+  for (const ns of Object.keys(walletTesting.staticSwapRepositoryCache)) {
+    delete walletTesting.staticSwapRepositoryCache[ns];
   }
   for (const ns of Object.keys(walletTesting.staticWalletCache)) {
     const sdkWallet = walletTesting.staticWalletCache[ns];
@@ -112,8 +119,9 @@ export async function disposeAllArkadeRuntime(): Promise<void> {
     delete walletTesting.staticWalletCache[ns];
   }
   walletTesting.initInFlight.clear();
-  walletTesting.restoreInFlight.clear();
   for (const k of Object.keys(walletTesting.boardingLock)) delete walletTesting.boardingLock[k];
+  walletTesting.namespaceInstances.clear();
+  walletTesting.realmListenerAttached.clear();
   closeAllArkadeRealms();
   realmTesting.openInFlight.clear();
 }

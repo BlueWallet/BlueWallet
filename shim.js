@@ -31,6 +31,12 @@ if (typeof localStorage !== 'undefined') {
   localStorage.debug = isDev ? '*' : '';
 }
 
+// React Native's built-in URL cannot parse `ws:`/`wss:` URLs (no setters,
+// https-only getters), which breaks the Nostr (wss) transport nostr-tools
+// opens for Arkade solver quotes. Wrap it with a ws(s)-capable fallback;
+// a no-op wherever URL is already WHATWG-grade.
+require('./util/ws-url-polyfill').installWsUrlSupport(global);
+
 // If using the crypto shim, uncomment the following line to ensure
 // crypto is loaded first, so it can populate global.crypto
 require('crypto');

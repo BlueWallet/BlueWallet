@@ -1,21 +1,21 @@
 /**
- * Spy installers for the Arkade SDK / Boltz provider classes that
+ * Spy installers for the Arkade SDK provider classes that
  * `LightningArkWallet.init()` reaches over the network for.
  *
  * Tests call `installSdkProviderSpies()` in `beforeEach` and
  * `restoreSdkProviderSpies()` in `afterEach`. The spies stub the methods
- * `Wallet.create` calls during init (`getInfo`, `getDelegateInfo`) plus the
- * Boltz fee/limit lookups invoked by `_fetchLightningFeesAndLimits`. With
- * these in place `init()` runs offline and the wallet's address derivation
- * is fully deterministic.
+ * `Wallet.create` calls during init (`getInfo`, `getDelegateInfo`). Market
+ * discovery needs no stub: the bundled solver card is validated locally, so
+ * an unreachable registry degrades to the bundled-only set. With these in
+ * place `init()` runs offline and the wallet's address derivation is fully
+ * deterministic.
  *
  * We spy on `RestArkProvider.prototype` rather than `ExpoArkProvider.prototype`
  * because Expo* extend Rest* — installing the stub on the parent prototype
  * covers both.
  */
 
-import { ContractManager, RestArkProvider, RestDelegatorProvider, VtxoManager } from '@arkade-os/sdk';
-import { BoltzSwapProvider, SwapManager } from '@arkade-os/boltz-swap';
+import { ContractManager, RestArkProvider, RestDelegateProvider, VtxoManager } from '@arkade-os/sdk';
 
 /** Snapshot of `https://arkade.computer/v1/info` for offline tests. */
 export const FAKE_ASP_INFO = {
@@ -59,25 +59,13 @@ export const FAKE_DELEGATE_INFO = {
   delegatorAddress: 'bc1qzzdzp5c443vsetzatf2ra6hku322y7e5aq50rs',
 };
 
-export const FAKE_BOLTZ_FEES = {
-  reverse: { percentage: 0.5, minerFees: 0 },
-  submarine: { percentage: 0.1, minerFees: 0 },
-};
-
-export const FAKE_BOLTZ_LIMITS = {
-  min: 1000,
-  max: 1_000_000,
-};
-
 /**
  * Install Jest spies on the SDK provider prototypes so init() runs offline.
  * Returns nothing; cleanup happens via `restoreSdkProviderSpies()`.
  */
 export function installSdkProviderSpies(): void {
   jest.spyOn(RestArkProvider.prototype, 'getInfo').mockResolvedValue(FAKE_ASP_INFO as any);
-  jest.spyOn(RestDelegatorProvider.prototype, 'getDelegateInfo').mockResolvedValue(FAKE_DELEGATE_INFO as any);
-  jest.spyOn(BoltzSwapProvider.prototype, 'getFees').mockResolvedValue(FAKE_BOLTZ_FEES as any);
-  jest.spyOn(BoltzSwapProvider.prototype, 'getLimits').mockResolvedValue(FAKE_BOLTZ_LIMITS as any);
+  jest.spyOn(RestDelegateProvider.prototype, 'getDelegateInfo').mockResolvedValue(FAKE_DELEGATE_INFO as any);
 
   // VtxoManager auto-runs `initializeSubscription()` from its constructor,
   // which schedules a setTimeout polling loop AND awaits getContractManager
@@ -87,13 +75,6 @@ export function installSdkProviderSpies(): void {
   // Stub the entry point to a resolved no-op; the wallet's address-derivation
   // path doesn't need either side effect.
   jest.spyOn(VtxoManager.prototype as any, 'initializeSubscription').mockResolvedValue(undefined);
-
-  // ArkadeSwaps auto-starts SwapManager in its constructor (autoStart defaults
-  // to true). SwapManager.start() calls tryConnectWebSocket(), which opens a
-  // real OS WebSocket. On failure it enters startPollingFallback(), a recursive
-  // setTimeout loop that keeps the Node.js event loop alive indefinitely and
-  // prevents Jest from exiting after the test completes.
-  jest.spyOn(SwapManager.prototype as any, 'start').mockResolvedValue(undefined);
 
   // Any code path that calls `wallet.getContractManager()` lazily constructs
   // a ContractManager whose `initialize()` opens a ContractWatcher SSE stream
@@ -120,15 +101,14 @@ export function restoreSdkBackgroundLoopStubs(): void {
 
 /**
  * Stub only the SDK background subscriptions that Jest cannot shut down
- * cleanly (VtxoManager polling, SwapManager WebSocket, ContractWatcher SSE).
- * Real HTTP calls (getInfo, getTransactionHistory, restoreSwaps, etc.) still
- * run — use in env-gated integration tests that hit production services.
+ * cleanly (VtxoManager polling, ContractWatcher SSE). Real HTTP calls
+ * (getInfo, getTransactionHistory, etc.) still run — use in env-gated
+ * integration tests that hit production services.
  */
 export function installSdkBackgroundLoopStubs(): void {
   restoreSdkBackgroundLoopStubs();
   backgroundLoopSpies = [
     jest.spyOn(VtxoManager.prototype as any, 'initializeSubscription').mockResolvedValue(undefined),
-    jest.spyOn(SwapManager.prototype as any, 'start').mockResolvedValue(undefined),
     jest.spyOn(ContractManager.prototype as any, 'initialize').mockResolvedValue(undefined),
   ];
 }

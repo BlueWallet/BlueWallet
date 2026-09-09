@@ -4,13 +4,15 @@ const path = require('path');
 // Force the Arkade SDK and its subpaths to resolve to their CJS builds. The ESM
 // build uses `export * as ns from '...'` (ES2020), which the React Native babel
 // preset does not transform, so loading the ESM entry triggers a Babel error.
-// The boltz-swap realm subpath is forced to CJS for the same reason — it
-// re-exports the SDK realm types.
+// The swap subpaths are forced to CJS for the same reason.
 const resolveAliases = {
   '@arkade-os/sdk': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/index.cjs'),
   '@arkade-os/sdk/adapters/expo': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/adapters/expo.cjs'),
   '@arkade-os/sdk/repositories/realm': path.join(__dirname, 'node_modules/@arkade-os/sdk/dist/repositories/realm/index.cjs'),
-  '@arkade-os/boltz-swap/repositories/realm': path.join(__dirname, 'node_modules/@arkade-os/boltz-swap/dist/repositories/realm/index.cjs'),
+  '@arkade-os/swap': path.join(__dirname, 'node_modules/@arkade-os/swap/dist/index.cjs'),
+  '@arkade-os/swap/protocol': path.join(__dirname, 'node_modules/@arkade-os/swap/dist/protocol.cjs'),
+  '@arkade-os/swap/advanced': path.join(__dirname, 'node_modules/@arkade-os/swap/dist/advanced.cjs'),
+  '@arkade-os/swap/repositories/realm': path.join(__dirname, 'node_modules/@arkade-os/swap/dist/repositories/realm/index.cjs'),
   'expo/fetch': path.join(__dirname, 'util/expo-fetch.js'),
 };
 
