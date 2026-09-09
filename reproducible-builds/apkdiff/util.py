@@ -1,42 +1,45 @@
-# Script below taken from https://github.com/signalapp/Signal-Android/blob/main/reproducible-builds/apkdiff/util.py
-# Utility functions taken from https://github.com/TheTechZone/reproducible-tests/blob/d8c73772b87fbe337eb852e338238c95703d59d6/comparators/arsc_compare.py
+def show_diffs(diffs: dict):
+    """Print the differences between APKs in a human-readable form."""
 
-
-def format_differences(diffs, indent=0):
-    """Format differences in a human-readable form"""
-    output = []
-    indent_str = " " * indent
-
-    for path, diff in sorted(diffs.items()):
-        if isinstance(diff, dict):
-            output.append(f"{indent_str}{path}:")
-            output.append(format_differences(diff, indent + 2))
-        elif isinstance(diff, list):
-            output.append(f"{indent_str}{path}: [{', '.join(map(str, diff))}]")
-        else:
-            output.append(f"{indent_str}{path}: {diff}")
-
-    return "\n".join(output)
+    result = list()
+    stack = [(diffs, 0)]
+    while len(stack) > 0:
+        current_diff, indent = stack.pop()
+        indented = indent * " "
+        for field, data in sorted(current_diff.items(), reverse=True):
+            if isinstance(data, list):
+                stringified_list = "[" + ", ".join(str(item) for item in data) + "]"
+                formatted = f"{indented}{field} => {stringified_list}"
+                result.append(formatted)
+            elif isinstance(data, dict):
+                # dig deeper into nested dicts
+                formatted = indented + field + " =>"
+                result.append(formatted)
+                stack.append((data, indent + 2))
+            else:
+                formatted = f"{indented}{field} => {data}"
+                result.append(formatted)
+    return "\n".join(result)
 
 
 def deep_compare(
     obj1,
     obj2,
     path="",
-    max_depth=10,
-    current_depth=0,
+    max_depth=40,
+    curr_depth=0,
     exclude_attrs=None,
     include_callable=False,
-):
+) -> dict:
     """
-    Generic deep comparison of two Python objects.
+    Recursively compares two objects and returns a dictionary of differences.
 
     Args:
         obj1: First object to compare
         obj2: Second object to compare
         path: Current attribute path (for nested comparisons)
-        max_depth: Maximum recursion depth
-        current_depth: Current recursion depth
+        max_depth: Maximum recursion depth. Default: 40
+        curr_depth: Current recursion depth
         exclude_attrs: List of attribute names to exclude from comparison
         include_callable: Whether to include callable attributes in comparison
 
@@ -44,155 +47,143 @@ def deep_compare(
         A dictionary mapping paths to differences, empty if objects are identical
     """
 
+    default_exclude_attrs = {"__weakref__", "__dict__", "__doc__", "__module__"}
     if exclude_attrs is None:
-        exclude_attrs = set()
+        exclude_attrs = default_exclude_attrs
+    elif isinstance(exclude_attrs, str):
+        exclude_attrs = {exclude_attrs} | default_exclude_attrs
     else:
-        exclude_attrs = set(exclude_attrs)
+        exclude_attrs = set(exclude_attrs) | default_exclude_attrs
 
-    # Add common attributes to exclude
-    exclude_attrs.update(["__dict__", "__weakref__", "__module__", "__doc__"])
+    def safe_sort(iterable):
+        try:
+            return sorted(iterable)
+        except TypeError:
+            return list(iterable)
 
-    differences = {}
+    # explicit stack with tuples of: (obj1, obj2, path, current_depth)
+    stack = [(obj1, obj2, path, curr_depth)]
+    differences = dict()
+    while len(stack) > 0:
+        o1, o2, p, curr_depth = stack.pop()
 
-    # Check the recursion limit
-    if current_depth > max_depth:
-        return {f"{path} [max depth reached]": "Recursion limit reached"}
+        if curr_depth > max_depth:
+            key = f"{p} [max depth reached]" if p else "[max depth reached]"
+            differences[key] = "Reached nesting limit"
+            continue
 
-    # Basic identity/equality check
-    if obj1 is obj2:  # Same object (identity)
-        return {}
+        # are they referencing the same memory or have the same data?
+        if (o1 is o2) or (o2 == o1):
+            continue
 
-    if obj1 == obj2:  # Equal values
-        return {}
-
-    # Check for different types
-    if type(obj1) != type(obj2):
-        return {path: f"Type mismatch: {type(obj1).__name__} vs {type(obj2).__name__}"}
-
-    # Handle None
-    if obj1 is None or obj2 is None:
-        return {path: f"{obj1} vs {obj2}"}
-
-    # Handle primitive types
-    if isinstance(obj1, (int, float, str, bool, bytes, complex)):
-        return {path: f"{obj1} vs {obj2}"}
-
-    # Handle sequences (list, tuple)
-    if isinstance(obj1, (list, tuple)):
-        if len(obj1) != len(obj2):
-            differences[f"{path}.length"] = f"{len(obj1)} vs {len(obj2)}"
-
-        # Compare elements
-        for i in range(min(len(obj1), len(obj2))):
-            item_path = f"{path}[{i}]"
-            item_diffs = deep_compare(
-                obj1[i],
-                obj2[i],
-                item_path,
-                max_depth,
-                current_depth + 1,
-                exclude_attrs,
-                include_callable,
+        if type(o1) is not type(o2):
+            differences[p] = (
+                f"Types do not match: {type(o1).__name__} vs {type(o2).__name__}"
             )
-            differences.update(item_diffs)
+            continue
 
-        # Report extra elements
-        if len(obj1) > len(obj2):
-            for i in range(len(obj2), len(obj1)):
-                differences[f"{path}[{i}]"] = f"{obj1[i]} vs [missing]"
-        elif len(obj2) > len(obj1):
-            for i in range(len(obj1), len(obj2)):
-                differences[f"{path}[{i}]"] = f"[missing] vs {obj2[i]}"
+        if o1 is None or o2 is None:
+            differences[p] = f"{o1} vs {o2}"
+            continue
 
-        return differences
+        # primitive types
+        if isinstance(o1, (int, float, str, bool, bytes, complex)):
+            differences[p] = f"{o1} vs {o2}"
+            continue
 
-    # Handle dictionaries
-    if isinstance(obj1, dict):
-        keys1 = set(obj1.keys())
-        keys2 = set(obj2.keys())
+        if isinstance(o1, set):
+            uniq_first = o1 - o2
+            uniq_second = o2 - o1
+            prefix = f"{p}." if p else ""
+            if uniq_first:
+                differences[f"{prefix}elements_in_first_only"] = safe_sort(uniq_first)
+            if uniq_second:
+                differences[f"{prefix}elements_in_second_only"] = safe_sort(uniq_second)
+            continue
 
-        # Check for different keys
-        if keys1 != keys2:
-            only_in_1 = keys1 - keys2
-            only_in_2 = keys2 - keys1
-            if only_in_1:
-                differences[f"{path}.keys_only_in_first"] = sorted(only_in_1)
-            if only_in_2:
-                differences[f"{path}.keys_only_in_second"] = sorted(only_in_2)
+        # sequences i.e. list & tuples
+        if isinstance(o1, (list, tuple)):
+            length_o1, length_o2 = len(o1), len(o2)
+            if length_o1 != length_o2:
+                key = f"{p}.length" if p else "length"
+                differences[key] = f"{length_o1} vs {length_o2}"
 
-        # Compare common keys
-        for key in keys1 & keys2:
-            key_path = f"{path}[{repr(key)}]"
-            key_diffs = deep_compare(
-                obj1[key],
-                obj2[key],
-                key_path,
-                max_depth,
-                current_depth + 1,
-                exclude_attrs,
-                include_callable,
-            )
-            differences.update(key_diffs)
+            # extra elements in o1 or o2 i.e.that do not
+            # fit in the minimum length of the 2 sequences
+            for i in range(length_o2, length_o1):
+                differences[f"{p}[{i}]"] = f"{o1[i]} vs [absent]"
+            for i in range(length_o1, length_o2):
+                differences[f"{p}[{i}]"] = f"[absent] vs {o2[i]}"
 
-        return differences
+            # push elements that fit into the minimum length of the 2 sequences,
+            # looping from the back to front (reversed so the index 0 is popped first)
+            common_length = min(length_o1, length_o2)
+            for i in reversed(range(common_length)):
+                stack.append((o1[i], o2[i], f"{p}[{i}]", curr_depth + 1))
+            continue
 
-    # Handle sets
-    if isinstance(obj1, set):
-        only_in_1 = obj1 - obj2
-        only_in_2 = obj2 - obj1
+        # dictionaries
+        if isinstance(o1, dict):
+            keys_o1, keys_o2 = set(o1.keys()), set(o2.keys())
+            if keys_o1 != keys_o2:
+                uniq_first = keys_o1 - keys_o2
+                uniq_second = keys_o2 - keys_o1
+                prefix = f"{p}." if p else ""
+                if uniq_first:
+                    differences[f"{prefix}keys_in_first_only"] = safe_sort(uniq_first)
+                if uniq_second:
+                    differences[f"{prefix}keys_in_second_only"] = safe_sort(uniq_second)
+            # push key-value pairs common to both of them
+            common_pairs = keys_o1 & keys_o2
+            for key in common_pairs:
+                # use dot notation for string keys after a numeric list/tuple index
+                use_dot = False
+                if isinstance(key, str) and p and p[-1] == "]":
+                    # check if the content before the final ] is a
+                    # digit (list index)
+                    try:
+                        bracket_start = p.rfind("[")
+                        if bracket_start < 0:
+                            continue
+                        content = p[bracket_start + 1 : -1]
+                        int(content)  # try to parse as integer
+                        use_dot = True
+                    except (ValueError, IndexError):
+                        pass
+                if use_dot:
+                    key_path = f"{p}.{key}"
+                else:
+                    key_path = f"{p}[{repr(key)}]"
+                item = (o1[key], o2[key], key_path, curr_depth + 1)
+                stack.append(item)
+            continue
 
-        if only_in_1:
-            differences[f"{path}.items_only_in_first"] = sorted(only_in_1)
-        if only_in_2:
-            differences[f"{path}.items_only_in_second"] = sorted(only_in_2)
+        # handle custom objects & classes
+        try:
 
-        return differences
+            def is_valid_attr(attr):
+                return not (attr in exclude_attrs or attr.startswith("__"))
 
-    # Handle custom objects and classes
-    try:
-        # Try to get all attributes
-        attrs1 = dir(obj1)
-
-        # Filter attributes
-        filtered_attrs = [attr for attr in attrs1 if not attr.startswith("__") and attr not in exclude_attrs and (include_callable or not callable(getattr(obj1, attr, None)))]
-
-        # Compare each attribute
-        for attr in filtered_attrs:
-            try:
-                # Skip unintended attributes
-                if attr in exclude_attrs:
-                    continue
-
-                # Get attribute values
-                val1 = getattr(obj1, attr)
-
-                # Skip callables unless explicitly included
-                if callable(val1) and not include_callable:
-                    continue
-
-                # Check if attr exists in obj2
-                if not hasattr(obj2, attr):
-                    differences[f"{path}.{attr}"] = f"{val1} vs [attribute missing]"
-                    continue
-
-                val2 = getattr(obj2, attr)
-
-                # Compare values
-                attr_path = f"{path}.{attr}"
-                attr_diffs = deep_compare(
-                    val1,
-                    val2,
-                    attr_path,
-                    max_depth,
-                    current_depth + 1,
-                    exclude_attrs,
-                    include_callable,
-                )
-                differences.update(attr_diffs)
-            except Exception as e:
-                differences[f"{path}.{attr}"] = f"Error comparing: {str(e)}"
-
-    except Exception as e:
-        differences[path] = f"Error accessing attributes: {str(e)}"
-
+            attrs_o1 = dir(o1)
+            for attr in filter(is_valid_attr, attrs_o1):
+                attr_path = f"{p}.{attr}" if p else attr
+                try:
+                    val_o1 = getattr(o1, attr)
+                    if callable(val_o1) and not include_callable:
+                        continue
+                    if not hasattr(o2, attr):
+                        differences[attr_path] = f"{val_o1} vs [attribute absent]"
+                        continue
+                    val_o2 = getattr(o2, attr)
+                    # For callables, record them directly instead of recursing
+                    if callable(val_o1) and include_callable:
+                        if val_o1 != val_o2:
+                            differences[attr_path] = f"{val_o1} vs {val_o2}"
+                        continue
+                    item = (val_o1, val_o2, attr_path, curr_depth + 1)
+                    stack.append(item)
+                except Exception as err:
+                    differences[attr_path] = f"Failed to compare: {str(err)}"
+        except Exception as err:
+            differences[p] = f"Failed to access attributes: {str(err)}"
     return differences

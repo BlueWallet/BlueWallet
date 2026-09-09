@@ -449,11 +449,15 @@
     "details_delete": "Delete",
     "details_delete_wallet": "Delete Wallet",
     "details_derivation_path": "derivation path",
+    "details_derivation_path_edit": "e.g. m/84'/0'/0'. This does not change addresses. Export/Backup of a zpub, ypub, or xpub will not keep the path or fingerprint.",
+    "details_derivation_path_invalid": "Invalid derivation path. It should look like m/84'/0'/0'.",
     "details_display": "Display in Home Screen",
     "details_edit": "edit",
     "details_export_backup": "Export/Backup",
     "details_export_history": "Export History to CSV",
     "details_master_fingerprint": "Master Fingerprint",
+    "details_master_fingerprint_edit": "e.g. 73c5da0a. Export/Backup of a zpub, ypub, or xpub will not keep this.",
+    "details_master_fingerprint_invalid": "Invalid master fingerprint. It should be 8 hexadecimal characters.",
     "details_multisig_type": "multisig",
     "details_options": "Options",
     "details_show_xpub": "Show Wallet XPUB",
@@ -533,8 +537,7 @@
     "xpub_title": "Wallet XPUB",
     "manage_wallets_search_placeholder": "Search wallets, addresses, transactions and memos",
     "more_info": "More Info",
-    "details_delete_wallet_error_message": "There was an issue confirming if this wallet was removed from notifications—this could be due to a network issue or poor connection. If you continue, you might still receive notifications for transactions related to this wallet, even after it is deleted.",
-    "details_delete_anyway": "Delete anyway"
+    "details_delete_wallet_error_message": "There was an issue removing this wallet from notifications — this could be due to a network issue or poor connection. You might still receive notifications for transactions related to this wallet."
   },
   "total_balance_view": {
     "display_in_bitcoin": "Display in Bitcoin",

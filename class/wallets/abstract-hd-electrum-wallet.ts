@@ -1080,8 +1080,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
     let masterFingerprintBuffer: Uint8Array;
     if (masterFingerprint) {
-      let masterFingerprintHex = Number(masterFingerprint).toString(16);
-      if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
+      const masterFingerprintHex = Number(masterFingerprint).toString(16).padStart(8, '0');
       const hexBuffer = hexToUint8Array(masterFingerprintHex);
       masterFingerprintBuffer = hexBuffer.reverse();
     } else {

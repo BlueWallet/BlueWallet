@@ -445,11 +445,15 @@
     "details_delete": "Eliminar",
     "details_delete_wallet": "Eliminar Billetera",
     "details_derivation_path": "ruta de derivación",
+    "details_derivation_path_edit": "Por ejemplo: m/84'/0'/0'. Esto no modifica las direcciones. Al exportar o hacer una copia de seguridad de un zpub, ypub o xpub, no se conservarán la ruta ni la huella digital.",
+    "details_derivation_path_invalid": "Ruta de derivación no válida. Debería tener el siguiente formato: m/84'/0'/0'.",
     "details_display": "Mostrar en la pantalla de inicio",
     "details_edit": "editar",
     "details_export_backup": "Exportar / Copia de seguridad",
     "details_export_history": "Exportar historial a CSV",
     "details_master_fingerprint": "Huella Digital Maestra",
+    "details_master_fingerprint_edit": "Por ejemplo: 73c5da0a. Al exportar o hacer una copia de seguridad de un zpub, ypub o xpub, este dato no se conservará.",
+    "details_master_fingerprint_invalid": "Huella digital maestra no válida. Debe tener 8 caracteres hexadecimales.",
     "details_multisig_type": "multifirma",
     "details_options": "Opciones",
     "details_show_xpub": "Mostrar el XPUB de la Billetera",
@@ -529,8 +533,7 @@
     "xpub_title": "XPUB de la billetera",
     "manage_wallets_search_placeholder": "Búsqueda de billeteras, direcciones, transacciones y memos",
     "more_info": "Más información",
-    "details_delete_wallet_error_message": "Hubo un problema al confirmar si esta billetera se eliminó de las notificaciones, lo que podría deberse a un problema de red o a una mala conexión. Si continúas, es posible que aún recibas notificaciones de transacciones relacionadas con esta billetera, incluso después de que se elimine.",
-    "details_delete_anyway": "Borrar de todos modos"
+    "details_delete_wallet_error_message": "Hubo un problema al eliminar esta billetera de las notificaciones; esto podría deberse a un problema de red o a una conexión deficiente. Es posible que sigas recibiendo notificaciones sobre transacciones relacionadas con esta billetera."
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar en Bitcoin",

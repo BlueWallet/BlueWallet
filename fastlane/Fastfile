@@ -202,7 +202,7 @@ before_all do |lane, options|
     next
   end
 
-  skip_auth_lanes = ['register_devices_from_txt', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
+  skip_auth_lanes = ['register_devices_from_txt', 'setup_provisioning_profiles', 'update_apple_signing_assets', 'build_app_lane', 'build_catalyst_app_lane', 'install_pods', 'clear_derived_data_lane']
   lane_name = lane.to_s
   should_skip_auth = skip_auth_lanes.any? { |skip_lane| lane_name == skip_lane || lane_name.end_with?(" #{skip_lane}") }
   
@@ -406,6 +406,121 @@ platform :ios do
       UI.user_error!("#{var} environment variable is missing") if ENV[var].nil? || ENV[var].empty?
     end
   end
+
+  def resolve_signing_value(options:, option_name:, env_name:, prompt:, sensitive: false)
+    value = options[option_name] || ENV[env_name]
+    value = sensitive ? UI.password(prompt) : UI.input(prompt) if value.nil? || value.empty?
+    UI.user_error!("#{env_name} is required") if value.nil? || value.empty?
+
+    ENV[env_name] = value
+  end
+
+  def normalize_git_basic_authorization(value)
+    github_token = value.match?(/\A(?:github_pat_|gh[pousr]_)/)
+    return value unless github_token
+
+    require "base64"
+    Base64.strict_encode64("x-access-token:#{value}")
+  end
+
+  def resolve_git_access_token(options)
+    value = options[:git_access_token] || ENV["GIT_ACCESS_TOKEN"]
+    return value unless value.nil? || value.empty?
+
+    unless UI.interactive?
+      UI.user_error!(
+        "GIT_ACCESS_TOKEN is required in non-interactive environments. " \
+        "Set it to a GitHub token or Base64 Git basic authorization."
+      )
+    end
+
+    gh_available = system("gh", "--version", out: File::NULL, err: File::NULL)
+    if gh_available && UI.confirm("GIT_ACCESS_TOKEN is not set. Log in to GitHub through your browser?")
+      authenticated = system(
+        "gh", "auth", "login",
+        "--hostname", "github.com",
+        "--git-protocol", "https",
+        "--web"
+      )
+      UI.user_error!("GitHub browser login did not complete successfully") unless authenticated
+
+      require "open3"
+      token, error, status = Open3.capture3("gh", "auth", "token", "--hostname", "github.com")
+      UI.user_error!("Could not retrieve the GitHub token: #{error.strip}") unless status.success?
+      value = token.strip
+    else
+      UI.important("GitHub CLI is unavailable or browser login was declined; enter a token manually.")
+      value = UI.password("GitHub access token (or Base64 Git basic authorization):")
+    end
+
+    UI.user_error!("GIT_ACCESS_TOKEN is required") if value.nil? || value.empty?
+    ENV["GIT_ACCESS_TOKEN"] = value
+  end
+
+  def resolve_developer_team_id(options)
+    value = options[:team_id] || ENV["ITC_TEAM_ID"]
+    unless value.nil? || value.empty?
+      ENV["ITC_TEAM_ID"] = value
+      return value
+    end
+
+    require "xcodeproj"
+    project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
+    project = Xcodeproj::Project.open(project_path)
+    project_team_ids = project.targets.flat_map do |target|
+      target.build_configurations.flat_map do |configuration|
+        configuration.build_settings.filter_map do |setting, setting_value|
+          setting_value if setting == "DEVELOPMENT_TEAM" || setting.start_with?("DEVELOPMENT_TEAM[")
+        end
+      end
+    end.compact.reject(&:empty?).uniq
+
+    if project_team_ids.one?
+      value = project_team_ids.first
+      UI.message("Using Developer Team ID #{value} from ios/BlueWallet.xcodeproj")
+    elsif project_team_ids.length > 1
+      if UI.interactive?
+        value = UI.select("Multiple DEVELOPMENT_TEAM values were found. Select one:", project_team_ids)
+      else
+        UI.user_error!(
+          "Multiple DEVELOPMENT_TEAM values found in #{project_path}: #{project_team_ids.join(', ')}. " \
+          "Set ITC_TEAM_ID explicitly."
+        )
+      end
+    elsif UI.interactive?
+      value = UI.input("Apple Developer Team ID:")
+    else
+      UI.user_error!("No DEVELOPMENT_TEAM found in #{project_path}; set ITC_TEAM_ID explicitly")
+    end
+
+    UI.user_error!("Apple Developer Team ID is required") if value.nil? || value.empty?
+    ENV["ITC_TEAM_ID"] = value
+  end
+
+  def provisioning_profile_build_error_message(log_contents)
+    capability_patterns = [
+      /provisioning profile .* doesn't include/i,
+      /profile doesn't match the entitlements/i
+    ]
+    if capability_patterns.any? { |pattern| log_contents.match?(pattern) }
+      return "A selected provisioning profile does not contain the target's required capabilities or entitlements. " \
+             "Run `bundle exec fastlane ios setup_provisioning_profiles` to remap profiles, then renew the affected " \
+             "profile in Match if its App ID capabilities changed."
+    end
+
+    missing_patterns = [
+      /no profile for team/i,
+      /no (?:matching )?provisioning profiles? found/i,
+      /provisioning profile .* not found/i,
+      /requires a provisioning profile/i,
+      /couldn't find any provisioning profiles?/i
+    ]
+    return nil unless missing_patterns.any? { |pattern| log_contents.match?(pattern) }
+
+    "The App Store provisioning profiles selected by the Xcode project are not installed. " \
+      "Run `bundle exec fastlane ios setup_provisioning_profiles` before building and ensure " \
+      "the Match repository contains profiles for every app identifier."
+  end
   
   def log_success(message)
     UI.success("✅ #{message}")
@@ -484,6 +599,7 @@ platform :ios do
     ensure_env_vars(required_vars)
     
     UI.message("Setting up provisioning profiles...")
+    profile_mapping = {}
     
     # Iterate over app identifiers to fetch provisioning profiles
     app_identifiers.each do |app_identifier|
@@ -502,11 +618,142 @@ platform :ios do
           keychain_name: "temp_keychain",
           keychain_password: ENV["KEYCHAIN_PASSWORD"]
         )
+
+        match_mapping = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING] || {}
+        profile_name = match_mapping[app_identifier]
+        UI.user_error!("Match did not install an App Store profile for #{app_identifier}") if profile_name.nil? || profile_name.empty?
+        profile_mapping[app_identifier] = profile_name
         log_success("Successfully fetched provisioning profile for #{app_identifier}")
       end
     end
+
+    require "xcodeproj"
+    project_path = File.join(PROJECT_ROOT, "ios", "BlueWallet.xcodeproj")
+    project = Xcodeproj::Project.open(project_path)
+    configured_identifiers = []
+
+    project.targets.each do |target|
+      target.build_configurations.select { |configuration| configuration.name == "Release" }.each do |configuration|
+        app_identifier = configuration.build_settings["PRODUCT_BUNDLE_IDENTIFIER"]
+        profile_name = profile_mapping[app_identifier]
+        next if profile_name.nil?
+
+        configuration.build_settings["CODE_SIGN_STYLE"] = "Manual"
+        configuration.build_settings["DEVELOPMENT_TEAM"] = ENV["ITC_TEAM_ID"]
+        configuration.build_settings["CODE_SIGN_IDENTITY[sdk=iphoneos*]"] = "Apple Distribution"
+        configuration.build_settings["PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]"] = profile_name
+        configured_identifiers << app_identifier
+        UI.message("Configured target #{target.name} with #{profile_name}")
+      end
+    end
+
+    missing_identifiers = profile_mapping.keys - configured_identifiers.uniq
+    unless missing_identifiers.empty?
+      UI.user_error!("No Release target found for bundle identifiers: #{missing_identifiers.join(', ')}")
+    end
+    project.save
+
+    export_options_path = File.join(PROJECT_ROOT, "ios", "export_options.plist")
+    export_options = Xcodeproj::Plist.read_from_path(export_options_path)
+    export_options["provisioningProfiles"] = profile_mapping
+    Xcodeproj::Plist.write_to_path(export_options, export_options_path)
+
+    UI.message("Using App Store provisioning profiles:")
+    profile_mapping.each { |app_identifier, profile_name| UI.message("  #{app_identifier}: #{profile_name}") }
     
     log_success("All provisioning profiles set up")
+  end
+
+  desc "Update all Apple certificates and provisioning profiles"
+  lane :update_apple_signing_assets do |options|
+    minimum_fastlane_version = Gem::Version.new("2.238.0")
+    current_fastlane_version = Gem::Version.new(Fastlane::VERSION)
+    if current_fastlane_version < minimum_fastlane_version
+      UI.user_error!(
+        "Fastlane 2.238.0 or newer is required to renew expired certificates. " \
+        "Run `bundle update fastlane` and retry this lane."
+      )
+    end
+
+    resolve_signing_value(
+      options: options,
+      option_name: :git_url,
+      env_name: "GIT_URL",
+      prompt: "Certificates repository URL:"
+    )
+    resolve_developer_team_id(options)
+    resolve_signing_value(
+      options: options,
+      option_name: :apple_id,
+      env_name: "APPLE_ID",
+      prompt: "Apple ID email:"
+    )
+    resolve_signing_value(
+      options: options,
+      option_name: :match_password,
+      env_name: "MATCH_PASSWORD",
+      prompt: "Match repository encryption password:",
+      sensitive: true
+    )
+    git_access_token = resolve_git_access_token(options)
+    ENV["GIT_ACCESS_TOKEN"] = normalize_git_basic_authorization(git_access_token)
+    keychain_password = options[:keychain_password] || ENV["KEYCHAIN_PASSWORD"]
+    if keychain_password.nil? || keychain_password.empty?
+      keychain_password = SecureRandom.hex(32)
+      UI.message("Generated a temporary keychain password for this run")
+    end
+
+    keychain_name = "bluewallet_match_#{Process.pid}"
+    create_keychain(
+      name: keychain_name,
+      password: keychain_password,
+      default_keychain: false,
+      unlock: true,
+      timeout: 3600,
+      lock_when_sleeps: true
+    )
+
+    signing_configurations = [
+      {
+        platform: "ios",
+        app_identifiers: app_identifiers,
+        profile_types: %w[development adhoc appstore]
+      },
+      {
+        platform: "catalyst",
+        app_identifiers: catalyst_app_identifiers,
+        profile_types: %w[development appstore]
+      }
+    ]
+
+    begin
+      signing_configurations.each do |configuration|
+        configuration[:profile_types].each do |profile_type|
+          UI.message("Checking #{profile_type} signing assets for #{configuration[:platform]}...")
+          match(
+            type: profile_type,
+            platform: configuration[:platform],
+            app_identifier: configuration[:app_identifiers],
+            readonly: false,
+            renew_expired_certs: true,
+            git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
+            keychain_name: keychain_name,
+            keychain_password: keychain_password,
+            clone_branch_directly: true
+          )
+        end
+      end
+    ensure
+      signing_error = $!
+      begin
+        delete_keychain(name: keychain_name)
+      rescue => cleanup_error
+        UI.error("Could not delete temporary keychain #{keychain_name}: #{cleanup_error.message}")
+        raise cleanup_error if signing_error.nil?
+      end
+    end
+
+    log_success("All Apple certificates and provisioning profiles are valid")
   end
 
   # Only these targets support Mac Catalyst (watch/stickers do not)
@@ -1209,21 +1456,15 @@ end
           archives.last(3).each { |archive| UI.message("    #{archive}") }
         end
         
-        # If iOS build fails, check if we can build using available destinations
-        if destinations_output.include?("Any iOS Device")
-          UI.message("Retrying build without explicit destination...")
-          build_ios_app(
-            scheme: "BlueWallet",
-            workspace: workspace_path,
-            export_method: "app-store",
-            export_options: export_options_path,
-            output_directory: ipa_directory,
-            output_name: ipa_name,
-            buildlog_path: File.join(project_root, "ios", "build_logs")
-          )
-        else
-          UI.user_error!("build_ios_app failed: #{build_error.message}")
-        end
+        build_log = Dir.glob(File.join(build_logs_dir, "*.log")).max_by { |path| File.mtime(path) }
+        build_log_contents = build_log && File.exist?(build_log) ? File.read(build_log) : ""
+
+        provisioning_error = provisioning_profile_build_error_message(build_log_contents)
+        UI.user_error!(provisioning_error) unless provisioning_error.nil?
+
+        # Repeating the same archive command cannot recover deterministic build
+        # failures and hides the original error behind a second attempt.
+        raise build_error
       end
 
       # Check for IPA path from both our defined path and fastlane's context

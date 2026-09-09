@@ -3,6 +3,7 @@ import { Psbt } from 'bitcoinjs-lib';
 
 import { BlueURDecoder, clearUseURv1, decodeUR, encodeUR, extractSingleWorkload, setUseURv1 } from '../../blue_modules/ur';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Watch only wallet', () => {
@@ -40,6 +41,12 @@ describe('Watch only wallet', () => {
       assert.ok(w.isXpubValid(), w.secret);
       assert.ok(!w.useWithHardwareWalletEnabled());
     }
+  });
+
+  it('setSecret throws on invalid hex in a key-origin fingerprint', () => {
+    const w = new WatchOnlyWallet();
+    const xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
+    assert.throws(() => w.setSecret(`[73c5da0g/84'/0'/0']${xpub}`));
   });
 
   it('can validate xpub', () => {
@@ -636,8 +643,10 @@ describe('Watch only wallet', () => {
 
     const newPath = "m/66'/6'/6'";
     assert.strictEqual(w.getDerivationPath(), "m/49'/0'/0'");
+    const idBefore = w.getID();
     w.setDerivationPath(newPath);
     assert.strictEqual(w.getDerivationPath(), newPath);
+    assert.strictEqual(w.getID(), idBefore);
 
     const { psbt: psbt2 } = await w.createTransaction(
       utxos,
@@ -709,6 +718,258 @@ describe('Watch only wallet', () => {
     const { fee } = w.createTransaction(utxos, targets, 1, changeAddress);
     const { fee: estimatedFee } = w.coinselect(utxos, targets, 1);
     assert.strictEqual(estimatedFee, fee);
+  });
+
+  it('can edit derivation path and master fingerprint without changing addresses', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    w.init();
+    const addressBefore = w._getExternalAddressByIndex(0);
+    const idBefore = w.getID();
+    assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
+    assert.strictEqual(w.getDerivationPath(), "m/84'/0'/0'");
+
+    // a bare zpub carries no key origin info; the user corrects it,
+    // e.g. for an Electrum-seed wallet whose account root is m/0'
+    w.setDerivationPath("m/0'");
+    w.setMasterFingerprintFromHex('73c5da0a');
+
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(w.getID(), idBefore);
+
+    const { psbt } = w.createTransaction(
+      [{ value: 100000, address: addressBefore, vout: 0, txid: '11'.repeat(32) }],
+      [{ address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', value: 5000 }],
+      1,
+      w._getInternalAddressByIndex(0),
+    );
+    assert.strictEqual(psbt.data.inputs[0].bip32Derivation[0].path, "m/0'/0/0");
+    assert.strictEqual(uint8ArrayToHex(psbt.data.inputs[0].bip32Derivation[0].masterFingerprint), '73c5da0a');
+
+    // metadata edits must survive re-init and never change address derivation or wallet ID
+    w.init();
+    w._hdWalletInstance.external_addresses_cache = {};
+    assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(w.getID(), idBefore);
+
+    // save/load (app restart): path lives on the HD instance, ID stays on this._derivationPath
+    w.prepareForSerialization();
+    const restored = WatchOnlyWallet.fromJson(JSON.stringify(w));
+    restored.init();
+    restored._hdWalletInstance.external_addresses_cache = {};
+    assert.strictEqual(restored.getID(), idBefore);
+    assert.strictEqual(restored.getDerivationPath(), "m/0'");
+    assert.strictEqual(restored.getMasterFingerprintHex(), '73c5da0a');
+    assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
+
+    // even a path that init() would normally map to another script type must not flip addresses
+    w.setDerivationPath("m/49'/0'/0'");
+    assert.strictEqual(w.getID(), idBefore);
+    w.init();
+    w._hdWalletInstance.external_addresses_cache = {};
+    assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(w.getID(), idBefore);
+
+    w.prepareForSerialization();
+    const restoredHostile = WatchOnlyWallet.fromJson(JSON.stringify(w));
+    restoredHostile.init();
+    restoredHostile._hdWalletInstance.external_addresses_cache = {};
+    assert.strictEqual(restoredHostile.getID(), idBefore);
+    assert.strictEqual(restoredHostile.getDerivationPath(), "m/49'/0'/0'");
+    assert.strictEqual(restoredHostile._getExternalAddressByIndex(0), addressBefore);
+  });
+
+  it('path edit does not flip script type for xpub and ypub', () => {
+    const cases = [
+      {
+        secret: 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps',
+        hostilePath: "m/84'/0'/0'",
+        prefix: '1',
+      },
+      {
+        secret: 'ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo',
+        hostilePath: "m/84'/0'/0'",
+        prefix: '3',
+      },
+    ];
+    for (const { secret, hostilePath, prefix } of cases) {
+      const w = new WatchOnlyWallet();
+      w.setSecret(secret);
+      w.init();
+      const addressBefore = w._getExternalAddressByIndex(0);
+      const idBefore = w.getID();
+      assert.ok(addressBefore.startsWith(prefix), addressBefore);
+      w.setDerivationPath(hostilePath);
+      w.init();
+      w._hdWalletInstance.external_addresses_cache = {};
+      assert.strictEqual(w._getExternalAddressByIndex(0), addressBefore);
+      assert.strictEqual(w.getID(), idBefore);
+      assert.ok(w._getExternalAddressByIndex(0).startsWith(prefix));
+    }
+  });
+
+  it('bare xpub imported at a script-typed path gets that script type', () => {
+    // same call order as the custom derivation path import flow
+    const xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
+    const cases = [
+      { path: "m/84'/0'/0'", secretPrefix: 'zpub', addressPrefix: 'bc1q' },
+      { path: "m/49'/0'/0'", secretPrefix: 'ypub', addressPrefix: '3' },
+      { path: "m/86'/0'/0'", secretPrefix: 'xpub', addressPrefix: 'bc1p' },
+      { path: "m/44'/0'/0'", secretPrefix: 'xpub', addressPrefix: '1' },
+      { path: "m/0'", secretPrefix: 'xpub', addressPrefix: '1' }, // path says nothing about script type
+    ];
+    for (const { path, secretPrefix, addressPrefix } of cases) {
+      const w = new WatchOnlyWallet();
+      w.setSecretForCustomPathImport(xpub, path);
+      w.init();
+      w.setDerivationPath(path);
+      assert.ok(w.getSecret().startsWith(secretPrefix), `${path}: ${w.getSecret().slice(0, 4)}`);
+      assert.ok(w._getExternalAddressByIndex(0).startsWith(addressPrefix), `${path}: ${w._getExternalAddressByIndex(0)}`);
+      assert.strictEqual(w.getDerivationPath(), path);
+      assert.strictEqual(w.getMasterFingerprintHex(), '00000000'); // synthetic origin carries no fingerprint
+
+      // and what Export/Backup shows restores the same wallet
+      const restored = new WatchOnlyWallet();
+      restored.setSecret(w.getSecretForExport());
+      restored.init();
+      assert.strictEqual(restored._getExternalAddressByIndex(0), w._getExternalAddressByIndex(0), path);
+    }
+  });
+
+  it('setSecretForCustomPathImport changes nothing except a valid bare xpub at an export-safe path', () => {
+    const xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
+    const zpub = 'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP';
+
+    // these must behave exactly as a plain setSecret: script-typed keys, key origins with a
+    // genuine fingerprint, an xpub-prefixed string with an embedded origin, and invalid input
+    const passthrough = [zpub, `[aabbccdd/44'/0'/0']${xpub}`, `xpubZZZ[beebeeb0/84'/0'/0']${xpub}`, 'xpubGARBAGE', `${xpub}/0/*`];
+    for (const input of passthrough) {
+      const w = new WatchOnlyWallet();
+      w.setSecretForCustomPathImport(input, "m/84'/0'/0'");
+      const reference = new WatchOnlyWallet();
+      reference.setSecret(input);
+      assert.strictEqual(w.getSecret(), reference.getSecret(), input.slice(0, 24));
+      assert.strictEqual(w.getMasterFingerprintHex(), reference.getMasterFingerprintHex(), input.slice(0, 24));
+    }
+
+    // short and testnet 84/49 paths stay unwrapped: the converted key would not survive an
+    // export round trip (the secret would stay xpub while addresses are segwit)
+    for (const path of ["m/84'", "m/84'/1'/0'", "m/49'/1'/0'", "m/44'/0'/0'", "m/0'"]) {
+      const w = new WatchOnlyWallet();
+      w.setSecretForCustomPathImport(xpub, path);
+      assert.strictEqual(w.getSecret(), xpub, path);
+    }
+
+    // whitespace around a valid bare xpub is tolerated
+    const w = new WatchOnlyWallet();
+    w.setSecretForCustomPathImport(`  ${xpub}  `, "m/84'/0'/0'");
+    assert.ok(w.getSecret().startsWith('zpub'));
+  });
+
+  it('can set derivation path right after import, before and without explicit init()', () => {
+    // same call order as the custom derivation path import flow
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    const idBefore = w.getID();
+    w.setDerivationPath("m/0'"); // no explicit init() — the setter must handle it
+    assert.strictEqual(w.getDerivationPath(), "m/0'");
+    assert.strictEqual(w.getID(), idBefore);
+
+    const reference = new WatchOnlyWallet();
+    reference.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    reference.init();
+    assert.strictEqual(w._getExternalAddressByIndex(0), reference._getExternalAddressByIndex(0));
+    assert.strictEqual(w.getID(), reference.getID());
+  });
+
+  it('setDerivationPath and setMasterFingerprintFromHex reject invalid input', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'); // plain address, not HD
+    assert.throws(() => w.setDerivationPath("m/0'"));
+
+    const hd = new WatchOnlyWallet();
+    hd.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    hd.init();
+    assert.throws(() => hd.setMasterFingerprintFromHex('nothex00'));
+    assert.strictEqual(hd.getMasterFingerprintHex(), '00000000');
+  });
+
+  it('master fingerprint with 00 at the end round-trips and can create a PSBT', () => {
+    const zpub = 'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP';
+    // beeb0000 stores as 0x0000ebbe, so its hex is 4 chars and needs four pad chars —
+    // the case a single prepended '0' could never have covered
+    const cases = ['beebee00', 'beeb0000', '00beebee', 'be00ebee', 'beebee0a'];
+    for (const fp of cases) {
+      const w = new WatchOnlyWallet();
+      w.setSecret(zpub);
+      w.init();
+      w.setMasterFingerprintFromHex(fp);
+      assert.strictEqual(w.getMasterFingerprintHex(), fp);
+      const { psbt } = w.createTransaction(
+        [{ value: 100000, address: w._getExternalAddressByIndex(0), vout: 0, txid: '11'.repeat(32) }],
+        [{ address: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', value: 5000 }],
+        1,
+        w._getInternalAddressByIndex(0),
+      );
+      assert.strictEqual(uint8ArrayToHex(psbt.data.inputs[0].bip32Derivation[0].masterFingerprint), fp);
+    }
+  });
+
+  it('editing the path to m/86 does not make a non-taproot wallet export as a tr() descriptor', () => {
+    const w = new WatchOnlyWallet();
+    w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
+    w.init();
+    const addressBefore = w._getExternalAddressByIndex(0);
+    w.setDerivationPath("m/86'/0'/0'");
+    w.init();
+
+    // still a bech32 wallet, so export must show the bare zpub, not a descriptor
+    assert.ok(!(w._hdWalletInstance instanceof HDTaprootWallet));
+    assert.strictEqual(w.segwitType, 'p2wpkh');
+    assert.strictEqual(w.getSecretForExport(), w.getSecret());
+
+    // and what it exports restores the same wallet
+    const restored = new WatchOnlyWallet();
+    restored.setSecret(w.getSecretForExport());
+    restored.init();
+    assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
+  });
+
+  it('taproot watch-only exports a tr() descriptor that restores the same wallet, even after a path edit', () => {
+    const descriptor =
+      "tr([97311f91/86'/0'/0']xpub6C85eQDGy5NKEqCPnrnf4QcvxQCzRiTZFTa6YfuDU1hSQGWQHf6QBHogKXaS8hUhtvk6ND4btTdiWic26UKrk1pWrU4CQGrQoGxd6DP33Sw)";
+    const w = new WatchOnlyWallet();
+    w.setSecret(descriptor);
+    w.init();
+    assert.strictEqual(w.segwitType, 'p2tr');
+    const addressBefore = w._getExternalAddressByIndex(0);
+    assert.ok(addressBefore.startsWith('bc1p'));
+
+    // the secret is stored as a bare xpub, which is why export must rebuild the descriptor
+    assert.ok(w.getSecret().startsWith('xpub'));
+
+    const exported = w.getSecretForExport();
+    assert.strictEqual(exported, `tr([97311f91/86'/0'/0']${w.getSecret()})`);
+    const restored = new WatchOnlyWallet();
+    restored.setSecret(exported);
+    restored.init();
+    assert.strictEqual(restored._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(restored.getDerivationPath(), "m/86'/0'/0'");
+    assert.strictEqual(restored.getMasterFingerprintHex(), '97311f91');
+
+    // a path edit must not stop the wallet exporting as taproot
+    w.setDerivationPath("m/0'");
+    assert.ok(w._hdWalletInstance instanceof HDTaprootWallet);
+    const exported2 = w.getSecretForExport();
+    assert.strictEqual(exported2, `tr([97311f91/0']${w.getSecret()})`);
+    const restored2 = new WatchOnlyWallet();
+    restored2.setSecret(exported2);
+    restored2.init();
+    assert.strictEqual(restored2._getExternalAddressByIndex(0), addressBefore);
+    assert.strictEqual(restored2.getDerivationPath(), "m/0'");
   });
 });
 
