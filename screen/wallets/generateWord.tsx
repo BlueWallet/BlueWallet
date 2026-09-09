@@ -43,7 +43,7 @@ const GenerateWord = () => {
   };
 
   return (
-    <SettingsScrollView keyboardShouldPersistTaps="handled">
+    <SettingsScrollView keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
       <SettingsSection>
         <View style={settingsCardContent}>
           <BlueFormMultiInput

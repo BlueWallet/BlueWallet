@@ -52,12 +52,15 @@ const SafeAreaSectionList = <ItemT, SectionT>(props: SafeAreaSectionListProps<It
   return (
     <SectionList
       style={componentStyle}
-      // `scrollToOverflowEnabled` works around RN's keyboard handler: it re-applies the current offset via `scrollTo:`,
-      // which clamps to the raw `contentInset` instead of `adjustedContentInset`, so content under a large-title header
-      // jumps up by the header height when the keyboard opens. Upstream fix: https://github.com/react/react-native/pull/56189
+      // `automaticallyAdjustKeyboardInsets` is opt-in: RN's keyboard handler also fires for screens below the
+      // stack top and clamps their offset (RCTScrollViewComponentView `_keyboardWillChangeFrame` / `scrollTo:`),
+      // scrolling the previous screen. Screens with text inputs pass the prop explicitly.
+      // `scrollToOverflowEnabled` works around the same handler for screens that do opt in: it re-applies the current
+      // offset via `scrollTo:`, which clamps to the raw `contentInset` instead of `adjustedContentInset`, so content under
+      // a large-title header jumps up by the header height when the keyboard opens.
+      // Upstream fix: https://github.com/react/react-native/pull/56189
       contentInsetAdjustmentBehavior="automatic"
       scrollToOverflowEnabled
-      automaticallyAdjustKeyboardInsets
       automaticallyAdjustContentInsets
       automaticallyAdjustsScrollIndicatorInsets
       contentContainerStyle={contentStyle}

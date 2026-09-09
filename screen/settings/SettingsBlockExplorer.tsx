@@ -118,7 +118,7 @@ const SettingsBlockExplorer: React.FC = () => {
   }, [customUrl, isCustomEnabled, setBlockExplorerStorage]);
 
   return (
-    <SettingsScrollView>
+    <SettingsScrollView automaticallyAdjustKeyboardInsets>
       <SettingsSection title={loc._.suggested}>
         {predefinedExplorers.map((explorer, index) => {
           const isSelected = !isCustomEnabled && normalizeUrl(selectedBlockExplorer.url || '') === normalizeUrl(explorer.url || '');
