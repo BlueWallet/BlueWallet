@@ -10,7 +10,6 @@ import {
   hashIt,
   helperImportWallet,
   scanText,
-  scrollUpOnHomeScreen,
   setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
@@ -512,7 +511,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await goBack();
     await goBack();
     await goBack();
-    await scrollUpOnHomeScreen(); // on the ios we need to scroll up to the wallet list
 
     await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
     await waitForId('SendButton');

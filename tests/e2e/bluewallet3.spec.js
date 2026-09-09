@@ -5,7 +5,6 @@ import {
   helperDeleteWallet,
   helperImportWallet,
   scanText,
-  scrollUpOnHomeScreen,
   sleep,
   tapHeaderMenuItem,
   waitForId,
@@ -115,7 +114,6 @@ describe('BlueWallet UI Tests - import Watch-only wallet (zpub)', () => {
     await goBack();
     await goBack();
     await goBack();
-    await scrollUpOnHomeScreen(); // on the ios we need to scroll up to the wallet list
 
     await helperDeleteWallet('Imported Watch-only', '10000');
 
