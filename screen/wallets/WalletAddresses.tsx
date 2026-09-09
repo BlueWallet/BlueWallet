@@ -241,6 +241,7 @@ const WalletAddresses: React.FC = () => {
       automaticallyAdjustContentInsets
       automaticallyAdjustsScrollIndicatorInsets
       automaticallyAdjustKeyboardInsets
+      scrollToOverflowEnabled
       ListHeaderComponent={
         <View style={styles.segmentedHeader}>
           <SegmentedControl
