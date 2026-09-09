@@ -65,7 +65,11 @@ const SafeAreaScrollView = forwardRef<ScrollView, SafeAreaScrollViewProps>((prop
     <ScrollView
       ref={ref}
       style={componentStyle}
+      // `scrollToOverflowEnabled` works around RN's keyboard handler: it re-applies the current offset via `scrollTo:`,
+      // which clamps to the raw `contentInset` instead of `adjustedContentInset`, so content under a large-title header
+      // jumps up by the header height when the keyboard opens. Upstream fix: https://github.com/react/react-native/pull/56189
       contentInsetAdjustmentBehavior="automatic"
+      scrollToOverflowEnabled
       automaticallyAdjustKeyboardInsets
       automaticallyAdjustsScrollIndicatorInsets
       contentContainerStyle={contentStyle}
