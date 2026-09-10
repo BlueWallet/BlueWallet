@@ -781,10 +781,10 @@ const TransactionStatus: React.FC = () => {
   const handleNotePress = useCallback(async () => {
     // Ark rows have no on-chain hash; use their synthetic txid as fallback key.
     const metadataKey = tx.hash ?? (tx as { txid?: string }).txid;
-    const currentMemo = (metadataKey && txMetadata[metadataKey]?.memo) || '';
+    const currentMemo = (metadataKey && txMetadata?.[metadataKey]?.memo) || '';
     try {
       const newMemo = await prompt(loc.send.details_note_placeholder, '', { type: 'plain-text', defaultValue: currentMemo });
-      if (newMemo !== undefined && metadataKey) {
+      if (newMemo !== undefined && metadataKey && txMetadata) {
         txMetadata[metadataKey] = { memo: newMemo };
         await saveToDisk();
         triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
@@ -933,7 +933,7 @@ const TransactionStatus: React.FC = () => {
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
 
   // Get memo
-  const memo = tx?.hash ? txMetadata[tx.hash]?.memo || '' : '';
+  const memo = tx?.hash ? txMetadata?.[tx.hash]?.memo || '' : '';
 
   const shortenContactName = (name: string): string => {
     if (name.length < 20) return name;

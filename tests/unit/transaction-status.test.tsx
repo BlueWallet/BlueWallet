@@ -322,6 +322,16 @@ describe('TransactionStatus regression', () => {
     );
   });
 
+  it('renders while transaction metadata is still unavailable', async () => {
+    mockStorageState = { ...mockStorageState, txMetadata: undefined } as unknown as MockStorage;
+
+    const { view } = setup(1, 1000);
+
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
+  });
+
   it('renders an Arkade row as received (not pending) and never queries Electrum for its synthetic id', async () => {
     const BlueElectrum = require('../../blue_modules/BlueElectrum');
     const arkRow = { txid: 'ark-deadbeef', type: 'bitcoind_tx', value: 1200, walletID: 'mock-wallet', timestamp: 1700000000 };
