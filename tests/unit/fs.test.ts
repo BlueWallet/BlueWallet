@@ -4,6 +4,7 @@ import {
   encodeCsvRow,
   parseWalletHistoryNotes,
   planWalletHistoryNoteImport,
+  selectWalletHistoryNoteUpdates,
 } from '../../blue_modules/fs';
 
 describe('fs wallet history notes', () => {
@@ -123,6 +124,23 @@ describe('fs wallet history notes', () => {
 
     expect([...plan.updates]).toEqual([['abc123', 'last']]);
     expect(plan.overwriteCount).toBe(1);
+  });
+
+  it('keeps new notes and only the selected overwrites', () => {
+    const updates = new Map([
+      ['existing-selected', 'replacement'],
+      ['existing-unselected', 'skipped replacement'],
+      ['without-note', 'new note'],
+    ]);
+    const metadata = {
+      'existing-selected': { memo: 'old note' },
+      'existing-unselected': { memo: 'another old note' },
+    };
+
+    expect([...selectWalletHistoryNoteUpdates(updates, metadata, new Set(['existing-selected']))]).toEqual([
+      ['existing-selected', 'replacement'],
+      ['without-note', 'new note'],
+    ]);
   });
 
   it('applies planned note updates before persisting', async () => {

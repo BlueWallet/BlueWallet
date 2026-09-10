@@ -86,6 +86,20 @@
 				<string>io.bluewallet.bwcosigner</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>BIP-329 Wallet Labels</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>io.bluewallet.bip329</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
@@ -308,6 +322,28 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>backup</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+				<string>public.text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>BIP-329 Wallet Labels</string>
+			<key>UTTypeIdentifier</key>
+			<string>io.bluewallet.bip329</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>jsonl</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/x-ndjson</string>
 				</array>
 			</dict>
 		</dict>

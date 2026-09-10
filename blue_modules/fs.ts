@@ -131,6 +131,13 @@ export const planWalletHistoryNoteImport = (
   return { updates, overwriteCount };
 };
 
+export const selectWalletHistoryNoteUpdates = (
+  updates: ReadonlyMap<string, string>,
+  metadata: TTXMetadata,
+  selectedOverwrites: ReadonlySet<string>,
+): Map<string, string> =>
+  new Map([...updates].filter(([metadataKey]) => !metadata[metadataKey]?.memo?.trim() || selectedOverwrites.has(metadataKey)));
+
 export const applyWalletHistoryNoteUpdates = async (
   metadata: TTXMetadata,
   updates: ReadonlyMap<string, string>,
