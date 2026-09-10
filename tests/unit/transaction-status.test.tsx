@@ -322,6 +322,18 @@ describe('TransactionStatus regression', () => {
     );
   });
 
+  it('saves a note entered through the alert', async () => {
+    mockPrompt.mockResolvedValue('Saved from alert');
+    const { view } = setup(1, 1000);
+
+    fireEvent.press(view.getByText('Add note'));
+
+    await waitFor(() => {
+      expect(mockStorageState.saveToDisk).toHaveBeenCalledTimes(1);
+    });
+    expect(mockStorageState.txMetadata['mock-tx']).toEqual({ memo: 'Saved from alert' });
+  });
+
   it('renders while transaction metadata is still unavailable', async () => {
     mockStorageState = { ...mockStorageState, txMetadata: undefined } as unknown as MockStorage;
 

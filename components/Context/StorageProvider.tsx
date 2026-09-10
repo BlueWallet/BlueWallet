@@ -67,7 +67,7 @@ export enum WalletTransactionsStatus {
 export const StorageContext = createContext<StorageContextType>(undefined);
 
 export const StorageProvider = ({ children }: { children: React.ReactNode }) => {
-  const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata);
+  const txMetadata = useRef<TTXMetadata>(BlueApp.tx_metadata ?? {});
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
@@ -238,7 +238,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   // Initialize wallets
   useEffect(() => {
     if (walletsInitialized) {
-      txMetadata.current = BlueApp.tx_metadata;
+      txMetadata.current = BlueApp.tx_metadata ?? {};
+      BlueApp.tx_metadata = txMetadata.current;
       counterpartyMetadata.current = BlueApp.counterparty_metadata;
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
