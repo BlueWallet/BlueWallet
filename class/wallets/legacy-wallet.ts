@@ -391,6 +391,13 @@ export class LegacyWallet extends AbstractWallet {
     const _utxos = JSON.parse(JSON.stringify(utxos)) as CreateTransactionUtxo[];
     const _targets = JSON.parse(JSON.stringify(targets)) as CreateTransactionTarget[];
 
+    let isUncompressedKey = false;
+    if (!this.segwitType || this.segwitType === 'p2pkh') {
+      try {
+        isUncompressedKey = !ECPair.fromWIF(this.secret).compressed;
+      } catch (e) {}
+    }
+
     // compensating for coinselect inability to deal with segwit inputs, and overriding script length for proper vbytes calculation
     for (const u of _utxos) {
       if (u.script?.length) {
@@ -409,6 +416,8 @@ export class LegacyWallet extends AbstractWallet {
         // So it would be 65 bytes (assuming max size) + the pushbyte for 65 bytes on the stack, which makes 66.
         // 66 / 4 = 16.5 round up to 17
         u.script = { length: 17 };
+      } else if (isUncompressedKey) {
+        u.script = { length: 139 };
       }
     }
 
