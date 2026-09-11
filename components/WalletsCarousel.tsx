@@ -920,7 +920,6 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       ListHeaderComponent={ListHeaderSeparator}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
-      automaticallyAdjustKeyboardInsets
       automaticallyAdjustsScrollIndicatorInsets
       scrollToOverflowEnabled
       style={{ minHeight: sliderHeight }}

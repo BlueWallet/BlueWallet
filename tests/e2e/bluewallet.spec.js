@@ -14,7 +14,6 @@ import {
   restoreSynchronizationIfAnimatedQrClosed,
   scanText,
   scanUrParts,
-  scrollUpOnHomeScreen,
   setCustomFeeRate,
   sleep,
   tapAndTapAgainIfElementIsNotVisible,
@@ -440,7 +439,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForKeyboardToClose();
     await confirmPasswordDialog(); // first time might not always work
     await sleep(1000); // propagate
-    await scrollUpOnHomeScreen();
 
     // created fake storage.
     // creating a wallet inside this fake storage
@@ -481,7 +479,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForKeyboardToClose();
     await confirmPasswordDialog(); // in case it didnt work first time
     await sleep(1000); // propagate
-    await scrollUpOnHomeScreen();
     await expect(element(by.text('fake_wallet'))).toBeVisible();
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
@@ -529,12 +526,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
       await waitForId('Wallets');
     }
     await sleep(1000); // propagate
-    // Match t4's flow: scroll up so the next helperCreateWallet's
-    // whileElement(WalletsList).scroll('right') starts from a known
-    // position. Without this, Android lands the user on a list state
-    // where CreateAWallet is not visible after scroll-right and the
-    // 6s tapAndTapAgainIfElementIsNotVisible budget runs out.
-    await scrollUpOnHomeScreen();
     // created fake storage.
     // creating a wallet inside this fake storage
     await helperCreateWallet('fake_wallet');
@@ -624,7 +615,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await element(by.id('CreateButton')).tap();
     await waitForText('OK');
     await tapIfTextPresent('OK');
-    await scrollUpOnHomeScreen();
     await waitForId('Multisig Vault');
     await element(by.id('Multisig Vault')).tap(); // go inside the wallet
     await waitForId('ReceiveButton');
@@ -681,7 +671,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
         console.warn('[detox] leaving sync disabled after multisig import: animated QR/scanner still open');
       }
     }
-    await scrollUpOnHomeScreen();
     // ok, wallet imported — left the UR / QR import UI
 
     // lets go inside wallet
@@ -866,7 +855,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // now, gona import second wallet (ln) and test bip21 with both onchain and offchain present
 
     await goBack();
-    await scrollUpOnHomeScreen();
     await waitForId('WalletsList');
     await waitFor(element(by.id('CreateAWallet')))
       .toBeVisible()
@@ -1067,7 +1055,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
         .scroll(500, 'down');
       await element(by.id('PleasebackupOk')).tap();
       await waitForId('WalletsList');
-      await scrollUpOnHomeScreen();
     } finally {
       if (isIOS) {
         await device.enableSynchronization();
@@ -1126,7 +1113,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapIfTextPresent('OK');
 
     // navigate into wallet
-    await scrollUpOnHomeScreen();
     await waitForId('Multisig Vault');
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
@@ -1206,7 +1192,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
 
     // verify receive address remains unchanged after forgetting cosigner 3 seed
-    await scrollUpOnHomeScreen();
     await waitForId('Multisig Vault');
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
@@ -1247,7 +1232,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('WalletsList');
 
     // verify receive address remains unchanged after restoring cosigner 3 seed
-    await scrollUpOnHomeScreen();
     await waitForId('Multisig Vault');
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
@@ -1307,7 +1291,6 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await tapIfTextPresent('OK');
 
     // navigate into wallet and verify format
-    await scrollUpOnHomeScreen();
     await waitForId('Multisig Vault');
     await element(by.id('Multisig Vault')).tap();
     await waitForId('ReceiveButton');
