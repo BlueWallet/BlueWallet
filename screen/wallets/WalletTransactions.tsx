@@ -35,7 +35,7 @@ import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
 import { TX_ROW_BASE_HEIGHT } from '../../components/ListItem';
 import TransactionsNavigationHeader, { actionKeys } from '../../components/TransactionsNavigationHeader';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import { authenticateSensitiveAction } from '../../hooks/useKeychainAuthentication';
 import loc, { formatBalance } from '../../loc';
 import { Chain } from '../../models/bitcoinUnits';
 import ActionSheet from '../ActionSheet';
@@ -178,7 +178,6 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
   const { wallets, saveToDisk } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
   const { params, name } = useRoute<RouteProps>();
@@ -747,11 +746,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           unitSwitching={isUnitSwitching}
           onWalletBalanceVisibilityChange={async shouldHideBalance => {
             try {
-              const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-              if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
-                if (!(await unlockWithBiometrics())) {
-                  return;
-                }
+              if (wallet.hideBalance && !shouldHideBalance && !(await authenticateSensitiveAction())) {
+                return;
               }
               wallet.hideBalance = shouldHideBalance;
               await saveToDisk();
@@ -809,7 +805,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       stylesHook.backgroundContainer,
       stylesHook.listHeaderText,
       saveToDisk,
-      isBiometricUseCapableAndEnabled,
       navigateToViewEditCosigners,
       onManageFundsPressed,
       navigate,

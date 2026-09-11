@@ -22,7 +22,7 @@ import { SettingsSection, SettingsListItem } from '../../components/SettingsSect
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import prompt from '../../helpers/prompt';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import { authenticateSensitiveAction } from '../../hooks/useKeychainAuthentication';
 import loc, { formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
@@ -51,7 +51,6 @@ function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: 
 
 const WalletDetails: React.FC = () => {
   const { saveToDisk, wallets, txMetadata, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -202,12 +201,9 @@ const WalletDetails: React.FC = () => {
         {
           text: loc.wallets.details_yes_delete,
           onPress: async () => {
-            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-            if (isBiometricsEnabled) {
-              if (!(await unlockWithBiometrics())) {
-                setIsLoading(false);
-                return false;
-              }
+            if (!(await authenticateSensitiveAction())) {
+              setIsLoading(false);
+              return false;
             }
             if (wallet.getBalance && wallet.getBalance() > 0 && wallet.allowSend && wallet.allowSend()) {
               presentWalletHasBalanceAlert();
@@ -228,7 +224,7 @@ const WalletDetails: React.FC = () => {
       ],
       options: { cancelable: false },
     });
-  }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
+  }, [navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
 
   const exportHistoryContent = useCallback(() => {
     const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];

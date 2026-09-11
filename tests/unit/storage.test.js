@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import assert from 'assert';
 
 import { BlueApp } from '../../class/blue-app';
@@ -42,11 +41,10 @@ it('Appstorage - loadFromDisk works', async () => {
   let isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(!isEncrypted);
 
-  // emulating encrypted storage (and testing flag)
+  // Encrypted state is derived from the bucket payload; no separate flag is required.
 
-  await AsyncStorage.setItem('data', false);
-  await AsyncStorage.setItem(BlueApp.FLAG_ENCRYPTED, '1');
   const Storage3 = new BlueApp();
+  await Storage3.setItem('data', JSON.stringify(['encrypted-bucket']));
   isEncrypted = await Storage3.storageIsEncrypted();
   assert.ok(isEncrypted);
 });

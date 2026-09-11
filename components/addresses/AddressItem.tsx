@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Share from 'react-native-share';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import confirm from '../../helpers/confirm';
-import { unlockWithBiometrics, useBiometrics } from '../../hooks/useBiometrics';
+import { authenticateSensitiveAction } from '../../hooks/useKeychainAuthentication';
 import loc, { formatBalance } from '../../loc';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import presentAlert from '../Alert';
@@ -42,7 +42,6 @@ const AddressItem = ({
 }: AddressItemProps) => {
   const { wallets } = useStorage();
   const { colors, dark } = useTheme();
-  const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const balanceOpacity = useSharedValue(1);
   const balanceTranslateY = useSharedValue(0);
   const previousBalance = useRef<string | undefined>(undefined);
@@ -157,16 +156,12 @@ const AddressItem = ({
         navigateToSignVerify();
       } else if (id === CommonToolTipActions.ExportPrivateKey.id) {
         if (await confirm(loc.addresses.sensitive_private_key)) {
-          if (await isBiometricUseCapableAndEnabled()) {
-            if (!(await unlockWithBiometrics())) {
-              return;
-            }
-          }
+          if (!(await authenticateSensitiveAction())) return;
           handleCopyPrivkeyPress();
         }
       }
     },
-    [handleCopyPress, handleSharePress, navigateToSignVerify, handleCopyPrivkeyPress, isBiometricUseCapableAndEnabled],
+    [handleCopyPress, handleSharePress, navigateToSignVerify, handleCopyPrivkeyPress],
   );
 
   // Render address with highlighting if a search query is provided

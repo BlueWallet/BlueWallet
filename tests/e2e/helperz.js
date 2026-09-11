@@ -43,6 +43,23 @@ export async function waitForId(id, timeout = 33000) {
   }
 }
 
+/**
+ * Waits for a non-interactive view to be mounted. This is appropriate for
+ * content covered by a deliberate reveal animation, where Detox's Android
+ * visibility matcher can continue treating transparent overlay tiles as
+ * occluding the underlying view.
+ */
+export async function waitForIdToExist(id, timeout = 33000) {
+  const callsite = captureCallsite(waitForIdToExist);
+  try {
+    await waitFor(element(by.id(id)))
+      .toExist()
+      .withTimeout(timeout);
+  } catch (err) {
+    rethrowWithCallsite(err, callsite);
+  }
+}
+
 export async function waitForText(text, timeout = 33000) {
   const callsite = captureCallsite(waitForText);
   try {
@@ -244,13 +261,18 @@ export async function helperCreateWallet(walletName) {
     try {
       await waitFor(element(by.id('PleaseBackupScrollView')))
         .toBeVisible()
-        .withTimeout(15000);
+        .withTimeout(90000);
     } catch (_) {
-      await element(by.id('Create')).tap();
-      await sleep(500);
+      // A debug build may still be loading the lazy PleaseBackup bundle after
+      // navigation has removed Create. Retry the tap only when the original
+      // screen is still present.
+      if (await expectToBeVisible('Create')) {
+        await element(by.id('Create')).tap();
+        await sleep(500);
+      }
       await waitFor(element(by.id('PleaseBackupScrollView')))
         .toBeVisible()
-        .withTimeout(15000);
+        .withTimeout(90000);
     }
 
     await waitFor(element(by.id('PleasebackupOk')))

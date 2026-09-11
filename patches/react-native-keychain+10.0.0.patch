@@ -1,0 +1,260 @@
+diff --git a/node_modules/react-native-keychain/ios/RNKeychainManager/RNKeychainManager.m b/node_modules/react-native-keychain/ios/RNKeychainManager/RNKeychainManager.m
+index 6888ff0..2f970f7 100644
+--- a/node_modules/react-native-keychain/ios/RNKeychainManager/RNKeychainManager.m
++++ b/node_modules/react-native-keychain/ios/RNKeychainManager/RNKeychainManager.m
+@@ -164,6 +164,7 @@ CFBooleanRef cloudSyncValue(NSDictionary *options)
+ #define kAccessControlApplicationPassword @"ApplicationPassword"
+ #define kAccessControlBiometryAnyOrDevicePasscode @"BiometryAnyOrDevicePasscode"
+ #define kAccessControlBiometryCurrentSetOrDevicePasscode @"BiometryCurrentSetOrDevicePasscode"
++#define kApplicationPassword @"applicationPassword"
+ 
+ #define kBiometryTypeTouchID @"TouchID"
+ #define kBiometryTypeFaceID @"FaceID"
+@@ -209,6 +210,19 @@ SecAccessControlCreateFlags accessControlValue(NSDictionary *options)
+   return 0;
+ }
+ 
++#if TARGET_OS_IOS || TARGET_OS_VISION
++LAContext *authenticationContextValue(NSDictionary *options)
++{
++  LAContext *context = [LAContext new];
++  NSString *applicationPassword = options[kApplicationPassword];
++  if ([applicationPassword isKindOfClass:[NSString class]]) {
++    NSData *credential = [applicationPassword dataUsingEncoding:NSUTF8StringEncoding];
++    [context setCredential:credential type:LACredentialTypeApplicationPassword];
++  }
++  return context;
++}
++#endif
++
+ - (void)insertKeychainEntry:(NSDictionary *)attributes
+                 withOptions:(NSDictionary * __nullable)options
+                    resolver:(RCTPromiseResolveBlock)resolve
+@@ -227,9 +241,11 @@ - (void)insertKeychainEntry:(NSDictionary *)attributes
+   if (accessControl) {
+     NSError *aerr = nil;
+     #if TARGET_OS_IOS || TARGET_OS_VISION
+-    BOOL canAuthenticate = [[LAContext new] canEvaluatePolicy:LAPolicyDeviceOwnerAuthentication error:&aerr];
+-    if (aerr || !canAuthenticate) {
+-      return rejectWithError(reject, aerr);
++    if (accessControl != kSecAccessControlApplicationPassword) {
++      BOOL canAuthenticate = [[LAContext new] canEvaluatePolicy:LAPolicyDeviceOwnerAuthentication error:&aerr];
++      if (aerr || !canAuthenticate) {
++        return rejectWithError(reject, aerr);
++      }
+     }
+     #endif
+ 
+@@ -243,6 +259,11 @@ - (void)insertKeychainEntry:(NSDictionary *)attributes
+       return rejectWithError(reject, aerr);
+     }
+     mAttributes[(__bridge NSString *)kSecAttrAccessControl] = (__bridge id)sacRef;
++    #if TARGET_OS_IOS || TARGET_OS_VISION
++    if ([options[kApplicationPassword] isKindOfClass:[NSString class]]) {
++      mAttributes[(__bridge NSString *)kSecUseAuthenticationContext] = authenticationContextValue(options);
++    }
++    #endif
+   } else {
+     mAttributes[(__bridge NSString *)kSecAttrAccessible] = (__bridge id)accessible;
+   }
+@@ -396,6 +417,24 @@ - (OSStatus)deleteCredentialsForServer:(NSString *)server withOptions:(NSDiction
+     return resolve(@(YES));
+   }
+ }
++
++RCT_EXPORT_METHOD(requestAuthenticationForOptions:(NSDictionary * __nullable)options
++                  resolver:(RCTPromiseResolveBlock)resolve
++                  rejecter:(RCTPromiseRejectBlock)reject)
++{
++  LAContext *context = [LAContext new];
++  context.touchIDAuthenticationAllowableReuseDuration = 0;
++  NSString *reason = authenticationPromptValue(options) ?: @"Authenticate";
++  [context evaluatePolicy:authPolicy(options)
++          localizedReason:reason
++                    reply:^(BOOL success, NSError *error) {
++    if (success) {
++      resolve(@(YES));
++    } else {
++      rejectWithError(reject, error);
++    }
++  }];
++}
+ #endif
+ 
+ #if TARGET_OS_IOS
+@@ -486,6 +525,12 @@ - (OSStatus)deleteCredentialsForServer:(NSString *)server withOptions:(NSDiction
+     query[(__bridge NSString *)kSecAttrAccessGroup] = accessGroup;
+   }
+ 
++  if ([options[@"requireFreshAuthentication"] boolValue] || [options[kApplicationPassword] isKindOfClass:[NSString class]]) {
++    LAContext *context = authenticationContextValue(options);
++    context.touchIDAuthenticationAllowableReuseDuration = 0;
++    query[(__bridge NSString *)kSecUseAuthenticationContext] = context;
++  }
++
+   // Look up service in the keychain
+   NSDictionary *found = nil;
+   CFTypeRef foundTypeRef = NULL;
+diff --git a/node_modules/react-native-keychain/lib/commonjs/index.js b/node_modules/react-native-keychain/lib/commonjs/index.js
+index da7ccb9..baebdb2 100644
+--- a/node_modules/react-native-keychain/lib/commonjs/index.js
++++ b/node_modules/react-native-keychain/lib/commonjs/index.js
+@@ -17,10 +17,12 @@ var _exportNames = {
+   requestSharedWebCredentials: true,
+   setSharedWebCredentials: true,
+   canImplyAuthentication: true,
++  requestAuthentication: true,
+   getSecurityLevel: true,
+   isPasscodeAuthAvailable: true
+ };
+ exports.canImplyAuthentication = canImplyAuthentication;
++exports.requestAuthentication = requestAuthentication;
+ exports.default = void 0;
+ exports.getAllGenericPasswordServices = getAllGenericPasswordServices;
+ exports.getGenericPassword = getGenericPassword;
+@@ -316,6 +318,12 @@ function canImplyAuthentication(options) {
+   }
+   return RNKeychainManager.canCheckAuthentication(options);
+ }
++function requestAuthentication(options) {
++  if (!_reactNative.NativeModules.RNKeychainManager.requestAuthenticationForOptions) {
++    return Promise.resolve(false);
++  }
++  return _reactNative.NativeModules.RNKeychainManager.requestAuthenticationForOptions((0, _normalizeOptions.normalizeAuthPrompt)(options));
++}
+ 
+ /**
+  * Returns the security level supported by the library on the current device.
+@@ -366,6 +374,7 @@ var _default = exports.default = {
+   STORAGE_TYPE: _enums.STORAGE_TYPE,
+   getSecurityLevel,
+   canImplyAuthentication,
++  requestAuthentication,
+   getSupportedBiometryType,
+   setInternetCredentials,
+   isPasscodeAuthAvailable,
+diff --git a/node_modules/react-native-keychain/lib/module/index.js b/node_modules/react-native-keychain/lib/module/index.js
+index b4f2bb6..b1e107c 100644
+--- a/node_modules/react-native-keychain/lib/module/index.js
++++ b/node_modules/react-native-keychain/lib/module/index.js
+@@ -257,6 +257,12 @@ export function canImplyAuthentication(options) {
+   }
+   return RNKeychainManager.canCheckAuthentication(options);
+ }
++export function requestAuthentication(options) {
++  if (!RNKeychainManager.requestAuthenticationForOptions) {
++    return Promise.resolve(false);
++  }
++  return RNKeychainManager.requestAuthenticationForOptions(normalizeAuthPrompt(options));
++}
+ 
+ /**
+  * Returns the security level supported by the library on the current device.
+@@ -309,6 +315,7 @@ export default {
+   STORAGE_TYPE,
+   getSecurityLevel,
+   canImplyAuthentication,
++  requestAuthentication,
+   getSupportedBiometryType,
+   setInternetCredentials,
+   isPasscodeAuthAvailable,
+diff --git a/node_modules/react-native-keychain/lib/typescript/index.d.ts b/node_modules/react-native-keychain/lib/typescript/index.d.ts
+index b868899..e9ad931 100644
+--- a/node_modules/react-native-keychain/lib/typescript/index.d.ts
++++ b/node_modules/react-native-keychain/lib/typescript/index.d.ts
+@@ -33,6 +33,8 @@ export declare function setGenericPassword(username: string, password: string, o
+  * ```
+  */
+ export declare function getGenericPassword(options?: GetOptions): Promise<false | UserCredentials>;
++/** Explicitly presents the native authentication UI and resolves only after it succeeds. */
++export declare function requestAuthentication(options?: AuthenticationTypeOption & Pick<GetOptions, 'authenticationPrompt'>): Promise<boolean>;
+ /**
+  * Checks if generic password exists for the given service.
+  *
+@@ -240,6 +242,7 @@ declare const _default: {
+     STORAGE_TYPE: typeof STORAGE_TYPE;
+     getSecurityLevel: typeof getSecurityLevel;
+     canImplyAuthentication: typeof canImplyAuthentication;
++    requestAuthentication: typeof requestAuthentication;
+     getSupportedBiometryType: typeof getSupportedBiometryType;
+     setInternetCredentials: typeof setInternetCredentials;
+     isPasscodeAuthAvailable: typeof isPasscodeAuthAvailable;
+diff --git a/node_modules/react-native-keychain/lib/typescript/types.d.ts b/node_modules/react-native-keychain/lib/typescript/types.d.ts
+index ff6a12e..c2d9866 100644
+--- a/node_modules/react-native-keychain/lib/typescript/types.d.ts
++++ b/node_modules/react-native-keychain/lib/typescript/types.d.ts
+@@ -33,6 +33,10 @@ export type BaseOptions = {
+      * @platform iOS, visionOS
+      */
+     accessGroup?: string;
++    /** Application-provided password used with ACCESS_CONTROL.APPLICATION_PASSWORD.
++     * @platform iOS, visionOS
++     */
++    applicationPassword?: string;
+ };
+ export type SetOptions = {
+     /** Specifies when a keychain item is accessible.
+@@ -64,6 +68,8 @@ export type SetOptions = {
+ export type GetOptions = {
+     /** The access control policy to use for the keychain item. */
+     accessControl?: ACCESS_CONTROL;
++    /** Require a new native authentication context instead of reusing a recent authentication. */
++    requireFreshAuthentication?: boolean;
+     /** Authentication prompt details or a title string.
+      * @default
+      * ```json
+diff --git a/node_modules/react-native-keychain/src/index.ts b/node_modules/react-native-keychain/src/index.ts
+index 1de35da..58d49c9 100644
+--- a/node_modules/react-native-keychain/src/index.ts
++++ b/node_modules/react-native-keychain/src/index.ts
+@@ -326,6 +326,18 @@ export function canImplyAuthentication(
+   return RNKeychainManager.canCheckAuthentication(options);
+ }
+ 
++/** Explicitly presents the native authentication UI and resolves only after it succeeds. */
++export function requestAuthentication(
++  options?: AuthenticationTypeOption & Pick<GetOptions, 'authenticationPrompt'>
++): Promise<boolean> {
++  if (!RNKeychainManager.requestAuthenticationForOptions) {
++    return Promise.resolve(false);
++  }
++  return RNKeychainManager.requestAuthenticationForOptions(
++    normalizeAuthPrompt(options)
++  );
++}
++
+ /**
+  * Returns the security level supported by the library on the current device.
+  *
+@@ -380,6 +392,7 @@ export default {
+   STORAGE_TYPE,
+   getSecurityLevel,
+   canImplyAuthentication,
++  requestAuthentication,
+   getSupportedBiometryType,
+   setInternetCredentials,
+   isPasscodeAuthAvailable,
+diff --git a/node_modules/react-native-keychain/src/types.ts b/node_modules/react-native-keychain/src/types.ts
+index 00448d3..b7183e1 100644
+--- a/node_modules/react-native-keychain/src/types.ts
++++ b/node_modules/react-native-keychain/src/types.ts
+@@ -41,6 +41,10 @@ export type BaseOptions = {
+    * @platform iOS, visionOS
+    */
+   accessGroup?: string;
++  /** Application-provided password used with ACCESS_CONTROL.APPLICATION_PASSWORD.
++   * @platform iOS, visionOS
++   */
++  applicationPassword?: string;
+ };
+ 
+ export type SetOptions = {
+@@ -75,6 +79,8 @@ export type SetOptions = {
+ export type GetOptions = {
+   /** The access control policy to use for the keychain item. */
+   accessControl?: ACCESS_CONTROL;
++  /** Require a new native authentication context instead of reusing a recent authentication. */
++  requireFreshAuthentication?: boolean;
+   /** Authentication prompt details or a title string.
+    * @default
+    * ```json

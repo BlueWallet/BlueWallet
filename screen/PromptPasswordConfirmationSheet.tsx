@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { RouteProp, StackActions, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Animated, Easing, Keyboard, StyleSheet, Text, TextInput, View, TextStyle, ViewStyle } from 'react-native';
+import { Animated, Easing, Keyboard, Platform, StyleSheet, Text, TextInput, View, TextStyle, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SecondButton } from '../components/SecondButton';
@@ -11,6 +11,7 @@ import loc from '../loc';
 import { DetailViewStackParamList } from '../navigation/DetailViewStackParamList';
 import { MODAL_TYPES } from './PromptPasswordConfirmationSheet.types';
 import { useStorage } from '../hooks/context/useStorage';
+import { AppUnlockPolicy, setAppUnlockSecurityOption } from '../hooks/useKeychainAuthentication';
 import presentAlert from '../components/Alert';
 
 type DynamicStyles = {
@@ -18,12 +19,85 @@ type DynamicStyles = {
   input: TextStyle;
   feeModalCustomText: TextStyle;
   feeModalLabel: TextStyle;
+  warningText: TextStyle;
+};
+
+type PasswordSecurityTransition = {
+  password: string;
+  targetOption: AppUnlockPolicy;
+  decryptStorage: (password: string) => Promise<boolean>;
+  encryptStorage: (password: string) => Promise<void>;
+  saveToDisk: () => Promise<void>;
+  setSecurityUseOption: (option: AppUnlockPolicy) => Promise<boolean>;
+};
+
+export const transitionPasswordStorageToSecurityOption = async ({
+  password,
+  targetOption,
+  decryptStorage,
+  encryptStorage,
+  saveToDisk,
+  setSecurityUseOption,
+}: PasswordSecurityTransition): Promise<boolean> => {
+  await decryptStorage(password);
+  await saveToDisk();
+  if (targetOption === 'disabled') return true;
+
+  try {
+    if (await setSecurityUseOption(targetOption)) return true;
+  } catch (error) {
+    await encryptStorage(password);
+    await saveToDisk();
+    throw error;
+  }
+
+  // Native authentication was cancelled or policy persistence failed. Restore
+  // password encryption so selecting another method cannot silently weaken it.
+  await encryptStorage(password);
+  await saveToDisk();
+  return false;
+};
+
+type PasswordProtectionTransition = {
+  password: string;
+  currentSecurityOption?: Exclude<AppUnlockPolicy, 'disabled'>;
+  decryptStorage: (password: string) => Promise<boolean>;
+  encryptStorage: (password: string) => Promise<void>;
+  saveToDisk: () => Promise<void>;
+  setSecurityUseOption: (option: AppUnlockPolicy) => Promise<boolean>;
+};
+
+export const transitionSecurityOptionToPasswordStorage = async ({
+  password,
+  currentSecurityOption,
+  decryptStorage,
+  encryptStorage,
+  saveToDisk,
+  setSecurityUseOption,
+}: PasswordProtectionTransition): Promise<boolean> => {
+  await encryptStorage(password);
+  await saveToDisk();
+  if (!currentSecurityOption) return true;
+
+  try {
+    if (await setSecurityUseOption('disabled')) return true;
+  } catch (error) {
+    await decryptStorage(password);
+    await saveToDisk();
+    throw error;
+  }
+
+  // Keep the previous authentication method when its native confirmation is
+  // cancelled or rejected.
+  await decryptStorage(password);
+  await saveToDisk();
+  return false;
 };
 
 const PromptPasswordConfirmationSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<DetailViewStackParamList>>();
   const route = useRoute<RouteProp<DetailViewStackParamList, 'PromptPasswordConfirmationSheet'>>();
-  const { modalType = MODAL_TYPES.ENTER_PASSWORD, returnTo } = route.params ?? {};
+  const { modalType = MODAL_TYPES.ENTER_PASSWORD, returnTo, securityOptionAfterDecryption, appUnlockSecurityOption } = route.params ?? {};
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -52,6 +126,9 @@ const PromptPasswordConfirmationSheet = () => {
       },
       feeModalLabel: {
         color: colors.successColor,
+      },
+      warningText: {
+        color: colors.redText,
       },
     }),
     [colors],
@@ -128,15 +205,35 @@ const PromptPasswordConfirmationSheet = () => {
     const runAction = async () => {
       if (returnTo === 'EncryptStorage') {
         if (modalType === MODAL_TYPES.CREATE_PASSWORD) {
-          await encryptStorage(password);
-          await saveToDisk();
+          const transitioned = await transitionSecurityOptionToPasswordStorage({
+            password,
+            currentSecurityOption: appUnlockSecurityOption,
+            decryptStorage,
+            encryptStorage,
+            saveToDisk,
+            setSecurityUseOption: setAppUnlockSecurityOption,
+          });
+          if (!transitioned) return false;
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           navigation.goBack();
           return true;
         }
         if (modalType === MODAL_TYPES.ENTER_PASSWORD) {
-          await decryptStorage(password);
-          await saveToDisk();
+          let transitioned = true;
+          if (securityOptionAfterDecryption) {
+            transitioned = await transitionPasswordStorageToSecurityOption({
+              password,
+              targetOption: securityOptionAfterDecryption,
+              decryptStorage,
+              encryptStorage,
+              saveToDisk,
+              setSecurityUseOption: setAppUnlockSecurityOption,
+            });
+          } else {
+            await decryptStorage(password);
+            await saveToDisk();
+          }
+          if (!transitioned) return false;
           triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
           const action = StackActions.popToTop();
           navigation.dispatch(action);
@@ -190,6 +287,14 @@ const PromptPasswordConfirmationSheet = () => {
   const animatedViewStyle: Animated.WithAnimatedObject<any> = {
     width: '100%',
   };
+  const currentAuthenticationMethod =
+    appUnlockSecurityOption === 'devicePasscode'
+      ? Platform.OS === 'android'
+        ? loc.settings.security_screen_lock
+        : loc.settings.security_device_passcode
+      : `${loc.settings.biometrics} / ${
+          Platform.OS === 'android' ? loc.settings.security_screen_lock_short : loc.settings.security_passcode_short
+        }`;
 
   return (
     <SafeAreaView style={[styles.modalContent, stylesHook.modalContent]} edges={['bottom', 'left', 'right']}>
@@ -206,6 +311,17 @@ const PromptPasswordConfirmationSheet = () => {
                 <Text style={[styles.description, stylesHook.feeModalCustomText]} maxFontSizeMultiplier={1.2}>
                   {loc.settings.encrypt_storage_explanation_description_line2}
                 </Text>
+                {appUnlockSecurityOption && (
+                  <Text
+                    testID="PasswordProtectionAuthenticationWarning"
+                    style={[styles.description, styles.warning, stylesHook.warningText]}
+                    maxFontSizeMultiplier={1.2}
+                  >
+                    {loc.formatString(loc.settings.password_protection_disables_authentication, {
+                      method: currentAuthenticationMethod,
+                    })}
+                  </Text>
+                )}
               </Animated.View>
               <View style={styles.feeModalFooter} />
             </Animated.View>
@@ -332,6 +448,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 12,
     textAlign: 'center',
+  },
+  warning: {
+    fontWeight: '600',
   },
   footerContainer: {
     width: '100%',

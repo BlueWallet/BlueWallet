@@ -1,9 +1,7 @@
 import { Platform } from 'react-native';
 
 import { BlueApp as BlueAppClass } from '../class/blue-app';
-import prompt from '../helpers/prompt';
-import { showKeychainWipeAlert } from '../hooks/useBiometrics';
-import loc from '../loc';
+import { showKeychainWipeAlert } from '../hooks/useKeychainAuthentication';
 
 const BlueApp = BlueAppClass.getInstance();
 // If attempt reaches 10, a wipe keychain option will be provided to the user.
@@ -11,41 +9,49 @@ let unlockAttempt = 0;
 
 type PasswordPromptCallback = () => Promise<string | undefined>;
 
-export const startAndDecrypt = async (retry?: boolean, passwordPrompt?: PasswordPromptCallback): Promise<boolean> => {
-  // If wallets are already loaded, no need to migrate, decrypt, or load from disk.
-  if (BlueApp.getWallets().length > 0) {
-    return true;
-  }
+export const startAndDecrypt = async (
+  retry?: boolean,
+  passwordPrompt?: PasswordPromptCallback,
+  explicitPassword?: string,
+  storageEncrypted?: boolean,
+  requirePersistedData = false,
+): Promise<boolean> => {
+  // Always validate and reload persisted storage. In-memory wallets are a
+  // session cache, never proof that the current unlock attempt succeeded.
   await BlueApp.migrateKeys();
   let password: undefined | string;
-  if (await BlueApp.storageIsEncrypted()) {
-    if (passwordPrompt) {
+  const isEncrypted = storageEncrypted ?? (await BlueApp.storageIsEncrypted());
+  if (isEncrypted) {
+    if (explicitPassword) {
+      password = explicitPassword;
+    } else if (passwordPrompt) {
       password = await passwordPrompt();
     } else {
-      do {
-        password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted, { cancelable: false });
-      } while (!password);
+      return false;
     }
+    if (!password) return false;
   }
   let success = false;
-  let wasException = false;
+  let loadError: unknown;
   try {
     success = await BlueApp.loadFromDisk(password);
   } catch (error) {
     // in case of exception reading from keystore, lets retry instead of assuming there is no storage and
     // proceeding with no wallets
     console.warn('exception loading from disk:', error);
-    wasException = true;
+    loadError = error;
   }
 
-  if (wasException) {
+  if (loadError) {
     // retrying, but only once
     try {
       await new Promise(resolve => setTimeout(resolve, 3000)); // sleep
       success = await BlueApp.loadFromDisk(password);
     } catch (error) {
       console.warn('second exception loading from disk:', error);
+      throw error;
     }
+    if (!success) throw loadError;
   }
 
   if (success) {
@@ -67,8 +73,10 @@ export const startAndDecrypt = async (retry?: boolean, passwordPrompt?: Password
     }
   } else {
     unlockAttempt = 0;
-    // Return true because there was no wallet data in keychain. Proceed.
-    return true;
+    // A fresh installation may legitimately have no wallet data. A protected
+    // app-unlock session may not: treating a missing/corrupt Keychain entry as
+    // an empty installation would open navigation with the user's wallets gone.
+    return !requirePersistedData;
   }
 };
 

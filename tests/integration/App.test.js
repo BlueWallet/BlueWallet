@@ -46,6 +46,7 @@ it('SelfTest work', async () => {
     </Wrapper>,
   );
   expect(toJSON()).toBeTruthy();
+  await waitFor(() => expect(queryByTestId('KeychainDiagnostic-Wallet-envelope')).toBeTruthy());
 
   fireEvent.press(getByText('Run self-test'));
 

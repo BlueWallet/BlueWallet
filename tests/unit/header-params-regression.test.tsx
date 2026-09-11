@@ -47,10 +47,8 @@ jest.mock('../../hooks/context/useSettings', () => ({
 }));
 
 jest.mock('../../hooks/useBiometrics', () => ({
-  useBiometrics: () => ({
-    isBiometricUseCapableAndEnabled: jest.fn(async () => false),
-  }),
-  unlockWithBiometrics: jest.fn(async () => true),
+  useBiometrics: () => ({}),
+  authenticateSensitiveAction: jest.fn(async () => true),
 }));
 
 jest.mock('../../components/themes', () => ({

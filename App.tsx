@@ -10,7 +10,7 @@ import { navigationRef } from './NavigationService';
 import { useLogger } from '@react-navigation/devtools';
 import { StorageProvider } from './components/Context/StorageProvider';
 import { useStorage } from './hooks/context/useStorage';
-import { unlockWithBiometrics, useBiometrics } from './hooks/useBiometrics';
+import { authenticateSensitiveAction } from './hooks/useKeychainAuthentication';
 import { presentWalletExportReminder } from './helpers/presentWalletExportReminder';
 import { requestCameraAuthorization } from './helpers/scan-qr';
 import {
@@ -23,20 +23,18 @@ import {
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
   const { wallets, saveToDisk } = useStorage();
-  const { isBiometricUseEnabled } = useBiometrics();
 
   const validateNavigation = useCallback(
     (route: GuardedRoute) =>
       validateGuardedRoute(route, {
         currentRouteName: navigationRef.getCurrentRoute()?.name,
-        isBiometricUseEnabled,
-        unlockWithBiometrics,
+        authenticateSensitiveAction,
         wallets,
         saveToDisk,
         presentWalletExportReminder,
         requestCameraAuthorization,
       }),
-    [isBiometricUseEnabled, saveToDisk, wallets],
+    [saveToDisk, wallets],
   );
 
   const handleUnhandledAction = useCallback(

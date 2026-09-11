@@ -1451,8 +1451,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-biometrics (3.0.1):
-    - React-Core
   - react-native-blue-crypto (1.0.0):
     - React
   - react-native-bw-file-access (1.0.0):
@@ -1598,8 +1596,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-secure-key-store (2.0.10):
-    - React-Core
   - react-native-tcp-socket (6.4.2):
     - CocoaAsyncSocket
     - React-Core
@@ -2536,7 +2532,6 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - React-mutationobservernativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver`)
-  - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - react-native-bw-file-access (from `../blue_modules/react-native-bw-file-access`)
   - react-native-capture-protection (from `../node_modules/react-native-capture-protection`)
@@ -2546,7 +2541,6 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-notifications (from `../node_modules/react-native-notifications`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - react-native-secure-key-store (from `../node_modules/react-native-secure-key-store`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - "react-native-vector-icons-entypo (from `../node_modules/@react-native-vector-icons/entypo`)"
   - "react-native-vector-icons-fontawesome (from `../node_modules/@react-native-vector-icons/fontawesome`)"
@@ -2702,8 +2696,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   React-mutationobservernativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver"
-  react-native-biometrics:
-    :path: "../node_modules/react-native-biometrics"
   react-native-blue-crypto:
     :path: "../node_modules/react-native-blue-crypto"
   react-native-bw-file-access:
@@ -2722,8 +2714,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-notifications"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-secure-key-store:
-    :path: "../node_modules/react-native-secure-key-store"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
   react-native-vector-icons-entypo:
@@ -2894,7 +2884,6 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 1aa9126122d4247ffc24bf9d28d50ce923499a71
   React-microtasksnativemodule: d86581169e9bb5bb6f5fc3c5052f890016c1bf21
   React-mutationobservernativemodule: 9a0c4e866f1ef2a57acebc902ebacbdf469ae741
-  react-native-biometrics: 352e5a794bfffc46a0c86725ea7dc62deb085bdc
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-bw-file-access: b232fd1d902521ca046f3fc5990ab1465e1878d7
   react-native-capture-protection: c8af7560c9ee775b66e835582211ad7da8e00701
@@ -2904,7 +2893,6 @@ SPEC CHECKSUMS:
   react-native-image-picker: 2146157d5d37a34c2063d1d2ed01081b56d0b87b
   react-native-notifications: 801e1a5220d474384968de5ccf8b863d05aa552a
   react-native-safe-area-context: b3e671af6f52a4faaf7c1009a7a487bd9b551df0
-  react-native-secure-key-store: 910e6df6bc33cb790aba6ee24bc7818df1fe5898
   react-native-tcp-socket: dcd04baa1f94a73d833b7251fb9bd197964e8345
   react-native-vector-icons-entypo: bd991a0d2dc9cf40b7fe8a83be44a072a6c60faa
   react-native-vector-icons-fontawesome: 9a819e97393c0e60e3ae9defbe28248002a8957c

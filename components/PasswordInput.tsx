@@ -108,7 +108,7 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
     }));
 
     const handleSubmit = () => {
-      if (password.trim() && !isSuccess) {
+      if (password.trim() && !disabled && !isSuccess) {
         onSubmit(password);
       }
     };
@@ -151,7 +151,7 @@ export const PasswordInput = forwardRef<PasswordInputHandle, PasswordInputProps>
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
-          editable={!isSuccess}
+          editable={!disabled && !isSuccess}
           onSubmitEditing={handleSubmit}
           returnKeyType="done"
           enablesReturnKeyAutomatically={true}
