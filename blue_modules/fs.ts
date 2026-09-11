@@ -5,6 +5,7 @@ import { launchImageLibrary, ImagePickerResponse } from 'react-native-image-pick
 import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import Share from 'react-native-share';
 
+import type { TTXMetadata } from '../class/blue-app';
 import presentAlert from '../components/Alert';
 import loc from '../loc';
 import { isDesktop } from './environment';
@@ -18,6 +19,142 @@ const _sanitizeFileName = (fileName: string) => {
 
 export const isCancel = (err: any): boolean => {
   return err.code && err.code === errorCodes.OPERATION_CANCELED;
+};
+
+export const encodeCsvRow = (values: Array<string | number>): string =>
+  values
+    .map(value => {
+      const stringValue = String(value);
+      return /[",\r\n]/.test(stringValue) ? `"${stringValue.replace(/"/g, '""')}"` : stringValue;
+    })
+    .join(',');
+
+export const encodeBip329TransactionLabel = (transactionId: string, label?: string): string =>
+  JSON.stringify(label === undefined ? { type: 'tx', ref: transactionId } : { type: 'tx', ref: transactionId, label });
+
+const parseCsv = (contents: string): string[][] => {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let value = '';
+  let quoted = false;
+
+  for (let index = 0; index < contents.length; index++) {
+    const character = contents[index];
+
+    if (quoted) {
+      if (character === '"' && contents[index + 1] === '"') {
+        value += '"';
+        index++;
+      } else if (character === '"') {
+        quoted = false;
+      } else {
+        value += character;
+      }
+    } else if (character === '"' && value.length === 0) {
+      quoted = true;
+    } else if (character === ',') {
+      row.push(value);
+      value = '';
+    } else if (character === '\n' || character === '\r') {
+      if (character === '\r' && contents[index + 1] === '\n') index++;
+      row.push(value);
+      rows.push(row);
+      row = [];
+      value = '';
+    } else {
+      value += character;
+    }
+  }
+
+  if (quoted) throw new Error('Unterminated quoted field');
+  if (row.length > 0 || value.length > 0) {
+    row.push(value);
+    rows.push(row);
+  }
+
+  return rows;
+};
+
+const parseBip329TransactionNotes = (contents: string): Array<{ transactionId: string; memo: string }> =>
+  contents
+    .split(/\r?\n/)
+    .filter(line => line.trim().length > 0)
+    .flatMap(line => {
+      const record: unknown = JSON.parse(line);
+      if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Invalid BIP-329 record');
+
+      const { type, ref, label } = record as Record<string, unknown>;
+      if (typeof type !== 'string' || typeof ref !== 'string') throw new Error('Invalid BIP-329 record');
+      if (type !== 'tx' || label === undefined) return [];
+      if (!/^[0-9a-f]{64}$/i.test(ref) || typeof label !== 'string') throw new Error('Invalid BIP-329 transaction label');
+
+      return [{ transactionId: ref, memo: label }];
+    });
+
+/**
+ * Reads transaction notes from BIP-329 JSONL or BlueWallet wallet-history CSV.
+ * Older BlueWallet exports did not escape commas in memos, so extra CSV
+ * columns are joined back into the memo.
+ */
+export const parseWalletHistoryNotes = (contents: string): Array<{ transactionId: string; memo: string }> => {
+  const normalizedContents = contents.replace(/^\uFEFF/, '').trimStart();
+  if (normalizedContents.startsWith('{')) return parseBip329TransactionNotes(normalizedContents);
+
+  const rows = parseCsv(normalizedContents);
+  if (rows.length === 0 || rows[0].length < 4) throw new Error('Invalid wallet history CSV');
+
+  return rows.slice(1).flatMap(row => {
+    if (row.length < 4) return [];
+
+    const transactionId = row[1].trim();
+    const memo = row.slice(3).join(',').trim();
+
+    return transactionId && memo ? [{ transactionId, memo }] : [];
+  });
+};
+
+export const planWalletHistoryNoteImport = (
+  importedNotes: Array<{ transactionId: string; memo: string }>,
+  transactionMetadataKeys: ReadonlyMap<string, string>,
+  metadata: TTXMetadata,
+): { updates: Map<string, string>; overwriteCount: number } => {
+  const updates = new Map<string, string>();
+
+  for (const importedNote of importedNotes) {
+    const metadataKey = transactionMetadataKeys.get(importedNote.transactionId.toLowerCase());
+    if (metadataKey && metadata[metadataKey]?.memo !== importedNote.memo) {
+      updates.set(metadataKey, importedNote.memo);
+    }
+  }
+
+  const overwriteCount = [...updates.keys()].filter(metadataKey => Boolean(metadata[metadataKey]?.memo?.trim())).length;
+  return { updates, overwriteCount };
+};
+
+export const selectWalletHistoryNoteUpdates = (
+  updates: ReadonlyMap<string, string>,
+  metadata: TTXMetadata,
+  selectedOverwrites: ReadonlySet<string>,
+): Map<string, string> =>
+  new Map([...updates].filter(([metadataKey]) => !metadata[metadataKey]?.memo?.trim() || selectedOverwrites.has(metadataKey)));
+
+export const applyWalletHistoryNoteUpdates = async (
+  metadata: TTXMetadata,
+  updates: ReadonlyMap<string, string>,
+  persist: () => Promise<void>,
+): Promise<void> => {
+  const previousMetadata = new Map([...updates.keys()].map(metadataKey => [metadataKey, metadata[metadataKey]]));
+  for (const [metadataKey, memo] of updates) metadata[metadataKey] = { memo };
+
+  try {
+    await persist();
+  } catch (error) {
+    for (const [metadataKey, previousValue] of previousMetadata) {
+      if (previousValue) metadata[metadataKey] = previousValue;
+      else delete metadata[metadataKey];
+    }
+    throw error;
+  }
 };
 
 const _safeUnlink = async (filePath: string) => {
@@ -62,6 +199,8 @@ const _mimeTypeFromFileName = (fileName: string): string => {
       return 'text/plain';
     case 'json':
       return 'application/json';
+    case 'jsonl':
+      return 'application/x-ndjson';
     case 'csv':
       return 'text/csv';
     case 'pdf':

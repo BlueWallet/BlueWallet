@@ -1,6 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { writeFileAndExport } from '../../blue_modules/fs';
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  applyWalletHistoryNoteUpdates,
+  encodeBip329TransactionLabel,
+  encodeCsvRow,
+  parseWalletHistoryNotes,
+  planWalletHistoryNoteImport,
+  selectWalletHistoryNoteUpdates,
+  showFilePickerAndReadFile,
+  writeFileAndExport,
+} from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import BlueCard from '../../components/BlueCard';
@@ -18,6 +27,7 @@ import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electr
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import presentAlert from '../../components/Alert';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import Divider from '../../components/Divider';
 import { SettingsSection, SettingsListItem } from '../../components/SettingsSection';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
@@ -39,6 +49,7 @@ import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
+const IMPORT_NOTES_ACTION_ID = 'import_notes';
 
 function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: number | null } {
   if (typeof w.getUtxo !== 'function') return { hasCoinControl: false, utxoCount: null };
@@ -50,7 +61,7 @@ function getCoinControlStats(w: TWallet): { hasCoinControl: boolean; utxoCount: 
 }
 
 const WalletDetails: React.FC = () => {
-  const { saveToDisk, wallets, txMetadata, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
+  const { saveToDisk, wallets, txMetadata = {}, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
   const { direction } = useLocale();
@@ -76,6 +87,9 @@ const WalletDetails: React.FC = () => {
   const [masterFingerprint, setMasterFingerprint] = useState<string | undefined>();
   const [arkAddress, setArkAddress] = useState<string>('');
   const [walletName, setWalletName] = useState<string>(wallet.getLabel());
+  const [importedNoteResults, setImportedNoteResults] = useState<Map<string, string>>(new Map());
+  const [pendingNoteUpdates, setPendingNoteUpdates] = useState<Map<string, string>>(new Map());
+  const [selectedNoteOverwrites, setSelectedNoteOverwrites] = useState<Set<string>>(new Set());
   const walletTransactionsLength = useMemo<number>(() => wallet.getTransactions().length, [wallet]);
   const [coinControlStats, setCoinControlStats] = useState(() => getCoinControlStats(wallet));
 
@@ -231,23 +245,35 @@ const WalletDetails: React.FC = () => {
   }, [isBiometricUseCapableAndEnabled, navigateToOverviewAndDeleteWallet, presentWalletHasBalanceAlert, wallet]);
 
   const exportHistoryContent = useCallback(() => {
-    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
-    if (wallet.chain === Chain.OFFCHAIN) {
-      headers.push(loc.lnd.payment);
+    const transactions = wallet.getTransactions();
+
+    if (wallet.chain === Chain.ONCHAIN) {
+      return transactions
+        .flatMap(transaction => {
+          const transactionId = transaction.hash || transaction.txid;
+          if (!transactionId) return [];
+
+          const memo = txMetadata?.[transactionId]?.memo?.trim();
+          return [encodeBip329TransactionLabel(transactionId, memo || undefined)];
+        })
+        .join('\n');
     }
 
-    const rows = [headers.join(',')];
-    const transactions = wallet.getTransactions();
+    const headers = [loc.transactions.date, loc.transactions.txid, `${loc.send.create_amount} (${BitcoinUnit.BTC})`, loc.send.create_memo];
+    headers.push(loc.lnd.payment);
+
+    const rows = [encodeCsvRow(headers)];
 
     transactions.forEach((transaction: Transaction & LightningTransaction) => {
       const value = formatBalanceWithoutSuffix(transaction.value || 0, BitcoinUnit.BTC, true);
-      let hash: string = transaction.hash || '';
-      let memo = (transaction.hash && txMetadata[transaction.hash]?.memo?.trim()) || '';
+      let hash: string = transaction.hash || transaction.txid || '';
+      const metadataKey = transaction.hash || transaction.txid;
+      let memo = (metadataKey && txMetadata?.[metadataKey]?.memo?.trim()) || '';
       let status = '';
 
       if (wallet.chain === Chain.OFFCHAIN) {
         hash = transaction.payment_hash ? transaction.payment_hash.toString() : '';
-        memo = transaction.memo || '';
+        memo = memo || transaction.memo || '';
         status = transaction.ispaid ? loc._.success : loc.lnd.expired;
         if (typeof hash !== 'string' && (hash as any)?.type === 'Buffer' && (hash as any)?.data) {
           hash = uint8ArrayToHex(new Uint8Array((hash as any).data));
@@ -261,7 +287,7 @@ const WalletDetails: React.FC = () => {
         data.push(status);
       }
 
-      rows.push(data.join(','));
+      rows.push(encodeCsvRow(data));
     });
 
     return rows.join('\n');
@@ -269,8 +295,90 @@ const WalletDetails: React.FC = () => {
 
   const fileName = useMemo(() => {
     const label = wallet.getLabel().replace(' ', '-');
-    return `${label}-history.csv`;
+    const extension = wallet.chain === Chain.ONCHAIN ? 'jsonl' : 'csv';
+    return `${label}-history.${extension}`;
   }, [wallet]);
+
+  const applyNoteUpdates = useCallback(
+    async (updates: ReadonlyMap<string, string>) => {
+      try {
+        await applyWalletHistoryNoteUpdates(txMetadata, updates, saveToDisk);
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationSuccess);
+        setPendingNoteUpdates(new Map());
+        setSelectedNoteOverwrites(new Set());
+        setImportedNoteResults(new Map(updates));
+      } catch (error: unknown) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    },
+    [saveToDisk, txMetadata],
+  );
+
+  const importNotes = useCallback(async () => {
+    if (wallet.chain !== Chain.ONCHAIN) return;
+
+    const { data } = await showFilePickerAndReadFile();
+    if (data === false) return;
+
+    let importedNotes;
+    try {
+      importedNotes = parseWalletHistoryNotes(data);
+    } catch {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: loc.wallets.import_error });
+      return;
+    }
+
+    const transactionMetadataKeys = new Map<string, string>();
+    for (const transaction of wallet.getTransactions()) {
+      const transactionId = transaction.hash || transaction.txid;
+      if (transactionId) transactionMetadataKeys.set(transactionId.toLowerCase(), transactionId);
+    }
+
+    const { updates, overwriteCount } = planWalletHistoryNoteImport(importedNotes, transactionMetadataKeys, txMetadata);
+
+    if (updates.size === 0) {
+      presentAlert({ message: loc.wallets.details_import_notes_no_changes });
+      return;
+    }
+
+    if (overwriteCount === 0) {
+      await applyNoteUpdates(updates);
+      return;
+    }
+
+    triggerHapticFeedback(HapticFeedbackTypes.NotificationWarning);
+    setPendingNoteUpdates(new Map(updates));
+    setSelectedNoteOverwrites(new Set([...updates.keys()].filter(metadataKey => Boolean(txMetadata[metadataKey]?.memo?.trim()))));
+  }, [applyNoteUpdates, txMetadata, wallet]);
+
+  const overwriteNoteUpdates = useMemo(
+    () => [...pendingNoteUpdates].filter(([metadataKey]) => Boolean(txMetadata[metadataKey]?.memo?.trim())),
+    [pendingNoteUpdates, txMetadata],
+  );
+
+  const selectedNoteUpdates = useMemo(
+    () => selectWalletHistoryNoteUpdates(pendingNoteUpdates, txMetadata, selectedNoteOverwrites),
+    [pendingNoteUpdates, selectedNoteOverwrites, txMetadata],
+  );
+
+  const closeImportNotesModal = useCallback(() => {
+    setImportedNoteResults(new Map());
+    setPendingNoteUpdates(new Map());
+    setSelectedNoteOverwrites(new Set());
+  }, []);
+
+  const toggleNoteOverwrite = useCallback((transactionId: string) => {
+    setSelectedNoteOverwrites(current => {
+      const selected = new Set(current);
+      if (selected.has(transactionId)) selected.delete(transactionId);
+      else selected.add(transactionId);
+      return selected;
+    });
+  }, []);
 
   const toolTipOnPressMenuItem = useCallback(
     async (id: string) => {
@@ -278,9 +386,11 @@ const WalletDetails: React.FC = () => {
         await writeFileAndExport(fileName, exportHistoryContent(), true);
       } else if (id === CommonToolTipActions.SaveFile.id) {
         await writeFileAndExport(fileName, exportHistoryContent(), false);
+      } else if (id === IMPORT_NOTES_ACTION_ID) {
+        await importNotes();
       }
     },
-    [exportHistoryContent, fileName],
+    [exportHistoryContent, fileName, importNotes],
   );
 
   const transactionsBoxMenuActions = useMemo(
@@ -292,8 +402,14 @@ const WalletDetails: React.FC = () => {
         hidden: walletTransactionsLength === 0,
         subactions: [CommonToolTipActions.Share, CommonToolTipActions.SaveFile],
       },
+      {
+        id: IMPORT_NOTES_ACTION_ID,
+        text: loc.wallets.details_import_notes,
+        icon: CommonToolTipActions.ImportFile.icon,
+        hidden: walletTransactionsLength === 0 || wallet.chain !== Chain.ONCHAIN,
+      },
     ],
-    [walletTransactionsLength],
+    [wallet.chain, walletTransactionsLength],
   );
 
   useEffect(() => {
@@ -906,12 +1022,143 @@ const WalletDetails: React.FC = () => {
             </BlueCard>
           </>
         )}
+        <Modal
+          animationType="slide"
+          presentationStyle="formSheet"
+          visible={pendingNoteUpdates.size > 0 || importedNoteResults.size > 0}
+          onRequestClose={closeImportNotesModal}
+        >
+          <View style={[styles.importResultsModal, { backgroundColor: colors.modal }]} testID="ImportedNotesModal">
+            <Text style={[styles.importResultsTitle, { color: colors.foregroundColor }]}>
+              {pendingNoteUpdates.size > 0 ? loc.wallets.details_import_notes : loc._.success}
+            </Text>
+            <Text style={[styles.importResultsSummary, { color: colors.alternativeTextColor }]}>
+              {pendingNoteUpdates.size > 0
+                ? loc.wallets.details_import_notes_review
+                : loc.formatString(loc.wallets.details_import_notes_success, { count: importedNoteResults.size })}
+            </Text>
+            <FlatList
+              data={pendingNoteUpdates.size > 0 ? overwriteNoteUpdates : [...importedNoteResults]}
+              keyExtractor={item => item[0]}
+              testID="ImportedNotesList"
+              style={styles.importResultsList}
+              ItemSeparatorComponent={Divider}
+              renderItem={({ item: [transactionId, memo] }) => (
+                <Pressable
+                  style={({ pressed }) => [styles.importResultRow, pressed && styles.pressablePressed]}
+                  onPress={pendingNoteUpdates.size > 0 ? () => toggleNoteOverwrite(transactionId) : undefined}
+                  accessibilityRole={pendingNoteUpdates.size > 0 ? 'checkbox' : undefined}
+                  accessibilityState={pendingNoteUpdates.size > 0 ? { checked: selectedNoteOverwrites.has(transactionId) } : undefined}
+                  testID={`ImportedNote-${transactionId}`}
+                >
+                  <View style={styles.importResultContent}>
+                    {pendingNoteUpdates.size > 0 && (
+                      <Icon
+                        name={selectedNoteOverwrites.has(transactionId) ? 'check-box' : 'check-box-outline-blank'}
+                        type="material"
+                        size={24}
+                        color={colors.alternativeTextColor2}
+                      />
+                    )}
+                    <View style={[styles.importResultText, pendingNoteUpdates.size > 0 && styles.importResultTextWithCheckbox]}>
+                      {pendingNoteUpdates.size > 0 ? (
+                        <>
+                          <Text style={[styles.importResultMemo, { color: colors.foregroundColor }]} selectable>
+                            {loc.wallets.details_import_notes_before}: {txMetadata[transactionId]?.memo}
+                          </Text>
+                          <Text style={[styles.importResultMemo, { color: colors.foregroundColor }]} selectable>
+                            {loc.wallets.details_import_notes_after}: {memo || '—'}
+                          </Text>
+                        </>
+                      ) : (
+                        <Text style={[styles.importResultMemo, { color: colors.foregroundColor }]} selectable>
+                          {memo || '—'}
+                        </Text>
+                      )}
+                      <Text style={[styles.importResultTransactionId, { color: colors.alternativeTextColor }]} selectable>
+                        {transactionId}
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              )}
+            />
+            {pendingNoteUpdates.size > 0 ? (
+              <View style={styles.importResultsButtons}>
+                <SecondButton title={loc._.cancel} onPress={closeImportNotesModal} testID="CancelImportNotes" />
+                <View style={styles.importResultsButtonSpacer} />
+                <SecondButton
+                  title={loc.wallets.import_do_import}
+                  onPress={() => applyNoteUpdates(selectedNoteUpdates)}
+                  backgroundColor={colors.mainColor}
+                  textColor={colors.buttonTextColor}
+                  disabled={selectedNoteUpdates.size === 0}
+                  testID="ConfirmImportNotes"
+                />
+              </View>
+            ) : (
+              <SecondButton
+                title={loc._.close}
+                onPress={closeImportNotesModal}
+                backgroundColor={colors.mainColor}
+                textColor={colors.buttonTextColor}
+                testID="CloseImportedNotesModal"
+              />
+            )}
+          </View>
+        </Modal>
       </>
     </SafeAreaScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  importResultsModal: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 20,
+  },
+  importResultsTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+  },
+  importResultsSummary: {
+    fontSize: 15,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  importResultsList: {
+    flex: 1,
+    marginBottom: 16,
+  },
+  importResultRow: {
+    paddingVertical: 14,
+  },
+  importResultContent: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+  },
+  importResultText: {
+    flex: 1,
+  },
+  importResultTextWithCheckbox: {
+    marginLeft: 12,
+  },
+  importResultMemo: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 5,
+  },
+  importResultTransactionId: {
+    fontSize: 12,
+  },
+  importResultsButtons: {
+    flexDirection: 'row',
+  },
+  importResultsButtonSpacer: {
+    width: 12,
+  },
   address: {
     alignItems: 'center',
     flex: 1,

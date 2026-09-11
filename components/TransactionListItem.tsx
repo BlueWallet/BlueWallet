@@ -150,7 +150,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   if (item.counterparty) {
     counterparty = counterpartyMetadata?.[item.counterparty]?.label ?? item.counterparty;
   }
-  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata[item.hash]?.memo ?? '');
+  const txMemo = (counterparty ? `[${shortenContactName(counterparty)}] ` : '') + (txMetadata?.[item.hash]?.memo ?? '');
   const noteForCopy = (txMemo || item.memo || '').trim() || undefined;
 
   // For LightningArkWallet rows, prepend a kind tag to the date subtitle. Such a

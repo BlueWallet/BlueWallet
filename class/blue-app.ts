@@ -486,7 +486,7 @@ export class BlueApp {
         const ID = unserializedWallet.getID();
         if (!this.wallets.some(wallet => wallet.getID() === ID)) {
           this.wallets.push(unserializedWallet);
-          this.tx_metadata = data.tx_metadata;
+          this.tx_metadata = data.tx_metadata ?? {};
           this.counterparty_metadata = data.counterparty_metadata;
         }
       }

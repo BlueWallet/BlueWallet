@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B32900000000000000000001 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32900000000000000000003 /* PreviewViewController.swift */; };
+		B32900000000000000000002 /* BIP329QuickLookPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B32900000000000000000005 /* BIP329QuickLookPreview.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
@@ -110,6 +112,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		B32900000000000000000007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B3290000000000000000000B;
+			remoteInfo = BIP329QuickLookPreview;
+		};
 		6D2A6466258BA92D0092292B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -140,6 +149,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				B32900000000000000000002 /* BIP329QuickLookPreview.appex in Embed Foundation Extensions */,
 				6D2A6468258BA92D0092292B /* Stickers.appex in Embed Foundation Extensions */,
 				6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed Foundation Extensions */,
 			);
@@ -149,6 +159,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B32900000000000000000003 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
+		B32900000000000000000004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B32900000000000000000005 /* BIP329QuickLookPreview.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BIP329QuickLookPreview.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BlueWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -264,6 +277,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B32900000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -294,6 +314,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B32900000000000000000006 /* BIP329QuickLookPreview */ = {
+			isa = PBXGroup;
+			children = (
+				B32900000000000000000003 /* PreviewViewController.swift */,
+				B32900000000000000000004 /* Info.plist */,
+			);
+			path = BIP329QuickLookPreview;
+			sourceTree = "<group>";
+		};
 		00E356EF1AD99517003FC87E /* BlueWalletTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -452,6 +481,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				B32900000000000000000006 /* BIP329QuickLookPreview */,
 				B49D99932EFE2F3500A718AC /* NativeWidgetHelperSpec.h */,
 				B4F0A4A52FA1BC0000AAAA05 /* NativeEventEmitterSpec.h */,
 				B4F0A4A62FA1BC0000AAAA06 /* NativeMenuElementsEmitterSpec.h */,
@@ -477,6 +507,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				B32900000000000000000005 /* BIP329QuickLookPreview.appex */,
 				13B07F961A680F5B00A75B9A /* BlueWallet.app */,
 				6D2A6461258BA92C0092292B /* Stickers.appex */,
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
@@ -587,6 +618,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B3290000000000000000000B /* BIP329QuickLookPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B3290000000000000000000F /* Build configuration list for PBXNativeTarget "BIP329QuickLookPreview" */;
+			buildPhases = (
+				B3290000000000000000000A /* Sources */,
+				B32900000000000000000008 /* Frameworks */,
+				B32900000000000000000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BIP329QuickLookPreview;
+			productName = BIP329QuickLookPreview;
+			productReference = B32900000000000000000005 /* BIP329QuickLookPreview.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		13B07F861A680F5B00A75B9A /* BlueWallet */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BlueWallet" */;
@@ -605,6 +653,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B3290000000000000000000C /* PBXTargetDependency */,
 				6D9946682555A661000E52E8 /* PBXTargetDependency */,
 				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
 				6DD410A6266CADF40087DE03 /* PBXTargetDependency */,
@@ -659,6 +708,9 @@
 				LastUpgradeCheck = 1620;
 				ORGANIZATIONNAME = BlueWallet;
 				TargetAttributes = {
+					B3290000000000000000000B = {
+						CreatedOnToolsVersion = 16.2;
+					};
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1030;
 						SystemCapabilities = {
@@ -713,6 +765,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				B3290000000000000000000B /* BIP329QuickLookPreview */,
 				13B07F861A680F5B00A75B9A /* BlueWallet */,
 				6D2A6460258BA92C0092292B /* Stickers */,
 				6DD4109B266CADF10087DE03 /* WidgetsExtension */,
@@ -721,6 +774,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		B32900000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F8E1A680F5B00A75B9A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -894,6 +954,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B3290000000000000000000A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B32900000000000000000001 /* PreviewViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -991,6 +1059,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		B3290000000000000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B3290000000000000000000B /* BIP329QuickLookPreview */;
+			targetProxy = B32900000000000000000007 /* PBXContainerItemProxy */;
+		};
 		6D2A6467258BA92D0092292B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 6D2A6460258BA92C0092292B /* Stickers */;
@@ -1008,6 +1081,76 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		B3290000000000000000000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1703279999;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				INFOPLIST_FILE = BIP329QuickLookPreview/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 8.0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.BIP329QuickLookPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.BIP329QuickLookPreview";
+				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B3290000000000000000000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1703279999;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				INFOPLIST_FILE = BIP329QuickLookPreview/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 8.0.2;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.BIP329QuickLookPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.BIP329QuickLookPreview";
+				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1AE7FA8B4A18928E917F42D1 /* Pods-BlueWallet.debug.xcconfig */;
@@ -1470,6 +1613,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B3290000000000000000000F /* Build configuration list for PBXNativeTarget "BIP329QuickLookPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3290000000000000000000D /* Debug */,
+				B3290000000000000000000E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BlueWallet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
