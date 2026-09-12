@@ -233,7 +233,7 @@ async function isRateOutdated(): Promise<boolean> {
       rateString = rateValue;
     }
 
-    let rate;
+    let rate: Record<string, unknown> = {};
     if (rateString) {
       try {
         rate = JSON.parse(rateString);
@@ -242,10 +242,18 @@ async function isRateOutdated(): Promise<boolean> {
         rate = {};
         await updateExchangeRate();
       }
-    } else {
-      rate = {};
     }
-    return rate.LAST_UPDATED_ERROR || Date.now() - (rate[LAST_UPDATED] || 0) >= 31 * 60 * 1000;
+
+    if (rate.LAST_UPDATED_ERROR) {
+      return true;
+    }
+
+    const lastUpdated = rate[LAST_UPDATED];
+    if (typeof lastUpdated !== 'number' || Number.isNaN(lastUpdated)) {
+      return false;
+    }
+
+    return Date.now() - lastUpdated >= 31 * 60 * 1000;
   } catch {
     return true;
   }
