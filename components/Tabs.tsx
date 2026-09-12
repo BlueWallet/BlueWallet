@@ -12,10 +12,11 @@ interface TabsProps {
   active: number;
   onSwitch: (index: number) => void;
   tabs: React.ComponentType<TabProps>[];
+  accessibilityLabels: string[];
   isIpad?: boolean;
 }
 
-export const Tabs: React.FC<TabsProps> = ({ active, onSwitch, tabs, isIpad = false }) => {
+export const Tabs: React.FC<TabsProps> = ({ active, onSwitch, tabs, accessibilityLabels, isIpad = false }) => {
   const { colors } = useTheme();
   const [rootWidth, setRootWidth] = useState(0);
   const tabWidth = tabs.length > 0 ? rootWidth / tabs.length : 0;
@@ -32,7 +33,15 @@ export const Tabs: React.FC<TabsProps> = ({ active, onSwitch, tabs, isIpad = fal
   return (
     <View style={[tabsStyles.root, isIpad && tabsStyles.marginBottom]} onLayout={onLayout}>
       {tabs.map((Tab, i) => (
-        <TouchableOpacity key={i} accessibilityRole="button" testID={`Tab${i}`} onPress={() => onSwitch(i)} style={tabsStyles.tabRoot}>
+        <TouchableOpacity
+          key={i}
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabels[i]}
+          accessibilityState={{ selected: active === i }}
+          testID={`Tab${i}`}
+          onPress={() => onSwitch(i)}
+          style={tabsStyles.tabRoot}
+        >
           <Tab active={active === i} />
         </TouchableOpacity>
       ))}

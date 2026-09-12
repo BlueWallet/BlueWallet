@@ -31,6 +31,7 @@ export const createWalletDetailsHeaderRight = ({
   return () => (
     <TouchableOpacity
       accessibilityRole="button"
+      accessibilityLabel={loc.wallets.details_title}
       testID="WalletDetails"
       disabled={isLoading}
       style={styles.walletDetails}
@@ -56,7 +57,7 @@ export const createWalletDetailsHeaderRightItems = ({
       label: loc.wallets.details_title,
       icon: { type: 'sfSymbol', name: 'ellipsis' },
       identifier: 'WalletDetails',
-      accessibilityLabel: 'WalletDetails',
+      accessibilityLabel: loc.wallets.details_title,
       sharesBackground: false,
       onPress: () => navigateToWalletDetails(walletID),
       disabled: isLoading,

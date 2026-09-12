@@ -26,6 +26,7 @@ export interface ListItemProps {
   noFeedback?: boolean;
   bottomDivider?: boolean;
   testID?: string;
+  accessibilityLabel?: string;
   switchTestID?: string;
   onPress?: () => void;
   disabled?: boolean;
@@ -51,6 +52,7 @@ const ListItem: React.FC<ListItemProps> = React.memo(
     noFeedback = false,
     bottomDivider = true,
     testID,
+    accessibilityLabel,
     switchTestID,
     onPress,
     disabled,
@@ -199,6 +201,8 @@ const ListItem: React.FC<ListItemProps> = React.memo(
         onPress={onPress}
         disabled={disabled}
         accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        accessibilityState={checkmark === undefined ? undefined : { selected: checkmark }}
         android_ripple={enableFeedback ? { color: colors.androidRippleColor } : undefined}
         style={({ pressed }) => [
           stylesHook.containerStyle,

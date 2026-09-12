@@ -31,7 +31,7 @@ const WalletToImport: React.FC<WalletToImportProp> = ({ title, subtitle, active,
   });
 
   return (
-    <TouchableOpacity accessibilityRole="button" onPress={onPress}>
+    <TouchableOpacity accessibilityRole="button" accessibilityState={{ selected: active }} onPress={onPress}>
       <View style={[styles.root, stylesHooks.root]}>
         <Text style={[styles.title, stylesHooks.title]}>{title}</Text>
         <Text style={[styles.subtitle, stylesHooks.subtitle]}>{subtitle}</Text>
