@@ -17,5 +17,8 @@ struct Widgets: WidgetBundle {
         WalletInformationWidget()
         MarketWidget()
         WalletInformationAndMarketWidget()
+        #if os(iOS) && !targetEnvironment(macCatalyst)
+        PendingTransactionsLiveActivity()
+        #endif
     }
 }

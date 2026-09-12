@@ -27,6 +27,20 @@ enum SwiftTCPClientError: Error, LocalizedError {
 
 struct TimeoutError: Error {}
 
+final class SwiftTCPClientCompletionGate: @unchecked Sendable {
+    private let lock = NSLock()
+    private var isCompleted = false
+
+    func claim() -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+
+        guard !isCompleted else { return false }
+        isCompleted = true
+        return true
+    }
+}
+
 actor HostManager {
     var availableHosts: [(host: String, port: UInt16, useSSL: Bool)]
     var hostFailureCounts: [String: Int] = [:]
@@ -198,21 +212,18 @@ class SwiftTCPClient {
 
         do {
             try await withCheckedThrowingContinuation { [self] (continuation: CheckedContinuation<Void, Error>) in
-                let syncQueue = DispatchQueue(label: "com.bluewallet.continuationSync")
-                var isContinuationResolved = false
+                let completionGate = SwiftTCPClientCompletionGate()
                 
                 // Safe completion function to avoid multiple resolutions
-                let completeOnce: (Result<Void, Error>) -> Void = { result in
-                    syncQueue.sync {
-                        if !isContinuationResolved {
-                            isContinuationResolved = true
-                            switch result {
-                            case .success:
-                                continuation.resume()
-                            case .failure(let error):
-                                continuation.resume(throwing: error)
-                            }
-                        }
+                let completeOnce: (Result<Void, Error>, () -> Void) -> Void = { result, updateState in
+                    guard completionGate.claim() else { return }
+                    updateState()
+
+                    switch result {
+                    case .success:
+                        continuation.resume()
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
                     }
                 }
                 
@@ -228,8 +239,9 @@ class SwiftTCPClient {
                             print("Remote endpoint: \(remoteEndpointDesc)")
                         }
                         
-                        self.connectionState = .connected(state)
-                        completeOnce(.success(()))
+                        completeOnce(.success(())) {
+                            self.connectionState = .connected(state)
+                        }
                         
                     case .failed(let error):
                         let nsError = error as NSError
@@ -248,13 +260,15 @@ class SwiftTCPClient {
                             print("No route to host \(host):\(port) - Network route unavailable")
                         }
                         
-                        self.connectionState = .failed(error)
-                        completeOnce(.failure(SwiftTCPClientError.unknown(error)))
+                        completeOnce(.failure(SwiftTCPClientError.unknown(error))) {
+                            self.connectionState = .failed(error)
+                        }
                         
                     case .cancelled:
                         print("Connection to \(host):\(port) was cancelled.")
-                        self.connectionState = .cancelled
-                        completeOnce(.failure(SwiftTCPClientError.connectionCancelled))
+                        completeOnce(.failure(SwiftTCPClientError.connectionCancelled)) {
+                            self.connectionState = .cancelled
+                        }
                         
                     case .preparing:
                         print("Preparing connection to \(host):\(port)...")
@@ -272,13 +286,10 @@ class SwiftTCPClient {
                 
                 let timeoutWorkItem = DispatchWorkItem { [weak self] in
                     guard let self = self else { return }
-                    
-                    syncQueue.sync {
-                        if !isContinuationResolved {
-                            self.connectionState = .failed(SwiftTCPClientError.readTimedOut)
-                            print("Connection to \(host):\(port) timed out after \(self.readTimeout) seconds")
-                            completeOnce(.failure(SwiftTCPClientError.readTimedOut))
-                        }
+
+                    completeOnce(.failure(SwiftTCPClientError.readTimedOut)) {
+                        self.connectionState = .failed(SwiftTCPClientError.readTimedOut)
+                        print("Connection to \(host):\(port) timed out after \(self.readTimeout) seconds")
                     }
                 }
                 

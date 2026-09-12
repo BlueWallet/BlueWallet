@@ -3,4 +3,9 @@
 
 @interface RCT_EXTERN_REMAP_MODULE(WidgetHelper, WidgetHelperModule, NSObject<NativeWidgetHelperSpec>)
 RCT_EXTERN_METHOD(reloadAllWidgets)
+RCT_EXTERN_METHOD(refreshPendingTransactionsLiveActivity)
+RCT_EXTERN_METHOD(previewPendingTransactionsLiveActivity:(double)pendingTransactionCount
+                  totalPendingSats:(double)totalPendingSats
+                  direction:(NSString *)direction)
+RCT_EXTERN_METHOD(showcasePendingTransactionsLiveActivity)
 @end

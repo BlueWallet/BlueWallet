@@ -3,6 +3,7 @@ import DefaultPreference from 'react-native-default-preference';
 import * as RNLocalize from 'react-native-localize';
 
 import { FiatUnit, FiatUnitType, getFiatRate } from '../models/fiatUnit';
+import { notifyPendingTransactionsLiveActivityCurrencyChanged } from './dynamicIslandCurrencySync';
 
 const PREFERRED_CURRENCY_STORAGE_KEY = 'preferredCurrency';
 const PREFERRED_CURRENCY_LOCALE_STORAGE_KEY = 'preferredCurrencyLocale';
@@ -55,6 +56,7 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
     console.debug('Preferred currency set to:', item);
     console.debug('Preferred currency locale set to:', item.locale.replace('-', '_'));
     console.debug('Cleared all cached currency formatters');
+    notifyPendingTransactionsLiveActivityCurrencyChanged();
   } catch (error) {
     console.error('Failed to set preferred currency:', error);
     throw error;
@@ -87,6 +89,7 @@ async function updateExchangeRate(): Promise<void> {
       const exchangeRatesString = JSON.stringify(exchangeRates);
       await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
       await DefaultPreference.set(EXCHANGE_RATES_STORAGE_KEY, exchangeRatesString);
+      notifyPendingTransactionsLiveActivityCurrencyChanged();
     } catch (error) {
       await DefaultPreference.clear(EXCHANGE_RATES_STORAGE_KEY);
       exchangeRates = { LAST_UPDATED_ERROR: false };

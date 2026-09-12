@@ -1,8 +1,7 @@
 import Foundation
-import WidgetKit
-#if canImport(React_Codegen)
 import React
-#endif
+import UIKit
+import WidgetKit
 
 // Lightweight helper used by the app target to refresh widget timelines from native code.
 class WidgetHelper {
@@ -13,7 +12,6 @@ class WidgetHelper {
     }
 }
 
-#if canImport(React_Codegen)
 @objc(WidgetHelperModule)
 class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
     static func moduleName() -> String! { "WidgetHelper" }
@@ -25,16 +23,61 @@ class WidgetHelperModule: NSObject, NativeWidgetHelperSpec {
             WidgetCenter.shared.reloadAllTimelines()
         }
     }
-}
-#else
-// Fallback for targets (e.g., widget extension) that do not pull in React codegen modules.
-@objc(WidgetHelperModule)
-class WidgetHelperModule: NSObject {
-    func reloadAllWidgets() {
-        // WidgetsExtension does not link the app's WidgetHelper; invoke WidgetKit directly.
-        if #available(iOS 14.0, *) {
-            WidgetCenter.shared.reloadAllTimelines()
+
+    @objc
+    func refreshPendingTransactionsLiveActivity() {
+        #if canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        guard #available(iOS 16.1, *) else { return }
+        Task {
+            // Calls through this bridge happen while React Native is running in
+            // the foreground. They may update or start an activity, but a
+            // transient zero must not clear one that is already visible.
+            await PendingTransactionsLiveActivityCoordinator.refresh(
+                allowStart: true,
+                endExistingActivityOnZero: false
+            )
         }
+        #endif
+    }
+
+    @objc
+    func previewPendingTransactionsLiveActivity(
+        _ pendingTransactionCount: Double,
+        totalPendingSats: Double,
+        direction: String
+    ) {
+        #if DEBUG && canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        guard #available(iOS 16.1, *) else { return }
+        let pendingDirection = PendingTransactionDirection(rawValue: direction) ?? .unknown
+        NSLog(
+            "[PendingLiveActivity] Preview requested: count=\(pendingTransactionCount), " +
+            "sats=\(totalPendingSats), direction=\(pendingDirection.rawValue)"
+        )
+        Task {
+            await PendingTransactionsLiveActivityCoordinator.preview(
+                pendingTransactionCount: pendingTransactionCount,
+                totalPendingSats: totalPendingSats,
+                direction: pendingDirection
+            )
+        }
+        #endif
+    }
+
+    @objc
+    func showcasePendingTransactionsLiveActivity() {
+        #if DEBUG && canImport(ActivityKit) && canImport(BackgroundTasks) && os(iOS) && !targetEnvironment(macCatalyst)
+        guard #available(iOS 16.1, *) else { return }
+        NSLog("[PendingLiveActivity] Five-second showcase requested")
+        Task { @MainActor in
+            let backgroundTask = UIApplication.shared.beginBackgroundTask(
+                withName: "PendingTransactionsLiveActivityShowcase",
+                expirationHandler: nil
+            )
+            await PendingTransactionsLiveActivityCoordinator.showcase()
+            if backgroundTask != .invalid {
+                UIApplication.shared.endBackgroundTask(backgroundTask)
+            }
+        }
+        #endif
     }
 }
-#endif
