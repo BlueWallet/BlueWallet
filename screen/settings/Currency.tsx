@@ -6,18 +6,22 @@ import { Keyboard, NativeSyntheticEvent, StyleSheet, Text, View } from 'react-na
 
 import {
   CurrencyRate,
+  getCurrencyFractionDigits,
   getPreferredCurrency,
   initCurrencyDaemon,
   mostRecentFetchedRate,
   setPreferredCurrency,
 } from '../../blue_modules/currency';
 import presentAlert from '../../components/Alert';
+import { useAmountInputController } from '../../components/AmountInput.hooks';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { SettingsListItem, settingsListCard, settingsSectionHeaderText } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
 import { useSettings } from '../../hooks/context/useSettings';
 import loc from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { FiatUnit, FiatUnitSource, FiatUnitType, getFiatRate } from '../../models/fiatUnit';
+import { createCurrencySettingsPreview } from './Currency.utils';
 
 dayjs.extend(calendar);
 
@@ -30,11 +34,13 @@ const Currency: React.FC = () => {
   const [currencyRate, setCurrencyRate] = useState<CurrencyRate>({
     LastUpdated: null,
     Rate: null,
+    RawRate: null,
   });
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const { setOptions } = useNavigation();
   const { colors } = useTheme();
   const [search, setSearch] = useState('');
+  const { numberFormat } = useAmountInputController(BitcoinUnit.LOCAL_CURRENCY);
 
   const stylesHook = StyleSheet.create({
     card: { backgroundColor: colors.cardSectionBackground },
@@ -88,6 +94,17 @@ const Currency: React.FC = () => {
     [filteredCurrencies, selectedCurrency.endPointKey],
   );
 
+  const currencyPreview = useMemo(
+    () =>
+      createCurrencySettingsPreview({
+        currency: selectedCurrency,
+        fractionDigits: getCurrencyFractionDigits(selectedCurrency),
+        numberFormat,
+        rawRate: currencyRate.RawRate,
+      }),
+    [currencyRate.RawRate, numberFormat, selectedCurrency],
+  );
+
   const renderItem = useCallback(
     (props: { item: FiatUnitType; index: number }) => {
       const { item, index } = props;
@@ -138,9 +155,28 @@ const Currency: React.FC = () => {
         <Text style={[settingsSectionHeaderText, styles.infoTitle, stylesHook.infoTitle]}>
           {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
         </Text>
-        <Text style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
-          {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
-        </Text>
+        <View testID="CurrencyConversionPreview" style={styles.preview}>
+          <Text testID="CurrencyFormattingPreview" style={[styles.infoSubtitle, styles.previewAmount, stylesHook.infoTitle]}>
+            {selectedCurrency.endPointKey}: {currencyPreview.fiatAmount}
+          </Text>
+          {currencyPreview.bitcoinInFiat ? (
+            <>
+              <Text testID="CurrencyBtcToFiatPreview" style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
+                {loc.settings.rate}: {currencyPreview.bitcoinAmount} {loc.units[BitcoinUnit.BTC]} = {currencyPreview.bitcoinInFiat}
+              </Text>
+              <Text testID="CurrencySatsToFiatPreview" style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
+                {currencyPreview.satoshisAmount} {loc.units[BitcoinUnit.SATS]} = {currencyPreview.satoshisInFiat}
+              </Text>
+              <Text testID="CurrencyFiatToBtcPreview" style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
+                {currencyPreview.fiatAmount} = {currencyPreview.fiatInBitcoin} {loc.units[BitcoinUnit.BTC]}
+              </Text>
+            </>
+          ) : (
+            <Text testID="CurrencyRateUnavailable" style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
+              {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}
+            </Text>
+          )}
+        </View>
         <Text style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
           {loc.settings.last_updated}: {dayjs(currencyRate.LastUpdated).calendar() ?? loc._.never}
         </Text>
@@ -174,5 +210,12 @@ const styles = StyleSheet.create({
   infoSubtitle: {
     fontSize: 14,
     marginTop: 6,
+  },
+  preview: {
+    marginBottom: 4,
+  },
+  previewAmount: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
