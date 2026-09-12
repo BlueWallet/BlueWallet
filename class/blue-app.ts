@@ -220,7 +220,7 @@ export class BlueApp {
     let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
-    const encrypted = encryption.encrypt(data, password);
+    const encrypted = await encryption.encrypt(data, password);
     data = [];
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
@@ -247,7 +247,7 @@ export class BlueApp {
 
     let buckets = await this.getItem('data');
     buckets = JSON.parse(buckets);
-    buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
+    buckets.push(await encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
     await this.setItem('data', bucketsString);
@@ -683,7 +683,7 @@ export class BlueApp {
           } else {
             // decrypted ok, this is our bucket
             // we serialize our object's data, encrypt it, and add it to buckets
-            newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
+            newData.push(await encryption.encrypt(JSON.stringify(data), this.cachedPassword));
           }
         }
 
