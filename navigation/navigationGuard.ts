@@ -73,7 +73,7 @@ export const validateGuardedRoute = async (
   route: GuardedRoute,
   dependencies: NavigationGuardDependencies,
 ): Promise<NavigationValidationResult> => {
-  if (dependencies.currentRouteName === 'ScanQRCode') return { allowed: true };
+  if (route.name === 'ScanQRCode' && dependencies.currentRouteName === 'ScanQRCode') return { allowed: true };
 
   const policy = navigationGuardPolicies[route.name];
 

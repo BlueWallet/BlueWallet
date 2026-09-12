@@ -102,8 +102,8 @@ const navigationStyle = (
   return theme =>
     ({ navigation, route }) => {
       const isFirstRouteInStack = navigation.getState().index === 0;
-      const isModal = route.params?.presentation === 'modal' || route.params?.presentation === 'transparentModal';
-      const isFormSheet = route.params?.presentation === 'formSheet';
+      const isModal = opts.presentation === 'modal' || opts.presentation === 'transparentModal' || opts.presentation === 'fullScreenModal';
+      const isFormSheet = opts.presentation === 'formSheet';
 
       const closeButton =
         closeButtonIfFirstInStack && isFirstRouteInStack

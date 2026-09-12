@@ -144,14 +144,23 @@ describe('navigation validation', () => {
     await expect(validation).resolves.toEqual({ allowed: true });
   });
 
-  it('bypasses all validation when navigating from the scanner', async () => {
+  it('does not request camera permission again when already on the scanner', async () => {
+    const dependencies = createDependencies();
+    dependencies.currentRouteName = 'ScanQRCode';
+
+    await expect(validateGuardedRoute({ name: 'ScanQRCode' }, dependencies)).resolves.toEqual({ allowed: true });
+    expect(dependencies.requestCameraAuthorization).not.toHaveBeenCalled();
+  });
+
+  it('still enforces biometric policies when navigating from the scanner', async () => {
     const dependencies = createDependencies();
     dependencies.currentRouteName = 'ScanQRCode';
     dependencies.isBiometricUseEnabled = jest.fn(async () => true);
+    dependencies.unlockWithBiometrics = jest.fn(async () => false);
 
-    await expect(validateGuardedRoute({ name: 'WalletExport' }, dependencies)).resolves.toEqual({ allowed: true });
-    expect(dependencies.isBiometricUseEnabled).not.toHaveBeenCalled();
-    expect(dependencies.unlockWithBiometrics).not.toHaveBeenCalled();
+    await expect(validateGuardedRoute({ name: 'WalletExport' }, dependencies)).resolves.toEqual({ allowed: false });
+    expect(dependencies.isBiometricUseEnabled).toHaveBeenCalledTimes(1);
+    expect(dependencies.unlockWithBiometrics).toHaveBeenCalledTimes(1);
   });
 
   it('prefers the focused nested navigator over the root when both register the route', () => {

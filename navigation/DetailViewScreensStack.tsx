@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -22,7 +23,7 @@ import WalletDetails from '../screen/wallets/WalletDetails';
 import GenerateWord from '../screen/wallets/generateWord';
 import SelectWallet from '../screen/wallets/SelectWallet';
 import WalletsList from '../screen/wallets/WalletsList';
-import { DetailViewStack } from './index';
+import { DetailViewStackParamList } from './DetailViewStackParamList';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { navigationGuardRouter } from './navigationGuard';
 import Icon from '../components/Icon';
@@ -64,6 +65,7 @@ type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unst
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
+const DetailViewStack = createNativeStackNavigator<DetailViewStackParamList>();
 
 const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
