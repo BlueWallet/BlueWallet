@@ -17,8 +17,10 @@ final class ThumbnailProvider: QLThumbnailProvider {
             let title = "PSBT"
             let detail = details ?? "Partially Signed Bitcoin Transaction"
             let paragraph = NSMutableParagraphStyle(); paragraph.lineBreakMode = .byTruncatingTail
-            title.draw(in: CGRect(x: 28, y: bounds.height * 0.28, width: bounds.width - 42, height: 36), withAttributes: [.font: UIFont.boldSystemFont(ofSize: min(28, bounds.height * 0.22)), .foregroundColor: UIColor.label, .paragraphStyle: paragraph])
-            detail.draw(in: CGRect(x: 28, y: bounds.height * 0.58, width: bounds.width - 42, height: 44), withAttributes: [.font: UIFont.systemFont(ofSize: min(15, bounds.height * 0.12)), .foregroundColor: UIColor.secondaryLabel, .paragraphStyle: paragraph])
+            let titleSize = min(30, max(18, bounds.height * 0.24))
+            let detailSize = min(22, max(16, bounds.height * 0.17))
+            title.draw(in: CGRect(x: 28, y: bounds.height * 0.20, width: bounds.width - 42, height: titleSize * 1.35), withAttributes: [.font: UIFont.boldSystemFont(ofSize: titleSize), .foregroundColor: UIColor.label, .paragraphStyle: paragraph])
+            detail.draw(in: CGRect(x: 28, y: bounds.height * 0.52, width: bounds.width - 42, height: detailSize * 2.8), withAttributes: [.font: UIFont.systemFont(ofSize: detailSize, weight: .medium), .foregroundColor: UIColor.secondaryLabel, .paragraphStyle: paragraph])
             return true
         }, nil)
     }
