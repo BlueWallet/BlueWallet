@@ -212,15 +212,17 @@ const GeneralSettings: React.FC = () => {
                 disabled: isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.Spotlight,
               }}
             />
-            <SettingsListItem
-              title={loc.settings.spotlight_addresses}
-              subtitle={loc.settings.spotlight_addresses_explanation}
-              switch={{
-                value: isSpotlightEnabled && isSpotlightAddressesEnabled,
-                onValueChange: setIsSpotlightAddressesEnabledStorage,
-                disabled: !isSpotlightEnabled || isLoading === SettingsPrivacySection.All,
-              }}
-            />
+            {isSpotlightEnabled && (
+              <SettingsListItem
+                title={loc.settings.spotlight_addresses}
+                subtitle={loc.settings.spotlight_addresses_explanation}
+                switch={{
+                  value: isSpotlightAddressesEnabled,
+                  onValueChange: setIsSpotlightAddressesEnabledStorage,
+                  disabled: isLoading === SettingsPrivacySection.All,
+                }}
+              />
+            )}
             <SettingsListItem
               title={loc.wallets.more_info}
               onPress={openSpotlightMoreInfo}
