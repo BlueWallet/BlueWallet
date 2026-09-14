@@ -194,9 +194,9 @@ private enum TransactionPreview {
         for index in 0..<outputs {
             let value = try reader.uint64(); total += value
             let script = try reader.read(Int(try reader.compact()))
-            let address = BitcoinAddress.from(script: script) ?? "Unsupported output script"
+            let scriptDescription = ScriptDescription.from(script: script)
             let fiat = FiatEstimate.format(sats: value).map { " · \($0)" } ?? ""
-            outputRecords.append(("Output \(index + 1)", "\(address) · \(formatSats(value))\(fiat)", "arrow.up.circle.fill"))
+            outputRecords.append(("Output \(index + 1)", "\(scriptDescription) · \(formatSats(value))\(fiat)", "arrow.up.circle.fill"))
         }
         if hasWitness {
             for _ in 0..<inputs { for _ in 0..<Int(try reader.compact()) { _ = try reader.read(Int(try reader.compact())) } }
@@ -265,9 +265,6 @@ private enum PSBTPreview {
         for _ in 0..<inputs { inputMaps.append(try reader.readMap()) }
         for _ in 0..<outputs { _ = try reader.readMap() }
 
-        let partialSignatures = inputMaps.reduce(0) { $0 + $1.filter { $0.key.first == 0x02 || $0.key.first == 0x13 }.count }
-        let finalized = inputMaps.filter { map in map.contains { $0.key.first == 0x07 || $0.key.first == 0x08 } }.count
-        let knownInputValue = inputMaps.compactMap(inputValue).reduce(0, +)
         let outputValue = transaction?.outputValue
         let totalOutput = outputValue.map(formatSats)
         let outputDetail = outputValue.map { value in
@@ -278,28 +275,25 @@ private enum PSBTPreview {
 
         var records: [Record] = [
             ("Format", "PSBT v\(version)", "doc.text"),
-            ("Inputs", "\(inputs) input\(inputs == 1 ? "" : "s") · \(partialSignatures) signature\(partialSignatures == 1 ? "" : "s")", "arrow.down.to.line"),
+            ("Inputs", "\(inputs) input\(inputs == 1 ? "" : "s")", "arrow.down.to.line"),
             ("Outputs", outputDetail, "arrow.up.circle.fill"),
-            ("Signing status", finalized == inputs ? "Finalized" : "\(finalized) of \(inputs) finalized", finalized == inputs ? "checkmark.seal" : "signature")
+            ("Safety", "PSBT input metadata and signatures are unverified. Review this transaction in a signing wallet.", "exclamationmark.shield")
         ]
-        if knownInputValue > 0, let outputValue, knownInputValue >= outputValue {
-            records.append(("Network fee", formatSats(knownInputValue - outputValue), "bitcoinsign.circle"))
-        }
         records += inputMaps.enumerated().map { index, map in
             let utxo = witnessUTXO(map)
-            let address = utxo.flatMap { BitcoinAddress.from(script: $0.script) } ?? "Address unavailable"
+            let scriptDescription = utxo.map { ScriptDescription.from(script: $0.script) } ?? "Input metadata unavailable"
             let amount = utxo.map { " · \(formatSats($0.value))" } ?? ""
-            return ("Input \(index + 1)", "\(address)\(amount)", "arrow.down.circle.fill")
+            return ("Input \(index + 1) (unverified)", "\(scriptDescription)\(amount)", "arrow.down.circle.fill")
         }
         if let transaction {
             records += transaction.outputs.enumerated().map { index, output in
-                let address = BitcoinAddress.from(script: output.script) ?? "Unsupported output script"
+                let scriptDescription = ScriptDescription.from(script: output.script)
                 let fiat = FiatEstimate.format(sats: output.value).map { " · \($0)" } ?? ""
-                return ("Output \(index + 1)", "\(address) · \(formatSats(output.value))\(fiat)", "arrow.up.circle.fill")
+                return ("Output \(index + 1)", "\(scriptDescription) · \(formatSats(output.value))\(fiat)", "arrow.up.circle.fill")
             }
         }
         let summary = totalOutput.map { "\(inputs) inputs · \(outputs) outputs · \($0)" } ?? "\(inputs) inputs · \(outputs) outputs"
-        return ("Partially Signed Bitcoin Transaction", summary, records)
+        return ("PSBT (unverified)", summary, records)
     }
 
     private static func count(_ entries: [Entry], type: UInt8) -> Int? {
@@ -376,53 +370,6 @@ private enum PSBTPreview {
             }
             return TransactionSummary(inputCount: inputs, outputs: outputs)
         }
-    }
-}
-
-private enum BitcoinAddress {
-    static func from(script: [UInt8]) -> String? {
-        guard script.count >= 4 else { return nil }
-        let version: Int
-        switch script[0] { case 0x00: version = 0; case 0x51...0x60: version = Int(script[0] - 0x50); default: return nil }
-        let length = Int(script[1])
-        guard length == script.count - 2, (2...40).contains(length) else { return nil }
-        return encode(hrp: "bc", version: version, program: Array(script.dropFirst(2)))
-    }
-
-    private static func encode(hrp: String, version: Int, program: [UInt8]) -> String? {
-        guard let converted = convertBits(program, from: 8, to: 5, pad: true) else { return nil }
-        let data = [UInt8(version)] + converted
-        let checksum = createChecksum(hrp: hrp, data: data, bech32m: version != 0)
-        let charset = Array("qpzry9x8gf2tvdw0s3jn54khce6mua7l")
-        return hrp + "1" + (data + checksum).map { String(charset[Int($0)]) }.joined()
-    }
-
-    private static func convertBits(_ values: [UInt8], from: Int, to: Int, pad: Bool) -> [UInt8]? {
-        var accumulator = 0; var bits = 0; var result: [UInt8] = []
-        let maxValue = (1 << to) - 1
-        for value in values {
-            accumulator = (accumulator << from) | Int(value); bits += from
-            while bits >= to { bits -= to; result.append(UInt8((accumulator >> bits) & maxValue)) }
-        }
-        if pad, bits > 0 { result.append(UInt8((accumulator << (to - bits)) & maxValue)) }
-        return !pad && (bits >= from || ((accumulator << (to - bits)) & maxValue) != 0) ? nil : result
-    }
-
-    private static func createChecksum(hrp: String, data: [UInt8], bech32m: Bool) -> [UInt8] {
-        let expanded = hrp.utf8.map { $0 >> 5 } + [0] + hrp.utf8.map { $0 & 31 }
-        let value = polymod(expanded + data + Array(repeating: 0, count: 6)) ^ (bech32m ? 0x2bc830a3 : 1)
-        return (0..<6).map { UInt8((value >> (5 * (5 - $0))) & 31) }
-    }
-
-    private static func polymod(_ values: [UInt8]) -> Int {
-        var checksum = 1
-        for value in values {
-            let top = checksum >> 25; checksum = (checksum & 0x1ffffff) << 5 ^ Int(value)
-            for (index, generator) in [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3].enumerated() {
-                if (top >> index) & 1 == 1 { checksum ^= generator }
-            }
-        }
-        return checksum
     }
 }
 
