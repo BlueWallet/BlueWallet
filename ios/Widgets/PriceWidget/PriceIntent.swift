@@ -47,7 +47,7 @@ struct PriceIntent: AppIntent {
         title: "Currency",
         description: "Choose your preferred currency."
     )
-    var fiatCurrency: FiatUnitEnum?
+    var fiatCurrency: FiatCurrency?
 
     func perform() async throws -> some IntentResult & ReturnsValue<Double> & ProvidesDialog & ShowsSnippetView {
         let selectedCurrency = resolveCurrency()
@@ -72,7 +72,7 @@ struct PriceIntent: AppIntent {
             let errorView = CompactPriceView(
                 price: "N/A",
                 lastUpdated: "--",
-                code: selectedCurrency.rawValue,
+                code: selectedCurrency.id,
                 dataSource: "Error fetching data"
             )
             
@@ -86,7 +86,7 @@ struct PriceIntent: AppIntent {
 
     // MARK: - Currency Resolution
     
-    private func resolveCurrency() -> FiatUnitEnum {
+    private func resolveCurrency() -> FiatCurrency {
         // Priority order: parameter -> shared defaults -> device locale -> USD fallback
         if let providedCurrency = fiatCurrency {
             return providedCurrency
@@ -100,21 +100,21 @@ struct PriceIntent: AppIntent {
             return deviceCurrency
         }
         
-        return .USD
+        return FiatCurrencyQuery().defaultCurrency
     }
     
-    private func getSharedCurrency() -> FiatUnitEnum? {
+    private func getSharedCurrency() -> FiatCurrency? {
         guard let sharedDefaults = UserDefaults(suiteName: UserDefaultsGroupKey.GroupName.rawValue),
               let currencyCode = sharedDefaults.string(forKey: UserDefaultsGroupKey.PreferredCurrency.rawValue),
-              let currency = FiatUnitEnum(rawValue: currencyCode.uppercased()) else {
+              let currency = FiatCurrencyQuery().currency(for: currencyCode) else {
             return nil
         }
         return currency
     }
     
-    private func getDeviceCurrency() -> FiatUnitEnum? {
+    private func getDeviceCurrency() -> FiatCurrency? {
         guard let deviceCurrencyCode = Locale.current.currency?.identifier,
-              let currency = FiatUnitEnum(rawValue: deviceCurrencyCode.uppercased()) else {
+              let currency = FiatCurrencyQuery().currency(for: deviceCurrencyCode) else {
             return nil
         }
         return currency
@@ -122,8 +122,8 @@ struct PriceIntent: AppIntent {
 
     // MARK: - Data Fetching
     
-    private func fetchPriceData(for currency: FiatUnitEnum) async throws -> PriceData {
-        guard let fetchedData = try await MarketAPI.fetchPrice(currency: currency.rawValue) else {
+    private func fetchPriceData(for currency: FiatCurrency) async throws -> PriceData {
+        guard let fetchedData = try await MarketAPI.fetchPrice(currency: currency.id) else {
             throw PriceIntentError.noPriceData
         }
 
@@ -138,7 +138,7 @@ struct PriceIntent: AppIntent {
             rate: fetchedData.rateDouble,
             lastUpdate: formattedDate,
             formattedPrice: formattedPrice,
-            currencyCode: currency.rawValue,
+            currencyCode: currency.id,
             dataSource: currency.source
         )
     }
@@ -157,8 +157,8 @@ private extension String {
 
 @available(iOS 16.0, *)
 private extension Double {
-    func formattedPrice(in currency: FiatUnitEnum) -> String {
-        let style = FloatingPointFormatStyle<Double>.Currency(code: currency.rawValue)
+    func formattedPrice(in currency: FiatCurrency) -> String {
+        let style = FloatingPointFormatStyle<Double>.Currency(code: currency.id)
             .locale(.current)
 
         return formatted(style.precision(.fractionLength(self >= 1_000 ? 0 : 2)))
