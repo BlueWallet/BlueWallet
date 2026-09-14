@@ -144,7 +144,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="PsbtWithHardwareWallet"
         component={PsbtWithHardwareWalletComponent}
-        options={navigationStyle({ title: loc.send.header, gestureEnabled: false, fullScreenGestureEnabled: false })(theme)}
+        options={navigationStyle({ title: loc.send.header, closeButtonPosition: CloseButtonPosition.Right, gestureEnabled: false, fullScreenGestureEnabled: false })(theme)}
       />
       <Stack.Screen
         name="CreateTransaction"

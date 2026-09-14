@@ -24,8 +24,10 @@
           <string>match AppStore io.bluewallet.bluewallet.Stickers</string>
           <key>io.bluewallet.bluewallet.MarketWidget</key>
           <string>match AppStore io.bluewallet.bluewallet.MarketWidget</string>
-          <key>io.bluewallet.bluewallet.BIP329QuickLookPreview</key>
-          <string>match AppStore io.bluewallet.bluewallet.BIP329QuickLookPreview</string>
+          <key>io.bluewallet.bluewallet.QuickLookPreview</key>
+          <string>match AppStore io.bluewallet.bluewallet.QuickLookPreview</string>
+          <key>io.bluewallet.bluewallet.QuickLookThumbnail</key>
+          <string>match AppStore io.bluewallet.bluewallet.QuickLookThumbnail</string>
       </dict>
   </dict>
 </plist>

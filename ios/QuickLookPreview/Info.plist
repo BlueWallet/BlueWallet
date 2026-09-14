@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDisplayName</key>
-	<string>BIP-329 Preview</string>
+	<string>Quick Look Preview</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -27,6 +27,8 @@
 			<key>QLSupportedContentTypes</key>
 			<array>
 				<string>io.bluewallet.bip329</string>
+				<string>io.bluewallet.psbt</string>
+				<string>io.bluewallet.psbt.txn</string>
 			</array>
 			<key>QLSupportsSearchableItems</key>
 			<false/>
