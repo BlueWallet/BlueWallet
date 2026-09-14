@@ -3,32 +3,29 @@
 //  BlueWallet
 //
 
+import Foundation
 import AppIntents
 import SwiftUI
-import Foundation
 
 // MARK: - Error Types
 
-enum PriceIntentError: LocalizedError {
-    case fetchFailed
-    case invalidData
-    case networkUnavailable
+private enum PriceIntentError: LocalizedError {
+    case noPriceData
+    case invalidRate
     
     var errorDescription: String? {
         switch self {
-        case .fetchFailed:
-            return "Failed to fetch Bitcoin price data"
-        case .invalidData:
-            return "Received invalid price data"
-        case .networkUnavailable:
-            return "Network is unavailable"
+        case .noPriceData:
+            return "No Bitcoin price data was returned"
+        case .invalidRate:
+            return "Received an invalid Bitcoin price"
         }
     }
 }
 
 // MARK: - Price Data Model
 
-struct PriceData {
+private struct PriceData {
     let rate: Double
     let lastUpdate: String
     let formattedPrice: String
@@ -40,9 +37,9 @@ struct PriceData {
 struct PriceIntent: AppIntent {
     // MARK: - Intent Metadata
     
-    static var title: LocalizedStringResource = "Market Rate"
-    static var description = IntentDescription("View the current Bitcoin market rate in your preferred currency.")
-    static var openAppWhenRun: Bool { false }
+    static let title: LocalizedStringResource = "Market Rate"
+    static let description = IntentDescription("View the current Bitcoin market rate in your preferred currency.")
+    static let openAppWhenRun = false
 
     // MARK: - Parameters
     
@@ -52,7 +49,6 @@ struct PriceIntent: AppIntent {
     )
     var fiatCurrency: FiatUnitEnum?
 
-    @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<Double> & ProvidesDialog & ShowsSnippetView {
         let selectedCurrency = resolveCurrency()
         
@@ -70,6 +66,8 @@ struct PriceIntent: AppIntent {
                 dialog: "Current Bitcoin Market Rate",
                 view: successView
             )
+        } catch is CancellationError {
+            throw CancellationError()
         } catch {
             let errorView = CompactPriceView(
                 price: "N/A",
@@ -126,11 +124,15 @@ struct PriceIntent: AppIntent {
     
     private func fetchPriceData(for currency: FiatUnitEnum) async throws -> PriceData {
         guard let fetchedData = try await MarketAPI.fetchPrice(currency: currency.rawValue) else {
-            throw PriceIntentError.fetchFailed
+            throw PriceIntentError.noPriceData
+        }
+
+        guard fetchedData.rateDouble.isFinite, fetchedData.rateDouble > 0 else {
+            throw PriceIntentError.invalidRate
         }
         
-        let formattedPrice = formatPrice(fetchedData.rateDouble, currencyCode: currency.rawValue)
-        let formattedDate = formatDate(from: fetchedData.lastUpdate)
+        let formattedPrice = fetchedData.rateDouble.formattedPrice(in: currency)
+        let formattedDate = fetchedData.lastUpdate.formattedDate
         
         return PriceData(
             rate: fetchedData.rateDouble,
@@ -138,36 +140,27 @@ struct PriceIntent: AppIntent {
             formattedPrice: formattedPrice,
             currencyCode: currency.rawValue,
             dataSource: currency.source
-        )    }
+        )
+    }
 
-    // MARK: - Formatting Methods
+}
 
-    private func formatDate(from isoString: String?) -> String {
-        guard let isoString = isoString,
-              let date = ISO8601DateFormatter().date(from: isoString) else {
+private extension String {
+    var formattedDate: String {
+        guard let date = ISO8601DateFormatter().date(from: self) else {
             return "--"
         }
 
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
+        return date.formatted(date: .abbreviated, time: .shortened)
     }
+}
 
-    private func formatPrice(_ price: Double, currencyCode: String) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.locale = Locale.current
-        formatter.currencyCode = currencyCode
+@available(iOS 16.0, *)
+private extension Double {
+    func formattedPrice(in currency: FiatUnitEnum) -> String {
+        let style = FloatingPointFormatStyle<Double>.Currency(code: currency.rawValue)
+            .locale(.current)
 
-        if price >= 1000 {
-            formatter.maximumFractionDigits = 0
-            formatter.minimumFractionDigits = 0
-        } else {
-            formatter.maximumFractionDigits = 2
-            formatter.minimumFractionDigits = 2
-        }
-
-        return formatter.string(from: NSNumber(value: price)) ?? "\(price)"
+        return formatted(style.precision(.fractionLength(self >= 1_000 ? 0 : 2)))
     }
 }
