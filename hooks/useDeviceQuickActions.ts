@@ -4,11 +4,11 @@ import { CommonActions } from '@react-navigation/native';
 import { DeviceEventEmitter, Linking, Platform } from 'react-native';
 import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
-import { TWallet } from '../class/wallets/types';
 import { formatBalance } from '../loc';
 import * as NavigationService from '../NavigationService';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import NativeSpotlight, { isSpotlightDeepLink } from '../blue_modules/NativeSpotlight';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
@@ -45,7 +45,7 @@ const useDeviceQuickActions = () => {
         })
         .catch(() => removeShortcuts());
     }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, walletsInitialized, preferredFiatCurrency, isStorageEncrypted]);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const useDeviceQuickActions = () => {
         });
       return () => DeviceEventEmitter.removeAllListeners('quickActionShortcut');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const useDeviceQuickActions = () => {
         removeShortcuts();
       }
     }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isQuickActionsEnabled, walletsInitialized]);
 
   const popInitialShortcutAction = async (): Promise<any> => {
@@ -96,6 +96,9 @@ const useDeviceQuickActions = () => {
         const url = await Linking.getInitialURL();
         if (url && DeeplinkSchemaMatch.hasSchema(url)) {
           handleOpenURL({ url });
+        } else if (NativeSpotlight) {
+          const spotlightURL = await NativeSpotlight.popPendingURL();
+          if (spotlightURL) handleOpenURL({ url: spotlightURL });
         }
       }
     } catch (error) {
@@ -110,6 +113,9 @@ const useDeviceQuickActions = () => {
       saveToDisk,
       setSharedCosigner,
     });
+    if (isSpotlightDeepLink(event.url)) {
+      NativeSpotlight?.popPendingURL().catch(error => console.debug('[Spotlight] Unable to clear pending URL:', error));
+    }
   };
 
   const walletQuickActions = (data: any): void => {
@@ -150,10 +156,11 @@ const useDeviceQuickActions = () => {
             userInfo: {
               url: `bluewallet://wallet/${wallet.getID()}`,
             },
-            icon: Platform.select({
-              android: 'quickactions',
-              ios: index === 0 ? 'Favorite' : 'Bookmark',
-            }) || 'quickactions',
+            icon:
+              Platform.select({
+                android: 'quickactions',
+                ios: index === 0 ? 'Favorite' : 'Bookmark',
+              }) || 'quickactions',
           }));
           QuickActions.setShortcutItems(shortcutItems);
         }
@@ -164,6 +171,6 @@ const useDeviceQuickActions = () => {
   };
 
   return { popInitialAction };
-}
+};
 
 export default useDeviceQuickActions;

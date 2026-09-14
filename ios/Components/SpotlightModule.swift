@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 @objc(SpotlightModule)
 final class SpotlightModule: NSObject, NativeSpotlightSpec {
     private static let indexName = "io.bluewallet.search"
+    static let pendingURLKey = "SpotlightPendingURL"
 
     static func moduleName() -> String! { "SpotlightModule" }
     static func requiresMainQueueSetup() -> Bool { false }
@@ -58,6 +59,15 @@ final class SpotlightModule: NSObject, NativeSpotlightSpec {
                 resolve(nil)
             }
         }
+    }
+
+    @objc
+    func popPendingURL(_ resolve: @escaping RCTPromiseResolveBlock,
+                       reject: @escaping RCTPromiseRejectBlock) {
+        let defaults = UserDefaults.standard
+        let url = defaults.string(forKey: Self.pendingURLKey)
+        defaults.removeObject(forKey: Self.pendingURLKey)
+        resolve(url)
     }
 
     private static func searchableItem(from item: SpotlightItem) -> CSSearchableItem? {

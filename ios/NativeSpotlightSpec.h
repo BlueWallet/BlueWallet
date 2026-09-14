@@ -6,4 +6,6 @@
               reject:(RCTPromiseRejectBlock)reject;
 - (void)deleteIndex:(RCTPromiseResolveBlock)resolve
              reject:(RCTPromiseRejectBlock)reject;
+- (void)popPendingURL:(RCTPromiseResolveBlock)resolve
+               reject:(RCTPromiseRejectBlock)reject;
 @end

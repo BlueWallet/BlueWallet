@@ -28,6 +28,7 @@ import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
+import NativeSpotlight, { isSpotlightDeepLink } from '../blue_modules/NativeSpotlight';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -117,9 +118,15 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             const arkWalletID = arkWallet.getID();
             const row = arkWallet.getTransactions().find(tx => tx.txid === `swap-${payload.swapId}`);
             if (row) {
-              navigation.navigate('LNDViewInvoice', { invoice: row, walletID: arkWalletID });
+              navigation.navigate('LNDViewInvoice', {
+                invoice: row,
+                walletID: arkWalletID,
+              });
             } else {
-              navigation.navigate('WalletTransactions', { walletID: arkWalletID, walletType: arkWallet.type });
+              navigation.navigate('WalletTransactions', {
+                walletID: arkWalletID,
+                walletType: arkWallet.type,
+              });
             }
             return true;
           }
@@ -174,7 +181,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                 navigationRef.dispatch(
                   CommonActions.navigate({
                     name: 'WalletTransactions',
-                    params: { walletID: payload.walletID, walletType: arkWallet?.type },
+                    params: {
+                      walletID: payload.walletID,
+                      walletType: arkWallet?.type,
+                    },
                   }),
                 );
                 return true;
@@ -202,7 +212,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                 navigationRef.dispatch(
                   CommonActions.navigate({
                     name: 'WalletTransactions',
-                    params: { walletID: arkWalletID, walletType: arkWallet.type },
+                    params: {
+                      walletID: arkWalletID,
+                      walletType: arkWallet.type,
+                    },
                   }),
                 );
               }
@@ -312,6 +325,9 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             saveToDisk,
             setSharedCosigner,
           });
+          if (isSpotlightDeepLink(event.url)) {
+            NativeSpotlight?.popPendingURL().catch(error => console.debug('[Spotlight] Unable to clear pending URL:', error));
+          }
         }
       } catch (err: any) {
         console.error('Error in handleOpenURL:', err);

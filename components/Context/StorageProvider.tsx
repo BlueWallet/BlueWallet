@@ -245,7 +245,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     if (walletsInitialized) {
       txMetadata.current = BlueApp.tx_metadata ?? {};
       BlueApp.tx_metadata = txMetadata.current;
-      counterpartyMetadata.current = BlueApp.counterparty_metadata;
+      counterpartyMetadata.current = BlueApp.counterparty_metadata ?? {};
+      BlueApp.counterparty_metadata = counterpartyMetadata.current;
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
       if (loaded.some(w => w.type === LightningArkWallet.type)) {

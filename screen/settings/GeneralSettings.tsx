@@ -163,28 +163,6 @@ const GeneralSettings: React.FC = () => {
           }}
           switchTestID="QuickActionsSwitch"
         />
-        {Platform.OS === 'ios' && (
-          <>
-            <SettingsListItem
-              title={loc.settings.spotlight_search}
-              subtitle={loc.settings.spotlight_search_explanation}
-              switch={{
-                value: isSpotlightEnabled,
-                onValueChange: onSpotlightEnabledChange,
-                disabled: isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.Spotlight,
-              }}
-            />
-            <SettingsListItem
-              title={loc.settings.spotlight_addresses}
-              subtitle={loc.settings.spotlight_addresses_explanation}
-              switch={{
-                value: isSpotlightEnabled && isSpotlightAddressesEnabled,
-                onValueChange: setIsSpotlightAddressesEnabledStorage,
-                disabled: !isSpotlightEnabled || isLoading === SettingsPrivacySection.All,
-              }}
-            />
-          </>
-        )}
         <SettingsListItem
           title={loc.total_balance_view.title}
           subtitle={loc.total_balance_view.explanation}
@@ -220,6 +198,28 @@ const GeneralSettings: React.FC = () => {
 
       {Platform.OS === 'ios' && (
         <>
+          <SettingsSection title={loc.settings.spotlight_search}>
+            <SettingsListItem
+              title={loc.settings.spotlight_search}
+              subtitle={loc.settings.spotlight_search_explanation}
+              switch={{
+                value: isSpotlightEnabled,
+                onValueChange: onSpotlightEnabledChange,
+                disabled: isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.Spotlight,
+              }}
+            />
+            <SettingsListItem
+              title={loc.settings.spotlight_addresses}
+              subtitle={loc.settings.spotlight_addresses_explanation}
+              switch={{
+                value: isSpotlightEnabled && isSpotlightAddressesEnabled,
+                onValueChange: setIsSpotlightAddressesEnabledStorage,
+                disabled: !isSpotlightEnabled || isLoading === SettingsPrivacySection.All,
+              }}
+              bottomDivider={false}
+            />
+          </SettingsSection>
+
           <SettingsSection title={loc.settings.widgets}>
             <SettingsListItem
               title={loc.settings.total_balance}

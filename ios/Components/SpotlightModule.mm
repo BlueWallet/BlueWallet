@@ -7,4 +7,6 @@ RCT_EXTERN_METHOD(replaceIndex:(NSString *)itemsJSON
                   reject:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(deleteIndex:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(popPendingURL:(RCTPromiseResolveBlock)resolve
+                  reject:(RCTPromiseRejectBlock)reject)
 @end

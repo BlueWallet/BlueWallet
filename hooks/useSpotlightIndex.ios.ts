@@ -102,7 +102,7 @@ const useSpotlightIndex = (): void => {
         }
       }
 
-      for (const [paymentCode, metadata] of Object.entries(counterpartyMetadata)) {
+      for (const [paymentCode, metadata] of Object.entries(counterpartyMetadata ?? {})) {
         if (metadata.hidden || !metadata.label?.trim()) continue;
         items.push({
           identifier: `contact:${paymentCode}`,

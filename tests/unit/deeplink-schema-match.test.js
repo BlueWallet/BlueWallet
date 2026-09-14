@@ -15,13 +15,27 @@ describe('Spotlight deep links', () => {
     getID: () => 'wallet id',
     type: 'HDsegwitBech32',
   };
-  const context = { wallets: [wallet], saveToDisk: jest.fn(), addWallet: jest.fn(), setSharedCosigner: jest.fn() };
+  const context = {
+    wallets: [wallet],
+    saveToDisk: jest.fn(),
+    addWallet: jest.fn(),
+    setSharedCosigner: jest.fn(),
+  };
 
   it('opens a wallet result', done => {
     DeeplinkSchemaMatch.navigationRouteFor(
       { url: 'bluewallet://wallet/wallet%20id' },
       route => {
-        expect(route).toEqual(['WalletTransactions', { walletID: 'wallet id', walletType: wallet.type }]);
+        expect(route).toEqual([
+          'DrawerRoot',
+          {
+            screen: 'DetailViewStackScreensStack',
+            params: {
+              screen: 'WalletTransactions',
+              params: { walletID: 'wallet id', walletType: wallet.type },
+            },
+          },
+        ]);
         done();
       },
       context,
@@ -32,7 +46,16 @@ describe('Spotlight deep links', () => {
     DeeplinkSchemaMatch.navigationRouteFor(
       { url: 'bluewallet://transaction?walletID=wallet%20id&txid=abc123' },
       route => {
-        expect(route).toEqual(['TransactionStatus', { hash: 'abc123', walletID: 'wallet id' }]);
+        expect(route).toEqual([
+          'DrawerRoot',
+          {
+            screen: 'DetailViewStackScreensStack',
+            params: {
+              screen: 'TransactionStatus',
+              params: { hash: 'abc123', walletID: 'wallet id' },
+            },
+          },
+        ]);
         done();
       },
       context,
@@ -43,7 +66,16 @@ describe('Spotlight deep links', () => {
     DeeplinkSchemaMatch.navigationRouteFor(
       { url: 'bluewallet://contact?paymentCode=PM8test' },
       route => {
-        expect(route).toEqual(['PaymentCodesList', { paymentCode: 'PM8test' }]);
+        expect(route).toEqual([
+          'DrawerRoot',
+          {
+            screen: 'DetailViewStackScreensStack',
+            params: {
+              screen: 'PaymentCodeList',
+              params: { paymentCode: 'PM8test' },
+            },
+          },
+        ]);
         done();
       },
       context,
@@ -165,24 +197,52 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
     const events = [
       {
         argument: { url: `12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG` },
-        expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
-      },
-      {
-        argument: { url: `bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG` },
-        expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
-      },
-      {
-        argument: { url: `BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo` },
         expected: [
           'SendDetailsRoot',
-          { screen: 'SendDetails', params: { uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' } },
+          {
+            screen: 'SendDetails',
+            params: { uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' },
+          },
         ],
       },
       {
-        argument: { url: `bluewallet:BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo` },
+        argument: {
+          url: `bitcoin:${suffix}12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG`,
+        },
         expected: [
           'SendDetailsRoot',
-          { screen: 'SendDetails', params: { uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' } },
+          {
+            screen: 'SendDetails',
+            params: { uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' },
+          },
+        ],
+      },
+      {
+        argument: {
+          url: `BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo`,
+        },
+        expected: [
+          'SendDetailsRoot',
+          {
+            screen: 'SendDetails',
+            params: {
+              uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo',
+            },
+          },
+        ],
+      },
+      {
+        argument: {
+          url: `bluewallet:BITCOIN:${suffix}BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo`,
+        },
+        expected: [
+          'SendDetailsRoot',
+          {
+            screen: 'SendDetails',
+            params: {
+              uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo',
+            },
+          },
         ],
       },
       {
