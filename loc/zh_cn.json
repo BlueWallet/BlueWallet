@@ -388,8 +388,6 @@
     "updating": "正在更新……",
     "watchOnlyWarningTitle": "安全警告",
     "watchOnlyWarningDescription": "请注意骗子，他们经常使用“观察钱包”来欺骗用户。这类钱包无法让您控制或发送资金，只能查看余额。 ",
-    "custom_fee_warning_title": " 警告",
-    "custom_fee_warning_description": "低于 1 聪/字节的矿工费是有效的，但可能由于节点政策而无法被转发。 ",
     "details_eta_analyzing": "正在分析……",
     "details_sent": "已发送",
     "details_section": "详情",
