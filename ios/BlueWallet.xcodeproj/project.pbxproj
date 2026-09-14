@@ -138,6 +138,13 @@
 			remoteGlobalIDString = 6DD4109B266CADF10087DE03;
 			remoteInfo = WidgetsExtension;
 		};
+		F7A1B2C3D4E5F60718293A4B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 965FB16588C226F99A95FF1D;
+			remoteInfo = QuickLookThumbnail;
+		};
 		B32900000000000000000007 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -684,6 +691,7 @@
 				6D9946682555A661000E52E8 /* PBXTargetDependency */,
 				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
 				6DD410A6266CADF40087DE03 /* PBXTargetDependency */,
+				F7A1B2C3D4E5F60718293A4C /* PBXTargetDependency */,
 			);
 			name = BlueWallet;
 			productName = "Hello World";
@@ -1155,6 +1163,11 @@
 			target = B3290000000000000000000B /* QuickLookPreview */;
 			targetProxy = B32900000000000000000007 /* PBXContainerItemProxy */;
 		};
+		F7A1B2C3D4E5F60718293A4C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 965FB16588C226F99A95FF1D /* QuickLookThumbnail */;
+			targetProxy = F7A1B2C3D4E5F60718293A4B /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1279,12 +1292,19 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1703279999;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
 				INFOPLIST_FILE = QuickLookThumbnail/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 8.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.QuickLookThumbnail;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.QuickLookThumbnail";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1492,12 +1512,19 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1703279999;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
 				INFOPLIST_FILE = QuickLookThumbnail/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 8.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.QuickLookThumbnail;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.QuickLookThumbnail";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
