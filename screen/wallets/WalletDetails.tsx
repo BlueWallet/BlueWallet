@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   applyWalletHistoryNoteUpdates,
   encodeBip329TransactionLabel,
@@ -47,6 +47,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
+import useIsWalletSpotlightIndexing from '../../hooks/useIsWalletSpotlightIndexing';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const IMPORT_NOTES_ACTION_ID = 'import_notes';
@@ -64,6 +65,7 @@ const WalletDetails: React.FC = () => {
   const { saveToDisk, wallets, txMetadata = {}, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
+  const isSpotlightIndexing = useIsWalletSpotlightIndexing(walletID);
   const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [backdoorPressed, setBackdoorPressed] = useState<number>(0);
@@ -732,16 +734,19 @@ const WalletDetails: React.FC = () => {
                     <Text onPress={purgeTransactions} style={[styles.textLabel2, stylesHook.textLabel2]} testID="PurgeBackdoorButton">
                       {loc.transactions.list_title}
                     </Text>
-                    {walletTransactionsLength > 0 && (
-                      <ToolTipMenu
-                        isButton
-                        shouldOpenOnLongPress={false}
-                        onPressMenuItem={toolTipOnPressMenuItem}
-                        actions={transactionsBoxMenuActions}
-                      >
-                        <Icon name="more-horiz" type="material" size={20} color={colors.alternativeTextColor} />
-                      </ToolTipMenu>
-                    )}
+                    <View style={styles.statsBoxTitleActions}>
+                      {isSpotlightIndexing && <ActivityIndicator size="small" testID="SpotlightIndexingIndicator" />}
+                      {walletTransactionsLength > 0 && (
+                        <ToolTipMenu
+                          isButton
+                          shouldOpenOnLongPress={false}
+                          onPressMenuItem={toolTipOnPressMenuItem}
+                          actions={transactionsBoxMenuActions}
+                        >
+                          <Icon name="more-horiz" type="material" size={20} color={colors.alternativeTextColor} />
+                        </ToolTipMenu>
+                      )}
+                    </View>
                   </View>
                   <BlueText style={[styles.statsBoxNumber, stylesHook.statsBoxNumber]}>{wallet.getTransactions().length}</BlueText>
                 </View>
@@ -1230,6 +1235,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  statsBoxTitleActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   statsBoxTitleRowSpacer: {
     width: 20,

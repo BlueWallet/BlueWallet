@@ -26,6 +26,7 @@ interface StorageContextType {
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
+  storageRevision: number;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
   addWallet: (wallet: TWallet) => void;
@@ -71,6 +72,9 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const counterpartyMetadata = useRef<TCounterpartyMetadata>(BlueApp.counterparty_metadata || {}); // init
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
+  // Wallets and metadata are mutated in place in several flows. This revision gives
+  // consumers such as Spotlight a reliable signal after every successful persistence.
+  const [storageRevision, setStorageRevision] = useState<number>(0);
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,
   );
@@ -163,6 +167,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       await BlueApp.saveToDisk();
       const w: TWallet[] = [...BlueApp.getWallets()];
       setWallets(w);
+      setStorageRevision(revision => revision + 1);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [txMetadata.current, counterpartyMetadata.current],
@@ -455,6 +460,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWalletsWithNewOrder,
       txMetadata: txMetadata.current,
       counterpartyMetadata: counterpartyMetadata.current,
+      storageRevision,
       saveToDisk,
       getTransactions: BlueApp.getTransactions,
       selectedWalletID,
@@ -488,6 +494,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
     }),
     [
       wallets,
+      storageRevision,
       setWalletsWithNewOrder,
       saveToDisk,
       selectedWalletID,

@@ -66,6 +66,7 @@ final class SpotlightModule: NSObject, NativeSpotlightSpec {
         attributes.title = item.title
         attributes.contentDescription = item.description
         attributes.keywords = item.keywords
+        attributes.textContent = ([item.title, item.description].compactMap { $0 } + item.keywords).joined(separator: " ")
         attributes.contentURL = url
         attributes.relatedUniqueIdentifier = item.relatedIdentifier
         let searchable = CSSearchableItem(

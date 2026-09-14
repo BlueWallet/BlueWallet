@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import NativeSpotlight from '../blue_modules/NativeSpotlight';
+import { beginSpotlightWalletIndexing } from '../blue_modules/spotlight-index-status';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
 
@@ -15,8 +16,19 @@ type SpotlightItem = {
 
 const unique = (values: Array<string | undefined>): string[] => [...new Set(values.filter((value): value is string => !!value))];
 
+let spotlightOperationQueue: Promise<void> = Promise.resolve();
+
+const enqueueSpotlightOperation = <T>(operation: () => Promise<T>): Promise<T> => {
+  const result = spotlightOperationQueue.then(operation);
+  spotlightOperationQueue = result.then(
+    () => undefined,
+    () => undefined,
+  );
+  return result;
+};
+
 const useSpotlightIndex = (): void => {
-  const { wallets, walletsInitialized, txMetadata, counterpartyMetadata } = useStorage();
+  const { wallets, walletsInitialized, txMetadata, counterpartyMetadata, storageRevision } = useStorage();
   const { isSpotlightEnabled, isSpotlightAddressesEnabled } = useSettings();
 
   useEffect(() => {
@@ -24,16 +36,32 @@ const useSpotlightIndex = (): void => {
     const spotlight = NativeSpotlight;
 
     if (!isSpotlightEnabled) {
-      spotlight.deleteIndex().catch(error => console.warn('Unable to clear Spotlight index:', error));
+      console.debug('[Spotlight] Queueing index removal');
+      enqueueSpotlightOperation(() => spotlight.deleteIndex())
+        .then(() => console.debug('[Spotlight] Index removed'))
+        .catch(error => console.warn('[Spotlight] Unable to clear index:', error));
       return;
     }
 
+    console.debug('[Spotlight] Scheduling index refresh', {
+      storageRevision,
+      walletCount: wallets.length,
+      includesAddresses: isSpotlightAddressesEnabled,
+    });
+
     const timer = setTimeout(() => {
       const items: SpotlightItem[] = [];
+      const indexedWallets = wallets.filter(wallet => !wallet.getHideTransactionsInWalletsList());
+      const finishIndexing = beginSpotlightWalletIndexing(indexedWallets.map(wallet => wallet.getID()));
+      let transactionCount = 0;
+      let contactCount = 0;
 
-      for (const wallet of wallets) {
-        if (wallet.getHideTransactionsInWalletsList()) continue;
+      console.debug('[Spotlight] Preparing index', {
+        indexedWalletCount: indexedWallets.length,
+        hiddenWalletCount: wallets.length - indexedWallets.length,
+      });
 
+      for (const wallet of indexedWallets) {
         const walletID = wallet.getID();
         const walletLabel = wallet.getLabel();
         const walletURL = `bluewallet://wallet/${encodeURIComponent(walletID)}`;
@@ -67,9 +95,10 @@ const useSpotlightIndex = (): void => {
               url: `bluewallet://transaction?walletID=${encodeURIComponent(walletID)}&txid=${encodeURIComponent(txid)}`,
               relatedIdentifier: `wallet:${walletID}`,
             });
+            transactionCount += 1;
           }
         } catch (error) {
-          console.warn(`Unable to prepare Spotlight transactions for ${walletLabel}:`, error);
+          console.warn('[Spotlight] Unable to prepare transactions for one wallet:', error);
         }
       }
 
@@ -83,13 +112,27 @@ const useSpotlightIndex = (): void => {
           keywords: unique(['BlueWallet contact', metadata.label.trim(), ...(isSpotlightAddressesEnabled ? [paymentCode] : [])]),
           url: `bluewallet://contact?paymentCode=${encodeURIComponent(paymentCode)}`,
         });
+        contactCount += 1;
       }
 
-      spotlight.replaceIndex(JSON.stringify(items)).catch(error => console.warn('Unable to update Spotlight index:', error));
+      console.debug('[Spotlight] Queueing prepared index', {
+        walletCount: indexedWallets.length,
+        transactionCount,
+        contactCount,
+        totalItemCount: items.length,
+      });
+
+      enqueueSpotlightOperation(() => spotlight.replaceIndex(JSON.stringify(items)))
+        .then(indexedItemCount => console.debug('[Spotlight] Index refresh completed', { indexedItemCount }))
+        .catch(error => console.warn('[Spotlight] Unable to update index:', error))
+        .finally(() => {
+          finishIndexing();
+          console.debug('[Spotlight] Wallet indexing activity finished');
+        });
     }, 750);
 
     return () => clearTimeout(timer);
-  }, [counterpartyMetadata, isSpotlightAddressesEnabled, isSpotlightEnabled, txMetadata, wallets, walletsInitialized]);
+  }, [counterpartyMetadata, isSpotlightAddressesEnabled, isSpotlightEnabled, storageRevision, txMetadata, wallets, walletsInitialized]);
 };
 
 export default useSpotlightIndex;
