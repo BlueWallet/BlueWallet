@@ -4,7 +4,8 @@ def app_identifiers
     "io.bluewallet.bluewallet",
     "io.bluewallet.bluewallet.Stickers",
     "io.bluewallet.bluewallet.MarketWidget",
-    "io.bluewallet.bluewallet.BIP329QuickLookPreview"
+    "io.bluewallet.bluewallet.QuickLookPreview",
+    "io.bluewallet.bluewallet.QuickLookThumbnail"
   ]
 end
 
@@ -416,6 +417,133 @@ platform :ios do
     ENV[env_name] = value
   end
 
+  # Accept a URL copied from Markdown (for example, [certificates](https://...)).
+  # This prevents git from receiving a literal `]https://` protocol.
+  def normalize_signing_git_url(value)
+    return value if value.start_with?("https://", "http://", "git@", "ssh://")
+
+    extracted_url = value.match(%r{https?://[^\s\]\)]+})&.to_s
+    return value if extracted_url.nil?
+
+    UI.important("Extracted the certificates repository URL from pasted Markdown")
+    extracted_url
+  end
+
+  # Match can use an App Store Connect API key directly, avoiding an expired
+  # FASTLANE_SESSION and an interactive Apple ID login in CI.
+  def match_api_authentication(options)
+    key_id = options[:apple_api_key_id] || ENV["APPLE_API_KEY_ID"]
+    issuer_id = options[:apple_api_issuer_id] || ENV["APPLE_API_ISSUER_ID"]
+    key_path = options[:apple_api_key_path] || ENV["APPLE_API_KEY_PATH"] || "./appstore_api_key.json"
+    configured_values = [key_id, issuer_id, options[:apple_api_key_path] || ENV["APPLE_API_KEY_PATH"], File.file?(key_path) ? key_path : nil]
+
+    return nil if configured_values.all? { |value| value.nil? || value.empty? }
+
+    if File.extname(key_path) == ".json" && File.file?(key_path)
+      UI.message("Using App Store Connect API-key JSON authentication for Match")
+      return { api_key_path: key_path }
+    end
+
+    missing_values = []
+    missing_values << "APPLE_API_KEY_ID" if key_id.nil? || key_id.empty?
+    missing_values << "APPLE_API_ISSUER_ID" if issuer_id.nil? || issuer_id.empty?
+    missing_values << "APPLE_API_KEY_PATH" unless File.file?(key_path)
+    unless missing_values.empty?
+      UI.user_error!(
+        "Incomplete App Store Connect API-key configuration: #{missing_values.join(', ')}. " \
+        "Set APPLE_API_KEY_ID, APPLE_API_ISSUER_ID, and APPLE_API_KEY_PATH to a readable .p8 key, " \
+        "or provide a Fastlane API-key JSON file."
+      )
+    end
+
+    UI.message("Using App Store Connect API-key authentication for Match")
+    {
+      api_key: app_store_connect_api_key(
+        key_id: key_id,
+        issuer_id: issuer_id,
+        key_filepath: key_path,
+        duration: 1200,
+        in_house: false
+      )
+    }
+  end
+
+  def ensure_match_apple_auth!(options)
+    api_authentication = match_api_authentication(options)
+    return api_authentication unless api_authentication.nil?
+
+    options = options.merge(apple_id: ENV["FASTLANE_USER"]) if (options[:apple_id].nil? || options[:apple_id].empty?) && !ENV["FASTLANE_USER"].to_s.empty?
+    resolve_signing_value(
+      options: options,
+      option_name: :apple_id,
+      env_name: "APPLE_ID",
+      prompt: "Apple ID email:"
+    )
+    ENV["FASTLANE_USER"] ||= ENV["APPLE_ID"]
+
+    return nil unless ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
+
+    unless UI.interactive?
+      UI.user_error!(
+        "Apple authentication is required in non-interactive environments. Prefer APPLE_API_KEY_ID, " \
+        "APPLE_API_ISSUER_ID, and APPLE_API_KEY_PATH; alternatively provide FASTLANE_SESSION or FASTLANE_PASSWORD."
+      )
+    end
+
+    require "shellwords"
+    UI.message("No reusable Apple session was provided; refreshing it with spaceauth before Match")
+    begin
+      sh("bundle exec fastlane spaceauth -u #{Shellwords.shellescape(ENV["APPLE_ID"])}")
+    rescue => error
+      UI.user_error!(
+        "Could not refresh the Apple session with spaceauth: #{error.message}. " \
+        "Complete the Apple MFA prompt, or configure an App Store Connect API key."
+      )
+    end
+
+    nil
+  end
+
+  # The Preview extension reads the app's cached fiat rate from this group. App
+  # Groups are a Developer Portal capability, so they must be enabled before
+  # Match creates a profile for a newly-added extension identifier.
+  def ensure_quick_look_app_group!(developer_team_id)
+    group_identifier = "group.io.bluewallet.bluewallet"
+    extension_identifiers = ["io.bluewallet.bluewallet.QuickLookPreview"]
+
+    if !UI.interactive? && ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
+      UI.important(
+        "Skipping Quick Look App Group synchronization: legacy Developer Portal authentication is unavailable. " \
+        "Provide FASTLANE_SESSION or FASTLANE_PASSWORD when creating the extension profile for the first time."
+      )
+      return
+    end
+
+    require "spaceship"
+    UI.message("Synchronizing Quick Look App Group capability in the Developer Portal")
+    Spaceship::Portal.login(ENV["FASTLANE_USER"], ENV["FASTLANE_PASSWORD"])
+    Spaceship::Portal.client.team_id = developer_team_id
+
+    group = Spaceship::Portal.app_group.find(group_identifier)
+    group ||= Spaceship::Portal.app_group.create!(
+      group_id: group_identifier,
+      name: "BlueWallet Shared Data"
+    )
+
+    extension_identifiers.each do |bundle_identifier|
+      app = Spaceship::Portal.app.find(bundle_identifier)
+      UI.user_error!("Could not find App ID #{bundle_identifier} in the Developer Portal") if app.nil?
+
+      app.update_service(Spaceship::Portal.app_service.app_group.on)
+      app.associate_groups([group])
+    end
+  rescue => error
+    UI.user_error!(
+      "Could not synchronize the Quick Look App Group capability: #{error.message}. " \
+      "Enable #{group_identifier} for QuickLookPreview in the Apple Developer portal and retry."
+    )
+  end
+
   def normalize_git_basic_authorization(value)
     github_token = value.match?(/\A(?:github_pat_|gh[pousr]_)/)
     return value unless github_token
@@ -667,28 +795,25 @@ platform :ios do
 
   desc "Update all Apple certificates and provisioning profiles"
   lane :update_apple_signing_assets do |options|
-    minimum_fastlane_version = Gem::Version.new("2.238.0")
+    minimum_fastlane_version = Gem::Version.new("2.240.0")
     current_fastlane_version = Gem::Version.new(Fastlane::VERSION)
     if current_fastlane_version < minimum_fastlane_version
       UI.user_error!(
-        "Fastlane 2.238.0 or newer is required to renew expired certificates. " \
+        "Fastlane 2.240.0 or newer is required to renew expired certificates and authenticate with App Store Connect. " \
         "Run `bundle update fastlane` and retry this lane."
       )
     end
 
-    resolve_signing_value(
+    certificates_git_url = resolve_signing_value(
       options: options,
       option_name: :git_url,
       env_name: "GIT_URL",
       prompt: "Certificates repository URL:"
     )
-    resolve_developer_team_id(options)
-    resolve_signing_value(
-      options: options,
-      option_name: :apple_id,
-      env_name: "APPLE_ID",
-      prompt: "Apple ID email:"
-    )
+    ENV["GIT_URL"] = normalize_signing_git_url(certificates_git_url)
+    developer_team_id = resolve_developer_team_id(options)
+    api_authentication = ensure_match_apple_auth!(options)
+    ensure_quick_look_app_group!(developer_team_id)
     resolve_signing_value(
       options: options,
       option_name: :match_password,
@@ -731,17 +856,23 @@ platform :ios do
       signing_configurations.each do |configuration|
         configuration[:profile_types].each do |profile_type|
           UI.message("Checking #{profile_type} signing assets for #{configuration[:platform]}...")
-          match(
+          match_options = {
             type: profile_type,
             platform: configuration[:platform],
             app_identifier: configuration[:app_identifiers],
             readonly: false,
             renew_expired_certs: true,
+            force: true,
             git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
             keychain_name: keychain_name,
             keychain_password: keychain_password,
-            clone_branch_directly: true
-          )
+            team_id: developer_team_id
+          }
+          match_options.merge!(api_authentication) unless api_authentication.nil?
+          match_options[:username] = ENV["APPLE_ID"] if api_authentication.nil?
+          # Do not force --single-branch: Match may need to create or fetch a
+          # branch on a first run, where clone_branch_directly would fail.
+          match(**match_options)
         end
       end
     ensure
