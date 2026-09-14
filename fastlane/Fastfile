@@ -504,6 +504,46 @@ platform :ios do
     nil
   end
 
+  # The Preview extension reads the app's cached fiat rate from this group. App
+  # Groups are a Developer Portal capability, so they must be enabled before
+  # Match creates a profile for a newly-added extension identifier.
+  def ensure_quick_look_app_group!(developer_team_id)
+    group_identifier = "group.io.bluewallet.bluewallet"
+    extension_identifiers = ["io.bluewallet.bluewallet.QuickLookPreview"]
+
+    if !UI.interactive? && ENV["FASTLANE_SESSION"].to_s.empty? && ENV["FASTLANE_PASSWORD"].to_s.empty?
+      UI.important(
+        "Skipping Quick Look App Group synchronization: legacy Developer Portal authentication is unavailable. " \
+        "Provide FASTLANE_SESSION or FASTLANE_PASSWORD when creating the extension profile for the first time."
+      )
+      return
+    end
+
+    require "spaceship"
+    UI.message("Synchronizing Quick Look App Group capability in the Developer Portal")
+    Spaceship::Portal.login(ENV["FASTLANE_USER"], ENV["FASTLANE_PASSWORD"])
+    Spaceship::Portal.client.team_id = developer_team_id
+
+    group = Spaceship::Portal.app_group.find(group_identifier)
+    group ||= Spaceship::Portal.app_group.create!(
+      group_id: group_identifier,
+      name: "BlueWallet Shared Data"
+    )
+
+    extension_identifiers.each do |bundle_identifier|
+      app = Spaceship::Portal.app.find(bundle_identifier)
+      UI.user_error!("Could not find App ID #{bundle_identifier} in the Developer Portal") if app.nil?
+
+      app.update_service(Spaceship::Portal.app_service.app_group.on)
+      app.associate_groups([group])
+    end
+  rescue => error
+    UI.user_error!(
+      "Could not synchronize the Quick Look App Group capability: #{error.message}. " \
+      "Enable #{group_identifier} for QuickLookPreview in the Apple Developer portal and retry."
+    )
+  end
+
   def normalize_git_basic_authorization(value)
     github_token = value.match?(/\A(?:github_pat_|gh[pousr]_)/)
     return value unless github_token
@@ -773,6 +813,7 @@ platform :ios do
     ENV["GIT_URL"] = normalize_signing_git_url(certificates_git_url)
     developer_team_id = resolve_developer_team_id(options)
     api_authentication = ensure_match_apple_auth!(options)
+    ensure_quick_look_app_group!(developer_team_id)
     resolve_signing_value(
       options: options,
       option_name: :match_password,
@@ -821,6 +862,7 @@ platform :ios do
             app_identifier: configuration[:app_identifiers],
             readonly: false,
             renew_expired_certs: true,
+            force: true,
             git_basic_authorization: ENV["GIT_ACCESS_TOKEN"],
             keychain_name: keychain_name,
             keychain_password: keychain_password,
