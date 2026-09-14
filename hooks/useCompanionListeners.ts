@@ -28,7 +28,7 @@ import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
-import NativeSpotlight, { isSpotlightDeepLink } from '../blue_modules/NativeSpotlight';
+import { isSpotlightDeepLink, popPendingSpotlightURL } from '../blue_modules/NativeSpotlight';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -326,7 +326,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             setSharedCosigner,
           });
           if (isSpotlightDeepLink(event.url)) {
-            NativeSpotlight?.popPendingURL().catch(error => console.debug('[Spotlight] Unable to clear pending URL:', error));
+            popPendingSpotlightURL().catch(error => console.debug('[Spotlight] Unable to clear pending URL:', error));
           }
         }
       } catch (err: any) {

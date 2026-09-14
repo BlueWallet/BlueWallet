@@ -8,7 +8,7 @@ import { formatBalance } from '../loc';
 import * as NavigationService from '../NavigationService';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
-import NativeSpotlight, { isSpotlightDeepLink } from '../blue_modules/NativeSpotlight';
+import { isSpotlightDeepLink, popPendingSpotlightURL } from '../blue_modules/NativeSpotlight';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
@@ -96,8 +96,8 @@ const useDeviceQuickActions = () => {
         const url = await Linking.getInitialURL();
         if (url && DeeplinkSchemaMatch.hasSchema(url)) {
           handleOpenURL({ url });
-        } else if (NativeSpotlight) {
-          const spotlightURL = await NativeSpotlight.popPendingURL();
+        } else {
+          const spotlightURL = await popPendingSpotlightURL();
           if (spotlightURL) handleOpenURL({ url: spotlightURL });
         }
       }
@@ -114,7 +114,7 @@ const useDeviceQuickActions = () => {
       setSharedCosigner,
     });
     if (isSpotlightDeepLink(event.url)) {
-      NativeSpotlight?.popPendingURL().catch(error => console.debug('[Spotlight] Unable to clear pending URL:', error));
+      popPendingSpotlightURL().catch(error => console.debug('[Spotlight] Unable to clear pending URL:', error));
     }
   };
 

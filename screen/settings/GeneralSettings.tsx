@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
@@ -122,6 +122,10 @@ const GeneralSettings: React.FC = () => {
     openSettings();
   }, []);
 
+  const openSpotlightMoreInfo = useCallback(() => {
+    Linking.openURL('https://support.apple.com/102321').catch(error => console.warn('[Spotlight] Unable to open Apple Support:', error));
+  }, []);
+
   const onHandOffUseEnabledChange = useCallback(
     async (value: boolean) => {
       await setIsHandOffUseEnabledAsyncStorage(value);
@@ -216,6 +220,11 @@ const GeneralSettings: React.FC = () => {
                 onValueChange: setIsSpotlightAddressesEnabledStorage,
                 disabled: !isSpotlightEnabled || isLoading === SettingsPrivacySection.All,
               }}
+            />
+            <SettingsListItem
+              title={loc.wallets.more_info}
+              onPress={openSpotlightMoreInfo}
+              testID="SpotlightMoreInfo"
               bottomDivider={false}
             />
           </SettingsSection>
