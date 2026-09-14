@@ -297,12 +297,12 @@ describe('BlueWallet UI Tests - no wallets', () => {
     await waitForId('CopyTextToClipboard');
 
     // add per-address label then verify it renders on the receive screen
-    // The link can be below the viewport on the short CI emulator; scroll it
-    // fully into view so Detox does not tap the system navigation bar.
+    // The link can be partially visible above the system navigation bar on
+    // short screens, so always move it fully into the viewport before tapping.
+    await element(by.id('ReceiveDetailsScrollView')).scrollTo('bottom');
     await waitFor(element(by.id('ReceiveMoreOptionsButton')))
       .toBeVisible()
-      .whileElement(by.id('ReceiveDetailsScrollView'))
-      .scroll(200, 'down');
+      .withTimeout(5000);
     await element(by.id('ReceiveMoreOptionsButton')).tap();
     await element(by.id('AddressLabelOption')).tap();
     await element(by.id('AddressLabelInput')).replaceText('my recv label');
