@@ -20,10 +20,12 @@ import {
   GuardedNavigationAction,
   validateGuardedRoute,
 } from './navigation/navigationGuard';
+import useSpotlightIndex from './hooks/useSpotlightIndex';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
   const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
+  useSpotlightIndex();
 
   const validateNavigation = useCallback(
     (route: GuardedRoute) =>

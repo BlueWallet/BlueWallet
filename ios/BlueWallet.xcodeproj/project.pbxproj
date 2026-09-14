@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B32900000000000000000001 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32900000000000000000003 /* PreviewViewController.swift */; };
-		B32900000000000000000002 /* BIP329QuickLookPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B32900000000000000000005 /* BIP329QuickLookPreview.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */; };
 		6D2A6464258BA92D0092292B /* Stickers.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6D2A6463258BA92D0092292B /* Stickers.xcassets */; };
@@ -37,6 +35,8 @@
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
 		84E05A842721191B001A0D3A /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 84E05A832721191B001A0D3A /* Settings.bundle */; };
+		B32900000000000000000001 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32900000000000000000003 /* PreviewViewController.swift */; };
+		B32900000000000000000002 /* BIP329QuickLookPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B32900000000000000000005 /* BIP329QuickLookPreview.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		B409AB062D71E07500BA06F8 /* MenuElementsEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */; };
 		B40FC3FA29CCD1D00007EBAC /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */; };
 		B41C2E562BB3DCB8000FE097 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */; };
@@ -108,17 +108,12 @@
 		B4B3EF202D6CFF6C003270A0 /* SegmentedControlBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EF1F2D6CFF6C003270A0 /* SegmentedControlBridge.m */; };
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
 		B4F0A4A42FA1BC0000AAAA03 /* EventEmitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */; };
+		C50100012FA1BC0000C50101 /* SpotlightModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50100032FA1BC0000C50103 /* SpotlightModule.swift */; };
+		C50100022FA1BC0000C50102 /* SpotlightModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = C50100042FA1BC0000C50104 /* SpotlightModule.mm */; };
 		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		B32900000000000000000007 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B3290000000000000000000B;
-			remoteInfo = BIP329QuickLookPreview;
-		};
 		6D2A6466258BA92D0092292B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
@@ -140,6 +135,13 @@
 			remoteGlobalIDString = 6DD4109B266CADF10087DE03;
 			remoteInfo = WidgetsExtension;
 		};
+		B32900000000000000000007 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B3290000000000000000000B;
+			remoteInfo = BIP329QuickLookPreview;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -159,9 +161,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		B32900000000000000000003 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
-		B32900000000000000000004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B32900000000000000000005 /* BIP329QuickLookPreview.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BIP329QuickLookPreview.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BlueWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -218,6 +217,9 @@
 		9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNSVG-tvOS.a"; sourceTree = "<group>"; };
 		A7C4B1FDAD264618BAF8C335 /* libRNCWebView.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCWebView.a; sourceTree = "<group>"; };
 		AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
+		B32900000000000000000003 /* PreviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewViewController.swift; sourceTree = "<group>"; };
+		B32900000000000000000004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B32900000000000000000005 /* BIP329QuickLookPreview.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BIP329QuickLookPreview.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		B409AB052D71E07500BA06F8 /* MenuElementsEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuElementsEmitter.swift; path = MenuElementsEmitter/MenuElementsEmitter.swift; sourceTree = SOURCE_ROOT; };
 		B40FC3F829CCD1AC0007EBAC /* SwiftTCPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftTCPClient.swift; sourceTree = "<group>"; };
 		B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -266,6 +268,9 @@
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRate.a; sourceTree = "<group>"; };
+		C50100032FA1BC0000C50103 /* SpotlightModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightModule.swift; sourceTree = "<group>"; };
+		C50100042FA1BC0000C50104 /* SpotlightModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotlightModule.mm; sourceTree = "<group>"; };
+		C50100052FA1BC0000C50105 /* NativeSpotlightSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeSpotlightSpec.h; sourceTree = "<group>"; };
 		CD746B955C55410793BB72C0 /* libRNGestureHandler.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNGestureHandler.a; sourceTree = "<group>"; };
 		E6B44173A8854B6D85D7F933 /* libRNVectorIcons-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNVectorIcons-tvOS.a"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -277,13 +282,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		B32900000000000000000008 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -311,18 +309,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B32900000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B32900000000000000000006 /* BIP329QuickLookPreview */ = {
-			isa = PBXGroup;
-			children = (
-				B32900000000000000000003 /* PreviewViewController.swift */,
-				B32900000000000000000004 /* Info.plist */,
-			);
-			path = BIP329QuickLookPreview;
-			sourceTree = "<group>";
-		};
 		00E356EF1AD99517003FC87E /* BlueWalletTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -485,6 +481,7 @@
 				B49D99932EFE2F3500A718AC /* NativeWidgetHelperSpec.h */,
 				B4F0A4A52FA1BC0000AAAA05 /* NativeEventEmitterSpec.h */,
 				B4F0A4A62FA1BC0000AAAA06 /* NativeMenuElementsEmitterSpec.h */,
+				C50100052FA1BC0000C50105 /* NativeSpotlightSpec.h */,
 				B45010A12C1504E900619044 /* Components */,
 				B44033C82BCC34AC00162242 /* Shared */,
 				B41C2E552BB3DCB8000FE097 /* PrivacyInfo.xcprivacy */,
@@ -513,6 +510,15 @@
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B32900000000000000000006 /* BIP329QuickLookPreview */ = {
+			isa = PBXGroup;
+			children = (
+				B32900000000000000000003 /* PreviewViewController.swift */,
+				B32900000000000000000004 /* Info.plist */,
+			);
+			path = BIP329QuickLookPreview;
 			sourceTree = "<group>";
 		};
 		B40FE50A21FAD228005D5578 /* Recovered References */ = {
@@ -594,6 +600,8 @@
 				B4B3EF1F2D6CFF6C003270A0 /* SegmentedControlBridge.m */,
 				B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */,
 				B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */,
+				C50100032FA1BC0000C50103 /* SpotlightModule.swift */,
+				C50100042FA1BC0000C50104 /* SpotlightModule.mm */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -618,23 +626,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B3290000000000000000000B /* BIP329QuickLookPreview */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B3290000000000000000000F /* Build configuration list for PBXNativeTarget "BIP329QuickLookPreview" */;
-			buildPhases = (
-				B3290000000000000000000A /* Sources */,
-				B32900000000000000000008 /* Frameworks */,
-				B32900000000000000000009 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = BIP329QuickLookPreview;
-			productName = BIP329QuickLookPreview;
-			productReference = B32900000000000000000005 /* BIP329QuickLookPreview.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		13B07F861A680F5B00A75B9A /* BlueWallet */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BlueWallet" */;
@@ -697,6 +688,23 @@
 			productReference = 6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		B3290000000000000000000B /* BIP329QuickLookPreview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B3290000000000000000000F /* Build configuration list for PBXNativeTarget "BIP329QuickLookPreview" */;
+			buildPhases = (
+				B3290000000000000000000A /* Sources */,
+				B32900000000000000000008 /* Frameworks */,
+				B32900000000000000000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BIP329QuickLookPreview;
+			productName = BIP329QuickLookPreview;
+			productReference = B32900000000000000000005 /* BIP329QuickLookPreview.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -708,9 +716,6 @@
 				LastUpgradeCheck = 1620;
 				ORGANIZATIONNAME = BlueWallet;
 				TargetAttributes = {
-					B3290000000000000000000B = {
-						CreatedOnToolsVersion = 16.2;
-					};
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1030;
 						SystemCapabilities = {
@@ -724,6 +729,9 @@
 					};
 					6DD4109B266CADF10087DE03 = {
 						CreatedOnToolsVersion = 12.5;
+					};
+					B3290000000000000000000B = {
+						CreatedOnToolsVersion = 16.2;
 					};
 				};
 			};
@@ -774,13 +782,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		B32900000000000000000009 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		13B07F8E1A680F5B00A75B9A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -811,6 +812,13 @@
 				B44034112BCC40A400162242 /* fiatUnits.json in Resources */,
 				B4742E9B2CCDBE8300380EEE /* Localizable.xcstrings in Resources */,
 				6DD410B7266CAF5C0087DE03 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B32900000000000000000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -954,14 +962,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B3290000000000000000000A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B32900000000000000000001 /* PreviewViewController.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		13B07F871A680F5B00A75B9A /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -995,6 +995,8 @@
 				B4B3EF202D6CFF6C003270A0 /* SegmentedControlBridge.m in Sources */,
 				B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */,
+				C50100012FA1BC0000C50101 /* SpotlightModule.swift in Sources */,
+				C50100022FA1BC0000C50102 /* SpotlightModule.mm in Sources */,
 				B48630E12CCEE7C800A8425C /* PriceWidgetEntryView.swift in Sources */,
 				B44033DA2BCC369A00162242 /* Colors.swift in Sources */,
 				B44033D32BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,
@@ -1056,14 +1058,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B3290000000000000000000A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B32900000000000000000001 /* PreviewViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		B3290000000000000000000C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = B3290000000000000000000B /* BIP329QuickLookPreview */;
-			targetProxy = B32900000000000000000007 /* PBXContainerItemProxy */;
-		};
 		6D2A6467258BA92D0092292B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 6D2A6460258BA92C0092292B /* Stickers */;
@@ -1078,79 +1083,14 @@
 			target = 6DD4109B266CADF10087DE03 /* WidgetsExtension */;
 			targetProxy = 6DD410A5266CADF40087DE03 /* PBXContainerItemProxy */;
 		};
+		B3290000000000000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B3290000000000000000000B /* BIP329QuickLookPreview */;
+			targetProxy = B32900000000000000000007 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		B3290000000000000000000D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703279999;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
-				INFOPLIST_FILE = BIP329QuickLookPreview/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 8.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.BIP329QuickLookPreview;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.BIP329QuickLookPreview";
-				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		B3290000000000000000000E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703279999;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
-				INFOPLIST_FILE = BIP329QuickLookPreview/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 8.0.2;
-				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.BIP329QuickLookPreview;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.BIP329QuickLookPreview";
-				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 1AE7FA8B4A18928E917F42D1 /* Pods-BlueWallet.debug.xcconfig */;
@@ -1610,18 +1550,91 @@
 			};
 			name = Release;
 		};
+		B3290000000000000000000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1703279999;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				INFOPLIST_FILE = BIP329QuickLookPreview/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
+				MARKETING_VERSION = 8.0.2;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.BIP329QuickLookPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.BIP329QuickLookPreview";
+				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B3290000000000000000000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1703279999;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
+				INFOPLIST_FILE = BIP329QuickLookPreview/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(SDKROOT)/usr/lib/swift",
+					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
+					"$(inherited)",
+				);
+				MARKETING_VERSION = 8.0.2;
+				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.BIP329QuickLookPreview;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.BIP329QuickLookPreview";
+				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B3290000000000000000000F /* Build configuration list for PBXNativeTarget "BIP329QuickLookPreview" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B3290000000000000000000D /* Debug */,
-				B3290000000000000000000E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BlueWallet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1654,6 +1667,15 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B3290000000000000000000F /* Build configuration list for PBXNativeTarget "BIP329QuickLookPreview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3290000000000000000000D /* Debug */,
+				B3290000000000000000000E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

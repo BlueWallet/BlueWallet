@@ -18,6 +18,12 @@ import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer,
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  getSpotlightAddressesEnabled,
+  getSpotlightEnabled,
+  SpotlightAddressesEnabledKey,
+  SpotlightEnabledKey,
+} from '../../blue_modules/spotlight-settings';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -91,6 +97,10 @@ interface SettingsContextType {
   setIsClipboardGetContentEnabledStorage: (value: boolean) => Promise<void>;
   isQuickActionsEnabled: boolean;
   setIsQuickActionsEnabledStorage: (value: boolean) => Promise<void>;
+  isSpotlightEnabled: boolean;
+  setIsSpotlightEnabledStorage: (value: boolean) => Promise<void>;
+  isSpotlightAddressesEnabled: boolean;
+  setIsSpotlightAddressesEnabledStorage: (value: boolean) => Promise<void>;
   isTotalBalanceEnabled: boolean;
   setIsTotalBalanceEnabledStorage: (value: boolean) => Promise<void>;
   totalBalancePreferredUnit: BitcoinUnit;
@@ -120,6 +130,10 @@ const defaultSettingsContext: SettingsContextType = {
   setIsClipboardGetContentEnabledStorage: async () => {},
   isQuickActionsEnabled: true,
   setIsQuickActionsEnabledStorage: async () => {},
+  isSpotlightEnabled: false,
+  setIsSpotlightEnabledStorage: async () => {},
+  isSpotlightAddressesEnabled: false,
+  setIsSpotlightAddressesEnabledStorage: async () => {},
   isTotalBalanceEnabled: true,
   setIsTotalBalanceEnabledStorage: async () => {},
   totalBalancePreferredUnit: BitcoinUnit.BTC,
@@ -142,6 +156,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isLegacyURv1Enabled, setIsLegacyURv1Enabled] = useState<boolean>(false);
   const [isClipboardGetContentEnabled, setIsClipboardGetContentEnabled] = useState<boolean>(true);
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
+  const [isSpotlightEnabled, setIsSpotlightEnabled] = useState<boolean>(false);
+  const [isSpotlightAddressesEnabled, setIsSpotlightAddressesEnabled] = useState<boolean>(false);
   const [isTotalBalanceEnabled, setIsTotalBalanceEnabled] = useState<boolean>(true);
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
@@ -179,6 +195,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         getIsDeviceQuickActionsEnabled().then(quickActionsEnabled => {
           setIsQuickActionsEnabled(quickActionsEnabled);
         }),
+        getSpotlightEnabled().then(setIsSpotlightEnabled),
+        getSpotlightAddressesEnabled().then(setIsSpotlightAddressesEnabled),
         getDoNotTrackStorage().then(doNotTrack => {
           setIsDoNotTrackEnabled(doNotTrack);
         }),
@@ -309,6 +327,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       console.error('Error setting isQuickActionsEnabled:', e);
     }
   }, []);
+  const setIsSpotlightEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
+    await AsyncStorage.setItem(SpotlightEnabledKey, String(value));
+    setIsSpotlightEnabled(value);
+  }, []);
+  const setIsSpotlightAddressesEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
+    await AsyncStorage.setItem(SpotlightAddressesEnabledKey, String(value));
+    setIsSpotlightAddressesEnabled(value);
+  }, []);
   const setIsTotalBalanceEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
       await setTotalBalanceViewEnabledStorage(value);
@@ -360,6 +386,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isSpotlightEnabled,
+      setIsSpotlightEnabledStorage,
+      isSpotlightAddressesEnabled,
+      setIsSpotlightAddressesEnabledStorage,
       isTotalBalanceEnabled,
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
@@ -388,6 +418,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isSpotlightEnabled,
+      setIsSpotlightEnabledStorage,
+      isSpotlightAddressesEnabled,
+      setIsSpotlightAddressesEnabledStorage,
       isTotalBalanceEnabled,
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,

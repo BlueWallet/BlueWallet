@@ -10,6 +10,47 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
   };
 });
 
+describe('Spotlight deep links', () => {
+  const wallet = {
+    getID: () => 'wallet id',
+    type: 'HDsegwitBech32',
+  };
+  const context = { wallets: [wallet], saveToDisk: jest.fn(), addWallet: jest.fn(), setSharedCosigner: jest.fn() };
+
+  it('opens a wallet result', done => {
+    DeeplinkSchemaMatch.navigationRouteFor(
+      { url: 'bluewallet://wallet/wallet%20id' },
+      route => {
+        expect(route).toEqual(['WalletTransactions', { walletID: 'wallet id', walletType: wallet.type }]);
+        done();
+      },
+      context,
+    );
+  });
+
+  it('opens a transaction result', done => {
+    DeeplinkSchemaMatch.navigationRouteFor(
+      { url: 'bluewallet://transaction?walletID=wallet%20id&txid=abc123' },
+      route => {
+        expect(route).toEqual(['TransactionStatus', { hash: 'abc123', walletID: 'wallet id' }]);
+        done();
+      },
+      context,
+    );
+  });
+
+  it('opens a contact result', done => {
+    DeeplinkSchemaMatch.navigationRouteFor(
+      { url: 'bluewallet://contact?paymentCode=PM8test' },
+      route => {
+        expect(route).toEqual(['PaymentCodesList', { paymentCode: 'PM8test' }]);
+        done();
+      },
+      context,
+    );
+  });
+});
+
 // helper function that promisifies function with a callback:
 const asyncNavigationRouteFor = async function (event) {
   return new Promise(function (resolve) {

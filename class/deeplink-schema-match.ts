@@ -213,6 +213,27 @@ class DeeplinkSchemaMatch {
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
+            case 'wallet': {
+              const walletID = urlObject.pathname ? decodeURIComponent(urlObject.pathname.replace(/^\//, '')) : undefined;
+              const wallet = context.wallets.find(candidate => candidate.getID() === walletID);
+              if (wallet) {
+                completionHandler(['WalletTransactions', { walletID: wallet.getID(), walletType: wallet.type }]);
+              }
+              break;
+            }
+            case 'transaction': {
+              const walletID = typeof urlObject.query.walletID === 'string' ? urlObject.query.walletID : undefined;
+              const txid = typeof urlObject.query.txid === 'string' ? urlObject.query.txid : undefined;
+              if (walletID && txid && context.wallets.some(candidate => candidate.getID() === walletID)) {
+                completionHandler(['TransactionStatus', { hash: txid, walletID }]);
+              }
+              break;
+            }
+            case 'contact': {
+              const paymentCode = typeof urlObject.query.paymentCode === 'string' ? urlObject.query.paymentCode : undefined;
+              completionHandler(['PaymentCodesList', paymentCode ? { paymentCode } : {}]);
+              break;
+            }
             case 'setelectrumserver':
               completionHandler([
                 'ElectrumSettings',
