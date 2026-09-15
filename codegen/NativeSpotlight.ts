@@ -5,6 +5,8 @@ export interface Spec extends TurboModule {
   replaceIndex(itemsJSON: string): Promise<number>;
   deleteIndex(): Promise<void>;
   popPendingURL(): Promise<string | null>;
+  donateActivity(identifier: string, title: string): void;
+  clearActivity(): void;
 }
 
 export default TurboModuleRegistry.get<Spec>('SpotlightModule');

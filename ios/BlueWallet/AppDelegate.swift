@@ -307,8 +307,12 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
-        if activityType == CSSearchableItemActionType,
-           let identifier = userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String,
+        let spotlightIdentifier = activityType == CSSearchableItemActionType
+            ? userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String
+            : userActivity.userInfo?[SpotlightModule.activityIdentifierKey] as? String
+
+        if (activityType == CSSearchableItemActionType || activityType == SpotlightModule.activityType),
+           let identifier = spotlightIdentifier,
            let url = spotlightURL(for: identifier) {
             UserDefaults.standard.set(url.absoluteString, forKey: SpotlightModule.pendingURLKey)
             NSLog("[Spotlight] Opening indexed result")

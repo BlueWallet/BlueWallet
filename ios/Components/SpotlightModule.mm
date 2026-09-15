@@ -8,4 +8,6 @@ RCT_EXTERN_METHOD(deleteIndex:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
 RCT_EXTERN_METHOD(popPendingURL:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)
+RCT_EXTERN_METHOD(donateActivity:(NSString *)identifier title:(NSString *)title)
+RCT_EXTERN_METHOD(clearActivity)
 @end

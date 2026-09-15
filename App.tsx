@@ -1,5 +1,5 @@
 import { CommonActions, NavigationAction, NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SizeClassProvider } from './components/Context/SizeClassProvider';
@@ -21,11 +21,53 @@ import {
   validateGuardedRoute,
 } from './navigation/navigationGuard';
 import useSpotlightIndex from './hooks/useSpotlightIndex';
+import { useSettings } from './hooks/context/useSettings';
+import { clearSpotlightActivity, donateSpotlightActivity } from './blue_modules/NativeSpotlight';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
-  const { wallets, saveToDisk } = useStorage();
+  const { wallets, saveToDisk, txMetadata, isStorageEncrypted } = useStorage();
+  const { isSpotlightEnabled } = useSettings();
   const { isBiometricUseEnabled } = useBiometrics();
+  const spotlightActivityRequest = useRef(0);
   useSpotlightIndex();
+
+  const updateSpotlightActivity = useCallback(() => {
+    const request = ++spotlightActivityRequest.current;
+    const route = navigationRef.getCurrentRoute();
+    const params = route?.params as { walletID?: string; hash?: string } | undefined;
+    const wallet = params?.walletID ? wallets.find(candidate => candidate.getID() === params.walletID) : undefined;
+
+    if (!isSpotlightEnabled || !wallet || wallet.getHideTransactionsInWalletsList()) {
+      clearSpotlightActivity();
+      return;
+    }
+
+    isStorageEncrypted()
+      .then(storageIsEncrypted => {
+        if (request !== spotlightActivityRequest.current) return;
+        if (storageIsEncrypted) {
+          clearSpotlightActivity();
+          return;
+        }
+
+        if (route?.name === 'TransactionStatus' && params?.hash) {
+          const title = txMetadata[params.hash]?.memo?.trim() || `Transaction ${params.hash.slice(0, 8)}`;
+          donateSpotlightActivity(`transaction:${wallet.getID()}:${params.hash}`, title);
+        } else if (route?.name === 'WalletTransactions' || route?.name === 'WalletDetails') {
+          donateSpotlightActivity(`wallet:${wallet.getID()}`, wallet.getLabel());
+        } else {
+          clearSpotlightActivity();
+        }
+      })
+      .catch(error => {
+        clearSpotlightActivity();
+        console.warn('[Spotlight] Unable to donate navigation activity:', error);
+      });
+  }, [isSpotlightEnabled, isStorageEncrypted, txMetadata, wallets]);
+
+  useEffect(() => {
+    if (navigationRef.isReady()) updateSpotlightActivity();
+  }, [updateSpotlightActivity]);
 
   const validateNavigation = useCallback(
     (route: GuardedRoute) =>
@@ -82,6 +124,8 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
       ref={navigationRef}
       theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
       onUnhandledAction={handleUnhandledAction}
+      onReady={updateSpotlightActivity}
+      onStateChange={updateSpotlightActivity}
     >
       <MasterView />
     </NavigationContainer>

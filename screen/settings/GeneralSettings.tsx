@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
 import { Linking, Platform } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
@@ -45,16 +46,26 @@ const GeneralSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        setStorageIsEncrypted(await isStorageEncrypted());
-      } catch (e) {
-        console.log(e);
-      }
-      setIsLoading(SettingsPrivacySection.None);
-    })();
-  }, [isStorageEncrypted]);
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      (async () => {
+        let encrypted = true;
+        try {
+          encrypted = await isStorageEncrypted();
+        } catch (e) {
+          console.log(e);
+        }
+        if (!active) return;
+        setStorageIsEncrypted(encrypted);
+        setIsLoading(SettingsPrivacySection.None);
+      })();
+
+      return () => {
+        active = false;
+      };
+    }, [isStorageEncrypted]),
+  );
 
   const onDoNotTrackValueChange = useCallback(
     async (value: boolean) => {
@@ -205,14 +216,14 @@ const GeneralSettings: React.FC = () => {
           <SettingsSection title={loc.settings.spotlight_search}>
             <SettingsListItem
               title={loc.settings.spotlight_search}
-              subtitle={loc.settings.spotlight_search_explanation}
+              subtitle={`${loc.settings.spotlight_search_explanation}${encryptedDisabledNote}`}
               switch={{
-                value: isSpotlightEnabled,
+                value: storageIsEncrypted ? false : isSpotlightEnabled,
                 onValueChange: onSpotlightEnabledChange,
-                disabled: isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.Spotlight,
+                disabled: isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.Spotlight || storageIsEncrypted,
               }}
             />
-            {isSpotlightEnabled && (
+            {isSpotlightEnabled && !storageIsEncrypted && (
               <SettingsListItem
                 title={loc.settings.spotlight_addresses}
                 subtitle={loc.settings.spotlight_addresses_explanation}

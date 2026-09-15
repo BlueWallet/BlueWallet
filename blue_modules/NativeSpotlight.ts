@@ -14,6 +14,14 @@ export const popPendingSpotlightURL = async (): Promise<string | null> => {
   return NativeSpotlight.popPendingURL();
 };
 
+export const donateSpotlightActivity = (identifier: string, title: string): void => {
+  if (NativeSpotlight && typeof NativeSpotlight.donateActivity === 'function') NativeSpotlight.donateActivity(identifier, title);
+};
+
+export const clearSpotlightActivity = (): void => {
+  if (NativeSpotlight && typeof NativeSpotlight.clearActivity === 'function') NativeSpotlight.clearActivity();
+};
+
 type IndexingListener = () => void;
 const indexingCounts = new Map<string, number>();
 const indexingListeners = new Set<IndexingListener>();
