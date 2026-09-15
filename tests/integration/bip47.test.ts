@@ -8,6 +8,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import ecc from '../../blue_modules/noble_ecc';
 import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
+import { requiredEnv } from '../helpers/env';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -55,14 +56,9 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     expect(hd.getTransactions().length).toBeGreaterThanOrEqual(4);
   });
 
-  it('should work (samurai)', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('should work (samurai)', async () => {
     const w = new HDSegwitBech32Wallet();
-    w.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[0]);
+    w.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[0]);
     w.setPassphrase('1');
 
     expect(w.getBIP47PaymentCode()).toEqual(
@@ -146,18 +142,13 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     ); // transaction is to Bob's notification address
   });
 
-  it('can tell whom to notify and whom dont', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('can tell whom to notify and whom dont', async () => {
     // whom we are going to notify:
-    const bip47instanceReceiver = BIP47Factory(ecc).fromBip39Seed(process.env.BIP47_HD_MNEMONIC.split(':')[0], undefined, '1');
+    const bip47instanceReceiver = BIP47Factory(ecc).fromBip39Seed(requiredEnv('BIP47_HD_MNEMONIC').split(':')[0], undefined, '1');
 
     // notifier:
     const walletSender = new HDSegwitBech32Wallet();
-    walletSender.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    walletSender.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[1]);
     walletSender.switchBIP47(true);
     await walletSender.fetchBIP47SenderPaymentCodes();
     await walletSender.fetchBalance();
@@ -174,14 +165,9 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     ); // random PC from interwebz. never interacted with him, so need to notify
   });
 
-  it('can tell with which counterparty PC transaction is', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('can tell with which counterparty PC transaction is', async () => {
     const w = new HDSegwitBech32Wallet();
-    w.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[0]);
+    w.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[0]);
     w.setPassphrase('1');
 
     w.switchBIP47(true);
@@ -260,14 +246,9 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
   });
 
-  it('can tell with which counterparty PC transaction is (sparrow)', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('can tell with which counterparty PC transaction is (sparrow)', async () => {
     const w = new HDSegwitBech32Wallet();
-    w.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    w.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[1]);
     w.switchBIP47(true);
 
     await w.fetchBIP47SenderPaymentCodes();

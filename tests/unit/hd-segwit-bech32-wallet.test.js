@@ -216,11 +216,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.notStrictEqual(id1, id3);
   });
 
-  it('can createTransaction with a correct feerate (with lenghty segwit address)', () => {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
+  itIfEnv('HD_MNEMONIC_BIP84')('can createTransaction with a correct feerate (with lenghty segwit address)', () => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC_BIP84);
     assert.ok(hd.validateMnemonic());
@@ -237,7 +233,12 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     const { tx, psbt, outputs } = hd.createTransaction(
       utxo,
-      [{ address: 'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp', value: 546 }],
+      [
+        {
+          address: 'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp',
+          value: 546,
+        },
+      ],
       10,
       'bc1qtmcfj7lvgjp866w8lytdpap82u7eege58jy52hp4ctk0hsncegyqel8prp',
     );
@@ -252,11 +253,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     );
   });
 
-  it('can createTransaction with OP_RETURN', () => {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
+  itIfEnv('HD_MNEMONIC_BIP84')('can createTransaction with OP_RETURN', () => {
     const hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC_BIP84);
     assert.ok(hd.validateMnemonic());
@@ -275,7 +272,12 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       utxo,
       [
         { address: hd._getExternalAddressByIndex(0), value: 546 },
-        { script: { hex: '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff' }, value: 0 },
+        {
+          script: {
+            hex: '00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff',
+          },
+          value: 0,
+        },
       ],
       150,
       hd._getInternalAddressByIndex(0),

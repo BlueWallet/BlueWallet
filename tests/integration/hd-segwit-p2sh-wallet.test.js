@@ -45,11 +45,7 @@ it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagg
   assert.strictEqual(hd.getTransactions().length, 153);
 });
 
-it('HD (BIP49) can create TX', async () => {
-  if (!process.env.HD_MNEMONIC_BIP49) {
-    console.error('process.env.HD_MNEMONIC_BIP49 not set, skipped');
-    return;
-  }
+itIfEnv('HD_MNEMONIC_BIP49')('HD (BIP49) can create TX', async () => {
   const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49);
   assert.ok(hd.validateMnemonic());
@@ -162,11 +158,6 @@ it('HD (BIP49) can create TX', async () => {
 // unskip and test manually
 // eslint-disable-next-line jest/no-disabled-tests
 it.skip('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function () {
-  if (!process.env.HD_MNEMONIC_BIP49_MANY_TX) {
-    console.error('process.env.HD_MNEMONIC_BIP49_MANY_TX not set, skipped');
-    return;
-  }
-
   const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
   assert.ok(hd.validateMnemonic());

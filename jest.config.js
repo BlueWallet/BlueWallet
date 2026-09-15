@@ -21,4 +21,5 @@ module.exports = {
   },
   setupFiles: ['./tests/setup.js'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/tests/e2e/'],
 };

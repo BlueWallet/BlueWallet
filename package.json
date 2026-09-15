@@ -38,6 +38,7 @@
     "eslint-config-standard": "^17.1.0",
     "eslint-config-standard-jsx": "^11.0.0",
     "eslint-config-standard-react": "^13.0.0",
+    "eslint-plugin-bluewallet": "file:scripts/eslint-plugin-bluewallet",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^28.7.0",
     "eslint-plugin-n": "^16.6.2",
@@ -73,7 +74,7 @@
     "postinstall": "npm run releasenotes2json; npm run branch2json; npm run patches",
     "patches": "npx patch-package",
     "test": "npm run lint && npm run unit && npm run integration",
-    "integration": "jest tests/integration/*",
+    "integration": "jest tests/integration",
     "e2e:debug-build": "detox build -c android.debug",
     "e2e:debug-test": "detox test -c android.debug -d 200000 --loglevel error --reuse",
     "e2e:debug-test-device": "detox test -c android.debug.device -d 200000 --loglevel info --reuse",
@@ -88,7 +89,7 @@
     "lint": " npm run tslint && node scripts/find-unused-loc.js && node scripts/find-english-leftovers.js && node scripts/validate-fastlane-metadata.js && eslint --ext .js,.ts,.tsx '*.@(js|ts|tsx)' screen 'blue_modules/*.@(js|ts|tsx)' class models loc tests components navigation typings",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep -E '\\.js|\\.ts' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
-    "unit": "jest -b tests/unit/*"
+    "unit": "jest tests/unit"
   },
   "dependencies": {
     "@arkade-os/boltz-swap": "0.3.67",

@@ -8,6 +8,7 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { CreateTransactionUtxo } from '../../class/wallets/types';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { requiredEnv } from '../helpers/env';
 
 const ECPair = ECPairFactory(ecc);
 
@@ -42,14 +43,9 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     expect(ww.allowBIP47()).toEqual(false);
   });
 
-  it('should work (samurai)', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('should work (samurai)', async () => {
     const w = new HDSegwitBech32Wallet();
-    w.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[0]);
+    w.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[0]);
     w.setPassphrase('1');
 
     expect(w.getBIP47PaymentCode()).toEqual(
@@ -92,14 +88,9 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     assert.strictEqual(address, 'bc1q57nwf9vfq2qsl80q37wq5h0tjytsk95vgjq4fe');
   });
 
-  it('should work (sparrow)', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('should work (sparrow)', async () => {
     const w = new HDSegwitBech32Wallet();
-    w.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    w.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[1]);
 
     assert.strictEqual(
       w.getXpub(),
@@ -118,18 +109,13 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     expect(ourNotificationAddress).toEqual('16xPugarxLzuNdhDu6XCMJBsMYrTN2fghN'); // our notif address
   });
 
-  it('should be able to create notification transaction', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('should be able to create notification transaction', async () => {
     // whom we are going to notify:
-    const bip47instanceReceiver = BIP47Factory(ecc).fromBip39Seed(process.env.BIP47_HD_MNEMONIC.split(':')[0], undefined, '1');
+    const bip47instanceReceiver = BIP47Factory(ecc).fromBip39Seed(requiredEnv('BIP47_HD_MNEMONIC').split(':')[0], undefined, '1');
 
     // notifier:
     const walletSender = new HDSegwitBech32Wallet();
-    walletSender.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    walletSender.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[1]);
     walletSender.switchBIP47(true);
 
     // lets produce a notification transaction and verify that receiver can actually use it
@@ -179,18 +165,13 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     assert.strictEqual(Math.round(actualFeerate), 33);
   });
 
-  it('should be able to pay to PC', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('should be able to pay to PC', async () => {
     // whom we are going to pay:
-    const bip47instanceReceiver = BIP47Factory(ecc).fromBip39Seed(process.env.BIP47_HD_MNEMONIC.split(':')[0], undefined, '1');
+    const bip47instanceReceiver = BIP47Factory(ecc).fromBip39Seed(requiredEnv('BIP47_HD_MNEMONIC').split(':')[0], undefined, '1');
 
     // notifier:
     const walletSender = new HDSegwitBech32Wallet();
-    walletSender.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    walletSender.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[1]);
     walletSender.switchBIP47(true);
 
     // since we cant do network calls, we hardcode our senders so later `_getWIFbyAddress`
@@ -223,7 +204,10 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     const { tx, fee } = walletSender.createTransaction(
       utxos,
       [
-        { address: bip47instanceReceiver.getSerializedPaymentCode(), value: 10234 },
+        {
+          address: bip47instanceReceiver.getSerializedPaymentCode(),
+          value: 10234,
+        },
         { address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value: 22000 },
       ],
       6,
@@ -250,7 +234,10 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     const { tx: tx2 } = walletSender.createTransaction(
       utxos,
       [
-        { address: bip47instanceReceiver.getSerializedPaymentCode(), value: 10234 },
+        {
+          address: bip47instanceReceiver.getSerializedPaymentCode(),
+          value: 10234,
+        },
         { address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value: 22000 },
       ],
       6,
@@ -264,14 +251,9 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     );
   });
 
-  it('should be able to pay to PC (BIP-352 SilentPayments)', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('should be able to pay to PC (BIP-352 SilentPayments)', async () => {
     const walletSender = new HDSegwitBech32Wallet();
-    walletSender.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[1]);
+    walletSender.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[1]);
     walletSender.switchBIP47(true);
 
     const utxos: CreateTransactionUtxo[] = [
@@ -321,14 +303,9 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
     assert.strictEqual(Math.round(actualFeerate), 6);
   });
 
-  it('can unwrap addresses to send & receive', () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('can unwrap addresses to send & receive', () => {
     const w = new HDSegwitBech32Wallet();
-    w.setSecret(process.env.BIP47_HD_MNEMONIC.split(':')[0]);
+    w.setSecret(requiredEnv('BIP47_HD_MNEMONIC').split(':')[0]);
     w.setPassphrase('1');
 
     const addr = w._getBIP47AddressReceive(
