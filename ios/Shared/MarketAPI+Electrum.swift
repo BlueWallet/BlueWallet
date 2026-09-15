@@ -64,7 +64,13 @@ extension MarketAPI {
         do {
             if let priceResult = try await fetchPrice(currency: currency) {
                 marketDataEntry.rate = priceResult.rateDouble
-                marketDataEntry.price = priceResult.formattedRate ?? "!"
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .currency
+                formatter.currencyCode = currency
+                formatter.locale = Locale(identifier: fiatUnit(currency: currency)?.locale ?? Currency.getUserPreferredCurrencyLocale())
+                formatter.maximumFractionDigits = 0
+                marketDataEntry.price = formatter.string(from: NSNumber(value: priceResult.rateDouble)) ?? priceResult.rate
+                marketDataEntry.dateString = priceResult.lastUpdate
                 print("Fetched price data: rateDouble=\(priceResult.rateDouble), formattedRate=\(priceResult.formattedRate ?? "nil")") 
             }
         } catch {
@@ -80,7 +86,10 @@ extension MarketAPI {
             marketDataEntry.nextBlock = "!"
         }
 
-        marketDataEntry.sats = numberFormatter.string(from: NSNumber(value: Double(10 / marketDataEntry.rate) * 10000000)) ?? "!"
+        guard marketDataEntry.rate.isFinite, marketDataEntry.rate > 0 else {
+            throw APIError(errorDescription: "No valid market price available.")
+        }
+        marketDataEntry.sats = numberFormatter.string(from: NSNumber(value: 100000000 / marketDataEntry.rate)) ?? "..."
         print("Calculated sats: \(marketDataEntry.sats)") 
         
         return marketDataEntry

@@ -1,0 +1,988 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		00EA141EB7AF11B0C1F5D54A /* MarketApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B85A3BFD425CB65752BB43B /* MarketApp.swift */; };
+		00EBDB4A97A8A258F7AABE62 /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5E4AC9BC31F6AF1BEC0227 /* Numeric+abbreviated.swift */; };
+		08FBFDEDDF61DD2A7F526523 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D97E6ADC890174F59650920E /* Foundation.framework */; };
+		0A783058194472704B3D240A /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12C5B4D00A42F74AC1D6E15F /* WidgetData.swift */; };
+		0ACA0B71633478D9FB1ADB89 /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCD54F1F256C4EDD562B426 /* MarketAPI+Electrum.swift */; };
+		0EBA9F4A9C2763227AB33715 /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5E4AC9BC31F6AF1BEC0227 /* Numeric+abbreviated.swift */; };
+		1379E710FA3971F50D30E734 /* MarketApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B85A3BFD425CB65752BB43B /* MarketApp.swift */; };
+		13D517A1EA3633DEA77311B3 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318D417C1B70666E51264890 /* FiatUnit.swift */; };
+		13F04E91E3AD4A8453F6D030 /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB47CC4614930DD7B6C548 /* MarketAPI.swift */; };
+		18E8A47A2446E1527A2E2806 /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5E4AC9BC31F6AF1BEC0227 /* Numeric+abbreviated.swift */; };
+		1BA64CBE78DCAD9A88DB78CF /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8713BDAA7EE5ED4B14082B36 /* UserDefaultsGroup.swift */; };
+		1D117C888BAC460FB257411A /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCD54F1F256C4EDD562B426 /* MarketAPI+Electrum.swift */; };
+		1F51CEE92A3480B1D8A5FD35 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE067D98281570BBD83C0EF /* XMLParserDelegate.swift */; };
+		21271A24C0BED2A84A587BD6 /* MarketVisionWidgets.appex in Embed Widget Extension */ = {isa = PBXBuildFile; fileRef = 1E175AA4E2105D4129B7509E /* MarketVisionWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2234842F9FFBC23DA7C51181 /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD91AB8305F594025E4A59A /* MarketView.swift */; };
+		238B7BFD7339662BB0D48940 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 99D22B785ABE274137D6945E /* fiatUnits.json */; };
+		26CA5169B363D02FFDA47BFB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B1C9EDC2F7E99BA1763450E /* Foundation.framework */; };
+		29D9A0CD7D5191E8AB70DA24 /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB47CC4614930DD7B6C548 /* MarketAPI.swift */; };
+		2AAE888B7F2571C19DBC948E /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972360629EBBC3BF6F505AB1 /* BitcoinUnit.swift */; };
+		331E3B6370E0B5980D14923D /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1591ECDD743CE0403F31609B /* WalletData.swift */; };
+		34DE2367C65DEE2A4A3000BC /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC235676CAF7E09EB125B9C5 /* UserDefaultsGroupKey.swift */; };
+		34E1EE5C9090FAE99BC544B2 /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCD54F1F256C4EDD562B426 /* MarketAPI+Electrum.swift */; };
+		360CA8D204B498668B264C54 /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC235676CAF7E09EB125B9C5 /* UserDefaultsGroupKey.swift */; };
+		36F1108184B1F26AE37B392F /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FD8045D84D8DC6625CC855 /* MarketData.swift */; };
+		389826FB6BF60EC0C745470B /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BF5E70413E6FF8220A0C42 /* SwiftTCPClient.swift */; };
+		3A633D1504051C1E99624850 /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375BE3011F3E2987976C405C /* MarketWidget.swift */; };
+		3D5D70861B01775D878A7B94 /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD91AB8305F594025E4A59A /* MarketView.swift */; };
+		40854A8CAE84B2941BC732B9 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F212F7B1A987F836B1F6912 /* Colors.swift */; };
+		4184E1AB932ADA055CAF563D /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4667F2891750B24E78BA75 /* LatestTransaction.swift */; };
+		4255BD9C97EA5EB445CC6EAE /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375BE3011F3E2987976C405C /* MarketWidget.swift */; };
+		4262195CE5F1A467729FC6DC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC6812D9D2DC6FB2682A98C1 /* Assets.xcassets */; };
+		438356F7D69F6B3E2222CDCC /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 99D22B785ABE274137D6945E /* fiatUnits.json */; };
+		45C5D47A006F59D0E17D45C4 /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7C84728B87061DC5A228827 /* Bundle+decode.swift */; };
+		49286D4D33FC2052C2E05B33 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FD8045D84D8DC6625CC855 /* MarketData.swift */; };
+		4E401768E0CD568F0A70623F /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0323D1C1C16A1437050A96B /* WidgetDataStore.swift */; };
+		510D36ECF00F40F649CC3AED /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4667F2891750B24E78BA75 /* LatestTransaction.swift */; };
+		5200F3AD7D1910EC3C3BC4E5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B1C9EDC2F7E99BA1763450E /* Foundation.framework */; };
+		58F36E2073062F3362985B42 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BF5E70413E6FF8220A0C42 /* SwiftTCPClient.swift */; };
+		5A69784EE3067DC95E63A7F9 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D42787C49453728C52583A0 /* Utilities.swift */; };
+		5C16DFA94DBE2C1CC0CC0C4B /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972360629EBBC3BF6F505AB1 /* BitcoinUnit.swift */; };
+		5EEA15E5A25C97E78D384565 /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD91AB8305F594025E4A59A /* MarketView.swift */; };
+		60B075185DEEDD2667DF8D00 /* MarketWatchWidgets.appex in Embed Widget Extension */ = {isa = PBXBuildFile; fileRef = 45B29576C59D8C3E4ABBD755 /* MarketWatchWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		624BAFE42144699EDB9A3857 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1591ECDD743CE0403F31609B /* WalletData.swift */; };
+		676D95D1DD44BF8865C8E8CE /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972360629EBBC3BF6F505AB1 /* BitcoinUnit.swift */; };
+		67AFB716156C945AD58A0DBD /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7C84728B87061DC5A228827 /* Bundle+decode.swift */; };
+		6892932945655E374B417EF6 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FD8045D84D8DC6625CC855 /* MarketData.swift */; };
+		69564224406A67E5C804CADC /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687359F135389980EEEDE050 /* Currency.swift */; };
+		6B4C3B92C8EAFD83B4569F6E /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0323D1C1C16A1437050A96B /* WidgetDataStore.swift */; };
+		77B0F6C2A1B9379C0029F711 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0323D1C1C16A1437050A96B /* WidgetDataStore.swift */; };
+		781BDA70957C5574CE018A93 /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE067D98281570BBD83C0EF /* XMLParserDelegate.swift */; };
+		7CF3D512A850A0CF8B1EFFC3 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F212F7B1A987F836B1F6912 /* Colors.swift */; };
+		7E0F44C1BDCDB053A3181B20 /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375BE3011F3E2987976C405C /* MarketWidget.swift */; };
+		7F72C5A0B9BBF3CEA1A95DFA /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D42787C49453728C52583A0 /* Utilities.swift */; };
+		81FE599A7127AD8E65EA5806 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318D417C1B70666E51264890 /* FiatUnit.swift */; };
+		82AAE6E7162AEE72FAD52085 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8713BDAA7EE5ED4B14082B36 /* UserDefaultsGroup.swift */; };
+		84D1337DC7DB47087B0626C8 /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB47CC4614930DD7B6C548 /* MarketAPI.swift */; };
+		867688514618BBC8380825A2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC6812D9D2DC6FB2682A98C1 /* Assets.xcassets */; };
+		89088ED6F2A7ACEB3407D828 /* MarketWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DAD39B605F20EC277BA4CF8 /* MarketWidgets.swift */; };
+		89642443C7565A7D0195FB69 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8713BDAA7EE5ED4B14082B36 /* UserDefaultsGroup.swift */; };
+		8A2A1C17FE426520BEF674BD /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCD54F1F256C4EDD562B426 /* MarketAPI+Electrum.swift */; };
+		8AD4657468AC0BB5B3A29A02 /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972360629EBBC3BF6F505AB1 /* BitcoinUnit.swift */; };
+		8D6B17EA2AD9A8F5BD2499EB /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7C84728B87061DC5A228827 /* Bundle+decode.swift */; };
+		8E60737F531D26D88C8B3F41 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4667F2891750B24E78BA75 /* LatestTransaction.swift */; };
+		8EA97AB9FFBD9D986BB7ADCA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC6812D9D2DC6FB2682A98C1 /* Assets.xcassets */; };
+		910C42B55AD08221F42BBE54 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F212F7B1A987F836B1F6912 /* Colors.swift */; };
+		919F397A6BE30BABDE33E215 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71E78717ABF6792AA967D08B /* Cocoa.framework */; };
+		91AB6643AE6F0A23D68BD0D1 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1591ECDD743CE0403F31609B /* WalletData.swift */; };
+		947A30E109D60539B129685D /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220C9CEE3261999591D484F /* Placeholders.swift */; };
+		94A29B8F49A5D781C754B2FF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC6812D9D2DC6FB2682A98C1 /* Assets.xcassets */; };
+		98D75FCD14BEDE4C91C06A6D /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F212F7B1A987F836B1F6912 /* Colors.swift */; };
+		990833EC20239DDE1827DED6 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D42787C49453728C52583A0 /* Utilities.swift */; };
+		9A861DA4385D81769BE9C353 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC6812D9D2DC6FB2682A98C1 /* Assets.xcassets */; };
+		9BC274B78BDAEED5DB34E9C7 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BF5E70413E6FF8220A0C42 /* SwiftTCPClient.swift */; };
+		9E1BB170454C8BD370BB4129 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4667F2891750B24E78BA75 /* LatestTransaction.swift */; };
+		9E4125E36F96BD3D5D51742E /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12C5B4D00A42F74AC1D6E15F /* WidgetData.swift */; };
+		9E5AF42CA406EC0A78FFCF26 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D97E6ADC890174F59650920E /* Foundation.framework */; };
+		9EA263ACB64183FD16E34235 /* BitcoinUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 972360629EBBC3BF6F505AB1 /* BitcoinUnit.swift */; };
+		A050F6198138679DE6A60859 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0323D1C1C16A1437050A96B /* WidgetDataStore.swift */; };
+		A05F121AF2340812DFF950B2 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8713BDAA7EE5ED4B14082B36 /* UserDefaultsGroup.swift */; };
+		A18DB967F25AC371C53D157F /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC235676CAF7E09EB125B9C5 /* UserDefaultsGroupKey.swift */; };
+		A5B8F19E068801EAEBD9B522 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BF5E70413E6FF8220A0C42 /* SwiftTCPClient.swift */; };
+		A7E0E71273993886737C9970 /* UserDefaultsGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8713BDAA7EE5ED4B14082B36 /* UserDefaultsGroup.swift */; };
+		AA708149967EE80759E9BC68 /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FD8045D84D8DC6625CC855 /* MarketData.swift */; };
+		AB108EFE1576582FFC108196 /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC235676CAF7E09EB125B9C5 /* UserDefaultsGroupKey.swift */; };
+		AB335087A9F397584AB3272E /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD91AB8305F594025E4A59A /* MarketView.swift */; };
+		AD13FFE91D9B36973B89114B /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 99D22B785ABE274137D6945E /* fiatUnits.json */; };
+		AF8C7B7DC3ECDEC30B33A272 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687359F135389980EEEDE050 /* Currency.swift */; };
+		B2CE9BF437CA0D3272BB4281 /* LatestTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A4667F2891750B24E78BA75 /* LatestTransaction.swift */; };
+		B45ABE7A1D8490F0B52721DE /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE067D98281570BBD83C0EF /* XMLParserDelegate.swift */; };
+		B49AB03A14DD944FE69B26B5 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D42787C49453728C52583A0 /* Utilities.swift */; };
+		B5A481BB2FA245EB55942E2A /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375BE3011F3E2987976C405C /* MarketWidget.swift */; };
+		B721C8EF626C54B18287A87E /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318D417C1B70666E51264890 /* FiatUnit.swift */; };
+		B9A00B7F18144A4D83188211 /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220C9CEE3261999591D484F /* Placeholders.swift */; };
+		BABF960E43ECB0D1A000A184 /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB47CC4614930DD7B6C548 /* MarketAPI.swift */; };
+		BBE38068E41EABF5F3409808 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12C5B4D00A42F74AC1D6E15F /* WidgetData.swift */; };
+		BC4FCE83580A37D960D1C87D /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE067D98281570BBD83C0EF /* XMLParserDelegate.swift */; };
+		BD94ABF396650237D7D2D7EF /* XMLParserDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFE067D98281570BBD83C0EF /* XMLParserDelegate.swift */; };
+		BEC327FDF624F9E1142D74CE /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687359F135389980EEEDE050 /* Currency.swift */; };
+		C19F0A758D345EAA3AD5A67D /* MarketAPI+Electrum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CCD54F1F256C4EDD562B426 /* MarketAPI+Electrum.swift */; };
+		C5BCFAE8B521921B7B53802A /* MarketAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FAB47CC4614930DD7B6C548 /* MarketAPI.swift */; };
+		C7AAAB3763823AF66FB053C3 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12C5B4D00A42F74AC1D6E15F /* WidgetData.swift */; };
+		C826A7D1DF028EDC4633D0FB /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318D417C1B70666E51264890 /* FiatUnit.swift */; };
+		CAFE444E362C13E79A7A5DED /* MarketData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FD8045D84D8DC6625CC855 /* MarketData.swift */; };
+		D03FF3C2FFFE0F0D0D6FBB4D /* UserDefaultsGroupKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC235676CAF7E09EB125B9C5 /* UserDefaultsGroupKey.swift */; };
+		D0B8D260BBFCE2C93AEB5923 /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220C9CEE3261999591D484F /* Placeholders.swift */; };
+		D2ECB08E6067FF02122B70C6 /* SwiftTCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6BF5E70413E6FF8220A0C42 /* SwiftTCPClient.swift */; };
+		D980224DEB936DB3C9EDD80D /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F212F7B1A987F836B1F6912 /* Colors.swift */; };
+		D9D2E8907CEE6DBA26C5DFBF /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 99D22B785ABE274137D6945E /* fiatUnits.json */; };
+		DD446239AAF59517C3D04B92 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D42787C49453728C52583A0 /* Utilities.swift */; };
+		E0D4FFA2A4B00D49DAB42683 /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5E4AC9BC31F6AF1BEC0227 /* Numeric+abbreviated.swift */; };
+		E2592A92BAB3B2B51E3CD506 /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220C9CEE3261999591D484F /* Placeholders.swift */; };
+		E288B41CABF0151D77BF1DED /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687359F135389980EEEDE050 /* Currency.swift */; };
+		E59DEAB35CCE56F52687C5CF /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12C5B4D00A42F74AC1D6E15F /* WidgetData.swift */; };
+		E69B3AA419A9A288E8970EDD /* Numeric+abbreviated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5E4AC9BC31F6AF1BEC0227 /* Numeric+abbreviated.swift */; };
+		E7BDFE74070E6379D8321165 /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687359F135389980EEEDE050 /* Currency.swift */; };
+		E7C6B2A159A293F2B2927478 /* MarketWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DAD39B605F20EC277BA4CF8 /* MarketWidgets.swift */; };
+		E9644081F932AB3EF64DAE34 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1591ECDD743CE0403F31609B /* WalletData.swift */; };
+		EABE3A47FE05CF0EBFD02155 /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD91AB8305F594025E4A59A /* MarketView.swift */; };
+		EB714A69DE779B4A0E69568E /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7C84728B87061DC5A228827 /* Bundle+decode.swift */; };
+		ED5BFF243B2A4A6A2DF15124 /* fiatUnits.json in Resources */ = {isa = PBXBuildFile; fileRef = 99D22B785ABE274137D6945E /* fiatUnits.json */; };
+		ED7450A4411E20879B881F3B /* MarketWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 375BE3011F3E2987976C405C /* MarketWidget.swift */; };
+		F45D5ECC099E30EBDD125D91 /* WalletData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1591ECDD743CE0403F31609B /* WalletData.swift */; };
+		F649799B33B250B1B1AA29F9 /* WidgetDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0323D1C1C16A1437050A96B /* WidgetDataStore.swift */; };
+		F7E0395ED5FE3D50561A43E7 /* FiatUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318D417C1B70666E51264890 /* FiatUnit.swift */; };
+		FB2D25BA549A162C0D70F8F2 /* Bundle+decode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7C84728B87061DC5A228827 /* Bundle+decode.swift */; };
+		FC58CB3D1A3B197D7E3BA29D /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7220C9CEE3261999591D484F /* Placeholders.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3B8C634269A955CAF733F110 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 51B74A65CFFDBFE86FC6E0D6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 33FED4C6ADD1E220D67F5917;
+			remoteInfo = MarketVisionWidgets;
+		};
+		AF5C69BB3DC8CC9492E34F97 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 51B74A65CFFDBFE86FC6E0D6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EC4803502C53420B2A455103;
+			remoteInfo = MarketWatchWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A07AE326A15B01B45A63E3EF /* Embed Widget Extension */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				60B075185DEEDD2667DF8D00 /* MarketWatchWidgets.appex in Embed Widget Extension */,
+			);
+			name = "Embed Widget Extension";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FAFBD20E380241E169B68B3F /* Embed Widget Extension */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				21271A24C0BED2A84A587BD6 /* MarketVisionWidgets.appex in Embed Widget Extension */,
+			);
+			name = "Embed Widget Extension";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		12C5B4D00A42F74AC1D6E15F /* WidgetData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetData.swift; path = ../Shared/WidgetData.swift; sourceTree = "<group>"; };
+		1591ECDD743CE0403F31609B /* WalletData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WalletData.swift; path = ../Shared/WalletData.swift; sourceTree = "<group>"; };
+		1DAD39B605F20EC277BA4CF8 /* MarketWidgets.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MarketWidgets.swift; sourceTree = "<group>"; };
+		1E175AA4E2105D4129B7509E /* MarketVisionWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MarketVisionWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FAB47CC4614930DD7B6C548 /* MarketAPI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MarketAPI.swift; path = ../Shared/MarketAPI.swift; sourceTree = "<group>"; };
+		2F212F7B1A987F836B1F6912 /* Colors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Colors.swift; path = ../Shared/Colors.swift; sourceTree = "<group>"; };
+		318D417C1B70666E51264890 /* FiatUnit.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FiatUnit.swift; path = ../Shared/Fiat/FiatUnit.swift; sourceTree = "<group>"; };
+		375BE3011F3E2987976C405C /* MarketWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MarketWidget.swift; path = ../Widgets/MarketWidget/MarketWidget.swift; sourceTree = "<group>"; };
+		40B771A8927160B1C89B5E13 /* WidgetInfo.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = WidgetInfo.plist; sourceTree = "<group>"; };
+		45B29576C59D8C3E4ABBD755 /* MarketWatchWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MarketWatchWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B1C9EDC2F7E99BA1763450E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		4D42787C49453728C52583A0 /* Utilities.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Utilities.swift; path = ../Shared/Utilities/Utilities.swift; sourceTree = "<group>"; };
+		5E5E4AC9BC31F6AF1BEC0227 /* Numeric+abbreviated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Numeric+abbreviated.swift"; path = "../Shared/Numeric+abbreviated.swift"; sourceTree = "<group>"; };
+		687359F135389980EEEDE050 /* Currency.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Currency.swift; path = ../Shared/Currency.swift; sourceTree = "<group>"; };
+		6D67EA8D86ACE42D37A6C72C /* MarketVision.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MarketVision.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		71E78717ABF6792AA967D08B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		7220C9CEE3261999591D484F /* Placeholders.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Placeholders.swift; path = ../Shared/Placeholders.swift; sourceTree = "<group>"; };
+		7A4667F2891750B24E78BA75 /* LatestTransaction.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LatestTransaction.swift; path = ../Shared/LatestTransaction.swift; sourceTree = "<group>"; };
+		7B85A3BFD425CB65752BB43B /* MarketApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MarketApp.swift; sourceTree = "<group>"; };
+		83161075762415DB55BDEE07 /* WidgetsExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = WidgetsExtension.entitlements; path = ../WidgetsExtension.entitlements; sourceTree = "<group>"; };
+		8713BDAA7EE5ED4B14082B36 /* UserDefaultsGroup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDefaultsGroup.swift; path = ../Shared/UserDefaultsGroup.swift; sourceTree = "<group>"; };
+		8CCD54F1F256C4EDD562B426 /* MarketAPI+Electrum.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "MarketAPI+Electrum.swift"; path = "../Shared/MarketAPI+Electrum.swift"; sourceTree = "<group>"; };
+		972360629EBBC3BF6F505AB1 /* BitcoinUnit.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BitcoinUnit.swift; path = ../Shared/BitcoinUnit.swift; sourceTree = "<group>"; };
+		99D22B785ABE274137D6945E /* fiatUnits.json */ = {isa = PBXFileReference; includeInIndex = 1; name = fiatUnits.json; path = ../../models/fiatUnits.json; sourceTree = "<group>"; };
+		A2B2A1127C553FCFC3F280C0 /* MarketWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MarketWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC235676CAF7E09EB125B9C5 /* UserDefaultsGroupKey.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UserDefaultsGroupKey.swift; path = ../Shared/UserDefaultsGroupKey.swift; sourceTree = "<group>"; };
+		AFE067D98281570BBD83C0EF /* XMLParserDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = XMLParserDelegate.swift; path = ../Shared/Fiat/XMLParserDelegate.swift; sourceTree = "<group>"; };
+		B7C84728B87061DC5A228827 /* Bundle+decode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Bundle+decode.swift"; path = "../Shared/Bundle+decode.swift"; sourceTree = "<group>"; };
+		C1FD8045D84D8DC6625CC855 /* MarketData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MarketData.swift; path = ../Shared/MarketData.swift; sourceTree = "<group>"; };
+		CC6812D9D2DC6FB2682A98C1 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../Widgets/Assets.xcassets; sourceTree = "<group>"; };
+		D97E6ADC890174F59650920E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/XROS.platform/Developer/SDKs/XROS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		F0323D1C1C16A1437050A96B /* WidgetDataStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WidgetDataStore.swift; path = ../Shared/WidgetDataStore.swift; sourceTree = "<group>"; };
+		F6BF5E70413E6FF8220A0C42 /* SwiftTCPClient.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SwiftTCPClient.swift; path = ../Widgets/Shared/SwiftTCPClient.swift; sourceTree = "<group>"; };
+		FAD91AB8305F594025E4A59A /* MarketView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = MarketView.swift; path = ../Widgets/Shared/Views/MarketView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2FBA4B14202393AFF4D39B1A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				26CA5169B363D02FFDA47BFB /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		46A41F16846EFD101055EAB0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5200F3AD7D1910EC3C3BC4E5 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FA5E5D2719AF05F4180F96E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				08FBFDEDDF61DD2A7F526523 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A8545A631A713B0AC1FA8F4F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9E5AF42CA406EC0A78FFCF26 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0098B77B5E8373FA526602FE /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				4B1C9EDC2F7E99BA1763450E /* Foundation.framework */,
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
+		07FBD67A33A837C2446CB9FC = {
+			isa = PBXGroup;
+			children = (
+				A9DD3FE3BBB496C4848F86D7 /* Products */,
+				F49E5AA13AB95E34A3682515 /* Frameworks */,
+				375BE3011F3E2987976C405C /* MarketWidget.swift */,
+				FAD91AB8305F594025E4A59A /* MarketView.swift */,
+				1FAB47CC4614930DD7B6C548 /* MarketAPI.swift */,
+				8CCD54F1F256C4EDD562B426 /* MarketAPI+Electrum.swift */,
+				F6BF5E70413E6FF8220A0C42 /* SwiftTCPClient.swift */,
+				4D42787C49453728C52583A0 /* Utilities.swift */,
+				687359F135389980EEEDE050 /* Currency.swift */,
+				AC235676CAF7E09EB125B9C5 /* UserDefaultsGroupKey.swift */,
+				8713BDAA7EE5ED4B14082B36 /* UserDefaultsGroup.swift */,
+				12C5B4D00A42F74AC1D6E15F /* WidgetData.swift */,
+				F0323D1C1C16A1437050A96B /* WidgetDataStore.swift */,
+				5E5E4AC9BC31F6AF1BEC0227 /* Numeric+abbreviated.swift */,
+				C1FD8045D84D8DC6625CC855 /* MarketData.swift */,
+				2F212F7B1A987F836B1F6912 /* Colors.swift */,
+				318D417C1B70666E51264890 /* FiatUnit.swift */,
+				B7C84728B87061DC5A228827 /* Bundle+decode.swift */,
+				AFE067D98281570BBD83C0EF /* XMLParserDelegate.swift */,
+				7220C9CEE3261999591D484F /* Placeholders.swift */,
+				1591ECDD743CE0403F31609B /* WalletData.swift */,
+				7A4667F2891750B24E78BA75 /* LatestTransaction.swift */,
+				972360629EBBC3BF6F505AB1 /* BitcoinUnit.swift */,
+				99D22B785ABE274137D6945E /* fiatUnits.json */,
+				CC6812D9D2DC6FB2682A98C1 /* Assets.xcassets */,
+				7B85A3BFD425CB65752BB43B /* MarketApp.swift */,
+				1DAD39B605F20EC277BA4CF8 /* MarketWidgets.swift */,
+				83161075762415DB55BDEE07 /* WidgetsExtension.entitlements */,
+				40B771A8927160B1C89B5E13 /* WidgetInfo.plist */,
+			);
+			sourceTree = "<group>";
+		};
+		7941F08D4B2BDF9D1D1B13E7 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				71E78717ABF6792AA967D08B /* Cocoa.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
+		A1B13DEA94371F586DEFE94D /* visionOS */ = {
+			isa = PBXGroup;
+			children = (
+				D97E6ADC890174F59650920E /* Foundation.framework */,
+			);
+			name = visionOS;
+			sourceTree = "<group>";
+		};
+		A9DD3FE3BBB496C4848F86D7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A2B2A1127C553FCFC3F280C0 /* MarketWatch.app */,
+				45B29576C59D8C3E4ABBD755 /* MarketWatchWidgets.appex */,
+				6D67EA8D86ACE42D37A6C72C /* MarketVision.app */,
+				1E175AA4E2105D4129B7509E /* MarketVisionWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F49E5AA13AB95E34A3682515 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0098B77B5E8373FA526602FE /* watchOS */,
+				A1B13DEA94371F586DEFE94D /* visionOS */,
+				7941F08D4B2BDF9D1D1B13E7 /* OS X */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2232ED66510BC05314598724 /* MarketVision */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CEC1E9C1BD4EE9A0E632985D /* Build configuration list for PBXNativeTarget "MarketVision" */;
+			buildPhases = (
+				2A70774DE29DC28340F66FBA /* Sources */,
+				A8545A631A713B0AC1FA8F4F /* Frameworks */,
+				AB1132218A01C2A5C0F060F9 /* Resources */,
+				FAFBD20E380241E169B68B3F /* Embed Widget Extension */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				98712164C744EBA1315D5F35 /* PBXTargetDependency */,
+			);
+			name = MarketVision;
+			productName = MarketVision;
+			productReference = 6D67EA8D86ACE42D37A6C72C /* MarketVision.app */;
+			productType = "com.apple.product-type.application";
+		};
+		33FED4C6ADD1E220D67F5917 /* MarketVisionWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E8261C20532F6AB1AF5F4F4C /* Build configuration list for PBXNativeTarget "MarketVisionWidgets" */;
+			buildPhases = (
+				5434A3710DCD26DAAA1DD7BD /* Sources */,
+				5FA5E5D2719AF05F4180F96E /* Frameworks */,
+				CEDB0448BCE29CE1A059C5AE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MarketVisionWidgets;
+			productName = MarketVisionWidgets;
+			productReference = 1E175AA4E2105D4129B7509E /* MarketVisionWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		591253C6FC40D877E3305382 /* MarketWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8DEF093FAC6212801BFFA601 /* Build configuration list for PBXNativeTarget "MarketWatch" */;
+			buildPhases = (
+				94C298911B5FB3262BC6FF00 /* Sources */,
+				2FBA4B14202393AFF4D39B1A /* Frameworks */,
+				8E247BD9F226AB1CD096B996 /* Resources */,
+				A07AE326A15B01B45A63E3EF /* Embed Widget Extension */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A136A591D7EAA4B72F1C96BD /* PBXTargetDependency */,
+			);
+			name = MarketWatch;
+			productName = MarketWatch;
+			productReference = A2B2A1127C553FCFC3F280C0 /* MarketWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		EC4803502C53420B2A455103 /* MarketWatchWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 59A2471D8182A8887FB19ABF /* Build configuration list for PBXNativeTarget "MarketWatchWidgets" */;
+			buildPhases = (
+				CDE8C8F3C356D101D4742C5B /* Sources */,
+				46A41F16846EFD101055EAB0 /* Frameworks */,
+				43D056B1D0929A14428B1944 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MarketWatchWidgets;
+			productName = MarketWatchWidgets;
+			productReference = 45B29576C59D8C3E4ABBD755 /* MarketWatchWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		51B74A65CFFDBFE86FC6E0D6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = E03E86A899337015A75BDBFF /* Build configuration list for PBXProject "MarketPlatforms" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 07FBD67A33A837C2446CB9FC;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 100;
+			productRefGroup = A9DD3FE3BBB496C4848F86D7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				591253C6FC40D877E3305382 /* MarketWatch */,
+				EC4803502C53420B2A455103 /* MarketWatchWidgets */,
+				2232ED66510BC05314598724 /* MarketVision */,
+				33FED4C6ADD1E220D67F5917 /* MarketVisionWidgets */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		43D056B1D0929A14428B1944 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ED5BFF243B2A4A6A2DF15124 /* fiatUnits.json in Resources */,
+				867688514618BBC8380825A2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8E247BD9F226AB1CD096B996 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				238B7BFD7339662BB0D48940 /* fiatUnits.json in Resources */,
+				9A861DA4385D81769BE9C353 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB1132218A01C2A5C0F060F9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9D2E8907CEE6DBA26C5DFBF /* fiatUnits.json in Resources */,
+				8EA97AB9FFBD9D986BB7ADCA /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CEDB0448BCE29CE1A059C5AE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD13FFE91D9B36973B89114B /* fiatUnits.json in Resources */,
+				4262195CE5F1A467729FC6DC /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2A70774DE29DC28340F66FBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B5A481BB2FA245EB55942E2A /* MarketWidget.swift in Sources */,
+				EABE3A47FE05CF0EBFD02155 /* MarketView.swift in Sources */,
+				29D9A0CD7D5191E8AB70DA24 /* MarketAPI.swift in Sources */,
+				C19F0A758D345EAA3AD5A67D /* MarketAPI+Electrum.swift in Sources */,
+				D2ECB08E6067FF02122B70C6 /* SwiftTCPClient.swift in Sources */,
+				5A69784EE3067DC95E63A7F9 /* Utilities.swift in Sources */,
+				AF8C7B7DC3ECDEC30B33A272 /* Currency.swift in Sources */,
+				34DE2367C65DEE2A4A3000BC /* UserDefaultsGroupKey.swift in Sources */,
+				89642443C7565A7D0195FB69 /* UserDefaultsGroup.swift in Sources */,
+				BBE38068E41EABF5F3409808 /* WidgetData.swift in Sources */,
+				4E401768E0CD568F0A70623F /* WidgetDataStore.swift in Sources */,
+				E0D4FFA2A4B00D49DAB42683 /* Numeric+abbreviated.swift in Sources */,
+				49286D4D33FC2052C2E05B33 /* MarketData.swift in Sources */,
+				7CF3D512A850A0CF8B1EFFC3 /* Colors.swift in Sources */,
+				13D517A1EA3633DEA77311B3 /* FiatUnit.swift in Sources */,
+				45C5D47A006F59D0E17D45C4 /* Bundle+decode.swift in Sources */,
+				1F51CEE92A3480B1D8A5FD35 /* XMLParserDelegate.swift in Sources */,
+				D0B8D260BBFCE2C93AEB5923 /* Placeholders.swift in Sources */,
+				331E3B6370E0B5980D14923D /* WalletData.swift in Sources */,
+				8E60737F531D26D88C8B3F41 /* LatestTransaction.swift in Sources */,
+				9EA263ACB64183FD16E34235 /* BitcoinUnit.swift in Sources */,
+				00EA141EB7AF11B0C1F5D54A /* MarketApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5434A3710DCD26DAAA1DD7BD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ED7450A4411E20879B881F3B /* MarketWidget.swift in Sources */,
+				3D5D70861B01775D878A7B94 /* MarketView.swift in Sources */,
+				BABF960E43ECB0D1A000A184 /* MarketAPI.swift in Sources */,
+				1D117C888BAC460FB257411A /* MarketAPI+Electrum.swift in Sources */,
+				58F36E2073062F3362985B42 /* SwiftTCPClient.swift in Sources */,
+				DD446239AAF59517C3D04B92 /* Utilities.swift in Sources */,
+				E288B41CABF0151D77BF1DED /* Currency.swift in Sources */,
+				AB108EFE1576582FFC108196 /* UserDefaultsGroupKey.swift in Sources */,
+				A7E0E71273993886737C9970 /* UserDefaultsGroup.swift in Sources */,
+				0A783058194472704B3D240A /* WidgetData.swift in Sources */,
+				6B4C3B92C8EAFD83B4569F6E /* WidgetDataStore.swift in Sources */,
+				0EBA9F4A9C2763227AB33715 /* Numeric+abbreviated.swift in Sources */,
+				CAFE444E362C13E79A7A5DED /* MarketData.swift in Sources */,
+				98D75FCD14BEDE4C91C06A6D /* Colors.swift in Sources */,
+				C826A7D1DF028EDC4633D0FB /* FiatUnit.swift in Sources */,
+				67AFB716156C945AD58A0DBD /* Bundle+decode.swift in Sources */,
+				BC4FCE83580A37D960D1C87D /* XMLParserDelegate.swift in Sources */,
+				E2592A92BAB3B2B51E3CD506 /* Placeholders.swift in Sources */,
+				F45D5ECC099E30EBDD125D91 /* WalletData.swift in Sources */,
+				4184E1AB932ADA055CAF563D /* LatestTransaction.swift in Sources */,
+				2AAE888B7F2571C19DBC948E /* BitcoinUnit.swift in Sources */,
+				E7C6B2A159A293F2B2927478 /* MarketWidgets.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		94C298911B5FB3262BC6FF00 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7E0F44C1BDCDB053A3181B20 /* MarketWidget.swift in Sources */,
+				2234842F9FFBC23DA7C51181 /* MarketView.swift in Sources */,
+				C5BCFAE8B521921B7B53802A /* MarketAPI.swift in Sources */,
+				8A2A1C17FE426520BEF674BD /* MarketAPI+Electrum.swift in Sources */,
+				A5B8F19E068801EAEBD9B522 /* SwiftTCPClient.swift in Sources */,
+				990833EC20239DDE1827DED6 /* Utilities.swift in Sources */,
+				69564224406A67E5C804CADC /* Currency.swift in Sources */,
+				360CA8D204B498668B264C54 /* UserDefaultsGroupKey.swift in Sources */,
+				A05F121AF2340812DFF950B2 /* UserDefaultsGroup.swift in Sources */,
+				E59DEAB35CCE56F52687C5CF /* WidgetData.swift in Sources */,
+				77B0F6C2A1B9379C0029F711 /* WidgetDataStore.swift in Sources */,
+				18E8A47A2446E1527A2E2806 /* Numeric+abbreviated.swift in Sources */,
+				36F1108184B1F26AE37B392F /* MarketData.swift in Sources */,
+				910C42B55AD08221F42BBE54 /* Colors.swift in Sources */,
+				B721C8EF626C54B18287A87E /* FiatUnit.swift in Sources */,
+				8D6B17EA2AD9A8F5BD2499EB /* Bundle+decode.swift in Sources */,
+				BD94ABF396650237D7D2D7EF /* XMLParserDelegate.swift in Sources */,
+				B9A00B7F18144A4D83188211 /* Placeholders.swift in Sources */,
+				E9644081F932AB3EF64DAE34 /* WalletData.swift in Sources */,
+				B2CE9BF437CA0D3272BB4281 /* LatestTransaction.swift in Sources */,
+				676D95D1DD44BF8865C8E8CE /* BitcoinUnit.swift in Sources */,
+				1379E710FA3971F50D30E734 /* MarketApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDE8C8F3C356D101D4742C5B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4255BD9C97EA5EB445CC6EAE /* MarketWidget.swift in Sources */,
+				5EEA15E5A25C97E78D384565 /* MarketView.swift in Sources */,
+				13F04E91E3AD4A8453F6D030 /* MarketAPI.swift in Sources */,
+				34E1EE5C9090FAE99BC544B2 /* MarketAPI+Electrum.swift in Sources */,
+				389826FB6BF60EC0C745470B /* SwiftTCPClient.swift in Sources */,
+				7F72C5A0B9BBF3CEA1A95DFA /* Utilities.swift in Sources */,
+				BEC327FDF624F9E1142D74CE /* Currency.swift in Sources */,
+				D03FF3C2FFFE0F0D0D6FBB4D /* UserDefaultsGroupKey.swift in Sources */,
+				82AAE6E7162AEE72FAD52085 /* UserDefaultsGroup.swift in Sources */,
+				C7AAAB3763823AF66FB053C3 /* WidgetData.swift in Sources */,
+				A050F6198138679DE6A60859 /* WidgetDataStore.swift in Sources */,
+				E69B3AA419A9A288E8970EDD /* Numeric+abbreviated.swift in Sources */,
+				AA708149967EE80759E9BC68 /* MarketData.swift in Sources */,
+				40854A8CAE84B2941BC732B9 /* Colors.swift in Sources */,
+				81FE599A7127AD8E65EA5806 /* FiatUnit.swift in Sources */,
+				FB2D25BA549A162C0D70F8F2 /* Bundle+decode.swift in Sources */,
+				B45ABE7A1D8490F0B52721DE /* XMLParserDelegate.swift in Sources */,
+				FC58CB3D1A3B197D7E3BA29D /* Placeholders.swift in Sources */,
+				91AB6643AE6F0A23D68BD0D1 /* WalletData.swift in Sources */,
+				9E1BB170454C8BD370BB4129 /* LatestTransaction.swift in Sources */,
+				8AD4657468AC0BB5B3A29A02 /* BitcoinUnit.swift in Sources */,
+				89088ED6F2A7ACEB3407D828 /* MarketWidgets.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		98712164C744EBA1315D5F35 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MarketVisionWidgets;
+			target = 33FED4C6ADD1E220D67F5917 /* MarketVisionWidgets */;
+			targetProxy = 3B8C634269A955CAF733F110 /* PBXContainerItemProxy */;
+		};
+		A136A591D7EAA4B72F1C96BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = MarketWatchWidgets;
+			target = EC4803502C53420B2A455103 /* MarketWatchWidgets */;
+			targetProxy = AF5C69BB3DC8CC9492E34F97 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		105683F7D4134CC00527A474 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ../WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WidgetInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "BlueWallet Market";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.marketwatch.widgets;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		38A3B801D54F32D5D4E4174C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ../WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WidgetInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "BlueWallet Market";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.marketvision.widgets;
+				SDKROOT = xros;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		7712C814018B53A1CFBE5ECD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ../WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WidgetInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "BlueWallet Market";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.marketwatch.widgets;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		836463B7DA5C3CD60AD4052D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ../WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "BlueWallet Market";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.marketvision;
+				SDKROOT = xros;
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		A185145C2DE34B1D40B124F0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ../WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "BlueWallet Market";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.marketvision;
+				SDKROOT = xros;
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		B0ED0181D34DA85F4DED51DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ../WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "BlueWallet Market";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.marketwatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		B3E7C792F4F52AEE0A3D48DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ../WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WidgetInfo.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "BlueWallet Market";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.marketvision.widgets;
+				SDKROOT = xros;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "xros xrsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 7;
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		C297BEFC87AE7C224CFE2BCF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.market.tests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "";
+			};
+			name = Release;
+		};
+		CD7C0E4B3F26BCEF889B7918 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ../WidgetsExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "BlueWallet Market";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.marketwatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		D37FACEB8BB944CA3712DB63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		E00A203B05D9137982D69990 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F1A22CA52BBB3087EA95CCE0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.market.tests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		59A2471D8182A8887FB19ABF /* Build configuration list for PBXNativeTarget "MarketWatchWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7712C814018B53A1CFBE5ECD /* Release */,
+				105683F7D4134CC00527A474 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8DEF093FAC6212801BFFA601 /* Build configuration list for PBXNativeTarget "MarketWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CD7C0E4B3F26BCEF889B7918 /* Release */,
+				B0ED0181D34DA85F4DED51DA /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CEC1E9C1BD4EE9A0E632985D /* Build configuration list for PBXNativeTarget "MarketVision" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A185145C2DE34B1D40B124F0 /* Release */,
+				836463B7DA5C3CD60AD4052D /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E03E86A899337015A75BDBFF /* Build configuration list for PBXProject "MarketPlatforms" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E00A203B05D9137982D69990 /* Debug */,
+				D37FACEB8BB944CA3712DB63 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E8261C20532F6AB1AF5F4F4C /* Build configuration list for PBXNativeTarget "MarketVisionWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3E7C792F4F52AEE0A3D48DB /* Release */,
+				38A3B801D54F32D5D4E4174C /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 51B74A65CFFDBFE86FC6E0D6 /* Project object */;
+}
