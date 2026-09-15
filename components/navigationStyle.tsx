@@ -184,5 +184,15 @@ const navigationStyle = (
     };
 };
 
+// Shared by the receive form sheets, registered in both ReceiveDetailsStack and DetailViewScreensStack.
+const receiveSheetOptions = (headerTitle: string, androidDetent = 0.5) =>
+  navigationStyle({
+    presentation: 'formSheet',
+    sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [androidDetent],
+    headerTitle,
+    sheetGrabberVisible: true,
+    closeButtonPosition: CloseButtonPosition.Right,
+  });
+
 export default navigationStyle;
-export { CloseButtonPosition, withRouteParamHeaderOptions };
+export { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions };
