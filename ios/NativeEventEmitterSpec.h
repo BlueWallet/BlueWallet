@@ -6,4 +6,8 @@
 - (void)removeListeners:(double)count;
 - (void)getMostRecentUserActivity:(RCTPromiseResolveBlock)resolve
                          rejecter:(RCTPromiseRejectBlock)reject;
+- (void)updateReceiveAddressShortcutParameters:(RCTPromiseResolveBlock)resolve
+                                      rejecter:(RCTPromiseRejectBlock)reject;
+- (void)getReceiveAddressShortcutKeychainAccessGroup:(RCTPromiseResolveBlock)resolve
+                                             rejecter:(RCTPromiseRejectBlock)reject;
 @end

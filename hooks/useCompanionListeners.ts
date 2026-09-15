@@ -28,6 +28,7 @@ import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
 import useMenuElements from './useMenuElements';
+import useReceiveAddressShortcut from '../app_intents/useReceiveAddressShortcut';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -61,6 +62,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   useMenuElements();
   useDeviceQuickActions();
   useHandoffListener();
+  useReceiveAddressShortcut();
 
   const processPushNotifications = useCallback(async () => {
     if (!shouldActivateListeners) return false;

@@ -1,5 +1,6 @@
 import Foundation
 import React
+import AppIntents
 
 @objc(EventEmitter)
 class EventEmitter: RCTEventEmitter, NativeEventEmitterSpec {
@@ -32,5 +33,23 @@ class EventEmitter: RCTEventEmitter, NativeEventEmitterSpec {
         } else {
             resolve(nil)
         }
+    }
+
+    @objc func updateReceiveAddressShortcutParameters(_ resolve: @escaping RCTPromiseResolveBlock,
+                                                       rejecter reject: @escaping RCTPromiseRejectBlock) {
+        if #available(iOS 16.4, *) {
+            WalletAppShortcuts.updateAppShortcutParameters()
+        }
+        resolve(nil)
+    }
+
+    @objc func getReceiveAddressShortcutKeychainAccessGroup(_ resolve: @escaping RCTPromiseResolveBlock,
+                                                            rejecter reject: @escaping RCTPromiseRejectBlock) {
+        guard let accessGroup = Bundle.main.object(forInfoDictionaryKey: "ReceiveAddressShortcutKeychainAccessGroup") as? String,
+              !accessGroup.contains("$(AppIdentifierPrefix)") else {
+            reject("keychain_access_group_unavailable", "Keychain access group entitlement is unavailable.", nil)
+            return
+        }
+        resolve(accessGroup)
     }
 }
