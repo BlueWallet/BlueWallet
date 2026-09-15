@@ -31,22 +31,26 @@ struct CompactPriceView: View {
     }
 }
 
-#Preview("Market rate") {
-    CompactPriceView(
-        price: "$50,000",
-        lastUpdated: "Oct 10, 2023 at 10:00 AM",
-        code: "USD",
-        dataSource: "CoinDesk"
-    )
-    .padding()
-}
+@available(iOS 16.0, *)
+struct CompactPriceView_Previews: PreviewProvider {
+    static var previews: some View {
+        Group {
+            CompactPriceView(
+                price: "$50,000",
+                lastUpdated: "Oct 10, 2023 at 10:00 AM",
+                code: "USD",
+                dataSource: "CoinDesk"
+            )
+            .previewDisplayName("Market rate")
 
-#Preview("Unavailable") {
-    CompactPriceView(
-        price: "N/A",
-        lastUpdated: "--",
-        code: "USD",
-        dataSource: "Error fetching data"
-    )
-    .padding()
+            CompactPriceView(
+                price: "N/A",
+                lastUpdated: "--",
+                code: "USD",
+                dataSource: "Error fetching data"
+            )
+            .previewDisplayName("Unavailable")
+        }
+        .padding()
+    }
 }
