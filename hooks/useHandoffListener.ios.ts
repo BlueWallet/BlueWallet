@@ -11,6 +11,7 @@ interface UserActivityData {
   userInfo: {
     address?: string;
     xpub?: string;
+    psbt?: string;
   };
 }
 
@@ -34,6 +35,11 @@ const useHandoffListener = () => {
           navigate('ReceiveDetails', { address: modifiedUserInfo.address, type: activityType });
         } else if (activityType === HandOffActivityType.Xpub && modifiedUserInfo.xpub) {
           navigate('WalletXpub', { xpub: modifiedUserInfo.xpub, type: activityType });
+        } else if (activityType === HandOffActivityType.Psbt && modifiedUserInfo.psbt) {
+          navigate('SendDetailsRoot', {
+            screen: 'PsbtWithHardwareWallet',
+            params: { deepLinkPSBT: modifiedUserInfo.psbt },
+          });
         } else {
           console.debug(`Unhandled or incomplete activity type/data: ${activityType}`, modifiedUserInfo);
         }

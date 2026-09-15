@@ -47,6 +47,7 @@ export enum HandOffActivityType {
   ReceiveOnchain = 'io.bluewallet.bluewallet.receiveonchain',
   Xpub = 'io.bluewallet.bluewallet.xpub',
   ViewInBlockExplorer = 'io.bluewallet.bluewallet.blockexplorer',
+  Psbt = 'io.bluewallet.bluewallet.psbt',
 }
 
 export interface HandOffComponentProps {
