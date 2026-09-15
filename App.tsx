@@ -20,7 +20,7 @@ import {
   GuardedNavigationAction,
   validateGuardedRoute,
 } from './navigation/navigationGuard';
-import useSpotlightIndex from './hooks/useSpotlightIndex';
+import usePlatformSearch from './hooks/usePlatformSearch';
 import { useSettings } from './hooks/context/useSettings';
 import { clearSpotlightActivity, donateSpotlightActivity } from './blue_modules/NativeSpotlight';
 
@@ -29,7 +29,7 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
   const { isSpotlightEnabled } = useSettings();
   const { isBiometricUseEnabled } = useBiometrics();
   const spotlightActivityRequest = useRef(0);
-  useSpotlightIndex();
+  usePlatformSearch();
 
   const updateSpotlightActivity = useCallback(() => {
     const request = ++spotlightActivityRequest.current;

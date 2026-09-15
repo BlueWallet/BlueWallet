@@ -45,6 +45,12 @@ const GeneralSettings: React.FC = () => {
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
+  const supportsSystemSearch = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
+  const systemSearchTitle = Platform.OS === 'android' ? loc.settings.android_system_search : loc.settings.spotlight_search;
+  const systemSearchExplanation =
+    Platform.OS === 'android' ? loc.settings.android_system_search_explanation : loc.settings.spotlight_search_explanation;
+  const systemSearchAddressesExplanation =
+    Platform.OS === 'android' ? loc.settings.android_system_search_addresses_explanation : loc.settings.spotlight_addresses_explanation;
 
   useFocusEffect(
     useCallback(() => {
@@ -134,7 +140,9 @@ const GeneralSettings: React.FC = () => {
   }, []);
 
   const openSpotlightMoreInfo = useCallback(() => {
-    Linking.openURL('https://support.apple.com/102321').catch(error => console.warn('[Spotlight] Unable to open Apple Support:', error));
+    const url =
+      Platform.OS === 'android' ? 'https://developer.android.com/develop/ui/views/search/appsearch' : 'https://support.apple.com/102321';
+    Linking.openURL(url).catch(error => console.warn('[SystemSearch] Unable to open platform documentation:', error));
   }, []);
 
   const onHandOffUseEnabledChange = useCallback(
@@ -211,37 +219,39 @@ const GeneralSettings: React.FC = () => {
         />
       </SettingsSection>
 
-      {Platform.OS === 'ios' && (
-        <>
-          <SettingsSection title={loc.settings.spotlight_search}>
+      {supportsSystemSearch && (
+        <SettingsSection title={systemSearchTitle}>
+          <SettingsListItem
+            title={systemSearchTitle}
+            subtitle={`${systemSearchExplanation}${encryptedDisabledNote}`}
+            switch={{
+              value: storageIsEncrypted ? false : isSpotlightEnabled,
+              onValueChange: onSpotlightEnabledChange,
+              disabled: isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.Spotlight || storageIsEncrypted,
+            }}
+          />
+          {isSpotlightEnabled && !storageIsEncrypted && (
             <SettingsListItem
-              title={loc.settings.spotlight_search}
-              subtitle={`${loc.settings.spotlight_search_explanation}${encryptedDisabledNote}`}
+              title={loc.settings.spotlight_addresses}
+              subtitle={systemSearchAddressesExplanation}
               switch={{
-                value: storageIsEncrypted ? false : isSpotlightEnabled,
-                onValueChange: onSpotlightEnabledChange,
-                disabled: isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.Spotlight || storageIsEncrypted,
+                value: isSpotlightAddressesEnabled,
+                onValueChange: setIsSpotlightAddressesEnabledStorage,
+                disabled: isLoading === SettingsPrivacySection.All,
               }}
             />
-            {isSpotlightEnabled && !storageIsEncrypted && (
-              <SettingsListItem
-                title={loc.settings.spotlight_addresses}
-                subtitle={loc.settings.spotlight_addresses_explanation}
-                switch={{
-                  value: isSpotlightAddressesEnabled,
-                  onValueChange: setIsSpotlightAddressesEnabledStorage,
-                  disabled: isLoading === SettingsPrivacySection.All,
-                }}
-              />
-            )}
-            <SettingsListItem
-              title={loc.wallets.more_info}
-              onPress={openSpotlightMoreInfo}
-              testID="SpotlightMoreInfo"
-              bottomDivider={false}
-            />
-          </SettingsSection>
+          )}
+          <SettingsListItem
+            title={loc.wallets.more_info}
+            onPress={openSpotlightMoreInfo}
+            testID="SpotlightMoreInfo"
+            bottomDivider={false}
+          />
+        </SettingsSection>
+      )}
 
+      {Platform.OS === 'ios' && (
+        <>
           <SettingsSection title={loc.settings.widgets}>
             <SettingsListItem
               title={loc.settings.total_balance}

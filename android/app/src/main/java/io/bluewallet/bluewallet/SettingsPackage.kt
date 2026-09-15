@@ -9,7 +9,11 @@ import com.facebook.react.uimanager.ViewManager
 
 class SettingsPackage : TurboReactPackage() {
     override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
-        return if (name == SettingsModule.NAME) SettingsModule(reactContext) else null
+        return when (name) {
+            SettingsModule.NAME -> SettingsModule(reactContext)
+            SpotlightModule.NAME -> SpotlightModule(reactContext)
+            else -> null
+        }
     }
 
     override fun getReactModuleInfoProvider(): ReactModuleInfoProvider = ReactModuleInfoProvider {
@@ -22,7 +26,16 @@ class SettingsPackage : TurboReactPackage() {
             false, // isCxxModule
             true   // isTurboModule
         )
-        mapOf(SettingsModule.NAME to moduleInfo)
+        val spotlightModuleInfo = ReactModuleInfo(
+            SpotlightModule.NAME,
+            SpotlightModule.NAME,
+            false,
+            false,
+            false,
+            false,
+            true
+        )
+        mapOf(SettingsModule.NAME to moduleInfo, SpotlightModule.NAME to spotlightModuleInfo)
     }
 
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> = emptyList()

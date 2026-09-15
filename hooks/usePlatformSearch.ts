@@ -33,12 +33,13 @@ const enqueueSpotlightOperation = <T>(operation: () => Promise<T>): Promise<T> =
   return result;
 };
 
-const useSpotlightIndex = (): void => {
+const usePlatformSearch = (): void => {
   const { wallets, walletsInitialized, txMetadata, counterpartyMetadata, storageRevision, isStorageEncrypted } = useStorage();
   const { isSpotlightEnabled, isSpotlightAddressesEnabled, preferredFiatCurrency } = useSettings();
 
   useEffect(() => {
-    if (Platform.OS !== 'ios' || !NativeSpotlight) return;
+    const supportsSystemSearch = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
+    if (!supportsSystemSearch || !NativeSpotlight) return;
     const spotlight = NativeSpotlight;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -184,4 +185,4 @@ const useSpotlightIndex = (): void => {
   ]);
 };
 
-export default useSpotlightIndex;
+export default usePlatformSearch;
