@@ -6,6 +6,8 @@
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Widgets</string>
+	<key>ReceiveAddressShortcutKeychainAccessGroup</key>
+	<string>$(AppIdentifierPrefix)io.bluewallet.bluewallet.receive-address-shortcut</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

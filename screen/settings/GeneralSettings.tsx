@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
@@ -14,6 +15,7 @@ enum SettingsPrivacySection {
   ReadClipboard,
   QuickActions,
   Widget,
+  ReceiveAddressShortcut,
   TemporaryScreenshots,
   TotalBalance,
 }
@@ -32,6 +34,8 @@ const GeneralSettings: React.FC = () => {
     setIsClipboardGetContentEnabledStorage,
     isQuickActionsEnabled,
     setIsQuickActionsEnabledStorage,
+    isReceiveAddressShortcutEnabled,
+    setIsReceiveAddressShortcutEnabledStorage,
     isTotalBalanceEnabled,
     setIsTotalBalanceEnabledStorage,
     isHandOffUseEnabled,
@@ -40,16 +44,24 @@ const GeneralSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
 
-  useEffect(() => {
+  const loadStorageEncryptionState = useCallback(() => {
     (async () => {
       try {
-        setStorageIsEncrypted(await isStorageEncrypted());
+        const encrypted = await isStorageEncrypted();
+        setStorageIsEncrypted(encrypted);
+        if (encrypted) await setIsReceiveAddressShortcutEnabledStorage(false);
       } catch (e) {
         console.log(e);
       }
       setIsLoading(SettingsPrivacySection.None);
     })();
-  }, [isStorageEncrypted]);
+  }, [isStorageEncrypted, setIsReceiveAddressShortcutEnabledStorage]);
+
+  useEffect(() => {
+    loadStorageEncryptionState();
+  }, [loadStorageEncryptionState]);
+
+  useFocusEffect(loadStorageEncryptionState);
 
   const onDoNotTrackValueChange = useCallback(
     async (value: boolean) => {
@@ -89,6 +101,19 @@ const GeneralSettings: React.FC = () => {
       setIsLoading(SettingsPrivacySection.None);
     },
     [setIsWidgetBalanceDisplayAllowedStorage],
+  );
+
+  const onReceiveAddressShortcutValueChange = useCallback(
+    async (value: boolean) => {
+      setIsLoading(SettingsPrivacySection.ReceiveAddressShortcut);
+      try {
+        await setIsReceiveAddressShortcutEnabledStorage(value);
+      } catch (e) {
+        console.debug('onReceiveAddressShortcutValueChange catch', e);
+      }
+      setIsLoading(SettingsPrivacySection.None);
+    },
+    [setIsReceiveAddressShortcutEnabledStorage],
   );
 
   const onTotalBalanceEnabledValueChange = useCallback(
@@ -149,6 +174,18 @@ const GeneralSettings: React.FC = () => {
           }}
           switchTestID="QuickActionsSwitch"
         />
+        {Platform.OS === 'ios' && (
+          <SettingsListItem
+            title={loc.settings.privacy_receive_address_shortcut}
+            subtitle={`${loc.settings.privacy_receive_address_shortcut_explanation}${encryptedDisabledNote}`}
+            switch={{
+              value: storageIsEncrypted ? false : isReceiveAddressShortcutEnabled,
+              onValueChange: onReceiveAddressShortcutValueChange,
+              disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
+            }}
+            switchTestID="ReceiveAddressShortcutSwitch"
+          />
+        )}
         <SettingsListItem
           title={loc.total_balance_view.title}
           subtitle={loc.total_balance_view.explanation}
