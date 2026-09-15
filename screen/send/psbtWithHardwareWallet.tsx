@@ -15,7 +15,8 @@ import SaveFileButton from '../../components/SaveFileButton';
 import { SecondButton } from '../../components/SecondButton';
 import { useTheme } from '../../components/themes';
 import { useBiometrics, unlockWithBiometrics } from '../../hooks/useBiometrics';
-import loc from '../../loc';
+import loc, { formatBalance } from '../../loc';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { majorTomToGroundControl } from '../../blue_modules/notifications';
@@ -177,7 +178,7 @@ const PsbtWithHardwareWallet = () => {
           <BlueText style={[styles.detailsCounts, { color: colors.alternativeTextColor }]}>
             {`${loc.formatString(loc.transactions.details_inputs_count, { count: displayedPsbt.inputCount })} · ${loc.formatString(loc.transactions.details_outputs_count, { count: displayedPsbt.txOutputs.length })}`}
           </BlueText>
-          <BlueText selectable style={styles.detailsTotal}>{`${totalOutput.toLocaleString()} ${loc.units.sats}`}</BlueText>
+          <BlueText selectable style={styles.detailsTotal}>{formatBalance(Number(totalOutput), BitcoinUnit.SATS, true)}</BlueText>
         </BlueCard>
 
         <SettingsSection
@@ -206,7 +207,7 @@ const PsbtWithHardwareWallet = () => {
             <SettingsListItem
               key={`${index}-${output.value}`}
               title={`${loc.transactions.details_to} ${index + 1}`}
-              rightTitle={`${output.value.toLocaleString()} ${loc.units.sats}`}
+              rightTitle={formatBalance(Number(output.value), BitcoinUnit.SATS, true)}
               rightTitleSelectable
               subtitle={`${addressFromScript(output.script) ?? loc.transactions.details_tx_hex}\n${Buffer.from(output.script).toString('hex')}`}
               subtitleNumberOfLines={0}
