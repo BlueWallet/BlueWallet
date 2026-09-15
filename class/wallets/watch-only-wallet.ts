@@ -1,6 +1,7 @@
 import BIP32Factory from 'bip32';
 import * as bitcoin from 'bitcoinjs-lib';
 import ecc from '../../blue_modules/noble_ecc';
+import loc from '../../loc';
 import { AbstractWallet } from './abstract-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
@@ -15,6 +16,10 @@ const bip32 = BIP32Factory(ecc);
 export class WatchOnlyWallet extends LegacyWallet {
   static readonly type = 'watchOnly';
   static readonly typeReadable = 'Watch-only';
+  static get hardwareWalletTypeReadable() {
+    return loc.wallets.hardware_wallet_type;
+  }
+
   // @ts-ignore: override
   public readonly type = WatchOnlyWallet.type;
   // @ts-ignore: override
@@ -24,6 +29,45 @@ export class WatchOnlyWallet extends LegacyWallet {
   public _hdWalletInstance?: THDWalletForWatchOnly;
   use_with_hardware_wallet = false;
   masterFingerprint: number = 0;
+  hardwareWalletDevice?: string;
+  hardwareWalletDeviceId?: string;
+  hardwareWalletFirmwareVersion?: string;
+  hardwareWalletAccountName?: string;
+  hardwareWalletPassphraseState?: string;
+
+  setSecret(newSecret: string): this {
+    if (this.use_with_hardware_wallet) this.isWatchOnlyWarningVisible = true;
+    this.use_with_hardware_wallet = false;
+    this.hardwareWalletDevice = undefined;
+    this.hardwareWalletDeviceId = undefined;
+    this.hardwareWalletFirmwareVersion = undefined;
+    this.hardwareWalletAccountName = undefined;
+    this.hardwareWalletPassphraseState = undefined;
+
+    try {
+      const parsedSecret = JSON.parse(newSecret);
+      if (typeof parsedSecret.HardwareWalletDevice === 'string' && parsedSecret.HardwareWalletDevice.trim()) {
+        this.hardwareWalletDevice = parsedSecret.HardwareWalletDevice.trim();
+      }
+      if (typeof parsedSecret.HardwareWalletDeviceId === 'string' && parsedSecret.HardwareWalletDeviceId.trim()) {
+        this.hardwareWalletDeviceId = parsedSecret.HardwareWalletDeviceId.trim();
+      }
+      if (typeof parsedSecret.HardwareWalletFirmwareVersion === 'string' && parsedSecret.HardwareWalletFirmwareVersion.trim()) {
+        this.hardwareWalletFirmwareVersion = parsedSecret.HardwareWalletFirmwareVersion.trim();
+      }
+      if (typeof parsedSecret.HardwareWalletAccountName === 'string' && parsedSecret.HardwareWalletAccountName.trim()) {
+        this.hardwareWalletAccountName = parsedSecret.HardwareWalletAccountName.trim();
+      }
+      if (
+        typeof parsedSecret.HardwareWalletPassphraseState === 'string' &&
+        /^[0-9a-f]{8}$/i.test(parsedSecret.HardwareWalletPassphraseState)
+      ) {
+        this.hardwareWalletPassphraseState = parsedSecret.HardwareWalletPassphraseState.toLowerCase();
+      }
+    } catch (_) {}
+
+    return super.setSecret(newSecret);
+  }
 
   /**
    * @inheritDoc
@@ -45,6 +89,53 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   allowSend() {
     return this.useWithHardwareWalletEnabled() && this.isHd() && this._hdWalletInstance!.allowSend();
+  }
+
+  isHardwareWallet() {
+    return this.useWithHardwareWalletEnabled() && this.isHd();
+  }
+
+  getTypeReadable() {
+    return this.isHardwareWallet() ? WatchOnlyWallet.hardwareWalletTypeReadable : super.getTypeReadable();
+  }
+
+  shouldShowWatchOnlyWarning() {
+    return this.isWatchOnlyWarningVisible && !this.isHardwareWallet();
+  }
+
+  getLabel(): string {
+    if (this.label.trim().length > 0 || !this.hardwareWalletDevice || !this.isHardwareWallet()) return super.getLabel();
+
+    const hiddenWalletLabel = this.hardwareWalletPassphraseState
+      ? loc.formatString(loc.wallets.hardware_wallet_hidden, { state: this.hardwareWalletPassphraseState })
+      : undefined;
+    const walletIdentity = hiddenWalletLabel ? `${this.hardwareWalletDevice} · ${hiddenWalletLabel}` : this.hardwareWalletDevice;
+
+    if (this.hardwareWalletAccountName) return `${walletIdentity} · ${this.hardwareWalletAccountName}`;
+
+    let accountType: string;
+    switch (this._hdWalletInstance?.type) {
+      case HDLegacyP2PKHWallet.type:
+        accountType = loc.wallets.hardware_wallet_legacy;
+        break;
+      case HDSegwitP2SHWallet.type:
+        accountType = loc.wallets.hardware_wallet_nested_segwit;
+        break;
+      case HDSegwitBech32Wallet.type:
+        accountType = loc.wallets.hardware_wallet_native_segwit;
+        break;
+      case HDTaprootWallet.type:
+        accountType = loc.wallets.hardware_wallet_taproot;
+        break;
+      default:
+        return super.getLabel();
+    }
+
+    const accountMatch = this._derivationPath?.match(/^m\/\d+'\/0'\/(\d+)'/);
+    const accountIndex = accountMatch ? Number(accountMatch[1]) : 0;
+    const accountSuffix = accountIndex > 0 ? ` #${accountIndex + 1}` : '';
+
+    return `${walletIdentity} · ${accountType}${accountSuffix}`;
   }
 
   allowRBF() {
@@ -284,6 +375,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   setUseWithHardwareWalletEnabled(enabled: boolean) {
+    if (this.use_with_hardware_wallet && !enabled) this.isWatchOnlyWarningVisible = true;
     this.use_with_hardware_wallet = !!enabled;
   }
 
