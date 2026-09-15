@@ -36,6 +36,7 @@ const PsbtWithHardwareWallet = () => {
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState<string | undefined>(route.params.txhex);
+  const [deepLinkedPsbt, setDeepLinkedPsbt] = useState<bitcoin.Psbt | undefined>();
   const openScannerButton = useRef<View | null>(null);
   const dynamicQRCode = useRef<DynamicQRCode | null>(null);
   const isFocused = useIsFocused();
@@ -113,13 +114,14 @@ const PsbtWithHardwareWallet = () => {
   }, [isFocused]);
 
   useEffect(() => {
-    if (!psbt && !route.params.txhex) {
+    if (!psbt && !route.params.txhex && !deepLinkPSBT) {
       presentAlert({ message: loc.send.no_tx_signing_in_progress });
     }
 
     if (deepLinkPSBT) {
-      const newPsbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
       try {
+        const newPsbt = bitcoin.Psbt.fromBase64(deepLinkPSBT);
+        setDeepLinkedPsbt(newPsbt);
         if (routeParamsPSBT.current) {
           const Tx = wallet.combinePsbt(routeParamsPSBT.current, newPsbt);
           setTxHex(Tx.toHex());
@@ -134,6 +136,28 @@ const PsbtWithHardwareWallet = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deepLinkPSBT, routeParamsTXHex]);
+
+  const displayedPsbt = psbt ?? deepLinkedPsbt;
+
+  const renderPsbtDetails = () => {
+    if (!displayedPsbt) return null;
+
+    const totalOutput = displayedPsbt.txOutputs.reduce((total, output) => total + output.value, 0n);
+    return (
+      <BlueCard style={styles.detailsCard} testID="DeepLinkPsbtDetails">
+        <BlueText style={styles.detailsTitle}>{loc.transactions.details_section}</BlueText>
+        <BlueText>{`${loc.formatString(loc.transactions.details_inputs_count, { count: displayedPsbt.inputCount })} · ${loc.formatString(loc.transactions.details_outputs_count, { count: displayedPsbt.txOutputs.length })}`}</BlueText>
+        <BlueText style={styles.detailsTotal}>{`${totalOutput.toLocaleString()} ${loc.units.sats}`}</BlueText>
+        {displayedPsbt.txOutputs.map((output, index) => (
+          <View key={`${index}-${output.value}`} style={styles.outputRow}>
+            <BlueText>{`${loc.transactions.details_to} ${index + 1}: ${output.value.toLocaleString()} ${loc.units.sats}`}</BlueText>
+            <Text selectable style={[styles.outputScript, { color: colors.alternativeTextColor }]}>{`${loc.transactions.details_tx_hex}: ${Buffer.from(output.script).toString('hex')}`}</Text>
+          </View>
+        ))}
+        <BlueText style={styles.detailsWarning}>{loc.multisig.provide_signature_next_steps_details}</BlueText>
+      </BlueCard>
+    );
+  };
 
   const broadcast = async () => {
     setIsLoading(true);
@@ -252,6 +276,7 @@ const PsbtWithHardwareWallet = () => {
     <View style={styles.container}>
       <BlueCard>
         <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
+        {renderPsbtDetails()}
         <BlueSpacing10 />
         <Text testID="PSBTHex" style={styles.hidden}>
           {psbt?.toHex()}
@@ -351,6 +376,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 16,
+  },
+  detailsCard: {
+    marginTop: 16,
+  },
+  detailsTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  detailsTotal: {
+    fontSize: 20,
+    fontWeight: '700',
+    marginTop: 6,
+  },
+  outputRow: {
+    marginTop: 14,
+  },
+  outputScript: {
+    fontSize: 12,
+    marginTop: 3,
+  },
+  detailsWarning: {
+    fontSize: 12,
+    marginTop: 16,
   },
   exportButton: {
     alignSelf: 'stretch',
