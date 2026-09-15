@@ -26,6 +26,7 @@ interface StorageContextType {
   setWalletsWithNewOrder: (wallets: TWallet[]) => void;
   txMetadata: TTXMetadata;
   counterpartyMetadata: TCounterpartyMetadata;
+  storageRevision: number;
   addressMetadata: TAddressMetadata;
   saveToDisk: (force?: boolean) => Promise<void>;
   selectedWalletID: () => string | undefined; // Change from string|undefined to a function
@@ -73,13 +74,14 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
   const addressMetadata = useRef<TAddressMetadata>(BlueApp.address_metadata || {});
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
+  // Wallets and metadata are mutated in place in several flows. This revision gives
+  // consumers such as Spotlight a reliable signal after every successful persistence.
+  const [storageRevision, setStorageRevision] = useState<number>(0);
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,
   );
   const [walletsInitialized, setWalletsInitialized] = useState<boolean>(false);
   const [currentSharedCosigner, setCurrentSharedCosigner] = useState<string>('');
-  // Metadata refs are mutated in place, so their identity never changes; bumped on save to rebuild the context value.
-  const [metadataVersion, setMetadataVersion] = useState(0);
 
   const selectedWalletID = useCallback((): string | undefined => {
     if (!navigationRef.current || !navigationRef.current.isReady()) return undefined;
@@ -168,7 +170,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       await BlueApp.saveToDisk();
       const w: TWallet[] = [...BlueApp.getWallets()];
       setWallets(w);
-      setMetadataVersion(v => v + 1);
+      setStorageRevision(revision => revision + 1);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [txMetadata.current, counterpartyMetadata.current, addressMetadata.current],
@@ -247,6 +249,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       txMetadata.current = BlueApp.tx_metadata ?? {};
       BlueApp.tx_metadata = txMetadata.current;
       counterpartyMetadata.current = BlueApp.counterparty_metadata ?? {};
+      BlueApp.counterparty_metadata = counterpartyMetadata.current;
       addressMetadata.current = BlueApp.address_metadata ?? {};
       const loaded = BlueApp.getWallets();
       setWallets(loaded);
@@ -462,6 +465,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       setWalletsWithNewOrder,
       txMetadata: txMetadata.current,
       counterpartyMetadata: counterpartyMetadata.current,
+      storageRevision,
       addressMetadata: addressMetadata.current,
       saveToDisk,
       getTransactions: BlueApp.getTransactions,
@@ -494,10 +498,10 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       handleWalletDeletion,
       confirmWalletDeletion,
     }),
-    // metadataVersion is deliberate: it is what rebuilds this value after an in-place metadata edit.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // storageRevision is deliberate: metadata refs are edited in place, so saves rebuild this context value.
     [
       wallets,
+      storageRevision,
       setWalletsWithNewOrder,
       saveToDisk,
       selectedWalletID,
@@ -512,7 +516,6 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
       resetWallets,
       walletTransactionUpdateStatus,
       handleWalletDeletion,
-      metadataVersion,
     ],
   );
 

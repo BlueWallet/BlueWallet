@@ -42,7 +42,12 @@ class DeeplinkSchemaMatch {
   static navigationRouteFor(
     event: { url: string },
     completionHandler: (args: TCompletionHandlerParams) => void,
-    context: TContext = { wallets: [], saveToDisk: () => {}, addWallet: () => {}, setSharedCosigner: () => {} },
+    context: TContext = {
+      wallets: [],
+      saveToDisk: () => {},
+      addWallet: () => {},
+      setSharedCosigner: () => {},
+    },
   ) {
     if (event.url === null) {
       return;
@@ -95,7 +100,13 @@ class DeeplinkSchemaMatch {
               },
             ]);
           } else if (action === 'openReceive') {
-            completionHandler(['LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID: wallet.getID() } }]);
+            completionHandler([
+              'LNDCreateInvoiceRoot',
+              {
+                screen: 'LNDCreateInvoice',
+                params: { walletID: wallet.getID() },
+              },
+            ]);
           }
         }
       }
@@ -213,6 +224,57 @@ class DeeplinkSchemaMatch {
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
+            case 'wallet': {
+              const walletID = urlObject.pathname ? decodeURIComponent(urlObject.pathname.replace(/^\//, '')) : undefined;
+              const wallet = context.wallets.find(candidate => candidate.getID() === walletID);
+              if (wallet) {
+                completionHandler([
+                  'DrawerRoot',
+                  {
+                    screen: 'DetailViewStackScreensStack',
+                    params: {
+                      screen: 'WalletTransactions',
+                      params: {
+                        walletID: wallet.getID(),
+                        walletType: wallet.type,
+                      },
+                    },
+                  },
+                ]);
+              }
+              break;
+            }
+            case 'transaction': {
+              const walletID = typeof urlObject.query.walletID === 'string' ? urlObject.query.walletID : undefined;
+              const txid = typeof urlObject.query.txid === 'string' ? urlObject.query.txid : undefined;
+              if (walletID && txid && context.wallets.some(candidate => candidate.getID() === walletID)) {
+                completionHandler([
+                  'DrawerRoot',
+                  {
+                    screen: 'DetailViewStackScreensStack',
+                    params: {
+                      screen: 'TransactionStatus',
+                      params: { hash: txid, walletID },
+                    },
+                  },
+                ]);
+              }
+              break;
+            }
+            case 'contact': {
+              const paymentCode = typeof urlObject.query.paymentCode === 'string' ? urlObject.query.paymentCode : undefined;
+              completionHandler([
+                'DrawerRoot',
+                {
+                  screen: 'DetailViewStackScreensStack',
+                  params: {
+                    screen: 'PaymentCodeList',
+                    params: paymentCode ? { paymentCode } : {},
+                  },
+                },
+              ]);
+              break;
+            }
             case 'setelectrumserver':
               completionHandler([
                 'ElectrumSettings',

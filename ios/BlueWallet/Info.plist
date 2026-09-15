@@ -209,6 +209,7 @@
 	<array>
 		<string>io.bluewallet.bluewallet.receiveonchain</string>
 		<string>io.bluewallet.bluewallet.xpub</string>
+		<string>io.bluewallet.spotlight.open</string>
 	</array>
 	<key>RCTNewArchEnabled</key>
 	<true/>
