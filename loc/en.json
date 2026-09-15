@@ -401,6 +401,7 @@
     "details_fee_rate": "Fee rate",
     "details_size": "Size",
     "details_virtual_size": "Virtual size",
+    "details_output_script": "Output script",
     "details_tx_hex": "Tx Hex",
     "details_inputs_count": "Inputs ({count})",
     "details_outputs_count": "Outputs ({count})"

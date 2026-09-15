@@ -260,7 +260,9 @@ const PsbtWithHardwareWallet = () => {
               title={`${loc.transactions.details_to} ${index + 1}`}
               rightTitle={formatBalance(Number(output.value), BitcoinUnit.SATS, true)}
               rightTitleSelectable
-              subtitle={addressFromScript(output.script)}
+              subtitle={
+                addressFromScript(output.script) ?? `${loc.transactions.details_output_script}: ${Buffer.from(output.script).toString('hex')}`
+              }
               subtitleNumberOfLines={0}
               subtitleSelectable
               iconName="paperPlane"
