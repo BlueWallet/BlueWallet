@@ -143,6 +143,32 @@ const PsbtWithHardwareWallet = () => {
   const renderPsbtDetails = () => {
     if (!displayedPsbt) return null;
 
+    const addressFromScript = (script: Uint8Array): string | undefined => {
+      try {
+        return bitcoin.address.fromOutputScript(Buffer.from(script));
+      } catch {
+        return undefined;
+      }
+    };
+
+    const inputDetails = (index: number): string => {
+      const input = displayedPsbt.txInputs[index];
+      const psbtInput = displayedPsbt.data.inputs[index];
+      let script = psbtInput.witnessUtxo?.script;
+
+      if (!script && psbtInput.nonWitnessUtxo) {
+        try {
+          script = bitcoin.Transaction.fromBuffer(Buffer.from(psbtInput.nonWitnessUtxo)).outs[input.index]?.script;
+        } catch {
+          // The outpoint remains useful when a supplied non-witness transaction is malformed.
+        }
+      }
+
+      const address = script ? addressFromScript(script) : undefined;
+      const outpoint = `${Buffer.from(input.hash).reverse().toString('hex')}:${input.index}`;
+      return address ? `${loc.transactions.details_to_address}: ${address}\n${outpoint}` : outpoint;
+    };
+
     const totalOutput = displayedPsbt.txOutputs.reduce((total, output) => total + output.value, 0n);
     return (
       <View style={styles.detailsContainer} testID="DeepLinkPsbtDetails">
@@ -160,7 +186,7 @@ const PsbtWithHardwareWallet = () => {
             <ListItem
               key={`${Buffer.from(input.hash).toString('hex')}-${input.index}`}
               title={`${loc.transactions.details_inputs} ${index + 1}`}
-              subtitle={<Text selectable>{`${Buffer.from(input.hash).reverse().toString('hex')}:${input.index}`}</Text>}
+              subtitle={<Text selectable>{inputDetails(index)}</Text>}
               subtitleNumberOfLines={0}
               noFeedback
               bottomDivider={index < displayedPsbt.txInputs.length - 1}
@@ -176,7 +202,11 @@ const PsbtWithHardwareWallet = () => {
               title={`${loc.transactions.details_to} ${index + 1}`}
               rightTitle={`${output.value.toLocaleString()} ${loc.units.sats}`}
               rightTitleSelectable
-              subtitle={<Text selectable>{`${loc.transactions.details_tx_hex}: ${Buffer.from(output.script).toString('hex')}`}</Text>}
+              subtitle={
+                <Text selectable>
+                  {`${addressFromScript(output.script) ?? loc.transactions.details_tx_hex}\n${Buffer.from(output.script).toString('hex')}`}
+                </Text>
+              }
               subtitleNumberOfLines={0}
               noFeedback
               bottomDivider={index < displayedPsbt.txOutputs.length - 1}
