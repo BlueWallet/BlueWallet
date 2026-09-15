@@ -12,7 +12,7 @@ import { registerArkBackgroundTask, stopArkBackgroundTask } from '../../blue_mod
 import { startAndDecrypt } from '../../blue_modules/start-and-decrypt';
 import { majorTomToGroundControl, unsubscribe } from '../../blue_modules/notifications';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { navigationRef } from '../../NavigationService';
+import { navigationRef, navigateToWalletsList } from '../../NavigationService';
 import { getScanWasBBQR } from '../../helpers/scan-qr.ts';
 import { setWalletIdMustUseBBQR } from '../../blue_modules/ur';
 
@@ -175,6 +175,8 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const deleteWallet = useCallback((wallet: TWallet) => {
     BlueApp.deleteWallet(wallet);
+    // Clear wallet screens before publishing the removal, including nested modal history.
+    navigateToWalletsList();
     setWallets([...BlueApp.getWallets()]);
     if (wallet.type === LightningArkWallet.type) {
       // Fire-and-forget: cleans up the per-wallet Arkade Realm (close + delete files)
