@@ -11,6 +11,9 @@ class CustomEnvironment extends NodeEnvironment {
       const hash = require('crypto').createHash('md5').update(fullName).digest('hex');
       if (require('fs').existsSync(`/tmp/${hash}`)) {
         event.test.mode = 'skip';
+        if (!/\(previously passed on CI\)$/.test(event.test.name)) {
+          event.test.name = `${event.test.name} (previously passed on CI)`;
+        }
         console.log('skipping as it previously passed on CI:', fullName);
       }
     }
