@@ -204,7 +204,7 @@ const PsbtWithHardwareWallet = () => {
       }
     };
 
-    const inputDetails = (index: number): string => {
+    const inputAddress = (index: number): string | undefined => {
       const input = displayedPsbt.txInputs[index];
       const psbtInput = displayedPsbt.data.inputs[index];
       let script = psbtInput.witnessUtxo?.script;
@@ -217,9 +217,7 @@ const PsbtWithHardwareWallet = () => {
         }
       }
 
-      const address = script ? addressFromScript(script) : undefined;
-      const outpoint = `${Buffer.from(input.hash).reverse().toString('hex')}:${input.index}`;
-      return address ? `${loc.transactions.details_to_address}: ${address}\n${outpoint}` : outpoint;
+      return script ? addressFromScript(script) : undefined;
     };
 
     const totalOutput = displayedPsbt.txOutputs.reduce((total, output) => total + output.value, 0n);
@@ -242,7 +240,7 @@ const PsbtWithHardwareWallet = () => {
             <SettingsListItem
               key={`${Buffer.from(input.hash).toString('hex')}-${input.index}`}
               title={`${loc.transactions.details_inputs} ${index + 1}`}
-              subtitle={inputDetails(index)}
+              subtitle={inputAddress(index)}
               subtitleNumberOfLines={0}
               subtitleSelectable
               iconName="key"
@@ -262,7 +260,7 @@ const PsbtWithHardwareWallet = () => {
               title={`${loc.transactions.details_to} ${index + 1}`}
               rightTitle={formatBalance(Number(output.value), BitcoinUnit.SATS, true)}
               rightTitleSelectable
-              subtitle={`${addressFromScript(output.script) ?? loc.transactions.details_tx_hex}\n${Buffer.from(output.script).toString('hex')}`}
+              subtitle={addressFromScript(output.script)}
               subtitleNumberOfLines={0}
               subtitleSelectable
               iconName="paperPlane"
