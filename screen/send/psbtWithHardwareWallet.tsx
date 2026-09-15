@@ -7,7 +7,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
-import ListItem from '../../components/ListItem';
+import { SettingsFootnote, SettingsListItem, SettingsSection } from '../../components/SettingsSection';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -180,40 +180,44 @@ const PsbtWithHardwareWallet = () => {
           <BlueText selectable style={styles.detailsTotal}>{`${totalOutput.toLocaleString()} ${loc.units.sats}`}</BlueText>
         </BlueCard>
 
-        <BlueText style={styles.sectionTitle}>{loc.transactions.details_inputs}</BlueText>
-        <BlueCard style={[styles.listCard, { backgroundColor: colors.background }]}>
+        <SettingsSection
+          title={loc.formatString(loc.transactions.details_inputs_count, { count: displayedPsbt.inputCount })}
+          containerStyle={styles.settingsSection}
+        >
           {displayedPsbt.txInputs.map((input, index) => (
-            <ListItem
+            <SettingsListItem
               key={`${Buffer.from(input.hash).toString('hex')}-${input.index}`}
               title={`${loc.transactions.details_inputs} ${index + 1}`}
-              subtitle={<Text selectable>{inputDetails(index)}</Text>}
+              subtitle={inputDetails(index)}
               subtitleNumberOfLines={0}
+              subtitleSelectable
+              iconName="key"
               noFeedback
               bottomDivider={index < displayedPsbt.txInputs.length - 1}
             />
           ))}
-        </BlueCard>
+        </SettingsSection>
 
-        <BlueText style={styles.sectionTitle}>{loc.transactions.details_outputs}</BlueText>
-        <BlueCard style={[styles.listCard, { backgroundColor: colors.background }]}>
+        <SettingsSection
+          title={loc.formatString(loc.transactions.details_outputs_count, { count: displayedPsbt.txOutputs.length })}
+          containerStyle={styles.settingsSection}
+        >
           {displayedPsbt.txOutputs.map((output, index) => (
-            <ListItem
+            <SettingsListItem
               key={`${index}-${output.value}`}
               title={`${loc.transactions.details_to} ${index + 1}`}
               rightTitle={`${output.value.toLocaleString()} ${loc.units.sats}`}
               rightTitleSelectable
-              subtitle={
-                <Text selectable>
-                  {`${addressFromScript(output.script) ?? loc.transactions.details_tx_hex}\n${Buffer.from(output.script).toString('hex')}`}
-                </Text>
-              }
+              subtitle={`${addressFromScript(output.script) ?? loc.transactions.details_tx_hex}\n${Buffer.from(output.script).toString('hex')}`}
               subtitleNumberOfLines={0}
+              subtitleSelectable
+              iconName="paperPlane"
               noFeedback
               bottomDivider={index < displayedPsbt.txOutputs.length - 1}
             />
           ))}
-        </BlueCard>
-        <BlueText style={[styles.detailsWarning, { color: colors.alternativeTextColor }]}>{loc.multisig.provide_signature_next_steps_details}</BlueText>
+        </SettingsSection>
+        <SettingsFootnote style={styles.detailsWarning}>{loc.multisig.provide_signature_next_steps_details}</SettingsFootnote>
       </View>
     );
   };
@@ -454,20 +458,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 6,
   },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginTop: 20,
-    marginBottom: 4,
-    marginLeft: 4,
-  },
-  listCard: {
-    borderRadius: 12,
-    paddingVertical: 0,
+  settingsSection: {
+    marginHorizontal: 0,
+    marginTop: 16,
+    marginBottom: 0,
   },
   detailsWarning: {
     fontSize: 12,
     marginTop: 16,
+    marginHorizontal: 4,
   },
   exportButton: {
     alignSelf: 'stretch',
