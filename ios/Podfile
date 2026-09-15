@@ -43,6 +43,18 @@ post_install do |installer|
     :mac_catalyst_enabled => true,
     :ccache_enabled => ENV['USE_CCACHE'] == '1',
   )
+  # Resource bundles can retain older deployment targets after React Native's
+  # post-install step. Keep every pod target within the supported iOS range.
+  minimum_ios_version = Gem::Version.new(min_ios_version_supported)
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      deployment_target = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+      if deployment_target && Gem::Version.new(deployment_target) < minimum_ios_version
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
+      end
+    end
+  end
+
   # Fix RCTDeprecation module map error with Xcode 16+/26+ (required for react-native-notifications).
   # The bridging header imports RCTBridgeModule.h which does
   # #import <RCTDeprecation/RCTDeprecation.h>. With -fmodules, Clang treats this

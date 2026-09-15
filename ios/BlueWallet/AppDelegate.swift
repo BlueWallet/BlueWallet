@@ -14,6 +14,10 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         clearFilesIfNeeded()
+
+        if #available(iOS 16.4, *) {
+            WalletAppShortcuts.updateAppShortcutParameters()
+        }
         
         // Fix app group UserDefaults initialization
         userDefaultsGroup = UserDefaults.standard

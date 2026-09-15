@@ -26,7 +26,7 @@ end
 
 require 'securerandom'
 
-default_platform(:android)
+default_platform(:ios)
 PROJECT_ROOT = File.expand_path("..", __dir__)
 project_root = PROJECT_ROOT
 
@@ -793,6 +793,7 @@ platform :ios do
     log_success("All provisioning profiles set up")
   end
 
+  # Run from the repository root: bundle exec fastlane update_apple_signing_assets
   desc "Update all Apple certificates and provisioning profiles"
   lane :update_apple_signing_assets do |options|
     minimum_fastlane_version = Gem::Version.new("2.240.0")
