@@ -10,8 +10,7 @@ import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import { SettingsFootnote, SettingsListItem, SettingsSection } from '../../components/SettingsSection';
 import HandOffComponent from '../../components/HandOffComponent';
-import Icon from '../../components/Icon';
-import TooltipMenu from '../../components/TooltipMenu';
+import HeaderMenuButton from '../../components/HeaderMenuButton';
 import { HandOffActivityType } from '../../components/types';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
@@ -59,12 +58,14 @@ const PsbtWithHardwareWallet = () => {
     const menuItem: NativeStackHeaderItem = {
       type: 'menu',
       label: loc.settings.general_continuity,
-      icon: { type: 'sfSymbol', name: 'arrow.triangle.2.circlepath' },
+      icon: { type: 'sfSymbol', name: 'ellipsis' },
       menu: {
+        title: loc.settings.general_continuity,
         items: [
           {
             type: 'action',
             label: loc.settings.general_continuity,
+            description: loc.settings.general_continuity_e,
             state: isHandOffUseEnabled ? 'on' : 'off',
             onPress: toggleHandoff,
           },
@@ -73,14 +74,18 @@ const PsbtWithHardwareWallet = () => {
     };
 
     const headerLeft = () => (
-      <TooltipMenu
-        actions={[{ id: 'toggleHandoff', text: loc.settings.general_continuity, menuState: isHandOffUseEnabled }]}
+      <HeaderMenuButton
+        title={loc.settings.general_continuity}
+        actions={[
+          {
+            id: 'toggleHandoff',
+            text: loc.settings.general_continuity,
+            subtitle: loc.settings.general_continuity_e,
+            menuState: isHandOffUseEnabled,
+          },
+        ]}
         onPressMenuItem={toggleHandoff}
-        shouldOpenOnLongPress={false}
-        accessibilityLabel={loc.settings.general_continuity}
-      >
-        <Icon name="repeat" type="font-awesome" size={20} color={colors.foregroundColor} />
-      </TooltipMenu>
+      />
     );
 
     navigation.setOptions(
@@ -88,7 +93,7 @@ const PsbtWithHardwareWallet = () => {
         ? { headerLeft: undefined, unstable_headerLeftItems: () => [menuItem] }
         : { headerLeft, unstable_headerLeftItems: undefined },
     );
-  }, [colors.foregroundColor, deepLinkedPsbt, isHandOffUseEnabled, navigation, toggleHandoff]);
+  }, [deepLinkedPsbt, isHandOffUseEnabled, navigation, toggleHandoff]);
 
   const stylesHook = StyleSheet.create({
     scrollViewContent: {
