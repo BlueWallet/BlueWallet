@@ -159,6 +159,8 @@ final class SpotlightModule: NSObject {
             activity.contentAttributeSet = attributes
             activity.isEligibleForPrediction = true
             activity.isEligibleForSearch = false
+            activity.isEligibleForHandoff = false
+            activity.isEligibleForPublicIndexing = false
             let persistentIdentifier = "spotlight:\(identifier)"
             activity.persistentIdentifier = NSUserActivityPersistentIdentifier(persistentIdentifier)
             activity.becomeCurrent()
