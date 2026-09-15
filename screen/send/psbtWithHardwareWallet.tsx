@@ -7,6 +7,7 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
+import ListItem from '../../components/ListItem';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -144,18 +145,46 @@ const PsbtWithHardwareWallet = () => {
 
     const totalOutput = displayedPsbt.txOutputs.reduce((total, output) => total + output.value, 0n);
     return (
-      <BlueCard style={styles.detailsCard} testID="DeepLinkPsbtDetails">
-        <BlueText style={styles.detailsTitle}>{loc.transactions.details_section}</BlueText>
-        <BlueText>{`${loc.formatString(loc.transactions.details_inputs_count, { count: displayedPsbt.inputCount })} · ${loc.formatString(loc.transactions.details_outputs_count, { count: displayedPsbt.txOutputs.length })}`}</BlueText>
-        <BlueText style={styles.detailsTotal}>{`${totalOutput.toLocaleString()} ${loc.units.sats}`}</BlueText>
-        {displayedPsbt.txOutputs.map((output, index) => (
-          <View key={`${index}-${output.value}`} style={styles.outputRow}>
-            <BlueText>{`${loc.transactions.details_to} ${index + 1}: ${output.value.toLocaleString()} ${loc.units.sats}`}</BlueText>
-            <Text selectable style={[styles.outputScript, { color: colors.alternativeTextColor }]}>{`${loc.transactions.details_tx_hex}: ${Buffer.from(output.script).toString('hex')}`}</Text>
-          </View>
-        ))}
-        <BlueText style={styles.detailsWarning}>{loc.multisig.provide_signature_next_steps_details}</BlueText>
-      </BlueCard>
+      <View style={styles.detailsContainer} testID="DeepLinkPsbtDetails">
+        <BlueCard style={[styles.detailsCard, { backgroundColor: colors.elevated }]}>
+          <BlueText style={styles.detailsTitle}>{loc.transactions.details_section}</BlueText>
+          <BlueText style={[styles.detailsCounts, { color: colors.alternativeTextColor }]}>
+            {`${loc.formatString(loc.transactions.details_inputs_count, { count: displayedPsbt.inputCount })} · ${loc.formatString(loc.transactions.details_outputs_count, { count: displayedPsbt.txOutputs.length })}`}
+          </BlueText>
+          <BlueText selectable style={styles.detailsTotal}>{`${totalOutput.toLocaleString()} ${loc.units.sats}`}</BlueText>
+        </BlueCard>
+
+        <BlueText style={styles.sectionTitle}>{loc.transactions.details_inputs}</BlueText>
+        <BlueCard style={[styles.listCard, { backgroundColor: colors.background }]}>
+          {displayedPsbt.txInputs.map((input, index) => (
+            <ListItem
+              key={`${Buffer.from(input.hash).toString('hex')}-${input.index}`}
+              title={`${loc.transactions.details_inputs} ${index + 1}`}
+              subtitle={<Text selectable>{`${Buffer.from(input.hash).reverse().toString('hex')}:${input.index}`}</Text>}
+              subtitleNumberOfLines={0}
+              noFeedback
+              bottomDivider={index < displayedPsbt.txInputs.length - 1}
+            />
+          ))}
+        </BlueCard>
+
+        <BlueText style={styles.sectionTitle}>{loc.transactions.details_outputs}</BlueText>
+        <BlueCard style={[styles.listCard, { backgroundColor: colors.background }]}>
+          {displayedPsbt.txOutputs.map((output, index) => (
+            <ListItem
+              key={`${index}-${output.value}`}
+              title={`${loc.transactions.details_to} ${index + 1}`}
+              rightTitle={`${output.value.toLocaleString()} ${loc.units.sats}`}
+              rightTitleSelectable
+              subtitle={<Text selectable>{`${loc.transactions.details_tx_hex}: ${Buffer.from(output.script).toString('hex')}`}</Text>}
+              subtitleNumberOfLines={0}
+              noFeedback
+              bottomDivider={index < displayedPsbt.txOutputs.length - 1}
+            />
+          ))}
+        </BlueCard>
+        <BlueText style={[styles.detailsWarning, { color: colors.alternativeTextColor }]}>{loc.multisig.provide_signature_next_steps_details}</BlueText>
+      </View>
     );
   };
 
@@ -377,25 +406,34 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
   },
-  detailsCard: {
+  detailsContainer: {
     marginTop: 16,
+  },
+  detailsCard: {
+    borderRadius: 12,
   },
   detailsTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 8,
+  },
+  detailsCounts: {
+    marginTop: 4,
   },
   detailsTotal: {
     fontSize: 20,
     fontWeight: '700',
     marginTop: 6,
   },
-  outputRow: {
-    marginTop: 14,
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginTop: 20,
+    marginBottom: 4,
+    marginLeft: 4,
   },
-  outputScript: {
-    fontSize: 12,
-    marginTop: 3,
+  listCard: {
+    borderRadius: 12,
+    paddingVertical: 0,
   },
   detailsWarning: {
     fontSize: 12,
