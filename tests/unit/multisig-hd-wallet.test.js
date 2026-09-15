@@ -24,16 +24,7 @@ const coldcardExport =
 const electumJson =
   '{"x2/": {"xpub": "Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn", "hw_type": "coldcard", "ckcc_xfp": 64392470, "label": "Coldcard", "derivation": "m/48\'/1\'/0\'/1\'", "type": "hardware"}, "x1/": {"xpub": "Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ", "hw_type": "coldcard", "ckcc_xfp": 2293071571, "label": "Coldcard", "derivation": "m/48\'/1\'/0\'/1\'", "type": "hardware"}, "wallet_type": "2of2", "use_encryption": false, "seed_version": 17}';
 
-describe('multisig-wallet (p2sh)', () => {
-  if (!process.env.MNEMONICS_COBO) {
-    console.error('process.env.MNEMONICS_COBO not set, skipped');
-    return;
-  }
-  if (!process.env.MNEMONICS_COLDCARD) {
-    console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
-    return;
-  }
-
+describeIfEnv(['MNEMONICS_COBO', 'MNEMONICS_COLDCARD'])('multisig-wallet (p2sh)', () => {
   it('basic operations work', async () => {
     const w = new MultisigHDWallet();
     w.setSecret(txtFileFormatMultisigLegacy);
@@ -332,16 +323,7 @@ describe('multisig-wallet (p2sh)', () => {
   });
 });
 
-describe('multisig-wallet (wrapped segwit)', () => {
-  if (!process.env.MNEMONICS_COBO) {
-    console.error('process.env.MNEMONICS_COBO not set, skipped');
-    return;
-  }
-  if (!process.env.MNEMONICS_COLDCARD) {
-    console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
-    return;
-  }
-
+describeIfEnv(['MNEMONICS_COBO', 'MNEMONICS_COLDCARD'])('multisig-wallet (wrapped segwit)', () => {
   it('basic operations work', async () => {
     const w = new MultisigHDWallet();
     w.setSecret(txtFileFormatMultisigWrappedSegwit);
@@ -394,7 +376,12 @@ describe('multisig-wallet (wrapped segwit)', () => {
     // transaction is gona be UNsigned because we have no keys
     const { psbt, tx } = w.createTransaction(
       utxos,
-      [{ address: 'bc1qlhpaukt44ru7044uqdf0hp2qs0ut0p93g66k8h', value: 10000 }],
+      [
+        {
+          address: 'bc1qlhpaukt44ru7044uqdf0hp2qs0ut0p93g66k8h',
+          value: 10000,
+        },
+      ],
       10,
       w._getInternalAddressByIndex(3),
       false,
@@ -582,16 +569,7 @@ describe('multisig-wallet (wrapped segwit)', () => {
   });
 });
 
-describe('multisig-wallet (native segwit)', () => {
-  if (!process.env.MNEMONICS_COBO) {
-    console.error('process.env.MNEMONICS_COBO not set, skipped');
-    return;
-  }
-  if (!process.env.MNEMONICS_COLDCARD) {
-    console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
-    return;
-  }
-
+describeIfEnv(['MNEMONICS_COBO', 'MNEMONICS_COLDCARD'])('multisig-wallet (native segwit)', () => {
   it('can sort buffers', async () => {
     let sorted;
     sorted = MultisigHDWallet.sortBuffers([Buffer.from('10', 'hex'), Buffer.from('0011', 'hex')]);
@@ -824,7 +802,11 @@ describe('multisig-wallet (native segwit)', () => {
 
     const { psbt } = w.createTransaction(
       utxos,
-      [{ address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85' }], // sendMax
+      [
+        {
+          address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
+        },
+      ], // sendMax
       1,
       w._getInternalAddressByIndex(0), // there should be no change in this tx
       false,
@@ -873,7 +855,12 @@ describe('multisig-wallet (native segwit)', () => {
 
     const { psbt: psbt2 } = w2.createTransaction(
       utxos,
-      [{ address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85', value: 10000 }],
+      [
+        {
+          address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
+          value: 10000,
+        },
+      ],
       1,
       w2._getInternalAddressByIndex(3),
       false,
@@ -1034,7 +1021,11 @@ describe('multisig-wallet (native segwit)', () => {
 
     const { psbt } = walletWithNoKeys.createTransaction(
       utxos,
-      [{ address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85' }], // sendMax
+      [
+        {
+          address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
+        },
+      ], // sendMax
       1,
       walletWithNoKeys._getInternalAddressByIndex(0), // there should be no change in this tx
       false,
@@ -1241,7 +1232,12 @@ describe('multisig-wallet (native segwit)', () => {
 
     const { psbt: psbt2 } = w.createTransaction(
       utxos,
-      [{ address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85', value: 10000 }],
+      [
+        {
+          address: 'bc1qxzrzh4caw7e3genwtldtxntzj0ktfl7mhf2lh4fj8h7hnkvtvc4salvp85',
+          value: 10000,
+        },
+      ],
       1,
       w._getInternalAddressByIndex(3),
       false,

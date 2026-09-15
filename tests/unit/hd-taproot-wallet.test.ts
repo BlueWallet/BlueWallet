@@ -3,6 +3,7 @@ import assert from 'assert';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { TaprootWallet } from '../../class/wallets/taproot-wallet';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { requiredEnv } from '../helpers/env';
 
 const utxos = [
   {
@@ -91,14 +92,9 @@ describe('Taproot HD (BIP86)', () => {
     assert.ok(hd2.validateMnemonic());
   });
 
-  it('can make xpub', async () => {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_BIP84')('can make xpub', async () => {
     const hd = new HDTaprootWallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    hd.setSecret(requiredEnv('HD_MNEMONIC_BIP84'));
 
     assert.strictEqual(true, hd.validateMnemonic());
     assert.strictEqual(
@@ -107,13 +103,9 @@ describe('Taproot HD (BIP86)', () => {
     );
   });
 
-  it('can createTransaction with a correct feerate', async () => {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
+  itIfEnv('HD_MNEMONIC_BIP84')('can createTransaction with a correct feerate', async () => {
     const hd = new HDTaprootWallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    hd.setSecret(requiredEnv('HD_MNEMONIC_BIP84'));
     assert.ok(hd.validateMnemonic());
 
     const targetFeeRate = 1;
@@ -141,22 +133,27 @@ describe('Taproot HD (BIP86)', () => {
     );
   });
 
-  it('can createTransaction with a correct feerate 2', async () => {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
+  itIfEnv('HD_MNEMONIC_BIP84')('can createTransaction with a correct feerate 2', async () => {
     const hd = new HDTaprootWallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    hd.setSecret(requiredEnv('HD_MNEMONIC_BIP84'));
     assert.ok(hd.validateMnemonic());
 
     const targetFeeRate = 10;
     const { tx, psbt, outputs } = hd.createTransaction(
       utxos,
       [
-        { address: 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g', value: 10000 },
-        { address: 'bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu', value: 10000 },
-        { address: 'bc1ptestlpef53v6vyku3f9rk0ve2mek2fdwnd9k6q3mnyn6vs9nqlsqqnejxf', value: 10000 },
+        {
+          address: 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g',
+          value: 10000,
+        },
+        {
+          address: 'bc1pm6lqlel3qxefsx0v39nshtghasvvp6ghn3e5hd5q280j5m9h7csqrkzssu',
+          value: 10000,
+        },
+        {
+          address: 'bc1ptestlpef53v6vyku3f9rk0ve2mek2fdwnd9k6q3mnyn6vs9nqlsqqnejxf',
+          value: 10000,
+        },
       ],
       targetFeeRate,
       hd._getInternalAddressByIndex(0),

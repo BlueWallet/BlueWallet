@@ -5,6 +5,7 @@ import { PayjoinClient } from 'payjoin-client';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import PayjoinTransaction from '../../class/payjoin-transaction';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { requiredEnv } from '../helpers/env';
 
 const utxos = [
   {
@@ -19,16 +20,17 @@ const utxos = [
 ];
 
 describe('PayjoinTransaction', () => {
-  it('throws if smth is wrong with pj transaction', async () => {
-    if (!process.env.MNEMONICS_COLDCARD) {
-      console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
-      return;
-    }
+  itIfEnv('MNEMONICS_COLDCARD')('throws if smth is wrong with pj transaction', async () => {
     const w = new HDSegwitBech32Wallet();
-    w.setSecret(process.env.MNEMONICS_COLDCARD);
+    w.setSecret(requiredEnv('MNEMONICS_COLDCARD'));
     const { tx: txOrig, psbt: psbtOrig } = w.createTransaction(
       utxos,
-      [{ address: 'bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl', value: 10000 }],
+      [
+        {
+          address: 'bc1qyvdzueznsh0rsyfqzdtj9ce7nlx4rlg2v93lcl',
+          value: 10000,
+        },
+      ],
       6,
       w._getInternalAddressByIndex(0),
     );
@@ -70,13 +72,9 @@ describe('PayjoinTransaction', () => {
     assert.ok(!payjoinPsbt);
   });
 
-  it('works', async () => {
-    if (!process.env.MNEMONICS_COLDCARD) {
-      console.error('process.env.MNEMONICS_COLDCARD not set, skipped');
-      return;
-    }
+  itIfEnv('MNEMONICS_COLDCARD')('works', async () => {
     const w = new HDSegwitBech32Wallet();
-    w.setSecret(process.env.MNEMONICS_COLDCARD);
+    w.setSecret(requiredEnv('MNEMONICS_COLDCARD'));
     // bitcoin:bc1qy0ydthpa35m37pvwl5tu76j0srcmcwtmaur3aw?amount=0.0001&pj=https://btc.donate.kukks.org/BTC/pj
 
     // because `createTransaction()` has now readjusted coinselect algo, actual created psbt differs, and wont work
