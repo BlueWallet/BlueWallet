@@ -10,5 +10,4 @@
 #import "RNQuickActionManager.h"
 #import "NativeEventEmitterSpec.h"
 #import "NativeMenuElementsEmitterSpec.h"
-#import "NativeSpotlightSpec.h"
 #import "NativeWidgetHelperSpec.h"

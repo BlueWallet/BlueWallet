@@ -47,7 +47,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
-import useIsWalletSpotlightIndexing from '../../hooks/useIsWalletSpotlightIndexing';
+import { useIsWalletSpotlightIndexing } from '../../blue_modules/NativeSpotlight';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const IMPORT_NOTES_ACTION_ID = 'import_notes';

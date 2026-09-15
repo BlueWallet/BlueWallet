@@ -1,7 +1,6 @@
 #import <React/RCTBridgeModule.h>
-#import "NativeSpotlightSpec.h"
 
-@interface RCT_EXTERN_REMAP_MODULE(SpotlightModule, SpotlightModule, NSObject<NativeSpotlightSpec>)
+@interface RCT_EXTERN_REMAP_MODULE(SpotlightModule, SpotlightModule, NSObject)
 RCT_EXTERN_METHOD(replaceIndex:(NSString *)itemsJSON
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)

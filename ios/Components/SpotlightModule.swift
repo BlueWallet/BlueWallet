@@ -4,7 +4,7 @@ import React
 import UniformTypeIdentifiers
 
 @objc(SpotlightModule)
-final class SpotlightModule: NSObject, NativeSpotlightSpec {
+final class SpotlightModule: NSObject {
     private static let indexName = "io.bluewallet.search"
     static let pendingURLKey = "SpotlightPendingURL"
 
@@ -74,11 +74,20 @@ final class SpotlightModule: NSObject, NativeSpotlightSpec {
         guard let url = URL(string: item.url), !item.identifier.isEmpty, !item.title.isEmpty else { return nil }
         let attributes = CSSearchableItemAttributeSet(contentType: .item)
         attributes.title = item.title
+        attributes.displayName = item.title
         attributes.contentDescription = item.description
         attributes.keywords = item.keywords
         attributes.textContent = ([item.title, item.description].compactMap { $0 } + item.keywords).joined(separator: " ")
         attributes.contentURL = url
         attributes.relatedUniqueIdentifier = item.relatedIdentifier
+        attributes.rankingHint = NSNumber(value: item.rankingHint)
+        attributes.userOwned = NSNumber(value: true)
+        attributes.userCreated = NSNumber(value: item.userCreated ?? false)
+        attributes.userCurated = NSNumber(value: item.userCurated ?? false)
+        attributes.supportsNavigation = NSNumber(value: true)
+        if let lastUsedAt = item.lastUsedAt {
+            attributes.lastUsedDate = Date(timeIntervalSince1970: lastUsedAt)
+        }
         let searchable = CSSearchableItem(
             uniqueIdentifier: item.identifier,
             domainIdentifier: item.domain,
@@ -97,4 +106,8 @@ private struct SpotlightItem: Decodable {
     let keywords: [String]
     let url: String
     let relatedIdentifier: String?
+    let rankingHint: Int
+    let lastUsedAt: TimeInterval?
+    let userCreated: Bool?
+    let userCurated: Bool?
 }

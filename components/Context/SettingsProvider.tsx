@@ -18,12 +18,9 @@ import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer,
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  getSpotlightAddressesEnabled,
-  getSpotlightEnabled,
-  SpotlightAddressesEnabledKey,
-  SpotlightEnabledKey,
-} from '../../blue_modules/spotlight-settings';
+
+const SpotlightEnabledKey = 'SpotlightSearchEnabled';
+const SpotlightAddressesEnabledKey = 'SpotlightAddressesEnabled';
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -195,8 +192,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         getIsDeviceQuickActionsEnabled().then(quickActionsEnabled => {
           setIsQuickActionsEnabled(quickActionsEnabled);
         }),
-        getSpotlightEnabled().then(setIsSpotlightEnabled),
-        getSpotlightAddressesEnabled().then(setIsSpotlightAddressesEnabled),
+        AsyncStorage.getItem(SpotlightEnabledKey).then(value => setIsSpotlightEnabled(value === 'true')),
+        AsyncStorage.getItem(SpotlightAddressesEnabledKey).then(value => setIsSpotlightAddressesEnabled(value === 'true')),
         getDoNotTrackStorage().then(doNotTrack => {
           setIsDoNotTrackEnabled(doNotTrack);
         }),
