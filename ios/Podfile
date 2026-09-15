@@ -48,6 +48,9 @@ MAC_CATALYST_PREBUILT_FIX_MARKER = 'fix-mac-catalyst-prebuilt-frameworks.sh'
 # CocoaPods trunk TSBackgroundFetch 4.1.1 omits the Mac Catalyst slice. After
 # install, replace it with the npm-bundled XCFramework (which includes
 # ios-arm64_x86_64-maccatalyst) without changing how the pod is declared.
+# Also regenerate [CP] Copy XCFrameworks — that script hardcodes slice ids from
+# install time, so a disk-only swap still fails Catalyst with
+# "Unable to find matching slice in 'ios-arm64 ios-arm64_x86_64-simulator'".
 def replace_tsbackgroundfetch_xcframework_with_npm_copy!(installer)
   require 'fileutils'
   src = File.expand_path('../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.xcframework', __dir__)
@@ -86,7 +89,37 @@ def replace_tsbackgroundfetch_xcframework_with_npm_copy!(installer)
       PY
     )
   end
+  refresh_tsbackgroundfetch_copy_xcframeworks_script!(installer, dst)
   Pod::UI.puts 'Replaced TSBackgroundFetch.xcframework with npm copy (includes Mac Catalyst slice)'
+end
+
+def refresh_tsbackgroundfetch_copy_xcframeworks_script!(installer, xcframework_path)
+  pod_target = installer.pod_targets.find { |t| t.name == 'TSBackgroundFetch' }
+  unless pod_target
+    Pod::UI.warn 'TSBackgroundFetch pod target missing; cannot refresh XCFramework copy script'
+    return
+  end
+
+  absolute = Pathname.new(xcframework_path).expand_path
+  unless absolute.directory?
+    Pod::UI.warn "TSBackgroundFetch XCFramework missing at #{absolute}"
+    return
+  end
+
+  xcframework = Pod::Xcode::XCFramework.new(pod_target.name, absolute)
+  slice_ids = xcframework.slices.map(&:identifier)
+  unless slice_ids.include?('ios-arm64_x86_64-maccatalyst')
+    Pod::UI.warn "TSBackgroundFetch XCFramework still missing maccatalyst slice (found: #{slice_ids.join(', ')})"
+    return
+  end
+
+  generator = Pod::Generator::CopyXCFrameworksScript.new(
+    [xcframework],
+    installer.sandbox.root,
+    pod_target.platform,
+  )
+  generator.save_as(pod_target.copy_xcframeworks_script_path)
+  Pod::UI.puts "Refreshed TSBackgroundFetch [CP] Copy XCFrameworks script (slices: #{slice_ids.join(', ')})"
 end
 
 def mac_catalyst_prebuilt_fix_shell(scope)
