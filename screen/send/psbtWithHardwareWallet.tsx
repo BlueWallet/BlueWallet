@@ -1,13 +1,18 @@
 import Clipboard from '@react-native-clipboard/clipboard';
 import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import type { NativeStackHeaderItem } from '@react-navigation/native-stack';
 import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Linking, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import { SettingsFootnote, SettingsListItem, SettingsSection } from '../../components/SettingsSection';
+import HandOffComponent from '../../components/HandOffComponent';
+import Icon from '../../components/Icon';
+import ToolTipMenu from '../../components/ToolTipMenu';
+import { HandOffActivityType } from '../../components/types';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
@@ -24,10 +29,11 @@ import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { isIOS26OrHigher } from '../../blue_modules/environment';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
-  const { isElectrumDisabled } = useSettings();
+  const { isElectrumDisabled, isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage } = useSettings();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const navigation = useNavigation();
   const route = useRoute<RouteProp<SendDetailsStackParamList, 'PsbtWithHardwareWallet'>>();
@@ -42,6 +48,47 @@ const PsbtWithHardwareWallet = () => {
   const openScannerButton = useRef<View | null>(null);
   const dynamicQRCode = useRef<DynamicQRCode | null>(null);
   const isFocused = useIsFocused();
+
+  const toggleHandoff = useCallback(() => {
+    void setIsHandOffUseEnabledAsyncStorage(!isHandOffUseEnabled);
+  }, [isHandOffUseEnabled, setIsHandOffUseEnabledAsyncStorage]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios' || !deepLinkedPsbt) return;
+
+    const menuItem: NativeStackHeaderItem = {
+      type: 'menu',
+      label: loc.settings.general_continuity,
+      icon: { type: 'sfSymbol', name: 'arrow.triangle.2.circlepath' },
+      menu: {
+        items: [
+          {
+            type: 'action',
+            label: loc.settings.general_continuity,
+            state: isHandOffUseEnabled ? 'on' : 'off',
+            onPress: toggleHandoff,
+          },
+        ],
+      },
+    };
+
+    const headerLeft = () => (
+      <ToolTipMenu
+        actions={[{ id: 'toggleHandoff', text: loc.settings.general_continuity, menuState: isHandOffUseEnabled }]}
+        onPressMenuItem={toggleHandoff}
+        shouldOpenOnLongPress={false}
+        accessibilityLabel={loc.settings.general_continuity}
+      >
+        <Icon name="repeat" type="font-awesome" size={20} color={colors.foregroundColor} />
+      </ToolTipMenu>
+    );
+
+    navigation.setOptions(
+      isIOS26OrHigher
+        ? { headerLeft: undefined, unstable_headerLeftItems: () => [menuItem] }
+        : { headerLeft, unstable_headerLeftItems: undefined },
+    );
+  }, [colors.foregroundColor, deepLinkedPsbt, isHandOffUseEnabled, navigation, toggleHandoff]);
 
   const stylesHook = StyleSheet.create({
     scrollViewContent: {
@@ -173,6 +220,7 @@ const PsbtWithHardwareWallet = () => {
     const totalOutput = displayedPsbt.txOutputs.reduce((total, output) => total + output.value, 0n);
     return (
       <View style={styles.detailsContainer} testID="DeepLinkPsbtDetails">
+        <HandOffComponent title={loc.send.psbt_sign} type={HandOffActivityType.Psbt} userInfo={{ psbt: displayedPsbt.toBase64() }} />
         <BlueCard style={[styles.detailsCard, { backgroundColor: colors.elevated }]}>
           <BlueText style={styles.detailsTitle}>{loc.transactions.details_section}</BlueText>
           <BlueText style={[styles.detailsCounts, { color: colors.alternativeTextColor }]}>
