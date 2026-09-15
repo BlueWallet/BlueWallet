@@ -11,7 +11,7 @@ import BlueText from '../../components/BlueText';
 import { SettingsFootnote, SettingsListItem, SettingsSection } from '../../components/SettingsSection';
 import HandOffComponent from '../../components/HandOffComponent';
 import Icon from '../../components/Icon';
-import ToolTipMenu from '../../components/ToolTipMenu';
+import TooltipMenu from '../../components/TooltipMenu';
 import { HandOffActivityType } from '../../components/types';
 import presentAlert from '../../components/Alert';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
@@ -73,14 +73,14 @@ const PsbtWithHardwareWallet = () => {
     };
 
     const headerLeft = () => (
-      <ToolTipMenu
+      <TooltipMenu
         actions={[{ id: 'toggleHandoff', text: loc.settings.general_continuity, menuState: isHandOffUseEnabled }]}
         onPressMenuItem={toggleHandoff}
         shouldOpenOnLongPress={false}
         accessibilityLabel={loc.settings.general_continuity}
       >
         <Icon name="repeat" type="font-awesome" size={20} color={colors.foregroundColor} />
-      </ToolTipMenu>
+      </TooltipMenu>
     );
 
     navigation.setOptions(
