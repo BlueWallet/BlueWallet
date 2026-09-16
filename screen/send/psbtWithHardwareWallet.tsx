@@ -24,6 +24,7 @@ import { majorTomToGroundControl } from '../../blue_modules/notifications';
 import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
+import PsbtWalletSigningIndicator from '../../components/PsbtWalletSigningIndicator';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 
 const PsbtWithHardwareWallet = () => {
@@ -335,6 +336,7 @@ const PsbtWithHardwareWallet = () => {
                     <WalletListItem
                       key={owningWallet.getID()}
                       wallet={owningWallet}
+                      accessory={<PsbtWalletSigningIndicator wallet={owningWallet} />}
                       iconImage={getWalletIconImage(owningWallet.type, direction)}
                       onPress={() =>
                         navigation.navigate('WalletTransactions', {

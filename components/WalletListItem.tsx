@@ -39,6 +39,7 @@ type Props = {
   isActive?: boolean;
   containerStyle?: ViewStyle;
   balanceColor?: string;
+  accessory?: React.ReactNode;
 };
 
 const WalletListItem: React.FC<Props> = ({
@@ -56,6 +57,7 @@ const WalletListItem: React.FC<Props> = ({
   backgroundColor,
   titleColor,
   balanceColor,
+  accessory,
 }) => {
   const { colors, dark } = useTheme();
   const { direction } = useLocale();
@@ -132,6 +134,7 @@ const WalletListItem: React.FC<Props> = ({
           </Text>
         )}
       </View>
+      {accessory}
     </Pressable>
   );
 };
