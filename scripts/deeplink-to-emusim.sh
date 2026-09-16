@@ -115,20 +115,13 @@ select_option() {
 select_option
 
 if [[ "$TEST_TYPE" == "Send File" ]]; then
-  while true; do
-    read -r -p "Path to the .psbt file: " selectedFile || exit 1
-    case "$selectedFile" in
-      "~/"*) selectedFile="$HOME/${selectedFile:2}" ;;
-    esac
-    case "$selectedFile" in
-      *.[pP][sS][bB][tT])
-        if [[ -f "$selectedFile" && -r "$selectedFile" ]]; then
-          break
-        fi
-        ;;
-    esac
-    echo "Please enter the path to a readable .psbt file."
-  done
+  script_directory=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 1
+  selectedFile="$script_directory/../tests/unit/fixtures/quicklook-preview-sample.psbt"
+  if [[ ! -f "$selectedFile" || ! -r "$selectedFile" ]]; then
+    echo "Sample PSBT file not found: $selectedFile"
+    exit 1
+  fi
+  echo "Sending sample PSBT: $selectedFile"
 fi
 
 # Enumerate booted iOS simulators with OS versions
