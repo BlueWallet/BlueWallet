@@ -517,8 +517,7 @@ const ReceiveDetails = () => {
         onPressOut={handlePressOut}
         disabled={!copyText}
         style={styles.cardPressable}
-        accessibilityRole="button"
-        accessibilityLabel={loc.transactions.details_copy}
+        accessible={false}
         testID="ReceiveCard"
       >
         <Animated.View style={[styles.receiveCard, stylesHook.receiveCard, stylesHook.receiveCardColumn, pressAnimatedStyle]}>
@@ -576,7 +575,7 @@ const ReceiveDetails = () => {
                   displayText={displayCopyText}
                   isAddress={isAddressTab}
                   truncated={false}
-                  interactive={false}
+                  accessibilityLabel={`${loc.transactions.details_copy}: ${copyText}`}
                 />
               </View>
             </>

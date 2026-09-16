@@ -80,7 +80,12 @@ const ViewEditMultisigProvideMnemonicsSheet = () => {
         <BlueSpacing20 />
         <View style={styles.toggleRow}>
           <BlueFormLabel>{loc.wallets.import_passphrase_title}</BlueFormLabel>
-          <Switch value={askPassphrase} onValueChange={setAskPassphrase} />
+          <Switch
+            accessibilityLabel={loc.wallets.import_passphrase_title}
+            accessibilityRole="switch"
+            value={askPassphrase}
+            onValueChange={setAskPassphrase}
+          />
         </View>
         <BlueSpacing20 />
         <Button testID="DoImportKeyButton" title={loc.wallets.import_do_import} onPress={() => handleImport()} />
