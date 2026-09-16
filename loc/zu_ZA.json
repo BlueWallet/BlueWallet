@@ -104,9 +104,10 @@
     "title": "Isikhwama sakho sidaliwe."
   },
   "receive": {
-    "details_create": "Dala",
+    "details_save": "Londoloza",
     "details_label": "Incazelo",
     "details_setAmount": "Thola ngenani",
+    "option_label": "Ilebula",
     "details_share": "Yabelana...",
     "address_not_found": "Ayikwazanga ukukhiqiza ikheli lokuthola.",
     "header": "Thola",
@@ -380,8 +381,6 @@
     "updating": "Iyabuyekeza...",
     "watchOnlyWarningTitle": "Isexwayiso sezokuphepha",
     "watchOnlyWarningDescription": "Qaphela abakhwabanisi abavame ukusebenzisa izikhwama “zokubuka-kuphela” ukukhohlisa abasebenzisi. Lezi zikhwama azikuvumeli ukuthi ulawule noma uthumele imali; zikuvumela kuphela ukubuka ibhalansi.",
-    "custom_fee_warning_title": "Isexwayiso",
-    "custom_fee_warning_description": "Izinkokhiso ezingaphansi kuka-1 sat/vB zivumelekile, kodwa zingase zingadluliselwa ngenxa yezinqubomgomo zenodi.",
     "details_eta_analyzing": "Iyahlaziya...",
     "details_sent": "Kuthunyelwe",
     "details_section": "Imininingwane",
@@ -437,7 +436,6 @@
     "details_display": "Bonisa Esikrinini Sasekhaya",
     "details_edit": "hlela",
     "details_export_backup": "Khiphela/Yenza Isipele",
-    "details_export_history": "Khiphela Umlando ku-CSV",
     "details_master_fingerprint": "Isigxivizo Somunwe Esiyinhloko",
     "details_multisig_type": "i-multisig",
     "details_options": "Izinketho",
@@ -517,9 +515,7 @@
     "identity_pubkey": "I-Pubkey Yobunikazi",
     "xpub_title": "I-XPUB Yesikhwama",
     "manage_wallets_search_placeholder": "Sesha izikhwama, amakheli, amathransekshini, namanothi",
-    "more_info": "Olunye Ulwazi",
-    "details_delete_wallet_error_message": "Kube khona inkinga ekuqinisekiseni ukuthi lesi sikhwama sisusiwe ezazisweni—lokhu kungase kubangelwe inkinga yenethiwekhi noma uxhumano oluthe xaxa. Uma uqhubeka, ungase usaqhubeke uthole izaziso zamathransekshini ahlobene nalesi sikhwama, ngisho nangemva kokuba sisusiwe.",
-    "details_delete_anyway": "Susa noma kunjalo"
+    "more_info": "Olunye Ulwazi"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bonisa nge-Bitcoin",
