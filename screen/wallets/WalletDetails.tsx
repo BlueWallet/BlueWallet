@@ -46,7 +46,6 @@ import SafeAreaScrollView from '../../components/SafeAreaScrollView';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
-import { navigateToWalletsList } from '../../NavigationService';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const IMPORT_NOTES_ACTION_ID = 'import_notes';
@@ -176,9 +175,7 @@ const WalletDetails: React.FC = () => {
   const navigateToOverviewAndDeleteWallet = useCallback(async () => {
     setIsLoading(true);
     const deletionSucceeded = await handleWalletDeletion(wallet.getID());
-    if (deletionSucceeded) {
-      navigateToWalletsList();
-    } else {
+    if (!deletionSucceeded) {
       setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
