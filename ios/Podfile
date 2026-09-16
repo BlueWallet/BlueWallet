@@ -52,6 +52,11 @@ post_install do |installer|
       if deployment_target && Gem::Version.new(deployment_target) < minimum_ios_version
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
       end
+      # iOS 15.1 has no Mac Catalyst version mapping in the macOS SDK and
+      # falls back to macOS 10.15, which Xcode 27 no longer supports.
+      # Match the app's 15.6 baseline for Catalyst without raising iOS targets.
+      catalyst_version = [Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] || min_ios_version_supported), Gem::Version.new('15.6')].max
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]'] = catalyst_version.to_s
     end
   end
 
@@ -64,6 +69,18 @@ post_install do |installer|
   # so the import resolves as a plain textual include via HEADER_SEARCH_PATHS.
   # No code uses @import RCTDeprecation, so this is safe.
   installer.generated_aggregate_targets.each do |aggregate_target|
+    # Repair versioned Catalyst frameworks in the build output before signing.
+    # Run after rsync and before stripping so the canonical binary is stripped.
+    frameworks_script = aggregate_target.embed_frameworks_script_path
+    if File.exist?(frameworks_script)
+      content = File.read(frameworks_script)
+      marker = '  local basename'
+      repair = '  /bin/bash "${PODS_ROOT}/../../scripts/normalize-catalyst-framework.sh" "${destination}/$(basename "$1")"'
+      unless content.include?(repair)
+        raise 'CocoaPods framework embedding script changed' unless content.include?(marker)
+        File.write(frameworks_script, content.sub(marker, "#{repair}\n\n#{marker}"))
+      end
+    end
     aggregate_target.xcconfigs.each do |config_name, config|
       xcconfig_path = aggregate_target.xcconfig_path(config_name)
       content = File.read(xcconfig_path)
