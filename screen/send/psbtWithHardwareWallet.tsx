@@ -1,10 +1,13 @@
+import { AddressItem } from '../../components/addresses/AddressItem';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute } from '@react-navigation/native';
+import { useNavigation, RouteProp, StackActions, useIsFocused, useRoute, useLocale } from '@react-navigation/native';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import WalletListItem, { getWalletIconImage } from '../../components/WalletListItem';
 import BlueCard from '../../components/BlueCard';
 import BlueText from '../../components/BlueText';
 import presentAlert from '../../components/Alert';
@@ -33,12 +36,71 @@ const PsbtWithHardwareWallet = () => {
   const wallet = wallets.find(w => w.getID() === walletID) as WatchOnlyWallet;
   const routeParamsPSBT = useRef(route.params.psbt);
   const routeParamsTXHex = route.params.txhex;
-  const { colors } = useTheme();
+  const { colors, dark } = useTheme();
+  const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
   const [txHex, setTxHex] = useState<string | undefined>(route.params.txhex);
   const openScannerButton = useRef<View | null>(null);
   const dynamicQRCode = useRef<DynamicQRCode | null>(null);
   const isFocused = useIsFocused();
+  const [search, setSearch] = useState('');
+  const searchQuery = search.trim();
+  const addressSections = useMemo(() => {
+    const createAddress = (address: string, value: bigint, index: number) => ({
+      key: String(index),
+      index,
+      address,
+      balance: Number(value),
+      owningWallets: wallets.filter(candidate => {
+        try {
+          return candidate.weOwnAddress(address);
+        } catch (error) {
+          console.warn('Unable to check PSBT address ownership', error);
+          return false;
+        }
+      }),
+    });
+    const inputs =
+      psbt?.data.inputs.flatMap((input, index) => {
+        try {
+          const previousOutput = input.nonWitnessUtxo
+            ? bitcoin.Transaction.fromBuffer(input.nonWitnessUtxo).outs[psbt.txInputs[index].index]
+            : input.witnessUtxo;
+          if (!previousOutput) return [];
+          const address = bitcoin.address.fromOutputScript(previousOutput.script);
+          return [createAddress(address, previousOutput.value, index)];
+        } catch (error) {
+          // Some input scripts have no address, or their previous transaction is unavailable.
+          console.warn('Unable to decode PSBT input address', error);
+          return [];
+        }
+      }) ?? [];
+    const outputs =
+      psbt?.txOutputs.flatMap((output, index) => (output.address ? [createAddress(output.address, output.value, index)] : [])) ?? [];
+    return [
+      { key: 'inputs', title: loc.transactions.details_inputs, addresses: inputs },
+      { key: 'outputs', title: loc.transactions.details_outputs, addresses: outputs },
+    ];
+  }, [psbt, wallets]);
+  const addressCount = addressSections.reduce((count, section) => count + section.addresses.length, 0);
+  const filteredSections = addressSections.map(section => ({
+    ...section,
+    addresses: section.addresses.filter(item => item.address.toLowerCase().includes(searchQuery.toLowerCase())),
+  }));
+  const hasMatchingAddresses = filteredSections.some(section => section.addresses.length > 0);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerSearchBarOptions:
+        !txHex && addressCount > 0
+          ? {
+              hideWhenScrolling: false,
+              onChangeText: (event: { nativeEvent: { text: string } }) => setSearch(event.nativeEvent.text),
+              onCancelButtonPress: () => setSearch(''),
+            }
+          : undefined,
+    });
+  }, [navigation, addressCount, txHex]);
 
   const stylesHook = StyleSheet.create({
     scrollViewContent: {
@@ -77,7 +139,9 @@ const PsbtWithHardwareWallet = () => {
     (ret: string | { data: string }) => {
       const data = typeof ret === 'string' ? ret : ret.data;
       if (data.toUpperCase().startsWith('UR')) {
-        presentAlert({ message: 'BC-UR not decoded. This should never happen' });
+        presentAlert({
+          message: 'BC-UR not decoded. This should never happen',
+        });
       }
       if (data.indexOf('+') === -1 && data.indexOf('=') === -1 && data.indexOf('=') === -1) {
         // this looks like NOT base64, so maybe its transaction's hex
@@ -251,6 +315,45 @@ const PsbtWithHardwareWallet = () => {
   ) : (
     <View style={styles.container}>
       <BlueCard>
+        {filteredSections
+          .filter(section => section.addresses.length > 0)
+          .map(section => (
+            <View key={section.key} style={styles.addresses}>
+              <BlueText>{section.title}</BlueText>
+              {section.addresses.map(item => (
+                <View key={item.key}>
+                  <AddressItem
+                    item={item}
+                    balanceUnit={wallet?.getPreferredBalanceUnit() ?? BitcoinUnit.BTC}
+                    walletID={walletID}
+                    allowSignVerifyMessage={false}
+                    showWalletDetails={false}
+                    searchQuery={searchQuery}
+                    onPress={() => Clipboard.setString(item.address)}
+                  />
+                  {item.owningWallets.map(owningWallet => (
+                    <WalletListItem
+                      key={owningWallet.getID()}
+                      wallet={owningWallet}
+                      iconImage={getWalletIconImage(owningWallet.type, direction)}
+                      onPress={() =>
+                        navigation.navigate('WalletTransactions', {
+                          walletID: owningWallet.getID(),
+                          walletType: owningWallet.type,
+                        })
+                      }
+                      searchQuery=""
+                      borderBottomColor={colors.lightBorder}
+                      backgroundColor={colors.elevated}
+                      titleColor={dark ? colors.foregroundColor : colors.darkGray}
+                    />
+                  ))}
+                </View>
+              ))}
+              <BlueSpacing20 />
+            </View>
+          ))}
+        {addressCount > 0 && !hasMatchingAddresses && <BlueText>{loc.wallets.no_results_found}</BlueText>}
         <BlueText testID="TextHelperForPSBT">{loc.send.psbt_this_is_psbt}</BlueText>
         <BlueSpacing10 />
         <Text testID="PSBTHex" style={styles.hidden}>
@@ -351,6 +454,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 16,
+  },
+  addresses: {
+    alignSelf: 'stretch',
   },
   exportButton: {
     alignSelf: 'stretch',

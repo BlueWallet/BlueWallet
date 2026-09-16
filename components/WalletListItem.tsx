@@ -8,6 +8,22 @@ import { TWallet } from '../class/wallets/types';
 import WalletGradient from '../class/wallet-gradient';
 import { formatBalance } from '../loc';
 
+import { LightningCustodianWallet } from '../class/wallets/lightning-custodian-wallet';
+import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
+import { MultisigHDWallet } from '../class/wallets/multisig-hd-wallet';
+
+export const getWalletIconImage = (walletType: string, direction: string) => {
+  switch (walletType) {
+    case LightningCustodianWallet.type:
+    case LightningArkWallet.type:
+      return direction === 'rtl' ? require('../img/lnd-shape-rtl.png') : require('../img/lnd-shape.png');
+    case MultisigHDWallet.type:
+      return direction === 'rtl' ? require('../img/vault-shape-rtl.png') : require('../img/vault-shape.png');
+    default:
+      return direction === 'rtl' ? require('../img/btc-shape-rtl.png') : require('../img/btc-shape.png');
+  }
+};
+
 type Props = {
   wallet: TWallet;
   iconImage: ImageSourcePropType;
