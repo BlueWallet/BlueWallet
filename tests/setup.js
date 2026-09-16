@@ -1,6 +1,8 @@
 /* global jest */
 
 import mockClipboard from '@react-native-clipboard/clipboard/jest/clipboard-mock.js';
+import { randomBytes as nodeRandomBytes } from 'crypto';
+import { NativeModules } from 'react-native';
 
 const consoleWarnOrig = console.warn;
 console.warn = (...args) => {
@@ -37,6 +39,10 @@ console.debug = console.log = (...args) => {
 
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
+// Jest has no linked iOS/Android native modules, so provide the bridge used by class/rng.ts.
+NativeModules.RNGetRandomValues = {
+  getRandomBase64: size => nodeRandomBytes(size).toString('base64'),
+};
 if (typeof globalThis.fetch !== 'function') {
   throw new Error('Native fetch missing; Node >= 22.11 is required (see package.json engines)');
 }
