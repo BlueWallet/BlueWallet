@@ -112,6 +112,7 @@
 		B4B3EF202D6CFF6C003270A0 /* SegmentedControlBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EF1F2D6CFF6C003270A0 /* SegmentedControlBridge.m */; };
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
 		B4F0A4A42FA1BC0000AAAA03 /* EventEmitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */; };
+		B4F0A4C22FA1BC2700BBBB02 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4C12FA1BC2700BBBB01 /* SceneDelegate.swift */; };
 		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		F106AA234C086C6B795EE267 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2162D22139056EC332C84D92 /* Foundation.framework */; };
 		F7A1B2C3D4E5F60718293A4D /* ScriptDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A1B2C3D4E5F60718293A4E /* ScriptDescription.swift */; };
@@ -282,6 +283,7 @@
 		B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = EventEmitter.mm; sourceTree = "<group>"; };
 		B4F0A4A52FA1BC0000AAAA05 /* NativeEventEmitterSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeEventEmitterSpec.h; sourceTree = "<group>"; };
 		B4F0A4A62FA1BC0000AAAA06 /* NativeMenuElementsEmitterSpec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeMenuElementsEmitterSpec.h; sourceTree = "<group>"; };
+		B4F0A4C12FA1BC2700BBBB01 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = SceneDelegate.swift; path = BlueWallet/SceneDelegate.swift; sourceTree = "<group>"; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRate.a; sourceTree = "<group>"; };
@@ -367,6 +369,7 @@
 			isa = PBXGroup;
 			children = (
 				B461B851299599F800E431AA /* AppDelegate.swift */,
+				B4F0A4C12FA1BC2700BBBB01 /* SceneDelegate.swift */,
 				32C7944323B8879D00BE2AFA /* BlueWalletRelease.entitlements */,
 				32F0A2502310B0910095C559 /* BlueWallet.entitlements */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -1052,6 +1055,7 @@
 				B409AB062D71E07500BA06F8 /* MenuElementsEmitter.swift in Sources */,
 				B44033CE2BCC352900162242 /* UserDefaultsGroup.swift in Sources */,
 				B461B852299599F800E431AA /* AppDelegate.swift in Sources */,
+				B4F0A4C22FA1BC2700BBBB02 /* SceneDelegate.swift in Sources */,
 				B44033F42BCC377F00162242 /* WidgetData.swift in Sources */,
 				B49A28C52CD1A894006B08E4 /* MarketData.swift in Sources */,
 				B4AA75242DAA339E00CF5CBE /* MenuElementsEmitter.m in Sources */,
