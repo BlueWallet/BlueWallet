@@ -7,6 +7,18 @@ When upstream ships an equivalent fix, drop the patch here and bump the dependen
 
 ---
 
+## `react-native-background-fetch+4.4.2.patch`
+
+Uses the package's bundled `TSBackgroundFetch.xcframework`, which includes
+Mac Catalyst, instead of the standalone `TSBackgroundFetch` 4.1.x pod, which
+only includes iOS device and simulator binaries. Without this patch, Catalyst
+builds fail to import `TSBackgroundFetch/TSBackgroundFetch.h`.
+
+Remove when the upstream pod dependency includes a Catalyst slice. When
+upgrading, verify the bundled framework still supports all three destinations.
+
+---
+
 ## `react-native-notifications+5.2.2.patch`
 
 **What:** rewrites `FcmToken.sendTokenToJS()` (Android) to obtain the

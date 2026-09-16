@@ -516,7 +516,7 @@ const SendDetails = () => {
       } else if (parseFloat(String(transaction.amountSats)) <= 500) {
         error = loc.send.details_amount_field_is_less_than_minimum_amount_sat;
         console.log('validation error');
-      } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) < 0) {
+      } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) <= 0) {
         error = loc.send.details_fee_field_is_not_valid;
         console.log('validation error');
       } else if (!transaction.address) {
@@ -1302,12 +1302,6 @@ const SendDetails = () => {
     feeValue: {
       color: colors.feeValue,
     },
-    warningContainer: {
-      backgroundColor: colors.changeBackground,
-    },
-    warningText: {
-      color: colors.changeText,
-    },
   });
 
   const calculateTotalAmount = () => {
@@ -1493,17 +1487,6 @@ const SendDetails = () => {
     );
   };
 
-  const renderCustomFeeWarning = () => {
-    if (!customFee || Number(customFee) >= 1) return;
-
-    return (
-      <View style={[styles.warningContainer, stylesHook.warningContainer]}>
-        <Text style={[styles.warningHeader, stylesHook.warningText]}>{loc.transactions.custom_fee_warning_title}</Text>
-        <Text style={stylesHook.warningText}>{loc.transactions.custom_fee_warning_description}</Text>
-      </View>
-    );
-  };
-
   const getItemLayout = (_: any, index: number) => ({
     length: dimensions.width,
     offset: dimensions.width * index,
@@ -1580,7 +1563,6 @@ const SendDetails = () => {
               )}
             </View>
           </Pressable>
-          {renderCustomFeeWarning()}
           {renderCreateButton()}
         </View>
       </ScrollView>
@@ -1709,16 +1691,5 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.6,
-  },
-  warningContainer: {
-    flexDirection: 'column',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 4,
-    marginTop: 12,
-  },
-  warningHeader: {
-    fontWeight: 'bold',
   },
 });
