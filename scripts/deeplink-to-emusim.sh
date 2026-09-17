@@ -217,16 +217,21 @@ JSON
       rm "$apns_file"
     elif [[ "$TEST_TYPE" == "Send Sample File" ]]; then
       app_container=$(xcrun simctl get_app_container "$udid" io.bluewallet.bluewallet data) || exit 1
-      destination="$app_container/Documents/Inbox/$sample_name"
-      mkdir -p "$(dirname "$destination")" || exit 1
+      # Use a regular Documents folder for Files preview testing. An existing
+      # Inbox entry silently failed in the simulator while a fresh copy of the
+      # same sample outside Inbox opened successfully.
+      sample_directory="$app_container/Documents/Quick Look Samples"
+      destination="$sample_directory/$sample_name"
+      mkdir -p "$sample_directory" || exit 1
       cp "$sample_file" "$destination" || exit 1
-      # Escape reserved characters in the file URL, including spaces in home paths.
-      file_url="${destination//%/%25}"
+      # Open the folder in Files instead of routing the file to BlueWallet import.
+      # Escape reserved characters, including spaces in home paths.
+      file_url="${sample_directory//%/%25}"
       file_url="${file_url// /%20}"
       file_url="${file_url//#/%23}"
       file_url="${file_url//\?/%3F}"
-      echo -e "\nSending sample file to iOS simulator: $sample_name\n"
-      xcrun simctl openurl "$udid" "file://$file_url" || exit 1
+      echo -e "\nSample ready in Files > On My iPhone > BlueWallet > Quick Look Samples: $sample_name\n"
+      xcrun simctl openurl "$udid" "shareddocuments://$file_url/" || exit 1
     else
       echo -e "\nSending deep link to iOS simulator: $selectedLink\n"
       xcrun simctl openurl "$udid" "$selectedLink"

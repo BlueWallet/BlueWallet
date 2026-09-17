@@ -22,3 +22,14 @@ The additional `(.txt)` actions export the original interoperable setup text.
 Android keeps the existing TXT export. Both file variants contain identical text.
 A native rebuild is required to register the file type; a JavaScript reload alone
 does not enable the Files preview.
+
+
+For simulator testing, run `scripts/deeplink-to-emusim.sh` and choose **Send Sample
+File → bwcoord**. This stages the sample under **On My iPhone → BlueWallet →
+Quick Look Samples** and opens that folder in Files. Long-press the file and
+choose **Quick Look**.
+
+An existing sample copied into `Documents/Inbox` was observed to silently fail
+before launching the preview extension on the iOS 26.5 simulator. The identical
+file in a fresh Documents location successfully opened through Files' Quick Look
+menu. If an older sample does nothing, use the newly staged copy.
