@@ -13,6 +13,7 @@ public keys from existing test fixtures and is for demonstration only.
 
 In Files, check the thumbnail in grid and list views. Use Quick Look from the file's
 context menu to check the wallet name, 2-of-3 policy, and three cosigner cards.
+The preview and thumbnail reuse the wallet card’s gradient and vault artwork; the preview uses the vault screen’s signature badge and connected Vault key rows.
 Check light/dark appearance, large text, and a narrow window. Existing PSBT, TXN,
 and BIP-329 previews should still work.
 
