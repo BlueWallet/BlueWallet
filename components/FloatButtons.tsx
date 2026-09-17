@@ -1,4 +1,4 @@
-import React, { forwardRef, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import React, { createContext, forwardRef, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   AccessibilityInfo,
   Animated,
@@ -18,6 +18,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from './themes';
 import { withAlpha } from './color';
+
+const ButtonCountContext = createContext(0);
 
 const BUTTON_HEIGHT = 52;
 const BUTTON_FONT_SIZE = 18;
@@ -110,6 +112,7 @@ interface FButtonProps
 
 export const FButton = ({ text, icon, disabled = false, onLongPress, onPress, accessibilityLabel = text, ...props }: FButtonProps) => {
   const { colors, dark } = useTheme();
+  const buttonCount = useContext(ButtonCountContext);
   const { fontScale } = useWindowDimensions();
   const { reduceMotion, boldText, highContrast } = useButtonAccessibility();
   const scale = useRef(new Animated.Value(1)).current;
@@ -137,7 +140,13 @@ export const FButton = ({ text, icon, disabled = false, onLongPress, onPress, ac
   // Wrapping icon containers are common at call sites. Scale the whole decoration without
   // passing unsupported size props to native Views or changing the caller's icon colors.
   return (
-    <Animated.View style={[styles.buttonWrapper, { transform: [{ scale }] }]}>
+    <Animated.View
+      style={[
+        styles.buttonWrapper,
+        buttonCount === 1 ? styles.singleButton : buttonCount > 1 && styles.sharedButton,
+        { transform: [{ scale }] },
+      ]}
+    >
       <TouchableOpacity
         {...props}
         accessible
@@ -226,7 +235,7 @@ export const FContainer = forwardRef<View, FContainerProps>(({ children, inline 
       ]}
     >
       <View ref={ref} collapsable={false} onLayout={onLayout} pointerEvents="box-none" style={styles.buttons}>
-        {children}
+        <ButtonCountContext.Provider value={React.Children.toArray(children).length}>{children}</ButtonCountContext.Provider>
       </View>
     </View>
   );
@@ -268,6 +277,9 @@ const styles = StyleSheet.create({
     gap: BUTTON_GAP,
   },
   buttonWrapper: { flexGrow: 0, flexShrink: 1, minWidth: 0, maxWidth: '100%' },
+  // Match the original broad pills while letting the parent determine available width.
+  singleButton: { width: '50%' },
+  sharedButton: { flexGrow: 1, flexBasis: 0 },
   button: {
     flexGrow: 1,
     minHeight: BUTTON_HEIGHT,
