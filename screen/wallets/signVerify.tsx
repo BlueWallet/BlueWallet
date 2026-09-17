@@ -128,6 +128,7 @@ const SignVerify = () => {
         automaticallyAdjustContentInsets
         automaticallyAdjustKeyboardInsets
         contentInsetAdjustmentBehavior="automatic"
+        scrollToOverflowEnabled
         contentContainerStyle={[styles.root, scrollBottomPad !== undefined && { paddingBottom: scrollBottomPad }]}
         style={styles.scroll}
       >

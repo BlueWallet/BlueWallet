@@ -14,30 +14,33 @@ import { installSdkBackgroundLoopStubs, restoreSdkBackgroundLoopStubs } from '..
 
 jest.setTimeout(30_000);
 
-const w = new LightningArkWallet();
+// Muted until Lightning is migrated to Arkade intents (Boltz swap API is failing).
+// https://docs.arkadeos.com/intents/integrate/lightning
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip('LightningArkWallet (integration)', () => {
+  const w = new LightningArkWallet();
 
-beforeAll(async () => {
-  // Install before the env guard: `can generate` runs init() regardless of
-  // HD_MNEMONIC_OLD, and without the stubs its background loops keep Jest alive.
-  installSdkBackgroundLoopStubs();
-  if (!process.env.HD_MNEMONIC_OLD) {
-    console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
-    return;
-  }
-  w.setSecret('arkade://' + process.env.HD_MNEMONIC_OLD);
-  await w.init();
-  await w.restoreSwaps();
-});
+  beforeAll(async () => {
+    // Install before the env guard: `can generate` runs init() regardless of
+    // HD_MNEMONIC_OLD, and without the stubs its background loops keep Jest alive.
+    installSdkBackgroundLoopStubs();
+    if (!process.env.HD_MNEMONIC_OLD) {
+      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
+      return;
+    }
+    w.setSecret('arkade://' + process.env.HD_MNEMONIC_OLD);
+    await w.init();
+    await w.restoreSwaps();
+  });
 
-afterAll(async () => {
-  if (process.env.HD_MNEMONIC_OLD) {
-    await teardownArkadeWallet(w);
-  }
-  await disposeAllArkadeRuntime();
-  restoreSdkBackgroundLoopStubs();
-});
+  afterAll(async () => {
+    if (process.env.HD_MNEMONIC_OLD) {
+      await teardownArkadeWallet(w);
+    }
+    await disposeAllArkadeRuntime();
+    restoreSdkBackgroundLoopStubs();
+  });
 
-describe('LightningArkWallet (integration)', () => {
   it('can generate', async () => {
     const wGenerated = new LightningArkWallet();
     try {

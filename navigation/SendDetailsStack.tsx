@@ -13,6 +13,7 @@ import HeaderRightButton from '../components/HeaderRightButton';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import SelectFeeScreen from '../screen/SelectFeeScreen';
 import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
+import PsbtRawSheet from '../components/PsbtRawSheet';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { navigationGuardRouter } from './navigationGuard';
 
@@ -143,7 +144,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="PsbtWithHardwareWallet"
         component={PsbtWithHardwareWalletComponent}
-        options={navigationStyle({ title: loc.send.header, gestureEnabled: false, fullScreenGestureEnabled: false })(theme)}
+        options={navigationStyle({ title: loc.send.header, closeButtonPosition: CloseButtonPosition.Right, gestureEnabled: false, fullScreenGestureEnabled: false })(theme)}
       />
       <Stack.Screen
         name="CreateTransaction"
@@ -173,6 +174,17 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CoinControlOutput"
         component={CoinControlOutputSheet}
+        options={navigationStyle({
+          presentation: 'formSheet',
+          sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],
+          headerTitle: '',
+          sheetGrabberVisible: true,
+          closeButtonPosition: CloseButtonPosition.Right,
+        })(theme)}
+      />
+      <Stack.Screen
+        name="PsbtRaw"
+        component={PsbtRawSheet}
         options={navigationStyle({
           presentation: 'formSheet',
           sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.9],

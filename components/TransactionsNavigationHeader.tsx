@@ -168,8 +168,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         ];
   }, [hideBalance]);
 
+  // Hero extends under the transparent nav bar (paddingTop: headerOverlayHeight).
+  // Without box-none / none, that overlay and absoluteFill gradient steal taps from
+  // JS headerRight (Wallet Details "…") on iOS < 26 and Mac Catalyst.
   return (
     <View
+      pointerEvents="box-none"
       style={[
         styles.lineaderGradient,
         {
@@ -179,7 +183,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
         },
       ]}
     >
-      <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={WalletGradient.gradientsFor(wallet.type)} style={StyleSheet.absoluteFill} pointerEvents="none" />
       <View style={styles.contentContainer}>
         <Text testID="WalletLabel" numberOfLines={1} style={[styles.walletLabel, { writingDirection: direction }]}>
           {wallet.getLabel()}

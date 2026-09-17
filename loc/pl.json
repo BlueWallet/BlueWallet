@@ -414,9 +414,7 @@
     "add_entropy_reset_message": "Zmiana typu portfela spowoduje zresetowanie obecnej entropii. Czy chcesz kontynuować?",
     "add_entropy": "Entropia",
     "add_entropy_bytes": "{bytes} bajtów entropii",
-    "add_entropy_generated": "{gen} bajtów wygenerowanej entropii",
     "add_entropy_provide": "Dostarcz entropii przy użyciu rzutów kością",
-    "add_entropy_remain": "{gen} bajtów wygenerowanej entropii. Pozostałe {rem} bajty zostaną pozyskane z systemowego generatora liczb losowych.",
     "add_import_wallet": "Import portfela",
     "add_lightning": "Lightning",
     "add_lightning_explain": "W celu wydawania za pomocą natychmiastowych transakcji",
@@ -707,7 +705,7 @@
     "notification_tx_unconfirmed": "Transakcja powiadomienia nie została jeszcze potwierdzona, proszę czekać",
     "failed_create_notif_tx": "Nie udało się utworzyć transakcji on-chain",
     "onchain_tx_needed": "Wymagana transakcja on-chain",
-    "notif_tx_sent" : "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
+    "notif_tx_sent": "Transakcja powiadomienia wysłana. Proszę czekać na jej potwierdzenie",
     "notif_tx": "Transakcja powiadomienia",
     "not_found": "Kod płatności nie znaleziony"
   }

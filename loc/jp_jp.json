@@ -414,9 +414,10 @@
     "add_entropy_reset_message": "ウォレットタイプを変更すると現在のエントロピーがリセットされます。よろしいですか？",
     "add_entropy": "エントロピー",
     "add_entropy_bytes": "{bytes}バイトのエントロピー",
-    "add_entropy_generated": "生成されたエントロピーの {gen} バイト",
+    "add_entropy_generated": "{genBits}ビット・{gen}バイトのエントロピー生成",
+    "add_entropy_mixed": "提供された{bytes}バイトのエントロピーが新しいウォレットに混ぜ込まれます。",
     "add_entropy_provide": "サイコロを振ってエントロピーを提供",
-    "add_entropy_remain": "生成されたエントロピーの{gen}バイト。残りの{rem}バイトはシステム乱数発生器から取得されます。",
+    "add_entropy_remain": "{genBits}ビット・{gen}バイトのエントロピー生成。残りの{rem}バイトはシステムの乱数生成器から取得します。",
     "add_import_wallet": "ウォレットをインポート",
     "add_lightning": "ライトニング",
     "add_lightning_explain": "復号のためパスワードを入力",
@@ -707,7 +708,7 @@
     "notification_tx_unconfirmed": "通知トランザクションが承認されていません、お待ちください",
     "failed_create_notif_tx": "チェーン上のトランザクションの作成に失敗しました",
     "onchain_tx_needed": "チェーン上のトランザクションが必要です",
-    "notif_tx_sent" : "通知トランザクションを送りました。承認をお待ちください",
+    "notif_tx_sent": "通知トランザクションを送りました。承認をお待ちください",
     "notif_tx": "通知トランザクション",
     "not_found": "支払コードが見つかりません"
   }

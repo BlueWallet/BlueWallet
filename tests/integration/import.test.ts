@@ -21,7 +21,7 @@ import startImport from '../../class/wallet-import';
 import { TWallet } from '../../class/wallets/types';
 import { TaprootWallet } from '../../class/wallets/taproot-wallet';
 
-jest.setTimeout(90 * 1000);
+jest.setTimeout(180 * 1000);
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate

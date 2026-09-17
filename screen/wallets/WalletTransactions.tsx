@@ -155,14 +155,16 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
   );
 
   if (Platform.OS === 'ios') {
+    // Full-width root is for layout only; box-none keeps headerRight ("…") tappable.
     return (
-      <View style={[scrolledHeaderTitleStyles.iosHeaderRoot, { width: screenWidth }]}>
+      <View style={[scrolledHeaderTitleStyles.iosHeaderRoot, { width: screenWidth }]} pointerEvents="box-none">
         <View
           style={[
             scrolledHeaderTitleStyles.container,
             scrolledHeaderTitleStyles.iosTitleArea,
             { left: titleInsetLeft, right: titleInsetRight },
           ]}
+          pointerEvents="box-none"
         >
           {titleContent}
         </View>

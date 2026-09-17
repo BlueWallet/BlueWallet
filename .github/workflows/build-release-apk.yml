@@ -154,4 +154,4 @@ jobs:
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bundle exec fastlane upload_to_browserstack_and_comment
+        run: bundle exec fastlane android upload_to_browserstack_and_comment

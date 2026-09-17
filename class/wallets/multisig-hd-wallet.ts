@@ -534,18 +534,19 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
       this.setM(parseInt(mofn[0].trim(), 10));
       const n = parseInt(mofn[1].trim(), 10);
       for (let c = 1; c <= n; c++) {
-        const cosignerData = json['x' + c + '/'];
+        const cosignerData = json['x' + c + '/'] || json['x' + c];
         if (cosignerData) {
+          const derivationPath = cosignerData.derivation ? cosignerData.derivation.replace(/h/g, "'") : undefined;
           const fingerprint =
             (cosignerData.ckcc_xfp
               ? MultisigHDWallet.ckccXfp2fingerprint(cosignerData.ckcc_xfp)
               : cosignerData.root_fingerprint?.toUpperCase()) || '00000000';
           if (cosignerData.seed) {
-            this.addCosigner(ELECTRUM_SEED_PREFIX + cosignerData.seed, fingerprint, cosignerData.derivation, cosignerData.passphrase);
+            this.addCosigner(ELECTRUM_SEED_PREFIX + cosignerData.seed, fingerprint, derivationPath, cosignerData.passphrase);
           } else if (cosignerData.xprv && MultisigHDWallet.isXprvValid(cosignerData.xprv)) {
-            this.addCosigner(cosignerData.xprv, fingerprint, cosignerData.derivation);
+            this.addCosigner(cosignerData.xprv, fingerprint, derivationPath);
           } else {
-            this.addCosigner(cosignerData.xpub, fingerprint, cosignerData.derivation);
+            this.addCosigner(cosignerData.xpub, fingerprint, derivationPath);
           }
         }
 
