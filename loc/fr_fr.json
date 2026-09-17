@@ -104,9 +104,10 @@
     "title": "Votre portefeuille est créé"
   },
   "receive": {
-    "details_create": "Créer",
+    "details_save": "Enregistrer",
     "details_label": "Description",
     "details_setAmount": "Recevoir avec un montant spécifique",
+    "option_label": "Libellé",
     "details_share": "partager",
     "address_not_found": "Impossible de générer l'adresse de réception.",
     "header": "Recevoir",
@@ -380,8 +381,6 @@
     "updating": "Chargement...",
     "watchOnlyWarningTitle": "Avertissement de sécurité",
     "watchOnlyWarningDescription": "Méfiez-vous des fraudeurs qui utilisent souvent des portefeuilles « lecture seule » pour tromper les utilisateurs. Ces portefeuilles ne vous permettent pas de contrôler ou d'envoyer des fonds ; ils vous permettent uniquement de consulter le solde.",
-    "custom_fee_warning_title": "Avertissement",
-    "custom_fee_warning_description": "Les frais inférieurs à 1 sat/vB sont valides, mais peuvent ne pas être relayés en raison des politiques des nœuds.",
     "details_eta_analyzing": "Analyse en cours...",
     "details_sent": "Envoyé",
     "details_section": "Détails",
@@ -437,7 +436,6 @@
     "details_display": "Afficher sur l'écran d'accueil",
     "details_edit": "modifier",
     "details_export_backup": "Exporter / sauvegarder",
-    "details_export_history": "Exporter l'historique au format CSV",
     "details_master_fingerprint": "Empreinte maîtresse",
     "details_multisig_type": "multisig",
     "details_options": "Options",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Clé publique identité",
     "xpub_title": "XPUB portefeuille",
     "manage_wallets_search_placeholder": "Chercher portefeuilles, adresses, transactions et memos",
-    "more_info": "Plus d'information",
-    "details_delete_wallet_error_message": "Un problème est survenu lors de la confirmation de la suppression de ce portefeuille des notifications. Cela pourrait être dû à un problème de réseau ou à une mauvaise connexion. Si vous continuez, vous pourriez continuer à recevoir des notifications pour les transactions liées à ce portefeuille, même après sa suppression.",
-    "details_delete_anyway": "Supprimer quand même"
+    "more_info": "Plus d'information"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Afficher en Bitcoin",

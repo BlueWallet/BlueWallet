@@ -104,9 +104,10 @@
     "title": "你个錢包已經建立好咧。"
   },
   "receive": {
-    "details_create": "建立",
+    "details_save": "保存",
     "details_label": "描述",
     "details_setAmount": "指定金額收款",
+    "option_label": "標籤",
     "details_share": "分享…",
     "address_not_found": "無法度產生收款地址。",
     "header": "收款",
@@ -380,8 +381,6 @@
     "updating": "正在更新…",
     "watchOnlyWarningTitle": "安全警告",
     "watchOnlyWarningDescription": "愛細義詐騙个人，佢等經常用「淨看」錢包來騙使用者。這兜錢包毋分你控制抑係寄出資金；佢等淨係分你看餘額。",
-    "custom_fee_warning_title": "警告",
-    "custom_fee_warning_description": "低過 1 sat/vB 个手續費係有效个，毋過可能因為節點个政策，毋會分人轉送。",
     "details_eta_analyzing": "正在分析…",
     "details_sent": "已寄出",
     "details_section": "詳情",
@@ -437,7 +436,6 @@
     "details_display": "在主畫面顯示",
     "details_edit": "編輯",
     "details_export_backup": "匯出/備份",
-    "details_export_history": "匯出歷史到 CSV",
     "details_master_fingerprint": "主指紋",
     "details_multisig_type": "多重簽名",
     "details_options": "選項",
@@ -517,9 +515,7 @@
     "identity_pubkey": "身分公鑰",
     "xpub_title": "錢包 XPUB",
     "manage_wallets_search_placeholder": "搜尋錢包、地址、交易摎備註",
-    "more_info": "較多資訊",
-    "details_delete_wallet_error_message": "確認這隻錢包係毋係已經對通知移除个時出咧問題——這可能係網路問題抑係連線無好。假使你繼續，就算刪除以後，你還可能會收到摎這隻錢包相關个交易通知。",
-    "details_delete_anyway": "照樣刪除"
+    "more_info": "較多資訊"
   },
   "total_balance_view": {
     "display_in_bitcoin": "用 Bitcoin 顯示",

@@ -104,9 +104,10 @@
     "title": "Boktoore maa sosaama."
   },
   "receive": {
-    "details_create": "Sos",
+    "details_save": "Danndu",
     "details_label": "Sifaa",
     "details_setAmount": "Jaɓ e keewal",
+    "option_label": "Maantorgal",
     "details_share": "Lollin...",
     "address_not_found": "Waawaa sosde adreesi jaɓirteeɗo.",
     "header": "Jaɓ",
@@ -380,8 +381,6 @@
     "updating": "Ina kesɗitina...",
     "watchOnlyWarningTitle": "Jeertinol kisal",
     "watchOnlyWarningDescription": "Reno e nguykooɓe ɓe heewi huutoraade boktooɗe “ndaarɗo-tan” ngam janfaade huutorɓe. Ɗee boktooɗe njamirtaa ma njiimde maa neldude kaalis; ɗe njamira tan yiyde ngalu.",
-    "custom_fee_warning_title": "Jeertinol",
-    "custom_fee_warning_description": "Njoɓɗi ɓurɗi 1 sat/vB famɗude ina feewi, kono ina waawi ɗe nelletaake sabu laabi node.",
     "details_eta_analyzing": "Ina ƴeewndo...",
     "details_sent": "Neldaama",
     "details_section": "Kumpite",
@@ -437,7 +436,6 @@
     "details_display": "Hollu e yerɓere hoore",
     "details_edit": "waylu",
     "details_export_backup": "Yaltin/Kisnirde",
-    "details_export_history": "Yaltin daartol faade e CSV",
     "details_master_fingerprint": "Tampannde jaaba",
     "details_multisig_type": "multisig",
     "details_options": "Cuɓe",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Coktirgal laaɓngal ngootaagu",
     "xpub_title": "xpub boktoore",
     "manage_wallets_search_placeholder": "Ɗaɓɓit boktooɗe, adreesaaji, njuɓɓudiiji e ciftorɗi",
-    "more_info": "Kabaruuji ɓeydaaɗi",
-    "details_delete_wallet_error_message": "Caɗeele waɗii e tabintingol si ndee boktoore ittaama e tintinooje—ɗum ina waawi wonde sabu caɗeele rezo maa jokkondiral lo'angal. Si a jokkii, aɗa waawi heddaade heɓa tintinooje fii njuɓɓudiiji jokkondiraaɗi e ndee boktoore, hay caggal nde nde momtaa.",
-    "details_delete_anyway": "Momtu tan"
+    "more_info": "Kabaruuji ɓeydaaɗi"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Hollu e Bitcoin",

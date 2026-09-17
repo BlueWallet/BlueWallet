@@ -104,9 +104,10 @@
     "title": "Din wallet er blevet oprettet."
   },
   "receive": {
-    "details_create": "Opret",
+    "details_save": "Gem",
     "details_label": "Beskrivelse",
     "details_setAmount": "Modtag med beløb",
+    "option_label": "Etiket",
     "details_share": "Del...",
     "address_not_found": "Kunne ikke generere modtageradresse.",
     "header": "Modtag",
@@ -380,8 +381,6 @@
     "updating": "Opdaterer...",
     "watchOnlyWarningTitle": "Sikkerhedsadvarsel",
     "watchOnlyWarningDescription": "Vær forsigtig med svindlere, som ofte bruger watch-only wallets til at narre brugere. Disse wallets giver dig ikke mulighed for at kontrollere eller sende midler; de lader dig kun se saldoen.",
-    "custom_fee_warning_title": "Advarsel",
-    "custom_fee_warning_description": "Gebyrer under 1 sat/vB er gyldige, men videresendes muligvis ikke på grund af nodepolitikker.",
     "details_eta_analyzing": "Analyserer...",
     "details_sent": "Sendt",
     "details_section": "Detaljer",
@@ -437,7 +436,6 @@
     "details_display": "Vis på startskærm",
     "details_edit": "rediger",
     "details_export_backup": "Eksporter / backup",
-    "details_export_history": "Eksportér historik til CSV",
     "details_master_fingerprint": "Master fingerprint",
     "details_multisig_type": "multisig",
     "details_options": "Valgmuligheder",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Identitets-pubkey",
     "xpub_title": "Wallet XPUB",
     "manage_wallets_search_placeholder": "Søg wallets, adresser, transaktioner og notater",
-    "more_info": "Mere info",
-    "details_delete_wallet_error_message": "Der opstod et problem med at bekræfte, om denne wallet blev fjernet fra notifikationer—dette kan skyldes et netværksproblem eller dårlig forbindelse. Hvis du fortsætter, modtager du muligvis stadig notifikationer for transaktioner relateret til denne wallet, selv efter den er slettet.",
-    "details_delete_anyway": "Slet alligevel"
+    "more_info": "Mere info"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Vis i Bitcoin",

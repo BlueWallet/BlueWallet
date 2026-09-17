@@ -104,9 +104,10 @@
     "title": "Tu cartera ha sido creada"
   },
   "receive": {
-    "details_create": "Crear",
+    "details_save": "Guardar",
     "details_label": "Descripción",
     "details_setAmount": "Recibir con monto",
+    "option_label": "Etiqueta",
     "details_share": "Compartir...",
     "address_not_found": "No se ha podido generar la dirección de recepción.",
     "header": "Recibir",
@@ -380,8 +381,6 @@
     "updating": "Actualizando...",
     "watchOnlyWarningTitle": "Aviso de seguridad",
     "watchOnlyWarningDescription": "Ten cuidado con los estafadores que suelen usar carteras de solo lectura para engañar a los usuarios. Estas carteras no te permiten controlar ni enviar fondos; solo te dejan ver el balance.",
-    "custom_fee_warning_title": "Aviso",
-    "custom_fee_warning_description": "Las comisiones por debajo de 1 sat/vB son válidas, pero pueden no ser retransmitidas debido a las políticas de los nodos.",
     "details_eta_analyzing": "Analizando...",
     "details_sent": "Enviado",
     "details_section": "Detalles",
@@ -437,7 +436,6 @@
     "details_display": "Mostrar en la pantalla de inicio",
     "details_edit": "editar",
     "details_export_backup": "Exportar / Guardar",
-    "details_export_history": "Exportar el historial a CSV",
     "details_master_fingerprint": "Huella dactilar maestra",
     "details_multisig_type": "multifirma",
     "details_options": "Opciones",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Clave pública de identidad",
     "xpub_title": "XPUB de la cartera",
     "manage_wallets_search_placeholder": "Buscar carteras, direcciones, transacciones y comentarios",
-    "more_info": "Más información",
-    "details_delete_wallet_error_message": "Ha habido un problema al confirmar si esta cartera fue eliminada de las notificaciones—esto podría deberse a un problema de red o una conexión deficiente. Si continúas, podrías seguir recibiendo notificaciones de transacciones relacionadas con esta cartera, incluso después de eliminarla.",
-    "details_delete_anyway": "Eliminar de todos modos"
+    "more_info": "Más información"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar en Bitcoin",
