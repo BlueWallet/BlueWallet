@@ -104,9 +104,10 @@
     "title": "Cüzdanınız oluşturuldu."
   },
   "receive": {
-    "details_create": "Oluştur",
+    "details_save": "Kaydet",
     "details_label": "Açıklama",
     "details_setAmount": "Miktar ile al",
+    "option_label": "Etiket",
     "details_share": "Paylaş...",
     "address_not_found": "Alım adresi oluşturulamadı.",
     "header": "Al",
@@ -380,8 +381,6 @@
     "updating": "Güncelleniyor...",
     "watchOnlyWarningTitle": "Güvenlik uyarısı",
     "watchOnlyWarningDescription": "Genellikle kullanıcıları kandırmak için \"watch-only\" cüzdanlarını kullanan dolandırıcılara karşı dikkatli olun. Bu cüzdanlar parayı kontrol etmenize veya göndermenize izin vermez; yalnızca bakiyeyi görüntülemenize olanak tanır.",
-    "custom_fee_warning_title": "Uyarı",
-    "custom_fee_warning_description": "1 sat/vB altındaki ücretler geçerlidir, ancak düğüm politikaları nedeniyle iletilmeyebilir.",
     "details_eta_analyzing": "Analiz ediliyor...",
     "details_sent": "Gönderildi",
     "details_section": "Detaylar",
@@ -437,7 +436,6 @@
     "details_display": "Ana Ekranda Göster",
     "details_edit": "düzenle",
     "details_export_backup": "Dışa yükle / yedekle",
-    "details_export_history": "Geçmişi CSV olarak dışa aktar",
     "details_master_fingerprint": "Ana Parmak İzi",
     "details_multisig_type": "multisig",
     "details_options": "Seçenekler",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Kimlik Açık Anahtarı",
     "xpub_title": "cüzdan XPUB",
     "manage_wallets_search_placeholder": "Cüzdanları, adresleri, işlemleri ve notları ara",
-    "more_info": "Daha Fazla Bilgi",
-    "details_delete_wallet_error_message": "Bu cüzdanın bildirimlerden kaldırıldığını doğrulamada bir sorun oldu—bu, bir ağ sorunu veya zayıf bağlantı nedeniyle olabilir. Devam ederseniz, silindikten sonra bile bu cüzdanla ilgili işlemler için bildirim almaya devam edebilirsiniz.",
-    "details_delete_anyway": "Yine de sil"
+    "more_info": "Daha Fazla Bilgi"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bitcoin olarak göster",

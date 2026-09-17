@@ -104,9 +104,10 @@
     "title": "Кошелёк создан."
   },
   "receive": {
-    "details_create": "Создать",
+    "details_save": "Сохранить",
     "details_label": "Описание",
     "details_setAmount": "Указать сумму",
+    "option_label": "Метка",
     "details_share": "Поделиться...",
     "address_not_found": "Не удалось сгенерировать адрес для приёма.",
     "header": "Получить",
@@ -380,8 +381,6 @@
     "updating": "Обновление...",
     "watchOnlyWarningTitle": "Предупреждение безопасности",
     "watchOnlyWarningDescription": "Кошельки «только для чтения» не позволяют тратить средства. Будьте осторожны.",
-    "custom_fee_warning_title": "Внимание",
-    "custom_fee_warning_description": "Комиссии ниже 1 сат/вБайт действительны, но могут не ретранслироваться из-за политик узлов.",
     "details_eta_analyzing": "Анализ...",
     "details_sent": "Отправлено",
     "details_section": "Подробности",
@@ -437,7 +436,6 @@
     "details_display": "Показывать на главном экране",
     "details_edit": "изменить",
     "details_export_backup": "Экспорт/резервное копирование",
-    "details_export_history": "Экспортировать историю в CSV",
     "details_master_fingerprint": "Отпечаток мастер-ключа",
     "details_multisig_type": "мультисиг",
     "details_options": "Опции",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB кошелька",
     "manage_wallets_search_placeholder": "Поиск кошельков, адресов, транзакций и заметок",
-    "more_info": "Подробнее",
-    "details_delete_wallet_error_message": "Ошибка при удалении уведомлений. Возможно, проблемы с сетью.",
-    "details_delete_anyway": "Удалить всё равно"
+    "more_info": "Подробнее"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Показывать в Bitcoin",

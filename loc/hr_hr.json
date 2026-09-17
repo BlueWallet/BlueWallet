@@ -104,9 +104,10 @@
     "title": "Vaš novčanik je kreiran."
   },
   "receive": {
-    "details_create": "Stvori",
+    "details_save": "Spremi",
     "details_label": "Opis",
     "details_setAmount": "Odredi iznos za primiti",
+    "option_label": "Oznaka",
     "details_share": "Podijeli...",
     "address_not_found": "Nije moguće generirati adresu za primanje.",
     "header": "Primi",
@@ -380,8 +381,6 @@
     "updating": "Ažuriranje...",
     "watchOnlyWarningTitle": "Sigurnosno upozorenje",
     "watchOnlyWarningDescription": "Budite oprezni s prevarantima koji često koriste promatračke (watch-only) novčanike kako bi prevarili korisnike. Ovi novčanici ne omogućuju vam kontrolu niti slanje sredstava; omogućuju samo prikaz salda.",
-    "custom_fee_warning_title": "Upozorenje",
-    "custom_fee_warning_description": "Naknade niže od 1 sat/vB su valjane, ali ih čvorovi možda neće preusmjeravati zbog svojih pravila.",
     "details_eta_analyzing": "Analiziranje...",
     "details_sent": "Poslano",
     "details_section": "Detalji",
@@ -437,7 +436,6 @@
     "details_display": "Prikaži na početnom zaslonu",
     "details_edit": "uredi",
     "details_export_backup": "Izvoz / sigurnosna kopija",
-    "details_export_history": "Izvezi povijest u CSV",
     "details_master_fingerprint": "Otisak glavnog ključa",
     "details_multisig_type": "multisig",
     "details_options": "Opcije",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB novčanika",
     "manage_wallets_search_placeholder": "Pretraži novčanike, adrese, transakcije i bilješke",
-    "more_info": "Više informacija",
-    "details_delete_wallet_error_message": "Došlo je do problema pri potvrdi je li ovaj novčanik uklonjen iz obavijesti — to može biti zbog mrežnog problema ili loše veze. Ako nastavite, možda ćete i dalje primati obavijesti za transakcije povezane s ovim novčanikom, čak i nakon što je izbrisan.",
-    "details_delete_anyway": "Ipak obriši"
+    "more_info": "Više informacija"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Prikaži u bitcoinima",

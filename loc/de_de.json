@@ -104,9 +104,10 @@
     "title": "Deine Wallet ist erstellt."
   },
   "receive": {
-    "details_create": "Erstelle",
+    "details_save": "Speichern",
     "details_label": "Beschreibung",
     "details_setAmount": "Zu erhaltender Betrag",
+    "option_label": "Bezeichnung",
     "details_share": "Teilen",
     "address_not_found": "Empfangsadresse nicht generierbar.",
     "header": "Erhalten",
@@ -380,8 +381,6 @@
     "updating": "Aktualisiere....",
     "watchOnlyWarningTitle": "Sicherheitswarnung",
     "watchOnlyWarningDescription": "Achtung: Betrüger verwenden „Watch-only\"-Wallets, um Nutzern echte Wallets vorzutäuschen. Mit dieser Wallet lassen sich keine Gelder kontrollieren oder senden, sondern nur der Kontostand einsehen.",
-    "custom_fee_warning_title": "Warnung",
-    "custom_fee_warning_description": "Gebühren unter 1 sat/vB sind gültig, werden aber ggf. nicht weitergeleitet.",
     "details_eta_analyzing": "Analysiere...",
     "details_sent": "Gesendet",
     "details_section": "Details",
@@ -437,7 +436,6 @@
     "details_display": "Auf der Startseite anzeigen",
     "details_edit": "bearbeiten",
     "details_export_backup": "Exportieren / Backup",
-    "details_export_history": "Verlauf als CSV exportieren",
     "details_master_fingerprint": "Master-Fingerabdruck",
     "details_multisig_type": "Multisig",
     "details_options": "Optionen",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Pubkey-Identität",
     "xpub_title": "Wallet xPub",
     "manage_wallets_search_placeholder": "Wallets, Adressen, Transaktionen und Memos suchen",
-    "more_info": "Mehr Infos",
-    "details_delete_wallet_error_message": "Problem beim Entfernen der Wallet aus Benachrichtigungen – evtl. Netzwerkproblem oder schlechte Verbindung. Bei Fortfahren könnten Transaktions-Benachrichtigungen für diese Wallet weiterhin ankommen, selbst nach deren Löschung.",
-    "details_delete_anyway": "Trotzdem löschen"
+    "more_info": "Mehr Infos"
   },
   "total_balance_view": {
     "display_in_bitcoin": "In bitcoin anzeigen",

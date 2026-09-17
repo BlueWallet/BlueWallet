@@ -104,9 +104,10 @@
     "title": "Vaša denarnica je ustvarjena"
   },
   "receive": {
-    "details_create": "Ustvari",
+    "details_save": "Shrani",
     "details_label": "Opis",
     "details_setAmount": "Prejmi znesek",
+    "option_label": "Oznaka",
     "details_share": "Deli ...",
     "address_not_found": "Prejemnega naslova ni mogoče ustvariti.",
     "header": "Prejmi",
@@ -380,8 +381,6 @@
     "updating": "Osveževanje...",
     "watchOnlyWarningTitle": "Varnostno opozorilo",
     "watchOnlyWarningDescription": "Bodite previdni pred prevaranti, ki pogosto uporabljajo opazovalne denarnice za zavajanje uporabnikov. Te denarnice ne omogočajo nadzora ali pošiljanja sredstev; omogočajo le ogled stanja.",
-    "custom_fee_warning_title": "Opozorilo",
-    "custom_fee_warning_description": "Omrežnine pod 1 sat/vByte so veljavne, vendar zaradi pravilnikov vozlišč morda ne bodo posredovane.",
     "details_eta_analyzing": "Analiziranje ...",
     "details_sent": "Poslano",
     "details_section": "Podrobnosti",
@@ -437,7 +436,6 @@
     "details_display": "Prikaži na domačem zaslonu",
     "details_edit": "uredi",
     "details_export_backup": "Izvozi / Varnostna kopija",
-    "details_export_history": "Izvozi zgodovino v CSV",
     "details_master_fingerprint": "Glavni prstni odtis (fingerprint)",
     "details_multisig_type": "multisig",
     "details_options": "Možnosti",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB denarnice",
     "manage_wallets_search_placeholder": "Iskanje po denarnicah, naslovih, transakcijah in opombah",
-    "more_info": "Več informacij",
-    "details_delete_wallet_error_message": "Pri potrjevanju, ali je bila ta denarnica odstranjena iz obvestil, je prišlo do težave — to je lahko posledica omrežne težave ali slabe povezave. Če nadaljujete, lahko še vedno prejemate obvestila za transakcije, povezane s to denarnico, tudi po njenem brisanju.",
-    "details_delete_anyway": "Vseeno izbriši"
+    "more_info": "Več informacij"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Prikaži v bitcoinih",

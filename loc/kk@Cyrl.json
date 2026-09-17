@@ -104,9 +104,10 @@
     "title": "Әмияныңыз жасалды."
   },
   "receive": {
-    "details_create": "Жасау",
+    "details_save": "Сақтау",
     "details_label": "Сипаттама",
     "details_setAmount": "Сомамен қабылдау",
+    "option_label": "Белгі",
     "details_share": "Бөлісу...",
     "address_not_found": "Қабылдау мекенжайын жасау мүмкін болмады.",
     "header": "Қабылдау",
@@ -380,8 +381,6 @@
     "updating": "Жаңартылуда...",
     "watchOnlyWarningTitle": "Қауіпсіздік ескертуі",
     "watchOnlyWarningDescription": "Қолданушыларды алдау үшін «тек қарау» әмияндарын жиі пайдаланатын алаяқтардан сақ болыңыз. Бұл әмияндар қаражатты басқаруға немесе жіберуге мүмкіндік бермейді; олар тек балансты көруге мүмкіндік береді.",
-    "custom_fee_warning_title": "Ескерту",
-    "custom_fee_warning_description": "1 sat/vB-тен төмен комиссиялар жарамды, бірақ түйін саясатына байланысты таратылмауы мүмкін.",
     "details_eta_analyzing": "Талдау жүруде...",
     "details_sent": "Жіберілді",
     "details_section": "Мәліметтер",
@@ -437,7 +436,6 @@
     "details_display": "Бастапқы экранда көрсету",
     "details_edit": "Өңдеу",
     "details_export_backup": "Экспорт/Резервтік көшірме",
-    "details_export_history": "Журналды CSV-ке экспорттау",
     "details_master_fingerprint": "Негізгі саусақ ізі",
     "details_multisig_type": "multisig",
     "details_options": "Параметрлер",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Жеке басын куәландыратын pubkey",
     "xpub_title": "Әмиянның xpub-ы",
     "manage_wallets_search_placeholder": "Әмияндарды, мекенжайларды, транзакцияларды және жазбаларды іздеу",
-    "more_info": "Қосымша ақпарат",
-    "details_delete_wallet_error_message": "Бұл әмиянның хабарламалардан жойылғанын растау кезінде мәселе болды — бұл желі ақаулығына немесе нашар байланысқа байланысты болуы мүмкін. Жалғастырсаңыз, әмиян жойылғаннан кейін де оған қатысты транзакциялар туралы хабарлама алуыңыз мүмкін.",
-    "details_delete_anyway": "Бәрібір жою"
+    "more_info": "Қосымша ақпарат"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bitcoin-да көрсету",
