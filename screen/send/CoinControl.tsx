@@ -188,6 +188,7 @@ const CoinControl: React.FC = () => {
   }, [sortDirection, sortType, wallet, frozen]);
   const [loading, setLoading] = useState<boolean>(true);
   const [selected, setSelected] = useState<string[]>([]);
+  const [floatingButtonHeight, setFloatingButtonHeight] = useState(70);
 
   // save frozen status. Because effect called on each event, debounce it.
   const debouncedSaveFronen = useRef(
@@ -322,13 +323,13 @@ const CoinControl: React.FC = () => {
           <Text style={{ color: colors.foregroundColor }}>{loc.cc.empty}</Text>
         </View>
       )}
-      <SafeAreaScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.listContent}>
+      <SafeAreaScrollView contentInsetAdjustmentBehavior="automatic" floatingButtonHeight={selectionStarted ? floatingButtonHeight : 0}>
         {tipCoins()}
         {utxos.map(renderItem)}
       </SafeAreaScrollView>
 
       {selectionStarted && (
-        <FContainer>
+        <FContainer onReservedHeightChange={setFloatingButtonHeight}>
           <FButton
             onPress={handleMassFreeze}
             text={allFrozen ? loc.cc.freezeLabel_un : loc.cc.freezeLabel}
@@ -379,9 +380,6 @@ const styles = StyleSheet.create({
   itemContent: {
     flex: 1,
     marginLeft: 12,
-  },
-  listContent: {
-    paddingBottom: 70,
   },
   badge: {
     borderWidth: 0,

@@ -192,6 +192,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const { isElectrumDisabled } = useSettings();
   const insets = useSafeAreaInsets();
   const { fontScale } = useWindowDimensions();
+  const [floatingButtonHeight, setFloatingButtonHeight] = useState(() => getFloatingButtonReservedHeight(fontScale, insets.bottom));
   const navBarHeight = Platform.select({ ios: 44, android: 56, default: 44 }) ?? 44;
   const headerOverlayHeight = insets.top + navBarHeight;
   const walletActionButtonsRef = useRef<View>(null);
@@ -221,7 +222,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       backgroundColor: colors.background,
     },
     contentBottomInset: {
-      paddingBottom: insets.bottom + getFloatingButtonReservedHeight(fontScale, insets.bottom),
+      paddingBottom: insets.bottom + floatingButtonHeight,
     },
     activityIndicatorStyle: {
       backgroundColor: colors.background,
@@ -879,7 +880,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       )}
 
       <FloatButtonsBottomFade />
-      <FContainer ref={walletActionButtonsRef}>
+      <FContainer ref={walletActionButtonsRef} onReservedHeightChange={setFloatingButtonHeight}>
         {wallet.allowReceive() && (
           <FButton
             testID="ReceiveButton"

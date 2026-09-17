@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo, useState } from 'react';
 import { useNavigation, useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
@@ -118,7 +118,7 @@ const WalletsList: React.FC = () => {
   const carouselHeight = getWalletCarouselHeight(fontScale);
   const transactionItemHeight = Math.round(TX_ROW_BASE_HEIGHT * fontScale);
   const sectionHeaderHeight = Math.round(SECTION_HEADER_BASE_HEIGHT * fontScale);
-  const floatingButtonHeight = getFloatingButtonReservedHeight(fontScale, insets.bottom);
+  const [floatingButtonHeight, setFloatingButtonHeight] = useState(() => getFloatingButtonReservedHeight(fontScale, insets.bottom));
   const { colors, scanImage } = useTheme();
   const navigation = useNavigation<NavigationProps>();
   const isFocused = useIsFocused();
@@ -466,7 +466,7 @@ const WalletsList: React.FC = () => {
       return (
         <>
           <FloatButtonsBottomFade />
-          <FContainer ref={walletActionButtonsRef}>
+          <FContainer ref={walletActionButtonsRef} onReservedHeightChange={setFloatingButtonHeight}>
             <FButton
               onPress={onScanButtonPressed}
               onLongPress={sendButtonLongPress}
