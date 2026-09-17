@@ -3,6 +3,37 @@ import UIKit
 
 final class ThumbnailProvider: QLThumbnailProvider {
     override func provideThumbnail(for request: QLFileThumbnailRequest, _ handler: @escaping (QLThumbnailReply?, Error?) -> Void) {
+        if request.fileURL.pathExtension.lowercased() == "bwcoord" {
+            do {
+                let setup = try MultisigCoordination.parse(file: request.fileURL)
+                let size = request.maximumSize
+                handler(QLThumbnailReply(contextSize: size, currentContextDrawing: {
+                    let bounds = CGRect(origin: .zero, size: size)
+                    UIColor.secondarySystemGroupedBackground.setFill()
+                    UIBezierPath(rect: bounds).fill()
+                    let scale = min(size.width, size.height) / 240
+                    let inset = 20 * scale
+                    UIColor.systemBlue.withAlphaComponent(0.12).setFill()
+                    UIBezierPath(roundedRect: bounds.insetBy(dx: inset, dy: inset), cornerRadius: 18 * scale).fill()
+                    let paragraph = NSMutableParagraphStyle()
+                    paragraph.alignment = .center
+                    paragraph.lineBreakMode = .byTruncatingTail
+                    func draw(_ text: String, y: CGFloat, fontSize: CGFloat, color: UIColor, weight: UIFont.Weight) {
+                        text.draw(in: CGRect(x: inset * 1.5, y: size.height * y, width: size.width - inset * 3, height: fontSize * scale * 1.5),
+                                  withAttributes: [.font: UIFont.systemFont(ofSize: fontSize * scale, weight: weight), .foregroundColor: color, .paragraphStyle: paragraph])
+                    }
+                    let icon = UIImage(systemName: "lock.shield.fill")?.withTintColor(.systemBlue, renderingMode: .alwaysOriginal)
+                    icon?.draw(in: CGRect(x: (size.width - 36 * scale) / 2, y: size.height * 0.12, width: 36 * scale, height: 40 * scale))
+                    draw(setup.policy, y: 0.36, fontSize: 34, color: .label, weight: .bold)
+                    draw("MULTISIG", y: 0.56, fontSize: 11, color: .systemBlue, weight: .semibold)
+                    draw(setup.name, y: 0.72, fontSize: 16, color: .label, weight: .semibold)
+                    return true
+                }), nil)
+            } catch {
+                handler(nil, error)
+            }
+            return
+        }
         let preview = FileDetails.read(url: request.fileURL)
         handler(QLThumbnailReply(contextSize: request.maximumSize) { context in
             let bounds = context.boundingBoxOfClipPath

@@ -22,6 +22,7 @@
 		<dict>
 			<key>QLSupportedContentTypes</key>
 			<array>
+				<string>io.bluewallet.multisig-coordination</string>
 				<string>io.bluewallet.psbt</string>
 				<string>io.bluewallet.psbt.txn</string>
 			</array>

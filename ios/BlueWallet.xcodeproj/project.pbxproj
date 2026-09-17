@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        C00100000000000000000001 = {isa = PBXBuildFile; fileRef = C00100000000000000000003; };
+        C00100000000000000000002 = {isa = PBXBuildFile; fileRef = C00100000000000000000003; };
 		001E3379238F94755682A739 /* ThumbnailProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E745397267AD62B80F3CA6C3 /* ThumbnailProvider.swift */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		17CDA0718F42DB2CE856C872 /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */; };
@@ -174,6 +176,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        C00100000000000000000003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../QuickLookShared/MultisigCoordination.swift; sourceTree = "<group>"; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		040819EDF8BD9C50A9C83E24 /* libPods-BlueWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BlueWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -556,6 +559,7 @@
 			isa = PBXGroup;
 			children = (
 				B32900000000000000000003 /* PreviewViewController.swift */,
+                C00100000000000000000003,
 				F7A1B2C3D4E5F60718293A4E /* ScriptDescription.swift */,
 				B32900000000000000000004 /* Info.plist */,
 			);
@@ -1090,6 +1094,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				001E3379238F94755682A739 /* ThumbnailProvider.swift in Sources */,
+                C00100000000000000000002,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1145,6 +1150,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B32900000000000000000001 /* PreviewViewController.swift in Sources */,
+                C00100000000000000000001,
 				F7A1B2C3D4E5F60718293A4D /* ScriptDescription.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

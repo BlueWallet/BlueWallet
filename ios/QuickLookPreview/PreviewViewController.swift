@@ -3,8 +3,10 @@ import UIKit
 
 final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate {
     private let titleLabel = UILabel()
+    private let vaultIcon = UIImageView(image: UIImage(systemName: "lock.shield.fill"))
     private let summaryLabel = UILabel()
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
+    private var isCoordination = false
     private var records: [(label: String, detail: String, symbol: String)] = []
 
     override func viewDidLoad() {
@@ -13,14 +15,20 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
         view.backgroundColor = .systemGroupedBackground
 
         titleLabel.text = "BIP-329 Wallet Labels"
-        titleLabel.font = .systemFont(ofSize: 21, weight: .semibold)
+        titleLabel.font = .preferredFont(forTextStyle: .title2)
+        titleLabel.numberOfLines = 0
         titleLabel.adjustsFontForContentSizeCategory = true
 
+        summaryLabel.numberOfLines = 0
         summaryLabel.font = .preferredFont(forTextStyle: .subheadline)
         summaryLabel.textColor = .secondaryLabel
         summaryLabel.adjustsFontForContentSizeCategory = true
 
-        let header = UIStackView(arrangedSubviews: [titleLabel, summaryLabel])
+        vaultIcon.tintColor = .systemBlue
+        vaultIcon.contentMode = .left
+        vaultIcon.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 32, weight: .semibold)
+        vaultIcon.isHidden = true
+        let header = UIStackView(arrangedSubviews: [vaultIcon, titleLabel, summaryLabel])
         header.axis = .vertical
         header.spacing = 6
         header.layoutMargins = UIEdgeInsets(top: 22, left: 20, bottom: 18, right: 20)
@@ -50,8 +58,15 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
     }
 
     func preparePreviewOfFile(at url: URL) async throws {
-		let parsed = try await Task.detached(priority: .userInitiated) {
-			if let psbt = try? PSBTPreview.parse(file: url) {
+		loadViewIfNeeded()
+        isCoordination = url.pathExtension.lowercased() == "bwcoord"
+        vaultIcon.isHidden = !isCoordination
+        let parsed = try await Task.detached(priority: .userInitiated) {
+			if url.pathExtension.lowercased() == "bwcoord" {
+                let setup = try MultisigCoordination.parse(file: url)
+                return (setup.name, setup.summary, setup.records)
+            }
+            if let psbt = try? PSBTPreview.parse(file: url) {
 				return (psbt.title, psbt.summary, psbt.records)
 			}
 			if let transaction = try? TransactionPreview.parse(file: url) {
@@ -131,6 +146,10 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
         content.secondaryTextProperties.font = .preferredFont(forTextStyle: .subheadline)
         content.secondaryTextProperties.color = .secondaryLabel
         content.secondaryTextProperties.numberOfLines = 0
+        if isCoordination && record.symbol == "key.fill" {
+            content.secondaryTextProperties.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: .monospacedSystemFont(ofSize: 13, weight: .regular))
+        }
+        content.textProperties.numberOfLines = 0
         content.image = UIImage(systemName: record.symbol)
         content.imageProperties.tintColor = .systemBlue
         content.imageProperties.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
