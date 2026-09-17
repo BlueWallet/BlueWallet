@@ -104,9 +104,10 @@
     "title": "Your wallet don create."
   },
   "receive": {
-    "details_create": "Create am",
+    "details_save": "Save am",
     "details_label": "Tell us small story",
     "details_setAmount": "Receive am with amount",
+    "option_label": "Label wey",
     "details_share": "Share am...",
     "address_not_found": "We no fit generate receiving address.",
     "header": "Receive am",
@@ -380,8 +381,6 @@
     "updating": "Dey update...",
     "watchOnlyWarningTitle": "Security wahala",
     "watchOnlyWarningDescription": "Watch out for scammers wey dey use “watch-only” wallets to deceive people. These wallets no dey let you control or send money; dem only let you view the balance.",
-    "custom_fee_warning_title": "Wahala dey",
-    "custom_fee_warning_description": "Fees below 1 sat/vB dey valid, but dem fit no relay am because of node policies.",
     "details_eta_analyzing": "Analyzing...",
     "details_sent": "Sent",
     "details_section": "Details",
@@ -437,7 +436,6 @@
     "details_display": "Show for Home Screen",
     "details_edit": "edit",
     "details_export_backup": "Export/Backup am",
-    "details_export_history": "Export History go CSV",
     "details_master_fingerprint": "Master fingerprint wey",
     "details_multisig_type": "multisig",
     "details_options": "Options",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Identity pubkey wey",
     "xpub_title": "Wallet XPUB wey dey",
     "manage_wallets_search_placeholder": "Find wallets, addresses, transactions and memos",
-    "more_info": "More gist",
-    "details_delete_wallet_error_message": "Wahala dey confirm say we don comot this wallet from notifications—e fit be network issue or poor connection. If you continue, you fit still dey receive notifications for transactions wey concern this wallet, even after dem delete am.",
-    "details_delete_anyway": "Delete am anyhow"
+    "more_info": "More gist"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Show for Bitcoin",

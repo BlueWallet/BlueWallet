@@ -104,9 +104,10 @@
     "title": "Cüzdanınız yaradıldı."
   },
   "receive": {
-    "details_create": "Yarat",
+    "details_save": "Yadda saxla",
     "details_label": "Açıqlama",
     "details_setAmount": "Məbləğlə qəbul et",
+    "option_label": "Etiket",
     "details_share": "Paylaş...",
     "address_not_found": "Qəbul ünvanı yaradıla bilmədi.",
     "header": "Qəbul et",
@@ -380,8 +381,6 @@
     "updating": "Yenilənir...",
     "watchOnlyWarningTitle": "Təhlükəsizlik xəbərdarlığı",
     "watchOnlyWarningDescription": "İstifadəçiləri aldatmaq üçün tez-tez “yalnız-izləmə” cüzdanlarından istifadə edən fırıldaqçılardan ehtiyatlı olun. Bu cüzdanlar sizə vəsaiti idarə etməyə və ya göndərməyə imkan vermir; yalnız balansı görməyə imkan verir.",
-    "custom_fee_warning_title": "Xəbərdarlıq",
-    "custom_fee_warning_description": "1 sat/vB-dan aşağı komissiyalar etibarlıdır, lakin qovşaq siyasətlərinə görə ötürülməyə bilər.",
     "details_eta_analyzing": "Təhlil edilir...",
     "details_sent": "Göndərildi",
     "details_section": "Təfərrüatlar",
@@ -437,7 +436,6 @@
     "details_display": "Ana Ekranda Göstər",
     "details_edit": "redaktə et",
     "details_export_backup": "İxrac/Ehtiyat Nüsxə",
-    "details_export_history": "Tarixçəni CSV-yə İxrac Et",
     "details_master_fingerprint": "Əsas Barmaq İzi",
     "details_multisig_type": "multisig",
     "details_options": "Seçimlər",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Şəxsiyyət Pubkey-i",
     "xpub_title": "Cüzdan XPUB-u",
     "manage_wallets_search_placeholder": "Cüzdanları, ünvanları, tranzaksiyaları və qeydləri axtar",
-    "more_info": "Daha Çox Məlumat",
-    "details_delete_wallet_error_message": "Bu cüzdanın bildirişlərdən silindiyini təsdiq etməkdə problem yarandı — bu, şəbəkə problemi və ya zəif bağlantı səbəbindən ola bilər. Davam etsəniz, bu cüzdanla bağlı tranzaksiyalar üçün silindikdən sonra belə hələ də bildirişlər ala bilərsiniz.",
-    "details_delete_anyway": "Yenə də sil"
+    "more_info": "Daha Çox Məlumat"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bitcoin-də göstər",

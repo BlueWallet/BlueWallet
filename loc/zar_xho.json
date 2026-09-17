@@ -104,9 +104,10 @@
     "title": "Ingxowa yakho idaliwe."
   },
   "receive": {
-    "details_create": "Yenza",
+    "details_save": "Ndoloza",
     "details_label": "Inkcazo",
     "details_setAmount": "Fumana ngexabiso",
+    "option_label": "Igama",
     "details_share": "Yabelana...",
     "address_not_found": "Akukwazeki ukuvelisa idilesi yokufumana.",
     "header": "Fumana",
@@ -380,8 +381,6 @@
     "updating": "Iyahlaziya...",
     "watchOnlyWarningTitle": "Isilumkiso sokhuseleko",
     "watchOnlyWarningDescription": "Lumka ngabaqhathi abadla ngokusebenzisa iingxowa ze-watch-only ukukhohlisa abasebenzisi. Ezi ngxowa azikuvumeli ukuba ulawule okanye uthumele imali; zikuvumela kuphela ukuba ujonge ibhalansi.",
-    "custom_fee_warning_title": "Isilumkiso",
-    "custom_fee_warning_description": "Iintlawulo ezingaphantsi kwe-1 sat/vB ziyasebenza, kodwa azinakwaziswa ngenxa yemigaqo ye-node.",
     "details_eta_analyzing": "Iyahlalutya...",
     "details_sent": "Ithunyelwe",
     "details_section": "Iinkcukacha",
@@ -437,7 +436,6 @@
     "details_display": "Bonisa kwiSkrini sasekhaya",
     "details_edit": "hlela",
     "details_export_backup": "Thumela ngaphandle / Gcina",
-    "details_export_history": "Khupha iMbali iye kwi-CSV",
     "details_master_fingerprint": "I-Fingerprint engundoqo",
     "details_multisig_type": "i-multisig",
     "details_options": "Iinketho",
@@ -517,9 +515,7 @@
     "identity_pubkey": "I-Pubkey yeSazisi",
     "xpub_title": "I-XPUB yeNgxowa",
     "manage_wallets_search_placeholder": "Khangela iingxowa, iidilesi, ii-transactions kunye nee-memos",
-    "more_info": "Ulwazi olungaphezulu",
-    "details_delete_wallet_error_message": "Bekukho ingxaki yokuqinisekisa ukuba le ngxowa isuswe kwizaziso—oku kungenxa yengxaki yothungelwano okanye uqhagamshelo olungalunganga. Ukuba uyaqhubeka, usenokufumana izaziso ze-transactions ezinxulumene nale ngxowa, nasemva kokuba icinyiwe.",
-    "details_delete_anyway": "Cima nakuba kunjalo"
+    "more_info": "Ulwazi olungaphezulu"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bonisa kwi-Bitcoin",

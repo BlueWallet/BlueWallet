@@ -104,9 +104,10 @@
     "title": "Zure diru-zorroa sortu da."
   },
   "receive": {
-    "details_create": "Sortu",
+    "details_save": "Gorde",
     "details_label": "Deskribapena",
     "details_setAmount": "Jaso zenbatekoarekin",
+    "option_label": "Etiketa",
     "details_share": "Partekatu...",
     "address_not_found": "Ezin izan da jasotzeko helbiderik sortu.",
     "header": "Jaso",
@@ -380,8 +381,6 @@
     "updating": "Eguneratzen...",
     "watchOnlyWarningTitle": "Segurtasun-abisua",
     "watchOnlyWarningDescription": "Kontuz ibili sarritan erabiltzaileak engainatzeko “ikus soileko” diru-zorroak erabiltzen dituzten iruzurgileekin. Diru-zorro hauek ez dizute funtsak kontrolatzen edo bidaltzen uzten; saldoa ikusten baino ez dizute uzten.",
-    "custom_fee_warning_title": "Abisua",
-    "custom_fee_warning_description": "1 sat/vB azpitik dauden tarifak baliozkoak dira, baina baliteke ez igortzea nodoen politikengatik.",
     "details_eta_analyzing": "Aztertzen...",
     "details_sent": "Bidalita",
     "details_section": "Xehetasunak",
@@ -437,7 +436,6 @@
     "details_display": "Erakutsi hasierako pantailan",
     "details_edit": "editatu",
     "details_export_backup": "Esportatu/Babeskopia",
-    "details_export_history": "Esportatu historia CSVra",
     "details_master_fingerprint": "Hatz-marka nagusia",
     "details_multisig_type": "multisig",
     "details_options": "Aukerak",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Nortasun-gako publikoa",
     "xpub_title": "Diru-zorroaren xpub-a",
     "manage_wallets_search_placeholder": "Bilatu diru-zorroak, helbideak, transakzioak eta oharrak",
-    "more_info": "Informazio gehiago",
-    "details_delete_wallet_error_message": "Arazo bat egon da diru-zorro hau jakinarazpenetatik kendu den berresteko—hau sare-arazo baten edo konexio eskasaren ondorioz izan daiteke. Aurrera egiten baduzu, baliteke diru-zorro honi lotutako transakzioen jakinarazpenak jasotzen jarraitzea, ezabatu ondoren ere.",
-    "details_delete_anyway": "Ezabatu hala ere"
+    "more_info": "Informazio gehiago"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Erakutsi Bitcoin-etan",

@@ -104,9 +104,10 @@
     "title": "तपाईंको वालेट सिर्जना गरिएको छ।"
   },
   "receive": {
-    "details_create": "बनाउनुहोस",
+    "details_save": "सेव",
     "details_label": "विवरण",
     "details_setAmount": "रकम सहित प्राप्त गर्नुहोस्",
+    "option_label": "लेबल",
     "details_share": "सेयर गर्नुहोस्...",
     "address_not_found": "प्राप्त गर्ने ठेगाना बनाउन असमर्थ।",
     "header": "प्राप्त गर्नुहोस्",
@@ -380,8 +381,6 @@
     "updating": "अद्यावधिक गर्दै...",
     "watchOnlyWarningTitle": "सुरक्षा चेतावनी",
     "watchOnlyWarningDescription": "स्क्यामरहरूबाट सावधान रहनुहोस् जसले प्रायः प्रयोगकर्ताहरूलाई धोका दिन “केवल हेर्ने” वालेटहरू प्रयोग गर्छन्। यी वालेटहरूले तपाईंलाई कोष नियन्त्रण वा पठाउन अनुमति दिँदैनन्; तिनीहरूले तपाईंलाई ब्यालेन्स मात्र हेर्न दिन्छन्।",
-    "custom_fee_warning_title": "चेतावनी",
-    "custom_fee_warning_description": "१ sat/vB भन्दा कम शुल्क मान्य छन्, तर नोड नीतिहरूका कारण रिले नहुन सक्छन्।",
     "details_eta_analyzing": "विश्लेषण गर्दै...",
     "details_sent": "पठाइयो",
     "details_section": "विवरणहरू",
@@ -437,7 +436,6 @@
     "details_display": "होम स्क्रिनमा देखाउनुहोस्",
     "details_edit": "सम्पादन",
     "details_export_backup": "निर्यात/ब्याकअप",
-    "details_export_history": "इतिहास CSV मा निर्यात गर्नुहोस्",
     "details_master_fingerprint": "मास्टर फिंगरप्रिन्ट",
     "details_multisig_type": "मल्टिसिग",
     "details_options": "विकल्पहरू",
@@ -517,9 +515,7 @@
     "identity_pubkey": "पहिचान सार्वजनिक कुञ्जी",
     "xpub_title": "वालेट XPUB",
     "manage_wallets_search_placeholder": "वालेट, ठेगाना, लेनदेन र मेमोहरू खोज्नुहोस्",
-    "more_info": "थप जानकारी",
-    "details_delete_wallet_error_message": "यो वालेट सूचनाहरूबाट हटाइएको हो भनेर पुष्टि गर्न समस्या आयो—यो नेटवर्क समस्या वा कमजोर जडानको कारणले हुन सक्छ। यदि तपाईं जारी राख्नुहुन्छ भने, यो वालेट मेटाइएपछि पनि यससँग सम्बन्धित लेनदेनहरूको लागि तपाईंले सूचनाहरू प्राप्त गर्न सक्नुहुन्छ।",
-    "details_delete_anyway": "जे होस् मेटाउनुहोस्"
+    "more_info": "थप जानकारी"
   },
   "total_balance_view": {
     "display_in_bitcoin": "बिटकोइनमा देखाउनुहोस्",
