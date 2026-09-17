@@ -17,15 +17,34 @@ final class ThumbnailProvider: QLThumbnailProvider {
                     UIBezierPath(roundedRect: bounds, cornerRadius: 12 * scale).addClip()
                     context.drawLinearGradient(gradient, start: .zero, end: CGPoint(x: 0, y: size.height), options: [])
                     VaultAppearance.artwork?.draw(in: CGRect(x: size.width * 0.4, y: 0, width: size.width * 0.75, height: size.height), blendMode: .normal, alpha: 0.12)
+                    // White lettering over the turquoise end of the vault gradient
+                    // loses contrast in Files. Darken the artwork and give the name
+                    // its own opaque panel; tiny list icons only show the policy.
+                    UIColor.black.withAlphaComponent(0.45).setFill()
+                    UIBezierPath(rect: bounds).fill()
+                    let compact = min(size.width, size.height) < 96
                     let paragraph = NSMutableParagraphStyle()
+                    paragraph.alignment = .center
                     paragraph.lineBreakMode = .byTruncatingTail
-                    func draw(_ text: String, y: CGFloat, fontSize: CGFloat, weight: UIFont.Weight) {
-                        text.draw(in: CGRect(x: inset, y: size.height * y, width: size.width - inset * 2, height: fontSize * scale * 1.5),
-                                  withAttributes: [.font: UIFont.systemFont(ofSize: fontSize * scale, weight: weight), .foregroundColor: UIColor.white, .paragraphStyle: paragraph])
+                    let policy = compact ? "\(setup.required)/\(setup.total)" : setup.policy
+                    let policyArea = CGRect(x: inset, y: 0, width: size.width - inset * 2, height: size.height * (compact ? 1 : 0.70))
+                    var policyFont = UIFont.systemFont(ofSize: (compact ? 76 : 58) * scale, weight: .heavy)
+                    let measuredWidth = (policy as NSString).size(withAttributes: [.font: policyFont]).width
+                    if measuredWidth > policyArea.width {
+                        policyFont = .systemFont(ofSize: policyFont.pointSize * policyArea.width / measuredWidth, weight: .heavy)
                     }
-                    draw(setup.name, y: 0.10, fontSize: 20, weight: .semibold)
-                    draw(setup.policy, y: 0.38, fontSize: 38, weight: .bold)
-                    draw("Multisig Vault", y: 0.76, fontSize: 15, weight: .medium)
+                    (policy as NSString).draw(in: CGRect(x: policyArea.minX, y: policyArea.midY - policyFont.lineHeight / 2,
+                                                         width: policyArea.width, height: policyFont.lineHeight),
+                                              withAttributes: [.font: policyFont, .foregroundColor: UIColor.white, .paragraphStyle: paragraph])
+                    if !compact {
+                        let nameArea = CGRect(x: 0, y: size.height * 0.70, width: size.width, height: size.height * 0.30)
+                        UIColor.white.setFill()
+                        UIBezierPath(rect: nameArea).fill()
+                        let nameFont = UIFont.systemFont(ofSize: 25 * scale, weight: .bold)
+                        (setup.name as NSString).draw(in: CGRect(x: inset, y: nameArea.midY - nameFont.lineHeight / 2,
+                                                                width: nameArea.width - inset * 2, height: nameFont.lineHeight),
+                                                     withAttributes: [.font: nameFont, .foregroundColor: VaultAppearance.color(0x0c2550), .paragraphStyle: paragraph])
+                    }
                     context.restoreGState()
                     return true
                 }), nil)
