@@ -15,13 +15,13 @@ deepLinks=(
   "zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
 )
 
-testOptions=("Send" "Notification")
+testOptions=("Send" "Notification" "Send Sample File")
 select_test_type() {
   local ESC=$(printf "\033")
   local selected=0
   while true; do
     clear
-    echo -e "\n\033[1mSelect test type (Send or Notification):\033[0m\n"
+    echo -e "\n\033[1mSelect test type:\033[0m\n"
     for i in "${!testOptions[@]}"; do
       if [ $i -eq $selected ]; then
         echo "> ${testOptions[$i]}"
@@ -64,6 +64,10 @@ if [[ "$TEST_TYPE" == "Notification" ]]; then
   )
 fi
 
+if [[ "$TEST_TYPE" == "Send Sample File" ]]; then
+  deepLinks=("PSBT" "TXN" "bwcoord")
+fi
+
 select_option() {
   local ESC=$(printf "\033")
   local selected=0
@@ -72,6 +76,8 @@ select_option() {
     clear
     if [[ "$TEST_TYPE" == "Notification" ]]; then
       echo -e "\n\033[1m[Category: Receive] Select a deep link for notification:\033[0m\n"
+    elif [[ "$TEST_TYPE" == "Send Sample File" ]]; then
+      echo -e "\n\033[1m[Test: $TEST_TYPE] Select a sample file:\033[0m\n"
     else
       echo -e "\n\033[1m[Test: $TEST_TYPE] Select a deep link:\033[0m\n"
     fi
@@ -109,6 +115,17 @@ select_option() {
 }
 
 select_option
+
+if [[ "$TEST_TYPE" == "Send Sample File" ]]; then
+  script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 1
+  extension=$(printf '%s' "$selectedLink" | tr '[:upper:]' '[:lower:]')
+  sample_name="quicklook-preview-sample.$extension"
+  sample_file="$script_dir/../tests/unit/fixtures/$sample_name"
+  if [[ ! -f "$sample_file" ]]; then
+    echo "Sample file not found: $sample_file" >&2
+    exit 1
+  fi
+fi
 
 # Enumerate booted iOS simulators with OS versions
 ios_sims=()
@@ -198,15 +215,35 @@ JSON
       echo -e "Pushing notification to simulator $udid..."
       xcrun simctl push "$udid" "$apns_file"
       rm "$apns_file"
+    elif [[ "$TEST_TYPE" == "Send Sample File" ]]; then
+      app_container=$(xcrun simctl get_app_container "$udid" io.bluewallet.bluewallet data) || exit 1
+      destination="$app_container/Documents/Inbox/$sample_name"
+      mkdir -p "$(dirname "$destination")" || exit 1
+      cp "$sample_file" "$destination" || exit 1
+      # Escape reserved characters in the file URL, including spaces in home paths.
+      file_url="${destination//%/%25}"
+      file_url="${file_url// /%20}"
+      file_url="${file_url//#/%23}"
+      file_url="${file_url//\?/%3F}"
+      echo -e "\nSending sample file to iOS simulator: $sample_name\n"
+      xcrun simctl openurl "$udid" "file://$file_url" || exit 1
     else
       echo -e "\nSending deep link to iOS simulator: $selectedLink\n"
       xcrun simctl openurl "$udid" "$selectedLink"
     fi
   else
-    echo -e "\nSending deep link to Android emulator: $selectedLink\n"
     # Strip version info to get the emulator device ID
     emuId="${dev%% *}"
-    adb -s "$emuId" shell am start -a android.intent.action.VIEW -d "$selectedLink"
+    if [[ "$TEST_TYPE" == "Send Sample File" ]]; then
+      destination="/sdcard/Download/$sample_name"
+      echo -e "\nSending sample file to Android emulator: $sample_name\n"
+      adb -s "$emuId" push "$sample_file" "$destination" || exit 1
+      adb -s "$emuId" shell am start -a android.intent.action.VIEW \
+        -d "file://$destination" -t application/octet-stream -p io.bluewallet.bluewallet || exit 1
+    else
+      echo -e "\nSending deep link to Android emulator: $selectedLink\n"
+      adb -s "$emuId" shell am start -a android.intent.action.VIEW -d "$selectedLink"
+    fi
   fi
   break
 done
