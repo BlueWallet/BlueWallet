@@ -104,9 +104,10 @@
     "title": "지갑이 생성되었습니다."
   },
   "receive": {
-    "details_create": "생성하기",
+    "details_save": "저장하기",
     "details_label": "형태",
     "details_setAmount": "금액명시 후 받기",
+    "option_label": "라벨",
     "details_share": "공유...",
     "address_not_found": "받는 주소를 생성할 수 없습니다.",
     "header": "받기",
@@ -386,8 +387,6 @@
     "updating": "갱신중...",
     "watchOnlyWarningTitle": "보안 경고",
     "watchOnlyWarningDescription": "사기꾼들은 종종 ‘조회 전용’ 지갑을 사용해 사용자를 속입니다. 이러한 지갑은 자금을 송금하거나 제어할 수 없고 잔액 조회만 가능합니다.",
-    "custom_fee_warning_title": "경고",
-    "custom_fee_warning_description": "1 sat/vB 미만의 수수료도 유효하지만 노드 정책에 따라 트랜잭션이 릴레이되지 않을 수 있습니다.",
     "details_eta_analyzing": "분석 중...",
     "details_sent": "보냄",
     "details_section": "세부 정보",
@@ -443,7 +442,6 @@
     "details_display": "홈 화면에 표시",
     "details_edit": "편집",
     "details_export_backup": "보내기/백업",
-    "details_export_history": "기록을 CSV로 내보내기",
     "details_master_fingerprint": "마스터 지문",
     "details_multisig_type": "다중서명",
     "details_options": "옵션",
@@ -523,9 +521,7 @@
     "identity_pubkey": "아이덴티티 퍼브키",
     "xpub_title": "지갑 XPUB",
     "manage_wallets_search_placeholder": "지갑, 주소, 트랜잭션 및 메모 검색",
-    "more_info": "자세히 보기",
-    "details_delete_wallet_error_message": "이 지갑이 알림에서 제거되었는지 확인하는 데 문제가 발생했습니다. 네트워크 문제나 연결 불안정이 원인일 수 있습니다. 계속 진행하면, 이 지갑을 삭제한 이후에도 관련 트랜잭션 알림을 받을 수 있습니다.",
-    "details_delete_anyway": "그래도 삭제"
+    "more_info": "자세히 보기"
   },
   "total_balance_view": {
     "display_in_bitcoin": "비트코인으로 표시",

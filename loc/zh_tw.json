@@ -104,9 +104,10 @@
     "title": "你的錢包已被建立。"
   },
   "receive": {
-    "details_create": "建立",
+    "details_save": "儲存",
     "details_label": "描述",
     "details_setAmount": "收款金額",
+    "option_label": "標籤",
     "details_share": "分享…",
     "address_not_found": "無法產生收款地址。",
     "header": "收款",
@@ -380,8 +381,6 @@
     "updating": "更新中...",
     "watchOnlyWarningTitle": "安全警告",
     "watchOnlyWarningDescription": "請注意有些詐騙者會利用「僅觀察」錢包來欺騙使用者。這類錢包無法讓您控制或傳送資金；它們只能讓您檢視結餘。",
-    "custom_fee_warning_title": "警告",
-    "custom_fee_warning_description": "低於 1 sat/vB 的手續費仍為有效，但可能因節點政策而無法被轉發。",
     "details_eta_analyzing": "分析中…",
     "details_sent": "已傳送",
     "details_section": "詳情",
@@ -437,7 +436,6 @@
     "details_display": "顯示於主畫面",
     "details_edit": "編輯",
     "details_export_backup": "匯出備份",
-    "details_export_history": "匯出紀錄為 CSV",
     "details_master_fingerprint": "主指紋",
     "details_multisig_type": "多重簽名",
     "details_options": "選項",
@@ -517,9 +515,7 @@
     "identity_pubkey": "身份公鑰",
     "xpub_title": "錢包公鑰",
     "manage_wallets_search_placeholder": "搜尋錢包、地址、交易與備註",
-    "more_info": "更多資訊",
-    "details_delete_wallet_error_message": "確認此錢包是否已自通知中移除時發生問題—可能是因為網路問題或連線不佳。若您繼續，刪除後仍可能收到與此錢包相關交易的通知。",
-    "details_delete_anyway": "仍要刪除"
+    "more_info": "更多資訊"
   },
   "total_balance_view": {
     "display_in_bitcoin": "以比特幣顯示",

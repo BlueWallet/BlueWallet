@@ -104,9 +104,10 @@
     "title": "Ваш гаманець створено."
   },
   "receive": {
-    "details_create": "Створити",
+    "details_save": "Зберегти",
     "details_label": "Опис",
     "details_setAmount": "Отримання з сумою",
+    "option_label": "Мітка",
     "details_share": "Поділитися...",
     "address_not_found": "Не вдалося згенерувати адресу для отримання.",
     "header": "Отримати",
@@ -380,8 +381,6 @@
     "updating": "Оновлення...",
     "watchOnlyWarningTitle": "Попередження безпеки",
     "watchOnlyWarningDescription": "Будьте обережні з шахраями, які часто використовують гаманці «лише для перегляду», щоб обдурити користувачів. Такі гаманці не дозволяють контролювати чи надсилати кошти — вони лише дозволяють переглядати баланс.",
-    "custom_fee_warning_title": "Попередження",
-    "custom_fee_warning_description": "Комісії менше 1 sat/vB є дійсними, але можуть не передаватися мережею через політики нод.",
     "details_eta_analyzing": "Аналізуємо...",
     "details_sent": "Надіслано",
     "details_section": "Деталі",
@@ -437,7 +436,6 @@
     "details_display": "Відображати на головному екрані",
     "details_edit": "редагувати",
     "details_export_backup": "Експорт / резервна копія",
-    "details_export_history": "Експортувати історію в CSV",
     "details_master_fingerprint": "Відбиток майстер-ключа",
     "details_multisig_type": "multisig",
     "details_options": "Параметри",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Публічний ключ ідентичності",
     "xpub_title": "XPUB Гаманця",
     "manage_wallets_search_placeholder": "Пошук гаманців, адрес, транзакцій та приміток",
-    "more_info": "Докладніше",
-    "details_delete_wallet_error_message": "Виникла проблема з підтвердженням, чи цей гаманець було видалено зі сповіщень — це може бути через проблему з мережею або поганий зв'язок. Якщо ви продовжите, ви все ще можете отримувати сповіщення про транзакції, пов'язані з цим гаманцем, навіть після його видалення.",
-    "details_delete_anyway": "Видалити в будь-якому разі"
+    "more_info": "Докладніше"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Відображати у Bitcoin",
