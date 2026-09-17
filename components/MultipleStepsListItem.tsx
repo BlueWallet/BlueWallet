@@ -34,7 +34,7 @@ interface MultipleStepsListItemProps {
   leftText?: string;
   showActivityIndicator?: boolean;
   isActionSheet?: boolean;
-  actionSheetOptions?: ActionSheetOptions;
+  actionSheetOptions?: Omit<ActionSheetOptions, 'anchor'>;
   dashes?: MultipleStepsListItemDashType;
   button?: {
     text?: string;
@@ -88,16 +88,9 @@ const MultipleStepsListItem = (props: MultipleStepsListItemProps) => {
 
   const handleOnPressForActionSheet = () => {
     if (isActionSheet && actionSheetOptions) {
-      // Clone options to modify them
-      let modifiedOptions = { ...actionSheetOptions };
-
-      // Use 'selfRef' if the component uses its own ref, or 'ref' if it's using forwarded ref
       const anchor = findNodeHandle(selfRef.current);
-
-      if (anchor) {
-        // Attach the anchor only if it exists
-        modifiedOptions = { ...modifiedOptions, anchor };
-      }
+      if (anchor === null) return;
+      const modifiedOptions = { ...actionSheetOptions, anchor };
 
       ActionSheet.showActionSheetWithOptions(modifiedOptions, buttonIndex => {
         // Call the original onPress function, if provided, and not cancelled
