@@ -163,7 +163,6 @@ export const FButton = ({ text, icon, disabled = false, onLongPress, onPress, ac
           styles.button,
           (disabled || highContrast) && styles.outlined,
           disabled && styles.disabled,
-          fontScale >= 2 && styles.stackedContent,
           {
             backgroundColor: background,
             borderColor: foreground,
@@ -264,11 +263,11 @@ const styles = StyleSheet.create({
   inline: { alignSelf: 'stretch' },
   buttons: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     justifyContent: 'center',
     gap: BUTTON_GAP,
   },
-  buttonWrapper: { flexGrow: 0, flexShrink: 1, maxWidth: '100%' },
+  buttonWrapper: { flexGrow: 0, flexShrink: 1, minWidth: 0, maxWidth: '100%' },
   button: {
     flexGrow: 1,
     minHeight: BUTTON_HEIGHT,
@@ -285,7 +284,6 @@ const styles = StyleSheet.create({
   boldText: { fontWeight: '800' },
   outlined: { borderWidth: 2 },
   disabled: { borderStyle: 'dashed' },
-  stackedContent: { flexDirection: 'column' },
   iconFrame: { alignItems: 'center', justifyContent: 'center' },
   icon: {
     width: 24,

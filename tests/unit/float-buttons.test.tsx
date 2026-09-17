@@ -32,7 +32,7 @@ beforeEach(() => {
 
 afterEach(() => jest.restoreAllMocks());
 
-it('reports actual wrapped height and updates reserved space when the safe area changes', () => {
+it('reports actual button height and updates reserved space when the safe area changes', () => {
   const onHeight = jest.fn();
   const tree = render(
     <FContainer onReservedHeightChange={onHeight}>
