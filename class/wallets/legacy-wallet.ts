@@ -417,6 +417,7 @@ export class LegacyWallet extends AbstractWallet {
         // 66 / 4 = 16.5 round up to 17
         u.script = { length: 17 };
       } else if (isUncompressedKey) {
+        // 72 (high R low S signature) + 1 + 65 (uncomp pubkey) + 1 = 139
         u.script = { length: 139 };
       }
     }
