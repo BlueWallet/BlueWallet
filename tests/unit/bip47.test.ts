@@ -177,6 +177,8 @@ describe('Bech32 Segwit HD (BIP84) with BIP47', () => {
 
     const actualFeerate = fee / tx.virtualSize();
     assert.strictEqual(Math.round(actualFeerate), 33);
+    // OP_RETURN output has to be fully paid for
+    assert.ok(actualFeerate >= 33, `feerate ${actualFeerate} is below requested 33 sat/vbyte`);
   });
 
   it('should be able to pay to PC', async () => {

@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
 import bitcoinMessage from 'bitcoinjs-message';
-import coinSelect, { CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
+import coinSelect, { CoinSelectOptions, CoinSelectOutput, CoinSelectReturnInput, CoinSelectTarget } from 'coinselect';
 import coinSelectSplit from 'coinselect/split';
 import { ECPairAPI, ECPairFactory, Signer } from 'ecpair';
 
@@ -374,6 +374,23 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   /**
+   * Whether size of at least one of the targets is overestimated by coinselect lib, comparing to its real scriptPubKey
+   */
+  _targetsAreOverestimated(targets: CreateTransactionTarget[]): boolean {
+    return targets.some(t => {
+      if (!t.address) return false;
+      const address = t.address.toLowerCase(); // bech32 addresses are case insensitive
+      const assumed = t.script?.length ?? 25; // lib assumes p2pkh
+      if (address.startsWith('sp1')) return assumed > 34; // silent payment ends up as p2tr output
+      try {
+        return assumed > bitcoin.address.toOutputScript(address.startsWith('bc1') ? address : t.address).length;
+      } catch (_) {
+        return false;
+      }
+    });
+  }
+
+  /**
    * Length of the scriptPubKey of this wallet's change output, in bytes. Passed to coinselect lib when it is bigger than
    * p2pkh (25 bytes), which is what the lib assumes
    */
@@ -407,10 +424,11 @@ export class LegacyWallet extends AbstractWallet {
 
       // counting the number of vbytes for each script type:
       if (this.segwitType === 'p2wpkh') {
-        // 72 (high R low S signature) + 1 + 33 (comp pubkey) + 1 = 107 / 4 = 26.75 rounded up.
+        // witness: 1 (items count) + 1 + 72 (high R low S signature with sighash byte) + 1 + 33 (comp pubkey) = 108 / 4 = 27.
+        // exact for the biggest signature, no slack here
         u.script = { length: 27 };
       } else if (this.segwitType === 'p2sh(p2wpkh)') {
-        // ((72 (high R low S signature) + 1 + 33 (comp pubkey) + 1) / 4) + 22 (P2WPKH output on scriptSig stack) + 1 = 49.75 rounded up
+        // same 27 vbytes of witness as p2wpkh + 23 bytes of scriptSig (1 + 22 of P2WPKH output on scriptSig stack) = 50
         u.script = { length: 50 };
       } else if (this.segwitType === 'p2tr') {
         // taproot key path spend is just a 64 or 65 byte signature on the witness stack.
@@ -433,7 +451,7 @@ export class LegacyWallet extends AbstractWallet {
 
       if (t.script?.hex) {
         // setting length for coinselect lib manually as it is not aware of our field `hex`
-        t.script.length = t.script.hex.length / 2 - 4;
+        t.script.length = t.script.hex.length / 2;
       }
     }
 
@@ -441,7 +459,15 @@ export class LegacyWallet extends AbstractWallet {
     // to tell it, otherwise change output is not fully paid for and resulting feerate is lower than requested.
     // smaller change scripts are left as is, that only makes us overestimate by 2-3 bytes
     const changeScriptLength = this.getChangeScriptLength();
-    const options = changeScriptLength > 25 ? { changeScript: { length: changeScriptLength } } : undefined;
+    const options: CoinSelectOptions = {};
+    if (changeScriptLength > 25) options.changeScript = { length: changeScriptLength };
+
+    // coinselect lib is not aware of segwit marker & flag (2 bytes = 0.5 vbyte), and since vsize is rounded up the tx can end
+    // up 1 vbyte bigger than estimated. p2tr inputs are overestimated by 0.5 vbyte each, so only p2wpkh inputs are affected.
+    // we also dont need it when outputs are already overestimated (`+ 3` above; p2sh is 23 bytes while lib assumes 25)
+    if ((this.segwitType === 'p2wpkh' || this.segwitType === 'p2sh(p2wpkh)') && !this._targetsAreOverestimated(_targets)) {
+      options.txExtraBytes = 1;
+    }
 
     const { inputs, outputs, fee } = algo(_utxos, _targets as CoinSelectTarget[], feeRate, options);
 
