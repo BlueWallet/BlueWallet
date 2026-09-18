@@ -1880,6 +1880,16 @@ describe('multisig-wallet (native segwit)', () => {
 
     assert.strictEqual(psbt.data.inputs.length, 1);
     assert.strictEqual(psbt.data.outputs.length, 1);
+
+    // now with p2wsh change output, checking that we pay at least requested feerate:
+    const { tx: tx2, fee: fee2 } = w.createTransaction(
+      utxos,
+      [{ address: '13HaCAB4jf7FYSZexJxoczyDDnutzZigjS', value: 50000 }],
+      1,
+      w._getInternalAddressByIndex(0),
+    );
+    assert.strictEqual(tx2.outs.length, 2);
+    assert.ok(fee2 >= tx2.virtualSize(), `fee ${fee2} is below 1 sat/vbyte for ${tx2.virtualSize()} vbytes`);
   });
 
   it('can sign multiple inputs', async () => {
