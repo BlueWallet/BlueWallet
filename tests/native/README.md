@@ -68,5 +68,5 @@ This compiles the real catalog into a temporary test bundle and checks English,
 both Spanish variants, fallback, argument formatting, and localized key search.
 
 The preview presentation uses SwiftUI hosted by the Quick Look extension controller.
-Thumbnail drawing uses the system thumbnail drawing context: small icons show policy
-and script type; grid thumbnails add the vault name, and large thumbnails add the derivation path.
+Thumbnail drawing uses the system thumbnail drawing context: small icons show the signing policy;
+grid thumbnails add the vault name, and large thumbnails add the derivation path.

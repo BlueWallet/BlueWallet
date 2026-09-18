@@ -104,7 +104,7 @@ enum VaultThumbnail {
         let compact = edge < 72
         let inset = max(3, edge * 0.07)
         let width = size.width - inset * 2
-        let headerHeight = size.height * (compact ? 0.65 : 0.36)
+        let headerHeight = size.height * (compact ? 1 : 0.36)
         context.saveGState()
         defer { context.restoreGState() }
         UIBezierPath(roundedRect: bounds, cornerRadius: edge * 0.05).addClip()
@@ -136,37 +136,19 @@ enum VaultThumbnail {
              font: policyFont, color: .white)
 
         let ink = VaultAppearance.color(0x0c2550)
-        if compact {
-            // The technical format stays meaningful at icon size, unlike a
-            // truncated wallet name that Files already labels below the icon.
-            var formatFont = UIFont.systemFont(ofSize: max(7, edge * 0.16), weight: .bold)
-            let formatWidth = (setup.formatIdentifier as NSString).size(withAttributes: [.font: formatFont]).width
-            if formatWidth > width {
-                formatFont = .systemFont(ofSize: formatFont.pointSize * width / formatWidth, weight: .bold)
-            }
-            draw(setup.formatIdentifier,
-                 in: CGRect(x: inset, y: headerHeight + (size.height - headerHeight - formatFont.lineHeight) / 2,
-                            width: width, height: formatFont.lineHeight), font: formatFont, color: ink)
-            return true
-        }
+        if compact { return true }
 
         let nameFont = UIFont.systemFont(ofSize: max(10, min(22, edge * 0.13)), weight: .bold)
         let nameRect = CGRect(x: inset, y: headerHeight + inset, width: width, height: nameFont.lineHeight * 2)
         paragraph.lineBreakMode = .byWordWrapping
         draw(setup.name, in: nameRect, font: nameFont, color: ink)
         paragraph.lineBreakMode = .byTruncatingTail
-        let formatFont = UIFont.systemFont(ofSize: max(9, min(16, edge * 0.11)), weight: .semibold)
-        let formatRect = CGRect(x: inset, y: nameRect.maxY + inset / 2, width: width, height: formatFont.lineHeight)
-        // Prefer a short, unambiguous script identifier when its localized name
-        // would need truncation at the grid thumbnail size.
-        let formatWidth = (setup.format as NSString).size(withAttributes: [.font: formatFont]).width
-        draw(formatWidth <= width ? setup.format : setup.formatIdentifier, in: formatRect, font: formatFont, color: ink)
         if edge >= 200 {
             let paths = Set(setup.cosigners.compactMap { $0.derivation })
             let path = paths.count == 1 && setup.cosigners.allSatisfy({ $0.derivation != nil })
                 ? paths.first! : VaultLocalization.text("Custom derivation paths")
             let pathFont = UIFont.monospacedSystemFont(ofSize: min(14, edge * 0.065), weight: .medium)
-            draw(path, in: CGRect(x: inset, y: formatRect.maxY + inset / 2, width: width, height: pathFont.lineHeight),
+            draw(path, in: CGRect(x: inset, y: nameRect.maxY + inset / 2, width: width, height: pathFont.lineHeight),
                  font: pathFont, color: VaultAppearance.color(0x475569))
         }
         return true
