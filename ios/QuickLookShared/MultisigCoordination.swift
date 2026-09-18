@@ -23,6 +23,15 @@ struct MultisigCoordination {
         } + [("Public keys only", "Coordination setup · Does not contain signing keys", "checkmark.shield")]
     }
 
+    func matchingCosignerIndices(query: String) -> [Int] {
+        let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        return cosigners.indices.filter { index in
+            let cosigner = cosigners[index]
+            return query.isEmpty || ["Vault key \(index + 1)", cosigner.fingerprint, cosigner.key, cosigner.derivation ?? ""]
+                .contains { $0.localizedCaseInsensitiveContains(query) }
+        }
+    }
+
     static func parse(file: URL) throws -> Self {
         let size = try file.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
         guard size <= 1_048_576 else { throw CocoaError(.fileReadCorruptFile) }

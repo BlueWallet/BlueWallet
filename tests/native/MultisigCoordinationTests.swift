@@ -22,6 +22,13 @@ enum MultisigCoordinationTests {
         precondition(tryParse(text.replacingOccurrences(of: "Format: P2WSH", with: "Format: P2SH")))
         precondition(tryParse(text.replacingOccurrences(of: "Format: P2WSH", with: "Format: P2SH-P2WSH")))
 
+        precondition(setup.matchingCosignerIndices(query: "  ") == [0, 1, 2])
+        precondition(setup.matchingCosignerIndices(query: "  88ae7ed3 ") == [1])
+        precondition(setup.matchingCosignerIndices(query: "vault key 3") == [2])
+        precondition(setup.matchingCosignerIndices(query: String(setup.cosigners[0].key.suffix(20))) == [0])
+        precondition(parsed.matchingCosignerIndices(query: "m/48'/0'/1'/2'") == [1])
+        precondition(setup.matchingCosignerIndices(query: "does-not-exist").isEmpty)
+
         for invalid in [
             text.replacingOccurrences(of: "2 of 3", with: "4 of 3"),
             text.replacingOccurrences(of: "2 of 3", with: "0 of 3"),

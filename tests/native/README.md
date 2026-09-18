@@ -39,3 +39,10 @@ In the Files preview, touch and hold a public key and choose **Copy public key**
 Paste it into a text field and verify that the entire key is copied, without its
 fingerprint, derivation path, or display line breaks. VoiceOver exposes the same
 Copy public key action.
+
+
+Use **Search vault keys** to filter by vault-key number (for example, "Vault key 2"),
+fingerprint, derivation path, or any part of the public key. Matching ignores case
+and surrounding whitespace. Confirm that original key numbers remain intact, a
+nonmatching query shows **No matching keys**, closing search restores all keys, and
+long-press copying still copies the complete matching key.

@@ -24,21 +24,51 @@ enum VaultAppearance {
     }
 }
 
-final class VaultPreviewView: UIScrollView {
+final class VaultPreviewView: UIView, UISearchBarDelegate {
+    private let setup: MultisigCoordination
+    private let scrollView = UIScrollView()
+    private let keys = UIStackView()
+    private let searchBar = UISearchBar()
+    private let resultsLabel = VaultAppearance.label("", size: 13, color: VaultAppearance.secondary)
+
     init(setup: MultisigCoordination) {
+        self.setup = setup
         super.init(frame: .zero)
         backgroundColor = VaultAppearance.background
-        alwaysBounceVertical = true
+        searchBar.placeholder = "Search vault keys"
+        searchBar.accessibilityIdentifier = "VaultKeySearch"
+        searchBar.searchTextField.accessibilityHint = "Search by key number, fingerprint, derivation path, or public key."
+        searchBar.searchBarStyle = .minimal
+        searchBar.autocapitalizationType = .none
+        searchBar.autocorrectionType = .no
+        searchBar.searchTextField.smartQuotesType = .no
+        searchBar.searchTextField.smartDashesType = .no
+        searchBar.delegate = self
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.alwaysBounceVertical = true
+        scrollView.keyboardDismissMode = .interactive
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(searchBar)
+        addSubview(scrollView)
+        NSLayoutConstraint.activate([
+            searchBar.topAnchor.constraint(equalTo: topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            searchBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
+            scrollView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor),
+        ])
         let content = UIStackView()
         content.axis = .vertical
         content.spacing = 24
         content.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(content)
+        scrollView.addSubview(content)
         NSLayoutConstraint.activate([
-            content.topAnchor.constraint(equalTo: contentLayoutGuide.topAnchor, constant: 20),
-            content.bottomAnchor.constraint(equalTo: contentLayoutGuide.bottomAnchor, constant: -24),
-            content.centerXAnchor.constraint(equalTo: frameLayoutGuide.centerXAnchor),
-            content.widthAnchor.constraint(equalTo: frameLayoutGuide.widthAnchor, constant: -32),
+            content.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 20),
+            content.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -24),
+            content.centerXAnchor.constraint(equalTo: scrollView.frameLayoutGuide.centerXAnchor),
+            content.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor, constant: -32),
         ])
         content.addArrangedSubview(VaultCard(setup: setup))
 
@@ -57,14 +87,51 @@ final class VaultPreviewView: UIScrollView {
         badge.heightAnchor.constraint(greaterThanOrEqualToConstant: 28).isActive = true
         content.addArrangedSubview(policy)
 
-        let keys = UIStackView()
+        resultsLabel.accessibilityIdentifier = "VaultKeySearchResults"
+        resultsLabel.isHidden = true
+        content.addArrangedSubview(resultsLabel)
         keys.axis = .vertical
         keys.spacing = 0
-        for (index, cosigner) in setup.cosigners.enumerated() {
-            keys.addArrangedSubview(VaultKeyView(index: index, cosigner: cosigner, last: index == setup.cosigners.count - 1))
-        }
         content.addArrangedSubview(keys)
+        updateSearch()
         content.addArrangedSubview(VaultAppearance.label("Public keys only · Coordination setup", size: 13, color: VaultAppearance.secondary))
+    }
+
+    private func updateSearch() {
+        let query = searchBar.text ?? ""
+        let indices = setup.matchingCosignerIndices(query: query)
+        for row in keys.arrangedSubviews { row.removeFromSuperview() }
+        for (position, index) in indices.enumerated() {
+            keys.addArrangedSubview(VaultKeyView(index: index, cosigner: setup.cosigners[index], last: position == indices.count - 1))
+        }
+        resultsLabel.isHidden = query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        resultsLabel.text = indices.isEmpty ? "No matching keys" : "\(indices.count) of \(setup.total) keys"
+        if !resultsLabel.isHidden {
+            layoutIfNeeded()
+            let resultTop = resultsLabel.convert(resultsLabel.bounds, to: scrollView).minY
+            let maximumOffset = max(0, scrollView.contentSize.height - scrollView.bounds.height)
+            scrollView.setContentOffset(CGPoint(x: 0, y: min(resultTop, maximumOffset)), animated: false)
+        }
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        updateSearch()
+    }
+
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchBar.setShowsCancelButton(true, animated: true)
+    }
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        searchBar.setShowsCancelButton(false, animated: true)
+        updateSearch()
+        scrollView.setContentOffset(.zero, animated: true)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
