@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        C00400000000000000000001 = {isa = PBXBuildFile; fileRef = C00400000000000000000003; };
+        C00400000000000000000002 = {isa = PBXBuildFile; fileRef = C00400000000000000000003; };
         C00300000000000000000001 = {isa = PBXBuildFile; fileRef = C00300000000000000000003; };
         C00300000000000000000002 = {isa = PBXBuildFile; fileRef = C00300000000000000000003; };
         C00200000000000000000001 = {isa = PBXBuildFile; fileRef = C00200000000000000000003; };
@@ -182,6 +184,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        C00400000000000000000003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../QuickLookShared/QuickLookDocument.swift; sourceTree = "<group>"; };
         C00300000000000000000003 = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = ../QuickLookShared/VaultPreview.xcstrings; sourceTree = "<group>"; };
         C00200000000000000000003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../QuickLookShared/VaultPreviewView.swift; sourceTree = "<group>"; };
         C00200000000000000000006 = {isa = PBXFileReference; lastKnownFileType = image.png; path = ../../img/vault-shape.png; sourceTree = "<group>"; };
@@ -569,6 +572,7 @@
 			children = (
 				B32900000000000000000003 /* PreviewViewController.swift */,
                 C00100000000000000000003,
+                C00400000000000000000003,
                 C00200000000000000000003,
                 C00300000000000000000003,
                 C00200000000000000000006,
@@ -1111,6 +1115,7 @@
 			files = (
 				001E3379238F94755682A739 /* ThumbnailProvider.swift in Sources */,
                 C00100000000000000000002,
+                C00400000000000000000002,
                 C00200000000000000000002,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1168,6 +1173,7 @@
 			files = (
 				B32900000000000000000001 /* PreviewViewController.swift in Sources */,
                 C00100000000000000000001,
+                C00400000000000000000001,
                 C00200000000000000000001,
 				F7A1B2C3D4E5F60718293A4D /* ScriptDescription.swift in Sources */,
 			);

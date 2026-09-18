@@ -454,6 +454,1639 @@
           }
         }
       }
+    },
+    "Wallet labels": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wallet labels"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiquetas de la cartera"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiquetas de la cartera"
+          }
+        }
+      }
+    },
+    "PSBT": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PSBT"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PSBT"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PSBT"
+          }
+        }
+      }
+    },
+    "Bitcoin transaction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitcoin transaction"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transacción de Bitcoin"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transacción de Bitcoin"
+          }
+        }
+      }
+    },
+    "Labels: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Labels: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiquetas: %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiquetas: %@"
+          }
+        }
+      }
+    },
+    "Skipped lines: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipped lines: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Líneas omitidas: %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Líneas omitidas: %@"
+          }
+        }
+      }
+    },
+    "Inputs: %1$@ · Outputs: %2$@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inputs: %1$@ · Outputs: %2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entradas: %1$@ · Salidas: %2$@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entradas: %1$@ · Salidas: %2$@"
+          }
+        }
+      }
+    },
+    "All labels": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All labels"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todas las etiquetas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todas las etiquetas"
+          }
+        }
+      }
+    },
+    "Addresses": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Addresses"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direcciones"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direcciones"
+          }
+        }
+      }
+    },
+    "Transactions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transactions"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transacciones"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transacciones"
+          }
+        }
+      }
+    },
+    "Public keys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public keys"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claves públicas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claves públicas"
+          }
+        }
+      }
+    },
+    "Extended public keys": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extended public keys"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claves públicas extendidas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claves públicas extendidas"
+          }
+        }
+      }
+    },
+    "Inputs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inputs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entradas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entradas"
+          }
+        }
+      }
+    },
+    "Outputs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outputs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salidas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salidas"
+          }
+        }
+      }
+    },
+    "Other": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otros"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otros"
+          }
+        }
+      }
+    },
+    "%@ sats": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sats"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sats"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sats"
+          }
+        }
+      }
+    },
+    "Origin: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origin: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origen: %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Origen: %@"
+          }
+        }
+      }
+    },
+    "Spendable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spendable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disponible para gastar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disponible para gastar"
+          }
+        }
+      }
+    },
+    "Not spendable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not spendable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No disponible para gastar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No disponible para gastar"
+          }
+        }
+      }
+    },
+    "No label": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No label"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin etiqueta"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin etiqueta"
+          }
+        }
+      }
+    },
+    "Input %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrada %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrada %@"
+          }
+        }
+      }
+    },
+    "Output %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida %@"
+          }
+        }
+      }
+    },
+    "Finalization data present": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finalization data present"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contiene datos de finalización"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contiene datos de finalización"
+          }
+        }
+      }
+    },
+    "Signature data present": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signature data present"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contiene datos de firma"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contiene datos de firma"
+          }
+        }
+      }
+    },
+    "No signature data": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No signature data"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin datos de firma"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin datos de firma"
+          }
+        }
+      }
+    },
+    "Matched previous transaction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Matched previous transaction"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coincide con la transacción anterior"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Coincide con la transacción anterior"
+          }
+        }
+      }
+    },
+    "Supplied input data": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supplied input data"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de entrada proporcionados"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de entrada proporcionados"
+          }
+        }
+      }
+    },
+    "Input amount unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input amount unavailable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importe de entrada no disponible"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importe de entrada no disponible"
+          }
+        }
+      }
+    },
+    "Transaction output": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transaction output"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida de la transacción"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salida de la transacción"
+          }
+        }
+      }
+    },
+    "Output scripts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output scripts"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scripts de salida"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scripts de salida"
+          }
+        }
+      }
+    },
+    "Bitcoin mainnet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitcoin mainnet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red principal de Bitcoin"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red principal de Bitcoin"
+          }
+        }
+      }
+    },
+    "Testnet / Signet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testnet / Signet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testnet / Signet"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testnet / Signet"
+          }
+        }
+      }
+    },
+    "This file is too large to preview. Open it in BlueWallet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This file is too large to preview. Open it in BlueWallet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este archivo es demasiado grande para la vista previa. Ábrelo en BlueWallet."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este archivo es demasiado grande para la vista previa. Ábrelo en BlueWallet."
+          }
+        }
+      }
+    },
+    "This PSBT version is not supported by Quick Look.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This PSBT version is not supported by Quick Look."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Look no admite esta versión de PSBT."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quick Look no admite esta versión de PSBT."
+          }
+        }
+      }
+    },
+    "The file could not be read or contains invalid data. Export a new copy and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file could not be read or contains invalid data. Export a new copy and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo leer el archivo o contiene datos no válidos. Exporta una nueva copia e inténtalo de nuevo."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo leer el archivo o contiene datos no válidos. Exporta una nueva copia e inténtalo de nuevo."
+          }
+        }
+      }
+    },
+    "Preview unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview unavailable"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista previa no disponible"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista previa no disponible"
+          }
+        }
+      }
+    },
+    "Address network": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address network"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red de las direcciones"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Red de las direcciones"
+          }
+        }
+      }
+    },
+    "Choose a network to display addresses. The file does not specify one.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a network to display addresses. The file does not specify one."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una red para mostrar las direcciones. El archivo no especifica ninguna."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige una red para mostrar las direcciones. El archivo no especifica ninguna."
+          }
+        }
+      }
+    },
+    "No valid labels": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No valid labels"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay etiquetas válidas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay etiquetas válidas"
+          }
+        }
+      }
+    },
+    "No labels in this file": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No labels in this file"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este archivo no contiene etiquetas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este archivo no contiene etiquetas"
+          }
+        }
+      }
+    },
+    "Export labels as BIP-329 JSONL and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export labels as BIP-329 JSONL and try again."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporta las etiquetas en formato BIP-329 JSONL e inténtalo de nuevo."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporta las etiquetas en formato BIP-329 JSONL e inténtalo de nuevo."
+          }
+        }
+      }
+    },
+    "Labels added to this file will appear here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Labels added to this file will appear here."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las etiquetas que añadas a este archivo aparecerán aquí."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las etiquetas que añadas a este archivo aparecerán aquí."
+          }
+        }
+      }
+    },
+    "No matching labels": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching labels"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay etiquetas coincidentes"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hay etiquetas coincidentes"
+          }
+        }
+      }
+    },
+    "Try another search or select a different filter.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try another search or select a different filter."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba otra búsqueda o selecciona un filtro diferente."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba otra búsqueda o selecciona un filtro diferente."
+          }
+        }
+      }
+    },
+    "Clear filters": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear filters"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar filtros"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Borrar filtros"
+          }
+        }
+      }
+    },
+    "Search labels": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search labels"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar etiquetas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar etiquetas"
+          }
+        }
+      }
+    },
+    "Label type": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Label type"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tipo de etiqueta"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tipo de etiqueta"
+          }
+        }
+      }
+    },
+    "Results: %1$@ / %2$@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Results: %1$@ / %2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resultados: %1$@ / %2$@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resultados: %1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "Output total": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output total"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total de salidas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total de salidas"
+          }
+        }
+      }
+    },
+    "PSBT version %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PSBT version %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versión de PSBT %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versión de PSBT %@"
+          }
+        }
+      }
+    },
+    "Reported signing progress": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reported signing progress"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progreso de firma indicado"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progreso de firma indicado"
+          }
+        }
+      }
+    },
+    "Inputs with signature data": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inputs with signature data"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entradas con datos de firma"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entradas con datos de firma"
+          }
+        }
+      }
+    },
+    "Signature data: %1$@ / %2$@ inputs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signature data: %1$@ / %2$@ inputs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de firma: %1$@ / %2$@ entradas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de firma: %1$@ / %2$@ entradas"
+          }
+        }
+      }
+    },
+    "Finalization data: %1$@ / %2$@ inputs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finalization data: %1$@ / %2$@ inputs"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de finalización: %1$@ / %2$@ entradas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de finalización: %1$@ / %2$@ entradas"
+          }
+        }
+      }
+    },
+    "Fee from supplied input values": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fee from supplied input values"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comisión según los importes de entrada proporcionados"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comisión según los importes de entrada proporcionados"
+          }
+        }
+      }
+    },
+    "Unavailable until every input amount is present.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unavailable until every input amount is present."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No disponible hasta que se incluyan todos los importes de entrada."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No disponible hasta que se incluyan todos los importes de entrada."
+          }
+        }
+      }
+    },
+    "Signatures and blockchain status are not verified. Reported progress does not establish that this PSBT is ready to broadcast.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signatures and blockchain status are not verified. Reported progress does not establish that this PSBT is ready to broadcast."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las firmas y el estado en la cadena de bloques no están verificados. El progreso indicado no garantiza que este PSBT esté listo para transmitirse."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las firmas y el estado en la cadena de bloques no están verificados. El progreso indicado no garantiza que este PSBT esté listo para transmitirse."
+          }
+        }
+      }
+    },
+    "Previous transactions are matched to their referenced transaction IDs when provided. Other input values are supplied metadata.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous transactions are matched to their referenced transaction IDs when provided. Other input values are supplied metadata."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando se incluyen transacciones anteriores, se comprueba que coincidan con los identificadores referenciados. Los demás valores de entrada son metadatos proporcionados."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando se incluyen transacciones anteriores, se comprueba que coincidan con los identificadores referenciados. Los demás valores de entrada son metadatos proporcionados."
+          }
+        }
+      }
+    },
+    "Copy amount": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy amount"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar importe"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar importe"
+          }
+        }
+      }
+    },
+    "Destination address": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Destination address"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dirección de destino"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dirección de destino"
+          }
+        }
+      }
+    },
+    "Copy address": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy address"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar dirección"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar dirección"
+          }
+        }
+      }
+    },
+    "Output script": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output script"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Script de salida"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Script de salida"
+          }
+        }
+      }
+    },
+    "Copy script": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy script"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar script"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar script"
+          }
+        }
+      }
+    },
+    "Copy reference": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy reference"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar referencia"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar referencia"
+          }
+        }
+      }
+    },
+    "Copy fingerprint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy fingerprint"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar huella digital"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar huella digital"
+          }
+        }
+      }
+    },
+    "Copy derivation path": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy derivation path"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar ruta de derivación"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar ruta de derivación"
+          }
+        }
+      }
+    },
+    "Labels": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Labels"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiquetas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiquetas"
+          }
+        }
+      }
+    },
+    "sats": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sats"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sats"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "sats"
+          }
+        }
+      }
+    },
+    "Signature data: %1$@/%2$@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signature data: %1$@/%2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de firma: %1$@/%2$@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datos de firma: %1$@/%2$@"
+          }
+        }
+      }
+    },
+    "Previous output address": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous output address"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dirección de la salida anterior"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dirección de la salida anterior"
+          }
+        }
+      }
+    },
+    "Transaction": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transaction"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transacción"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transacción"
+          }
+        }
+      }
+    },
+    "Outputs: %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outputs: %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salidas: %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salidas: %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

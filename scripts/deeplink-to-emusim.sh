@@ -55,11 +55,11 @@ if [[ "$TEST_TYPE" == "Notification" ]]; then
 fi
 
 if [[ "$TEST_TYPE" == "Send Sample File" ]]; then
-  deepLinks=("PSBT" "TXN" "bwcoord")
+  deepLinks=("PSBT" "TXN" "bwcoord" "jsonl")
 fi
 
 if [[ "$TEST_TYPE" == "Send Sample File" ]]; then
-  labels=("PSBT · Partially signed transaction" "TXN · Bitcoin transaction" "bwcoord · Multisig vault (2 of 3)")
+  labels=("PSBT · Partially signed transaction" "TXN · Bitcoin transaction" "bwcoord · Multisig vault (2 of 3)" "JSONL · Wallet labels")
 elif [[ "$TEST_TYPE" == "Notification" ]]; then
   labels=("Legacy address" "Native SegWit address" "Uppercase SegWit address")
 else

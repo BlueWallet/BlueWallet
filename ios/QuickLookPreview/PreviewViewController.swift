@@ -25,321 +25,184 @@ final class PreviewViewController: UIViewController, QLPreviewingController {
 
     func preparePreviewOfFile(at url: URL) async throws {
         loadViewIfNeeded()
-        if url.pathExtension.lowercased() == "bwcoord" {
-            let setup = try await Task.detached(priority: .userInitiated) {
-                try MultisigCoordination.parse(file: url)
-            }.value
-            presentPreview(VaultPreviewView(setup: setup))
-            return
-        }
-        let parsed = try await Task.detached(priority: .userInitiated) {
-            if let psbt = try? PSBTPreview.parse(file: url) {
-				return (psbt.title, psbt.summary, psbt.records)
-			}
-			if let transaction = try? TransactionPreview.parse(file: url) {
-				return (transaction.title, transaction.summary, transaction.records)
-			}
-
-            let contents = try String(contentsOf: url, encoding: .utf8)
-            var records: [(label: String, detail: String, symbol: String)] = []
-            var invalidLineCount = 0
-
-            for rawLine in contents.split(whereSeparator: \.isNewline) {
-                let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !line.isEmpty,
-                      let data = line.data(using: .utf8),
-                      let value = try? JSONSerialization.jsonObject(with: data),
-                      let object = value as? [String: Any],
-                      let type = object["type"] as? String,
-                      let reference = object["ref"] as? String else {
-                    invalidLineCount += 1
-                    continue
-                }
-
-                let label = (object["label"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "No label"
-                var details = [type.uppercased(), reference]
-
-                if let origin = object["origin"] as? String, !origin.isEmpty {
-                    details.append("Origin: \(origin)")
-                }
-                if let spendable = object["spendable"] as? Bool {
-                    details.append(spendable ? "Spendable" : "Not spendable")
-                }
-
-                let symbol: String
-                switch type {
-                case "tx": symbol = "arrow.left.arrow.right"
-                case "addr": symbol = "qrcode"
-                case "pubkey", "xpub": symbol = "key"
-                case "input": symbol = "arrow.down.to.line"
-                case "output": symbol = "arrow.up.from.line"
-                default: symbol = "tag"
-                }
-
-                records.append((label, details.joined(separator: " · "), symbol))
+        do {
+            if url.pathExtension.lowercased() == "bwcoord" {
+                let setup = try await Task.detached(priority: .userInitiated) { try MultisigCoordination.parse(file: url) }.value
+                presentPreview(VaultPreviewView(setup: setup))
+            } else {
+                let document = try await Task.detached(priority: .userInitiated) { try QuickLookDocument.read(file: url) }.value
+                presentPreview(RecordsPreviewView(document: document))
             }
-
-			let summary: String
-			if records.isEmpty {
-				summary = invalidLineCount == 0 ? "No labels in this file" : "No valid BIP-329 records"
-			} else if invalidLineCount == 0 {
-				summary = records.count == 1 ? "1 label" : "\(records.count) labels"
-			} else {
-				let labels = records.count == 1 ? "1 label" : "\(records.count) labels"
-				let skipped = invalidLineCount == 1 ? "1 invalid line skipped" : "\(invalidLineCount) invalid lines skipped"
-				summary = "\(labels) · \(skipped)"
-			}
-			return ("BIP-329 Wallet Labels", summary, records)
-        }.value
-
-        presentPreview(RecordsPreviewView(title: parsed.0, summary: parsed.1, records: parsed.2))
+        } catch {
+            let message: String
+            switch error {
+            case QuickLookDocument.Failure.tooLarge: message = "This file is too large to preview. Open it in BlueWallet."
+            case QuickLookDocument.Failure.unsupportedVersion: message = "This PSBT version is not supported by Quick Look."
+            default: message = "The file could not be read or contains invalid data. Export a new copy and try again."
+            }
+            presentPreview(PreviewEmptyView(title: "Preview unavailable", message: message, symbol: "doc.badge.ellipsis"))
+        }
     }
 }
 
-private struct RecordsPreviewView: View {
+struct PreviewEmptyView: View {
     let title: String
-    let summary: String
-    let records: [(label: String, detail: String, symbol: String)]
-    @State private var selectedIndex: Int?
+    let message: String
+    var symbol = "magnifyingglass"
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: symbol).font(.largeTitle).foregroundColor(.secondary).accessibilityHidden(true)
+            Text(VaultLocalization.text(title)).font(.title2.bold())
+            Text(VaultLocalization.text(message)).font(.body).foregroundColor(.secondary)
+        }.multilineTextAlignment(.center).padding(32).frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(uiColor: .systemGroupedBackground))
+    }
+}
+
+struct RecordsPreviewView: View {
+    let document: QuickLookDocument
+    @State private var query = ""
+    @State private var category = "all"
+    @State private var network = BitcoinEncoding.Network.scripts
+    @FocusState private var searchFocused: Bool
+    @Environment(\.sizeCategory) private var sizeCategory
+    private var matches: [Int] { document.matchingRecords(query: query, category: category) }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(title).font(.title2)
-                    Text(summary).font(.subheadline).foregroundColor(.secondary)
-                }.frame(maxWidth: .infinity, alignment: .leading).padding(20)
-                    .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
-                ForEach(records.indices, id: \.self) { index in
-                    let record = records[index]
-                    Button { selectedIndex = index } label: {
-                        HStack(alignment: .top, spacing: 12) {
-                            Image(systemName: record.symbol).font(.title2).foregroundColor(.blue).frame(width: 28)
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(record.label).font(.headline).foregroundColor(.primary)
-                                Text(record.detail).font(.subheadline).foregroundColor(.secondary)
-                            }.frame(maxWidth: .infinity, alignment: .leading)
-                        }.padding(16)
-                    }.buttonStyle(.plain)
-                        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14))
-                        .confirmationDialog(record.label, isPresented: Binding(get: { selectedIndex == index }, set: { if !$0 { selectedIndex = nil } }), titleVisibility: .visible) {
-                            Button("Copy") {
-                                UIPasteboard.general.string = record.label.hasPrefix("Input ") || record.label.hasPrefix("Output ") ? record.detail.components(separatedBy: " · ").first ?? record.detail : record.detail
-                            }
-                            Button("Cancel", role: .cancel) {}
-                        } message: { Text(record.detail) }
-                }
-            }.padding(16)
+        VStack(spacing: 0) {
+            if document.kind == .labels { labelControls }
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    header
+                    if document.kind != .labels {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Picker(VaultLocalization.text("Address network"), selection: $network) {
+                                ForEach(BitcoinEncoding.Network.allCases, id: \.self) { Text($0.title).tag($0) }
+                            }.pickerStyle(.menu).accessibilityIdentifier("PreviewNetwork")
+                            Text(VaultLocalization.text("Choose a network to display addresses. The file does not specify one."))
+                                .font(.footnote).foregroundColor(.secondary)
+                        }
+                    }
+                    if document.records.isEmpty {
+                        PreviewEmptyView(title: document.skippedLines > 0 ? "No valid labels" : "No labels in this file", message: document.skippedLines > 0 ? "Export labels as BIP-329 JSONL and try again." : "Labels added to this file will appear here.", symbol: "tag")
+                    } else if matches.isEmpty {
+                        PreviewEmptyView(title: "No matching labels", message: "Try another search or select a different filter.")
+                        Button(VaultLocalization.text("Clear filters")) { query = ""; category = "all"; searchFocused = false }
+                    }
+                    ForEach(matches, id: \.self) { index in
+                        RecordCard(record: document.records[index], network: network, index: index)
+                    }
+                }.padding(16).frame(maxWidth: 760).frame(maxWidth: .infinity)
+            }
         }.background(Color(uiColor: .systemGroupedBackground))
     }
-}
-
-private enum TransactionPreview {
-    typealias Record = (label: String, detail: String, symbol: String)
-    private enum ParseError: Error { case invalid }
-
-    static func parse(file: URL) throws -> (title: String, summary: String, records: [Record]) {
-        let source = try Data(contentsOf: file)
-        let data: Data
-        if let text = String(data: source, encoding: .utf8), let decoded = Data(hex: text.trimmingCharacters(in: .whitespacesAndNewlines)) {
-            data = decoded
-        } else if source.count >= 10, source.prefix(5) != Data([0x70, 0x73, 0x62, 0x74, 0xff]) {
-            data = source
-        } else { throw ParseError.invalid }
-        var reader = Reader(Array(data)); _ = try reader.read(4)
-        let hasWitness = reader.peek(2) == [0, 1]
-        if hasWitness { _ = try reader.read(2) }
-        let inputs = Int(try reader.compact())
-        var inputRecords: [Record] = []
-        for index in 0..<inputs {
-            let txid = try reader.read(32).reversed().map { String(format: "%02x", $0) }.joined()
-            let outputIndex = try reader.uint32()
-            let scriptLength = Int(try reader.compact()); _ = try reader.read(scriptLength); _ = try reader.read(4)
-            inputRecords.append(("Input \(index + 1)", "\(txid):\(outputIndex)", "arrow.down.circle.fill"))
-        }
-        let outputs = Int(try reader.compact()); var total: UInt64 = 0; var outputRecords: [Record] = []
-        for index in 0..<outputs {
-            let value = try reader.uint64(); total += value
-            let script = try reader.read(Int(try reader.compact()))
-            let scriptDescription = ScriptDescription.from(script: script)
-            let fiat = FiatEstimate.format(sats: value).map { " · \($0)" } ?? ""
-            outputRecords.append(("Output \(index + 1)", "\(scriptDescription) · \(formatSats(value))\(fiat)", "arrow.up.circle.fill"))
-        }
-        if hasWitness {
-            for _ in 0..<inputs { for _ in 0..<Int(try reader.compact()) { _ = try reader.read(Int(try reader.compact())) } }
-        }
-        _ = try reader.read(4)
-        guard reader.isAtEnd else { throw ParseError.invalid }
-        let fiat = FiatEstimate.format(sats: total).map { " · \($0)" } ?? ""
-        let summary = "\(inputs) inputs · \(outputs) outputs · \(formatSats(total))\(fiat)"
-        return ("Bitcoin Transaction", summary, [("Format", hasWitness ? "SegWit transaction" : "Bitcoin transaction", "doc.text"), ("Inputs", "\(inputs) input\(inputs == 1 ? "" : "s")", "arrow.down.to.line"), ("Outputs", "\(outputs) output\(outputs == 1 ? "" : "s") · \(formatSats(total))\(fiat)", "arrow.up.circle.fill")] + inputRecords + outputRecords)
-    }
-
-    private static func formatSats(_ value: UInt64) -> String { "\(NumberFormatter.localizedString(from: NSNumber(value: value), number: .decimal)) sats" }
-    private struct Reader {
-        var bytes: [UInt8]; var offset = 0
-        init(_ bytes: [UInt8]) { self.bytes = bytes }
-        var isAtEnd: Bool { offset == bytes.count }
-        func peek(_ count: Int) -> [UInt8]? { offset + count <= bytes.count ? Array(bytes[offset..<(offset + count)]) : nil }
-        mutating func read(_ count: Int) throws -> [UInt8] { guard count >= 0, offset + count <= bytes.count else { throw ParseError.invalid }; defer { offset += count }; return Array(bytes[offset..<(offset + count)]) }
-        mutating func compact() throws -> UInt64 { let first = try read(1)[0]; let count: Int; switch first { case 0xfd: count = 2; case 0xfe: count = 4; case 0xff: count = 8; default: return UInt64(first) }; return try read(count).enumerated().reduce(0) { $0 | UInt64($1.element) << UInt64(8 * $1.offset) } }
-        mutating func uint32() throws -> UInt32 { try read(4).enumerated().reduce(0) { $0 | UInt32($1.element) << UInt32(8 * $1.offset) } }
-        mutating func uint64() throws -> UInt64 { try read(8).enumerated().reduce(0) { $0 | UInt64($1.element) << UInt64(8 * $1.offset) } }
-    }
-}
-
-private extension Data {
-    init?(hex: String) {
-        guard hex.count.isMultiple(of: 2) else { return nil }
-        var bytes: [UInt8] = []; bytes.reserveCapacity(hex.count / 2)
-        var index = hex.startIndex
-        while index < hex.endIndex { let next = hex.index(index, offsetBy: 2); guard let byte = UInt8(hex[index..<next], radix: 16) else { return nil }; bytes.append(byte); index = next }
-        self.init(bytes)
-    }
-}
-
-private enum PSBTPreview {
-    typealias Record = (label: String, detail: String, symbol: String)
-
-    static func parse(file: URL) throws -> (title: String, summary: String, records: [Record]) {
-        let source = try Data(contentsOf: file)
-        let data: Data
-        if source.starts(with: [0x70, 0x73, 0x62, 0x74, 0xff]) {
-            data = source
-        } else if let text = String(data: source, encoding: .utf8),
-                  let decoded = Data(base64Encoded: text.trimmingCharacters(in: .whitespacesAndNewlines)),
-                  decoded.starts(with: [0x70, 0x73, 0x62, 0x74, 0xff]) {
-            data = decoded
-        } else {
-            throw ParseError.notPSBT
-        }
-
-        var reader = Reader(data: data)
-        _ = try reader.read(count: 5)
-        let global = try reader.readMap()
-        let version = global.first(where: { $0.key.first == 0xfb }).flatMap { value -> UInt32? in
-            guard value.value.count == 4 else { return nil }
-            return value.value.enumerated().reduce(0) { $0 | UInt32($1.element) << UInt32(8 * $1.offset) }
-        } ?? 0
-
-        let unsignedTransaction = global.first(where: { $0.key == [0x00] })?.value
-        let transaction = unsignedTransaction.flatMap { try? TransactionSummary.parse($0) }
-        let inputCount = transaction?.inputCount ?? count(global, type: 0x04)
-        let outputCount = transaction?.outputCount ?? count(global, type: 0x05)
-        guard let inputs = inputCount, let outputs = outputCount else { throw ParseError.missingCounts }
-
-        var inputMaps: [[Entry]] = []
-        for _ in 0..<inputs { inputMaps.append(try reader.readMap()) }
-        for _ in 0..<outputs { _ = try reader.readMap() }
-
-        let outputValue = transaction?.outputValue
-        let totalOutput = outputValue.map(formatSats)
-        let outputDetail = outputValue.map { value in
-            let count = "\(outputs) output\(outputs == 1 ? "" : "s")"
-            let fiat = FiatEstimate.format(sats: value).map { " · \($0)" } ?? ""
-            return "\(count) · \(formatSats(value))\(fiat)"
-        } ?? "\(outputs) output\(outputs == 1 ? "" : "s")"
-
-        var records: [Record] = [
-            ("Format", "PSBT v\(version)", "doc.text"),
-            ("Inputs", "\(inputs) input\(inputs == 1 ? "" : "s")", "arrow.down.to.line"),
-            ("Outputs", outputDetail, "arrow.up.circle.fill"),
-            ("Safety", "PSBT input metadata and signatures are unverified. Review this transaction in a signing wallet.", "exclamationmark.shield")
-        ]
-        records += inputMaps.enumerated().map { index, map in
-            let utxo = witnessUTXO(map)
-            let scriptDescription = utxo.map { ScriptDescription.from(script: $0.script) } ?? "Input metadata unavailable"
-            let amount = utxo.map { " · \(formatSats($0.value))" } ?? ""
-            return ("Input \(index + 1) (unverified)", "\(scriptDescription)\(amount)", "arrow.down.circle.fill")
-        }
-        if let transaction {
-            records += transaction.outputs.enumerated().map { index, output in
-                let scriptDescription = ScriptDescription.from(script: output.script)
-                let fiat = FiatEstimate.format(sats: output.value).map { " · \($0)" } ?? ""
-                return ("Output \(index + 1)", "\(scriptDescription) · \(formatSats(output.value))\(fiat)", "arrow.up.circle.fill")
+    private var labelControls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "magnifyingglass").foregroundColor(.secondary)
+                TextField(VaultLocalization.text("Search labels"), text: $query)
+                    .textInputAutocapitalization(.never).disableAutocorrection(true)
+                    .focused($searchFocused).submitLabel(.search).onSubmit { searchFocused = false }
+                    .accessibilityIdentifier("LabelSearch")
+                if !query.isEmpty {
+                    Button { query = "" } label: { Image(systemName: "xmark.circle.fill") }
+                        .accessibilityLabel(VaultLocalization.text("Clear search"))
+                }
+            }.padding(10).background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 10))
+            if sizeCategory.isAccessibilityCategory {
+                VStack(alignment: .leading, spacing: 8) { labelFilter; resultCount }
+            } else {
+                HStack { labelFilter; Spacer(); resultCount }
             }
-        }
-        let summary = totalOutput.map { "\(inputs) inputs · \(outputs) outputs · \($0)" } ?? "\(inputs) inputs · \(outputs) outputs"
-        return ("PSBT (unverified)", summary, records)
+        }.padding(16).frame(maxWidth: 760).frame(maxWidth: .infinity)
     }
-
-    private static func count(_ entries: [Entry], type: UInt8) -> Int? {
-        guard let entry = entries.first(where: { $0.key == [type] }) else { return nil }
-        var reader = Reader(data: Data(entry.value))
-        return try? Int(reader.readCompact())
-    }
-
-    private static func inputValue(_ map: [Entry]) -> UInt64? {
-        witnessUTXO(map)?.value
-    }
-
-    private static func witnessUTXO(_ map: [Entry]) -> TransactionOutput? {
-        guard let value = map.first(where: { $0.key == [0x01] })?.value, value.count >= 8 else { return nil }
-        var reader = Reader(data: Data(value))
-        guard let amount = try? reader.read(count: 8).enumerated().reduce(0, { $0 | UInt64($1.element) << UInt64(8 * $1.offset) }),
-              let scriptLength = try? reader.readCompact(),
-              scriptLength <= UInt64(Int.max),
-              let script = try? reader.read(count: Int(scriptLength)) else { return nil }
-        return TransactionOutput(value: amount, script: script)
-    }
-
-    private static func formatSats(_ value: UInt64) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return "\(formatter.string(from: NSNumber(value: value)) ?? "\(value)") sats"
-    }
-
-    private struct Entry { let key: [UInt8]; let value: [UInt8] }
-    private enum ParseError: Error { case notPSBT, missingCounts, malformed }
-
-    private struct Reader {
-        private var bytes: [UInt8]; private var offset = 0
-        init(data: Data) { bytes = Array(data) }
-        mutating func read(count: Int) throws -> [UInt8] {
-            guard count >= 0, offset + count <= bytes.count else { throw ParseError.malformed }
-            defer { offset += count }; return Array(bytes[offset..<(offset + count)])
-        }
-        mutating func readCompact() throws -> UInt64 {
-            let first = try read(count: 1)[0]
-            let count: Int
-            switch first { case 0xfd: count = 2; case 0xfe: count = 4; case 0xff: count = 8; default: return UInt64(first) }
-            return try read(count: count).enumerated().reduce(0) { $0 | UInt64($1.element) << UInt64(8 * $1.offset) }
-        }
-        mutating func readMap() throws -> [Entry] {
-            var entries: [Entry] = []
-            while true {
-                let keyLength = try readCompact()
-                if keyLength == 0 { return entries }
-                guard keyLength <= UInt64(Int.max) else { throw ParseError.malformed }
-                let key = try read(count: Int(keyLength))
-                let valueLength = try readCompact()
-                guard valueLength <= UInt64(Int.max) else { throw ParseError.malformed }
-                entries.append(Entry(key: key, value: try read(count: Int(valueLength))))
+    private var labelFilter: some View {
+        Picker(VaultLocalization.text("Label type"), selection: $category) {
+            ForEach(["all", "addr", "tx", "pubkey", "xpub", "input", "output"], id: \.self) { value in
+                Text(QuickLookDocument.categoryTitle(value)).tag(value)
             }
-        }
+        }.pickerStyle(.menu).accessibilityIdentifier("LabelFilter")
     }
-
-    private struct TransactionOutput { let value: UInt64; let script: [UInt8] }
-
-    private struct TransactionSummary {
-        let inputCount: Int; let outputs: [TransactionOutput]
-        var outputCount: Int { outputs.count }
-        var outputValue: UInt64 { outputs.reduce(0) { $0 + $1.value } }
-        static func parse(_ data: [UInt8]) throws -> TransactionSummary {
-            var reader = Reader(data: Data(data)); _ = try reader.read(count: 4)
-            let inputs = Int(try reader.readCompact())
-            for _ in 0..<inputs { _ = try reader.read(count: 36); _ = try reader.read(count: Int(try reader.readCompact())); _ = try reader.read(count: 4) }
-            let outputCount = Int(try reader.readCompact()); var outputs: [TransactionOutput] = []
-            for _ in 0..<outputCount {
-                let amount = try reader.read(count: 8).enumerated().reduce(0) { $0 | UInt64($1.element) << UInt64(8 * $1.offset) }
-                let script = try reader.read(count: Int(try reader.readCompact()))
-                outputs.append(TransactionOutput(value: amount, script: script))
+    private var resultCount: some View {
+        Text(VaultLocalization.format("Results: %1$@ / %2$@", VaultLocalization.number(matches.count), VaultLocalization.number(document.records.count)))
+            .font(.footnote).foregroundColor(.secondary).accessibilityIdentifier("LabelResults")
+    }
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(document.title).font(.title2.bold())
+            Text(document.summary).font(.subheadline).foregroundColor(.secondary)
+            if let total = document.total {
+                Text(VaultLocalization.text("Output total")).font(.subheadline).foregroundColor(.secondary)
+                Text(QuickLookDocument.sats(total)).font(.title2.bold()).textSelection(.enabled)
+                if let fiat = FiatEstimate.format(sats: total) { Text(fiat).font(.subheadline).foregroundColor(.secondary) }
             }
-            return TransactionSummary(inputCount: inputs, outputs: outputs)
-        }
+            if document.kind == .psbt {
+                Divider()
+                Text(VaultLocalization.format("PSBT version %@", VaultLocalization.number(document.version))).font(.footnote)
+                Text(VaultLocalization.text("Reported signing progress")).font(.headline)
+                ProgressView(value: Double(document.signedInputs), total: Double(max(1, document.inputCount)))
+                    .accessibilityLabel(VaultLocalization.text("Inputs with signature data"))
+                    .accessibilityValue(VaultLocalization.policy(required: document.signedInputs, total: document.inputCount))
+                Text(VaultLocalization.format("Signature data: %1$@ / %2$@ inputs", VaultLocalization.number(document.signedInputs), VaultLocalization.number(document.inputCount)))
+                Text(VaultLocalization.format("Finalization data: %1$@ / %2$@ inputs", VaultLocalization.number(document.finalizedInputs), VaultLocalization.number(document.inputCount)))
+                Divider()
+                Text(VaultLocalization.text("Fee from supplied input values")).font(.headline)
+                if let fee = document.fee {
+                    Text(QuickLookDocument.sats(fee)).font(.title3.bold()).textSelection(.enabled)
+                } else {
+                    Text(VaultLocalization.text("Unavailable until every input amount is present.")).foregroundColor(.secondary)
+                }
+                Text(VaultLocalization.text("Signatures and blockchain status are not verified. Reported progress does not establish that this PSBT is ready to broadcast."))
+                    .font(.footnote).foregroundColor(.secondary)
+                Text(VaultLocalization.text("Previous transactions are matched to their referenced transaction IDs when provided. Other input values are supplied metadata."))
+                    .font(.footnote).foregroundColor(.secondary)
+            }
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(20)
+            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
     }
 }
 
+private struct RecordCard: View {
+    let record: QuickLookDocument.Record
+    let network: BitcoinEncoding.Network
+    let index: Int
+    private var address: String? { record.script.flatMap { BitcoinEncoding.address(script: $0, network: network) } }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label(record.title, systemImage: record.category == "output" ? "arrow.up.circle" : record.category == "input" ? "arrow.down.circle" : "tag")
+                .font(.headline)
+            if let amount = record.amount {
+                Text(QuickLookDocument.sats(amount)).font(.title3.bold())
+                    .copyable(QuickLookDocument.sats(amount), action: "Copy amount")
+                    .accessibilityIdentifier("PreviewAmount-\(index)")
+                if let fiat = FiatEstimate.format(sats: amount) { Text(fiat).font(.subheadline).foregroundColor(.secondary) }
+            }
+            if let address {
+                Text(VaultLocalization.text(record.category == "input" ? "Previous output address" : "Destination address")).font(.caption).foregroundColor(.secondary)
+                identifier(address, action: "Copy address").accessibilityIdentifier("PreviewAddress-\(index)")
+            } else if let script = record.script {
+                Text(VaultLocalization.text("Output script")).font(.caption).foregroundColor(.secondary)
+                identifier(BitcoinEncoding.hexString(script), action: "Copy script")
+            }
+            if !record.reference.isEmpty {
+                Text(QuickLookDocument.categoryTitle(record.category)).font(.caption).foregroundColor(.secondary)
+                identifier(record.reference, action: "Copy reference")
+            }
+            if !record.detail.isEmpty { Text(record.detail).font(.subheadline).foregroundColor(.secondary) }
+            if let status = record.status { Text(status).font(.caption.weight(.medium)).foregroundColor(.secondary) }
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(16)
+            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14))
+
+    }
+    private func identifier(_ value: String, action: String) -> some View {
+        Text(verbatim: value.map(String.init).joined(separator: "\u{200B}"))
+            .font(.system(.footnote, design: .monospaced))
+            .fixedSize(horizontal: false, vertical: true)
+            .environment(\.layoutDirection, .leftToRight)
+            .accessibilityLabel(value)
+            .copyable(value, action: action)
+    }
+}
 /// Reads the most recently cached market rate selected in BlueWallet. Quick Look stays offline.
 private enum FiatEstimate {
     private static let appGroup = "group.io.bluewallet.bluewallet"
@@ -350,7 +213,7 @@ private enum FiatEstimate {
               let ratesJSON = defaults.string(forKey: "exchangeRates"),
               let ratesData = ratesJSON.data(using: .utf8),
               let rates = try? JSONSerialization.jsonObject(with: ratesData) as? [String: Any],
-              let rate = rates["BTC_\(currency)"] as? Double else { return nil }
+              let rate = rates["BTC_\(currency)"] as? Double, rate.isFinite, rate > 0 else { return nil }
 
         let localeIdentifier = defaults.string(forKey: "preferredCurrencyLocale") ?? Locale.current.identifier
         let formatter = NumberFormatter()

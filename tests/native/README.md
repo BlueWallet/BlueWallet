@@ -70,3 +70,48 @@ both Spanish variants, fallback, argument formatting, and localized key search.
 The preview presentation uses SwiftUI hosted by the Quick Look extension controller.
 Thumbnail drawing uses the system thumbnail drawing context: small icons show the signing policy;
 grid thumbnails add the vault name, and large thumbnails add the derivation path.
+
+## Transaction, PSBT, and label previews
+
+`QuickLookDocument.swift` is the shared preview/thumbnail model. It supports binary
+and hexadecimal transactions, binary/base64 PSBT v0/v2, and BIP-329 JSONL labels.
+It bounds file size, validates lengths and amounts, rejects duplicate PSBT map keys,
+and checks previous-transaction hashes and conflicting UTXO data before using them.
+
+Run the model checks:
+
+```sh
+swiftc ios/QuickLookShared/MultisigCoordination.swift ios/QuickLookShared/QuickLookDocument.swift tests/native/QuickLookDocumentTests.swift -o /tmp/bw-quicklook-tests
+/tmp/bw-quicklook-tests
+```
+
+The address fixtures contain Base58Check, Bech32, and Bech32m outputs cross-checked
+with bitcoinjs-lib. The parser tests cover v0/v2 fee calculation, unavailable fees,
+signature/finalization metadata, conflicting previous outputs, malformed lengths,
+truncation, label search/filtering, and unchanged references.
+
+- Vault search keeps the wallet name/policy visible. Fingerprints and derivation
+  paths have long-press copy menus and VoiceOver copy actions.
+- Transactions show separate output amounts and copyable destinations. Select a
+  network explicitly to display addresses; the default shows output scripts because
+  transactions do not identify their network. Unsupported scripts remain hexadecimal.
+- PSBT progress counts inputs containing signature/finalization data, **not verified
+  signatures or readiness to broadcast**. Fees use all supplied input values and are
+  absent when any value is missing. Previous-transaction matching does not establish
+  blockchain confirmation or spendability. No network requests are made.
+- Labels support combined search/type filters, clear filters, skipped-line counts,
+  and empty/no-results states. Copy preserves the exact reference.
+- Thumbnails show signing policy for vaults, output totals for transactions/PSBTs,
+  and record counts for labels. The thumbnail extension registers the BIP-329 UTI.
+- All presentation strings use the shared English/Spanish catalog. Both preview
+  types constrain reading width on iPad and use dynamic fonts and semantic colors.
+
+Use the simulator script's **JSONL · Wallet labels** sample, or stage the PSBT/TXN
+samples. Check each from Files, including search/filter combinations, long-press
+copy, network selection, malformed/empty files, dark appearance, accessibility text
+sizes, and iPad landscape. A new export or filename may be needed to refresh a
+cached Files thumbnail.
+
+Run all native checks with `bash tests/native/test-quicklook.sh`; the iOS PR build
+also runs this script. Compact thumbnails use SI prefixes (k/M/G/T/P) and mark
+rounded totals with ≈; the full preview always shows exact satoshi amounts.

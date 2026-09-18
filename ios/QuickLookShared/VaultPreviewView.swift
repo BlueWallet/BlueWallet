@@ -48,6 +48,13 @@ struct VaultPreviewView: View {
                     Button(VaultLocalization.text("Cancel")) { query = ""; searchFocused = false }
                 }
             }.padding(.horizontal, 16).padding(.vertical, 8)
+            if searching || searchFocused {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(setup.name).font(.headline)
+                    Text(setup.policy).font(.subheadline).foregroundColor(.secondary)
+                }.frame(maxWidth: 728, alignment: .leading).padding(.horizontal, 16).padding(.bottom, 10)
+                    .accessibilityIdentifier("VaultSearchSummary")
+            }
             ScrollViewReader { proxy in
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
@@ -70,7 +77,7 @@ struct VaultPreviewView: View {
                         }
                         Text(VaultLocalization.text("Public keys only · Coordination setup"))
                             .font(.footnote).foregroundColor(.secondary)
-                    }.padding(16)
+                    }.padding(16).frame(maxWidth: 760).frame(maxWidth: .infinity)
                 }
                 .onChange(of: query) { _ in
                     if searching { proxy.scrollTo("results", anchor: .top) }
@@ -115,7 +122,8 @@ private struct VaultKeyView: View {
             }
             VStack(alignment: .leading, spacing: 10) {
                 Text(cosigner.fingerprint).font(.subheadline.weight(.semibold))
-                if let path = cosigner.derivation { Text(path).font(.footnote).foregroundColor(.secondary) }
+                    .copyable(cosigner.fingerprint, action: "Copy fingerprint")
+                if let path = cosigner.derivation { Text(path).font(.footnote).foregroundColor(.secondary).copyable(path, action: "Copy derivation path") }
                 // Permit wrapping between characters without inserting visible hyphens.
                 // Clipboard and accessibility values retain the original key.
                 Text(verbatim: cosigner.key.map(String.init).joined(separator: "\u{200B}"))
@@ -148,5 +156,16 @@ private struct VaultKeyView: View {
 private struct DashedConnector: Shape {
     func path(in rect: CGRect) -> Path {
         Path { path in path.move(to: CGPoint(x: rect.midX, y: rect.minY)); path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY)) }
+    }
+}
+
+/// The exact source value is shared by the touch menu and VoiceOver action.
+extension View {
+    func copyable(_ value: String, action: String) -> some View {
+        self.contextMenu {
+            Button { UIPasteboard.general.string = value } label: {
+                Label(VaultLocalization.text(action), systemImage: "doc.on.doc")
+            }
+        }.accessibilityAction(named: Text(VaultLocalization.text(action))) { UIPasteboard.general.string = value }
     }
 }
