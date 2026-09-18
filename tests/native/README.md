@@ -24,8 +24,8 @@ A native rebuild is required to register the file type; a JavaScript reload alon
 does not enable the Files preview.
 
 
-For simulator testing, run `scripts/deeplink-to-emusim.sh` and choose **Send Sample
-File → bwcoord**. This stages the sample under **On My iPhone → BlueWallet →
+For simulator testing, run `scripts/deeplink-to-emusim.sh` and choose **Preview a sample
+file → bwcoord**. This stages the sample under **On My iPhone → BlueWallet →
 Quick Look Samples** and opens that folder in Files. Long-press the file and
 choose **Quick Look**.
 
@@ -66,3 +66,7 @@ bash tests/native/test-vault-localization.sh
 
 This compiles the real catalog into a temporary test bundle and checks English,
 both Spanish variants, fallback, argument formatting, and localized key search.
+
+The preview presentation uses SwiftUI hosted by the Quick Look extension controller.
+Thumbnail drawing uses the system thumbnail drawing context: small icons show policy
+and script type; grid thumbnails add the vault name, and large thumbnails add the derivation path.

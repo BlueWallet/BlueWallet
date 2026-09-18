@@ -8,45 +8,7 @@ final class ThumbnailProvider: QLThumbnailProvider {
                 let setup = try MultisigCoordination.parse(file: request.fileURL)
                 let size = request.maximumSize
                 handler(QLThumbnailReply(contextSize: size, currentContextDrawing: {
-                    let bounds = CGRect(origin: .zero, size: size)
-                    guard let context = UIGraphicsGetCurrentContext(),
-                          let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: VaultAppearance.gradient as CFArray, locations: nil) else { return false }
-                    let scale = min(size.width, size.height) / 240
-                    let inset = 16 * scale
-                    context.saveGState()
-                    UIBezierPath(roundedRect: bounds, cornerRadius: 12 * scale).addClip()
-                    context.drawLinearGradient(gradient, start: .zero, end: CGPoint(x: 0, y: size.height), options: [])
-                    VaultAppearance.artwork?.draw(in: CGRect(x: size.width * 0.4, y: 0, width: size.width * 0.75, height: size.height), blendMode: .normal, alpha: 0.12)
-                    // White lettering over the turquoise end of the vault gradient
-                    // loses contrast in Files. Darken the artwork and give the name
-                    // its own opaque panel; tiny list icons only show the policy.
-                    UIColor.black.withAlphaComponent(0.45).setFill()
-                    UIBezierPath(rect: bounds).fill()
-                    let compact = min(size.width, size.height) < 96
-                    let paragraph = NSMutableParagraphStyle()
-                    paragraph.alignment = .center
-                    paragraph.lineBreakMode = .byTruncatingTail
-                    let policy = VaultLocalization.policy(required: setup.required, total: setup.total, compact: compact)
-                    let policyArea = CGRect(x: inset, y: 0, width: size.width - inset * 2, height: size.height * (compact ? 1 : 0.70))
-                    var policyFont = UIFont.systemFont(ofSize: (compact ? 76 : 58) * scale, weight: .heavy)
-                    let measuredWidth = (policy as NSString).size(withAttributes: [.font: policyFont]).width
-                    if measuredWidth > policyArea.width {
-                        policyFont = .systemFont(ofSize: policyFont.pointSize * policyArea.width / measuredWidth, weight: .heavy)
-                    }
-                    (policy as NSString).draw(in: CGRect(x: policyArea.minX, y: policyArea.midY - policyFont.lineHeight / 2,
-                                                         width: policyArea.width, height: policyFont.lineHeight),
-                                              withAttributes: [.font: policyFont, .foregroundColor: UIColor.white, .paragraphStyle: paragraph])
-                    if !compact {
-                        let nameArea = CGRect(x: 0, y: size.height * 0.70, width: size.width, height: size.height * 0.30)
-                        UIColor.white.setFill()
-                        UIBezierPath(rect: nameArea).fill()
-                        let nameFont = UIFont.systemFont(ofSize: 25 * scale, weight: .bold)
-                        (setup.name as NSString).draw(in: CGRect(x: inset, y: nameArea.midY - nameFont.lineHeight / 2,
-                                                                width: nameArea.width - inset * 2, height: nameFont.lineHeight),
-                                                     withAttributes: [.font: nameFont, .foregroundColor: VaultAppearance.color(0x0c2550), .paragraphStyle: paragraph])
-                    }
-                    context.restoreGState()
-                    return true
+                    VaultThumbnail.draw(setup: setup, size: size)
                 }), nil)
             } catch {
                 handler(nil, error)
@@ -128,5 +90,85 @@ private extension Data {
         var bytes: [UInt8] = []; var index = hex.startIndex
         while index < hex.endIndex { let next = hex.index(index, offsetBy: 2); guard let byte = UInt8(hex[index..<next], radix: 16) else { return nil }; bytes.append(byte); index = next }
         self.init(bytes)
+    }
+}
+
+/// Uses the same renderer for Files thumbnails and native layout checks.
+enum VaultThumbnail {
+    static func draw(setup: MultisigCoordination, size: CGSize) -> Bool {
+        guard size.width > 0, size.height > 0, let context = UIGraphicsGetCurrentContext(),
+              let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
+                                        colors: VaultAppearance.gradient as CFArray, locations: nil) else { return false }
+        let bounds = CGRect(origin: .zero, size: size)
+        let edge = min(size.width, size.height)
+        let compact = edge < 72
+        let inset = max(3, edge * 0.07)
+        let width = size.width - inset * 2
+        let headerHeight = size.height * (compact ? 0.65 : 0.36)
+        context.saveGState()
+        defer { context.restoreGState() }
+        UIBezierPath(roundedRect: bounds, cornerRadius: edge * 0.05).addClip()
+        UIColor.white.setFill()
+        UIBezierPath(rect: bounds).fill()
+        context.saveGState()
+        context.clip(to: CGRect(x: 0, y: 0, width: size.width, height: headerHeight))
+        context.drawLinearGradient(gradient, start: .zero, end: CGPoint(x: size.width, y: headerHeight), options: [])
+        VaultAppearance.artwork?.draw(in: CGRect(x: size.width * 0.45, y: 0, width: size.width * 0.7, height: headerHeight),
+                                     blendMode: .normal, alpha: 0.12)
+        UIColor.black.withAlphaComponent(0.45).setFill()
+        UIBezierPath(rect: bounds).fill()
+        context.restoreGState()
+
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        paragraph.lineBreakMode = .byTruncatingTail
+        func draw(_ text: String, in rect: CGRect, font: UIFont, color: UIColor) {
+            (text as NSString).draw(with: rect, options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine],
+                                   attributes: [.font: font, .foregroundColor: color, .paragraphStyle: paragraph], context: nil)
+        }
+        let policy = VaultLocalization.policy(required: setup.required, total: setup.total, compact: compact)
+        var policyFont = UIFont.systemFont(ofSize: min(48, edge * (compact ? 0.40 : 0.29)), weight: .heavy)
+        let policyWidth = (policy as NSString).size(withAttributes: [.font: policyFont]).width
+        if policyWidth > width {
+            policyFont = .systemFont(ofSize: policyFont.pointSize * width / policyWidth, weight: .heavy)
+        }
+        draw(policy, in: CGRect(x: inset, y: (headerHeight - policyFont.lineHeight) / 2, width: width, height: policyFont.lineHeight),
+             font: policyFont, color: .white)
+
+        let ink = VaultAppearance.color(0x0c2550)
+        if compact {
+            // The technical format stays meaningful at icon size, unlike a
+            // truncated wallet name that Files already labels below the icon.
+            var formatFont = UIFont.systemFont(ofSize: max(7, edge * 0.16), weight: .bold)
+            let formatWidth = (setup.formatIdentifier as NSString).size(withAttributes: [.font: formatFont]).width
+            if formatWidth > width {
+                formatFont = .systemFont(ofSize: formatFont.pointSize * width / formatWidth, weight: .bold)
+            }
+            draw(setup.formatIdentifier,
+                 in: CGRect(x: inset, y: headerHeight + (size.height - headerHeight - formatFont.lineHeight) / 2,
+                            width: width, height: formatFont.lineHeight), font: formatFont, color: ink)
+            return true
+        }
+
+        let nameFont = UIFont.systemFont(ofSize: max(10, min(22, edge * 0.13)), weight: .bold)
+        let nameRect = CGRect(x: inset, y: headerHeight + inset, width: width, height: nameFont.lineHeight * 2)
+        paragraph.lineBreakMode = .byWordWrapping
+        draw(setup.name, in: nameRect, font: nameFont, color: ink)
+        paragraph.lineBreakMode = .byTruncatingTail
+        let formatFont = UIFont.systemFont(ofSize: max(9, min(16, edge * 0.11)), weight: .semibold)
+        let formatRect = CGRect(x: inset, y: nameRect.maxY + inset / 2, width: width, height: formatFont.lineHeight)
+        // Prefer a short, unambiguous script identifier when its localized name
+        // would need truncation at the grid thumbnail size.
+        let formatWidth = (setup.format as NSString).size(withAttributes: [.font: formatFont]).width
+        draw(formatWidth <= width ? setup.format : setup.formatIdentifier, in: formatRect, font: formatFont, color: ink)
+        if edge >= 200 {
+            let paths = Set(setup.cosigners.compactMap { $0.derivation })
+            let path = paths.count == 1 && setup.cosigners.allSatisfy({ $0.derivation != nil })
+                ? paths.first! : VaultLocalization.text("Custom derivation paths")
+            let pathFont = UIFont.monospacedSystemFont(ofSize: min(14, edge * 0.065), weight: .medium)
+            draw(path, in: CGRect(x: inset, y: formatRect.maxY + inset / 2, width: width, height: pathFont.lineHeight),
+                 font: pathFont, color: VaultAppearance.color(0x475569))
+        }
+        return true
     }
 }

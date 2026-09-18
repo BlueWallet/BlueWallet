@@ -1,3 +1,4 @@
+import SwiftUI
 import UIKit
 
 /// Mirrors WalletGradient.multisigHdWallet and MultipleStepsListItem.
@@ -11,290 +12,141 @@ enum VaultAppearance {
     static let panel = UIColor { $0.userInterfaceStyle == .dark ? color(0x262626) : color(0xf5f5f5) }
     static let success = UIColor { $0.userInterfaceStyle == .dark ? color(0x8EFFE5) : color(0x2FA380) }
     static let check = UIColor { $0.userInterfaceStyle == .dark ? .black : .white }
-    static let artwork = UIImage(named: "vault-shape", in: Bundle(for: VaultPreviewView.self), compatibleWith: nil)
+    static let artwork = UIImage(named: "vault-shape", in: VaultLocalization.bundle, compatibleWith: nil)
 
-    static func label(_ text: String, size: CGFloat, weight: UIFont.Weight = .regular, color: UIColor = .label) -> UILabel {
-        let label = UILabel()
-        label.text = text
-        label.textColor = color
-        label.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: size, weight: weight))
-        label.adjustsFontForContentSizeCategory = true
-        label.numberOfLines = 0
-        return label
+}
+
+struct VaultPreviewView: View {
+    let setup: MultisigCoordination
+    @State private var query = ""
+    @FocusState private var searchFocused: Bool
+    private var indices: [Int] { setup.matchingCosignerIndices(query: query) }
+    private var searching: Bool { !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundColor(.secondary)
+                    TextField(VaultLocalization.text("Search vault keys"), text: $query)
+                        .textInputAutocapitalization(.never)
+                        .disableAutocorrection(true)
+                        .focused($searchFocused)
+                        .submitLabel(.search)
+                        .onSubmit { searchFocused = false }
+                        .accessibilityIdentifier("VaultKeySearch")
+                        .accessibilityHint(VaultLocalization.text("Search by key number, fingerprint, derivation path, or public key."))
+                    if !query.isEmpty {
+                        Button { query = "" } label: { Image(systemName: "xmark.circle.fill") }
+                            .accessibilityLabel(VaultLocalization.text("Clear search"))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .padding(10)
+                .background(Color(VaultAppearance.panel), in: RoundedRectangle(cornerRadius: 10))
+                if searchFocused || searching {
+                    Button(VaultLocalization.text("Cancel")) { query = ""; searchFocused = false }
+                }
+            }.padding(.horizontal, 16).padding(.vertical, 8)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        VaultCard(setup: setup)
+                        HStack(spacing: 10) {
+                            Text(VaultLocalization.number(setup.required))
+                                .padding(.horizontal, 10).padding(.vertical, 5)
+                                .background(Color(VaultAppearance.panel), in: RoundedRectangle(cornerRadius: 6))
+                            Text(VaultLocalization.text("Signatures required")).foregroundColor(.secondary)
+                        }.font(.subheadline.weight(.semibold))
+                        if searching {
+                            Text(indices.isEmpty ? VaultLocalization.text("No matching keys") : VaultLocalization.format("Keys: %1$@ / %2$@", VaultLocalization.number(indices.count), VaultLocalization.number(setup.total)))
+                                .font(.footnote).foregroundColor(.secondary)
+                                .accessibilityIdentifier("VaultKeySearchResults").id("results")
+                        }
+                        VStack(spacing: 0) {
+                            ForEach(indices, id: \.self) { index in
+                                VaultKeyView(index: index, cosigner: setup.cosigners[index])
+                            }
+                        }
+                        Text(VaultLocalization.text("Public keys only · Coordination setup"))
+                            .font(.footnote).foregroundColor(.secondary)
+                    }.padding(16)
+                }
+                .onChange(of: query) { _ in
+                    if searching { proxy.scrollTo("results", anchor: .top) }
+                }
+            }
+        }.background(Color(VaultAppearance.background))
     }
 }
 
-final class VaultPreviewView: UIView, UISearchBarDelegate {
-    private let setup: MultisigCoordination
-    private let scrollView = UIScrollView()
-    private let keys = UIStackView()
-    private let searchBar = UISearchBar()
-    private let resultsLabel = VaultAppearance.label("", size: 13, color: VaultAppearance.secondary)
-
-    init(setup: MultisigCoordination) {
-        self.setup = setup
-        super.init(frame: .zero)
-        backgroundColor = VaultAppearance.background
-        searchBar.placeholder = VaultLocalization.text("Search vault keys")
-        searchBar.accessibilityIdentifier = "VaultKeySearch"
-        searchBar.searchTextField.accessibilityHint = VaultLocalization.text("Search by key number, fingerprint, derivation path, or public key.")
-        searchBar.searchBarStyle = .minimal
-        searchBar.autocapitalizationType = .none
-        searchBar.autocorrectionType = .no
-        searchBar.searchTextField.smartQuotesType = .no
-        searchBar.searchTextField.smartDashesType = .no
-        searchBar.delegate = self
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.alwaysBounceVertical = true
-        scrollView.keyboardDismissMode = .interactive
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(searchBar)
-        addSubview(scrollView)
-        NSLayoutConstraint.activate([
-            searchBar.topAnchor.constraint(equalTo: topAnchor),
-            searchBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
-            searchBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
-            scrollView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: keyboardLayoutGuide.topAnchor),
-        ])
-        let content = UIStackView()
-        content.axis = .vertical
-        content.spacing = 24
-        content.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(content)
-        NSLayoutConstraint.activate([
-            content.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 20),
-            content.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -24),
-            content.centerXAnchor.constraint(equalTo: scrollView.frameLayoutGuide.centerXAnchor),
-            content.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor, constant: -32),
-        ])
-        content.addArrangedSubview(VaultCard(setup: setup))
-
-        let policy = UIStackView(arrangedSubviews: [
-            VaultAppearance.label(VaultLocalization.number(setup.required), size: 15, weight: .semibold),
-            VaultAppearance.label(VaultLocalization.text("Signatures required"), size: 15, weight: .semibold, color: VaultAppearance.secondary),
-        ])
-        policy.spacing = 10
-        policy.alignment = .center
-        let badge = policy.arrangedSubviews[0] as! UILabel
-        badge.textAlignment = .center
-        badge.backgroundColor = VaultAppearance.panel
-        badge.layer.cornerRadius = 6
-        badge.clipsToBounds = true
-        badge.widthAnchor.constraint(equalToConstant: UIFontMetrics.default.scaledValue(for: 30)).isActive = true
-        badge.heightAnchor.constraint(greaterThanOrEqualToConstant: 28).isActive = true
-        content.addArrangedSubview(policy)
-
-        resultsLabel.accessibilityIdentifier = "VaultKeySearchResults"
-        resultsLabel.isHidden = true
-        content.addArrangedSubview(resultsLabel)
-        keys.axis = .vertical
-        keys.spacing = 0
-        content.addArrangedSubview(keys)
-        updateSearch()
-        content.addArrangedSubview(VaultAppearance.label(VaultLocalization.text("Public keys only · Coordination setup"), size: 13, color: VaultAppearance.secondary))
-    }
-
-    private func updateSearch() {
-        let query = searchBar.text ?? ""
-        let indices = setup.matchingCosignerIndices(query: query)
-        for row in keys.arrangedSubviews { row.removeFromSuperview() }
-        for (position, index) in indices.enumerated() {
-            keys.addArrangedSubview(VaultKeyView(index: index, cosigner: setup.cosigners[index], last: position == indices.count - 1))
+private struct VaultCard: View {
+    let setup: MultisigCoordination
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(setup.name).font(.title3.weight(.semibold))
+            Text(setup.policy).font(.largeTitle.bold())
+            Text(VaultLocalization.format("Multisig Vault · %@", setup.format)).font(.subheadline)
         }
-        resultsLabel.isHidden = query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        resultsLabel.text = indices.isEmpty ? VaultLocalization.text("No matching keys") : VaultLocalization.format("Keys: %1$@ / %2$@", VaultLocalization.number(indices.count), VaultLocalization.number(setup.total))
-        if !resultsLabel.isHidden {
-            layoutIfNeeded()
-            let resultTop = resultsLabel.convert(resultsLabel.bounds, to: scrollView).minY
-            let maximumOffset = max(0, scrollView.contentSize.height - scrollView.bounds.height)
-            scrollView.setContentOffset(CGPoint(x: 0, y: min(resultTop, maximumOffset)), animated: false)
+        .foregroundColor(.white).frame(maxWidth: .infinity, alignment: .leading).padding(20)
+        .background(alignment: .trailing) {
+            if let artwork = VaultAppearance.artwork {
+                Image(uiImage: artwork).resizable().scaledToFit().opacity(0.12).accessibilityHidden(true)
+            }
         }
+        .background(LinearGradient(colors: VaultAppearance.gradient.map { Color(cgColor: $0) }, startPoint: .top, endPoint: .bottom))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
-
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        updateSearch()
-    }
-
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchBar.setShowsCancelButton(true, animated: true)
-    }
-
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-    }
-
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = ""
-        searchBar.resignFirstResponder()
-        searchBar.setShowsCancelButton(false, animated: true)
-        updateSearch()
-        scrollView.setContentOffset(.zero, animated: true)
-    }
-
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
-private final class VaultCard: UIView {
-    private let gradient = CAGradientLayer()
-    init(setup: MultisigCoordination) {
-        super.init(frame: .zero)
-        layer.cornerRadius = 12
-        clipsToBounds = true
-        gradient.colors = VaultAppearance.gradient
-        gradient.startPoint = CGPoint(x: 0.5, y: 0)
-        gradient.endPoint = CGPoint(x: 0.5, y: 1)
-        layer.addSublayer(gradient)
-        let art = UIImageView(image: VaultAppearance.artwork)
-        art.contentMode = .scaleAspectFill
-        art.alpha = 0.12
-        art.setContentCompressionResistancePriority(.fittingSizeLevel, for: .vertical)
-        art.setContentHuggingPriority(.fittingSizeLevel, for: .vertical)
-        art.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(art)
-        let labels = UIStackView(arrangedSubviews: [
-            VaultAppearance.label(setup.name, size: 20, weight: .semibold, color: .white),
-            VaultAppearance.label(setup.policy, size: 34, weight: .bold, color: .white),
-            VaultAppearance.label(VaultLocalization.format("Multisig Vault · %@", setup.format), size: 14, color: .white),
-        ])
-        labels.axis = .vertical
-        labels.spacing = 16
-        labels.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(labels)
-        NSLayoutConstraint.activate([
-            labels.topAnchor.constraint(equalTo: topAnchor, constant: 20),
-            labels.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -20),
-            labels.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            labels.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            art.trailingAnchor.constraint(equalTo: trailingAnchor),
-            art.topAnchor.constraint(equalTo: topAnchor),
-            art.bottomAnchor.constraint(equalTo: bottomAnchor),
-            art.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.65),
-        ])
+private struct VaultKeyView: View {
+    let index: Int
+    let cosigner: MultisigCoordination.Cosigner
+    private func copyKey() { UIPasteboard.general.string = cosigner.key }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 16) {
+                Image(systemName: "checkmark").font(.title2.weight(.medium))
+                    .foregroundColor(Color(VaultAppearance.check))
+                    .frame(width: 42, height: 42).background(Color(VaultAppearance.success), in: Circle())
+                    .accessibilityHidden(true)
+                Text(VaultLocalization.key(index + 1)).font(.headline).foregroundColor(.secondary)
+            }
+            VStack(alignment: .leading, spacing: 10) {
+                Text(cosigner.fingerprint).font(.subheadline.weight(.semibold))
+                if let path = cosigner.derivation { Text(path).font(.footnote).foregroundColor(.secondary) }
+                // Permit wrapping between characters without inserting visible hyphens.
+                // Clipboard and accessibility values retain the original key.
+                Text(verbatim: cosigner.key.map(String.init).joined(separator: "\u{200B}"))
+                    .font(.system(.footnote, design: .monospaced))
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .contextMenu {
+                        Button(action: copyKey) { Label(VaultLocalization.text("Copy public key"), systemImage: "doc.on.doc") }
+                    }
+                    .accessibilityIdentifier("VaultPublicKey-\(index + 1)")
+                    .accessibilityLabel(VaultLocalization.format("Vault key %@ public key", VaultLocalization.number(index + 1)))
+                    .accessibilityValue(cosigner.key)
+                    .accessibilityHint(VaultLocalization.text("Touch and hold to copy the full public key."))
+                    .accessibilityAction(named: Text(VaultLocalization.text("Copy public key")), copyKey)
+            }
+            .environment(\.layoutDirection, .leftToRight)
+            .padding(16)
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(VaultAppearance.panel)))
+            .padding(.leading, 40)
+        }
+        .padding(.bottom, 24)
+        .background(alignment: .leading) {
+            VStack { Color.clear.frame(height: 42); DashedConnector().stroke(Color.gray.opacity(0.5), style: StrokeStyle(lineWidth: 1, dash: [3, 3])) }
+                .frame(width: 1).padding(.leading, 21)
+        }
     }
-    override func layoutSubviews() { super.layoutSubviews(); gradient.frame = bounds }
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }
 
-private final class VaultKeyView: UIView {
-    private let connector = CAShapeLayer()
-    private let last: Bool
-    private let panel = UIStackView()
-    init(index: Int, cosigner: MultisigCoordination.Cosigner, last: Bool) {
-        self.last = last
-        super.init(frame: .zero)
-        layer.addSublayer(connector)
-        connector.lineDashPattern = [3, 3]
-        connector.strokeColor = VaultAppearance.color(0xc4c4c4).cgColor
-        connector.lineWidth = 1
-
-        let circle = UIView()
-        circle.backgroundColor = VaultAppearance.success
-        circle.layer.cornerRadius = 21
-        let check = UIImageView(image: UIImage(systemName: "checkmark", withConfiguration: UIImage.SymbolConfiguration(pointSize: 24, weight: .medium)))
-        check.tintColor = VaultAppearance.check
-        check.contentMode = .center
-        check.translatesAutoresizingMaskIntoConstraints = false
-        circle.addSubview(check)
-        let title = VaultAppearance.label(VaultLocalization.key(index + 1), size: 18, weight: .bold, color: VaultAppearance.secondary)
-        panel.axis = .vertical
-        panel.spacing = 10
-        panel.isLayoutMarginsRelativeArrangement = true
-        panel.layoutMargins = UIEdgeInsets(top: 14, left: 16, bottom: 14, right: 16)
-        panel.layer.cornerRadius = 8
-        panel.layer.borderWidth = 1
-        panel.backgroundColor = VaultAppearance.background
-        panel.addArrangedSubview(VaultAppearance.label(cosigner.fingerprint, size: 15, weight: .semibold))
-        if let path = cosigner.derivation {
-            panel.addArrangedSubview(VaultAppearance.label(path, size: 13, color: VaultAppearance.secondary))
-        }
-        let key = VaultPublicKeyView(publicKey: cosigner.key, index: index)
-        key.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: .monospacedSystemFont(ofSize: 13, weight: .regular))
-        key.adjustsFontForContentSizeCategory = true
-        key.textColor = .label
-        key.backgroundColor = .clear
-        key.isEditable = false
-        key.isScrollEnabled = false
-        key.textContainerInset = .zero
-        key.textContainer.lineFragmentPadding = 0
-        key.textContainer.lineBreakMode = .byCharWrapping
-        panel.addArrangedSubview(key)
-        for child in [circle, title, panel] {
-            child.translatesAutoresizingMaskIntoConstraints = false
-            addSubview(child)
-        }
-        NSLayoutConstraint.activate([
-            circle.leadingAnchor.constraint(equalTo: leadingAnchor),
-            circle.topAnchor.constraint(equalTo: topAnchor),
-            circle.widthAnchor.constraint(equalToConstant: 42),
-            circle.heightAnchor.constraint(equalToConstant: 42),
-            check.centerXAnchor.constraint(equalTo: circle.centerXAnchor),
-            check.centerYAnchor.constraint(equalTo: circle.centerYAnchor),
-            title.leadingAnchor.constraint(equalTo: circle.trailingAnchor, constant: 16),
-            title.trailingAnchor.constraint(equalTo: trailingAnchor),
-            title.topAnchor.constraint(equalTo: topAnchor, constant: 9),
-            panel.topAnchor.constraint(greaterThanOrEqualTo: circle.bottomAnchor, constant: 16),
-            panel.topAnchor.constraint(greaterThanOrEqualTo: title.bottomAnchor, constant: 16),
-            panel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 40),
-            panel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            panel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -24),
-        ])
-        let preferredTop = panel.topAnchor.constraint(equalTo: circle.bottomAnchor, constant: 16)
-        preferredTop.priority = .defaultHigh
-        preferredTop.isActive = true
-        panel.layer.borderColor = VaultAppearance.panel.resolvedColor(with: traitCollection).cgColor
+private struct DashedConnector: Shape {
+    func path(in rect: CGRect) -> Path {
+        Path { path in path.move(to: CGPoint(x: rect.midX, y: rect.minY)); path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY)) }
     }
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        panel.layer.borderColor = VaultAppearance.panel.resolvedColor(with: traitCollection).cgColor
-        let path = UIBezierPath()
-        let connectorX: CGFloat = effectiveUserInterfaceLayoutDirection == .rightToLeft ? bounds.width - 21 : 21
-        path.move(to: CGPoint(x: connectorX, y: 42))
-        path.addLine(to: CGPoint(x: connectorX, y: last ? bounds.height - 24 : bounds.height))
-        connector.path = path.cgPath
-    }
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
-}
-
-/// Copies the whole extended public key, without requiring text selection across lines.
-private final class VaultPublicKeyView: UITextView, UIContextMenuInteractionDelegate {
-    private let publicKey: String
-
-    init(publicKey: String, index: Int) {
-        self.publicKey = publicKey
-        super.init(frame: .zero, textContainer: nil)
-        text = publicKey
-        semanticContentAttribute = .forceLeftToRight
-        textAlignment = .left
-        isEditable = false
-        isSelectable = false
-        accessibilityIdentifier = "VaultPublicKey-\(index + 1)"
-        accessibilityLabel = VaultLocalization.format("Vault key %@ public key", VaultLocalization.number(index + 1))
-        accessibilityValue = publicKey
-        accessibilityHint = VaultLocalization.text("Touch and hold to copy the full public key.")
-        accessibilityCustomActions = [
-            UIAccessibilityCustomAction(name: VaultLocalization.text("Copy public key"), target: self, selector: #selector(copyPublicKey)),
-        ]
-        addInteraction(UIContextMenuInteraction(delegate: self))
-    }
-
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
-                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
-            UIMenu(children: [
-                UIAction(title: VaultLocalization.text("Copy public key"), image: UIImage(systemName: "doc.on.doc")) { [weak self] _ in
-                    _ = self?.copyPublicKey()
-                },
-            ])
-        }
-    }
-
-    @objc private func copyPublicKey() -> Bool {
-        UIPasteboard.general.string = publicKey
-        return true
-    }
-
-    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }

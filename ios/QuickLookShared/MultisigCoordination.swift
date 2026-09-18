@@ -11,6 +11,7 @@ struct MultisigCoordination {
     let required: Int
     let total: Int
     let format: String
+    let formatIdentifier: String
     let cosigners: [Cosigner]
 
     var policy: String { VaultLocalization.policy(required: required, total: total) }
@@ -36,6 +37,7 @@ struct MultisigCoordination {
         var required: Int?
         var total: Int?
         var format: String?
+        var formatIdentifier: String?
         var globalPath: String?
         var nextPath: String?
         var cosigners: [Cosigner] = []
@@ -57,6 +59,7 @@ struct MultisigCoordination {
                 required = Int(policy[0]); total = Int(policy[2])
             case "Format":
                 guard format == nil else { throw invalid() }
+                formatIdentifier = parts[1]
                 switch parts[1] {
                 case "P2WSH": format = VaultLocalization.text("Native SegWit")
                 case "P2SH-P2WSH": format = VaultLocalization.text("Wrapped SegWit")
@@ -72,9 +75,9 @@ struct MultisigCoordination {
                 nextPath = nil
             }
         }
-        guard let name, !name.isEmpty, let required, let total, let format,
+        guard let name, !name.isEmpty, let required, let total, let format, let formatIdentifier,
               required > 0, required <= total, total == cosigners.count, nextPath == nil else { throw invalid() }
-        return Self(name: name, required: required, total: total, format: format, cosigners: cosigners)
+        return Self(name: name, required: required, total: total, format: format, formatIdentifier: formatIdentifier, cosigners: cosigners)
     }
 }
 

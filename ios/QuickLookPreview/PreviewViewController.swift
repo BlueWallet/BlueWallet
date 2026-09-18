@@ -1,79 +1,35 @@
 import QuickLook
 import UIKit
+import SwiftUI
 
-final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate {
-    private let titleLabel = UILabel()
-    private let summaryLabel = UILabel()
-    private let tableView = UITableView(frame: .zero, style: .insetGrouped)
-    private var coordinationView: VaultPreviewView?
-    private var standardView: UIView?
-    private var records: [(label: String, detail: String, symbol: String)] = []
+final class PreviewViewController: UIViewController, QLPreviewingController {
+    private var host: UIViewController?
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        view.backgroundColor = .systemGroupedBackground
-
-        titleLabel.text = "BIP-329 Wallet Labels"
-        titleLabel.font = .preferredFont(forTextStyle: .title2)
-        titleLabel.numberOfLines = 0
-        titleLabel.adjustsFontForContentSizeCategory = true
-
-        summaryLabel.numberOfLines = 0
-        summaryLabel.font = .preferredFont(forTextStyle: .subheadline)
-        summaryLabel.textColor = .secondaryLabel
-        summaryLabel.adjustsFontForContentSizeCategory = true
-
-        let header = UIStackView(arrangedSubviews: [titleLabel, summaryLabel])
-        header.axis = .vertical
-        header.spacing = 6
-        header.layoutMargins = UIEdgeInsets(top: 22, left: 20, bottom: 18, right: 20)
-        header.isLayoutMarginsRelativeArrangement = true
-        header.backgroundColor = .secondarySystemGroupedBackground
-        header.layer.cornerRadius = 16
-        header.layer.cornerCurve = .continuous
-
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 72
-        tableView.backgroundColor = .clear
-        tableView.separatorStyle = .none
-
-        let stack = UIStackView(arrangedSubviews: [header, tableView])
-        stack.axis = .vertical
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stack)
-        standardView = stack
-
+    private func presentPreview<Content: View>(_ content: Content) {
+        host?.willMove(toParent: nil)
+        host?.view.removeFromSuperview()
+        host?.removeFromParent()
+        let controller = UIHostingController(rootView: content)
+        addChild(controller)
+        controller.view.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(controller.view)
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            stack.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            stack.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            controller.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            controller.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            controller.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            controller.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
+        controller.didMove(toParent: self)
+        host = controller
     }
 
     func preparePreviewOfFile(at url: URL) async throws {
-		loadViewIfNeeded()
-        let isCoordination = url.pathExtension.lowercased() == "bwcoord"
-        coordinationView?.removeFromSuperview()
-        coordinationView = nil
-        standardView?.isHidden = isCoordination
-        if isCoordination {
+        loadViewIfNeeded()
+        if url.pathExtension.lowercased() == "bwcoord" {
             let setup = try await Task.detached(priority: .userInitiated) {
                 try MultisigCoordination.parse(file: url)
             }.value
-            let vault = VaultPreviewView(setup: setup)
-            vault.translatesAutoresizingMaskIntoConstraints = false
-            view.addSubview(vault)
-            NSLayoutConstraint.activate([
-                vault.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-                vault.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                vault.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                vault.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            ])
-            coordinationView = vault
+            presentPreview(VaultPreviewView(setup: setup))
             return
         }
         let parsed = try await Task.detached(priority: .userInitiated) {
@@ -136,61 +92,45 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
 			return ("BIP-329 Wallet Labels", summary, records)
         }.value
 
-		titleLabel.text = parsed.0
-		summaryLabel.text = parsed.1
-		records = parsed.2
-        tableView.reloadData()
+        presentPreview(RecordsPreviewView(title: parsed.0, summary: parsed.1, records: parsed.2))
     }
+}
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        records.count
-    }
+private struct RecordsPreviewView: View {
+    let title: String
+    let summary: String
+    let records: [(label: String, detail: String, symbol: String)]
+    @State private var selectedIndex: Int?
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
-        let record = records[indexPath.row]
-
-        var content = cell.defaultContentConfiguration()
-        content.text = record.label
-        content.secondaryText = record.detail
-        content.textProperties.font = .systemFont(ofSize: 17, weight: .semibold)
-        content.secondaryTextProperties.font = .preferredFont(forTextStyle: .subheadline)
-        content.secondaryTextProperties.color = .secondaryLabel
-        content.secondaryTextProperties.numberOfLines = 0
-        content.textProperties.numberOfLines = 0
-        content.image = UIImage(systemName: record.symbol)
-        content.imageProperties.tintColor = .systemBlue
-        content.imageProperties.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold)
-        cell.contentConfiguration = content
-        cell.backgroundColor = .secondarySystemGroupedBackground
-        cell.layer.cornerRadius = 14
-        cell.layer.cornerCurve = .continuous
-        cell.clipsToBounds = true
-        cell.layoutMargins = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
-        cell.accessoryType = .none
-
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let record = records[indexPath.row]
-        let copyValue: String
-        if record.label.hasPrefix("Input ") || record.label.hasPrefix("Output ") {
-            copyValue = record.detail.components(separatedBy: " · ").first ?? record.detail
-        } else {
-            copyValue = record.detail
-        }
-        let sheet = UIAlertController(title: record.label, message: record.detail, preferredStyle: .actionSheet)
-        sheet.addAction(UIAlertAction(title: "Copy", style: .default) { _ in
-            UIPasteboard.general.string = copyValue
-        })
-        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        if let popover = sheet.popoverPresentationController, let cell = tableView.cellForRow(at: indexPath) {
-            popover.sourceView = cell
-            popover.sourceRect = cell.bounds
-        }
-        present(sheet, animated: true)
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(title).font(.title2)
+                    Text(summary).font(.subheadline).foregroundColor(.secondary)
+                }.frame(maxWidth: .infinity, alignment: .leading).padding(20)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 16))
+                ForEach(records.indices, id: \.self) { index in
+                    let record = records[index]
+                    Button { selectedIndex = index } label: {
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: record.symbol).font(.title2).foregroundColor(.blue).frame(width: 28)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(record.label).font(.headline).foregroundColor(.primary)
+                                Text(record.detail).font(.subheadline).foregroundColor(.secondary)
+                            }.frame(maxWidth: .infinity, alignment: .leading)
+                        }.padding(16)
+                    }.buttonStyle(.plain)
+                        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 14))
+                        .confirmationDialog(record.label, isPresented: Binding(get: { selectedIndex == index }, set: { if !$0 { selectedIndex = nil } }), titleVisibility: .visible) {
+                            Button("Copy") {
+                                UIPasteboard.general.string = record.label.hasPrefix("Input ") || record.label.hasPrefix("Output ") ? record.detail.components(separatedBy: " · ").first ?? record.detail : record.detail
+                            }
+                            Button("Cancel", role: .cancel) {}
+                        } message: { Text(record.detail) }
+                }
+            }.padding(16)
+        }.background(Color(uiColor: .systemGroupedBackground))
     }
 }
 

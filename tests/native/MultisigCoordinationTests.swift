@@ -11,6 +11,7 @@ enum MultisigCoordinationTests {
         precondition(setup.name == "Family Vault (Sample)")
         precondition(setup.policy == "2 of 3")
         precondition(setup.format == "Native SegWit")
+        precondition(setup.formatIdentifier == "P2WSH")
         precondition(setup.cosigners.count == 3)
         precondition(setup.cosigners.allSatisfy { $0.derivation == "m/48'/0'/0'/2'" })
 
