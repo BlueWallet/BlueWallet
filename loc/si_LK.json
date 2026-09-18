@@ -104,9 +104,10 @@
     "title": "ඔබේ පසුම්බිය නිර්මාණය කර ඇත."
   },
   "receive": {
-    "details_create": "නිර්මාණය කරන්න",
+    "details_save": "සුරකින්න",
     "details_label": "විස්තර",
     "details_setAmount": "මුදල සමග ලබා ගන්න",
+    "option_label": "ලේබලය",
     "details_share": "බෙදා ගන්න...",
     "address_not_found": "ලබා ගැනීමේ ලිපිනය උත්පාදනය කිරීමට නොහැකිය.",
     "header": "ලබා ගන්න",
@@ -380,8 +381,6 @@
     "updating": "යාවත්කාලීන කරමින් ...",
     "watchOnlyWarningTitle": "ආරක්ෂක අනතුරු ඇඟවීම",
     "watchOnlyWarningDescription": "පරිශීලකයින් රැවටීමට බොහෝ විට \"නැරඹීමට පමණි\" පසුම්බි භාවිතා කරන වංචාකරුවන් ගැන ප්‍රවේශම් වන්න. මෙම පසුම්බි ඔබට අරමුදල් පාලනය කිරීමට හෝ යැවීමට ඉඩ නොදේ; ඒවා ශේෂය බැලීමට පමණක් ඉඩ දෙයි.",
-    "custom_fee_warning_title": "අනතුරු ඇඟවීම",
-    "custom_fee_warning_description": "1 sat/vB ට අඩු ගාස්තු වලංගු වුවද, නෝඩ් ප්‍රතිපත්ති හේතුවෙන් ඒවා සම්ප්‍රේෂණය නොවිය හැක.",
     "details_eta_analyzing": "විශ්ලේෂණය කරමින්...",
     "details_sent": "යවන ලදි",
     "details_section": "විස්තර",
@@ -437,7 +436,6 @@
     "details_display": "මුල් තිරයේ පෙන්වන්න",
     "details_edit": "සංස්කරණය",
     "details_export_backup": "අපනයනය/උපස්ථ කිරීම",
-    "details_export_history": "ඉතිහාසය CSV වෙත අපනයනය කරන්න",
     "details_master_fingerprint": "ප්‍රධාන ඇඟිලි සලකුණ",
     "details_multisig_type": "බහු සිග්",
     "details_options": "විකල්ප",
@@ -517,9 +515,7 @@
     "identity_pubkey": "අනන්‍යතා Pubkey",
     "xpub_title": "පසුම්බියේ XPUB",
     "manage_wallets_search_placeholder": "පසුම්බි, ලිපින, ගනුදෙනු සහ සංදේශ සොයන්න",
-    "more_info": "තවත් තොරතුරු",
-    "details_delete_wallet_error_message": "මෙම පසුම්බිය දැනුම්දීම් වලින් ඉවත් කළ බව තහවුරු කිරීමේදී ගැටළුවක් ඇති විය — මෙය ජාල ගැටළුවක් හෝ දුර්වල සම්බන්ධතාවක් නිසා විය හැක. ඔබ ඉදිරියට ගියහොත්, මෙම පසුම්බියට අදාළ ගනුදෙනු සඳහා දැනුම්දීම් තවමත් ලැබිය හැකි අතර, එය මැකූ පසුව පවා.",
-    "details_delete_anyway": "කෙසේ වුවද මකන්න"
+    "more_info": "තවත් තොරතුරු"
   },
   "total_balance_view": {
     "display_in_bitcoin": "බිට්කොයින් වලින් පෙන්වන්න",

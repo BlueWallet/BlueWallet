@@ -104,9 +104,10 @@
     "title": "Twój portfel został utworzony."
   },
   "receive": {
-    "details_create": "Stwórz",
+    "details_save": "Zapisz",
     "details_label": "Opis",
     "details_setAmount": "Otrzymaj kwotę",
+    "option_label": "Etykieta",
     "details_share": "Udostępnij...",
     "address_not_found": "Nie można wygenerować adresu do odbioru.",
     "header": "Otrzymaj",
@@ -386,8 +387,6 @@
     "updating": "Aktualizuję...",
     "watchOnlyWarningTitle": "Ostrzeżenie bezpieczeństwa",
     "watchOnlyWarningDescription": "Zachowaj ostrożność wobec oszustów, którzy często używają portfeli „tylko do odczytu” do wprowadzania użytkowników w błąd. Te portfele nie pozwalają na kontrolowanie ani wysyłanie środków; umożliwiają jedynie przeglądanie salda.",
-    "custom_fee_warning_title": "Ostrzeżenie",
-    "custom_fee_warning_description": "Opłaty poniżej 1 sat/vB są prawidłowe, ale ze względu na polityki węzłów mogą nie być przekazywane.",
     "details_eta_analyzing": "Analizuję...",
     "details_sent": "Wysłano",
     "details_section": "Szczegóły",
@@ -443,7 +442,6 @@
     "details_display": "Wyświetlaj na ekranie początkowym",
     "details_edit": "edytuj",
     "details_export_backup": "Eksport/Kopia zapasowa",
-    "details_export_history": "Eksportuj historię do pliku CSV",
     "details_master_fingerprint": "Główny odcisk palca",
     "details_multisig_type": "multisig",
     "details_options": "Opcje",
@@ -523,9 +521,7 @@
     "identity_pubkey": "Klucz publiczny tożsamości",
     "xpub_title": "XPUB portfela",
     "manage_wallets_search_placeholder": "Szukaj portfeli, adresów, transakcji i notatek",
-    "more_info": "Więcej informacji",
-    "details_delete_wallet_error_message": "Nie udało się potwierdzić usunięcia tego portfela z powiadomień – możliwe, że przyczyną jest problem z siecią lub słabe połączenie. Jeśli kontynuujesz, możesz nadal otrzymywać powiadomienia o transakcjach związanych z tym portfelem, nawet po jego usunięciu.",
-    "details_delete_anyway": "Usuń mimo to"
+    "more_info": "Więcej informacji"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Wyświetlaj w Bitcoinie",

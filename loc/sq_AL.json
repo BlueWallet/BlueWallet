@@ -104,9 +104,10 @@
     "title": "Portofoli juaj u krijua"
   },
   "receive": {
-    "details_create": "Krijo",
+    "details_save": "Ruaj",
     "details_label": "Përshkrim",
     "details_setAmount": "Merr me sasi",
+    "option_label": "Etiketë",
     "details_share": "Shpërndaj",
     "address_not_found": "Nuk mundi të gjenerohet adresa pritëse.",
     "header": "Merr",
@@ -380,8 +381,6 @@
     "updating": "Duke u përditësuar...",
     "watchOnlyWarningTitle": "Paralajmërim sigurie",
     "watchOnlyWarningDescription": "Bëni kujdes nga mashtruesit që shpesh përdorin portofola \"vetëm për shikim\" për të mashtruar përdoruesit. Këto portofola nuk ju lejojnë të kontrolloni ose të dërgoni fonde; ato ju lejojnë vetëm të shihni ballancën.",
-    "custom_fee_warning_title": "Paralajmërim",
-    "custom_fee_warning_description": "Komisionet nën 1 sat/vB janë të vlefshme, por mund të mos transmetohen për shkak të politikave të nyjeve.",
     "details_eta_analyzing": "Duke analizuar...",
     "details_sent": "Dërguar",
     "details_section": "Detajet",
@@ -437,7 +436,6 @@
     "details_display": "Shfaqe në ekranin kryesor",
     "details_edit": "modifiko",
     "details_export_backup": "Eksporto/Kopje rezervë",
-    "details_export_history": "Eksporto historikun në CSV",
     "details_master_fingerprint": "Shenjë gishti kryesore",
     "details_multisig_type": "multisig",
     "details_options": "Opsione",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Çelësi publik i identitetit",
     "xpub_title": "XPUB-i i portofolit",
     "manage_wallets_search_placeholder": "Kërko portofola, adresa, transaksione dhe memo",
-    "more_info": "Më shumë Info",
-    "details_delete_wallet_error_message": "Pati një problem në konfirmimin nëse ky portofol u hoq nga njoftimet—kjo mund të jetë për shkak të një problemi me rrjetin ose lidhjes së dobët. Nëse vazhdoni, mund të vazhdoni të merrni njoftime për transaksionet që lidhen me këtë portofol, edhe pas fshirjes së tij.",
-    "details_delete_anyway": "Fshije gjithsesi"
+    "more_info": "Më shumë Info"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Shfaq në Bitcoin",

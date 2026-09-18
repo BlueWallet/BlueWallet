@@ -104,9 +104,10 @@
     "title": "کیف پیل ایسا وورکل وابی."
   },
   "receive": {
-    "details_create": "وورکل",
+    "details_save": "زفت کردن",
     "details_label": "گوڌنا دیاری",
     "details_setAmount": "گرؽڌن وا مقدار",
+    "option_label": "برچسب",
     "details_share": "یک رسۊوی...",
     "address_not_found": "نتره آدرس گیرنده ن وورکل کونه.",
     "header": "گرؽڌن",
@@ -380,8 +381,6 @@
     "updating": "ورۊ رسۊوی...",
     "watchOnlyWarningTitle": "هشڌار امنیتی",
     "watchOnlyWarningDescription": "ز کلاش بازا ک گاهاً ز کیف پیلا «فقط‌خواندنی» سی فریو کاربرا استفاڌه اکونن، باپرها بۊ. ای کیف پیلا ایلیه نڌن دارایی ن وار آور یا فیشنی؛ فقط ایلیه مۉجۊڌی ن ووینی.",
-    "custom_fee_warning_title": "هشڌار",
-    "custom_fee_warning_description": "کارمزدا کمتر ز 1 ساتۊشی سی هر بایت مجازی زبالن، اما شاید ب ٱر سامووا گره ها، بازنشر نوابن.",
     "details_eta_analyzing": "تئلیل...",
     "details_sent": "فیشناڌه وابی",
     "details_section": "جۊزیات",
@@ -437,7 +436,6 @@
     "details_display": "نشووݩ داڌن من بلگه ٱلسی",
     "details_edit": "ویرایش",
     "details_export_backup": "و در کردن نوسخه لادرار",
-    "details_export_history": "گرؽڌن وو و در کشیڌن ویرگار و فورمت CSV",
     "details_master_fingerprint": "جا کلک ٱلسی",
     "details_multisig_type": "چند امزایی",
     "details_options": "گزینه‌ها",
@@ -517,9 +515,7 @@
     "identity_pubkey": "کلید عمومی هۊویت",
     "xpub_title": "xpub کیف پیل",
     "manage_wallets_search_placeholder": "پیتینیڌن کیف پیلا، آدرسا، تراکونشا ۉ ویرداشتا",
-    "more_info": "دووسمندیا قلوه",
-    "details_delete_wallet_error_message": "موشکلؽ منه تاییڌ پاک وابیڌن ای کیف پیل ز وارسۊویا پؽش ٱووڌ — یۊ شاید ز موشکل شبکه یا منپیز زبال نکوݩ بۊ. ٱر ادامه دی، شاید هنی سی تراکونشا پۊشمت وا ای کیف پیل وارسۊوی گری، حتا پس ز پاک وابیڌنس.",
-    "details_delete_anyway": "و هر هال پاک بۊ"
+    "more_info": "دووسمندیا قلوه"
   },
   "total_balance_view": {
     "display_in_bitcoin": "نشووݩ داڌن من بیت کوین",

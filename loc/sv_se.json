@@ -104,9 +104,10 @@
     "title": "Din plånbok har skapats..."
   },
   "receive": {
-    "details_create": "Skapa",
+    "details_save": "Spara",
     "details_label": "Beskrivning",
     "details_setAmount": "Ta emot med belopp",
+    "option_label": "Etikett",
     "details_share": "Dela...",
     "address_not_found": "Det gick inte att generera mottagaradress.",
     "header": "Ta emot",
@@ -380,8 +381,6 @@
     "updating": "Uppdaterar...",
     "watchOnlyWarningTitle": "Säkerhetsvarning",
     "watchOnlyWarningDescription": "Var försiktig med bedragare som ofta använder plånböcker för endast granskning för att lura användare. Dessa plånböcker tillåter dig inte att kontrollera eller skicka pengar; de låter dig endast se saldot.",
-    "custom_fee_warning_title": "Varning",
-    "custom_fee_warning_description": "Avgifter under 1 sat/vB är giltiga, men kanske inte vidarebefordras på grund av nodpolicyer.",
     "details_eta_analyzing": "Analyserar...",
     "details_sent": "Skickat",
     "details_section": "Detaljer",
@@ -437,7 +436,6 @@
     "details_display": "Visa på startskärmen",
     "details_edit": "redigera",
     "details_export_backup": "Exportera / ta backup",
-    "details_export_history": "Exportera historik till CSV",
     "details_master_fingerprint": "Huvudfingeravtryck",
     "details_multisig_type": "multisig",
     "details_options": "Alternativ",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Identitet Pubkey",
     "xpub_title": "plånbokens XPUB",
     "manage_wallets_search_placeholder": "Sök plånböcker, adresser, transaktioner och memon",
-    "more_info": "Mer information",
-    "details_delete_wallet_error_message": "Det gick inte att bekräfta om denna plånbok togs bort från aviseringar—detta kan bero på ett nätverksproblem eller dålig anslutning. Om du fortsätter kan du fortfarande få aviseringar om transaktioner relaterade till denna plånbok, även efter att den har raderats.",
-    "details_delete_anyway": "Radera ändå"
+    "more_info": "Mer information"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Visa i Bitcoin",

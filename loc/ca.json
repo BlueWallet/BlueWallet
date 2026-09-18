@@ -104,9 +104,10 @@
     "title": "El teu moneder ha estat creat..."
   },
   "receive": {
-    "details_create": "Crear",
+    "details_save": "Desar",
     "details_label": "Descripció",
     "details_setAmount": "Rebre quantitat",
+    "option_label": "Etiqueta",
     "details_share": "Compartir...",
     "address_not_found": "No s'ha pogut generar l'adreça de recepció.",
     "header": "Rebre",
@@ -380,8 +381,6 @@
     "updating": "Actualitzant...",
     "watchOnlyWarningTitle": "Advertència de seguretat",
     "watchOnlyWarningDescription": "Aneu amb compte amb els estafadors que sovint utilitzen moneders \"només lectura\" per enganyar els usuaris. Aquests moneders no us permeten controlar ni enviar fons; només us permeten veure el saldo.",
-    "custom_fee_warning_title": "Advertència",
-    "custom_fee_warning_description": "Les comissions inferiors a 1 sat/vB són vàlides, però podrien no ser propagades a causa de les polítiques dels nodes.",
     "details_eta_analyzing": "Analitzant...",
     "details_sent": "Enviat",
     "details_section": "Detalls",
@@ -437,7 +436,6 @@
     "details_display": "Mostrar a la pantalla d'inici",
     "details_edit": "editar",
     "details_export_backup": "Exportar / Guardar",
-    "details_export_history": "Exportar historial a CSV",
     "details_master_fingerprint": "Empremta digital mestra",
     "details_multisig_type": "multisig",
     "details_options": "Opcions",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Clau pública d'identitat",
     "xpub_title": "XPUB del moneder",
     "manage_wallets_search_placeholder": "Cercar moneders, adreces, transaccions i comentaris",
-    "more_info": "Més informació",
-    "details_delete_wallet_error_message": "Hi ha hagut un problema en confirmar si aquest moneder s'ha eliminat de les notificacions—això podria ser degut a un problema de xarxa o una mala connexió. Si continueu, podríeu seguir rebent notificacions per a transaccions relacionades amb aquest moneder, fins i tot després d'eliminar-lo.",
-    "details_delete_anyway": "Eliminar igualment"
+    "more_info": "Més informació"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar en Bitcoin",

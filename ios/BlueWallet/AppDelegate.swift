@@ -10,8 +10,11 @@ import Bugsnag
 class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     private var userDefaultsGroup: UserDefaults?
+    var sceneLaunchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        sceneLaunchOptions = launchOptions
+        automaticallyLoadReactNativeWindow = false
         clearFilesIfNeeded()
 
         if #available(iOS 16.4, *) {
@@ -64,9 +67,17 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         _ = MenuElementsEmitter.sharedInstance()
         NSLog("[MenuElements] AppDelegate: Initialized emitter singleton")
         
-        let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
 
-        return result
+    override func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
+        let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        configuration.delegateClass = SceneDelegate.self
+        return configuration
     }
 
     override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -223,7 +234,12 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                     preferredStyle: .alert
                 )
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-              self.window.rootViewController?.present(alert, animated: true, completion: nil)
+                let rootViewController = UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .flatMap(\.windows)
+                    .first { $0.isKeyWindow }?
+                    .rootViewController
+                rootViewController?.present(alert, animated: true, completion: nil)
             }
         }
     }
