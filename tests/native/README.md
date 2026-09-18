@@ -46,3 +46,23 @@ fingerprint, derivation path, or any part of the public key. Matching ignores ca
 and surrounding whitespace. Confirm that original key numbers remain intact, a
 nonmatching query shows **No matching keys**, closing search restores all keys, and
 long-press copying still copies the complete matching key.
+
+
+## Localization
+
+Both extensions bundle `ios/QuickLookShared/VaultPreview.xcstrings`. Add new
+translations there; entries are marked for manual extraction because the
+Foundation localization helper looks them up dynamically. English, Spanish
+(Spain), and Latin American Spanish are included. The extensions follow the
+native iOS preferred language, with English fallback; they do not read the
+React Native language setting. Existing wallet names and key data are never
+translated. Search uses localized vault-key labels.
+
+Run the resource-backed checks (requires Xcode):
+
+```sh
+bash tests/native/test-vault-localization.sh
+```
+
+This compiles the real catalog into a temporary test bundle and checks English,
+both Spanish variants, fallback, argument formatting, and localized key search.

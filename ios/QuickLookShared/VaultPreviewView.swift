@@ -35,9 +35,9 @@ final class VaultPreviewView: UIView, UISearchBarDelegate {
         self.setup = setup
         super.init(frame: .zero)
         backgroundColor = VaultAppearance.background
-        searchBar.placeholder = "Search vault keys"
+        searchBar.placeholder = VaultLocalization.text("Search vault keys")
         searchBar.accessibilityIdentifier = "VaultKeySearch"
-        searchBar.searchTextField.accessibilityHint = "Search by key number, fingerprint, derivation path, or public key."
+        searchBar.searchTextField.accessibilityHint = VaultLocalization.text("Search by key number, fingerprint, derivation path, or public key.")
         searchBar.searchBarStyle = .minimal
         searchBar.autocapitalizationType = .none
         searchBar.autocorrectionType = .no
@@ -73,8 +73,8 @@ final class VaultPreviewView: UIView, UISearchBarDelegate {
         content.addArrangedSubview(VaultCard(setup: setup))
 
         let policy = UIStackView(arrangedSubviews: [
-            VaultAppearance.label("\(setup.required)", size: 15, weight: .semibold),
-            VaultAppearance.label("signatures required to spend", size: 15, weight: .semibold, color: VaultAppearance.secondary),
+            VaultAppearance.label(VaultLocalization.number(setup.required), size: 15, weight: .semibold),
+            VaultAppearance.label(VaultLocalization.text("Signatures required"), size: 15, weight: .semibold, color: VaultAppearance.secondary),
         ])
         policy.spacing = 10
         policy.alignment = .center
@@ -94,7 +94,7 @@ final class VaultPreviewView: UIView, UISearchBarDelegate {
         keys.spacing = 0
         content.addArrangedSubview(keys)
         updateSearch()
-        content.addArrangedSubview(VaultAppearance.label("Public keys only · Coordination setup", size: 13, color: VaultAppearance.secondary))
+        content.addArrangedSubview(VaultAppearance.label(VaultLocalization.text("Public keys only · Coordination setup"), size: 13, color: VaultAppearance.secondary))
     }
 
     private func updateSearch() {
@@ -105,7 +105,7 @@ final class VaultPreviewView: UIView, UISearchBarDelegate {
             keys.addArrangedSubview(VaultKeyView(index: index, cosigner: setup.cosigners[index], last: position == indices.count - 1))
         }
         resultsLabel.isHidden = query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        resultsLabel.text = indices.isEmpty ? "No matching keys" : "\(indices.count) of \(setup.total) keys"
+        resultsLabel.text = indices.isEmpty ? VaultLocalization.text("No matching keys") : VaultLocalization.format("Keys: %1$@ / %2$@", VaultLocalization.number(indices.count), VaultLocalization.number(setup.total))
         if !resultsLabel.isHidden {
             layoutIfNeeded()
             let resultTop = resultsLabel.convert(resultsLabel.bounds, to: scrollView).minY
@@ -157,7 +157,7 @@ private final class VaultCard: UIView {
         let labels = UIStackView(arrangedSubviews: [
             VaultAppearance.label(setup.name, size: 20, weight: .semibold, color: .white),
             VaultAppearance.label(setup.policy, size: 34, weight: .bold, color: .white),
-            VaultAppearance.label("Multisig Vault · \(setup.format)", size: 14, color: .white),
+            VaultAppearance.label(VaultLocalization.format("Multisig Vault · %@", setup.format), size: 14, color: .white),
         ])
         labels.axis = .vertical
         labels.spacing = 16
@@ -198,7 +198,7 @@ private final class VaultKeyView: UIView {
         check.contentMode = .center
         check.translatesAutoresizingMaskIntoConstraints = false
         circle.addSubview(check)
-        let title = VaultAppearance.label("Vault key \(index + 1)", size: 18, weight: .bold, color: VaultAppearance.secondary)
+        let title = VaultAppearance.label(VaultLocalization.key(index + 1), size: 18, weight: .bold, color: VaultAppearance.secondary)
         panel.axis = .vertical
         panel.spacing = 10
         panel.isLayoutMarginsRelativeArrangement = true
@@ -250,8 +250,9 @@ private final class VaultKeyView: UIView {
         super.layoutSubviews()
         panel.layer.borderColor = VaultAppearance.panel.resolvedColor(with: traitCollection).cgColor
         let path = UIBezierPath()
-        path.move(to: CGPoint(x: 21, y: 42))
-        path.addLine(to: CGPoint(x: 21, y: last ? bounds.height - 24 : bounds.height))
+        let connectorX: CGFloat = effectiveUserInterfaceLayoutDirection == .rightToLeft ? bounds.width - 21 : 21
+        path.move(to: CGPoint(x: connectorX, y: 42))
+        path.addLine(to: CGPoint(x: connectorX, y: last ? bounds.height - 24 : bounds.height))
         connector.path = path.cgPath
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
@@ -265,14 +266,16 @@ private final class VaultPublicKeyView: UITextView, UIContextMenuInteractionDele
         self.publicKey = publicKey
         super.init(frame: .zero, textContainer: nil)
         text = publicKey
+        semanticContentAttribute = .forceLeftToRight
+        textAlignment = .left
         isEditable = false
         isSelectable = false
         accessibilityIdentifier = "VaultPublicKey-\(index + 1)"
-        accessibilityLabel = "Vault key \(index + 1) public key"
+        accessibilityLabel = VaultLocalization.format("Vault key %@ public key", VaultLocalization.number(index + 1))
         accessibilityValue = publicKey
-        accessibilityHint = "Touch and hold to copy the full public key."
+        accessibilityHint = VaultLocalization.text("Touch and hold to copy the full public key.")
         accessibilityCustomActions = [
-            UIAccessibilityCustomAction(name: "Copy public key", target: self, selector: #selector(copyPublicKey)),
+            UIAccessibilityCustomAction(name: VaultLocalization.text("Copy public key"), target: self, selector: #selector(copyPublicKey)),
         ]
         addInteraction(UIContextMenuInteraction(delegate: self))
     }
@@ -281,7 +284,7 @@ private final class VaultPublicKeyView: UITextView, UIContextMenuInteractionDele
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
             UIMenu(children: [
-                UIAction(title: "Copy public key", image: UIImage(systemName: "doc.on.doc")) { [weak self] _ in
+                UIAction(title: VaultLocalization.text("Copy public key"), image: UIImage(systemName: "doc.on.doc")) { [weak self] _ in
                     _ = self?.copyPublicKey()
                 },
             ])

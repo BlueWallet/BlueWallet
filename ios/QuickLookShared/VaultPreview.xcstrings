@@ -1,0 +1,390 @@
+{
+  "sourceLanguage": "en_US",
+  "strings": {
+    "Search vault keys": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search vault keys"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar claves de la Vault"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar claves de la bóveda"
+          }
+        }
+      }
+    },
+    "Search by key number, fingerprint, derivation path, or public key.": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search by key number, fingerprint, derivation path, or public key."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Busca por número de clave, huella digital, ruta de derivación o clave pública."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Busca por número de clave, huella digital, ruta de derivación o clave pública."
+          }
+        }
+      }
+    },
+    "Signatures required": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signatures required"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firmas requeridas"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Firmas requeridas"
+          }
+        }
+      }
+    },
+    "Public keys only · Coordination setup": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public keys only · Coordination setup"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo claves públicas · Configuración de coordinación"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solo claves públicas · Configuración de coordinación"
+          }
+        }
+      }
+    },
+    "No matching keys": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching keys"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontraron claves"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontraron claves"
+          }
+        }
+      }
+    },
+    "Keys: %1$@ / %2$@": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keys: %1$@ / %2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claves: %1$@ / %2$@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claves: %1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "Multisig Vault · %@": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Multisig Vault · %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vault multifirma · %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bóveda Multifirma · %@"
+          }
+        }
+      }
+    },
+    "Vault key %@": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vault key %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clave de la Vault %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clave de la Bóveda %@"
+          }
+        }
+      }
+    },
+    "Vault key %@ public key": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vault key %@ public key"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clave pública de la clave de Vault %@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clave pública de la clave de bóveda %@"
+          }
+        }
+      }
+    },
+    "Touch and hold to copy the full public key.": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touch and hold to copy the full public key."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsado para copiar la clave pública completa."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsado para copiar la clave pública completa."
+          }
+        }
+      }
+    },
+    "Copy public key": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy public key"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar clave pública"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar clave pública"
+          }
+        }
+      }
+    },
+    "%1$@ of %2$@": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ of %2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ de %2$@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ de %2$@"
+          }
+        }
+      }
+    },
+    "%1$@/%2$@": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@/%2$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@/%2$@"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@/%2$@"
+          }
+        }
+      }
+    },
+    "Native SegWit": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Native SegWit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SegWit nativo"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SegWit nativo"
+          }
+        }
+      }
+    },
+    "Wrapped SegWit": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wrapped SegWit"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SegWit encapsulado"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SegWit encapsulado"
+          }
+        }
+      }
+    },
+    "Legacy": {
+      "extractionState": "manual",
+      "comment": "Multisig Files preview and thumbnail. %@ placeholders contain localized numbers or the address-format name; preserve positional placeholders.",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legacy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La versión antigua"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Legado"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

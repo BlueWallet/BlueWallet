@@ -13,21 +13,13 @@ struct MultisigCoordination {
     let format: String
     let cosigners: [Cosigner]
 
-    var policy: String { "\(required) of \(total)" }
-    var summary: String { "\(policy) signatures required · \(format)" }
-    var records: [(label: String, detail: String, symbol: String)] {
-        cosigners.enumerated().map { index, cosigner in
-            ("Cosigner \(index + 1) · \(cosigner.fingerprint)",
-             [cosigner.derivation, cosigner.key].compactMap { $0 }.joined(separator: "\n"),
-             "key.fill")
-        } + [("Public keys only", "Coordination setup · Does not contain signing keys", "checkmark.shield")]
-    }
+    var policy: String { VaultLocalization.policy(required: required, total: total) }
 
     func matchingCosignerIndices(query: String) -> [Int] {
         let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
         return cosigners.indices.filter { index in
             let cosigner = cosigners[index]
-            return query.isEmpty || ["Vault key \(index + 1)", cosigner.fingerprint, cosigner.key, cosigner.derivation ?? ""]
+            return query.isEmpty || [VaultLocalization.key(index + 1), cosigner.fingerprint, cosigner.key, cosigner.derivation ?? ""]
                 .contains { $0.localizedCaseInsensitiveContains(query) }
         }
     }
@@ -66,9 +58,9 @@ struct MultisigCoordination {
             case "Format":
                 guard format == nil else { throw invalid() }
                 switch parts[1] {
-                case "P2WSH": format = "Native SegWit"
-                case "P2SH-P2WSH": format = "Wrapped SegWit"
-                case "P2SH": format = "Legacy"
+                case "P2WSH": format = VaultLocalization.text("Native SegWit")
+                case "P2SH-P2WSH": format = VaultLocalization.text("Wrapped SegWit")
+                case "P2SH": format = VaultLocalization.text("Legacy")
                 default: throw invalid()
                 }
             case "Derivation": globalPath = parts[1]
@@ -83,5 +75,29 @@ struct MultisigCoordination {
         guard let name, !name.isEmpty, let required, let total, let format,
               required > 0, required <= total, total == cosigners.count, nextPath == nil else { throw invalid() }
         return Self(name: name, required: required, total: total, format: format, cosigners: cosigners)
+    }
+}
+
+/// Native extensions use the system's preferred language, independently of React Native.
+enum VaultLocalization {
+    private final class BundleToken: NSObject {}
+    static let bundle = Bundle(for: BundleToken.self)
+
+    static func text(_ key: String) -> String {
+        NSLocalizedString(key, tableName: "VaultPreview", bundle: bundle, value: key, comment: "")
+    }
+
+    static func format(_ key: String, _ arguments: CVarArg...) -> String {
+        String(format: text(key), locale: Locale.current, arguments: arguments)
+    }
+
+    static func number(_ value: Int) -> String {
+        NumberFormatter.localizedString(from: NSNumber(value: value), number: .decimal)
+    }
+
+    static func key(_ number: Int) -> String { format("Vault key %@", self.number(number)) }
+
+    static func policy(required: Int, total: Int, compact: Bool = false) -> String {
+        format(compact ? "%1$@/%2$@" : "%1$@ of %2$@", number(required), number(total))
     }
 }

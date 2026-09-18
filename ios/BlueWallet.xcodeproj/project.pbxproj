@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+        C00300000000000000000001 = {isa = PBXBuildFile; fileRef = C00300000000000000000003; };
+        C00300000000000000000002 = {isa = PBXBuildFile; fileRef = C00300000000000000000003; };
         C00200000000000000000001 = {isa = PBXBuildFile; fileRef = C00200000000000000000003; };
         C00200000000000000000002 = {isa = PBXBuildFile; fileRef = C00200000000000000000003; };
         C00200000000000000000004 = {isa = PBXBuildFile; fileRef = C00200000000000000000006; };
@@ -180,6 +182,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+        C00300000000000000000003 = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = ../QuickLookShared/VaultPreview.xcstrings; sourceTree = "<group>"; };
         C00200000000000000000003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../QuickLookShared/VaultPreviewView.swift; sourceTree = "<group>"; };
         C00200000000000000000006 = {isa = PBXFileReference; lastKnownFileType = image.png; path = ../../img/vault-shape.png; sourceTree = "<group>"; };
         C00100000000000000000003 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../QuickLookShared/MultisigCoordination.swift; sourceTree = "<group>"; };
@@ -567,6 +570,7 @@
 				B32900000000000000000003 /* PreviewViewController.swift */,
                 C00100000000000000000003,
                 C00200000000000000000003,
+                C00300000000000000000003,
                 C00200000000000000000006,
 				F7A1B2C3D4E5F60718293A4E /* ScriptDescription.swift */,
 				B32900000000000000000004 /* Info.plist */,
@@ -900,6 +904,7 @@
 			buildActionMask = 2147483647;
 			files = (
                 C00200000000000000000004,
+                C00300000000000000000001,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -908,6 +913,7 @@
 			buildActionMask = 2147483647;
 			files = (
                 C00200000000000000000005,
+                C00300000000000000000002,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

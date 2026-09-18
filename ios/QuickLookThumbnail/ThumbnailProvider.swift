@@ -26,7 +26,7 @@ final class ThumbnailProvider: QLThumbnailProvider {
                     let paragraph = NSMutableParagraphStyle()
                     paragraph.alignment = .center
                     paragraph.lineBreakMode = .byTruncatingTail
-                    let policy = compact ? "\(setup.required)/\(setup.total)" : setup.policy
+                    let policy = VaultLocalization.policy(required: setup.required, total: setup.total, compact: compact)
                     let policyArea = CGRect(x: inset, y: 0, width: size.width - inset * 2, height: size.height * (compact ? 1 : 0.70))
                     var policyFont = UIFont.systemFont(ofSize: (compact ? 76 : 58) * scale, weight: .heavy)
                     let measuredWidth = (policy as NSString).size(withAttributes: [.font: policyFont]).width
