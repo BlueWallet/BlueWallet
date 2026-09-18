@@ -25,7 +25,6 @@ describe.skip('LightningArkWallet (integration)', () => {
     // HD_MNEMONIC_OLD, and without the stubs its background loops keep Jest alive.
     installSdkBackgroundLoopStubs();
     if (!process.env.HD_MNEMONIC_OLD) {
-      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
       return;
     }
     w.setSecret('arkade://' + process.env.HD_MNEMONIC_OLD);
@@ -57,12 +56,7 @@ describe.skip('LightningArkWallet (integration)', () => {
     }
   });
 
-  it('can fetch balance', async () => {
-    if (!process.env.HD_MNEMONIC_OLD) {
-      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_OLD')('can fetch balance', async () => {
     await w.fetchBalance();
     const balance = w.getBalance();
 
@@ -71,21 +65,11 @@ describe.skip('LightningArkWallet (integration)', () => {
 
   // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can create invoice', async () => {
-    if (!process.env.HD_MNEMONIC_OLD) {
-      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
-      return;
-    }
-
     const invoice = await w.addInvoice(1000, 'test invoice');
     console.log(invoice);
   });
 
-  it('can fetch txs', async () => {
-    if (!process.env.HD_MNEMONIC_OLD) {
-      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_OLD')('can fetch txs', async () => {
     await w.fetchTransactions();
 
     const txs = w.getTransactions();
@@ -133,11 +117,6 @@ describe.skip('LightningArkWallet (integration)', () => {
 
   // eslint-disable-next-line jest/no-disabled-tests
   it.skip('can pay invoice', async () => {
-    if (!process.env.HD_MNEMONIC_OLD) {
-      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
-      return;
-    }
-
     await w.payInvoice(
       'lnbc80u1p5052hwpp5z4ln6hyq4wcck809pt7f0q54ag5he6ce797flm7gl9vuccm9lx2sdqqcqzysxqyz5vqsp5nh9fl4g36606tvxswtnfxzy55yze2656cw2fya7dhl8r6u0czyds9qxpqysgq83sw25g9d9ltr05nkfzejnvvunzkrk4qeuxhszuvvsguk5m6vmg3a7n5nd67l9frru3kjzpt8x6jfusjyc7ezh49jeeh900kt3v30qsqzq7fst',
     );

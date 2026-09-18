@@ -54,12 +54,7 @@ describe('HDSegwitBech32Transaction', () => {
     assert.ok((await T.getRemoteConfirmationsNum()) >= 292);
   });
 
-  it('can tell if its our transaction', async function () {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_BIP84')('can tell if its our transaction', async function () {
     const hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
@@ -71,12 +66,7 @@ describe('HDSegwitBech32Transaction', () => {
     assert.ok(!(await tt.isOurTransaction()));
   });
 
-  it('can tell tx info', async function () {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_BIP84')('can tell tx info', async function () {
     const hd = await _getHdWallet();
 
     const tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
@@ -107,12 +97,7 @@ describe('HDSegwitBech32Transaction', () => {
     );
   });
 
-  it('can do RBF - cancel tx', async function () {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_BIP84')('can do RBF - cancel tx', async function () {
     const hd = await _getHdWallet();
 
     const tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
@@ -134,12 +119,7 @@ describe('HDSegwitBech32Transaction', () => {
     assert.strictEqual(await tt2.canCancelTx(), false); // newly created cancel tx is not cancellable anymore
   });
 
-  it('can do RBF - bumpfees tx', async function () {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_BIP84')('can do RBF - bumpfees tx', async function () {
     const hd = await _getHdWallet();
 
     const tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
@@ -165,12 +145,7 @@ describe('HDSegwitBech32Transaction', () => {
     assert.strictEqual(await tt2.canCancelTx(), true); // new tx is still cancellable since we only bumped fees
   });
 
-  it('can do CPFP - bump fees', async function () {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_BIP84')('can do CPFP - bump fees', async function () {
     const hd = await _getHdWallet();
 
     const tt = new HDSegwitBech32Transaction(null, '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f', hd);

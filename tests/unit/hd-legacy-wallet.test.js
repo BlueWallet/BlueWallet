@@ -5,11 +5,7 @@ import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet'
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('Legacy HD (BIP44)', () => {
-  it('works', async () => {
-    if (!process.env.HD_MNEMONIC_OLD) {
-      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
-      return;
-    }
+  itIfEnv('HD_MNEMONIC_OLD')('works', async () => {
     const hd = new HDLegacyP2PKHWallet();
     hd.setSecret(process.env.HD_MNEMONIC_OLD);
     assert.ok(hd.validateMnemonic());
@@ -41,11 +37,7 @@ describe('Legacy HD (BIP44)', () => {
     assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/44'/0'/0'/1/0");
   });
 
-  it('can create TX', async () => {
-    if (!process.env.HD_MNEMONIC_OLD) {
-      console.error('process.env.HD_MNEMONIC_OLD not set, skipped');
-      return;
-    }
+  itIfEnv('HD_MNEMONIC_OLD')('can create TX', async () => {
     const hd = new HDLegacyP2PKHWallet();
     hd.setSecret(process.env.HD_MNEMONIC_OLD);
     assert.ok(hd.validateMnemonic());

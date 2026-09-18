@@ -4,11 +4,7 @@ import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwa
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 
 describe('HDLegacyBreadwalletWallet', () => {
-  it('Legacy HD Breadwallet works', async () => {
-    if (!process.env.HD_MNEMONIC_BREAD) {
-      console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
-      return;
-    }
+  itIfEnv('HD_MNEMONIC_BREAD')('Legacy HD Breadwallet works', async () => {
     const hdBread = new HDLegacyBreadwalletWallet();
     hdBread.setSecret(process.env.HD_MNEMONIC_BREAD);
 

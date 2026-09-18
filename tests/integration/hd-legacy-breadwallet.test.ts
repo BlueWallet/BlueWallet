@@ -4,6 +4,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
+import { requiredEnv } from '../helpers/env';
 
 jest.setTimeout(300 * 1000);
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -22,13 +23,9 @@ beforeAll(async () => {
   }
 });
 
-it('Legacy HD Breadwallet can fetch utxo, balance, and create transaction', async () => {
-  if (!process.env.HD_MNEMONIC_BREAD) {
-    console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
-    return;
-  }
+itIfEnv('HD_MNEMONIC_BREAD')('Legacy HD Breadwallet can fetch utxo, balance, and create transaction', async () => {
   const wallet = new HDLegacyBreadwalletWallet();
-  wallet.setSecret(process.env.HD_MNEMONIC_BREAD);
+  wallet.setSecret(requiredEnv('HD_MNEMONIC_BREAD'));
 
   await wallet.fetchBalance();
 

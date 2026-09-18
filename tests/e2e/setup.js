@@ -1,6 +1,10 @@
 /* eslint-env jest */
 /* global device */
 
+const { describeIfEnv, itIfEnv } = require('../helpers/env');
+global.describeIfEnv = describeIfEnv;
+global.itIfEnv = itIfEnv;
+
 // Detox's iOS network synchronization waits on all in-flight NSURLSession
 // requests before considering the app idle. The Arkade SDK's indexer opens
 // a long-lived SSE-style stream (`expo/fetch` →
