@@ -936,9 +936,13 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
           length: 35 + Math.ceil((8 + this.getM() * 74 + this.getN() * 34) / 4),
         };
       } else {
-        u.script = {
-          length: 2 + this.getM() * 74 + this.getN() * 34,
-        };
+        // scriptSig is: OP_0 + M signatures (push opcode + up to 73 bytes of signature with sighash byte) + pushed redeem script
+        const redeemScriptLength = 3 + this.getN() * 34;
+        const pushLength = redeemScriptLength > 255 ? 3 : redeemScriptLength > 75 ? 2 : 1;
+        let length = 1 + this.getM() * 74 + pushLength + redeemScriptLength;
+        // coinselect lib counts 1 byte for scriptSig length, but it takes 3 bytes when scriptSig is over 252 bytes
+        if (length > 252) length += 2;
+        u.script = { length };
       }
     }
 
