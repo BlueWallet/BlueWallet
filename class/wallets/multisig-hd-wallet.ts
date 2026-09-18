@@ -909,6 +909,11 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return howManyPrivKeysWeGot;
   }
 
+  getChangeScriptLength(): number {
+    // p2wsh is OP_0 + 32 bytes hash
+    return this.isNativeSegwit() ? 34 : 25;
+  }
+
   coinselect(
     utxos: CreateTransactionUtxo[],
     targets: CreateTransactionTarget[],
