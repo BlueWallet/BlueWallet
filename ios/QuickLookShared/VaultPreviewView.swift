@@ -143,8 +143,7 @@ private final class VaultKeyView: UIView {
         if let path = cosigner.derivation {
             panel.addArrangedSubview(VaultAppearance.label(path, size: 13, color: VaultAppearance.secondary))
         }
-        let key = UITextView()
-        key.text = cosigner.key
+        let key = VaultPublicKeyView(publicKey: cosigner.key, index: index)
         key.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: .monospacedSystemFont(ofSize: 13, weight: .regular))
         key.adjustsFontForContentSizeCategory = true
         key.textColor = .label
@@ -188,5 +187,44 @@ private final class VaultKeyView: UIView {
         path.addLine(to: CGPoint(x: 21, y: last ? bounds.height - 24 : bounds.height))
         connector.path = path.cgPath
     }
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+}
+
+/// Copies the whole extended public key, without requiring text selection across lines.
+private final class VaultPublicKeyView: UITextView, UIContextMenuInteractionDelegate {
+    private let publicKey: String
+
+    init(publicKey: String, index: Int) {
+        self.publicKey = publicKey
+        super.init(frame: .zero, textContainer: nil)
+        text = publicKey
+        isEditable = false
+        isSelectable = false
+        accessibilityIdentifier = "VaultPublicKey-\(index + 1)"
+        accessibilityLabel = "Vault key \(index + 1) public key"
+        accessibilityValue = publicKey
+        accessibilityHint = "Touch and hold to copy the full public key."
+        accessibilityCustomActions = [
+            UIAccessibilityCustomAction(name: "Copy public key", target: self, selector: #selector(copyPublicKey)),
+        ]
+        addInteraction(UIContextMenuInteraction(delegate: self))
+    }
+
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
+                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            UIMenu(children: [
+                UIAction(title: "Copy public key", image: UIImage(systemName: "doc.on.doc")) { [weak self] _ in
+                    _ = self?.copyPublicKey()
+                },
+            ])
+        }
+    }
+
+    @objc private func copyPublicKey() -> Bool {
+        UIPasteboard.general.string = publicKey
+        return true
+    }
+
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 }

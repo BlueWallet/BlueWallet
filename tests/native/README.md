@@ -33,3 +33,9 @@ An existing sample copied into `Documents/Inbox` was observed to silently fail
 before launching the preview extension on the iOS 26.5 simulator. The identical
 file in a fresh Documents location successfully opened through Files' Quick Look
 menu. If an older sample does nothing, use the newly staged copy.
+
+
+In the Files preview, touch and hold a public key and choose **Copy public key**.
+Paste it into a text field and verify that the entire key is copied, without its
+fingerprint, derivation path, or display line breaks. VoiceOver exposes the same
+Copy public key action.
