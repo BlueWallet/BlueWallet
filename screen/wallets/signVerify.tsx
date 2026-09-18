@@ -38,6 +38,7 @@ const SignVerify = () => {
   const [loading, setLoading] = useState(false);
   const [messageHasFocus, setMessageHasFocus] = useState(false);
   const [isShareVisible, setIsShareVisible] = useState(false);
+  const [floatingButtonHeight, setFloatingButtonHeight] = useState(80);
 
   const wallet = useWalletSubscribe(walletID);
   const isToolbarVisibleForAndroid = Platform.OS === 'android' && messageHasFocus && isKeyboardVisible;
@@ -120,7 +121,7 @@ const SignVerify = () => {
       </View>
     );
 
-  const scrollBottomPad = isShareVisible && !isKeyboardVisible ? insets.bottom + 80 : undefined;
+  const scrollBottomPad = isShareVisible && !isKeyboardVisible ? insets.bottom + floatingButtonHeight : undefined;
 
   return (
     <View style={[styles.screenRoot, stylesHooks.screen]}>
@@ -230,7 +231,7 @@ const SignVerify = () => {
       {isShareVisible && !isKeyboardVisible && (
         <>
           <FloatButtonsBottomFade />
-          <FContainer>
+          <FContainer onReservedHeightChange={setFloatingButtonHeight}>
             <FButton
               onPress={handleShare}
               text={loc.multisig.share}
