@@ -1,0 +1,12 @@
+# BlueWallet Multisig setup file
+# Sample public keys from test fixtures. Do not use for funds.
+Name: Family Vault (Sample)
+Policy: 2 of 3
+Derivation: m/48'/0'/0'/2'
+Format: P2WSH
+
+168DD603: Zpub74ijpfhERJNjhCKXRspTdLJV5eoEmSRZdHqDvp9kVtdVEyiXk7pXxRbfZzQvsDFpfDHEHVtVpx4Dz9DGUWGn2Xk5zG5u45QTMsYS2vjohNQ
+
+88AE7ED3: Zpub75mAE8EjyxSzoyPmGnd5E6MyD7ALGNndruWv52xpzimZQKukwvEfXTHqmH8nbbc6ccP5t2aM3mws3pKYSnKpKMMytdbNEZFUxKzztYFM8Pn
+
+A1B2C3D4: Zpub74k35j5DkSA6t6SFhPeHv8ENBHdNgAPALWodSWoWxsHo6vbAu2FUGq9QmUEvdEPzBoMswizfsAbTWQYU2ZnvCjdKsFje5TEfjLxuH8arBtp

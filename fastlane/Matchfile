@@ -13,7 +13,8 @@ app_identifier([
   "io.bluewallet.bluewallet.Stickers", 
   "io.bluewallet.bluewallet.MarketWidget",
   "io.bluewallet.bluewallet.QuickLookPreview",
-  "io.bluewallet.bluewallet.QuickLookThumbnail"
+  "io.bluewallet.bluewallet.QuickLookThumbnail",
+  "io.bluewallet.bluewallet.CopyFileContents"
 ])
 
 # Your Apple Developer account email address
