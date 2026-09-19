@@ -71,7 +71,12 @@ const SendCreate = () => {
 
   const renderHeaderRight = useCallback(
     () => (
-      <Pressable accessibilityRole="button" onPress={exportTXN} style={({ pressed }) => pressed && styles.iconPressablePressed}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={loc.send.psbt_tx_export}
+        onPress={exportTXN}
+        style={({ pressed }) => pressed && styles.iconPressablePressed}
+      >
         <Icon size={22} name="share-alternative" type="entypo" color={colors.foregroundColor} />
       </Pressable>
     ),

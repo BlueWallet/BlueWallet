@@ -111,6 +111,7 @@ const FeeOption: FC<FeeOptionProps> = ({ label, time, fee, rate, active, disable
   return (
     <TouchableOpacity
       accessibilityRole="button"
+      accessibilityState={{ selected: active }}
       disabled={disabled}
       onPress={onPress}
       style={[styles.feeModalItem, active && styles.feeModalItemActive, active && !disabled && stylesHook.feeModalItemActiveBackground]}
@@ -301,6 +302,7 @@ const SelectFeeScreen = () => {
             ))}
             <TouchableOpacity
               accessibilityRole="button"
+              accessibilityState={{ selected: state.isCustomFeeSelected }}
               testID="feeCustomContainerButton"
               onPress={handleCustomPress}
               style={[
