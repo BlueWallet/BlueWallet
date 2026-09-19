@@ -534,12 +534,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       options.push(loc.wallets.paste_from_clipboard);
     }
 
+    const anchor = findNodeHandle(walletActionButtonsRef.current);
+    if (anchor === null) return;
+
     ActionSheet.showActionSheetWithOptions(
       {
         title: loc.send.header,
         options,
         cancelButtonIndex,
-        anchor: findNodeHandle(walletActionButtonsRef.current) ?? undefined,
+        anchor,
       },
       async buttonIndex => {
         switch (buttonIndex) {
