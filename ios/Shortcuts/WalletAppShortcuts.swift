@@ -10,26 +10,32 @@ import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 
-struct ReceiveAddressShortcutWallet: Codable, Identifiable {
-    let id: String
-    let label: String
-    let address: String
+public struct ReceiveAddressShortcutWallet: Codable, Identifiable {
+    public let id: String
+    public let label: String
+    public let address: String
+
+    public init(id: String, label: String, address: String) {
+        self.id = id
+        self.label = label
+        self.address = address
+    }
 }
 
 @available(iOS 16.0, *)
-struct ReceiveAddressWalletEntity: AppEntity {
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Wallet")
-    static var defaultQuery = ReceiveAddressWalletQuery()
+public struct ReceiveAddressWalletEntity: AppEntity {
+    public static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Wallet")
+    public static var defaultQuery = ReceiveAddressWalletQuery()
 
-    let id: String
-    let label: String
-    let address: String
+    public let id: String
+    public let label: String
+    public let address: String
 
-    var displayRepresentation: DisplayRepresentation {
+    public var displayRepresentation: DisplayRepresentation {
         DisplayRepresentation(title: "\(label)", subtitle: "\(address)")
     }
 
-    init(wallet: ReceiveAddressShortcutWallet) {
+    public init(wallet: ReceiveAddressShortcutWallet) {
         id = wallet.id
         label = wallet.label
         address = wallet.address
@@ -37,20 +43,18 @@ struct ReceiveAddressWalletEntity: AppEntity {
 }
 
 @available(iOS 16.0, *)
-struct ReceiveAddressWalletQuery: EntityQuery {
-    func entities(for identifiers: [ReceiveAddressWalletEntity.ID]) async throws -> [ReceiveAddressWalletEntity] {
+public struct ReceiveAddressWalletQuery: EntityQuery {
+    public init() {}
+
+    public func entities(for identifiers: [ReceiveAddressWalletEntity.ID]) async throws -> [ReceiveAddressWalletEntity] {
         Self.storedWallets().filter { identifiers.contains($0.id) }
     }
 
-    func suggestedEntities() async throws -> [ReceiveAddressWalletEntity] {
-        let wallets = Self.storedWallets()
-        guard !wallets.isEmpty else {
-            throw ReceiveAddressIntentError.noEligibleWallets
-        }
-        return wallets
+    public func suggestedEntities() async throws -> [ReceiveAddressWalletEntity] {
+        Self.storedWallets()
     }
 
-    static func storedWallets() -> [ReceiveAddressWalletEntity] {
+    public static func storedWallets() -> [ReceiveAddressWalletEntity] {
         guard let data = receiveAddressShortcutData(),
               let shortcutData = try? JSONDecoder().decode(ReceiveAddressShortcutData.self, from: data),
               shortcutData.enabled else {
@@ -200,19 +204,19 @@ private struct CopyReceiveAddressQRCodeIntent: AppIntent {
 }
 
 @available(iOS 16.0, *)
-struct ReceiveAddressAutomationOutput: AppEntity {
-    static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Receive Address")
-    static var defaultQuery = ReceiveAddressAutomationOutputQuery()
+public struct ReceiveAddressAutomationOutput: AppEntity {
+    public static var typeDisplayRepresentation = TypeDisplayRepresentation(name: "Receive Address")
+    public static var defaultQuery = ReceiveAddressAutomationOutputQuery()
 
-    let id: String
-    @Property(title: "Address") var address: String
-    @Property(title: "QR Code") var qrCode: IntentFile
+    public let id: String
+    @Property(title: "Address") public var address: String
+    @Property(title: "QR Code") public var qrCode: IntentFile
 
-    var displayRepresentation: DisplayRepresentation {
+    public var displayRepresentation: DisplayRepresentation {
         DisplayRepresentation(title: "\(address)")
     }
 
-    init(wallet: ReceiveAddressWalletEntity) {
+    public init(wallet: ReceiveAddressWalletEntity) {
         id = wallet.id
         address = wallet.address
         qrCode = IntentFile(data: ReceiveAddressQRCode.image(for: wallet.address).pngData() ?? Data(), filename: "receive-address-qr.png", type: .png)
@@ -220,14 +224,16 @@ struct ReceiveAddressAutomationOutput: AppEntity {
 }
 
 @available(iOS 16.0, *)
-struct ReceiveAddressAutomationOutputQuery: EntityQuery {
-    func entities(for identifiers: [ReceiveAddressAutomationOutput.ID]) async throws -> [ReceiveAddressAutomationOutput] {
+public struct ReceiveAddressAutomationOutputQuery: EntityQuery {
+    public init() {}
+
+    public func entities(for identifiers: [ReceiveAddressAutomationOutput.ID]) async throws -> [ReceiveAddressAutomationOutput] {
         ReceiveAddressWalletQuery.storedWallets()
             .filter { identifiers.contains($0.id) }
             .map(ReceiveAddressAutomationOutput.init)
     }
 
-    func suggestedEntities() async throws -> [ReceiveAddressAutomationOutput] {
+    public func suggestedEntities() async throws -> [ReceiveAddressAutomationOutput] {
         ReceiveAddressWalletQuery.storedWallets().map(ReceiveAddressAutomationOutput.init)
     }
 }
@@ -266,23 +272,20 @@ struct ReceiveAddressIntent: AppIntent {
 
 private enum ReceiveAddressIntentError: LocalizedError {
     case disabledOrUnavailable
-    case noEligibleWallets
 
     var errorDescription: String? {
         switch self {
         case .disabledOrUnavailable:
             "Receive Address Shortcut is disabled or this wallet is no longer available."
-        case .noEligibleWallets:
-            "No eligible wallets are available. Enable Receive Address Shortcut in Privacy, then add an on-chain wallet or show an existing wallet on Home."
         }
     }
 }
 
 @available(iOS 16.4, *)
-struct WalletAppShortcuts: AppShortcutsProvider {
-    static let shortcutTileColor: ShortcutTileColor = .blue
+public struct WalletAppShortcuts: AppShortcutsProvider {
+    public static let shortcutTileColor: ShortcutTileColor = .blue
     @AppShortcutsBuilder
-    static var appShortcuts: [AppShortcut] {
+    public static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: PriceIntent(),
             phrases: [
