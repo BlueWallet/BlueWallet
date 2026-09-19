@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useStorage } from './context/useStorage';
 import { TWallet } from '../class/wallets/types';
 
@@ -8,13 +8,10 @@ import { TWallet } from '../class/wallets/types';
 const useWalletSubscribe = (walletID: string): TWallet => {
   const { wallets } = useStorage();
 
-  // get wallet by ID or used cached wallet
-  const previousWallet = useRef<TWallet | undefined>(undefined);
-  const origWallet = wallets.find(w => w.getID() === walletID) ?? previousWallet.current;
+  const origWallet = wallets.find(w => w.getID() === walletID);
   if (!origWallet) {
     throw new Error(`Wallet with ID ${walletID} not found`);
   }
-  previousWallet.current = origWallet;
 
   const [lastTxFetch, setLastTxFetch] = useState(origWallet.getLastTxFetch());
 
