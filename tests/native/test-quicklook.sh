@@ -7,4 +7,6 @@ xcrun swiftc ios/QuickLookShared/MultisigCoordination.swift tests/native/Multisi
 "$test_directory/vault-tests"
 xcrun swiftc ios/QuickLookShared/MultisigCoordination.swift ios/QuickLookShared/QuickLookDocument.swift tests/native/QuickLookDocumentTests.swift -o "$test_directory/document-tests"
 "$test_directory/document-tests"
+xcrun swiftc ios/CopyFileContents/FileContents.swift tests/native/FileContentsTests.swift -o "$test_directory/copy-tests"
+"$test_directory/copy-tests"
 bash tests/native/test-vault-localization.sh

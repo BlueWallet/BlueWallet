@@ -115,3 +115,26 @@ cached Files thumbnail.
 Run all native checks with `bash tests/native/test-quicklook.sh`; the iOS PR build
 also runs this script. Compact thumbnails use SI prefixes (k/M/G/T/P) and mark
 rounded totals with ≈; the full preview always shows exact satoshi amounts.
+
+## Copy file contents from Files
+
+In Files or Quick Look, choose **Share → Copy File Contents**. This is a native
+Action extension. Apple's existing **Copy** action still copies the file itself;
+preview extensions cannot replace Files' share-sheet behavior.
+
+The action accepts one `.bwcoord`, `.jsonl`, `.psbt`, or `.txn` file. It preserves
+UTF-8 text, including whitespace and line endings. Binary PSBTs are copied as
+Base64 and binary transactions as hexadecimal so they can be pasted into wallets.
+It reads only the supplied file, limits input to 8 MB, and leaves the clipboard
+untouched on failure. It does not normalize or reconstruct the formatted preview.
+The action and its error UI support the native English/Spanish localizations.
+
+`CopyFileContents` is embedded in BlueWallet and included in the Fastlane Match
+identifier lists. A native rebuild is needed to install it. Before signed device
+or distribution builds, provision `io.bluewallet.bluewallet.CopyFileContents` in
+the Apple Developer/Match setup; the simulator build does not require that profile.
+The Detox iOS workflow removes this extension alongside the existing extensions.
+
+`test-quicklook.sh` also checks exact text copying and binary round trips. In Files,
+verify **Share → Copy File Contents**, then paste into a text field and compare
+against the original file rather than the preview's displayed summary.

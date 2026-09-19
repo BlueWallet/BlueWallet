@@ -2087,6 +2087,98 @@
           }
         }
       }
+    },
+    "Copying file contents…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copying file contents…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiando el contenido del archivo…"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiando el contenido del archivo…"
+          }
+        }
+      }
+    },
+    "This file is too large to copy. Open it in BlueWallet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This file is too large to copy. Open it in BlueWallet."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este archivo es demasiado grande para copiarlo. Ábrelo en BlueWallet."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este archivo es demasiado grande para copiarlo. Ábrelo en BlueWallet."
+          }
+        }
+      }
+    },
+    "The file could not be copied. Try downloading it in Files first.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file could not be copied. Try downloading it in Files first."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo copiar el archivo. Prueba a descargarlo primero en Archivos."
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo copiar el archivo. Prueba a descargarlo primero en Archivos."
+          }
+        }
+      }
+    },
+    "Close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en_US": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar"
+          }
+        },
+        "es-419": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
