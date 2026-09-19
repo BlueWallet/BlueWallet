@@ -43,7 +43,7 @@ private enum FileDetails {
                return server["tcp"] is NSNumber || server["ssl"] is NSNumber
            }) {
             let count = servers.count
-            return Preview(title: "Electrum Servers", detail: "\(count) server\(count == 1 ? "" : "s")")
+            return Preview(title: "\(count) Electrum Server\(count == 1 ? "" : "s")", detail: "Server list")
         }
         let transactionData = Data(hex: text) ?? source
         return transaction(transactionData)
