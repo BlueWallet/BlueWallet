@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme LastUpgradeVersion="2700" version="1.3">
+   <BuildAction parallelizeBuildables="YES" buildImplicitDependencies="YES">
+      <BuildActionEntries>
+         <BuildActionEntry buildForTesting="NO" buildForRunning="YES" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="YES">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="13B07F861A680F5B00A75B9A" BuildableName="BlueWallet.app" BlueprintName="BlueWallet" ReferencedContainer="container:BlueWallet.xcodeproj"/>
+         </BuildActionEntry>
+         <BuildActionEntry buildForTesting="NO" buildForRunning="YES" buildForProfiling="NO" buildForArchiving="NO" buildForAnalyzing="YES">
+            <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="6DD4109B266CADF10087DE03" BuildableName="WidgetsExtension.appex" BlueprintName="WidgetsExtension" ReferencedContainer="container:BlueWallet.xcodeproj"/>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <!-- Create a saved shortcut named Receive Address containing BlueWallet's
+        Receive Address action. Select a wallet there, or use Ask Each Time. -->
+   <LaunchAction
+      buildConfiguration="Debug"
+      selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier="Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle="0"
+      useCustomWorkingDirectory="NO"
+      ignoresPersistentStateOnLaunch="NO"
+      debugDocumentVersioning="YES"
+      debugServiceExtension="internal"
+      allowLocationSimulation="YES">
+      <BuildableProductRunnable runnableDebuggingMode="0">
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="13B07F861A680F5B00A75B9A" BuildableName="BlueWallet.app" BlueprintName="BlueWallet" ReferencedContainer="container:BlueWallet.xcodeproj"/>
+      </BuildableProductRunnable>
+      <MacroExpansion>
+         <BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="13B07F861A680F5B00A75B9A" BuildableName="BlueWallet.app" BlueprintName="BlueWallet" ReferencedContainer="container:BlueWallet.xcodeproj"/>
+      </MacroExpansion>
+      <EnvironmentVariables>
+         <EnvironmentVariable key="BLUEWALLET_DEBUG_SHORTCUT_NAME" value="Receive Address" isEnabled="YES"/>
+      </EnvironmentVariables>
+   </LaunchAction>
+   <AnalyzeAction buildConfiguration="Debug"/>
+</Scheme>

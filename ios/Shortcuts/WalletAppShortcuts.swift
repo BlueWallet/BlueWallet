@@ -32,7 +32,12 @@ public struct ReceiveAddressWalletEntity: AppEntity {
     public let address: String
 
     public var displayRepresentation: DisplayRepresentation {
-        DisplayRepresentation(title: "\(label)", subtitle: "\(address)")
+        // The system picker controls subtitle layout, so shorten only the
+        // display text while keeping the complete address for intent output.
+        let subtitle = address.count > 21
+            ? "\(address.prefix(10))…\(address.suffix(10))"
+            : address
+        return DisplayRepresentation(title: "\(label)", subtitle: "\(subtitle)")
     }
 
     public init(wallet: ReceiveAddressShortcutWallet) {
@@ -50,14 +55,8 @@ public struct ReceiveAddressWalletQuery: EntityQuery {
         Self.storedWallets().filter { identifiers.contains($0.id) }
     }
 
-    public func suggestedEntities() async throws -> IntentItemCollection<ReceiveAddressWalletEntity> {
-        let wallets = Self.storedWallets()
-        return IntentItemCollection(
-            promptLabel: wallets.isEmpty
-                ? "No wallets available. Open BlueWallet, enable Receive Address Shortcut in Settings > Privacy, and add an on-chain wallet or turn off Hide from Home for an existing wallet. This feature is unavailable while password-protected storage is enabled."
-                : "Choose a wallet",
-            items: wallets
-        )
+    public func suggestedEntities() async throws -> [ReceiveAddressWalletEntity] {
+        Self.storedWallets()
     }
 
     public static func storedWallets() -> [ReceiveAddressWalletEntity] {
@@ -287,7 +286,7 @@ private enum ReceiveAddressIntentError: LocalizedError {
     }
 }
 
-@available(iOS 16.4, *)
+@available(iOS 16.0, *)
 public struct WalletAppShortcuts: AppShortcutsProvider {
     public static let shortcutTileColor: ShortcutTileColor = .blue
     @AppShortcutsBuilder
@@ -308,8 +307,8 @@ public struct WalletAppShortcuts: AppShortcutsProvider {
         AppShortcut(
             intent: ReceiveAddressIntent(),
             phrases: [
-                "Show my receive address with ${applicationName}",
-                "Get a receive address from ${applicationName}"
+                "Show the receive address for \(\.$wallet) with ${applicationName}",
+                "Get the receive address for \(\.$wallet) using ${applicationName}"
             ],
             shortTitle: "Receive Address",
             systemImageName: "qrcode"
