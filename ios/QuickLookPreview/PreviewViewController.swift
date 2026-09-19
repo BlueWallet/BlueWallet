@@ -189,6 +189,12 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let record = records[indexPath.row]
+        if record.symbol == "server.rack" {
+            UIPasteboard.general.string = [record.label, record.detail]
+                .filter { !$0.isEmpty }
+                .joined(separator: " · ")
+            return
+        }
         let copyValue: String
         if record.label.hasPrefix("Input ") || record.label.hasPrefix("Output ") {
             copyValue = record.detail.components(separatedBy: " · ").first ?? record.detail
