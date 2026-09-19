@@ -115,6 +115,73 @@ interface TransactionListItemProps {
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList>;
 
+const shortenContactName = (name: string): string => {
+  if (name.length < 16) return name;
+  return name.substr(0, 7) + '...' + name.substr(name.length - 7, 7);
+};
+
+const resolveListTitleKey = (item: Transaction & LightningTransaction, isPendingRefill: boolean): 'pending' | 'sent' | 'received' => {
+  if (isPendingRefill) return 'pending';
+  if (item.category === 'receive' && item.confirmations! < 3) return 'pending';
+  if (item.type === 'bitcoind_tx') return item.value! < 0 ? 'sent' : 'received';
+  if (item.type === 'paid_invoice') return 'sent';
+  if (item.type === 'user_invoice' || item.type === 'payment_request') {
+    if (!item.ispaid) return 'pending';
+    return 'received';
+  }
+  if (!item.confirmations) return 'pending';
+  return item.value! < 0 ? 'sent' : 'received';
+};
+
+const resolveTransactionKind = (
+  item: Transaction & LightningTransaction,
+  isPendingRefill: boolean,
+  arkRowKind: 'Lightning' | 'Refill' | undefined,
+) => {
+  if (isPendingRefill) {
+    return { label: loc.transactions.pending_transaction, icon: <TransactionPendingIcon /> };
+  }
+
+  if (item.category === 'receive' && item.confirmations! < 3) {
+    return { label: loc.transactions.pending_transaction, icon: <TransactionPendingIcon /> };
+  }
+
+  if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
+    return item.value! < 0
+      ? { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> }
+      : { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };
+  }
+
+  if (item.type && item.type === 'bitcoind_tx') {
+    return { label: loc.transactions.onchain, icon: <TransactionOnchainIcon /> };
+  }
+
+  if (item.type === 'paid_invoice') {
+    return { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> };
+  }
+
+  if (item.type === 'user_invoice' || item.type === 'payment_request') {
+    const currentDate = new Date();
+    const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
+    const invoiceExpiration = item.timestamp! + item.expire_time!;
+    if (!item.ispaid && invoiceExpiration < now) {
+      return { label: loc.transactions.expired_transaction, icon: <TransactionExpiredIcon /> };
+    }
+    if (!item.ispaid) {
+      return { label: loc.transactions.expired_transaction, icon: <TransactionPendingIcon /> };
+    }
+    return { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };
+  }
+
+  if (!item.confirmations) {
+    return { label: loc.transactions.pending_transaction, icon: <TransactionPendingIcon /> };
+  }
+
+  return item.value! < 0
+    ? { label: loc.transactions.outgoing_transaction, icon: <TransactionOutgoingIcon /> }
+    : { label: loc.transactions.incoming_transaction, icon: <TransactionIncomingIcon /> };
+};
+
 const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   item,
   itemPriceUnit,
@@ -140,11 +207,6 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
   );
 
   const combinedStyle = useMemo(() => [containerStyle, style], [containerStyle, style]);
-
-  const shortenContactName = (name: string): string => {
-    if (name.length < 16) return name;
-    return name.substr(0, 7) + '...' + name.substr(name.length - 7, 7);
-  };
 
   let counterparty;
   if (item.counterparty) {
@@ -194,18 +256,7 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     [arkRowKind, item],
   );
 
-  const listTitleKey = useMemo((): 'pending' | 'sent' | 'received' => {
-    if (isPendingRefill) return 'pending';
-    if (item.category === 'receive' && item.confirmations! < 3) return 'pending';
-    if (item.type === 'bitcoind_tx') return item.value! < 0 ? 'sent' : 'received';
-    if (item.type === 'paid_invoice') return 'sent';
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      if (!item.ispaid) return 'pending';
-      return 'received';
-    }
-    if (!item.confirmations) return 'pending';
-    return item.value! < 0 ? 'sent' : 'received';
-  }, [isPendingRefill, item.category, item.confirmations, item.type, item.value, item.ispaid]);
+  const listTitleKey = useMemo(() => resolveListTitleKey(item, isPendingRefill), [isPendingRefill, item]);
 
   const listTitle = useMemo(() => {
     if (listTitleKey === 'pending') return loc.transactions.pending;
@@ -283,85 +334,10 @@ const TransactionListItemComponent: React.FC<TransactionListItemProps> = ({
     fontScale,
   ]);
 
-  const determineTransactionTypeAndAvatar = () => {
-    // A refill awaiting settlement: show it as pending, not as a completed receive.
-    if (isPendingRefill) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    }
-
-    if (item.category === 'receive' && item.confirmations! < 3) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    }
-
-    // Recovered Arkade Lightning legs are bitcoind_tx but represent Boltz swaps,
-    // not on-chain transfers — render them with the off-chain (Lightning) icon.
-    if (arkRowKind === 'Lightning' && item.type === 'bitcoind_tx') {
-      return item.value! < 0
-        ? { label: loc.transactions.offchain, icon: <TransactionOffchainIcon /> }
-        : { label: loc.transactions.incoming_transaction, icon: <TransactionOffchainIncomingIcon /> };
-    }
-
-    if (item.type && item.type === 'bitcoind_tx') {
-      return {
-        label: loc.transactions.onchain,
-        icon: <TransactionOnchainIcon />,
-      };
-    }
-
-    if (item.type === 'paid_invoice') {
-      return {
-        label: loc.transactions.offchain,
-        icon: <TransactionOffchainIcon />,
-      };
-    }
-
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0; // eslint-disable-line no-bitwise
-      const invoiceExpiration = item.timestamp! + item.expire_time!;
-      if (!item.ispaid && invoiceExpiration < now) {
-        return {
-          label: loc.transactions.expired_transaction,
-          icon: <TransactionExpiredIcon />,
-        };
-      } else if (!item.ispaid) {
-        return {
-          label: loc.transactions.expired_transaction,
-          icon: <TransactionPendingIcon />,
-        };
-      } else {
-        return {
-          label: loc.transactions.incoming_transaction,
-          icon: <TransactionOffchainIncomingIcon />,
-        };
-      }
-    }
-
-    if (!item.confirmations) {
-      return {
-        label: loc.transactions.pending_transaction,
-        icon: <TransactionPendingIcon />,
-      };
-    } else if (item.value! < 0) {
-      return {
-        label: loc.transactions.outgoing_transaction,
-        icon: <TransactionOutgoingIcon />,
-      };
-    } else {
-      return {
-        label: loc.transactions.incoming_transaction,
-        icon: <TransactionIncomingIcon />,
-      };
-    }
-  };
-
-  const { label: transactionTypeLabel, icon: avatar } = determineTransactionTypeAndAvatar();
+  const { label: transactionTypeLabel, icon: avatar } = useMemo(
+    () => resolveTransactionKind(item, isPendingRefill, arkRowKind),
+    [arkRowKind, isPendingRefill, item],
+  );
 
   const amountWithUnit = useMemo(() => {
     const unitSuffix = itemPriceUnit === BitcoinUnit.BTC || itemPriceUnit === BitcoinUnit.SATS ? ` ${itemPriceUnit}` : ' ';

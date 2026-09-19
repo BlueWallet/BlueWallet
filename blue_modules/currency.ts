@@ -27,21 +27,22 @@ let lastTimeUpdateExchangeRateWasCalled: number = 0;
 let skipUpdateExchangeRate: boolean = false;
 
 let currencyFormatter: Intl.NumberFormat | null = null;
+let currencyFormatterKey: string | null = null;
 
 function getCurrencyFormatter(): Intl.NumberFormat {
-  if (
-    !currencyFormatter ||
-    currencyFormatter.resolvedOptions().locale !== preferredFiatCurrency.locale ||
-    currencyFormatter.resolvedOptions().currency !== preferredFiatCurrency.endPointKey
-  ) {
+  const formatterKey = `${preferredFiatCurrency.locale}:${preferredFiatCurrency.endPointKey}`;
+
+  if (!currencyFormatter || currencyFormatterKey !== formatterKey) {
     currencyFormatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
       style: 'currency',
       currency: preferredFiatCurrency.endPointKey,
       minimumFractionDigits: 2,
       maximumFractionDigits: 8,
     });
+    currencyFormatterKey = formatterKey;
     console.debug('Created new currency formatter for: ', preferredFiatCurrency);
   }
+
   return currencyFormatter;
 }
 
@@ -51,7 +52,8 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
     await DefaultPreference.set(PREFERRED_CURRENCY_STORAGE_KEY, item.endPointKey);
     await DefaultPreference.set(PREFERRED_CURRENCY_LOCALE_STORAGE_KEY, item.locale.replace('-', '_'));
     preferredFiatCurrency = FiatUnit[item.endPointKey];
-    currencyFormatter = null; // Remove cached formatter
+    currencyFormatter = null;
+    currencyFormatterKey = null;
     console.debug('Preferred currency set to:', item);
     console.debug('Preferred currency locale set to:', item.locale.replace('-', '_'));
     console.debug('Cleared all cached currency formatters');
@@ -59,7 +61,6 @@ async function setPreferredCurrency(item: FiatUnitType): Promise<void> {
     console.error('Failed to set preferred currency:', error);
     throw error;
   }
-  currencyFormatter = null;
 }
 
 async function updateExchangeRate(): Promise<void> {
@@ -268,6 +269,10 @@ async function initCurrencyDaemon(clearLastUpdatedTime: boolean = false): Promis
   await updateExchangeRate();
 }
 
+function formatFiatAmount(amount: BigNumber): string {
+  return amount.abs().isGreaterThanOrEqualTo(0.005) ? amount.toFixed(2) : amount.toPrecision(2);
+}
+
 function satoshiToLocalCurrency(satoshi: number, format: boolean = true): string {
   const exchangeRateKey = BTC_PREFIX + preferredFiatCurrency.endPointKey;
   const exchangeRate = exchangeRates[exchangeRateKey];
@@ -277,20 +282,13 @@ function satoshiToLocalCurrency(satoshi: number, format: boolean = true): string
     return '...';
   }
 
-  const btcAmount = new BigNumber(satoshi).dividedBy(100000000);
-  const convertedAmount = btcAmount.multipliedBy(exchangeRate);
-  let formattedAmount: string;
-
-  if (convertedAmount.isGreaterThanOrEqualTo(0.005) || convertedAmount.isLessThanOrEqualTo(-0.005)) {
-    formattedAmount = convertedAmount.toFixed(2);
-  } else {
-    formattedAmount = convertedAmount.toPrecision(2);
-  }
+  const convertedAmount = new BigNumber(satoshi).multipliedBy(exchangeRate).dividedBy(100000000);
+  const formattedAmount = formatFiatAmount(convertedAmount);
 
   if (format === false) return formattedAmount;
 
   try {
-    return getCurrencyFormatter().format(Number(formattedAmount));
+    return getCurrencyFormatter().format(new BigNumber(formattedAmount).toNumber());
   } catch (error) {
     console.error(error);
     return formattedAmount;
@@ -368,10 +366,14 @@ function formatBTC(btc: BigNumber.Value): string {
 
 function _setPreferredFiatCurrency(currency: FiatUnitType): void {
   preferredFiatCurrency = currency;
+  currencyFormatter = null;
+  currencyFormatterKey = null;
 }
 
 function _setExchangeRate(pair: string, rate: number): void {
   exchangeRates[pair] = rate;
+  currencyFormatter = null;
+  currencyFormatterKey = null;
 }
 
 function _setSkipUpdateExchangeRate(): void {

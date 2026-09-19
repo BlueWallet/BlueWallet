@@ -283,13 +283,13 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return txs;
   }, [wallet]);
 
-  const getTransactions = useCallback((lmt = Infinity): Transaction[] => sortedTransactions.slice(0, lmt), [sortedTransactions]);
+  const visibleTransactions = useMemo(() => sortedTransactions.slice(0, limit), [sortedTransactions, limit]);
 
   const loadMoreTransactions = useCallback(() => {
-    if (getTransactions(Infinity).length > limit) {
+    if (sortedTransactions.length > limit) {
       setLimit(prev => prev + pageSize);
     }
-  }, [getTransactions, limit, pageSize]);
+  }, [sortedTransactions.length, limit, pageSize]);
 
   const refreshTransactions = useCallback(
     async (isManualRefresh = false) => {
@@ -366,14 +366,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   }, [wallet, isElectrumDisabled, isLoading, refreshTransactions, lastFetchTimestamp]);
 
   const isLightning = useCallback((): boolean => wallet.chain === Chain.OFFCHAIN || false, [wallet]);
-  const renderListFooterComponent = () => {
-    // if not all txs rendered - display indicator
-    return wallet.getTransactions().length > limit ? (
+  const renderListFooterComponent = useCallback(() => {
+    // If not all txs are rendered, show the load-more indicator.
+    return sortedTransactions.length > limit ? (
       <ActivityIndicator style={[styles.activityIndicator, stylesHook.activityIndicatorStyle]} />
     ) : (
       <View style={stylesHook.listFooterStyle} />
     );
-  };
+  }, [limit, sortedTransactions.length, stylesHook.activityIndicatorStyle, stylesHook.listFooterStyle]);
 
   const navigateToSendScreen = () => {
     navigate('SendDetailsRoot', {
@@ -836,7 +836,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onEndReachedThreshold={0.3}
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
-        data={getTransactions(limit)}
+        data={visibleTransactions}
         extraData={[wallet, displayUnit, wallet.hideBalance]}
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
