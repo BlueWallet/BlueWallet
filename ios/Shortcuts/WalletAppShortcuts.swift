@@ -50,8 +50,14 @@ public struct ReceiveAddressWalletQuery: EntityQuery {
         Self.storedWallets().filter { identifiers.contains($0.id) }
     }
 
-    public func suggestedEntities() async throws -> [ReceiveAddressWalletEntity] {
-        Self.storedWallets()
+    public func suggestedEntities() async throws -> IntentItemCollection<ReceiveAddressWalletEntity> {
+        let wallets = Self.storedWallets()
+        return IntentItemCollection(
+            promptLabel: wallets.isEmpty
+                ? "No wallets available. Open BlueWallet, enable Receive Address Shortcut in Settings > Privacy, and add an on-chain wallet or turn off Hide from Home for an existing wallet. This feature is unavailable while password-protected storage is enabled."
+                : "Choose a wallet",
+            items: wallets
+        )
     }
 
     public static func storedWallets() -> [ReceiveAddressWalletEntity] {
@@ -241,13 +247,13 @@ public struct ReceiveAddressAutomationOutputQuery: EntityQuery {
 @available(iOS 16.0, *)
 struct ReceiveAddressIntent: AppIntent {
     static var title: LocalizedStringResource = "Receive Address"
-    static var description = IntentDescription("Display the receive address for one of your on-chain wallets.")
+    static var description = IntentDescription("Display the receive address for one of your on-chain wallets. If no wallets are available, open BlueWallet and enable Receive Address Shortcut in Settings > Privacy. Add an on-chain wallet or turn off Hide from Home for an existing wallet. This feature is unavailable while password-protected storage is enabled.")
     static var openAppWhenRun: Bool { false }
     static var authenticationPolicy: IntentAuthenticationPolicy { .requiresAuthentication }
 
     @Parameter(
         title: "Wallet",
-        description: "Choose an on-chain wallet.",
+        description: "Choose an on-chain wallet that is not hidden from Home. Enable Receive Address Shortcut in BlueWallet's Settings > Privacy first. Password-protected storage must be off.",
         requestValueDialog: "Which wallet should provide the receive address?"
     )
     var wallet: ReceiveAddressWalletEntity
@@ -276,7 +282,7 @@ private enum ReceiveAddressIntentError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .disabledOrUnavailable:
-            "Receive Address Shortcut is disabled or this wallet is no longer available."
+            "This wallet is no longer available. Open BlueWallet, enable Receive Address Shortcut in Settings > Privacy, and make sure an on-chain wallet is not hidden from Home. Password-protected storage must be off. Then select an available wallet in this shortcut."
         }
     }
 }
