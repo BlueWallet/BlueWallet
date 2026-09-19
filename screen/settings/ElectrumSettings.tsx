@@ -464,11 +464,11 @@ const ElectrumSettings: React.FC = () => {
   }, [importServerData]);
 
   useEffect(() => {
-    if (!importedServers) return;
+    if (!importedServers || isLoading) return;
 
     importServerData(importedServers);
     navigation.setParams({ importedServers: undefined });
-  }, [importServerData, importedServers, navigation]);
+  }, [importServerData, importedServers, isLoading, navigation]);
 
   const onPressMenuItem = useCallback(
     (id: string) => {
