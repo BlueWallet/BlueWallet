@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import Clipboard from '@react-native-clipboard/clipboard';
 import {
   ActivityIndicator,
   Alert,
@@ -27,7 +26,7 @@ import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { Transaction, TWallet } from '../../class/wallets/types';
-import presentAlert, { AlertType } from '../../components/Alert';
+import presentAlert from '../../components/Alert';
 import { BlueLoading } from '../../components/BlueLoading';
 import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
@@ -936,14 +935,6 @@ const TransactionStatus: React.FC = () => {
   const isOnChainTx = isOnChainTransaction(tx);
   const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
-  const primaryAmount = txValue !== null ? formatBalanceWithoutSuffix(txValue, preferredBalanceUnit, true) : '-';
-  const primaryAmountText = preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY ? `${primaryAmount} ${preferredBalanceUnit}` : primaryAmount;
-  const secondaryAmountText =
-    txValue !== null
-      ? preferredBalanceUnit === BitcoinUnit.LOCAL_CURRENCY
-        ? `${formatBalanceWithoutSuffix(Math.abs(txValue), BitcoinUnit.BTC, true)} ${BitcoinUnit.BTC}`
-        : satoshiToLocalCurrency(Math.abs(txValue))
-      : '-';
 
   const showBlocksAccordion = isOnChainTx && !isPending && parsedConfirmations > 0;
 
@@ -956,13 +947,6 @@ const TransactionStatus: React.FC = () => {
   // Get transaction direction and date
   const transactionDirection = txValue !== null && txValue < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
   const transactionDate = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
-
-  const copyDisplayedAmount = useCallback((amount: string) => {
-    if (!amount || amount === '-') return;
-    Clipboard.setString(amount);
-    triggerHapticFeedback(HapticFeedbackTypes.Selection);
-    presentAlert({ message: loc._.copied, type: AlertType.Toast });
-  }, []);
 
   // Get memo
   const memo = tx?.hash ? txMetadata?.[tx.hash]?.memo || '' : '';
@@ -1095,17 +1079,20 @@ const TransactionStatus: React.FC = () => {
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.55}
-            onLongPress={() => copyDisplayedAmount(primaryAmountText)}
           >
-            {primaryAmount}
-            {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{` ${preferredBalanceUnit}`}</Text>}
+            {txValue !== null ? formatBalanceWithoutSuffix(txValue, preferredBalanceUnit, true) : '-'}
+            {preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
+              <Text style={[styles.valueUnit, stylesHook.valueUnit]}>{` ${preferredBalanceUnit}`}</Text>
+            )}
           </Text>
           {txValue !== null && (
             <Text
               style={[styles.localCurrency, stylesHook.localCurrency, scaledStyles.localCurrency]}
-              onLongPress={() => copyDisplayedAmount(secondaryAmountText)}
+              selectable
             >
-              {secondaryAmountText}
+              {preferredBalanceUnit === BitcoinUnit.LOCAL_CURRENCY
+                ? `${formatBalanceWithoutSuffix(Math.abs(txValue), BitcoinUnit.BTC, true)} ${BitcoinUnit.BTC}`
+                : satoshiToLocalCurrency(Math.abs(txValue))}
             </Text>
           )}
         </View>
