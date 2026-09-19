@@ -117,7 +117,11 @@
     "minSats": "最小金額為 {min} 聰",
     "minSatsFull": "最小金額為 {min} 聰或 {currency}",
     "qrcode_for_the_address": "地址的 QR 碼",
-    "bip47_explanation": "支付代碼是一個通用地址，可避免洩露您的錢包地址。並非所有服務都支援此功能。"
+    "bip47_explanation": "支付代碼是一個通用地址，可避免洩露您的錢包地址。並非所有服務都支援此功能。",
+    "details_add": "新增",
+    "details_more_options": "更多選項",
+    "option_amount_subtitle": "收款方會看到建議金額與說明",
+    "option_label_subtitle": "為此地址加上標籤，方便之後辨識"
   },
   "send": {
     "provided_address_is_invoice": "此地址似乎是 Lightning 發票。請前往您的 Lightning 錢包來支付此發票。",
@@ -210,7 +214,9 @@
     "cant_send_to_silentpayment_adress": "此錢包無法傳送至 Silent Payments 地址",
     "cant_send_to_bip47": "此錢包無法傳送至 BIP47 支付代碼",
     "cant_find_bip47_notification": "請先將此支付代碼加入聯絡人",
-    "problem_with_psbt": "PSBT的問題"
+    "problem_with_psbt": "PSBT的問題",
+    "psbt_view_raw": "檢視原始 PSBT",
+    "psbt_raw_helper": "這是原始 PSBT（Base64）。點一下即可複製。"
   },
   "settings": {
     "about": "關於",
@@ -327,7 +333,9 @@
     "would_you_like_to_receive_notifications": "您想在收到款項時得到通知嗎？",
     "notifications_subtitle": "到帳付款與交易確認",
     "no_and_dont_ask": "不，且不要再詢問我。",
-    "permission_denied_message": "您已拒絕傳送通知的權限。若要接收通知，請於裝置設定中啟用。"
+    "permission_denied_message": "您已拒絕傳送通知的權限。若要接收通知，請於裝置設定中啟用。",
+    "redact_notifications": "隱藏付款詳情",
+    "redact_notifications_subtitle": "通知不會在鎖定畫面上顯示金額或交易資訊。"
   },
   "transactions": {
     "cancel_explain": "我們將以一筆付款給您本人且手續費較高的交易來取代此交易。這實際上會取消目前的交易。此功能稱為 RBF—以手續費取代。",
@@ -396,7 +404,12 @@
     "details_virtual_size": "虛擬大小",
     "details_tx_hex": "交易十六進位",
     "details_inputs_count": "輸入 ({count})",
-    "details_outputs_count": "輸出 ({count})"
+    "details_outputs_count": "輸出 ({count})",
+    "blocks_load_error": "無法載入區塊詳情。點一下重試。",
+    "blocks_confirmed_latest": "已在最新區塊（{blockHeight}）中確認。",
+    "blocks_confirmed_summary": "已包含於區塊 {blockHeight}。",
+    "blocks_confirmed_fee_summary": "大小為 {vsize}，費率為 {feeRate}，手續費 {fee}。",
+    "address_label_placeholder": "此地址的標籤"
   },
   "wallets": {
     "add_bitcoin": "比特幣",
@@ -515,7 +528,22 @@
     "identity_pubkey": "身份公鑰",
     "xpub_title": "錢包公鑰",
     "manage_wallets_search_placeholder": "搜尋錢包、地址、交易與備註",
-    "more_info": "更多資訊"
+    "more_info": "更多資訊",
+    "add_entropy_generated": "{genBits} 位元或 {gen} 位元組的產生熵",
+    "add_entropy_mixed": "你提供的 {bytes} 位元組熵將混入新錢包。",
+    "add_entropy_remain": "{genBits} 位元或 {gen} 位元組的產生熵。其餘 {rem} 位元組將由系統亂數產生器提供。",
+    "details_derivation_path_edit": "例如：m/84'/0'/0'。這不會變更地址。匯出／備份 zpub、ypub 或 xpub 時不會保留路徑或指紋。",
+    "details_derivation_path_invalid": "衍生路徑無效。格式應類似 m/84'/0'/0'。",
+    "details_export_history": "匯出歷史紀錄",
+    "details_import_notes": "匯入備註……",
+    "details_import_notes_after": "之後",
+    "details_import_notes_before": "之前",
+    "details_import_notes_no_changes": "此檔案沒有需要匯入的交易備註。",
+    "details_import_notes_review": "選擇要覆蓋的既有備註。沒有既有備註的交易會自動匯入。",
+    "details_import_notes_success": "已為 {count} 筆交易匯入備註。",
+    "details_master_fingerprint_edit": "例如：73c5da0a。匯出／備份 zpub、ypub 或 xpub 時不會保留此資訊。",
+    "details_master_fingerprint_invalid": "主指紋無效。應為 8 個十六進位字元。",
+    "details_delete_wallet_error_message": "無法將此錢包從通知中移除——可能是網路問題或連線不佳。你可能仍會收到與此錢包相關的交易通知。"
   },
   "total_balance_view": {
     "display_in_bitcoin": "以比特幣顯示",
