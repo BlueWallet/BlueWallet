@@ -34,7 +34,7 @@ import WalletTransactions from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';
 import Currency from '../screen/settings/Currency';
-import GeneralSettings from '../screen/settings/GeneralSettings';
+import PrivacySettings from '../screen/settings/PrivacySettings';
 import PlausibleDeniability from '../screen/PlausibleDeniability';
 import Licensing from '../screen/settings/Licensing';
 import NetworkSettings from '../screen/settings/NetworkSettings';
@@ -479,7 +479,7 @@ const DetailViewStackScreensStack = () => {
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
         <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
-        <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
+        <DetailViewStack.Screen name="PrivacySettings" component={PrivacySettings} options={settingsScreenOptions(loc.settings.privacy)} />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
           component={PlausibleDeniability}
