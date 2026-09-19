@@ -104,9 +104,10 @@
     "title": "Dompet Anda telah dibuat ..."
   },
   "receive": {
-    "details_create": "Buat",
+    "details_save": "Simpan",
     "details_label": "Deskripsi",
     "details_setAmount": "Terima sejumlah",
+    "option_label": "Label",
     "details_share": "Bagikan...",
     "address_not_found": "Tidak dapat menghasilkan alamat penerima.",
     "header": "Terima",
@@ -380,8 +381,6 @@
     "updating": "Memperbaharui...",
     "watchOnlyWarningTitle": "Peringatan keamanan",
     "watchOnlyWarningDescription": "Berhati-hatilah terhadap penipu yang sering menggunakan dompet \"hanya-lihat\" untuk menipu pengguna. Dompet ini tidak memungkinkan Anda mengendalikan atau mengirim dana; mereka hanya membiarkan Anda melihat saldo.",
-    "custom_fee_warning_title": "Peringatan",
-    "custom_fee_warning_description": "Biaya di bawah 1 sat/vB valid, tetapi mungkin tidak diteruskan karena kebijakan node.",
     "details_eta_analyzing": "Menganalisis...",
     "details_sent": "Terkirim",
     "details_section": "Detail",
@@ -437,7 +436,6 @@
     "details_display": "Tampilkan di Layar Utama",
     "details_edit": "sunting",
     "details_export_backup": "Ekspor / backup",
-    "details_export_history": "Ekspor riwayat ke CSV",
     "details_master_fingerprint": "Sidik Jari Utama",
     "details_multisig_type": "multisig",
     "details_options": "Opsi",
@@ -517,9 +515,7 @@
     "identity_pubkey": "Pubkey Identitas",
     "xpub_title": "XPUB dompet",
     "manage_wallets_search_placeholder": "Cari dompet, alamat, transaksi dan memo",
-    "more_info": "Info Lainnya",
-    "details_delete_wallet_error_message": "Terjadi masalah saat mengonfirmasi apakah dompet ini telah dihapus dari notifikasi—ini bisa disebabkan oleh masalah jaringan atau koneksi yang buruk. Jika Anda melanjutkan, Anda mungkin masih menerima notifikasi untuk transaksi terkait dompet ini, bahkan setelah dompet dihapus.",
-    "details_delete_anyway": "Hapus saja"
+    "more_info": "Info Lainnya"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Tampilkan dalam Bitcoin",

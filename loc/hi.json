@@ -104,9 +104,10 @@
     "title": "आपका वॉलेट बना दिया गया है।"
   },
   "receive": {
-    "details_create": "बनाएं",
+    "details_save": "सहेजें",
     "details_label": "विवरण",
     "details_setAmount": "राशि के साथ प्राप्त करें",
+    "option_label": "लेबल",
     "details_share": "साझा करें...",
     "address_not_found": "प्राप्ति पता उत्पन्न करने में असमर्थ।",
     "header": "प्राप्त करें",
@@ -380,8 +381,6 @@
     "updating": "अपडेट हो रहा है...",
     "watchOnlyWarningTitle": "सुरक्षा चेतावनी",
     "watchOnlyWarningDescription": "उन धोखेबाज़ों से सावधान रहें जो उपयोगकर्ताओं को धोखा देने के लिए अक्सर “केवल-निगरानी” वॉलेट का उपयोग करते हैं। ये वॉलेट आपको धनराशि नियंत्रित करने या भेजने की अनुमति नहीं देते; वे आपको केवल बैलेंस देखने देते हैं।",
-    "custom_fee_warning_title": "चेतावनी",
-    "custom_fee_warning_description": "1 sat/vB से कम शुल्क मान्य हैं, लेकिन नोड नीतियों के कारण इन्हें रिले नहीं किया जा सकता।",
     "details_eta_analyzing": "विश्लेषण किया जा रहा है...",
     "details_sent": "भेजा गया",
     "details_section": "विवरण",
@@ -437,7 +436,6 @@
     "details_display": "होम स्क्रीन में प्रदर्शित करें",
     "details_edit": "संपादित करें",
     "details_export_backup": "निर्यात/बैकअप",
-    "details_export_history": "इतिहास CSV में निर्यात करें",
     "details_master_fingerprint": "मास्टर फिंगरप्रिंट",
     "details_multisig_type": "मल्टीसिग",
     "details_options": "विकल्प",
@@ -517,9 +515,7 @@
     "identity_pubkey": "पहचान पबकी",
     "xpub_title": "वॉलेट xpub",
     "manage_wallets_search_placeholder": "वॉलेट, पते, ट्रांज़ैक्शन और मेमो खोजें",
-    "more_info": "अधिक जानकारी",
-    "details_delete_wallet_error_message": "यह पुष्टि करने में एक समस्या हुई कि क्या इस वॉलेट को सूचनाओं से हटाया गया था—यह किसी नेटवर्क समस्या या खराब कनेक्शन के कारण हो सकता है। यदि आप जारी रखते हैं, तो आपको इस वॉलेट से संबंधित ट्रांज़ैक्शन के लिए हटाए जाने के बाद भी सूचनाएं मिल सकती हैं।",
-    "details_delete_anyway": "फिर भी हटाएं"
+    "more_info": "अधिक जानकारी"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bitcoin में प्रदर्शित करें",
