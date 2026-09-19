@@ -51,6 +51,27 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
 
     func preparePreviewOfFile(at url: URL) async throws {
 		let parsed = try await Task.detached(priority: .userInitiated) {
+                if let source = try? Data(contentsOf: url),
+                   let contents = String(data: source, encoding: .utf8),
+                   let data = contents.data(using: .utf8),
+                   let value = try? JSONSerialization.jsonObject(with: data),
+                   let servers = value as? [[String: Any]],
+                   !servers.isEmpty,
+                   servers.allSatisfy({ server in
+                       guard let host = server["host"] as? String, !host.isEmpty else { return false }
+                       return server["tcp"] is NSNumber || server["ssl"] is NSNumber
+                   }) {
+                    let records = servers.map { server -> (label: String, detail: String, symbol: String) in
+                        let host = server["host"] as? String ?? "Unknown server"
+                        var ports: [String] = []
+                        if let tcp = server["tcp"] as? NSNumber { ports.append("TCP: \(tcp)") }
+                        if let ssl = server["ssl"] as? NSNumber { ports.append("SSL: \(ssl)") }
+                        return (host, ports.joined(separator: " · "), "server.rack")
+                    }
+                    let summary = servers.count == 1 ? "1 server" : "\(servers.count) servers"
+                    return ("Electrum Servers", summary, records)
+                }
+
 			if let psbt = try? PSBTPreview.parse(file: url) {
 				return (psbt.title, psbt.summary, psbt.records)
 			}

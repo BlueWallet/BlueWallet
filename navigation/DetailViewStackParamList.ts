@@ -1,10 +1,13 @@
-import { AztecoVoucher } from '../class/azteco';
-import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
-import { LightningTransaction, TWallet } from '../class/wallets/types';
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
-import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
-import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import { AztecoVoucher } from "../class/azteco";
+import type { NativeStackNavigationOptions } from "@react-navigation/native-stack";
+import { LightningTransaction, TWallet } from "../class/wallets/types";
+import { BitcoinUnit, Chain } from "../models/bitcoinUnits";
+import { PromptPasswordConfirmationParams } from "../screen/PromptPasswordConfirmationSheet.types";
+import { ElectrumServerItem } from "../screen/settings/ElectrumSettings";
+import {
+  SendDetailsParams,
+  TNavigationWrapper,
+} from "./SendDetailsStackParamList";
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -16,7 +19,7 @@ export type ScanQRCodeParamList = {
   onBarScanned?: (data: string, useBBQR: boolean) => void;
   showFileImportButton?: boolean;
   backdoorVisible?: boolean;
-  orientation?: 'portrait';
+  orientation?: "portrait";
   animatedQRCodeData?: Record<string, any>;
 };
 
@@ -32,14 +35,23 @@ type VaultKeyData = {
   exportString?: string;
 };
 
-type HeaderLeftRenderer = NonNullable<NativeStackNavigationOptions['headerLeft']>;
-type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
+type HeaderLeftRenderer = NonNullable<
+  NativeStackNavigationOptions["headerLeft"]
+>;
+type HeaderRightRenderer = NonNullable<
+  NativeStackNavigationOptions["headerRight"]
+>;
 
 export type DetailViewStackParamList = {
   DrawerRoot: undefined;
   UnlockWithScreen: undefined;
   WalletsList: { onBarScanned?: string };
-  WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
+  WalletTransactions: {
+    isLoading?: boolean;
+    walletID: string;
+    walletType: string;
+    onBarScanned?: string;
+  };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
   TransactionStatus: { hash: string; walletID: string; tx?: any };
@@ -51,7 +63,10 @@ export type DetailViewStackParamList = {
   RBFCancel: { txid: string; wallet: TWallet | null };
   SelectWallet: {
     chainType?: Chain;
-    onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
+    onWalletSelect?: (
+      wallet: TWallet,
+      navigationWrapper: TNavigationWrapper,
+    ) => void;
     availableWallets?: TWallet[];
     noWalletExplanationText?: string;
     onChainRequireSend?: boolean;
@@ -99,7 +114,12 @@ export type DetailViewStackParamList = {
   NetworkSettings: undefined;
   About: undefined;
   // DefaultView: undefined; // Commented out - not accessible from UI
-  ElectrumSettings: { server?: ElectrumServerItem; onBarScanned?: string; headerRight?: HeaderRightRenderer | null };
+  ElectrumSettings: {
+    server?: ElectrumServerItem;
+    importedServers?: string;
+    onBarScanned?: string;
+    headerRight?: HeaderRightRenderer | null;
+  };
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
@@ -121,7 +141,10 @@ export type DetailViewStackParamList = {
     sheetAskPassphrase?: boolean;
     sheetCurrentlyEditingCosignerNum?: number;
   };
-  ViewEditMultisigCosignerViewSheet: { walletID: string; vaultKeyData: VaultKeyData };
+  ViewEditMultisigCosignerViewSheet: {
+    walletID: string;
+    vaultKeyData: VaultKeyData;
+  };
   ViewEditMultisigProvideMnemonicsSheet: {
     walletID: string;
     currentlyEditingCosignerNum: number;
@@ -136,7 +159,7 @@ export type DetailViewStackParamList = {
   };
   WalletXpub: { walletID: string; xpub: string };
   SignVerifyRoot: {
-    screen: 'SignVerify';
+    screen: "SignVerify";
     params: {
       walletID: string;
       address: string;

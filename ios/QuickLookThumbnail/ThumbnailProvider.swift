@@ -34,6 +34,17 @@ private enum FileDetails {
         let data = source.starts(with: [0x70, 0x73, 0x62, 0x74, 0xff]) ? source : Data(base64Encoded: String(data: source, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
         if let data, data.starts(with: [0x70, 0x73, 0x62, 0x74, 0xff]) { return psbt(data) }
         let text = String(data: source, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if let data = text.data(using: .utf8),
+           let value = try? JSONSerialization.jsonObject(with: data),
+           let servers = value as? [[String: Any]],
+           !servers.isEmpty,
+           servers.allSatisfy({ server in
+               guard let host = server["host"] as? String, !host.isEmpty else { return false }
+               return server["tcp"] is NSNumber || server["ssl"] is NSNumber
+           }) {
+            let count = servers.count
+            return Preview(title: "Electrum Servers", detail: "\(count) server\(count == 1 ? "" : "s")")
+        }
         let transactionData = Data(hex: text) ?? source
         return transaction(transactionData)
     }
