@@ -118,6 +118,20 @@ class DeeplinkSchemaMatch {
           }
         }
       }
+    } else if (DeeplinkSchemaMatch.isElectrumServersFile(event.url)) {
+      readFileOutsideSandbox(decodeURI(event.url))
+        .then((file) => {
+          if (file) {
+            completionHandler([
+              "ElectrumSettings",
+              {
+                importedServers: file,
+              },
+            ]);
+          }
+        })
+        .catch((e) => console.warn(e));
+      return;
     } else if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
       readFileOutsideSandbox(decodeURI(event.url))
         .then((file) => {
@@ -332,6 +346,10 @@ class DeeplinkSchemaMatch {
 
   static isTXNFile(filePath: string): boolean {
     return filePath.toLowerCase().endsWith(".txn");
+  }
+
+  static isElectrumServersFile(filePath: string): boolean {
+    return filePath.split("?")[0].toLowerCase().endsWith(".electrumservers");
   }
 
   static isPossiblyPSBTFile(filePath: string): boolean {
