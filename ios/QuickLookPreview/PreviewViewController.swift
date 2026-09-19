@@ -1,16 +1,23 @@
 import QuickLook
 import UIKit
 
-final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate {
+final class PreviewViewController: UIViewController, QLPreviewingController, UITableViewDataSource, UITableViewDelegate, UISearchResultsUpdating {
     private let titleLabel = UILabel()
     private let summaryLabel = UILabel()
     private let tableView = UITableView(frame: .zero, style: .insetGrouped)
     private var records: [(label: String, detail: String, symbol: String)] = []
+    private var allRecords: [(label: String, detail: String, symbol: String)] = []
+    private let searchController = UISearchController(searchResultsController: nil)
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = .systemGroupedBackground
+
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.placeholder = "Search"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
 
         titleLabel.text = "BIP-329 Wallet Labels"
         titleLabel.font = .systemFont(ofSize: 21, weight: .semibold)
@@ -51,6 +58,27 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
 
     func preparePreviewOfFile(at url: URL) async throws {
 		let parsed = try await Task.detached(priority: .userInitiated) {
+                if let source = try? Data(contentsOf: url),
+                   let contents = String(data: source, encoding: .utf8),
+                   let data = contents.data(using: .utf8),
+                   let value = try? JSONSerialization.jsonObject(with: data),
+                   let servers = value as? [[String: Any]],
+                   !servers.isEmpty,
+                   servers.allSatisfy({ server in
+                       guard let host = server["host"] as? String, !host.isEmpty else { return false }
+                       return server["tcp"] is NSNumber || server["ssl"] is NSNumber
+                   }) {
+                    let records = servers.map { server -> (label: String, detail: String, symbol: String) in
+                        let host = server["host"] as? String ?? "Unknown server"
+                        var ports: [String] = []
+                        if let tcp = server["tcp"] as? NSNumber { ports.append("TCP: \(tcp)") }
+                        if let ssl = server["ssl"] as? NSNumber { ports.append("SSL: \(ssl)") }
+                        return (host, ports.joined(separator: " · "), "server.rack")
+                    }
+                    let summary = servers.count == 1 ? "1 server" : "\(servers.count) servers"
+                    return ("Electrum Servers", summary, records)
+                }
+
 			if let psbt = try? PSBTPreview.parse(file: url) {
 				return (psbt.title, psbt.summary, psbt.records)
 			}
@@ -112,7 +140,20 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
 
 		titleLabel.text = parsed.0
 		summaryLabel.text = parsed.1
-		records = parsed.2
+		allRecords = parsed.2
+		updateSearchResults(for: searchController)
+        tableView.reloadData()
+    }
+
+    func updateSearchResults(for searchController: UISearchController) {
+        let query = searchController.searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() ?? ""
+        if query.isEmpty {
+            records = allRecords
+        } else {
+            records = allRecords.filter { record in
+                record.label.lowercased().contains(query) || record.detail.lowercased().contains(query)
+            }
+        }
         tableView.reloadData()
     }
 
@@ -148,6 +189,12 @@ final class PreviewViewController: UIViewController, QLPreviewingController, UIT
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let record = records[indexPath.row]
+        if record.symbol == "server.rack" {
+            UIPasteboard.general.string = [record.label, record.detail]
+                .filter { !$0.isEmpty }
+                .joined(separator: " · ")
+            return
+        }
         let copyValue: String
         if record.label.hasPrefix("Input ") || record.label.hasPrefix("Output ") {
             copyValue = record.detail.components(separatedBy: " · ").first ?? record.detail
