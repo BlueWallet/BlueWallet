@@ -650,7 +650,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
                     isLoading: routeIsLoading,
                     walletID,
                   }),
-                  experimental_userInterfaceStyle: dark ? ('dark' as const) : ('light' as const),
                 }
               : {
                   headerBlurEffect: dark ? ('dark' as const) : ('light' as const),
