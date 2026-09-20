@@ -29,12 +29,14 @@ class MenuElementsEmitter: RCTEventEmitter, NativeMenuElementsEmitterSpec {
         return ["openSettings", "addWalletMenuAction", "importWalletMenuAction", "reloadTransactionsMenuAction"]
     }
     
+    // Required for TurboModule event emitters. Must call super: RCTEventEmitter counts listeners there,
+    // and neither startObserving() nor sendEvent() do anything while the count is zero
     override func addListener(_ eventName: String!) {
-        // Required for TurboModule event emitters; JS handles bookkeeping
+        super.addListener(eventName)
     }
 
     override func removeListeners(_ count: Double) {
-        // Required for TurboModule event emitters; JS handles bookkeeping
+        super.removeListeners(count)
     }
     
     override func startObserving() {
