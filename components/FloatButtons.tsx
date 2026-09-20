@@ -225,14 +225,12 @@ export const FContainer = forwardRef<View, FContainerProps>(({ children, inline 
   return (
     <View
       pointerEvents="box-none"
-      style={[
-        inline ? styles.inline : styles.floating,
-        {
-          paddingLeft: SIDE_MARGIN + insets.left,
-          paddingRight: SIDE_MARGIN + insets.right,
-        },
-        inline ? { paddingBottom: bottom } : { bottom },
-      ]}
+      style={
+        // inline containers sit in the normal flow, where the parent (e.g. SafeArea) already applies the safe-area insets
+        inline
+          ? [styles.inline, { paddingBottom: bottom - insets.bottom }]
+          : [styles.floating, { paddingLeft: SIDE_MARGIN + insets.left, paddingRight: SIDE_MARGIN + insets.right, bottom }]
+      }
     >
       <View ref={ref} collapsable={false} onLayout={onLayout} pointerEvents="box-none" style={styles.buttons}>
         <ButtonCountContext.Provider value={React.Children.toArray(children).length}>{children}</ButtonCountContext.Provider>
@@ -269,7 +267,7 @@ export const FloatButtonsBottomFade = React.memo(() => {
 
 const styles = StyleSheet.create({
   floating: { position: 'absolute', left: 0, right: 0 },
-  inline: { alignSelf: 'stretch' },
+  inline: { alignSelf: 'stretch', paddingHorizontal: SIDE_MARGIN },
   buttons: {
     flexDirection: 'row',
     flexWrap: 'nowrap',

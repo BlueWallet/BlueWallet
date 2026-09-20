@@ -324,10 +324,9 @@ const CoinControl: React.FC = () => {
         </View>
       )}
       <SafeAreaScrollView
-        contentInsetAdjustmentBehavior="automatic"
+        contentInsetAdjustmentBehavior="never"
         floatingButtonHeight={selectionStarted ? floatingButtonHeight : 0}
         disableDefaultTopPadding
-        contentContainerStyle={styles.listContent}
       >
         {tipCoins()}
         {utxos.map(renderItem)}
@@ -385,9 +384,6 @@ const styles = StyleSheet.create({
   itemContent: {
     flex: 1,
     marginLeft: 12,
-  },
-  listContent: {
-    paddingBottom: 0,
   },
   badge: {
     borderWidth: 0,
