@@ -41,36 +41,54 @@ ships New-Architecture-safe token delivery.
 
 ---
 
-## `@react-navigation+native-stack+7.15.1.patch`
+## `react-native-context-menu-view+1.21.0.patch`
 
-**What:** adds an `experimental_userInterfaceStyle` navigation option to
-`NativeStackNavigationOptions` (typed in `src/types.tsx` and the built
-`lib/typescript` d.ts) and threads it through `useHeaderConfigProps` so a
-screen can override the header's `UIUserInterfaceStyle`. When omitted it
-falls back to the previous behaviour via
-`experimentalUserInterfaceStyleOption ?? (dark ? 'dark' : 'light')`.
+**What:** Android-only changes to `ContextMenuView.java`:
 
-**Why:** on iOS 26 the navigation bar's liquid-glass material and tint are
-resolved from `UIUserInterfaceStyle`. React Navigation hard-codes this from
-the theme `dark` boolean, so a screen cannot force a light/dark header
-independent of the active theme. The iOS 26 glass header
-(`screen/wallets/WalletTransactions.tsx`) needs that per-screen override.
+- in `dropdownMenuMode`, a single tap opens a `PopupMenu` (new
+  `showDropdownMenu()`) instead of the floating `ContextMenu`. The popup is
+  anchored to the view rather than to the touch point, the old
+  `SDK_INT >= N` guard is gone, icons are shown via `setMenuIconDisplay()`
+  plus `setForceShowIcon(true)` on Android Q+, and `onCancel` is still
+  emitted on dismiss;
+- menu building is shared through a new `populateMenu()`; both it and
+  `showDropdownMenu()` return early when `actions` is null;
+- actions with a `selected` key are rendered as checkable items
+  (`setCheckable` / `setChecked`);
+- `onPress` always includes `indexPath` (`[i]` for top-level items,
+  `[parentIndex, i]` for submenu items) instead of only for submenus;
+- `icon` is read only when the key is present (`action.hasKey("icon")`).
+  Defensive only: `getString` already returns null for a missing key and
+  `getResourceWithName` tolerates null.
 
-**Upstream:** https://github.com/react-navigation/react-navigation/issues/13069 (open)
+**Why:** the floating `ContextMenu` does not draw checkable/`selected`
+items, so toggle entries (e.g. the passphrase switch in the Add Wallet
+header menu) showed no state on Android. `components/TooltipMenu.tsx`
+resolves the pressed action by `indexPath` (two actions may share the same
+title); it already falls back to `[index]` when `indexPath` is missing, so
+always sending it only makes Android consistent with iOS and submenus.
 
-Added in BlueWallet PR https://github.com/BlueWallet/BlueWallet/pull/8508.
-Remove once `@react-navigation/native-stack` exposes a header
-`UIUserInterfaceStyle` override upstream. When bumping the dependency,
-rename this patch to the new version and re-confirm the hunks still apply
-(`npx patch-package`).
+**Upstream:** no issue filed yet. The dependency is installed from the
+BlueWallet fork (`github:BlueWallet/react-native-context-menu-view`, see
+`package.json`), so these changes can be committed to the fork instead —
+then drop this patch and bump the pinned commit.
+
+Added in BlueWallet PR https://github.com/BlueWallet/BlueWallet/pull/8867.
+When bumping `react-native-context-menu-view`, rename this patch to the new
+version and re-confirm the hunks still apply (`npx patch-package`).
 
 ---
 
-## `react-native-screens+4.25.2.patch`
+## `react-native-screens+4.27.0.patch`
 
-**What:** in `RNSBarButtonItem.mm`, also set `self.accessibilityIdentifier`
-when the JS `identifier` is provided (one line, alongside the existing
-`self.identifier = identifier`).
+**What:** two hunks in `RNSBarButtonItem.mm`:
+
+- `initWithConfig:` also sets `self.accessibilityIdentifier` when the JS
+  `identifier` is provided (one line, alongside the existing
+  `self.identifier = identifier`);
+- `createActionItemFromConfig:` reads `dict[@"identifier"]` and passes it to
+  `[UIAction actionWithTitle:image:identifier:handler:]` instead of `nil`, so
+  menu actions carry their JS `identifier` too.
 
 **Why:** the iOS 26 glass header builds nav-bar buttons through
 `unstable_headerRightItems`. The native `identifier` is not exposed as an
@@ -82,4 +100,4 @@ from e2e tests.
 
 Added in BlueWallet PR https://github.com/BlueWallet/BlueWallet/pull/8508.
 When bumping `react-native-screens`, rename this patch to the new version
-and re-confirm the hunk still applies (`npx patch-package`).
+and re-confirm the hunks still apply (`npx patch-package`).
