@@ -429,13 +429,9 @@ const WalletsList: React.FC = () => {
       options.push(loc.wallets.paste_from_clipboard);
     }
 
-    const props = { title: loc.send.header, options, cancelButtonIndex: 0 };
-
     const anchor = findNodeHandle(walletActionButtonsRef.current);
-
-    if (anchor) {
-      options.push(String(anchor));
-    }
+    if (anchor === null) return;
+    const props = { title: loc.send.header, options, cancelButtonIndex: 0, anchor };
 
     ActionSheet.showActionSheetWithOptions(props, buttonIndex => {
       switch (buttonIndex) {
