@@ -222,7 +222,7 @@ const buttonFontSize =
     : PixelRatio.roundToNearestPixel(Dimensions.get('window').width / 26);
 
 const Buttons = ({ pop, save, colors }: { pop: TPop; save: () => void; colors: any }) => (
-  <FContainer>
+  <FContainer inline>
     <FButton
       testID="UndoEntropy"
       onPress={pop}
