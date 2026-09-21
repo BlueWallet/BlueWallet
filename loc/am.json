@@ -104,10 +104,9 @@
     "title": "ቦርሳዎ ተፈጥሯል።"
   },
   "receive": {
-    "details_save": "አስቀምጥ",
+    "details_create": "ፍጠር",
     "details_label": "መግለጫ",
     "details_setAmount": "በመጠን ተቀበል",
-    "option_label": "መለያ",
     "details_share": "አጋራ...",
     "address_not_found": "የመቀበያ አድራሻ ማመንጨት አልተቻለም።",
     "header": "ተቀበል",
@@ -381,6 +380,8 @@
     "updating": "በማዘመን ላይ...",
     "watchOnlyWarningTitle": "የደህንነት ማስጠንቀቂያ",
     "watchOnlyWarningDescription": "ተጠቃሚዎችን ለማታለል “ለመመልከት ብቻ” ቦርሳዎችን ብዙ ጊዜ ከሚጠቀሙ አጭበርባሪዎች ይጠንቀቁ። እነዚህ ቦርሳዎች ገንዘብ እንዲቆጣጠሩ ወይም እንዲልኩ አይፈቅዱም፤ ቀሪ ሂሳቡን እንዲመለከቱ ብቻ ይፈቅዳሉ።",
+    "custom_fee_warning_title": "ማስጠንቀቂያ",
+    "custom_fee_warning_description": "ከ1 sat/vB በታች ያሉ ክፍያዎች ልክ ናቸው፣ ነገር ግን በኖድ ፖሊሲዎች ምክንያት ላይተላለፉ ይችላሉ።",
     "details_eta_analyzing": "በመተንተን ላይ...",
     "details_sent": "የተላከ",
     "details_section": "ዝርዝሮች",
@@ -436,6 +437,7 @@
     "details_display": "በመነሻ ስክሪን ላይ አሳይ",
     "details_edit": "አርትዕ",
     "details_export_backup": "ላክ/መጠባበቂያ",
+    "details_export_history": "ታሪክ ወደ CSV ላክ",
     "details_master_fingerprint": "ዋና የጣት አሻራ",
     "details_multisig_type": "ሙልቲሲግ",
     "details_options": "አማራጮች",
@@ -515,7 +517,9 @@
     "identity_pubkey": "የማንነት ይፋ ቁልፍ",
     "xpub_title": "የቦርሳ xpub",
     "manage_wallets_search_placeholder": "ቦርሳዎችን፣ አድራሻዎችን፣ ግብይቶችን እና ማስታወሻዎችን ይፈልጉ",
-    "more_info": "ተጨማሪ መረጃ"
+    "more_info": "ተጨማሪ መረጃ",
+    "details_delete_wallet_error_message": "ይህ ቦርሳ ከማሳወቂያዎች መወገዱን በማረጋገጥ ላይ ችግር ነበር—ይህ በኔትወርክ ችግር ወይም ደካማ ግንኙነት ምክንያት ሊሆን ይችላል። ከቀጠሉ ከተሰረዘ በኋላም ቢሆን ከዚህ ቦርሳ ጋር ለተያያዙ ግብይቶች ማሳወቂያዎችን አሁንም ሊቀበሉ ይችላሉ።",
+    "details_delete_anyway": "ለማንኛውም ሰርዝ"
   },
   "total_balance_view": {
     "display_in_bitcoin": "በBitcoin አሳይ",

@@ -1,17 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useMemo, useLayoutEffect, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { View, StyleSheet, Linking, Image } from 'react-native';
 import loc from '../../loc';
 import { SettingsSection, SettingsListItem, SettingsScrollView } from '../../components/SettingsSection';
-import { useSettings } from '../../hooks/context/useSettings';
 
 const Settings = () => {
-  const { navigate, setOptions } = useNavigation();
-  const { language } = useSettings(); // Subscribe to language changes to trigger re-render
-  useLayoutEffect(() => {
-    // Only the title needs refreshing on language change; header styling comes from the route options
-    setOptions({ title: loc.settings.header });
-  }, [setOptions, language]);
+  const { navigate } = useNavigation();
 
   const handleDonatePress = useCallback(() => {
     Linking.openURL('https://donate.bluewallet.io/');

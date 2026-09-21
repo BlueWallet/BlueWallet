@@ -18,6 +18,7 @@ import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { withLazySuspense } from './LazyLoadingIndicator';
 import { ScanQRCodeParamList } from './DetailViewStackParamList';
 import { navigationGuardRouter } from './navigationGuard';
+import HeaderRightButton from '../components/HeaderRightButton';
 
 type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight']>;
 
@@ -67,6 +68,9 @@ export type AddWalletStackParamList = {
     m: number;
     n: number;
     format: string;
+    currentM?: number;
+    currentN?: number;
+    currentFormat?: string;
     onSave: (m: number, n: number, format: string) => void;
     headerRight?: HeaderRightRenderer;
   };
@@ -80,6 +84,7 @@ export type AddWalletStackParamList = {
     sheetImportText?: string;
     sheetAskPassphrase?: boolean;
     headerRight?: HeaderRightRenderer;
+    isLoading?: boolean;
   };
   WalletsAddMultisigVaultKeySheet: {
     keyIndex: number;
@@ -339,22 +344,61 @@ const AddWalletStack = () => {
       <Stack.Screen
         name="MultisigAdvanced"
         component={MultisigAdvancedComponent}
-        options={navigationStyle(
-          {
+        options={({ route, navigation }) =>
+          navigationStyle({
             title: loc.multisig.vault_advanced_customize,
             presentation: 'formSheet',
             sheetAllowedDetents: multisigSheetAllowedDetents,
             sheetGrabberVisible: true,
             headerShown: true,
             headerTitle: loc.multisig.vault_advanced_customize,
-          },
-          withRouteParamHeaderOptions({ headerRight: true }),
-        )(theme)}
+            // The header renderer must close over the current route params.
+            // eslint-disable-next-line react/no-unstable-nested-components
+            headerRight: () =>
+              React.createElement(HeaderRightButton, {
+                title: loc.send.input_done,
+                onPress: () => {
+                  route.params.onSave(
+                    route.params.currentM ?? route.params.m,
+                    route.params.currentN ?? route.params.n,
+                    route.params.currentFormat ?? route.params.format,
+                  );
+                  navigation.goBack();
+                },
+                disabled:
+                  (route.params.currentM ?? route.params.m) < 2 ||
+                  (route.params.currentM ?? route.params.m) > 7 ||
+                  (route.params.currentN ?? route.params.n) < (route.params.currentM ?? route.params.m) ||
+                  (route.params.currentN ?? route.params.n) > 7,
+                testID: 'ModalDoneButton',
+              }),
+          })(theme)({ route, navigation })
+        }
       />
       <Stack.Screen
         name="WalletsAddMultisigStep2"
         component={WalletsAddMultisigStep2Component}
-        options={navigationStyle({ title: '', gestureEnabled: false }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
+        options={({ navigation }) =>
+          navigationStyle({
+            title: '',
+            gestureEnabled: false,
+            headerBackVisible: !route.params?.isLoading,
+            headerRight: () => React.createElement(HeaderRightButton, {
+              title: loc.multisig.ms_help,
+              onPress: () => navigation.navigate('WalletsAddMultisigHelp'),
+            }),
+            unstable_headerRightItems: () => [
+              {
+                type: 'button',
+                label: loc.multisig.ms_help,
+                icon: { type: 'sfSymbol', name: 'questionmark.circle' },
+                identifier: 'MultisigHelpButton',
+                accessibilityLabel: loc.multisig.ms_help,
+                onPress: () => navigation.navigate('WalletsAddMultisigHelp'),
+              },
+            ],
+          })(theme)({ navigation, route: undefined })
+        }
       />
       <Stack.Screen
         name="WalletsAddMultisigVaultKeySheet"

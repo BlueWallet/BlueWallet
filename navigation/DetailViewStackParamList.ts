@@ -39,10 +39,18 @@ export type DetailViewStackParamList = {
   DrawerRoot: undefined;
   UnlockWithScreen: undefined;
   WalletsList: { onBarScanned?: string };
-  WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
+  WalletTransactions: {
+    isLoading?: boolean;
+    walletID: string;
+    walletType: string;
+    onBarScanned?: string;
+    headerScrolled?: boolean;
+    headerWalletLabel?: string;
+    headerWalletBalance?: string;
+  };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
-  TransactionStatus: { hash: string; walletID: string; tx?: any };
+  TransactionStatus: { hash: string; walletID: string; tx?: any; headerDirection?: string; headerDate?: string };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
@@ -71,7 +79,7 @@ export type DetailViewStackParamList = {
   };
   LnurlAuth: undefined;
   Success: undefined;
-  WalletAddresses: { walletID: string };
+  WalletAddresses: { walletID: string; search?: string };
   AddWalletRoot: undefined;
   SendDetailsRoot: SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
@@ -93,7 +101,7 @@ export type DetailViewStackParamList = {
   WalletExport: undefined;
   ExportMultisigCoordinationSetupRoot: undefined;
   Settings: undefined;
-  Currency: undefined;
+  Currency: { search?: string; searchFocused?: boolean } | undefined;
   GeneralSettings: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
@@ -103,7 +111,7 @@ export type DetailViewStackParamList = {
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
-  Language: undefined;
+  Language: { search?: string } | undefined;
   LightningSettings: {
     url?: string;
     onBarScanned?: string;

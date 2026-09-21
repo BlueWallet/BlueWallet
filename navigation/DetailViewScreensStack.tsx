@@ -1,6 +1,6 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, RouteProp } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, TouchableOpacity } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -30,7 +30,7 @@ import SettingsButton from '../components/icons/SettingsButton';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
 import { WalletTransactionsStatus } from '../components/Context/StorageProvider';
-import WalletTransactions from '../screen/wallets/WalletTransactions';
+import WalletTransactions, { WalletTransactionsScrolledHeaderTitle } from '../screen/wallets/WalletTransactions';
 import AddWalletButton from '../components/AddWalletButton';
 import Settings from '../screen/settings/Settings';
 import Currency from '../screen/settings/Currency';
@@ -51,7 +51,6 @@ import ReleaseNotes from '../screen/settings/ReleaseNotes';
 import SettingsTools from '../screen/settings/SettingsTools';
 import PromptPasswordConfirmationSheet from '../screen/PromptPasswordConfirmationSheet';
 import { useSizeClass, SizeClass } from '../blue_modules/sizeClass';
-import getWalletTransactionsOptions from './helpers/getWalletTransactionsOptions';
 import { createSettingsScreenOptions, getSettingsHeaderOptions } from './helpers/getSettingsHeaderOptions';
 import { isDesktop, isIOS26OrHigher } from '../blue_modules/environment';
 import * as BlueElectrum from '../blue_modules/BlueElectrum';
@@ -61,8 +60,115 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import WalletGradient from '../class/wallet-gradient';
+import { navigationRef } from '../NavigationService';
+import { DetailViewStackParamList } from './DetailViewStackParamList';
+import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
+type WalletTransactionsRouteProps = RouteProp<DetailViewStackParamList, 'WalletTransactions'>;
+
+const HERO_HEADER_ICON_COLOR = '#FFFFFF';
+
+const navigateToWalletDetails = (walletID: string) => {
+  navigationRef.navigate('WalletDetails', { walletID });
+};
+
+const createWalletDetailsHeaderRight =
+  ({
+    walletID,
+    isLoading = false,
+    iconColor = HERO_HEADER_ICON_COLOR,
+  }: {
+    walletID: string;
+    isLoading?: boolean;
+    iconColor?: string;
+  }): (() => React.ReactElement) =>
+  () => (
+    <TouchableOpacity
+      accessibilityRole="button"
+      testID="WalletDetails"
+      disabled={isLoading}
+      style={styles.walletDetails}
+      hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+      onPress={() => navigateToWalletDetails(walletID)}
+    >
+      <Icon name="more-horiz" type="material" size={22} color={iconColor} />
+    </TouchableOpacity>
+  );
+
+const createWalletDetailsHeaderRightItems =
+  ({ isLoading = false, walletID }: { isLoading?: boolean; walletID: string }): (() => NativeStackHeaderItem[]) =>
+  () => [
+    {
+      type: 'button',
+      label: loc.wallets.details_title,
+      icon: { type: 'sfSymbol', name: 'ellipsis' },
+      identifier: 'WalletDetails',
+      accessibilityLabel: 'WalletDetails',
+      onPress: () => navigateToWalletDetails(walletID),
+      disabled: isLoading,
+    },
+  ];
+
+const getWalletTransactionsOptions = ({
+  route,
+  theme,
+}: {
+  route: WalletTransactionsRouteProps;
+  theme: ReturnType<typeof useTheme>;
+}): NativeStackNavigationOptions => {
+  const {
+    isLoading = false,
+    walletID,
+    headerScrolled = false,
+    headerWalletLabel = '',
+    headerWalletBalance = '',
+    walletType,
+  } = route.params;
+  const base: NativeStackNavigationOptions = {
+    title: '',
+    headerBackTitleStyle: { fontSize: 0 },
+    headerTransparent: true,
+    headerStyle: { backgroundColor: 'transparent' },
+    headerBackButtonDisplayMode: 'minimal',
+    headerShadowVisible: false,
+    headerTintColor: HERO_HEADER_ICON_COLOR,
+    headerBlurEffect: undefined,
+    statusBarStyle: 'light',
+    headerBackTitle: undefined,
+    headerRight: createWalletDetailsHeaderRight({ walletID, isLoading }),
+  };
+
+  if (!headerScrolled) {
+    if (Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop) {
+      return { ...base, headerRight: undefined, unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }) };
+    }
+    return base;
+  }
+
+  const scrolledTitle = () => <WalletTransactionsScrolledHeaderTitle walletLabel={headerWalletLabel} balance={headerWalletBalance} />;
+  const scrolledBase: NativeStackNavigationOptions = {
+    ...base,
+    headerTitle: scrolledTitle,
+    headerTintColor: Platform.OS === 'ios' ? theme.colors.foregroundColor : HERO_HEADER_ICON_COLOR,
+    ...(Platform.OS === 'ios'
+      ? { headerBlurEffect: theme.dark ? 'dark' : 'light' }
+      : {
+          headerTitleAlign: 'left',
+          headerStyle: { backgroundColor: WalletGradient.headerColorFor(walletType) },
+        }),
+  };
+
+  if (Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop) {
+    return {
+      ...scrolledBase,
+      headerRight: undefined,
+      unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }),
+    };
+  }
+  return scrolledBase;
+};
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
@@ -370,7 +476,11 @@ const DetailViewStackScreensStack = () => {
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-        <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
+        <DetailViewStack.Screen
+          name="WalletTransactions"
+          component={WalletTransactions}
+          options={({ route }) => getWalletTransactionsOptions({ route, theme })}
+        />
         <DetailViewStack.Screen
           name="WalletDetails"
           component={WalletDetails}
@@ -411,7 +521,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="SelectWallet"
           component={SelectWallet}
-          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+          options={getSelectWalletOptions(theme, loc.wallets.select_wallet)}
         />
         <DetailViewStack.Screen
           name="LNDViewInvoice"
@@ -474,11 +584,27 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletAddresses"
           component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
+          options={({ navigation: screenNavigation }) => ({
+            ...navigationStyle({ title: loc.addresses.addresses_title })(theme),
+            headerSearchBarOptions: {
+              onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+            },
+          })}
         />
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
-        <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
+        <DetailViewStack.Screen
+          name="Currency"
+          component={Currency}
+          options={({ navigation: screenNavigation }) => ({
+            ...settingsScreenOptions(loc.settings.currency),
+            headerSearchBarOptions: {
+              onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+              onFocus: () => screenNavigation.setParams({ searchFocused: true }),
+              onBlur: () => screenNavigation.setParams({ searchFocused: false }),
+            },
+          })}
+        />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
@@ -513,7 +639,16 @@ const DetailViewStackScreensStack = () => {
           component={EncryptStorage}
           options={settingsScreenOptions(loc.settings.encrypt_title)}
         />
-        <DetailViewStack.Screen name="Language" component={Language} options={settingsScreenOptions(loc.settings.language)} />
+        <DetailViewStack.Screen
+          name="Language"
+          component={Language}
+          options={({ navigation: screenNavigation }) => ({
+            ...settingsScreenOptions(loc.settings.language),
+            headerSearchBarOptions: {
+              onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+            },
+          })}
+        />
         <DetailViewStack.Screen
           name="LightningSettings"
           component={LightningSettings}
@@ -583,6 +718,12 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = StyleSheet.create({
+  walletDetails: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    minWidth: 44,
+    minHeight: 44,
+  },
   headerIconButton: {
     minWidth: 40,
     height: 40,
