@@ -39,19 +39,20 @@ jest.mock('../../hooks/useWalletSubscribe', () => ({
   default: () => mockWalletSubscribe,
 }));
 
-let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet' };
+let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet', key: 'transaction-status-test' };
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
   return {
     ...actual,
-    useRoute: () => ({ params: routeParams }),
+    useRoute: () => ({ params: routeParams, key: routeParams.key }),
     useNavigation: () => ({
       navigate: jest.fn(),
       setOptions: jest.fn(),
       goBack: jest.fn(),
       addListener: jest.fn(),
     }),
+    useFocusEffect: (effect: () => void | (() => void)) => effect(),
   };
 });
 

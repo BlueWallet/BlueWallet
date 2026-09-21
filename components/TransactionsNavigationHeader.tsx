@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { findNodeHandle, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from './themes';
 import { LightningArkWallet } from '../class/wallets/lightning-ark-wallet';
@@ -41,6 +41,7 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   unit = BitcoinUnit.BTC,
   unitSwitching = false,
 }) => {
+  const manageFundsRef = useRef<View>(null);
   const { colors } = useTheme();
   const { hideBalance } = wallet;
   const isLightningWallet = wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type;
@@ -123,8 +124,11 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
   // overlapping the wallet label. A plain TouchableOpacity + ActionSheet lays
   // out correctly (same pattern as the Multisig button below).
   const showManageFundsActionSheet = useCallback(() => {
+    const anchor = findNodeHandle(manageFundsRef.current);
+    if (anchor === null) return;
     ActionSheet.showActionSheetWithOptions(
       {
+        anchor,
         title: loc.lnd.title,
         options: [loc._.cancel, loc.lnd.refill, loc.lnd.refill_external],
         cancelButtonIndex: 0,
@@ -223,7 +227,12 @@ const TransactionsNavigationHeader: React.FC<TransactionsNavigationHeaderProps> 
             )}
           </View>
           {(wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) && allowOnchainAddress && (
-            <TouchableOpacity style={styles.manageFundsButton} accessibilityRole="button" onPress={showManageFundsActionSheet}>
+            <TouchableOpacity
+              style={styles.manageFundsButton}
+              accessibilityRole="button"
+              ref={manageFundsRef}
+              onPress={showManageFundsActionSheet}
+            >
               <Text style={styles.manageFundsButtonText}>{loc.lnd.title}</Text>
             </TouchableOpacity>
           )}
