@@ -186,20 +186,13 @@ const MultisigAdvanced: React.FC = () => {
     navigation.goBack();
   }, [onSave, currentM, currentN, currentFormat, navigation]);
 
-  const SaveButton = useCallback(
-    () => <HeaderRightButton title={loc.send.input_done} onPress={handleSave} disabled={!isValidSelection} testID="ModalDoneButton" />,
-    [handleSave, isValidSelection],
-  );
-
-  const renderHeaderRight = useCallback(() => SaveButton(), [SaveButton]);
-
-  React.useLayoutEffect(() => {
-    if (Platform.OS !== 'android') {
-      navigation.setOptions({
-        headerRight: renderHeaderRight,
-      });
-    }
-  }, [navigation, renderHeaderRight]);
+  React.useEffect(() => {
+    navigation.setParams({
+      currentM,
+      currentN,
+      currentFormat,
+    });
+  }, [currentM, currentN, currentFormat, navigation]);
 
   return (
     <SafeArea style={stylesHook.root}>

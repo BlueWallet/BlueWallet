@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { sha256 } from '@noble/hashes/sha256';
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationOptions, NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icon from '../../components/Icon';
 import dayjs from 'dayjs';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
@@ -142,24 +142,6 @@ const reducer = (state: State, action: { type: ActionType; payload?: any }): Sta
   }
 };
 
-type TransactionDetailHeaderTitleProps = {
-  direction: string;
-  date: string;
-  directionStyle: any;
-  dateStyle: any;
-};
-
-const TransactionDetailHeaderTitle: React.FC<TransactionDetailHeaderTitleProps> = ({ direction, date, directionStyle, dateStyle }) => (
-  <View style={styles.headerTitleContainer}>
-    <BlueText style={directionStyle} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
-      {direction}
-    </BlueText>
-    <BlueText style={dateStyle} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8}>
-      {date}
-    </BlueText>
-  </View>
-);
-
 const TransactionStatus: React.FC = () => {
   const { hash, walletID, tx: initialTx } = useRoute<RouteProps>().params;
   const [state, dispatch] = useReducer(reducer, {
@@ -170,7 +152,7 @@ const TransactionStatus: React.FC = () => {
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
   const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
-  const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
+  const { navigate, goBack } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
   const { width: windowWidth, fontScale } = useWindowDimensions();
   const { selectedBlockExplorer } = useSettings();
@@ -1018,29 +1000,14 @@ const TransactionStatus: React.FC = () => {
     }
   }, [paymentCode]);
 
-  // Set header title with direction and date (inline component required by React Navigation API)
   useEffect(() => {
     if (tx) {
-      setOptions({
-        // eslint-disable-next-line react/no-unstable-nested-components -- React Navigation setOptions expects a render function
-        headerTitle: () => (
-          <TransactionDetailHeaderTitle
-            direction={transactionDirection}
-            date={transactionDate}
-            directionStyle={[styles.headerTitleDirection, stylesHook.headerTitleDirection, scaledStyles.headerTitleDirection]}
-            dateStyle={[styles.headerTitleDate, stylesHook.titleDate, scaledStyles.headerTitleDate]}
-          />
-        ),
-        headerTitleAlign: 'left',
-        headerTitleContainerStyle: {
-          flex: 1,
-          maxWidth: Math.max(0, windowWidth - 96),
-        },
-      } as TransactionStatusHeaderOptions);
+      navigation.setParams({
+        headerDirection: transactionDirection,
+        headerDate: transactionDate,
+      });
     }
-    // stylesHook is derived from colors; omitting to avoid unnecessary effect runs
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tx, transactionDirection, transactionDate, setOptions, colors, windowWidth, scaledStyles]);
+  }, [navigation, transactionDate, transactionDirection, tx]);
 
   if (loadingError) {
     return (

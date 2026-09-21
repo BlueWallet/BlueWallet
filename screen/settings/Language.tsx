@@ -1,6 +1,6 @@
-import { useNavigation } from '@react-navigation/native';
-import React, { useLayoutEffect, useState, useCallback } from 'react';
-import { Keyboard, NativeSyntheticEvent, StyleSheet } from 'react-native';
+import { RouteProp, useRoute } from '@react-navigation/native';
+import React, { useCallback } from 'react';
+import { Keyboard, StyleSheet } from 'react-native';
 import presentAlert from '../../components/Alert';
 import loc from '../../loc';
 import { AvailableLanguages, TLanguage } from '../../loc/languages';
@@ -8,26 +8,18 @@ import { useSettings } from '../../hooks/context/useSettings';
 import SafeAreaFlatList from '../../components/SafeAreaFlatList';
 import { SettingsListItem, settingsListCard } from '../../components/SettingsSection';
 import { useTheme } from '../../components/themes';
+import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
+
+type LanguageRouteProps = RouteProp<DetailViewStackParamList, 'Language'>;
 
 const Language = () => {
   const { setLanguageStorage, language } = useSettings();
-  const { setOptions } = useNavigation();
+  const { params } = useRoute<LanguageRouteProps>();
   const { colors } = useTheme();
-  const [search, setSearch] = useState('');
+  const search = params?.search ?? '';
   const stylesHook = StyleSheet.create({
     card: { backgroundColor: colors.cardSectionBackground },
   });
-  // Set header options - navigation stack already handles transparent header,
-  // we just need to configure the search bar and ensure title is updated when language changes
-  useLayoutEffect(() => {
-    setOptions({
-      title: loc.settings.language,
-      headerSearchBarOptions: {
-        onChangeText: (event: NativeSyntheticEvent<{ text: string }>) => setSearch(event.nativeEvent.text),
-      },
-    });
-  }, [setOptions, language]);
-
   const filteredLanguages = AvailableLanguages.filter(l => l.label.toLowerCase().includes(search.toLowerCase()));
 
   const onLanguageSelect = useCallback(

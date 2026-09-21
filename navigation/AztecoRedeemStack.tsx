@@ -2,6 +2,7 @@ import React, { lazy } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import navigationStyle from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
+import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
 import loc from '../loc';
 import { withLazySuspense } from './LazyLoadingIndicator';
 
@@ -28,9 +29,7 @@ const AztecoRedeemStackRoot = () => {
       <Stack.Screen
         name="SelectWallet"
         component={SelectWalletComponent}
-        options={navigationStyle({
-          title: loc.wallets.select_wallet,
-        })(theme)}
+        options={getSelectWalletOptions(theme, loc.wallets.select_wallet)}
       />
     </Stack.Navigator>
   );

@@ -33,7 +33,6 @@ const SelectWallet: React.FC = () => {
   const navigation = useNavigation<NavigationProps>();
   const { wallets } = useStorage();
   const { colors } = useTheme();
-  const isModal = useNavigationState(state => state.routes.length > 1);
   const walletsCarousel = useRef<CarouselListRefType>(null);
   const previousRouteName = useNavigationState(state => state.routes[state.routes.length - 2]?.name);
   const [filteredWallets, setFilteredWallets] = useState<TWallet[]>([]);
@@ -93,16 +92,8 @@ const SelectWallet: React.FC = () => {
   }, [isLoading, selectedWalletID, filteredWallets]);
 
   useEffect(() => {
-    navigation.setOptions({
-      statusBarStyle: isLoading || filteredWallets.length === 0 ? 'light' : 'auto',
-    });
-  }, [isLoading, filteredWallets, navigation]);
-
-  useEffect(() => {
-    if (!isModal) {
-      navigation.setOptions({ headerBackVisible: false });
-    }
-  }, [isModal, navigation]);
+    navigation.setParams({ isLoading, isEmpty: filteredWallets.length === 0 });
+  }, [isLoading, filteredWallets.length, navigation]);
 
   const onPress = (item: TWallet) => {
     triggerHapticFeedback(HapticFeedbackTypes.Selection);

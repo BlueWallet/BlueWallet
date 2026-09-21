@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useReducer, useMemo } from 'react';
-import { useNavigation, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useRef, useReducer, useMemo } from 'react';
+import { useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { AddressItem } from '../../components/addresses/AddressItem';
 import { useTheme } from '../../components/themes';
 import { useStorage } from '../../hooks/context/useStorage';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import SegmentedControl from '../../components/SegmentedControl';
 import loc from '../../loc';
@@ -33,25 +32,21 @@ interface WalletAddressesState {
   showAddresses: boolean;
   addresses: Address[];
   currentTab: (typeof TABS)[keyof typeof TABS];
-  search: string;
 }
 
 const SET_SHOW_ADDRESSES = 'SET_SHOW_ADDRESSES' as const;
 const SET_ADDRESSES = 'SET_ADDRESSES' as const;
 const SET_CURRENT_TAB = 'SET_CURRENT_TAB' as const;
-const SET_SEARCH = 'SET_SEARCH' as const;
 
 type WalletAddressesAction =
   | { type: typeof SET_SHOW_ADDRESSES; payload: boolean }
   | { type: typeof SET_ADDRESSES; payload: Address[] }
-  | { type: typeof SET_CURRENT_TAB; payload: (typeof TABS)[keyof typeof TABS] }
-  | { type: typeof SET_SEARCH; payload: string };
+  | { type: typeof SET_CURRENT_TAB; payload: (typeof TABS)[keyof typeof TABS] };
 
 const initialState: WalletAddressesState = {
   showAddresses: false,
   addresses: [],
   currentTab: TABS.EXTERNAL,
-  search: '',
 };
 
 const reducer = (state: WalletAddressesState, action: WalletAddressesAction): WalletAddressesState => {
@@ -62,8 +57,6 @@ const reducer = (state: WalletAddressesState, action: WalletAddressesAction): Wa
       return { ...state, addresses: action.payload };
     case SET_CURRENT_TAB:
       return { ...state, currentTab: action.payload };
-    case SET_SEARCH:
-      return { ...state, search: action.payload };
     default:
       return state;
   }
@@ -108,14 +101,13 @@ export const filterByAddressType = (
   return currentType === type ? isInternal === true : isInternal === false;
 };
 
-type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletAddresses'>;
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletAddresses'>;
 
 const WalletAddresses: React.FC = () => {
-  const [{ showAddresses, addresses, currentTab, search }, dispatch] = useReducer(reducer, initialState);
+  const [{ showAddresses, addresses, currentTab }, dispatch] = useReducer(reducer, initialState);
 
   const { wallets } = useStorage();
-  const { walletID } = useRoute<RouteProps>().params;
+  const { walletID, search = '' } = useRoute<RouteProps>().params;
 
   const addressList = useRef<FlatList<Address>>(null);
   const wallet = wallets.find((w: any) => w.getID() === walletID);
@@ -128,7 +120,6 @@ const WalletAddresses: React.FC = () => {
   const { colors } = useTheme();
   const { isPrivacyBlurEnabled } = useSettings();
   const { enableScreenProtect, disableScreenProtect } = useScreenProtect();
-  const { setOptions } = useNavigation<NavigationProps>();
 
   const stylesHook = StyleSheet.create({
     root: {
@@ -186,14 +177,6 @@ const WalletAddresses: React.FC = () => {
       addressList.current.scrollToIndex({ animated: false, index: 0 });
     }
   }, [showAddresses]);
-
-  useLayoutEffect(() => {
-    setOptions({
-      headerSearchBarOptions: {
-        onChangeText: (event: { nativeEvent: { text: string } }) => dispatch({ type: SET_SEARCH, payload: event.nativeEvent.text }),
-      },
-    });
-  }, [setOptions]);
 
   const data =
     search.length > 0 ? filteredAddresses.filter(item => item.address.toLowerCase().includes(search.toLowerCase())) : filteredAddresses;

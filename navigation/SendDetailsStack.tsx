@@ -16,8 +16,32 @@ import CoinControlOutputSheet from '../screen/send/CoinControlOutputSheet';
 import PsbtRawSheet from '../components/PsbtRawSheet';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { navigationGuardRouter } from './navigationGuard';
+import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
+import { writeFileAndExport } from '../blue_modules/fs';
+import Icon from '../components/Icon';
+import { NativeStackHeaderItem } from '@react-navigation/native-stack';
 
 const Stack = createNativeStackNavigator<SendDetailsStackParamList>();
+
+const createTransactionHeaderOptions = ({ route, theme }: { route: any; theme: ReturnType<typeof useTheme> }) => {
+  const exportTransaction = () => writeFileAndExport(`${Date.now()}.txn`, route.params.tx, false);
+  return navigationStyle({
+    title: loc.send.create_details,
+    headerRight: () => (
+      <Pressable accessibilityRole="button" onPress={exportTransaction}>
+        <Icon size={22} name="share-alternative" type="entypo" color={theme.colors.foregroundColor} />
+      </Pressable>
+    ),
+    unstable_headerRightItems: (): NativeStackHeaderItem[] => [{
+      type: 'button',
+      label: loc.send.create_copy,
+      icon: { type: 'sfSymbol', name: 'square.and.arrow.up' },
+      identifier: 'ExportTransaction',
+      accessibilityLabel: loc.send.create_copy,
+      onPress: exportTransaction,
+    }],
+  })(theme)({ route, navigation: undefined });
+};
 
 const SendDetails = lazy(() => import('../screen/send/SendDetails'));
 const Confirm = lazy(() => import('../screen/send/Confirm'));
@@ -149,7 +173,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="CreateTransaction"
         component={CreateTransactionComponent}
-        options={navigationStyle({ title: loc.send.create_details }, withRouteParamHeaderOptions({ headerRight: true }))(theme)}
+        options={({ route }) => createTransactionHeaderOptions({ route, theme })}
       />
       <Stack.Screen
         name="PsbtMultisig"
@@ -169,7 +193,7 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="SelectWallet"
         component={SelectWalletComponent}
-        options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+        options={getSelectWalletOptions(theme, loc.wallets.select_wallet)}
       />
       <Stack.Screen
         name="CoinControlOutput"
