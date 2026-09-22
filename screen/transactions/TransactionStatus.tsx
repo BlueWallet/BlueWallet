@@ -28,7 +28,8 @@ import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-walle
 import { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { BlueLoading } from '../../components/BlueLoading';
-import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import CopyTextToClipboard, { CopyTextToClipboardHandle } from '../../components/CopyTextToClipboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import BlocksAccordion from '../../components/BlocksAccordion';
 import TransactionStateHeader from '../../components/TransactionStateHeader';
@@ -168,6 +169,9 @@ const TransactionStatus: React.FC = () => {
     isLoading: !initialTx,
   });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
+  const transactionId = tx?.hash || tx?.txid;
+  const transactionIdCopyRef = useRef<CopyTextToClipboardHandle>(null);
+  useScreenMenuActions({ copyTransactionId: transactionId && !loadingError ? () => transactionIdCopyRef.current?.copy() : undefined });
   const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
@@ -1290,16 +1294,17 @@ const TransactionStatus: React.FC = () => {
           })()}
 
         {/* Transaction ID - display shortened so it stays on one line on Android; copy still gets full hash */}
-        {tx.hash && (
+        {transactionId && (
           <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
               <View style={styles.detailValueCopyContainer}>
                 <CopyTextToClipboard
                   containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, detailValueWidthStyle])}
-                  text={tx.hash}
-                  displayText={shortenTxHash(tx.hash)}
-                  accessibilityLabel={tx.hash}
+                  ref={transactionIdCopyRef}
+                  text={transactionId}
+                  displayText={shortenTxHash(transactionId)}
+                  accessibilityLabel={transactionId}
                   buttonTestID="TransactionIdCopyButton"
                   textTestID="TransactionIdDisplayText"
                   style={StyleSheet.flatten([
