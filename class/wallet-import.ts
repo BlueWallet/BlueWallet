@@ -27,11 +27,7 @@ import type { TWallet } from './wallets/types';
 // become ', a leading M becomes m. The stored form must use ' because bitcoinjs derivePath
 // rejects h notation (its schema is /^(m\/)?(\d+'?\/)*\d+'?$/).
 export const normalizeDerivationPath = (path: string): string =>
-  path
-    .trim()
-    .replace(/[‘’]/g, "'")
-    .replace(/[hH]/g, "'")
-    .replace(/^M\//, 'm/');
+  path.trim().replace(/[‘’]/g, "'").replace(/[hH]/g, "'").replace(/^M\//, 'm/');
 
 // https://github.com/bitcoinjs/bip32/blob/master/ts-src/bip32.ts#L43
 // require m/ so bip174 does not drop the first path level (it treats index 0 as m); normalize
