@@ -778,8 +778,10 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     assert.strictEqual(uint8ArrayToHex(tx2.outs[0].script), '00147ea385f352be696ab0f6e94a0ee0e3c6d4b14a53');
     assert.strictEqual(tx2.outs[0].value, 35369n);
     assert.strictEqual(tx2.ins.length, 3);
-    assert.strictEqual(uint8ArrayToHex(tx2.ins[0].hash), 'd479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10');
-    assert.strictEqual(tx2.ins[0].index, 0);
+    const tx2InputHashes = tx2.ins.map(input => uint8ArrayToHex(input.hash));
+    // Full balance must skip the frozen coin. Input order follows the latest UTXO fetch, so don't require a specific input to be first.
+    assert.ok(!tx2InputHashes.includes('20ecd27b453461df63079782874226386901f873dcd3e021e0126319c7b20a8b'));
+    assert.ok(tx2InputHashes.includes('d479264875a0f7c4a84e47141be005404531a8655f2388ae21e89a9701f14c10'));
 
     process.env.CI && require('fs').writeFileSync(lockFile, '1');
   });
