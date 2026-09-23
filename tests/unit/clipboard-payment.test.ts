@@ -216,6 +216,15 @@ describe('clipboardPayment ownership and last-seen', () => {
       }),
       'read',
     );
+    assert.strictEqual(
+      clipboardActionOnAppStateChange({
+        previous: 'inactive',
+        next: 'active',
+        shouldRetryPaste: false,
+        resumedFromBackground: true,
+      }),
+      'read',
+    );
   });
 
   it('offers a payment when the persisted last-seen hash is from different content', () => {

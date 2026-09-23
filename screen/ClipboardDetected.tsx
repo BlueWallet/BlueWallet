@@ -80,9 +80,8 @@ const ClipboardDetected = () => {
   useFocusEffect(
     useCallback(() => {
       setClipboardSheetFocused(true);
-      if (contentHash) setLastSeenClipboardHash(contentHash).catch(() => {});
       return () => setClipboardSheetFocused(false);
-    }, [contentHash]),
+    }, []),
   );
 
   const persistIfVisible = useCallback(
@@ -166,7 +165,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
   safeArea: {
-    flex: 1,
     minHeight: 280,
   },
   content: {

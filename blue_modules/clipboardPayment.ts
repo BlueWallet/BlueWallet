@@ -162,24 +162,29 @@ export type ClipboardForegroundAction = 'none' | 'read' | 'retry_read';
 /** Let Electrum start connecting before the iOS paste prompt. */
 export const CLIPBOARD_IDLE_DELAY_MS = 1500;
 export const CLIPBOARD_RETRY_DELAY_MS = 800;
-export const CLIPBOARD_REFRESH_POLL_MS = 400;
 
 /**
  * Control Center / the iOS paste dialog both move the app to `inactive`.
  * Only re-read clipboard after a real background, or after a paste prompt that
  * returned empty.
+ *
+ * iOS reports a real resume as `background → inactive → active`, so the
+ * `active` event's previous state is `inactive`. `resumedFromBackground` is
+ * set by the caller when `background` was seen since the last foreground.
  */
 export function clipboardActionOnAppStateChange({
   previous,
   next,
   shouldRetryPaste,
+  resumedFromBackground = false,
 }: {
   previous: ClipboardAppState;
   next: ClipboardAppState;
   shouldRetryPaste: boolean;
+  resumedFromBackground?: boolean;
 }): ClipboardForegroundAction {
   if (next !== 'active') return 'none';
   if (shouldRetryPaste) return 'retry_read';
-  if (previous === 'background') return 'read';
+  if (previous === 'background' || resumedFromBackground) return 'read';
   return 'none';
 }
