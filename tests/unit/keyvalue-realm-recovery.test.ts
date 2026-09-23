@@ -1,12 +1,12 @@
 import assert from 'assert';
+import presentAlert from '../../components/Alert';
+import { BlueApp } from '../../class/blue-app';
 
+// Jest hoists this above the imports above.
 jest.mock('../../components/Alert', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
-
-import presentAlert from '../../components/Alert';
-import { BlueApp } from '../../class/blue-app';
 
 const Realm = require('realm');
 const Keychain = require('react-native-keychain');
