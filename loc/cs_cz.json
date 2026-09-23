@@ -374,7 +374,6 @@
     "onchain": "On-chain",
     "details_to": "Výstup",
     "enable_offline_signing": "Tato peněženka se nepoužívá ve spojení s offline podpisem. Chcete ho nyní povolit?",
-    "list_conf": "Potvrz: {number}",
     "pending": "Čekající",
     "pending_with_amount": "Čekající {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
@@ -723,7 +722,7 @@
     "notification_tx_unconfirmed": "Oznamovací transakce ještě není potvrzena, počkejte prosím",
     "failed_create_notif_tx": "Vytvoření on-chain transakce selhalo",
     "onchain_tx_needed": "Je vyžadována on-chain transakce",
-    "notif_tx_sent" : "Oznamovací transakce byla odeslána. Počkejte prosím, než bude potvrzena",
+    "notif_tx_sent": "Oznamovací transakce byla odeslána. Počkejte prosím, než bude potvrzena",
     "notif_tx": "Oznamovací transakce",
     "not_found": "Platební kód nebyl nalezen"
   }

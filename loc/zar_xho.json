@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Imveliso",
     "enable_offline_signing": "Le ngxowa ayisetyenziswa kunye nokutyikitya okungaqhagamshelwanga. Ungathanda ukukuvula ngoku?",
-    "list_conf": "Iziqin: {number}",
     "pending": "Ilindile",
     "pending_with_amount": "I-Pending {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

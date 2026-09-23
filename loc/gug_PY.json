@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Ñesẽ",
     "enable_offline_signing": "Ko viru ryru noñepuruhína offline firma ndive. ¿Remyandyse koʼág̃a?",
-    "list_conf": "Conf: {number}",
     "pending": "Ohaʼarõ",
     "pending_with_amount": "Ohaʼarõ {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

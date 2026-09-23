@@ -361,7 +361,6 @@
     "onchain": "on-chain",
     "details_to": "Destino",
     "enable_offline_signing": "Esta cartera no se está usando en conjunción con una firma offline. ¿Quieres activarlo ahora?",
-    "list_conf": "Conf: {number}",
     "pending": "En espera",
     "pending_with_amount": "En espera {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

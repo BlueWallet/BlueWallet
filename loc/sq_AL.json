@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Dalje",
     "enable_offline_signing": "Ky portofol nuk po përdoret në lidhje me një firmosje off-line. Dëshironi ta aktivizoni tani?",
-    "list_conf": "Konf: {number}",
     "pending": "Në pritje",
     "pending_with_amount": "Në pritje {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "Đầu ra",
     "enable_offline_signing": "Ví này không được sử dụng cùng với một bản ký ngoại tuyến. Bạn có muốn kích hoạt nó ngay bây giờ không?",
-    "list_conf": "Xác nhận: {number}",
     "pending": "Đang chờ giải quyết",
     "pending_with_amount": "Đang chờ giải quyết {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

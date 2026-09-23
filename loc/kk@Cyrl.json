@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Шығыс",
     "enable_offline_signing": "Бұл әмиян офлайн қол қоюмен бірге пайдаланылмайды. Қазір қосуды қалайсыз ба?",
-    "list_conf": "Раст.: {number}",
     "pending": "Күтілуде",
     "pending_with_amount": "Күтілуде {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

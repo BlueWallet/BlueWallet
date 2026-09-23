@@ -361,7 +361,6 @@
     "onchain": "он-чейн",
     "details_to": "Вихід",
     "enable_offline_signing": "Цей гаманець не використовується разом з автономним підписанням. Бажаєте увімкнути його зараз?",
-    "list_conf": "Підтв.: {number}",
     "pending": "Очікування",
     "pending_with_amount": "Очікує {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

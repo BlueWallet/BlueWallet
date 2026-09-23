@@ -361,7 +361,6 @@
     "onchain": "Ketjussa",
     "details_to": "Ulostulo",
     "enable_offline_signing": "Tätä lompakkoa ei käytetä offline-allekirjoituksen yhteydessä. Haluatko ottaa sen käyttöön nyt?",
-    "list_conf": "conf: {number}",
     "pending": "Odottaa",
     "pending_with_amount": "Odottaa {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
