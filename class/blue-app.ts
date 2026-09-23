@@ -32,6 +32,11 @@ import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
 
+function isRealmDecryptionError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? '');
+  return message.includes('Realm file decryption failed') || message.includes('failed the HMAC check');
+}
+
 export type TTXMetadata = {
   [txid: string]: {
     memo?: string;
@@ -310,7 +315,6 @@ export class BlueApp {
    * @returns {Promise<Realm>}
    */
   async openRealmKeyValue(): Promise<Realm> {
-    const cacheFolderPath = RNFS.CachesDirectoryPath; // Path to cache folder
     const service = 'realm_encryption_key';
     let password;
     const credentials = await Keychain.getGenericPassword({ service });
@@ -324,7 +328,7 @@ export class BlueApp {
 
     const buf = hexToUint8Array(password);
     const encryptionKey = Int8Array.from(buf);
-    const path = `${cacheFolderPath}/keyvalue.realm`; // Use cache folder path
+    const path = this.keyValueRealmPath();
 
     const schema = [
       {
@@ -629,6 +633,7 @@ export class BlueApp {
       return this.saveToDisk();
     }
     savingInProgress = 1;
+    let primaryStorageCommitted = false;
 
     try {
       const walletsToSave: string[] = []; // serialized wallets
@@ -708,19 +713,14 @@ export class BlueApp {
 
       await this.setItem('data', JSON.stringify(data));
       await this.setItem(BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      primaryStorageCommitted = true;
 
-      // now, backing up same data in realm:
-      const realmkeyValue = await this.openRealmKeyValue();
-      this.saveToRealmKeyValue(realmkeyValue, 'data', JSON.stringify(data));
-      this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
-      realmkeyValue.close();
+      // Realm copy is a backup of what was just committed to secure storage.
+      await this.backupToRealmKeyValue(JSON.stringify(data));
     } catch (error: any) {
       console.error('save to disk exception:', error.message);
       presentAlert({ message: 'save to disk exception: ' + error.message });
-      if (error.message.includes('Realm file decryption failed')) {
-        console.warn('purging realm key-value database file');
-        this.purgeRealmKeyValueFile();
-      }
+      if (!primaryStorageCommitted) throw error;
     } finally {
       savingInProgress = 0;
     }
@@ -926,11 +926,60 @@ export class BlueApp {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
 
-  purgeRealmKeyValueFile() {
-    const path = 'keyvalue.realm';
-    return Realm.deleteFile({
-      path,
-    });
+  /**
+   * Absolute path of the encrypted key/value backup. Must stay in sync with
+   * openRealmKeyValue(); a relative path is resolved against Documents, not Caches.
+   */
+  keyValueRealmPath(): string {
+    return `${RNFS.CachesDirectoryPath}/keyvalue.realm`;
+  }
+
+  /**
+   * Writes the secure-storage payload into the key/value Realm.
+   * If the file cannot be decrypted (keychain key rotated, or the file left
+   * behind after a signing-team change), delete that cache file and write a
+   * fresh backup. The previous purge used a relative path, so the Caches file
+   * survived and every later save raised the same alert.
+   */
+  async backupToRealmKeyValue(payload: string): Promise<void> {
+    const write = (realmkeyValue: Realm) => {
+      try {
+        this.saveToRealmKeyValue(realmkeyValue, 'data', payload);
+        this.saveToRealmKeyValue(realmkeyValue, BlueApp.FLAG_ENCRYPTED, this.cachedPassword ? '1' : '');
+      } finally {
+        if (!realmkeyValue.isClosed) realmkeyValue.close();
+      }
+    };
+
+    try {
+      write(await this.openRealmKeyValue());
+    } catch (error: any) {
+      if (!isRealmDecryptionError(error)) throw error;
+      console.warn('keyvalue realm decryption failed; recreating backup');
+      await this.purgeRealmKeyValueFile();
+      write(await this.openRealmKeyValue());
+    }
+  }
+
+  async purgeRealmKeyValueFile(): Promise<void> {
+    const path = this.keyValueRealmPath();
+    try {
+      if (Realm.exists({ path })) {
+        Realm.deleteFile({ path });
+      }
+    } catch (error: any) {
+      console.warn('Realm.deleteFile failed for keyvalue realm:', error?.message ?? error);
+    }
+
+    // Realm.deleteFile removes the .realm, .lock, and .management siblings.
+    // The .note fifo is not always included; sweep whatever is left.
+    for (const sibling of [path, `${path}.lock`, `${path}.note`, `${path}.management`]) {
+      try {
+        if (await RNFS.exists(sibling)) await RNFS.unlink(sibling);
+      } catch (error: any) {
+        console.warn('failed to delete', sibling, error?.message ?? error);
+      }
+    }
   }
 
   async moveRealmFilesToCacheDirectory() {
