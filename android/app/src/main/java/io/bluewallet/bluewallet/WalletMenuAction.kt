@@ -20,7 +20,6 @@ enum class WalletMenuAction(
     RECEIVE("receive", R.id.wallet_menu_receive, R.string.wallet_menu_receive, KeyEvent.KEYCODE_R, 'r',
         KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON),
     DETAILS("walletDetails", R.id.wallet_menu_details, R.string.wallet_menu_details, KeyEvent.KEYCODE_D, 'd'),
-    SEARCH("searchTransactions", R.id.wallet_menu_search, R.string.wallet_menu_search, KeyEvent.KEYCODE_F, 'f'),
     COPY_ADDRESS("copyAddress", R.id.wallet_menu_copy_address, R.string.wallet_menu_copy_address, KeyEvent.KEYCODE_C, 'c',
         KeyEvent.META_CTRL_ON or KeyEvent.META_SHIFT_ON),
     COPY_TRANSACTION_ID("copyTransactionId", R.id.wallet_menu_copy_transaction_id, R.string.wallet_menu_copy_transaction_id, KeyEvent.KEYCODE_C, 'c',

@@ -409,7 +409,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
             ("walletDetails", "Wallet Details…", #selector(walletDetailsMenuAction), "d", .command, .file),
             ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view),
             ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
-            ("searchTransactions", "Search Transactions", #selector(searchTransactionsMenuAction), "f", .command, .edit),
             ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
             ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
             ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
@@ -466,10 +465,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     @objc func backToWalletsMenuAction(_ keyCommand: UIKeyCommand) {
         MenuElementsController.shared.perform("backToWallets")
-    }
-
-    @objc func searchTransactionsMenuAction(_ keyCommand: UIKeyCommand) {
-        MenuElementsController.shared.perform("searchTransactions")
     }
 
     @objc func copyAddressMenuAction(_ keyCommand: UIKeyCommand) {
