@@ -104,9 +104,10 @@
     "title": "ארנקכם נוצר..."
   },
   "receive": {
-    "details_create": "יצירה",
+    "details_save": "שמירה",
     "details_label": "תיאור",
     "details_setAmount": "קבלה עם סכום",
+    "option_label": "תווית",
     "details_share": "שיתוף...",
     "address_not_found": "לא ניתן ליצר כתובת קבלה.",
     "header": "קבלה",
@@ -380,8 +381,6 @@
     "updating": "מעדכן...",
     "watchOnlyWarningTitle": "אזהרת אבטחה",
     "watchOnlyWarningDescription": "היזהרו מנוכלים אשר לעיתים קרובות משתמשים בארנקי ”צפייה-בלבד“ כדי להונות משתמשים. ארנקים אלה אינם מאפשרים לכם לשלוט בכספים או לשלוח כספים; הם מאפשרים לכם אך ורק לצפות במאזן.",
-    "custom_fee_warning_title": "אזהרה",
-    "custom_fee_warning_description": "עמלות מתחת ל- 1 sat/vB תקינות, אבל יתכן ולא ישודרו בשל מדיניות צומת.",
     "details_eta_analyzing": "מנתח...",
     "details_sent": "נשלח",
     "details_section": "פרטים",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "שינוי סוג ארנק יאפס את האנטרופיה הנוכחית. האם ברצונך להמשיך?",
     "add_entropy": "אנטרופיה",
     "add_entropy_bytes": "{bytes} בייטים של אנטרופיה",
-    "add_entropy_generated": "{gen} בייטים של אנטרופיה",
     "add_entropy_provide": "אספקת אנטרופיה על ידי הטלת קוביות ",
-    "add_entropy_remain": "{gen} בייטים של אנטרופיה. שאר {rem} בייטים יתקבלו ממחולל המספרים הרנדומליים של המערכת.",
     "add_import_wallet": "יבוא ארנק",
     "add_lightning": "ברק",
     "add_lightning_explain": "לבזבוז עם העברות מידיות",
@@ -439,7 +436,6 @@
     "details_display": "הצגה במסך הבית",
     "details_edit": "עריכה",
     "details_export_backup": "יצוא / גיבוי",
-    "details_export_history": "יצוא היסטוריה ל- CSV",
     "details_master_fingerprint": "טביעת אצבע ראשית",
     "details_multisig_type": "רב-חתימות",
     "details_options": "אפשרויות",
@@ -519,9 +515,7 @@
     "identity_pubkey": "מפתח זהות ציבורי",
     "xpub_title": "מפתח צפייה של הארנק",
     "manage_wallets_search_placeholder": "חיפוש ארנקים, כתובות, פעולות ותזכירים",
-    "more_info": "מידע נוסף",
-    "details_delete_wallet_error_message": "אירעה בעיה באישור שהארנק הוסר מההתראות—הדבר עשוי לנבוע מבעיית רשת או חיבור חלש. אם תמשיך, ייתכן שתמשיך לקבל התראות על עסקאות הקשורות לארנק זה, גם לאחר מחיקתו.",
-    "details_delete_anyway": "מחק בכל אופן"
+    "more_info": "מידע נוסף"
   },
   "total_balance_view": {
     "display_in_bitcoin": "תצוגה בביטקוין",

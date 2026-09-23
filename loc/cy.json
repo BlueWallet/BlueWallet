@@ -104,9 +104,10 @@
     "title": "Mae dy waled wedi cael ei chreu."
   },
   "receive": {
-    "details_create": "Creu",
+    "details_save": "Safio",
     "details_label": "Disgrifiad",
     "details_setAmount": "Derbyn efo swm",
+    "option_label": "Label",
     "details_share": "Rhannu...",
     "address_not_found": "Methu cynhyrchu cyfeiriad derbyn.",
     "header": "Derbyn",
@@ -380,8 +381,6 @@
     "updating": "Diweddaru...",
     "watchOnlyWarningTitle": "Rhybudd diogelwch",
     "watchOnlyWarningDescription": "Bydd yn ofalus o dwyllwyr sy'n aml yn defnyddio waledi “gwylio'n unig” i dwyllo defnyddwyr. Nid yw'r waledi hyn yn caniatáu iti reoli na anfon cyllid; dim ond y balans y maent yn caniatáu iti ei weld.",
-    "custom_fee_warning_title": "Rhybudd",
-    "custom_fee_warning_description": "Mae ffioedd o dan 1 sat/vB yn ddilys, ond efallai na chânt eu hailddarlledu oherwydd polisïau nodau.",
     "details_eta_analyzing": "Dadansoddi...",
     "details_sent": "Anfonwyd",
     "details_section": "Manylion",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Bydd newid math y waled yn ailosod yr entropi cyfredol. Wyt ti eisiau parhau?",
     "add_entropy": "Entropi",
     "add_entropy_bytes": "{bytes} beit o entropi",
-    "add_entropy_generated": "{gen} beit o entropi a gynhyrchwyd",
     "add_entropy_provide": "Darparu entropi drwy rolio dis",
-    "add_entropy_remain": "{gen} beit o entropi a gynhyrchwyd. Bydd y {rem} beit sy'n weddill yn cael eu cael o gynhyrchydd rhifau ar hap y System.",
     "add_import_wallet": "Mewnforio waled",
     "add_lightning": "Mellten",
     "add_lightning_explain": "Er mwyn gwario yn syth",
@@ -439,7 +436,6 @@
     "details_display": "Dangos ar y Sgrin Gartref",
     "details_edit": "golygu",
     "details_export_backup": "Allforio/Copi wrth gefn",
-    "details_export_history": "Allforio Hanes i CSV",
     "details_master_fingerprint": "Ôl Bys y Brif Allwedd",
     "details_multisig_type": "aml-lofnod",
     "details_options": "Opsiynau",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Allwedd Gyhoeddus Hunaniaeth",
     "xpub_title": "xpub y Waled",
     "manage_wallets_search_placeholder": "Chwilio waledi, cyfeiriadau, trafodion a nodion",
-    "more_info": "Mwy o Wybodaeth",
-    "details_delete_wallet_error_message": "Cafwyd problem wrth gadarnhau a oedd y waled hon wedi'i gwaredu o'r hysbysiadau—gallai hyn fod oherwydd problem rhwydwaith neu gysylltiad gwael. Os byddi'n parhau, gallet dal i dderbyn hysbysiadau am drafodion sy'n gysylltiedig â'r waled hon, hyd yn oed ar ôl ei dileu.",
-    "details_delete_anyway": "Dileu beth bynnag"
+    "more_info": "Mwy o Wybodaeth"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Dangos mewn Bitcoin",

@@ -104,9 +104,10 @@
     "title": "کیف پول شما ایجاد شد."
   },
   "receive": {
-    "details_create": "ایجاد",
+    "details_save": "ذخیره",
     "details_label": "شرح",
     "details_setAmount": "دریافت با مقدار",
+    "option_label": "برچسب",
     "details_share": "هم‌رسانی...",
     "address_not_found": "ایجاد آدرس دریافت ممکن نیست.",
     "header": "دریافت",
@@ -380,8 +381,6 @@
     "updating": "درحال به‌روزرسانی…",
     "watchOnlyWarningTitle": "هشدار امنیتی",
     "watchOnlyWarningDescription": "مراقب کلاهبردارانی باشید که اغلب از کیف پول‌های «فقط‌خواندنی» برای فریب کاربران استفاده می‌کنند. این کیف پول‌ها به شما اجازهٔ کنترل یا ارسال وجه را نمی‌دهند؛ تنها امکان مشاهدهٔ موجودی را فراهم می‌کنند.",
-    "custom_fee_warning_title": "هشدار",
-    "custom_fee_warning_description": "کارمزدهای کمتر از ۱ sat/vB معتبر هستند، اما ممکن است به‌دلیل سیاست‌های گره‌ها بازپخش نشوند.",
     "details_eta_analyzing": "درحال تحلیل...",
     "details_sent": "ارسال‌شده",
     "details_section": "جزئیات",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "تغییر نوع کیف پول، آنتروپی فعلی را بازنشانی خواهد کرد. آیا می‌خواهید ادامه دهید؟",
     "add_entropy": "آنتروپی",
     "add_entropy_bytes": "{bytes} بایت آنتروپی",
-    "add_entropy_generated": "{gen} بایت از آنتروپی تولیدشده",
     "add_entropy_provide": "فراهم‌کردن آنتروپی از طریق انداختن تاس",
-    "add_entropy_remain": "{gen} بایت از آنتروپی تولیدشده. {rem} بایت باقی‌مانده از تولیدکنندهٔ اعداد تصادفی سیستم گرفته خواهد شد.",
     "add_import_wallet": "واردکردن کیف پول",
     "add_lightning": "لایتنینگ",
     "add_lightning_explain": "برای خرج‌کردن با تراکنش‌های آنی",
@@ -439,7 +436,6 @@
     "details_display": "نمایش در صفحهٔ اصلی",
     "details_edit": "ویرایش",
     "details_export_backup": "صادرکردن/نسخهٔ پشتیبان",
-    "details_export_history": "گرفتن خروجی تاریخچه به فرمت CSV",
     "details_master_fingerprint": "اثر انگشت اصلی",
     "details_multisig_type": "چندامضایی",
     "details_options": "گزینه‌ها",
@@ -519,9 +515,7 @@
     "identity_pubkey": "هویت/کلید عمومی",
     "xpub_title": "کلید XPUB کیف پول",
     "manage_wallets_search_placeholder": "جستجوی کیف پول‌ها، آدرس‌ها، تراکنش‌ها و یادداشت‌ها",
-    "more_info": "اطلاعات بیشتر",
-    "details_delete_wallet_error_message": "در تأیید حذف این کیف پول از اعلانات مشکلی پیش آمد—این می‌تواند به‌دلیل مشکل شبکه یا اتصال ضعیف باشد. اگر ادامه دهید، ممکن است حتی پس از حذف کیف پول، همچنان برای تراکنش‌های مرتبط با این کیف پول اعلانات دریافت کنید.",
-    "details_delete_anyway": "به‌هرحال حذف کن"
+    "more_info": "اطلاعات بیشتر"
   },
   "total_balance_view": {
     "display_in_bitcoin": "نمایش به بیت‌کوین",

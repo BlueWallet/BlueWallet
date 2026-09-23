@@ -104,9 +104,10 @@
     "title": "Tu Billetera está creada."
   },
   "receive": {
-    "details_create": "Crear",
+    "details_save": "Guardar",
     "details_label": "Descripción",
     "details_setAmount": "Recibir con monto",
+    "option_label": "Etiqueta",
     "details_share": "Compartir…",
     "address_not_found": "No es posible generar la dirección de recepción.",
     "header": "Recibir",
@@ -388,8 +389,6 @@
     "updating": "Actualizando...",
     "watchOnlyWarningTitle": "Advertencia de seguridad",
     "watchOnlyWarningDescription": "Ten cuidado con los estafadores que suelen utilizar billeteras de \"sólo ver\" para engañar a los usuarios. Estas billeteras no permiten controlar ni enviar fondos; solo permiten ver el saldo.",
-    "custom_fee_warning_title": "Advertencia",
-    "custom_fee_warning_description": "Las tarifas inferiores a 1 sat/vB son válidas, pero puede que no se retransmitan debido a las políticas de los nodos.",
     "details_eta_analyzing": "Analizando...",
     "details_sent": "Enviado",
     "details_section": "Detalles",
@@ -445,11 +444,21 @@
     "details_delete": "Eliminar",
     "details_delete_wallet": "Eliminar Billetera",
     "details_derivation_path": "ruta de derivación",
+    "details_derivation_path_edit": "Por ejemplo: m/84'/0'/0'. Esto no modifica las direcciones. Al exportar o hacer una copia de seguridad de un zpub, ypub o xpub, no se conservarán la ruta ni la huella digital.",
+    "details_derivation_path_invalid": "Ruta de derivación no válida. Debería tener el siguiente formato: m/84'/0'/0'.",
     "details_display": "Mostrar en la pantalla de inicio",
     "details_edit": "editar",
     "details_export_backup": "Exportar / Copia de seguridad",
-    "details_export_history": "Exportar historial a CSV",
+    "details_export_history": "Historial de exportaciones",
+    "details_import_notes": "Notas de importación...",
+    "details_import_notes_after": "Después",
+    "details_import_notes_before": "Antes",
+    "details_import_notes_no_changes": "No fue necesario importar notas de transacción de este archivo.",
+    "details_import_notes_review": "Selecciona qué notas existentes deseas sobrescribir. Las transacciones sin una nota existente se importarán automáticamente.",
+    "details_import_notes_success": "Notas importadas para {count} transacciones.",
     "details_master_fingerprint": "Huella Digital Maestra",
+    "details_master_fingerprint_edit": "Por ejemplo: 73c5da0a. Al exportar o hacer una copia de seguridad de un zpub, ypub o xpub, este dato no se conservará.",
+    "details_master_fingerprint_invalid": "Huella digital maestra no válida. Debe tener 8 caracteres hexadecimales.",
     "details_multisig_type": "multifirma",
     "details_options": "Opciones",
     "details_show_xpub": "Mostrar el XPUB de la Billetera",
@@ -529,8 +538,7 @@
     "xpub_title": "XPUB de la billetera",
     "manage_wallets_search_placeholder": "Búsqueda de billeteras, direcciones, transacciones y memos",
     "more_info": "Más información",
-    "details_delete_wallet_error_message": "Hubo un problema al confirmar si esta billetera se eliminó de las notificaciones, lo que podría deberse a un problema de red o a una mala conexión. Si continúas, es posible que aún recibas notificaciones de transacciones relacionadas con esta billetera, incluso después de que se elimine.",
-    "details_delete_anyway": "Borrar de todos modos"
+    "details_delete_wallet_error_message": "Hubo un problema al eliminar esta billetera de las notificaciones; esto podría deberse a un problema de red o a una conexión deficiente. Es posible que sigas recibiendo notificaciones sobre transacciones relacionadas con esta billetera."
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar en Bitcoin",
@@ -710,7 +718,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }

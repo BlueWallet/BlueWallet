@@ -104,9 +104,10 @@
     "title": "ቦርሳዎ ተፈጥሯል።"
   },
   "receive": {
-    "details_create": "ፍጠር",
+    "details_save": "አስቀምጥ",
     "details_label": "መግለጫ",
     "details_setAmount": "በመጠን ተቀበል",
+    "option_label": "መለያ",
     "details_share": "አጋራ...",
     "address_not_found": "የመቀበያ አድራሻ ማመንጨት አልተቻለም።",
     "header": "ተቀበል",
@@ -380,8 +381,6 @@
     "updating": "በማዘመን ላይ...",
     "watchOnlyWarningTitle": "የደህንነት ማስጠንቀቂያ",
     "watchOnlyWarningDescription": "ተጠቃሚዎችን ለማታለል “ለመመልከት ብቻ” ቦርሳዎችን ብዙ ጊዜ ከሚጠቀሙ አጭበርባሪዎች ይጠንቀቁ። እነዚህ ቦርሳዎች ገንዘብ እንዲቆጣጠሩ ወይም እንዲልኩ አይፈቅዱም፤ ቀሪ ሂሳቡን እንዲመለከቱ ብቻ ይፈቅዳሉ።",
-    "custom_fee_warning_title": "ማስጠንቀቂያ",
-    "custom_fee_warning_description": "ከ1 sat/vB በታች ያሉ ክፍያዎች ልክ ናቸው፣ ነገር ግን በኖድ ፖሊሲዎች ምክንያት ላይተላለፉ ይችላሉ።",
     "details_eta_analyzing": "በመተንተን ላይ...",
     "details_sent": "የተላከ",
     "details_section": "ዝርዝሮች",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "የቦርሳውን አይነት መቀየር አሁን ያለውን ኢንትሮፒ ዳግም ያስጀምራል። መቀጠል ይፈልጋሉ?",
     "add_entropy": "ኢንትሮፒ",
     "add_entropy_bytes": "{bytes} ባይትስ ኢንትሮፒ",
-    "add_entropy_generated": "{gen} ባይትስ የተፈጠረ ኢንትሮፒ",
     "add_entropy_provide": "በዳይስ ጥቅልል ኢንትሮፒ አቅርብ",
-    "add_entropy_remain": "{gen} ባይትስ የተፈጠረ ኢንትሮፒ። የቀሩት {rem} ባይትስ ከስርዓቱ የዘፈቀደ ቁጥር ማመንጫ ይገኛሉ።",
     "add_import_wallet": "ቦርሳ አስመጣ",
     "add_lightning": "Lightning",
     "add_lightning_explain": "ፈጣን ግብይቶችን ለማውጣት",
@@ -439,7 +436,6 @@
     "details_display": "በመነሻ ስክሪን ላይ አሳይ",
     "details_edit": "አርትዕ",
     "details_export_backup": "ላክ/መጠባበቂያ",
-    "details_export_history": "ታሪክ ወደ CSV ላክ",
     "details_master_fingerprint": "ዋና የጣት አሻራ",
     "details_multisig_type": "ሙልቲሲግ",
     "details_options": "አማራጮች",
@@ -519,9 +515,7 @@
     "identity_pubkey": "የማንነት ይፋ ቁልፍ",
     "xpub_title": "የቦርሳ xpub",
     "manage_wallets_search_placeholder": "ቦርሳዎችን፣ አድራሻዎችን፣ ግብይቶችን እና ማስታወሻዎችን ይፈልጉ",
-    "more_info": "ተጨማሪ መረጃ",
-    "details_delete_wallet_error_message": "ይህ ቦርሳ ከማሳወቂያዎች መወገዱን በማረጋገጥ ላይ ችግር ነበር—ይህ በኔትወርክ ችግር ወይም ደካማ ግንኙነት ምክንያት ሊሆን ይችላል። ከቀጠሉ ከተሰረዘ በኋላም ቢሆን ከዚህ ቦርሳ ጋር ለተያያዙ ግብይቶች ማሳወቂያዎችን አሁንም ሊቀበሉ ይችላሉ።",
-    "details_delete_anyway": "ለማንኛውም ሰርዝ"
+    "more_info": "ተጨማሪ መረጃ"
   },
   "total_balance_view": {
     "display_in_bitcoin": "በBitcoin አሳይ",

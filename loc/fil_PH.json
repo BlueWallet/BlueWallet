@@ -104,9 +104,10 @@
     "title": "Nalikha na ang iyong wallet."
   },
   "receive": {
-    "details_create": "Gumawa",
+    "details_save": "I-save",
     "details_label": "Paglalarawan",
     "details_setAmount": "Tumanggap nang may halaga",
+    "option_label": "Label",
     "details_share": "Ibahagi...",
     "address_not_found": "Hindi makagawa ng address ng pagtanggap.",
     "header": "Tumanggap",
@@ -380,8 +381,6 @@
     "updating": "Ina-update...",
     "watchOnlyWarningTitle": "Babala sa seguridad",
     "watchOnlyWarningDescription": "Mag-ingat sa mga scammer na kadalasang gumagamit ng mga “watch-only” na wallet upang linlangin ang mga user. Hindi ka pinapayagan ng mga wallet na ito na kontrolin o magpadala ng pondo; tinitingnan mo lamang ang balanse.",
-    "custom_fee_warning_title": "Babala",
-    "custom_fee_warning_description": "Ang mga bayarin na mas mababa sa 1 sat/vB ay wasto, ngunit maaaring hindi mai-relay dahil sa mga patakaran ng node.",
     "details_eta_analyzing": "Sinusuri...",
     "details_sent": "Ipinadala",
     "details_section": "Mga Detalye",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Ang pagpapalit ng uri ng wallet ay magre-reset sa kasalukuyang entropy. Nais mo bang magpatuloy?",
     "add_entropy": "Entropy",
     "add_entropy_bytes": "{bytes} bytes ng entropy",
-    "add_entropy_generated": "{gen} bytes ng nalikhang entropy",
     "add_entropy_provide": "Magbigay ng entropy sa pamamagitan ng paghagis ng dais",
-    "add_entropy_remain": "{gen} bytes ng nalikhang entropy. Ang natitirang {rem} bytes ay kukunin mula sa random number generator ng System.",
     "add_import_wallet": "Mag-import ng wallet",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Para sa paggastos gamit ang mga instant na transaksiyon",
@@ -439,7 +436,6 @@
     "details_display": "Ipakita sa Home Screen",
     "details_edit": "i-edit",
     "details_export_backup": "I-export/I-backup",
-    "details_export_history": "I-export ang Kasaysayan sa CSV",
     "details_master_fingerprint": "Master Fingerprint",
     "details_multisig_type": "multisig",
     "details_options": "Mga Opsiyon",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "XPUB ng Wallet",
     "manage_wallets_search_placeholder": "Maghanap ng mga wallet, address, transaksiyon at memo",
-    "more_info": "Higit Pang Impormasyon",
-    "details_delete_wallet_error_message": "Nagkaroon ng problema sa pagkumpirma kung naalis ang wallet na ito sa mga abiso—maaaring dahil ito sa problema sa network o mahinang koneksiyon. Kung magpapatuloy ka, maaari ka pa ring makatanggap ng mga abiso para sa mga transaksiyong kaugnay ng wallet na ito, kahit na ito ay na-delete na.",
-    "details_delete_anyway": "I-delete pa rin"
+    "more_info": "Higit Pang Impormasyon"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Ipakita sa Bitcoin",

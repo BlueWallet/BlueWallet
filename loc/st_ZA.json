@@ -104,9 +104,10 @@
     "title": "Sepache sa hao se entswe."
   },
   "receive": {
-    "details_create": "Etsa",
+    "details_save": "Boloka",
     "details_label": "Tlhaloso",
     "details_setAmount": "Amohela ka tjhelete",
+    "option_label": "Leibole",
     "details_share": "Arolelana...",
     "address_not_found": "Ha ho kgonehe ho hlahisa aterese ya ho amohela.",
     "header": "Amohela",
@@ -380,8 +381,6 @@
     "updating": "Ho ntjhafatsa...",
     "watchOnlyWarningTitle": "Tlhokomediso ya tshireletso",
     "watchOnlyWarningDescription": "Ela hloko bathetsi ba atisang ho sebedisa dipache tsa “ho shebella feela” ho thetsa basebedisi. Dipache tsena ha di o dumelle ho laola kapa ho romela tjhelete; di o dumella feela ho bona tjhelete.",
-    "custom_fee_warning_title": "Tlhokomediso",
-    "custom_fee_warning_description": "Ditefiso tse ka tlase ho 1 sat/vB di nepahetse, empa di ka nna tsa se fetiswe ka lebaka la maano a node.",
     "details_eta_analyzing": "Ho hlahloba...",
     "details_sent": "E Rommetswe",
     "details_section": "Dintlha",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Ho fetola mofuta wa sepache ho tla setha entropy ya hajwale hape. Na o batla ho tswela pele?",
     "add_entropy": "Entropy",
     "add_entropy_bytes": "dibyte tse {bytes} tsa entropy",
-    "add_entropy_generated": "dibyte tse {gen} tsa entropy e hlahisitsweng",
     "add_entropy_provide": "Fana ka entropy ka ho lahla daese",
-    "add_entropy_remain": "dibyte tse {gen} tsa entropy e hlahisitsweng. Dibyte tse setseng tse {rem} di tla fumanwa ho jenereithara ya dinomoro tse sa lebellwang ya Sisteme.",
     "add_import_wallet": "Kenya sepache",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Bakeng sa ho sebedisa ka ditshebetsano tse potlakileng",
@@ -439,7 +436,6 @@
     "details_display": "Bontsha ho Skrine sa Lehae",
     "details_edit": "fetola",
     "details_export_backup": "Ntsha/Backup",
-    "details_export_history": "Ntsha Histori ho CSV",
     "details_master_fingerprint": "Letshwao la Motheo",
     "details_multisig_type": "multisig",
     "details_options": "Dikgetho",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Senotlolo sa Sechaba sa Boitsebiso",
     "xpub_title": "XPUB ya Sepache",
     "manage_wallets_search_placeholder": "Batla dipache, diaterese, ditshebetsano le mangolwana",
-    "more_info": "Tlhahisoleseding e Eketsehileng",
-    "details_delete_wallet_error_message": "Ho bile le bothata ba ho netefatsa hore na sepache sena se tlositswe ditsebisong—sena se ka ba ka lebaka la bothata ba marang-rang kapa kgokahano e fokolang. Haeba o tswela pele, o ka nna wa amohela ditsebiso tsa ditshebetsano tse amanang le sepache sena, le ka mor'a hore se tloswe.",
-    "details_delete_anyway": "Tlosa leha ho le jwalo"
+    "more_info": "Tlhahisoleseding e Eketsehileng"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bontsha ka Bitcoin",

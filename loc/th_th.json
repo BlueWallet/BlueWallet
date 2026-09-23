@@ -104,9 +104,10 @@
     "title": "ได้สร้างกระเป๋าสตางค์ของท่านแล้ว"
   },
   "receive": {
-    "details_create": "สร้าง",
+    "details_save": "บันทึก",
     "details_label": "คำอธิบาย",
     "details_setAmount": "รับด้วยจำนวน",
+    "option_label": "ป้าย",
     "details_share": "แชร์...",
     "address_not_found": "ไม่สามารถสร้างแอดเดรสสำหรับรับได้",
     "header": "รับ",
@@ -380,8 +381,6 @@
     "updating": "กำลังอัปเดต...",
     "watchOnlyWarningTitle": "คำเตือนด้านความปลอดภัย",
     "watchOnlyWarningDescription": "ระวังนักหลอกลวงที่มักใช้กระเป๋าสตางค์ “ดูอย่างเดียว” เพื่อหลอกลวงผู้ใช้ กระเป๋าสตางค์เหล่านี้ไม่อนุญาตให้ท่านควบคุมหรือส่งเงินได้ แต่ให้ดูยอดคงเหลือได้เท่านั้น",
-    "custom_fee_warning_title": "คำเตือน",
-    "custom_fee_warning_description": "ค่าธรรมเนียมต่ำกว่า 1 sat/vB ถือว่าถูกต้อง แต่อาจไม่ได้รับการส่งต่อเนื่องจากนโยบายของโหนด",
     "details_eta_analyzing": "กำลังวิเคราะห์...",
     "details_sent": "ส่งแล้ว",
     "details_section": "รายละเอียด",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "การเปลี่ยนชนิดของกระเป๋าสตางค์จะรีเซ็ตเอนโทรปีปัจจุบัน ท่านต้องการดำเนินการต่อหรือไม่?",
     "add_entropy": "เอนโทรปี",
     "add_entropy_bytes": "เอนโทรปี {bytes} ไบต์",
-    "add_entropy_generated": "เอนโทรปีที่สร้างขึ้น {gen} ไบต์",
     "add_entropy_provide": "ให้เอนโทรปีผ่านการทอยลูกเต๋า",
-    "add_entropy_remain": "เอนโทรปีที่สร้างขึ้น {gen} ไบต์ ไบต์ที่เหลืออีก {rem} ไบต์จะได้มาจากเครื่องสร้างเลขสุ่มของระบบ",
     "add_import_wallet": "นำเข้ากระเป๋าสตางค์",
     "add_lightning": "ไลท์นิง",
     "add_lightning_explain": "สำหรับใช้จ่ายด้วยธุรกรรมที่รวดเร็ว",
@@ -439,7 +436,6 @@
     "details_display": "แสดงในหน้าจอหลัก",
     "details_edit": "แก้ไข",
     "details_export_backup": "ส่งออก / สำรอง",
-    "details_export_history": "ส่งออกประวัติเป็น CSV",
     "details_master_fingerprint": "ลายนิ้วมือต้นแบบ",
     "details_multisig_type": "หลายลายเซ็น",
     "details_options": "ตัวเลือก",
@@ -519,9 +515,7 @@
     "identity_pubkey": "กุญแจสาธารณะระบุตัวตน",
     "xpub_title": "XPUB ของกระเป๋าสตางค์",
     "manage_wallets_search_placeholder": "ค้นหากระเป๋าสตางค์ แอดเดรส ธุรกรรม และบันทึกช่วยจำ",
-    "more_info": "ข้อมูลเพิ่มเติม",
-    "details_delete_wallet_error_message": "เกิดปัญหาในการยืนยันว่ากระเป๋าสตางค์นี้ถูกลบออกจากการแจ้งเตือนหรือไม่—อาจเกิดจากปัญหาเครือข่ายหรือการเชื่อมต่อไม่ดี หากท่านดำเนินการต่อ ท่านอาจยังคงได้รับการแจ้งเตือนสำหรับธุรกรรมที่เกี่ยวข้องกับกระเป๋าสตางค์นี้แม้หลังจากที่ลบไปแล้ว",
-    "details_delete_anyway": "ลบต่อไป"
+    "more_info": "ข้อมูลเพิ่มเติม"
   },
   "total_balance_view": {
     "display_in_bitcoin": "แสดงเป็น Bitcoin",

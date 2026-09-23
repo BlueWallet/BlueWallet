@@ -104,9 +104,10 @@
     "title": "Ваш кашалёк створаны."
   },
   "receive": {
-    "details_create": "Стварыць",
+    "details_save": "Захаваць",
     "details_label": "Апісаньне",
     "details_setAmount": "Атрымаць з сумай",
+    "option_label": "Метка",
     "details_share": "Падзяліцца...",
     "address_not_found": "Немагчыма згенэраваць адрас для атрыманьня.",
     "header": "Атрымаць",
@@ -380,8 +381,6 @@
     "updating": "Абнаўленьне...",
     "watchOnlyWarningTitle": "Папярэджаньне аб бясьпецы",
     "watchOnlyWarningDescription": "Сьцеражыцеся ашуканцаў, якія часта выкарыстоўваюць кашалькі „толькі для прагляду”, каб падмануць карыстальнікаў. Гэтыя кашалькі не дазваляюць вам кіраваць ці адсылаць сродкі; яны дазваляюць толькі бачыць баланс.",
-    "custom_fee_warning_title": "Папярэджаньне",
-    "custom_fee_warning_description": "Камісіі ніжэйшыя за 1 sat/vB сапраўдныя, але могуць не транслявацца з-за палітыкі вузлоў.",
     "details_eta_analyzing": "Аналіз...",
     "details_sent": "Дасланыя",
     "details_section": "Дэталі",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Зьмена тыпу кашалька скіне бягучую энтрапію. Жадаеце працягнуць?",
     "add_entropy": "Энтрапія",
     "add_entropy_bytes": "{bytes} байтаў энтрапіі",
-    "add_entropy_generated": "{gen} байтаў згенэраванай энтрапіі",
     "add_entropy_provide": "Прадаставіць энтрапію праз кідкі касьцяў",
-    "add_entropy_remain": "{gen} байтаў згенэраванай энтрапіі. Астатнія {rem} байтаў будуць атрыманы ад сыстэмнага генэратара выпадковых лікаў.",
     "add_import_wallet": "Імпартаваць кашалёк",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Для расходаваньня зь імгненнымі трансакцыямі",
@@ -439,7 +436,6 @@
     "details_display": "Паказаць на хатнім экране",
     "details_edit": "рэдагаваць",
     "details_export_backup": "Экспарт/Рэзервовая копія",
-    "details_export_history": "Экспартаваць гісторыю ў CSV",
     "details_master_fingerprint": "Майстар-адбітак",
     "details_multisig_type": "мультыподпіс",
     "details_options": "Параметры",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Публічны ключ ідэнтычнасьці",
     "xpub_title": "XPUB кашалька",
     "manage_wallets_search_placeholder": "Шукаць кашалькі, адрасы, трансакцыі і нататкі",
-    "more_info": "Больш інфармацыі",
-    "details_delete_wallet_error_message": "Узьнікла праблема з пацьверджаньнем таго, што гэты кашалёк быў выдалены з апавяшчэньняў — гэта можа быць зьвязана з праблемай сеткі альбо слабым злучэньнем. Калі вы працягнеце, вы можаце працягваць атрымліваць апавяшчэньні аб трансакцыях, зьвязаных з гэтым кашальком, нават пасьля яго выдаленьня.",
-    "details_delete_anyway": "Усё роўна выдаліць"
+    "more_info": "Больш інфармацыі"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Паказаць у Bitcoin",

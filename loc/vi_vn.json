@@ -104,9 +104,10 @@
     "title": "Ví của bạn đã được tạo."
   },
   "receive": {
-    "details_create": "Tạo ",
+    "details_save": "Lưu",
     "details_label": "Mô tả",
     "details_setAmount": "Nhận với số tiền",
+    "option_label": "Nhãn",
     "details_share": "Chia sẻ...",
     "address_not_found": "Không thể tạo địa chỉ nhận.",
     "header": "Nhận",
@@ -380,8 +381,6 @@
     "updating": "Đang cập nhật...",
     "watchOnlyWarningTitle": "Cảnh báo bảo mật",
     "watchOnlyWarningDescription": "Hãy cẩn trọng với những kẻ lừa đảo thường sử dụng ví “chỉ xem” để đánh lừa người dùng. Các ví này không cho phép bạn kiểm soát hoặc gửi tiền; chúng chỉ cho phép bạn xem số dư.",
-    "custom_fee_warning_title": "Cảnh báo",
-    "custom_fee_warning_description": "Các mức phí dưới 1 sat/vB là hợp lệ, nhưng có thể không được chuyển tiếp do chính sách của node.",
     "details_eta_analyzing": "Đang phân tích...",
     "details_sent": "Đã gửi",
     "details_section": "Chi tiết",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Thay đổi loại ví sẽ đặt lại entropy hiện tại. Bạn có muốn tiếp tục?",
     "add_entropy": "Entropy",
     "add_entropy_bytes": "{bytes} byte entropy",
-    "add_entropy_generated": "{gen} bytes entropy đã được tạo",
     "add_entropy_provide": "Cung cấp entropy bằng dice roll",
-    "add_entropy_remain": "{gen} bytes entropy đã được tạo. {rem} bytes còn lại sẽ lấy được từ số ngẫu nhiên của hệ thống. ",
     "add_import_wallet": "Nhập ví",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Để chi tiêu với các giao dịch tức thời ",
@@ -439,7 +436,6 @@
     "details_display": "Hiển thị ở màn hình chính",
     "details_edit": "sửa",
     "details_export_backup": "Xuất/Sao lưu ",
-    "details_export_history": "Xuất lịch sử sang CSV ",
     "details_master_fingerprint": "Vân tay chủ",
     "details_multisig_type": "Multisig",
     "details_options": "Tùy chọn",
@@ -519,9 +515,7 @@
     "identity_pubkey": "PubKey danh tính",
     "xpub_title": "XPUB của ví",
     "manage_wallets_search_placeholder": "Tìm kiếm ví, địa chỉ, giao dịch và ghi chú",
-    "more_info": "Thêm thông tin",
-    "details_delete_wallet_error_message": "Đã có sự cố khi xác nhận liệu ví này có được gỡ khỏi thông báo hay không — có thể do sự cố mạng hoặc kết nối kém. Nếu bạn tiếp tục, bạn vẫn có thể nhận thông báo về các giao dịch liên quan đến ví này, ngay cả sau khi nó bị xoá.",
-    "details_delete_anyway": "Vẫn xoá"
+    "more_info": "Thêm thông tin"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Hiển thị bằng Bitcoin",

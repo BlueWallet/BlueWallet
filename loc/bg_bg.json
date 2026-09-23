@@ -104,9 +104,10 @@
     "title": "Портфейла е създаден."
   },
   "receive": {
-    "details_create": "Създай",
+    "details_save": "Запази",
     "details_label": "Описание",
     "details_setAmount": "Получаване на определена сума",
+    "option_label": "Етикет",
     "details_share": "Сподели...",
     "address_not_found": "Не може да се генерира адрес за получаване.",
     "header": "Получаване",
@@ -380,8 +381,6 @@
     "updating": "Обновяване...",
     "watchOnlyWarningTitle": "Предупреждение за сигурност",
     "watchOnlyWarningDescription": "Внимавайте за измамници, които често използват портфейли „само за наблюдение“, за да заблудят потребителите. Тези портфейли не ви позволяват да контролирате или изпращате средства; те ви позволяват само да виждате баланса.",
-    "custom_fee_warning_title": "Внимание",
-    "custom_fee_warning_description": "Такси под 1 sat/vB са валидни, но може да не бъдат препредадени поради политиките на възела.",
     "details_eta_analyzing": "Анализиране...",
     "details_sent": "Изпратени",
     "details_section": "Детайли",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Промяната на типа на портфейла ще нулира текущата ентропия. Искате ли да продължите?",
     "add_entropy": "Ентропия",
     "add_entropy_bytes": "{bytes} байта ентропия",
-    "add_entropy_generated": "{gen} байта генерирана ентропия",
     "add_entropy_provide": "Предостави ентропия чрез хвърляне на зар",
-    "add_entropy_remain": "{gen} байта генерирана ентропия. Останалите {rem} байта ще бъдат получени от системния генератор на случайни числа.",
     "add_import_wallet": "Импортирай портфейл",
     "add_lightning": "Lightning",
     "add_lightning_explain": "За харчене с мигновени транзакции",
@@ -439,7 +436,6 @@
     "details_display": "Покажи на началния екран",
     "details_edit": "редактирай",
     "details_export_backup": "Експортирай/Резервно копие",
-    "details_export_history": "Експортирай историята в CSV",
     "details_master_fingerprint": "Отпечатък на главния ключ",
     "details_multisig_type": "мултисиг",
     "details_options": "Опции",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Публичен ключ за идентичност",
     "xpub_title": "xpub на портфейла",
     "manage_wallets_search_placeholder": "Търси портфейли, адреси, транзакции и бележки",
-    "more_info": "Повече информация",
-    "details_delete_wallet_error_message": "Имаше проблем при потвърждаването дали този портфейл е премахнат от известията — това може да се дължи на мрежов проблем или лоша връзка. Ако продължите, може все още да получавате известия за транзакции, свързани с този портфейл, дори след като той бъде изтрит.",
-    "details_delete_anyway": "Изтрий въпреки това"
+    "more_info": "Повече информация"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Покажи в Bitcoin",

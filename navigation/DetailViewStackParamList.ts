@@ -39,6 +39,7 @@ type HeaderRightRenderer = NonNullable<NativeStackNavigationOptions['headerRight
 export type DetailViewStackParamList = {
   DrawerRoot: undefined;
   UnlockWithScreen: undefined;
+  KeyboardShortcuts: undefined;
   WalletsList: { onBarScanned?: string };
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
   WalletDetails: { walletID: string };
@@ -159,6 +160,16 @@ export type DetailViewStackParamList = {
     currentAmount?: string;
     currentUnit?: BitcoinUnit;
     preferredUnit?: BitcoinUnit;
+  };
+  ReceiveMoreOptions: {
+    address: string;
+    currentLabel?: string;
+    currentAmount?: string;
+    currentUnit?: BitcoinUnit;
+    preferredUnit?: BitcoinUnit;
+  };
+  ReceiveAddressLabel: {
+    address: string;
   };
   ScanQRCode: ScanQRCodeParamList;
   PaymentCodeList: {

@@ -104,9 +104,10 @@
     "title": "Sua carteira foi criada."
   },
   "receive": {
-    "details_create": "Criar",
+    "details_save": "Salvar",
     "details_label": "Descrição",
     "details_setAmount": "Quantia a receber",
+    "option_label": "Nome",
     "details_share": "Compartilhar...",
     "address_not_found": "Não foi possível gerar o endereço de recebimento.",
     "header": "Receber",
@@ -380,8 +381,6 @@
     "updating": "Atualizando...",
     "watchOnlyWarningTitle": "Alerta de segurança",
     "watchOnlyWarningDescription": "Tenha cuidado com golpistas que costumam usar carteiras “watch-only (somente para assistir)” para enganar os usuários. Essas carteiras não permitem controlar ou enviar fundos; elas apenas permitem que você visualize o saldo.",
-    "custom_fee_warning_title": "Aviso",
-    "custom_fee_warning_description": "Taxas abaixo de 1 sat/vB são válidas, mas podem não ser propagadas devido às políticas dos nós.",
     "details_eta_analyzing": "Analisando...",
     "details_sent": "Enviado",
     "details_section": "Detalhes",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Alterar o tipo de carteira irá reiniciar a entropia atual. Você quer prosseguir?",
     "add_entropy": "Entropia",
     "add_entropy_bytes": "{bytes} bytes de entropia",
-    "add_entropy_generated": "{gen} bytes de entropia gerada",
     "add_entropy_provide": "Fornecer entropia por meio da rolagem de dados",
-    "add_entropy_remain": "{gen} bytes de entropia gerada. Os bytes {rem} restantes serão obtidos do gerador de números aleatórios do Sistema.",
     "add_import_wallet": "Importar carteira",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Para gastar com transações instantâneas",
@@ -439,7 +436,6 @@
     "details_display": "Exibir na tela inicial",
     "details_edit": "editar",
     "details_export_backup": "Exportar/Backup",
-    "details_export_history": "Exportar Histórico para CSV",
     "details_master_fingerprint": "Fingerprint mestra",
     "details_multisig_type": "multisig",
     "details_options": "Opções",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identificar chave pública",
     "xpub_title": "XPUB da Carteira",
     "manage_wallets_search_placeholder": "Buscar carteiras, endereços, transações e notas",
-    "more_info": "Mais informações",
-    "details_delete_wallet_error_message": "Houve um problema ao confirmar se esta carteira foi removida das notificações — isso pode ser devido a um problema de rede ou conexão ruim. Se você continuar, ainda poderá receber notificações de transações relacionadas a esta carteira, mesmo depois que ela for excluída.",
-    "details_delete_anyway": "Apagar mesmo assim"
+    "more_info": "Mais informações"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Mostrar em Bitcoin",

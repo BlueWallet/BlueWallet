@@ -39,19 +39,20 @@ jest.mock('../../hooks/useWalletSubscribe', () => ({
   default: () => mockWalletSubscribe,
 }));
 
-let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet' };
+let routeParams: any = { hash: 'mock-tx', walletID: 'mock-wallet', key: 'transaction-status-test' };
 
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
   return {
     ...actual,
-    useRoute: () => ({ params: routeParams }),
+    useRoute: () => ({ params: routeParams, key: routeParams.key }),
     useNavigation: () => ({
       navigate: jest.fn(),
       setOptions: jest.fn(),
       goBack: jest.fn(),
       addListener: jest.fn(),
     }),
+    useFocusEffect: (effect: () => void | (() => void)) => effect(),
   };
 });
 
@@ -320,6 +321,28 @@ describe('TransactionStatus regression', () => {
       '', // message empty so content is not in alert body
       { type: 'plain-text', defaultValue: existingMemo }, // defaultValue: pre-fill input for easy editing
     );
+  });
+
+  it('saves a note entered through the alert', async () => {
+    mockPrompt.mockResolvedValue('Saved from alert');
+    const { view } = setup(1, 1000);
+
+    fireEvent.press(view.getByText('Add note'));
+
+    await waitFor(() => {
+      expect(mockStorageState.saveToDisk).toHaveBeenCalledTimes(1);
+    });
+    expect(mockStorageState.txMetadata['mock-tx']).toEqual({ memo: 'Saved from alert' });
+  });
+
+  it('renders while transaction metadata is still unavailable', async () => {
+    mockStorageState = { ...mockStorageState, txMetadata: undefined } as unknown as MockStorage;
+
+    const { view } = setup(1, 1000);
+
+    await waitFor(() => {
+      expect(view.getByText('received')).toBeTruthy();
+    });
   });
 
   it('renders an Arkade row as received (not pending) and never queries Electrum for its synthetic id', async () => {

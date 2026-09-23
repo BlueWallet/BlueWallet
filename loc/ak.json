@@ -104,9 +104,10 @@
     "title": "Wɔayɛ wo sika kotokuo no."
   },
   "receive": {
-    "details_create": "Yɛ",
+    "details_save": "Sie",
     "details_label": "Nkyerɛkyerɛmu",
     "details_setAmount": "Gye a dodoɔ ka ho",
+    "option_label": "Din",
     "details_share": "Kyɛ...",
     "address_not_found": "Wɔantumi anya address a wode begye.",
     "header": "Gye",
@@ -380,8 +381,6 @@
     "updating": "Ɛresesa...",
     "watchOnlyWarningTitle": "Banbɔ kɔkɔbɔ",
     "watchOnlyWarningDescription": "Hwɛ wo ho yie wɔ asisifoɔ a wɔtaa de “watch-only” sika kotokuo daadaa nkurɔfoɔ no ho. Saa sika kotokuo yi mma wo kwan sɛ wobɛhwɛ sika so anaa wobɛsoma; ɛma wo kwan sɛ wobɛhwɛ sika a aka no nko ara.",
-    "custom_fee_warning_title": "Kɔkɔbɔ",
-    "custom_fee_warning_description": "Ka a ɛwɔ 1 sat/vB ase yɛ papa, nanso ebia wɔremfa nkɔ esiane node nhyehyɛeɛ nti.",
     "details_eta_analyzing": "Ɛrehwɛ mu...",
     "details_sent": "Wɔasoma",
     "details_section": "Nsɛm a Ɛho Hia",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Sɛ wosesa sika kotokuo no su a, ɛbɛsan ayɛ entropy a ɛwɔ hɔ seesei no foforɔ. Wopɛ sɛ wokɔ wʼanim anaa?",
     "add_entropy": "Entropy",
     "add_entropy_bytes": "entropy bytes {bytes}",
-    "add_entropy_generated": "entropy a wɔayɛ bytes {gen}",
     "add_entropy_provide": "Fa dice mmɔ ma entropy",
-    "add_entropy_remain": "entropy a wɔayɛ bytes {gen}. Wɔbɛnya bytes {rem} a aka no afiri System random number generator no mu.",
     "add_import_wallet": "Fa sika kotokuo ba mu",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Sɛ wode bɛyɛ nsesaeɛ a ɛyɛ ntɛm a",
@@ -439,7 +436,6 @@
     "details_display": "Kyerɛ wɔ Fie Screen",
     "details_edit": "sesa",
     "details_export_backup": "Fa Adi/Backup",
-    "details_export_history": "Fa Abakɔsɛm Kɔ CSV mu",
     "details_master_fingerprint": "Master Fingerprint",
     "details_multisig_type": "multisig",
     "details_options": "Akwan a Wobetumi Afa So",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Sika Kotokuo XPUB",
     "manage_wallets_search_placeholder": "Hwehwɛ sika kotokuo, address, nsesaeɛ ne nkaeɛ mu",
-    "more_info": "Nsɛm Pii",
-    "details_delete_wallet_error_message": "Ɔhaw bi baa ho a wɔresi so dua sɛ wɔayi saa sika kotokuo yi afiri amaneɛbɔ mu—ebia ɛyɛ network ɔhaw anaa nkitahodie a ɛnyɛ den nti. Sɛ wotoa so a, ebia wobɛkɔ so anya amaneɛbɔ a ɛfa nsesaeɛ a ɛfa saa sika kotokuo yi ho, mpo wɔapepa no akyi.",
-    "details_delete_anyway": "Pepa no ara"
+    "more_info": "Nsɛm Pii"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Kyerɛ wɔ Bitcoin mu",

@@ -104,9 +104,10 @@
     "title": "A sua carteira foi criada..."
   },
   "receive": {
-    "details_create": "Criar",
+    "details_save": "Guardar",
     "details_label": "Descrição",
     "details_setAmount": "Quantia a receber",
+    "option_label": "Nome",
     "details_share": "Partilhar...",
     "address_not_found": "Não é possível gerar o endereço de receção.",
     "header": "Receber",
@@ -380,8 +381,6 @@
     "updating": "A atualizar...",
     "watchOnlyWarningTitle": "Aviso de segurança",
     "watchOnlyWarningDescription": "Tenha cuidado com os burlões que costumam usar carteiras apenas de visualização. Estas carteiras não permitem controlar ou enviar fundos; apenas permitem visualizar o saldo.",
-    "custom_fee_warning_title": "Aviso",
-    "custom_fee_warning_description": "Taxas abaixo de 1 sat/vB são válidas, mas podem não ser retransmitidas devido às políticas dos nós.",
     "details_eta_analyzing": "A analisar...",
     "details_sent": "Enviado",
     "details_section": "Detalhes",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Alterar o tipo de carteira irá redefinir a entropia atual. Deseja continuar?",
     "add_entropy": "Entropia",
     "add_entropy_bytes": "{bytes} bytes de entropia",
-    "add_entropy_generated": "{gen} bytes de entropia gerada",
     "add_entropy_provide": "Entropia através de dados",
-    "add_entropy_remain": "{gen} bytes de entropia gerada. Os bytes {rem} restantes serão obtidos do gerador de números aleatórios do sistema.",
     "add_import_wallet": "Importar carteira",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Para gastar com transações instantâneas",
@@ -439,7 +436,6 @@
     "details_display": "Exibir no Ecrã Inicial",
     "details_edit": "editar",
     "details_export_backup": "Exportar/Backup",
-    "details_export_history": "Exportar Histórico para CSV",
     "details_master_fingerprint": "Master Fingerprint",
     "details_multisig_type": "multiassinatura",
     "details_options": "Opções",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Chave pública de Identidade",
     "xpub_title": "XPUB da Carteira",
     "manage_wallets_search_placeholder": "Pesquisar carteiras, endereços, transações e memorandos",
-    "more_info": "Saber Mais",
-    "details_delete_wallet_error_message": "Houve um problema ao confirmar se esta carteira foi removida das notificações — isto pode ser devido a um problema de rede ou ligação fraca. Se continuar, poderá ainda receber notificações de transações relacionadas com esta carteira, mesmo depois desta ter sido eliminada.",
-    "details_delete_anyway": "Apagar de qualquer forma"
+    "more_info": "Saber Mais"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Exibir em Bitcoin",

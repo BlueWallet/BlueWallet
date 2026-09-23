@@ -104,9 +104,10 @@
     "title": "ਤੁਹਾਡਾ ਵਾਲਿਟ ਬਣਾ ਦਿੱਤਾ ਗਿਆ ਹੈ।"
   },
   "receive": {
-    "details_create": "ਬਣਾਓ",
+    "details_save": "ਸੰਭਾਲੋ",
     "details_label": "ਵੇਰਵਾ",
     "details_setAmount": "ਰਕਮ ਨਾਲ ਪ੍ਰਾਪਤ ਕਰੋ",
+    "option_label": "ਲੇਬਲ",
     "details_share": "ਸਾਂਝਾ ਕਰੋ...",
     "address_not_found": "ਪ੍ਰਾਪਤੀ ਪਤਾ ਤਿਆਰ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ।",
     "header": "ਪ੍ਰਾਪਤ ਕਰੋ",
@@ -380,8 +381,6 @@
     "updating": "ਅੱਪਡੇਟ ਹੋ ਰਿਹਾ ਹੈ...",
     "watchOnlyWarningTitle": "ਸੁਰੱਖਿਆ ਚੇਤਾਵਨੀ",
     "watchOnlyWarningDescription": "ਉਹਨਾਂ ਠੱਗਾਂ ਤੋਂ ਸਾਵਧਾਨ ਰਹੋ ਜੋ ਅਕਸਰ ਉਪਭੋਗਤਾਵਾਂ ਨੂੰ ਧੋਖਾ ਦੇਣ ਲਈ “ਸਿਰਫ਼-ਦੇਖਣ ਵਾਲੇ” ਵਾਲਿਟ ਵਰਤਦੇ ਹਨ। ਇਹ ਵਾਲਿਟ ਤੁਹਾਨੂੰ ਫੰਡ ਕੰਟਰੋਲ ਕਰਨ ਜਾਂ ਭੇਜਣ ਦੀ ਆਗਿਆ ਨਹੀਂ ਦਿੰਦੇ; ਇਹ ਤੁਹਾਨੂੰ ਸਿਰਫ਼ ਬੈਲੇਂਸ ਦੇਖਣ ਦਿੰਦੇ ਹਨ।",
-    "custom_fee_warning_title": "ਚੇਤਾਵਨੀ",
-    "custom_fee_warning_description": "1 sat/vB ਤੋਂ ਘੱਟ ਫ਼ੀਸਾਂ ਵੈਧ ਹਨ, ਪਰ ਨੋਡ ਨੀਤੀਆਂ ਕਾਰਨ ਰੀਲੇ ਨਹੀਂ ਕੀਤੀਆਂ ਜਾ ਸਕਦੀਆਂ।",
     "details_eta_analyzing": "ਵਿਸ਼ਲੇਸ਼ਣ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ...",
     "details_sent": "ਭੇਜਿਆ ਗਿਆ",
     "details_section": "ਵੇਰਵੇ",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "ਵਾਲਿਟ ਕਿਸਮ ਬਦਲਣ ਨਾਲ ਮੌਜੂਦਾ ਐਨਟ੍ਰੋਪੀ ਮੁੜ-ਸੈੱਟ ਹੋ ਜਾਵੇਗੀ। ਕੀ ਤੁਸੀਂ ਅੱਗੇ ਵਧਣਾ ਚਾਹੁੰਦੇ ਹੋ?",
     "add_entropy": "ਐਨਟ੍ਰੋਪੀ",
     "add_entropy_bytes": "{bytes} ਬਾਈਟ ਐਨਟ੍ਰੋਪੀ",
-    "add_entropy_generated": "{gen} ਬਾਈਟ ਤਿਆਰ ਕੀਤੀ ਐਨਟ੍ਰੋਪੀ",
     "add_entropy_provide": "ਪਾਸਾ ਸੁੱਟ ਕੇ ਐਨਟ੍ਰੋਪੀ ਦਿਓ",
-    "add_entropy_remain": "{gen} ਬਾਈਟ ਤਿਆਰ ਕੀਤੀ ਐਨਟ੍ਰੋਪੀ। ਬਾਕੀ {rem} ਬਾਈਟ ਸਿਸਟਮ ਦੇ ਬੇਤਰਤੀਬ ਨੰਬਰ ਜਨਰੇਟਰ ਤੋਂ ਪ੍ਰਾਪਤ ਕੀਤੇ ਜਾਣਗੇ।",
     "add_import_wallet": "ਵਾਲਿਟ ਆਯਾਤ ਕਰੋ",
     "add_lightning": "Lightning",
     "add_lightning_explain": "ਤੁਰੰਤ ਲੈਣ-ਦੇਣਾਂ ਨਾਲ ਖ਼ਰਚ ਕਰਨ ਲਈ",
@@ -439,7 +436,6 @@
     "details_display": "ਹੋਮ ਸਕਰੀਨ 'ਤੇ ਦਿਖਾਓ",
     "details_edit": "ਸੋਧੋ",
     "details_export_backup": "ਨਿਰਯਾਤ/ਬੈਕਅੱਪ",
-    "details_export_history": "ਇਤਿਹਾਸ CSV ਵਿੱਚ ਨਿਰਯਾਤ ਕਰੋ",
     "details_master_fingerprint": "ਮਾਸਟਰ ਫਿੰਗਰਪ੍ਰਿੰਟ",
     "details_multisig_type": "ਮਲਟੀਸਿਗ",
     "details_options": "ਵਿਕਲਪ",
@@ -519,9 +515,7 @@
     "identity_pubkey": "ਪਛਾਣ ਪਬਕੀ",
     "xpub_title": "ਵਾਲਿਟ xpub",
     "manage_wallets_search_placeholder": "ਵਾਲਿਟ, ਪਤੇ, ਲੈਣ-ਦੇਣ ਅਤੇ ਮੀਮੋ ਖੋਜੋ",
-    "more_info": "ਹੋਰ ਜਾਣਕਾਰੀ",
-    "details_delete_wallet_error_message": "ਇਹ ਪੁਸ਼ਟੀ ਕਰਨ ਵਿੱਚ ਇੱਕ ਸਮੱਸਿਆ ਆਈ ਕਿ ਕੀ ਇਹ ਵਾਲਿਟ ਸੂਚਨਾਵਾਂ ਤੋਂ ਹਟਾਇਆ ਗਿਆ ਸੀ—ਇਹ ਨੈੱਟਵਰਕ ਸਮੱਸਿਆ ਜਾਂ ਮਾੜੇ ਕੁਨੈਕਸ਼ਨ ਕਾਰਨ ਹੋ ਸਕਦਾ ਹੈ। ਜੇ ਤੁਸੀਂ ਜਾਰੀ ਰੱਖਦੇ ਹੋ, ਤਾਂ ਮਿਟਾਉਣ ਤੋਂ ਬਾਅਦ ਵੀ ਤੁਹਾਨੂੰ ਇਸ ਵਾਲਿਟ ਨਾਲ ਸੰਬੰਧਿਤ ਲੈਣ-ਦੇਣਾਂ ਲਈ ਸੂਚਨਾਵਾਂ ਮਿਲ ਸਕਦੀਆਂ ਹਨ।",
-    "details_delete_anyway": "ਫਿਰ ਵੀ ਮਿਟਾਓ"
+    "more_info": "ਹੋਰ ਜਾਣਕਾਰੀ"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bitcoin ਵਿੱਚ ਦਿਖਾਓ",

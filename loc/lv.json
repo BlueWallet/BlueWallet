@@ -104,9 +104,10 @@
     "title": "Jūsu maks ir izveidots."
   },
   "receive": {
-    "details_create": "Izveidot",
+    "details_save": "Saglabāt",
     "details_label": "Apraksts",
     "details_setAmount": "Saņemt ar summu",
+    "option_label": "Etiķete",
     "details_share": "Kopīgot...",
     "address_not_found": "Neizdevās ģenerēt saņemšanas adresi.",
     "header": "Saņemt",
@@ -380,8 +381,6 @@
     "updating": "Notiek atjaunināšana...",
     "watchOnlyWarningTitle": "Drošības brīdinājums",
     "watchOnlyWarningDescription": "Esiet piesardzīgi pret krāpniekiem, kuri bieži izmanto “tikai skatīšanās” makus, lai maldinātu lietotājus. Šie maki neļauj kontrolēt vai sūtīt līdzekļus; tie ļauj tikai apskatīt bilanci.",
-    "custom_fee_warning_title": "Brīdinājums",
-    "custom_fee_warning_description": "Maksas, kas mazākas par 1 sat/vB, ir derīgas, taču mezglu politiku dēļ tās var netikt pārraidītas.",
     "details_eta_analyzing": "Notiek analīze...",
     "details_sent": "Nosūtīts",
     "details_section": "Detaļas",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Maka tipa maiņa atiestatīs pašreizējo entropiju. Vai vēlaties turpināt?",
     "add_entropy": "Entropija",
     "add_entropy_bytes": "{bytes} baiti entropijas",
-    "add_entropy_generated": "{gen} baiti ģenerētās entropijas",
     "add_entropy_provide": "Nodrošiniet entropiju ar kauliņu metieniem",
-    "add_entropy_remain": "{gen} baiti ģenerētās entropijas. Atlikušie {rem} baiti tiks iegūti no sistēmas nejaušo skaitļu ģeneratora.",
     "add_import_wallet": "Importēt maku",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Tērēšanai ar tūlītējiem darījumiem",
@@ -439,7 +436,6 @@
     "details_display": "Rādīt sākuma ekrānā",
     "details_edit": "rediģēt",
     "details_export_backup": "Eksportēt/dublēt",
-    "details_export_history": "Eksportēt vēsturi uz CSV",
     "details_master_fingerprint": "Galvenais nospiedums",
     "details_multisig_type": "multisig",
     "details_options": "Opcijas",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identitātes publiskā atslēga",
     "xpub_title": "Maka XPUB",
     "manage_wallets_search_placeholder": "Meklēt makus, adreses, darījumus un piezīmes",
-    "more_info": "Vairāk informācijas",
-    "details_delete_wallet_error_message": "Radās problēma, apstiprinot, vai šis maks tika noņemts no paziņojumiem — tas varētu būt saistīts ar tīkla problēmu vai vāju savienojumu. Ja turpināsiet, jūs joprojām varat saņemt paziņojumus par darījumiem, kas saistīti ar šo maku, pat pēc tā dzēšanas.",
-    "details_delete_anyway": "Tomēr dzēst"
+    "more_info": "Vairāk informācijas"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Rādīt Bitcoin",

@@ -104,9 +104,10 @@
     "title": "Ne viru ryru ojejapóma."
   },
   "receive": {
-    "details_create": "Ejapo",
+    "details_save": "Ñongatu",
     "details_label": "Ñemyesakã",
     "details_setAmount": "Ejapyhy hetakue reheve",
+    "option_label": "Marca",
     "details_share": "Emoherakuã...",
     "address_not_found": "Ndaikatúi ojejapo renda jejapyhyrã.",
     "header": "Japyhy",
@@ -380,8 +381,6 @@
     "updating": "Oñembopyahu hína...",
     "watchOnlyWarningTitle": "Seguridad ñemomarandu",
     "watchOnlyWarningDescription": "Eñeñangarekomi umi mondahávare oipurúva jepi “maʼẽ-hag̃uánte” viru ryru ombotavy hag̃ua puruhárape. Koʼã viru ryru ndohejái reñangareko térã remondo viru; ohejánte ndéve rehecha saldo.",
-    "custom_fee_warning_title": "Ñemomarandu",
-    "custom_fee_warning_description": "Tepy 1 sat/vB guýpe oĩva hekoite, ha katu ikatu noñemyasãi node política rupive.",
     "details_eta_analyzing": "Ojehesaʼỹijo hína...",
     "details_sent": "Oñemondo",
     "details_section": "Detálle",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Emoambuévo viru ryru tipo omoñepyrũ jeýta entropía koʼag̃agua. ¿Rehose tenonde?",
     "add_entropy": "Entropía",
     "add_entropy_bytes": "{bytes} bytes entropía",
-    "add_entropy_generated": "{gen} bytes entropía generado",
     "add_entropy_provide": "Emeʼẽ entropía dado apoʼi rupive",
-    "add_entropy_remain": "{gen} bytes entropía generado. Hembýva {rem} bytes ojehupytýta Sistema número azar generador-gui.",
     "add_import_wallet": "Egueru viru ryru",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Egasta hag̃ua transaksión pyaʼeite reheve",
@@ -439,7 +436,6 @@
     "details_display": "Ehechauka Home Pantallápe",
     "details_edit": "emoambue",
     "details_export_backup": "Eexporta/Respaldo",
-    "details_export_history": "Eexporta tembiasakue CSV-pe",
     "details_master_fingerprint": "Huella Maestra",
     "details_multisig_type": "multisig",
     "details_options": "Opcionkuéra",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identidad Pubkey",
     "xpub_title": "Viru ryru XPUB",
     "manage_wallets_search_placeholder": "Eheka viru ryru, renda, transaksión ha jehaimi",
-    "more_info": "Marandu hetave",
-    "details_delete_wallet_error_message": "Oĩ apañuãi oñemoneĩvo ko viru ryru oñembogue raẽ momarandukuéragui—kóva ikatu ñanduti apañuãi térã jejuaju vai rupive. Reho tenonde ramo, ikatu reg̃uahẽ gueteri momarandu transaksión ko viru ryru reheguáva, oñembogue rire jepe.",
-    "details_delete_anyway": "Embogue upéicharõ jepe"
+    "more_info": "Marandu hetave"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Ehechauka Bitcoin-pe",

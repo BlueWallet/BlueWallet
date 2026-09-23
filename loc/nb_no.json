@@ -104,9 +104,10 @@
     "title": "Lommeboken din er opprettet."
   },
   "receive": {
-    "details_create": "Opprett",
+    "details_save": "Lagre",
     "details_label": "Beskrivelse",
     "details_setAmount": "Motta med beløp",
+    "option_label": "Merkelapp",
     "details_share": "Del...",
     "address_not_found": "Kan ikke generere mottaksadresse.",
     "header": "Motta",
@@ -380,8 +381,6 @@
     "updating": "Oppdaterer...",
     "watchOnlyWarningTitle": "Sikkerhetsadvarsel",
     "watchOnlyWarningDescription": "Vær forsiktig med svindlere som ofte bruker \"kun observasjon\"-lommebøker for å lure brukere. Disse lommebøkene lar deg ikke kontrollere eller sende midler; de lar deg bare se saldoen.",
-    "custom_fee_warning_title": "Advarsel",
-    "custom_fee_warning_description": "Gebyrer under 1 sat/vB er gyldige, men kan kanskje ikke videresendes på grunn av noderegler.",
     "details_eta_analyzing": "Analyserer...",
     "details_sent": "Sendt",
     "details_section": "Detaljer",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Endring av lommeboktype vil tilbakestille gjeldende entropi. Vil du fortsette?",
     "add_entropy": "Entropi",
     "add_entropy_bytes": "{bytes} bytes med entropi",
-    "add_entropy_generated": "{gen} bytes med generert entropi",
     "add_entropy_provide": "Gi entropi via terningkast",
-    "add_entropy_remain": "{gen} bytes med generert entropi. Gjenværende {rem} bytes vil bli hentet fra systemet sin tilfeldige tallgenerator.",
     "add_import_wallet": "Importer lommebok",
     "add_lightning": "Lightning",
     "add_lightning_explain": "For betaling med umiddelbare transaksjoner",
@@ -439,7 +436,6 @@
     "details_display": "Vis på startskjermen",
     "details_edit": "rediger",
     "details_export_backup": "Eksporter / backup",
-    "details_export_history": "Eksporter historikk til CSV",
     "details_master_fingerprint": "Master Fingerprint",
     "details_multisig_type": "multisig",
     "details_options": "Alternativer",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identity Pubkey",
     "xpub_title": "Lommebok XPUB",
     "manage_wallets_search_placeholder": "Søk i lommebøker, adresser, transaksjoner og notater",
-    "more_info": "Mer info",
-    "details_delete_wallet_error_message": "Det oppsto et problem med å bekrefte om denne lommeboken ble fjernet fra varslinger – dette kan skyldes et nettverksproblem eller dårlig tilkobling. Hvis du fortsetter, kan du fortsatt motta varslinger for transaksjoner relatert til denne lommeboken, selv etter at den er slettet.",
-    "details_delete_anyway": "Slett likevel"
+    "more_info": "Mer info"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Vis i Bitcoin",

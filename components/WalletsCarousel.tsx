@@ -920,8 +920,8 @@ const WalletsCarousel = forwardRef<CarouselListRefType, WalletsCarouselProps>((p
       ListHeaderComponent={ListHeaderSeparator}
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustContentInsets
-      automaticallyAdjustKeyboardInsets
       automaticallyAdjustsScrollIndicatorInsets
+      scrollToOverflowEnabled
       style={{ minHeight: sliderHeight }}
       onScrollToIndexFailed={onScrollToIndexFailed}
       ListFooterComponent={onNewWalletPress ? <NewWalletPanel onPress={onNewWalletPress} /> : null}

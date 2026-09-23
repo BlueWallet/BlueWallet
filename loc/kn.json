@@ -104,9 +104,10 @@
     "title": "ನಿಮ್ಮ ವ್ಯಾಲೆಟ್ ರಚಿಸಲಾಗಿದೆ."
   },
   "receive": {
-    "details_create": "ರಚಿಸಿ",
+    "details_save": "ಉಳಿಸಿ",
     "details_label": "ವರ್ಣನೆ",
     "details_setAmount": "ಮೊತ್ತದೊಂದಿಗೆ ಸ್ವೀಕರಿಸಿ",
+    "option_label": "ಲೇಬಲ್",
     "details_share": "ಹಂಚಿಕೊಳ್ಳಿ...",
     "address_not_found": "ಸ್ವೀಕರಿಸುವ ವಿಳಾಸವನ್ನು ಸೃಷ್ಟಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
     "header": "ಸ್ವೀಕರಿಸಿ",
@@ -380,8 +381,6 @@
     "updating": "ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ...",
     "watchOnlyWarningTitle": "ಭದ್ರತಾ ಎಚ್ಚರಿಕೆ",
     "watchOnlyWarningDescription": "ಬಳಕೆದಾರರನ್ನು ವಂಚಿಸಲು “watch-only” ವ್ಯಾಲೆಟ್‌ಗಳನ್ನು ಬಳಸುವ ವಂಚಕರ ಬಗ್ಗೆ ಎಚ್ಚರಿಕೆಯಿಂದಿರಿ. ಈ ವ್ಯಾಲೆಟ್‌ಗಳು ನಿಮಗೆ ಹಣವನ್ನು ನಿಯಂತ್ರಿಸಲು ಅಥವಾ ಕಳುಹಿಸಲು ಅವಕಾಶ ನೀಡುವುದಿಲ್ಲ; ಅವು ಕೇವಲ ಬಾಕಿಯನ್ನು ವೀಕ್ಷಿಸಲು ಅವಕಾಶ ನೀಡುತ್ತವೆ.",
-    "custom_fee_warning_title": "ಎಚ್ಚರಿಕೆ",
-    "custom_fee_warning_description": "1 sat/vB ಗಿಂತ ಕಡಿಮೆ ಶುಲ್ಕಗಳು ಮಾನ್ಯವಾಗಿವೆ, ಆದರೆ ನೋಡ್ ನೀತಿಗಳಿಂದಾಗಿ ರಿಲೇ ಆಗದಿರಬಹುದು.",
     "details_eta_analyzing": "ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...",
     "details_sent": "ಕಳುಹಿಸಲಾಗಿದೆ",
     "details_section": "ವಿವರಗಳು",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "ವ್ಯಾಲೆಟ್ ಪ್ರಕಾರ ಬದಲಾಯಿಸುವುದರಿಂದ ಪ್ರಸ್ತುತ entropy ಮರುಹೊಂದಿಸಲಾಗುತ್ತದೆ. ಮುಂದುವರಿಯಲು ಬಯಸುತ್ತೀರಾ?",
     "add_entropy": "ಎಂಟ್ರೋಪಿ",
     "add_entropy_bytes": "{bytes} ಬೈಟ್‌ಗಳ ಎಂಟ್ರೋಪಿ",
-    "add_entropy_generated": "{gen} ಬೈಟ್‌ಗಳ ರಚಿಸಿದ ಎಂಟ್ರೋಪಿ",
     "add_entropy_provide": "ಡೈಸ್ ರೋಲ್‌ಗಳ ಮೂಲಕ entropy ಒದಗಿಸಿ",
-    "add_entropy_remain": "{gen} bytes of generated entropy. ಉಳಿದ {rem} bytes ಅನ್ನು System random number generator ನಿಂದ ಪಡೆಯಲಾಗುತ್ತದೆ.",
     "add_import_wallet": "ವ್ಯಾಲೆಟ್ ಆಮದು ಮಾಡಿ",
     "add_lightning": "Lightning",
     "add_lightning_explain": "ತತ್ಕ್ಷಣ ವಹಿವಾಟುಗಳಿಗಾಗಿ",
@@ -439,7 +436,6 @@
     "details_display": "ಮುಖಪುಟದಲ್ಲಿ ಪ್ರದರ್ಶಿಸಿ",
     "details_edit": "ಸಂಪಾದಿಸಿ",
     "details_export_backup": "ರಫ್ತು/ಬ್ಯಾಕಪ್",
-    "details_export_history": "ಇತಿಹಾಸವನ್ನು CSV ಗೆ ರಫ್ತು ಮಾಡಿ",
     "details_master_fingerprint": "ಮಾಸ್ಟರ್ ಫಿಂಗರ್‌ಪ್ರಿಂಟ್",
     "details_multisig_type": "ಮಲ್ಟಿಸಿಗ್",
     "details_options": "ಆಯ್ಕೆಗಳು",
@@ -519,9 +515,7 @@
     "identity_pubkey": "ಗುರುತಿನ Pubkey",
     "xpub_title": "ವ್ಯಾಲೆಟ್ xpub",
     "manage_wallets_search_placeholder": "ವ್ಯಾಲೆಟ್‌ಗಳು, ವಿಳಾಸಗಳು, ವಹಿವಾಟುಗಳು ಮತ್ತು ಮೆಮೊಗಳನ್ನು ಹುಡುಕಿ",
-    "more_info": "ಹೆಚ್ಚಿನ ಮಾಹಿತಿ",
-    "details_delete_wallet_error_message": "ಈ ವ್ಯಾಲೆಟ್ ಅನ್ನು ಅಧಿಸೂಚನೆಗಳಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆಯೇ ಎಂದು ಖಚಿತಪಡಿಸುವಲ್ಲಿ ಸಮಸ್ಯೆ ಉಂಟಾಯಿತು—ಇದು ನೆಟ್‌ವರ್ಕ್ ಸಮಸ್ಯೆ ಅಥವಾ ಕಳಪೆ ಸಂಪರ್ಕದಿಂದಾಗಿರಬಹುದು. ನೀವು ಮುಂದುವರಿದರೆ, ಈ ವ್ಯಾಲೆಟ್ ಅಳಿಸಿದ ನಂತರವೂ ಅದಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ವಹಿವಾಟುಗಳಿಗಾಗಿ ನೀವು ಇನ್ನೂ ಅಧಿಸೂಚನೆಗಳನ್ನು ಸ್ವೀಕರಿಸಬಹುದು.",
-    "details_delete_anyway": "ಹೇಗಾದರೂ ಅಳಿಸಿ"
+    "more_info": "ಹೆಚ್ಚಿನ ಮಾಹಿತಿ"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bitcoin ನಲ್ಲಿ ತೋರಿಸಿ",

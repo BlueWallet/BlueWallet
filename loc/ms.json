@@ -104,9 +104,10 @@
     "title": "Dompet anda sudah dicipta."
   },
   "receive": {
-    "details_create": "Cipta",
+    "details_save": "Simpan",
     "details_label": "Penerangan",
     "details_setAmount": "Terima dengan jumlah",
+    "option_label": "Label",
     "details_share": "Kongsi...",
     "address_not_found": "Tidak dapat menjana alamat penerima.",
     "header": "Terima",
@@ -380,8 +381,6 @@
     "updating": "Mengemas kini...",
     "watchOnlyWarningTitle": "Amaran keselamatan",
     "watchOnlyWarningDescription": "Berhati-hati dengan penipu yang sering menggunakan dompet “lihat-saja” untuk memperdaya pengguna. Dompet ini tidak membenarkan anda mengawal atau menghantar wang; ia hanya membenarkan anda melihat baki.",
-    "custom_fee_warning_title": "Amaran",
-    "custom_fee_warning_description": "Yuran di bawah 1 sat/vB adalah sah, tetapi mungkin tidak disiarkan disebabkan polisi nod.",
     "details_eta_analyzing": "Menganalisis...",
     "details_sent": "Dihantar",
     "details_section": "Perincian",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Mengubah jenis dompet akan menetapkan semula entropi semasa. Adakah anda mahu meneruskan?",
     "add_entropy": "Entropi",
     "add_entropy_bytes": "{bytes} bait entropi",
-    "add_entropy_generated": "{gen} bait entropi telah terjana",
     "add_entropy_provide": "Berikan entropi melalui lemparan dadu",
-    "add_entropy_remain": "{gen} bait entropi telah terjana. Lebihan {rem} bait akan diperoleh dari penjana nombor rawak milik Sistem.",
     "add_import_wallet": "Pindah masuk dompet",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Untuk perbelanjaan dengan urusan sepantas kilat",
@@ -439,7 +436,6 @@
     "details_display": "Papar di Skrin Beranda",
     "details_edit": "sunting",
     "details_export_backup": "Pindahkan Keluar/Sandarkan",
-    "details_export_history": "Pindah Keluar Sejarah ke CSV",
     "details_master_fingerprint": "Cap Jari Induk",
     "details_multisig_type": "tandamai",
     "details_options": "Pilihan",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Kunci Umum Keperibadian",
     "xpub_title": "Dompet XPUB",
     "manage_wallets_search_placeholder": "Cari dompet, alamat, urus niaga dan memo",
-    "more_info": "Maklumat Lanjut",
-    "details_delete_wallet_error_message": "Terdapat masalah mengesahkan jika dompet ini telah dibuang daripada pemberitahuan—ini mungkin disebabkan oleh isu rangkaian atau sambungan lemah. Jika anda meneruskan, anda mungkin masih menerima pemberitahuan untuk urus niaga berkaitan dompet ini, walaupun ia dipadamkan.",
-    "details_delete_anyway": "Padam juga"
+    "more_info": "Maklumat Lanjut"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Paparkan dalam Bitcoin",

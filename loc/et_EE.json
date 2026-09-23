@@ -104,9 +104,10 @@
     "title": "Sinu rahakott on loodud."
   },
   "receive": {
-    "details_create": "Loo",
+    "details_save": "Salvesta",
     "details_label": "Kirjeldus",
     "details_setAmount": "Võta vastu summaga",
+    "option_label": "Silt",
     "details_share": "Jaga...",
     "address_not_found": "Vastuvõtuaadressi loomine ebaõnnestus.",
     "header": "Võta vastu",
@@ -380,8 +381,6 @@
     "updating": "Uuendamine...",
     "watchOnlyWarningTitle": "Turvahoiatus",
     "watchOnlyWarningDescription": "Ole ettevaatlik petturite suhtes, kes sageli kasutavad „ainult vaatamiseks“ rahakotte kasutajate petmiseks. Need rahakotid ei võimalda sul vahendeid kontrollida ega saata; nad lasevad sul ainult saldot vaadata.",
-    "custom_fee_warning_title": "Hoiatus",
-    "custom_fee_warning_description": "Tasud alla 1 sat/vB on kehtivad, kuid sõlmede reeglite tõttu ei pruugita neid edastada.",
     "details_eta_analyzing": "Analüüsimine...",
     "details_sent": "Saadetud",
     "details_section": "Üksikasjad",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Rahakoti tüübi muutmine lähtestab praeguse entroopia. Kas soovid jätkata?",
     "add_entropy": "Entroopia",
     "add_entropy_bytes": "{bytes} baiti entroopiat",
-    "add_entropy_generated": "{gen} baiti loodud entroopiat",
     "add_entropy_provide": "Esita entroopia täringuviskega",
-    "add_entropy_remain": "{gen} baiti loodud entroopiat. Ülejäänud {rem} baiti hangitakse süsteemi juhuarvugeneraatorist.",
     "add_import_wallet": "Impordi rahakott",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Kohese tehinguga kulutamiseks",
@@ -439,7 +436,6 @@
     "details_display": "Kuva avakuval",
     "details_edit": "muuda",
     "details_export_backup": "Ekspordi/varunda",
-    "details_export_history": "Ekspordi ajalugu CSV-na",
     "details_master_fingerprint": "Põhivõtme sõrmejälg",
     "details_multisig_type": "multisig",
     "details_options": "Valikud",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identiteedi avalik võti",
     "xpub_title": "Rahakoti xpub",
     "manage_wallets_search_placeholder": "Otsi rahakotte, aadresse, tehinguid ja märkusi",
-    "more_info": "Lisateave",
-    "details_delete_wallet_error_message": "Selle rahakoti teavitustest eemaldamise kinnitamisel tekkis probleem—see võib olla tingitud võrguprobleemist või halvast ühendusest. Kui jätkad, võid endiselt saada teavitusi selle rahakotiga seotud tehingute kohta ka pärast selle kustutamist.",
-    "details_delete_anyway": "Kustuta ikkagi"
+    "more_info": "Lisateave"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Kuva Bitcoinis",

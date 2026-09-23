@@ -104,9 +104,10 @@
     "title": "Ձեր դրամապանակը ստեղծվել է։"
   },
   "receive": {
-    "details_create": "Ստեղծել",
+    "details_save": "Պահպանել",
     "details_label": "Նկարագրություն",
     "details_setAmount": "Ստանալ գումարով",
+    "option_label": "Պիտակ",
     "details_share": "Կիսվել...",
     "address_not_found": "Հնարավոր չէ ստեղծել ստացման հասցե։",
     "header": "Ստանալ",
@@ -380,8 +381,6 @@
     "updating": "Թարմացվում է...",
     "watchOnlyWarningTitle": "Անվտանգության նախազգուշացում",
     "watchOnlyWarningDescription": "Զգուշացեք խարդախներից, ովքեր հաճախ օգտագործում են «միայն դիտման» դրամապանակներ՝ օգտատերերին խաբելու համար։ Այս դրամապանակները թույլ չեն տալիս կառավարել կամ ուղարկել միջոցները, դրանք միայն թույլ են տալիս դիտել հաշվեկշիռը։",
-    "custom_fee_warning_title": "Նախազգուշացում",
-    "custom_fee_warning_description": "1 sat/vB-ից ցածր վճարները վավեր են, սակայն կարող են չհեռարձակվել հանգույցների քաղաքականության պատճառով։",
     "details_eta_analyzing": "Վերլուծվում է...",
     "details_sent": "Ուղարկված",
     "details_section": "Մանրամասներ",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Դրամապանակի տեսակը փոխելը կվերակայի ընթացիկ էնտրոպիան։ Ցանկանո՞ւմ եք շարունակել։",
     "add_entropy": "Էնտրոպիա",
     "add_entropy_bytes": "{bytes} բայթ էնտրոպիա",
-    "add_entropy_generated": "{gen} բայթ գեներացված էնտրոպիա",
     "add_entropy_provide": "Տրամադրեք էնտրոպիա զառի նետումներով",
-    "add_entropy_remain": "{gen} բայթ գեներացված էնտրոպիա: Մնացած {rem} բայթը կստացվի համակարգի պատահական թվերի գեներատորից:",
     "add_import_wallet": "Ներմուծել դրամապանակ",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Ակնթարթային գործարքներով ծախսելու համար",
@@ -439,7 +436,6 @@
     "details_display": "Ցուցադրել գլխավոր էկրանին",
     "details_edit": "խմբագրել",
     "details_export_backup": "Արտահանել/Պահուստավորել",
-    "details_export_history": "Արտահանել պատմությունը CSV-ի",
     "details_master_fingerprint": "Գլխավոր մատնահետք",
     "details_multisig_type": "multisig",
     "details_options": "Տարբերակներ",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Ինքնության բաց բանալի",
     "xpub_title": "Դրամապանակի XPUB",
     "manage_wallets_search_placeholder": "Որոնել դրամապանակներ, հասցեներ, գործարքներ և նշումներ",
-    "more_info": "Լրացուցիչ տեղեկություն",
-    "details_delete_wallet_error_message": "Խնդիր առաջացավ հաստատելիս՝ արդյոք այս դրամապանակը հեռացվել է ծանուցումներից, դա կարող է պայմանավորված լինել ցանցային խնդրով կամ վատ կապով։ Եթե շարունակեք, ապա կարող եք դեռ ստանալ ծանուցումներ այս դրամապանակի հետ կապված գործարքների մասին, նույնիսկ դրա ջնջվելուց հետո։",
-    "details_delete_anyway": "Այնուամենայնիվ ջնջել"
+    "more_info": "Լրացուցիչ տեղեկություն"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Ցուցադրել Bitcoin-ով",

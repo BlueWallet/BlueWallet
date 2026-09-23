@@ -104,9 +104,10 @@
     "title": "თქვენი საფულე შეიქმნა."
   },
   "receive": {
-    "details_create": "შექმნა",
+    "details_save": "შენახვა",
     "details_label": "აღწერა",
     "details_setAmount": "მიღება თანხით",
+    "option_label": "ნიშნული",
     "details_share": "გაზიარება...",
     "address_not_found": "მიმღები მისამართის გენერირება ვერ მოხერხდა.",
     "header": "მიღება",
@@ -380,8 +381,6 @@
     "updating": "განახლება...",
     "watchOnlyWarningTitle": "უსაფრთხოების გაფრთხილება",
     "watchOnlyWarningDescription": "ფრთხილად იყავით თაღლითების მიმართ, რომლებიც ხშირად იყენებენ „მხოლოდ-სანახავ“ საფულეებს მომხმარებლების მოსატყუებლად. ეს საფულეები არ გაძლევთ თანხის კონტროლის ან გაგზავნის საშუალებას; ისინი მხოლოდ ბალანსის ნახვის საშუალებას გაძლევთ.",
-    "custom_fee_warning_title": "გაფრთხილება",
-    "custom_fee_warning_description": "1 sat/vB-ზე დაბალი საკომისიო მოქმედია, მაგრამ შესაძლოა არ გადაიცეს კვანძების პოლიტიკის გამო.",
     "details_eta_analyzing": "ანალიზი...",
     "details_sent": "გაგზავნილი",
     "details_section": "დეტალები",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "საფულის ტიპის შეცვლა გადატვირთავს მიმდინარე ენტროპიას. გსურთ გაგრძელება?",
     "add_entropy": "ენტროპია",
     "add_entropy_bytes": "{bytes} ბაიტი ენტროპია",
-    "add_entropy_generated": "{gen} ბაიტი გენერირებული ენტროპია",
     "add_entropy_provide": "ენტროპიის მიწოდება კამათლის გაგორებით",
-    "add_entropy_remain": "{gen} ბაიტი გენერირებული ენტროპია. დარჩენილი {rem} ბაიტი მიიღება სისტემის შემთხვევითი რიცხვების გენერატორიდან.",
     "add_import_wallet": "საფულის იმპორტი",
     "add_lightning": "Lightning",
     "add_lightning_explain": "მყისიერი ტრანზაქციებით ხარჯვისთვის",
@@ -439,7 +436,6 @@
     "details_display": "მთავარ ეკრანზე ჩვენება",
     "details_edit": "რედაქტირება",
     "details_export_backup": "ექსპორტი/სარეზერვო ასლი",
-    "details_export_history": "ისტორიის ექსპორტი CSV-ში",
     "details_master_fingerprint": "ძირითადი თითის ანაბეჭდი",
     "details_multisig_type": "მულტიხელმოწერა",
     "details_options": "ვარიანტები",
@@ -519,9 +515,7 @@
     "identity_pubkey": "იდენტობის საჯარო გასაღები",
     "xpub_title": "საფულის xpub",
     "manage_wallets_search_placeholder": "მოძებნეთ საფულეები, მისამართები, ტრანზაქციები და შენიშვნები",
-    "more_info": "მეტი ინფორმაცია",
-    "details_delete_wallet_error_message": "მოხდა შეცდომა ამ საფულის შეტყობინებებიდან წაშლის დადასტურებისას — ეს შესაძლოა ქსელის პრობლემის ან ცუდი კავშირის გამო იყოს. თუ გააგრძელებთ, შესაძლოა კვლავ მიიღოთ შეტყობინებები ამ საფულესთან დაკავშირებული ტრანზაქციების შესახებ, მისი წაშლის შემდეგაც.",
-    "details_delete_anyway": "მაინც წაშლა"
+    "more_info": "მეტი ინფორმაცია"
   },
   "total_balance_view": {
     "display_in_bitcoin": "ჩვენება Bitcoin-ში",

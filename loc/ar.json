@@ -104,9 +104,10 @@
     "title": "تم إنشاء محفظتك..."
   },
   "receive": {
-    "details_create": "إنشاء",
+    "details_save": "حفظ",
     "details_label": "الوصف",
     "details_setAmount": "استلام مبلغ محدد",
+    "option_label": "العلامة",
     "details_share": "مشاركة...",
     "address_not_found": "تعذر إنشاء عنوان استلام.",
     "header": "استلام",
@@ -380,8 +381,6 @@
     "updating": "جارٍ التحديث ...",
     "watchOnlyWarningTitle": "تحذير أمني",
     "watchOnlyWarningDescription": "تنبيه احتيال: انتبه إلى أن المحتالين عادةً ما يستخدمون هذا النوع من المحفظة \"للمشاهدة فقط\" لمحاولة السرقة من المستخدمين. هذه المحفظة التي لا يمكنك التحكم بها أو الإرسال منها، إلا بتصريح جهاز آخر، المحفظة تسمح فقط بمراقبة الرصيد.",
-    "custom_fee_warning_title": "تحذير",
-    "custom_fee_warning_description": "الرسوم الأقل من 1 ساتوشي/بايت افتراضي صالحة، ولكن قد لا يتم نقلها بسبب سياسات النود.",
     "details_eta_analyzing": "جارٍ التحليل...",
     "details_sent": "مرسلة",
     "details_section": "التفاصيل",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "سيؤدي تغيير نوع المحفظة إلى إعادة تعيين الإنتروبيا الحالية. هل تريد المتابعة؟",
     "add_entropy": "الإنتروبيا (العشوائية)",
     "add_entropy_bytes": "{bytes} بايت من الإنتروبيا",
-    "add_entropy_generated": "{gen} بايت من الإنتروبيا (العشوائية) المحققة",
     "add_entropy_provide": "توفير الإنتروبيا (العشوائية) باستخدام النرد",
-    "add_entropy_remain": "{gen} بايت من الإنتروبيا (العشوائية) المحققة. سيتم الحصول على {rem} بايت المتبقية من مولِّد الأرقام العشوائية للنظام.",
     "add_import_wallet": "استيراد محفظة",
     "add_lightning": "البرق",
     "add_lightning_explain": "لإرسال المعاملات بشكل فوري عبر شبكة البرق",
@@ -439,7 +436,6 @@
     "details_display": "العرض في الشاشة الرئيسية",
     "details_edit": "تعديل",
     "details_export_backup": "التصدير/النسخ الاحتياطي",
-    "details_export_history": "تصدير السجل إلى ملف CSV",
     "details_master_fingerprint": "البصمة الرئيسية",
     "details_multisig_type": "متعدد التواقيع",
     "details_options": "خيارات",
@@ -519,9 +515,7 @@
     "identity_pubkey": "هوية Pubkey",
     "xpub_title": "عنوان XPUB للمحفظة",
     "manage_wallets_search_placeholder": "البحث في المحافظ والعناوين والمعاملات والمذكرات",
-    "more_info": "المزيد من المعلومات",
-    "details_delete_wallet_error_message": "حدثت مشكلة في تأكيد ما إذا كانت هذه المحفظة قد أُزيلت من الإشعارات—قد يكون ذلك بسبب مشكلة في الشبكة أو ضعف الاتصال. إذا تابعت، فقد تستمر في تلقي إشعارات للمعاملات المتعلقة بهذه المحفظة، حتى بعد حذفها.",
-    "details_delete_anyway": "احذف على أي حال"
+    "more_info": "المزيد من المعلومات"
   },
   "total_balance_view": {
     "display_in_bitcoin": "العرض بـ Bitcoin",

@@ -104,9 +104,10 @@
     "title": "Pochi yako imetengenezwa."
   },
   "receive": {
-    "details_create": "Tengeneza",
+    "details_save": "Hifadhi",
     "details_label": "Maelezo",
     "details_setAmount": "Pokea na kiasi",
+    "option_label": "Lebo",
     "details_share": "Shiriki...",
     "address_not_found": "Imeshindwa kutengeneza anwani ya kupokelea.",
     "header": "Pokea",
@@ -380,8 +381,6 @@
     "updating": "Inasasisha...",
     "watchOnlyWarningTitle": "Onyo la usalama",
     "watchOnlyWarningDescription": "Kuwa makini na walaghai ambao mara nyingi hutumia pochi za “kutazama tu” kuwadanganya watumiaji. Pochi hizi hazikuruhusu kudhibiti au kutuma fedha; zinakuruhusu kutazama salio pekee.",
-    "custom_fee_warning_title": "Onyo",
-    "custom_fee_warning_description": "Ada chini ya 1 sat/vB ni halali, lakini huenda zisisambazwe kutokana na sera za nodi.",
     "details_eta_analyzing": "Inachanganua...",
     "details_sent": "Imetumwa",
     "details_section": "Maelezo",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Kubadilisha aina ya pochi kutaweka upya entropy ya sasa. Je, unataka kuendelea?",
     "add_entropy": "Entropy",
     "add_entropy_bytes": "baiti {bytes} za entropy",
-    "add_entropy_generated": "baiti {gen} za entropy iliyozalishwa",
     "add_entropy_provide": "Toa entropy kupitia kurusha dadu",
-    "add_entropy_remain": "baiti {gen} za entropy iliyozalishwa. Baiti {rem} zilizobaki zitapatikana kutoka kwa kizalishaji namba nasibu cha Mfumo.",
     "add_import_wallet": "Ingiza pochi",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Kwa matumizi yenye miamala ya papo hapo",
@@ -439,7 +436,6 @@
     "details_display": "Onyesha kwenye Skrini ya Mwanzo",
     "details_edit": "hariri",
     "details_export_backup": "Hamisha/Chelezea",
-    "details_export_history": "Hamisha Historia kwa CSV",
     "details_master_fingerprint": "Alama Kuu ya Kidole",
     "details_multisig_type": "saini nyingi",
     "details_options": "Chaguzi",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Ufunguo wa Umma wa Utambulisho",
     "xpub_title": "xpub ya Pochi",
     "manage_wallets_search_placeholder": "Tafuta pochi, anwani, miamala na noti",
-    "more_info": "Maelezo Zaidi",
-    "details_delete_wallet_error_message": "Kulikuwa na tatizo katika kuthibitisha ikiwa pochi hii iliondolewa kwenye arifa—hii inaweza kuwa kutokana na tatizo la mtandao au muunganisho dhaifu. Ukiendelea, bado unaweza kupokea arifa za miamala inayohusiana na pochi hii, hata baada ya kufutwa.",
-    "details_delete_anyway": "Futa hata hivyo"
+    "more_info": "Maelezo Zaidi"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Onyesha kwa Bitcoin",

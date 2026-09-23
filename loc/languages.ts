@@ -14,8 +14,6 @@ const _availableLanguages = Object.freeze([
   { label: 'Bahasa Melayu (MS)', value: 'ms' },
   { label: 'Català (CA)', value: 'ca' },
   { label: 'Česky (CZ)', value: 'cs_cz' },
-  { label: 'Chinese (TW)', value: 'zh_tw' },
-  { label: 'Chinese (ZH)', value: 'zh_cn' },
   { label: 'Croatian (HR)', value: 'hr_hr' },
   { label: 'Cymraeg (CY)', value: 'cy' },
   { label: 'Danish (DK)', value: 'da_dk' },
@@ -75,6 +73,8 @@ const _availableLanguages = Object.freeze([
   { label: 'ქართული (KA)', value: 'ka' },
   { label: 'ខ្មែរ (KM)', value: 'km' },
   { label: '客家話 (HAK)', value: 'hak' },
+  { label: '简体中文 (ZH-CN)', value: 'zh_cn' },
+  { label: '繁體中文 (ZH-TW)', value: 'zh_tw' },
   { label: '日本語 (JP)', value: 'jp_jp' },
   { label: '한국어 (KO)', value: 'ko_kr' },
 ] as const) satisfies readonly TLanguage[];

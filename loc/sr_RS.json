@@ -104,9 +104,10 @@
     "title": "Vaš novčanik je kreiran."
   },
   "receive": {
-    "details_create": "Kreiraj",
+    "details_save": "Sačuvaj",
     "details_label": "Opis",
     "details_setAmount": "Primi sa iznosom",
+    "option_label": "Oznaka",
     "details_share": "Podeli...",
     "address_not_found": "Nije moguće generisati adresu za primanje.",
     "header": "Primi",
@@ -380,8 +381,6 @@
     "updating": "Ažuriranje...",
     "watchOnlyWarningTitle": "Bezbednosno upozorenje",
     "watchOnlyWarningDescription": "Budite oprezni sa prevarantima koji često koriste „watch-only“ novčanike kako bi prevarili korisnike. Ovi novčanici vam ne dozvoljavaju kontrolu ili slanje sredstava; samo vam omogućavaju pregled stanja.",
-    "custom_fee_warning_title": "Upozorenje",
-    "custom_fee_warning_description": "Provizije ispod 1 sat/vB su važeće, ali možda neće biti prosleđene zbog politike nodova.",
     "details_eta_analyzing": "Analiziranje...",
     "details_sent": "Poslato",
     "details_section": "Detalji",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Promena tipa novčanika će resetovati trenutnu entropiju. Da li želite da nastavite?",
     "add_entropy": "Entropija",
     "add_entropy_bytes": "{bytes} bajtova entropije",
-    "add_entropy_generated": "{gen} bajtova generisane entropije",
     "add_entropy_provide": "Obezbedi entropiju bacanjem kockica",
-    "add_entropy_remain": "{gen} bajtova generisane entropije. Preostalih {rem} bajtova će biti dobijeno iz sistemskog generatora slučajnih brojeva.",
     "add_import_wallet": "Uvezi novčanik",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Za potrošnju trenutnim transakcijama",
@@ -439,7 +436,6 @@
     "details_display": "Prikaži na početnom ekranu",
     "details_edit": "uredi",
     "details_export_backup": "Izvoz/backup",
-    "details_export_history": "Izvezi istoriju u CSV",
     "details_master_fingerprint": "Glavni otisak",
     "details_multisig_type": "multisig",
     "details_options": "Opcije",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Javni ključ identiteta",
     "xpub_title": "XPUB novčanika",
     "manage_wallets_search_placeholder": "Pretraži novčanike, adrese, transakcije i beleške",
-    "more_info": "Više informacija",
-    "details_delete_wallet_error_message": "Došlo je do problema pri potvrđivanju da li je ovaj novčanik uklonjen iz obaveštenja—ovo može biti zbog problema sa mrežom ili loše veze. Ako nastavite, možda ćete i dalje primati obaveštenja za transakcije povezane sa ovim novčanikom, čak i nakon što je obrisan.",
-    "details_delete_anyway": "Obriši svejedno"
+    "more_info": "Više informacija"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Prikaži u Bitcoin-u",

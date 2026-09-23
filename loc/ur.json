@@ -104,9 +104,10 @@
     "title": "آپ کا والٹ بنا دیا گیا ہے۔"
   },
   "receive": {
-    "details_create": "بنائیں",
+    "details_save": "محفوظ کریں",
     "details_label": "تفصیل",
     "details_setAmount": "رقم کے ساتھ وصول کریں",
+    "option_label": "لیبل",
     "details_share": "شیئر کریں...",
     "address_not_found": "وصول کنندہ پتہ تیار کرنے سے قاصر۔",
     "header": "وصول کریں",
@@ -380,8 +381,6 @@
     "updating": "اپ ڈیٹ ہو رہا ہے...",
     "watchOnlyWarningTitle": "سیکیورٹی انتباہ",
     "watchOnlyWarningDescription": "ایسے دھوکے بازوں سے ہوشیار رہیں جو اکثر صارفین کو فریب دینے کے لیے ”صرف مشاہدہ“ والٹ استعمال کرتے ہیں۔ یہ والٹ آپ کو فنڈز کنٹرول کرنے یا بھیجنے کی اجازت نہیں دیتے؛ یہ صرف آپ کو بیلنس دیکھنے دیتے ہیں۔",
-    "custom_fee_warning_title": "انتباہ",
-    "custom_fee_warning_description": "1 sat/vB سے کم فیس درست ہیں، لیکن نوڈ پالیسیوں کی وجہ سے ریلے نہیں ہو سکتیں۔",
     "details_eta_analyzing": "تجزیہ ہو رہا ہے...",
     "details_sent": "بھیجا گیا",
     "details_section": "تفصیلات",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "والٹ کی قسم تبدیل کرنے سے موجودہ اینٹروپی ری سیٹ ہو جائے گی۔ کیا آپ آگے بڑھنا چاہتے ہیں؟",
     "add_entropy": "اینٹروپی",
     "add_entropy_bytes": "{bytes} بائٹس اینٹروپی",
-    "add_entropy_generated": "{gen} بائٹس تیار کردہ اینٹروپی",
     "add_entropy_provide": "ڈائس رولز کے ذریعے اینٹروپی فراہم کریں",
-    "add_entropy_remain": "{gen} بائٹس تیار کردہ اینٹروپی۔ باقی {rem} بائٹس سسٹم کے بے ترتیب نمبر جنریٹر سے حاصل کیے جائیں گے۔",
     "add_import_wallet": "والٹ درآمد کریں",
     "add_lightning": "Lightning",
     "add_lightning_explain": "فوری لین دین کے ساتھ خرچ کرنے کے لیے",
@@ -439,7 +436,6 @@
     "details_display": "ہوم اسکرین میں دکھائیں",
     "details_edit": "ترمیم کریں",
     "details_export_backup": "برآمد/بیک اپ",
-    "details_export_history": "تاریخچہ CSV میں برآمد کریں",
     "details_master_fingerprint": "ماسٹر فنگر پرنٹ",
     "details_multisig_type": "ملٹی سگ",
     "details_options": "اختیارات",
@@ -519,9 +515,7 @@
     "identity_pubkey": "شناختی پبلک کلید",
     "xpub_title": "والٹ XPUB",
     "manage_wallets_search_placeholder": "والٹس، پتے، لین دین اور میمو تلاش کریں",
-    "more_info": "مزید معلومات",
-    "details_delete_wallet_error_message": "اس بات کی تصدیق میں ایک مسئلہ پیش آیا کہ آیا یہ والٹ اطلاعات سے ہٹایا گیا تھا—یہ نیٹ ورک کے مسئلے یا کمزور کنکشن کی وجہ سے ہو سکتا ہے۔ اگر آپ جاری رکھتے ہیں، تو آپ کو اس والٹ سے متعلق لین دین کی اطلاعات اب بھی موصول ہو سکتی ہیں، حتیٰ کہ اس کے حذف ہونے کے بعد بھی۔",
-    "details_delete_anyway": "پھر بھی حذف کریں"
+    "more_info": "مزید معلومات"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bitcoin میں دکھائیں",

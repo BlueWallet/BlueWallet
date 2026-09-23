@@ -158,7 +158,6 @@ export async function helperImportWallet(importText, walletType, expectedWalletL
   // waiting for import result
   await waitForText('OK', 3 * 61000);
   await element(by.text('OK')).tap();
-  await scrollUpOnHomeScreen();
 
   // lets go inside wallet
   await element(by.text(expectedWalletLabel)).tap();
@@ -260,7 +259,6 @@ export async function helperCreateWallet(walletName) {
 
     await element(by.id('PleasebackupOk')).tap();
     await sleep(1000);
-    await scrollUpOnHomeScreen();
   } finally {
     if (isIOS) {
       await device.enableSynchronization();
@@ -579,25 +577,6 @@ export async function typeTextIntoAlertInput(text) {
     await element(by.type('_UIAlertControllerTextField')).replaceText(text);
   }
   await sleep(1000);
-}
-
-/**
- * Scrolls up on the home screen. This is needed on the iOS.
- */
-export async function scrollUpOnHomeScreen() {
-  if (device.getPlatform() !== 'ios') {
-    return;
-  }
-  try {
-    await element(by.type('RCTEnhancedScrollView').withDescendant(by.type('RCTEnhancedScrollView')))
-      .atIndex(0)
-      .swipe('down', 'slow', 0.5);
-  } catch (_) {
-    // if no wallets there will be just one scroll (or nested matcher missed); atIndex
-    // avoids "Multiple elements found" when several scroll views are present.
-    await element(by.type('RCTEnhancedScrollView')).atIndex(0).swipe('down', 'slow', 0.5);
-  }
-  await sleep(1000); // bounce animation
 }
 
 /**

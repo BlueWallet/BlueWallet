@@ -104,9 +104,10 @@
     "title": "Je wallet is aangemaakt"
   },
   "receive": {
-    "details_create": "Maken",
+    "details_save": "Opslaan",
     "details_label": "Omschrijving",
     "details_setAmount": "Ontvang met bedrag",
+    "option_label": "Label",
     "details_share": "Delen...",
     "address_not_found": "Kan geen ontvangstadres genereren.",
     "header": "Ontvang",
@@ -380,8 +381,6 @@
     "updating": "Updaten...",
     "watchOnlyWarningTitle": "Beveiligingswaarschuwing",
     "watchOnlyWarningDescription": "Pas op voor oplichters die vaak \"watch-only\" wallets gebruiken om gebruikers te misleiden. Deze wallets staan je niet toe om tegoeden te beheren of te verzenden; ze laten je alleen het saldo bekijken.",
-    "custom_fee_warning_title": "Waarschuwing",
-    "custom_fee_warning_description": "Fees onder 1 sat/vB zijn geldig, maar worden mogelijk niet doorgegeven vanwege node-beleid.",
     "details_eta_analyzing": "Bezig met analyseren...",
     "details_sent": "Verzonden",
     "details_section": "Details",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Het wijzigen van het wallet-type reset de huidige entropie. Wil je doorgaan?",
     "add_entropy": "Entropie",
     "add_entropy_bytes": "{bytes} bytes entropie",
-    "add_entropy_generated": "{gen} bytes gegenereerde entropie",
     "add_entropy_provide": "Zorg voor entropie via dobbelstenen",
-    "add_entropy_remain": "{gen} bytes gegenereerde entropie. Resterende {rem} bytes zullen worden verkregen uit het systeem voor willekeurige getallen.",
     "add_import_wallet": "Wallet importeren",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Voor uitgaven met directe transacties",
@@ -439,7 +436,6 @@
     "details_display": "Weergeven op startscherm",
     "details_edit": "bewerken",
     "details_export_backup": "Exporteren / back-up maken",
-    "details_export_history": "Geschiedenis exporteren naar CSV",
     "details_master_fingerprint": "Master vingerafdruk",
     "details_multisig_type": "multisig",
     "details_options": "Opties",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identiteit PubKey",
     "xpub_title": "Wallet xpub",
     "manage_wallets_search_placeholder": "Zoek wallets, adressen, transacties en memo's",
-    "more_info": "Meer info",
-    "details_delete_wallet_error_message": "Er was een probleem bij het bevestigen of deze wallet uit de meldingen is verwijderd — dit kan komen door een netwerkprobleem of slechte verbinding. Als je doorgaat, ontvang je mogelijk nog steeds meldingen voor transacties met betrekking tot deze wallet, zelfs nadat deze is verwijderd.",
-    "details_delete_anyway": "Toch verwijderen"
+    "more_info": "Meer info"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Weergeven in Bitcoin",

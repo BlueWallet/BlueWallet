@@ -50,13 +50,13 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
 
       if (cachedNetworkTransactionFees && 'fastestFee' in cachedNetworkTransactionFees) {
         setNetworkFees(cachedNetworkTransactionFees);
-        onFeeSelected(cachedNetworkTransactionFees.fastestFee);
+        onFeeSelected(adjustFee(cachedNetworkTransactionFees.fastestFee, transactionMinimum));
         setSelectedFeeType(NetworkTransactionFeeType.FAST);
       }
     } catch (_) {}
     const fees = await NetworkTransactionFees.recommendedFees();
     setNetworkFees(fees);
-    onFeeSelected(fees.fastestFee);
+    onFeeSelected(adjustFee(fees.fastestFee, transactionMinimum));
     setSelectedFeeType(NetworkTransactionFeeType.FAST);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -76,13 +76,13 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
     if (networkFees) {
       switch (feeType) {
         case NetworkTransactionFeeType.FAST:
-          onFeeSelected(networkFees.fastestFee);
+          onFeeSelected(adjustFee(networkFees.fastestFee, transactionMinimum));
           break;
         case NetworkTransactionFeeType.MEDIUM:
-          onFeeSelected(networkFees.mediumFee);
+          onFeeSelected(adjustFee(networkFees.mediumFee, transactionMinimum));
           break;
         case NetworkTransactionFeeType.SLOW:
-          onFeeSelected(networkFees.slowFee);
+          onFeeSelected(adjustFee(networkFees.slowFee, transactionMinimum));
           break;
       }
 
@@ -97,6 +97,12 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
     setSelectedFeeType(NetworkTransactionFeeType.CUSTOM);
   };
 
+  const adjustFee = (proposedFee: number, minimumFee: number) => {
+    if (proposedFee > minimumFee) return proposedFee;
+
+    return minimumFee + 0.5;
+  };
+
   return (
     <View>
       {networkFees &&
@@ -105,21 +111,21 @@ const ReplaceFeeSuggestions: React.FC<ReplaceFeeSuggestionsProps> = ({ onFeeSele
             label: loc.send.fee_fast,
             time: loc.send.fee_10m,
             type: NetworkTransactionFeeType.FAST,
-            rate: networkFees.fastestFee,
+            rate: adjustFee(networkFees.fastestFee, transactionMinimum),
             active: selectedFeeType === NetworkTransactionFeeType.FAST,
           },
           {
             label: formatStringAddTwoWhiteSpaces(loc.send.fee_medium),
             time: loc.send.fee_3h,
             type: NetworkTransactionFeeType.MEDIUM,
-            rate: networkFees.mediumFee,
+            rate: adjustFee(networkFees.mediumFee, transactionMinimum),
             active: selectedFeeType === NetworkTransactionFeeType.MEDIUM,
           },
           {
             label: loc.send.fee_slow,
             time: loc.send.fee_1d,
             type: NetworkTransactionFeeType.SLOW,
-            rate: networkFees.slowFee,
+            rate: adjustFee(networkFees.slowFee, transactionMinimum),
             active: selectedFeeType === NetworkTransactionFeeType.SLOW,
           },
         ].map(({ label, type, time, rate, active }) => (

@@ -104,9 +104,10 @@
     "title": "আপনার ওয়ালেট তৈরি হয়েছে।"
   },
   "receive": {
-    "details_create": "তৈরি করুন",
+    "details_save": "সংরক্ষণ করুন",
     "details_label": "বিবরণ",
     "details_setAmount": "পরিমাণসহ গ্রহণ করুন",
+    "option_label": "লেবেল",
     "details_share": "শেয়ার করুন...",
     "address_not_found": "গ্রহণকারী ঠিকানা তৈরি করা যায়নি।",
     "header": "গ্রহণ করুন",
@@ -380,8 +381,6 @@
     "updating": "হালনাগাদ করা হচ্ছে...",
     "watchOnlyWarningTitle": "নিরাপত্তা সতর্কতা",
     "watchOnlyWarningDescription": "এমন প্রতারকদের ব্যাপারে সতর্ক থাকুন যারা প্রায়ই ব্যবহারকারীদের প্রতারিত করতে “কেবল-দেখার” ওয়ালেট ব্যবহার করে। এই ওয়ালেটগুলো আপনাকে তহবিল নিয়ন্ত্রণ বা পাঠানোর অনুমতি দেয় না; এগুলো শুধুমাত্র আপনাকে ব্যালেন্স দেখতে দেয়।",
-    "custom_fee_warning_title": "সতর্কতা",
-    "custom_fee_warning_description": "১ sat/vB-এর নিচের ফি বৈধ, কিন্তু নোড নীতির কারণে রিলে নাও হতে পারে।",
     "details_eta_analyzing": "বিশ্লেষণ করা হচ্ছে...",
     "details_sent": "পাঠানো হয়েছে",
     "details_section": "বিবরণ",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "ওয়ালেটের ধরন পরিবর্তন করলে বর্তমান এনট্রপি রিসেট হবে। আপনি কি এগিয়ে যেতে চান?",
     "add_entropy": "এনট্রপি",
     "add_entropy_bytes": "{bytes} বাইট এনট্রপি",
-    "add_entropy_generated": "{gen} বাইট তৈরিকৃত এনট্রপি",
     "add_entropy_provide": "পাশা গড়ানোর মাধ্যমে এনট্রপি প্রদান করুন",
-    "add_entropy_remain": "{gen} বাইট তৈরিকৃত এনট্রপি। বাকি {rem} বাইট সিস্টেমের র‍্যান্ডম সংখ্যা জেনারেটর থেকে নেওয়া হবে।",
     "add_import_wallet": "ওয়ালেট আমদানি করুন",
     "add_lightning": "Lightning",
     "add_lightning_explain": "তাৎক্ষণিক লেনদেনের মাধ্যমে খরচ করার জন্য",
@@ -439,7 +436,6 @@
     "details_display": "হোম স্ক্রিনে প্রদর্শন করুন",
     "details_edit": "সম্পাদনা করুন",
     "details_export_backup": "এক্সপোর্ট/ব্যাকআপ",
-    "details_export_history": "ইতিহাস CSV-তে এক্সপোর্ট করুন",
     "details_master_fingerprint": "মাস্টার ফিঙ্গারপ্রিন্ট",
     "details_multisig_type": "মাল্টিসিগ",
     "details_options": "বিকল্প",
@@ -519,9 +515,7 @@
     "identity_pubkey": "আইডেন্টিটি পাবকী",
     "xpub_title": "ওয়ালেট xpub",
     "manage_wallets_search_placeholder": "ওয়ালেট, ঠিকানা, লেনদেন ও মেমো অনুসন্ধান করুন",
-    "more_info": "আরও তথ্য",
-    "details_delete_wallet_error_message": "এই ওয়ালেটটি বিজ্ঞপ্তি থেকে সরানো হয়েছে কিনা তা নিশ্চিত করতে একটি সমস্যা হয়েছে—এটি নেটওয়ার্ক সমস্যা বা দুর্বল সংযোগের কারণে হতে পারে। আপনি যদি চালিয়ে যান, তাহলে এই ওয়ালেট মুছে ফেলার পরেও এর সাথে সম্পর্কিত লেনদেনের জন্য আপনি বিজ্ঞপ্তি পেতে পারেন।",
-    "details_delete_anyway": "তবুও মুছুন"
+    "more_info": "আরও তথ্য"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Bitcoin-এ প্রদর্শন করুন",

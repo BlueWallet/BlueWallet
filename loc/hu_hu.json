@@ -104,9 +104,10 @@
     "title": "A tárcád elkészült..."
   },
   "receive": {
-    "details_create": "Létrehoz",
+    "details_save": "Mentés",
     "details_label": "Leírás",
     "details_setAmount": "Fogadandó összeg",
+    "option_label": "Címke",
     "details_share": "Megosztás...",
     "address_not_found": "Nem sikerült fogadó címet generálni.",
     "header": "Fogadás",
@@ -380,8 +381,6 @@
     "updating": "Frissítés...",
     "watchOnlyWarningTitle": "Biztonsági figyelmeztetés",
     "watchOnlyWarningDescription": "Légy óvatos a csalókkal, akik gyakran használnak „csak megtekintésre” szolgáló tárcákat a felhasználók megtévesztésére. Ezek a tárcák nem teszik lehetővé a pénzeszközök kezelését vagy küldését; csak az egyenleg megtekintését engedik.",
-    "custom_fee_warning_title": "Figyelmeztetés",
-    "custom_fee_warning_description": "Az 1 sat/vB alatti díjak érvényesek, de előfordulhat, hogy a node-szabályzatok miatt nem kerülnek továbbításra.",
     "details_eta_analyzing": "Elemzés...",
     "details_sent": "Elküldve",
     "details_section": "Részletek",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "A tárca típusának módosítása visszaállítja a jelenlegi entrópiát. Folytatod?",
     "add_entropy": "Entrópia",
     "add_entropy_bytes": "{bytes} bájt entrópia",
-    "add_entropy_generated": "{gen} generált entrópia byte",
     "add_entropy_provide": "Entrópia megadása véletlenszerűen",
-    "add_entropy_remain": "{gen} byte generálva entrópiával. A megmaradt {rem} byte a rendszer véletlenszám generátorával készül.",
     "add_import_wallet": "Tárca importálása",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Költés azonnali tranzakcióval",
@@ -439,7 +436,6 @@
     "details_display": "Megjelenítés a kezdőképernyőn",
     "details_edit": "szerkesztés",
     "details_export_backup": "Exportálás / Biztonsági mentés",
-    "details_export_history": "Előzmények exportálása CSV-be",
     "details_master_fingerprint": "Mester ujjlenyomat",
     "details_multisig_type": "multisig",
     "details_options": "Lehetőségek",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Nyilvános kulcs",
     "xpub_title": "A tárca XPUB kulcsa",
     "manage_wallets_search_placeholder": "Tárcák, címek, tranzakciók és megjegyzések keresése",
-    "more_info": "További információ",
-    "details_delete_wallet_error_message": "Hiba történt annak megerősítésekor, hogy ezt a tárcát eltávolították-e az értesítésekből — ez hálózati probléma vagy gyenge kapcsolat miatt fordulhatott elő. Ha folytatod, előfordulhat, hogy a törlés után is kapsz értesítéseket a tárcához kapcsolódó tranzakciókról.",
-    "details_delete_anyway": "Törlés mindenképp"
+    "more_info": "További információ"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Megjelenítés Bitcoinban",

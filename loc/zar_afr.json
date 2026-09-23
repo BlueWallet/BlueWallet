@@ -104,9 +104,10 @@
     "title": "Jou beursie is geskep."
   },
   "receive": {
-    "details_create": "Skep",
+    "details_save": "Berg",
     "details_label": "Beskrywing",
     "details_setAmount": "Bedrag ontvang",
+    "option_label": "Etiket",
     "details_share": "Deel...",
     "address_not_found": "Kon nie 'n ontvangsadres skep nie.",
     "header": "Ontvang",
@@ -380,8 +381,6 @@
     "updating": "Opdateer...",
     "watchOnlyWarningTitle": "Sekuriteitswaarskuwing",
     "watchOnlyWarningDescription": "Wees versigtig vir bedrieërs wat dikwels “slegs-kyk” beursies gebruik om gebruikers te mislei. Hierdie beursies laat jou nie toe om fondse te beheer of te stuur nie; hulle laat jou net die balans bekyk.",
-    "custom_fee_warning_title": "Waarskuwing",
-    "custom_fee_warning_description": "Fooie onder 1 sat/vB is geldig, maar mag nie deurgestuur word weens knoop-beleide nie.",
     "details_eta_analyzing": "Ontleed...",
     "details_sent": "Gestuur",
     "details_section": "Besonderhede",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Deur die beursie-tipe te verander, sal die huidige entropie herstel word. Wil jy voortgaan?",
     "add_entropy": "Entropie",
     "add_entropy_bytes": "{bytes} grepe entropie",
-    "add_entropy_generated": "{gen} grepe gegenereerde entropie",
     "add_entropy_provide": "Verskaf entropie deur dobbelsteenrolle",
-    "add_entropy_remain": "{gen} grepe gegenereerde entropie. Oorblywende {rem} grepe sal van die stelsel se ewekansige-getalgenereerder verkry word.",
     "add_import_wallet": "Beursie Invoer",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Vir besteding met onmiddellike transaksies",
@@ -439,7 +436,6 @@
     "details_display": "Vertoon op tuisskerm",
     "details_edit": "wysig",
     "details_export_backup": "voer uit / kopieer",
-    "details_export_history": "Voer geskiedenis na CSV uit",
     "details_master_fingerprint": "Meester-vingerafdruk",
     "details_multisig_type": "multisig",
     "details_options": "Opsies",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identiteits-pubkey",
     "xpub_title": "beursie XPUB",
     "manage_wallets_search_placeholder": "Soek beursies, adresse, transaksies en notas",
-    "more_info": "Meer inligting",
-    "details_delete_wallet_error_message": "Daar was 'n probleem om te bevestig of hierdie beursie van kennisgewings verwyder is—dit kan weens 'n netwerkprobleem of swak verbinding wees. Indien jy voortgaan, mag jy steeds kennisgewings ontvang vir transaksies wat met hierdie beursie verband hou, selfs nadat dit verwyder is.",
-    "details_delete_anyway": "Vernietig in elk geval"
+    "more_info": "Meer inligting"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Vertoon in Bitcoin",

@@ -104,9 +104,10 @@
     "title": "Vaša peňaženka je vytvorená..."
   },
   "receive": {
-    "details_create": "Vytvoriť",
+    "details_save": "Uložiť",
     "details_label": "Popis",
     "details_setAmount": "Prijať čiastku...",
+    "option_label": "Popis",
     "details_share": "Zdieľať...",
     "address_not_found": "Nepodarilo sa vygenerovať prijímaciu adresu.",
     "header": "Prijať",
@@ -380,8 +381,6 @@
     "updating": "Aktualizuje sa...",
     "watchOnlyWarningTitle": "Bezpečnostné upozornenie",
     "watchOnlyWarningDescription": "Buďte opatrní pred podvodníkmi, ktorí často používajú peňaženky „iba na sledovanie“ na oklamanie používateľov. Tieto peňaženky vám neumožňujú ovládať ani odosielať prostriedky; umožňujú vám iba zobraziť zostatok.",
-    "custom_fee_warning_title": "Upozornenie",
-    "custom_fee_warning_description": "Poplatky pod 1 sat/vB sú platné, ale nemusia byť ďalej šírené kvôli pravidlám uzlov.",
     "details_eta_analyzing": "Analyzuje sa...",
     "details_sent": "Odoslané",
     "details_section": "Detaily",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "Zmena typu peňaženky resetuje aktuálnu entropiu. Chcete pokračovať?",
     "add_entropy": "Entropia",
     "add_entropy_bytes": "{bytes} bytov entropie",
-    "add_entropy_generated": "{gen} bytov vygenerovanej entropie",
     "add_entropy_provide": "Vytvoriť entropiu pomocou hodov kockou",
-    "add_entropy_remain": "{gen} bytov vygenerovanej entropie. Zvyšných {rem} bytov sa získa zo systémového generátora náhodných čísel.",
     "add_import_wallet": "Importovať peňaženku",
     "add_lightning": "Lightning",
     "add_lightning_explain": "Pre platby s okamžitými transakciami",
@@ -439,7 +436,6 @@
     "details_display": "Zobraziť na domovskej obrazovke",
     "details_edit": "upraviť",
     "details_export_backup": "Exportovať / zálohovať",
-    "details_export_history": "Exportovať históriu do CSV",
     "details_master_fingerprint": "Hlavný odtlačok prsta",
     "details_multisig_type": "multisig",
     "details_options": "Možnosti",
@@ -519,9 +515,7 @@
     "identity_pubkey": "Identifikačný verejný kľúč",
     "xpub_title": "XPUB peňaženky",
     "manage_wallets_search_placeholder": "Hľadať peňaženky, adresy, transakcie a poznámky",
-    "more_info": "Viac informácií",
-    "details_delete_wallet_error_message": "Pri potvrdzovaní, či bola táto peňaženka odstránená z notifikácií, nastal problém — mohlo to byť spôsobené sieťovým problémom alebo slabým pripojením. Ak budete pokračovať, môžete naďalej dostávať notifikácie pre transakcie súvisiace s touto peňaženkou, aj po jej zmazaní.",
-    "details_delete_anyway": "Aj tak zmazať"
+    "more_info": "Viac informácií"
   },
   "total_balance_view": {
     "display_in_bitcoin": "Zobraziť v Bitcoine",

@@ -104,9 +104,10 @@
     "title": "کیف پیلٛ تو ساته بی."
   },
   "receive": {
-    "details_create": "ساتن",
+    "details_save": "زخیره",
     "details_label": "توضیحات",
     "details_setAmount": "گرؽتن وا مقدار",
+    "option_label": "برچسب",
     "details_share": "یک رسونی...",
     "address_not_found": "نا مووفق د ساتن آدرس گرتنی.",
     "header": "گرتن",
@@ -380,8 +381,6 @@
     "updating": "ها ر و نی...",
     "watchOnlyWarningTitle": "هۊشدار ٱمنیتی",
     "watchOnlyWarningDescription": "موواظب کلاهبردارایی باش که اقلب ز کیف پیلٛیا «ناظر» سی فریب دیئن کاربرا و کار مؽگرن. اؽ کیف پیلٛیا اجازه دؽونداری یا کلٛ کردن پیلٛ ن نمؽئن؛ فقط اجازه دؽن مۉجۊدی ن مؽئن.",
-    "custom_fee_warning_title": "هۊشدار",
-    "custom_fee_warning_description": "کارمزدا کموتر ز 1 ساتۊشی/بایت مجازی مۊعتبر ٱن، ولؽ ایمکا داره سی سیاستیا گرهٛ، انتشار پیدا نکونن.",
     "details_eta_analyzing": "ها د تحلیل...",
     "details_sent": "کلٛ بی",
     "details_section": "جزویات",
@@ -408,9 +407,7 @@
     "add_entropy_reset_message": "آلشت نوع کیف پیلٛ آنتروپی فعلی ن و ٱول آلشت مۊکونه. مۊخوای ادامه بئی؟",
     "add_entropy": "آنتروپی",
     "add_entropy_bytes": "{bytes} بایت آنتروپی",
-    "add_entropy_generated": "{gen} بایت آنتروپی ساته بیه",
     "add_entropy_provide": "آنتروپی ن وا تاس انداختن و دس بیار",
-    "add_entropy_remain": "{gen} بایت آنتروپی ساته بیه. {rem} بایت ساری ز ساته بنومه ٱدادا تصادفی دسگا گرته مۊئه.",
     "add_import_wallet": "و مؽن اووردن کیف پیلٛ",
     "add_lightning": "لایتنینگ",
     "add_lightning_explain": "سی خرج کردن وا تراکونشیا فۊری",
@@ -439,7 +436,6 @@
     "details_display": "نشوݩ دؽن مؽن بلگه ٱسلی",
     "details_edit": "ویرایش",
     "details_export_backup": "و در کردن نۏسخه لادرار",
-    "details_export_history": "گرتن ۉ و در کشیئن ویرگار و فورمت CSV",
     "details_master_fingerprint": "اثر انگوشت ٱسلی",
     "details_multisig_type": "چند امزایی",
     "details_options": "گزینه‌ها",
@@ -519,9 +515,7 @@
     "identity_pubkey": "کلٛیل عمومی هوویتی",
     "xpub_title": "XPUB کیف پیلٛ",
     "manage_wallets_search_placeholder": "جۊرسن کیف پیلٛیا، آدرسیا، تراکونشیا ۉ ویرداشتیا",
-    "more_info": "دونسمنیا بؽشتر",
-    "details_delete_wallet_error_message": "موشکلؽ د تایید پاک کردن اؽ کیف پیلٛ ز وارسونیا پؽش اوما—ایمکا داره سی موشکل شبکه یا اتصال زاف بۊئه. اگه ادامه بئی، ایمکا داره هنوز وارسونیا ر تراکونشیا مربوط و اؽ کیف پیلٛ بگری، حتا دما ز پاک کردنش.",
-    "details_delete_anyway": "د هر هال پاک بکو"
+    "more_info": "دونسمنیا بؽشتر"
   },
   "total_balance_view": {
     "display_in_bitcoin": "نشوݩ دؽن وا بیت کوین",
