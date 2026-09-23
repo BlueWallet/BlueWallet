@@ -2,10 +2,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import dayjs from 'dayjs';
+import { calculateBlockTime } from '../../blue_modules/BlueElectrum';
 import debounce from '../../blue_modules/debounce';
 import Avatar from '../../components/Avatar';
+import CopyTextToClipboard from '../../components/CopyTextToClipboard';
 import ListItem from '../../components/ListItem';
-import { BlueSpacing10 } from '../../components/BlueSpacing';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
 import loc, { formatBalance } from '../../loc';
@@ -13,9 +15,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { goFromCoinControlToSendDetails } from '../../navigation/goFromCoinControlToSendDetails';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { useStorage } from '../../hooks/context/useStorage';
-import * as RNLocalize from 'react-native-localize';
 import { useKeyboard } from '../../hooks/useKeyboard';
-import HeaderRightButton from '../../components/HeaderRightButton';
 
 type RouteProps = RouteProp<SendDetailsStackParamList, 'CoinControlOutput'>;
 type NavigationProps = NativeStackNavigationProp<SendDetailsStackParamList, 'CoinControlOutput'>;
@@ -69,28 +69,37 @@ const CoinControlOutputSheet: React.FC = () => {
     debouncedSaveMemo.current(memo);
   }, [memo]);
 
-  const amount = formatBalance(utxo.value, wallet?.getPreferredBalanceUnit?.() ?? BitcoinUnit.BTC, true);
-  const color = `#${utxo.txid.substring(0, 6)}`;
-  const confirmationsFormatted = useMemo(
-    () => new Intl.NumberFormat(RNLocalize.getLocales()[0].languageCode, { maximumSignificantDigits: 3 }).format(utxo.confirmations ?? 0),
-    [utxo.confirmations],
+  const addressTextStyle = useMemo(
+    () => ({
+      fontSize: 13,
+      color: colors.alternativeTextColor,
+      textAlign: 'left' as const,
+    }),
+    [colors.alternativeTextColor],
   );
 
+  const amount = formatBalance(utxo.value, wallet?.getPreferredBalanceUnit?.() ?? BitcoinUnit.BTC, true);
+  const color = `#${utxo.txid.substring(0, 6)}`;
+  const receivedDate = useMemo(() => {
+    let timestamp: number | undefined;
+    try {
+      const tx = wallet?.getTransactions().find(item => item.txid === utxo.txid || item.hash === utxo.txid);
+      timestamp = tx?.timestamp || tx?.blocktime || tx?.time;
+    } catch {
+      timestamp = undefined;
+    }
+    if (timestamp && timestamp > 0) return dayjs(timestamp * 1000).format('LL');
+    if (utxo.height > 0) return dayjs(calculateBlockTime(utxo.height) * 1000).format('LL');
+    return loc.transactions.pending;
+  }, [utxo.height, utxo.txid, wallet]);
+
   const handleUseCoin = useCallback(async () => {
-    if (!wallet) return;
+    if (!wallet || frozen) return;
     debouncedSaveMemo.current.cancel();
     wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo });
     await saveToDisk();
     goFromCoinControlToSendDetails(navigation, walletID, [utxo]);
-  }, [memo, navigation, saveToDisk, utxo, wallet, walletID]);
-
-  const applyChangesAndClose = useCallback(async () => {
-    if (!wallet) return;
-    debouncedSaveMemo.current.cancel();
-    wallet.setUTXOMetadata(utxo.txid, utxo.vout, { memo });
-    await saveToDisk();
-    navigation.goBack();
-  }, [memo, navigation, saveToDisk, utxo.txid, utxo.vout, wallet]);
+  }, [frozen, memo, navigation, saveToDisk, utxo, wallet, walletID]);
 
   if (!wallet) {
     return (
@@ -102,9 +111,6 @@ const CoinControlOutputSheet: React.FC = () => {
 
   return (
     <View style={[styles.root, { backgroundColor: colors.elevated }]}>
-      <View style={styles.floatingDoneButtonContainer}>
-        <HeaderRightButton testID="CoinControlOutputDone" title={loc.send.input_done} onPress={applyChangesAndClose} disabled={loading} />
-      </View>
       <View style={styles.flex}>
         <View style={styles.headerContainer}>
           <View style={styles.rowContent}>
@@ -113,47 +119,39 @@ const CoinControlOutputSheet: React.FC = () => {
               <Text numberOfLines={1} style={[styles.amount, { color: colors.foregroundColor }]}>
                 {amount}
               </Text>
-              <View style={styles.tranContainer}>
-                <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>
-                  {loc.formatString(loc.transactions.list_conf, { number: confirmationsFormatted })}
-                </Text>
-              </View>
-              {memo ? (
-                <>
-                  <Text style={[styles.memo, { color: colors.alternativeTextColor }]}>{memo}</Text>
-                  <BlueSpacing10 />
-                </>
-              ) : null}
-              <Text style={[styles.memo, { color: colors.alternativeTextColor }]}>{utxo.address}</Text>
-              <BlueSpacing10 />
-              <Text style={[styles.memo, { color: colors.alternativeTextColor }]}>{`${utxo.txid}:${utxo.vout}`}</Text>
+              <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>{receivedDate}</Text>
             </View>
           </View>
+          <CopyTextToClipboard text={utxo.address} isAddress textAlign="left" style={addressTextStyle} />
         </View>
 
         <View style={styles.content}>
-          <TextInput
-            testID="OutputMemo"
-            placeholder={loc.send.details_note_placeholder}
-            value={memo}
-            placeholderTextColor="#81868e"
-            editable={!loading}
+          <View
             style={[
-              styles.memoTextInput,
+              styles.memoInput,
               {
                 borderColor: colors.formBorder,
                 borderBottomColor: colors.formBorder,
                 backgroundColor: colors.inputBackgroundColor,
-                color: colors.foregroundColor,
               },
             ]}
-            onChangeText={onMemoChange}
-          />
-          <ListItem title={loc.cc.freezeLabel} switch={switchValue} bottomDivider={false} />
+          >
+            <TextInput
+              testID="OutputMemo"
+              placeholder={loc.send.details_note_placeholder}
+              value={memo}
+              placeholderTextColor="#81868e"
+              numberOfLines={1}
+              editable={!loading}
+              style={[styles.memoText, { color: colors.foregroundColor }]}
+              onChangeText={onMemoChange}
+            />
+          </View>
+          <ListItem title={loc.cc.freezeLabel} switch={switchValue} bottomDivider={false} containerStyle={styles.freezeRow} />
         </View>
 
         <View style={styles.buttonContainer}>
-          {!isVisible && <Button testID="UseCoin" title={loc.cc.use_coin} onPress={handleUseCoin} disabled={loading} />}
+          {!isVisible && <Button testID="UseCoin" title={loc.cc.use_coin} onPress={handleUseCoin} disabled={loading || frozen} />}
         </View>
       </View>
     </View>
@@ -190,15 +188,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   avatar: { borderColor: 'white', borderWidth: 1 },
-  amount: { fontWeight: 'bold' },
-  tranContainer: { paddingLeft: 20 },
+  amount: { fontWeight: 'bold', fontSize: 22 },
   tranText: { fontWeight: 'normal', fontSize: 13 },
-  memo: { fontSize: 13, marginTop: 3 },
   content: {
     paddingTop: 12,
     flex: 1,
   },
-  memoTextInput: {
+  freezeRow: {
+    backgroundColor: 'transparent',
+    marginHorizontal: -16,
+    marginVertical: 16,
+  },
+  memoInput: {
     flexDirection: 'row',
     borderWidth: 1,
     borderBottomWidth: 0.5,
@@ -207,18 +208,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 8,
     borderRadius: 4,
-    paddingHorizontal: 8,
+  },
+  memoText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 33,
+    fontSize: 15,
+    lineHeight: 19,
   },
   buttonContainer: {
     height: 45,
     marginBottom: 36,
-  },
-  floatingDoneButtonContainer: {
-    position: 'absolute',
-    top: 8,
-    right: 0,
-    zIndex: 10,
-    elevation: 10,
   },
 });
 

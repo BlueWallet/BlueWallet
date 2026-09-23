@@ -710,8 +710,8 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     await waitForKeyboardToClose();
     await element(by.id('FreezeSwitch')).tap(); // freeze switch
     await waitForSwitchValue('FreezeSwitch', true);
-    await element(by.id('CoinControlOutputDone')).tap();
-    await waitFor(element(by.id('CoinControlOutputDone')))
+    await goBack();
+    await waitFor(element(by.id('OutputMemo')))
       .not.toBeVisible()
       .withTimeout(20000);
     await expect(element(by.id('OutputMemoLabel').and(by.text('Test2')))).toBeVisible();
