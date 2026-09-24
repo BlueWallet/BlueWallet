@@ -42,10 +42,10 @@ const Settings = () => {
 
       <SettingsSection>
         <SettingsListItem
-          title={loc.settings.general}
-          iconName="settings"
-          onPress={() => navigate('GeneralSettings')}
-          testID="GeneralSettings"
+          title={loc.settings.privacy}
+          iconName="privacy"
+          onPress={() => navigate('PrivacySettings')}
+          testID="PrivacySettings"
           chevron
         />
         <SettingsListItem

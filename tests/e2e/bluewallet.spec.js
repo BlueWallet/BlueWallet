@@ -94,15 +94,18 @@ describe('BlueWallet UI Tests - no wallets', () => {
     // go to settings, press SelfTest and wait for OK
     await element(by.id('SettingsButton')).tap();
 
-    await element(by.id('GeneralSettings')).tap();
-    await waitForId('GeneralSettingsScreen');
+    await element(by.id('PrivacySettings')).tap();
+    await waitForId('PrivacySettingsScreen');
 
-    // trigger switches
-    await waitForId('ClipboardSwitch');
-    await element(by.id('ClipboardSwitch')).tap();
-    await element(by.id('ClipboardSwitch')).tap();
-    await element(by.id('QuickActionsSwitch')).tap();
-    await element(by.id('QuickActionsSwitch')).tap();
+    // Privacy options can be below the fold after the section headers and info rows.
+    for (const switchId of ['ClipboardSwitch', 'QuickActionsSwitch']) {
+      await waitFor(element(by.id(switchId)))
+        .toBeVisible()
+        .whileElement(by.id('PrivacySettingsScreen'))
+        .scroll(200, 'down');
+      await element(by.id(switchId)).tap();
+      await element(by.id(switchId)).tap();
+    }
     await goBack();
 
     //

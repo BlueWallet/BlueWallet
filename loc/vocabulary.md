@@ -2,6 +2,12 @@
 
 Reference glossary for translating BlueWallet's UI strings. Use this file as ground truth when improving or generating translations with LLMs — it documents the **chosen** rendering of each term per language (not just any literal dictionary translation) plus the reasoning behind those choices.
 
+## Privacy settings categories
+
+- **Screen Visibility**: information shown inside the app and in app-switcher snapshots.
+- **Device Integrations**: clipboard access, app-icon wallet shortcuts, home-screen widgets, and Apple Continuity.
+- **Data Sharing**: performance and reliability information submitted for analytics.
+
 ## How to use
 
 1. Find the term in **Glossary of terms** for the English meaning + nuance (e.g. "Bitcoin the network" vs "bitcoin the unit").

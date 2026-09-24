@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
+import presentAlert from '../../components/Alert';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
+import NotificationPrivacySettings from '../../components/NotificationPrivacySettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
 import { isDesktop } from '../../blue_modules/environment';
@@ -18,7 +20,15 @@ enum SettingsPrivacySection {
   TotalBalance,
 }
 
-const GeneralSettings: React.FC = () => {
+const PrivacyMoreInfo: React.FC<{ url: string; bottomDivider?: boolean }> = ({ url, bottomDivider = true }) => (
+  <SettingsListItem
+    title={loc.wallets.more_info}
+    onPress={() => Linking.openURL(url).catch(error => presentAlert({ message: error.message }))}
+    bottomDivider={bottomDivider}
+  />
+);
+
+const PrivacySettings: React.FC = () => {
   const { wallets, isStorageEncrypted } = useStorage();
 
   const {
@@ -127,8 +137,42 @@ const GeneralSettings: React.FC = () => {
   const encryptedDisabledNote = storageIsEncrypted ? `\n${loc.settings.encrypted_feature_disabled}` : '';
 
   return (
-    <SettingsScrollView testID="GeneralSettingsScreen">
-      <SettingsSection title={loc.settings.privacy}>
+    <SettingsScrollView testID="PrivacySettingsScreen">
+      <SettingsSection>
+        <SettingsListItem
+          title={loc.total_balance_view.title}
+          subtitle={loc.total_balance_view.explanation}
+          switch={{
+            value: isTotalBalanceEnabled,
+            onValueChange: onTotalBalanceEnabledValueChange,
+            disabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
+          }}
+          switchTestID="TotalBalanceSwitch"
+          bottomDivider={false}
+        />
+      </SettingsSection>
+
+      {!isDesktop && (
+        <SettingsSection title={loc.settings.privacy_screen_visibility}>
+          <SettingsListItem
+            title={loc.settings.privacy_temporary_screenshots}
+            subtitle={loc.settings.privacy_temporary_screenshots_instructions}
+            switch={{
+              value: !isPrivacyBlurEnabled,
+              onValueChange: onTemporaryScreenshotsValueChange,
+              disabled: isLoading === SettingsPrivacySection.All,
+            }}
+            bottomDivider={false}
+          />
+        </SettingsSection>
+      )}
+
+      <SettingsSection title={loc.settings.notifications}>
+        <NotificationPrivacySettings bottomDivider />
+        <PrivacyMoreInfo url="https://bluewallet.io/bluewallet-v8-0-1-private-notifications/" bottomDivider={false} />
+      </SettingsSection>
+
+      <SettingsSection title={loc.settings.privacy_device_integrations}>
         <SettingsListItem
           title={loc.settings.privacy_read_clipboard}
           subtitle={loc.settings.privacy_clipboard_explanation}
@@ -149,27 +193,40 @@ const GeneralSettings: React.FC = () => {
           }}
           switchTestID="QuickActionsSwitch"
         />
-        <SettingsListItem
-          title={loc.total_balance_view.title}
-          subtitle={loc.total_balance_view.explanation}
-          switch={{
-            value: isTotalBalanceEnabled,
-            onValueChange: onTotalBalanceEnabledValueChange,
-            disabled: isLoading === SettingsPrivacySection.All || wallets.length < 2,
-          }}
-          switchTestID="TotalBalanceSwitch"
+        <PrivacyMoreInfo
+          url={
+            Platform.OS === 'ios'
+              ? 'https://support.apple.com/guide/iphone/perform-quick-actions-iphcc8f419db/ios'
+              : 'https://support.google.com/android/answer/9450271'
+          }
+          bottomDivider={Platform.OS === 'ios'}
         />
-        {!isDesktop && (
-          <SettingsListItem
-            title={loc.settings.privacy_temporary_screenshots}
-            subtitle={loc.settings.privacy_temporary_screenshots_instructions}
-            switch={{
-              value: !isPrivacyBlurEnabled,
-              onValueChange: onTemporaryScreenshotsValueChange,
-              disabled: isLoading === SettingsPrivacySection.All,
-            }}
-          />
+        {Platform.OS === 'ios' && (
+          <>
+            <SettingsListItem
+              title={loc.settings.widgets}
+              subtitle={`${loc.settings.total_balance_explanation}${encryptedDisabledNote}`}
+              switch={{
+                value: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
+                onValueChange: onWidgetsTotalBalanceValueChange,
+                disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
+              }}
+            />
+            <PrivacyMoreInfo url="https://support.apple.com/guide/iphone/add-edit-and-remove-widgets-iphb8f1bf206/ios" />
+            <SettingsListItem
+              title={loc.settings.general_continuity}
+              subtitle={loc.settings.general_continuity_e}
+              switch={{
+                value: isHandOffUseEnabled,
+                onValueChange: onHandOffUseEnabledChange,
+              }}
+            />
+            <PrivacyMoreInfo url="https://www.apple.com/macos/continuity/" bottomDivider={false} />
+          </>
         )}
+      </SettingsSection>
+
+      <SettingsSection title={loc.settings.privacy_data_sharing}>
         <SettingsListItem
           title={loc.settings.privacy_do_not_track}
           subtitle={loc.settings.privacy_do_not_track_explanation}
@@ -178,45 +235,15 @@ const GeneralSettings: React.FC = () => {
             onValueChange: onDoNotTrackValueChange,
             disabled: isLoading === SettingsPrivacySection.All,
           }}
-          bottomDivider={false}
         />
+        <PrivacyMoreInfo url="https://bluewallet.io/privacy/" bottomDivider={false} />
       </SettingsSection>
-
-      {Platform.OS === 'ios' && (
-        <>
-          <SettingsSection title={loc.settings.widgets}>
-            <SettingsListItem
-              title={loc.settings.total_balance}
-              subtitle={`${loc.settings.total_balance_explanation}${encryptedDisabledNote}`}
-              switch={{
-                value: storageIsEncrypted ? false : isWidgetBalanceDisplayAllowed,
-                onValueChange: onWidgetsTotalBalanceValueChange,
-                disabled: isLoading === SettingsPrivacySection.All || storageIsEncrypted,
-              }}
-              bottomDivider={false}
-            />
-          </SettingsSection>
-
-          <SettingsSection title={loc.settings.general_continuity}>
-            <SettingsListItem
-              title={loc.settings.general_continuity}
-              subtitle={loc.settings.general_continuity_e}
-              switch={{
-                value: isHandOffUseEnabled,
-                onValueChange: onHandOffUseEnabledChange,
-              }}
-              bottomDivider={false}
-            />
-          </SettingsSection>
-        </>
-      )}
 
       <SettingsSection>
         <SettingsListItem
           title={loc.settings.privacy_system_settings}
           onPress={openApplicationSettings}
           testID="PrivacySystemSettings"
-          chevron
           bottomDivider={false}
         />
       </SettingsSection>
@@ -224,4 +251,4 @@ const GeneralSettings: React.FC = () => {
   );
 };
 
-export default GeneralSettings;
+export default PrivacySettings;
