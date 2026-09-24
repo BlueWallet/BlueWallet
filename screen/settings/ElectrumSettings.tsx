@@ -27,6 +27,7 @@ import {
 import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useSettings } from '../../hooks/context/useSettings';
+import { useKeyboard } from '../../hooks/useKeyboard';
 import loc from '../../loc';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { CommonToolTipActions } from '../../typings/CommonToolTipActions';
@@ -56,6 +57,8 @@ const ElectrumSettings: React.FC = () => {
   const [isAndroidNumericKeyboardFocused, setIsAndroidNumericKeyboardFocused] = useState(false);
   const [isAndroidAddressKeyboardVisible, setIsAndroidAddressKeyboardVisible] = useState(false);
   const { setIsElectrumDisabled, isElectrumDisabled } = useSettings();
+  const { height: keyboardHeight, isVisible: isKeyboardVisible } = useKeyboard();
+  const androidKeyboardInset = Platform.OS === 'android' && isKeyboardVisible ? keyboardHeight + 24 : 0;
   const [savedServer, setSavedServer] = useState<{ host: string; tcp: string; ssl: string }>({
     host: '',
     tcp: '',
@@ -601,6 +604,7 @@ const ElectrumSettings: React.FC = () => {
       automaticallyAdjustContentInsets
       contentInsetAdjustmentBehavior="automatic"
       automaticallyAdjustKeyboardInsets
+      floatingButtonHeight={androidKeyboardInset}
       testID="ElectrumSettingsScrollView"
     >
       <SettingsSection>
