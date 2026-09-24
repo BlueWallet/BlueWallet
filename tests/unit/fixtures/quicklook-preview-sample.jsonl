@@ -1,0 +1,3 @@
+{"type":"addr","ref":"bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4","label":"Savings receive address","spendable":true}
+{"type":"tx","ref":"4d3f5c08f9484a42f2a3187c72336df15c2b76ffb04e3480b7309e7af3c87f8b","label":"Monthly savings"}
+{"type":"pubkey","ref":"0279be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798","label":"Sample signer","origin":"Public demonstration data"}

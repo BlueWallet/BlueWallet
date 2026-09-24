@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Quick Look Preview</string>
 	<key>CFBundleExecutable</key>
@@ -26,6 +28,7 @@
 			<false/>
 			<key>QLSupportedContentTypes</key>
 			<array>
+				<string>io.bluewallet.multisig-coordination</string>
 				<string>io.bluewallet.bip329</string>
 				<string>io.bluewallet.psbt</string>
 				<string>io.bluewallet.psbt.txn</string>

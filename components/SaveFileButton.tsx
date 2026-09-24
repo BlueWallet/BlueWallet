@@ -10,17 +10,30 @@ import { Action } from './types';
 interface SaveFileButtonProps extends TouchableOpacityProps {
   fileName: string;
   fileContent: string;
+  textFileName?: string;
   children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   afterOnPress?: () => void;
   beforeOnPress?: (() => Promise<void>) | (() => void);
 }
 
-const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, children, style, beforeOnPress, afterOnPress }) => {
+const SaveFileButton: React.FC<SaveFileButtonProps> = ({
+  fileName,
+  fileContent,
+  textFileName,
+  children,
+  style,
+  beforeOnPress,
+  afterOnPress,
+}) => {
   const handlePressMenuItem = useCallback(
     async (actionId: string) => {
       if (beforeOnPress) {
         await beforeOnPress();
+      }
+      if (textFileName && (actionId === 'saveTxt' || actionId === 'shareTxt')) {
+        await fs.writeFileAndExport(textFileName, fileContent, actionId === 'shareTxt').finally(() => afterOnPress?.());
+        return;
       }
       const action = actions.find(a => a.id === actionId);
 
@@ -34,14 +47,30 @@ const SaveFileButton: React.FC<SaveFileButtonProps> = ({ fileName, fileContent, 
         });
       }
     },
-    [afterOnPress, beforeOnPress, fileContent, fileName],
+    [afterOnPress, beforeOnPress, fileContent, fileName, textFileName],
   );
 
   return (
     <ToolTipMenu
       isButton
       shouldOpenOnLongPress={false}
-      actions={actions}
+      actions={
+        textFileName
+          ? [
+              ...actions,
+              {
+                id: 'saveTxt',
+                text: `${loc._.save} (.txt)`,
+                icon: actionIcons.Save,
+              },
+              {
+                id: 'shareTxt',
+                text: `${loc.receive.details_share} (.txt)`,
+                icon: actionIcons.Share,
+              },
+            ]
+          : actions
+      }
       onPressMenuItem={handlePressMenuItem}
       buttonStyle={style as ViewStyle}
     >

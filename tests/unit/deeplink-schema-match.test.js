@@ -1,4 +1,5 @@
 import assert from 'assert';
+import * as fileSystem from '../../blue_modules/fs';
 
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
@@ -537,5 +538,31 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
 
     assert.ok(popWasCalled2);
     assert.ok(navigateWasCalled2);
+  });
+});
+
+describe('multisig coordination files', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  it('routes local coordination file contents to wallet import', async () => {
+    const contents = 'Name: Vault\nPolicy: 2 of 3\nFormat: P2WSH';
+    const read = jest.spyOn(fileSystem, 'readFileOutsideSandbox').mockResolvedValue(contents);
+    const route = await asyncNavigationRouteFor({ url: 'file:///tmp/Family%20Vault.BWCOORD' });
+    expect(read).toHaveBeenCalledWith('file:///tmp/Family Vault.BWCOORD');
+    expect(route).toEqual(['AddWalletRoot', { screen: 'ImportWallet', params: { triggerImport: true, label: contents } }]);
+  });
+
+  it('recognizes file and content URLs without treating remote URLs as local files', () => {
+    expect(DeeplinkSchemaMatch.isPossiblyCoordinationFile('content://documents/vault.bwcoord')).toBe(true);
+    expect(DeeplinkSchemaMatch.isPossiblyCoordinationFile('https://example.com/vault.bwcoord')).toBe(false);
+    expect(DeeplinkSchemaMatch.isPossiblyCoordinationFile('file:///tmp/vault.txt')).toBe(false);
+  });
+
+  it('does not navigate for an empty file', async () => {
+    jest.spyOn(fileSystem, 'readFileOutsideSandbox').mockResolvedValue('');
+    const navigate = jest.fn();
+    DeeplinkSchemaMatch.navigationRouteFor({ url: 'file:///tmp/empty.bwcoord' }, navigate);
+    await Promise.resolve();
+    expect(navigate).not.toHaveBeenCalled();
   });
 });
