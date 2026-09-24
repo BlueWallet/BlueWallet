@@ -122,7 +122,7 @@ const CoinControlOutputSheet: React.FC = () => {
               <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>{receivedDate}</Text>
             </View>
           </View>
-          <CopyTextToClipboard text={utxo.address} isAddress textAlign="left" style={addressTextStyle} />
+          <CopyTextToClipboard text={utxo.address} isAddress textAlign="left" interactive={false} selectable style={addressTextStyle} />
         </View>
 
         <View style={styles.content}>
