@@ -11,8 +11,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   useWindowDimensions,
   View,
   RefreshControl,
@@ -55,7 +53,6 @@ import { presentWalletExportReminder } from '../../helpers/presentWalletExportRe
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
 import useScreenMenuActions from '../../hooks/useScreenMenuActions';
-import { matchesTransactionSearch } from '../../blue_modules/transactionSearch';
 import { useSettings } from '../../hooks/context/useSettings';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import { getClipboardContent } from '../../blue_modules/clipboard';
@@ -179,7 +176,7 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
 };
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
-  const { wallets, saveToDisk, txMetadata } = useStorage();
+  const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
@@ -187,8 +184,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const { walletID } = params;
   const wallet = useWalletSubscribe(walletID);
   const [limit, setLimit] = useState(15);
-  const [searchQuery, setSearchQuery] = useState('');
-  const searchInputRef = useRef<TextInput>(null);
   const [pageSize] = useState(20);
   const navigation = useNavigation();
   const { setOptions, navigate } = navigation;
@@ -287,11 +282,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     return txs;
   }, [wallet]);
 
-  const filteredTransactions = useMemo(
-    () => sortedTransactions.filter(tx => matchesTransactionSearch(tx, searchQuery, txMetadata[tx.hash || tx.txid]?.memo)),
-    [sortedTransactions, searchQuery, txMetadata],
-  );
-  const getTransactions = useCallback((lmt = Infinity): Transaction[] => filteredTransactions.slice(0, lmt), [filteredTransactions]);
+  const getTransactions = useCallback((lmt = Infinity): Transaction[] => sortedTransactions.slice(0, lmt), [sortedTransactions]);
 
   const loadMoreTransactions = useCallback(() => {
     if (getTransactions(Infinity).length > limit) {
@@ -376,7 +367,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const isLightning = useCallback((): boolean => wallet.chain === Chain.OFFCHAIN || false, [wallet]);
   const renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
-    return filteredTransactions.length > limit ? (
+    return wallet.getTransactions().length > limit ? (
       <ActivityIndicator style={[styles.activityIndicator, stylesHook.activityIndicatorStyle]} />
     ) : (
       <View style={stylesHook.listFooterStyle} />
@@ -589,10 +580,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     send: wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd()) ? sendButtonPress : undefined,
     receive: wallet.allowReceive() ? receiveButtonPress : undefined,
     walletDetails: !isLoading ? () => navigate('WalletDetails', { walletID }) : undefined,
-    searchTransactions: () => {
-      flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
-      searchInputRef.current?.focus();
-    },
   });
 
   useFocusEffect(
@@ -797,37 +784,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           <View style={styles.listHeaderTextRow}>
             <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           </View>
-          <View style={styles.searchRow}>
-            <TextInput
-              ref={searchInputRef}
-              testID="TransactionSearchInput"
-              accessibilityLabel="Search Transactions"
-              placeholder="Search transactions, addresses and memos"
-              placeholderTextColor={colors.alternativeTextColor}
-              style={[styles.searchInput, { color: colors.foregroundColor, backgroundColor: colors.inputBackgroundColor }]}
-              value={searchQuery}
-              onChangeText={query => {
-                setSearchQuery(query);
-                setLimit(pageSize);
-              }}
-              autoCorrect={false}
-              autoCapitalize="none"
-              returnKeyType="search"
-            />
-            {!!searchQuery && (
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityLabel={loc.wallets.clear_search}
-                onPress={() => {
-                  setSearchQuery('');
-                  setLimit(pageSize);
-                }}
-                style={styles.clearSearch}
-              >
-                <Text style={{ color: colors.foregroundColor }}>{loc.wallets.clear_search}</Text>
-              </TouchableOpacity>
-            )}
-          </View>
         </View>
         <View style={stylesHook.backgroundContainer}>
           {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
@@ -856,14 +812,10 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       navigate,
       walletID,
       isWatchOnlyWarningVisible,
-      searchQuery,
-      pageSize,
-      colors,
     ],
   );
 
   useEffect(() => {
-    setSearchQuery('');
     setLimit(15);
     headerScrolledRef.current = false;
     scrolledHeaderOpacity.value = 0;
@@ -895,15 +847,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         windowSize={15}
         scrollEventThrottle={16}
         ListHeaderComponent={ListHeaderComponent()}
-        keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
           <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
             <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
-              {searchQuery.trim()
-                ? loc.wallets.no_results_found
-                : (isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
+              {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
             </Text>
-            {!searchQuery.trim() && isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+            {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
           </ScrollView>
         }
         refreshControl={
@@ -1021,9 +970,6 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   flatList: { flex: 1, backgroundColor: 'transparent' },
   transactionsSection: { marginTop: -1 },
-  searchRow: { paddingHorizontal: 16, paddingBottom: 12, gap: 8 },
-  searchInput: { minHeight: 44, borderRadius: 10, paddingHorizontal: 12, fontSize: 16 },
-  clearSearch: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-end', paddingHorizontal: 8 },
   scrollViewContent: {
     flex: 1,
     justifyContent: 'center',

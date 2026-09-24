@@ -227,6 +227,7 @@ const ImportWallet = () => {
       keyboardShouldPersistTaps="always"
       // Android IME lift comes from AndroidKeyboardAccessoryDock (same height as the bar).
       automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+      scrollToOverflowEnabled={false}
     >
       <BlueSpacing20 />
       <TouchableWithoutFeedback accessibilityRole="button" onPress={speedBackdoorTap} testID="SpeedBackdoor">

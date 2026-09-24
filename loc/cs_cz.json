@@ -723,7 +723,7 @@
     "notification_tx_unconfirmed": "Oznamovací transakce ještě není potvrzena, počkejte prosím",
     "failed_create_notif_tx": "Vytvoření on-chain transakce selhalo",
     "onchain_tx_needed": "Je vyžadována on-chain transakce",
-    "notif_tx_sent": "Oznamovací transakce byla odeslána. Počkejte prosím, než bude potvrzena",
+    "notif_tx_sent" : "Oznamovací transakce byla odeslána. Počkejte prosím, než bude potvrzena",
     "notif_tx": "Oznamovací transakce",
     "not_found": "Platební kód nebyl nalezen"
   }
