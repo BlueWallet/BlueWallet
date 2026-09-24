@@ -1090,7 +1090,10 @@ const TransactionStatus: React.FC = () => {
             )}
           </Text>
           {txValue !== null && (
-            <Text style={[styles.localCurrency, stylesHook.localCurrency, scaledStyles.localCurrency]}>
+            <Text
+              style={[styles.localCurrency, stylesHook.localCurrency, scaledStyles.localCurrency]}
+              selectable
+            >
               {preferredBalanceUnit === BitcoinUnit.LOCAL_CURRENCY
                 ? `${formatBalanceWithoutSuffix(Math.abs(txValue), BitcoinUnit.BTC, true)} ${BitcoinUnit.BTC}`
                 : satoshiToLocalCurrency(Math.abs(txValue))}
