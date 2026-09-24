@@ -9,11 +9,25 @@ enum QuickLookDocumentTests {
         func map(_ entries: [([UInt8], [UInt8])]) -> [UInt8] { entries.flatMap { vector($0.0) + vector($0.1) } + [0] }
         let script = BitcoinEncoding.hex("0014751e76e8199196d454941c45d1b3a323f1433bd6")!
         func transaction(amount: UInt64, txid: [UInt8] = Array(repeating: 0, count: 32), index: UInt64 = 0) -> [UInt8] {
-            le(2, 4) + [1] + txid + le(index, 4) + [0] + le(0xffffffff, 4) + [1] + le(amount) + vector(script) + le(0, 4)
+            var bytes: [UInt8] = le(2, 4)
+            bytes.append(1)
+            bytes += txid
+            bytes += le(index, 4)
+            bytes.append(0)
+            bytes += le(0xffffffff, 4)
+            bytes.append(1)
+            bytes += le(amount)
+            bytes += vector(script)
+            bytes += le(0, 4)
+            return bytes
         }
         let unsigned = transaction(amount: 900)
         func psbt(input: [([UInt8], [UInt8])] = [], tx: [UInt8]? = nil) -> Data {
-            Data([0x70, 0x73, 0x62, 0x74, 0xff] + map([([0], tx ?? unsigned)]) + map(input) + [0])
+            var bytes: [UInt8] = [0x70, 0x73, 0x62, 0x74, 0xff]
+            bytes += map([([0], tx ?? unsigned)])
+            bytes += map(input)
+            bytes.append(0)
+            return Data(bytes)
         }
         func rejects(_ operation: () throws -> QuickLookDocument) {
             do { _ = try operation(); preconditionFailure("Expected malformed input to be rejected") } catch {}
@@ -48,8 +62,11 @@ enum QuickLookDocumentTests {
         rejects { try QuickLookDocument.psbt(psbt(input: [([1], witness), ([1], witness)])) } // duplicate map key
         rejects { try QuickLookDocument.psbt(psbt(input: [([1], le(UInt64.max) + vector(script))])) }
         rejects { try QuickLookDocument.psbt(psbt() + Data([1])) }
-        let version2 = Data([0x70, 0x73, 0x62, 0x74, 0xff] + map([([0xfb], le(2, 4)), ([2], le(2, 4)), ([4], [1]), ([5], [1])]) + map([([0x0e], Array(repeating: 0, count: 32)), ([0x0f], le(0, 4)), ([1], witness)]) + map([([3], le(900)), ([4], script)]))
-        let v2 = try QuickLookDocument.psbt(version2)
+        var version2: [UInt8] = [0x70, 0x73, 0x62, 0x74, 0xff]
+        version2 += map([([0xfb], le(2, 4)), ([2], le(2, 4)), ([4], [1]), ([5], [1])])
+        version2 += map([([0x0e], Array(repeating: 0, count: 32)), ([0x0f], le(0, 4)), ([1], witness)])
+        version2 += map([([3], le(900)), ([4], script)])
+        let v2 = try QuickLookDocument.psbt(Data(version2))
         precondition(v2.version == 2 && v2.total == 900 && v2.fee == 100)
         let binary = try QuickLookDocument.transaction(Data(unsigned))
         let hex = try QuickLookDocument.transaction(Data(BitcoinEncoding.hexString(unsigned).utf8))

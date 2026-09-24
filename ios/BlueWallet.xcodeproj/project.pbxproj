@@ -126,15 +126,6 @@
 		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		F106AA234C086C6B795EE267 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2162D22139056EC332C84D92 /* Foundation.framework */; };
 		F7A1B2C3D4E5F60718293A4D /* ScriptDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A1B2C3D4E5F60718293A4E /* ScriptDescription.swift */; };
-		9D3E7D0745376140B9FC836B /* CopyFileContents.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C213F112C73BE01AAE4D39D6 /* CopyFileContents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		B34C34536407CBFFBB1EF496 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9DC34920A50C61E46236C844 /* InfoPlist.strings */; };
-		450B9964E313979D244FF640 /* FileContents.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61900A410A4319C358A2783 /* FileContents.swift */; };
-		0837BC62716F61939A936E43 /* CopyActionIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = F0860964440E2CD579C24501 /* CopyActionIcon@2x.png */; };
-		0228313E4B96B60323BBE74D /* VaultPreview.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = C00300000000000000000003 /* VaultPreview.xcstrings */; };
-		47AF49C79B25AC3031AA3DF7 /* CopyFileContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6233FC953433C7551C485C7 /* CopyFileContentsViewController.swift */; };
-		FAEA67D46825D2F17629424F /* MultisigCoordination.swift in Sources */ = {isa = PBXBuildFile; fileRef = C00100000000000000000003 /* MultisigCoordination.swift */; };
-		3528706ECDCCDF36213C350D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2162D22139056EC332C84D92 /* Foundation.framework */; };
-		7568A014FC277946190D62EB /* CopyActionIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88E17FCBC058850C2C6AECE7 /* CopyActionIcon@3x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -173,13 +164,6 @@
 			remoteGlobalIDString = 965FB16588C226F99A95FF1D;
 			remoteInfo = QuickLookThumbnail;
 		};
-		E9408146D7E679B5605A8183 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 17AF4600358DA1D198E26967;
-			remoteInfo = CopyFileContents;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -193,7 +177,6 @@
 				6D2A6468258BA92D0092292B /* Stickers.appex in Embed Foundation Extensions */,
 				6DD410A7266CADF40087DE03 /* WidgetsExtension.appex in Embed Foundation Extensions */,
 				577A0069C98D178A050CC84F /* QuickLookThumbnail.appex in Embed Foundation Extensions */,
-				9D3E7D0745376140B9FC836B /* CopyFileContents.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -328,15 +311,6 @@
 		FC63C7054F1C4FDFB7A830E5 /* libRCTPrivacySnapshot.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTPrivacySnapshot.a; sourceTree = "<group>"; };
 		FC98DC24A81A463AB8B2E6B1 /* libRNImagePicker.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNImagePicker.a; sourceTree = "<group>"; };
 		FD7977067E1A496F94D8B1B7 /* libRNDeviceInfo.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNDeviceInfo.a; sourceTree = "<group>"; };
-		C213F112C73BE01AAE4D39D6 /* CopyFileContents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CopyFileContents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		88E17FCBC058850C2C6AECE7 /* CopyActionIcon@3x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; path = "CopyActionIcon@3x.png"; sourceTree = "<group>"; };
-		9528B9B4880FA1C3174A0447 /* en_US */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en_US; path = en_US.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		E8A76E0F6650068B96A731B8 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		34B92FE1AB8FC124728CD0A5 /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		D6233FC953433C7551C485C7 /* CopyFileContentsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CopyFileContentsViewController.swift; sourceTree = "<group>"; };
-		C61900A410A4319C358A2783 /* FileContents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FileContents.swift; sourceTree = "<group>"; };
-		F0860964440E2CD579C24501 /* CopyActionIcon@2x.png */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = image.png; path = "CopyActionIcon@2x.png"; sourceTree = "<group>"; };
-		CABD8A2424099AD99713F70D /* es-419 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = "es-419"; path = "es-419.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -381,14 +355,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B32900000000000000000010 /* QuickLook.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		DA21D446A179A25FE784EA43 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3528706ECDCCDF36213C350D /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -573,7 +539,6 @@
 				4B0CACE36C3348E1BCEA92C8 /* Resources */,
 				FAA856B639C61E61D2CF90A8 /* Pods */,
 				DBE02524057AE76C1508FC5C /* QuickLookThumbnail */,
-				B2FE27CB44370132A30D80DF /* CopyFileContents */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -588,7 +553,6 @@
 				6D2A6461258BA92C0092292B /* Stickers.appex */,
 				6DD4109C266CADF10087DE03 /* WidgetsExtension.appex */,
 				29920A93BCBA9DB4E82EE92D /* QuickLookThumbnail.appex */,
-				C213F112C73BE01AAE4D39D6 /* CopyFileContents.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -643,7 +607,6 @@
 				8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */,
 				FC63C7054F1C4FDFB7A830E5 /* libRCTPrivacySnapshot.a */,
 				B4D3235A177F4580BA52F2F9 /* libRNCSlider.a */,
-				B32900000000000000000011 /* QuickLook.framework */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -714,6 +677,7 @@
 				57019CDAE87B27F6F6D28C4A /* Info.plist */,
 				E745397267AD62B80F3CA6C3 /* ThumbnailProvider.swift */,
 			);
+			name = QuickLookThumbnail;
 			path = QuickLookThumbnail;
 			sourceTree = "<group>";
 		};
@@ -724,19 +688,6 @@
 				93D74F9C8EE7B4443A49594C /* Pods-BlueWallet.release.xcconfig */,
 			);
 			path = Pods;
-			sourceTree = "<group>";
-		};
-		B2FE27CB44370132A30D80DF /* CopyFileContents */ = {
-			isa = PBXGroup;
-			children = (
-				D6233FC953433C7551C485C7 /* CopyFileContentsViewController.swift */,
-				C61900A410A4319C358A2783 /* FileContents.swift */,
-				E8A76E0F6650068B96A731B8 /* Info.plist */,
-				9DC34920A50C61E46236C844 /* InfoPlist.strings */,
-				F0860964440E2CD579C24501 /* CopyActionIcon@2x.png */,
-				88E17FCBC058850C2C6AECE7 /* CopyActionIcon@3x.png */,
-			);
-			path = CopyFileContents;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -765,7 +716,6 @@
 				6D2A6467258BA92D0092292B /* PBXTargetDependency */,
 				6DD410A6266CADF40087DE03 /* PBXTargetDependency */,
 				F7A1B2C3D4E5F60718293A4C /* PBXTargetDependency */,
-				27F13B79F1EFAAD14F480A25 /* PBXTargetDependency */,
 			);
 			name = BlueWallet;
 			productName = "Hello World";
@@ -840,23 +790,6 @@
 			productReference = B32900000000000000000005 /* QuickLookPreview.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		17AF4600358DA1D198E26967 /* CopyFileContents */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 0F2E035DC0624E6B321969D5 /* Build configuration list for PBXNativeTarget "CopyFileContents" */;
-			buildPhases = (
-				AC497C93EEEBCD546AF6DEB6 /* Sources */,
-				DA21D446A179A25FE784EA43 /* Frameworks */,
-				CC58E9D37FDDFA06F3FFE753 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CopyFileContents;
-			productName = CopyFileContents;
-			productReference = C213F112C73BE01AAE4D39D6 /* CopyFileContents.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -919,7 +852,6 @@
 				nb,
 				en_US,
 				"en-US",
-				"es-419",
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
@@ -931,7 +863,6 @@
 				6D2A6460258BA92C0092292B /* Stickers */,
 				6DD4109B266CADF10087DE03 /* WidgetsExtension */,
 				965FB16588C226F99A95FF1D /* QuickLookThumbnail */,
-				17AF4600358DA1D198E26967 /* CopyFileContents */,
 			);
 		};
 /* End PBXProject section */
@@ -985,17 +916,6 @@
 			files = (
                 C00200000000000000000005,
                 C00300000000000000000002,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CC58E9D37FDDFA06F3FFE753 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0228313E4B96B60323BBE74D /* VaultPreview.xcstrings in Resources */,
-				B34C34536407CBFFBB1EF496 /* InfoPlist.strings in Resources */,
-				0837BC62716F61939A936E43 /* CopyActionIcon@2x.png in Resources */,
-				7568A014FC277946190D62EB /* CopyActionIcon@3x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1089,13 +1009,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1131,13 +1047,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-BlueWallet/Pods-BlueWallet-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1265,16 +1177,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AC497C93EEEBCD546AF6DEB6 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				47AF49C79B25AC3031AA3DF7 /* CopyFileContentsViewController.swift in Sources */,
-				450B9964E313979D244FF640 /* FileContents.swift in Sources */,
-				FAEA67D46825D2F17629424F /* MultisigCoordination.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1305,25 +1207,7 @@
 			target = 965FB16588C226F99A95FF1D /* QuickLookThumbnail */;
 			targetProxy = F7A1B2C3D4E5F60718293A4B /* PBXContainerItemProxy */;
 		};
-		27F13B79F1EFAAD14F480A25 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 17AF4600358DA1D198E26967 /* CopyFileContents */;
-			targetProxy = E9408146D7E679B5605A8183 /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		9DC34920A50C61E46236C844 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				9528B9B4880FA1C3174A0447 /* en_US */,
-				34B92FE1AB8FC124728CD0A5 /* es */,
-				CABD8A2424099AD99713F70D /* es-419 */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
@@ -1934,88 +1818,6 @@
 			};
 			name = Release;
 		};
-		49D246B51B1EDC76CD6EA5AB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1703279999;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
-				INFOPLIST_FILE = CopyFileContents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(SDKROOT)/usr/lib/swift",
-					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
-					"$(inherited)",
-				);
-				MARKETING_VERSION = 8.0.2;
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.CopyFileContents;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore io.bluewallet.bluewallet.CopyFileContents";
-				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		8701B0D349B035E20DFAC928 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1703279999;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = A7W54YZ4WU;
-				INFOPLIST_FILE = CopyFileContents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(SDKROOT)/usr/lib/swift",
-					"$(SDKROOT)/System/iOSSupport/usr/lib/swift",
-					"$(inherited)",
-				);
-				MARKETING_VERSION = 8.0.2;
-				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.CopyFileContents;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match Development io.bluewallet.bluewallet.CopyFileContents";
-				REACT_NATIVE_PATH = "$(SRCROOT)/../node_modules/react-native";
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2069,15 +1871,6 @@
 			buildConfigurations = (
 				7850A284B385A84513DED9A8 /* Release */,
 				140DD55D6B1D5CA902349F85 /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		0F2E035DC0624E6B321969D5 /* Build configuration list for PBXNativeTarget "CopyFileContents" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				49D246B51B1EDC76CD6EA5AB /* Release */,
-				8701B0D349B035E20DFAC928 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
