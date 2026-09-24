@@ -143,7 +143,13 @@ jobs:
         enable-hw-keyboard: true
         emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none -camera-front none -partition-size 2047
         arch: x86_64
-        script: npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
+        # The API 36 AOSP Quickstep launcher can ANR during cold boot and leave
+        # a system dialog stealing focus from every Detox test. Detox starts
+        # BlueWallet directly, so this disposable emulator does not need HOME.
+        script: |
+          adb shell am force-stop com.android.launcher3
+          adb shell pm disable-user --user 0 com.android.launcher3
+          npm run e2e:release-test -- --record-videos failing --record-logs failing --take-screenshots failing --headless --retries 4 --reuse --artifacts-location ${{ github.workspace }}/artifacts
 
     - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       if: failure()
