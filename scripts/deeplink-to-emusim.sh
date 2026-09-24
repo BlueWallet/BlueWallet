@@ -15,13 +15,13 @@ deepLinks=(
   "zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx"
 )
 
-testOptions=("Send" "Notification")
+testOptions=("Send" "Send File" "Notification")
 select_test_type() {
   local ESC=$(printf "\033")
   local selected=0
   while true; do
     clear
-    echo -e "\n\033[1mSelect test type (Send or Notification):\033[0m\n"
+    echo -e "\n\033[1mSelect test type:\033[0m\n"
     for i in "${!testOptions[@]}"; do
       if [ $i -eq $selected ]; then
         echo "> ${testOptions[$i]}"
@@ -62,6 +62,8 @@ if [[ "$TEST_TYPE" == "Notification" ]]; then
     "bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7"
     "BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE"
   )
+elif [[ "$TEST_TYPE" == "Send File" ]]; then
+  deepLinks=("Open PSBT")
 fi
 
 select_option() {
@@ -72,6 +74,8 @@ select_option() {
     clear
     if [[ "$TEST_TYPE" == "Notification" ]]; then
       echo -e "\n\033[1m[Category: Receive] Select a deep link for notification:\033[0m\n"
+    elif [[ "$TEST_TYPE" == "Send File" ]]; then
+      echo -e "\n\033[1m[Category: Send File] Select a file action:\033[0m\n"
     else
       echo -e "\n\033[1m[Test: $TEST_TYPE] Select a deep link:\033[0m\n"
     fi
@@ -109,6 +113,16 @@ select_option() {
 }
 
 select_option
+
+if [[ "$TEST_TYPE" == "Send File" ]]; then
+  script_directory=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd) || exit 1
+  selectedFile="$script_directory/../tests/unit/fixtures/quicklook-preview-sample.psbt"
+  if [[ ! -f "$selectedFile" || ! -r "$selectedFile" ]]; then
+    echo "Sample PSBT file not found: $selectedFile"
+    exit 1
+  fi
+  echo "Sending sample PSBT: $selectedFile"
+fi
 
 # Enumerate booted iOS simulators with OS versions
 ios_sims=()
@@ -163,7 +177,14 @@ select device in "${devices[@]}"; do
   if [[ "$platform" == "iOS Simulator" ]]; then
     udid="${dev##*[}"
     udid="${udid%%]*}"
-    if [[ "$TEST_TYPE" == "Notification" ]]; then
+    if [[ "$TEST_TYPE" == "Send File" ]]; then
+      app_container=$(xcrun simctl get_app_container "$udid" io.bluewallet.bluewallet data) || exit 1
+      import_directory=$(mktemp -d "$app_container/tmp/psbt-import-XXXXXX") || exit 1
+      cp -- "$selectedFile" "$import_directory/import.psbt" || exit 1
+      selectedLink=$(node -e 'console.log(require("url").pathToFileURL(process.argv[1]).href)' "$import_directory/import.psbt") || exit 1
+      echo -e "\nOpening PSBT on iOS simulator...\n"
+      xcrun simctl openurl "$udid" "$selectedLink" || exit 1
+    elif [[ "$TEST_TYPE" == "Notification" ]]; then
       echo -e "\nPreparing notification payload for address: $selectedLink\n"
       # dynamically build APNS payload with selected address
       read -r -d '' APNS_PAYLOAD << JSON
@@ -203,10 +224,26 @@ JSON
       xcrun simctl openurl "$udid" "$selectedLink"
     fi
   else
-    echo -e "\nSending deep link to Android emulator: $selectedLink\n"
     # Strip version info to get the emulator device ID
     emuId="${dev%% *}"
-    adb -s "$emuId" shell am start -a android.intent.action.VIEW -d "$selectedLink"
+    if [[ "$TEST_TYPE" == "Send File" ]]; then
+      # A debug build lets us place the file in BlueWallet's own readable sandbox.
+      app_directory=$(adb -s "$emuId" shell run-as io.bluewallet.bluewallet pwd | tr -d '\r')
+      if [[ "$app_directory" != /data/* ]]; then
+        echo "Sending a file requires a debuggable BlueWallet build on Android."
+        exit 1
+      fi
+      remote_file="cache/psbt-import-$(date +%s)-$$.psbt"
+      adb -s "$emuId" shell run-as io.bluewallet.bluewallet mkdir -p cache || exit 1
+      adb -s "$emuId" shell "run-as io.bluewallet.bluewallet sh -c 'cat > $remote_file'" < "$selectedFile" || exit 1
+      selectedLink="file://$app_directory/$remote_file"
+      echo -e "\nOpening PSBT on Android emulator...\n"
+      adb -s "$emuId" shell am start -n io.bluewallet.bluewallet/.MainActivity \
+        -a android.intent.action.VIEW -t application/octet-stream -d "$selectedLink" || exit 1
+    else
+      echo -e "\nSending deep link to Android emulator: $selectedLink\n"
+      adb -s "$emuId" shell am start -a android.intent.action.VIEW -d "$selectedLink"
+    fi
   fi
   break
 done
