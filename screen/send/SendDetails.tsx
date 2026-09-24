@@ -28,6 +28,7 @@ import RNFS from 'react-native-fs';
 import { btcToSatoshi, fiatToBTC } from '../../blue_modules/currency';
 import * as fs from '../../blue_modules/fs';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
+import { nativeSendDetailsAction } from '../../blue_modules/menuActions';
 import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
@@ -48,6 +49,7 @@ import { useTheme } from '../../components/themes';
 import { Action } from '../../components/types';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import loc, { formatBalance, formatBalanceWithoutSuffix } from '../../loc';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee, NetworkTransactionFeeType } from '../../models/networkTransactionFees';
@@ -1227,6 +1229,42 @@ const SendDetails = () => {
   }, [addresses, isEditable, wallet, isTransactionReplaceable]);
 
   const headerRightActionGroups = useMemo(() => headerRightActions(), [headerRightActions]);
+
+  const nativeMenuActions = useMemo(
+    () =>
+      Object.fromEntries(
+        headerRightActionGroups
+          .flat()
+          .filter(action => !action.hidden)
+          .flatMap(action => {
+            const actionId = String(action.id);
+            const nativeAction = nativeSendDetailsAction(actionId);
+            return nativeAction ? [[nativeAction, () => headerRightOnPress(actionId)] as const] : [];
+          }),
+      ),
+    [headerRightActionGroups, headerRightOnPress],
+  );
+  const nativeMenuActionStates = useMemo(
+    () =>
+      Object.fromEntries(
+        headerRightActionGroups
+          .flat()
+          .filter(action => !action.hidden)
+          .flatMap(action => {
+            const nativeAction = nativeSendDetailsAction(String(action.id));
+            return nativeAction
+              ? [
+                  [
+                    nativeAction,
+                    { disabled: !!action.disabled, ...(action.menuState === undefined ? {} : { checked: action.menuState === true }) },
+                  ] as const,
+                ]
+              : [];
+          }),
+      ),
+    [headerRightActionGroups],
+  );
+  useScreenMenuActions(nativeMenuActions, undefined, nativeMenuActionStates);
 
   const headerMenuOptions = useMemo(
     () =>
