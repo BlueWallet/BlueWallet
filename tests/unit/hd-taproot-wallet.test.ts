@@ -172,4 +172,30 @@ describe('Taproot HD (BIP86)', () => {
       `bad feerate, got ${actualFeerate}, expected at least ${targetFeeRate}; fee: ${psbt.getFee()}; virsualSize: ${tx.virtualSize()} vbytes; ${tx.toHex()}`,
     );
   });
+
+  it('pays requested feerate when there is a p2tr change output', () => {
+    const hd = new HDTaprootWallet();
+    hd.setSecret('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about');
+    assert.ok(hd.validateMnemonic());
+
+    const address = hd._getExternalAddressByIndex(0);
+    const txid = 'e97f982766537c5330b50ef521bbcd8811971eb7cc9fd64bda45266136f27b82';
+    const ownUtxos = [
+      { height: 0, value: 100000, address, txid, vout: 0 },
+      { height: 0, value: 100000, address, txid, vout: 1 },
+    ];
+
+    const { tx, fee, outputs } = hd.createTransaction(
+      ownUtxos,
+      [{ address: 'bc1pgrhjjw52p6a03v635f7cnl6ttvuz9f34ujhaefm6xqtscd3m473szkl92g', value: 150000 }],
+      1,
+      hd._getInternalAddressByIndex(0),
+    );
+
+    assert.strictEqual(outputs.length, 2);
+    assert(tx);
+    const vsize = tx.virtualSize();
+    assert.ok(fee >= vsize, `fee ${fee} is below 1 sat/vbyte for ${vsize} vbytes`);
+    assert.ok(fee <= vsize + 4, `fee ${fee} overpays for ${vsize} vbytes`);
+  });
 });

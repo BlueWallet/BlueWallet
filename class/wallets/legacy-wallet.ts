@@ -373,6 +373,14 @@ export class LegacyWallet extends AbstractWallet {
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 
+  /**
+   * Length of the scriptPubKey of this wallet's change output, in bytes. Passed to coinselect lib when it is bigger than
+   * p2pkh (25 bytes), which is what the lib assumes
+   */
+  getChangeScriptLength(): number {
+    return this.segwitType === 'p2tr' ? 34 : 25;
+  }
+
   coinselect(
     utxos: CreateTransactionUtxo[],
     targets: CreateTransactionTarget[],
@@ -413,9 +421,14 @@ export class LegacyWallet extends AbstractWallet {
     }
 
     for (const t of _targets) {
-      if (t.address?.startsWith('bc1')) {
+      // bech32 addresses are case insensitive
+      const address = t.address?.toLowerCase();
+      if (address?.startsWith('bc1')) {
         // in case address is non-typical and takes more bytes than coinselect library anticipates by default
-        t.script = { length: bitcoin.address.toOutputScript(t.address).length + 3 };
+        t.script = { length: bitcoin.address.toOutputScript(address).length + 3 };
+      } else if (address?.startsWith('sp1')) {
+        // silent payment address ends up as p2tr output (34 bytes), sizing it the same way as bc1p address above
+        t.script = { length: 34 + 3 };
       }
 
       if (t.script?.hex) {
@@ -424,7 +437,13 @@ export class LegacyWallet extends AbstractWallet {
       }
     }
 
-    const { inputs, outputs, fee } = algo(_utxos, _targets as CoinSelectTarget[], feeRate);
+    // coinselect lib assumes change output has 25 bytes script (p2pkh). if our change script is bigger (p2tr, p2wsh) we have
+    // to tell it, otherwise change output is not fully paid for and resulting feerate is lower than requested.
+    // smaller change scripts are left as is, that only makes us overestimate by 2-3 bytes
+    const changeScriptLength = this.getChangeScriptLength();
+    const options = changeScriptLength > 25 ? { changeScript: { length: changeScriptLength } } : undefined;
+
+    const { inputs, outputs, fee } = algo(_utxos, _targets as CoinSelectTarget[], feeRate, options);
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
@@ -573,7 +592,7 @@ export class LegacyWallet extends AbstractWallet {
     if (!address) return false;
     let cleanAddress = address;
 
-    if (this.segwitType === 'p2wpkh') {
+    if (this.segwitType === 'p2wpkh' || this.segwitType === 'p2tr') {
       cleanAddress = address.toLowerCase();
     }
 
