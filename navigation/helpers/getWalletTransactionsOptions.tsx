@@ -45,7 +45,7 @@ export const createWalletDetailsHeaderRight = ({
   );
 };
 
-/** Native toolbar ellipsis for WalletTransactions on iOS. */
+/** Native toolbar ellipsis for WalletTransactions on iOS 26+, excluding Catalyst. */
 export const createWalletDetailsHeaderRightItems = ({
   isLoading = false,
   walletID,
@@ -207,7 +207,7 @@ const getWalletTransactionsOptions = ({
     headerBlurEffect: undefined,
     statusBarStyle: 'light',
     headerBackTitle: undefined,
-    ...(Platform.OS === 'ios'
+    ...(Platform.OS === 'ios' && isIOS26OrHigher && !isDesktop
       ? { unstable_headerRightItems: createWalletDetailsHeaderRightItems({ isLoading, walletID }) }
       : { headerRight: createWalletDetailsHeaderRight({ walletID, isLoading, iconColor }) }),
   };
