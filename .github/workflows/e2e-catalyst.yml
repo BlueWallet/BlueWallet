@@ -1,0 +1,97 @@
+name: Tests e2e Mac Catalyst
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-catalyst-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1.7.0
+        with:
+          xcode-version: latest
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: 3.4.10
+          bundler-cache: true
+
+      - name: Install Node modules
+        run: npm ci || npm ci
+
+      - name: Cache CocoaPods
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
+        with:
+          path: |
+            ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods/repos
+          key: ${{ runner.os }}-pods-catalyst-${{ hashFiles('ios/Podfile.lock') }}
+          # same pods as the other iOS / Catalyst jobs, so their caches are good enough to start from
+          restore-keys: |
+            ${{ runner.os }}-pods-catalyst-
+            ${{ runner.os }}-pods-prebuilt-
+
+      - name: Install CocoaPods dependencies
+        env:
+          SKIP_APP_STORE_CONNECT_AUTH: '1'
+          RCT_USE_RN_DEP: "1"
+          RCT_USE_PREBUILT_RNCORE: "1"
+        run: bundle exec fastlane ios install_pods || bundle exec fastlane ios install_pods
+
+      # unsigned Release build (JS bundled), ad-hoc signed afterwards - no signing secrets needed
+      - name: Build Mac Catalyst app
+        run: npm run e2e:catalyst:build
+
+      # XCTest UI automation needs Accessibility permission for Xcode Helper. GitHub-hosted macOS images ship with
+      # System Integrity Protection disabled, so system TCC.db is writable (same approach appium-mac2-driver uses on its CI)
+      - name: Grant Accessibility to Xcode Helper
+        run: |
+          csrutil status || true
+          helper="$(xcode-select -p)/Platforms/MacOSX.platform/Developer/Library/Xcode/Agents/Xcode Helper.app/Contents/MacOS/Xcode Helper"
+          if [[ ! -f "$helper" ]]; then
+            echo "::error::Xcode Helper not found at $helper"
+            exit 1
+          fi
+          sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" <<SQL
+          INSERT OR REPLACE INTO access
+            (service, client, client_type, auth_value, auth_reason, auth_version, indirect_object_identifier, flags, last_modified)
+          VALUES
+            ('kTCCServiceAccessibility', '${helper}', 1, 2, 3, 1, 'UNUSED', 0, CAST(strftime('%s', 'now') AS INTEGER));
+          SQL
+          sudo launchctl kickstart -k system/com.apple.tccd 2>/dev/null || sudo pkill -HUP tccd || true
+
+      # same as `--retries 3` of detox tests: the whole suite is re-run, tests that already passed are skipped (see lock files in the spec)
+      - name: Run Appium tests
+        run: |
+          for attempt in 1 2 3 4; do
+            echo "::group::attempt $attempt"
+            npm run e2e:catalyst:test && exit 0
+            echo "::endgroup::"
+          done
+          exit 1
+
+      # screenshots, accessibility tree dumps, video and appium log of failed attempts
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: failure()
+        with:
+          name: e2e-catalyst-artifacts
+          path: ./artifacts/
