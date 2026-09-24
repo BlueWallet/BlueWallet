@@ -201,8 +201,7 @@ const AddressItem = ({
       actions={menuActions}
       onPressMenuItem={onToolTipPress}
       onPress={navigateToReceive}
-      isButton
-      buttonStyle={styles.tooltipButton}
+      style={styles.tooltipButton}
       shouldOpenOnLongPress
     >
       <View key={item.key} style={[styles.container, stylesHook.container]}>
