@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -155,6 +155,7 @@ const UpdatingPill: React.FC<UpdatingPillProps> = ({ backgroundColor, textColor 
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
+  const { width: screenWidth } = useWindowDimensions();
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
@@ -370,7 +371,11 @@ const DetailViewStackScreensStack = () => {
         screenOptions={{ headerShadowVisible: false, animationTypeForReplace: 'push' }}
       >
         <DetailViewStack.Screen name="WalletsList" component={WalletsList} options={navigationStyle(walletListScreenOptions)(theme)} />
-        <DetailViewStack.Screen name="WalletTransactions" component={WalletTransactions} options={getWalletTransactionsOptions} />
+        <DetailViewStack.Screen
+          name="WalletTransactions"
+          component={WalletTransactions}
+          options={({ route }) => getWalletTransactionsOptions({ route, theme, screenWidth })}
+        />
         <DetailViewStack.Screen
           name="WalletDetails"
           component={WalletDetails}

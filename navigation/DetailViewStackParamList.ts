@@ -40,7 +40,15 @@ export type DetailViewStackParamList = {
   UnlockWithScreen: undefined;
   KeyboardShortcuts: undefined;
   WalletsList: { onBarScanned?: string };
-  WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
+  WalletTransactions: {
+    isLoading?: boolean;
+    walletID: string;
+    walletType: string;
+    onBarScanned?: string;
+    headerScrolled?: boolean;
+    walletLabel?: string;
+    walletBalance?: string;
+  };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
   TransactionStatus: { hash: string; walletID: string; tx?: any };
