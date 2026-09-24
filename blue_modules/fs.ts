@@ -201,6 +201,8 @@ const _mimeTypeFromFileName = (fileName: string): string => {
       return 'application/json';
     case 'jsonl':
       return 'application/x-ndjson';
+    case 'electrumservers':
+      return 'application/json';
     case 'csv':
       return 'text/csv';
     case 'pdf':
@@ -248,8 +250,11 @@ const _pickSingleFileAndKeepLocalCopy = async (type: string[] = [types.allFiles]
 
 const _shareOpen = async (filePath: string, showShareDialog: boolean = false) => {
   try {
+    const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
     await Share.open({
-      url: 'file://' + filePath,
+      url: _toFileUri(filePath),
+      type: _mimeTypeFromFileName(fileName),
+      filename: fileName,
       saveToFiles: isDesktop || !showShareDialog,
       failOnCancel: false,
     });

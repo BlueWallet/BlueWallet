@@ -1,0 +1,15 @@
+[
+  {
+    "host": "electrum.example.org",
+    "ssl": 50002
+  },
+  {
+    "host": "tcp.example.org",
+    "tcp": 50001
+  },
+  {
+    "host": "dual.example.org",
+    "tcp": 50001,
+    "ssl": 50002
+  }
+]
