@@ -369,7 +369,6 @@
     "onchain": "En cadena",
     "details_to": "Salida",
     "enable_offline_signing": "Esta billetera no se usa junto con una firma fuera de línea. ¿Deseas habilitarlo ahora?",
-    "list_conf": "Conf: {number}",
     "pending": "Pendiente",
     "pending_with_amount": "Pendiente {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

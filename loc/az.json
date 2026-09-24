@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Çıxış",
     "enable_offline_signing": "Bu cüzdan oflayn imzalama ilə birlikdə istifadə edilmir. İndi onu aktivləşdirmək istərdiniz?",
-    "list_conf": "Təsd: {number}",
     "pending": "Gözləmədə",
     "pending_with_amount": "Gözləmədə {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

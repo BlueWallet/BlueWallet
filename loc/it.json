@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "A",
     "enable_offline_signing": "Questo portafoglio non è impostato per la firma offline. Desideri attivarla adesso?",
-    "list_conf": "Conferme: {number}",
     "pending": "Pendente",
     "pending_with_amount": "In attesa {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

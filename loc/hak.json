@@ -361,7 +361,6 @@
     "onchain": "鏈上",
     "details_to": "輸出",
     "enable_offline_signing": "這隻錢包無摎離線簽署配合使用。你這下想愛啟用佢係無？",
-    "list_conf": "確認：{number}",
     "pending": "處理中",
     "pending_with_amount": "處理中 {amt1}（{amt2}）",
     "received_with_amount": "+{amt1}（{amt2}）",

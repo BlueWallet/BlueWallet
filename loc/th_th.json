@@ -361,7 +361,6 @@
     "onchain": "ออนเชน",
     "details_to": "เอ้าพุท",
     "enable_offline_signing": "กระเป๋าสตางค์นี้ไม่ได้ใช้งานร่วมกับการลงนามแบบออฟไลน์ ท่านต้องการเปิดใช้งานตอนนี้หรือไม่?",
-    "list_conf": "ยืนยัน: {number}",
     "pending": "รอดำเนินการ",
     "pending_with_amount": "รอดำเนินการ {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

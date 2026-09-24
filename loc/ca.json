@@ -361,7 +361,6 @@
     "onchain": "En cadena",
     "details_to": "A",
     "enable_offline_signing": "Aquest moneder no s'està utilitzant juntament amb una signatura fora de línia. Voleu activar-la ara?",
-    "list_conf": "Conf: {number}",
     "pending": "Pendent",
     "pending_with_amount": "Pendent {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

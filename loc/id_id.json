@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Keluaran",
     "enable_offline_signing": "Dompet ini tidak digunakan bersama dengan penandatanganan luring. Apakah Anda ingin mengaktifkannya sekarang?",
-    "list_conf": "Konf: {number}",
     "pending": "tertunda",
     "pending_with_amount": "Tertunda {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

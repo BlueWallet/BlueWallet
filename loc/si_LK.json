@@ -361,7 +361,6 @@
     "onchain": "ඔන්චේන්",
     "details_to": "ප්‍රතිදානය",
     "enable_offline_signing": "මෙම පසුම්බිය නොබැඳි අත්සන් කිරීම සමඟ එක්ව භාවිතා නොකෙරේ. ඔබ දැන් එය සක්‍රීය කිරීමට කැමතිද?",
-    "list_conf": "තහවුරු: {number}",
     "pending": "අපේක්ෂිත",
     "pending_with_amount": "අපේක්ෂිත {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

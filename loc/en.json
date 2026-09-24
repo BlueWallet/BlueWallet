@@ -374,7 +374,6 @@
     "onchain": "Onchain",
     "details_to": "Output",
     "enable_offline_signing": "This wallet is not being used in conjunction with an offline signing. Would you wish to enable it now?",
-    "list_conf": "Conf: {number}",
     "pending": "Pending",
     "pending_with_amount": "Pending {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
@@ -723,7 +722,7 @@
     "notification_tx_unconfirmed": "Notification transaction is not confirmed yet, please wait",
     "failed_create_notif_tx": "Failed to create on-chain transaction",
     "onchain_tx_needed": "On-chain transaction needed",
-    "notif_tx_sent" : "Notification transaction sent. Please wait for it to confirm",
+    "notif_tx_sent": "Notification transaction sent. Please wait for it to confirm",
     "notif_tx": "Notification transaction",
     "not_found": "Payment code not found"
   }

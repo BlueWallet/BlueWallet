@@ -361,7 +361,6 @@
     "onchain": "on-chain",
     "details_to": "Εξερχόμενες διευθύνσεις",
     "enable_offline_signing": "Αυτό το πορτοφόλι δεν χρησιμοποιείται σε συνδυασμό με υπογραφή εκτός σύνδεσης. Θα θέλατε να την ενεργοποιήσετε τώρα;",
-    "list_conf": "Επιβ: {number}",
     "pending": "Σε επεξεργασία",
     "pending_with_amount": "Σε εκκρεμότητα {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

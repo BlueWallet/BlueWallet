@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Kimenet",
     "enable_offline_signing": "Ezt a pénztárcát nem használják offline aláírással. Szeretné most engedélyezni?",
-    "list_conf": "Megerősítés: {number}",
     "pending": "Függőben",
     "pending_with_amount": "Függőben {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
