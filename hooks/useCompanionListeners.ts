@@ -1,6 +1,6 @@
 import { useNavigation, CommonActions } from '@react-navigation/native';
-import { useCallback, useEffect, useRef } from 'react';
-import { AppState, AppStateStatus, Linking } from 'react-native';
+import { useCallback, useContext, useEffect, useRef } from 'react';
+import { AppState, AppStateStatus, Linking, RootTagContext } from 'react-native';
 import { reconcileArkBackgroundTaskResults } from '../blue_modules/arkade-background';
 import { getClipboardContent } from '../blue_modules/clipboard';
 import { updateExchangeRate } from '../blue_modules/currency';
@@ -48,6 +48,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
     setSharedCosigner,
     walletsInitialized,
   } = useStorage();
+  const rootTag = useContext(RootTagContext);
   const appState = useRef<AppStateStatus>(AppState.currentState);
   const clipboardContent = useRef<undefined | string>(undefined);
   const navigation = useNavigation();
@@ -344,9 +345,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
 
       triggerHapticFeedback(HapticFeedbackTypes.ImpactLight);
       getClipboardContent().then(clipboard => {
-        if (!clipboard) return;
+        if (!clipboard || !rootTag) return;
         ActionSheet.showActionSheetWithOptions(
           {
+            anchor: rootTag,
             title: loc._.clipboard,
             message: contentType === ClipboardContentType.BITCOIN ? loc.wallets.clipboard_bitcoin : loc.wallets.clipboard_lightning,
             options: [loc._.cancel, loc._.continue],
@@ -364,7 +366,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
         );
       });
     },
-    [handleOpenURL, shouldActivateListeners],
+    [handleOpenURL, rootTag, shouldActivateListeners],
   );
 
   const handleAppStateChange = useCallback(

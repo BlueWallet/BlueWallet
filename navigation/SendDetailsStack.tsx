@@ -128,7 +128,7 @@ const SendDetailsStack = () => {
           headerTitle: '',
           sheetAllowedDetents: Platform.OS === 'ios' ? 'fitToContents' : [0.45],
           sheetGrabberVisible: true,
-          contentStyle: { flex: 1 },
+          closeButtonPosition: CloseButtonPosition.Right,
           keyboardHandlingEnabled: true,
           navigationBarTranslucent: false,
         })(theme)}
@@ -144,7 +144,12 @@ const SendDetailsStack = () => {
       <Stack.Screen
         name="PsbtWithHardwareWallet"
         component={PsbtWithHardwareWalletComponent}
-        options={navigationStyle({ title: loc.send.header, closeButtonPosition: CloseButtonPosition.Right, gestureEnabled: false, fullScreenGestureEnabled: false })(theme)}
+        options={navigationStyle({
+          title: loc.send.header,
+          closeButtonPosition: CloseButtonPosition.Right,
+          gestureEnabled: false,
+          fullScreenGestureEnabled: false,
+        })(theme)}
       />
       <Stack.Screen
         name="CreateTransaction"

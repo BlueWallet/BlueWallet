@@ -52,7 +52,7 @@ import getWalletTransactionsOptions, {
 import { presentWalletExportReminder } from '../../helpers/presentWalletExportReminder';
 import selectWallet from '../../helpers/select-wallet';
 import assert from 'assert';
-import useMenuElements from '../../hooks/useMenuElements';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import { useSettings } from '../../hooks/context/useSettings';
 import useWalletSubscribe from '../../hooks/useWalletSubscribe';
 import { getClipboardContent } from '../../blue_modules/clipboard';
@@ -177,7 +177,6 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
   const { wallets, saveToDisk } = useStorage();
-  const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState(false);
@@ -534,12 +533,15 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       options.push(loc.wallets.paste_from_clipboard);
     }
 
+    const anchor = findNodeHandle(walletActionButtonsRef.current);
+    if (anchor === null) return;
+
     ActionSheet.showActionSheetWithOptions(
       {
         title: loc.send.header,
         options,
         cancelButtonIndex,
-        anchor: findNodeHandle(walletActionButtonsRef.current) ?? undefined,
+        anchor,
       },
       async buttonIndex => {
         switch (buttonIndex) {
@@ -565,24 +567,20 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     );
   };
 
-  useEffect(() => {
-    const screenKey = `WalletTransactions-${walletID}`;
-    registerTransactionsHandler(() => refreshTransactions(true), screenKey);
+  const receiveButtonPress = () => {
+    if (wallet.chain === Chain.OFFCHAIN) {
+      navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { walletID } });
+    } else {
+      navigate('ReceiveDetails', { walletID });
+    }
+  };
 
-    return () => {
-      unregisterTransactionsHandler(screenKey);
-    };
-  }, [walletID, refreshTransactions, registerTransactionsHandler, unregisterTransactionsHandler]);
-
-  useFocusEffect(
-    useCallback(() => {
-      const screenKey = `WalletTransactions-${walletID}`;
-
-      return () => {
-        unregisterTransactionsHandler(screenKey);
-      };
-    }, [walletID, unregisterTransactionsHandler]),
-  );
+  useScreenMenuActions({
+    reloadTransactions: !isElectrumDisabled && !isLoading ? () => refreshTransactions(true) : undefined,
+    send: wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd()) ? sendButtonPress : undefined,
+    receive: wallet.allowReceive() ? receiveButtonPress : undefined,
+    walletDetails: !isLoading ? () => navigate('WalletDetails', { walletID }) : undefined,
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -647,7 +645,6 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
                     isLoading: routeIsLoading,
                     walletID,
                   }),
-                  experimental_userInterfaceStyle: dark ? ('dark' as const) : ('light' as const),
                 }
               : {
                   headerBlurEffect: dark ? ('dark' as const) : ('light' as const),
@@ -819,6 +816,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   );
 
   useEffect(() => {
+    setLimit(15);
     headerScrolledRef.current = false;
     scrolledHeaderOpacity.value = 0;
     if (flatListRef.current) {
@@ -848,7 +846,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onScroll={handleScroll}
         windowSize={15}
         scrollEventThrottle={16}
-        ListHeaderComponent={ListHeaderComponent}
+        ListHeaderComponent={ListHeaderComponent()}
         ListEmptyComponent={
           <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
             <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
@@ -884,16 +882,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
           <FButton
             testID="ReceiveButton"
             text={loc.receive.header}
-            onPress={() => {
-              if (wallet.chain === Chain.OFFCHAIN) {
-                navigate('LNDCreateInvoiceRoot', {
-                  screen: 'LNDCreateInvoice',
-                  params: { walletID },
-                });
-              } else {
-                navigate('ReceiveDetails', { walletID });
-              }
-            }}
+            onPress={receiveButtonPress}
             icon={
               <View style={styles.iconContainer}>
                 <Icon

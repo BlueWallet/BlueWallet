@@ -104,9 +104,10 @@
     "title": "កាបូបរបស់អ្នកត្រូវបានបង្កើត។"
   },
   "receive": {
-    "details_create": "បង្កើត",
+    "details_save": "រក្សាទុក",
     "details_label": "ការពិពណ៌នា",
     "details_setAmount": "ទទួលជាមួយចំនួនទឹកប្រាក់",
+    "option_label": "ស្លាក",
     "details_share": "ចែករំលែក...",
     "address_not_found": "មិនអាចបង្កើតអាសយដ្ឋានទទួលបានទេ។",
     "header": "ទទួល",
@@ -380,8 +381,6 @@
     "updating": "កំពុងធ្វើបច្ចុប្បន្នភាព...",
     "watchOnlyWarningTitle": "ការព្រមានសុវត្ថិភាព",
     "watchOnlyWarningDescription": "សូមប្រុងប្រយ័ត្នចំពោះអ្នកបោកប្រាស់ ដែលតែងតែប្រើកាបូប “មើលតែប៉ុណ្ណោះ” ដើម្បីបោកបញ្ឆោតអ្នកប្រើ។ កាបូបទាំងនេះមិនអនុញ្ញាតឲ្យអ្នកគ្រប់គ្រង ឬផ្ញើមូលនិធិទេ វាគ្រាន់តែឲ្យអ្នកមើលសមតុល្យប៉ុណ្ណោះ។",
-    "custom_fee_warning_title": "ការព្រមាន",
-    "custom_fee_warning_description": "ថ្លៃសេវាក្រោម 1 sat/vB គឺត្រឹមត្រូវ ប៉ុន្តែអាចមិនត្រូវបានបញ្ជូនបន្តដោយសារគោលនយោបាយរបស់ថ្នាំង។",
     "details_eta_analyzing": "កំពុងវិភាគ...",
     "details_sent": "បានផ្ញើ",
     "details_section": "ព័ត៌មានលម្អិត",
@@ -437,7 +436,6 @@
     "details_display": "បង្ហាញនៅអេក្រង់ដើម",
     "details_edit": "កែ",
     "details_export_backup": "នាំចេញ/បម្រុងទុក",
-    "details_export_history": "នាំចេញប្រវត្តិទៅ CSV",
     "details_master_fingerprint": "ស្នាមម្រាមដៃមេ",
     "details_multisig_type": "multisig",
     "details_options": "ជម្រើស",
@@ -517,9 +515,7 @@
     "identity_pubkey": "កូនសោសាធារណៈអត្តសញ្ញាណ",
     "xpub_title": "XPUB របស់កាបូប",
     "manage_wallets_search_placeholder": "ស្វែងរកកាបូប អាសយដ្ឋាន ប្រតិបត្តិការ និងកំណត់ចំណាំ",
-    "more_info": "ព័ត៌មានបន្ថែម",
-    "details_delete_wallet_error_message": "មានបញ្ហាក្នុងការបញ្ជាក់ថាតើកាបូបនេះត្រូវបានដកចេញពីការជូនដំណឹងឬអត់—វាអាចបណ្ដាលមកពីបញ្ហាបណ្ដាញ ឬការតភ្ជាប់មិនល្អ។ ប្រសិនបើអ្នកបន្ត អ្នកនៅតែអាចទទួលការជូនដំណឹងសម្រាប់ប្រតិបត្តិការដែលពាក់ព័ន្ធនឹងកាបូបនេះ ទោះបីជាវាត្រូវបានលុបក៏ដោយ។",
-    "details_delete_anyway": "លុបយ៉ាងណាក៏ដោយ"
+    "more_info": "ព័ត៌មានបន្ថែម"
   },
   "total_balance_view": {
     "display_in_bitcoin": "បង្ហាញជា Bitcoin",

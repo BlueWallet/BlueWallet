@@ -11,8 +11,11 @@ import CoreSpotlight
 class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
     private var userDefaultsGroup: UserDefaults?
+    var sceneLaunchOptions: [UIApplication.LaunchOptionsKey: Any]?
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        sceneLaunchOptions = launchOptions
+        automaticallyLoadReactNativeWindow = false
         clearFilesIfNeeded()
 
         if #available(iOS 16.4, *) {
@@ -61,13 +64,17 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         setupUserDefaultsListener()
         registerNotificationCategories()
         
-        // Access the singleton via the class method
-        _ = MenuElementsEmitter.sharedInstance()
-        NSLog("[MenuElements] AppDelegate: Initialized emitter singleton")
-        
-        let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
 
-        return result
+    override func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
+        let configuration = UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        configuration.delegateClass = SceneDelegate.self
+        return configuration
     }
 
     override func sourceURL(for bridge: RCTBridge) -> URL? {
@@ -224,7 +231,12 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
                     preferredStyle: .alert
                 )
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-              self.window.rootViewController?.present(alert, animated: true, completion: nil)
+                let rootViewController = UIApplication.shared.connectedScenes
+                    .compactMap { $0 as? UIWindowScene }
+                    .flatMap(\.windows)
+                    .first { $0.isKeyWindow }?
+                    .rootViewController
+                rootViewController?.present(alert, animated: true, completion: nil)
             }
         }
     }
@@ -422,107 +434,91 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
     override func buildMenu(with builder: UIMenuBuilder) {
         super.buildMenu(with: builder)
         
-        // Remove unnecessary menus
+        guard builder.system === UIMenuSystem.main else { return }
         builder.remove(menu: .services)
         builder.remove(menu: .format)
         builder.remove(menu: .toolbar)
-        
-        // Remove the original Settings menu item
         builder.remove(menu: .preferences)
-        
-        // File -> Add Wallet (Command + Shift + A)
-        let addWalletCommand = UIKeyCommand(
-            title: "Add Wallet",
-            action: #selector(addWalletAction),
-            input: "A",
-            modifierFlags: [.command, .shift]
-        )
-        
-        // All menu items enabled by default
-        
-        // File -> Import Wallet (Command + I)
-        let importWalletCommand = UIKeyCommand(
-            title: "Import Wallet",
-            action: #selector(importWalletAction),
-            input: "I",
-            modifierFlags: .command
-        )
-        
-        // Group Add Wallet and Import Wallet in a displayInline menu
-        let walletOperationsMenu = UIMenu(
-            title: "",
-            image: nil,
-            identifier: nil,
-            options: .displayInline,
-            children: [addWalletCommand, importWalletCommand]
-        )
-        
-        // Modify the existing File menu to include Wallet Operations
-        if let fileMenu = builder.menu(for: .file) {
-            // Add "Reload Transactions" (Command + R)
-            let reloadTransactionsCommand = UIKeyCommand(
-                title: "Reload Transactions",
-                action: #selector(reloadTransactionsAction),
-                input: "R",
-                modifierFlags: .command
-            )
-            
-            // Combine wallet operations and Reload Transactions into the new File menu
-            let newFileMenu = UIMenu(
-                title: fileMenu.title,
-                image: fileMenu.image,
-                identifier: fileMenu.identifier,
-                options: fileMenu.options,
-                children: [walletOperationsMenu, reloadTransactionsCommand]
-            )
-            
-            builder.replace(menu: .file, with: newFileMenu)
+
+        let actions = MenuElementsController.shared.availableActions
+        let commands: [(String, String, Selector, String, UIKeyModifierFlags, UIMenu.Identifier)] = [
+            ("addWallet", "Add Wallet", #selector(addWalletAction), "a", [.command, .shift], .file),
+            ("importWallet", "Import Wallet", #selector(importWalletAction), "i", .command, .file),
+            ("send", "Send…", #selector(sendMenuAction), "s", [.command, .shift], .file),
+            ("receive", "Receive…", #selector(receiveMenuAction), "r", [.command, .shift], .file),
+            ("walletDetails", "Wallet Details…", #selector(walletDetailsMenuAction), "d", .command, .file),
+            ("reloadTransactions", "Reload Transactions", #selector(reloadTransactionsAction), "r", .command, .view),
+            ("backToWallets", "Back to Wallets", #selector(backToWalletsMenuAction), "w", [.command, .shift], .view),
+            ("copyAddress", "Copy Address", #selector(copyAddressMenuAction), "c", [.command, .shift], .edit),
+            ("copyTransactionId", "Copy Transaction ID", #selector(copyTransactionIdMenuAction), "c", [.command, .shift], .edit),
+            ("keyboardShortcuts", "Keyboard Shortcuts…", #selector(keyboardShortcutsMenuAction), "/", .command, .help)
+        ]
+        for parent in [UIMenu.Identifier.file, .edit, .view, .help] {
+            let identifier = UIMenu.Identifier("io.bluewallet.commands.\(parent.rawValue)")
+            builder.remove(menu: identifier)
+            let children = commands.filter { actions.contains($0.0) && $0.5 == parent }.map {
+                UIKeyCommand(title: $0.1, action: $0.2, input: $0.3, modifierFlags: $0.4)
+            }
+            if !children.isEmpty {
+                builder.insertChild(UIMenu(title: "", identifier: identifier,
+                                           options: .displayInline, children: children), atStartOfMenu: parent)
+            }
         }
-        
-        // BlueWallet -> Settings (Command + ,)
-        let settingsCommand = UIKeyCommand(
-            title: "Settings...",
-            action: #selector(openSettings),
-            input: ",",
-            modifierFlags: .command
-        )
-        
-        let settingsMenu = UIMenu(
-            title: "",
-            image: nil,
-            identifier: nil,
-            options: .displayInline,
-            children: [settingsCommand]
-        )
-        
-        // Insert the new Settings menu after the About menu
-        builder.insertSibling(settingsMenu, afterMenu: .about)
+
+        let settingsMenuID = UIMenu.Identifier("io.bluewallet.settings")
+        builder.remove(menu: settingsMenuID)
+        if actions.contains("settings") {
+            let command = UIKeyCommand(title: "Settings…", action: #selector(openSettings),
+                                       input: ",", modifierFlags: .command)
+            builder.insertSibling(UIMenu(title: "", identifier: settingsMenuID,
+                                         options: .displayInline, children: [command]), afterMenu: .about)
+        }
     }
-    
+
     @objc func openSettings(_ keyCommand: UIKeyCommand) {
-        DispatchQueue.main.async {
-            MenuElementsEmitter.sharedInstance().openSettings()
-        }
+        MenuElementsController.shared.perform("settings")
     }
-    
+
     @objc func addWalletAction(_ keyCommand: UIKeyCommand) {
-        DispatchQueue.main.async {
-            MenuElementsEmitter.sharedInstance().addWalletMenuAction()
-        }
+        MenuElementsController.shared.perform("addWallet")
     }
-    
+
     @objc func importWalletAction(_ keyCommand: UIKeyCommand) {
-        DispatchQueue.main.async {
-            MenuElementsEmitter.sharedInstance().importWalletMenuAction()
-        }
+        MenuElementsController.shared.perform("importWallet")
     }
-    
+
     @objc func reloadTransactionsAction(_ keyCommand: UIKeyCommand) {
-        DispatchQueue.main.async {
-            MenuElementsEmitter.sharedInstance().reloadTransactionsMenuAction()
-        }
+        MenuElementsController.shared.perform("reloadTransactions")
     }
-    
+
+    @objc func sendMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("send")
+    }
+
+    @objc func receiveMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("receive")
+    }
+
+    @objc func walletDetailsMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("walletDetails")
+    }
+
+    @objc func backToWalletsMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("backToWallets")
+    }
+
+    @objc func copyAddressMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("copyAddress")
+    }
+
+    @objc func copyTransactionIdMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("copyTransactionId")
+    }
+
+    @objc func keyboardShortcutsMenuAction(_ keyCommand: UIKeyCommand) {
+        MenuElementsController.shared.perform("keyboardShortcuts")
+    }
+
     @objc func showHelp(_ sender: Any) {
         if let url = URL(string: "https://bluewallet.io/docs") {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
