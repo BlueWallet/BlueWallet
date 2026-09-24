@@ -3,12 +3,26 @@
     "es6": true,
     "jest": true
   },
+  "plugins": ["bluewallet"],
+  "rules": {
+    "bluewallet/no-silent-test-skip": "error"
+  },
+  "settings": {
+    "jest": {
+      "globalAliases": {
+        "describe": ["describeIfEnv"],
+        "it": ["itIfEnv"]
+      }
+    }
+  },
   "globals": {
     "by": false,
     "detox": false,
     "device": false,
     "element": false,
     "expect": false,
-    "waitFor": false
+    "waitFor": false,
+    "describeIfEnv": false,
+    "itIfEnv": false
   }
 }

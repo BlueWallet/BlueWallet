@@ -63,11 +63,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.ok(l1.refresh_token);
   });
 
-  it('can use existing login/pass', async () => {
-    if (!process.env.BLITZHUB) {
-      console.error('process.env.BLITZHUB not set, skipped');
-      return;
-    }
+  itIfEnv('BLITZHUB')('can use existing login/pass', async () => {
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     l2.setBaseURI(baseUri);
@@ -91,11 +87,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.ok(l2.getBalance() > 0);
   });
 
-  it('can decode & check invoice', async () => {
-    if (!process.env.BLITZHUB) {
-      console.error('process.env.BLITZHUB not set, skipped');
-      return;
-    }
+  itIfEnv('BLITZHUB')('can decode & check invoice', async () => {
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     l2.setBaseURI(baseUri);
@@ -130,11 +122,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.strictEqual(decoded.num_satoshis, '8.9');
   });
 
-  it('can decode invoice locally & remotely', async () => {
-    if (!process.env.BLITZHUB) {
-      console.error('process.env.BLITZHUB not set, skipped');
-      return;
-    }
+  itIfEnv('BLITZHUB')('can decode invoice locally & remotely', async () => {
     const l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     l2.setBaseURI(baseUri);
@@ -153,16 +141,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.strictEqual(decodedLocally.cltv_expiry, decodedRemotely.cltv_expiry);
   });
 
-  it('can pay invoice from opennode', async () => {
-    if (!process.env.BLITZHUB) {
-      console.error('process.env.BLITZHUB not set, skipped');
-      return;
-    }
-    if (!process.env.OPENNODE) {
-      console.error('process.env.OPENNODE not set, skipped');
-      return;
-    }
-
+  itIfEnv(['BLITZHUB', 'OPENNODE'])('can pay invoice from opennode', async () => {
     const response = await fetch('https://api.opennode.co/v1/charges', {
       method: 'POST',
       headers: {
@@ -205,16 +184,7 @@ describe.skip('LightningCustodianWallet', () => {
     // transactions became more after paying an invoice
   });
 
-  it('can pay invoice (bitrefill)', async () => {
-    if (!process.env.BLITZHUB) {
-      console.error('process.env.BLITZHUB not set, skipped');
-      return;
-    }
-    if (!process.env.BITREFILL) {
-      console.error('process.env.BITREFILL not set, skipped');
-      return;
-    }
-
+  itIfEnv(['BLITZHUB', 'BITREFILL'])('can pay invoice (bitrefill)', async () => {
     const response = await fetch(`https://api-bitrefill.com/v1/lnurl_pay/${process.env.BITREFILL}/callback?amount=1000`, {
       method: 'GET',
       headers: {
@@ -273,12 +243,7 @@ describe.skip('LightningCustodianWallet', () => {
     }
   });
 
-  it('can create invoice and pay other blitzhub invoice', async () => {
-    if (!process.env.BLITZHUB) {
-      console.error('process.env.BLITZHUB not set, skipped');
-      return;
-    }
-
+  itIfEnv('BLITZHUB')('can create invoice and pay other blitzhub invoice', async () => {
     const lOld = new LightningCustodianWallet();
     lOld.setSecret(process.env.BLITZHUB);
     lOld.setBaseURI(baseUri);
@@ -378,12 +343,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.strictEqual(invoices[1].amt, 666);
   });
 
-  it('can pay invoice with free amount (tippin.me)', async function () {
-    if (!process.env.BLITZHUB) {
-      console.error('process.env.BLITZHUB not set, skipped');
-      return;
-    }
-
+  itIfEnv('BLITZHUB')('can pay invoice with free amount (tippin.me)', async function () {
     // fetching invoice from tippin.me :
 
     const response = await fetch('https://tippin.me/lndreq/newinvoice.php', {
@@ -486,12 +446,7 @@ describe.skip('LightningCustodianWallet', () => {
     assert.ok(err);
   });
 
-  it('cant pay negative free amount', async () => {
-    if (!process.env.BLITZHUB) {
-      console.error('process.env.BLITZHUB not set, skipped');
-      return;
-    }
-
+  itIfEnv('BLITZHUB')('cant pay negative free amount', async () => {
     // fetching invoice from tippin.me :
 
     const response = await fetch('https://tippin.me/lndreq/newinvoice.php', {

@@ -35,6 +35,10 @@ console.debug = console.log = (...args) => {
   consoleLogOrig.apply(consoleLogOrig, args);
 };
 
+const { describeIfEnv, itIfEnv } = require('./helpers/env');
+global.describeIfEnv = describeIfEnv;
+global.itIfEnv = itIfEnv;
+
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 if (typeof globalThis.fetch !== 'function') {

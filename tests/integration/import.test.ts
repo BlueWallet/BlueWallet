@@ -12,6 +12,7 @@ import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import { HDTaprootWallet } from '../../class/wallets/hd-taproot-wallet';
 import { LegacyWallet } from '../../class/wallets/legacy-wallet';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { requiredEnv } from '../helpers/env';
 import { installSdkProviderSpies, restoreSdkProviderSpies } from '../helpers/sdkProviderMocks';
 import { SegwitBech32Wallet } from '../../class/wallets/segwit-bech32-wallet';
 import { SegwitP2SHWallet } from '../../class/wallets/segwit-p2sh-wallet';
@@ -136,14 +137,9 @@ describe('import procedure', () => {
     assert.strictEqual(store.state.wallets[0]._getExternalAddressByIndex(0), 'bc1qth9qxvwvdthqmkl6x586ukkq8zvumd38nxr08l');
   });
 
-  it('can import BIP86', async () => {
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
+  itIfEnv('HD_MNEMONIC_BIP84')('can import BIP86', async () => {
     const store = createStore();
-    const { promise } = startImport(process.env.HD_MNEMONIC_BIP84, false, false, false, ...store.callbacks);
+    const { promise } = startImport(requiredEnv('HD_MNEMONIC_BIP84'), false, false, false, ...store.callbacks);
     await promise;
     assert.strictEqual(store.state.wallets[1].type, HDTaprootWallet.type);
     assert.strictEqual(
@@ -626,14 +622,9 @@ describe('import procedure', () => {
     );
   });
 
-  it('can import BIP47 wallet that only has notification transaction', async () => {
-    if (!process.env.BIP47_HD_MNEMONIC) {
-      console.error('process.env.BIP47_HD_MNEMONIC not set, skipped');
-      return;
-    }
-
+  itIfEnv('BIP47_HD_MNEMONIC')('can import BIP47 wallet that only has notification transaction', async () => {
     const store = createStore('1');
-    const { promise } = startImport(process.env.BIP47_HD_MNEMONIC.split(':')[0], true, false, false, ...store.callbacks);
+    const { promise } = startImport(requiredEnv('BIP47_HD_MNEMONIC').split(':')[0], true, false, false, ...store.callbacks);
     await promise;
     assert.strictEqual(store.state.wallets[0].type, HDLegacyP2PKHWallet.type);
     assert.strictEqual(store.state.wallets[1].type, HDSegwitBech32Wallet.type);

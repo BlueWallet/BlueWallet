@@ -31,48 +31,38 @@ console.warn = console.log = (...args) => {
   process.stdout.write('\n\t\t' + output + '\n');
 };
 
-/**
- * in this suite each test requires that there is one specific wallet present, thus, we import it
- * before anything else.
- * we dont clean it up as we expect other test suites to do clean install of the app
- */
-beforeAll(async () => {
-  // return;
-  if (!process.env.HD_MNEMONIC_BIP84) {
-    console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-    return;
-  }
-  // reinstalling the app just for any case to clean up app's storage
-  await device.clearKeychain();
-  await device.launchApp({
-    delete: true,
-    permissions: { notifications: 'YES', camera: 'YES' },
-  });
+describeIfEnv('HD_MNEMONIC_BIP84')('BlueWallet UI Tests - import BIP84 wallet', () => {
+  /**
+   * in this suite each test requires that there is one specific wallet present, thus, we import it
+   * before anything else.
+   * we dont clean it up as we expect other test suites to do clean install of the app
+   */
+  beforeAll(async () => {
+    // reinstalling the app just for any case to clean up app's storage
+    await device.clearKeychain();
+    await device.launchApp({
+      delete: true,
+      permissions: { notifications: 'YES', camera: 'YES' },
+    });
 
-  console.log('before all - importing bip84...');
-  await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526');
-  console.log('...imported!');
-  await goBack();
-  // wait for transactions to be loaded
-  try {
-    await waitFor(element(by.id('NoTransactionsMessage')))
-      .not.toExist()
-      .withTimeout(15_000);
-    await sleep(1000);
-  } catch (_) {}
-}, 1200_000);
+    console.log('before all - importing bip84...');
+    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'HDsegwitBech32', 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526');
+    console.log('...imported!');
+    await goBack();
+    // wait for transactions to be loaded
+    try {
+      await waitFor(element(by.id('NoTransactionsMessage')))
+        .not.toExist()
+        .withTimeout(15_000);
+      await sleep(1000);
+    } catch (_) {}
+  }, 1200_000);
 
-describe('BlueWallet UI Tests - import BIP84 wallet', () => {
   it('can create a transaction; can scanQR with bip21; can switch units', async () => {
     const lockFile = '/tmp/travislock.' + hashIt('t21');
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t21'), 'as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -184,11 +174,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
 
     // Go inside the wallet
@@ -278,11 +263,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -342,11 +322,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -384,11 +359,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -548,11 +518,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
 
     // go inside the wallet
@@ -617,11 +582,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t22'), 'as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
 
     await device.launchApp({
@@ -651,11 +611,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t23'), 'as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
@@ -775,11 +730,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t24'), 'as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
@@ -818,11 +768,6 @@ describe('BlueWallet UI Tests - import BIP84 wallet', () => {
     if (process.env.CI) {
       if (require('fs').existsSync(lockFile)) return console.warn('skipping', JSON.stringify('t25'), 'as it previously passed on Travis');
     }
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
     await device.launchApp({ newInstance: true });
     // go inside the wallet
     await waitForText('Imported HD SegWit (BIP84 Bech32 Native)');
