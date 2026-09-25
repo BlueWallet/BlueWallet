@@ -152,7 +152,7 @@ dependencies {
         implementation jscFlavor
     }
 
-    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
 }
 apply plugin: 'com.google.gms.google-services'  // Google Services plugin
