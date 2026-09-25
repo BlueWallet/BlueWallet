@@ -45,7 +45,10 @@ const usePlatformSearch = (): void => {
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const updateIndex = async (): Promise<void> => {
-      const storageIsEncrypted = await isStorageEncrypted();
+      // Disabled search still clears old entries, but must not initialize storage.
+      // Wait for wallet loading before adding another encryption-state reader.
+      if (isSpotlightEnabled && !walletsInitialized) return;
+      const storageIsEncrypted = isSpotlightEnabled ? await isStorageEncrypted() : false;
       if (cancelled) return;
 
       if (!isSpotlightEnabled || storageIsEncrypted) {
