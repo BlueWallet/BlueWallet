@@ -971,9 +971,9 @@ export class BlueApp {
       console.warn('Realm.deleteFile failed for keyvalue realm:', error?.message ?? error);
     }
 
-    // Realm.deleteFile removes the .realm, .lock, and .management siblings.
-    // The .note fifo is not always included; sweep whatever is left.
-    for (const sibling of [path, `${path}.lock`, `${path}.note`, `${path}.management`]) {
+    // Realm.deleteFile removes the .realm, .lock, .fresh.lock, .note, and .management siblings,
+    // but it may have thrown above. Sweep whatever is left.
+    for (const sibling of [path, `${path}.lock`, `${path}.fresh.lock`, `${path}.note`, `${path}.management`]) {
       try {
         if (await RNFS.exists(sibling)) await RNFS.unlink(sibling);
       } catch (error: any) {

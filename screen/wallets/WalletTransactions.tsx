@@ -835,7 +835,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
               handleDismiss={() => {
                 setIsWatchOnlyWarningVisible(false);
                 wallet.isWatchOnlyWarningVisible = false;
-                saveToDisk();
+                saveToDisk().catch((error: unknown) => console.warn('WalletTransactions: saveToDisk failed', error));
               }}
             />
           )}
