@@ -31,7 +31,7 @@ type IconNameFor<T extends IconType> = T extends 'font-awesome'
             ? EntypoIconName
             : never;
 
-export interface IconProps<T extends IconType = IconType> {
+interface IconBaseProps<T extends IconType = IconType> {
   name: IconNameFor<T>;
   type?: T;
   /**
@@ -42,10 +42,20 @@ export interface IconProps<T extends IconType = IconType> {
   style?: StyleProp<TextStyle>;
   iconStyle?: T extends 'font-awesome-6' ? 'solid' | 'brand' | 'regular' : StyleProp<TextStyle>;
   containerStyle?: StyleProp<ViewStyle>;
-  onPress?: () => void;
-  accessibilityLabel?: string;
   testID?: string;
 }
+
+type StaticIconProps = {
+  onPress?: undefined;
+  accessibilityLabel?: string;
+};
+
+type InteractiveIconProps = {
+  onPress: () => void;
+  accessibilityLabel: string;
+};
+
+export type IconProps<T extends IconType = IconType> = IconBaseProps<T> & (StaticIconProps | InteractiveIconProps);
 
 const ICON_COMPONENTS: Record<IconType, IconComponentType> = {
   'font-awesome': FontAwesome,
@@ -72,6 +82,7 @@ const Icon = <T extends IconType = 'font-awesome'>({
   const isFa6 = type === 'font-awesome-6';
   const fa6IconStyle = isFa6 ? (typeof iconStyle === 'string' ? iconStyle : 'solid') : undefined;
   const mergedStyle = isFa6 ? style : [style, iconStyle];
+  const iconAccessibilityLabel = onPress ? undefined : accessibilityLabel;
 
   const content = (
     <IconComponent
@@ -80,14 +91,17 @@ const Icon = <T extends IconType = 'font-awesome'>({
       color={color}
       style={mergedStyle}
       iconStyle={fa6IconStyle}
-      accessibilityLabel={accessibilityLabel}
+      accessible={Boolean(iconAccessibilityLabel)}
+      accessibilityElementsHidden={!iconAccessibilityLabel}
+      importantForAccessibility={iconAccessibilityLabel ? 'yes' : 'no-hide-descendants'}
+      accessibilityLabel={iconAccessibilityLabel}
       testID={testID}
     />
   );
 
   if (onPress) {
     return (
-      <Pressable accessibilityRole="imagebutton" onPress={onPress} style={containerStyle}>
+      <Pressable accessibilityRole="imagebutton" accessibilityLabel={accessibilityLabel} onPress={onPress} style={containerStyle}>
         {content}
       </Pressable>
     );

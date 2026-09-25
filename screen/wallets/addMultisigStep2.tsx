@@ -94,6 +94,7 @@ const WalletsAddMultisigStep2 = () => {
     () => (
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel={loc.multisig.ms_help}
         style={({ pressed }) => [
           styles.helpButton,
           { backgroundColor: colors.buttonDisabledBackgroundColor },
