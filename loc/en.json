@@ -319,6 +319,7 @@
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
     "privacy_do_not_track": "Disable Analytics",
     "privacy_do_not_track_explanation": "Performance and reliability information will not be submitted for analysis.",
+    "integrations": "Integrations",
     "spotlight_search": "Spotlight Search",
     "spotlight_search_explanation": "Find BlueWallet items from Spotlight. For example, search for a wallet named “Savings,” a contact named “Alice,” a transaction note such as “Rent,” or a transaction ID. Results stay on this device and may appear while BlueWallet is locked.",
     "platform_search_addresses": "Include Addresses",
