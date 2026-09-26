@@ -3,6 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { Linking, Platform } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
+import { usePlatformSearchAvailability } from '../../blue_modules/NativePlatformSearch';
 import loc from '../../loc';
 import { useStorage } from '../../hooks/context/useStorage';
 import { useSettings } from '../../hooks/context/useSettings';
@@ -45,7 +46,11 @@ const GeneralSettings: React.FC = () => {
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-  const supportsSystemSearch = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
+  const supportsSystemSearch = Platform.OS === 'ios' || Platform.OS === 'android';
+  const indexingAvailable = usePlatformSearchAvailability();
+  const platformSearchSetup = Platform.OS === 'android' ? loc.settings.android_search_setup : loc.settings.spotlight_search_setup;
+  const platformSearchStatus =
+    indexingAvailable === null ? loc.settings.platform_search_checking : indexingAvailable ? '' : loc.settings.platform_search_unavailable;
   const platformSearchTitle = Platform.OS === 'android' ? loc.settings.android_system_search : loc.settings.spotlight_search;
   const platformSearchExplanation =
     Platform.OS === 'android' ? loc.settings.android_system_search_explanation : loc.settings.spotlight_search_explanation;
@@ -154,6 +159,7 @@ const GeneralSettings: React.FC = () => {
 
   const onPlatformSearchEnabledChange = useCallback(
     async (value: boolean) => {
+      if (indexingAvailable !== true || storageIsEncrypted) return;
       setIsLoading(SettingsPrivacySection.PlatformSearch);
       try {
         await setIsPlatformSearchEnabledStorage(value);
@@ -161,7 +167,7 @@ const GeneralSettings: React.FC = () => {
         setIsLoading(SettingsPrivacySection.None);
       }
     },
-    [setIsPlatformSearchEnabledStorage],
+    [indexingAvailable, storageIsEncrypted, setIsPlatformSearchEnabledStorage],
   );
 
   const encryptedDisabledNote = storageIsEncrypted ? `\n${loc.settings.encrypted_feature_disabled}` : '';
@@ -227,15 +233,19 @@ const GeneralSettings: React.FC = () => {
           <SettingsListItem
             title={platformSearchTitle}
             testID="PlatformSearchEnabled"
-            subtitle={`${platformSearchExplanation}${encryptedDisabledNote}`}
+            subtitle={`${[platformSearchStatus, platformSearchExplanation, platformSearchSetup].filter(Boolean).join('\n\n')}${encryptedDisabledNote}`}
+            subtitleNumberOfLines={0}
             switch={{
-              value: storageIsEncrypted ? false : isPlatformSearchEnabled,
+              value: indexingAvailable === true && !storageIsEncrypted && isPlatformSearchEnabled,
               onValueChange: onPlatformSearchEnabledChange,
               disabled:
-                isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.PlatformSearch || storageIsEncrypted,
+                isLoading === SettingsPrivacySection.All ||
+                isLoading === SettingsPrivacySection.PlatformSearch ||
+                storageIsEncrypted ||
+                indexingAvailable !== true,
             }}
           />
-          {isPlatformSearchEnabled && !storageIsEncrypted && (
+          {indexingAvailable === true && isPlatformSearchEnabled && !storageIsEncrypted && (
             <SettingsListItem
               title={loc.settings.platform_search_addresses}
               testID="PlatformSearchAddresses"
@@ -247,6 +257,7 @@ const GeneralSettings: React.FC = () => {
               }}
             />
           )}
+          <SettingsListItem title={loc.send.open_settings} onPress={openApplicationSettings} testID="PlatformSearchDeviceSettings" />
           <SettingsListItem
             title={loc.wallets.more_info}
             onPress={openPlatformSearchMoreInfo}

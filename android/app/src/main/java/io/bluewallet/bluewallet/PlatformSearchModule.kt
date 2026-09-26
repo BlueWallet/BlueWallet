@@ -31,6 +31,16 @@ class PlatformSearchModule(reactContext: ReactApplicationContext) : NativePlatfo
     }
 
     @ReactMethod
+    override fun isIndexingAvailable(promise: Promise) {
+        // Launcher search preferences are not exposed by AppSearch.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            promise.resolve(false)
+            return
+        }
+        AndroidAppSearchIndex.isAvailable(reactApplicationContext, promise)
+    }
+
+    @ReactMethod
     override fun replaceIndex(itemsJSON: String, promise: Promise) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             promise.resolve(0)
@@ -81,6 +91,17 @@ private object AndroidAppSearchIndex {
         .addProperty(unindexedString("url", AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED))
         .addProperty(unindexedString("domain", AppSearchSchema.PropertyConfig.CARDINALITY_REQUIRED))
         .build()
+
+    fun isAvailable(context: Context, promise: Promise) {
+        try {
+            openSession(context) { session, error ->
+                session?.close()
+                promise.resolve(session != null && error == null)
+            }
+        } catch (error: Exception) {
+            promise.reject("app_search_availability_failed", error.message, error)
+        }
+    }
 
     fun replace(context: Context, itemsJson: String, promise: Promise) {
         val parsed = try {
@@ -200,6 +221,10 @@ private object AndroidAppSearchIndex {
 
     private fun openSession(context: Context, completion: (AppSearchSession?, Exception?) -> Unit) {
         val manager = context.getSystemService(AppSearchManager::class.java)
+        if (manager == null) {
+            completion(null, IllegalStateException("AppSearch is unavailable on this device"))
+            return
+        }
         val searchContext = AppSearchManager.SearchContext.Builder(DATABASE).build()
         manager.createSearchSession(searchContext, executor) { result ->
             if (result.isSuccess) completion(result.resultValue, null)

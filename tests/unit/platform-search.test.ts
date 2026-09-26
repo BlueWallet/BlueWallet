@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react-native';
 import usePlatformSearch from '../../hooks/usePlatformSearch';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
-import NativePlatformSearch from '../../blue_modules/NativePlatformSearch';
+import NativePlatformSearch, { usePlatformSearchAvailability } from '../../blue_modules/NativePlatformSearch';
 import { navigationRef } from '../../NavigationService';
 
 jest.mock('../../NavigationService', () => ({ navigationRef: { isReady: jest.fn(), getCurrentRoute: jest.fn() } }));
@@ -16,6 +16,7 @@ jest.mock('../../blue_modules/NativePlatformSearch', () => ({
     clearActivity: jest.fn(),
     donateActivity: jest.fn(),
   },
+  usePlatformSearchAvailability: jest.fn(() => true),
   beginPlatformSearchWalletIndexing: jest.fn(() => jest.fn()),
 }));
 
@@ -23,6 +24,7 @@ const isStorageEncrypted = jest.fn().mockResolvedValue(false);
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(usePlatformSearchAvailability).mockReturnValue(true);
   jest.mocked(navigationRef.isReady).mockReturnValue(false);
   jest.mocked(useSettings).mockReturnValue({ isPlatformSearchEnabled: false } as ReturnType<typeof useSettings>);
   jest.mocked(useStorage).mockReturnValue({
@@ -106,4 +108,19 @@ it('refreshes indexed metadata and navigation activity using the wallet array em
     hook.unmount();
     jest.useRealTimers();
   }
+});
+
+it('stops indexing and activity donation while device indexing is unavailable', async () => {
+  jest.mocked(usePlatformSearchAvailability).mockReturnValue(false);
+  jest.mocked(useSettings).mockReturnValue({ isPlatformSearchEnabled: true } as ReturnType<typeof useSettings>);
+  const hook = renderHook(usePlatformSearch);
+  await act(async () => {
+    hook.result.current();
+  });
+  expect(isStorageEncrypted).not.toHaveBeenCalled();
+  expect(NativePlatformSearch!.replaceIndex).not.toHaveBeenCalled();
+  expect(NativePlatformSearch!.donateActivity).not.toHaveBeenCalled();
+  expect(NativePlatformSearch!.deleteIndex).toHaveBeenCalledTimes(1);
+  expect(NativePlatformSearch!.clearActivity).toHaveBeenCalled();
+  hook.unmount();
 });

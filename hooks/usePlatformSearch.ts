@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { navigationRef } from '../NavigationService';
-import NativePlatformSearch, { beginPlatformSearchWalletIndexing } from '../blue_modules/NativePlatformSearch';
+import NativePlatformSearch, {
+  beginPlatformSearchWalletIndexing,
+  usePlatformSearchAvailability,
+} from '../blue_modules/NativePlatformSearch';
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
@@ -38,6 +41,7 @@ const usePlatformSearch = (): (() => void) => {
   const { wallets, walletsInitialized, txMetadata, counterpartyMetadata, isStorageEncrypted } = useStorage();
   const { isPlatformSearchEnabled, isPlatformSearchAddressesEnabled, preferredFiatCurrency } = useSettings();
 
+  const indexingAvailable = usePlatformSearchAvailability();
   const platformSearchActivityRequest = useRef(0);
 
   const updatePlatformSearchActivity = useCallback(() => {
@@ -46,7 +50,7 @@ const usePlatformSearch = (): (() => void) => {
     const params = route?.params as { walletID?: string; hash?: string } | undefined;
     const wallet = params?.walletID ? wallets.find(candidate => candidate.getID() === params.walletID) : undefined;
 
-    if (!isPlatformSearchEnabled || !wallet || wallet.getHideTransactionsInWalletsList()) {
+    if (indexingAvailable !== true || !isPlatformSearchEnabled || !wallet || wallet.getHideTransactionsInWalletsList()) {
       NativePlatformSearch?.clearActivity?.();
       return;
     }
@@ -72,7 +76,7 @@ const usePlatformSearch = (): (() => void) => {
         NativePlatformSearch?.clearActivity?.();
         console.warn('[PlatformSearch] Unable to donate navigation activity:', error);
       });
-  }, [isPlatformSearchEnabled, isStorageEncrypted, txMetadata, wallets]);
+  }, [indexingAvailable, isPlatformSearchEnabled, isStorageEncrypted, txMetadata, wallets]);
 
   useEffect(() => {
     if (navigationRef.isReady()) updatePlatformSearchActivity();
@@ -88,11 +92,13 @@ const usePlatformSearch = (): (() => void) => {
     const updateIndex = async (): Promise<void> => {
       // Disabled search still clears old entries, but must not initialize storage.
       // Wait for wallet loading before adding another encryption-state reader.
-      if (isPlatformSearchEnabled && !walletsInitialized) return;
-      const storageIsEncrypted = isPlatformSearchEnabled ? await isStorageEncrypted() : false;
+      if (indexingAvailable === null) return;
+      const searchEnabled = isPlatformSearchEnabled && indexingAvailable;
+      if (searchEnabled && !walletsInitialized) return;
+      const storageIsEncrypted = searchEnabled ? await isStorageEncrypted() : false;
       if (cancelled) return;
 
-      if (!isPlatformSearchEnabled || storageIsEncrypted) {
+      if (!searchEnabled || storageIsEncrypted) {
         enqueuePlatformSearchOperation(() => platformSearch.deleteIndex()).catch(error =>
           console.warn('[PlatformSearch] Unable to clear index:', error),
         );
@@ -183,6 +189,7 @@ const usePlatformSearch = (): (() => void) => {
     };
   }, [
     counterpartyMetadata,
+    indexingAvailable,
     isPlatformSearchAddressesEnabled,
     isPlatformSearchEnabled,
     isStorageEncrypted,

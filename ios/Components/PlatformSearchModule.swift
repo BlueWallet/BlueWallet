@@ -24,6 +24,12 @@ final class PlatformSearchModule: NSObject {
         CSSearchableIndex(name: Self.indexName, protectionClass: .complete)
     }
 
+    // This reports index support, not the private "Show Content in Search" preference.
+    @objc
+    func isIndexingAvailable(_ resolve: RCTPromiseResolveBlock, reject: RCTPromiseRejectBlock) {
+        resolve(CSSearchableIndex.isIndexingAvailable())
+    }
+
     @objc
     func replaceIndex(_ itemsJSON: String,
                       resolve: @escaping RCTPromiseResolveBlock,
