@@ -733,8 +733,11 @@ const SendDetails = () => {
    * @returns {Promise<void>}
    */
   const importQrTransaction = useCallback(async () => {
-    if (wallet?.type !== WatchOnlyWallet.type) {
-      return presentAlert({ title: loc.errors.error, message: 'Importing transaction in non-watchonly wallet (this should never happen)' });
+    if (wallet?.type !== WatchOnlyWallet.type && wallet?.type !== MultisigHDWallet.type) {
+      return presentAlert({
+        title: loc.errors.error,
+        message: 'Importing transaction in an unsupported wallet (this should never happen)',
+      });
     }
 
     navigateToQRCodeScanner();
@@ -949,7 +952,11 @@ const SendDetails = () => {
         console.debug('SendDetails - selectedDataProcessor:', selectedDataProcessor.current);
         switch (selectedDataProcessor.current) {
           case CommonToolTipActions.ImportTransactionQR:
-            importQrTransactionOnBarScanned(data);
+            if (wallet?.type === MultisigHDWallet.type) {
+              _importTransactionMultisig(data);
+            } else {
+              importQrTransactionOnBarScanned(data);
+            }
             break;
           case CommonToolTipActions.SignPSBT:
             handlePsbtSign(data);
@@ -978,6 +985,7 @@ const SendDetails = () => {
     processAddressData,
     _importTransactionMultisig,
     handlePsbtSign,
+    wallet?.type,
   ]);
 
   const handleAddRecipient = useCallback(() => {
@@ -1197,7 +1205,7 @@ const SendDetails = () => {
       },
       {
         ...CommonToolTipActions.ImportTransactionQR,
-        hidden: !(wallet.type === WatchOnlyWallet.type && wallet.isHd()),
+        hidden: !(wallet.type === MultisigHDWallet.type || (wallet.type === WatchOnlyWallet.type && wallet.isHd())),
       },
       {
         ...CommonToolTipActions.ImportTransactionMultsig,
