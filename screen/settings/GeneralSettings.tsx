@@ -1,6 +1,5 @@
-import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useState } from 'react';
-import { Linking, Platform } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { openSettings } from 'react-native-permissions';
 import A from '../../blue_modules/analytics';
 import loc from '../../loc';
@@ -17,7 +16,6 @@ enum SettingsPrivacySection {
   Widget,
   TemporaryScreenshots,
   TotalBalance,
-  PlatformSearch,
 }
 
 const GeneralSettings: React.FC = () => {
@@ -38,40 +36,20 @@ const GeneralSettings: React.FC = () => {
     setIsTotalBalanceEnabledStorage,
     isHandOffUseEnabled,
     setIsHandOffUseEnabledAsyncStorage,
-    isPlatformSearchEnabled,
-    setIsPlatformSearchEnabledStorage,
-    isPlatformSearchAddressesEnabled,
-    setIsPlatformSearchAddressesEnabledStorage,
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-  const supportsSystemSearch = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
-  const platformSearchTitle = Platform.OS === 'android' ? loc.settings.android_system_search : loc.settings.spotlight_search;
-  const platformSearchExplanation =
-    Platform.OS === 'android' ? loc.settings.android_system_search_explanation : loc.settings.spotlight_search_explanation;
-  const platformSearchAddressesExplanation =
-    Platform.OS === 'android' ? loc.settings.android_system_search_addresses_explanation : loc.settings.spotlight_addresses_explanation;
 
-  useFocusEffect(
-    useCallback(() => {
-      let active = true;
-      (async () => {
-        let encrypted = true;
-        try {
-          encrypted = await isStorageEncrypted();
-        } catch (e) {
-          console.log(e);
-        }
-        if (!active) return;
-        setStorageIsEncrypted(encrypted);
-        setIsLoading(SettingsPrivacySection.None);
-      })();
-
-      return () => {
-        active = false;
-      };
-    }, [isStorageEncrypted]),
-  );
+  useEffect(() => {
+    (async () => {
+      try {
+        setStorageIsEncrypted(await isStorageEncrypted());
+      } catch (e) {
+        console.log(e);
+      }
+      setIsLoading(SettingsPrivacySection.None);
+    })();
+  }, [isStorageEncrypted]);
 
   const onDoNotTrackValueChange = useCallback(
     async (value: boolean) => {
@@ -139,26 +117,11 @@ const GeneralSettings: React.FC = () => {
     openSettings();
   }, []);
 
-  const openPlatformSearchMoreInfo = useCallback(() => {
-    const url =
-      Platform.OS === 'android' ? 'https://developer.android.com/develop/ui/views/search/appsearch' : 'https://support.apple.com/102321';
-    Linking.openURL(url).catch(error => console.warn('[PlatformSearch] Unable to open platform documentation:', error));
-  }, []);
-
   const onHandOffUseEnabledChange = useCallback(
     async (value: boolean) => {
       await setIsHandOffUseEnabledAsyncStorage(value);
     },
     [setIsHandOffUseEnabledAsyncStorage],
-  );
-
-  const onPlatformSearchEnabledChange = useCallback(
-    async (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.PlatformSearch);
-      await setIsPlatformSearchEnabledStorage(value);
-      setIsLoading(SettingsPrivacySection.None);
-    },
-    [setIsPlatformSearchEnabledStorage],
   );
 
   const encryptedDisabledNote = storageIsEncrypted ? `\n${loc.settings.encrypted_feature_disabled}` : '';
@@ -218,38 +181,6 @@ const GeneralSettings: React.FC = () => {
           bottomDivider={false}
         />
       </SettingsSection>
-
-      {supportsSystemSearch && (
-        <SettingsSection title={platformSearchTitle}>
-          <SettingsListItem
-            title={platformSearchTitle}
-            subtitle={`${platformSearchExplanation}${encryptedDisabledNote}`}
-            switch={{
-              value: storageIsEncrypted ? false : isPlatformSearchEnabled,
-              onValueChange: onPlatformSearchEnabledChange,
-              disabled:
-                isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.PlatformSearch || storageIsEncrypted,
-            }}
-          />
-          {isPlatformSearchEnabled && !storageIsEncrypted && (
-            <SettingsListItem
-              title={loc.settings.platform_search_addresses}
-              subtitle={platformSearchAddressesExplanation}
-              switch={{
-                value: isPlatformSearchAddressesEnabled,
-                onValueChange: setIsPlatformSearchAddressesEnabledStorage,
-                disabled: isLoading === SettingsPrivacySection.All,
-              }}
-            />
-          )}
-          <SettingsListItem
-            title={loc.wallets.more_info}
-            onPress={openPlatformSearchMoreInfo}
-            testID="PlatformSearchMoreInfo"
-            bottomDivider={false}
-          />
-        </SettingsSection>
-      )}
 
       {Platform.OS === 'ios' && (
         <>
