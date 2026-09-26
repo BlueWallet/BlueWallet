@@ -8,6 +8,7 @@ import NativePlatformSearch, {
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import { isDesktop } from '../blue_modules/environment';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
 
@@ -83,7 +84,7 @@ const usePlatformSearch = (): (() => void) => {
   }, [updatePlatformSearchActivity]);
 
   useEffect(() => {
-    const supportsSystemSearch = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
+    const supportsSystemSearch = Platform.OS === 'ios' || isDesktop || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
     if (!supportsSystemSearch || !NativePlatformSearch) return;
     const platformSearch = NativePlatformSearch;
     let cancelled = false;

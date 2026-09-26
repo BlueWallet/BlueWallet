@@ -46,7 +46,7 @@ const GeneralSettings: React.FC = () => {
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
-  const supportsSystemSearch = Platform.OS === 'ios' || Platform.OS === 'android';
+  const supportsSystemSearch = Platform.OS === 'ios' || Platform.OS === 'android' || isDesktop;
   const indexingAvailable = usePlatformSearchAvailability();
   const platformSearchSetup = Platform.OS === 'android' ? loc.settings.android_search_setup : loc.settings.spotlight_search_setup;
   const platformSearchStatus =
