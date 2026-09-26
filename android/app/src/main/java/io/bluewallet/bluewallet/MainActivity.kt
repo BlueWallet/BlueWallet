@@ -13,6 +13,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.Window
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.MenuItemCompat
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint
@@ -22,9 +23,9 @@ import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 
 class MainActivity : ReactActivity() {
 
-    private fun menuModule(): MenuElementsModule? =
+    private fun menuModule(): MenuActionsModule? =
         (application as MainApplication).reactHost.currentReactContext
-            ?.getNativeModule(MenuElementsModule::class.java)
+            ?.getNativeModule(MenuActionsModule::class.java)
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
@@ -34,10 +35,62 @@ class MainActivity : ReactActivity() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
         menu.removeGroup(R.id.wallet_menu_group)
-        menuModule()?.availableActions()?.forEachIndexed { index, action ->
-            menu.add(R.id.wallet_menu_group, action.itemId, index, action.titleId).apply {
-                setAlphabeticShortcut(action.shortcut, action.modifiers)
+        val availableActions = menuModule()?.availableActions().orEmpty()
+        val toolActions = setOf(
+            WalletMenuAction.IS_IT_MY_ADDRESS,
+            WalletMenuAction.BROADCAST_TRANSACTION,
+            WalletMenuAction.GENERATE_WORD
+        )
+        availableActions.filterNot { it in toolActions }.forEachIndexed { index, action ->
+            menu.add(R.id.wallet_menu_group, action.itemId, index, menuModule()?.titleFor(action.action) ?: getString(action.titleId)).apply {
+                setIcon(action.iconId)
+                val state = menuModule()?.stateFor(action) ?: MenuActionState()
+                isEnabled = !state.disabled
+                isCheckable = state.checked != null
+                isChecked = state.checked == true
+                action.shortcut?.let { MenuItemCompat.setAlphabeticShortcut(this, it, action.modifiers) }
                 setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+            }
+        }
+        val availableTools = availableActions.filter { it in toolActions }
+        if (availableTools.isNotEmpty()) {
+            val toolsMenu = menu.addSubMenu(
+                R.id.wallet_menu_group,
+                R.id.wallet_menu_tools,
+                WalletMenuAction.entries.size + 1,
+                menuModule()?.titleFor("tools") ?: getString(R.string.wallet_menu_tools)
+            )
+            toolsMenu.item.setIcon(android.R.drawable.ic_menu_manage)
+            availableTools.forEachIndexed { index, action ->
+                toolsMenu.add(R.id.wallet_menu_group, action.itemId, index, action.titleId).setIcon(action.iconId)
+            }
+        }
+        val recentItems = menuModule()?.availableRecentItems().orEmpty()
+        if (WalletMenuAction.OPEN_FILE in availableActions) {
+            val recentMenu = menu.addSubMenu(
+                R.id.wallet_menu_group,
+                R.id.wallet_menu_recent,
+                WalletMenuAction.entries.size,
+                menuModule()?.titleFor("openRecent") ?: getString(R.string.wallet_menu_recent)
+            )
+            recentMenu.item.setIcon(android.R.drawable.ic_menu_recent_history)
+            if (recentItems.isEmpty()) {
+                recentMenu.add(menuModule()?.titleFor("noRecent") ?: getString(R.string.wallet_menu_no_recent)).apply {
+                    setIcon(android.R.drawable.ic_menu_recent_history)
+                    isEnabled = false
+                }
+            } else {
+                recentItems.forEachIndexed { index, item ->
+                    recentMenu.add(
+                        R.id.wallet_menu_group,
+                        MenuActionsModule.RECENT_ITEM_ID_BASE + index,
+                        index,
+                        item.title
+                    ).setIcon(
+                        if (item.kind == "wallet") android.R.drawable.ic_menu_agenda
+                        else android.R.drawable.ic_menu_recent_history
+                    )
+                }
             }
         }
         return menu.hasVisibleItems()
@@ -50,6 +103,7 @@ class MainActivity : ReactActivity() {
             menuModule()?.perform(action)
             return true
         }
+        if (menuModule()?.performRecentItem(item.itemId) == true) return true
         return super.onOptionsItemSelected(item)
     }
 
@@ -76,8 +130,8 @@ class MainActivity : ReactActivity() {
         super.onProvideKeyboardShortcuts(data, null, deviceId)
         val actions = menuModule()?.availableActions().orEmpty()
         if (actions.isEmpty()) return
-        val shortcuts = actions.map {
-            KeyboardShortcutInfo(getString(it.titleId), it.keyCode, it.modifiers)
+        val shortcuts = actions.mapNotNull {
+            it.keyCode?.let { keyCode -> KeyboardShortcutInfo(menuModule()?.titleFor(it.action) ?: getString(it.titleId), keyCode, it.modifiers) }
         } + KeyboardShortcutInfo(getString(R.string.wallet_menu_open), KeyEvent.KEYCODE_M, KeyEvent.META_CTRL_ON)
         data.add(KeyboardShortcutGroup(getString(R.string.app_name), shortcuts))
     }

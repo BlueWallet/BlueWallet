@@ -43,6 +43,7 @@ describe('multisig-hd-wallet', () => {
     await w.fetchBalance();
     await w.fetchTransactions();
     assert.ok(w.getTransactions().length >= 6);
-    assert.strictEqual(w.getBalance(), 108880);
+    // This public fixture's 108880-sat UTXO was fully spent on 2026-09-24.
+    assert.strictEqual(w.getBalance(), 0);
   });
 });

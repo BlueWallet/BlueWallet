@@ -575,12 +575,23 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     }
   };
 
-  useScreenMenuActions({
-    reloadTransactions: !isElectrumDisabled && !isLoading ? () => refreshTransactions(true) : undefined,
-    send: wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd()) ? sendButtonPress : undefined,
-    receive: wallet.allowReceive() ? receiveButtonPress : undefined,
-    walletDetails: !isLoading ? () => navigate('WalletDetails', { walletID }) : undefined,
-  });
+  const hideBalanceInRecentMenu = wallet.hideBalance;
+  const hideFromRecentMenu = wallet.getHideTransactionsInWalletsList?.() ?? false;
+  const recentWallet = useMemo(() => {
+    const formattedBalance = !hideBalanceInRecentMenu && Number.isFinite(balance) ? formatBalance(balance, displayUnit, true) : '';
+    const title = formattedBalance ? `${wallet.getLabel()} — ${formattedBalance}` : wallet.getLabel();
+    return { id: `wallet:${walletID}`, kind: 'wallet' as const, title, walletID };
+  }, [balance, displayUnit, hideBalanceInRecentMenu, wallet, walletID]);
+
+  useScreenMenuActions(
+    {
+      reloadTransactions: !isElectrumDisabled && !isLoading ? () => refreshTransactions(true) : undefined,
+      send: wallet.allowSend() || (wallet.type === WatchOnlyWallet.type && wallet.isHd()) ? sendButtonPress : undefined,
+      receive: wallet.allowReceive() ? receiveButtonPress : undefined,
+      walletDetails: !isLoading ? () => navigate('WalletDetails', { walletID }) : undefined,
+    },
+    hideFromRecentMenu ? undefined : recentWallet,
+  );
 
   useFocusEffect(
     useCallback(() => {

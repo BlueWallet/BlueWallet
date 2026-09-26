@@ -289,6 +289,7 @@
     "encrypt_use_expl": "{type} will be used to confirm your identity before making a transaction, unlocking, exporting, or deleting a wallet.",
     "biometrics_fail": "If {type} is not enabled, or fails to unlock, you can use your device passcode as an alternative.",
     "general": "General",
+    "integration": "Integration",
     "general_continuity": "Continuity",
     "general_continuity_e": "When enabled, you will be able to view selected wallets, and transactions, using your other Apple iCloud connected devices.",
     "header": "Settings",
@@ -314,8 +315,8 @@
     "privacy": "Privacy",
     "privacy_read_clipboard": "Read Clipboard",
     "privacy_system_settings": "System Settings",
-    "privacy_quickactions": "Wallet Shortcuts",
-    "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon to quickly view your wallet’s balance.",
+    "privacy_quickactions": "Wallet Shortcuts and Open Recent",
+    "privacy_quickactions_explanation": "Show wallet shortcuts and balances when you touch and hold the BlueWallet app icon, and list recently opened wallets and transactions in the app’s Open Recent menu.",
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
     "privacy_do_not_track": "Disable Analytics",
     "privacy_do_not_track_explanation": "Performance and reliability information will not be submitted for analysis.",
@@ -638,6 +639,15 @@
     "check_address": "Check address",
     "no_wallet_owns_address": "None of the available wallets own the provided address.",
     "view_qrcode": "View QR Code"
+  },
+  "menu": {
+    "open": "Open…",
+    "open_recent": "Open Recent",
+    "no_recent": "No recent wallets or transactions",
+    "unlock_recent": "Unlock BlueWallet to view recent items",
+    "back_to_wallets": "Back to Wallets",
+    "copy_address": "Copy Address",
+    "keyboard_shortcuts": "Keyboard Shortcuts…"
   },
   "autofill_word": {
     "title": "Seed final word",

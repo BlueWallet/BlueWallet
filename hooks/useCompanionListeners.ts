@@ -27,7 +27,7 @@ import presentAlert from '../components/Alert';
 import useWidgetCommunication from './useWidgetCommunication';
 import useDeviceQuickActions from './useDeviceQuickActions';
 import useHandoffListener from './useHandoffListener';
-import useMenuElements from './useMenuElements';
+import useMenuActions from './useMenuActions';
 
 const ClipboardContentType = Object.freeze({
   BITCOIN: 'BITCOIN',
@@ -55,11 +55,10 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
   // We need to call hooks unconditionally before any conditional logic
   // We'll use this check inside the effects to conditionally run logic
   const shouldActivateListeners = !skipIfNotInitialized || walletsInitialized;
-
   // Initialize other hooks regardless of activation status
   // They'll handle their own conditional logic internally
   useWidgetCommunication();
-  useMenuElements();
+  useMenuActions();
   useDeviceQuickActions();
   useHandoffListener();
 
