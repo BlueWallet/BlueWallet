@@ -9,4 +9,4 @@ export interface Spec extends TurboModule {
   clearActivity(): void;
 }
 
-export default TurboModuleRegistry.get<Spec>('SpotlightModule');
+export default TurboModuleRegistry.get<Spec>('PlatformSearchModule');

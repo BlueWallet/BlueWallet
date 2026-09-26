@@ -10,7 +10,7 @@ jest.mock('../../blue_modules/BlueElectrum', () => {
   };
 });
 
-describe('Spotlight deep links', () => {
+describe('Platform search deep links', () => {
   const wallet = {
     getID: () => 'wallet id',
     type: 'HDsegwitBech32',

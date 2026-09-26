@@ -22,52 +22,52 @@ import {
 } from './navigation/navigationGuard';
 import usePlatformSearch from './hooks/usePlatformSearch';
 import { useSettings } from './hooks/context/useSettings';
-import { clearSpotlightActivity, donateSpotlightActivity } from './blue_modules/NativeSpotlight';
+import { clearPlatformSearchActivity, donatePlatformSearchActivity } from './blue_modules/NativePlatformSearch';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
   const { wallets, saveToDisk, txMetadata, isStorageEncrypted } = useStorage();
-  const { isSpotlightEnabled } = useSettings();
+  const { isPlatformSearchEnabled } = useSettings();
   const { isBiometricUseEnabled } = useBiometrics();
-  const spotlightActivityRequest = useRef(0);
+  const platformSearchActivityRequest = useRef(0);
   usePlatformSearch();
 
-  const updateSpotlightActivity = useCallback(() => {
-    const request = ++spotlightActivityRequest.current;
+  const updatePlatformSearchActivity = useCallback(() => {
+    const request = ++platformSearchActivityRequest.current;
     const route = navigationRef.getCurrentRoute();
     const params = route?.params as { walletID?: string; hash?: string } | undefined;
     const wallet = params?.walletID ? wallets.find(candidate => candidate.getID() === params.walletID) : undefined;
 
-    if (!isSpotlightEnabled || !wallet || wallet.getHideTransactionsInWalletsList()) {
-      clearSpotlightActivity();
+    if (!isPlatformSearchEnabled || !wallet || wallet.getHideTransactionsInWalletsList()) {
+      clearPlatformSearchActivity();
       return;
     }
 
     isStorageEncrypted()
       .then(storageIsEncrypted => {
-        if (request !== spotlightActivityRequest.current) return;
+        if (request !== platformSearchActivityRequest.current) return;
         if (storageIsEncrypted) {
-          clearSpotlightActivity();
+          clearPlatformSearchActivity();
           return;
         }
 
         if (route?.name === 'TransactionStatus' && params?.hash) {
           const title = txMetadata[params.hash]?.memo?.trim() || `Transaction ${params.hash.slice(0, 8)}`;
-          donateSpotlightActivity(`transaction:${wallet.getID()}:${params.hash}`, title);
+          donatePlatformSearchActivity(`transaction:${wallet.getID()}:${params.hash}`, title);
         } else if (route?.name === 'WalletTransactions' || route?.name === 'WalletDetails') {
-          donateSpotlightActivity(`wallet:${wallet.getID()}`, wallet.getLabel());
+          donatePlatformSearchActivity(`wallet:${wallet.getID()}`, wallet.getLabel());
         } else {
-          clearSpotlightActivity();
+          clearPlatformSearchActivity();
         }
       })
       .catch(error => {
-        clearSpotlightActivity();
-        console.warn('[Spotlight] Unable to donate navigation activity:', error);
+        clearPlatformSearchActivity();
+        console.warn('[PlatformSearch] Unable to donate navigation activity:', error);
       });
-  }, [isSpotlightEnabled, isStorageEncrypted, txMetadata, wallets]);
+  }, [isPlatformSearchEnabled, isStorageEncrypted, txMetadata, wallets]);
 
   useEffect(() => {
-    if (navigationRef.isReady()) updateSpotlightActivity();
-  }, [updateSpotlightActivity]);
+    if (navigationRef.isReady()) updatePlatformSearchActivity();
+  }, [updatePlatformSearchActivity]);
 
   const validateNavigation = useCallback(
     (route: GuardedRoute) =>
@@ -124,8 +124,8 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
       ref={navigationRef}
       theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
       onUnhandledAction={handleUnhandledAction}
-      onReady={updateSpotlightActivity}
-      onStateChange={updateSpotlightActivity}
+      onReady={updatePlatformSearchActivity}
+      onStateChange={updatePlatformSearchActivity}
     >
       <MasterView />
     </NavigationContainer>

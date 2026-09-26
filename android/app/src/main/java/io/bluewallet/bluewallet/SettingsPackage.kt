@@ -11,7 +11,7 @@ class SettingsPackage : TurboReactPackage() {
     override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? {
         return when (name) {
             SettingsModule.NAME -> SettingsModule(reactContext)
-            SpotlightModule.NAME -> SpotlightModule(reactContext)
+            PlatformSearchModule.NAME -> PlatformSearchModule(reactContext)
             else -> null
         }
     }
@@ -26,16 +26,16 @@ class SettingsPackage : TurboReactPackage() {
             false, // isCxxModule
             true   // isTurboModule
         )
-        val spotlightModuleInfo = ReactModuleInfo(
-            SpotlightModule.NAME,
-            SpotlightModule.NAME,
+        val platformSearchModuleInfo = ReactModuleInfo(
+            PlatformSearchModule.NAME,
+            PlatformSearchModule.NAME,
             false,
             false,
             false,
             false,
             true
         )
-        mapOf(SettingsModule.NAME to moduleInfo, SpotlightModule.NAME to spotlightModuleInfo)
+        mapOf(SettingsModule.NAME to moduleInfo, PlatformSearchModule.NAME to platformSearchModuleInfo)
     }
 
     override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> = emptyList()

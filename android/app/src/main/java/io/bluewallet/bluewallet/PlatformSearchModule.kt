@@ -6,10 +6,10 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.module.annotations.ReactModule
 
-@ReactModule(name = SpotlightModule.NAME)
-class SpotlightModule(reactContext: ReactApplicationContext) : NativeSpotlightSpec(reactContext) {
+@ReactModule(name = PlatformSearchModule.NAME)
+class PlatformSearchModule(reactContext: ReactApplicationContext) : NativePlatformSearchSpec(reactContext) {
     companion object {
-        const val NAME = "SpotlightModule"
+        const val NAME = "PlatformSearchModule"
     }
 
     @ReactMethod

@@ -75,7 +75,7 @@ export const StorageProvider = ({ children }: { children: React.ReactNode }) => 
 
   const [wallets, setWallets] = useState<TWallet[]>([]);
   // Wallets and metadata are mutated in place in several flows. This revision gives
-  // consumers such as Spotlight a reliable signal after every successful persistence.
+  // consumers such as PlatformSearch a reliable signal after every successful persistence.
   const [storageRevision, setStorageRevision] = useState<number>(0);
   const [walletTransactionUpdateStatus, setWalletTransactionUpdateStatus] = useState<WalletTransactionsStatus | string>(
     WalletTransactionsStatus.NONE,

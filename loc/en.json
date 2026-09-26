@@ -321,7 +321,7 @@
     "privacy_do_not_track_explanation": "Performance and reliability information will not be submitted for analysis.",
     "spotlight_search": "Spotlight Search",
     "spotlight_search_explanation": "Find BlueWallet items from Spotlight. For example, search for a wallet named “Savings,” a contact named “Alice,” a transaction note such as “Rent,” or a transaction ID. Results stay on this device and may appear while BlueWallet is locked.",
-    "spotlight_addresses": "Include Addresses",
+    "platform_search_addresses": "Include Addresses",
     "spotlight_addresses_explanation": "Also find transactions and contacts by their Bitcoin addresses or payment codes. For example, paste a bc1… address into Spotlight to find a related transaction. These public identifiers may appear in system search results.",
     "android_system_search": "Device Search",
     "android_system_search_explanation": "Find BlueWallet items from your device’s search. For example, search for a wallet named “Savings,” a contact named “Alice,” a transaction note such as “Rent,” or a transaction ID. Results stay on this device and may appear while BlueWallet is locked.",

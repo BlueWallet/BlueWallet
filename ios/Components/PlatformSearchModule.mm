@@ -1,6 +1,6 @@
 #import <React/RCTBridgeModule.h>
 
-@interface RCT_EXTERN_REMAP_MODULE(SpotlightModule, SpotlightModule, NSObject)
+@interface RCT_EXTERN_REMAP_MODULE(PlatformSearchModule, PlatformSearchModule, NSObject)
 RCT_EXTERN_METHOD(replaceIndex:(NSString *)itemsJSON
                   resolve:(RCTPromiseResolveBlock)resolve
                   reject:(RCTPromiseRejectBlock)reject)

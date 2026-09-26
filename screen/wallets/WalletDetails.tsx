@@ -47,7 +47,7 @@ import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { BlueLoading } from '../../components/BlueLoading';
 import Icon from '../../components/Icon';
 import { navigateToWalletsList } from '../../NavigationService';
-import { useIsWalletSpotlightIndexing } from '../../blue_modules/NativeSpotlight';
+import { useIsWalletPlatformSearchIndexing } from '../../blue_modules/NativePlatformSearch';
 
 type RouteProps = RouteProp<DetailViewStackParamList, 'WalletDetails'>;
 const IMPORT_NOTES_ACTION_ID = 'import_notes';
@@ -65,7 +65,7 @@ const WalletDetails: React.FC = () => {
   const { saveToDisk, wallets, txMetadata = {}, handleWalletDeletion, fetchAndSaveWalletTransactions, sleep } = useStorage();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { walletID } = useRoute<RouteProps>().params;
-  const isSpotlightIndexing = useIsWalletSpotlightIndexing(walletID);
+  const isPlatformSearchIndexing = useIsWalletPlatformSearchIndexing(walletID);
   const { direction } = useLocale();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [backdoorPressed, setBackdoorPressed] = useState<number>(0);
@@ -735,7 +735,7 @@ const WalletDetails: React.FC = () => {
                       {loc.transactions.list_title}
                     </Text>
                     <View style={styles.statsBoxTitleActions}>
-                      {isSpotlightIndexing && <ActivityIndicator size="small" testID="SpotlightIndexingIndicator" />}
+                      {isPlatformSearchIndexing && <ActivityIndicator size="small" testID="PlatformSearchIndexingIndicator" />}
                       {walletTransactionsLength > 0 && (
                         <ToolTipMenu
                           isButton

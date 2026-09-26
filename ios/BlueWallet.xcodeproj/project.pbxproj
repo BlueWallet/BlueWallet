@@ -112,8 +112,8 @@
 		B4B3EF202D6CFF6C003270A0 /* SegmentedControlBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = B4B3EF1F2D6CFF6C003270A0 /* SegmentedControlBridge.m */; };
 		B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */; };
 		B4F0A4A42FA1BC0000AAAA03 /* EventEmitter.mm in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4A32FA1BC0000AAAA02 /* EventEmitter.mm */; };
-		C50100012FA1BC0000C50101 /* SpotlightModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50100032FA1BC0000C50103 /* SpotlightModule.swift */; };
-		C50100022FA1BC0000C50102 /* SpotlightModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = C50100042FA1BC0000C50104 /* SpotlightModule.mm */; };
+		C50100012FA1BC0000C50101 /* PlatformSearchModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C50100032FA1BC0000C50103 /* PlatformSearchModule.swift */; };
+		C50100022FA1BC0000C50102 /* PlatformSearchModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = C50100042FA1BC0000C50104 /* PlatformSearchModule.mm */; };
 		B4F0A4C22FA1BC2700BBBB02 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4F0A4C12FA1BC2700BBBB01 /* SceneDelegate.swift */; };
 		C978A716948AB7DEC5B6F677 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		F106AA234C086C6B795EE267 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2162D22139056EC332C84D92 /* Foundation.framework */; };
@@ -288,8 +288,8 @@
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRate.a; sourceTree = "<group>"; };
-		C50100032FA1BC0000C50103 /* SpotlightModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotlightModule.swift; sourceTree = "<group>"; };
-		C50100042FA1BC0000C50104 /* SpotlightModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SpotlightModule.mm; sourceTree = "<group>"; };
+		C50100032FA1BC0000C50103 /* PlatformSearchModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformSearchModule.swift; sourceTree = "<group>"; };
+		C50100042FA1BC0000C50104 /* PlatformSearchModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PlatformSearchModule.mm; sourceTree = "<group>"; };
 		CD746B955C55410793BB72C0 /* libRNGestureHandler.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNGestureHandler.a; sourceTree = "<group>"; };
 		E6B44173A8854B6D85D7F933 /* libRNVectorIcons-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNVectorIcons-tvOS.a"; sourceTree = "<group>"; };
 		E745397267AD62B80F3CA6C3 /* ThumbnailProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ThumbnailProvider.swift; sourceTree = "<group>"; };
@@ -643,8 +643,8 @@
 				B4B3EF1F2D6CFF6C003270A0 /* SegmentedControlBridge.m */,
 				B4B1A4612BFA73110072E3BB /* WidgetHelper.swift */,
 				B4F0A4A12FA1BC0000AAAA00 /* WidgetHelper.mm */,
-				C50100032FA1BC0000C50103 /* SpotlightModule.swift */,
-				C50100042FA1BC0000C50104 /* SpotlightModule.mm */,
+				C50100032FA1BC0000C50103 /* PlatformSearchModule.swift */,
+				C50100042FA1BC0000C50104 /* PlatformSearchModule.mm */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1075,8 +1075,8 @@
 				B4B3EF202D6CFF6C003270A0 /* SegmentedControlBridge.m in Sources */,
 				B4B1A4622BFA73110072E3BB /* WidgetHelper.swift in Sources */,
 				B4F0A4A22FA1BC0000AAAA01 /* WidgetHelper.mm in Sources */,
-				C50100012FA1BC0000C50101 /* SpotlightModule.swift in Sources */,
-				C50100022FA1BC0000C50102 /* SpotlightModule.mm in Sources */,
+				C50100012FA1BC0000C50101 /* PlatformSearchModule.swift in Sources */,
+				C50100022FA1BC0000C50102 /* PlatformSearchModule.mm in Sources */,
 				B48630E12CCEE7C800A8425C /* PriceWidgetEntryView.swift in Sources */,
 				B44033DA2BCC369A00162242 /* Colors.swift in Sources */,
 				B44033D32BCC368800162242 /* UserDefaultsGroupKey.swift in Sources */,

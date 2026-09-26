@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import NativeSpotlight, { beginSpotlightWalletIndexing } from '../blue_modules/NativeSpotlight';
+import NativePlatformSearch, { beginPlatformSearchWalletIndexing } from '../blue_modules/NativePlatformSearch';
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { formatBalanceWithoutSuffix } from '../loc';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import { useSettings } from './context/useSettings';
 import { useStorage } from './context/useStorage';
 
-type SpotlightItem = {
+type PlatformSearchItem = {
   identifier: string;
   domain: string;
   title: string;
@@ -22,11 +22,11 @@ type SpotlightItem = {
 
 const unique = (values: Array<string | undefined>): string[] => [...new Set(values.filter((value): value is string => !!value))];
 
-let spotlightOperationQueue: Promise<void> = Promise.resolve();
+let platformSearchOperationQueue: Promise<void> = Promise.resolve();
 
-const enqueueSpotlightOperation = <T>(operation: () => Promise<T>): Promise<T> => {
-  const result = spotlightOperationQueue.then(operation);
-  spotlightOperationQueue = result.then(
+const enqueuePlatformSearchOperation = <T>(operation: () => Promise<T>): Promise<T> => {
+  const result = platformSearchOperationQueue.then(operation);
+  platformSearchOperationQueue = result.then(
     () => undefined,
     () => undefined,
   );
@@ -35,48 +35,48 @@ const enqueueSpotlightOperation = <T>(operation: () => Promise<T>): Promise<T> =
 
 const usePlatformSearch = (): void => {
   const { wallets, walletsInitialized, txMetadata, counterpartyMetadata, storageRevision, isStorageEncrypted } = useStorage();
-  const { isSpotlightEnabled, isSpotlightAddressesEnabled, preferredFiatCurrency } = useSettings();
+  const { isPlatformSearchEnabled, isPlatformSearchAddressesEnabled, preferredFiatCurrency } = useSettings();
 
   useEffect(() => {
     const supportsSystemSearch = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
-    if (!supportsSystemSearch || !NativeSpotlight) return;
-    const spotlight = NativeSpotlight;
+    if (!supportsSystemSearch || !NativePlatformSearch) return;
+    const platformSearch = NativePlatformSearch;
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const updateIndex = async (): Promise<void> => {
       // Disabled search still clears old entries, but must not initialize storage.
       // Wait for wallet loading before adding another encryption-state reader.
-      if (isSpotlightEnabled && !walletsInitialized) return;
-      const storageIsEncrypted = isSpotlightEnabled ? await isStorageEncrypted() : false;
+      if (isPlatformSearchEnabled && !walletsInitialized) return;
+      const storageIsEncrypted = isPlatformSearchEnabled ? await isStorageEncrypted() : false;
       if (cancelled) return;
 
-      if (!isSpotlightEnabled || storageIsEncrypted) {
-        console.debug('[Spotlight] Queueing index removal', {
+      if (!isPlatformSearchEnabled || storageIsEncrypted) {
+        console.debug('[PlatformSearch] Queueing index removal', {
           storageIsEncrypted,
         });
-        enqueueSpotlightOperation(() => spotlight.deleteIndex())
-          .then(() => console.debug('[Spotlight] Index removed'))
-          .catch(error => console.warn('[Spotlight] Unable to clear index:', error));
+        enqueuePlatformSearchOperation(() => platformSearch.deleteIndex())
+          .then(() => console.debug('[PlatformSearch] Index removed'))
+          .catch(error => console.warn('[PlatformSearch] Unable to clear index:', error));
         return;
       }
 
       if (!walletsInitialized) return;
 
-      console.debug('[Spotlight] Scheduling index refresh', {
+      console.debug('[PlatformSearch] Scheduling index refresh', {
         storageRevision,
         walletCount: wallets.length,
-        includesAddresses: isSpotlightAddressesEnabled,
+        includesAddresses: isPlatformSearchAddressesEnabled,
       });
 
       timer = setTimeout(() => {
-        const items: SpotlightItem[] = [];
+        const items: PlatformSearchItem[] = [];
         const indexedWallets = wallets.filter(wallet => !wallet.getHideTransactionsInWalletsList());
-        const finishIndexing = beginSpotlightWalletIndexing(indexedWallets.map(wallet => wallet.getID()));
+        const finishIndexing = beginPlatformSearchWalletIndexing(indexedWallets.map(wallet => wallet.getID()));
         let transactionCount = 0;
         let contactCount = 0;
 
-        console.debug('[Spotlight] Preparing index', {
+        console.debug('[PlatformSearch] Preparing index', {
           indexedWalletCount: indexedWallets.length,
           hiddenWalletCount: wallets.length - indexedWallets.length,
         });
@@ -105,7 +105,7 @@ const usePlatformSearch = (): void => {
                 transactionValue === undefined ? undefined : `${formatBalanceWithoutSuffix(transactionValue, BitcoinUnit.SATS, true)} sats`;
               const formattedFiat = transactionValue === undefined ? undefined : satoshiToLocalCurrency(transactionValue);
               const amountDescription = [formattedSats, formattedFiat === '...' ? undefined : formattedFiat].filter(Boolean).join(' · ');
-              const addresses = isSpotlightAddressesEnabled
+              const addresses = isPlatformSearchAddressesEnabled
                 ? unique([
                     ...(transaction.inputs || []).flatMap(input => input.addresses || (input.address ? [input.address] : [])),
                     ...(transaction.outputs || []).flatMap(output => output.scriptPubKey?.addresses || []),
@@ -125,7 +125,7 @@ const usePlatformSearch = (): void => {
               transactionCount += 1;
             }
           } catch (error) {
-            console.warn('[Spotlight] Unable to prepare transactions for one wallet:', error);
+            console.warn('[PlatformSearch] Unable to prepare transactions for one wallet:', error);
           }
         }
 
@@ -136,38 +136,38 @@ const usePlatformSearch = (): void => {
             domain: 'contacts',
             title: metadata.label.trim(),
             description: 'BlueWallet contact',
-            keywords: unique(['BlueWallet contact', metadata.label.trim(), ...(isSpotlightAddressesEnabled ? [paymentCode] : [])]),
+            keywords: unique(['BlueWallet contact', metadata.label.trim(), ...(isPlatformSearchAddressesEnabled ? [paymentCode] : [])]),
             rankingHint: 65,
             userCurated: true,
           });
           contactCount += 1;
         }
 
-        console.debug('[Spotlight] Queueing prepared index', {
+        console.debug('[PlatformSearch] Queueing prepared index', {
           walletCount: indexedWallets.length,
           transactionCount,
           contactCount,
           totalItemCount: items.length,
         });
 
-        enqueueSpotlightOperation(() => spotlight.replaceIndex(JSON.stringify(items)))
+        enqueuePlatformSearchOperation(() => platformSearch.replaceIndex(JSON.stringify(items)))
           .then(indexedItemCount =>
-            console.debug('[Spotlight] Index refresh completed', {
+            console.debug('[PlatformSearch] Index refresh completed', {
               indexedItemCount,
             }),
           )
-          .catch(error => console.warn('[Spotlight] Unable to update index:', error))
+          .catch(error => console.warn('[PlatformSearch] Unable to update index:', error))
           .finally(() => {
             finishIndexing();
-            console.debug('[Spotlight] Wallet indexing activity finished');
+            console.debug('[PlatformSearch] Wallet indexing activity finished');
           });
       }, 750);
     };
 
     updateIndex().catch(error => {
-      console.warn('[Spotlight] Unable to determine storage encryption state; clearing index:', error);
-      enqueueSpotlightOperation(() => spotlight.deleteIndex()).catch(deleteError =>
-        console.warn('[Spotlight] Unable to clear index after encryption-state failure:', deleteError),
+      console.warn('[PlatformSearch] Unable to determine storage encryption state; clearing index:', error);
+      enqueuePlatformSearchOperation(() => platformSearch.deleteIndex()).catch(deleteError =>
+        console.warn('[PlatformSearch] Unable to clear index after encryption-state failure:', deleteError),
       );
     });
 
@@ -177,8 +177,8 @@ const usePlatformSearch = (): void => {
     };
   }, [
     counterpartyMetadata,
-    isSpotlightAddressesEnabled,
-    isSpotlightEnabled,
+    isPlatformSearchAddressesEnabled,
+    isPlatformSearchEnabled,
     isStorageEncrypted,
     preferredFiatCurrency,
     storageRevision,

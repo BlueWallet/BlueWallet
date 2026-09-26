@@ -4,9 +4,10 @@ import Foundation
 import React
 import UniformTypeIdentifiers
 
-@objc(SpotlightModule)
-final class SpotlightModule: NSObject {
+@objc(PlatformSearchModule)
+final class PlatformSearchModule: NSObject {
     private static let indexName = "io.bluewallet.search"
+    // Preserve identifiers used by existing indexed items and donated activities.
     static let activityType = "io.bluewallet.spotlight.open"
     private static let indexStateVersion = 1
     private static let indexedItemsKey = "SpotlightIndexedItems"
@@ -16,7 +17,7 @@ final class SpotlightModule: NSObject {
 
     private var currentActivity: NSUserActivity?
 
-    static func moduleName() -> String! { "SpotlightModule" }
+    static func moduleName() -> String! { "PlatformSearchModule" }
     static func requiresMainQueueSetup() -> Bool { false }
 
     private var index: CSSearchableIndex {
@@ -28,12 +29,12 @@ final class SpotlightModule: NSObject {
                       resolve: @escaping RCTPromiseResolveBlock,
                       reject: @escaping RCTPromiseRejectBlock) {
         guard let data = itemsJSON.data(using: .utf8) else {
-            reject("spotlight_invalid_json", "Unable to encode Spotlight items", nil)
+            reject("platform_search_invalid_json", "Unable to encode platform search items", nil)
             return
         }
 
         do {
-            let input = try JSONDecoder().decode([SpotlightItem].self, from: data)
+            let input = try JSONDecoder().decode([PlatformSearchItem].self, from: data)
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.sortedKeys]
             var searchableItems: [String: CSSearchableItem] = [:]
@@ -44,7 +45,7 @@ final class SpotlightModule: NSObject {
                 searchableItems[item.identifier] = searchableItem
                 fingerprints[item.identifier] = SHA256.hash(data: encodedItem).map { String(format: "%02x", $0) }.joined()
             }
-            let newState = SpotlightIndexState(version: Self.indexStateVersion)
+            let newState = PlatformSearchIndexState(version: Self.indexStateVersion)
             let stateData = try JSONEncoder().encode(newState)
             let index = index
             let defaults = UserDefaults.standard
@@ -56,10 +57,10 @@ final class SpotlightModule: NSObject {
             }
             index.fetchLastClientState { previousStateData, stateError in
                 if let stateError {
-                    reject("spotlight_state_failed", stateError.localizedDescription, stateError)
+                    reject("platform_search_state_failed", stateError.localizedDescription, stateError)
                     return
                 }
-                let previousState = previousStateData.flatMap { try? JSONDecoder().decode(SpotlightIndexState.self, from: $0) }
+                let previousState = previousStateData.flatMap { try? JSONDecoder().decode(PlatformSearchIndexState.self, from: $0) }
                 let canUpdateIncrementally = previousState?.version == Self.indexStateVersion && previousFingerprints != nil
                 let items = canUpdateIncrementally ? changedItems : Array(searchableItems.values)
                 index.beginBatch()
@@ -67,7 +68,7 @@ final class SpotlightModule: NSObject {
                 let finishBatch: (Error?) -> Void = { operationError in
                     index.endBatch(withClientState: stateData) { batchError in
                         if let error = operationError ?? batchError {
-                            reject("spotlight_index_failed", error.localizedDescription, error)
+                            reject("platform_search_index_failed", error.localizedDescription, error)
                         } else {
                             defaults.set(fingerprints, forKey: Self.indexedItemsKey)
                             resolve(searchableItems.count)
@@ -109,7 +110,7 @@ final class SpotlightModule: NSObject {
                 }
             }
         } catch {
-            reject("spotlight_invalid_json", error.localizedDescription, error)
+            reject("platform_search_invalid_json", error.localizedDescription, error)
         }
     }
 
@@ -126,7 +127,7 @@ final class SpotlightModule: NSObject {
         }
         index.deleteAllSearchableItems { error in
             if let error {
-                reject("spotlight_delete_failed", error.localizedDescription, error)
+                reject("platform_search_delete_failed", error.localizedDescription, error)
             } else {
                 resolve(nil)
             }
@@ -181,7 +182,7 @@ final class SpotlightModule: NSObject {
         }
     }
 
-    private static func searchableItem(from item: SpotlightItem) -> CSSearchableItem? {
+    private static func searchableItem(from item: PlatformSearchItem) -> CSSearchableItem? {
         guard !item.identifier.isEmpty, !item.title.isEmpty else { return nil }
         let attributes = CSSearchableItemAttributeSet(contentType: .item)
         attributes.title = item.title
@@ -208,7 +209,7 @@ final class SpotlightModule: NSObject {
     }
 }
 
-private struct SpotlightItem: Codable {
+private struct PlatformSearchItem: Codable {
     let identifier: String
     let domain: String
     let title: String
@@ -221,6 +222,6 @@ private struct SpotlightItem: Codable {
     let userCurated: Bool?
 }
 
-private struct SpotlightIndexState: Codable {
+private struct PlatformSearchIndexState: Codable {
     let version: Int
 }

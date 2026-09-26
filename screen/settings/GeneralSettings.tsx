@@ -17,7 +17,7 @@ enum SettingsPrivacySection {
   Widget,
   TemporaryScreenshots,
   TotalBalance,
-  Spotlight,
+  PlatformSearch,
 }
 
 const GeneralSettings: React.FC = () => {
@@ -38,18 +38,18 @@ const GeneralSettings: React.FC = () => {
     setIsTotalBalanceEnabledStorage,
     isHandOffUseEnabled,
     setIsHandOffUseEnabledAsyncStorage,
-    isSpotlightEnabled,
-    setIsSpotlightEnabledStorage,
-    isSpotlightAddressesEnabled,
-    setIsSpotlightAddressesEnabledStorage,
+    isPlatformSearchEnabled,
+    setIsPlatformSearchEnabledStorage,
+    isPlatformSearchAddressesEnabled,
+    setIsPlatformSearchAddressesEnabledStorage,
   } = useSettings();
   const [isLoading, setIsLoading] = useState<number>(SettingsPrivacySection.All);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState<boolean>(true);
   const supportsSystemSearch = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
-  const systemSearchTitle = Platform.OS === 'android' ? loc.settings.android_system_search : loc.settings.spotlight_search;
-  const systemSearchExplanation =
+  const platformSearchTitle = Platform.OS === 'android' ? loc.settings.android_system_search : loc.settings.spotlight_search;
+  const platformSearchExplanation =
     Platform.OS === 'android' ? loc.settings.android_system_search_explanation : loc.settings.spotlight_search_explanation;
-  const systemSearchAddressesExplanation =
+  const platformSearchAddressesExplanation =
     Platform.OS === 'android' ? loc.settings.android_system_search_addresses_explanation : loc.settings.spotlight_addresses_explanation;
 
   useFocusEffect(
@@ -139,10 +139,10 @@ const GeneralSettings: React.FC = () => {
     openSettings();
   }, []);
 
-  const openSpotlightMoreInfo = useCallback(() => {
+  const openPlatformSearchMoreInfo = useCallback(() => {
     const url =
       Platform.OS === 'android' ? 'https://developer.android.com/develop/ui/views/search/appsearch' : 'https://support.apple.com/102321';
-    Linking.openURL(url).catch(error => console.warn('[SystemSearch] Unable to open platform documentation:', error));
+    Linking.openURL(url).catch(error => console.warn('[PlatformSearch] Unable to open platform documentation:', error));
   }, []);
 
   const onHandOffUseEnabledChange = useCallback(
@@ -152,13 +152,13 @@ const GeneralSettings: React.FC = () => {
     [setIsHandOffUseEnabledAsyncStorage],
   );
 
-  const onSpotlightEnabledChange = useCallback(
+  const onPlatformSearchEnabledChange = useCallback(
     async (value: boolean) => {
-      setIsLoading(SettingsPrivacySection.Spotlight);
-      await setIsSpotlightEnabledStorage(value);
+      setIsLoading(SettingsPrivacySection.PlatformSearch);
+      await setIsPlatformSearchEnabledStorage(value);
       setIsLoading(SettingsPrivacySection.None);
     },
-    [setIsSpotlightEnabledStorage],
+    [setIsPlatformSearchEnabledStorage],
   );
 
   const encryptedDisabledNote = storageIsEncrypted ? `\n${loc.settings.encrypted_feature_disabled}` : '';
@@ -220,31 +220,32 @@ const GeneralSettings: React.FC = () => {
       </SettingsSection>
 
       {supportsSystemSearch && (
-        <SettingsSection title={systemSearchTitle}>
+        <SettingsSection title={platformSearchTitle}>
           <SettingsListItem
-            title={systemSearchTitle}
-            subtitle={`${systemSearchExplanation}${encryptedDisabledNote}`}
+            title={platformSearchTitle}
+            subtitle={`${platformSearchExplanation}${encryptedDisabledNote}`}
             switch={{
-              value: storageIsEncrypted ? false : isSpotlightEnabled,
-              onValueChange: onSpotlightEnabledChange,
-              disabled: isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.Spotlight || storageIsEncrypted,
+              value: storageIsEncrypted ? false : isPlatformSearchEnabled,
+              onValueChange: onPlatformSearchEnabledChange,
+              disabled:
+                isLoading === SettingsPrivacySection.All || isLoading === SettingsPrivacySection.PlatformSearch || storageIsEncrypted,
             }}
           />
-          {isSpotlightEnabled && !storageIsEncrypted && (
+          {isPlatformSearchEnabled && !storageIsEncrypted && (
             <SettingsListItem
-              title={loc.settings.spotlight_addresses}
-              subtitle={systemSearchAddressesExplanation}
+              title={loc.settings.platform_search_addresses}
+              subtitle={platformSearchAddressesExplanation}
               switch={{
-                value: isSpotlightAddressesEnabled,
-                onValueChange: setIsSpotlightAddressesEnabledStorage,
+                value: isPlatformSearchAddressesEnabled,
+                onValueChange: setIsPlatformSearchAddressesEnabledStorage,
                 disabled: isLoading === SettingsPrivacySection.All,
               }}
             />
           )}
           <SettingsListItem
             title={loc.wallets.more_info}
-            onPress={openSpotlightMoreInfo}
-            testID="SpotlightMoreInfo"
+            onPress={openPlatformSearchMoreInfo}
+            testID="PlatformSearchMoreInfo"
             bottomDivider={false}
           />
         </SettingsSection>

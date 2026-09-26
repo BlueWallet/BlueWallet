@@ -323,15 +323,15 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
-        let spotlightIdentifier = activityType == CSSearchableItemActionType
+        let platformSearchIdentifier = activityType == CSSearchableItemActionType
             ? userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String
-            : userActivity.userInfo?[SpotlightModule.activityIdentifierKey] as? String
+            : userActivity.userInfo?[PlatformSearchModule.activityIdentifierKey] as? String
 
-        if (activityType == CSSearchableItemActionType || activityType == SpotlightModule.activityType),
-           let identifier = spotlightIdentifier,
-           let url = spotlightURL(for: identifier) {
-            UserDefaults.standard.set(url.absoluteString, forKey: SpotlightModule.pendingURLKey)
-            NSLog("[Spotlight] Opening indexed result")
+        if (activityType == CSSearchableItemActionType || activityType == PlatformSearchModule.activityType),
+           let identifier = platformSearchIdentifier,
+           let url = platformSearchURL(for: identifier) {
+            UserDefaults.standard.set(url.absoluteString, forKey: PlatformSearchModule.pendingURLKey)
+            NSLog("[PlatformSearch] Opening indexed result")
             return RCTLinkingManager.application(application, open: url, options: [:])
         }
 
@@ -348,7 +348,7 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         return false
     }
 
-    private func spotlightURL(for identifier: String) -> URL? {
+    private func platformSearchURL(for identifier: String) -> URL? {
         let parts = identifier.split(separator: ":", maxSplits: 2, omittingEmptySubsequences: false).map(String.init)
         guard parts.count >= 2 else { return nil }
 
