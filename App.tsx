@@ -20,10 +20,12 @@ import {
   GuardedNavigationAction,
   validateGuardedRoute,
 } from './navigation/navigationGuard';
+import usePlatformSearch from './hooks/usePlatformSearch';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
   const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
+  const updatePlatformSearchActivity = usePlatformSearch();
 
   const validateNavigation = useCallback(
     (route: GuardedRoute) =>
@@ -80,6 +82,8 @@ const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorSc
       ref={navigationRef}
       theme={colorScheme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}
       onUnhandledAction={handleUnhandledAction}
+      onReady={updatePlatformSearchActivity}
+      onStateChange={updatePlatformSearchActivity}
     >
       <MasterView />
     </NavigationContainer>

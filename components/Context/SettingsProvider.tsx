@@ -19,6 +19,10 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Keep the original persisted keys so existing search preferences survive renames.
+const PlatformSearchEnabledKey = 'SpotlightSearchEnabled';
+const PlatformSearchAddressesEnabledKey = 'SpotlightAddressesEnabled';
+
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
     await DefaultPreference.setName(GROUP_IO_BLUEWALLET);
@@ -91,6 +95,10 @@ interface SettingsContextType {
   setIsClipboardGetContentEnabledStorage: (value: boolean) => Promise<void>;
   isQuickActionsEnabled: boolean;
   setIsQuickActionsEnabledStorage: (value: boolean) => Promise<void>;
+  isPlatformSearchEnabled: boolean;
+  setIsPlatformSearchEnabledStorage: (value: boolean) => Promise<void>;
+  isPlatformSearchAddressesEnabled: boolean;
+  setIsPlatformSearchAddressesEnabledStorage: (value: boolean) => Promise<void>;
   isTotalBalanceEnabled: boolean;
   setIsTotalBalanceEnabledStorage: (value: boolean) => Promise<void>;
   totalBalancePreferredUnit: BitcoinUnit;
@@ -120,6 +128,10 @@ const defaultSettingsContext: SettingsContextType = {
   setIsClipboardGetContentEnabledStorage: async () => {},
   isQuickActionsEnabled: true,
   setIsQuickActionsEnabledStorage: async () => {},
+  isPlatformSearchEnabled: false,
+  setIsPlatformSearchEnabledStorage: async () => {},
+  isPlatformSearchAddressesEnabled: false,
+  setIsPlatformSearchAddressesEnabledStorage: async () => {},
   isTotalBalanceEnabled: true,
   setIsTotalBalanceEnabledStorage: async () => {},
   totalBalancePreferredUnit: BitcoinUnit.BTC,
@@ -142,6 +154,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isLegacyURv1Enabled, setIsLegacyURv1Enabled] = useState<boolean>(false);
   const [isClipboardGetContentEnabled, setIsClipboardGetContentEnabled] = useState<boolean>(true);
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
+  const [isPlatformSearchEnabled, setIsPlatformSearchEnabled] = useState<boolean>(false);
+  const [isPlatformSearchAddressesEnabled, setIsPlatformSearchAddressesEnabled] = useState<boolean>(false);
   const [isTotalBalanceEnabled, setIsTotalBalanceEnabled] = useState<boolean>(true);
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
@@ -179,6 +193,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         getIsDeviceQuickActionsEnabled().then(quickActionsEnabled => {
           setIsQuickActionsEnabled(quickActionsEnabled);
         }),
+        AsyncStorage.getItem(PlatformSearchEnabledKey).then(value => setIsPlatformSearchEnabled(value === 'true')),
+        AsyncStorage.getItem(PlatformSearchAddressesEnabledKey).then(value => setIsPlatformSearchAddressesEnabled(value === 'true')),
         getDoNotTrackStorage().then(doNotTrack => {
           setIsDoNotTrackEnabled(doNotTrack);
         }),
@@ -309,6 +325,14 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       console.error('Error setting isQuickActionsEnabled:', e);
     }
   }, []);
+  const setIsPlatformSearchEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
+    await AsyncStorage.setItem(PlatformSearchEnabledKey, String(value));
+    setIsPlatformSearchEnabled(value);
+  }, []);
+  const setIsPlatformSearchAddressesEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
+    await AsyncStorage.setItem(PlatformSearchAddressesEnabledKey, String(value));
+    setIsPlatformSearchAddressesEnabled(value);
+  }, []);
   const setIsTotalBalanceEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
       await setTotalBalanceViewEnabledStorage(value);
@@ -360,6 +384,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isPlatformSearchEnabled,
+      setIsPlatformSearchEnabledStorage,
+      isPlatformSearchAddressesEnabled,
+      setIsPlatformSearchAddressesEnabledStorage,
       isTotalBalanceEnabled,
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
@@ -388,6 +416,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isPlatformSearchEnabled,
+      setIsPlatformSearchEnabledStorage,
+      isPlatformSearchAddressesEnabled,
+      setIsPlatformSearchAddressesEnabledStorage,
       isTotalBalanceEnabled,
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,

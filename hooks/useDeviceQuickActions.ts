@@ -4,11 +4,11 @@ import { CommonActions } from '@react-navigation/native';
 import { DeviceEventEmitter, Linking, Platform } from 'react-native';
 import QuickActions, { ShortcutItem } from 'react-native-quick-actions';
 import DeeplinkSchemaMatch from '../class/deeplink-schema-match';
-import { TWallet } from '../class/wallets/types';
 import { formatBalance } from '../loc';
 import * as NavigationService from '../NavigationService';
 import { useSettings } from '../hooks/context/useSettings';
 import { useStorage } from '../hooks/context/useStorage';
+import { isPlatformSearchDeepLink, popPendingPlatformSearchURL } from '../blue_modules/NativePlatformSearch';
 
 const DeviceQuickActionsStorageKey = 'DeviceQuickActionsEnabled';
 
@@ -96,6 +96,9 @@ const useDeviceQuickActions = () => {
         const url = await Linking.getInitialURL();
         if (url && DeeplinkSchemaMatch.hasSchema(url)) {
           handleOpenURL({ url });
+        } else {
+          const platformSearchURL = await popPendingPlatformSearchURL();
+          if (platformSearchURL) handleOpenURL({ url: platformSearchURL });
         }
       }
     } catch (error) {
@@ -110,6 +113,9 @@ const useDeviceQuickActions = () => {
       saveToDisk,
       setSharedCosigner,
     });
+    if (isPlatformSearchDeepLink(event.url)) {
+      popPendingPlatformSearchURL().catch(error => console.debug('[PlatformSearch] Unable to clear pending URL:', error));
+    }
   };
 
   const walletQuickActions = (data: any): void => {
@@ -164,6 +170,6 @@ const useDeviceQuickActions = () => {
   };
 
   return { popInitialAction };
-}
+};
 
 export default useDeviceQuickActions;

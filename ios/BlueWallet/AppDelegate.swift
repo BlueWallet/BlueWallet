@@ -4,6 +4,7 @@ import React_RCTAppDelegate
 import ReactAppDependencyProvider
 import UserNotifications
 import Bugsnag
+import CoreSpotlight
 
 
 @main
@@ -322,6 +323,18 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         userDefaultsGroup?.setValue(userActivityData, forKey: "onUserActivityOpen")
 
+        let platformSearchIdentifier = activityType == CSSearchableItemActionType
+            ? userActivity.userInfo?[CSSearchableItemActivityIdentifier] as? String
+            : userActivity.userInfo?[PlatformSearchModule.activityIdentifierKey] as? String
+
+        if (activityType == CSSearchableItemActionType || activityType == PlatformSearchModule.activityType),
+           let identifier = platformSearchIdentifier,
+           let url = platformSearchURL(for: identifier) {
+            UserDefaults.standard.set(url.absoluteString, forKey: PlatformSearchModule.pendingURLKey)
+            NSLog("[PlatformSearch] Opening indexed result")
+            return RCTLinkingManager.application(application, open: url, options: [:])
+        }
+
         if ["io.bluewallet.bluewallet.receiveonchain", "io.bluewallet.bluewallet.xpub", "io.bluewallet.bluewallet.blockexplorer"].contains(activityType) {
           EventEmitter.shared().sendUserActivity(userActivityData)
             return true
@@ -333,6 +346,33 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
 
         print("[Handoff] Unhandled user activity type: \(activityType)")
         return false
+    }
+
+    private func platformSearchURL(for identifier: String) -> URL? {
+        let parts = identifier.split(separator: ":", maxSplits: 2, omittingEmptySubsequences: false).map(String.init)
+        guard parts.count >= 2 else { return nil }
+
+        var components = URLComponents()
+        components.scheme = "bluewallet"
+
+        switch parts[0] {
+        case "wallet":
+            components.host = "wallet"
+            components.path = "/\(parts[1])"
+        case "transaction" where parts.count == 3:
+            components.host = "transaction"
+            components.queryItems = [
+                URLQueryItem(name: "walletID", value: parts[1]),
+                URLQueryItem(name: "txid", value: parts[2])
+            ]
+        case "contact":
+            components.host = "contact"
+            components.queryItems = [URLQueryItem(name: "paymentCode", value: parts[1])]
+        default:
+            return nil
+        }
+
+        return components.url
     }
 
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
