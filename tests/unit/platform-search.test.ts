@@ -3,12 +3,19 @@ import usePlatformSearch from '../../hooks/usePlatformSearch';
 import { useSettings } from '../../hooks/context/useSettings';
 import { useStorage } from '../../hooks/context/useStorage';
 import NativePlatformSearch from '../../blue_modules/NativePlatformSearch';
+import { navigationRef } from '../../NavigationService';
 
+jest.mock('../../NavigationService', () => ({ navigationRef: { isReady: jest.fn(), getCurrentRoute: jest.fn() } }));
 jest.mock('../../hooks/context/useSettings', () => ({ useSettings: jest.fn() }));
 jest.mock('../../hooks/context/useStorage', () => ({ useStorage: jest.fn() }));
 jest.mock('../../blue_modules/NativePlatformSearch', () => ({
   __esModule: true,
-  default: { deleteIndex: jest.fn().mockResolvedValue(undefined), replaceIndex: jest.fn().mockResolvedValue(0) },
+  default: {
+    deleteIndex: jest.fn().mockResolvedValue(undefined),
+    replaceIndex: jest.fn().mockResolvedValue(0),
+    clearActivity: jest.fn(),
+    donateActivity: jest.fn(),
+  },
   beginPlatformSearchWalletIndexing: jest.fn(() => jest.fn()),
 }));
 
@@ -16,6 +23,7 @@ const isStorageEncrypted = jest.fn().mockResolvedValue(false);
 
 beforeEach(() => {
   jest.clearAllMocks();
+  jest.mocked(navigationRef.isReady).mockReturnValue(false);
   jest.mocked(useSettings).mockReturnValue({ isPlatformSearchEnabled: false } as ReturnType<typeof useSettings>);
   jest.mocked(useStorage).mockReturnValue({
     wallets: [],
@@ -54,8 +62,14 @@ it('waits for wallet initialization before checking encryption for enabled searc
   hook.unmount();
 });
 
-it('refreshes in-place metadata edits using the wallet array emitted by saves', async () => {
+it('refreshes indexed metadata and navigation activity using the wallet array emitted by saves', async () => {
   jest.useFakeTimers();
+  jest.mocked(navigationRef.isReady).mockReturnValue(true);
+  jest.mocked(navigationRef.getCurrentRoute).mockReturnValue({
+    key: 'tx',
+    name: 'TransactionStatus',
+    params: { walletID: 'wallet', hash: 'tx' },
+  });
   const txMetadata = { tx: { memo: 'Old memo' } };
   const wallet = {
     getID: () => 'wallet',
@@ -76,6 +90,7 @@ it('refreshes in-place metadata edits using the wallet array emitted by saves', 
     await act(async () => {
       jest.advanceTimersByTime(750);
     });
+    expect(NativePlatformSearch!.donateActivity).toHaveBeenLastCalledWith('transaction:wallet:tx', 'Old memo');
     txMetadata.tx.memo = 'Updated memo';
     jest.mocked(useStorage).mockReturnValue({ ...useStorage(), wallets: [...useStorage().wallets] });
     hook.rerender(undefined);
@@ -84,6 +99,7 @@ it('refreshes in-place metadata edits using the wallet array emitted by saves', 
       jest.advanceTimersByTime(750);
     });
     expect(NativePlatformSearch!.replaceIndex).toHaveBeenCalledTimes(2);
+    expect(NativePlatformSearch!.donateActivity).toHaveBeenLastCalledWith('transaction:wallet:tx', 'Updated memo');
     const calls = jest.mocked(NativePlatformSearch!.replaceIndex).mock.calls;
     expect(JSON.parse(calls[1][0])).toEqual(expect.arrayContaining([expect.objectContaining({ title: 'Updated memo' })]));
   } finally {

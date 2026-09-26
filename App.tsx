@@ -1,5 +1,5 @@
 import { CommonActions, NavigationAction, NavigationContainer, NavigationContainerRef, ParamListBase } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SizeClassProvider } from './components/Context/SizeClassProvider';
@@ -21,53 +21,11 @@ import {
   validateGuardedRoute,
 } from './navigation/navigationGuard';
 import usePlatformSearch from './hooks/usePlatformSearch';
-import { useSettings } from './hooks/context/useSettings';
-import { clearPlatformSearchActivity, donatePlatformSearchActivity } from './blue_modules/NativePlatformSearch';
 
 const Navigation = ({ colorScheme }: { colorScheme: ReturnType<typeof useColorScheme> }) => {
-  const { wallets, saveToDisk, txMetadata, isStorageEncrypted } = useStorage();
-  const { isPlatformSearchEnabled } = useSettings();
+  const { wallets, saveToDisk } = useStorage();
   const { isBiometricUseEnabled } = useBiometrics();
-  const platformSearchActivityRequest = useRef(0);
-  usePlatformSearch();
-
-  const updatePlatformSearchActivity = useCallback(() => {
-    const request = ++platformSearchActivityRequest.current;
-    const route = navigationRef.getCurrentRoute();
-    const params = route?.params as { walletID?: string; hash?: string } | undefined;
-    const wallet = params?.walletID ? wallets.find(candidate => candidate.getID() === params.walletID) : undefined;
-
-    if (!isPlatformSearchEnabled || !wallet || wallet.getHideTransactionsInWalletsList()) {
-      clearPlatformSearchActivity();
-      return;
-    }
-
-    isStorageEncrypted()
-      .then(storageIsEncrypted => {
-        if (request !== platformSearchActivityRequest.current) return;
-        if (storageIsEncrypted) {
-          clearPlatformSearchActivity();
-          return;
-        }
-
-        if (route?.name === 'TransactionStatus' && params?.hash) {
-          const title = txMetadata[params.hash]?.memo?.trim() || `Transaction ${params.hash.slice(0, 8)}`;
-          donatePlatformSearchActivity(`transaction:${wallet.getID()}:${params.hash}`, title);
-        } else if (route?.name === 'WalletTransactions' || route?.name === 'WalletDetails') {
-          donatePlatformSearchActivity(`wallet:${wallet.getID()}`, wallet.getLabel());
-        } else {
-          clearPlatformSearchActivity();
-        }
-      })
-      .catch(error => {
-        clearPlatformSearchActivity();
-        console.warn('[PlatformSearch] Unable to donate navigation activity:', error);
-      });
-  }, [isPlatformSearchEnabled, isStorageEncrypted, txMetadata, wallets]);
-
-  useEffect(() => {
-    if (navigationRef.isReady()) updatePlatformSearchActivity();
-  }, [updatePlatformSearchActivity]);
+  const updatePlatformSearchActivity = usePlatformSearch();
 
   const validateNavigation = useCallback(
     (route: GuardedRoute) =>

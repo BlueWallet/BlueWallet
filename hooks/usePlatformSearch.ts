@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
+import { navigationRef } from '../NavigationService';
 import NativePlatformSearch, { beginPlatformSearchWalletIndexing } from '../blue_modules/NativePlatformSearch';
 import { satoshiToLocalCurrency } from '../blue_modules/currency';
 import { formatBalanceWithoutSuffix } from '../loc';
@@ -33,9 +34,49 @@ const enqueuePlatformSearchOperation = <T>(operation: () => Promise<T>): Promise
   return result;
 };
 
-const usePlatformSearch = (): void => {
+const usePlatformSearch = (): (() => void) => {
   const { wallets, walletsInitialized, txMetadata, counterpartyMetadata, isStorageEncrypted } = useStorage();
   const { isPlatformSearchEnabled, isPlatformSearchAddressesEnabled, preferredFiatCurrency } = useSettings();
+
+  const platformSearchActivityRequest = useRef(0);
+
+  const updatePlatformSearchActivity = useCallback(() => {
+    const request = ++platformSearchActivityRequest.current;
+    const route = navigationRef.getCurrentRoute();
+    const params = route?.params as { walletID?: string; hash?: string } | undefined;
+    const wallet = params?.walletID ? wallets.find(candidate => candidate.getID() === params.walletID) : undefined;
+
+    if (!isPlatformSearchEnabled || !wallet || wallet.getHideTransactionsInWalletsList()) {
+      NativePlatformSearch?.clearActivity?.();
+      return;
+    }
+
+    isStorageEncrypted()
+      .then(storageIsEncrypted => {
+        if (request !== platformSearchActivityRequest.current) return;
+        if (storageIsEncrypted) {
+          NativePlatformSearch?.clearActivity?.();
+          return;
+        }
+
+        if (route?.name === 'TransactionStatus' && params?.hash) {
+          const title = txMetadata[params.hash]?.memo?.trim() || `Transaction ${params.hash.slice(0, 8)}`;
+          NativePlatformSearch?.donateActivity?.(`transaction:${wallet.getID()}:${params.hash}`, title);
+        } else if (route?.name === 'WalletTransactions' || route?.name === 'WalletDetails') {
+          NativePlatformSearch?.donateActivity?.(`wallet:${wallet.getID()}`, wallet.getLabel());
+        } else {
+          NativePlatformSearch?.clearActivity?.();
+        }
+      })
+      .catch(error => {
+        NativePlatformSearch?.clearActivity?.();
+        console.warn('[PlatformSearch] Unable to donate navigation activity:', error);
+      });
+  }, [isPlatformSearchEnabled, isStorageEncrypted, txMetadata, wallets]);
+
+  useEffect(() => {
+    if (navigationRef.isReady()) updatePlatformSearchActivity();
+  }, [updatePlatformSearchActivity]);
 
   useEffect(() => {
     const supportsSystemSearch = Platform.OS === 'ios' || (Platform.OS === 'android' && Number(Platform.Version) >= 31);
@@ -150,6 +191,7 @@ const usePlatformSearch = (): void => {
     wallets,
     walletsInitialized,
   ]);
+  return updatePlatformSearchActivity;
 };
 
 export default usePlatformSearch;

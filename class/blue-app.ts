@@ -935,21 +935,11 @@ export class BlueApp {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
 
-  /**
-   * Absolute path of the encrypted key/value backup. Must stay in sync with
-   * openRealmKeyValue(); a relative path is resolved against Documents, not Caches.
-   */
   keyValueRealmPath(): string {
     return `${RNFS.CachesDirectoryPath}/keyvalue.realm`;
   }
 
-  /**
-   * Writes the secure-storage payload into the key/value Realm.
-   * If the file cannot be decrypted (keychain key rotated, or the file left
-   * behind after a signing-team change), delete that cache file and write a
-   * fresh backup. The previous purge used a relative path, so the Caches file
-   * survived and every later save raised the same alert.
-   */
+  // Recreate an unreadable backup only after its replacement is committed to secure storage.
   async backupToRealmKeyValue(payload: string): Promise<void> {
     const write = (realmkeyValue: Realm) => {
       try {
@@ -965,30 +955,13 @@ export class BlueApp {
     } catch (error: any) {
       if (!isRealmDecryptionError(error)) throw error;
       console.warn('keyvalue realm decryption failed; recreating backup');
-      await this.purgeRealmKeyValueFile();
+      this.purgeRealmKeyValueFile();
       write(await this.openRealmKeyValue());
     }
   }
 
-  async purgeRealmKeyValueFile(): Promise<void> {
-    const path = this.keyValueRealmPath();
-    try {
-      if (Realm.exists({ path })) {
-        Realm.deleteFile({ path });
-      }
-    } catch (error: any) {
-      console.warn('Realm.deleteFile failed for keyvalue realm:', error?.message ?? error);
-    }
-
-    // Realm.deleteFile removes the .realm, .lock, .fresh.lock, .note, and .management siblings,
-    // but it may have thrown above. Sweep whatever is left.
-    for (const sibling of [path, `${path}.lock`, `${path}.fresh.lock`, `${path}.note`, `${path}.management`]) {
-      try {
-        if (await RNFS.exists(sibling)) await RNFS.unlink(sibling);
-      } catch (error: any) {
-        console.warn('failed to delete', sibling, error?.message ?? error);
-      }
-    }
+  purgeRealmKeyValueFile(): void {
+    Realm.deleteFile({ path: this.keyValueRealmPath() });
   }
 
   async moveRealmFilesToCacheDirectory() {
