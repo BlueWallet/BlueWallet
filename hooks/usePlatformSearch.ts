@@ -34,7 +34,7 @@ const enqueuePlatformSearchOperation = <T>(operation: () => Promise<T>): Promise
 };
 
 const usePlatformSearch = (): void => {
-  const { wallets, walletsInitialized, txMetadata, counterpartyMetadata, storageRevision, isStorageEncrypted } = useStorage();
+  const { wallets, walletsInitialized, txMetadata, counterpartyMetadata, isStorageEncrypted } = useStorage();
   const { isPlatformSearchEnabled, isPlatformSearchAddressesEnabled, preferredFiatCurrency } = useSettings();
 
   useEffect(() => {
@@ -52,34 +52,16 @@ const usePlatformSearch = (): void => {
       if (cancelled) return;
 
       if (!isPlatformSearchEnabled || storageIsEncrypted) {
-        console.debug('[PlatformSearch] Queueing index removal', {
-          storageIsEncrypted,
-        });
-        enqueuePlatformSearchOperation(() => platformSearch.deleteIndex())
-          .then(() => console.debug('[PlatformSearch] Index removed'))
-          .catch(error => console.warn('[PlatformSearch] Unable to clear index:', error));
+        enqueuePlatformSearchOperation(() => platformSearch.deleteIndex()).catch(error =>
+          console.warn('[PlatformSearch] Unable to clear index:', error),
+        );
         return;
       }
-
-      if (!walletsInitialized) return;
-
-      console.debug('[PlatformSearch] Scheduling index refresh', {
-        storageRevision,
-        walletCount: wallets.length,
-        includesAddresses: isPlatformSearchAddressesEnabled,
-      });
 
       timer = setTimeout(() => {
         const items: PlatformSearchItem[] = [];
         const indexedWallets = wallets.filter(wallet => !wallet.getHideTransactionsInWalletsList());
         const finishIndexing = beginPlatformSearchWalletIndexing(indexedWallets.map(wallet => wallet.getID()));
-        let transactionCount = 0;
-        let contactCount = 0;
-
-        console.debug('[PlatformSearch] Preparing index', {
-          indexedWalletCount: indexedWallets.length,
-          hiddenWalletCount: wallets.length - indexedWallets.length,
-        });
 
         for (const wallet of indexedWallets) {
           const walletID = wallet.getID();
@@ -122,7 +104,6 @@ const usePlatformSearch = (): void => {
                 lastUsedAt: typeof transaction.timestamp === 'number' ? transaction.timestamp : undefined,
                 userCreated: !!memo,
               });
-              transactionCount += 1;
             }
           } catch (error) {
             console.warn('[PlatformSearch] Unable to prepare transactions for one wallet:', error);
@@ -140,27 +121,11 @@ const usePlatformSearch = (): void => {
             rankingHint: 65,
             userCurated: true,
           });
-          contactCount += 1;
         }
 
-        console.debug('[PlatformSearch] Queueing prepared index', {
-          walletCount: indexedWallets.length,
-          transactionCount,
-          contactCount,
-          totalItemCount: items.length,
-        });
-
         enqueuePlatformSearchOperation(() => platformSearch.replaceIndex(JSON.stringify(items)))
-          .then(indexedItemCount =>
-            console.debug('[PlatformSearch] Index refresh completed', {
-              indexedItemCount,
-            }),
-          )
           .catch(error => console.warn('[PlatformSearch] Unable to update index:', error))
-          .finally(() => {
-            finishIndexing();
-            console.debug('[PlatformSearch] Wallet indexing activity finished');
-          });
+          .finally(finishIndexing);
       }, 750);
     };
 
@@ -181,7 +146,6 @@ const usePlatformSearch = (): void => {
     isPlatformSearchEnabled,
     isStorageEncrypted,
     preferredFiatCurrency,
-    storageRevision,
     txMetadata,
     wallets,
     walletsInitialized,

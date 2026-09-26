@@ -45,7 +45,7 @@ const useDeviceQuickActions = () => {
         })
         .catch(() => removeShortcuts());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallets, walletsInitialized, preferredFiatCurrency, isStorageEncrypted]);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const useDeviceQuickActions = () => {
         });
       return () => DeviceEventEmitter.removeAllListeners('quickActionShortcut');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletsInitialized]);
 
   useEffect(() => {
@@ -69,7 +69,7 @@ const useDeviceQuickActions = () => {
         removeShortcuts();
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isQuickActionsEnabled, walletsInitialized]);
 
   const popInitialShortcutAction = async (): Promise<any> => {
@@ -156,11 +156,10 @@ const useDeviceQuickActions = () => {
             userInfo: {
               url: `bluewallet://wallet/${wallet.getID()}`,
             },
-            icon:
-              Platform.select({
-                android: 'quickactions',
-                ios: index === 0 ? 'Favorite' : 'Bookmark',
-              }) || 'quickactions',
+            icon: Platform.select({
+              android: 'quickactions',
+              ios: index === 0 ? 'Favorite' : 'Bookmark',
+            }) || 'quickactions',
           }));
           QuickActions.setShortcutItems(shortcutItems);
         }

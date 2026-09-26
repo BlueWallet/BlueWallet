@@ -53,3 +53,41 @@ it('waits for wallet initialization before checking encryption for enabled searc
   expect(NativePlatformSearch!.replaceIndex).not.toHaveBeenCalled();
   hook.unmount();
 });
+
+it('refreshes in-place metadata edits using the wallet array emitted by saves', async () => {
+  jest.useFakeTimers();
+  const txMetadata = { tx: { memo: 'Old memo' } };
+  const wallet = {
+    getID: () => 'wallet',
+    getLabel: () => 'Savings',
+    getHideTransactionsInWalletsList: () => false,
+    getTransactions: () => [{ txid: 'tx' }],
+  };
+  jest.mocked(useSettings).mockReturnValue({ isPlatformSearchEnabled: true } as ReturnType<typeof useSettings>);
+  jest.mocked(useStorage).mockReturnValue({
+    wallets: [wallet],
+    walletsInitialized: true,
+    txMetadata,
+    isStorageEncrypted,
+  } as unknown as ReturnType<typeof useStorage>);
+  const hook = renderHook(usePlatformSearch);
+  try {
+    await act(async () => {});
+    await act(async () => {
+      jest.advanceTimersByTime(750);
+    });
+    txMetadata.tx.memo = 'Updated memo';
+    jest.mocked(useStorage).mockReturnValue({ ...useStorage(), wallets: [...useStorage().wallets] });
+    hook.rerender(undefined);
+    await act(async () => {});
+    await act(async () => {
+      jest.advanceTimersByTime(750);
+    });
+    expect(NativePlatformSearch!.replaceIndex).toHaveBeenCalledTimes(2);
+    const calls = jest.mocked(NativePlatformSearch!.replaceIndex).mock.calls;
+    expect(JSON.parse(calls[1][0])).toEqual(expect.arrayContaining([expect.objectContaining({ title: 'Updated memo' })]));
+  } finally {
+    hook.unmount();
+    jest.useRealTimers();
+  }
+});

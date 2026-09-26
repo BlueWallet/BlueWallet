@@ -119,15 +119,9 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
             const arkWalletID = arkWallet.getID();
             const row = arkWallet.getTransactions().find(tx => tx.txid === `swap-${payload.swapId}`);
             if (row) {
-              navigation.navigate('LNDViewInvoice', {
-                invoice: row,
-                walletID: arkWalletID,
-              });
+              navigation.navigate('LNDViewInvoice', { invoice: row, walletID: arkWalletID });
             } else {
-              navigation.navigate('WalletTransactions', {
-                walletID: arkWalletID,
-                walletType: arkWallet.type,
-              });
+              navigation.navigate('WalletTransactions', { walletID: arkWalletID, walletType: arkWallet.type });
             }
             return true;
           }
@@ -182,10 +176,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                 navigationRef.dispatch(
                   CommonActions.navigate({
                     name: 'WalletTransactions',
-                    params: {
-                      walletID: payload.walletID,
-                      walletType: arkWallet?.type,
-                    },
+                    params: { walletID: payload.walletID, walletType: arkWallet?.type },
                   }),
                 );
                 return true;
@@ -213,10 +204,7 @@ const useCompanionListeners = (skipIfNotInitialized = true) => {
                 navigationRef.dispatch(
                   CommonActions.navigate({
                     name: 'WalletTransactions',
-                    params: {
-                      walletID: arkWalletID,
-                      walletType: arkWallet.type,
-                    },
+                    params: { walletID: arkWalletID, walletType: arkWallet.type },
                   }),
                 );
               }
