@@ -11,6 +11,8 @@ type Props = {
   captureViewAsImage?: boolean;
   dragEnabled?: boolean;
   dropEnabled?: boolean;
+  exportOnDrag?: boolean;
+  onExportRequested?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 

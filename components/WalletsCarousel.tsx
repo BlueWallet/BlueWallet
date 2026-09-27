@@ -35,6 +35,7 @@ import { useTheme } from './themes';
 import { Transaction, TWallet } from '../class/wallets/types';
 import { BlueSpacing10 } from './BlueSpacing';
 import { useLocale } from '@react-navigation/native';
+import WalletExportDragSource from './WalletExportDragSource';
 
 export const WALLET_CAROUSEL_HEADER_WIDTH = 16;
 
@@ -191,6 +192,7 @@ interface WalletCarouselItemProps {
 const iStyles = StyleSheet.create({
   root: { paddingRight: 20 },
   rootLargeDevice: { marginVertical: 20 },
+  exportDragSource: { alignSelf: 'stretch' },
   grad: {
     borderRadius: 12,
     minHeight: 164,
@@ -456,83 +458,88 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
         animatedCardStyle,
       ]}
     >
-      <Pressable
-        accessibilityRole="button"
-        testID={walletLabel}
-        onPressIn={onPressedIn}
-        onPressOut={onPressedOut}
-        onLongPress={() => {
-          if (handleLongPress) handleLongPress();
-        }}
-        onPress={handlePress}
-        delayHoverIn={0}
-        delayHoverOut={0}
-      >
-        <View
-          style={[
-            iStyles.shadowContainer,
-            isCompact && iStyles.shadowContainerCompact,
-            { backgroundColor: colors.background, shadowColor: colors.shadowColor },
-          ]}
+      <WalletExportDragSource walletID={item.getID()} enabled={!isPlaceHolder} style={iStyles.exportDragSource}>
+        <Pressable
+          accessibilityRole="button"
+          testID={walletLabel}
+          onPressIn={onPressedIn}
+          onPressOut={onPressedOut}
+          onLongPress={isPlaceHolder ? handleLongPress : undefined}
+          onPress={handlePress}
+          delayHoverIn={0}
+          delayHoverOut={0}
         >
-          <LinearGradient
-            colors={WalletGradient.gradientsFor(item.type)}
-            style={[iStyles.grad, isCompact && iStyles.gradCompact, scaledCardStyles.grad]}
+          <View
+            style={[
+              iStyles.shadowContainer,
+              isCompact && iStyles.shadowContainerCompact,
+              { backgroundColor: colors.background, shadowColor: colors.shadowColor },
+            ]}
           >
-            <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
-            <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact, !isCompact && scaledCardStyles.gradContent]}>
-              {!isPlaceHolder && (
-                <>
-                  <Text numberOfLines={1} style={[iStyles.label, isCompact && iStyles.labelCompact, scaledCardStyles.label, cardTextStyle]}>
-                    {renderHighlightedText ? renderHighlightedText(walletLabel, searchQuery || '') : walletLabel}
-                  </Text>
-                  <View style={[iStyles.balanceContainer, isCompact && iStyles.balanceContainerCompact, scaledCardStyles.balanceContainer]}>
-                    {hideBalance ? (
-                      <>
-                        <BlueSpacing10 />
-                        <BlurredBalanceView />
-                      </>
-                    ) : (
-                      <Animated.Text
-                        numberOfLines={1}
-                        adjustsFontSizeToFit
-                        minimumFontScale={0.55}
-                        key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
-                        style={[
-                          iStyles.balance,
-                          isCompact && iStyles.balanceCompact,
-                          isCompact ? scaledCardStyles.balanceCompact : scaledCardStyles.balance,
-                          cardTextStyle,
-                          animatedBalanceStyle,
-                        ]}
-                      >
-                        {`${balance} `}
-                      </Animated.Text>
-                    )}
-                  </View>
-                  <View style={scaledCardStyles.textSpacer} />
-                  <Text
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    minimumFontScale={0.8}
-                    style={[iStyles.latestTx, isCompact && iStyles.latestTxCompact, scaledCardStyles.latestTx, cardTextStyle]}
-                  >
-                    {loc.wallets.list_latest_transaction}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    minimumFontScale={0.8}
-                    style={[iStyles.latestTxTime, isCompact && iStyles.latestTxTimeCompact, scaledCardStyles.latestTxTime, cardTextStyle]}
-                  >
-                    {latestTransactionText}
-                  </Text>
-                </>
-              )}
-            </View>
-          </LinearGradient>
-        </View>
-      </Pressable>
+            <LinearGradient
+              colors={WalletGradient.gradientsFor(item.type)}
+              style={[iStyles.grad, isCompact && iStyles.gradCompact, scaledCardStyles.grad]}
+            >
+              <ImageBackground source={image} style={[iStyles.image, isCompact && iStyles.imageCompact]} />
+              <View style={[iStyles.gradContent, isCompact && iStyles.gradContentCompact, !isCompact && scaledCardStyles.gradContent]}>
+                {!isPlaceHolder && (
+                  <>
+                    <Text
+                      numberOfLines={1}
+                      style={[iStyles.label, isCompact && iStyles.labelCompact, scaledCardStyles.label, cardTextStyle]}
+                    >
+                      {renderHighlightedText ? renderHighlightedText(walletLabel, searchQuery || '') : walletLabel}
+                    </Text>
+                    <View
+                      style={[iStyles.balanceContainer, isCompact && iStyles.balanceContainerCompact, scaledCardStyles.balanceContainer]}
+                    >
+                      {hideBalance ? (
+                        <>
+                          <BlueSpacing10 />
+                          <BlurredBalanceView />
+                        </>
+                      ) : (
+                        <Animated.Text
+                          numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.55}
+                          key={`${balance}`} // force component recreation on balance change. To fix right-to-left languages, like Farsi
+                          style={[
+                            iStyles.balance,
+                            isCompact && iStyles.balanceCompact,
+                            isCompact ? scaledCardStyles.balanceCompact : scaledCardStyles.balance,
+                            cardTextStyle,
+                            animatedBalanceStyle,
+                          ]}
+                        >
+                          {`${balance} `}
+                        </Animated.Text>
+                      )}
+                    </View>
+                    <View style={scaledCardStyles.textSpacer} />
+                    <Text
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.8}
+                      style={[iStyles.latestTx, isCompact && iStyles.latestTxCompact, scaledCardStyles.latestTx, cardTextStyle]}
+                    >
+                      {loc.wallets.list_latest_transaction}
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.8}
+                      style={[iStyles.latestTxTime, isCompact && iStyles.latestTxTimeCompact, scaledCardStyles.latestTxTime, cardTextStyle]}
+                    >
+                      {latestTransactionText}
+                    </Text>
+                  </>
+                )}
+              </View>
+            </LinearGradient>
+          </View>
+        </Pressable>
+      </WalletExportDragSource>
     </Animated.View>
   );
 };

@@ -33,7 +33,11 @@ class DraggableFileManager : ViewGroupManager<DraggableFile>() {
     @ReactProp(name = "dropEnabled", defaultBoolean = false)
     fun setDropEnabled(view: DraggableFile, value: Boolean) { view.dropEnabled = value }
 
+    @ReactProp(name = "exportOnDrag", defaultBoolean = false)
+    fun setExportOnDrag(view: DraggableFile, value: Boolean) { view.exportOnDrag = value }
+
     override fun getExportedCustomDirectEventTypeConstants() = mapOf(
         "onFileDrop" to mapOf("registrationName" to "onFileDrop"),
+        "onExportRequested" to mapOf("registrationName" to "onExportRequested"),
     )
 }

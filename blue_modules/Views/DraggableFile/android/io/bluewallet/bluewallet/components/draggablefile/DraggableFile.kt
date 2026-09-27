@@ -25,12 +25,19 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
     var captureViewAsImage: Boolean = false
     var dragEnabled: Boolean = true
     var dropEnabled: Boolean = false
+    var exportOnDrag: Boolean = false
     private var savedForeground: Drawable? = null
 
     init {
         isLongClickable = true
         setOnLongClickListener {
             if (!dragEnabled || DragAndDropState.isScreenProtected) return@setOnLongClickListener false
+            if (exportOnDrag) {
+                val payload = com.facebook.react.bridge.Arguments.createMap().apply { putBoolean("requested", true) }
+                @Suppress("DEPRECATION")
+                reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "onExportRequested", payload)
+                return@setOnLongClickListener true
+            }
             val file = createExportFile() ?: return@setOnLongClickListener false
             val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
             val clip = ClipData(

@@ -57,7 +57,9 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   @objc var captureViewAsImage = false
   @objc var dragEnabled = true
   @objc var dropEnabled = false
+  @objc var exportOnDrag = false
   @objc var onFileDrop: RCTDirectEventBlock?
+  @objc var onExportRequested: RCTDirectEventBlock?
   private var savedBorderColor: CGColor?
   private var savedBorderWidth: CGFloat = 0
   private var savedCornerRadius: CGFloat = 0
@@ -78,6 +80,10 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
 
   func dragInteraction(_ interaction: UIDragInteraction, itemsForBeginning session: UIDragSession) -> [UIDragItem] {
     guard dragEnabled, !DragAndDropState.isScreenProtected else { return [] }
+    if exportOnDrag {
+      onExportRequested?(["requested": true])
+      return []
+    }
     return makeDragItems()
   }
 
@@ -90,6 +96,10 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     withTouchAt point: CGPoint
   ) -> [UIDragItem] {
     guard dragEnabled, !DragAndDropState.isScreenProtected else { return [] }
+    if exportOnDrag {
+      onExportRequested?(["requested": true])
+      return []
+    }
     return makeDragItems()
   }
 
