@@ -64,6 +64,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
 
     func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
         guard !DragAndDropState.isScreenProtected else { return false }
+        guard targetedDropView(for: session) == nil else { return false }
         // The window-level interaction imports external content. Local exports remain
         // ordinary drag sessions and are not re-opened by BlueWallet itself.
         guard session.localDragSession == nil else { return false }
@@ -78,6 +79,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnter session: UIDropSession) {
         guard dropInteraction(interaction, canHandle: session) else { return }
         showDropOverlay(itemCount: session.items.count)
+    }
+
+    private func targetedDropView(for session: UIDropSession) -> DraggableFileView? {
+        guard let window else { return nil }
+        var candidate = window.hitTest(session.location(in: window), with: nil)
+        while let view = candidate {
+            if let dropView = view as? DraggableFileView, dropView.dropEnabled {
+                return dropView
+            }
+            candidate = view.superview
+        }
+        return nil
     }
 
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidExit session: UIDropSession) {

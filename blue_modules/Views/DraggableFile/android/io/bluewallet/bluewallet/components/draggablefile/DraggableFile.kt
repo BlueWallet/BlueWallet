@@ -4,6 +4,9 @@ import android.content.ClipData
 import android.content.ClipDescription
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.util.Base64
 import android.view.View
 import android.view.DragEvent
@@ -22,6 +25,7 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
     var captureViewAsImage: Boolean = false
     var dragEnabled: Boolean = true
     var dropEnabled: Boolean = false
+    private var savedForeground: Drawable? = null
 
     init {
         isLongClickable = true
@@ -51,6 +55,7 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
                 it.hasMimeType("image/*") || it.hasMimeType("text/*") || it.hasMimeType("application/*")
             } == true
             DragEvent.ACTION_DROP -> {
+                restoreDropAppearance()
                 reactContext.currentActivity?.requestDragAndDropPermissions(event)
                 val clipData = event.clipData ?: return false
                 for (index in 0 until clipData.itemCount) {
@@ -65,8 +70,27 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
                 }
                 true
             }
+            DragEvent.ACTION_DRAG_ENTERED -> {
+                savedForeground = foreground
+                foreground = GradientDrawable().apply {
+                    setColor(Color.TRANSPARENT)
+                    setStroke((3 * resources.displayMetrics.density).toInt(), Color.rgb(61, 169, 252))
+                    cornerRadius = 6 * resources.displayMetrics.density
+                }
+                true
+            }
+            DragEvent.ACTION_DRAG_EXITED,
+            DragEvent.ACTION_DRAG_ENDED -> {
+                restoreDropAppearance()
+                true
+            }
             else -> true
         }
+    }
+
+    private fun restoreDropAppearance() {
+        foreground = savedForeground
+        savedForeground = null
     }
 
     private fun createExportFile(): File? = try {

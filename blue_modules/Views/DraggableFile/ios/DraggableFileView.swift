@@ -58,6 +58,9 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   @objc var dragEnabled = true
   @objc var dropEnabled = false
   @objc var onFileDrop: RCTDirectEventBlock?
+  private var savedBorderColor: CGColor?
+  private var savedBorderWidth: CGFloat = 0
+  private var savedCornerRadius: CGFloat = 0
 
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -145,12 +148,37 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     UIDropProposal(operation: dropInteraction(interaction, canHandle: session) ? .copy : .forbidden)
   }
 
+  func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnter session: UIDropSession) {
+    guard dropInteraction(interaction, canHandle: session) else { return }
+    savedBorderColor = layer.borderColor
+    savedBorderWidth = layer.borderWidth
+    savedCornerRadius = layer.cornerRadius
+    layer.borderColor = UIColor.systemBlue.cgColor
+    layer.borderWidth = 3
+    layer.cornerRadius = 6
+  }
+
+  func dropInteraction(_ interaction: UIDropInteraction, sessionDidExit session: UIDropSession) {
+    restoreDropAppearance()
+  }
+
+  func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnd session: UIDropSession) {
+    restoreDropAppearance()
+  }
+
   func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession) {
     guard dropInteraction(interaction, canHandle: session) else { return }
+    restoreDropAppearance()
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
     for item in session.items {
       loadDroppedItem(item.itemProvider)
     }
+  }
+
+  private func restoreDropAppearance() {
+    layer.borderColor = savedBorderColor
+    layer.borderWidth = savedBorderWidth
+    layer.cornerRadius = savedCornerRadius
   }
 
   private func loadDroppedItem(_ provider: NSItemProvider) {
