@@ -10,6 +10,7 @@ import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import { scanQrHelper } from '../helpers/scan-qr.ts';
+import { useFileDrop } from '../hooks/useFileDrop';
 
 interface AddressInputScanButtonProps {
   isLoading?: boolean;
@@ -18,6 +19,7 @@ interface AddressInputScanButtonProps {
   type?: 'default' | 'link' | 'compact';
   testID?: string;
   beforePress?: () => Promise<void> | void;
+  fileDropEnabled?: boolean;
 }
 
 export const AddressInputScanButton = ({
@@ -27,9 +29,16 @@ export const AddressInputScanButton = ({
   type = 'default',
   testID = 'BlueAddressInputScanQrButton',
   beforePress,
+  fileDropEnabled = true,
 }: AddressInputScanButtonProps) => {
   const { colors } = useTheme();
   const { isClipboardGetContentEnabled } = useSettings();
+  const handleDrop = useCallback((value: string) => onChangeText(value.trim()), [onChangeText]);
+  const handleDropError = useCallback((error: Error) => presentAlert({ message: error.message }), []);
+  useFileDrop(handleDrop, {
+    enabled: fileDropEnabled && !isLoading,
+    onError: handleDropError,
+  });
 
   const stylesHook = StyleSheet.create({
     scan: {

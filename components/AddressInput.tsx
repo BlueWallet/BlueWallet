@@ -1,9 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { StyleProp, StyleSheet, TextInput, View, ViewStyle } from 'react-native';
 import loc from '../loc';
 import { AddressInputScanButton } from './AddressInputScanButton';
 import { useTheme } from './themes';
-import { useFileDrop } from '../hooks/useFileDrop';
 
 interface AddressInputProps {
   isLoading?: boolean;
@@ -48,9 +47,6 @@ const AddressInput = ({
   fileDropEnabled = true,
 }: AddressInputProps) => {
   const { colors } = useTheme();
-  const [isFocused, setIsFocused] = useState(false);
-  const handleDrop = useCallback((value: string) => onChangeText(value.trim()), [onChangeText]);
-  useFileDrop(handleDrop, { enabled: fileDropEnabled && editable && isFocused });
   const stylesHook = StyleSheet.create({
     root: {
       borderColor: colors.formBorder,
@@ -75,19 +71,13 @@ const AddressInput = ({
         multiline={!editable}
         inputAccessoryViewID={inputAccessoryViewID}
         clearButtonMode="while-editing"
-        onFocus={() => {
-          setIsFocused(true);
-          onFocus();
-        }}
+        onFocus={onFocus}
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType={keyboardType}
-        onBlur={() => {
-          setIsFocused(false);
-          onBlur();
-        }}
+        onBlur={onBlur}
       />
-      {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} /> : null}
+      {editable ? <AddressInputScanButton isLoading={isLoading} onChangeText={onChangeText} fileDropEnabled={fileDropEnabled} /> : null}
     </View>
   );
 };
