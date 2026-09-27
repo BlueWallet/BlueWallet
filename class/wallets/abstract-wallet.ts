@@ -187,6 +187,17 @@ export class AbstractWallet {
     return false;
   }
 
+  allowLnurlAuth(): boolean {
+    return false;
+  }
+
+  /**
+   * @returns private key used to sign LNURL-auth challenges from `domain`
+   */
+  getLnurlAuthLinkingKey(domain: string): Uint8Array {
+    throw new Error('getLnurlAuthLinkingKey: not implemented');
+  }
+
   allowXpub(): boolean {
     return false;
   }

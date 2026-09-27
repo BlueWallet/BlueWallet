@@ -1099,6 +1099,10 @@ export class MultisigHDWallet extends AbstractHDElectrumWallet {
     return false;
   }
 
+  allowLnurlAuth() {
+    return false;
+  }
+
   async fetchUtxo() {
     await super.fetchUtxo();
     // now we need to fetch txhash for each input as required by PSBT
