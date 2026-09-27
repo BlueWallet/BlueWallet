@@ -235,6 +235,7 @@ const WalletsAddMultisigStep2 = () => {
       navigation.navigate('WalletsAddMultisigVaultKeySheet', {
         keyIndex: cosignersCopy.length,
         seed: w.getSecret(),
+        walletLabel,
       });
       setTimeout(() => {
         // filling cache
@@ -243,7 +244,7 @@ const WalletsAddMultisigStep2 = () => {
         setIsLoading(false);
       }, 500);
     });
-  }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics]);
+  }, [cosigners, navigation, setFpCacheForMnemonics, setXpubCacheForMnemonics, walletLabel]);
 
   const viewKey = useCallback(
     (cosigner: CosignerTuple) => {

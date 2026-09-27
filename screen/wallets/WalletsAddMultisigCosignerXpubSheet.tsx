@@ -17,7 +17,7 @@ const WalletsAddMultisigCosignerXpubSheet = () => {
   const navigation = useNavigation<NativeStackNavigationProp<AddWalletStackParamList, 'WalletsAddMultisigCosignerXpubSheet'>>();
   const route = useRoute<RouteProp<AddWalletStackParamList, 'WalletsAddMultisigCosignerXpubSheet'>>();
   const { colors } = useTheme();
-  const { cosignerXpub, cosignerXpubURv2 } = route.params;
+  const { cosignerXpub, cosignerXpubURv2, cosignerXpubFilename } = route.params;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
@@ -29,7 +29,11 @@ const WalletsAddMultisigCosignerXpubSheet = () => {
         </BlueTextCentered>
         <BlueSpacing20 />
         <View style={styles.qrContainer}>
-          <QRCode value={cosignerXpubURv2} size={260} />
+          <QRCode
+            value={cosignerXpubURv2}
+            size={260}
+            dragFile={{ fileName: cosignerXpubFilename, mimeType: 'application/json', content: cosignerXpub }}
+          />
         </View>
         <BlueSpacing20 />
         <View style={styles.copyText}>

@@ -14,7 +14,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 const ViewEditMultisigShareCosignerSheet = () => {
   const route = useRoute<RouteProp<DetailViewStackParamList, 'ViewEditMultisigShareCosignerSheet'>>();
   const { colors } = useTheme();
-  const { cosignerXpub, cosignerXpubURv2 } = route.params;
+  const { cosignerXpub, cosignerXpubURv2, exportFilename } = route.params;
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.elevated }]} edges={['bottom', 'left', 'right']}>
@@ -26,7 +26,11 @@ const ViewEditMultisigShareCosignerSheet = () => {
         </BlueTextCentered>
         <BlueSpacing20 />
         <View style={styles.qrContainer}>
-          <QRCode value={cosignerXpubURv2} size={260} />
+          <QRCode
+            value={cosignerXpubURv2}
+            size={260}
+            dragFile={{ fileName: exportFilename, mimeType: 'application/json', content: cosignerXpub }}
+          />
         </View>
         <BlueSpacing20 />
         <View style={styles.copyText}>

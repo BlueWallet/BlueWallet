@@ -15,6 +15,7 @@ import { useScreenProtect } from '../../hooks/useScreenProtect';
 import SafeArea from '../../components/SafeArea';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { stringToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import { makeLabelFileName } from '../../blue_modules/dragFileName';
 
 const enum ActionType {
   SET_LOADING = 'SET_LOADING',
@@ -92,6 +93,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
   });
 
   const label = useMemo(() => wallet?.getLabel(), [wallet]);
+  const exportFileName = useMemo(() => makeLabelFileName(label || 'multisig-coordination', 'txt'), [label]);
 
   const setIsShareButtonTapped = (value: boolean) => {
     dispatch({ type: ActionType.SET_SHARE_BUTTON_TAPPED, isShareButtonTapped: value });
@@ -173,7 +175,13 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         <BlueText style={[styles.type, stylesHook.type]}>{label}</BlueText>
       </View>
       <BlueSpacing20 />
-      {qrCodeContents && <DynamicQRCode value={qrCodeContents} ref={dynamicQRCode} />}
+      {qrCodeContents && xpub && (
+        <DynamicQRCode
+          value={qrCodeContents}
+          ref={dynamicQRCode}
+          dragFile={{ fileName: exportFileName, mimeType: 'text/plain', content: xpub }}
+        />
+      )}
       <BlueSpacing20 />
       {isShareButtonTapped ? (
         <ActivityIndicator />
@@ -182,7 +190,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         xpub && (
           <SaveFileButton
             style={styles.exportButton}
-            fileName={`${label}.txt`}
+            fileName={exportFileName}
             fileContent={xpub}
             beforeOnPress={exportTxtFileBeforeOnPress}
             afterOnPress={exportTxtFileAfterOnPress}
