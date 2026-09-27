@@ -114,6 +114,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
         guard !DragAndDropState.isScreenProtected else { return }
         hideDropOverlay()
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        DragAndDropLog.debug("App target accepted \(session.items.count) item(s)")
         for item in session.items {
             let provider = item.itemProvider
             if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier), provider.canLoadObject(ofClass: NSURL.self) {
@@ -266,11 +267,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
         DispatchQueue.main.async {
             guard !DragAndDropState.isScreenProtected else { return }
             if DragAndDropState.hasFocusedDropConsumer {
+                DragAndDropLog.debug("Routing inbound file to focused consumer")
                 let mimeType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
                 DragAndDropModule.emitFileDrop(url.absoluteString, mimeType: mimeType)
                 return
             }
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+            DragAndDropLog.debug("Routing inbound file through app deep links")
             _ = appDelegate.application(UIApplication.shared, open: url, options: [:])
         }
     }
@@ -280,6 +283,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
         DispatchQueue.main.async {
             guard !DragAndDropState.isScreenProtected else { return }
             if DragAndDropState.hasFocusedDropConsumer {
+                DragAndDropLog.debug("Routing inbound text to focused consumer")
                 DragAndDropModule.emitTextDrop(value)
                 return
             }
@@ -289,6 +293,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
             components.queryItems = [URLQueryItem(name: "text", value: value)]
             guard let url = components.url,
                   let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+            DragAndDropLog.debug("Routing inbound text through app deep links")
             _ = appDelegate.application(UIApplication.shared, open: url, options: [:])
         }
     }

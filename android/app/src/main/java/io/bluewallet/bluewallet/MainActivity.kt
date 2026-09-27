@@ -142,6 +142,7 @@ class MainActivity : ReactActivity() {
                     requestDragAndDropPermissions(event)?.let(dropPermissions::add)
                 }
                 val clipData = event.clipData ?: return false
+                if (BuildConfig.DEBUG) Log.d("DragAndDrop", "App target accepted ${clipData.itemCount} item(s)")
                 for (index in 0 until clipData.itemCount) {
                     val item = clipData.getItemAt(index)
                     val uri = item.uri
@@ -150,6 +151,7 @@ class MainActivity : ReactActivity() {
                         ?: item.coerceToText(this)?.toString()?.trim()
                     if (!droppedValue.isNullOrEmpty()) {
                         if (DragAndDropState.hasFocusedDropConsumer) {
+                            if (BuildConfig.DEBUG) Log.d("DragAndDrop", "Routing inbound item to focused consumer")
                             val payload = Arguments.createMap().apply {
                                 if (uri != null) putString("uri", droppedValue) else putString("text", droppedValue)
                                 putString("mimeType", uri?.let(contentResolver::getType) ?: event.clipDescription?.getMimeType(0))
@@ -176,6 +178,7 @@ class MainActivity : ReactActivity() {
                                 data = droppedUri
                             }
                         }
+                        if (BuildConfig.DEBUG) Log.d("DragAndDrop", "Routing inbound item through app deep links")
                         onNewIntent(intent)
                     }
                 }

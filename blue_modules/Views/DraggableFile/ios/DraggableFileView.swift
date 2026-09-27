@@ -2,6 +2,14 @@ import React
 import UIKit
 import UniformTypeIdentifiers
 
+enum DragAndDropLog {
+  static func debug(_ message: String) {
+    #if DEBUG
+    NSLog("[DragAndDrop] %@", message)
+    #endif
+  }
+}
+
 @objcMembers
 final class DragAndDropState: NSObject {
   static var isScreenProtected = false
@@ -27,6 +35,7 @@ final class DragAndDropModule: RCTEventEmitter {
     rejecter reject: RCTPromiseRejectBlock
   ) {
     DragAndDropState.isScreenProtected = enabled
+    DragAndDropLog.debug("Screen protection \(enabled ? "enabled" : "disabled")")
     resolve(true)
   }
 
@@ -36,6 +45,7 @@ final class DragAndDropModule: RCTEventEmitter {
     rejecter reject: RCTPromiseRejectBlock
   ) {
     DragAndDropState.hasFocusedDropConsumer = enabled
+    DragAndDropLog.debug("Focused consumer \(enabled ? "registered" : "removed")")
     resolve(true)
   }
 
@@ -81,6 +91,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   func dragInteraction(_ interaction: UIDragInteraction, itemsForBeginning session: UIDragSession) -> [UIDragItem] {
     guard dragEnabled, !DragAndDropState.isScreenProtected else { return [] }
     if exportOnDrag {
+      DragAndDropLog.debug("Wallet drag redirected to guarded export")
       onExportRequested?(["requested": true])
       return []
     }
@@ -97,6 +108,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   ) -> [UIDragItem] {
     guard dragEnabled, !DragAndDropState.isScreenProtected else { return [] }
     if exportOnDrag {
+      DragAndDropLog.debug("Multi-drag wallet request redirected to guarded export")
       onExportRequested?(["requested": true])
       return []
     }
@@ -112,6 +124,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     let contentType = UTType(mimeType: mimeType)
       ?? UTType(filenameExtension: fileURL.pathExtension)
       ?? .data
+    DragAndDropLog.debug("Prepared outbound item type=\(contentType.identifier)")
     let provider = NSItemProvider()
 
     // Register the native file promise first so it is the highest-fidelity
@@ -180,6 +193,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     guard dropInteraction(interaction, canHandle: session) else { return }
     restoreDropAppearance()
     UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    DragAndDropLog.debug("Native target accepted \(session.items.count) item(s)")
     for item in session.items {
       loadDroppedItem(item.itemProvider)
     }
@@ -193,6 +207,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
 
   private func loadDroppedItem(_ provider: NSItemProvider) {
     if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier), provider.canLoadObject(ofClass: NSURL.self) {
+      DragAndDropLog.debug("Loading inbound file URL representation")
       provider.loadObject(ofClass: NSURL.self) { [weak self] object, _ in
         guard let self, let nsURL = object as? NSURL else { return }
         let url = nsURL as URL
@@ -203,6 +218,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
       return
     }
     if let type = provider.registeredTypeIdentifiers.compactMap(UTType.init).first(where: { $0.conforms(to: .image) }) {
+      DragAndDropLog.debug("Loading inbound image representation type=\(type.identifier)")
       provider.loadFileRepresentation(forTypeIdentifier: type.identifier) { [weak self] url, _ in
         guard let self, let url, let copiedURL = copyDroppedFile(url, type: type) else { return }
         emitDroppedFile(copiedURL, mimeType: type.preferredMIMEType)
@@ -210,6 +226,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
       return
     }
     if provider.canLoadObject(ofClass: NSString.self) {
+      DragAndDropLog.debug("Loading inbound text representation")
       provider.loadObject(ofClass: NSString.self) { [weak self] object, _ in
         guard let text = object as? String else { return }
         DispatchQueue.main.async { self?.onFileDrop?(["text": text, "mimeType": "text/plain"]) }
@@ -227,6 +244,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
       try FileManager.default.copyItem(at: url, to: destination)
       return destination
     } catch {
+      DragAndDropLog.debug("Could not copy inbound item: \(error.localizedDescription)")
       return nil
     }
   }

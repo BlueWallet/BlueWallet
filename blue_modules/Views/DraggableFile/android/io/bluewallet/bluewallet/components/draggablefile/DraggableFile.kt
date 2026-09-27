@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.view.DragEvent
 import android.widget.FrameLayout
@@ -16,6 +17,7 @@ import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import java.io.ByteArrayOutputStream
 import java.io.File
+import io.bluewallet.bluewallet.BuildConfig
 
 class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(reactContext) {
     var fileName: String = "export.dat"
@@ -33,6 +35,7 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
         setOnLongClickListener {
             if (!dragEnabled || DragAndDropState.isScreenProtected) return@setOnLongClickListener false
             if (exportOnDrag) {
+                if (BuildConfig.DEBUG) Log.d("DragAndDrop", "Wallet drag redirected to guarded export")
                 val payload = com.facebook.react.bridge.Arguments.createMap().apply { putBoolean("requested", true) }
                 @Suppress("DEPRECATION")
                 reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "onExportRequested", payload)
@@ -40,6 +43,7 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
             }
             val file = createExportFile() ?: return@setOnLongClickListener false
             val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+            if (BuildConfig.DEBUG) Log.d("DragAndDrop", "Prepared outbound item type=$mimeType")
             val clip = ClipData(
                 ClipDescription(file.name, arrayOf(mimeType, ClipDescription.MIMETYPE_TEXT_URILIST)),
                 ClipData.Item(uri),
@@ -65,6 +69,7 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
                 restoreDropAppearance()
                 reactContext.currentActivity?.requestDragAndDropPermissions(event)
                 val clipData = event.clipData ?: return false
+                if (BuildConfig.DEBUG) Log.d("DragAndDrop", "Native target accepted ${clipData.itemCount} item(s)")
                 for (index in 0 until clipData.itemCount) {
                     val item = clipData.getItemAt(index)
                     val uri = item.uri
@@ -109,7 +114,8 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
         else content.toByteArray(Charsets.UTF_8)
         file.writeBytes(bytes)
         file
-    } catch (_: Exception) {
+    } catch (error: Exception) {
+        if (BuildConfig.DEBUG) Log.d("DragAndDrop", "Could not prepare outbound item", error)
         null
     }
 
