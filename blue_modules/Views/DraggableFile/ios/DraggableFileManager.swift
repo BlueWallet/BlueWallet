@@ -11,4 +11,7 @@ final class DraggableFileManager: RCTViewManager {
   @objc class func propConfig_content() -> [String]! { ["NSString"] }
   @objc class func propConfig_isBase64() -> [String]! { ["BOOL"] }
   @objc class func propConfig_captureViewAsImage() -> [String]! { ["BOOL"] }
+  @objc class func propConfig_dragEnabled() -> [String]! { ["BOOL"] }
+  @objc class func propConfig_dropEnabled() -> [String]! { ["BOOL"] }
+  @objc class func propConfig_onFileDrop() -> [String]! { ["RCTDirectEventBlock"] }
 }

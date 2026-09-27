@@ -9,6 +9,8 @@ type Props = {
   content?: string;
   isBase64?: boolean;
   captureViewAsImage?: boolean;
+  dragEnabled?: boolean;
+  dropEnabled?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 

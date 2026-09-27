@@ -1536,7 +1536,6 @@ const SendDetails = () => {
             isLoading={isLoading}
             inputAccessoryViewID={DismissKeyboardInputAccessoryViewID}
             editable={isEditable}
-            fileDropEnabled={false}
             style={styles.fullWidthInput}
           />
         </View>

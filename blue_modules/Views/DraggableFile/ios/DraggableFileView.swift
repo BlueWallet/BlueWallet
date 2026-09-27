@@ -49,27 +49,32 @@ final class DragAndDropModule: RCTEventEmitter {
 }
 
 @objc(DraggableFileView)
-final class DraggableFileView: UIView, UIDragInteractionDelegate {
+final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteractionDelegate {
   @objc var fileName = "export.dat"
   @objc var mimeType = "application/octet-stream"
   @objc var content = ""
   @objc var isBase64 = false
   @objc var captureViewAsImage = false
+  @objc var dragEnabled = true
+  @objc var dropEnabled = false
+  @objc var onFileDrop: RCTDirectEventBlock?
 
   override init(frame: CGRect) {
     super.init(frame: frame)
     isUserInteractionEnabled = true
     addInteraction(UIDragInteraction(delegate: self))
+    addInteraction(UIDropInteraction(delegate: self))
   }
 
   required init?(coder: NSCoder) {
     super.init(coder: coder)
     isUserInteractionEnabled = true
     addInteraction(UIDragInteraction(delegate: self))
+    addInteraction(UIDropInteraction(delegate: self))
   }
 
   func dragInteraction(_ interaction: UIDragInteraction, itemsForBeginning session: UIDragSession) -> [UIDragItem] {
-    guard !DragAndDropState.isScreenProtected else { return [] }
+    guard dragEnabled, !DragAndDropState.isScreenProtected else { return [] }
     return makeDragItems()
   }
 
@@ -81,7 +86,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate {
     itemsForAddingTo session: UIDragSession,
     withTouchAt point: CGPoint
   ) -> [UIDragItem] {
-    guard !DragAndDropState.isScreenProtected else { return [] }
+    guard dragEnabled, !DragAndDropState.isScreenProtected else { return [] }
     return makeDragItems()
   }
 
@@ -126,6 +131,73 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate {
     let item = UIDragItem(itemProvider: provider)
     item.localObject = fileURL
     return [item]
+  }
+
+  func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
+    dropEnabled && !DragAndDropState.isScreenProtected && session.localDragSession == nil && session.hasItemsConforming(toTypeIdentifiers: [
+      UTType.fileURL.identifier,
+      UTType.image.identifier,
+      UTType.text.identifier,
+    ])
+  }
+
+  func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal {
+    UIDropProposal(operation: dropInteraction(interaction, canHandle: session) ? .copy : .forbidden)
+  }
+
+  func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession) {
+    guard dropInteraction(interaction, canHandle: session) else { return }
+    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+    for item in session.items {
+      loadDroppedItem(item.itemProvider)
+    }
+  }
+
+  private func loadDroppedItem(_ provider: NSItemProvider) {
+    if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier), provider.canLoadObject(ofClass: NSURL.self) {
+      provider.loadObject(ofClass: NSURL.self) { [weak self] object, _ in
+        guard let self, let nsURL = object as? NSURL else { return }
+        let url = nsURL as URL
+        let type = UTType(filenameExtension: url.pathExtension) ?? .data
+        guard let copiedURL = copyDroppedFile(url, type: type) else { return }
+        emitDroppedFile(copiedURL, mimeType: type.preferredMIMEType)
+      }
+      return
+    }
+    if let type = provider.registeredTypeIdentifiers.compactMap(UTType.init).first(where: { $0.conforms(to: .image) }) {
+      provider.loadFileRepresentation(forTypeIdentifier: type.identifier) { [weak self] url, _ in
+        guard let self, let url, let copiedURL = copyDroppedFile(url, type: type) else { return }
+        emitDroppedFile(copiedURL, mimeType: type.preferredMIMEType)
+      }
+      return
+    }
+    if provider.canLoadObject(ofClass: NSString.self) {
+      provider.loadObject(ofClass: NSString.self) { [weak self] object, _ in
+        guard let text = object as? String else { return }
+        DispatchQueue.main.async { self?.onFileDrop?(["text": text, "mimeType": "text/plain"]) }
+      }
+    }
+  }
+
+  private func copyDroppedFile(_ url: URL, type: UTType) -> URL? {
+    let fileExtension = url.pathExtension.isEmpty ? type.preferredFilenameExtension : url.pathExtension
+    let destination = FileManager.default.temporaryDirectory
+      .appendingPathComponent("DroppedItems", isDirectory: true)
+      .appendingPathComponent("\(UUID().uuidString).\(fileExtension ?? "dat")")
+    do {
+      try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+      try FileManager.default.copyItem(at: url, to: destination)
+      return destination
+    } catch {
+      return nil
+    }
+  }
+
+  private func emitDroppedFile(_ url: URL, mimeType: String?) {
+    DispatchQueue.main.async { [weak self] in
+      guard !DragAndDropState.isScreenProtected else { return }
+      self?.onFileDrop?(["uri": url.absoluteString, "mimeType": mimeType ?? ""])
+    }
   }
 
   private static func completedProgress() -> Progress {

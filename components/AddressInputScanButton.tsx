@@ -10,7 +10,7 @@ import { detectQRCodeInImage } from 'react-native-camera-kit-no-google';
 import { CommonToolTipActions } from '../typings/CommonToolTipActions';
 import { useSettings } from '../hooks/context/useSettings';
 import { scanQrHelper } from '../helpers/scan-qr.ts';
-import { useFileDrop } from '../hooks/useFileDrop';
+import FileDropTarget from './FileDropTarget';
 
 interface AddressInputScanButtonProps {
   isLoading?: boolean;
@@ -35,10 +35,6 @@ export const AddressInputScanButton = ({
   const { isClipboardGetContentEnabled } = useSettings();
   const handleDrop = useCallback((value: string) => onChangeText(value.trim()), [onChangeText]);
   const handleDropError = useCallback((error: Error) => presentAlert({ message: error.message }), []);
-  useFileDrop(handleDrop, {
-    enabled: fileDropEnabled && !isLoading,
-    onError: handleDropError,
-  });
 
   const stylesHook = StyleSheet.create({
     scan: {
@@ -150,46 +146,51 @@ export const AddressInputScanButton = ({
   }, [stylesHook.scan, type]);
 
   return (
-    <ToolTipMenu
-      actions={actions}
-      isButton
-      onPressMenuItem={onMenuItemPressed}
-      shouldOpenOnLongPress
-      disabled={isLoading}
-      onPress={toolTipOnPress}
-      testID={type === 'default' || type === 'compact' ? testID : undefined}
-      buttonStyle={menuButtonStyle}
-      style={type === 'compact' ? styles.compactWrapper : undefined}
-      accessibilityLabel={loc.send.details_scan}
-      accessibilityHint={loc.send.details_scan_hint}
-    >
-      {type === 'default' ? (
-        <View style={styles.scanContent}>
-          <Image source={require('../img/scan-white.png')} accessible={false} />
-          <Text numberOfLines={1} style={[styles.scanText, stylesHook.scanText]} accessible={false}>
-            {loc.send.details_scan}
-          </Text>
-        </View>
-      ) : type === 'compact' ? (
-        <View style={styles.compactContent}>
-          <Text numberOfLines={1} style={[styles.compactText, stylesHook.scanText]} accessible={false}>
-            {loc.send.details_scan}
-          </Text>
-        </View>
-      ) : (
-        <View testID={testID} style={styles.contentRow}>
-          <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
-            {loc.wallets.import_scan_qr}
-          </Text>
-        </View>
-      )}
-    </ToolTipMenu>
+    <FileDropTarget onDrop={handleDrop} onError={handleDropError} enabled={fileDropEnabled && !isLoading} style={styles.dropTarget}>
+      <ToolTipMenu
+        actions={actions}
+        isButton
+        onPressMenuItem={onMenuItemPressed}
+        shouldOpenOnLongPress
+        disabled={isLoading}
+        onPress={toolTipOnPress}
+        testID={type === 'default' || type === 'compact' ? testID : undefined}
+        buttonStyle={menuButtonStyle}
+        style={type === 'compact' ? styles.compactWrapper : undefined}
+        accessibilityLabel={loc.send.details_scan}
+        accessibilityHint={loc.send.details_scan_hint}
+      >
+        {type === 'default' ? (
+          <View style={styles.scanContent}>
+            <Image source={require('../img/scan-white.png')} accessible={false} />
+            <Text numberOfLines={1} style={[styles.scanText, stylesHook.scanText]} accessible={false}>
+              {loc.send.details_scan}
+            </Text>
+          </View>
+        ) : type === 'compact' ? (
+          <View style={styles.compactContent}>
+            <Text numberOfLines={1} style={[styles.compactText, stylesHook.scanText]} accessible={false}>
+              {loc.send.details_scan}
+            </Text>
+          </View>
+        ) : (
+          <View testID={testID} style={styles.contentRow}>
+            <Text style={[styles.linkText, { color: colors.foregroundColor }]} numberOfLines={1} ellipsizeMode="tail">
+              {loc.wallets.import_scan_qr}
+            </Text>
+          </View>
+        )}
+      </ToolTipMenu>
+    </FileDropTarget>
   );
 };
 
 AddressInputScanButton.displayName = 'AddressInputScanButton';
 
 const styles = StyleSheet.create({
+  dropTarget: {
+    flexShrink: 0,
+  },
   scan: {
     height: 36,
     flexDirection: 'row',
