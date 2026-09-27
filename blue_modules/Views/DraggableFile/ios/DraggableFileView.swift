@@ -1,6 +1,7 @@
 import React
 import UIKit
 import UniformTypeIdentifiers
+import LocalAuthentication
 
 enum DragAndDropLog {
   static func debug(_ message: String) {
@@ -68,6 +69,9 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   @objc var dragEnabled = true
   @objc var dropEnabled = false
   @objc var exportOnDrag = false
+  @objc var secureTextExport = false
+  @objc var biometricEnabled = false
+  @objc var authenticationPrompt = "Authenticate to export wallet"
   @objc var onFileDrop: RCTDirectEventBlock?
   @objc var onExportRequested: RCTDirectEventBlock?
   private var savedBorderColor: CGColor?
@@ -120,6 +124,9 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   }
 
   private func makeDragItems() -> [UIDragItem] {
+    if secureTextExport {
+      return makeSecureTextDragItems()
+    }
     guard let fileURL = createExportFile() else { return [] }
     let contentType = UTType(mimeType: mimeType)
       ?? UTType(filenameExtension: fileURL.pathExtension)
@@ -157,6 +164,40 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     let item = UIDragItem(itemProvider: provider)
     item.localObject = fileURL
     return [item]
+  }
+
+  private func makeSecureTextDragItems() -> [UIDragItem] {
+    let value = content
+    let requiresAuthentication = biometricEnabled
+    let prompt = authenticationPrompt
+    let provider = NSItemProvider()
+    provider.suggestedName = fileName
+    provider.registerDataRepresentation(forTypeIdentifier: UTType.utf8PlainText.identifier, visibility: .all) { completion in
+      let provideText = {
+        guard let data = value.data(using: .utf8) else {
+          completion(nil, NSError(domain: "io.bluewallet.dragdrop", code: 1))
+          return
+        }
+        DragAndDropLog.debug("Authorized wallet text export fulfilled")
+        completion(data, nil)
+      }
+      guard requiresAuthentication else {
+        provideText()
+        return Self.completedProgress()
+      }
+      let context = LAContext()
+      context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: prompt) { success, error in
+        if success {
+          provideText()
+        } else {
+          DragAndDropLog.debug("Wallet text export authentication cancelled or failed")
+          completion(nil, error)
+        }
+      }
+      return Progress(totalUnitCount: 1)
+    }
+    DragAndDropLog.debug("Prepared deferred wallet text export")
+    return [UIDragItem(itemProvider: provider)]
   }
 
   func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {

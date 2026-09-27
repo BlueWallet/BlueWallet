@@ -4,6 +4,7 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.facebook.react.bridge.ReadableArray
 
 @ReactModule(name = DraggableFileManager.REACT_CLASS)
 class DraggableFileManager : ViewGroupManager<DraggableFile>() {
@@ -35,6 +36,22 @@ class DraggableFileManager : ViewGroupManager<DraggableFile>() {
 
     @ReactProp(name = "exportOnDrag", defaultBoolean = false)
     fun setExportOnDrag(view: DraggableFile, value: Boolean) { view.exportOnDrag = value }
+
+    @ReactProp(name = "secureTextExport", defaultBoolean = false)
+    fun setSecureTextExport(view: DraggableFile, value: Boolean) { view.secureTextExport = value }
+
+    @ReactProp(name = "biometricEnabled", defaultBoolean = false)
+    fun setBiometricEnabled(view: DraggableFile, value: Boolean) = Unit
+
+    @ReactProp(name = "authenticationPrompt")
+    fun setAuthenticationPrompt(view: DraggableFile, value: String?) = Unit
+
+    override fun receiveCommand(root: DraggableFile, commandId: String, args: ReadableArray?) {
+        when (commandId) {
+            "startAuthorizedDrag" -> root.startAuthorizedDrag()
+            else -> super.receiveCommand(root, commandId, args)
+        }
+    }
 
     override fun getExportedCustomDirectEventTypeConstants() = mapOf(
         "onFileDrop" to mapOf("registrationName" to "onFileDrop"),

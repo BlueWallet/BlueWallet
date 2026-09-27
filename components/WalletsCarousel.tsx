@@ -458,7 +458,7 @@ export const WalletCarouselItem: React.FC<WalletCarouselItemProps> = ({
         animatedCardStyle,
       ]}
     >
-      <WalletExportDragSource walletID={item.getID()} enabled={!isPlaceHolder} style={iStyles.exportDragSource}>
+      <WalletExportDragSource wallet={item} enabled={!isPlaceHolder} style={iStyles.exportDragSource}>
         <Pressable
           accessibilityRole="button"
           testID={walletLabel}

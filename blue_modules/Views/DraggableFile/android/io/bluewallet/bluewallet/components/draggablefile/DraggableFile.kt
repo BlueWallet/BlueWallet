@@ -28,6 +28,7 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
     var dragEnabled: Boolean = true
     var dropEnabled: Boolean = false
     var exportOnDrag: Boolean = false
+    var secureTextExport: Boolean = false
     private var savedForeground: Drawable? = null
 
     init {
@@ -41,21 +42,26 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
                 reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "onExportRequested", payload)
                 return@setOnLongClickListener true
             }
-            val file = createExportFile() ?: return@setOnLongClickListener false
-            val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-            if (BuildConfig.DEBUG) Log.d("DragAndDrop", "Prepared outbound item type=$mimeType")
-            val clip = ClipData(
-                ClipDescription(file.name, arrayOf(mimeType, ClipDescription.MIMETYPE_TEXT_URILIST)),
-                ClipData.Item(uri),
-            )
-            startDragAndDrop(
-                clip,
-                View.DragShadowBuilder(this),
-                DragAndDropState.outboundMarker,
-                View.DRAG_FLAG_GLOBAL or View.DRAG_FLAG_GLOBAL_URI_READ,
-            )
+            startAuthorizedDrag()
         }
         setOnDragListener { _, event -> handleDropEvent(event) }
+    }
+
+    fun startAuthorizedDrag(): Boolean {
+        if (!dragEnabled || DragAndDropState.isScreenProtected) return false
+        val file = createExportFile() ?: return false
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        if (BuildConfig.DEBUG) Log.d("DragAndDrop", "Prepared authorized outbound item type=$mimeType")
+        val clip = ClipData(
+            ClipDescription(file.name, arrayOf(mimeType, ClipDescription.MIMETYPE_TEXT_URILIST)),
+            ClipData.Item(uri),
+        )
+        return startDragAndDrop(
+            clip,
+            View.DragShadowBuilder(this),
+            DragAndDropState.outboundMarker,
+            View.DRAG_FLAG_GLOBAL or View.DRAG_FLAG_GLOBAL_URI_READ,
+        )
     }
 
     @Suppress("DEPRECATION")
