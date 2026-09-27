@@ -14,7 +14,6 @@ import {
   View,
 } from 'react-native';
 import Icon from '../../components/Icon';
-import { parse } from 'url'; // eslint-disable-line n/no-deprecated-api
 import { btcToSatoshi, fiatToBTC, satoshiToBTC } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import Lnurl from '../../class/lnurl';
@@ -85,17 +84,9 @@ const LNDCreateInvoice = () => {
   const processLnurl = useCallback(
     async (data: string) => {
       setIsLoading(true);
-      if (!wallet.current) {
-        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
-        presentAlert({ message: loc.wallets.no_ln_wallet_error });
-        return goBack();
-      }
 
-      // decoding the lnurl
-      const url = Lnurl.getUrlFromLnurl(data);
-      const { query } = parse(String(url), true);
-
-      if (query.tag === Lnurl.TAG_LOGIN_REQUEST) {
+      // lnurl-auth works with any wallet that can sign, so it is checked before the lightning wallet requirement
+      if (Lnurl.isLnurlAuth(data)) {
         // Close the modal first, then navigate to LnurlAuth in the drawer
         goBack();
         setTimeout(() => {
@@ -111,6 +102,15 @@ const LNDCreateInvoice = () => {
         }, 100);
         return;
       }
+
+      if (!wallet.current) {
+        triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+        presentAlert({ message: loc.wallets.no_ln_wallet_error });
+        return goBack();
+      }
+
+      // decoding the lnurl
+      const url = Lnurl.getUrlFromLnurl(data);
 
       // calling the url
       try {

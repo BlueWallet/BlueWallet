@@ -164,6 +164,14 @@ class DeeplinkSchemaMatch {
           },
         },
       ]);
+    } else if (Lnurl.isLnurlAuth(event.url)) {
+      // lnurl-auth does not need a lightning wallet, so it can not go through LNDCreateInvoice
+      completionHandler([
+        'LnurlAuth',
+        {
+          lnurl: event.url.replace('lightning:', '').replace('LIGHTNING:', ''),
+        },
+      ]);
     } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
       // at this point we can not tell if it is lnurl-pay or lnurl-withdraw since it needs additional async call
       // to the server, which is undesirable here, so LNDCreateInvoice screen will handle it for us and will

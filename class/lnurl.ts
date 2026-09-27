@@ -1,4 +1,5 @@
 import { bech32 } from 'bech32';
+import { BIP32Interface } from 'bip32';
 import bolt11 from 'bolt11';
 import { sha256 } from '@noble/hashes/sha256';
 import { hmac } from '@noble/hashes/hmac';
@@ -33,6 +34,17 @@ interface LnurlPayServiceBolt11Payload {
   maxSendable: number;
   callback: string;
   commentAllowed: number;
+}
+
+export type LnurlAuthAction = 'register' | 'login' | 'link' | 'auth';
+
+const LNURL_AUTH_ACTIONS: readonly LnurlAuthAction[] = ['register', 'login', 'link', 'auth'];
+
+export interface LnurlAuthParams {
+  href: string;
+  domain: string;
+  k1: string;
+  action: LnurlAuthAction;
 }
 
 interface DecodedInvoice {
@@ -360,23 +372,99 @@ export default class Lnurl {
     return this.getMin();
   }
 
-  async authenticate(secret: string): Promise<void> {
-    if (!this._lnurl) throw new Error('this._lnurl is not set');
+  /**
+   * @see https://github.com/lnurl/luds/blob/luds/04.md
+   */
+  static isLnurlAuth(text: string): boolean {
+    if (!Lnurl.isLnurl(text)) return false;
+    try {
+      return parse(Lnurl.getUrlFromLnurl(text) || '', true).query.tag === Lnurl.TAG_LOGIN_REQUEST;
+    } catch (_) {
+      return false;
+    }
+  }
 
-    const url = parse(Lnurl.getUrlFromLnurl(this._lnurl) || '', true);
+  /**
+   * Validates LNURL-auth request (LUD-04) and extracts everything needed to sign it
+   */
+  static parseAuthUrl(lnurl: string): LnurlAuthParams {
+    const url = parse(Lnurl.getUrlFromLnurl(lnurl) || '', true);
+    const { tag, k1, action = 'auth' } = url.query;
 
-    if (!url.hostname) {
+    if (tag !== Lnurl.TAG_LOGIN_REQUEST) {
+      throw new Error('lnurl-auth expected, found tag ' + tag);
+    }
+
+    // LUD-05: FQDN with last full-stop omitted
+    const domain = (url.hostname || '').replace(/\.$/, '');
+    if (!domain) {
       throw new Error('Invalid URL: hostname is null');
     }
 
-    const privateKey = hmac(sha256, secret, url.hostname);
-    const publicKey = ecc.pointFromScalar(privateKey);
+    if (url.protocol !== 'https:' && !(url.protocol === 'http:' && domain.endsWith('.onion'))) {
+      throw new Error('Invalid URL: must be https or onion');
+    }
+
+    if (typeof k1 !== 'string' || !/^[0-9a-f]{64}$/i.test(k1)) {
+      throw new Error('Invalid k1');
+    }
+
+    if (typeof action !== 'string' || !LNURL_AUTH_ACTIONS.includes(action as LnurlAuthAction)) {
+      throw new Error('Unsupported action ' + action);
+    }
+
+    return { href: url.href, domain, k1, action: action as LnurlAuthAction };
+  }
+
+  /**
+   * Linking key derivation used by LNDHub wallets before LUD-05 support. Kept so existing
+   * accounts on services stay accessible.
+   */
+  static legacyLinkingKey(secret: string, domain: string): Uint8Array {
+    return hmac(sha256, secret, domain);
+  }
+
+  /**
+   * @see https://github.com/lnurl/luds/blob/luds/05.md
+   */
+  static lud05PathSuffix(hashingKey: Uint8Array, domain: string): number[] {
+    const material = hmac(sha256, hashingKey, domain);
+    const view = new DataView(material.buffer, material.byteOffset, 16);
+    return [0, 4, 8, 12].map(offset => view.getUint32(offset, false));
+  }
+
+  /**
+   * Indexes of 2^31 and above are derived as hardened, same as other LUD-05 implementations,
+   * so they must not be masked.
+   *
+   * @see https://github.com/lnurl/luds/blob/luds/05.md
+   */
+  static lud05LinkingKey(root: BIP32Interface, domain: string): Uint8Array {
+    const hashingKey = root.derivePath("m/138'/0").privateKey;
+    if (!hashingKey) {
+      throw new Error('LNURL-auth requires a private key');
+    }
+
+    const node = Lnurl.lud05PathSuffix(hashingKey, domain).reduce((parent, index) => parent.derive(index), root.derivePath("m/138'"));
+    if (!node.privateKey) {
+      throw new Error('LNURL-auth requires a private key');
+    }
+
+    return node.privateKey;
+  }
+
+  async authenticate(linkingKey: Uint8Array): Promise<void> {
+    if (!this._lnurl) throw new Error('this._lnurl is not set');
+
+    const { href, k1 } = Lnurl.parseAuthUrl(this._lnurl);
+
+    const publicKey = ecc.pointFromScalar(linkingKey);
     if (!publicKey) {
       throw new Error('Failed to generate public key');
     }
-    const signature = ecc.signDER(hexToUint8Array(url.query.k1 as string), privateKey);
+    const signature = ecc.signDER(hexToUint8Array(k1), linkingKey);
 
-    const reply = await this.fetchGet(`${url.href}&sig=${uint8ArrayToHex(signature)}&key=${uint8ArrayToHex(publicKey)}`);
+    const reply = await this.fetchGet(`${href}&sig=${uint8ArrayToHex(signature)}&key=${uint8ArrayToHex(publicKey)}`);
     if (reply.status === 'OK') {
       // Authentication successful
     } else {

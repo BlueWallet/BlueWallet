@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import { useNavigation, CommonActions, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 
@@ -26,6 +26,7 @@ import { DecodedInvoice, TWallet } from '../../class/wallets/types';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
+import { navigationRef } from '../../NavigationService';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<LNDStackParamsList, 'ScanLNDInvoice'>;
@@ -118,6 +119,7 @@ const ScanLNDInvoice = () => {
 
   useEffect(() => {
     if (wallet && uri) {
+      if (Lnurl.isLnurlAuth(uri)) return processLnurlAuth(uri);
       if (Lnurl.isLnurl(uri)) return processLnurlPay(uri);
       if (Lnurl.isLightningAddress(uri)) return processLnurlPay(uri);
 
@@ -192,9 +194,26 @@ const ScanLNDInvoice = () => {
   useKeyboard({ onKeyboardDidShow: _keyboardDidShow, onKeyboardDidHide: _keyboardDidHide });
 
   const processInvoice = (data: string): void => {
+    if (Lnurl.isLnurlAuth(data)) return processLnurlAuth(data);
     if (Lnurl.isLnurl(data)) return processLnurlPay(data);
     if (Lnurl.isLightningAddress(data)) return processLnurlPay(data);
     setParams({ uri: data });
+  };
+
+  const processLnurlAuth = (data: string): void => {
+    // Close the modal first, then navigate to LnurlAuth in the drawer
+    goBack();
+    setTimeout(() => {
+      navigationRef.dispatch(
+        CommonActions.navigate({
+          name: 'LnurlAuth',
+          params: {
+            lnurl: data,
+            walletID: walletID || wallet?.getID(),
+          },
+        }),
+      );
+    }, 100);
   };
 
   const processLnurlPay = (data: string): void => {

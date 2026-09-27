@@ -1,5 +1,8 @@
 import assert from 'assert';
 
+import { bech32 } from 'bech32';
+
+import { hexToUint8Array, uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
 import Lnurl from '../../class/lnurl';
 
 describe('LNURL', function () {
@@ -256,7 +259,9 @@ describe('lightning address', function () {
       };
     };
 
-    await assert.doesNotReject(LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'));
+    await assert.doesNotReject(
+      LN.authenticate(Lnurl.legacyLinkingKey('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d', 'lightninglogin.live')),
+    );
     assert.strictEqual(
       requestedUri,
       'https://lightninglogin.live/login?k1=2191be568cfe6d2a8e8a90ce04c15edf70fdcae6c1b9faff684acab6f400fa0d&tag=login&sig=304502210093ab4ead8dd619f2ddb3d52bd4bb01725badcb2a3daa3870fb41a38096f9a37d0220464a32e94e13dcec20ea94b94df0fa52f45cd88b01d7247042136ad0c71752d2&key=03e7b61e57efff1925ab9082625400cae2c8ad88a984e7aa4987abb77818570018',
@@ -277,10 +282,13 @@ describe('lightning address', function () {
       };
     };
 
-    await assert.rejects(LN.authenticate('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d'), err => {
-      assert.strictEqual(err, 'Invalid signature');
-      return true;
-    });
+    await assert.rejects(
+      LN.authenticate(Lnurl.legacyLinkingKey('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d', 'lightninglogin.live')),
+      err => {
+        assert.strictEqual(err, 'Invalid signature');
+        return true;
+      },
+    );
   });
 
   it('works', async () => {
@@ -356,5 +364,63 @@ describe('lightning address', function () {
     });
 
     assert.strictEqual(requestedUri, 'http://st5owtpsa2e62yf64luxogbecj7lk3t5vmesshsnrzu2untyf2i4t4ad.onion/.well-known/lnurlp/avatar');
+  });
+});
+
+describe('lnurl-auth', function () {
+  const K1 = '2191be568cfe6d2a8e8a90ce04c15edf70fdcae6c1b9faff684acab6f400fa0d';
+  const encode = url => bech32.encode('lnurl', bech32.toWords(new TextEncoder().encode(url)), 1023).toUpperCase();
+
+  it('can isLnurlAuth()', () => {
+    assert.ok(Lnurl.isLnurlAuth(encode(`https://site.com/login?tag=login&k1=${K1}`)));
+    assert.ok(Lnurl.isLnurlAuth('lightning:' + encode(`https://site.com/login?tag=login&k1=${K1}`)));
+    assert.ok(Lnurl.isLnurlAuth('https://site.com/?lightning=' + encode(`https://site.com/login?tag=login&k1=${K1}`)));
+    assert.ok(!Lnurl.isLnurlAuth(encode('https://site.com/withdraw?tag=withdrawRequest')));
+    assert.ok(!Lnurl.isLnurlAuth(encode('https://site.com/pay')));
+    assert.ok(!Lnurl.isLnurlAuth('lnaddress@site.com'));
+    assert.ok(!Lnurl.isLnurlAuth('bs'));
+  });
+
+  it('can parseAuthUrl()', () => {
+    assert.deepStrictEqual(Lnurl.parseAuthUrl(encode(`https://Sub.Site.com./login?tag=login&k1=${K1}&action=register`)), {
+      href: `https://sub.site.com./login?tag=login&k1=${K1}&action=register`,
+      domain: 'sub.site.com',
+      k1: K1,
+      action: 'register',
+    });
+    assert.strictEqual(Lnurl.parseAuthUrl(encode(`https://site.com/?tag=login&k1=${K1}`)).action, 'auth');
+    assert.strictEqual(Lnurl.parseAuthUrl(encode(`http://abcdef.onion/?tag=login&k1=${K1}`)).domain, 'abcdef.onion');
+
+    assert.throws(() => Lnurl.parseAuthUrl(encode(`http://site.com/?tag=login&k1=${K1}`)), /https or onion/);
+    assert.throws(() => Lnurl.parseAuthUrl(encode('https://site.com/?tag=login&k1=abcd')), /Invalid k1/);
+    assert.throws(() => Lnurl.parseAuthUrl(encode(`https://site.com/?tag=login&k1=${K1}&k1=${K1}`)), /Invalid k1/);
+    assert.throws(() => Lnurl.parseAuthUrl(encode(`https://site.com/?tag=login&k1=${K1}&action=hack`)), /Unsupported action/);
+    assert.throws(() => Lnurl.parseAuthUrl(encode(`https://site.com/?tag=withdrawRequest&k1=${K1}`)), /lnurl-auth expected/);
+  });
+
+  it('can lud05PathSuffix() (LUD-05 test vector)', () => {
+    assert.deepStrictEqual(
+      Lnurl.lud05PathSuffix(hexToUint8Array('7d417a6a5e9a6a4a879aeaba11a11838764c8fa2b959c242d43dea682b3e409b'), 'site.com'),
+      [1588488367, 2659270754, 38110259, 4136336762],
+    );
+  });
+
+  it('keeps legacy linking key for existing LNDHub accounts', () => {
+    assert.strictEqual(
+      uint8ArrayToHex(Lnurl.legacyLinkingKey('lndhub://dc56b8cf8ef3b60060cf:94eac57510de2738451d', 'lightninglogin.live')),
+      '84155492f5a17e098600b6062b31bb25545bc5b68b3f4b619b67aa3cc478ba89',
+    );
+  });
+
+  it('rejects invalid request before signing', async () => {
+    const LN = new Lnurl(encode('https://site.com/?tag=login&k1=abcd'));
+    let requested = false;
+    LN.fetchGet = () => {
+      requested = true;
+      return { status: 'OK' };
+    };
+
+    await assert.rejects(LN.authenticate(hexToUint8Array(K1)), /Invalid k1/);
+    assert.ok(!requested);
   });
 });
