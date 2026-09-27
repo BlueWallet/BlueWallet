@@ -6,6 +6,11 @@ import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
 import { unlockWithBiometrics, useBiometrics } from '../hooks/useBiometrics';
 import loc from '../loc';
 
+const sanitizeExportFileName = (label: string) =>
+  Array.from(label, character => (character.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(character) ? '_' : character))
+    .join('')
+    .trim();
+
 type Props = {
   wallet: TWallet;
   children: React.ReactNode;
@@ -20,6 +25,10 @@ const WalletExportDragSource: React.FC<Props> = ({ wallet, children, enabled = t
     const value = wallet instanceof WatchOnlyWallet ? wallet.getSecretForExport() : wallet.getSecret();
     return Array.isArray(value) ? value.join('\n') : String(value ?? '');
   }, [wallet]);
+  const exportFileName = useMemo(() => {
+    const safeLabel = sanitizeExportFileName(wallet.getLabel());
+    return `${safeLabel || 'wallet-backup'}.txt`;
+  }, [wallet]);
   const authorizeAndroidExport = useCallback(async () => {
     if (biometricEnabled && !(await unlockWithBiometrics())) return;
     if (nativeRef.current) Commands.startAuthorizedDrag(nativeRef.current);
@@ -28,7 +37,7 @@ const WalletExportDragSource: React.FC<Props> = ({ wallet, children, enabled = t
   return (
     <NativeDraggableFile
       ref={nativeRef}
-      fileName="wallet-backup.txt"
+      fileName={exportFileName}
       mimeType="text/plain"
       content={secret}
       dragEnabled={enabled}
