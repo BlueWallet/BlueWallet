@@ -160,6 +160,11 @@ class MainActivity : ReactActivity() {
                             continue
                         }
                         val droppedUri = android.net.Uri.parse(droppedValue)
+                        // A textual clip is data, not authority to read an arbitrary URI.
+                        // Only URI ClipData items carry a platform grant that may be opened.
+                        if (uri == null && (droppedUri.scheme.equals("file", true) || droppedUri.scheme.equals("content", true))) {
+                            continue
+                        }
                         val intent = Intent(Intent.ACTION_VIEW).apply {
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                             if (uri != null) {

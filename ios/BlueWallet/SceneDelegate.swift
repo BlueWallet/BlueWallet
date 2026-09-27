@@ -126,11 +126,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
             } else if provider.canLoadObject(ofClass: NSString.self) {
                 provider.loadObject(ofClass: NSString.self) { [weak self] object, _ in
                     guard !DragAndDropState.isScreenProtected,
-                          let value = object as? String,
-                          let url = URL(string: value.trimmingCharacters(in: .whitespacesAndNewlines)) else {
-                        return
-                    }
-                    self?.openDroppedURL(url)
+                          let value = object as? String else { return }
+                    self?.openDroppedText(value.trimmingCharacters(in: .whitespacesAndNewlines))
                 }
             }
         }
@@ -261,6 +258,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
                 return
             }
             guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+            _ = appDelegate.application(UIApplication.shared, open: url, options: [:])
+        }
+    }
+
+    private func openDroppedText(_ value: String) {
+        guard !value.isEmpty else { return }
+        DispatchQueue.main.async {
+            guard !DragAndDropState.isScreenProtected else { return }
+            if DragAndDropState.hasFocusedDropConsumer {
+                DragAndDropModule.emitTextDrop(value)
+                return
+            }
+            var components = URLComponents()
+            components.scheme = "bluewallet"
+            components.host = "drop"
+            components.queryItems = [URLQueryItem(name: "text", value: value)]
+            guard let url = components.url,
+                  let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
             _ = appDelegate.application(UIApplication.shared, open: url, options: [:])
         }
     }

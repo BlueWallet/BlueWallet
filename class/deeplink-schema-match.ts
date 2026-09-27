@@ -57,6 +57,16 @@ class DeeplinkSchemaMatch {
       event.url = event.url.substring('bluewallet://'.length);
     }
 
+    if (event.url.toLowerCase().startsWith('bluewallet://drop?')) {
+      const droppedText = new URL.URL(event.url).searchParams.get('text')?.trim();
+      // Text never grants filesystem authority. Refuse nested file/content URLs
+      // rather than interpreting them as a second, app-privileged file read.
+      if (droppedText && !/^(file|content):/i.test(droppedText)) {
+        DeeplinkSchemaMatch.navigationRouteFor({ url: droppedText }, completionHandler, context);
+      }
+      return;
+    }
+
     if (/^(file|content):/i.test(event.url)) {
       const droppedURL = event.url;
       const fileName = decodeURI(droppedURL).split('/').pop()?.toLowerCase() ?? '';
@@ -99,7 +109,7 @@ class DeeplinkSchemaMatch {
                 },
               },
             ]);
-          } else {
+          } else if (!/^(file|content):/i.test(value)) {
             DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionHandler, context);
           }
         })

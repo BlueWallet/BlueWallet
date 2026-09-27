@@ -42,6 +42,10 @@ final class DragAndDropModule: RCTEventEmitter {
   static func emitFileDrop(_ value: String, mimeType: String?) {
     current?.sendEvent(withName: "onFileDrop", body: ["uri": value, "mimeType": mimeType ?? ""])
   }
+
+  static func emitTextDrop(_ value: String) {
+    current?.sendEvent(withName: "onFileDrop", body: ["text": value, "mimeType": UTType.utf8PlainText.preferredMIMEType ?? "text/plain"])
+  }
 }
 
 @objc(DraggableFileView)
