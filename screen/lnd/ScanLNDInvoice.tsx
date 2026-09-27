@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigation, RouteProp, useRoute, useLocale } from '@react-navigation/native';
+import { useNavigation, CommonActions, RouteProp, useRoute, useLocale } from '@react-navigation/native';
 import { ActivityIndicator, Keyboard, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '../../components/Icon';
 
@@ -28,6 +28,7 @@ import { useKeyboard } from '../../hooks/useKeyboard';
 import { BlueLoading } from '../../components/BlueLoading';
 import { LightningArkWallet } from '../../class/wallets/lightning-ark-wallet';
 import { errorMessage } from '../../helpers/errorMessage';
+import { navigationRef } from '../../NavigationService';
 
 type RouteProps = RouteProp<LNDStackParamsList, 'ScanLNDInvoice'>;
 type NavigationProps = NativeStackNavigationProp<RootParamList, 'ScanLNDInvoice'>;
@@ -43,7 +44,7 @@ const ScanLNDInvoice = () => {
     (wallets.find(item => item.getID() === walletID) as LightningCustodianWallet) ||
       (wallets.find(item => item.chain === Chain.OFFCHAIN) as LightningCustodianWallet),
   );
-  const { navigate, setParams, pop } = useNavigation<NavigationProps>();
+  const { navigate, setParams, goBack, pop } = useNavigation<NavigationProps>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [renderWalletSelectionButtonHidden, setRenderWalletSelectionButtonHidden] = useState<boolean>(false);
   const [destination, setDestination] = useState<string>('');
@@ -113,6 +114,7 @@ const ScanLNDInvoice = () => {
 
   useEffect(() => {
     if (wallet && uri) {
+      if (Lnurl.isLnurlAuth(uri)) return processLnurlAuth(uri);
       if (Lnurl.isLnurl(uri)) return processLnurlPay(uri);
       if (Lnurl.isLightningAddress(uri)) return processLnurlPay(uri);
 
@@ -186,9 +188,26 @@ const ScanLNDInvoice = () => {
   useKeyboard({ onKeyboardDidShow: _keyboardDidShow, onKeyboardDidHide: _keyboardDidHide });
 
   const processInvoice = (data: string): void => {
+    if (Lnurl.isLnurlAuth(data)) return processLnurlAuth(data);
     if (Lnurl.isLnurl(data)) return processLnurlPay(data);
     if (Lnurl.isLightningAddress(data)) return processLnurlPay(data);
     setParams({ uri: data });
+  };
+
+  const processLnurlAuth = (data: string): void => {
+    // Close the modal first, then navigate to LnurlAuth in the drawer
+    goBack();
+    setTimeout(() => {
+      navigationRef.dispatch(
+        CommonActions.navigate({
+          name: 'LnurlAuth',
+          params: {
+            lnurl: data,
+            walletID: walletID || wallet?.getID(),
+          },
+        }),
+      );
+    }, 100);
   };
 
   const processLnurlPay = (data: string): void => {
