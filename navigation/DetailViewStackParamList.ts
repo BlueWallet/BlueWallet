@@ -5,6 +5,8 @@ import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 import { PromptPasswordConfirmationParams } from '../screen/PromptPasswordConfirmationSheet.types';
 import { ElectrumServerItem } from '../screen/settings/ElectrumSettings';
 import { SendDetailsParams, TNavigationWrapper } from './SendDetailsStackParamList';
+import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { AddWalletStackParamList } from './AddWalletStack';
 
 export type ScanQRCodeParamList = {
   cameraStatusGranted?: boolean;
@@ -73,7 +75,7 @@ export type DetailViewStackParamList = {
   LnurlAuth: undefined;
   Success: undefined;
   WalletAddresses: { walletID: string };
-  AddWalletRoot: undefined;
+  AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
   SendDetailsRoot: SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
   ScanLNDInvoiceRoot: {
