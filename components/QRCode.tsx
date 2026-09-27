@@ -9,6 +9,7 @@ import loc from '../loc';
 import { ActionIcons } from '../typings/ActionIcons';
 import ToolTipMenu from './TooltipMenu';
 import { Action } from './types';
+import DraggableFile from './DraggableFile';
 
 type ErrorCorrectionLevel = 'H' | 'Q' | 'M' | 'L';
 
@@ -279,28 +280,30 @@ const QRCode: React.FC<QRCodeProps> = ({
   const content = renderQR ?? <View testID="qr-placeholder" style={stylesHook.placeholder} />;
 
   return (
-    <View
-      style={styles.container}
-      accessibilityIgnoresInvertColors
-      importantForAccessibility="no-hide-descendants"
-      accessibilityRole="image"
-      accessibilityLabel={loc.receive.qrcode_for_the_address}
-    >
-      {isMenuAvailable ? (
-        <ToolTipMenu
-          actions={menuActions}
-          onPressMenuItem={onPressMenuItem}
-          shouldOpenOnLongPress
-          isButton
-          enableAndroidRipple={false}
-          buttonStyle={qrButtonStyle}
-        >
-          {content}
-        </ToolTipMenu>
-      ) : (
-        content
-      )}
-    </View>
+    <DraggableFile fileName="qrcode.png" mimeType="image/png" captureViewAsImage style={{ width: size, height: size }}>
+      <View
+        style={styles.container}
+        accessibilityIgnoresInvertColors
+        importantForAccessibility="no-hide-descendants"
+        accessibilityRole="image"
+        accessibilityLabel={loc.receive.qrcode_for_the_address}
+      >
+        {isMenuAvailable ? (
+          <ToolTipMenu
+            actions={menuActions}
+            onPressMenuItem={onPressMenuItem}
+            shouldOpenOnLongPress
+            isButton
+            enableAndroidRipple={false}
+            buttonStyle={qrButtonStyle}
+          >
+            {content}
+          </ToolTipMenu>
+        ) : (
+          content
+        )}
+      </View>
+    </DraggableFile>
   );
 };
 

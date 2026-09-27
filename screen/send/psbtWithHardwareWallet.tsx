@@ -22,6 +22,7 @@ import { openSignedTransactionRaw } from '../../blue_modules/fs';
 import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
+import { useFileDrop } from '../../hooks/useFileDrop';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
@@ -103,6 +104,8 @@ const PsbtWithHardwareWallet = () => {
     },
     [_combinePSBT, launchedBy, navigation, psbt],
   );
+
+  useFileDrop(onBarScanned);
 
   useEffect(() => {
     if (isFocused) {
