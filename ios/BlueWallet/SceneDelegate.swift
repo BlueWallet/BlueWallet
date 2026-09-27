@@ -6,6 +6,7 @@ import UniformTypeIdentifiers
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelegate {
     var window: UIWindow?
     private var dropOverlay: UIView?
+    private weak var routedDropView: DraggableFileView?
 
     func scene(
         _ scene: UIScene,
@@ -64,9 +65,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
 
     func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
         guard !DragAndDropState.isScreenProtected else { return false }
-        guard targetedDropView(for: session) == nil else { return false }
         // The window-level interaction imports external content. Local exports remain
-        // ordinary drag sessions and are not re-opened by BlueWallet itself.
+        // ordinary drag sessions and are not re-opened by BlueWallet itself. It also
+        // acts as a router for targets in presented form sheets: UIKit can bind a
+        // session to this interaction before the pointer reaches the sheet target.
         guard session.localDragSession == nil else { return false }
         return session.hasItemsConforming(toTypeIdentifiers: [
             UTType.fileURL.identifier,
@@ -78,7 +80,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
 
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnter session: UIDropSession) {
         guard dropInteraction(interaction, canHandle: session) else { return }
-        showDropOverlay(itemCount: session.items.count)
+        updateRoutedDropView(interaction, session: session)
     }
 
     private func targetedDropView(for session: UIDropSession) -> DraggableFileView? {
@@ -94,24 +96,39 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
     }
 
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidExit session: UIDropSession) {
+        clearRoutedDropView(interaction, session: session)
         hideDropOverlay()
     }
 
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidEnd session: UIDropSession) {
+        clearRoutedDropView(interaction, session: session)
         hideDropOverlay()
     }
 
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal {
         guard !DragAndDropState.isScreenProtected else {
+            clearRoutedDropView(interaction, session: session)
             hideDropOverlay()
             return UIDropProposal(operation: .forbidden)
         }
         guard session.localDragSession == nil else { return UIDropProposal(operation: .forbidden) }
+        updateRoutedDropView(interaction, session: session)
+        if let routedDropView {
+            return routedDropView.dropInteraction(interaction, sessionDidUpdate: session)
+        }
         return UIDropProposal(operation: .copy)
     }
 
     func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession) {
         guard !DragAndDropState.isScreenProtected else { return }
+        if let target = targetedDropView(for: session) ?? routedDropView {
+            routedDropView = nil
+            hideDropOverlay()
+            DragAndDropLog.debug("Window routed drop to presented component target")
+            target.dropInteraction(interaction, performDrop: session)
+            return
+        }
+        clearRoutedDropView(interaction, session: session)
         hideDropOverlay()
         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         DragAndDropLog.debug("App target accepted \(session.items.count) item(s)")
@@ -145,6 +162,30 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
                 }
             }
         }
+    }
+
+    private func updateRoutedDropView(_ interaction: UIDropInteraction, session: UIDropSession) {
+        let target = targetedDropView(for: session)
+        guard target !== routedDropView else {
+            if target == nil { showDropOverlay(itemCount: session.items.count) }
+            return
+        }
+        if let previous = routedDropView {
+            previous.dropInteraction(interaction, sessionDidExit: session)
+        }
+        routedDropView = target
+        if let target {
+            hideDropOverlay()
+            DragAndDropLog.debug("Window discovered nested drop target")
+            target.dropInteraction(interaction, sessionDidEnter: session)
+        } else {
+            showDropOverlay(itemCount: session.items.count)
+        }
+    }
+
+    private func clearRoutedDropView(_ interaction: UIDropInteraction, session: UIDropSession) {
+        routedDropView?.dropInteraction(interaction, sessionDidExit: session)
+        routedDropView = nil
     }
 
     private func preferredFileRepresentation(for provider: NSItemProvider) -> UTType? {
