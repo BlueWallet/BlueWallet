@@ -28,7 +28,7 @@ class DraggableFile(private val reactContext: ThemedReactContext) : FrameLayout(
     var dragEnabled: Boolean = true
     var dropEnabled: Boolean = false
     var exportOnDrag: Boolean = false
-    var secureTextExport: Boolean = false
+    var secureContentExport: Boolean = false
     private var savedForeground: Drawable? = null
 
     init {

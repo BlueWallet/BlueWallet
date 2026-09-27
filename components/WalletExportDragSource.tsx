@@ -1,15 +1,9 @@
-import React, { useCallback, useMemo, useRef } from 'react';
-import { Platform, StyleProp, ViewStyle } from 'react-native';
-import NativeDraggableFile, { Commands } from '../codegen/DraggableFileNativeComponent';
+import React, { useMemo } from 'react';
+import { StyleProp, ViewStyle } from 'react-native';
 import { TWallet } from '../class/wallets/types';
 import { WatchOnlyWallet } from '../class/wallets/watch-only-wallet';
-import { unlockWithBiometrics, useBiometrics } from '../hooks/useBiometrics';
-import loc from '../loc';
-
-const sanitizeExportFileName = (label: string) =>
-  Array.from(label, character => (character.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(character) ? '_' : character))
-    .join('')
-    .trim();
+import AuthenticatedFileDragSource from './AuthenticatedFileDragSource';
+import { makeLabelFileName } from '../blue_modules/dragFileName';
 
 type Props = {
   wallet: TWallet;
@@ -19,37 +13,15 @@ type Props = {
 };
 
 const WalletExportDragSource: React.FC<Props> = ({ wallet, children, enabled = true, style }) => {
-  const nativeRef = useRef<React.ElementRef<typeof NativeDraggableFile>>(null);
-  const { biometricEnabled } = useBiometrics();
   const secret = useMemo(() => {
     const value = wallet instanceof WatchOnlyWallet ? wallet.getSecretForExport() : wallet.getSecret();
     return Array.isArray(value) ? value.join('\n') : String(value ?? '');
   }, [wallet]);
-  const exportFileName = useMemo(() => {
-    const safeLabel = sanitizeExportFileName(wallet.getLabel());
-    return `${safeLabel || 'wallet-backup'}.txt`;
-  }, [wallet]);
-  const authorizeAndroidExport = useCallback(async () => {
-    if (biometricEnabled && !(await unlockWithBiometrics())) return;
-    if (nativeRef.current) Commands.startAuthorizedDrag(nativeRef.current);
-  }, [biometricEnabled]);
-
+  const exportFileName = useMemo(() => makeLabelFileName(wallet.getLabel(), 'txt'), [wallet]);
   return (
-    <NativeDraggableFile
-      ref={nativeRef}
-      fileName={exportFileName}
-      mimeType="text/plain"
-      content={secret}
-      dragEnabled={enabled}
-      exportOnDrag={enabled && Platform.OS === 'android'}
-      secureTextExport={enabled && Platform.OS === 'ios'}
-      biometricEnabled={biometricEnabled}
-      authenticationPrompt={loc.settings.biom_conf_identity}
-      onExportRequested={authorizeAndroidExport}
-      style={style}
-    >
+    <AuthenticatedFileDragSource fileName={exportFileName} mimeType="text/plain" content={secret} enabled={enabled} style={style}>
       {children}
-    </NativeDraggableFile>
+    </AuthenticatedFileDragSource>
   );
 };
 

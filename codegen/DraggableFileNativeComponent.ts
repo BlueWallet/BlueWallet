@@ -21,7 +21,7 @@ export interface NativeProps extends ViewProps {
   dragEnabled?: WithDefault<boolean, true>;
   dropEnabled?: WithDefault<boolean, false>;
   exportOnDrag?: WithDefault<boolean, false>;
-  secureTextExport?: WithDefault<boolean, false>;
+  secureContentExport?: WithDefault<boolean, false>;
   biometricEnabled?: WithDefault<boolean, false>;
   authenticationPrompt?: string;
   onFileDrop?: DirectEventHandler<FileDropEvent>;

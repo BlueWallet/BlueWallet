@@ -69,7 +69,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   @objc var dragEnabled = true
   @objc var dropEnabled = false
   @objc var exportOnDrag = false
-  @objc var secureTextExport = false
+  @objc var secureContentExport = false
   @objc var biometricEnabled = false
   @objc var authenticationPrompt = "Authenticate to export wallet"
   @objc var onFileDrop: RCTDirectEventBlock?
@@ -124,7 +124,7 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   }
 
   private func makeDragItems() -> [UIDragItem] {
-    if secureTextExport {
+    if secureContentExport {
       return makeSecureTextDragItems()
     }
     guard let fileURL = createExportFile() else { return [] }
@@ -171,14 +171,15 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     let requiresAuthentication = biometricEnabled
     let prompt = authenticationPrompt
     let provider = NSItemProvider()
+    let contentType = UTType(mimeType: mimeType) ?? .data
     provider.suggestedName = fileName
-    provider.registerDataRepresentation(forTypeIdentifier: UTType.utf8PlainText.identifier, visibility: .all) { completion in
+    provider.registerDataRepresentation(forTypeIdentifier: contentType.identifier, visibility: .all) { completion in
       let provideText = {
         guard let data = value.data(using: .utf8) else {
           completion(nil, NSError(domain: "io.bluewallet.dragdrop", code: 1))
           return
         }
-        DragAndDropLog.debug("Authorized wallet text export fulfilled")
+        DragAndDropLog.debug("Authorized export fulfilled type=\(contentType.identifier)")
         completion(data, nil)
       }
       guard requiresAuthentication else {
@@ -190,13 +191,13 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
         if success {
           provideText()
         } else {
-          DragAndDropLog.debug("Wallet text export authentication cancelled or failed")
+          DragAndDropLog.debug("Export authentication cancelled or failed")
           completion(nil, error)
         }
       }
       return Progress(totalUnitCount: 1)
     }
-    DragAndDropLog.debug("Prepared deferred wallet text export")
+    DragAndDropLog.debug("Prepared deferred export type=\(contentType.identifier)")
     return [UIDragItem(itemProvider: provider)]
   }
 

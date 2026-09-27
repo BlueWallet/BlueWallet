@@ -23,6 +23,7 @@ import { BlueSpacing10, BlueSpacing20 } from '../../components/BlueSpacing';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import { useFileDrop } from '../../hooks/useFileDrop';
+import { makeLabelFileName } from '../../blue_modules/dragFileName';
 
 const PsbtWithHardwareWallet = () => {
   const { txMetadata, fetchAndSaveWalletTransactions, wallets } = useStorage();
@@ -259,7 +260,18 @@ const PsbtWithHardwareWallet = () => {
         <Text testID="PSBTHex" style={styles.hidden}>
           {psbt?.toHex()}
         </Text>
-        {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />}
+        {psbt && (
+          <DynamicQRCode
+            value={psbt.toHex()}
+            ref={dynamicQRCode}
+            walletID={walletID}
+            dragFile={{
+              fileName: makeLabelFileName(wallet.getLabel(), 'psbt'),
+              mimeType: 'application/octet-stream',
+              content: psbt.toBase64(),
+            }}
+          />
+        )}
         <BlueSpacing10 />
         <SecondButton
           testID="PsbtTxScanButton"
@@ -302,7 +314,7 @@ const PsbtWithHardwareWallet = () => {
         <BlueSpacing10 />
         {psbt && (
           <SaveFileButton
-            fileName={`${Date.now()}.psbt`}
+            fileName={makeLabelFileName(wallet.getLabel(), 'psbt')}
             fileContent={psbt.toBase64()}
             beforeOnPress={saveFileButtonBeforeOnPress}
             afterOnPress={saveFileButtonAfterOnPress}

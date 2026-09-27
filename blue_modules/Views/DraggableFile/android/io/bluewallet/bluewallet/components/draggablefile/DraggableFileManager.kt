@@ -37,8 +37,8 @@ class DraggableFileManager : ViewGroupManager<DraggableFile>() {
     @ReactProp(name = "exportOnDrag", defaultBoolean = false)
     fun setExportOnDrag(view: DraggableFile, value: Boolean) { view.exportOnDrag = value }
 
-    @ReactProp(name = "secureTextExport", defaultBoolean = false)
-    fun setSecureTextExport(view: DraggableFile, value: Boolean) { view.secureTextExport = value }
+    @ReactProp(name = "secureContentExport", defaultBoolean = false)
+    fun setSecureContentExport(view: DraggableFile, value: Boolean) { view.secureContentExport = value }
 
     @ReactProp(name = "biometricEnabled", defaultBoolean = false)
     fun setBiometricEnabled(view: DraggableFile, value: Boolean) = Unit

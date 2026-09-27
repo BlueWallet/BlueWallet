@@ -10,6 +10,7 @@ import { ActionIcons } from '../typings/ActionIcons';
 import ToolTipMenu from './TooltipMenu';
 import { Action } from './types';
 import DraggableFile from './DraggableFile';
+import AuthenticatedFileDragSource from './AuthenticatedFileDragSource';
 
 type ErrorCorrectionLevel = 'H' | 'Q' | 'M' | 'L';
 
@@ -21,6 +22,7 @@ interface QRCodeProps {
   logoSize?: number;
   ecl?: ErrorCorrectionLevel;
   onError?: (error?: unknown) => void;
+  dragFile?: { fileName: string; mimeType: string; content: string };
 }
 
 const GRADIENT_ID = 'qrgrad';
@@ -151,6 +153,7 @@ const QRCode: React.FC<QRCodeProps> = ({
   logoSize = 90,
   ecl = 'H',
   onError,
+  dragFile,
 }) => {
   const svgRef = useRef<Svg>(null);
 
@@ -279,30 +282,38 @@ const QRCode: React.FC<QRCodeProps> = ({
 
   const content = renderQR ?? <View testID="qr-placeholder" style={stylesHook.placeholder} />;
 
-  return (
+  const dragContent = (
+    <View
+      style={styles.container}
+      accessibilityIgnoresInvertColors
+      importantForAccessibility="no-hide-descendants"
+      accessibilityRole="image"
+      accessibilityLabel={loc.receive.qrcode_for_the_address}
+    >
+      {isMenuAvailable ? (
+        <ToolTipMenu
+          actions={menuActions}
+          onPressMenuItem={onPressMenuItem}
+          shouldOpenOnLongPress
+          isButton
+          enableAndroidRipple={false}
+          buttonStyle={qrButtonStyle}
+        >
+          {content}
+        </ToolTipMenu>
+      ) : (
+        content
+      )}
+    </View>
+  );
+
+  return dragFile ? (
+    <AuthenticatedFileDragSource {...dragFile} style={{ width: size, height: size }}>
+      {dragContent}
+    </AuthenticatedFileDragSource>
+  ) : (
     <DraggableFile fileName="qrcode.png" mimeType="image/png" captureViewAsImage style={{ width: size, height: size }}>
-      <View
-        style={styles.container}
-        accessibilityIgnoresInvertColors
-        importantForAccessibility="no-hide-descendants"
-        accessibilityRole="image"
-        accessibilityLabel={loc.receive.qrcode_for_the_address}
-      >
-        {isMenuAvailable ? (
-          <ToolTipMenu
-            actions={menuActions}
-            onPressMenuItem={onPressMenuItem}
-            shouldOpenOnLongPress
-            isButton
-            enableAndroidRipple={false}
-            buttonStyle={qrButtonStyle}
-          >
-            {content}
-          </ToolTipMenu>
-        ) : (
-          content
-        )}
-      </View>
+      {dragContent}
     </DraggableFile>
   );
 };

@@ -12,6 +12,8 @@ import TipBox from '../../components/TipBox';
 import { SendDetailsStackParamList } from '../../navigation/SendDetailsStackParamList';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { isHexString } from '../../blue_modules/ur';
+import { useStorage } from '../../hooks/context/useStorage';
+import { makeLabelFileName } from '../../blue_modules/dragFileName';
 
 interface BarcodeScanResult {
   data?: string;
@@ -22,6 +24,7 @@ type RouteParams = RouteProp<SendDetailsStackParamList, 'PsbtMultisigQRCode'>;
 const PsbtMultisigQRCode: React.FC = () => {
   const navigation = useNavigation();
   const { colors } = useTheme();
+  const { wallets } = useStorage();
   const openScannerButton = useRef<React.ElementRef<typeof TouchableOpacity>>(null);
   const { params } = useRoute<RouteParams>();
   const { psbtBase64, isShowOpenScanner, walletID } = params;
@@ -41,7 +44,7 @@ const PsbtMultisigQRCode: React.FC = () => {
       backgroundColor: colors.buttonDisabledBackgroundColor,
     },
   });
-  const fileName = `${Date.now()}.psbt`;
+  const fileName = makeLabelFileName(wallets.find(wallet => wallet.getID() === walletID)?.getLabel() ?? 'wallet-backup', 'psbt');
 
   useEffect(() => {
     if (isFocused) {
@@ -131,7 +134,12 @@ const PsbtMultisigQRCode: React.FC = () => {
         description={loc.multisig.provide_signature_details}
         additionalDescription={`${loc.multisig.provide_signature_details_bluewallet} ${loc.multisig.co_sign_transaction}`}
       />
-      <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />
+      <DynamicQRCode
+        value={psbt.toHex()}
+        ref={dynamicQRCode}
+        walletID={walletID}
+        dragFile={{ fileName, mimeType: 'application/octet-stream', content: psbt.toBase64() }}
+      />
       {!isLoading && (
         <>
           <BlueSpacing20 />
