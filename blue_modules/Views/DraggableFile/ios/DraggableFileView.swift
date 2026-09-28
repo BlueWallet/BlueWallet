@@ -80,15 +80,21 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
 
   override init(frame: CGRect) {
     super.init(frame: frame)
-    isUserInteractionEnabled = true
-    addInteraction(UIDragInteraction(delegate: self))
-    addInteraction(UIDropInteraction(delegate: self))
+    configureInteractions()
   }
 
   required init?(coder: NSCoder) {
     super.init(coder: coder)
+    configureInteractions()
+  }
+
+  private func configureInteractions() {
     isUserInteractionEnabled = true
-    addInteraction(UIDragInteraction(delegate: self))
+    let dragInteraction = UIDragInteraction(delegate: self)
+    // UIDragInteraction isn't enabled by default on every supported device.
+    // Keep the interaction enabled and let the delegate enforce app state.
+    dragInteraction.isEnabled = true
+    addInteraction(dragInteraction)
     addInteraction(UIDropInteraction(delegate: self))
   }
 
@@ -127,9 +133,8 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     if secureContentExport {
       return makeSecureTextDragItems()
     }
-    guard let fileURL = createExportFile() else { return [] }
     let contentType = UTType(mimeType: mimeType)
-      ?? UTType(filenameExtension: fileURL.pathExtension)
+      ?? UTType(filenameExtension: URL(fileURLWithPath: fileName).pathExtension)
       ?? .data
     DragAndDropLog.debug("Prepared outbound item type=\(contentType.identifier)")
     let provider = NSItemProvider()
@@ -141,29 +146,36 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
       forTypeIdentifier: contentType.identifier,
       fileOptions: [],
       visibility: .all
-    ) { completion in
-      completion(fileURL, false, nil)
-      return Self.completedProgress()
+    ) { [weak self] completion in
+      guard let self else {
+        completion(nil, false, NSError(domain: "io.bluewallet.dragdrop", code: 3))
+        return Self.completedProgress()
+      }
+      return self.fulfillExport { url, error in completion(url, false, error) }
     }
 
     // Text-aware destinations can consume JSON and text exports without first
     // materializing the promised file. The file representation remains preferred.
-    if contentType.conforms(to: .text), let data = try? Data(contentsOf: fileURL) {
+    if contentType.conforms(to: .text), let data = content.data(using: .utf8) {
       provider.registerDataRepresentation(forTypeIdentifier: UTType.utf8PlainText.identifier, visibility: .all) { completion in
         completion(data, nil)
         return Self.completedProgress()
       }
     }
 
-    // Image-aware destinations (including SwiftUI Transferable Image consumers)
-    // receive the native image representation as a standards-compatible fallback.
-    if contentType.conforms(to: .image), let image = UIImage(contentsOfFile: fileURL.path) {
-      provider.registerObject(image, visibility: .all)
+    // Image-aware destinations can request the native image UTI without forcing
+    // snapshot work until they actually consume the provider's promise.
+    if contentType.conforms(to: .image) {
+      provider.registerDataRepresentation(forTypeIdentifier: contentType.identifier, visibility: .all) { [weak self] completion in
+        guard let self else {
+          completion(nil, NSError(domain: "io.bluewallet.dragdrop", code: 4))
+          return Self.completedProgress()
+        }
+        return self.fulfillExportData(completion)
+      }
     }
-    provider.suggestedName = fileURL.lastPathComponent
-    let item = UIDragItem(itemProvider: provider)
-    item.localObject = fileURL
-    return [item]
+    provider.suggestedName = URL(fileURLWithPath: fileName).lastPathComponent
+    return [UIDragItem(itemProvider: provider)]
   }
 
   private func makeSecureTextDragItems() -> [UIDragItem] {
@@ -250,8 +262,10 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
   func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {
     dropEnabled && !DragAndDropState.isScreenProtected && session.localDragSession == nil && session.hasItemsConforming(toTypeIdentifiers: [
       UTType.fileURL.identifier,
+      UTType.url.identifier,
       UTType.image.identifier,
       UTType.text.identifier,
+      UTType.data.identifier,
     ])
   }
 
@@ -305,8 +319,8 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
       }
       return
     }
-    if let type = provider.registeredTypeIdentifiers.compactMap(UTType.init).first(where: { $0.conforms(to: .image) }) {
-      DragAndDropLog.debug("Loading inbound image representation type=\(type.identifier)")
+    if let type = preferredFileRepresentation(for: provider) {
+      DragAndDropLog.debug("Loading inbound file representation type=\(type.identifier)")
       provider.loadFileRepresentation(forTypeIdentifier: type.identifier) { [weak self] url, _ in
         guard let self, let url, let copiedURL = copyDroppedFile(url, type: type) else { return }
         emitDroppedFile(copiedURL, mimeType: type.preferredMIMEType)
@@ -322,7 +336,17 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     }
   }
 
+  private func preferredFileRepresentation(for provider: NSItemProvider) -> UTType? {
+    let types = provider.registeredTypeIdentifiers.compactMap(UTType.init)
+    return types.first { $0.conforms(to: .image) }
+      ?? types.first { $0.conforms(to: .data) && !$0.conforms(to: .text) && !$0.conforms(to: .url) }
+  }
+
   private func copyDroppedFile(_ url: URL, type: UTType) -> URL? {
+    let didAccess = url.startAccessingSecurityScopedResource()
+    defer {
+      if didAccess { url.stopAccessingSecurityScopedResource() }
+    }
     let fileExtension = url.pathExtension.isEmpty ? type.preferredFilenameExtension : url.pathExtension
     let destination = FileManager.default.temporaryDirectory
       .appendingPathComponent("DroppedItems", isDirectory: true)
@@ -365,6 +389,49 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
       NSLog("[DragAndDrop] Could not create export file: %@", error.localizedDescription)
       return nil
     }
+  }
+
+  private func fulfillExport(_ completion: @escaping (URL?, Error?) -> Void) -> Progress {
+    let progress = Progress(totalUnitCount: 1)
+    let work = { [weak self] in
+      guard let self, let url = self.createExportFile() else {
+        completion(nil, NSError(domain: "io.bluewallet.dragdrop", code: 5))
+        return
+      }
+      progress.completedUnitCount = 1
+      completion(url, nil)
+    }
+    if captureViewAsImage && !Thread.isMainThread {
+      DispatchQueue.main.async(execute: work)
+    } else {
+      work()
+    }
+    return progress
+  }
+
+  private func fulfillExportData(_ completion: @escaping (Data?, Error?) -> Void) -> Progress {
+    let progress = Progress(totalUnitCount: 1)
+    let work = { [weak self] in
+      guard let self else {
+        completion(nil, NSError(domain: "io.bluewallet.dragdrop", code: 6))
+        return
+      }
+      let data = self.captureViewAsImage
+        ? self.snapshotPNG()
+        : (self.isBase64 ? Data(base64Encoded: self.content) : self.content.data(using: .utf8))
+      guard let data else {
+        completion(nil, NSError(domain: "io.bluewallet.dragdrop", code: 7))
+        return
+      }
+      progress.completedUnitCount = 1
+      completion(data, nil)
+    }
+    if captureViewAsImage && !Thread.isMainThread {
+      DispatchQueue.main.async(execute: work)
+    } else {
+      work()
+    }
+    return progress
   }
 
   private func snapshotPNG() -> Data? {

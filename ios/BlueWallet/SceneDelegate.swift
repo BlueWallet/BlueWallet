@@ -75,6 +75,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, UIDropInteractionDelega
             UTType.url.identifier,
             UTType.text.identifier,
             UTType.image.identifier,
+            UTType.data.identifier,
         ])
     }
 
