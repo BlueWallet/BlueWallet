@@ -175,13 +175,7 @@ const ExportMultisigCoordinationSetup: React.FC = () => {
         <BlueText style={[styles.type, stylesHook.type]}>{label}</BlueText>
       </View>
       <BlueSpacing20 />
-      {qrCodeContents && xpub && (
-        <DynamicQRCode
-          value={qrCodeContents}
-          ref={dynamicQRCode}
-          dragFile={{ fileName: exportFileName, mimeType: 'text/plain', content: xpub }}
-        />
-      )}
+      {qrCodeContents && xpub && <DynamicQRCode value={qrCodeContents} ref={dynamicQRCode} />}
       <BlueSpacing20 />
       {isShareButtonTapped ? (
         <ActivityIndicator />

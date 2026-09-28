@@ -134,12 +134,7 @@ const PsbtMultisigQRCode: React.FC = () => {
         description={loc.multisig.provide_signature_details}
         additionalDescription={`${loc.multisig.provide_signature_details_bluewallet} ${loc.multisig.co_sign_transaction}`}
       />
-      <DynamicQRCode
-        value={psbt.toHex()}
-        ref={dynamicQRCode}
-        walletID={walletID}
-        dragFile={{ fileName, mimeType: 'application/octet-stream', content: psbt.toBase64() }}
-      />
+      <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />
       {!isLoading && (
         <>
           <BlueSpacing20 />

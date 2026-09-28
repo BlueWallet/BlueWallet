@@ -168,11 +168,40 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
 
   private func makeSecureTextDragItems() -> [UIDragItem] {
     let value = content
+    let exportName = fileName
     let requiresAuthentication = biometricEnabled
     let prompt = authenticationPrompt
     let provider = NSItemProvider()
     let contentType = UTType(mimeType: mimeType) ?? .data
-    provider.suggestedName = fileName
+    provider.suggestedName = exportName
+    provider.registerFileRepresentation(
+      forTypeIdentifier: contentType.identifier,
+      fileOptions: [],
+      visibility: .all
+    ) { completion in
+      let provideFile = {
+        guard let url = Self.createDeferredExportFile(name: exportName, value: value) else {
+          completion(nil, false, NSError(domain: "io.bluewallet.dragdrop", code: 2))
+          return
+        }
+        DragAndDropLog.debug("Authorized file export fulfilled type=\(contentType.identifier)")
+        completion(url, false, nil)
+      }
+      guard requiresAuthentication else {
+        provideFile()
+        return Self.completedProgress()
+      }
+      let context = LAContext()
+      context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: prompt) { success, error in
+        if success {
+          provideFile()
+        } else {
+          DragAndDropLog.debug("File export authentication cancelled or failed")
+          completion(nil, false, error)
+        }
+      }
+      return Progress(totalUnitCount: 1)
+    }
     provider.registerDataRepresentation(forTypeIdentifier: contentType.identifier, visibility: .all) { completion in
       let provideText = {
         guard let data = value.data(using: .utf8) else {
@@ -199,6 +228,23 @@ final class DraggableFileView: UIView, UIDragInteractionDelegate, UIDropInteract
     }
     DragAndDropLog.debug("Prepared deferred export type=\(contentType.identifier)")
     return [UIDragItem(itemProvider: provider)]
+  }
+
+  private static func createDeferredExportFile(name: String, value: String) -> URL? {
+    let safeName = URL(fileURLWithPath: name).lastPathComponent
+    guard !safeName.isEmpty, let data = value.data(using: .utf8) else { return nil }
+    let directory = FileManager.default.temporaryDirectory
+      .appendingPathComponent("DragExports", isDirectory: true)
+      .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    let url = directory.appendingPathComponent(safeName)
+    do {
+      try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+      try data.write(to: url, options: .atomic)
+      return url
+    } catch {
+      DragAndDropLog.debug("Could not create deferred export file: \(error.localizedDescription)")
+      return nil
+    }
   }
 
   func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool {

@@ -260,18 +260,7 @@ const PsbtWithHardwareWallet = () => {
         <Text testID="PSBTHex" style={styles.hidden}>
           {psbt?.toHex()}
         </Text>
-        {psbt && (
-          <DynamicQRCode
-            value={psbt.toHex()}
-            ref={dynamicQRCode}
-            walletID={walletID}
-            dragFile={{
-              fileName: makeLabelFileName(wallet.getLabel(), 'psbt'),
-              mimeType: 'application/octet-stream',
-              content: psbt.toBase64(),
-            }}
-          />
-        )}
+        {psbt && <DynamicQRCode value={psbt.toHex()} ref={dynamicQRCode} walletID={walletID} />}
         <BlueSpacing10 />
         <SecondButton
           testID="PsbtTxScanButton"

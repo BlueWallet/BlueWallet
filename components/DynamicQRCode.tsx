@@ -14,7 +14,6 @@ interface DynamicQRCodeProps {
   walletID?: string;
   capacity?: number;
   hideControls?: boolean;
-  dragFile?: { fileName: string; mimeType: string; content: string };
 }
 
 interface DynamicQRCodeState {
@@ -172,7 +171,6 @@ export class DynamicQRCode extends Component<DynamicQRCodeProps, DynamicQRCodeSt
                 isMenuAvailable={false}
                 ecl="L"
                 onError={this.onError}
-                dragFile={this.props.dragFile}
               />
             </View>
           )}
