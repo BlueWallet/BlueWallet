@@ -17,10 +17,19 @@ export type RateSource = keyof typeof FiatUnitSource;
 
 const BITSTAMP_FIAT = new Set(['USD', 'EUR', 'GBP']);
 
-/** Kraken public ticker pair XXBTZ{FIAT} — verified via API */
-export const KRAKEN_BTC_FIAT_PAIRS = new Set(['USD', 'EUR', 'GBP', 'CAD', 'JPY']);
+/** Kraken public ticker pair keys for BTC/fiat — verified via AssetPairs */
+export const KRAKEN_BTC_FIAT_PAIRS: Record<string, string> = {
+  USD: 'XXBTZUSD',
+  EUR: 'XXBTZEUR',
+  GBP: 'XXBTZGBP',
+  CAD: 'XXBTZCAD',
+  JPY: 'XXBTZJPY',
+  AUD: 'XBTAUD',
+  CHF: 'XBTCHF',
+};
 
-const UNIVERSAL_FALLBACKS: RateSource[] = ['YadioConvert', 'Coinbase', 'Kraken', 'CoinDesk', 'Bitstamp'];
+/** Prefer Kraken over Coinbase when both can serve the ticker */
+const UNIVERSAL_FALLBACKS: RateSource[] = ['YadioConvert', 'Kraken', 'Coinbase', 'CoinDesk', 'Bitstamp'];
 
 const fetchRate = async (url: string): Promise<unknown> => {
   const response = await fetch(url);
@@ -76,12 +85,12 @@ interface CoinpaprikaResponse {
 }
 
 export function krakenSupportsFiat(ticker: string): boolean {
-  return KRAKEN_BTC_FIAT_PAIRS.has(ticker.toUpperCase());
+  return ticker.toUpperCase() in KRAKEN_BTC_FIAT_PAIRS;
 }
 
 function canUseRateSource(source: RateSource, ticker: string): boolean {
   const upper = ticker.toUpperCase();
-  if (source === 'Kraken') return KRAKEN_BTC_FIAT_PAIRS.has(upper);
+  if (source === 'Kraken') return upper in KRAKEN_BTC_FIAT_PAIRS;
   if (source === 'Bitstamp') return BITSTAMP_FIAT.has(upper);
   if (source === 'BNR') return upper === 'RON';
   if (source === 'Exir') return upper === 'IRR' || upper === 'IRT';
@@ -127,7 +136,8 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
       return rate;
     }
     case 'Kraken': {
-      const pair = `XXBTZ${ticker.toUpperCase()}`;
+      const pair = KRAKEN_BTC_FIAT_PAIRS[ticker.toUpperCase()];
+      if (!pair) throw new Error(`No Kraken BTC pair for ${ticker}`);
       const json = (await fetchRate(`https://api.kraken.com/0/public/Ticker?pair=${pair}`)) as KrakenResponse;
       if (json.error && json.error.length > 0) {
         throw new Error(json.error.join(', '));

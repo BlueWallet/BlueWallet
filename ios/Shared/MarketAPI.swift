@@ -10,15 +10,23 @@ import Foundation
 
 class MarketAPI {
 
-    private static let krakenBtcFiatPairs: Set<String> = ["USD", "EUR", "GBP", "CAD", "JPY"]
+    private static let krakenBtcFiatPairs: [String: String] = [
+        "USD": "XXBTZUSD",
+        "EUR": "XXBTZEUR",
+        "GBP": "XXBTZGBP",
+        "CAD": "XXBTZCAD",
+        "JPY": "XXBTZJPY",
+        "AUD": "XBTAUD",
+        "CHF": "XBTCHF",
+    ]
     private static let bitstampFiatPairs: Set<String> = ["USD", "EUR", "GBP"]
-    private static let universalFallbacks = ["YadioConvert", "Coinbase", "Kraken", "CoinDesk", "Bitstamp"]
+    private static let universalFallbacks = ["YadioConvert", "Kraken", "Coinbase", "CoinDesk", "Bitstamp"]
 
     private static func canUseRateSource(source: String, endPointKey: String) -> Bool {
         let upper = endPointKey.uppercased()
         switch source {
         case "Kraken":
-            return krakenBtcFiatPairs.contains(upper)
+            return krakenBtcFiatPairs[upper] != nil
         case "Bitstamp":
             return bitstampFiatPairs.contains(upper)
         case "BNR":
@@ -30,6 +38,10 @@ class MarketAPI {
         default:
             return true
         }
+    }
+
+    private static func krakenPair(for endPointKey: String) -> String? {
+        return krakenBtcFiatPairs[endPointKey.uppercased()]
     }
 
     private static func buildRateSourceOrder(primary: String, endPointKey: String) -> [String] {
@@ -59,7 +71,8 @@ class MarketAPI {
         case "BNR":
             return "https://www.bnr.ro/nbrfxrates.xml"
         case "Kraken":
-            return "https://api.kraken.com/0/public/Ticker?pair=XXBTZ\(endPointKey.uppercased())"
+            let pair = krakenPair(for: endPointKey) ?? "XXBTZ\(endPointKey.uppercased())"
+            return "https://api.kraken.com/0/public/Ticker?pair=\(pair)"
         default: // CoinDesk
             return "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=\(endPointKey)"
         }
@@ -135,8 +148,9 @@ class MarketAPI {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
         case "Kraken":
+            let pair = krakenPair(for: endPointKey) ?? "XXBTZ\(endPointKey.uppercased())"
             if let result = json["result"] as? [String: Any],
-               let tickerData = result["XXBTZ\(endPointKey.uppercased())"] as? [String: Any],
+               let tickerData = result[pair] as? [String: Any],
                let c = tickerData["c"] as? [String],
                let rateString = c.first,
                let rateDouble = Double(rateString) {

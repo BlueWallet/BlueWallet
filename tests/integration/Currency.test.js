@@ -47,7 +47,7 @@ describe('currency', () => {
     cur = JSON.parse(curString || '{}');
     assert.ok(cur.BTC_EUR > 0);
 
-    // former CoinGecko currency now on Coinbase
+    // former CoinGecko currency now on Kraken
     await setPreferredCurrency(FiatUnit.AUD);
     await initCurrencyDaemon(true);
     curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);

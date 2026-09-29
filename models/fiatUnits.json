@@ -37,7 +37,7 @@
     "AUD": {
         "endPointKey": "AUD",
         "locale": "en-AU",
-        "source": "Coinbase",
+        "source": "Kraken",
         "symbol": "$",
         "country": "Australia (Australian Dollar)"
     },
@@ -72,7 +72,7 @@
     "CHF": {
         "endPointKey": "CHF",
         "locale": "de-CH",
-        "source": "Coinbase",
+        "source": "Kraken",
         "symbol": "CHF",
         "country": "Switzerland (Swiss Franc)"
     },

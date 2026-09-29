@@ -25,19 +25,33 @@ describe('fiatUnit', () => {
   it('krakenSupportsFiat matches allowlist', () => {
     assert.strictEqual(krakenSupportsFiat('USD'), true);
     assert.strictEqual(krakenSupportsFiat('JPY'), true);
+    assert.strictEqual(krakenSupportsFiat('AUD'), true);
+    assert.strictEqual(krakenSupportsFiat('CHF'), true);
     assert.strictEqual(krakenSupportsFiat('AED'), false);
   });
 
-  it('buildRateSourceOrder uses json primary and generic fallbacks', () => {
+  it('buildRateSourceOrder uses json primary and prefers Kraken over Coinbase', () => {
     const usdOrder = buildRateSourceOrder('USD');
     assert.strictEqual(usdOrder[0], 'Kraken');
     assert.ok(usdOrder.includes('YadioConvert'));
     assert.ok(usdOrder.includes('Coinbase'));
     assert.strictEqual(usdOrder.filter(s => s === 'Kraken').length, 1);
 
+    const audOrder = buildRateSourceOrder('AUD');
+    assert.strictEqual(audOrder[0], 'Kraken');
+
     const aedOrder = buildRateSourceOrder('AED');
     assert.strictEqual(aedOrder[0], 'Coinbase');
     assert.strictEqual(aedOrder.includes('Kraken'), false);
+
+    // When primary is not Kraken but Kraken supports the ticker, Kraken comes before Coinbase
+    const kesOrder = buildRateSourceOrder('KES');
+    assert.strictEqual(kesOrder[0], 'CoinDesk');
+    const krakenIdx = kesOrder.indexOf('Kraken');
+    const coinbaseIdx = kesOrder.indexOf('Coinbase');
+    // KES has no Kraken pair; Coinbase should still be present
+    assert.strictEqual(krakenIdx, -1);
+    assert.ok(coinbaseIdx > 0);
   });
 
   it('getFiatRate falls back when primary source fails', async () => {
