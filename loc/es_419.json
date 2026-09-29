@@ -104,10 +104,14 @@
     "title": "Tu Billetera está creada."
   },
   "receive": {
+    "details_add": "Agregar",
     "details_save": "Guardar",
     "details_label": "Descripción",
     "details_setAmount": "Recibir con monto",
+    "details_more_options": "Más opciones",
+    "option_amount_subtitle": "El receptor ve la cantidad y descripción sugeridas.",
     "option_label": "Etiqueta",
+    "option_label_subtitle": "Guarda esta dirección para futuras consultas.",
     "details_share": "Compartir…",
     "address_not_found": "No es posible generar la dirección de recepción.",
     "header": "Recibir",
@@ -345,6 +349,7 @@
     "blocks_confirmed_summary": "Incluido en el bloque {blockHeight}.",
     "blocks_confirmed_fee_summary": "Con un tamaño de {vsize} y una tasa de tarifa de {feeRate}, se paga una tarifa de {fee}.",
     "expand_note": "Expandir Nota",
+    "address_label_placeholder": "Etiqueta para esta dirección",
     "cpfp_create": "Crear",
     "cpfp_exp": "Crearemos otra transacción que gaste tu transacción no confirmada. La tarifa total será más alta que la tarifa de la transacción original, por lo que debería extraerse más rápido. Esto se llama CPFP (Child Pays for Parent).",
     "cpfp_no_bump": "Esta transacción no se puede acelerar.",
@@ -718,7 +723,7 @@
     "notification_tx_unconfirmed": "La transacción de notificación aún no está confirmada, espera",
     "failed_create_notif_tx": "No se pudo crear una transacción en cadena",
     "onchain_tx_needed": "Se necesita transacción en cadena",
-    "notif_tx_sent": "Transacción de notificación enviada. Espera a que se confirme",
+    "notif_tx_sent" : "Transacción de notificación enviada. Espera a que se confirme",
     "notif_tx": "Transacción de notificación",
     "not_found": "Código de pago no encontrado"
   }
