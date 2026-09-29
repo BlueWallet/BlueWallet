@@ -47,6 +47,13 @@ describe('currency', () => {
     cur = JSON.parse(curString || '{}');
     assert.ok(cur.BTC_EUR > 0);
 
+    // former CoinGecko currency now on Coinbase
+    await setPreferredCurrency(FiatUnit.AUD);
+    await initCurrencyDaemon(true);
+    curString = await DefaultPreference.get(EXCHANGE_RATES_STORAGE_KEY);
+    cur = JSON.parse(curString || '{}');
+    assert.ok(cur.BTC_AUD > 0);
+
     // test Yadio rate source
     await setPreferredCurrency(FiatUnit.ARS);
     await initCurrencyDaemon(true);

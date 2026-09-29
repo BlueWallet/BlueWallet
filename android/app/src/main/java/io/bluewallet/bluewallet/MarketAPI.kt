@@ -26,6 +26,10 @@ object MarketAPI {
     private const val ERROR_INDICATOR = "!"
     
     var baseUrl: String? = null
+
+    private val krakenBtcFiatPairs = setOf("USD", "EUR", "GBP", "CAD", "JPY")
+    private val bitstampFiatPairs = setOf("USD", "EUR", "GBP")
+    private val universalFallbacks = listOf("YadioConvert", "Coinbase", "Kraken", "CoinDesk", "Bitstamp")
     
     data class ApiResponse(val body: String?, val code: Int)
     data class PriceResult(val rateDouble: Double, val formattedRate: String?)
@@ -51,67 +55,131 @@ object MarketAPI {
         }
     }
     
+    private fun canUseRateSource(source: String, endPointKey: String): Boolean {
+        val upper = endPointKey.uppercase()
+        return when (source) {
+            "Kraken" -> krakenBtcFiatPairs.contains(upper)
+            "Bitstamp" -> bitstampFiatPairs.contains(upper)
+            "BNR" -> upper == "RON"
+            "Exir" -> upper == "IRR" || upper == "IRT"
+            "coinpaprika" -> upper == "INR"
+            else -> true
+        }
+    }
+
+    private fun buildRateSourceOrder(primary: String, endPointKey: String): List<String> {
+        val order = mutableListOf(primary)
+        for (fallback in universalFallbacks) {
+            if (fallback == primary) continue
+            if (!canUseRateSource(fallback, endPointKey)) continue
+            order.add(fallback)
+        }
+        return order
+    }
+
     suspend fun fetchPriceWithResponse(context: Context, currency: String): ApiResponse {
         val startTime = System.currentTimeMillis()
         Log.d(TAG, "Starting price fetch for currency: $currency")
-        
+
         try {
-            // Load the currency info from JSON
             val fiatUnitsJson = context.assets.open("fiatUnits.json").bufferedReader().use { it.readText() }
             val json = JSONObject(fiatUnitsJson)
-            
+
             if (!json.has(currency)) {
                 Log.e(TAG, "Currency $currency not found in fiatUnits.json")
                 return ApiResponse(null, 404)
             }
-            
+
             val currencyInfo = json.getJSONObject(currency)
-            val source = currencyInfo.getString("source")
+            val primarySource = currencyInfo.getString("source")
             val endPointKey = currencyInfo.getString("endPointKey")
-            
-            Log.d(TAG, "Using price source: $source, endpoint key: $endPointKey")
+            val sources = buildRateSourceOrder(primarySource, endPointKey)
 
-            val urlString = buildURLString(source, endPointKey)
-            Log.d(TAG, "Fetching price from URL: $urlString")
+            Log.d(TAG, "Price source order for $currency: $sources")
 
-            val request = Request.Builder().url(urlString).build()
-            val apiStartTime = System.currentTimeMillis()
-            
-            val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
-            val apiDuration = System.currentTimeMillis() - apiStartTime
-            
-            val responseCode = response.code
-            Log.d(TAG, "Price API response received in ${apiDuration}ms, response code: $responseCode")
-            
-            if (responseCode == 429) {
-                Log.e(TAG, "Rate limited by API ($source). Response code: $responseCode, Headers: ${response.headers}")
-                return ApiResponse(null, responseCode)
+            var lastResponse = ApiResponse(null, -1)
+            for (source in sources) {
+                val response = fetchFromSource(context, source, endPointKey)
+                if (response.body != null && response.code == 200) {
+                    val totalDuration = System.currentTimeMillis() - startTime
+                    Log.i(TAG, "Successfully parsed price for $currency from $source: ${response.body} (total time: ${totalDuration}ms)")
+                    return response
+                }
+                if (response.code == 429) {
+                    Log.w(TAG, "Rate limited by API ($source); trying next source")
+                } else {
+                    Log.w(TAG, "Failed to fetch price for $currency from $source (code: ${response.code})")
+                }
+                lastResponse = response
             }
 
-            if (!response.isSuccessful) {
-                Log.e(TAG, "Failed to fetch price from $source. Response code: $responseCode")
-                return ApiResponse(null, responseCode)
-            }
-
-            val jsonResponse = response.body?.string()
-            Log.d(TAG, "Raw response from $source: $jsonResponse")
-            
-            val parsedResult = if (jsonResponse != null) {
-                parseJSONBasedOnSource(jsonResponse, source, endPointKey)
-            } else null
-            
             val totalDuration = System.currentTimeMillis() - startTime
-            if (parsedResult != null) {
-                Log.i(TAG, "Successfully parsed price for $currency from $source: $parsedResult (total time: ${totalDuration}ms)")
-            } else {
-                Log.e(TAG, "Failed to parse price for $currency from $source (total time: ${totalDuration}ms)")
-            }
-            
-            return ApiResponse(parsedResult, responseCode)
+            Log.e(TAG, "Failed to fetch price for $currency from all sources (total time: ${totalDuration}ms)")
+            return lastResponse
         } catch (e: Exception) {
             val totalDuration = System.currentTimeMillis() - startTime
             Log.e(TAG, "Error fetching price for $currency after ${totalDuration}ms: ${e.javaClass.simpleName} - ${e.message}")
             return ApiResponse(null, -1)
+        }
+    }
+
+    private suspend fun fetchFromSource(context: Context, source: String, endPointKey: String): ApiResponse {
+        if (source == "BNR") {
+            return fetchBnrRate(context)
+        }
+
+        val urlString = buildURLString(source, endPointKey)
+        Log.d(TAG, "Fetching price from URL: $urlString")
+
+        val request = Request.Builder().url(urlString).build()
+        val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
+        response.use {
+            val responseCode = it.code
+
+            if (responseCode == 429) {
+                return ApiResponse(null, responseCode)
+            }
+
+            if (!it.isSuccessful) {
+                return ApiResponse(null, responseCode)
+            }
+
+            val bodyString = it.body?.string()
+            Log.d(TAG, "Raw response from $source: $bodyString")
+
+            val parsedResult = if (bodyString != null) {
+                parseJSONBasedOnSource(bodyString, source, endPointKey)
+            } else null
+
+            return ApiResponse(parsedResult, if (parsedResult != null) 200 else responseCode)
+        }
+    }
+
+    private suspend fun fetchBnrRate(context: Context): ApiResponse {
+        return try {
+            val urlString = buildURLString("BNR", "RON")
+            val request = Request.Builder().url(urlString).build()
+            val response = withContext(Dispatchers.IO) { client.newCall(request).execute() }
+            response.use {
+                if (!it.isSuccessful) {
+                    return ApiResponse(null, it.code)
+                }
+                val xmlData = it.body?.string() ?: return ApiResponse(null, it.code)
+                val match = Regex("""<Rate currency="USD">([\d.]+)</Rate>""").find(xmlData)
+                val usdToRonRate = match?.groupValues?.get(1)?.toDoubleOrNull()
+                    ?: return ApiResponse(null, -1)
+
+                val usdResponse = fetchPriceWithResponse(context, "USD")
+                val btcToUsd = usdResponse.body?.toDoubleOrNull()
+                if (btcToUsd == null || btcToUsd <= 0) {
+                    return ApiResponse(null, usdResponse.code)
+                }
+                val btcToRon = btcToUsd * usdToRonRate
+                return ApiResponse(btcToRon.toString(), 200)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching BNR rate", e)
+            ApiResponse(null, -1)
         }
     }
 
@@ -126,7 +194,6 @@ object MarketAPI {
                 "coinpaprika" -> "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR"
                 "Bitstamp" -> "https://www.bitstamp.net/api/v2/ticker/btc${endPointKey.lowercase()}"
                 "Coinbase" -> "https://api.coinbase.com/v2/prices/BTC-${endPointKey.uppercase()}/buy"
-                "CoinGecko" -> "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=${endPointKey.lowercase()}"
                 "BNR" -> "https://www.bnr.ro/nbrfxrates.xml"
                 "Kraken" -> "https://api.kraken.com/0/public/Ticker?pair=XXBTZ${endPointKey.uppercase()}"
                 "CoinDesk" -> "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${endPointKey.uppercase()}"
@@ -141,7 +208,6 @@ object MarketAPI {
             when (source) {
                 "Yadio" -> json.getJSONObject(endPointKey).getString("price")
                 "YadioConvert" -> json.getString("rate")
-                "CoinGecko" -> json.getJSONObject("bitcoin").getString(endPointKey.lowercase())
                 "Exir" -> json.getString("last")
                 "Bitstamp" -> json.getString("last")
                 "coinpaprika" -> json.getJSONObject("quotes").getJSONObject("INR").getString("price")
