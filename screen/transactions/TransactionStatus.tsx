@@ -45,6 +45,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamList';
 import { isOnChainTransaction, resolveTxDisplayState } from '../../blue_modules/transactionDisplayState';
 import { isWatchOnlySegwitBech32 } from '../../util/isWatchOnlySegwitBech32';
+import DraggableFile from '../../components/DraggableFile';
 
 dayjs.extend(relativeTime);
 
@@ -1298,7 +1299,12 @@ const TransactionStatus: React.FC = () => {
           <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
-              <View style={styles.detailValueCopyContainer}>
+              <DraggableFile
+                fileName={`bitcoin-transaction-${transactionId}.txt`}
+                mimeType="text/plain"
+                content={transactionId}
+                style={styles.detailValueCopyContainer}
+              >
                 <CopyTextToClipboard
                   containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, detailValueWidthStyle])}
                   ref={transactionIdCopyRef}
@@ -1319,7 +1325,7 @@ const TransactionStatus: React.FC = () => {
                   interactive={false}
                   selectable
                 />
-              </View>
+              </DraggableFile>
             </View>
           </View>
         )}

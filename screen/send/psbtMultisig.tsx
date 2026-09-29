@@ -28,6 +28,8 @@ import { useStorage } from '../../hooks/context/useStorage';
 import { combinePSBTs } from '../../util/combinePSBTs.ts';
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import assert from 'assert';
+import AuthenticatedFileDragSource from '../../components/AuthenticatedFileDragSource';
+import { makeLabelFileName } from '../../blue_modules/dragFileName';
 
 type RouteParams = {
   params: {
@@ -344,33 +346,40 @@ const PsbtMultisig = () => {
                 <View style={[styles.msleft, { height: flatListHeight - 260 }]} />
               </View>
               <View style={styles.msright}>
-                <BlueCard>
-                  <FlatList
-                    data={data}
-                    renderItem={_renderItem}
-                    keyExtractor={(_item, index) => `${index}`}
-                    extraData={psbt} // Ensure FlatList updates when psbt changes
-                    ListHeaderComponent={header}
-                    ListFooterComponent={footer}
-                    onLayout={onLayout}
-                  />
-                  {isConfirmEnabled() && (
-                    <View style={styles.height80}>
-                      <TouchableOpacity
-                        accessibilityRole="button"
-                        testID="ExportSignedPsbt"
-                        style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
-                        onPress={() => {
-                          navigateToPSBTMultisigQRCode();
-                        }}
-                      >
-                        <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
-                          {loc.multisig.export_signed_psbt}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </BlueCard>
+                <AuthenticatedFileDragSource
+                  fileName={makeLabelFileName(wallet.getLabel(), 'psbt')}
+                  mimeType="application/octet-stream"
+                  content={psbt?.toBase64() ?? ''}
+                  enabled={Boolean(psbt)}
+                >
+                  <BlueCard>
+                    <FlatList
+                      data={data}
+                      renderItem={_renderItem}
+                      keyExtractor={(_item, index) => `${index}`}
+                      extraData={psbt} // Ensure FlatList updates when psbt changes
+                      ListHeaderComponent={header}
+                      ListFooterComponent={footer}
+                      onLayout={onLayout}
+                    />
+                    {isConfirmEnabled() && (
+                      <View style={styles.height80}>
+                        <TouchableOpacity
+                          accessibilityRole="button"
+                          testID="ExportSignedPsbt"
+                          style={[styles.provideSignatureButton, stylesHook.provideSignatureButton]}
+                          onPress={() => {
+                            navigateToPSBTMultisigQRCode();
+                          }}
+                        >
+                          <Text style={[styles.provideSignatureButtonText, stylesHook.provideSignatureButtonText]}>
+                            {loc.multisig.export_signed_psbt}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </BlueCard>
+                </AuthenticatedFileDragSource>
               </View>
             </View>
           </View>
