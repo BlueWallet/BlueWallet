@@ -16,8 +16,6 @@
     <string name="wallet_menu_receive">Receive…</string>
     <item name="wallet_menu_details" type="id" />
     <string name="wallet_menu_details">Wallet Details…</string>
-    <item name="wallet_menu_search" type="id" />
-    <string name="wallet_menu_search">Search Transactions</string>
     <item name="wallet_menu_copy_address" type="id" />
     <string name="wallet_menu_copy_address">Copy Address</string>
     <item name="wallet_menu_copy_transaction_id" type="id" />

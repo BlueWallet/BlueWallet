@@ -14,14 +14,13 @@ describe('native menu availability', () => {
     },
   );
   it('only offers actions registered by the current screen', () => {
-    expect(availableMenuActions('WalletTransactions', ['receive', 'searchTransactions'], true)).toEqual([
+    expect(availableMenuActions('WalletTransactions', ['receive'], true)).toEqual([
       'settings',
       'keyboardShortcuts',
       'addWallet',
       'importWallet',
       'backToWallets',
       'receive',
-      'searchTransactions',
     ]);
     expect(availableMenuActions('ReceiveDetails', ['send', 'copyAddress'], true)).toEqual([
       'settings',

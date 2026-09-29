@@ -3,7 +3,6 @@ export type ScreenMenuAction =
   | 'send'
   | 'receive'
   | 'walletDetails'
-  | 'searchTransactions'
   | 'copyAddress'
   | 'copyTransactionId';
 export type MenuAction = ScreenMenuAction | 'settings' | 'addWallet' | 'importWallet' | 'backToWallets' | 'keyboardShortcuts';
@@ -11,7 +10,7 @@ export type MenuActionHandlers = Partial<Record<ScreenMenuAction, () => void>>;
 
 const screenActions: Record<string, readonly ScreenMenuAction[]> = {
   WalletsList: ['reloadTransactions'],
-  WalletTransactions: ['reloadTransactions', 'send', 'receive', 'walletDetails', 'searchTransactions'],
+  WalletTransactions: ['reloadTransactions', 'send', 'receive', 'walletDetails'],
   ReceiveDetails: ['copyAddress'],
   TransactionStatus: ['copyTransactionId'],
 };
@@ -34,7 +33,6 @@ export const menuShortcuts = [
   { title: 'Send…', key: 'Shift+S', where: 'Transactions, when this wallet supports sending' },
   { title: 'Receive…', key: 'Shift+R', where: 'Transactions, when this wallet supports receiving' },
   { title: 'Wallet Details…', key: 'D', where: 'Transactions' },
-  { title: 'Search Transactions', key: 'F', where: 'Transactions' },
   { title: 'Copy Address', key: 'Shift+C', where: 'Receive screen, when an address is displayed' },
   { title: 'Copy Transaction ID', key: 'Shift+C', where: 'Transaction details, when an ID is available' },
   { title: 'Back to Wallets', key: 'Shift+W', where: 'Wallet detail screens' },
