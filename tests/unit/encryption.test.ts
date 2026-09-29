@@ -21,13 +21,25 @@ describe('unit - encryption', function () {
     assert.strictEqual(decrypted, data2encrypt);
     assert.ok(crypted !== data2encrypt);
 
-    let decryptedWithBadPassword;
-    try {
-      decryptedWithBadPassword = c.decrypt(crypted, 'passwordBad');
-    } catch (e) {}
-    assert.ok(!decryptedWithBadPassword);
+    assert.strictEqual(c.decrypt(crypted, 'passwordBad'), false);
+  });
 
-    await assert.rejects(c.encrypt('yolo', 'password'));
+  it('rejects short plaintext before requesting randomness', async () => {
+    const getRandomBase64 = jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64');
+
+    await assert.rejects(c.encrypt('yolo', 'password'), {
+      message: 'data length cant be < 10',
+    });
+    expect(getRandomBase64).not.toHaveBeenCalled();
+  });
+
+  it('rejects encryption when native randomness fails', async () => {
+    const error = new Error('Secure random generation failed');
+    jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64').mockImplementation(() => {
+      throw error;
+    });
+
+    await expect(c.encrypt('really long data string', 'password')).rejects.toBe(error);
   });
 
   it('handles ok malformed data', function () {

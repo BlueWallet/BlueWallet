@@ -27,6 +27,14 @@ describe('randomBytes', () => {
     expect(result.constructor).toBe(Uint8Array);
   });
 
+  it('returns the bytes provided by the native module', async () => {
+    jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64').mockReturnValue('AQIDBA==');
+
+    const result = await randomBytes(4);
+
+    expect(result).toEqual(new Uint8Array([1, 2, 3, 4]));
+  });
+
   it.each([0, -1, 1.5, NaN, Infinity, 65537, Number.MAX_SAFE_INTEGER + 1])('rejects invalid size %s', async size => {
     const getRandomBase64 = jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64');
 
@@ -46,24 +54,35 @@ describe('randomBytes', () => {
     await expect(randomBytes(32)).rejects.toThrow('Secure RNG returned a non-string value');
   });
 
-  it('rejects malformed base64 from the native module', async () => {
-    jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64').mockReturnValue('not valid base64!');
+  it.each(['not valid base64!', 'aGk', 'aGl=', 'aGk=\n', 'aGk===', 'aG!k='])(
+    'rejects malformed or non-canonical base64 %j from the native module',
+    async encoded => {
+      jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64').mockReturnValue(encoded);
 
-    await expect(randomBytes(32)).rejects.toThrow();
-  });
+      await expect(randomBytes(2)).rejects.toThrow();
+    },
+  );
 
-  it('rejects a decoded length that differs from the request', async () => {
-    jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64').mockReturnValue('AQI=');
+  it.each([
+    { encoded: 'AQI=', size: 32, length: 2 },
+    { encoded: 'AQID', size: 2, length: 3 },
+    { encoded: '', size: 1, length: 0 },
+  ])('rejects $length decoded bytes when $size were requested', async ({ encoded, size, length }) => {
+    jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64').mockReturnValue(encoded);
 
-    await expect(randomBytes(32)).rejects.toThrow('Secure RNG length mismatch: expected 32, got 2');
+    await expect(randomBytes(size)).rejects.toThrow(`Secure RNG length mismatch: expected ${size}, got ${length}`);
   });
 
   it('propagates native errors including Chrome remote debugging failures', async () => {
+    const getRandomValues = jest.spyOn(globalThis.crypto, 'getRandomValues');
+    const mathRandom = jest.spyOn(Math, 'random');
     jest.spyOn(NativeModules.RNGetRandomValues, 'getRandomBase64').mockImplementation(() => {
       throw new Error('Calling synchronous methods on native modules is not supported in Chrome');
     });
 
     await expect(randomBytes(32)).rejects.toThrow('Calling synchronous methods on native modules is not supported in Chrome');
+    expect(getRandomValues).not.toHaveBeenCalled();
+    expect(mathRandom).not.toHaveBeenCalled();
   });
 
   it('never routes through the insecure crypto polyfill', async () => {
