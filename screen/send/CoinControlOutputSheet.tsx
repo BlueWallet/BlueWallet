@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { calculateBlockTime } from '../../blue_modules/BlueElectrum';
 import debounce from '../../blue_modules/debounce';
 import Avatar from '../../components/Avatar';
-import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import BlueText from '../../components/BlueText';
 import ListItem from '../../components/ListItem';
 import Button from '../../components/Button';
 import { useTheme } from '../../components/themes';
@@ -69,15 +69,6 @@ const CoinControlOutputSheet: React.FC = () => {
     debouncedSaveMemo.current(memo);
   }, [memo]);
 
-  const addressTextStyle = useMemo(
-    () => ({
-      fontSize: 13,
-      color: colors.alternativeTextColor,
-      textAlign: 'left' as const,
-    }),
-    [colors.alternativeTextColor],
-  );
-
   const amount = formatBalance(utxo.value, wallet?.getPreferredBalanceUnit?.() ?? BitcoinUnit.BTC, true);
   const color = `#${utxo.txid.substring(0, 6)}`;
   const receivedDate = useMemo(() => {
@@ -122,7 +113,9 @@ const CoinControlOutputSheet: React.FC = () => {
               <Text style={[styles.tranText, { color: colors.alternativeTextColor }]}>{receivedDate}</Text>
             </View>
           </View>
-          <CopyTextToClipboard text={utxo.address} isAddress textAlign="left" interactive={false} selectable style={addressTextStyle} />
+          <BlueText selectable style={[styles.address, { color: colors.alternativeTextColor }]}>
+            {utxo.address}
+          </BlueText>
         </View>
 
         <View style={styles.content}>
@@ -190,6 +183,7 @@ const styles = StyleSheet.create({
   avatar: { borderColor: 'white', borderWidth: 1 },
   amount: { fontWeight: 'bold', fontSize: 22 },
   tranText: { fontWeight: 'normal', fontSize: 13 },
+  address: { fontSize: 13, textAlign: 'left' },
   content: {
     paddingTop: 12,
     flex: 1,
