@@ -1,4 +1,5 @@
 import { useNavigation, RouteProp, useFocusEffect, useRoute, useLocale } from '@react-navigation/native';
+import * as RNLocalize from 'react-native-localize';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -30,6 +31,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
+import { BuyBitcoinButton, buyBitcoinButtonVariant } from '../../components/BuyBitcoinButton';
 import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
@@ -191,7 +193,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const { colors, dark } = useTheme();
   const { isElectrumDisabled } = useSettings();
   const insets = useSafeAreaInsets();
-  const { fontScale } = useWindowDimensions();
+  const { fontScale, height: windowHeight } = useWindowDimensions();
+  const [listHeaderHeight, setListHeaderHeight] = useState(0);
   const navBarHeight = Platform.select({ ios: 44, android: 56, default: 44 }) ?? 44;
   const headerOverlayHeight = insets.top + navBarHeight;
   const walletActionButtonsRef = useRef<View>(null);
@@ -231,6 +234,14 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     },
     receiveIcon: {
       transform: [{ rotate: direction === 'rtl' ? '-45deg' : '45deg' }],
+    },
+    emptyBuyState: {
+      minHeight: Math.max(280, windowHeight - listHeaderHeight),
+      justifyContent: 'center',
+      paddingHorizontal: 16,
+      // Float buttons cover the bottom of this area, so extra padding lifts the group into the open space.
+      paddingBottom: getFloatingButtonReservedHeight(fontScale, insets.bottom) + 64,
+      backgroundColor: colors.background,
     },
   });
 
@@ -724,9 +735,53 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
     [getScrolledHeaderOptions, setOptions, route, screenWidth, scrolledHeaderTitle, scrolledHeaderOpacity],
   );
 
+  const buyBitcoinCountry = RNLocalize.getCountry();
+  const buyBitcoinVariant = buyBitcoinButtonVariant(wallet.chain, sortedTransactions.length, buyBitcoinCountry);
+
+  const getBuyBitcoinAddress = useCallback(async (): Promise<string | undefined> => {
+    const usable = (address: string | false | undefined): address is string => typeof address === 'string' && address.length > 0;
+
+    try {
+      const address = await wallet.getAddressAsync();
+      if (usable(address)) {
+        try {
+          await saveToDisk();
+        } catch (error) {
+          console.warn('Failed to persist buy-bitcoin receive address:', error);
+        }
+        return address;
+      }
+    } catch (error) {
+      console.warn('Failed to fetch buy-bitcoin receive address:', error);
+    }
+
+    if ('_getExternalAddressByIndex' in wallet && 'getNextFreeAddressIndex' in wallet) {
+      try {
+        const address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
+        if (usable(address)) return address;
+      } catch (error) {
+        console.warn('Failed to derive buy-bitcoin receive address:', error);
+      }
+    }
+
+    try {
+      const address = wallet.getAddress();
+      return usable(address) ? address : undefined;
+    } catch (error) {
+      console.warn('Failed to read buy-bitcoin receive address:', error);
+      return undefined;
+    }
+  }, [saveToDisk, wallet]);
+
   const ListHeaderComponent = useCallback(
     () => (
-      <View ref={headerRef}>
+      <View
+        ref={headerRef}
+        onLayout={event => {
+          const nextHeight = Math.round(event.nativeEvent.layout.height);
+          setListHeaderHeight(prev => (prev === nextHeight ? prev : nextHeight));
+        }}
+      >
         <TransactionsNavigationHeader
           headerOverlayHeight={headerOverlayHeight}
           wallet={wallet}
@@ -783,7 +838,12 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
             }
           }}
         />
-        <View style={[styles.flex, styles.transactionsSection, stylesHook.backgroundContainer]}>
+        {buyBitcoinVariant === 'list' ? (
+          <View style={[styles.transactionsSection, stylesHook.backgroundContainer]}>
+            <BuyBitcoinButton variant="list" getReceiveAddress={getBuyBitcoinAddress} />
+          </View>
+        ) : null}
+        <View style={[styles.flex, buyBitcoinVariant === 'list' ? null : styles.transactionsSection, stylesHook.backgroundContainer]}>
           <View style={styles.listHeaderTextRow}>
             <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
           </View>
@@ -815,6 +875,8 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
       navigate,
       walletID,
       isWatchOnlyWarningVisible,
+      buyBitcoinVariant,
+      getBuyBitcoinAddress,
     ],
   );
 
@@ -837,7 +899,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onEndReached={loadMoreTransactions}
         ListFooterComponent={renderListFooterComponent}
         data={getTransactions(limit)}
-        extraData={[wallet, displayUnit, wallet.hideBalance]}
+        extraData={[wallet, displayUnit, wallet.hideBalance, buyBitcoinVariant]}
         keyExtractor={_keyExtractor}
         renderItem={renderItem}
         initialNumToRender={10}
@@ -850,12 +912,21 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         scrollEventThrottle={16}
         ListHeaderComponent={ListHeaderComponent}
         ListEmptyComponent={
-          <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
-            <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
-              {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
-            </Text>
-            {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
-          </ScrollView>
+          buyBitcoinVariant === 'empty' ? (
+            <View style={stylesHook.emptyBuyState}>
+              <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
+                {loc.wallets.list_empty_txs1}
+              </Text>
+              <BuyBitcoinButton variant="empty" getReceiveAddress={getBuyBitcoinAddress} />
+            </View>
+          ) : (
+            <ScrollView style={[styles.emptyTxsContainer, stylesHook.backgroundContainer]} contentContainerStyle={styles.scrollViewContent}>
+              <Text numberOfLines={0} style={styles.emptyTxs} testID="TransactionsListEmpty">
+                {(isLightning() && loc.wallets.list_empty_txs1_lightning) || loc.wallets.list_empty_txs1}
+              </Text>
+              {isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list_empty_txs2_lightning}</Text>}
+            </ScrollView>
+          )
         }
         refreshControl={
           !isDesktop && !isElectrumDisabled ? (
