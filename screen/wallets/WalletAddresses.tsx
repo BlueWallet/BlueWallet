@@ -245,6 +245,7 @@ const WalletAddresses: React.FC = () => {
       ListHeaderComponent={
         <View style={styles.segmentedHeader}>
           <SegmentedControl
+            usePlatformStyle
             values={Object.values(TABS).map(tab => loc.addresses[`type_${tab}`])}
             selectedIndex={Object.values(TABS).findIndex(tab => tab === currentTab)}
             onChange={index => {

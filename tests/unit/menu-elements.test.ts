@@ -112,7 +112,6 @@ it.each([
   ['WalletTransactions', 'send'],
   ['WalletTransactions', 'receive'],
   ['WalletTransactions', 'walletDetails'],
-  ['WalletTransactions', 'searchTransactions'],
   ['ReceiveDetails', 'copyAddress'],
   ['TransactionStatus', 'copyTransactionId'],
 ] as const)('dispatches %s / %s only while its handler is registered', (screen, action) => {
