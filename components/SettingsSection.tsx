@@ -12,6 +12,7 @@ export type SettingsIconName =
   | 'currency'
   | 'language'
   | 'security'
+  | 'privacy'
   | 'network'
   | 'tools'
   | 'about'
@@ -41,6 +42,7 @@ const iconConfigs: Record<SettingsIconName, IconConfig> = {
   settings: { name: 'settings-outline', color: '#5F6368', darkColor: '#FFFFFF', backgroundColor: 'rgba(142, 142, 147, 0.12)' },
   currency: { name: 'cash-outline', color: '#0F9D58', darkColor: '#7EE0A4', backgroundColor: 'rgba(52, 199, 89, 0.12)' },
   language: { name: 'language-outline', color: '#F4B400', darkColor: '#FFD580', backgroundColor: 'rgba(255, 149, 0, 0.12)' },
+  privacy: { name: 'eye-off-outline', color: '#673AB7', darkColor: '#D0BCFF', backgroundColor: 'rgba(142, 142, 147, 0.12)' },
   security: { name: 'shield-checkmark-outline', color: '#DB4437', darkColor: '#FF8E8E', backgroundColor: 'rgba(255, 59, 48, 0.12)' },
   network: { name: 'globe-outline', color: '#1A73E8', darkColor: '#82B1FF', backgroundColor: 'rgba(0, 122, 255, 0.12)' },
   tools: { name: 'construct-outline', color: '#673AB7', darkColor: '#D0BCFF', backgroundColor: 'rgba(142, 142, 147, 0.12)' },

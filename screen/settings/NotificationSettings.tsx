@@ -10,11 +10,10 @@ import {
   checkPermissions,
   checkNotificationPermissionStatus,
   enqueueTestPushNotification,
-  setRedactNotifications,
-  isNotificationsRedacted,
   NOTIFICATIONS_NO_AND_DONT_ASK_FLAG,
 } from '../../blue_modules/notifications';
 import presentAlert from '../../components/Alert';
+import NotificationPrivacySettings from '../../components/NotificationPrivacySettings';
 import { BlueSpacing20 } from '../../components/BlueSpacing';
 import { Button } from '../../components/Button';
 import CopyToClipboardButton from '../../components/CopyToClipboardButton';
@@ -33,7 +32,6 @@ import {
 const NotificationSettings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isNotificationsEnabledState, setNotificationsEnabledState] = useState<boolean | undefined>(undefined);
-  const [isRedactedState, setRedactedState] = useState(false);
 
   const [tokenInfo, setTokenInfo] = useState('<empty>');
   const [tapCount, setTapCount] = useState(0);
@@ -77,6 +75,7 @@ const NotificationSettings: React.FC = () => {
         }
       }
 
+      setIsLoading(true);
       try {
         setNotificationsEnabledState(value);
         if (value) {
@@ -98,21 +97,12 @@ const NotificationSettings: React.FC = () => {
         console.error(error);
         presentAlert({ message: (error as Error).message });
         setNotificationsEnabledState(false);
+      } finally {
+        setIsLoading(false);
       }
     },
     [showNotificationPermissionAlert, setNotificationsEnabledState],
   );
-
-  const onRedactSwitch = useCallback(async (value: boolean) => {
-    setRedactedState(value);
-    try {
-      await setRedactNotifications(value);
-    } catch (error) {
-      console.error(error);
-      presentAlert({ message: (error as Error).message });
-      setRedactedState(!value); // revert on failure
-    }
-  }, []);
 
   const updateNotificationStatus = async () => {
     try {
@@ -140,7 +130,6 @@ const NotificationSettings: React.FC = () => {
           setNotificationsEnabledState(false);
         } else {
           await updateNotificationStatus();
-          setRedactedState(await isNotificationsRedacted());
         }
 
         setTokenInfo(
@@ -202,18 +191,7 @@ const NotificationSettings: React.FC = () => {
           switchTestID="NotificationsSwitch"
           bottomDivider={!!isNotificationsEnabledState}
         />
-        {isNotificationsEnabledState && (
-          <SettingsListItem
-            title={loc.notifications.redact_notifications}
-            subtitle={loc.notifications.redact_notifications_subtitle}
-            switch={{
-              value: isRedactedState,
-              onValueChange: onRedactSwitch,
-              disabled: isLoading,
-            }}
-            bottomDivider={false}
-          />
-        )}
+        {isNotificationsEnabledState && <NotificationPrivacySettings disabled={isLoading} />}
         <Pressable onPress={handleTap} style={settingsCardContent}>
           <SettingsFootnote>{loc.settings.push_notifications_explanation}</SettingsFootnote>
         </Pressable>
@@ -240,7 +218,7 @@ const NotificationSettings: React.FC = () => {
       )}
 
       <SettingsSection>
-        <SettingsListItem title={loc.settings.privacy_system_settings} onPress={onSystemSettings} chevron bottomDivider={false} />
+        <SettingsListItem title={loc.settings.privacy_system_settings} onPress={onSystemSettings} bottomDivider={false} />
       </SettingsSection>
     </SettingsScrollView>
   );
