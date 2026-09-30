@@ -69,7 +69,7 @@ class MarketAPI {
         case "Coinbase":
             return "https://api.coinbase.com/v2/prices/BTC-\(endPointKey.uppercased())/buy"
         case "BNR":
-            return "https://www.bnr.ro/nbrfxrates.xml"
+            return "https://curs.bnr.ro/nbrfxrates.xml"
         case "Kraken":
             let pair = krakenPair(for: endPointKey) ?? "XXBTZ\(endPointKey.uppercased())"
             return "https://api.kraken.com/0/public/Ticker?pair=\(pair)"

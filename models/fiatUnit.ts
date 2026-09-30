@@ -147,7 +147,7 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
       return rate;
     }
     case 'BNR': {
-      const xmlResponse = await fetch('https://www.bnr.ro/nbrfxrates.xml');
+      const xmlResponse = await fetch('https://curs.bnr.ro/nbrfxrates.xml');
       if (!xmlResponse.ok) {
         throw new Error(`HTTP error! status: ${xmlResponse.status}`);
       }

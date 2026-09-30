@@ -210,7 +210,7 @@ object MarketAPI {
                 "coinpaprika" -> "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR"
                 "Bitstamp" -> "https://www.bitstamp.net/api/v2/ticker/btc${endPointKey.lowercase()}"
                 "Coinbase" -> "https://api.coinbase.com/v2/prices/BTC-${endPointKey.uppercase()}/buy"
-                "BNR" -> "https://www.bnr.ro/nbrfxrates.xml"
+                "BNR" -> "https://curs.bnr.ro/nbrfxrates.xml"
                 "Kraken" -> {
                     val pair = krakenPair(endPointKey) ?: "XXBTZ${endPointKey.uppercase()}"
                     "https://api.kraken.com/0/public/Ticker?pair=$pair"
