@@ -1,7 +1,8 @@
+import { getTransactionStatusOptions } from './helpers/getTransactionStatusOptions';
 import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -156,6 +157,7 @@ const UpdatingPill: React.FC<UpdatingPillProps> = ({ backgroundColor, textColor 
 
 const DetailViewStackScreensStack = () => {
   const theme = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
   const navigation = useNavigation();
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
@@ -390,13 +392,16 @@ const DetailViewStackScreensStack = () => {
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
+          options={navigationStyle(
+            {
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+              headerTitle: '',
+              headerBackButtonDisplayMode: 'default',
             },
-            headerTitle: '',
-            headerBackButtonDisplayMode: 'default',
-          })(theme)}
+            (options, { route }) => getTransactionStatusOptions(options, route.params.header, windowWidth),
+          )(theme)}
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
         <DetailViewStack.Screen
@@ -484,7 +489,21 @@ const DetailViewStackScreensStack = () => {
         />
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />
-        <DetailViewStack.Screen name="Currency" component={Currency} options={settingsScreenOptions(loc.settings.currency)} />
+        <DetailViewStack.Screen
+          name="Currency"
+          component={Currency}
+          options={({ route, navigation: screenNavigation }) => {
+            const options = settingsScreenOptions(loc.settings.currency);
+            return {
+              ...(typeof options === 'function' ? options({ route, navigation: screenNavigation }) : options),
+              headerSearchBarOptions: {
+                onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+                onFocus: () => screenNavigation.setParams({ isSearchFocused: true }),
+                onBlur: () => screenNavigation.setParams({ isSearchFocused: false }),
+              },
+            };
+          }}
+        />
         <DetailViewStack.Screen name="GeneralSettings" component={GeneralSettings} options={settingsScreenOptions(loc.settings.general)} />
         <DetailViewStack.Screen
           name="PlausibleDeniability"
@@ -574,7 +593,17 @@ const DetailViewStackScreensStack = () => {
                 backgroundColor: theme.colors.customHeader,
               },
             },
-            renderManageWalletsHeaderLeft,
+            (options, deps) => ({
+              ...renderManageWalletsHeaderLeft(options, deps),
+              headerSearchBarOptions: {
+                hideWhenScrolling: false,
+                placeholder: loc.wallets.manage_wallets_search_placeholder,
+                onChangeText: event => deps.navigation.setParams({ search: event.nativeEvent.text }),
+                onClear: () => deps.navigation.setParams({ search: '' }),
+                onFocus: () => deps.navigation.setParams({ isSearchFocused: true }),
+                onBlur: () => deps.navigation.setParams({ isSearchFocused: false }),
+              },
+            }),
           )(theme)}
         />
         <DetailViewStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={createReceiveDetailsOptions(theme)} />

@@ -45,7 +45,7 @@ export type DetailViewStackParamList = {
   WalletTransactions: { isLoading?: boolean; walletID: string; walletType: string; onBarScanned?: string };
   WalletDetails: { walletID: string };
   // TODO: type tx properly once Transaction and ElectrumTransaction are unified
-  TransactionStatus: { hash: string; walletID: string; tx?: any };
+  TransactionStatus: { hash: string; walletID: string; tx?: any; header?: { direction: string; date: string } };
   CPFP: {
     wallet: TWallet | null;
     txid: string;
@@ -97,7 +97,7 @@ export type DetailViewStackParamList = {
   WalletExport: undefined;
   ExportMultisigCoordinationSetupRoot: undefined;
   Settings: undefined;
-  Currency: undefined;
+  Currency: { search?: string; isSearchFocused?: boolean } | undefined;
   GeneralSettings: undefined;
   Licensing: undefined;
   NetworkSettings: undefined;
@@ -179,5 +179,5 @@ export type DetailViewStackParamList = {
     walletID: string;
   };
   PromptPasswordConfirmationSheet: PromptPasswordConfirmationParams | undefined;
-  ManageWallets: undefined;
+  ManageWallets: { search?: string; isSearchFocused?: boolean } | undefined;
 };
