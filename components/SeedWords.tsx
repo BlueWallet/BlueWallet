@@ -4,8 +4,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from './themes';
 import { useLocale } from '@react-navigation/native';
 
-const SeedWords = ({ seed }: { seed: string }) => {
-  const words = seed.split(/\s/);
+type Props = {
+  seed: string;
+  selectable?: boolean;
+};
+
+const SeedWords = ({ seed, selectable = false }: Props) => {
+  const words = seed.trim().split(/\s+/);
   const { colors } = useTheme();
   const { direction } = useLocale();
 
@@ -22,18 +27,25 @@ const SeedWords = ({ seed }: { seed: string }) => {
   });
 
   return (
-    <View style={[styles.secret, stylesHook.secret]}>
+    <View
+      style={[styles.secret, stylesHook.secret]}
+      accessible={false}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
       {words.map((secret, index) => {
-        const text = `${index + 1}. ${secret}  `;
         return (
           <View style={[styles.word, stylesHook.word]} key={index}>
-            <Text style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple">
-              {text}
+            <Text accessible={false} style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple" selectable={false}>
+              {`${index + 1}. `}
+            </Text>
+            <Text accessible={false} style={[styles.wortText, stylesHook.wortText]} textBreakStrategy="simple" selectable={selectable}>
+              {secret}
             </Text>
           </View>
         );
       })}
-      <Text style={styles.hiddenText} testID="Secret">
+      <Text accessible={false} style={styles.hiddenText} testID="Secret">
         {seed}
       </Text>
     </View>
@@ -49,6 +61,7 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 8,
     borderRadius: 4,
+    flexDirection: 'row',
   },
   wortText: {
     fontWeight: 'bold',
