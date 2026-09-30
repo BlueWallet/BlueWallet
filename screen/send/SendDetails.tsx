@@ -9,7 +9,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  AlertButton,
   Dimensions,
   findNodeHandle,
   FlatList,
@@ -37,7 +37,6 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import { AbstractHDElectrumWallet } from '../../class/wallets/abstract-hd-electrum-wallet';
 import { CreateTransactionTarget, CreateTransactionUtxo, TWallet } from '../../class/wallets/types';
 import AddressInput from '../../components/AddressInput';
-import presentAlert from '../../components/Alert';
 import * as AmountInput from '../../components/AmountInput';
 import Button from '../../components/Button';
 import CoinsSelected from '../../components/CoinsSelected';
@@ -91,6 +90,26 @@ const SendDetails = () => {
   const isTransactionReplaceable = route.params?.isTransactionReplaceable;
   const routeParams = route.params;
   const scrollView = useRef<FlatList<IPaymentDestinations>>(null);
+  const presentAlert = useCallback(
+    ({ title, message, buttons = [{ text: loc._.ok }] }: { title?: string; message: string; buttons?: AlertButton[] }) => {
+      const anchor = findNodeHandle(scrollView.current);
+      if (anchor === null) return;
+      const cancelButtonIndex = buttons.findIndex(button => button.style === 'cancel');
+      const destructiveButtonIndex = buttons.findIndex(button => button.style === 'destructive');
+      ActionSheet.showActionSheetWithOptions(
+        {
+          title,
+          message,
+          options: buttons.map(button => button.text ?? ''),
+          cancelButtonIndex: cancelButtonIndex >= 0 ? cancelButtonIndex : undefined,
+          destructiveButtonIndex: destructiveButtonIndex >= 0 ? destructiveButtonIndex : undefined,
+          anchor,
+        },
+        buttonIndex => buttons[buttonIndex]?.onPress?.(),
+      );
+    },
+    [],
+  );
   const scrollIndex = useRef(0);
   /** Used so we only clear coin-selection (utxos) when the user switches wallet, not on first mount (e.g. Send opened from wallet details with pre-selected UTXOs). */
   const prevWalletIdForCoinResetRef = useRef<string | null>(null);
@@ -500,7 +519,7 @@ const SendDetails = () => {
 
       setIsLoading(false);
     },
-    [setParams, wallet],
+    [presentAlert, setParams, wallet],
   );
 
   const createTransaction = async () => {
@@ -719,7 +738,7 @@ const SendDetails = () => {
     }
 
     navigateToQRCodeScanner();
-  }, [navigateToQRCodeScanner, wallet?.type]);
+  }, [navigateToQRCodeScanner, presentAlert, wallet?.type]);
 
   const importQrTransactionOnBarScanned = useCallback(
     (ret: any) => {
@@ -746,7 +765,7 @@ const SendDetails = () => {
         setIsLoading(false);
       }
     },
-    [navigation, transactionMemo, wallet],
+    [navigation, presentAlert, transactionMemo, wallet],
   );
 
   /**
@@ -810,14 +829,13 @@ const SendDetails = () => {
         presentAlert({ title: loc.errors.error, message: loc.send.details_no_signed_tx });
       }
     }
-  }, [navigation, setIsLoading, transactionMemo, wallet]);
+  }, [navigation, presentAlert, setIsLoading, transactionMemo, wallet]);
 
-  const askCosignThisTransaction = async () => {
+  const askCosignThisTransaction = useCallback(async () => {
     return new Promise(resolve => {
-      Alert.alert(
-        '',
-        loc.multisig.cosign_this_transaction,
-        [
+      presentAlert({
+        message: loc.multisig.cosign_this_transaction,
+        buttons: [
           {
             text: loc._.no,
             style: 'cancel',
@@ -828,10 +846,9 @@ const SendDetails = () => {
             onPress: () => resolve(true),
           },
         ],
-        { cancelable: false },
-      );
+      });
     });
-  };
+  }, [presentAlert]);
 
   const _importTransactionMultisig = useCallback(
     async (base64arg: string | false) => {
@@ -861,7 +878,7 @@ const SendDetails = () => {
       }
       setIsLoading(false);
     },
-    [navigation, sleep, transactionMemo, wallet],
+    [askCosignThisTransaction, navigation, presentAlert, sleep, transactionMemo, wallet],
   );
 
   const importTransactionMultisig = useCallback(() => {
@@ -881,7 +898,7 @@ const SendDetails = () => {
         return _importTransactionMultisig(ret.data);
       }
     },
-    [_importTransactionMultisig],
+    [_importTransactionMultisig, presentAlert],
   );
 
   const handlePsbtSign = useCallback(
@@ -922,7 +939,7 @@ const SendDetails = () => {
         psbt,
       });
     },
-    [navigation, wallet],
+    [navigation, presentAlert, wallet],
   );
 
   useEffect(() => {
@@ -985,7 +1002,7 @@ const SendDetails = () => {
         animated: true,
       });
     }, 0);
-  }, [addresses, amountUnit]);
+  }, [addresses, amountUnit, presentAlert]);
 
   const onRemoveAllRecipientsConfirmed = useCallback(() => {
     scrollIndex.current = 0;
@@ -996,18 +1013,22 @@ const SendDetails = () => {
   }, [amountUnit]);
 
   const handleRemoveAllRecipients = useCallback(() => {
-    Alert.alert(loc.send.details_recipients_title, loc.send.details_add_recc_rem_all_alert_description, [
-      {
-        text: loc._.cancel,
-        onPress: () => {},
-        style: 'cancel',
-      },
-      {
-        text: loc._.ok,
-        onPress: onRemoveAllRecipientsConfirmed,
-      },
-    ]);
-  }, [onRemoveAllRecipientsConfirmed]);
+    presentAlert({
+      title: loc.send.details_recipients_title,
+      message: loc.send.details_add_recc_rem_all_alert_description,
+      buttons: [
+        {
+          text: loc._.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: loc._.ok,
+          onPress: onRemoveAllRecipientsConfirmed,
+        },
+      ],
+    });
+  }, [onRemoveAllRecipientsConfirmed, presentAlert]);
 
   const handleRemoveRecipient = useCallback(() => {
     if (addresses.length > 1) {
@@ -1056,12 +1077,13 @@ const SendDetails = () => {
     const message = frozenBalance > 0 ? loc.send.details_adv_full_sure_frozen : loc.send.details_adv_full_sure;
 
     const anchor = findNodeHandle(scrollView.current);
+    if (anchor === null) return;
     const options = {
       title: loc.send.details_adv_full,
       message,
       options: [loc._.cancel, loc._.ok],
       cancelButtonIndex: 0,
-      anchor: anchor ?? undefined,
+      anchor,
     };
 
     ActionSheet.showActionSheetWithOptions(options, buttonIndex => {

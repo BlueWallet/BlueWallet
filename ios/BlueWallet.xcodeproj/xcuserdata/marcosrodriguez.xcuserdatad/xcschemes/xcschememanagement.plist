@@ -24,6 +24,16 @@
 			<key>orderHint</key>
 			<integer>5</integer>
 		</dict>
+		<key>QuickLookPreview.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>135</integer>
+		</dict>
+		<key>QuickLookThumbnail.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>136</integer>
+		</dict>
 		<key>Stickers.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>

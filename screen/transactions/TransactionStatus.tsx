@@ -21,13 +21,15 @@ import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { satoshiToLocalCurrency } from '../../blue_modules/currency';
 import triggerHapticFeedback, { HapticFeedbackTypes } from '../../blue_modules/hapticFeedback';
 import { uint8ArrayToHex } from '../../blue_modules/uint8array-extras';
+import AddressLabelBadge from '../../components/AddressLabelBadge';
 import BlueText from '../../components/BlueText';
 import { HDSegwitBech32Transaction } from '../../class/hd-segwit-bech32-transaction';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
 import { Transaction, TWallet } from '../../class/wallets/types';
 import presentAlert from '../../components/Alert';
 import { BlueLoading } from '../../components/BlueLoading';
-import CopyTextToClipboard from '../../components/CopyTextToClipboard';
+import CopyTextToClipboard, { CopyTextToClipboardHandle } from '../../components/CopyTextToClipboard';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import TransactionPendingIcon from '../../components/icons/TransactionPendingIcon';
 import BlocksAccordion from '../../components/BlocksAccordion';
 import TransactionStateHeader from '../../components/TransactionStateHeader';
@@ -167,7 +169,10 @@ const TransactionStatus: React.FC = () => {
     isLoading: !initialTx,
   });
   const { isCPFPPossible, isRBFBumpFeePossible, isRBFCancelPossible, tx, isLoading, eta, intervalMs, wallet, loadingError } = state;
-  const { wallets, txMetadata, counterpartyMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
+  const transactionId = tx?.hash || tx?.txid;
+  const transactionIdCopyRef = useRef<CopyTextToClipboardHandle>(null);
+  useScreenMenuActions({ copyTransactionId: transactionId && !loadingError ? () => transactionIdCopyRef.current?.copy() : undefined });
+  const { wallets, txMetadata, counterpartyMetadata, addressMetadata, fetchAndSaveWalletTransactions, saveToDisk } = useStorage();
   const subscribedWallet = useWalletSubscribe(walletID);
   const { navigate, goBack, setOptions } = useNavigation<NavigationProps>();
   const { colors } = useTheme();
@@ -794,6 +799,13 @@ const TransactionStatus: React.FC = () => {
     }
   }, [tx, txMetadata, saveToDisk]);
 
+  const handleAddressLabelPress = useCallback(
+    (address: string) => {
+      navigate('ReceiveAddressLabel', { address });
+    },
+    [navigate],
+  );
+
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
     const url = `${selectedBlockExplorer.url}/tx/${tx.hash}`;
@@ -851,14 +863,22 @@ const TransactionStatus: React.FC = () => {
   const renderSection = (array: any[]) => {
     const fromArray = [];
 
-    for (const [index, address] of array.entries()) {
+    for (const address of array) {
       const isWeOwnAddress = weOwnAddress(address);
       const addressStyle = isWeOwnAddress ? [styles.weOwnAddress, stylesHook.rowValue] : [stylesHook.rowValue];
+      const label = addressMetadata[address]?.label;
 
       fromArray.push(
         <View key={address} style={styles.addressRow}>
           <CopyTextToClipboard text={address} style={StyleSheet.flatten(addressStyle)} interactive={false} selectable />
-          {index !== array.length - 1 && <BlueText style={addressStyle}>,</BlueText>}
+          {label ? (
+            <AddressLabelBadge
+              label={label}
+              style={styles.addressLabelPill}
+              onPress={() => handleAddressLabelPress(address)}
+              accessibilityLabel={`${loc.receive.option_label}: ${label}`}
+            />
+          ) : null}
         </View>,
       );
     }
@@ -1274,16 +1294,17 @@ const TransactionStatus: React.FC = () => {
           })()}
 
         {/* Transaction ID - display shortened so it stays on one line on Android; copy still gets full hash */}
-        {tx.hash && (
+        {transactionId && (
           <View style={[styles.detailRow, stylesHook.detailRow, scaledStyles.detailRow]}>
             <BlueText style={[styles.detailLabel, stylesHook.detailLabel]}>{loc.transactions.details_id}</BlueText>
             <View style={styles.detailValueContainer}>
               <View style={styles.detailValueCopyContainer}>
                 <CopyTextToClipboard
                   containerStyle={StyleSheet.flatten([styles.detailValueEllipsisContainer, detailValueWidthStyle])}
-                  text={tx.hash}
-                  displayText={shortenTxHash(tx.hash)}
-                  accessibilityLabel={tx.hash}
+                  ref={transactionIdCopyRef}
+                  text={transactionId}
+                  displayText={shortenTxHash(transactionId)}
+                  accessibilityLabel={transactionId}
                   buttonTestID="TransactionIdCopyButton"
                   textTestID="TransactionIdDisplayText"
                   style={StyleSheet.flatten([
@@ -1706,9 +1727,13 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  addressLabelPill: {
+    maxWidth: '86%',
+    marginTop: 4,
   },
   detailValue: {
     fontSize: 15,

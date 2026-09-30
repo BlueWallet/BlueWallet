@@ -1,0 +1,14 @@
+diff --git a/node_modules/react-native-background-fetch/RNBackgroundFetch.podspec b/node_modules/react-native-background-fetch/RNBackgroundFetch.podspec
+index cc7f05f..92ebe54 100644
+--- a/node_modules/react-native-background-fetch/RNBackgroundFetch.podspec
++++ b/node_modules/react-native-background-fetch/RNBackgroundFetch.podspec
+@@ -20,7 +20,8 @@
+ 
+   s.preserve_paths      = 'docs', 'CHANGELOG.md', 'LICENSE', 'package.json', 'RNBackgroundFetch.ios.js'
+   s.source_files        = 'ios/RNBackgroundFetch/RNBackgroundFetch.h', 'ios/RNBackgroundFetch/RNBackgroundFetch.mm'
+-  s.dependency          'TSBackgroundFetch', '~> 4.1.0'
++  # The npm bundle includes Mac Catalyst; the standalone 4.1.x pod does not.
++  s.vendored_frameworks = 'ios/RNBackgroundFetch/TSBackgroundFetch.xcframework'
+ 
+   install_modules_dependencies(s)
+ end

@@ -60,6 +60,9 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+        with:
+          # Override the default package list, which includes the unavailable legacy tools package.
+          packages: 'platform-tools'
 
       - name: Install Android SDK components
         run: |
@@ -162,4 +165,4 @@ jobs:
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
           GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bundle exec fastlane upload_to_browserstack_and_comment
+        run: bundle exec fastlane android upload_to_browserstack_and_comment

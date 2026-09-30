@@ -1,67 +1,56 @@
 import SwiftUI
 
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 struct CompactPriceView: View {
-    @Environment(\.colorScheme) var colorScheme
-
     let price: String
     let lastUpdated: String
     let code: String
     let dataSource: String
 
     var body: some View {
-        VStack(alignment: .center, spacing: 16) {
+        VStack(spacing: 16) {
             Text(price)
-                .font(.title)
-                .bold()
-                .multilineTextAlignment(.center)
-                .dynamicTypeSize(.large ... .accessibility5)
-                .foregroundColor(textColor)
-                .accessibilityLabel("Bitcoin price: \(price)")
+                .font(.title2.weight(.semibold))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
+                .allowsTightening(true)
 
-            VStack(alignment: .center, spacing: 8) {
-                Text(code)
-                    .shadow(color: shadowColor, radius: 1, x: 0, y: 1)
-                Text(lastUpdated)
-                    .shadow(color: shadowColor, radius: 1, x: 0, y: 1)
-                Text(dataSource)
-                    .shadow(color: shadowColor, radius: 1, x: 0, y: 1)
+            VStack(spacing: 8) {
+                LabeledContent("Currency", value: code)
+                LabeledContent("Updated", value: lastUpdated)
+                LabeledContent("Source", value: dataSource)
             }
             .font(.subheadline)
-            .foregroundColor(textColor)
-            .multilineTextAlignment(.center)
-            .accessibilityElement(children: .combine)
         }
         .padding()
         .frame(maxWidth: .infinity)
-    }
-
-    private var textColor: Color {
-        colorScheme == .dark ? .white : .black
-    }
-
-    private var shadowColor: Color {
-        textColor.opacity(0.2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Bitcoin market rate")
+        .accessibilityValue("\(price), \(code). Updated \(lastUpdated). Source: \(dataSource).")
     }
 }
 
-@available(iOS 15.0, *)
+@available(iOS 16.0, *)
 struct CompactPriceView_Previews: PreviewProvider {
     static var previews: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [.blue, .purple]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
+        Group {
             CompactPriceView(
                 price: "$50,000",
-                lastUpdated: "Last updated: Oct 10, 2023",
-                code: "BTC",
-                dataSource: "Data source: CoinDesk"
+                lastUpdated: "Oct 10, 2023 at 10:00 AM",
+                code: "USD",
+                dataSource: "CoinDesk"
             )
+            .previewDisplayName("Market rate")
+
+            CompactPriceView(
+                price: "N/A",
+                lastUpdated: "--",
+                code: "USD",
+                dataSource: "Error fetching data"
+            )
+            .previewDisplayName("Unavailable")
         }
+        .padding()
     }
 }

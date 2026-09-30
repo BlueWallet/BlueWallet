@@ -12,7 +12,7 @@ struct FiatUnit: Codable {
   let symbol: String
   let locale: String
   let source: String
-  
+  let country: String?
 }
 
 func fiatUnit(currency: String) -> FiatUnit? {

@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useReducer, useRef, useMemo } from 'react';
-import { useNavigation, useFocusEffect, useIsFocused, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { Alert, findNodeHandle, Image, InteractionManager, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { getClipboardContent } from '../../blue_modules/clipboard';
 import { isDesktop, isIOS26OrHigher } from '../../blue_modules/environment';
@@ -26,7 +26,7 @@ import { DetailViewStackParamList } from '../../navigation/DetailViewStackParamL
 import { useStorage } from '../../hooks/context/useStorage';
 import TotalWalletsBalance from '../../components/TotalWalletsBalance';
 import { useSettings } from '../../hooks/context/useSettings';
-import useMenuElements from '../../hooks/useMenuElements';
+import useScreenMenuActions from '../../hooks/useScreenMenuActions';
 import SafeAreaSectionList from '../../components/SafeAreaSectionList';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scanQrHelper } from '../../helpers/scan-qr';
@@ -101,7 +101,6 @@ function reducer(state: WalletListState, action: WalletListAction) {
 }
 
 type NavigationProps = NativeStackNavigationProp<DetailViewStackParamList, 'WalletsList'>;
-type RouteProps = RouteProp<DetailViewStackParamList, 'WalletsList'>;
 
 const WalletsList: React.FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -110,7 +109,6 @@ const WalletsList: React.FC = () => {
   const walletsCarousel = useRef<CarouselListRefType>(null);
   const connectionPoll = useContext(ConnectionPollContext);
   const currentWalletIndex = useRef<number>(0);
-  const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { wallets, getTransactions, refreshAllWalletTransactions } = useStorage();
   const { isTotalBalanceEnabled, isElectrumDisabled } = useSettings();
   const { width, fontScale } = useWindowDimensions();
@@ -122,7 +120,6 @@ const WalletsList: React.FC = () => {
   const { colors, scanImage } = useTheme();
   const navigation = useNavigation<NavigationProps>();
   const isFocused = useIsFocused();
-  const route = useRoute<RouteProps>();
   const dataSource = getTransactions(undefined, 10);
   const walletsCount = useRef<number>(wallets.length);
   const walletActionButtonsRef = useRef<View>(null);
@@ -189,29 +186,12 @@ const WalletsList: React.FC = () => {
     // Optimized for Mac option doesn't like RN Refresh component. Menu Elements now handles it for macOS
   }, [refreshTransactions]);
 
-  useEffect(() => {
-    const screenKey = route.name;
-    console.log(`[WalletsList] Registering handler with key: ${screenKey}`);
-    registerTransactionsHandler(onRefresh, screenKey);
-
-    return () => {
-      console.log(`[WalletsList] Unmounting - cleaning up handler for: ${screenKey}`);
-      unregisterTransactionsHandler(screenKey);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onRefresh, registerTransactionsHandler, unregisterTransactionsHandler]);
+  useScreenMenuActions({ reloadTransactions: !isElectrumDisabled && !isLoading ? onRefresh : undefined });
 
   useFocusEffect(
     useCallback(() => {
       connectionPoll?.pollConnection();
-      const screenKey = route.name;
-
-      return () => {
-        console.log(`[WalletsList] Blurred - cleaning up handler for: ${screenKey}`);
-        unregisterTransactionsHandler(screenKey);
-      };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [connectionPoll, unregisterTransactionsHandler]),
+    }, [connectionPoll]),
   );
 
   useEffect(() => {
@@ -429,13 +409,9 @@ const WalletsList: React.FC = () => {
       options.push(loc.wallets.paste_from_clipboard);
     }
 
-    const props = { title: loc.send.header, options, cancelButtonIndex: 0 };
-
     const anchor = findNodeHandle(walletActionButtonsRef.current);
-
-    if (anchor) {
-      options.push(String(anchor));
-    }
+    if (anchor === null) return;
+    const props = { title: loc.send.header, options, cancelButtonIndex: 0, anchor };
 
     ActionSheet.showActionSheetWithOptions(props, buttonIndex => {
       switch (buttonIndex) {
