@@ -19,6 +19,20 @@
 			<key>CFBundleTypeIconFiles</key>
 			<array/>
 			<key>CFBundleTypeName</key>
+			<string>Electrum Servers</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>io.bluewallet.electrumservers</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
 			<string>PSBT</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -361,6 +375,28 @@
 				<key>public.mime-type</key>
 				<array>
 					<string>application/x-ndjson</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.json</string>
+				<string>public.text</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Electrum Server List</string>
+			<key>UTTypeIdentifier</key>
+			<string>io.bluewallet.electrumservers</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>electrumservers</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/json</string>
 				</array>
 			</dict>
 		</dict>

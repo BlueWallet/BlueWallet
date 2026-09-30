@@ -420,6 +420,10 @@ describe.each(['', '//'])('unit - DeepLinkSchemaMatch', function (suffix) {
     // psbt files (unsigned):
     assert.ok(DeeplinkSchemaMatch.isPossiblyPSBTFile('content://com.android.externalstorage.documents/document/081D-1403%3Atxhex.psbt'));
     assert.ok(DeeplinkSchemaMatch.isPossiblyPSBTFile('file://com.android.externalstorage.documents/document/081D-1403%3Atxhex.psbt'));
+
+    assert.ok(DeeplinkSchemaMatch.isElectrumServersFile('file:///tmp/sample-electrum-servers.electrumservers'));
+    assert.ok(DeeplinkSchemaMatch.isElectrumServersFile('file:///tmp/sample-electrum-servers.electrumservers?preview=true'));
+    assert.ok(!DeeplinkSchemaMatch.isElectrumServersFile('file:///tmp/sample-electrum-servers.json'));
   });
 
   it('can work with some deeplink actions', () => {
