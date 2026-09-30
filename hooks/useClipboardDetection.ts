@@ -142,7 +142,12 @@ const useClipboardDetection = (enabled: boolean) => {
         shouldRetryPaste: retryClipboardAfterPastePrompt.current,
         resumedFromBackground: cameFromBackground || readBecausePending,
       });
-      if (options?.skipRead && action === 'read' && !readBecausePending) return;
+      // A handled push notification already navigated somewhere; keep the pending read for
+      // the next resume instead of covering that screen with the Detected sheet.
+      if (options?.skipRead) {
+        clearTimer();
+        return;
+      }
       if (action === 'retry_read') {
         ignoreLastSeenOnNextRead.current = true;
         retryClipboardAfterPastePrompt.current = false;
@@ -168,18 +173,8 @@ const useClipboardDetection = (enabled: boolean) => {
     return () => clearTimeout(initialRead);
   }, [enabled, wallets.length]);
 
-  useEffect(() => {
-    if (!enabled || wallets.length === 0) return;
-    const subscription = AppState.addEventListener('change', nextState => {
-      if (nextState === 'background') {
-        needsRead.current = true;
-        return;
-      }
-      if (nextState === 'active' && needsRead.current) scheduleRead(CLIPBOARD_IDLE_DELAY_MS);
-    });
-    return () => subscription.remove();
-  }, [enabled, scheduleRead, wallets.length]);
-
+  // AppState transitions are owned by useCompanionListeners, which calls onLeaveForeground /
+  // onEnterForeground so notification handling and clipboard detection cannot race.
   useEffect(() => () => clearTimer(), []);
 
   return { onLeaveForeground, onEnterForeground };

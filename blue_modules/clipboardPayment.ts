@@ -56,8 +56,8 @@ function firstNonEmptyLine(text: string): string {
 function isBolt11Invoice(invoice: string): boolean {
   if (!invoice) return false;
   try {
-    bolt11.decode(invoice);
-    return true;
+    // Testnet/regtest invoices decode fine but are not routed by DeeplinkSchemaMatch (`lnb` only).
+    return bolt11.decode(invoice).network?.bech32 === bitcoin.networks.bitcoin.bech32;
   } catch {
     return false;
   }

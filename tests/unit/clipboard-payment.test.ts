@@ -21,6 +21,8 @@ const SILENT_PAYMENT =
 const BIP47 = 'PM8TJS2JxQ5ztXUpBBRnpTbcUXbUHy2T1abfrb3KkAAtMEGNbey4oumH7Hc578WgQJhPjBxteQ5GHHToTYHE3A1w6p7tU6KSoFmWBVbFGjKPisZDbP97';
 const LN_INVOICE =
   'lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde';
+const TESTNET_LN_INVOICE =
+  'lntb10n1pj48ugqpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq8w3jhxaqxqrrsscqpfxspy2vz60hg9r8x2r6u39zgvlq2gpd4t04ppkk66p5wt24r9cmz3q9wpmnqxl7pyzn6ru99rll7hcgfg7hkma90q2wu7spakfng5kmcpqgas4j';
 const LNURL = 'LNURL1DP68GURN8GHJ7MRWW3UXYMM59E3XJEMNW4HZU7RE0GHKCMN4WFKZ7URP0YLH2UM9WF5KG0FHXYCNV9G9W58';
 const COMBINED_BIP21 = `bitcoin:${P2WPKH.toUpperCase()}?amount=0.000001&lightning=${LN_INVOICE}`;
 
@@ -125,6 +127,8 @@ describe('clipboardPayment classifier', () => {
     assert.strictEqual(classifyClipboardPayment('user@gmail.com'), null);
     assert.strictEqual(classifyClipboardPayment('Please pay me at this address later'), null);
     assert.strictEqual(classifyClipboardPayment(TESTNET_SEGWIT), null);
+    assert.strictEqual(classifyClipboardPayment(TESTNET_LN_INVOICE), null);
+    assert.strictEqual(classifyClipboardPayment(`lightning:${TESTNET_LN_INVOICE}`), null);
     assert.strictEqual(classifyClipboardPayment('sp1qq'), null);
     assert.strictEqual(classifyClipboardPayment('lnurl1qqqqqqqqqq'), null);
   });
