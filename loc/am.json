@@ -361,7 +361,6 @@
     "onchain": "ኦንቼን",
     "details_to": "ውጤት",
     "enable_offline_signing": "ይህ ቦርሳ ከመስመር ውጪ ፊርማ ጋር በማጣመር አይጠቀምም። አሁን ማንቃት ይፈልጋሉ?",
-    "list_conf": "ማረጋ፡ {number}",
     "pending": "በመጠባበቅ ላይ",
     "pending_with_amount": "በመጠባበቅ ላይ {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

@@ -361,7 +361,6 @@
     "onchain": "On-chain",
     "details_to": "Keluaran",
     "enable_offline_signing": "Dompet ini tidak digunakan bersama dengan penandatanganan luar talian. Adakah anda mahu membolehkan ciri ini sekarang?",
-    "list_conf": "Akuan: {number}",
     "pending": "Tergantung",
     "pending_with_amount": "Tergantung {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

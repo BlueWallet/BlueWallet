@@ -361,7 +361,6 @@
     "onchain": "على السلسلة",
     "details_to": "إلى",
     "enable_offline_signing": "هذه المحفظة لا يتم استعمالها مع التوقيع دون اتصال. هل ترغب في تمكينه الآن؟",
-    "list_conf": "تأكيد: {number}",
     "pending": "قيد الانتظار",
     "pending_with_amount": "معلقة {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",

@@ -361,7 +361,6 @@
     "onchain": "Onchain",
     "details_to": "À",
     "enable_offline_signing": "Ce portefeuille n'est pas utilisé en conjonction avec une signature hors ligne. Voulez-vous l'activer maintenant ?",
-    "list_conf": "Conf. : {number}",
     "pending": "En attente",
     "pending_with_amount": "En attente {amt1} ({amt2})",
     "received_with_amount": "+{amt1} ({amt2})",
