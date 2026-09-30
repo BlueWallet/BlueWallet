@@ -77,6 +77,11 @@ object MarketAPI {
 
     private fun krakenPair(endPointKey: String): String? = krakenBtcFiatPairs[endPointKey.uppercase()]
 
+    private fun isValidRate(raw: String): Boolean {
+        val value = raw.toDoubleOrNull() ?: return false
+        return value.isFinite() && value > 0.0
+    }
+
     private fun buildRateSourceOrder(primary: String, endPointKey: String): List<String> {
         val order = mutableListOf(primary)
         for (fallback in universalFallbacks) {
@@ -163,11 +168,14 @@ object MarketAPI {
             val bodyString = it.body?.string()
             Log.d(TAG, "Raw response from $source: $bodyString")
 
-            val parsedResult = if (bodyString != null) {
-                parseJSONBasedOnSource(bodyString, source, endPointKey)
-            } else null
+            val parsedResult = bodyString?.let { parseJSONBasedOnSource(it, source, endPointKey) }
+            // Reject 0 / NaN / Inf / non-numeric so a broken provider falls through to the next source
+            val validResult = parsedResult?.takeIf { isValidRate(it) }
+            if (parsedResult != null && validResult == null) {
+                Log.w(TAG, "Invalid rate '$parsedResult' from $source")
+            }
 
-            return ApiResponse(parsedResult, if (parsedResult != null) 200 else responseCode)
+            return ApiResponse(validResult, if (validResult != null) 200 else responseCode)
         }
     }
 
@@ -183,6 +191,7 @@ object MarketAPI {
                 val xmlData = it.body?.string() ?: return ApiResponse(null, it.code)
                 val match = Regex("""<Rate currency="USD">([\d.]+)</Rate>""").find(xmlData)
                 val usdToRonRate = match?.groupValues?.get(1)?.toDoubleOrNull()
+                    ?.takeIf { it.isFinite() && it > 0.0 }
                     ?: return ApiResponse(null, -1)
 
                 val usdResponse = fetchPriceWithResponse(context, "USD")
@@ -209,10 +218,11 @@ object MarketAPI {
                 "Exir" -> "https://api.exir.io/v1/ticker?symbol=btc-irt"
                 "coinpaprika" -> "https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR"
                 "Bitstamp" -> "https://www.bitstamp.net/api/v2/ticker/btc${endPointKey.lowercase()}"
-                "Coinbase" -> "https://api.coinbase.com/v2/prices/BTC-${endPointKey.uppercase()}/buy"
+                "Coinbase" -> "https://api.coinbase.com/v2/prices/BTC-${endPointKey.uppercase()}/spot"
                 "BNR" -> "https://curs.bnr.ro/nbrfxrates.xml"
                 "Kraken" -> {
-                    val pair = krakenPair(endPointKey) ?: "XXBTZ${endPointKey.uppercase()}"
+                    val pair = krakenPair(endPointKey)
+                        ?: throw IllegalArgumentException("No Kraken BTC pair for $endPointKey")
                     "https://api.kraken.com/0/public/Ticker?pair=$pair"
                 }
                 else -> throw IllegalArgumentException("Unknown rate source: $source")
@@ -231,7 +241,7 @@ object MarketAPI {
                 "coinpaprika" -> json.getJSONObject("quotes").getJSONObject("INR").getString("price")
                 "Coinbase" -> json.getJSONObject("data").getString("amount")
                 "Kraken" -> {
-                    val pair = krakenPair(endPointKey) ?: "XXBTZ${endPointKey.uppercase()}"
+                    val pair = krakenPair(endPointKey) ?: return null
                     json.getJSONObject("result").getJSONObject(pair).getJSONArray("c").getString(0)
                 }
                 else -> null

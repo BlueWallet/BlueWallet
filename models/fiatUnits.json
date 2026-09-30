@@ -79,7 +79,7 @@
     "CLP": {
         "endPointKey": "CLP",
         "locale": "es-CL",
-        "source": "Yadio",
+        "source": "YadioConvert",
         "symbol": "$",
         "country": "Chile (Chilean Peso)"
     },
@@ -415,7 +415,7 @@
     "VES": {
         "endPointKey": "VES",
         "locale": "es-VE",
-        "source": "Yadio",
+        "source": "YadioConvert",
         "symbol": "Bs.",
         "country": "Venezuela (Venezuelan Bolívar Soberano)"
     },

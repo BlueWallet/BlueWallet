@@ -30,6 +30,12 @@ export const KRAKEN_BTC_FIAT_PAIRS: Record<string, string> = {
 /** Prefer Kraken over Coinbase when both can serve the ticker */
 const UNIVERSAL_FALLBACKS: RateSource[] = ['YadioConvert', 'Kraken', 'Coinbase', 'Bitstamp'];
 
+/** Reject 0 / NaN / Infinity so a broken provider falls through to the next source instead of ending the chain */
+const assertValidRate = (rate: number): number => {
+  if (!Number.isFinite(rate) || rate <= 0) throw new Error('Invalid data received');
+  return rate;
+};
+
 const fetchRate = async (url: string): Promise<unknown> => {
   const response = await fetch(url);
   if (!response.ok) {
@@ -111,16 +117,14 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
 
   switch (source) {
     case 'Coinbase': {
-      const json = (await fetchRate(`https://api.coinbase.com/v2/prices/BTC-${ticker.toUpperCase()}/buy`)) as CoinbaseResponse;
+      const json = (await fetchRate(`https://api.coinbase.com/v2/prices/BTC-${ticker.toUpperCase()}/spot`)) as CoinbaseResponse;
       const rate = Number(json?.data?.amount);
-      if (!(rate >= 0)) throw new Error('Invalid data received');
-      return rate;
+      return assertValidRate(rate);
     }
     case 'Bitstamp': {
       const json = (await fetchRate(`https://www.bitstamp.net/api/v2/ticker/btc${ticker.toLowerCase()}`)) as BitstampResponse;
       const rate = Number(json?.last);
-      if (!(rate >= 0)) throw new Error('Invalid data received');
-      return rate;
+      return assertValidRate(rate);
     }
     case 'Kraken': {
       const pair = KRAKEN_BTC_FIAT_PAIRS[ticker.toUpperCase()];
@@ -130,8 +134,7 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
         throw new Error(json.error.join(', '));
       }
       const rate = Number(json?.result?.[pair]?.c?.[0]);
-      if (!(rate >= 0)) throw new Error('Invalid data received');
-      return rate;
+      return assertValidRate(rate);
     }
     case 'BNR': {
       const xmlResponse = await fetch('https://curs.bnr.ro/nbrfxrates.xml');
@@ -143,7 +146,7 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
       if (!matches?.[1]) {
         throw new Error('No valid USD to RON rate found');
       }
-      const usdToRonRate = parseFloat(matches[1]);
+      const usdToRonRate = assertValidRate(parseFloat(matches[1]));
       let btcToUsdRate: number | undefined;
       const usdErrors: string[] = [];
       for (const usdSource of buildRateSourceOrder('USD')) {
@@ -159,31 +162,27 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
       if (btcToUsdRate === undefined) {
         throw new Error(`Could not fetch BTC/USD for RON conversion (${usdErrors.join('; ')})`);
       }
-      return btcToUsdRate * usdToRonRate;
+      return assertValidRate(btcToUsdRate * usdToRonRate);
     }
     case 'Yadio': {
       const json = (await fetchRate(`https://api.yadio.io/json/${ticker}`)) as YadioResponse;
       const rate = Number(json?.[ticker]?.price);
-      if (!(rate >= 0)) throw new Error('Invalid data received');
-      return rate;
+      return assertValidRate(rate);
     }
     case 'YadioConvert': {
       const json = (await fetchRate(`https://api.yadio.io/convert/1/BTC/${ticker}`)) as YadioConvertResponse;
       const rate = Number(json?.rate);
-      if (!(rate >= 0)) throw new Error('Invalid data received');
-      return rate;
+      return assertValidRate(rate);
     }
     case 'Exir': {
       const json = (await fetchRate('https://api.exir.io/v1/ticker?symbol=btc-irt')) as ExirResponse;
       const rate = Number(json?.last);
-      if (!(rate >= 0)) throw new Error('Invalid data received');
-      return rate;
+      return assertValidRate(rate);
     }
     case 'coinpaprika': {
       const json = (await fetchRate('https://api.coinpaprika.com/v1/tickers/btc-bitcoin?quotes=INR')) as CoinpaprikaResponse;
       const rate = Number(json?.quotes?.INR?.price);
-      if (!(rate >= 0)) throw new Error('Invalid data received');
-      return rate;
+      return assertValidRate(rate);
     }
     default:
       throw new Error(`Unknown source: ${source}`);

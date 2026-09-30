@@ -67,11 +67,13 @@ class MarketAPI {
         case "Bitstamp":
             return "https://www.bitstamp.net/api/v2/ticker/btc\(endPointKey.lowercased())"
         case "Coinbase":
-            return "https://api.coinbase.com/v2/prices/BTC-\(endPointKey.uppercased())/buy"
+            return "https://api.coinbase.com/v2/prices/BTC-\(endPointKey.uppercased())/spot"
         case "BNR":
             return "https://curs.bnr.ro/nbrfxrates.xml"
         case "Kraken":
-            let pair = krakenPair(for: endPointKey) ?? "XXBTZ\(endPointKey.uppercased())"
+            guard let pair = krakenPair(for: endPointKey) else {
+                throw CurrencyError(errorDescription: "No Kraken BTC pair for \(endPointKey)")
+            }
             return "https://api.kraken.com/0/public/Ticker?pair=\(pair)"
         default:
             throw CurrencyError(errorDescription: "Unknown rate source: \(source)")
@@ -83,7 +85,14 @@ class MarketAPI {
             throw CurrencyError(errorDescription: "JSON parsing error.")
         }
 
-        return try parseJSONBasedOnSource(json: json, source: source, endPointKey: endPointKey)
+        guard let store = try parseJSONBasedOnSource(json: json, source: source, endPointKey: endPointKey) else {
+            return nil
+        }
+        // Reject 0 / NaN / Inf so a broken provider falls through to the next source instead of ending the chain
+        guard store.rateDouble.isFinite, store.rateDouble > 0 else {
+            throw CurrencyError(errorDescription: "Invalid rate '\(store.rate)' from source: \(source)")
+        }
+        return store
     }
 
     private static func parseJSONBasedOnSource(json: [String: Any], source: String, endPointKey: String) throws -> WidgetDataStore? {
@@ -91,9 +100,10 @@ class MarketAPI {
 
         switch source {
         case "Yadio":
+            // Yadio puts `timestamp` at the top level, not inside the currency object
             if let rateDict = json[endPointKey] as? [String: Any],
                let rateDouble = rateDict["price"] as? Double,
-               let lastUpdated = rateDict["timestamp"] as? Int {
+               let lastUpdated = json["timestamp"] as? Int {
                 let unix = Double(lastUpdated / 1_000)
                 let lastUpdatedString = ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: unix))
                 latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
@@ -148,7 +158,9 @@ class MarketAPI {
                 throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
             }
         case "Kraken":
-            let pair = krakenPair(for: endPointKey) ?? "XXBTZ\(endPointKey.uppercased())"
+            guard let pair = krakenPair(for: endPointKey) else {
+                throw CurrencyError(errorDescription: "No Kraken BTC pair for \(endPointKey)")
+            }
             if let result = json["result"] as? [String: Any],
                let tickerData = result[pair] as? [String: Any],
                let c = tickerData["c"] as? [String],
@@ -174,6 +186,9 @@ class MarketAPI {
         let delegate = BNRXMLParserDelegate()
         parser.delegate = delegate
         if parser.parse(), let usdToRonRate = delegate.usdRate {
+            guard usdToRonRate.isFinite, usdToRonRate > 0 else {
+                throw CurrencyError(errorDescription: "Invalid USD/RON rate from BNR.")
+            }
             guard let usdStore = try await fetchPrice(currency: "USD") else {
                 throw CurrencyError(errorDescription: "Could not fetch BTC/USD for RON conversion.")
             }
