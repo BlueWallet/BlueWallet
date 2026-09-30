@@ -1,6 +1,6 @@
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
+import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image, useWindowDimensions } from 'react-native';
 import type { NativeStackHeaderItem, NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import navigationStyle, { CloseButtonPosition, withRouteParamHeaderOptions, receiveSheetOptions } from '../components/navigationStyle';
 import { useTheme } from '../components/themes';
@@ -61,11 +61,46 @@ import ReceiveDetails from '../screen/receive/ReceiveDetails';
 import ReceiveCustomAmountSheet from '../screen/receive/ReceiveCustomAmountSheet';
 import ReceiveMoreOptionsSheet from '../screen/receive/ReceiveMoreOptionsSheet';
 import ReceiveAddressLabelSheet from '../screen/receive/ReceiveAddressLabelSheet';
+import BlueText from '../components/BlueText';
+import dayjs from 'dayjs';
+import { DetailViewStackParamList } from './DetailViewStackParamList';
 
 type HeaderRightItem = ReturnType<NonNullable<NativeStackNavigationOptions['unstable_headerRightItems']>>[number];
 
 const PaymentCodesList = lazy(() => import('../screen/wallets/PaymentCodesList'));
 const PaymentCodesListComponent = withLazySuspense(PaymentCodesList);
+
+const TransactionDetailHeaderTitle = (_props: { children: string; tintColor?: string }): React.JSX.Element => {
+  const { hash, tx } = useRoute<RouteProp<DetailViewStackParamList, 'TransactionStatus'>>().params;
+  const { colors } = useTheme();
+  const { fontScale } = useWindowDimensions();
+  const transactionId = tx?.hash || tx?.txid || hash;
+  const value = Number(tx?.value);
+  const direction = Number.isFinite(value) && value < 0 ? loc.transactions.details_sent : loc.transactions.details_received;
+  const date = tx?.timestamp ? dayjs(tx.timestamp * 1000).format('LLL') : '-';
+
+  return (
+    <View style={styles.transactionHeaderTitleContainer}>
+      <BlueText
+        style={[styles.transactionHeaderDirection, { color: colors.foregroundColor, lineHeight: Math.round(22 * fontScale) }]}
+        numberOfLines={1}
+        ellipsizeMode="middle"
+      >
+        {transactionId}
+      </BlueText>
+      {tx ? (
+        <BlueText
+          style={[styles.transactionHeaderDate, { color: colors.alternativeTextColor, lineHeight: Math.round(18 * fontScale) }]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+        >
+          {`${direction} · ${date}`}
+        </BlueText>
+      ) : null}
+    </View>
+  );
+};
 
 const UpdatingLabel: React.FC<{ containerStyle: object; textStyle: object }> = ({ containerStyle, textStyle }) => {
   const opacity = useRef(new Animated.Value(1)).current;
@@ -159,6 +194,7 @@ const DetailViewStackScreensStack = () => {
   const { walletTransactionUpdateStatus } = useStorage();
   const { isElectrumDisabled } = useSettings();
   const { sizeClass } = useSizeClass();
+  const { width: windowWidth } = useWindowDimensions();
   const [electrumConnected, setElectrumConnected] = useState<boolean | null>(null);
 
   // Probe connection health from the UI (e.g. WalletsList focus / 30s timer).
@@ -389,13 +425,28 @@ const DetailViewStackScreensStack = () => {
             hash: undefined,
             walletID: undefined,
           }}
-          options={navigationStyle({
-            headerStyle: {
-              backgroundColor: theme.colors.customHeader,
+          options={navigationStyle(
+            {
+              headerStyle: {
+                backgroundColor: theme.colors.customHeader,
+              },
+              headerTitle: '',
+              headerBackButtonDisplayMode: 'default',
             },
-            headerTitle: '',
-            headerBackButtonDisplayMode: 'default',
-          })(theme)}
+            (options, { route }) => {
+              const transactionId = route.params?.tx?.hash || route.params?.tx?.txid || route.params?.hash || '';
+              return {
+                ...options,
+                title: transactionId,
+                headerTitle: transactionId ? TransactionDetailHeaderTitle : '',
+                headerTitleAlign: 'left',
+                headerTitleContainerStyle: {
+                  flex: 1,
+                  maxWidth: Math.max(0, windowWidth - 96),
+                },
+              };
+            },
+          )(theme)}
         />
         <DetailViewStack.Screen name="CPFP" component={CPFP} options={navigationStyle({ title: loc.transactions.cpfp_title })(theme)} />
         <DetailViewStack.Screen
@@ -583,6 +634,21 @@ const DetailViewStackScreensStack = () => {
 export default DetailViewStackScreensStack;
 
 const styles = StyleSheet.create({
+  transactionHeaderTitleContainer: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    flex: 1,
+    minWidth: 0,
+  },
+  transactionHeaderDirection: {
+    fontSize: 17,
+    fontWeight: '600',
+    marginBottom: 2,
+    letterSpacing: 0.15,
+  },
+  transactionHeaderDate: {
+    fontSize: 13,
+  },
   headerIconButton: {
     minWidth: 40,
     height: 40,
