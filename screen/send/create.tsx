@@ -1,13 +1,11 @@
 import Clipboard from '@react-native-clipboard/clipboard';
-import { useNavigation, RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useRoute } from '@react-navigation/native';
 import BigNumber from 'bignumber.js';
 import * as bitcoin from 'bitcoinjs-lib';
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, Linking, Pressable, StyleSheet, Text, TextInput, View, ListRenderItemInfo } from 'react-native';
-import Icon from '../../components/Icon';
 import { satoshiToBTC } from '../../blue_modules/currency';
 import BlueText from '../../components/BlueText';
-import { writeFileAndExport } from '../../blue_modules/fs';
 import { DynamicQRCode } from '../../components/DynamicQRCode';
 import { useTheme } from '../../components/themes';
 import loc from '../../loc';
@@ -32,7 +30,6 @@ const SendCreate = () => {
   const size = transaction.virtualSize();
   const { isPrivacyBlurEnabled } = useSettings();
   const { colors } = useTheme();
-  const navigation = useNavigation();
 
   const styleHooks = StyleSheet.create({
     transactionDetailsTitle: {
@@ -63,26 +60,6 @@ const SendCreate = () => {
       disableScreenProtect();
     };
   }, [isPrivacyBlurEnabled, enableScreenProtect, disableScreenProtect]);
-
-  const exportTXN = useCallback(async () => {
-    const fileName = `${Date.now()}.txn`;
-    await writeFileAndExport(fileName, tx, false);
-  }, [tx]);
-
-  const renderHeaderRight = useCallback(
-    () => (
-      <Pressable accessibilityRole="button" onPress={exportTXN} style={({ pressed }) => pressed && styles.iconPressablePressed}>
-        <Icon size={22} name="share-alternative" type="entypo" color={colors.foregroundColor} />
-      </Pressable>
-    ),
-    [colors.foregroundColor, exportTXN],
-  );
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: renderHeaderRight,
-    });
-  }, [navigation, renderHeaderRight]);
 
   const _renderItem = ({ index, item }: ListRenderItemInfo<CreateTransactionTarget>) => {
     return (
@@ -214,9 +191,6 @@ const styles = StyleSheet.create({
   },
   actionTouchPressed: {
     opacity: 0.7,
-  },
-  iconPressablePressed: {
-    opacity: 0.6,
   },
   actionText: {
     color: '#9aa0aa',

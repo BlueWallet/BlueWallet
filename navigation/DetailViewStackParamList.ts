@@ -106,7 +106,7 @@ export type DetailViewStackParamList = {
   SettingsBlockExplorer: undefined;
   PlausibleDeniability: undefined;
   EncryptStorage: undefined;
-  Language: undefined;
+  Language: { search?: string } | undefined;
   LightningSettings: {
     url?: string;
     onBarScanned?: string;

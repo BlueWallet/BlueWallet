@@ -513,7 +513,19 @@ const DetailViewStackScreensStack = () => {
           component={EncryptStorage}
           options={settingsScreenOptions(loc.settings.encrypt_title)}
         />
-        <DetailViewStack.Screen name="Language" component={Language} options={settingsScreenOptions(loc.settings.language)} />
+        <DetailViewStack.Screen
+          name="Language"
+          component={Language}
+          options={({ route, navigation: screenNavigation }) => {
+            const options = settingsScreenOptions(loc.settings.language);
+            return {
+              ...(typeof options === 'function' ? options({ route, navigation: screenNavigation }) : options),
+              headerSearchBarOptions: {
+                onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+              },
+            };
+          }}
+        />
         <DetailViewStack.Screen
           name="LightningSettings"
           component={LightningSettings}
