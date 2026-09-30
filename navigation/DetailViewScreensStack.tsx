@@ -1,3 +1,4 @@
+import { getSelectWalletOptions } from './helpers/getSelectWalletOptions';
 import { useNavigation } from '@react-navigation/native';
 import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, AppState, View, Platform, Text, StyleSheet, Pressable, Image } from 'react-native';
@@ -411,7 +412,7 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="SelectWallet"
           component={SelectWallet}
-          options={navigationStyle({ title: loc.wallets.select_wallet })(theme)}
+          options={navigationStyle({ title: loc.wallets.select_wallet }, getSelectWalletOptions)(theme)}
         />
         <DetailViewStack.Screen
           name="LNDViewInvoice"
@@ -474,7 +475,12 @@ const DetailViewStackScreensStack = () => {
         <DetailViewStack.Screen
           name="WalletAddresses"
           component={WalletAddresses}
-          options={navigationStyle({ title: loc.addresses.addresses_title })(theme)}
+          options={navigationStyle({ title: loc.addresses.addresses_title }, (options, { navigation: screenNavigation }) => ({
+            ...options,
+            headerSearchBarOptions: {
+              onChangeText: event => screenNavigation.setParams({ search: event.nativeEvent.text }),
+            },
+          }))(theme)}
         />
 
         <DetailViewStack.Screen name="Settings" component={Settings} options={settingsScreenOptions(loc.settings.header)} />

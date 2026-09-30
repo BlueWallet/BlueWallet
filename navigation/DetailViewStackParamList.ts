@@ -53,6 +53,7 @@ export type DetailViewStackParamList = {
   RBFBumpFee: { txid: string; wallet: TWallet | null };
   RBFCancel: { txid: string; wallet: TWallet | null };
   SelectWallet: {
+    hasSelectableWallets?: boolean;
     chainType?: Chain;
     onWalletSelect?: (wallet: TWallet, navigationWrapper: TNavigationWrapper) => void;
     availableWallets?: TWallet[];
@@ -74,7 +75,7 @@ export type DetailViewStackParamList = {
   };
   LnurlAuth: undefined;
   Success: undefined;
-  WalletAddresses: { walletID: string };
+  WalletAddresses: { walletID: string; search?: string };
   AddWalletRoot: NavigatorScreenParams<AddWalletStackParamList> | undefined;
   SendDetailsRoot: SendDetailsParams;
   LNDCreateInvoiceRoot: undefined;
