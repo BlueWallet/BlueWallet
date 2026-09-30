@@ -14,6 +14,7 @@ import WalletExport from '../screen/wallets/WalletExport';
 import ViewEditMultisigCosignerViewSheet from '../screen/wallets/ViewEditMultisigCosignerViewSheet';
 import ViewEditMultisigProvideMnemonicsSheet from '../screen/wallets/ViewEditMultisigProvideMnemonicsSheet';
 import ViewEditMultisigShareCosignerSheet from '../screen/wallets/ViewEditMultisigShareCosignerSheet';
+import ClipboardDetected from '../screen/ClipboardDetected';
 import { navigationGuardRouter } from './navigationGuard';
 
 // Lazy load all components except UnlockWith
@@ -175,6 +176,18 @@ const MainRoot = () => {
             options={{ ...NavigationDefaultOptions, ...StatusBarLightOptions }}
           />
 
+          <DetailViewStack.Screen
+            name="ClipboardDetected"
+            component={ClipboardDetected}
+            options={navigationStyle({
+              presentation: 'formSheet',
+              sheetAllowedDetents: [0.45],
+              sheetGrabberVisible: true,
+              closeButtonPosition: CloseButtonPosition.Right,
+              title: loc.wallets.detect_on_clipboard,
+              headerShown: Platform.OS === 'ios',
+            })(theme)}
+          />
           <DetailViewStack.Screen
             name="ScanQRCode"
             component={LazyScanQRCodeComponent}
