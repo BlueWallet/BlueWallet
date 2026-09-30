@@ -109,7 +109,13 @@ object MarketAPI {
 
             var lastResponse = ApiResponse(null, -1)
             for (source in sources) {
-                val response = fetchFromSource(context, source, endPointKey)
+                val response = try {
+                    fetchFromSource(context, source, endPointKey)
+                } catch (e: Exception) {
+                    // OkHttp execute() throws on DNS/timeout/reset — keep walking like JS/iOS
+                    Log.w(TAG, "Error fetching price for $currency from $source: ${e.javaClass.simpleName} - ${e.message}")
+                    ApiResponse(null, -1)
+                }
                 if (response.body != null && response.code == 200) {
                     val totalDuration = System.currentTimeMillis() - startTime
                     Log.i(TAG, "Successfully parsed price for $currency from $source: ${response.body} (total time: ${totalDuration}ms)")
