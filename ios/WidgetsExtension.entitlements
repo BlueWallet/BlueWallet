@@ -8,6 +8,10 @@
 	<array>
 		<string>group.io.bluewallet.bluewallet</string>
 	</array>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)io.bluewallet.bluewallet.receive-address-shortcut</string>
+	</array>
 	<key>com.apple.security.network.client</key>
 	<true/>
 </dict>

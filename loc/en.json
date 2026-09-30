@@ -316,6 +316,8 @@
     "privacy_system_settings": "System Settings",
     "privacy_quickactions": "Wallet Shortcuts",
     "privacy_quickactions_explanation": "Touch and hold the BlueWallet app icon to quickly view your wallet’s balance.",
+    "privacy_receive_address_shortcut": "Receive Address Shortcut",
+    "privacy_receive_address_shortcut_explanation": "Allow Shortcuts to display the receive address of an on-chain wallet.",
     "privacy_clipboard_explanation": "Provide shortcuts if an address or invoice is found in your clipboard.",
     "privacy_do_not_track": "Disable Analytics",
     "privacy_do_not_track_explanation": "Performance and reliability information will not be submitted for analysis.",

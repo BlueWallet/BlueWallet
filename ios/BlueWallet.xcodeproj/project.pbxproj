@@ -435,7 +435,6 @@
 				B48630DF2CCEE7C800A8425C /* PriceWidgetEntryView.swift */,
 				B48630DC2CCEE7AC00A8425C /* PriceWidgetEntry.swift */,
 				B48630D52CCEE67100A8425C /* PriceWidgetProvider.swift */,
-				B48630D02CCEE3B300A8425C /* PriceIntent.swift */,
 				6D6CA4BC255872E3009312A5 /* PriceWidget.swift */,
 			);
 			path = PriceWidget;
@@ -460,7 +459,6 @@
 		6DD4109F266CADF10087DE03 /* Widgets */ = {
 			isa = PBXGroup;
 			children = (
-				B48630EB2CCEEEA700A8425C /* WalletAppShortcuts.swift */,
 				6DD410C3266CCB780087DE03 /* WidgetsExtension.entitlements */,
 				6DD410A0266CADF10087DE03 /* Widgets.swift */,
 				6DD410A4266CADF40087DE03 /* Info.plist */,
@@ -517,6 +515,7 @@
 				00E356EF1AD99517003FC87E /* BlueWalletTests */,
 				6D2A6462258BA92C0092292B /* Stickers */,
 				6DD4109F266CADF10087DE03 /* Widgets */,
+				B4D1CE912D00000100100001 /* Shortcuts */,
 				B47B21EA2B2128B8001F6690 /* BlueWalletUITests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
@@ -649,6 +648,15 @@
 				B47B21EB2B2128B8001F6690 /* BlueWalletUITests.swift */,
 			);
 			path = BlueWalletUITests;
+			sourceTree = "<group>";
+		};
+		B4D1CE912D00000100100001 /* Shortcuts */ = {
+			isa = PBXGroup;
+			children = (
+				B48630EB2CCEEEA700A8425C /* WalletAppShortcuts.swift */,
+				B48630D02CCEE3B300A8425C /* PriceIntent.swift */,
+			);
+			path = Shortcuts;
 			sourceTree = "<group>";
 		};
 		DBE02524057AE76C1508FC5C /* QuickLookThumbnail */ = {

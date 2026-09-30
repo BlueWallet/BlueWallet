@@ -13,6 +13,8 @@
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>BlueWallet</string>
+	<key>ReceiveAddressShortcutKeychainAccessGroup</key>
+	<string>$(AppIdentifierPrefix)io.bluewallet.bluewallet.receive-address-shortcut</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

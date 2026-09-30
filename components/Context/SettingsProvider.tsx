@@ -18,6 +18,15 @@ import { BLOCK_EXPLORERS, getBlockExplorerUrl, saveBlockExplorer, BlockExplorer,
 import * as BlueElectrum from '../../blue_modules/BlueElectrum';
 import { isBalanceDisplayAllowed, setBalanceDisplayAllowed } from '../../hooks/useWidgetCommunication';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  clearReceiveAddressShortcutData,
+  getReceiveAddressShortcutData,
+  setReceiveAddressShortcutData,
+} from '../../app_intents/receiveAddressShortcut';
+
+export const getIsReceiveAddressShortcutEnabled = async (): Promise<boolean> => {
+  return (await getReceiveAddressShortcutData()).enabled;
+};
 
 const getDoNotTrackStorage = async (): Promise<boolean> => {
   try {
@@ -91,6 +100,8 @@ interface SettingsContextType {
   setIsClipboardGetContentEnabledStorage: (value: boolean) => Promise<void>;
   isQuickActionsEnabled: boolean;
   setIsQuickActionsEnabledStorage: (value: boolean) => Promise<void>;
+  isReceiveAddressShortcutEnabled: boolean;
+  setIsReceiveAddressShortcutEnabledStorage: (value: boolean) => Promise<void>;
   isTotalBalanceEnabled: boolean;
   setIsTotalBalanceEnabledStorage: (value: boolean) => Promise<void>;
   totalBalancePreferredUnit: BitcoinUnit;
@@ -120,6 +131,8 @@ const defaultSettingsContext: SettingsContextType = {
   setIsClipboardGetContentEnabledStorage: async () => {},
   isQuickActionsEnabled: true,
   setIsQuickActionsEnabledStorage: async () => {},
+  isReceiveAddressShortcutEnabled: false,
+  setIsReceiveAddressShortcutEnabledStorage: async () => {},
   isTotalBalanceEnabled: true,
   setIsTotalBalanceEnabledStorage: async () => {},
   totalBalancePreferredUnit: BitcoinUnit.BTC,
@@ -142,6 +155,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
   const [isLegacyURv1Enabled, setIsLegacyURv1Enabled] = useState<boolean>(false);
   const [isClipboardGetContentEnabled, setIsClipboardGetContentEnabled] = useState<boolean>(true);
   const [isQuickActionsEnabled, setIsQuickActionsEnabled] = useState<boolean>(true);
+  const [isReceiveAddressShortcutEnabled, setIsReceiveAddressShortcutEnabled] = useState<boolean>(false);
   const [isTotalBalanceEnabled, setIsTotalBalanceEnabled] = useState<boolean>(true);
   const [totalBalancePreferredUnit, setTotalBalancePreferredUnit] = useState<BitcoinUnit>(BitcoinUnit.BTC);
   const [selectedBlockExplorer, setSelectedBlockExplorer] = useState<BlockExplorer>(BLOCK_EXPLORERS.default);
@@ -178,6 +192,9 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
         }),
         getIsDeviceQuickActionsEnabled().then(quickActionsEnabled => {
           setIsQuickActionsEnabled(quickActionsEnabled);
+        }),
+        getIsReceiveAddressShortcutEnabled().then(receiveAddressShortcutEnabled => {
+          setIsReceiveAddressShortcutEnabled(receiveAddressShortcutEnabled);
         }),
         getDoNotTrackStorage().then(doNotTrack => {
           setIsDoNotTrackEnabled(doNotTrack);
@@ -309,6 +326,18 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       console.error('Error setting isQuickActionsEnabled:', e);
     }
   }, []);
+  const setIsReceiveAddressShortcutEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
+    try {
+      if (value) {
+        await setReceiveAddressShortcutData({ enabled: true, wallets: [] });
+      } else {
+        await clearReceiveAddressShortcutData();
+      }
+      setIsReceiveAddressShortcutEnabled(value);
+    } catch (e) {
+      console.error('Error setting ReceiveAddressShortcutEnabled:', e);
+    }
+  }, []);
   const setIsTotalBalanceEnabledStorage = useCallback(async (value: boolean): Promise<void> => {
     try {
       await setTotalBalanceViewEnabledStorage(value);
@@ -360,6 +389,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isReceiveAddressShortcutEnabled,
+      setIsReceiveAddressShortcutEnabledStorage,
       isTotalBalanceEnabled,
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,
@@ -388,6 +419,8 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = React.m
       setIsClipboardGetContentEnabledStorage,
       isQuickActionsEnabled,
       setIsQuickActionsEnabledStorage,
+      isReceiveAddressShortcutEnabled,
+      setIsReceiveAddressShortcutEnabledStorage,
       isTotalBalanceEnabled,
       setIsTotalBalanceEnabledStorage,
       totalBalancePreferredUnit,

@@ -28,6 +28,7 @@ import { getLNDHub } from '../helpers/lndHub';
 import { LightningArkWallet } from './wallets/lightning-ark-wallet.ts';
 import { hexToUint8Array, uint8ArrayToHex } from '../blue_modules/uint8array-extras';
 import { HDTaprootWallet } from './wallets/hd-taproot-wallet';
+import { clearReceiveAddressShortcutData } from '../app_intents/receiveAddressShortcut';
 
 let usedBucketNum: boolean | number = false;
 let savingInProgress = 0; // its both a flag and a counter of attempts to write to disk
@@ -226,6 +227,8 @@ export class BlueApp {
 
   encryptStorage = async (password: string): Promise<void> => {
     // assuming the storage is not yet encrypted
+    // A receive address must not remain accessible from Shortcuts once wallet storage is password protected.
+    await clearReceiveAddressShortcutData();
     await this.saveToDisk();
     let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
@@ -237,6 +240,8 @@ export class BlueApp {
     this.cachedPassword = password;
     await this.setItem('data', data);
     await this.setItem(BlueApp.FLAG_ENCRYPTED, '1');
+    // saveToDisk above can notify React before the encrypted flag is set; clear again once encryption is durable.
+    await clearReceiveAddressShortcutData();
   };
 
   /**

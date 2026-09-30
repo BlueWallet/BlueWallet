@@ -17,10 +17,6 @@ class AppDelegate: RCTAppDelegate, UNUserNotificationCenterDelegate {
         automaticallyLoadReactNativeWindow = false
         clearFilesIfNeeded()
 
-        if #available(iOS 16.4, *) {
-            WalletAppShortcuts.updateAppShortcutParameters()
-        }
-        
         // Fix app group UserDefaults initialization
         userDefaultsGroup = UserDefaults.standard
         

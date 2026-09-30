@@ -5,6 +5,27 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
 
+    #if DEBUG
+    private static var didLaunchDebugShortcut = false
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        guard !Self.didLaunchDebugShortcut,
+              let name = ProcessInfo.processInfo.environment["BLUEWALLET_DEBUG_SHORTCUT_NAME"],
+              !name.isEmpty else { return }
+        Self.didLaunchDebugShortcut = true
+        var components = URLComponents()
+        components.scheme = "shortcuts"
+        components.host = "run-shortcut"
+        components.queryItems = [URLQueryItem(name: "name", value: name)]
+        guard let url = components.url else { return }
+        UIApplication.shared.open(url, options: [:]) { opened in
+            if !opened {
+                NSLog("[AppIntents debug] Unable to open Shortcuts. Install Shortcuts and create the saved shortcut specified in the scheme.")
+            }
+        }
+    }
+    #endif
+
     func scene(
         _ scene: UIScene,
         willConnectTo session: UISceneSession,
