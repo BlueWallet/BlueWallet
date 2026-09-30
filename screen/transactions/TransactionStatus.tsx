@@ -806,6 +806,14 @@ const TransactionStatus: React.FC = () => {
     [navigate],
   );
 
+  const handleOpenMempoolAccelerator = useCallback(() => {
+    if (!tx?.hash) return;
+    Linking.openURL(`https://mempool.space/tx/${tx.hash}#partnerCode=bluewallet`).catch(e => {
+      triggerHapticFeedback(HapticFeedbackTypes.NotificationError);
+      presentAlert({ message: e.message });
+    });
+  }, [tx?.hash]);
+
   const handleOpenBlockExplorer = useCallback(() => {
     if (!tx?.hash || !selectedBlockExplorer) return;
     const url = `${selectedBlockExplorer.url}/tx/${tx.hash}`;
@@ -939,6 +947,8 @@ const TransactionStatus: React.FC = () => {
   const isOnChainTx = isOnChainTransaction(tx);
   const isPending = resolveTxDisplayState(tx) === 'pending';
   const preferredBalanceUnit = wallet?.preferredBalanceUnit ?? BitcoinUnit.BTC;
+  const showMempoolSpeedUp =
+    Boolean(tx?.hash) && isRBFBumpFeePossible === ButtonStatus.NotPossible && isCPFPPossible === ButtonStatus.NotPossible;
 
   const showBlocksAccordion = isOnChainTx && !isPending && parsedConfirmations > 0;
 
@@ -1128,7 +1138,8 @@ const TransactionStatus: React.FC = () => {
               {wallet &&
                 (isRBFBumpFeePossible === ButtonStatus.Possible ||
                   isRBFCancelPossible === ButtonStatus.Possible ||
-                  isCPFPPossible === ButtonStatus.Possible) && (
+                  isCPFPPossible === ButtonStatus.Possible ||
+                  showMempoolSpeedUp) && (
                   <View style={styles.stateButtons}>
                     {isRBFBumpFeePossible === ButtonStatus.Possible && (
                       <TouchableOpacity
@@ -1142,6 +1153,15 @@ const TransactionStatus: React.FC = () => {
                     {isCPFPPossible === ButtonStatus.Possible && (
                       <TouchableOpacity
                         onPress={() => navigateToCPFP(tx, wallet)}
+                        style={[styles.speedUpButton, stylesHook.speedUpButton]}
+                        accessibilityRole="button"
+                      >
+                        <BlueText style={[styles.speedUpButtonText, stylesHook.speedUpButtonText]}>{loc.transactions.status_bump}</BlueText>
+                      </TouchableOpacity>
+                    )}
+                    {showMempoolSpeedUp && (
+                      <TouchableOpacity
+                        onPress={handleOpenMempoolAccelerator}
                         style={[styles.speedUpButton, stylesHook.speedUpButton]}
                         accessibilityRole="button"
                       >
