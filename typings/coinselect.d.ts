@@ -40,11 +40,18 @@ declare module 'coinselect' {
     value: number;
   };
 
+  export type CoinSelectOptions = {
+    /** scriptPubKey change is going to, p2pkh (25 bytes) is assumed by default. Used for change output size and its dust limit */
+    changeScript?: { length: number };
+    /** bytes of the transaction the lib is not aware of, e.g. segwit marker & flag */
+    txExtraBytes?: number;
+  };
+
   export default function coinSelect(
     utxos: CoinSelectUtxo[],
     targets: CoinSelectTarget[],
     feeRate: number,
-    changeAddress?: string,
+    options?: CoinSelectOptions,
   ): {
     inputs: CoinSelectReturnInput[];
     outputs: CoinSelectOutput[];
@@ -63,7 +70,7 @@ declare module 'coinselect/split' {
     utxos: U[],
     targets: { address: string; value?: number }[],
     feeRate: number,
-    changeAddress?: string,
+    options?: import('coinselect').CoinSelectOptions,
   ): {
     inputs: CoinselectReturnInput[];
     outputs: {
