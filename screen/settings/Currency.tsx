@@ -136,7 +136,7 @@ const Currency: React.FC = () => {
     isSearchFocused || !selectedCurrencyVisible ? null : (
       <View style={[styles.infoHeader, stylesHook.infoHeader]}>
         <Text style={[settingsSectionHeaderText, styles.infoTitle, stylesHook.infoTitle]}>
-          {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.CoinDesk}
+          {loc.settings.currency_source} {selectedCurrency?.source ?? FiatUnitSource.Kraken}
         </Text>
         <Text style={[styles.infoSubtitle, stylesHook.infoSubtitle]}>
           {loc.settings.rate}: {currencyRate.Rate ?? loc._.never}

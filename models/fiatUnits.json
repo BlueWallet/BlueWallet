@@ -93,7 +93,7 @@
     "COP": {
         "endPointKey": "COP",
         "locale": "es-CO",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "$",
         "country": "Colombia (Colombian Peso)"
     },
@@ -205,7 +205,7 @@
     "KES": {
         "endPointKey": "KES",
         "locale": "en-KE",
-        "source": "CoinDesk",
+        "source": "Coinbase",
         "symbol": "Ksh",
         "country": "Kenya (Kenyan Shilling)"
     },

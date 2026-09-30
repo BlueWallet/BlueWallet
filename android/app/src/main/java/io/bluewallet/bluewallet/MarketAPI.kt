@@ -37,7 +37,7 @@ object MarketAPI {
         "CHF" to "XBTCHF",
     )
     private val bitstampFiatPairs = setOf("USD", "EUR", "GBP")
-    private val universalFallbacks = listOf("YadioConvert", "Kraken", "Coinbase", "CoinDesk", "Bitstamp")
+    private val universalFallbacks = listOf("YadioConvert", "Kraken", "Coinbase", "Bitstamp")
     
     data class ApiResponse(val body: String?, val code: Int)
     data class PriceResult(val rateDouble: Double, val formattedRate: String?)
@@ -215,8 +215,7 @@ object MarketAPI {
                     val pair = krakenPair(endPointKey) ?: "XXBTZ${endPointKey.uppercase()}"
                     "https://api.kraken.com/0/public/Ticker?pair=$pair"
                 }
-                "CoinDesk" -> "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${endPointKey.uppercase()}"
-                else -> "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${endPointKey.uppercase()}"
+                else -> throw IllegalArgumentException("Unknown rate source: $source")
             }
         }
     }
@@ -234,10 +233,6 @@ object MarketAPI {
                 "Kraken" -> {
                     val pair = krakenPair(endPointKey) ?: "XXBTZ${endPointKey.uppercase()}"
                     json.getJSONObject("result").getJSONObject(pair).getJSONArray("c").getString(0)
-                }
-                "CoinDesk" -> {
-                    val rate = json.optDouble(endPointKey.uppercase(), -1.0)
-                    if (rate < 0) null else rate.toString()
                 }
                 else -> null
             }

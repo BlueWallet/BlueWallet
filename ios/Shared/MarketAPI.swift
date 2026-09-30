@@ -20,7 +20,7 @@ class MarketAPI {
         "CHF": "XBTCHF",
     ]
     private static let bitstampFiatPairs: Set<String> = ["USD", "EUR", "GBP"]
-    private static let universalFallbacks = ["YadioConvert", "Kraken", "Coinbase", "CoinDesk", "Bitstamp"]
+    private static let universalFallbacks = ["YadioConvert", "Kraken", "Coinbase", "Bitstamp"]
 
     private static func canUseRateSource(source: String, endPointKey: String) -> Bool {
         let upper = endPointKey.uppercased()
@@ -54,7 +54,7 @@ class MarketAPI {
         return order
     }
 
-    private static func buildURLString(source: String, endPointKey: String) -> String {
+    private static func buildURLString(source: String, endPointKey: String) throws -> String {
         switch source {
         case "Yadio":
             return "https://api.yadio.io/json/\(endPointKey)"
@@ -73,8 +73,8 @@ class MarketAPI {
         case "Kraken":
             let pair = krakenPair(for: endPointKey) ?? "XXBTZ\(endPointKey.uppercased())"
             return "https://api.kraken.com/0/public/Ticker?pair=\(pair)"
-        default: // CoinDesk
-            return "https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=\(endPointKey)"
+        default:
+            throw CurrencyError(errorDescription: "Unknown rate source: \(source)")
         }
     }
 
@@ -164,14 +164,8 @@ class MarketAPI {
                     throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
                 }
             }
-        default: // CoinDesk
-            if let rateDouble = json[endPointKey.uppercased()] as? Double {
-                let lastUpdatedString = ISO8601DateFormatter().string(from: Date())
-                latestRateDataStore = WidgetDataStore(rate: String(rateDouble), lastUpdate: lastUpdatedString, rateDouble: rateDouble)
-                return latestRateDataStore
-            } else {
-                throw CurrencyError(errorDescription: "Data formatting error for source: \(source)")
-            }
+        default:
+            throw CurrencyError(errorDescription: "Unknown rate source: \(source)")
         }
     }
 
@@ -197,7 +191,7 @@ class MarketAPI {
     }
 
     private static func fetchFromSource(source: String, endPointKey: String) async throws -> WidgetDataStore? {
-        let urlString = buildURLString(source: source, endPointKey: endPointKey)
+        let urlString = try buildURLString(source: source, endPointKey: endPointKey)
         guard let url = URL(string: urlString) else {
             throw CurrencyError(errorDescription: "Invalid URL.")
         }

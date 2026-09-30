@@ -3,7 +3,6 @@ import untypedFiatUnit from './fiatUnits.json';
 
 export const FiatUnitSource = {
   Coinbase: 'Coinbase',
-  CoinDesk: 'CoinDesk',
   Kraken: 'Kraken',
   Yadio: 'Yadio',
   YadioConvert: 'YadioConvert',
@@ -29,7 +28,7 @@ export const KRAKEN_BTC_FIAT_PAIRS: Record<string, string> = {
 };
 
 /** Prefer Kraken over Coinbase when both can serve the ticker */
-const UNIVERSAL_FALLBACKS: RateSource[] = ['YadioConvert', 'Kraken', 'Coinbase', 'CoinDesk', 'Bitstamp'];
+const UNIVERSAL_FALLBACKS: RateSource[] = ['YadioConvert', 'Kraken', 'Coinbase', 'Bitstamp'];
 
 const fetchRate = async (url: string): Promise<unknown> => {
   const response = await fetch(url);
@@ -43,10 +42,6 @@ interface CoinbaseResponse {
   data: {
     amount: string;
   };
-}
-
-interface CoinDeskResponse {
-  [ticker: string]: number;
 }
 
 interface BitstampResponse {
@@ -118,14 +113,6 @@ async function fetchRateFromSource(source: RateSource, ticker: string): Promise<
     case 'Coinbase': {
       const json = (await fetchRate(`https://api.coinbase.com/v2/prices/BTC-${ticker.toUpperCase()}/buy`)) as CoinbaseResponse;
       const rate = Number(json?.data?.amount);
-      if (!(rate >= 0)) throw new Error('Invalid data received');
-      return rate;
-    }
-    case 'CoinDesk': {
-      const json = (await fetchRate(
-        `https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=${ticker.toUpperCase()}`,
-      )) as CoinDeskResponse;
-      const rate = json?.[ticker.toUpperCase()];
       if (!(rate >= 0)) throw new Error('Invalid data received');
       return rate;
     }

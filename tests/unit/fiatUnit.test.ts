@@ -44,14 +44,14 @@ describe('fiatUnit', () => {
     assert.strictEqual(aedOrder[0], 'Coinbase');
     assert.strictEqual(aedOrder.includes('Kraken'), false);
 
-    // When primary is not Kraken but Kraken supports the ticker, Kraken comes before Coinbase
+    // KES has no Kraken pair: Coinbase primary, Kraken never in the chain, no CoinDesk anywhere
     const kesOrder = buildRateSourceOrder('KES');
-    assert.strictEqual(kesOrder[0], 'CoinDesk');
-    const krakenIdx = kesOrder.indexOf('Kraken');
-    const coinbaseIdx = kesOrder.indexOf('Coinbase');
-    // KES has no Kraken pair; Coinbase should still be present
-    assert.strictEqual(krakenIdx, -1);
-    assert.ok(coinbaseIdx > 0);
+    assert.deepStrictEqual(kesOrder, ['Coinbase', 'YadioConvert']);
+
+    // When primary is not Kraken but Kraken supports the ticker, Kraken comes before Coinbase
+    const usdFallbacks = usdOrder.slice(1);
+    assert.ok(usdFallbacks.indexOf('YadioConvert') < usdFallbacks.indexOf('Coinbase'));
+    assert.deepStrictEqual(buildRateSourceOrder('RON'), ['BNR', 'YadioConvert', 'Coinbase']);
   });
 
   it('getFiatRate falls back when primary source fails', async () => {
