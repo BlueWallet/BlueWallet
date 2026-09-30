@@ -31,7 +31,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import { MultisigHDWallet } from '../../class/wallets/multisig-hd-wallet';
 import { WatchOnlyWallet } from '../../class/wallets/watch-only-wallet';
 import presentAlert, { AlertType } from '../../components/Alert';
-import { BuyBitcoinButton, buyBitcoinButtonVariant } from '../../components/BuyBitcoinButton';
+import { BuyBitcoinButton, buyBitcoinButtonVariant, resolveBuyBitcoinReceiveAddress } from '../../components/BuyBitcoinButton';
 import { FButton, FContainer, FloatButtonsBottomFade, getFloatingButtonReservedHeight } from '../../components/FloatButtons';
 import { useTheme } from '../../components/themes';
 import { TransactionListItem } from '../../components/TransactionListItem';
@@ -178,7 +178,7 @@ const WalletTransactionsScrolledHeaderTitle: React.FC<WalletTransactionsScrolled
 };
 
 const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { route: WalletTransactionsRouteProps }) => {
-  const { wallets, saveToDisk } = useStorage();
+  const { wallets, saveToDisk, sleep } = useStorage();
   const { registerTransactionsHandler, unregisterTransactionsHandler } = useMenuElements();
   const { isBiometricUseCapableAndEnabled } = useBiometrics();
   const { direction } = useLocale();
@@ -739,145 +739,102 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
   const buyBitcoinVariant = buyBitcoinButtonVariant(wallet.chain, sortedTransactions.length, buyBitcoinCountry);
 
   const getBuyBitcoinAddress = useCallback(async (): Promise<string | undefined> => {
-    const usable = (address: string | false | undefined): address is string => typeof address === 'string' && address.length > 0;
+    return resolveBuyBitcoinReceiveAddress(wallet, {
+      isElectrumDisabled,
+      sleep,
+      saveToDisk,
+    });
+  }, [isElectrumDisabled, saveToDisk, sleep, wallet]);
 
-    try {
-      const address = await wallet.getAddressAsync();
-      if (usable(address)) {
-        try {
+  // Element, not a component function. FlatList mounts a function header as its own
+  // component type, and this screen builds a new function every render, which would
+  // remount the buy button and drop its in-flight lock when saveToDisk updates wallets.
+  const listHeader = (
+    <View
+      ref={headerRef}
+      onLayout={event => {
+        const nextHeight = Math.round(event.nativeEvent.layout.height);
+        setListHeaderHeight(prev => (prev === nextHeight ? prev : nextHeight));
+      }}
+    >
+      <TransactionsNavigationHeader
+        headerOverlayHeight={headerOverlayHeight}
+        wallet={wallet}
+        onWalletUnitChange={async selectedUnit => {
+          setIsUnitSwitching(true);
+          setDisplayUnit(selectedUnit);
+          if ('setPreferredBalanceUnit' in wallet) {
+            wallet.setPreferredBalanceUnit(selectedUnit);
+          } else {
+            (wallet as TWallet).preferredBalanceUnit = selectedUnit;
+          }
           await saveToDisk();
-        } catch (error) {
-          console.warn('Failed to persist buy-bitcoin receive address:', error);
-        }
-        return address;
-      }
-    } catch (error) {
-      console.warn('Failed to fetch buy-bitcoin receive address:', error);
-    }
-
-    if ('_getExternalAddressByIndex' in wallet && 'getNextFreeAddressIndex' in wallet) {
-      try {
-        const address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
-        if (usable(address)) return address;
-      } catch (error) {
-        console.warn('Failed to derive buy-bitcoin receive address:', error);
-      }
-    }
-
-    try {
-      const address = wallet.getAddress();
-      return usable(address) ? address : undefined;
-    } catch (error) {
-      console.warn('Failed to read buy-bitcoin receive address:', error);
-      return undefined;
-    }
-  }, [saveToDisk, wallet]);
-
-  const ListHeaderComponent = useCallback(
-    () => (
-      <View
-        ref={headerRef}
-        onLayout={event => {
-          const nextHeight = Math.round(event.nativeEvent.layout.height);
-          setListHeaderHeight(prev => (prev === nextHeight ? prev : nextHeight));
+          setTimeout(() => {
+            setIsUnitSwitching(false);
+          }, 50);
         }}
-      >
-        <TransactionsNavigationHeader
-          headerOverlayHeight={headerOverlayHeight}
-          wallet={wallet}
-          onWalletUnitChange={async selectedUnit => {
-            setIsUnitSwitching(true);
-            setDisplayUnit(selectedUnit);
-            if ('setPreferredBalanceUnit' in wallet) {
-              wallet.setPreferredBalanceUnit(selectedUnit);
-            } else {
-              (wallet as TWallet).preferredBalanceUnit = selectedUnit;
+        unit={displayUnit}
+        unitSwitching={isUnitSwitching}
+        onWalletBalanceVisibilityChange={async shouldHideBalance => {
+          try {
+            const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
+            if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
+              if (!(await unlockWithBiometrics())) {
+                return;
+              }
             }
+            wallet.hideBalance = shouldHideBalance;
             await saveToDisk();
-            setTimeout(() => {
-              setIsUnitSwitching(false);
-            }, 50);
-          }}
-          unit={displayUnit}
-          unitSwitching={isUnitSwitching}
-          onWalletBalanceVisibilityChange={async shouldHideBalance => {
-            try {
-              const isBiometricsEnabled = await isBiometricUseCapableAndEnabled();
-              if (wallet.hideBalance && !shouldHideBalance && isBiometricsEnabled) {
-                if (!(await unlockWithBiometrics())) {
-                  return;
-                }
-              }
-              wallet.hideBalance = shouldHideBalance;
-              await saveToDisk();
-            } catch (error) {
-              console.error('Failed to toggle balance visibility:', error);
-            }
-          }}
-          onManageFundsPressed={id => {
-            if (wallet.type === MultisigHDWallet.type) {
-              navigateToViewEditCosigners();
-            } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
-              if (wallet.getUserHasSavedExport()) {
-                if (!id) return;
-                onManageFundsPressed(id);
-              } else {
-                presentWalletExportReminder()
-                  .then(async () => {
-                    if (!id) return;
-                    wallet.setUserHasSavedExport(true);
-                    await saveToDisk();
-                    onManageFundsPressed(id);
-                  })
-                  .catch(() => {
-                    navigate('WalletExport', {
-                      walletID,
-                    });
+          } catch (error) {
+            console.error('Failed to toggle balance visibility:', error);
+          }
+        }}
+        onManageFundsPressed={id => {
+          if (wallet.type === MultisigHDWallet.type) {
+            navigateToViewEditCosigners();
+          } else if (wallet.type === LightningCustodianWallet.type || wallet.type === LightningArkWallet.type) {
+            if (wallet.getUserHasSavedExport()) {
+              if (!id) return;
+              onManageFundsPressed(id);
+            } else {
+              presentWalletExportReminder()
+                .then(async () => {
+                  if (!id) return;
+                  wallet.setUserHasSavedExport(true);
+                  await saveToDisk();
+                  onManageFundsPressed(id);
+                })
+                .catch(() => {
+                  navigate('WalletExport', {
+                    walletID,
                   });
-              }
+                });
             }
-          }}
-        />
-        {buyBitcoinVariant === 'list' ? (
-          <View style={[styles.transactionsSection, stylesHook.backgroundContainer]}>
-            <BuyBitcoinButton variant="list" getReceiveAddress={getBuyBitcoinAddress} />
-          </View>
-        ) : null}
-        <View style={[styles.flex, buyBitcoinVariant === 'list' ? null : styles.transactionsSection, stylesHook.backgroundContainer]}>
-          <View style={styles.listHeaderTextRow}>
-            <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
-          </View>
+          }
+        }}
+      />
+      {buyBitcoinVariant === 'list' ? (
+        <View style={[styles.transactionsSection, stylesHook.backgroundContainer]}>
+          <BuyBitcoinButton variant="list" getReceiveAddress={getBuyBitcoinAddress} />
         </View>
-        <View style={stylesHook.backgroundContainer}>
-          {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
-            <WatchOnlyWarning
-              handleDismiss={() => {
-                setIsWatchOnlyWarningVisible(false);
-                wallet.isWatchOnlyWarningVisible = false;
-                saveToDisk();
-              }}
-            />
-          )}
+      ) : null}
+      <View style={[styles.flex, buyBitcoinVariant === 'list' ? null : styles.transactionsSection, stylesHook.backgroundContainer]}>
+        <View style={styles.listHeaderTextRow}>
+          <Text style={[styles.listHeaderText, stylesHook.listHeaderText]}>{loc.transactions.list_title}</Text>
         </View>
       </View>
-    ),
-    [
-      wallet,
-      displayUnit,
-      isUnitSwitching,
-      headerOverlayHeight,
-      stylesHook.backgroundContainer,
-      stylesHook.listHeaderText,
-      saveToDisk,
-      isBiometricUseCapableAndEnabled,
-      navigateToViewEditCosigners,
-      onManageFundsPressed,
-      navigate,
-      walletID,
-      isWatchOnlyWarningVisible,
-      buyBitcoinVariant,
-      getBuyBitcoinAddress,
-    ],
+      <View style={stylesHook.backgroundContainer}>
+        {wallet.type === WatchOnlyWallet.type && isWatchOnlyWarningVisible && (
+          <WatchOnlyWarning
+            handleDismiss={() => {
+              setIsWatchOnlyWarningVisible(false);
+              wallet.isWatchOnlyWarningVisible = false;
+              saveToDisk();
+            }}
+          />
+        )}
+      </View>
+    </View>
   );
 
   useEffect(() => {
@@ -910,7 +867,7 @@ const WalletTransactions: React.FC<WalletTransactionsProps> = ({ route }: { rout
         onScroll={handleScroll}
         windowSize={15}
         scrollEventThrottle={16}
-        ListHeaderComponent={ListHeaderComponent}
+        ListHeaderComponent={listHeader}
         ListEmptyComponent={
           buyBitcoinVariant === 'empty' ? (
             <View style={stylesHook.emptyBuyState}>
