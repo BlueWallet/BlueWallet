@@ -29,6 +29,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -42,7 +43,8 @@
    "changeSats": 89692,
    "feeSats": 308,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -80,6 +82,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -93,7 +96,8 @@
    "changeSats": 89692,
    "feeSats": 308,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -126,6 +130,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -139,7 +144,10 @@
    "changeSats": 9692,
    "feeSats": 308,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -172,6 +180,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -185,7 +194,11 @@
    "changeSats": 1199692,
    "feeSats": 308,
    "uihClean": false,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "unnecessaryInput",
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -218,6 +231,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -231,7 +245,8 @@
    "changeSats": 0,
    "feeSats": 408,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -264,6 +279,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -277,7 +293,8 @@
    "changeSats": 89999,
    "feeSats": 309,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -316,6 +333,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     2,
@@ -331,7 +349,8 @@
    "changeSats": 147086,
    "feeSats": 814,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -367,6 +386,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -383,7 +403,8 @@
    "changeSats": 147798,
    "feeSats": 802,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -441,6 +462,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -454,7 +476,8 @@
    "changeSats": 41384,
    "feeSats": 616,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -487,6 +510,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -500,7 +524,11 @@
    "changeSats": 898793,
    "feeSats": 616,
    "uihClean": false,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "unnecessaryInput",
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -533,6 +561,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "error": "amountBelowDust"
   }
@@ -567,6 +596,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "error": "outputBelowDust"
   }
@@ -596,6 +626,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "error": "notEnoughSwappedCoins"
   }
@@ -630,6 +661,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "error": "noSenderCoin"
   }
@@ -664,6 +696,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "error": "insufficientFunds"
   }
@@ -703,6 +736,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -716,7 +750,8 @@
    "changeSats": 0,
    "feeSats": 400,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -754,6 +789,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -767,7 +803,8 @@
    "changeSats": 0,
    "feeSats": 400,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -800,6 +837,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -813,7 +851,10 @@
    "changeSats": 89691,
    "feeSats": 308,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeBesideEqualOutputs"
+   ]
   }
  },
  {
@@ -852,6 +893,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     2,
@@ -867,7 +909,10 @@
    "changeSats": 147086,
    "feeSats": 814,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeBesideEqualOutputs"
+   ]
   }
  },
  {
@@ -900,8 +945,207 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": false,
   "expected": {
    "error": "outputBelowDust"
+  }
+ },
+ {
+  "name": "equal inputs reach every swapped coin",
+  "seed": "1515151515151515151515151515151515151515151515151515151515151515",
+  "coins": [
+   {
+    "valueSats": 60000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 61000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 62000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 63000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 64000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ec"
+   },
+   {
+    "valueSats": 65000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ed"
+   },
+   {
+    "valueSats": 66000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ee"
+   },
+   {
+    "valueSats": 130000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ef"
+   },
+   {
+    "valueSats": 135000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003f0"
+   },
+   {
+    "valueSats": 140000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003f1"
+   },
+   {
+    "valueSats": 90000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003f2"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "equalInputs": true,
+  "expected": {
+   "inputs": [
+    7,
+    8,
+    9
+   ],
+   "payments": [
+    206753,
+    93247
+   ],
+   "changeSats": 104692,
+   "feeSats": 308,
+   "uihClean": true,
+   "changeHidden": true,
+   "warnings": []
+  }
+ },
+ {
+  "name": "no choice of coins has equal inputs",
+  "seed": "1616161616161616161616161616161616161616161616161616161616161616",
+  "coins": [
+   {
+    "valueSats": 120000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 130000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 140000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ea"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": false,
+  "equalInputs": true,
+  "expected": {
+   "inputs": [
+    0,
+    1,
+    2
+   ],
+   "payments": [
+    197434,
+    102566
+   ],
+   "changeSats": 89692,
+   "feeSats": 308,
+   "uihClean": true,
+   "changeHidden": true,
+   "warnings": [
+    "unequalInputs"
+   ]
+  }
+ },
+ {
+  "name": "equal inputs and equal outputs",
+  "seed": "1717171717171717171717171717171717171717171717171717171717171717",
+  "coins": [
+   {
+    "valueSats": 131000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e8"
+   },
+   {
+    "valueSats": 133000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003e9"
+   },
+   {
+    "valueSats": 137000,
+    "isSwapped": true,
+    "spk": "001400000000000000000000000000000000000003ea"
+   },
+   {
+    "valueSats": 139000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003eb"
+   },
+   {
+    "valueSats": 400000,
+    "isSwapped": false,
+    "spk": "001400000000000000000000000000000000000003ec"
+   }
+  ],
+  "paymentSats": 300000,
+  "outputs": [
+   "00140000000000000000000000000000000000000001",
+   "00140000000000000000000000000000000000000002"
+  ],
+  "numInputs": 3,
+  "numOutputs": 2,
+  "feeRate": 1,
+  "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
+  "equalOutputs": true,
+  "equalInputs": true,
+  "expected": {
+   "inputs": [
+    0,
+    2,
+    3
+   ],
+   "payments": [
+    150000,
+    150000
+   ],
+   "changeSats": 106692,
+   "feeSats": 308,
+   "uihClean": true,
+   "changeHidden": false,
+   "warnings": [
+    "changeBesideEqualOutputs"
+   ]
   }
  },
  {
@@ -945,6 +1189,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     2,
@@ -959,7 +1204,10 @@
    "changeSats": 461115,
    "feeSats": 339,
    "uihClean": false,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": [
+    "unnecessaryInput"
+   ]
   }
  },
  {
@@ -1008,6 +1256,7 @@
   "feeRate": 2.5,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     2,
@@ -1022,7 +1271,10 @@
    "changeSats": 878158,
    "feeSats": 848,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -1070,6 +1322,7 @@
   "feeRate": 11,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     1,
@@ -1083,7 +1336,8 @@
    "changeSats": 17108933,
    "feeSats": 3388,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -1131,6 +1385,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": true,
   "expected": {
    "inputs": [
     0,
@@ -1145,7 +1400,11 @@
    "changeSats": 155671905,
    "feeSats": 376,
    "uihClean": false,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": [
+    "unequalInputs",
+    "unnecessaryInput"
+   ]
   }
  },
  {
@@ -1195,6 +1454,7 @@
   "feeRate": 2.5,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -1211,7 +1471,10 @@
    "changeSats": 59908,
    "feeSats": 1095,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeBesideEqualOutputs"
+   ]
   }
  },
  {
@@ -1265,6 +1528,7 @@
   "feeRate": 11,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     1,
@@ -1279,7 +1543,8 @@
    "changeSats": 184740,
    "feeSats": 3729,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -1323,6 +1588,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     2,
@@ -1337,7 +1603,10 @@
    "changeSats": 145121,
    "feeSats": 678,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -1375,6 +1644,7 @@
   "feeRate": 11,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": true,
   "expected": {
    "inputs": [
     0,
@@ -1388,7 +1658,11 @@
    "changeSats": 102449,
    "feeSats": 3388,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "unequalInputs",
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -1446,6 +1720,7 @@
   "feeRate": 11,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     5,
@@ -1461,7 +1736,8 @@
    "changeSats": 0,
    "feeSats": 4775,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -1516,6 +1792,7 @@
   "feeRate": 2.5,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -1531,7 +1808,10 @@
    "changeSats": 180435,
    "feeSats": 925,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeBesideEqualOutputs"
+   ]
   }
  },
  {
@@ -1580,6 +1860,7 @@
   "feeRate": 11,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     3,
@@ -1595,7 +1876,10 @@
    "changeSats": 112166,
    "feeSats": 4477,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -1643,6 +1927,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": true,
   "expected": {
    "inputs": [
     3,
@@ -1656,7 +1941,11 @@
    "changeSats": 10614,
    "feeSats": 308,
    "uihClean": false,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": [
+    "unequalInputs",
+    "unnecessaryInput"
+   ]
   }
  },
  {
@@ -1701,6 +1990,7 @@
   "feeRate": 2.5,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     2,
@@ -1718,7 +2008,10 @@
    "changeSats": 6578728,
    "feeSats": 1265,
    "uihClean": false,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": [
+    "unnecessaryInput"
+   ]
   }
  },
  {
@@ -1766,6 +2059,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     3,
@@ -1780,7 +2074,10 @@
    "changeSats": 203078,
    "feeSats": 376,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -1845,6 +2142,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     4,
@@ -1862,7 +2160,11 @@
    "changeSats": 35670003,
    "feeSats": 1012,
    "uihClean": false,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "unnecessaryInput",
+    "changeBesideEqualOutputs"
+   ]
   }
  },
  {
@@ -1900,6 +2202,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": true,
   "expected": {
    "inputs": [
     0,
@@ -1913,7 +2216,11 @@
    "changeSats": 1778,
    "feeSats": 616,
    "uihClean": false,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": [
+    "unequalInputs",
+    "unnecessaryInput"
+   ]
   }
  },
  {
@@ -1971,6 +2278,7 @@
   "feeRate": 2.5,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     1,
@@ -1984,7 +2292,8 @@
    "changeSats": 52846310,
    "feeSats": 770,
    "uihClean": true,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": []
   }
  },
  {
@@ -2037,6 +2346,7 @@
   "feeRate": 11,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -2050,7 +2360,10 @@
    "changeSats": 324442,
    "feeSats": 3388,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -2084,6 +2397,7 @@
   "feeRate": 11,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     1,
@@ -2098,7 +2412,10 @@
    "changeSats": 498003,
    "feeSats": 3729,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -2151,6 +2468,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": true,
   "expected": {
    "inputs": [
     2,
@@ -2164,7 +2482,11 @@
    "changeSats": 44636756,
    "feeSats": 616,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "unequalInputs",
+    "changeBesideEqualOutputs"
+   ]
   }
  },
  {
@@ -2229,6 +2551,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     1,
@@ -2246,7 +2569,10 @@
    "changeSats": 78608,
    "feeSats": 1012,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -2290,6 +2616,7 @@
   "feeRate": 2,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     1,
@@ -2305,7 +2632,10 @@
    "changeSats": 221136,
    "feeSats": 814,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -2353,6 +2683,7 @@
   "feeRate": 2.5,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     0,
@@ -2367,7 +2698,10 @@
    "changeSats": 4317,
    "feeSats": 940,
    "uihClean": true,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "changeIdentifiable"
+   ]
   }
  },
  {
@@ -2420,6 +2754,7 @@
   "feeRate": 2.5,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": false,
+  "equalInputs": true,
   "expected": {
    "inputs": [
     3,
@@ -2435,7 +2770,11 @@
    "changeSats": 77083608,
    "feeSats": 1110,
    "uihClean": false,
-   "changeHidden": true
+   "changeHidden": true,
+   "warnings": [
+    "unequalInputs",
+    "unnecessaryInput"
+   ]
   }
  },
  {
@@ -2490,6 +2829,7 @@
   "feeRate": 1,
   "changeSpk": "0014cccccccccccccccccccccccccccccccccccccccc",
   "equalOutputs": true,
+  "equalInputs": false,
   "expected": {
    "inputs": [
     4,
@@ -2506,7 +2846,11 @@
    "changeSats": 581893,
    "feeSats": 438,
    "uihClean": false,
-   "changeHidden": false
+   "changeHidden": false,
+   "warnings": [
+    "unnecessaryInput",
+    "changeBesideEqualOutputs"
+   ]
   }
  }
 ]

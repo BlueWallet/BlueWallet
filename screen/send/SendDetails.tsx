@@ -739,6 +739,7 @@ const SendDetails = () => {
 
       if (plan.warnings.length > 0) {
         const warningTexts: Record<OctojoinWarning, string> = {
+          unequalInputs: loc.send.octojoin_warning_unequal_inputs,
           unnecessaryInput: loc.send.octojoin_warning_unnecessary_input,
           changeIdentifiable: loc.send.octojoin_warning_change,
           changeBesideEqualOutputs: loc.send.octojoin_warning_equal_change,

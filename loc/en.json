@@ -144,6 +144,7 @@
     "octojoin_outputs": "Outputs (min 2)",
     "octojoin_not_enough_addresses": "Enter at least 2 comma-separated addresses, or a single silent payment address.",
     "octojoin_outputs_mismatch": "Number of outputs must match the number of addresses entered.",
+    "octojoin_warning_unequal_inputs": "No choice of coins has inputs within 10% of each other in value.",
     "octojoin_warning_unnecessary_input": "No choice of coins avoids an unnecessary input. The change is larger than one of the inputs, which tells an observer that this is not a simple payment.",
     "octojoin_warning_change": "No choice of coins gives change that blends in with the payment outputs, so an observer could tell the change apart.",
     "octojoin_warning_equal_change": "No choice of coins avoids change. Next to payment outputs of equal value, the change is the one output with a different value.",

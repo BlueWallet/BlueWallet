@@ -8,6 +8,7 @@ import {
   CHANGE_IDENTIFIABLE,
   equalSplit,
   estimateOctojoinFee,
+  inputsNearEqual,
   isOctojoinMemo,
   isRound,
   OctojoinRandomness,
@@ -16,6 +17,7 @@ import {
   smallestSplittable,
   splitAmount,
   splitRange,
+  UNEQUAL_INPUTS,
   UNNECESSARY_INPUT,
 } from '../../class/octojoin';
 import { HDSegwitBech32Wallet } from '../../class/wallets/hd-segwit-bech32-wallet';
@@ -147,6 +149,23 @@ describe('Octojoin planning', () => {
     assert.deepStrictEqual(ranks, new Set([0, 1]), 'the change is not always in the same place');
   });
 
+  it('prefers inputs of near-equal value with equal inputs, looking at every swapped coin', () => {
+    assert.ok(inputsNearEqual([100000, 110000, 105000]));
+    assert.ok(!inputsNearEqual([100000, 110001]));
+    const small = [60000, 61000, 62000, 63000, 64000, 65000, 66000].map(v => coin(v, true));
+    const utxos = [...small, coin(130000, true), coin(135000, true), coin(140000, false), coin(90000, false)];
+    for (let seed = 0; seed < 20; seed++) {
+      const p = plan(utxos, 300000, { rng: rng(`s${seed}`), equalInputs: true });
+      assert.deepStrictEqual(
+        p.inputs.map(u => u.value).sort((a, b) => a - b),
+        [130000, 135000, 140000],
+      );
+      assert.deepStrictEqual(p.warnings, []);
+    }
+    const unequal = plan([coin(120000, true), coin(130000, true), coin(140000, false)], 300000, { equalInputs: true });
+    assert.deepStrictEqual(unequal.warnings, [UNEQUAL_INPUTS]);
+  });
+
   it('warns about what an observer could notice', () => {
     const large = plan([coin(500000, true), coin(500000, true), coin(500000, false)], 300000);
     assert.ok(large.warnings.includes(UNNECESSARY_INPUT));
@@ -218,6 +237,7 @@ describe('Octojoin planning', () => {
           dust: 294,
           rng: new OctojoinRandomness(Buffer.from(v.seed, 'hex')),
           equalOutputs: v.equalOutputs,
+          equalInputs: v.equalInputs,
         });
       if (v.expected.error) {
         assert.throws(run, errors[v.expected.error], v.name);
@@ -232,6 +252,7 @@ describe('Octojoin planning', () => {
           feeSats: p.fee,
           uihClean: p.uihClean,
           changeHidden: p.changeHidden,
+          warnings: p.warnings,
         },
         v.expected,
         v.name,

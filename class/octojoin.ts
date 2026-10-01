@@ -6,13 +6,19 @@ export const OCTOJOIN_MIN_INPUTS = 3;
 export const OCTOJOIN_MIN_OUTPUTS = 2;
 
 export const OCTOJOIN_ROUND_UNIT = 1000;
+export const OCTOJOIN_EQUAL_INPUTS_PERCENT = 10;
 const SPLIT_ATTEMPTS = 10000;
 const MAX_SELECTIONS = 200000;
 
+export const UNEQUAL_INPUTS = 'unequalInputs';
 export const UNNECESSARY_INPUT = 'unnecessaryInput';
 export const CHANGE_IDENTIFIABLE = 'changeIdentifiable';
 export const CHANGE_BESIDE_EQUAL_OUTPUTS = 'changeBesideEqualOutputs';
-export type OctojoinWarning = typeof UNNECESSARY_INPUT | typeof CHANGE_IDENTIFIABLE | typeof CHANGE_BESIDE_EQUAL_OUTPUTS;
+export type OctojoinWarning =
+  | typeof UNEQUAL_INPUTS
+  | typeof UNNECESSARY_INPUT
+  | typeof CHANGE_IDENTIFIABLE
+  | typeof CHANGE_BESIDE_EQUAL_OUTPUTS;
 
 export function isOctojoinMemo(memo?: string | null): boolean {
   return !!memo && memo.toLowerCase().includes('octojoin');
@@ -53,6 +59,10 @@ export class OctojoinRandomness {
 
 export function isRound(value: number): boolean {
   return value % OCTOJOIN_ROUND_UNIT === 0;
+}
+
+export function inputsNearEqual(values: number[]): boolean {
+  return Math.max(...values) * 100 <= Math.min(...values) * (100 + OCTOJOIN_EQUAL_INPUTS_PERCENT);
 }
 
 function divFloor(a: number, b: number): number {
@@ -183,8 +193,9 @@ function countCombinations(n: number, k: number): number {
 // should be smaller than the smallest input, otherwise an input could be dropped
 // while the payment is still funded, the unnecessary input heuristic. No change is
 // best. Otherwise it should lie in the split range, so that it looks like one of
-// the payment outputs, which change next to equal outputs never does. Pick at
-// random among the selections that do best.
+// the payment outputs, which change next to equal outputs never does. With equal
+// inputs, inputs of near-equal value come before all of that, and every swapped
+// coin is a candidate. Pick at random among the selections that do best.
 export function selectOctojoinUtxos<T extends OctojoinSelectableUtxo>(params: {
   utxos: T[];
   numInputs: number;
@@ -194,8 +205,9 @@ export function selectOctojoinUtxos<T extends OctojoinSelectableUtxo>(params: {
   split: [number, number];
   rng: OctojoinRandomness;
   equalOutputs?: boolean;
+  equalInputs?: boolean;
 }): OctojoinSelection<T> {
-  const { utxos, numInputs, paymentSats, numPaymentOutputs, sizes, split, rng, equalOutputs = false } = params;
+  const { utxos, numInputs, paymentSats, numPaymentOutputs, sizes, split, rng, equalOutputs = false, equalInputs = false } = params;
   const swappedUtxos = utxos.filter(u => u.isOctojoin);
   const otherUtxos = utxos.filter(u => !u.isOctojoin);
 
@@ -210,7 +222,7 @@ export function selectOctojoinUtxos<T extends OctojoinSelectableUtxo>(params: {
 
   const senders = [...otherUtxos].sort((a, b) => a.value - b.value);
   let pool = [...swappedUtxos].sort((a, b) => a.value - b.value);
-  let extra = 6;
+  let extra = equalInputs ? pool.length - requiredSwapped : 6;
   while (extra && countCombinations(Math.min(pool.length, requiredSwapped + extra), requiredSwapped) * senders.length > MAX_SELECTIONS) {
     extra -= 1;
   }
@@ -229,7 +241,8 @@ export function selectOctojoinUtxos<T extends OctojoinSelectableUtxo>(params: {
       const minInput = Math.min(...all.map(u => u.value));
       const unnecessary = change >= minInput;
       const standsOut = change > 0 && (equalOutputs || !(lo <= change && change <= hi));
-      const rank = (unnecessary ? 4 : 0) + (standsOut ? 2 : 0) + (change > 0 ? 1 : 0);
+      const unequal = equalInputs && !inputsNearEqual(all.map(u => u.value));
+      const rank = (unequal ? 8 : 0) + (unnecessary ? 4 : 0) + (standsOut ? 2 : 0) + (change > 0 ? 1 : 0);
       const selection = { swapped: combo, other: [sender], all, totalValue, change, fee };
       if (bestRank === null || rank < bestRank) {
         bestRank = rank;
@@ -263,6 +276,7 @@ export interface OctojoinPlan<T> {
   uihClean: boolean;
   changeHidden: boolean;
   equalOutputs: boolean;
+  equalInputs: boolean;
   warnings: OctojoinWarning[];
 }
 
@@ -279,8 +293,9 @@ export function planOctojoin<T extends OctojoinSelectableUtxo>(params: {
   dust?: number;
   rng: OctojoinRandomness;
   equalOutputs?: boolean;
+  equalInputs?: boolean;
 }): OctojoinPlan<T> {
-  const { utxos, paymentSats, addresses, isSilentPayment, numInputs, feeRate, rng, equalOutputs = false } = params;
+  const { utxos, paymentSats, addresses, isSilentPayment, numInputs, feeRate, rng, equalOutputs = false, equalInputs = false } = params;
   const { inputVbytes = 68, outputVbytes = 34, dust = OCTOJOIN_DUST_THRESHOLD } = params;
   const numOutputs = isSilentPayment ? (params.numOutputs ?? OCTOJOIN_MIN_OUTPUTS) : addresses.length;
 
@@ -304,6 +319,7 @@ export function planOctojoin<T extends OctojoinSelectableUtxo>(params: {
     split,
     rng,
     equalOutputs,
+    equalInputs,
   });
 
   const { change } = selection;
@@ -326,6 +342,7 @@ export function planOctojoin<T extends OctojoinSelectableUtxo>(params: {
 
   const uihClean = change < minInput;
   const warnings: OctojoinWarning[] = [];
+  if (equalInputs && !inputsNearEqual(selection.all.map(u => u.value))) warnings.push(UNEQUAL_INPUTS);
   if (!uihClean) warnings.push(UNNECESSARY_INPUT);
   if (!changeHidden) warnings.push(equalOutputs ? CHANGE_BESIDE_EQUAL_OUTPUTS : CHANGE_IDENTIFIABLE);
 
@@ -338,6 +355,7 @@ export function planOctojoin<T extends OctojoinSelectableUtxo>(params: {
     uihClean,
     changeHidden,
     equalOutputs,
+    equalInputs,
     warnings,
   };
 }
